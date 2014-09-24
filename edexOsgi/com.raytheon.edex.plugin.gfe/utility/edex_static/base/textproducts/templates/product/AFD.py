@@ -1088,6 +1088,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('SU.W', allActions, 'HighSurf'),     # HIGH SURF WARNING
             ('SU.Y', allActions, 'HighSurf1'),     # HIGH SURF ADVISORY
             ('RP.S', allActions, 'Rip'),           # HIGH RIP CURRENT RISK
+            ('BH.S', allActions, 'BeachHaz'),      # BEACH HAZARDS STATEMENT
             ('AF.W', allActions, 'Ashfall2'),      # VOLCANIC ASHFALL WARNING
             ('AF.Y', allActions, 'Ashfall'),      # VOLCANIC ASHFALL ADVISORY
             ('TS.W', allActions, 'Tsunami'),      # TSUNAMI WARNING
