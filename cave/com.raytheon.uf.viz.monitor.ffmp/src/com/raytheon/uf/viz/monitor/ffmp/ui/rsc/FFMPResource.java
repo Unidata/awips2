@@ -196,6 +196,7 @@ import com.vividsolutions.jts.geom.Point;
  * Aug 13, 2014 3492        mapeters    Updated deprecated createWireframeShape() calls.
  * Aug 14, 2014 3523        mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                      assignments.
+ * Sep 23, 2014 3009        njensen     Overrode recycleInternal()
  * </pre>
  * 
  * @author dhladky
@@ -1110,19 +1111,6 @@ public class FFMPResource extends
 
     @Override
     protected void disposeInternal() {
-        IDisplayPaneContainer container = getResourceContainer();
-        if (container != null) {
-            container.unregisterMouseHandler(inspectAdapter);
-        }
-
-        if (font != null) {
-            font.dispose();
-        }
-
-        if (xfont != null) {
-            xfont.dispose();
-        }
-
         if (this.getName().indexOf("Table Display") > -1) {
             if (basinTableDlg != null) {
                 closeDialog();
@@ -1135,25 +1123,7 @@ public class FFMPResource extends
             }
         }
 
-        // dispose of shapes
-        if (smallBasinOverlayShape != null) {
-            smallBasinOverlayShape.dispose();
-        }
-        if (streamShadedShape != null) {
-            streamShadedShape.dispose();
-        }
-        if (streamOutlineShape != null) {
-            streamOutlineShape.dispose();
-        }
-        shadedShapes.dispose();
-
-        // clear takes care of the drawables
-        clear();
         resetRecords();
-        for (PixelCoverage px : vgbDrawables.values()) {
-            px.dispose();
-        }
-        vgbDrawables.clear();
 
         if (monitor.getResourceListenerList().size() == 1) {
             // free up the monitor which holds most of the memory
@@ -1163,6 +1133,52 @@ public class FFMPResource extends
         } else {
             monitor.removeResourceListener(this);
         }
+
+        recycleInternal();
+    }
+
+    /**
+     * Removes the mouse adapter and disposes of all the graphics objects.
+     */
+    @Override
+    protected void recycleInternal() {
+        IDisplayPaneContainer container = getResourceContainer();
+        if (container != null) {
+            container.unregisterMouseHandler(inspectAdapter);
+        }
+
+        if (font != null) {
+            font.dispose();
+            font = null;
+        }
+
+        if (xfont != null) {
+            xfont.dispose();
+            xfont = null;
+        }
+
+        // dispose of shapes
+        if (smallBasinOverlayShape != null) {
+            smallBasinOverlayShape.dispose();
+            smallBasinOverlayShape = null;
+        }
+        if (streamShadedShape != null) {
+            streamShadedShape.dispose();
+            streamShadedShape = null;
+        }
+        if (streamOutlineShape != null) {
+            streamOutlineShape.dispose();
+            streamOutlineShape = null;
+        }
+        shadedShapes.dispose();
+
+        // clear takes care of the drawables
+        clear();
+
+        for (PixelCoverage px : vgbDrawables.values()) {
+            px.dispose();
+        }
+        vgbDrawables.clear();
 
     }
 
@@ -1552,7 +1568,7 @@ public class FFMPResource extends
     public void project(CoordinateReferenceSystem mapData) throws VizException {
 
         if (shadedShapes != null) {
-            shadedShapes.clear();
+            shadedShapes.dispose();
         }
 
         if (streamShadedShape != null) {

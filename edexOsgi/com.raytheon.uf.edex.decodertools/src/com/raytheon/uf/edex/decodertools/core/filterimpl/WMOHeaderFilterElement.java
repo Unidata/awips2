@@ -20,7 +20,6 @@
 package com.raytheon.uf.edex.decodertools.core.filterimpl;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2011 11312      jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Sep 19, 2014 3627       mapeters    Removed unused methods.
  * 
  * </pre>
  * 
@@ -84,30 +84,12 @@ public class WMOHeaderFilterElement extends AbstractFilterElement implements
     }
 
     /**
+     * Executes this filter element against the supplied report data. The
+     * supplied report is returned if it matches the filter criteria. A null
+     * report reference is returned if the report fails.
      * 
-     * @param pattern
-     */
-    public void addPattern(Pattern pattern) {
-        if (patterns == null) {
-            patterns = new ArrayList<Pattern>();
-        }
-        patterns.add(pattern);
-    }
-
-    /**
-     * 
-     * @param pattern
-     */
-    public void addPattern(String pattern) {
-        if (pattern != null) {
-            addPattern(Pattern.compile(pattern));
-        }
-    }
-
-    /**
-     * This execute
-     * 
-     * @see com.raytheon.uf.edex.decodertools.core.IObsFilterElement#filter(com.raytheon.uf.common.dataplugin.PluginDataObject)
+     * @param report
+     * @return may be null
      */
     @Override
     public PluginDataObject filter(PluginDataObject report) {

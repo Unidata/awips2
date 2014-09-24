@@ -59,6 +59,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Apr 14, 2014 #3023      rferrel      Code clean up.
  * Apr 24, 2014 #3045      rferrel      Implement loadedAllDsipalyData.
  * May 28, 2014 #3171      rferrel      Change retention labels.
+ * Aug 26, 2014 #3553      rferrel      No longer need to override loadedAllDisplayData.
+ * Sep 17, 2014 #3609      rferrel      Corrected spelling.
  * 
  * </pre>
  * 
@@ -167,7 +169,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
         gd = new GridData();
         gd.horizontalIndent = 20;
         Label minRetentionLbl = new Label(selectionComp, SWT.NONE);
-        String tooltip = "Default retetion for all of\nthe Archive's Categories.";
+        String tooltip = "Default retention for all of\nthe Archive's Categories.";
         minRetentionLbl.setText("Default Retention:");
         minRetentionLbl.setToolTipText(tooltip);
         minRetentionLbl.setLayoutData(gd);
@@ -422,10 +424,5 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
         super.preOpened();
         archiveComboSelection();
         categoryComboSelection();
-    }
-
-    @Override
-    public void loadedAllDisplayData() {
-        // nothing to update.
     }
 }
