@@ -517,6 +517,12 @@
 		<versionsToKeep>24</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
+	<!-- Purge rule for AK-RTMA-3KM analysis -->
+	<rule>
+		<keyValue>AK-RTMA3</keyValue>
+		<versionsToKeep>24</versionsToKeep>
+		<modTimeToWait>00-00:15:00</modTimeToWait>
+	</rule>
 	<!-- Purge rule for the SREF (SREF212) model -->
 	<rule>
 		<keyValue>SREF212</keyValue>

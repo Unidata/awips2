@@ -19,9 +19,7 @@
  **/
 package com.raytheon.uf.edex.decodertools.aircraft;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +34,7 @@ import java.util.regex.Pattern;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 10, 2011            jkorman     Initial creation
+ * Sep 18, 2014 3627       mapeters    Removed unused isRegEx().
  * 
  * </pre>
  * 
@@ -64,8 +63,7 @@ public class WordTranslator {
             regex.put(Pattern.compile(word), translatedWord);
         }
         
-        words.put(word, new Entry(word, translatedWord, isRegEx, firstId,
-                secondId));
+        words.put(word, new Entry(translatedWord, firstId, secondId));
     }
 
     /**
@@ -86,16 +84,6 @@ public class WordTranslator {
             }
         }
         return e;
-    }
-
-    /**
-     * 
-     * @param word
-     * @return
-     */
-    public Boolean isRegEx(String word) {
-        Entry entry = words.get(word);
-        return (entry != null) ? entry.isRegEx() : null;
     }
 
     /**
