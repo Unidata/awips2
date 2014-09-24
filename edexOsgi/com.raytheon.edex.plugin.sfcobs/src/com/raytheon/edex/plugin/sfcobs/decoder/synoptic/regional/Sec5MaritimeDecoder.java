@@ -26,12 +26,16 @@ import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_L
 import java.util.Arrays;
 import java.util.Calendar;
 
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticSec5Decoder;
 import com.raytheon.uf.common.dataplugin.sfcobs.InterWinds;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.core.ReportParser;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
@@ -51,6 +55,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
+ * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter},
+ *                                     updated deprecated {@link TimeTools} usage.
  * 
  * </pre>
  * 
@@ -58,6 +64,10 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * @version 1.0
  */
 public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
+
+    private static final UnitConverter knotsToMSec = NonSI.KNOT
+            .getConverterTo(SI.METERS_PER_SECOND);
+
     private static final int NUM_WINDS = 6;
 
     private Double wind10mSpeed = null;
@@ -230,14 +240,14 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
             if (wind10mSpeed > -9999.0) {
                 wSpeed = wind10mSpeed;
                 if (inKnots) {
-                    wSpeed = DecoderTools.knotsToMSec(wSpeed);
+                    wSpeed = knotsToMSec.convert(wSpeed);
                 }
                 receiver.setWind10mSpeed(wSpeed);
             }
             if (wind20mSpeed > -9999.0) {
                 wSpeed = wind20mSpeed;
                 if (inKnots) {
-                    wSpeed = DecoderTools.knotsToMSec(wSpeed);
+                    wSpeed = knotsToMSec.convert(wSpeed);
                 }
                 receiver.setWind20mSpeed(wSpeed);
             }
@@ -265,7 +275,7 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
                 wSpeed = pkWindSpeed;
                 if (wSpeed > -9999) {
                     if (inKnots) {
-                        wSpeed = DecoderTools.knotsToMSec(wSpeed);
+                        wSpeed = knotsToMSec.convert(wSpeed);
                     }
                 }
                 receiver.setPeakWindSpeed(wSpeed);
@@ -298,7 +308,7 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
                             wSpeed = windSpeeds[i];
                             if (wSpeed >= 0) {
                                 if (inKnots) {
-                                    wSpeed = DecoderTools.knotsToMSec(wSpeed);
+                                    wSpeed = knotsToMSec.convert(wSpeed);
                                 }
                             }
                             wind.setWindSpeed(wSpeed);
@@ -311,7 +321,7 @@ public class Sec5MaritimeDecoder extends SynopticSec5Decoder {
                         }
                         // Now set the time/type if there was data.
                         if (wind != null) {
-                            wind.setObsTime(TimeTools.copy(newT));
+                            wind.setObsTime(TimeUtil.newCalendar(newT));
                             receiver.addInterWind(wind);
                         }
                         // adjust the time back ten minutes
