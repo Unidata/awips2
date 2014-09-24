@@ -416,6 +416,7 @@
 				<entry displayValue='20' pixelValue='200' />
 				<entry displayValue='40' pixelValue='227' />
 				<entry displayValue='60' pixelValue='245' />
+				<entry displayValue='80' pixelValue='254' label="" />
 			</dataMapping>
 		</imageStyle>
 	</styleRule>

@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial release.
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
+ * Sep 18, 2014   3627     mapeters    Removed unused field.
  * 
  * </pre>
  * 
@@ -61,8 +62,6 @@ public class AWIPSCommonObsSQLGenerator implements INationalDatasetSubscriber {
     private static final String FILE_NAME_SUFFIX = ".sql";
 
     public static final int FILE_SIZE_LIMIT = 4000;
-
-    public static final String RAOB = "RAOB";
 
     public static final String SYNOPTIC = "SYNOPTIC";
 

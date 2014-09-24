@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.ui.personalities.awips;
 
+
 /**
  * This is the default component for CAVE that is the standard workbench with
  * all the perspectives.
@@ -31,6 +32,7 @@ package com.raytheon.viz.ui.personalities.awips;
  * Aug 09, 2010            mschenke    Initial creation
  * Jul 01, 2013  2139      jsanchez    Loaded map tree at cave start up.
  * Oct 22, 2013  2361      njensen     Undid 2139 fix since 2158 fixes it more efficiently
+ * Aug 29, 2014  3500      bclement    added postStartupActions()
  * 
  * </pre>
  * 
