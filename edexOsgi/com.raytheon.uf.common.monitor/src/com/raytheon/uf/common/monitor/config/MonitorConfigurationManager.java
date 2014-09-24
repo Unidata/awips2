@@ -57,6 +57,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 02 2013  2361      njensen    Use JAXBManager for XML
  * Oct 17 2013  16682     zhao       fixed a bug in readConfigXml()
  * Apr 23 2014  3054      skorolev   Removed unnecessary parameter in the addArea method.
+ * Sep 24 2014  2757      skorolev   Fixed problem with adding and removing zones.
  * 
  * </pre>
  * 
@@ -706,4 +707,44 @@ public abstract class MonitorConfigurationManager {
         }
         return result;
     }
+
+    /**
+     * Remove Adjacent Area.
+     * 
+     * @param zone
+     */
+    public void removeAdjArea(String zone) {
+        List<AreaIdXML> adjAreaList = adjAreaConfigXml.getAreaIds();
+        for (int i = 0; i < adjAreaList.size(); i++) {
+            if (adjAreaList.get(i).getAreaId().equals(zone)) {
+                adjAreaList.remove(i);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Add Adjacent Area.
+     * 
+     * @param areaId
+     * @param type
+     */
+    public void addAdjArea(String areaId, ZoneType type) {
+        List<AreaIdXML> adjAreaList = adjAreaConfigXml.getAreaIds();
+        boolean areaExists = false;
+        for (AreaIdXML area : adjAreaList) {
+            if (area.getAreaId().equals(areaId)) {
+                area.setType(type);
+                areaExists = true;
+                break;
+            }
+        }
+        if (areaExists == false) {
+            AreaIdXML area = new AreaIdXML();
+            area.setAreaId(areaId);
+            area.setType(type);
+            adjAreaConfigXml.addAreaId(area);
+        }
+    }
+
 }
