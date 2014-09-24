@@ -22,8 +22,6 @@ package com.raytheon.uf.edex.decodertools.core.filterimpl;
 import static com.raytheon.uf.common.localization.LocalizationContext.LocalizationType.EDEX_STATIC;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -58,6 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Sep 09, 2014  3548     mapeters    Improved constructor's error messages.
  * Sep 11, 2014  3548     mapeters    Replaced use of SerializationUtil
  *                                    with JAXBManager.
+ * Sep 18, 2014  3627     mapeters    Removed unused getInputStream().
  * 
  * </pre>
  * 
@@ -200,22 +199,6 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         };
         dummy.setFilterType(AbstractObsFilter.INCLUDE_TYPE);
         addFilterElement(dummy);
-    }
-
-    /**
-     * 
-     * @param file
-     * @return
-     */
-    private static FileInputStream getInputStream(File file) {
-        FileInputStream fis = null;
-
-        try {
-            fis = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return fis;
     }
 
     private static class TestObject extends PluginDataObject implements
