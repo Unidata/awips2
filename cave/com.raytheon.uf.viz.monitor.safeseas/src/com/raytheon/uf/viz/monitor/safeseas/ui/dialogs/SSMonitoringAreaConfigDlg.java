@@ -107,6 +107,8 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                         });
                         ssMonitorDlg.open();
                     }
+                    configManager.getAddedZones().clear();
+                    configManager.getAddedStations().clear();
                 }
             }
         }
