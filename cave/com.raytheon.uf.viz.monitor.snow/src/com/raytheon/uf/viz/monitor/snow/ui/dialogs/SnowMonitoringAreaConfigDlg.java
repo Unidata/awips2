@@ -109,6 +109,8 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                         });
                         snowMonitorDlg.open();
                     }
+                    configManager.getAddedZones().clear();
+                    configManager.getAddedStations().clear();
                 }
             }
         }
