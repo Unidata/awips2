@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -78,8 +79,11 @@ import com.vividsolutions.jts.geom.Polygon;
  * Aug 28, 2014 ASM #15658 D. Friedman  Add marine zones.
  * Aug 29, 2014 ASM #15551 Qinglu Lin   Sort watches by ETN and filter out ActiveTableRecord
  *                                      with act of CAN and EXP in processRecords().
- * Sep 12, 2014 ASM #15551 Qinglu Lin   Prevent a county's WOU from being used while its
- *                                      corresponding WCN is canceled or expired.
+ * Sep 25, 2014 ASM #15551 Qinglu Lin   Prevent a county's WOU from being used while its
+ *                                      corresponding WCN is canceled or expired, prevent NEW
+ *                                      from being used while CON/EXT is issued, and prevent duplicate
+ *                                      /missing (part of state, state abbreviation) which resulted from 
+ *                                      extension of a watch to counties which are of same/different fe_area.  
  * 
  * </pre>
  * 
@@ -365,6 +369,16 @@ public class WatchUtil {
             }
         }
 
+        Collections.sort(records, Comparators.PEUI);
+
+        // Filters out extra ActiveTableRecords that have same phenSig, etn, and ugcZone. 
+        Map<String, ActiveTableRecord> atrMap = new LinkedHashMap<String, ActiveTableRecord>();
+        for (ActiveTableRecord atr: records) {
+            String key = atr.getPhensig() + atr.getEtn() + atr.getUgcZone();
+            atrMap.put(key, atr);
+        }
+        records = new ArrayList<ActiveTableRecord>(atrMap.values());
+
         return records;
     }
 
@@ -447,7 +461,7 @@ public class WatchUtil {
             }
         }
 
-        /* Sorts the watches based on ETN, then state.  Marine areas
+        /* Sorts the watches based on ETN, then state. Marine areas
          * have a null state value so they appear at the end of each
          * watch.
          */
@@ -481,6 +495,19 @@ public class WatchUtil {
                     return state1.compareTo(state2);
             }
         });
+
+        // Filters out extra Watches that have different startTime but same phenSig, etn, state, partOfState, endTime, and marineArea.
+        Map<String, Watch> watchMap = new LinkedHashMap<String, Watch>();
+        for (Watch w: watches) {
+            List<String> pos = w.getPartOfState();
+            Collections.sort(pos);
+            String key = w.getPhenSig() + w.getEtn() + w.getState() + pos.toString() + w.getEndTime().toString();
+            if (w.getMarineArea() != null) {
+                key = key + w.getMarineArea();
+            }
+            watchMap.put(key, w);
+        }
+        watches = new ArrayList<Watch>(watchMap.values());
 
         return watches;
     }
@@ -705,6 +732,28 @@ public class WatchUtil {
             }
         }
         return abrev;
+    }
+
+    public static class Comparators {
+
+        // ActiveTableRecord: phenSig, etn, ugcZone, issueTime
+        public static Comparator<ActiveTableRecord> PEUI = new Comparator<ActiveTableRecord>() {
+            @Override
+            public int compare(ActiveTableRecord o1, ActiveTableRecord o2) {
+                int i = o1.getPhensig().compareTo(o2.getPhensig());
+                if (i == 0) {
+                    i = o1.getEtn().compareTo(o2.getEtn());
+                    if (i == 0) {
+                        i = o1.getUgcZone().compareTo(o2.getUgcZone());
+                        if (i == 0) {
+                            i = o1.getIssueTime().compareTo(o2.getIssueTime());
+                        }
+                    }
+                }
+                return i;
+            }
+        };
+
     }
 
 }
