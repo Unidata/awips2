@@ -1477,10 +1477,7 @@ public class GridParmManager {
                 iter.remove();
             } else {
                 // remove the database
-                if (this.dbMap.remove(dbid) != null) {
-                    statusHandler.info("d2dGridDataPurged removing database: "
-                            + dbid);
-                }
+                deallocateDb(dbid, false);
             }
         }
 
