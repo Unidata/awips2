@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.monitor.snow.ui.dialogs;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
@@ -27,9 +28,11 @@ import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.M
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.snow.SnowMonitor;
 import com.raytheon.uf.viz.monitor.snow.threshold.SnowThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * SNOW Monitor area configuration dialog.
@@ -44,7 +47,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Jan 29, 2014 2757       skorolev    Changed OK button handler.
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
  * Apr 28, 2014 3086       skorolev    Updated snowConfigManager.
- * Sep 15, 2014 2757       skorolev    Removed extra dialog.
+ * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
  * 
  * </pre>
  * 
@@ -54,8 +57,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
-    /** Configuration manager for SNOW monitor. */
-    private FSSObsMonitorConfigurationManager snowConfigMgr;
+    private SnowMonDispThreshDlg snowMonitorDlg;
 
     /**
      * Constructor
@@ -65,6 +67,7 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public SnowMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SNOW);
+        SnowMonitor.getInstance();
     }
 
     /*
@@ -75,7 +78,6 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     @Override
     protected void handleOkBtnSelection() {
-        snowConfigMgr = getInstance();
         // Check for changes in the data\
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
@@ -85,28 +87,42 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 // Save the config xml file
                 getValues();
                 resetStatus();
-                snowConfigMgr.saveConfigXml();
-                /**
-                 * DR#11279: re-initialize threshold manager and the monitor
-                 * using new monitor area configuration
-                 */
+                configMgr.saveConfigXml();
                 SnowThresholdMgr.reInitialize();
-                SnowMonitor.reInitialize();
+                fireConfigUpdateEvent();
 
-                if ((!snowConfigMgr.getAddedZones().isEmpty())
-                        || (!snowConfigMgr.getAddedStations().isEmpty())) {
+                if ((!configMgr.getAddedZones().isEmpty())
+                        || (!configMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
-                        SnowMonDispThreshDlg snowMonitorDlg = new SnowMonDispThreshDlg(
-                                shell, CommonConfig.AppName.SNOW,
-                                DataUsageKey.MONITOR);
+                        if (snowMonitorDlg == null
+                                || snowMonitorDlg.isDisposed()) {
+                            snowMonitorDlg = new SnowMonDispThreshDlg(shell,
+                                    CommonConfig.AppName.SNOW,
+                                    DataUsageKey.MONITOR);
+                        }
+                        snowMonitorDlg.setCloseCallback(new ICloseCallback() {
+
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                // Clean added zones and stations. Close dialog.
+                                configMgr.getAddedZones().clear();
+                                configMgr.getAddedStations().clear();
+                                setReturnValue(true);
+                                close();
+                            }
+                        });
                         snowMonitorDlg.open();
                     }
-                    snowConfigMgr.getAddedZones().clear();
-                    snowConfigMgr.getAddedStations().clear();
+                    // Clean added zones and stations.
+                    configMgr.getAddedZones().clear();
+                    configMgr.getAddedStations().clear();
                 }
             }
-            snowConfigMgr = null;
-        } 
+        }
+        if (snowMonitorDlg == null || snowMonitorDlg.isDisposed()) {
+            setReturnValue(true);
+            close();
+        }
     }
 
     /*
@@ -119,7 +135,7 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     @Override
     protected FSSObsMonitorConfigurationManager getInstance() {
         if (configMgr == null) {
-            configMgr = new FSSObsMonitorConfigurationManager(currentSite,
+            configMgr = new FSSObsMonitorConfigurationManager(
                     MonName.snow.name());
         }
         return (FSSObsMonitorConfigurationManager) configMgr;
@@ -135,4 +151,20 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     protected void disposed() {
         configMgr = null;
     }
+
+    /**
+     * Fire Table reload event
+     */
+    private void fireConfigUpdateEvent() {
+        final IMonitorConfigurationEvent me = new IMonitorConfigurationEvent(
+                configMgr);
+        shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                SnowMonitor.getInstance().configUpdate(me);
+            }
+        });
+    }
+
 }
