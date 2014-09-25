@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogMonitor;
  * Dec 15, 2009 #3963      lvenable     Initial creation
  * Feb 03, 2014 #2757      skorolev     Fixed reInitialize()
  * May 20, 2014  3086      skorolev     Cleaned code.
+ * Sep 04, 2014  3220      skorolev     Removed "site".
  * 
  * </pre>
  * 
@@ -60,13 +61,13 @@ public class FogThresholdMgr extends AbstractThresholdMgr {
         super("DefaultFogDisplayThresholds.xml",
                 "DefaultFogMonitorThresholds.xml", AppName.FOG.name()
                         .toLowerCase());
-        areaConfigMgr = new FSSObsMonitorConfigurationManager(site,
+        areaConfigMgr = new FSSObsMonitorConfigurationManager(
                 MonName.fog.name());
         init();
     }
 
     /**
-     * Get an instance of the manager class.
+     * Gets an instance of the manager class.
      * 
      * @return Class instance.
      */
@@ -127,7 +128,7 @@ public class FogThresholdMgr extends AbstractThresholdMgr {
     @Override
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
         if (areaConfigMgr == null) {
-            areaConfigMgr = new FSSObsMonitorConfigurationManager(site,
+            areaConfigMgr = new FSSObsMonitorConfigurationManager(
                     MonName.fog.name());
         }
         return areaConfigMgr;
