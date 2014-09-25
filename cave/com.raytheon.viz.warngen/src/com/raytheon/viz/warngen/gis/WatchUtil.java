@@ -84,7 +84,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                      from being used while CON/EXT is issued, and prevent duplicate
  *                                      /missing (part of state, state abbreviation) which resulted from 
  *                                      extension of a watch to counties which are of same/different fe_area.  
- * 
+ * Sep 25, 2014 ASM #16783 D. Friedman  Do not use VTEC action to determine Watch uniqueness.
  * </pre>
  * 
  * @author jsanchez
@@ -369,7 +369,7 @@ public class WatchUtil {
             }
         }
 
-        Collections.sort(records, Comparators.PEUI);
+        Collections.sort(records, PEUI);
 
         // Filters out extra ActiveTableRecords that have same phenSig, etn, and ugcZone. 
         Map<String, ActiveTableRecord> atrMap = new LinkedHashMap<String, ActiveTableRecord>();
@@ -428,14 +428,13 @@ public class WatchUtil {
                 }
             }
 
-            String action = ar.getAct();
             String phenSig = ar.getPhensig();
             String etn = ar.getEtn();
             Date startTime = ar.getStartTime().getTime();
             Date endTime = ar.getEndTime().getTime();
 
             if (validUgcZones.contains(ugcZone)) {
-                Watch watch = new Watch(state, action, phenSig, etn, startTime,
+                Watch watch = new Watch(state, phenSig, etn, startTime,
                         endTime);
                 List<String> areas = map.get(watch);
                 if (areas == null) {
@@ -503,7 +502,7 @@ public class WatchUtil {
             Collections.sort(pos);
             String key = w.getPhenSig() + w.getEtn() + w.getState() + pos.toString() + w.getEndTime().toString();
             if (w.getMarineArea() != null) {
-                key = key + w.getMarineArea();
+                key = key + '.' + w.getMarineArea();
             }
             watchMap.put(key, w);
         }
@@ -540,9 +539,9 @@ public class WatchUtil {
     private List<Watch> generateMarineWatchItems(Watch template, List<String> areas) {
         ArrayList<Watch> result = new ArrayList<Watch>();
         for (String area: areas) {
-            Watch watch = new Watch(template.getState(), template.getAction(),
-                    template.getPhenSig(), template.getEtn(),
-                    template.getStartTime(), template.getEndTime());
+            Watch watch = new Watch(template.getState(), template.getPhenSig(),
+                    template.getEtn(), template.getStartTime(),
+                    template.getEndTime());
             watch.setMarineArea(area);
             result.add(watch);
         }
@@ -734,26 +733,22 @@ public class WatchUtil {
         return abrev;
     }
 
-    public static class Comparators {
-
-        // ActiveTableRecord: phenSig, etn, ugcZone, issueTime
-        public static Comparator<ActiveTableRecord> PEUI = new Comparator<ActiveTableRecord>() {
-            @Override
-            public int compare(ActiveTableRecord o1, ActiveTableRecord o2) {
-                int i = o1.getPhensig().compareTo(o2.getPhensig());
+    // ActiveTableRecord: phenSig, etn, ugcZone, issueTime
+    public static final Comparator<ActiveTableRecord> PEUI = new Comparator<ActiveTableRecord>() {
+        @Override
+        public int compare(ActiveTableRecord o1, ActiveTableRecord o2) {
+            int i = o1.getPhensig().compareTo(o2.getPhensig());
+            if (i == 0) {
+                i = o1.getEtn().compareTo(o2.getEtn());
                 if (i == 0) {
-                    i = o1.getEtn().compareTo(o2.getEtn());
+                    i = o1.getUgcZone().compareTo(o2.getUgcZone());
                     if (i == 0) {
-                        i = o1.getUgcZone().compareTo(o2.getUgcZone());
-                        if (i == 0) {
-                            i = o1.getIssueTime().compareTo(o2.getIssueTime());
-                        }
+                        i = o1.getIssueTime().compareTo(o2.getIssueTime());
                     }
                 }
-                return i;
             }
-        };
-
-    }
+            return i;
+        }
+    };
 
 }
