@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Datobs
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.fssobs
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.12.1153",
@@ -13,8 +13,12 @@ Export-Package: com.raytheon.uf.edex.plugin.fssobs,
  com.raytheon.uf.edex.plugin.fssobs.common
 Import-Package: com.raytheon.uf.common.monitor.config,
  com.raytheon.uf.common.monitor.cpg,
+ com.raytheon.uf.common.monitor.events,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
  com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.dat.utils,
+ com.raytheon.uf.edex.menus,
+ com.raytheon.uf.edex.plugin.fssobs,
  com.raytheon.uf.edex.pointdata,
  org.apache.commons.logging
