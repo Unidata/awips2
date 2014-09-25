@@ -105,7 +105,8 @@ import com.vividsolutions.jts.geom.LineString;
  *  06-17-2014  DR17409 mgamazaychikov Fix futurePoints calculation in generateNewTrackInfo()
  *                                     and generateExistingTrackInfo()
  *  08-21-2014  DR 17500   Qinglu Lin  handle the situation where frameTime is null in paintTrack().
- * 
+ *  09-25-2014  ASM #16773 D. Friedman Fix NPE.
+ *
  * </pre>
  * 
  * @author mschenke
@@ -1282,6 +1283,11 @@ public class StormTrackDisplay implements IRenderable {
     private void paintLabels(IGraphicsTarget target,
             StormTrackProperties paintProps) throws VizException {
         StormTrackState state = paintProps.getState();
+
+        if (state.timePoints == null || state.futurePoints == null) {
+            return;
+        }
+
         // get the magnification from the state
         float magnification = state.magnification;
         // find a nice looking radius
