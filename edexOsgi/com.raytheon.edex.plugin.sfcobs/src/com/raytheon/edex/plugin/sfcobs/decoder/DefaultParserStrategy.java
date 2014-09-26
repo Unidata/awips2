@@ -17,16 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.decodertools.core;
+package com.raytheon.edex.plugin.sfcobs.decoder;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
- * This interface declares a single method parse(). The parse method takes a
- * string are returns a list of the parts of the input. The returned list of
- * string elements must always be not null. If an null or empty string is input
- * an empty list must be returned. In addition, the parts within the list must
- * remain ordered as they occur in the source string.
+ * Default parsing strategy that parses a string by spaces. All spaces are
+ * removed from the list, all other white space is retained.
  * 
  * <pre>
  * 
@@ -35,22 +34,36 @@ import java.util.List;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20071019            391 jkorman     Initial coding.
- * 
+ * Sep 26, 2014       3629 mapeters    Moved from uf.edex.decodertools.core.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
-
-public interface IParserStrategy {
+public class DefaultParserStrategy implements IParserStrategy {
 
     /**
-     * Use some algorithm to parse a string into individual elements. In the
-     * event that the input data is null, this method must return an empty list.
+     * Simple parser that parses a string on spaces. If the input data is null
+     * an empty list is returned.
      * 
      * @param dataToParse
-     *            A string to be parsed.
+     *            The input string to parse.
      * @return A list of the parsed elements.
+     * @see com.raytheon.edex.plugin.sfcobs.decoder.IParserStrategy#parse(java.lang.String)
      */
-    public List<String> parse(String dataToParse);
+    @Override
+    public List<String> parse(String dataToParse) {
+        List<String> reportParts = new ArrayList<String>();
+
+        if (dataToParse != null) {
+            StringTokenizer st = new StringTokenizer(dataToParse, " ", true);
+            while (st.hasMoreTokens()) {
+                String s = st.nextToken();
+                if (!" ".equals(s)) {
+                    reportParts.add(s);
+                }
+            }
+        }
+        return reportParts;
+    }
 }
