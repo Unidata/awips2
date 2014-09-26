@@ -217,6 +217,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
  *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
  * 08/20/2014  ASM #16703  D. Friedman Make geo feature types for watches explicit
+ * 09/10/2014  ASM #16730  D. Friedman Fix NPE.
  * 09/14/2014  ASM #641    dhuffman    To facilitate Area.java need to filter the differences between Areas and Zones,
  *                                     refactored filterCheck and added a new siginature version of filterArea.
  * 09/17/2014  ASM #15465  Qinglu Lin  get backupOfficeShort and backupOfficeLoc from backup WFO config.xml, and pop up AlertViz if
@@ -351,9 +352,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private Set<String> getAllFipsInArea(Geometry warningArea) {
             Set<String> fipsIds = new HashSet<String>();
-            for (int n = 0; n < warningArea.getNumGeometries(); ++n) {
-                Geometry area = warningArea.getGeometryN(n);
-                fipsIds.add(getFips(area));
+            if (warningArea != null) {
+                for (int n = 0; n < warningArea.getNumGeometries(); ++n) {
+                    Geometry area = warningArea.getGeometryN(n);
+                    fipsIds.add(getFips(area));
+                }
             }
             return fipsIds;
         }
