@@ -457,7 +457,7 @@ if [ "${1}" = "-edex" ]; then
    ##buildRPM "awips2-common-base"
    buildRPM "awips2"
    buildEDEX
-   buildRPM "awips2-data.hdf5-topo"
+   #buildRPM "awips2-data.hdf5-topo"
    if [ $? -ne 0 ]; then
       exit 1
    fi
