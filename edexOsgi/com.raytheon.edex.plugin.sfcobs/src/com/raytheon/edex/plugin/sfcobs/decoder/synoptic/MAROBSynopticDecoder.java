@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * Decode the MAROB (Marine Observation) data. This format is very similar to
@@ -129,7 +128,7 @@ public class MAROBSynopticDecoder extends SHIPSynopticDecoder {
         ObsCommon report = (ObsCommon) super.consolidateReport();
         // Need to override the reportType.
         if (report != null) {
-            report.setReportType(IDecoderConstants.SYNOPTIC_MAROB);
+            report.setReportType(SYNOPTIC_MAROB);
         }
         return report;
     }

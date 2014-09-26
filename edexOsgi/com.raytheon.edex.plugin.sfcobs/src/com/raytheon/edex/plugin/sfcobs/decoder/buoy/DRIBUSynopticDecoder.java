@@ -24,7 +24,6 @@ import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * Decode the FM-18 Buoy observation data.
@@ -124,7 +123,7 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         }
         report = (ObsCommon) super.consolidateReport();
         if (report != null) {
-            report.setReportType(IDecoderConstants.DRIFTING_BUOY);
+            report.setReportType(DRIFTING_BUOY);
 
             SurfaceObsLocation loc = new SurfaceObsLocation(
                     getReportIdentifier());
