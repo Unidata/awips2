@@ -498,11 +498,13 @@ public class WatchUtil {
         // Filters out extra Watches that have different startTime but same phenSig, etn, state, partOfState, endTime, and marineArea.
         Map<String, Watch> watchMap = new LinkedHashMap<String, Watch>();
         for (Watch w: watches) {
-            List<String> pos = new ArrayList<String>(w.getPartOfState());
-            Collections.sort(pos);
+            List<String> pos = w.getPartOfState() != null ?
+                    new ArrayList<String>(w.getPartOfState()) : null;
+            if (pos != null)
+                Collections.sort(pos);
             String key = String.valueOf(w.getPhenSig())
                     + String.valueOf(w.getEtn()) + String.valueOf(w.getState())
-                    + pos + String.valueOf(w.getEndTime());
+                    + String.valueOf(pos) + String.valueOf(w.getEndTime());
             if (w.getMarineArea() != null) {
                 key = key + '.' + w.getMarineArea();
             }
