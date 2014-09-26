@@ -22,50 +22,28 @@ package com.raytheon.viz.radar;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.viz.core.rsc.AbstractSpatialEnabler;
-import com.raytheon.viz.radar.rsc.RadarResourceData;
 
 /**
- * TODO Add Description
+ * @deprecated do not use this class, it only exists for XML compatibility.
  * 
- * <pre>
+ *             <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 2, 2010            mnash     Initial creation
+ * Sep 26, 2014  3669     bsteffen    Deprecate
  * 
  * </pre>
  * 
  * @author mnash
  * @version 1.0
  */
-
+@Deprecated
 @XmlAccessorType(XmlAccessType.NONE)
-public class RadarSpatialEnabler extends AbstractSpatialEnabler {
+public final class RadarSpatialEnabler extends AbstractSpatialEnabler {
 
-    private final String elevAngle = "primaryElevationAngle";
+    /* Empty due to deprecation */
 
-    public RadarSpatialEnabler() {
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.AbstractSpatialEnabler#enable(com.raytheon.
-     * uf.common.dataplugin.PluginDataObject,
-     * com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData)
-     */
-    @Override
-    public void enable(PluginDataObject d, AbstractRequestableResourceData arrd) {
-        if (arrd instanceof RadarResourceData && d instanceof RadarRecord) {
-            RadarRecord rr = (RadarRecord) d;
-            RadarResourceData rrd = (RadarResourceData) arrd;
-            rr.setAddSpatial(!rrd.isLatest());
-        }
-    }
 }
