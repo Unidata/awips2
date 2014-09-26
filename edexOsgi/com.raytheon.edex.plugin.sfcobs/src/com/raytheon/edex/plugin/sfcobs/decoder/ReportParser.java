@@ -17,11 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.decodertools.core;
+package com.raytheon.edex.plugin.sfcobs.decoder;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 /**
  * A simple parser element factored from decoder report parsing. This class
@@ -36,6 +37,7 @@ import java.util.regex.Pattern;
  * 20071130            410 jkorman     Changed bad copyright symbol.
  * 20071203            410 jkorman     JavaDoc complaints.
  * Sep 18, 2014       3627 mapeters    Removed unused methods.
+ * Sep 26, 2014       3629 mapeters    Moved from uf.edex.decodertools.core.
  * </pre>
  * 
  * @author jkorman
@@ -60,7 +62,7 @@ public class ReportParser {
      *            A parser strategy to be used when splitting the reportData. If
      *            a null reference is passed, the an instance of
      *            DefaultParserStrategy is used.
-     * @see com.raytheon.uf.edex.decodertools.core.DefaultParserStrategy#parse(java.lang.String)
+     * @see com.raytheon.edex.plugin.sfcobs.decoder.DefaultParserStrategy#parse(java.lang.String)
      */
     public ReportParser(String reportData, IParserStrategy parser) {
 
