@@ -31,12 +31,12 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticSec5Decoder;
 import com.raytheon.uf.common.dataplugin.sfcobs.InterWinds;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
