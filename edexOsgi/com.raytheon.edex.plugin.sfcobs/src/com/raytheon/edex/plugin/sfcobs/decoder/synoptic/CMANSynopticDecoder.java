@@ -29,7 +29,6 @@ import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
@@ -167,7 +166,7 @@ public class CMANSynopticDecoder extends LandSynopticDecoder {
         if (report != null) {
             // If we didn't find this report in the catalog then don't store it.
             if ((stationInfo != null)) {
-                report.setReportType(IDecoderConstants.SYNOPTIC_CMAN);
+                report.setReportType(SYNOPTIC_CMAN);
                 // Land synoptic needs to add the Fixed Land report
                 SurfaceObsLocation loc = new SurfaceObsLocation(
                         getReportIdentifier());
