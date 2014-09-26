@@ -79,14 +79,7 @@
 	</mode>
 	<mode name="ingest">
         	<exclude>mpeLightningSrv-ingest.xml</exclude>
-        	<!-- <exclude>mpe.*-spring.xml</exclude> -->
         	<exclude>freezingLevel-spring.xml</exclude>
-        	<!-- <exclude>gfe.*</exclude> -->
-        	<exclude>arealQpeGen-spring.xml</exclude>
-        	<exclude>arealffgGenerator-spring.xml</exclude>
-        	<exclude>ohd-common.xml</exclude>
-        	<exclude>ohd-common-database.xml</exclude>
-        	<exclude>ohdSetupService-spring.xml</exclude>
         	<exclude>alarmWhfs-spring.xml</exclude>
         	<exclude>rpgenvdata-spring.xml</exclude>
 		<exclude>webservices.xml</exclude>
@@ -95,16 +88,11 @@
 		<exclude>grib-decode.xml</exclude>
 		<exclude>ncgrib-file-endpoint.xml</exclude>
 		<exclude>grid-staticdata-process.xml</exclude>
-		<exclude>.*datadelivery.*</exclude>
 		<exclude>.*bandwidth.*</exclude>
 		<exclude>aww-ingest.xml</exclude>
 		<exclude>bufrquikscat.*</exclude>
 		<exclude>ldad.*</exclude>
-		<exclude>mosaic.*</exclude>
-		<exclude>viirs.*</exclude>
 		<exclude>satellite.mcidas.*</exclude>
-		<exclude>geomag.*</exclude>
-		<exclude>solarimage.*</exclude>
 		<exclude>q2.*</exclude>
 		<exclude>DPADecoder.*</exclude>
 		<exclude>hpeDHRDecoder.*</exclude>
@@ -125,23 +113,10 @@
 		<exclude>modelsounding-ingest.xml</exclude>
 		<exclude>regionalsat.*</exclude>
 		<exclude>scan-ingest.xml</exclude>
-		<exclude>cwat-ingest.xml</exclude>
-		<exclude>fog-ingest.xml</exclude>
-		<exclude>vil-ingest.xml</exclude>
-		<exclude>preciprate-ingest.xml</exclude>
-		<exclude>qpf-ingest.xml</exclude>
-		<exclude>fssobs-ingest.xml</exclude>
-		<exclude>geomag.*</exclude>
 		<exclude>gpd.*</exclude>
-		<exclude>idft.*</exclude>
-		<exclude>madis.*</exclude>
 		<exclude>preciprate.*</exclude>
 		<exclude>qc.*</exclude>
 		<exclude>ssha.*</exclude>
-		<exclude>svrwx.*</exclude>
-		<exclude>stormtrack.*</exclude>
-		<exclude>sgwh.*</exclude>
-		<exclude>solarimage.*</exclude>
 		<exclude>cpgsrv-spring.xml</exclude>
         	<exclude>.*sbn-simulator.*</exclude>
 	</mode>
