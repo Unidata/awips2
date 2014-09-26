@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.site;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +30,9 @@ import java.util.Set;
 import com.raytheon.uf.common.site.notify.ClusterActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONSTATUS;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.core.EdexException;
 
 /**
  * Monitors site activation across all JVMs on all cluster members
@@ -48,6 +53,9 @@ import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONS
  */
 
 public class SiteActivationMonitor {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SiteActivationMonitor.class);
+
     private Map<String, Map<String, Set<String>>> activationMap = new HashMap<String, Map<String, Set<String>>>();
 
     private Map<String, Map<String, Set<String>>> deactivationMap = new HashMap<String, Map<String, Set<String>>>();
@@ -56,10 +64,18 @@ public class SiteActivationMonitor {
 
     private ACTIVATIONSTATUS status = ACTIVATIONSTATUS.SUCCESS;
 
-    private SiteActivationMonitor() {
+    private String myHost;
+
+    private SiteActivationMonitor() throws EdexException {
+        try {
+            this.myHost = InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            statusHandler.error("Error resolving localhost name", e);
+            throw new EdexException("Error resolving localhost name", e);
+        }
     }
 
-    public static SiteActivationMonitor getInstance() {
+    public static SiteActivationMonitor getInstance() throws EdexException {
         if (instance == null) {
             instance = new SiteActivationMonitor();
         }
@@ -104,50 +120,55 @@ public class SiteActivationMonitor {
 
     public SiteActivationNotification handleNotification(
             SiteActivationNotification notification) {
-        if (notification instanceof ClusterActivationNotification) {
+        if (!(notification instanceof ClusterActivationNotification)) {
+
+            String plugin = notification.getPluginName();
+            String modifiedSite = notification.getModifiedSite();
+            String serverAndMode = notification.getServerAndRunMode();
+            if (!activationMap.containsKey(plugin)) {
+                activationMap.put(plugin, new HashMap<String, Set<String>>());
+            }
+
+            if (!activationMap.get(plugin).containsKey(modifiedSite)) {
+                activationMap.get(plugin).put(modifiedSite,
+                        new HashSet<String>());
+            }
+
+            if (!deactivationMap.containsKey(plugin)) {
+                deactivationMap.put(plugin, new HashMap<String, Set<String>>());
+            }
+
+            if (!deactivationMap.get(plugin).containsKey(modifiedSite)) {
+                deactivationMap.get(plugin).put(modifiedSite,
+                        new HashSet<String>());
+            }
+
+            if (notification.isBegin()) {
+                if (notification.isActivation()) {
+                    activationMap.get(plugin).get(modifiedSite)
+                            .add(serverAndMode);
+                } else if (notification.isDeactivation()) {
+                    deactivationMap.get(plugin).get(modifiedSite)
+                            .add(serverAndMode);
+                }
+            } else {
+                if (notification.isActivation()) {
+                    activationMap.get(plugin).get(modifiedSite)
+                            .remove(serverAndMode);
+                } else if (notification.isDeactivation()) {
+                    deactivationMap.get(plugin).get(modifiedSite)
+                            .remove(serverAndMode);
+                }
+                if (notification.isFailure()) {
+                    status = ACTIVATIONSTATUS.FAILURE;
+                }
+            }
+        }
+
+        if (notification.getServerName().equals(myHost)) {
             return notification;
-        }
-
-        String plugin = notification.getPluginName();
-        String modifiedSite = notification.getModifiedSite();
-        String serverAndMode = notification.getServerAndRunMode();
-        if (!activationMap.containsKey(plugin)) {
-            activationMap.put(plugin, new HashMap<String, Set<String>>());
-        }
-
-        if (!activationMap.get(plugin).containsKey(modifiedSite)) {
-            activationMap.get(plugin).put(modifiedSite, new HashSet<String>());
-        }
-
-        if (!deactivationMap.containsKey(plugin)) {
-            deactivationMap.put(plugin, new HashMap<String, Set<String>>());
-        }
-
-        if (!deactivationMap.get(plugin).containsKey(modifiedSite)) {
-            deactivationMap.get(plugin)
-                    .put(modifiedSite, new HashSet<String>());
-        }
-
-        if (notification.isBegin()) {
-            if (notification.isActivation()) {
-                activationMap.get(plugin).get(modifiedSite).add(serverAndMode);
-            } else if (notification.isDeactivation()) {
-                deactivationMap.get(plugin).get(modifiedSite)
-                        .add(serverAndMode);
-            }
         } else {
-            if (notification.isActivation()) {
-                activationMap.get(plugin).get(modifiedSite)
-                        .remove(serverAndMode);
-            } else if (notification.isDeactivation()) {
-                deactivationMap.get(plugin).get(modifiedSite)
-                        .remove(serverAndMode);
-            }
-            if (notification.isFailure()) {
-                status = ACTIVATIONSTATUS.FAILURE;
-            }
+            return null;
         }
-
-        return notification;
     }
 }
