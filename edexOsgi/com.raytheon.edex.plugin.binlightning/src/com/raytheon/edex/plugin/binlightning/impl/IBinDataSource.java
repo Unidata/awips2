@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.decodertools.core;
+package com.raytheon.edex.plugin.binlightning.impl;
 
 /**
  * Implementations of this interface are adapters between some data source and
@@ -33,6 +33,7 @@ package com.raytheon.uf.edex.decodertools.core;
  * ------------ ---------- ----------- --------------------------
  * 27 July 2007        411 jkorman     Initial Development
  * 20070912            379 jkorman     Code review cleanup.
+ * 26 Sep 2014        3629 mapeters    Moved from uf.edex.decodertools.core.
  * 
  * </pre>
  * 
