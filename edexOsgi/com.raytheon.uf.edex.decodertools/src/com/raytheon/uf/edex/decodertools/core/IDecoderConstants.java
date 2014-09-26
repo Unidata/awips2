@@ -33,6 +33,7 @@ package com.raytheon.uf.edex.decodertools.core;
  * 20080102            384 jkorman     Added additional obs type constants. 
  * 20080114            763 jkorman     Added constants for vertical sig values.
  * Sep 18, 2014       3627 mapeters    Removed unused constants.
+ * Sep 26, 2014       3629 mapeters    Removed constants specific to particular packages.
  * </pre>
  * 
  * @author jkorman
@@ -49,18 +50,6 @@ public interface IDecoderConstants {
 
     public static final byte ASCII_SP = 0x20;
 
-    public static final char SPACE_CHAR = ' ';
-
-    public static final String CARRIAGECONTROL = "CARRIAGECONTROL";
-
-    public static final String REPORT_END = "RPT_END";
-
-    public static final String MESSAGE_START = "MSG_START";
-
-    public static final String MESSAGE_END = "MSG_END";
-
-    public static final String SOM = String.valueOf((char) ASCII_SOM);
-
     public static final String ETX = String.valueOf((char) ASCII_ETX);
 
     public static final String WMO_HEADER = "[A-Z]{4}\\d{0,2} [A-Z][A-Z0-9]{3} \\d{6}[^\\r\\n]*[\\r\\n]+";
@@ -73,23 +62,7 @@ public interface IDecoderConstants {
 
     public static final int SYNOPTIC_MOBILE_LAND = 1002;
 
-    public static final int SYNOPTIC_SHIP = 1003;
-
-    public static final int SYNOPTIC_CMAN = 1004;
-
-    public static final int SYNOPTIC_MOORED_BUOY = 1005;
-
-    public static final int DRIFTING_BUOY = 1006;
-    
-    public static final int SYNOPTIC_MAROB = 1007;
-
-    public static final int RECCO_MANOBS = 4500; 
-    
-    public static final int RECCO_INTEROBS = 4510;
-    
     public static final int AIREP_NORMAL = 4600;
-    
+
     public static final int AIREP_SPECIAL = 4610;
-    
-    public static final int PROFILER_DATA = 3000;
 }

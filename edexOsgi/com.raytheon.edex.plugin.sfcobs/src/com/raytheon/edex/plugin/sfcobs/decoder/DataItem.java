@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.decodertools.core;
+package com.raytheon.edex.plugin.sfcobs.decoder;
 
 /**
  * The DataItem class is used to hold intermediate information especially when
@@ -32,6 +32,7 @@ package com.raytheon.uf.edex.decodertools.core;
  * ------------ ---------- ----------- --------------------------
  * 20070925            391 jkorman     Initial Coding.
  * Sep 18, 2014       3627 mapeters    Removed unused methods/fields.
+ * Sep 26, 2014       3629 mapeters    Moved from uf.edex.decodertools.core.
  * </pre>
  * 
  * @author jkorman
