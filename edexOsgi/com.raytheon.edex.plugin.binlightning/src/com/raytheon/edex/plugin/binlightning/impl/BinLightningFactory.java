@@ -19,7 +19,6 @@
  **/
 package com.raytheon.edex.plugin.binlightning.impl;
 
-import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
 
 import static com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder.*;
 
