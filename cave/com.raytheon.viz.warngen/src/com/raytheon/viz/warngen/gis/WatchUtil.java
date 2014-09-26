@@ -568,6 +568,7 @@ public class WatchUtil {
                         groupedAreas.add(new Pair<Integer, String>(entryIndex,
                                 getMarineZoneName(area)));
                     }
+                    break;
                 }
                 entryIndex++;
             }
