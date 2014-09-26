@@ -61,6 +61,9 @@ import com.raytheon.uf.common.status.UFStatus;
  * Apr 21, 2011            dgilling     Initial creation
  * Apr 23, 2013 1949       rjpeter      Removed extra lock table look up
  * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
+ * Apr 21, 2014 #3050      randerso     Get the IFPServer instance based on the
+ *                                      site in the ParmID
+ * 
  * </pre>
  * 
  * @author dgilling
@@ -83,9 +86,6 @@ public class SaveASCIIGridsHandler extends BaseGfeRequestHandler implements
     @Override
     public ServerResponse<String> handleRequest(SaveASCIIGridsRequest request)
             throws Exception {
-        IFPServer ifpServer = getIfpServer(request);
-        GridParmManager gridParmMgr = ifpServer.getGridParmMgr();
-        LockManager lockMgr = ifpServer.getLockMgr();
 
         ServerResponse<String> sr = new ServerResponse<String>();
 
@@ -97,9 +97,22 @@ public class SaveASCIIGridsHandler extends BaseGfeRequestHandler implements
             sr.addMessage(msg);
         }
 
+        String prevSiteID = null;
         int ngrids = agrid.getGridSlices().size();
         for (int i = 0; i < ngrids; i++) {
             ParmID pid = agrid.getGridSlices().get(i).getGridInfo().getParmID();
+
+            // get the server for this site
+            String siteID = pid.getDbId().getSiteId();
+            IFPServer ifpServer = IFPServer.getActiveServer(siteID);
+            if (ifpServer == null && !siteID.equals(prevSiteID)) {
+                sr.addMessage("No active IFPServer for site: " + siteID);
+                continue;
+            }
+            prevSiteID = siteID;
+
+            GridParmManager gridParmMgr = ifpServer.getGridParmMgr();
+            LockManager lockMgr = ifpServer.getLockMgr();
 
             // get a list of available databases, see if the grid is part of an
             // existing database.

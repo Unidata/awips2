@@ -4,9 +4,7 @@
     <fcst>21600</fcst>
     <fcst>43200</fcst>
     <fcst>64800</fcst>
-    <fcst>75600</fcst>
     <fcst>86400</fcst>
-    <fcst>97200</fcst>
     <fcst>108000</fcst>
     <fcst>129600</fcst>
     <fcst>151200</fcst>
@@ -15,7 +13,22 @@
     <fcst>216000</fcst>
     <fcst>237600</fcst>
     <fcst>259200</fcst>
+    <fcst>280800</fcst>
+    <fcst>302400</fcst>
+    <fcst>324000</fcst>
+    <fcst>345600</fcst>
+    <fcst>367200</fcst>
+    <fcst>388800</fcst>
+    <fcst>410400</fcst>
     <fcst>432000</fcst>
+    <fcst>453600</fcst>
+    <fcst>475200</fcst>
+    <fcst>496800</fcst>
+    <fcst>518400</fcst>
+    <fcst>540000</fcst>
+    <fcst>561600</fcst>
+    <fcst>583200</fcst>
+    <fcst>604800</fcst>
   </valtimeMINUSreftime>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>tp48hr</short_name>

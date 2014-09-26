@@ -114,7 +114,7 @@ public class WEGroup {
     // The modified ParmID string is the ParmID with the model time striped
     // (ex: Temp:DEN_type_Fcst_00000000_0000). The relative cycle number for a
     // parameter of a singleton database (Fcst, LAPS) is -1. For a parameter in
-    // a version database (NAM-12km), the relative cycle number is 0 for the
+    // a version database (NAM12), the relative cycle number is 0 for the
     // latest,
     // 1 for the previous, 2 for the second previous, etc.
     // ---------------------------------------------------------------------------
@@ -142,7 +142,7 @@ public class WEGroup {
     // Bundle::getRelCycleNo()
     // Private function called to get the relative cycle number for a ParmID.
     // The relative cycle number for a parameter of a singleton database (Fcst,
-    // LAPS) is -1. For a parameter in a version database (NAM-12km), the relative
+    // LAPS) is -1. For a parameter in a version database (NAM12), the relative
     // cycle number is 0 for the latest, 1 for the previous, 2 for the second
     // previous, etc.
     // The relative order of the current ParmID is computed by determining its
@@ -243,7 +243,7 @@ public class WEGroup {
      * The modified ParmID string is the ParmID with the model time striped (ex:
      * Temp:DEN_type_Fcst_00000000_0000). The relative cycle number for a
      * parameter of a singleton database (Fcst, LAPS) is -1. For a parameter in
-     * a version database (NAM-12km), the relative cycle number is 0 for the
+     * a version database (NAM12), the relative cycle number is 0 for the
      * latest, 1 for the previous, 2 for the second previous, etc.
      * 
      * @param siteID

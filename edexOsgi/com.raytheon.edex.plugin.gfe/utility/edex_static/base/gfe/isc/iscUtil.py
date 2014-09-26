@@ -302,8 +302,8 @@ def getLogger(scriptName, logName=None, logLevel=logging.INFO):
         os.makedirs(logPath)
     except OSError as e:
         import errno
-         if e.errno != errno.EEXIST:
-             raise e
+        if e.errno != errno.EEXIST:
+            raise e
 
     theLog = logging.getLogger(scriptName)
     theLog.setLevel(logLevel)
