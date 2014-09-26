@@ -37,6 +37,8 @@
 #                                                 to get correct offsets for Alaska
 #    01/17/2014          #2719     randerso       Added NHA domain
 #    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
+#    04/17/14        2934          dgilling       Remove alias for TPCSurgeProb D2D database.
+#    05/09/2014      3148          randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
 #
 ########################################################################
 
@@ -961,8 +963,8 @@ ISC         = ('ISC',          GRID,   '', YES, NO,  1, 12)
 LAPS        = ('LAPS',         GRID,   '', YES, NO,  1, 30)
 SAT         = ('SAT',          GRID,   '', YES, NO,  1, 12)
 HPCGuide    = ('HPCGuide',     GRID,   '', NO,  NO,  2, 0)
-NAM-12km       = ('NAM-12km',        GRID,   '', NO,  NO,  2, 0)
-NAM-40km       = ('NAM-40km',        GRID,   '', NO,  NO,  2, 0)
+NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
+NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
 NAM80       = ('NAM80',        GRID,   '', NO,  NO,  2, 0)
 NAM95       = ('NAM95',        GRID,   '', NO,  NO,  2, 0)
 NGM80       = ('NGM80',        GRID,   '', NO,  NO,  2, 0)
@@ -1032,14 +1034,14 @@ D2DDBVERSIONS = {
 #---------------------------------------------------------------------------
 # Alaska OCONUS
 if SID in ALASKA_SITES:
-    D2DMODELS = [('mesoEta216', 'NAM-40km'),
+    D2DMODELS = [('mesoEta216', 'NAM40'),
                  ('mesoEta217', 'NAM20'),
                  ('AVN203', 'GFS190'),
                  ('MRF203', 'gfsLR'),
                  ('NGM207', 'NGM95'),
                  ('ETA207', 'NAM95'),
                  'GWW233',
-                 ('ETA242', 'NAM-12km'),
+                 ('ETA242', 'NAM12'),
                  'ECMWF-LowRes','ECMWF',
                  'UKMET-NorthernHemisphere', 'UKMET',
                  'ENSEMBLE',
@@ -1115,7 +1117,7 @@ elif SID in CONUS_EAST_SITES:
                  ('MRF', 'gfsLR'),
                  ('RUC130', 'RUC13'),
                  ('RUC', 'RUC80'),
-                 ('NAM-40km', 'NAM-40km'),
+                 ('mesoEta212', 'NAM40'),
                  ('mesoEta215', 'NAM20'),
                  'MSAS',
                  ('LAPS', 'LAPS'),
@@ -1126,7 +1128,7 @@ elif SID in CONUS_EAST_SITES:
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
                  'AKwave10',
@@ -1137,7 +1139,7 @@ elif SID in CONUS_EAST_SITES:
                  'WNAwave4',
                  'HurWind226',
                  ('DGEX185', 'DGEX'),
-                 ('ETA218', 'NAM-12km'),
+                 ('ETA218', 'NAM12'),
                  'HPCGuide',
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
@@ -1164,7 +1166,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('MRF', 'gfsLR'),
                  ('RUC130', 'RUC13'),
                  ('RUC', 'RUC80'),
-                 ('NAM-40km', 'NAM-40km'),
+                 ('mesoEta212', 'NAM40'),
                  ('mesoEta215', 'NAM20'),
                  'MSAS',
                  ('LAPS', 'LAPS'),
@@ -1175,7 +1177,7 @@ else:   #######DCS3501 WEST_CONUS
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
                  'WCwave10',
@@ -1187,7 +1189,7 @@ else:   #######DCS3501 WEST_CONUS
                  'AKWAVE',
                  'HurWind226',
                  ('DGEX185', 'DGEX'),
-                 ('ETA218', 'NAM-12km'),
+                 ('ETA218', 'NAM12'),
                  'HPCGuide',
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
@@ -1321,7 +1323,7 @@ if SID in RFC_SITES:
 # Alaska OCONUS
 elif SID in ALASKA_SITES:
     INITMODULES = {
-#        "AKNAM-40km" : ["NAM-40km", "NAM20"],
+#        "AKNAM40" : ["NAM40", "NAM20"],
         "AKWAVE" : ['AKWAVE'],
 #        "AKwave4" : ['AKwave4'],
 #        "AKwave10" : ['AKwave10'],
@@ -1329,7 +1331,7 @@ elif SID in ALASKA_SITES:
 #        "NAM95" : ["NAM95"],
 #        "NGM95" : ["NGM95"],
 #        "gfsLR" : ["gfsLR"],
-        "NAM-12km" : ["NAM-12km"],
+        "NAM12" : ["NAM12"],
         "GFS80" : ["GFS80"],
 #        "GFS190" : ["GFS190"],
 #DCS3501 
@@ -1370,13 +1372,13 @@ elif SID == "HFO":
 elif SID == "SJU":
     #initialization  module to model mappings
     INITMODULES = {
-#        "NAM-40km" : ["NAM-40km", "NAM20"],
+#        "NAM40" : ["NAM40", "NAM20"],
 #        "NAM80" : ["NAM80"],
         "RUC13" : ["RUC13"],
         "RUC80" : ["RUC80"],
 #        "gfsLR" : ["gfsLR"],
 #        "NGM80" : ["NGM80"],
-        "NAM-12km" : ["NAM-12km"],
+        "NAM12" : ["NAM12"],
         "GFS80" : ["GFS80"],
         "GFS40" : ["GFS40"],
 #####DCS3501 
@@ -1413,7 +1415,7 @@ else:
     INITMODULES = {
         "RUC13" : ["RUC13"],
         "RUC80" : ["RUC80"],
-        "NAM-12km" : ["NAM-12km"],
+        "NAM12" : ["NAM12"],
         "GFS40" : ["GFS40"],
         "GFS80" : ["GFS80"],
         "LAPS" : ["LAPS"],
@@ -1464,9 +1466,9 @@ D2DAccumulativeElements= {
     "GFS190": ["tp", "cp"],
     "NAM95": ["tp", "cp"],
     "NAM80": ["tp", "cp"],
-    "NAM-40km": ["tp", "cp"],
+    "NAM40": ["tp", "cp"],
     "NAM20": ["tp", "cp"],
-    "NAM-12km": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
+    "NAM12": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
     "NGM80": ["tp", "cp"],
     "NGM95": ["tp", "cp"],
     "gfsLR": ["tp", "cp"],
@@ -1484,6 +1486,7 @@ D2DAccumulativeElements= {
     "HIRESWarw": ["tp"],
     "HIRESWnmm": ["tp"],
     "RTMA": ["tp"],
+    "HPCERP": ["tpHPCndfd"], 
 #DR20634    "SPC": ["tp"],
 
     #Dummy ones for the transition from Eta to NAM.  These are ignored.
@@ -1557,8 +1560,8 @@ AUTO_CONFIGURE_NOTIFYTEXTPROD = 1   #0=off,1=on
 # DO NOT CHANGE THE FOLLOWING SECTION
 #------------------------------------
 # import the local config file
-localParms = localNAM-12kmParms = localRUC13Parms = localRUC80Parms = localNGM80Parms = []
-localGFS80Parms = localgfsLRParms = localNAM-40kmParms = localDBs = []
+localParms = localNAM12Parms = localRUC13Parms = localRUC80Parms = localNGM80Parms = []
+localGFS80Parms = localgfsLRParms = localNAM40Parms = localDBs = []
 localOPCWavEParms = localOPCWavNWParms = localOPCWavSWParms = []
 localMOSGuideParms = localGFS40Parms = []
 localNAM80Parms = localLAPSParms = localISCParms = localGWWParms = []
@@ -1592,13 +1595,13 @@ if not BASELINE and siteImport('localConfig'):
         myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
 
     localParms = getattr(localConfig, 'parms', localParms)
-    localNAM-12kmParms = getattr(localConfig, 'parmsNAM-12km', localNAM-12kmParms)
+    localNAM12Parms = getattr(localConfig, 'parmsNAM12', localNAM12Parms)
     localOPCWavEParms = getattr(localConfig, 'parmsOPCWavE', localOPCWavEParms)
     localOPCWavSWParms = getattr(localConfig, 'parmsOPCWavSW',
                                  localOPCWavSWParms)
     localOPCWavNWParms = getattr(localConfig, 'parmsOPCWavNW',
                                  localOPCWavNWParms)
-    localNAM-40kmParms = getattr(localConfig, 'parmsNAM-40km', localNAM-40kmParms)
+    localNAM40Parms = getattr(localConfig, 'parmsNAM40', localNAM40Parms)
     localNAM80Parms = getattr(localConfig, 'parmsNAM80', localNAM80Parms)
     localNAM95Parms = getattr(localConfig, 'parmsNAM95', localNAM95Parms)
     localRUC13Parms = getattr(localConfig, 'parmsRUC13', localRUC13Parms)
@@ -1820,7 +1823,7 @@ TPCProbPARMS = [([prob34, prob50, prob64], TC1),
                 ]
 
 # Cobb snow tool
-parmsNAM-12km = [([SnowRatio], TC1)]
+parmsNAM12 = [([SnowRatio], TC1)]
 parmsGFS40 = [([SnowRatio], TC1)]
 
 ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
@@ -1843,8 +1846,8 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (GFS80, STD6_MODEL + localGFS80Parms),
              (GFS75, STD6_MODEL + localGFS75Parms),
              (GFS190, STD6_MODEL + localGFS190Parms),
-             (NAM-40km, STD3_MODEL + localNAM-40kmParms),
-             (NAM-12km, STD3_MODEL + localNAM-12kmParms),
+             (NAM40, STD3_MODEL + localNAM40Parms),
+             (NAM12, STD3_MODEL + localNAM12Parms),
              (gfsLR, STD12_MODEL + localgfsLRParms),
              (GWW, WAVEPARMS + localGWWParms),
              (WNAWAVE, WAVEPARMS + localWNAWAVEParms),

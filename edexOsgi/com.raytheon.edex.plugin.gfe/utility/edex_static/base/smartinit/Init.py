@@ -601,8 +601,8 @@ class Forecaster(GridUtilities):
     #--------------------------------------------------------------------------
     def _getLatest(self, client, srcNames, fcstName=None):
         # ryu: Added/modified code to allow multiple sources. The srcdb is
-        # now an MDB. This is needed for (AK)NAM-40km init, which sources
-        # from both NAM-40km and NAM20.
+        # now an MDB. This is needed for (AK)NAM40 init, which sources
+        # from both NAM40 and NAM20.
 
         srcdbs = []
         modelName = DatabaseID.databaseID(self.__dbName).modelName()
