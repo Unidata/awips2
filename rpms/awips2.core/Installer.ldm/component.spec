@@ -225,6 +225,8 @@ fi
 popd > /dev/null 2>&1
 
 # unpack bin, decoders, and etc.
+pushd . > /dev/null 2>&1
+cd ${_ldm_dir}/SOURCES
 _PATCH_DIRS=( 'bin' 'decoders' 'etc' )
 for patchDir in ${_PATCH_DIRS[*]};
 do
