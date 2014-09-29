@@ -179,7 +179,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 chown -R ldm:fxalpha ${_ldm_dir}
-popd . > /dev/null 2>&1
 
 # create .bash_profile
 if [ ! -f /usr/local/ldm/.bash_profile ]; then
