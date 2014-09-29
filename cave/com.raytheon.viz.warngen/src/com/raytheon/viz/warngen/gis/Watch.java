@@ -34,6 +34,7 @@ import java.util.List;
  * ------------ ---------- ----------- --------------------------
  * Jul 16, 2014 3419       jsanchez     Initial creation
  * Aug 28, 2014 ASM #15658 D. Friedman  Add marine zone list.
+ * Sep 25, 2014 ASM #16783 D. Friedman  Remove action field.
  * 
  * </pre>
  * 
@@ -44,8 +45,6 @@ import java.util.List;
 public class Watch {
 
     private String phenSig;
-
-    private String action;
 
     private String etn;
 
@@ -59,12 +58,11 @@ public class Watch {
 
     private List<String> partOfState;
 
-    private List<String> marineAreas;
+    private String marineArea;
 
-    public Watch(String state, String action, String phenSig, String etn,
+    public Watch(String state, String phenSig, String etn,
             Date startTime, Date endTime) {
         this.state = state;
-        this.action = action;
         this.phenSig = phenSig;
         this.etn = etn;
         this.startTime = startTime;
@@ -119,14 +117,6 @@ public class Watch {
         this.partOfState = partOfState;
     }
 
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
     public String getEtn() {
         return etn;
     }
@@ -135,19 +125,18 @@ public class Watch {
         this.etn = etn;
     }
 
-    public List<String> getMarineAreas() {
-        return marineAreas;
+    public String getMarineArea() {
+        return marineArea;
     }
 
-    public void setMarineAreas(List<String> marineAreas) {
-        this.marineAreas = marineAreas;
+    public void setMarineArea(String marineArea) {
+        this.marineArea = marineArea;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((action == null) ? 0 : action.hashCode());
         result = prime * result + ((endTime == null) ? 0 : endTime.hashCode());
         result = prime * result + ((etn == null) ? 0 : etn.hashCode());
         result = prime * result + ((phenSig == null) ? 0 : phenSig.hashCode());
@@ -166,11 +155,6 @@ public class Watch {
         if (getClass() != obj.getClass())
             return false;
         Watch other = (Watch) obj;
-        if (action == null) {
-            if (other.action != null)
-                return false;
-        } else if (!action.equals(other.action))
-            return false;
         if (endTime == null) {
             if (other.endTime != null)
                 return false;
