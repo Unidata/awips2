@@ -20,4 +20,5 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <regex>^UB.... KWBC.*</regex>
+    <regex>^YIXX84 KAWN.*</regex>
 </requestPatterns>
