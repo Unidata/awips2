@@ -18,11 +18,30 @@
  <PlotParameterDefn  plotParamName="PMSL" metParamName="MeanSeaLevelPres"  
                      dbParamName="seaLevelPress" plotUnit="mb" 
                      plotFormat="PMSL"/>
+          
+                
 
- <PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr"  
+                     
+ <!-- Origianlly P03C, TTR 923, Has no sign +/- -->              
+ <PlotParameterDefn  plotParamName="P03X" metParamName="PressChange3HrAbsVal"  
                      dbParamName="pressChange3Hour" plotUnit="Pa" 
-                     plotFormat="%+3.0f"/>
-
+                     plotFormat="%+3.0f"/>                        
+ 
+ <!-- Original, TTR 923 -->			                
+ <!--PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr"  
+                     dbParamName="pressChange3Hour" plotUnit="Pa" 
+                     plotFormat="%+3.0f"/-->
+                     
+  <!-- TTR 923 -->                    
+ <PlotParameterDefn  plotParamName="PTND" metParamName="PressureChange3HrAndTendency"  
+                     deriveParams="pressChange3Hour,pressChangeChar" plotUnit="Pa" 
+                     plotFormat="%+3.0f"/>                     
+  <!-- TTR 923 -->                    
+ <PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr"
+                     deriveParams="pressChange3Hour,pressChangeChar" 
+                     plotUnit="Pa" 
+                     plotFormat="%+3.0f"/>      
+ <!-- TTR 923 --> 
 <PlotParameterDefn  plotParamName="PTSY" metParamName="PressureTendencySymbol" dbParamName="pressChangeChar" 
                     plotMode="table" symbolFont="WxSymbolFont" plotLookupTable="pgen_pressure_tendency.txt"/>
 
@@ -57,10 +76,10 @@
  <PlotParameterDefn  plotParamName="RSLT" metParamName="SeaLevelPressure"  
                      dbParamName="altimeter" plotUnit="mb" 
                      plotFormat="RSLT"/>
-
+     
  <PlotParameterDefn  plotParamName="RELH" metParamName="RelativeHumidity"  
-                     deriveParams="all"    plotUnit="%" plotFormat="%3.0f"/>
-
+                     deriveParams="all"    plotUnit="%" plotFormat="%3.0f"/>                     
+                     
  <PlotParameterDefn  plotParamName="HEAT" metParamName="HeatIndex"  
                      deriveParams="all"    plotUnit="°F" plotFormat="%3.0f"/>
 
