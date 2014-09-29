@@ -67,11 +67,11 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <!-- <trackEnabled>true</trackEnabled> -->  
  
   <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include TO.A and/or SV.A, 
+ 	included with the warning product include torWatches and/or svrWatches, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
-  <includedWatch>TO.A</includedWatch>
-  <includedWatch>SV.A</includedWatch>
+  <includedWatch>torWatches</includedWatch>
+  <includedWatch>svrWatches</includedWatch>
  </includedWatches>
  
  <!-- durations: the list of possible durations of the warning -->
@@ -116,8 +116,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="flash" bulletText="Flash flooding occurring" bulletGroup="event" parseString="FLASH FLOODING IS ALREADY OCCURRING."/>
-<!-- <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" parseString="MOVING"/> 
--->
+ <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" parseString="MOVING"/> 
   <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
   <bullet bulletName="burnScar" bulletText="Burn scar area with debris flow" bulletGroup="addevent" parseString="BURN SCAR"/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE"/>

@@ -10,7 +10,9 @@
      Phil Kurimski   02-04-2013 OB13.2.1-5 Changed Sig Tor to Considerable
      Phil Kurimski   05-20-2013 Added selection for very weak tornadoes and landspouts 
      Phil Kurimski   09-19-2013 added geospatialConfig.xml                   
-     Mike Dangelo 1/23/2014 changed parseString for defaultCTAs to match iTW.vm statements, removed cta1 bulletGroup from COR to ensure it is selected when doing a COR for a torEMER 
+     Mike Dangelo 1/23/2014 changed parseString for defaultCTAs to match iTW.vm statements, 
+     removed cta1 bulletGroup from COR to ensure it is selected when doing a COR for a torEMER
+     Evan Bookbinder 2-18-2014 added dssEvents hook, 2014 IBW impacts
 -->
 
 <warngenConfig>
@@ -24,9 +26,11 @@ PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
 turned on unless the corresponding .vm file is turned on in a given template's .vm file
 -->  
 <include file="mileMarkers.xml"/>
-<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in the impactTornadoWarning.vm file -->
 <include file="pointMarkers.xml"/>
-<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in the impactTornadoWarning.vm file -->
+<include file="dssEvents.xml"/>
+<!-- To enable, make sure dssEvents.vm is added/uncommented in the impactTornadoWarning.vm file -->
 
  <!-- Config distance/speed units -->
  <unitDistance>mi</unitDistance>
@@ -79,7 +83,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="torEmergency" bulletText="TORNADO EMERGENCY/CATASTROPHIC TORNADO" bulletGroup="headline" parseString="TORNADO EMERGENCY"/>
   <bullet bulletName="considerableTornado" bulletText="CONSIDERABLE TORNADO TAG" bulletGroup="headline" parseString="TORNADO DAMAGE THREAT...CONSIDERABLE"/>
   <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" bulletDefault="true" parseString="IMPACT...MOBILE HOMES WILL BE DAMAGED OR DESTROYED"/>
-  <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...SPORADIC DAMAGE TO MOBILE HOMES"/>
+  <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...EXPECT DAMAGE TO MOBILE HOMES"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
@@ -106,7 +110,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90MPH"/>
   <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100MPH"/>
   -->
-  <bullet bulletName="noHail" bulletText="NO HAIL" bulletGroup="group2" bulletDefault="true" parseString="0.00IN"/>
+  <bullet bulletName="noHail" bulletText="NO HAIL" bulletGroup="group2" parseString="0.00IN"/>
   <bullet bulletName="smallHail" bulletText="Small Hail" bulletGroup="group2" bulletDefault="true" parseString="&lt;.75"/>
   <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="group2" parseString="1.00IN"/>
   <bullet bulletName="halfdollarHail" bulletText="Half Dollar size hail (1 1/4&quot;)" bulletGroup="group2" parseString="1.25IN"/>
@@ -123,15 +127,17 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="extraReportTornado" bulletText="Select to include additional tornado/damage information..."/>  
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="group4" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletDefault="true" bulletGroup="group4"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletDefault="true" bulletGroup="group4" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="group4"/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
   <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY" bulletGroup="cta1"/>
   <bullet bulletName="replacesSVRCTA" bulletText="TOR Replaces Severe Thunderstorm Warning" parseString="TORNADO WARNING REPLACES THE SEVERE"/>
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletDefault="true" bulletGroup="cta1"/>
-  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
+<!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that
+do not have mobile homes. If you wish to switch defaults or provide a single option, add comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE OUTDOORS...IN A MOBILE HOME...OR IN A VEHICLE" bulletDefault="true" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE OUTDOORS OR IN A VEHICLE" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
@@ -149,7 +155,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="torEmergency" bulletText="TORNADO EMERGENCY/CATASTROPHIC TORNADO" bulletGroup="headline" parseString="TORNADO EMERGENCY"/>
   <bullet bulletName="considerableTornado" bulletText="CONSIDERABLE TORNADO TAG" bulletGroup="headline" parseString="TORNADO DAMAGE THREAT...CONSIDERABLE"/>
   <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" bulletDefault="true" parseString="IMPACT...MOBILE HOMES WILL BE DAMAGED OR DESTROYED"/>
-  <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...SPORADIC DAMAGE TO MOBILE HOMES"/>
+  <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...EXPECT DAMAGE TO MOBILE HOMES"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
@@ -175,7 +181,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90MPH"/>
   <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100MPH"/>
   -->
-  <bullet bulletName="noHail" bulletText="NO HAIL" bulletGroup="group2" bulletDefault="true" parseString="0.00IN"/>
+  <bullet bulletName="noHail" bulletText="NO HAIL" bulletGroup="group2" parseString="0.00IN"/>
   <bullet bulletName="smallHail" bulletText="Small Hail" bulletGroup="group2" bulletDefault="true" parseString="&lt;.75"/>
   <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="group2" parseString="1.00IN"/>
   <bullet bulletName="halfdollarHail" bulletText="Half Dollar size hail (1 1/4&quot;)" bulletGroup="group2" parseString="1.25IN"/>
@@ -200,8 +206,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
   <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
   <bullet bulletName="replacesSVRCTA" bulletText="TOR Replaces Severe Thunderstorm Warning" parseString="TORNADO WARNING REPLACES THE SEVERE"/>
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletDefault="true" bulletGroup="cta1"/>
-  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
+<!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that
+do not have mobile homes. If you wish to switch defaults or provide a single option, add comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->    
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE OUTDOORS...IN A MOBILE HOME...OR IN A VEHICLE" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE OUTDOORS OR IN A VEHICLE" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
