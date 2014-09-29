@@ -32,9 +32,9 @@
     <contribute xsi:type="menuItem" menuText="MSLP Grad Vec"
         key="PGrd1" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Max Updraft VV"
-        key="MAXUVV" indentText="true" />
+        key="MXUVV" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Max Downdraft VV"
-        key="MAXDVV" indentText="true" />
+        key="MXDVV" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Max Updraft Helicity"
         key="MAXUPHL" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Most Unstable BL Parcel Level"
