@@ -29,6 +29,8 @@
         indentText="false" />
     <contribute xsi:type="menuItem" menuText="Geometric Vert Velocity"
         key="GVV" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Mean 1hr Geometric Vert Velocity" 
+        key="GVV1hr"  indentText="true" />
     <contribute xsi:type="menuItem" menuText="Vert Velocity"
         key="VV" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Wind Gust" key="Gust"
