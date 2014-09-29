@@ -10,6 +10,7 @@ package com.raytheon.viz.mpe.ui;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 9, 2011            rgeorge     Initial creation
+ * Jun 30, 2014  17457    snaples     Updated getCv_use to return name
  * 
  * </pre>
  * 
@@ -149,9 +150,7 @@ public enum DisplayFieldData {
      * @return the cv_use
      */
     public String getCv_use() {
-        if (cv_use == null) {
-            cv_use = name().toUpperCase();
-        }
+        cv_use = name().toUpperCase();
         return cv_use;
     }
 
