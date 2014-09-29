@@ -4,12 +4,17 @@ import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
+import gov.noaa.nws.ncep.viz.resources.util.VariableSubstitutorNCEP;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.HashMap;
 
-import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.xml.sax.InputSource;
+
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceGroup;
@@ -37,6 +42,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 11/17/11     #518        Greg Hull       set dfltFrameTimes (GDATTIM)
  * 02/10/13     #972        Greg Hull       getSupportedDisplayTypes
  * 10/29/13     #2491       bsteffen        Use AbstratRBD JAXBManager instead of SerializationUtil.
+ * 05/14/14     #1048       Bruce Hebbard   Before substituting string variables into XML, encode special characters as XML predefined entities
  * 
  * </pre>
  * 
@@ -56,8 +62,8 @@ public class ResourceFactory {
         private Boolean isBaseLevelResource = false;
 
         // called when loading an existing RBD into the dialog and we need to
-        // get the attribute values
-        // from the edited RBD instead of the original attrSet file.
+        // get the attribute values from the edited RBD instead of the original
+        // attrSet file.
         protected ResourceSelection(ResourcePair rp) throws VizException {
             rscPair = rp;
             rscData = (INatlCntrsResourceData) rp.getResourceData();
@@ -70,8 +76,7 @@ public class ResourceFactory {
         }
 
         public boolean isRequestable() {
-            if (rscData != null
-                    && rscData instanceof AbstractNatlCntrsRequestableResourceData) {
+            if (rscData != null && rscData instanceof AbstractNatlCntrsRequestableResourceData) {
                 return true;
             }
             return false;
@@ -116,10 +121,10 @@ public class ResourceFactory {
 
             // TODO : Would it be nice to give an indication that this is the
             // dominant resource???
-            // if( rscData instanceof AbstractNatlCntrsRequestableResourceData
+            // if (rscData instanceof AbstractNatlCntrsRequestableResourceData
             // &&
-            // ((AbstractNatlCntrsRequestableResourceData)rscData).getIsDominant()
-            // ) {
+            // ((AbstractNatlCntrsRequestableResourceData)rscData).getIsDominant())
+            // {
             // rsc_label = rscData.getFullResourceName() + " (D)";
             // }
 
@@ -144,35 +149,27 @@ public class ResourceFactory {
 
         public NcDisplayType[] getSupportedDisplayTypes() {
             if (rscData instanceof AbstractNatlCntrsRequestableResourceData) {
-                return ((AbstractNatlCntrsRequestableResourceData) rscData)
-                        .getSupportedDisplayTypes();
+                return ((AbstractNatlCntrsRequestableResourceData) rscData).getSupportedDisplayTypes();
             } else if (rscData instanceof AbstractNatlCntrsResourceData) {
-                return ((AbstractNatlCntrsResourceData) rscData)
-                        .getSupportedDisplayTypes();
+                return ((AbstractNatlCntrsResourceData) rscData).getSupportedDisplayTypes();
             } else {
-                System.out
-                        .println("??? ResourceSelection has non-NC resource class?????");
+                System.out.println("??? ResourceSelection has non-NC resource class?????");
                 return new NcDisplayType[0];
             }
         }
     }
 
-    public static ResourceSelection createResource(ResourcePair rscPair)
-            throws VizException {
+    public static ResourceSelection createResource(ResourcePair rscPair) throws VizException {
         return new ResourceSelection(rscPair);
     }
 
-    public static ResourceSelection createResource(ResourceName rscName)
-            throws VizException {
+    public static ResourceSelection createResource(ResourceName rscName) throws VizException {
 
-        File bndlFile = ResourceDefnsMngr.getInstance()
-                .getRscBundleTemplateFile(rscName.getRscType());
-        HashMap<String, String> rscParams = ResourceDefnsMngr.getInstance()
-                .getAllResourceParameters(rscName);
+        File bndlFile = ResourceDefnsMngr.getInstance().getRscBundleTemplateFile(rscName.getRscType());
+        HashMap<String, String> rscParams = ResourceDefnsMngr.getInstance().getAllResourceParameters(rscName);
 
         // exception on bad syntax...
-        String dfltFrameTimes = ResourceDefnsMngr.getInstance()
-                .getDefaultFrameTimesSelections(rscName);
+        String dfltFrameTimes = ResourceDefnsMngr.getInstance().getDefaultFrameTimesSelections(rscName);
 
         String bundleStr = null;
         try {
@@ -183,57 +180,83 @@ public class ResourceFactory {
             bundleStr = new String(b);
 
         } catch (Exception e) {
-            throw new VizException("Error opening  Resource Template file "
-                    + bndlFile, e);
+            throw new VizException("Error opening  Resource Template file " + bndlFile, e);
         }
 
         try {
-            String substStr = VariableSubstitutionUtil.processVariables(
-                    bundleStr, rscParams);
+            // Before substituting variables, make sure all their values are
+            // XML-friendly strings
+            if (rscParams != null) {
+                for (String attrName : rscParams.keySet()) {
+                    String attrValue = rscParams.get(attrName);
+                    // Only 'sanitize' value string if it DOES contain
+                    // XML-sensitive characters, but is NOT itself an
+                    // XML fragment (like <colorBar>...</colorBar>)
+                    if (attrValue != null && XMLSpecialCharacter.in(attrValue) && !isXMLFragment(attrValue)) {
+                        rscParams.put(attrName, XMLSpecialCharacter.encode(attrValue));
+                    }
+                }
+            }
 
+            // Perform variable substitution
+            String substStr = null;
+            //substStr = VariableSubstitutionUtil.processVariables(bundleStr, rscParams);
+            //RedMine 4163 - use case insensitive code instead of Raytheon class
+            // commented out above
+            substStr = VariableSubstitutorNCEP.processVariables(bundleStr, rscParams);
+
+            // Unmarshal the resource (group) from XML
             // ResourceGroup rscGroup = SerializationUtil.unmarshalFromXml(
             // ResourceGroup.class, substStr );
-            ResourceGroup rscGroup = (ResourceGroup) AbstractRBD
-                    .getJaxbManager().unmarshalFromXml(substStr);
+            ResourceGroup rscGroup = (ResourceGroup) AbstractRBD.getJaxbManager().unmarshalFromXml(substStr);
 
             if (rscGroup == null) {
-                throw new VizException("Error unmarshalling Resource: "
-                        + rscName.toString());
+                throw new VizException("Error unmarshalling Resource: " + rscName.toString());
             }
             ResourceList bndl_rscs = rscGroup.getResourceList();
 
             if (bndl_rscs.size() != 1) {
-                System.out
-                        .println("Sanity check: ResourceSelectionUnused: should only be one rsc in Bundle file!");
+                System.out.println("Sanity check: ResourceSelectionUnused: should only be one rsc in Bundle file!");
             }
 
             if (bndl_rscs.size() >= 1) {
                 if (!(bndl_rscs.get(0).getResourceData() instanceof INatlCntrsResourceData)) {
-                    System.out
-                            .println("Sanity check: Bundle file contains non-NatlCntrs Resource?");
+                    System.out.println("Sanity check: Bundle file contains non-NatlCntrs Resource?");
                     return null;
                 }
 
                 ResourcePair rscPair = bndl_rscs.get(0);
-                INatlCntrsResourceData rscData = (INatlCntrsResourceData) rscPair
-                        .getResourceData();
+                INatlCntrsResourceData rscData = (INatlCntrsResourceData) rscPair.getResourceData();
                 rscData.setResourceName(rscName);
 
-                if (dfltFrameTimes != null
-                        && rscData instanceof AbstractNatlCntrsRequestableResourceData) {
+                if (dfltFrameTimes != null && rscData instanceof AbstractNatlCntrsRequestableResourceData) {
 
-                    ((AbstractNatlCntrsRequestableResourceData) rscData)
-                            .setDfltFrameTimes(dfltFrameTimes);
+                    ((AbstractNatlCntrsRequestableResourceData) rscData).setDfltFrameTimes(dfltFrameTimes);
                 }
 
                 ResourceSelection rscSelection = new ResourceSelection(rscPair);
                 return rscSelection;
             }
         } catch (Exception e) {
-            throw new VizException("Error unmarshalling Resource: "
-                    + e.getMessage() + "(" + e.getCause() + ")", e);
+            throw new VizException("Error unmarshalling Resource: " + e.getMessage() + "(" + e.getCause() + ")", e);
         }
 
         return null;
+    }
+
+    private static boolean isXMLFragment(String s) {
+        // Determine whether the (trimmed) input string is a valid XML fragment.
+        String t = s.trim();
+        // We can quickly rule out something that looks nothing like XML...
+        if (!t.startsWith("<") || !t.endsWith(">")) {
+            return false;
+        }
+        // ...but otherwise, see if it passes the parse test.
+        try {
+            DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(t)));
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 }
