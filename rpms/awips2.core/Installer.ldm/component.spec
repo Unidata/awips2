@@ -179,7 +179,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 chown -R ldm:fxalpha ${_ldm_dir}
-popd . > /dev/null 2>&1
 
 # create .bash_profile
 if [ ! -f /usr/local/ldm/.bash_profile ]; then
@@ -226,6 +225,8 @@ fi
 popd > /dev/null 2>&1
 
 # unpack bin, decoders, and etc.
+pushd . > /dev/null 2>&1
+cd ${_ldm_dir}/SOURCES
 _PATCH_DIRS=( 'bin' 'decoders' 'etc' )
 for patchDir in ${_PATCH_DIRS[*]};
 do
