@@ -106,6 +106,8 @@
 			 indentText="false" />
 		<contribute xsi:type="menuItem" menuText="Geometric Vert Velocity"
 			key="GVV"  indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Mean 1hr Geometric Vert Velocity" 
+			key="GVV1hr"  indentText="true" />
 		<contribute xsi:type="menuItem" menuText="Vert Velocity"
 			key="VV"  indentText="true" />
 		<contribute xsi:type="menuItem" menuText="Wind Gust" key="Gust"
@@ -304,9 +306,9 @@
 			<contribute xsi:type="menuItem" menuText="MSLP Grad Vec"
 				key="PGrd1"  indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Max Updraft VV"
-				key="MAXUVV"  indentText="true" />
+				key="MXUVV"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="Max Downdraft VV"
-				key="MAXDVV"  indentText="true" />
+				key="MXDVV"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="Max Updraft Helicity"
 				key="MAXUPHL"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="Most Unstable BL Parcel Level"
@@ -1384,14 +1386,6 @@
 			key="REFD"  indentText="true" />
 		<contribute xsi:type="menuItem" menuText="Derived Composite"
 			key="REFC"  indentText="true" />
-		<contribute xsi:type="menuItem" menuText="CAPPI"
-			key="REFD"  indentText="true" />
-		<contribute xsi:type="menuItem" menuText="MAX 1hr CAPPI"
-			key="MXREF"  indentText="true" />
-		<contribute xsi:type="menuItem" menuText="Derived VIL"
-			key="VILIQ"  indentText="true" />
-		<contribute xsi:type="menuItem" menuText="Derived Echo Top"
-			key="RETOP"  indentText="true" />
 		<contribute xsi:type="menuItem" menuText="CAPPI"
 			key="REFD"  indentText="true" />
 		<contribute xsi:type="menuItem" menuText="MAX 1hr CAPPI"
