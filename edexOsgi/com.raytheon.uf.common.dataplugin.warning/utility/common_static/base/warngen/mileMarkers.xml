@@ -1,24 +1,31 @@
  <!--
  UPDATED 9-16-2013 BY EVAN BOOKBINDER
+ UPDATED INSTRUCTIONS 9-5-2014 BY EVAN BOOKBINDER
   
  FOR EACH DATABASE TABLE IMPORTED USING THE importMarkersInfo.sh SCRIPT,
- THERE WILL BE **TWO** pointSource OBJECTS CREATED BELOW. 
- ONLY THE pointSource variable (unique to each object) AND
-          pointSource attribute (the tablename created from importMarkersInfo.sh)
- SHOULD BE MODIFIED.
+ THERE WILL BE **TWO** pointSource OBJECTS CREATED BELOW.
+ ONE POINTSOURCE OBJECT REFERENCES THE 'NAME' FIELD IN THE DATABASE TABLE
+ THE SECOND POINTSOURCE OBJECT REFERENCES THE 'GID" FIELD IN THE DATABASE TABLE
  
+ FOR EACH ENTRY ONLY MODIFY THE pointSource variable (unique to each object) AND
+          pointSource attribute (the tablename created from importMarkersInfo.sh)
+
  EXAMPLE FOR INTERSTATE 435 in the Kansas City Metro follows:
  
- The point source variables i435mm & i435mmid are used in the mileMarkers.vm 
+ The point source variables EAX_i435mm & EAX_i435mmid are used in the mileMarkers.vm 
  file. The pointSource attribute must match whatever database table you created
- with the importMarkersInfo.sh script. In this case our database table for 
- Interstate 435 was "i435". 
+ with the importMarkersInfo.sh script. In this case our maps database table for 
+ Interstate 435 was "EAX_i435". 
+ 
+ For service backup purposes, PLEASE make sure that your maps database tables are prefixed
+ with your office ID as it's possible (if not likely) that you and your backup offices could
+ otherwise use identical interstate names. 
  
  Once you're done adding the pointSource pairs, additional configuration in
  mileMarkers.vm is required
 
- <pointSource variable="i435mm">
-    <pointSource>i435</pointSource>
+ <pointSource variable="EAX_i435mm">
+    <pointSource>EAX_i435</pointSource>
  	<pointField>NAME</pointField>
  	<searchMethod>POINTS</searchMethod>
  	<withinPolygon>true</withinPolygon>
@@ -29,8 +36,9 @@
  		<sort>gid</sort>
   	</sortBy>
  </pointSource>
-  <pointSource variable="i435mmid">
-    <pointSource>i435</pointSource>
+ 
+ <pointSource variable="EAX_i435mmid">
+    <pointSource>EAX_i435</pointSource>
  	<pointField>GID</pointField>
  	<searchMethod>POINTS</searchMethod>
  	<withinPolygon>true</withinPolygon>
