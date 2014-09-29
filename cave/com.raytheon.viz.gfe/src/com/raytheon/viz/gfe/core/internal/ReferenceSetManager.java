@@ -109,7 +109,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * 06/21/2013       14983   ryu         Added method for synchronous evaluation of query.
  * 08/06/2013         1561  njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * 09/30/2013         2361  njensen     Use JAXBManager for XML
- * 09/08/2104        #3592  randerso    Changed to use new pm listStaticFiles()
+ * 09/08/2014        #3592  randerso    Changed to use new pm listStaticFiles()
+ * 09/29/2014         2975  njensen     Only lookup COMMON_STATIC for editAreas
  * 
  * </pre>
  * 
@@ -776,7 +777,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         String filePath = FileUtil.join(EDIT_AREAS_DIR, refSetID.getName()
                 + ".xml");
         LocalizationFile lf = PathManagerFactory.getPathManager()
-                .getStaticLocalizationFile(filePath);
+                .getStaticLocalizationFile(LocalizationType.COMMON_STATIC,
+                        filePath);
 
         if (lf != null) {
             try {
@@ -1666,7 +1668,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
             String filePath = FileUtil.join(EDIT_AREAS_DIR, refId.getName()
                     + ".xml");
             LocalizationFile lf = PathManagerFactory.getPathManager()
-                    .getStaticLocalizationFile(filePath);
+                    .getStaticLocalizationFile(LocalizationType.COMMON_STATIC,
+                            filePath);
 
             if ((lf != null) && lf.exists()) {
                 changes.add(refId);
@@ -1716,8 +1719,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
 
         // find the file anywhere in the hierarchy
-        LocalizationFile lf = pm.getStaticLocalizationFile(message
-                .getFileName());
+        LocalizationFile lf = pm.getStaticLocalizationFile(
+                LocalizationType.COMMON_STATIC, message.getFileName());
 
         // if it exists, load it
         if ((lf != null) && lf.exists()) {
