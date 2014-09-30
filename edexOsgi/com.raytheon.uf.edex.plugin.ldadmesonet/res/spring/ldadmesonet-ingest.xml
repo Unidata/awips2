@@ -18,7 +18,7 @@
 		<constructor-arg value="jms-durable:queue:Ingest.ldadmesonet"/>
 	</bean>
 
-	<bean id="ldadmesonetPointData" class="com.raytheon.uf.common.dataplugin.ldadmesonet.LdadmesonetPointDataTransform"/>
+	<bean id="ldadmesonetPointData" class="com.raytheon.uf.edex.plugin.ldadmesonet.LdadmesonetPointDataTransform"/>
 
 	<camelContext id="ldadmesonet-camel"
 		xmlns="http://camel.apache.org/schema/spring"

@@ -17,7 +17,21 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/17/13        #3296         randerso       Default debug to False to avoid logging overhead        
+#                                                 Added performance logging        
+#
+
 import os, sys, time, copy, LogStream
+
+from com.raytheon.uf.common.time.util import TimeUtil
+from com.raytheon.uf.common.status import PerformanceStatus
+perfStat = PerformanceStatus.getHandler("ActiveTable")
+timer = TimeUtil.getTimer()
 
 # This class takes a VTEC active table and eliminates unnecessary 
 # records.  Records purged consist of old SPC watches, old Tropical
@@ -27,7 +41,7 @@ import os, sys, time, copy, LogStream
 class VTECTableSqueeze:
 
     #constructor
-    def __init__(self, currentTime, debug=True):
+    def __init__(self, currentTime, debug=False):
         self.__ctime = currentTime
         self.__thisYear = time.gmtime(self.__ctime)[0]
         self.__debug = debug
@@ -41,7 +55,11 @@ class VTECTableSqueeze:
             LogStream.logDebug(self.__printActiveTable(table))
 
         # modify old UFN events (in case fcstrs didn't CAN them)
+        timer.reset()
+        timer.start()
         table, modTable = self.__modifyOldUFNEvents(table)
+        timer.stop()
+        perfStat.logDuration("updateActiveTable squeeze __modifyOldUFNEvents", timer.getElapsedTime());
         if self.__debug:
             LogStream.logDebug("************** MOD UFN TABLE *********************")
             for old, new in modTable:
@@ -50,8 +68,12 @@ class VTECTableSqueeze:
                 LogStream.logDebug("    -----------")
 
         # remove the national center and short fused events 
+        timer.reset()
+        timer.start()
         shortWFO, shortNC, purgeT = \
           self.__removeOldNationalAndShortFusedEvents(table)
+        timer.stop()
+        perfStat.logDuration("updateActiveTable squeeze __removeOldNationalAndShortFusedEvents", timer.getElapsedTime());
         if self.__debug:
             LogStream.logDebug("************** SHORT WFO TABLE *********************")
             LogStream.logDebug(self.__printActiveTable(shortWFO))
@@ -61,10 +83,18 @@ class VTECTableSqueeze:
             LogStream.logDebug(self.__printActiveTable(purgeT))
 
         # separate out the shortWFO into dictionary structure
+        timer.reset()
+        timer.start()
         dict = self.__separateTable(shortWFO)
+        timer.stop()
+        perfStat.logDuration("updateActiveTable squeeze __separateTable", timer.getElapsedTime());
 
         # purge old entries with LowerETNs that aren't in effect
+        timer.reset()
+        timer.start()
         shorterT, purgeT2 = self.__purgeOldEntriesWithLowerETNs(dict)
+        timer.stop()
+        perfStat.logDuration("updateActiveTable squeeze __purgeOldEntriesWithLowerETNs", timer.getElapsedTime());
         if self.__debug:
             LogStream.logDebug("************** TRIMMED WFO TABLE ******************")
             LogStream.logDebug(self.__printActiveTable(shorterT))
@@ -72,12 +102,10 @@ class VTECTableSqueeze:
             LogStream.logDebug(self.__printActiveTable(purgeT2))
 
         #add in any shortNC entries to final table
-        for r in shortNC:
-            shorterT.append(r)
+        shorterT.extend(shortNC)
 
         #add in the purged entries from before
-        for r in purgeT2:
-            purgeT.append(r)
+        purgeT.extend(purgeT2)
 
         if self.__debug:
             LogStream.logDebug("************** FINAL TABLE ********************")

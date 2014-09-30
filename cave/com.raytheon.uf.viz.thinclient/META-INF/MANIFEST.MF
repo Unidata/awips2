@@ -2,19 +2,16 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Thinclient
 Bundle-SymbolicName: com.raytheon.uf.viz.thinclient;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.raytheon.uf.viz.core,
- com.raytheon.uf.viz.application;bundle-version="1.0.0",
- org.eclipse.core.runtime;bundle-version="3.6.0",
- org.eclipse.ui;bundle-version="3.6.1",
- com.raytheon.viz.core;bundle-version="1.12.1174",
- com.raytheon.viz.ui;bundle-version="1.12.1174",
- com.raytheon.uf.common.comm;bundle-version="1.12.1174",
- javax.jms;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Activator: com.raytheon.uf.viz.thinclient.Activator
 Bundle-ActivationPolicy: lazy
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14",
+ org.eclipse.core.runtime;bundle-version="3.6.0",
+ com.raytheon.viz.ui;bundle-version="1.14",
+ com.raytheon.uf.common.comm,
+ javax.jms;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.viz.thinclient,
  com.raytheon.uf.viz.thinclient.cache,
  com.raytheon.uf.viz.thinclient.localization,

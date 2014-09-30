@@ -25,8 +25,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.plugin.text.db.TextDB;
 import com.raytheon.uf.edex.plugin.text.impl.separator.StdCollectiveSeparator;
 import com.raytheon.uf.edex.plugin.text.impl.separator.StdTextSeparator;
@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
  *                                     for input data.
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * 
  * </pre>
  * 
@@ -63,8 +64,7 @@ public class TextSeparatorFactory {
     private static final Log logger = LogFactory
             .getLog(TextSeparatorFactory.class);
 
-    private static final String siteId = PropertiesFactory.getInstance()
-            .getEnvProperties().getEnvValue("SITENAME");
+    private static final String siteId = SiteUtil.getSite();
 
     private static Pattern TAF_PTRN = Pattern.compile("^TAF\\s*$");
 

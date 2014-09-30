@@ -3,8 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gfe Common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.gfe
 Bundle-Version: 1.14.0.qualifier
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
-Eclipse-BuddyPolicy: ext
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.geotools,
  javax.measure,
@@ -57,4 +55,4 @@ Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

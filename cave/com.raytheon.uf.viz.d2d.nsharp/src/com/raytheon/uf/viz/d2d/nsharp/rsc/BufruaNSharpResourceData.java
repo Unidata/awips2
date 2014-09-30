@@ -34,7 +34,6 @@ import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * 
@@ -47,6 +46,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2011            bsteffen     Initial creation
+ * Jul 23, 2014 3410       bclement     preparePointInfo() calls unpackResultLocation()
  * 
  * </pre>
  * 
@@ -81,9 +81,8 @@ public class BufruaNSharpResourceData extends D2DNSharpResourceData {
                     pointName = (String) result.get(STATION_NAME);
                 }
                 if (coordinate == null) {
-                    coordinate = new Coordinate();
-                    coordinate.x = (Double) result.get(LONGITUDE);
-                    coordinate.y = (Double) result.get(LATITUDE);
+                    coordinate = unpackResultLocation(result, LONGITUDE,
+                            LATITUDE);
                 }
             }
         }

@@ -41,6 +41,7 @@ import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -72,7 +73,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jun 30, 2009 2685       mpduff      Initial creation.
  * Sep 23, 2009 3069       mpduff      Changed the parent class to HydroPointResource.
  * Feb 07, 2011 5535       mschenke    Rewrote resource to fix numerous issues and follow viz standards
- * 
+ * Jul 24, 2014 3429       mapeters    Updated deprecated drawLine() calls.
  * </pre>
  * 
  * @author mpduff
@@ -229,21 +230,18 @@ public class MPEPolygonResource extends
     private void paintCoordinates(IGraphicsTarget target,
             PaintProperties paintProps, Coordinate[] coords)
             throws VizException {
-        Coordinate prev = coords[0];
-        double[] prevPixels = descriptor.worldToPixel(new double[] { prev.x,
-                prev.y });
+        double[] startPixels = descriptor.worldToPixel(new double[] {
+                coords[0].x, coords[0].y });
+        DrawableLine line = new DrawableLine();
+        line.basics.color = getCapability(ColorableCapability.class).getColor();
+        line.setCoordinates(startPixels[0], startPixels[1]);
         for (int i = 1; i < coords.length; ++i) {
             Coordinate curr = coords[i];
             double[] currPixels = descriptor.worldToPixel(new double[] {
                     curr.x, curr.y });
-
-            target.drawLine(prevPixels[0], prevPixels[1], 0.0, currPixels[0],
-                    currPixels[1], 0.0,
-                    getCapability(ColorableCapability.class).getColor(), 1.0f);
-
-            prev = curr;
-            prevPixels = currPixels;
+            line.addPoint(currPixels[0], currPixels[1]);
         }
+        target.drawLine(line);
     }
 
     /*

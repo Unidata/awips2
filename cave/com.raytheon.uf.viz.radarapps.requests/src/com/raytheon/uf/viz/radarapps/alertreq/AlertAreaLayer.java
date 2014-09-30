@@ -64,6 +64,21 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 
+/**
+ * Display radar alert request areas.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation.
+ * Aug 1, 2014  3471       mapeters    Updated deprecated createShadedShape() calls.
+ * 
+ * </pre>
+ * 
+ */
+
 public class AlertAreaLayer extends
         AbstractVizResource<AlertAreaResourceData, MapDescriptor> implements
         IContextMenuContributor, IChangeListener {
@@ -239,7 +254,8 @@ public class AlertAreaLayer extends
         GeneralGridGeometry gg = getGridGeometry();
 
         if (gg != null) {
-            gridSO = target.createShadedShape(false, this.descriptor, true);
+            gridSO = target.createShadedShape(false,
+                    this.descriptor.getGridGeometry(), true);
             gridWF = target.createWireframeShape(false, this.descriptor);
 
             GeometryFactory geomFactory = new GeometryFactory();

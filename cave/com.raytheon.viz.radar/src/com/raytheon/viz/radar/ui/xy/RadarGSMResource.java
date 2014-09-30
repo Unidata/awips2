@@ -29,6 +29,8 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.GSMBlock.GSMMessage;
+import com.raytheon.uf.viz.core.DrawableLine;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
@@ -54,7 +56,10 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 13, 2010            mnash     Initial creation
- * 03/01/2013   DR 15496   zwang     Handled expanded GSM, display more status 
+ * 03/01/2013   DR 15496   zwang     Handled expanded GSM, display more status
+ * 07/16/2014   DR 17214   zwang     Handled B15 GSM change about super res flag
+ * 07/24/2014   #3429      mapeters  Updated deprecated drawLine() calls.
+ * 07/29/2014   #3465      mapeters  Updated deprecated drawString() calls.
  * 
  * </pre>
  * 
@@ -129,9 +134,14 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                 rpg_spg = "SPG";
                 rda_tdwr = "TDWR";
             }
-            target.drawString(null, title, 400, yOffset, 0, TextStyle.BOXED,
-                    color, HorizontalAlignment.CENTER, VerticalAlignment.TOP,
-                    0.0d);
+
+            DrawableString string = new DrawableString(title, color);
+            string.setCoordinates(400, yOffset);
+            string.addTextStyle(TextStyle.BOXED);
+            string.horizontalAlignment = HorizontalAlignment.CENTER;
+            string.verticallAlignment = VerticalAlignment.TOP;
+            target.drawStrings(string);
+
             yOffset += 40;
             switch (message.getMode()) {
             case 0:
@@ -282,55 +292,86 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
             }
 
             // Plot elevations
-            double[] elevations = message.getElevation().clone();
+            double[] elev = message.getElevation().clone();
             char[] charArray = Integer.toBinaryString(
                     message.getSuperResolutionCuts()).toCharArray();
             
-            elevations = Arrays.copyOf(elevations, message.getNumCuts());
-            Arrays.sort(elevations);
+            // Find the index of the SAILS elevation
+            int sailsIndex = -1;
+            for (int i = 1; i < elev.length; i++) {
+                if (elev[i] == elev[0]) {
+                    sailsIndex = i;
+                    break;
+                }
+            }
+
+            //Ignore the super res flag for SAILS
+            if (sailsIndex != -1 && sailsIndex < charArray.length) {
+                charArray[charArray.length - sailsIndex - 1] = '0';
+            }
+
+            // Remove elevation 0 and duplicate elevations
+            Arrays.sort(elev);
+            int j = 0;
+            int k = 1;
+            while (k < elev.length){
+                if (elev[j] == 0) {
+                    elev[j] = elev[k];
+                    k++;
+                }
+                else if (elev[k] == elev[j]) {
+                    k++;
+                }
+                else {
+                    j++;
+                    elev[j] = elev[k];
+                    k++;
+                }
+            }
+
+            double[] elevations = Arrays.copyOf(elev,  j+1);
+
             for (int left = 0, right = elevations.length - 1; left < right; left++, right--) {
                 double tmp = elevations[left];
                 elevations[left] = elevations[right];
                 elevations[right] = tmp;
             }
 
-            int count = 0;
-            for (int i = 0; i < elevations.length; i++) {
-                if (elevations[i] == 0) {
-                    count++;
-                }
-            }
-
+            // Handle the super res flag
             boolean[] superResElev = new boolean[elevations.length];
+            // Initiate all flags to non super res
+            for (int i = 0; i < elevations.length; i++) {
+                superResElev[i] = false;
+            }
+            
+            // Ignore the flag for SAILS
             for (int i = 0; i < charArray.length; i++) {
-                if (charArray[i] == '1') {
-                    superResElev[i] = true;
-                } else {
-                    superResElev[i] = false;
-                }
+                if (charArray[charArray.length - i - 1] == '1') {
+                    superResElev[elevations.length - i - 1] = true;
+                } 
             }
 
             List<String> theTemp = new ArrayList<String>();
             for (int i = 0; i < elevations.length; i++) {
-                if (elevations[i] != 0) {
-                    String s = "";
-                    if (superResElev[elevations.length - i - count - 1] == true) {
-                        s = "S";
-                    } else {
-                        s = "";
-                    }
-                    theTemp.add(Double.toString(elevations[i] / 10) + "     "
-                            + s);
+                
+                String s = "";
+                if (superResElev[i] == true) {
+                    s = "S";
                 } else {
-                    theTemp.add(Double.toString(elevations[i] / 10));
-                    break;
+                    s = "";
                 }
+                theTemp.add(Double.toString(elevations[i] / 10) + "     " + s);
             }
 
             int height = 780;
+            List<DrawableLine> lines = new ArrayList<DrawableLine>(
+                    theTemp.size() + 8);
             for (int i = 0; i < theTemp.size(); i++) {
-                target.drawLine(xOffset + 50, height, 0, 800, height - i
-                        * lineSpace, 0, color, 1);
+                DrawableLine line = new DrawableLine();
+                line.setCoordinates(xOffset + 50, height);
+                line.addPoint(800, height - i * lineSpace);
+                line.basics.color = color;
+                lines.add(line);
                 drawNexradString(
                         String.valueOf(theTemp.get(theTemp.size() - 1 - i)),
                         800, height - i * lineSpace - 10, target, color);
@@ -340,14 +381,14 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
 
             yOffset = height + lineSpace;
             // first box
-            target.drawLine(xOffset, yOffset, 0, xOffset + 200, yOffset, 0,
-                    color, 1);
-            target.drawLine(xOffset, yOffset, 0, xOffset, yOffset + boxHeight,
-                    0, color, 1);
-            target.drawLine(xOffset + 200, yOffset, 0, xOffset + 200, yOffset
-                    + boxHeight, 0, color, 1);
-            target.drawLine(xOffset, yOffset + boxHeight, 0, xOffset + 200,
-                    yOffset + boxHeight, 0, color, 1);
+            DrawableLine box1 = new DrawableLine();
+            box1.setCoordinates(xOffset, yOffset);
+            box1.addPoint(xOffset + 200, yOffset);
+            box1.addPoint(xOffset + 200, yOffset + boxHeight);
+            box1.addPoint(xOffset, yOffset + boxHeight);
+            box1.addPoint(xOffset, yOffset);
+            box1.basics.color = color;;
+            lines.add(box1);
             drawNexradString(rda_tdwr, xOffset + 85, yOffset + halfHeight,
                     target, color);
 
@@ -361,24 +402,29 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                     || (message.getRdaStatus() & RDA_STATUS_OFFLINE) != 0)
                 rdaDown = true;
             if (!rdaDown) {
-                target.drawLine(xOffset + 200, yOffset + halfHeight, 0,
-                        xOffset + 300, yOffset + halfHeight, 0, color, 1);
-                target.drawLine(xOffset + 300, yOffset + halfHeight, 0,
-                        xOffset + 280, yOffset + halfHeight - 10, 0, color, 1);
-                target.drawLine(xOffset + 300, yOffset + halfHeight, 0,
-                        xOffset + 280, yOffset + halfHeight + 10, 0, color, 1);
+                DrawableLine arrow1line = new DrawableLine();
+                arrow1line.setCoordinates(xOffset + 200, yOffset + halfHeight);
+                arrow1line.addPoint(xOffset + 300, yOffset + halfHeight);
+                arrow1line.basics.color = color;
+                DrawableLine arrow1head = new DrawableLine();
+                arrow1head.setCoordinates(xOffset + 280, yOffset + halfHeight - 10);
+                arrow1head.addPoint(xOffset + 300, yOffset + halfHeight);
+                arrow1head.addPoint(xOffset + 280, yOffset + halfHeight + 10);
+                arrow1head.basics.color = color;
+                lines.add(arrow1line);
+                lines.add(arrow1head);
             }
-
             xOffset += 300;
             // second box
-            target.drawLine(xOffset, yOffset, 0, xOffset + 200, yOffset, 0,
-                    color, 1);
-            target.drawLine(xOffset, yOffset, 0, xOffset, yOffset + boxHeight,
-                    0, color, 1);
-            target.drawLine(xOffset + 200, yOffset, 0, xOffset + 200, yOffset
-                    + boxHeight, 0, color, 1);
-            target.drawLine(xOffset, yOffset + boxHeight, 0, xOffset + 200,
-                    yOffset + boxHeight, 0, color, 1);
+            DrawableLine box2 = new DrawableLine();
+            box2.setCoordinates(xOffset, yOffset);
+            box2.addPoint(xOffset + 200, yOffset);
+            box2.addPoint(xOffset + 200, yOffset + boxHeight);
+            box2.addPoint(xOffset, yOffset + boxHeight);
+            box2.addPoint(xOffset, yOffset);
+            box2.basics.color = color;;
+            lines.add(box2);
+            
             drawNexradString(rpg_spg, xOffset + 85, yOffset + halfHeight,
                     target, color);
 
@@ -386,29 +432,37 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                     || dedicatedComms.equals("Disconnected"))
                 rpgDown = true;
             if (!rpgDown) {
-                target.drawLine(xOffset + 200, yOffset + halfHeight, 0,
-                        xOffset + 300, yOffset + halfHeight, 0, color, 1);
-                target.drawLine(xOffset + 300, yOffset + halfHeight, 0,
-                        xOffset + 280, yOffset + halfHeight - 10, 0, color, 1);
-                target.drawLine(xOffset + 300, yOffset + halfHeight, 0,
-                        xOffset + 280, yOffset + halfHeight + 10, 0, color, 1);
-
-                target.drawLine(xOffset + 200, yOffset + halfHeight, 0,
-                        xOffset + 220, yOffset + halfHeight - 10, 0, color, 1);
-                target.drawLine(xOffset + 200, yOffset + halfHeight, 0,
-                        xOffset + 220, yOffset + halfHeight + 10, 0, color, 1);
+                DrawableLine arrow2line = new DrawableLine();
+                arrow2line.setCoordinates(xOffset + 200, yOffset + halfHeight);
+                arrow2line.addPoint(xOffset + 300, yOffset + halfHeight);
+                arrow2line.basics.color = color;
+                DrawableLine arrow2head1 = new DrawableLine();
+                arrow2head1.setCoordinates(xOffset + 280, yOffset + halfHeight - 10);
+                arrow2head1.addPoint(xOffset + 300, yOffset + halfHeight);
+                arrow2head1.addPoint(xOffset + 280, yOffset + halfHeight + 10);
+                arrow2head1.basics.color = color;
+                DrawableLine arrow2head2 = new DrawableLine();
+                arrow2head2.setCoordinates(xOffset + 220, yOffset + halfHeight - 10);
+                arrow2head2.addPoint(xOffset + 200, yOffset + halfHeight);
+                arrow2head2.addPoint(xOffset + 220, yOffset + halfHeight + 10);
+                arrow2head2.basics.color = color;
+                lines.add(arrow2line);
+                lines.add(arrow2head1);
+                lines.add(arrow2head2);
             }
-
             xOffset += 300;
             // third box
-            target.drawLine(xOffset, yOffset, 0, xOffset + 200, yOffset, 0,
-                    color, 1);
-            target.drawLine(xOffset, yOffset, 0, xOffset, yOffset + boxHeight,
-                    0, color, 1);
-            target.drawLine(xOffset + 200, yOffset, 0, xOffset + 200, yOffset
-                    + boxHeight, 0, color, 1);
-            target.drawLine(xOffset, yOffset + boxHeight, 0, xOffset + 200,
-                    yOffset + boxHeight, 0, color, 1);
+            DrawableLine box3 = new DrawableLine();
+            box3.setCoordinates(xOffset, yOffset);
+            box3.addPoint(xOffset + 200, yOffset);
+            box3.addPoint(xOffset + 200, yOffset + boxHeight);
+            box3.addPoint(xOffset, yOffset + boxHeight);
+            box3.addPoint(xOffset, yOffset);
+            box3.basics.color = color;;
+            lines.add(box3);
+            
+            target.drawLine(lines.toArray(new DrawableLine[0]));
+
             drawNexradString("WFO", xOffset + 85, yOffset + 58, target, color);
         }
     }
@@ -424,8 +478,10 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
      */
     public static void drawNexradString(String text, int xOffset, int yOffset,
             IGraphicsTarget target, RGB color) throws VizException {
-        target.drawString((IFont) Font.getFont("serif"), text, xOffset,
-                yOffset, 0, TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, (Double) 0.0d);
+        DrawableString string = new DrawableString(text, color);
+        string.font = (IFont) Font.getFont("serif");
+        string.setCoordinates(xOffset, yOffset);
+        string.verticallAlignment = VerticalAlignment.TOP;
+        target.drawStrings(string);
     }
 }

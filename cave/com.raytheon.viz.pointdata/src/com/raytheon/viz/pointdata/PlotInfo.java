@@ -30,6 +30,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2009            mschenke     Initial creation
+ * Aug 08, 2014 3477       bclement     changed plot info locations to floats
  * 
  * </pre>
  * 
@@ -41,9 +42,9 @@ public class PlotInfo {
 
     public String stationId;
 
-    public Double latitude;
+    public Float latitude;
 
-    public Double longitude;
+    public Float longitude;
 
     public DataTime dataTime;
 
@@ -66,8 +67,8 @@ public class PlotInfo {
 
     }
 
-    public PlotInfo(String stationId, Double latitude,
-            Double longitude, DataTime dataTime, String dataURI) {
+    public PlotInfo(String stationId, Float latitude, Float longitude,
+            DataTime dataTime, String dataURI) {
         this.stationId = stationId;
         this.latitude = latitude;
         this.longitude = longitude;

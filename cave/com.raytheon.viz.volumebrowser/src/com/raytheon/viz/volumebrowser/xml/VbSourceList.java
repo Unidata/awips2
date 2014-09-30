@@ -1,12 +1,16 @@
 package com.raytheon.viz.volumebrowser.xml;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,6 +22,9 @@ import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
@@ -41,6 +48,9 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Dec 11, 2013  2602     bsteffen    Remove ISerializableObject.
  * Mar 18, 2014  2874     bsteffen    Allow subMenus and move contribution
  *                                    creation from DataListsProdTableComp
+ * Aug 19, 2014  3506     mapeters    Populate toolbar contributions from directory of 
+ *                                    source files instead of one file, merge sources from 
+ *                                    different localization levels instead of overriding.
  * 
  * </pre>
  * 
@@ -51,6 +61,98 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 @XmlRootElement
 public class VbSourceList {
 
+    private final static IPathManager pm = PathManagerFactory.getPathManager();
+
+    private static Comparator<VbSource> comparator = new Comparator<VbSource>() {
+        /*
+         * For sorting sources, compare subcategories first. If they are the
+         * same or either source doesn't have one, compare display names.
+         */
+        @Override
+        public int compare(VbSource source1, VbSource source2) {
+            String subCat1 = source1.getSubCategory();
+            String subCat2 = source2.getSubCategory();
+            if (subCat1 != null && subCat2 != null && !subCat1.equals(subCat2)) {
+                return comparatorString.compare(subCat1, subCat2);
+            }
+            return comparatorString.compare(source1.getName(),
+                    source2.getName());
+        }
+    };
+
+    private static Comparator<String> comparatorString = new Comparator<String>() {
+        /*
+         * Compares two strings, ignoring capitalization and comparing numeric
+         * values.
+         */
+        @Override
+        public int compare(String s1, String s2) {
+            int n1 = s1.length();
+            int n2 = s2.length();
+            int min = Math.min(n1, n2);
+            String number1 = "";
+            String number2 = "";
+            for (int i = 0; i < min; i++) {
+                char c1 = s1.charAt(i);
+                char c2 = s2.charAt(i);
+                if (c1 != c2) {
+                    if (Character.isDigit(c1) && Character.isDigit(c2)) {
+                        // Store aligned numeric values as strings
+                        number1 += c1;
+                        number2 += c2;
+                    } else if (!number1.equals(number2)) {
+                        if (Character.isDigit(c1)) {
+                            /*
+                             * Return first string as larger if it has
+                             * longer/larger numeric value.
+                             */
+                            return 1;
+                        } else if (Character.isDigit(c2)) {
+                            /*
+                             * Return second string as larger if it has
+                             * longer/larger numeric value.
+                             */
+                            return -1;
+                        } else {
+                            /*
+                             * Compare stored numeric values.
+                             */
+                            return number1.charAt(0) - number2.charAt(0);
+                        }
+                    } else {
+                        c1 = Character.toUpperCase(c1);
+                        c2 = Character.toUpperCase(c2);
+                        if (c1 != c2) {
+                            c1 = Character.toLowerCase(c1);
+                            c2 = Character.toLowerCase(c2);
+                            if (c1 != c2) {
+                                // No overflow because of numeric promotion
+                                return c1 - c2;
+                            }
+                        }
+                    }
+                }
+            }
+            /*
+             * If two strings end with numeric values after for loop, check for
+             * additional digits beyond minimum length to determine order.
+             */
+            if (!number1.equals(number2)) {
+                if (n1 > n2 && Character.isDigit(s1.charAt(n2))) {
+                    return 1;
+                } else if (n2 > n1 && Character.isDigit(s2.charAt(n1))) {
+                    return -1;
+                } else
+                    return number1.charAt(0) - number2.charAt(0);
+            }
+            return n1 - n2;
+        }
+    };
+
+    /**
+     * @deprecated This file path string exists only to support legacy overrides
+     *             and should eventually be removed.
+     */
     private final static String VB_SOURCE_FILE = "volumebrowser/VbSources.xml";
 
     private final static char SUB_MENU_SPLIT = '/';
@@ -77,6 +179,9 @@ public class VbSourceList {
 
     private static VbSourceList instance;
 
+    /**
+     * List of all the sources from one file at one localization level.
+     */
     @XmlElement(name = "vbSource")
     private List<VbSource> entries;
 
@@ -95,21 +200,92 @@ public class VbSourceList {
         this.entries = entries;
     }
 
+    /**
+     * List of all sources from all files at all localization levels.
+     */
+    private List<VbSource> allSources;
+
+    /**
+     * @return the list of all sources
+     */
+    public synchronized List<VbSource> getAllSources() {
+        return allSources;
+    }
+
     public static VbSourceList getInstance() {
         synchronized (VB_SOURCE_FILE) {
             if (instance == null) {
-                LocalizationFile file = PathManagerFactory.getPathManager()
-                        .getStaticLocalizationFile(VB_SOURCE_FILE);
+                instance = new VbSourceList();
+                instance.populateAllSources();
                 if (observer == null) {
                     observer = new VbSourceListener();
-                    file.addFileUpdatedObserver(observer);
+                    LocalizationFile vbDirectory = pm
+                            .getStaticLocalizationFile("volumebrowser");
+                    vbDirectory.addFileUpdatedObserver(observer);
                 }
-
-                instance = JAXB.unmarshal(file.getFile(), VbSourceList.class);
-
             }
             return instance;
         }
+    }
+
+    public synchronized void populateAllSources() {
+        allSources = new ArrayList<VbSource>();
+        List<String> fileNames = new ArrayList<String>();
+        LocalizationFile vbSourceFile = pm
+                .getStaticLocalizationFile(VB_SOURCE_FILE);
+        if (vbSourceFile == null) {
+            LocalizationFile[] files = pm.listStaticFiles(
+                    "volumebrowser/VbSources", null, false, true);
+            for (LocalizationFile file : files) {
+                fileNames.add(file.getName());
+            }
+        } else {
+            fileNames.add(VB_SOURCE_FILE);
+        }
+        for (String fileName : fileNames) {
+            Map<LocalizationLevel, LocalizationFile> localizationFilesMap = pm
+                    .getTieredLocalizationFile(LocalizationType.CAVE_STATIC,
+                            fileName);
+            LocalizationLevel[] levels = pm.getAvailableLevels();
+            /*
+             * Add sources from localization files to entries, in order of
+             * greatest precedence to lowest
+             */
+            for (int i = levels.length - 1; i >= 0; i--) {
+                LocalizationFile locFile = localizationFilesMap.get(levels[i]);
+                if (locFile != null) {
+                    List<VbSource> sources = JAXB.unmarshal(locFile.getFile(),
+                            VbSourceList.class).getEntries();
+                    if (sources != null) {
+                        allSources.addAll(sources);
+                    }
+                }
+            }
+        }
+
+        DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
+        DatasetInfo info;
+        // Set containing sources to not be added to lists
+        Set<VbSource> removes = new HashSet<VbSource>();
+        for (int i = 0; i < allSources.size(); i++) {
+            VbSource source = allSources.get(i);
+            // Set display names for sources
+            if (source.getName() == null) {
+                info = lookup.getInfo(source.getKey());
+                source.setName(info != null ? info.getTitle() : source.getKey());
+            }
+            if (source.getRemove()) {
+                // Add sources with remove tags to removal set and remove them.
+                removes.add(source);
+                allSources.remove(i--);
+            } else if (removes.contains(source)
+                    || allSources.subList(0, i).contains(source)) {
+                // Remove sources in removal set and repeats
+                allSources.remove(i--);
+            }
+        }
+        Collections.sort(allSources, comparator);
+        allSources = Collections.unmodifiableList(allSources);
     }
 
     /**
@@ -129,16 +305,21 @@ public class VbSourceList {
         Map<String, CommonAbstractMenuContribution> contributions = new HashMap<String, CommonAbstractMenuContribution>();
         /*
          * For every category, subcategory or subMenu keep a list of all menu
-         * contributions that fall within that cataegory/menu.
+         * contributions that fall within that category/menu.
          */
         Map<CommonAbstractMenuContribution, List<CommonAbstractMenuContribution>> subContributions = new LinkedHashMap<CommonAbstractMenuContribution, List<CommonAbstractMenuContribution>>();
 
-        for (VbSource source : VbSourceList.getInstance().getEntries()) {
-            /* Skip sources that are not active for this view */
+        for (VbSource source : VbSourceList.getInstance().getAllSources()) {
+            String key = source.getKey();
+            /*
+             * Skip sources that are not active for this view or are marked for
+             * removal
+             */
             if (source.getViews() != null
                     && !source.getViews().contains(selectedView)) {
                 continue;
             }
+
             String cat = source.getCategory();
             String subCat = source.getSubCategory();
 
@@ -147,19 +328,8 @@ public class VbSourceList {
              * goes.
              */
             CommonMenuContribution mContrib = new CommonMenuContribution();
-            mContrib.key = source.getKey();
-            if (source.getName() != null) {
-                mContrib.menuText = source.getName();
-            } else {
-                // Attempt a lookup in the grib model table
-                DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(
-                        source.getKey());
-                if (info != null) {
-                    mContrib.menuText = info.getTitle();
-                } else {
-                    mContrib.menuText = source.getKey();
-                }
-            }
+            mContrib.key = key;
+            mContrib.menuText = source.getName();
 
             CommonAbstractMenuContribution contrib = mContrib;
 
@@ -187,7 +357,6 @@ public class VbSourceList {
                     contributions.put(subCatkey, tContrib);
                     contrib = tContrib;
                 }
-
             }
             /*
              * contrib will be null if the subCategory was already created by a
@@ -243,10 +412,11 @@ public class VbSourceList {
                 }
             }
         }
+
         /*
          * Now that all sources are processed, set the contributions within the
          * toolbar and submenu contributions. Also add all subcategories to the
-         * end of the menu that ocntains them.
+         * end of the menu that contains them.
          */
         contributions = null;
         List<CommonToolBarContribution> rootContributions = new ArrayList<CommonToolBarContribution>();
@@ -257,7 +427,7 @@ public class VbSourceList {
              * Pull out all sub categories(CommonTitleImgContribution), move
              * them to the end of the list and then add all items within the
              * subcategory to the contributions. This is because sub categories
-             * are just a visual seperator not an actual element with children.
+             * are just a visual separator not an actual element with children.
              */
             List<CommonAbstractMenuContribution> list = entry.getValue();
             List<CommonAbstractMenuContribution> titleItems = new ArrayList<CommonAbstractMenuContribution>();
