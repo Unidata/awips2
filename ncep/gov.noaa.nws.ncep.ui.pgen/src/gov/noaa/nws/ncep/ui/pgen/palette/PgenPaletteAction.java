@@ -8,6 +8,8 @@
 
 package gov.noaa.nws.ncep.ui.pgen.palette;
 
+import gov.noaa.nws.ncep.ui.pgen.PGenRuntimeException;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
@@ -23,6 +25,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchPage;
 
+import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
@@ -32,6 +35,19 @@ public class PgenPaletteAction extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException { 
 		
+	    try {
+            PgenStaticDataProvider.getProvider();
+        }
+        catch (PGenRuntimeException e  ){
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
+            MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING
+                    | SWT.OK);
+
+            mb.setMessage( "Please start NCP first to initialize PGEN data!");
+            mb.open();
+            return null;
+        }
+	    
 		/*
 		 *  The viewID string is in the XML file for PGEN extension point. 
 		 */
@@ -80,6 +96,9 @@ public class PgenPaletteAction extends AbstractHandler {
 			mb.setMessage( "Pgen is not supported in this editor. Please select a mapEditor for Pgen to use first!");
 			mb.open();
 		}
+		
+	
+		
 		return null;
 	}
 
