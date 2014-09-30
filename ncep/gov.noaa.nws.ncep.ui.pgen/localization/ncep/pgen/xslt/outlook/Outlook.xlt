@@ -39,13 +39,17 @@
 
   <xsl:template name="fmtLines">
         <xsl:param name="lines"/>
-            <xsl:if test="contains($lines, 'new_line') ">
-		<xsl:value-of select="substring-before($lines,'new_line')"/>
-	 	<xsl:value-of select="$newline"/>
-     		<xsl:call-template name="fmtLines">
+        <xsl:if test="contains($lines, 'new_line') ">
+		   <xsl:value-of select="substring-before($lines,'new_line')"/>
+	 	   <xsl:value-of select="$newline"/>
+     		    <xsl:call-template name="fmtLines">
                       <xsl:with-param name="lines" select="substring-after($lines,'new_line')"/>
                 </xsl:call-template>
 	    </xsl:if>
+	    <xsl:if test="not(contains($lines, 'new_line')) ">
+	    	<xsl:value-of select="$lines"/>
+	    </xsl:if>
+	    
   </xsl:template>
 
 </xsl:stylesheet>
