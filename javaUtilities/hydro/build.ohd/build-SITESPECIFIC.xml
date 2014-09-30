@@ -1,5 +1,0 @@
-<?xml version="1.0" ?> 
-
-<project name="all_java" default="project.sshp" basedir=".">  
-    <import file="${basedir}/../build.ohd/build-common.xml"/>
-</project>

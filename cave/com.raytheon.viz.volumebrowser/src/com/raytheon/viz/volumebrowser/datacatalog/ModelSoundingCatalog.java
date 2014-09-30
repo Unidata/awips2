@@ -53,6 +53,10 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Sep 28, 2011            mschenke     Initial creation
  * May 02, 2013 1949       bsteffen    Force ModelSounding in Vb to play nicely
  *                                     with others.
+ * Jul 23, 2014 3410       bclement    location changed to floats
+ * Aug 19, 2014 3506       mapeters    Modified getTypeMap function to still get 
+ *                                     correct VB sources after splitting them 
+ *                                     into multiple files.
  * 
  * </pre>
  * 
@@ -193,8 +197,10 @@ public class ModelSoundingCatalog extends PointDataCatalog {
                 request.addConstraint("pluginName", new RequestConstraint(
                         pluginName));
                 request.addRequestField(typeKey);
-                for (VbSource source : VbSourceList.getInstance().getEntries()) {
-                    if (source.getKey().startsWith(pluginName)) {
+                for (VbSource source : VbSourceList.getInstance()
+                        .getAllSources()) {
+                    if (!source.getRemove()
+                            && source.getKey().startsWith(pluginName)) {
                         String type = source.getKey().replace(pluginName, "");
                         request.addConstraint(typeKey, new RequestConstraint(
                                 type));
@@ -249,8 +255,8 @@ public class ModelSoundingCatalog extends PointDataCatalog {
         for (Entry<String, SPIEntry> entry : spipv.getSpiList().entrySet()) {
             SurfaceObsLocation loc = new SurfaceObsLocation();
             loc.setStationId(entry.getKey());
-            loc.setLatitude(entry.getValue().latlon.y);
-            loc.setLongitude(entry.getValue().latlon.x);
+            loc.setLatitude((float) entry.getValue().latlon.y);
+            loc.setLongitude((float) entry.getValue().latlon.x);
             locs.add(loc);
         }
         Collections.sort(locs, locComparator);

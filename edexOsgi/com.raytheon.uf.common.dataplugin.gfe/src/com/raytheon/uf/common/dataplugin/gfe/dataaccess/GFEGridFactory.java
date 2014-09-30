@@ -73,6 +73,7 @@ import com.raytheon.uf.common.util.StringUtil;
  *                                    Framework.
  * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
  * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
+ * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
  * 
  * </pre>
  * 
@@ -91,14 +92,15 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
 
     private static final String KEYS = "keys";
 
-    // The more full version from GFEDataAccessUtil is prefered but the smaller
+    // The more full version from GFEDataAccessUtil is preferred but the smaller
     // keys are needed for backwards compatibility.
-    private static final String[] VALID_IDENTIFIERS = { MODEL_NAME, MODEL_TIME,
-            SITE_ID };
+    private static final String[] OPTIONAL_IDENTIFIERS = {
+            GFEDataAccessUtil.MODEL_NAME, GFEDataAccessUtil.MODEL_TIME,
+            GFEDataAccessUtil.SITE_ID, MODEL_NAME, MODEL_TIME, SITE_ID };
 
     @Override
-    public String[] getValidIdentifiers() {
-        return VALID_IDENTIFIERS;
+    public String[] getOptionalIdentifiers() {
+        return OPTIONAL_IDENTIFIERS;
     }
 
     @Override

@@ -64,6 +64,8 @@ import com.raytheon.uf.common.util.mapping.Mapper;
  * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
  *                                    single request.
  * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
+ * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
+ * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * 
  * 
  * </pre>
@@ -82,7 +84,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
             GridConstants.ENSEMBLE_ID, NAMESPACE };
 
     @Override
-    public String[] getValidIdentifiers() {
+    public String[] getOptionalIdentifiers() {
         return VALID_IDENTIFIERS;
     }
 
@@ -222,21 +224,19 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
                 double leveltwo = requestLevel.getLeveltwovalue();
                 String master = requestLevel.getMasterLevel().getName();
                 Unit<?> unit = requestLevel.getMasterLevel().getUnit();
-                try {
-                    // instead of doing reverse mapping just do a forward
-                    // mapping on everything they requested and compare to what
-                    // they got.
-                    Set<Level> levels = LevelMapper.getInstance().lookupLevels(
-                            master, namespace, levelone, leveltwo, unit);
-                    for (Level l : levels) {
-                        if (level.equals(l)) {
-                            level = requestLevel;
-                            break;
-                        }
+
+                // instead of doing reverse mapping just do a forward
+                // mapping on everything they requested and compare to what
+                // they got.
+                Set<Level> levels = LevelMapper.getInstance().lookupLevels(
+                        master, namespace, levelone, leveltwo, unit);
+                for (Level l : levels) {
+                    if (level.equals(l)) {
+                        level = requestLevel;
+                        break;
                     }
-                } catch (CommunicationException e) {
-                    throw new DataRetrievalException(e);
                 }
+
                 if (level == requestLevel) {
                     // we found one.
                     break;
@@ -275,6 +275,5 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
     public String[] getAvailableLocationNames(IDataRequest request) {
         return getAvailableLocationNames(request, GridConstants.DATASET_ID);
     }
-
 
 }

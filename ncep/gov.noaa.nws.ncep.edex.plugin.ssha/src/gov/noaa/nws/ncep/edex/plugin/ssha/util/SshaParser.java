@@ -24,9 +24,9 @@ import java.util.List;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 
 public class SshaParser {
 

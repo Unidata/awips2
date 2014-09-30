@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="10% Exceedance Ht."
+        key="Surge10pctIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="20% Exceedance Ht."
+        key="Surge20pctIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="30% Exceedance Ht."
+        key="Surge30pctIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="40% Exceedance Ht."
+        key="Surge40pctIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="50% Exceedance Ht."
+        key="Surge50pctIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 0 ft"
+        key="PSurge0ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 1 ft"
+        key="PSurge1ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 2 ft"
+        key="PSurge2ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 3 ft"
+        key="PSurge3ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 4 ft"
+        key="PSurge4ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 5 ft"
+        key="PSurge5ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 6 ft"
+        key="PSurge6ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 7 ft"
+        key="PSurge7ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 8 ft"
+        key="PSurge8ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 9 ft"
+        key="PSurge9ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 10 ft"
+        key="PSurge10ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 11 ft"
+        key="PSurge11ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 12 ft"
+        key="PSurge12ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 13 ft"
+        key="PSurge13ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 14 ft"
+        key="PSurge14ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 15 ft"
+        key="PSurge15ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 16 ft"
+        key="PSurge16ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 17 ft"
+        key="PSurge17ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 18 ft"
+        key="PSurge18ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 19 ft"
+        key="PSurge19ftIncr_PHISH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob of Surge &gt; 20 ft"
+        key="PSurge20ftIncr_PHISH" indentText="false" />
+</menuTemplate>

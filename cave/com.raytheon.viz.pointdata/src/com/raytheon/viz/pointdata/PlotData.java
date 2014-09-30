@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.datacube.CubeUtil;
  * ------------ ---------- ----------- --------------------------
  * Jul 19, 2011            njensen     Initial creation.
  * Jul 12, 2013    2096    mpduff      Add method to check if parameter is valid.
+ * Aug 07, 2014 3478       bclement    removed PointDataDescription.Type.Double
  * 
  * </pre>
  * 
@@ -72,7 +73,6 @@ public class PlotData {
             pv.dimension = dimensions;
             switch (t) {
             case FLOAT:
-            case DOUBLE:
             case INT:
             case LONG:
                 if (dimensions == 2) {
@@ -114,7 +114,6 @@ public class PlotData {
             pv.dimension = dimensions;
             switch (t) {
             case FLOAT:
-            case DOUBLE:
             case INT:
             case LONG:
                 if (dimensions == 2) {

@@ -19,18 +19,10 @@
  **/
 package com.raytheon.uf.common.registry.services;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
 import com.raytheon.uf.common.comm.ProxyConfiguration;
-import com.raytheon.uf.common.comm.ProxyUtil;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * 
@@ -43,16 +35,19 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 6/5/2014     1712        bphillip    Initial coding
+ * 6/18/2014    1712        bphillip    Updated Proxy configuration
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 public class RegistryServiceConfiguration {
-
-    /** The logger */
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RegistryServiceConfiguration.class);
+    
+    /** The name of the receive timeout property */
+    private static final String RECEIVE_TIMEOUT_PROPERTY = "ebxml-http-receive-timeout";
+    
+    /** The name of the connect timeout property */
+    private static final String CONNECT_TIMEOUT_PROPERTY = "ebxml-http-connection-timeout";
 
     /** Default timeout for receiving HTTP data */
     private static final String DEFAULT_RECEIVE_TIMEOUT = "60000";
@@ -62,9 +57,6 @@ public class RegistryServiceConfiguration {
 
     /** The HTTP Communication policy configuration */
     private HTTPClientPolicy httpClientPolicy;
-
-    /** The proxy configuration */
-    private ProxyConfiguration proxyConfig;
 
     /**
      * Gets the HTTP communication policy.
@@ -82,40 +74,19 @@ public class RegistryServiceConfiguration {
      * Initializes the HTTP communication policy
      */
     private void initHttpClientPolicy() {
-        initProxyConfiguration();
         httpClientPolicy = new HTTPClientPolicy();
         httpClientPolicy.setReceiveTimeout(Long.parseLong(System.getProperty(
-                "ebxml-http-receive-timeout", DEFAULT_RECEIVE_TIMEOUT)));
+                RECEIVE_TIMEOUT_PROPERTY, DEFAULT_RECEIVE_TIMEOUT)));
         httpClientPolicy.setConnectionTimeout(Long.parseLong(System
-                .getProperty("ebxml-http-connection-timeout",
+                .getProperty(CONNECT_TIMEOUT_PROPERTY,
                         DEFAULT_CONNECT_TIMEOUT)));
 
         httpClientPolicy.setConnection(ConnectionType.CLOSE);
         httpClientPolicy.setMaxRetransmits(5);
-        if (proxyConfig != null) {
-            httpClientPolicy.setProxyServer(proxyConfig.getHost());
-            httpClientPolicy.setProxyServerPort(proxyConfig.getPort());
-            httpClientPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
-        }
-    }
-
-    /**
-     * Gets the proxy configuration
-     * 
-     * @return The proxy configuration
-     */
-    private void initProxyConfiguration() {
-        if (proxyConfig == null) {
-            File proxyFile = PathManagerFactory.getPathManager().getStaticFile(
-                    "datadelivery" + File.separator + "proxy.properties");
-            if (proxyFile != null) {
-                try {
-                    proxyConfig = ProxyUtil.getProxySettings(proxyFile);
-                } catch (IOException e) {
-                    throw new RegistryServiceException(
-                            "Error reading proxy properties", e);
-                }
-            }
+        if (ProxyConfiguration.HTTPS_PROXY_DEFINED) {
+            httpClientPolicy.setProxyServer(ProxyConfiguration.getHttpsProxyHost());
+            httpClientPolicy.setProxyServerPort(ProxyConfiguration.getHttpsProxyPort());
+            httpClientPolicy.setNonProxyHosts(ProxyConfiguration.getHttpsNonProxyHosts());
         }
     }
 }

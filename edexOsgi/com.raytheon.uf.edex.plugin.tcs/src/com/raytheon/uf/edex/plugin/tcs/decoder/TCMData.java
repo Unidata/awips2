@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  *                                     calculate times.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -281,8 +282,8 @@ public class TCMData extends TCSDataAdapter {
             m = latlonPtrn.matcher(mask);
             if (m.find()) {
                 SurfaceObsLocation location = new SurfaceObsLocation();
-                double latitude = Double.parseDouble(((m.group(1))));
-                double longitude = Double.parseDouble((m.group(3)));
+                float latitude = Float.parseFloat(((m.group(1))));
+                float longitude = Float.parseFloat((m.group(3)));
                 location.setLatitude(m.group(2).equals("S") ? -1 * latitude
                         : latitude);
                 location.setLongitude(m.group(4).equals("W") ? -1 * longitude

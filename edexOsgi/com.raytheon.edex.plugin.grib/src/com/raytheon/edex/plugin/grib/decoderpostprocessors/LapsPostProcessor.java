@@ -21,7 +21,6 @@
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.parameter.Parameter;
  * ------------- -------- ----------- --------------------------
  * Apr 07, 2011  6619     bphillip    Initial creation
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
+ * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -60,13 +60,9 @@ public class LapsPostProcessor implements IDecoderPostProcessor {
         String levelName = record.getLevel().getMasterLevel().getName();
         boolean modelInfoModified = false;
         if (levelName.equals(FHAG)) {
-            try {
-                Level sfcLevel = LevelFactory.getInstance().getLevel(SFC, 0);
-                record.setLevel(sfcLevel);
-                modelInfoModified = true;
-            } catch (CommunicationException e) {
-                throw new GribException("Error modifying LAPS records.", e);
-            }
+            Level sfcLevel = LevelFactory.getInstance().getLevel(SFC, 0);
+            record.setLevel(sfcLevel);
+            modelInfoModified = true;
         }
 
         if (record.getParameter().getAbbreviation().equals(PMSL)) {

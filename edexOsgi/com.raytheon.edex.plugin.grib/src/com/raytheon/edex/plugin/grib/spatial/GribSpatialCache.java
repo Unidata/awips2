@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
+
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
@@ -74,6 +76,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 04, 2013  15653    M.Porricelli Shift subgrid domain westward like
  *                                     AWIPSI
  * Oct 15, 2013  2473     bsteffen     Rewrite deprecated code.
+ * Jul 21, 2014  3373     bclement     JAXB managers only live during initializeGrids()
  * 
  * </pre>
  * 
@@ -85,15 +88,6 @@ public class GribSpatialCache {
     /** The logger */
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribSpatialCache.class);
-
-    private static final SingleTypeJAXBManager<GridCoverage> GRID_COVERAGE_JAXB = SingleTypeJAXBManager
-            .createWithoutException(GridCoverage.class);
-
-    private static final SingleTypeJAXBManager<SubGridDef> SUB_GRID_DEF_JAXB = SingleTypeJAXBManager
-            .createWithoutException(SubGridDef.class);
-
-    private static final SingleTypeJAXBManager<DefaultSubGridCenterPoint> SUB_GRID_CENTER_JAXB = SingleTypeJAXBManager
-            .createWithoutException(DefaultSubGridCenterPoint.class);
 
     /** The singleton instance */
     private static GribSpatialCache instance;
@@ -429,17 +423,20 @@ public class GribSpatialCache {
      * Loads and validates subGridDef pointed to by filePath. If definition
      * empty/invalid returns null.
      * 
+     * @param subGridDefJaxb
      * @param filePath
+     * @param defaultCenter
      * @return
      */
-    private SubGridDef loadSubGridDef(final String filePath,
-            final Coordinate defaultCenter) {
+    private SubGridDef loadSubGridDef(
+            final SingleTypeJAXBManager<SubGridDef> subGridDefJaxb,
+            final String filePath, final Coordinate defaultCenter) {
         SubGridDef rval = null;
         File f = new File(filePath);
 
         if (f.length() > 0) {
             try {
-                rval = SUB_GRID_DEF_JAXB.unmarshalFromXmlFile(f);
+                rval = subGridDefJaxb.unmarshalFromXmlFile(f);
                 if ((rval.getReferenceModel() == null && rval
                         .getReferenceGrid() == null)
                         || (rval.getModelNames() == null)
@@ -498,14 +495,28 @@ public class GribSpatialCache {
         Map<Integer, Set<String>> gridNameMap = new HashMap<Integer, Set<String>>();
         Map<String, GridCoverage> spatialNameMap = new HashMap<String, GridCoverage>();
         Map<String, SubGridDef> subGridDefMap = new HashMap<String, SubGridDef>();
+
+        SingleTypeJAXBManager<GridCoverage> gridCovJaxb;
+        SingleTypeJAXBManager<SubGridDef> subGridDefJaxb;
+        try {
+            subGridDefJaxb = new SingleTypeJAXBManager<SubGridDef>(true,
+                    SubGridDef.class);
+            gridCovJaxb = new SingleTypeJAXBManager<GridCoverage>(true,
+                    GridCoverage.class);
+        } catch (JAXBException e) {
+            statusHandler.error("Unable to create grid JAXB managers", e);
+            return;
+        }
+
         do {
             ct = ClusterLockUtils.lock("grib", "spatialCache", 120000, true);
         } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
 
+
         try {
             for (FileData fd : fdl.getCoverageFileList()) {
                 try {
-                    GridCoverage grid = GRID_COVERAGE_JAXB
+                    GridCoverage grid = gridCovJaxb
                             .unmarshalFromXmlFile(fd.getFilePath());
                     String name = grid.getName();
                     grid = insert(grid);
@@ -535,8 +546,8 @@ public class GribSpatialCache {
             }
             for (FileData fd : fdl.getSubGridFileList()) {
                 try {
-                    SubGridDef subGridDef = loadSubGridDef(fd.getFilePath(),
-                            defaultCenterPoint);
+                    SubGridDef subGridDef = loadSubGridDef(subGridDefJaxb,
+                            fd.getFilePath(), defaultCenterPoint);
                     if (subGridDef == null) {
                         continue;
                     }
@@ -599,12 +610,14 @@ public class GribSpatialCache {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationFile defaultSubGridLocationFile = pm
                 .getStaticLocalizationFile("/grib/defaultSubGridCenterPoint.xml");
+        SingleTypeJAXBManager<DefaultSubGridCenterPoint> subGridCenterJaxb = new SingleTypeJAXBManager<DefaultSubGridCenterPoint>(
+                DefaultSubGridCenterPoint.class);
         if ((defaultSubGridLocationFile != null)
                 && defaultSubGridLocationFile.exists()) {
             try {
                 DefaultSubGridCenterPoint defaultSubGridLocation = defaultSubGridLocationFile
                         .jaxbUnmarshal(DefaultSubGridCenterPoint.class,
-                                SUB_GRID_CENTER_JAXB);
+                                subGridCenterJaxb);
                 if ((defaultSubGridLocation != null)
                         && (defaultSubGridLocation.getCenterLatitude() != null)
                         && (defaultSubGridLocation.getCenterLongitude() != null)) {

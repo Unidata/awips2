@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Lsr Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.lsr
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.dataplugin.lsr;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.pointdata,
