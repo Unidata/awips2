@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 19, 2013       2190 mschenke    Initial creation
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -357,8 +358,8 @@ public class PopupSkewTResource extends
                         }
                     }
                 }
-                sounding.setLongitude(location.x);
-                sounding.setLatitude(location.y);
+                sounding.setLongitude((float) location.x);
+                sounding.setLatitude((float) location.y);
                 sounding.setDataTime(requestTime);
                 this.sounding = sounding;
             }

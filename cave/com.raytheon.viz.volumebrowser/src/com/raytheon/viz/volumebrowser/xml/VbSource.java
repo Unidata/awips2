@@ -20,6 +20,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * ------------- -------- ----------- -----------------------------------------
  * Jan 06, 2011           bsteffen    Initial creation
  * Dec 11, 2013  2602     bsteffen    Remove ISerializableObject.
+ * Aug 14, 2014  3506     mapeters    Added remove field and equals 
+ *                                    and hashCode functions.
  * 
  * </pre>
  * 
@@ -44,6 +46,9 @@ public class VbSource {
 
     @XmlAttribute(required = false)
     private String subCategory;
+
+    @XmlAttribute(required = false)
+    private boolean remove;
 
     /**
      * @return the key
@@ -120,4 +125,29 @@ public class VbSource {
         this.subCategory = subCategory;
     }
 
+    /**
+     * @return whether or not this source is to be removed
+     */
+    public boolean getRemove() {
+        return remove;
+    }
+
+    /**
+     * @param remove
+     *            the remove status to set
+     */
+    public void setRemove(boolean remove) {
+        this.remove = remove;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        return that instanceof VbSource ? this.key.equals(((VbSource) that)
+                .getKey()) : false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return key.hashCode();
+    }
 }

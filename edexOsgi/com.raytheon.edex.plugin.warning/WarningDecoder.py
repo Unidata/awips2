@@ -43,6 +43,7 @@
 # Oct 03, 2013  2402     bsteffen       Make PythonDecoder more extendable.
 # May 15, 2014  2536     bclement       moved WMO time parsing to WMOTimeParser
 # May 15, 2014  3157     dgilling       Update location of WclInfo class.
+# Jun 10, 2014  3268     dgilling       Update location of WclInfo class.
 
 # </pre>
 #

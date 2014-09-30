@@ -2,15 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tcs Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.tcs
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.tcs.Activator
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core,
  org.eclipse.core.runtime,
  org.geotools;bundle-version="2.6.4"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.tcs,

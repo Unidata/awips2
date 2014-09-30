@@ -69,6 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 18, 2014 2895       njensen     Fix concurrent mod exception on dispose
  * May 05, 2014 3076       bclement    old CLEAR_ALL is now DISPOSE_ALL,
  *                                      added clearLayers() and getAllDrawingLayers()
+ * Jun 30, 2014 1798       bclement    added getManager()
  * 
  * </pre>
  * 
@@ -482,4 +483,12 @@ public class CollaborationDrawingResource extends
         // Though I hate this methods exists, it serves its purpose
         return false;
     }
+
+    /**
+     * @return the manager
+     */
+    public CollaborationDrawingUIManager getManager() {
+        return manager;
+    }
+
 }

@@ -61,6 +61,8 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  *                                     by default.
  * 02/11/2014   #2788      randerso    Fixed infinite loop in computeIntervalAndPrecision 
  *                                     when pmax < pmin
+ * 08/14/2014   #3523      mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * 
  * </pre>
  * 
@@ -169,7 +171,6 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
         DrawableString dstring = new DrawableString("", seColorBarTextColor);
         dstring.font = colorbarResource.getColorbarScaleFont();
-        dstring.textStyle = TextStyle.NORMAL;
         dstring.horizontalAlignment = HorizontalAlignment.CENTER;
         dstring.verticallAlignment = VerticalAlignment.MIDDLE;
 
@@ -186,8 +187,6 @@ public class ContinuousColorbar implements IColorBarDisplay {
             int precision = (int) val[1];
             // float labelLength = val[2] / (float) ratio;
 
-            dstring.font = colorbarResource.getColorbarScaleFont();
-            dstring.textStyle = TextStyle.NORMAL;
             for (int i = 0; (minParm + (i * interval)) <= maxParm; i++) {
                 // check to see whether this colorTable item needs to be
                 // rendered
@@ -257,11 +256,8 @@ public class ContinuousColorbar implements IColorBarDisplay {
                 } else {
                     dstring.setText(s, seColorBarFgPickupColor);
                 }
-                dstring.textStyle = TextStyle.DROP_SHADOW;
-                dstring.shadowColor = seColorBarBgPickupColor;
-                if (dstring.shadowColor == null) {
-                    dstring.shadowColor = new RGB(0, 0, 0);
-                }
+                dstring.addTextStyle(TextStyle.DROP_SHADOW,
+                        seColorBarBgPickupColor);
 
                 double halfWidth = (target.getStringsBounds(dstring).getWidth() * ratio) / 2;
 

@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 
-import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
+import com.raytheon.uf.common.geospatial.adapter.CoordAdapter;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.vividsolutions.jts.geom.Coordinate;

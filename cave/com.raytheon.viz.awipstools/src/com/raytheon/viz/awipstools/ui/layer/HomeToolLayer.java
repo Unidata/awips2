@@ -34,14 +34,14 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -70,6 +70,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  15Jan2007                ebabin     Update for lat/lon put home cursor bug.
  *  10-21-09     #1049       bsteffen    Refactor to common MovableTool model
  *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
+ *  23Jul2014    3429        mapeters    Updated deprecated drawLine() calls.
+ *  28Jul2014    3430        mapeters    Updated move function to prevent errors when
+ *                                       MB3 clicking off the map in editable mode.
+ *  14Aug2014    3523        mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                       assignments.
  * </pre>
  * 
  * @author ebabin
@@ -157,17 +162,24 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
                 radius, 45);
         double[] p2 = target.getPointOnCircle(center[0], center[1], 0.0,
                 radius, 225);
-        target.drawLine(p1[0], p1[1], 0, p2[0], p2[1], 0, color, 1.0f);
+        DrawableLine[] lines = new DrawableLine[2];
+        lines[0] = new DrawableLine();
+        lines[0].setCoordinates(p1[0], p1[1]);
+        lines[0].addPoint(p2[0], p2[1]);
+        lines[0].basics.color = color;
         p1 = target.getPointOnCircle(center[0], center[1], 0.0, radius, 135);
         p2 = target.getPointOnCircle(center[0], center[1], 0.0, radius, 315);
-        target.drawLine(p1[0], p1[1], 0, p2[0], p2[1], 0, color, 1.0f);
+        lines[1] = new DrawableLine();
+        lines[1].setCoordinates(p1[0], p1[1]);
+        lines[1].addPoint(p2[0], p2[1]);
+        lines[1].basics.color = color;
+        target.drawLine(lines);
         double labelLoc[] = target.getPointOnCircle(center[0], center[1], 0.0,
                 radius, 0);
         DrawableString dString = new DrawableString("Home", color);
         dString.basics.x = labelLoc[0];
         dString.basics.y = labelLoc[1];
         dString.basics.z = 0.0;
-        dString.textStyle = TextStyle.NORMAL;
         dString.horizontalAlignment = HorizontalAlignment.LEFT;
         dString.font = labelFont;
         target.drawStrings(dString);
@@ -263,8 +275,9 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     @Override
     protected Coordinate move(Coordinate lastMouseLoc, Coordinate mouseLoc,
-            Coordinate object) {
-        return new Coordinate(mouseLoc != null ? mouseLoc : lastMouseLoc);
+            Coordinate lastHomeLoc) {
+        return (lastMouseLoc == null) ? lastHomeLoc : new Coordinate(
+                mouseLoc != null ? mouseLoc : lastMouseLoc);
     }
 
     @Override

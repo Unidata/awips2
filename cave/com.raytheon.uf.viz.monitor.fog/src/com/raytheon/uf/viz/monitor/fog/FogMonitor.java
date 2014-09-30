@@ -64,7 +64,6 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
 import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogZoneTableDlg;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 import com.raytheon.uf.viz.monitor.util.MonitorThresholdConfiguration;
-import com.raytheon.viz.alerts.Activator;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.vividsolutions.jts.geom.Geometry;
@@ -88,6 +87,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct.31  2012 1297       skorolev    Clean code
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
+ * Sep 23, 2014 3356       njensen     Remove unnecessary import
  * 
  * </pre>
  * 

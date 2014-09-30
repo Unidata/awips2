@@ -86,14 +86,12 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.radarapps.alertreq.impl.AlertCategory;
 import com.raytheon.uf.viz.radarapps.alertreq.impl.AlertRequestDoc;
 import com.raytheon.uf.viz.radarapps.alertreq.impl.AlertRequestEditing;
 import com.raytheon.uf.viz.radarapps.alertreq.impl.AlertRequestEditing.Sel;
 import com.raytheon.uf.viz.radarapps.core.RadarApps;
 import com.raytheon.uf.viz.radarapps.products.ui.ExtProductsUI;
-import com.raytheon.uf.viz.radarapps.requests.Activator;
 import com.raytheon.viz.ui.EditorUtil;
 
 public class AlertRequestWindow extends Window {
@@ -338,7 +336,7 @@ public class AlertRequestWindow extends Window {
             String message = "There are modified alert requests for some radars. "
                     + "Do you want to send them before exiting?\n\n"
                     + "\t\"Cancel\" to return to the editor.\n"
-                    + "\t\"Exit\" to exit, loosing any modifications.\n"
+                    + "\t\"Exit\" to exit, losing any modifications.\n"
                     + "\t\"Send\" to send modified requests and exit.";
             String[] labels = { "Cancel", "Exit", "Send Requests" };
             MessageDialog dlg = new MessageDialog(getShell(), "Confirm Exit",

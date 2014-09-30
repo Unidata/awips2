@@ -31,9 +31,9 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
 import com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  *                                     types.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -137,7 +138,7 @@ public class AScatDataAdapter extends BUFRPointDataAdapter<AScatObs> {
                             IDecoderConstants.VAL_MISSING);
 
                     SurfaceObsLocation location = new SurfaceObsLocation();
-                    location.assignLocation(lat, lon);
+                    location.assignLocation((float) lat, (float) lon);
                     location.generateCoordinateStationId();
                     obsData.setLocation(location);
 
