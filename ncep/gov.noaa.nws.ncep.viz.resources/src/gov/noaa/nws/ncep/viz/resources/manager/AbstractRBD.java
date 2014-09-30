@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *    05/14/13       #862      Greg Hull   implement INatlCntrsPaneManager
  *    11/21/13       #1066     Greg Hull   save off Native gridGeometries during clone()
  *    10/29/13       #2491     bsteffen    Use custom JAXB context instead of SerializationUtil.
+ *    05/15/2014     #1131     Quan Zhou   Added GRAPH_DISPLAY.
  * </pre>
  * 
  * @author ghull
@@ -389,6 +390,10 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
             rbd = new SolarRBD(pLayout);
             rbd.setRbdName("Solar");
             break;
+        case GRAPH_DISPLAY:
+            rbd = new GraphRBD(pLayout);
+            rbd.setRbdName("Graph");
+            break;
         }
 
         rbd.setIsDefaultRbd(true);
@@ -571,6 +576,11 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
                     new NcPaneLayout(1, 1));
         case SOLAR_DISPLAY:
             dfltRbdName = null; // NcPathConstants.DFLT_SOLAR_RBD;
+            return AbstractRBD.createEmptyRbdForDisplayType(displayType,
+                    new NcPaneLayout(1, 1));
+
+        case GRAPH_DISPLAY:
+            dfltRbdName = null;
             return AbstractRBD.createEmptyRbdForDisplayType(displayType,
                     new NcPaneLayout(1, 1));
         default:

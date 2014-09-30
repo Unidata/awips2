@@ -19,23 +19,18 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.buoy;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_3_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_4_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_LEAD;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_ERROR;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_MISSING;
-
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSectionDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticGroups;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.DataItem;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * Decode synoptic section 2 data. This section has a single group which
@@ -53,6 +48,7 @@ import com.raytheon.uf.edex.decodertools.core.ReportParser;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
+ * Sep 26, 2014       3629 mapeters    Removed unused fields, replaced static imports.
  * 
  * </pre>
  * 
@@ -64,12 +60,6 @@ public class DRIBUSec2Decoder extends AbstractSectionDecoder {
     public static final String SEC_2_PATTERN = "222[/0-9]{2}";
 
     private DataItem seaTemp = null;
-
-    // high resolution wave period (second)
-    private Integer windWavePeriod_lo = null;
-
-    // low resolution wave period (1 meter)
-    private Integer windWaveHeight_lo = null;
 
     // high resolution wave period (1/10th second)
     private Integer windWavePeriod_hi = null;
@@ -113,21 +103,22 @@ public class DRIBUSec2Decoder extends AbstractSectionDecoder {
                     break;
                 }
 
-                if (matchElement(element, SEC_3_LEAD)) {
+                if (AbstractSfcObsDecoder.matchElement(element,
+                        ISynoptic.SEC_3_LEAD)) {
                     break;
-                } else if (matchElement(element, SEC_4_LEAD)) {
+                } else if (AbstractSfcObsDecoder.matchElement(element,
+                        ISynoptic.SEC_4_LEAD)) {
                     break;
-                } else if (matchElement(element, SEC_5_LEAD)) {
+                } else if (AbstractSfcObsDecoder.matchElement(element,
+                        ISynoptic.SEC_5_LEAD)) {
                     break;
                 }
 
                 if ("0".equals(element.substring(0, 1))) {
                     seaTemp = SynopticGroups.decodeTemperature(element, 2);
-                } else if ("1".equals(element.substring(0, 1))) {
-                    windWavePeriod_lo = getInt(element, 1, 3);
-                    windWaveHeight_lo = getInt(element, 3, 5);
                 } else if ("20".equals(element.substring(0, 2))) {
-                    windWavePeriod_hi = getInt(element, 1, 3);
+                    windWavePeriod_hi = AbstractSfcObsDecoder.getInt(element,
+                            1, 3);
                     if ((windWavePeriod_hi != null) && (windWavePeriod_hi >= 0)) {
                         // TODO : For now the finest granularity in time is one
                         // second,
@@ -137,7 +128,8 @@ public class DRIBUSec2Decoder extends AbstractSectionDecoder {
                                 .round(windWavePeriod_hi / 10.0);
                     }
                 } else if ("21".equals(element.substring(0, 2))) {
-                    windWaveHeight_hi = getInt(element, 3, 5);
+                    windWaveHeight_hi = AbstractSfcObsDecoder.getInt(element,
+                            3, 5);
                 }
             } // while
         }
@@ -149,8 +141,6 @@ public class DRIBUSec2Decoder extends AbstractSectionDecoder {
      */
     private void init() {
         seaTemp = null;
-        windWavePeriod_lo = null;
-        windWaveHeight_lo = null;
         windWavePeriod_hi = null;
         windWaveHeight_hi = null;
     }
@@ -163,10 +153,11 @@ public class DRIBUSec2Decoder extends AbstractSectionDecoder {
      * @return The populated receiver object.
      */
     public ObsCommon getDecodedData(ObsCommon receiver) {
-        final Double[] ignore = { VAL_ERROR.doubleValue(),
-                VAL_MISSING.doubleValue() };
 
         if (receiver != null) {
+            final Double[] ignore = {
+                    IDecoderConstants.VAL_ERROR.doubleValue(),
+                    IDecoderConstants.VAL_MISSING.doubleValue() };
             receiver.setSeaTemp(DataItem.getValue(seaTemp, ignore));
 
             if ((windWavePeriod_hi != null) || (windWaveHeight_hi != null)) {

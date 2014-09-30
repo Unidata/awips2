@@ -6,6 +6,7 @@
                              9-12-2012 Added in new areaSource object and recode
                                        for new locations shapefile
      Phil Kurimski          09-19-2013 added geospatialConfig.xml
+     Mike Dangelo            6/26/2014 added bullets for watch info inclusion (bulletDefault set to true)
  -->
 <warngenConfig>
 
@@ -50,11 +51,11 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
 
  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include TO.A and/or SV.A, 
+ 	included with the warning product include torWatches and/or svrWatches, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
-  <includedWatch>TO.A</includedWatch>
-  <includedWatch>SV.A</includedWatch>
+  <includedWatch>torWatches</includedWatch>
+  <includedWatch>svrWatches</includedWatch>
  </includedWatches>
  
  <!-- durations: the list of possible durations of the warning -->
@@ -99,11 +100,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
-  <!-- 
-  <bullet bulletText="******** MILE MARKERS *********" bulletType="title"/>
-  <bullet bulletName="interstates" bulletText="Interstate Mile Markers" bulletDefault="true" />
-  <bullet bulletName="roads" bulletText="Road Markers" />
-  -->
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletText="" bulletType="title"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR">
@@ -134,12 +133,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/>
   <bullet bulletText="" bulletType="title"/>
-  <!-- 
-  <bullet bulletText="******** MILE MARKERS *********" bulletType="title"/>
-  <bullet bulletName="interstates" bulletText="Interstate Mile Markers" bulletDefault="true" />
-  <bullet bulletName="roads" bulletText="Road Markers" />
-  -->
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>
