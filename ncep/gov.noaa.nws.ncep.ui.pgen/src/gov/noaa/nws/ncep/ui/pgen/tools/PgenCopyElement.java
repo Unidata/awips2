@@ -8,21 +8,9 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
-import java.awt.Color;
-import java.util.Iterator;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Event;
-import org.geotools.coverage.grid.GridEnvelope2D;
-import org.opengis.coverage.grid.GridEnvelope;
-
-import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.rsc.IInputHandler;
-import com.vividsolutions.jts.geom.Coordinate;
-
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
+import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
@@ -31,9 +19,19 @@ import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.GfaReducePoint;
-import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
-import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.referencing.CRS;
+import org.opengis.coverage.grid.GridEnvelope;
+
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Implements a modal map tool for the PGEN copy element function.
@@ -57,6 +55,7 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
  * 05/11			#808	J. Wu		Update Gfa vor text
  * 05/12		    #610	J. Wu   	Add warning when GFA FROM lines > 3
  * 08/12			#760	B. Yin		Check for world wrap
+ * 09/14			?		B. Yin		Handle map bounds.
  *
  * </pre>
  * 
@@ -109,6 +108,7 @@ public class PgenCopyElement extends AbstractPgenTool {
 
     	protected boolean simulate;
     	
+    	private boolean isMercator = false;
     	
         /*
          * (non-Javadoc)
@@ -121,7 +121,7 @@ public class PgenCopyElement extends AbstractPgenTool {
         	if ( !isResourceEditable() ) return false;
 
         	preempt = false;
-        	
+        	isMercator = (CRS.getMapProjection( mapEditor.getActiveDisplayPane().getDescriptor().getCRS())).getName().contains("Mercator");
            	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null || shiftDown || simulate ) return false;
@@ -225,6 +225,15 @@ public class PgenCopyElement extends AbstractPgenTool {
     			}
     			
     			if ( ghostEl != null ) {
+    			    
+    			    //save the original points
+    			    ArrayList<Coordinate> originalPts = new ArrayList<Coordinate>();
+    			    for ( Coordinate coord : ghostEl.getPoints()){
+    			        originalPts.add(new Coordinate(coord.x, coord.y, 0));
+    			    }
+    			    
+    			    boolean hitBound = false;
+    			    
     				// use screen coordinate to copy/move
     				//double[] locScreen = mapEditor.translateInverseClick(loc);
     				double[] ptScreen = mapEditor.translateInverseClick(ptSelected);
@@ -242,17 +251,21 @@ public class PgenCopyElement extends AbstractPgenTool {
 
     			        double[] world = mapEditor.getActiveDisplayPane().screenToGrid(scnPt[0], scnPt[1], 0);
 
-    			        if ( world[0] > ((GridEnvelope2D)ge).getWidth() ) {
+    			        if ( isMercator && world[0] > ((GridEnvelope2D)ge).getWidth() ) {
         				//	System.out.println("idx=" + idx + " Out of Screen " + world[0] +" / " + ((GridEnvelope2D)ge).getWidth() );
         					world[0] -= ((GridEnvelope2D)ge).getWidth();
         					scnPt = mapEditor.getActiveDisplayPane().gridToScreen( world );
     			        }
-    			        else if ( world[0] < 0 ){
-            				//	System.out.println("idx=" + idx + " Out of Screen " + world[0] +" / " + ((GridEnvelope2D)ge).getWidth() );
+    			        else if ( isMercator && world[0] < 0 ){
+    			        //    System.out.println("idx=" + idx + " Out of Screen " + world[0] +" / " + ((GridEnvelope2D)ge).getWidth() );
         					world[0] += ((GridEnvelope2D)ge).getWidth();
         					scnPt = mapEditor.getActiveDisplayPane().gridToScreen( world );
     			        }
-    			       
+    			        else if ( world[0] > ((GridEnvelope2D)ge).getWidth()  || world[0] < 0 ||
+    			                  world[1] < 0 || world[1] > ((GridEnvelope2D)ge).getHeight()){
+    			            hitBound = true;
+    			            break;
+    			        }
     			        
     					Coordinate cord = mapEditor.translateClick(scnPt[0], scnPt[1]);
     					
@@ -261,6 +274,14 @@ public class PgenCopyElement extends AbstractPgenTool {
     					ghostEl.getPoints().get(idx).x = cord.x;
     					ghostEl.getPoints().get(idx).y = cord.y;
 
+    				}
+    				
+    				if ( hitBound ){
+    				    //restore original points
+    				    for ( int idx = 0; idx < ghostEl.getPoints().size(); idx++  ){
+    				        ghostEl.getPoints().get(idx).x = originalPts.get(idx).x;
+                            ghostEl.getPoints().get(idx).y = originalPts.get(idx).y;
+    				    }
     				}
     				
     				if ( elSelected instanceof Gfa ) {
