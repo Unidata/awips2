@@ -25,10 +25,10 @@ import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_4_L
 import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_LEAD;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSectionDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
 
 /**
  * Decode the Drifting buoy section 3 data. The current decoders skip Buoy

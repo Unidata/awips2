@@ -20,18 +20,22 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="bundleItem" file="bundles/fog/fogImageTable.xml"
-			menuText="Fog Monitor Table/Display" id="FOGMONITOR" commandId="com.raytheon.uf.viz.monitor.fog.ui.actions.fogMonitor">
-			<substitute key="cwa" value="${cwa}" />
-			<substitute key="colormap" value="fog/fog" />
-	</contribute>
-	<contribute xsi:type="separator" id="FogMonitorControls" />
-    <contribute xsi:type="command" id="ConfigureMonitorArea" commandId="com.raytheon.uf.viz.monitor.fog.ui.actions.fogAreaConfig"
-               menuText="Configure Fog Monitor Area">
+        menuText="Fog Monitor Table/Display" id="FOGMONITOR"
+        commandId="com.raytheon.uf.viz.monitor.fog.ui.actions.fogMonitor">
+        <substitute key="colormap" value="fog/fog" />
+        <substitute key="stations" value="${stations}" />
     </contribute>
-    <contribute xsi:type="command" id="ConfigureMonitorAlgoThresh" commandId="com.raytheon.uf.viz.monitor.fog.ui.actions.fogAlgoConfig"
-               menuText="Configure Algorithim Thresholds">
+    <contribute xsi:type="separator" id="FogMonitorControls" />
+    <contribute xsi:type="command" id="ConfigureMonitorArea"
+        commandId="com.raytheon.uf.viz.monitor.fog.ui.actions.fogAreaConfig"
+        menuText="Configure Fog Monitor Area">
     </contribute>
-    <contribute xsi:type="command" id="FogAlertVisThresholds" commandId="com.raytheon.uf.viz.monitor.fog.ui.actions.fogThresholdAlertVisConfig"
-               menuText="Configure Visibility Thresholds for AlertViz Monitoring">
+    <contribute xsi:type="command" id="ConfigureMonitorAlgoThresh"
+        commandId="com.raytheon.uf.viz.monitor.fog.ui.actions.fogAlgoConfig"
+        menuText="Configure Algorithim Thresholds">
+    </contribute>
+    <contribute xsi:type="command" id="FogAlertVisThresholds"
+        commandId="com.raytheon.uf.viz.monitor.fog.ui.actions.fogThresholdAlertVisConfig"
+        menuText="Configure Visibility Thresholds for AlertViz Monitoring">
     </contribute>
 </menuTemplate>
