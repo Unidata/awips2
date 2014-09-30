@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  *                                     added breaks/default to switch
  * Jul 23, 2014 3410      bclement    location changed to floats
  * Sep 16, 2014  3628     mapeters    Replaced static imports.
+ * Sep 26, 2014  3629     mapeters    Added PROFILER_DATA constant.
  * 
  * </pre>
  * 
@@ -73,6 +74,8 @@ public class ProfilerDataAdapter {
 
     private static final IUFStatusHandler logger = UFStatus
             .getHandler(ProfilerDataAdapter.class);
+
+    private static final int PROFILER_DATA = 3000;
 
     private static final String PROFILER_SITES = "profilerSites.xml";
 
@@ -191,7 +194,7 @@ public class ProfilerDataAdapter {
         if (dataList != null) {
 
             obsData = new ProfilerObs();
-            obsData.setReportType(IDecoderConstants.PROFILER_DATA);
+            obsData.setReportType(PROFILER_DATA);
             SurfaceObsLocation location = new SurfaceObsLocation();
 
             lat = getDouble(dataList.get(2), IDecoderConstants.VAL_MISSING);

@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Nov. 8, 2012 1297       skorolev    Added initiateProdArray method
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
+ * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
  * 
  * </pre>
  * 
@@ -120,7 +121,7 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     protected void configThreshAction() {
-        if (snowThreshDlg == null) {
+        if (snowThreshDlg == null || snowThreshDlg.isDisposed()) {
             snowThreshDlg = new SnowMonDispThreshDlg(getParent().getShell(),
                     CommonConfig.AppName.SNOW, DataUsageKey.DISPLAY);
         }
@@ -172,7 +173,7 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     public void fireConfigUpdate(IMonitorConfigurationEvent imce) {
-        // Not used
+
     }
 
     /*
@@ -263,11 +264,10 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
-        if (configMgr == null) {
-            configMgr = new FSSObsMonitorConfigurationManager(site,
+        if (configMgr == null || configMgr.isPopulated()) {
+            configMgr = new FSSObsMonitorConfigurationManager(
                     MonName.snow.name());
         }
         return configMgr;
     }
-
 }
