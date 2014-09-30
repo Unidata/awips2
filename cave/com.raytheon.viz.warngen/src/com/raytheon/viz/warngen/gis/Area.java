@@ -83,7 +83,9 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    Apr 29, 2014  3033       jsanchez    Updated method to retrieve files in localization.
  *    May 16, 2014 DR 17365    D. Friedman Reduce precision of warning area to avoid topology errors.
  *    Jun 30, 2014 DR 17447    Qinglu lin  Updated findAffectedAreas().
- *    Jul 22, 23014 3419       jsanchez    Cleaned up converFeAreaToPartList.
+ *    Jul 22, 2014  3419       jsanchez    Cleaned up converFeAreaToPartList.
+ *    Sep 14, 2014 ASM #641    dhuffman    Filtered out cases where Areas do not match Zones by using
+ *                                         refactored WarngenLayer::filterArea.
  * </pre>
  * 
  * @author chammack
@@ -327,13 +329,21 @@ public class Area {
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
             if (asc.getType() == AreaType.INTERSECT) {
                 List<Geometry> geoms = new ArrayList<Geometry>();
+                boolean filtered = false;
                 for (GeospatialData f : warngenLayer.getGeodataFeatures(
                         asc.getAreaSource(), localizedSite)) {
+
                     boolean ignoreUserData = asc.getAreaSource().equals(
                             hatchedAreaSource) == false;
                     Geometry intersect = GeometryUtil.intersection(warnArea,
                             f.prepGeom, ignoreUserData);
-                    if (intersect.isEmpty() == false) {
+
+                    filtered = false;
+                    if (!intersect.isEmpty()) {
+                        filtered = warngenLayer.filterArea(f, intersect, asc);
+                    }
+
+                    if (intersect.isEmpty() == false && filtered == true) {
                         geoms.add(intersect);
                     }
                 }

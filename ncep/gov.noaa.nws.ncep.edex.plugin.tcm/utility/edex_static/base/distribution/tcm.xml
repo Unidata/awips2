@@ -2,6 +2,6 @@
 <requestPatterns xmlns:ns2="group">
     <regex>^WT(NT|PZ)[23][1-5]</regex>
     <regex>^WTPA[23][1-5]</regex>
-    <regex>^WTPN[23][1-5]</regex>
+    <regex>^WTPN[235][1-5]</regex>
     <regex>^W[HT]PS01</regex>
 </requestPatterns>
