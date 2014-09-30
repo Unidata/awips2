@@ -70,7 +70,7 @@ public class StaticDataProvider implements IStaticDataProvider {
         return dataProvider;
     }
 
-    private StaticDataProvider() {
+    public StaticDataProvider() {
 
     }
 

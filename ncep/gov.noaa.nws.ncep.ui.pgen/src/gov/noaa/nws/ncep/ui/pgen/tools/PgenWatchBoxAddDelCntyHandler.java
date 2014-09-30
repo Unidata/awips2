@@ -16,11 +16,11 @@ import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 
 import java.util.List;
 
-import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -45,7 +45,6 @@ import com.vividsolutions.jts.geom.Point;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 12/09		#159	 	B. Yin   	Initial Creation.
- * Mar 11, 2014 #2718       randerso    Changes for GeoTools 10.5
  *
  * </pre>
  * 
@@ -61,7 +60,7 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
 
 	
 	//feature collection used to find which county a location is in
-	static DefaultFeatureCollection counties;
+    static DefaultFeatureCollection counties;
 	
 	/**
 	 * Public constructor
@@ -106,9 +105,9 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
     		Point click = gf.createPoint(loc);
     		
     		//apply filter
-    		SimpleFeatureCollection fc = counties.subCollection(createFilter(click));
+    		FeatureCollection<SimpleFeatureType,SimpleFeature> fc = counties.subCollection(createFilter(click));
     		
-    		SimpleFeatureIterator featureIterator = fc.features();
+    		FeatureIterator<SimpleFeature> featureIterator = fc.features();
 
     		//find the ID of the county the location is inside of 
     		String ugc = null;
@@ -122,7 +121,6 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
     				break;
     			}
     		}
-    		featureIterator.close();
     		
     		boolean gotCnty = false;
     		SPCCounty county = null;
@@ -223,7 +221,7 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
      */
     private void createCountyFeatureCollection(){
     	
-    	counties = new DefaultFeatureCollection();
+        counties = new DefaultFeatureCollection(null, null);
 
     	// create simple feature type 
     	SimpleFeatureTypeBuilder builder2 = new SimpleFeatureTypeBuilder();
