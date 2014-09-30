@@ -95,6 +95,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SHIP">
 <filters>Observed</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SHIP6HR">
+<filters>Observed</filters>
+</ResourceDefinitionFilter>
 <!-- PGEN Display Resources -->
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CCFP">
 <filters>CCFP</filters>
@@ -316,6 +319,9 @@
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HWRF_NT">
+<filters>Forecast,NTRANS</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HYSPLIT_NT">
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ICEACCR_NT">
@@ -679,7 +685,7 @@
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_E">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MRF">
 <filters>Forecast,SBN</filters>
@@ -702,8 +708,17 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NMM40">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM40">
 <filters>Forecast,Regional,SBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM5">
+<filters>Forecast,Regional,SBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM40_SFC">
+<filters>Forecast,Regional,SBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HRRR">
+<filters>Forecast,Regional</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP">
 <filters>Forecast,Regional</filters>
@@ -778,7 +793,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_SJU">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GDAS">
 <filters>Forecast,Global</filters>
@@ -841,7 +856,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_W">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_SAF">
 <filters>Forecast,SBN</filters>
@@ -904,13 +919,19 @@
 <filters>Forecast,Ensemble,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF_NH">
+</ResourceDefinitionFilter>
 <filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF0P25">
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP40">
 <filters>Forecast,Regional,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_HI">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM11">
 <filters>Forecast,Regional,SBN</filters>
@@ -925,6 +946,9 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS">
+<filters>Forecast,Global</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS0P5">
 <filters>Forecast,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKENS_NA">
@@ -985,13 +1009,19 @@
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_GU">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_US">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_US">
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS_NH">
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_W">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="AVN80US">
 <filters>Forecast,SBN</filters>
@@ -1000,7 +1030,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_GU">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_SA">
 <filters>Forecast,SBN</filters>
@@ -1077,6 +1107,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NOGAPS">
 <filters>Forecast,Global</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAVGEM">
+<filters>Forecast,Global,NSBN</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="MPE_MOSAIC_SJU">
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
@@ -1098,11 +1131,14 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM">
 <filters>Forecast,Regional</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="FIREWX">
+<filters>Forecast,Regional,NSBN</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_ASIA">
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_E">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="HPCGUIDE_AK">
 <filters>Forecast,SBN</filters>
@@ -1126,7 +1162,7 @@
 <filters>Forecast,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_HI">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="OPCWAVE12_NPAC">
 <filters>Forecast,SBN</filters>
@@ -1157,6 +1193,12 @@
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="GWW233">
 <filters>Forecast</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="NAM32">
+<filters>Forecast,Regional,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="NAM32E">
+<filters>Forecast,Regional,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="NAM32PR">
 <filters>Forecast,Regional,SBN</filters>
@@ -1192,7 +1234,7 @@
 <filters>Forecast,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_AK">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="PROB3HR">
 <filters>Forecast,SBN</filters>
@@ -1222,7 +1264,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_SJU">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE10WNA">
 <filters>Forecast</filters>
@@ -1255,7 +1297,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_AK">
-<filters>Forecast</filters>
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MPE_LOCAL_RHA">
 <filters>Forecast,SBN</filters>
@@ -1320,10 +1362,10 @@
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT8">
 <filters>McIdas,METEOSAT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="METEOSAT9">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT9">
 <filters>Standard,McIdas,METEOSAT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT10">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="METEOSAT10">
 <filters>McIdas,METEOSAT</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_GOES11">
@@ -1409,5 +1451,11 @@
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SOLARFLUX">
 <filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GEOMAG">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HRRR">
+<filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 </ResourceDefinitionFilters>
