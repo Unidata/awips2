@@ -1,6 +1,6 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
 %define _java_major_version 1.7
-%define _java_revision 55
+%define _java_revision 65
 %define _java_version %{_java_major_version}.0_%{_java_revision}
 %define _build_arch %(uname -i)
 %define _java_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -11,7 +11,7 @@
 Name: awips2-java
 Summary: AWIPS II Java Distribution
 Version: %{_java_version}
-Release: 3
+Release: 1
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
@@ -25,7 +25,7 @@ AutoReq: no
 provides: awips2-java
 
 %description
-AWIPS II Java Distribution - Contains Java SE Development Kit (JDK) 1.7.0_55
+AWIPS II Java Distribution - Contains Java SE Development Kit (JDK) 1.7.0_65
 plus additional libraries used by AWIPS II.
 
 %prep

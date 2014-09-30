@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.EmergencyType;
@@ -23,6 +22,7 @@ import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
@@ -33,7 +33,6 @@ import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
@@ -86,6 +85,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Nov 11, 2013   2439   rferrel        Changes to prevent getting future warning when in DRT mode.
  * Dec  3, 2013   2576   jsanchez       Increased the font size of EMER.
  * Mar 10, 2014   2832   njensen        Moved duplicated subclass's disposeInternal() logic here
+ * Aug 14, 2014   3523   mapeters       Updated deprecated {@link DrawableString#textStyle} 
+ *                                      assignments.
  * 
  * </pre>
  * 
@@ -425,7 +426,6 @@ public abstract class AbstractWWAResource extends
                             textToPrintReversed, color);
                     params.font = warningsFont;
                     params.setCoordinates(d[0], d[1]);
-                    params.textStyle = TextStyle.NORMAL;
                     params.horizontalAlignment = HorizontalAlignment.RIGHT;
                     params.verticallAlignment = VerticalAlignment.BOTTOM;
                     params.magnification = getCapability(

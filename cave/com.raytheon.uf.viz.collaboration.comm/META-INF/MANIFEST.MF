@@ -5,8 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.comm;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.collaboration.comm.Activator
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.lang,

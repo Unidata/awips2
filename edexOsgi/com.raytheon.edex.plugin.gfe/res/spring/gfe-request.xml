@@ -52,15 +52,12 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetDiscreteDefinitionRequest"/>
         <constructor-arg ref="discreteDefinitionHandler"/>
     </bean>
-    <bean id="gridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridDataHandler"/>
+    <bean id="gridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridDataHandler">
+        <property name="byteLimitInMB" value="${edex.requestsrv.byteLimitInMB}" />
+    </bean>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetGridDataRequest"/>
         <constructor-arg ref="gridDataHandler"/>
-    </bean>
-    <bean id="pythonGridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetPythonGridDataHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetPythonGridDataRequest"/>
-        <constructor-arg ref="pythonGridDataHandler"/>
     </bean>
     <bean id="gridInventoryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridInventoryHandler"/>
     <bean id="getGridInventoryRequestRegister" factory-bean="handlerRegistry" factory-method="register">
@@ -280,6 +277,13 @@
         <constructor-arg ref="CheckPrimarySiteHandler"/>
     </bean>
 
+	<bean id="GetServiceBackupPrimarySitesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupPrimarySiteHandler"/>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+	         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetServiceBackupPrimarySiteRequest"/>
+	         <constructor-arg ref="GetServiceBackupPrimarySitesHandler"/>
+	 </bean>
+
+
     <bean id="CleanupSvcBuLogRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuLogRequestHandler"/>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.CleaunpSvcBuLogRequest"/>
@@ -415,7 +419,7 @@
         <endpoint id="exportDigitalDataCron" uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}"/>
         <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.gfe.logs.cron}"/>
         <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
-        <endpoint id="iscSendLauncher" uri="timer://iscSendThread?repeatCount=1"/>
+        <endpoint id="iscSendLauncher" uri="quartz://iscSendThread?trigger.repeatCount=0&amp;trigger.repeatInterval=1"/>
 
         <route id="exportDigitalData">
             <from uri="exportDigitalDataCron"/>

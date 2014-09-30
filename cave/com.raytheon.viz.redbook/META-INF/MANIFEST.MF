@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.raytheon.viz.redbook;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.redbook.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.common.serialization
 Require-Bundle: org.apache.batik,
  org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -23,5 +22,5 @@ Export-Package: com.raytheon.viz.redbook,
  com.raytheon.viz.redbook.blocks,
  com.raytheon.viz.redbook.rsc,
  com.raytheon.viz.redbookua.rsc
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.colormap.prefs

@@ -27,8 +27,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
@@ -50,6 +50,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractPlotInfoRetriever;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 9, 2009            bsteffen     Initial creation
+ * Aug 08, 2014 3477      bclement     changed plot info locations to floats
  * 
  * </pre>
  * 
@@ -75,9 +76,8 @@ public class CoopPrecipPlotInfoRetriever extends AbstractPlotInfoRetriever {
             for (int uriCounter = 0; uriCounter < pdc.getCurrentSz(); uriCounter++) {
                 PointDataView pdv = pdc.readRandom(uriCounter);
                 PlotInfo stationInfo = new PlotInfo();
-                stationInfo.latitude = pdv.getNumber("latitude").doubleValue();
-                stationInfo.longitude = pdv.getNumber("longitude")
-                        .doubleValue();
+                stationInfo.latitude = pdv.getNumber("latitude").floatValue();
+                stationInfo.longitude = pdv.getNumber("longitude").floatValue();
                 stationInfo.dataTime = new DataTime(new Time(
                         pdv.getLong("time")));
                 stationInfo.stationId = pdv.getString("stationId");

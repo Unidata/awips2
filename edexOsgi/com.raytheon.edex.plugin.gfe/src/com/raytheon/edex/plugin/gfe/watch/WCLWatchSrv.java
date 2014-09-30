@@ -22,15 +22,12 @@
  */
 package com.raytheon.edex.plugin.gfe.watch;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -44,14 +41,12 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.UserMessageNotification;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
@@ -67,15 +62,15 @@ import com.raytheon.uf.edex.core.EdexException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * ??? ??, 20??            wldougher    Initial creation
- * May 14, 2014  #3157     dgilling     Ensure code works in multi-domain scenarios,
- *                                      code cleanup.
+ * Jun 09, 2014  #3268     dgilling     Ensure code works in multi-domain scenarios.
+ * Jun 13, 2014  #3278     dgilling     Ensure temporary files get deleted.
  * 
  * </pre>
  * 
  * @author wldougher
  * @version 1.0
  */
-public final class WCLWatchSrv {
+public class WCLWatchSrv {
 
     private static final String ALERT_FORM = "Alert: " + "%1$s has arrived. "
             + "Please select ViewWCL and use %1$s. (Hazards menu)";
@@ -118,22 +113,16 @@ public final class WCLWatchSrv {
      */
     public void handleWclWatch(WclInfo wclInfo) throws EdexException {
         statusHandler.debug("handleWclWatch started");
-        List<GfeNotification> notifications = Collections.emptyList();
-        String completeProductPil = wclInfo.getCompleteProductPil();
-        Collection<String> wfos = WatchProductUtil.findAttnWFOs(wclInfo
-                .getLines());
+        Collection<String> sitesToNotify = WatchProductUtil
+                .findAttnWFOs(wclInfo.getLines());
         Set<String> siteIDs = getSiteIDs();
 
-        wfos.retainAll(siteIDs); // Keep shared IDs
-        if (!wfos.isEmpty()) {
-            notifications = new ArrayList<GfeNotification>(wfos.size());
-            String msg = String.format(ALERT_FORM, completeProductPil);
+        boolean doNotify = true;
 
-            for (String siteID : wfos) {
-                GfeNotification notice = new UserMessageNotification(msg,
-                        Priority.CRITICAL, "GFE", siteID);
-                notifications.add(notice);
-            }
+        sitesToNotify.retainAll(siteIDs); // Keep shared IDs
+        if (sitesToNotify.isEmpty()) {
+            statusHandler.debug("WCL notification:  sites not in ATTN list");
+            doNotify = false;
         }
 
         // Process the WCL regardless of whether we are sending a notice
@@ -150,71 +139,111 @@ public final class WCLWatchSrv {
         // Get the watch type
         String watchType = getWatchType(wclInfo);
 
+        // Get the WCL 'letter'
+        String completeProductPil = wclInfo.getCompleteProductPil();
+
         // Create a dummy Procedure for export
         String wclStr = makeWclStr(finalUGCList, expireTime, issueTime,
                 watchType);
-        statusHandler.debug("WCLData: " + wclStr);
+        statusHandler.info("WCLData: " + wclStr);
 
-        // write the WCL file to <wclDir>/<completeProductPil>
-        makePermanent(wclStr, completeProductPil);
+        // Write dummy procedure to temp file
+        File tmpFile = createTempWclFile(wclStr);
 
-        if ((wclInfo.getNotify())
-                && (!CollectionUtil.isNullOrEmpty(notifications))) {
-            SendNotifications.send(notifications);
+        // Move the file to the wcl folder
+        // Rename it to <wclDir>/<completeProductPil>
+        statusHandler.info("Placing WCL Procedure Utility in ifpServer ");
+        try {
+            makePermanent(tmpFile, completeProductPil, siteIDs);
+        } finally {
+            if (tmpFile != null) {
+                tmpFile.delete();
+            }
+        }
+
+        if (doNotify && wclInfo.getNotify()) {
+            for (String siteID : sitesToNotify) {
+                String msg = String.format(ALERT_FORM, completeProductPil);
+                GfeNotification notify = new UserMessageNotification(msg,
+                        Priority.CRITICAL, "GFE", siteID);
+                SendNotifications.send(notify);
+            }
         } else {
             statusHandler.info("Notification of WCL skipped");
         }
 
         statusHandler.debug("handleWclWatch() ending");
-        return;
     }
 
     /**
-     * Convert a temporary parsed WCL file to a permanent one by moving it to
-     * the WCL directory. This is done through File.renameTo(). Unfortunately,
-     * that method returns a boolean success flag rather than throwing an error,
-     * so all we can do is tell the user that the rename failed, not why.
+     * Convert a temporary parsed WCL file to a permanent one by copying its
+     * contents to the localization path cave_static.SITE/gfe/wcl/ for each of
+     * the specified sites.
      * 
-     * @param wclData
-     *            WCL data to write to file.
+     * @param tmpFile
+     *            The temporary file (may be {@code null})
      * @param completeProductPil
-     *            The simple name of the file.
-     * 
-     * @throws EdexException
-     *             if WCL file cannot be opened, written, or closed.
+     *            The base name of the files to write.
+     * @param siteIDs
+     *            The set of siteIDs to write out the WCL data for.
      */
-    protected void makePermanent(String wclData, String completeProductPil)
-            throws EdexException {
-        statusHandler.debug("makePermanent for [" + completeProductPil
-                + "] started");
-
-        File wclDir = getWclDir();
-        File dest = new File(wclDir, completeProductPil);
-
-        Writer output = null;
-        try {
-            output = new BufferedWriter(new FileWriter(dest));
-            output.write(wclData);
-            output.write("\n");
-
-            // If we got to here, claim success!
-            statusHandler.info("Wrote new WCL to " + dest.getAbsolutePath());
-        } catch (IOException e) {
-            throw new EdexException("Could not write new WCL file "
-                    + dest.getAbsolutePath(), e);
-        } finally {
-            if (output != null) {
+    protected void makePermanent(File tmpFile, String completeProductPil,
+            Collection<String> siteIDs) {
+        statusHandler.debug("makePermanent(" + tmpFile + ","
+                + completeProductPil + ") started");
+        if (tmpFile != null) {
+            for (String siteID : siteIDs) {
                 try {
-                    output.close();
+                    File wclDir = getWclDir(siteID);
+                    if (wclDir != null) {
+                        File dest = new File(wclDir, completeProductPil);
+                        FileUtil.copyFile(tmpFile, dest);
+                        statusHandler.info("Wrote WCL "
+                                + tmpFile.getAbsolutePath() + " to "
+                                + dest.getAbsolutePath());
+                    } else {
+                        statusHandler
+                                .error("Could not determine WCL directory for site "
+                                        + siteID);
+                    }
                 } catch (IOException e) {
-                    throw new EdexException("Could not close new WCL file "
-                            + dest.getAbsolutePath(), e);
+                    statusHandler.error("Could not copy temporary WCL file "
+                            + tmpFile.getAbsolutePath()
+                            + " to site directory for " + siteID, e);
                 }
             }
-
         }
-        statusHandler.debug("makePermanent for [" + completeProductPil
-                + "] ending");
+
+        statusHandler.debug("makePermanent(" + tmpFile + ","
+                + completeProductPil + ") ending");
+    }
+
+    /**
+     * Create a temporary file with the prefix "wcl" and the default suffix in
+     * the default temporary file directory. Write all of wclStr into it.
+     * 
+     * @param wclStr
+     *            the String containing the contents to write to the file
+     * @return the File created.
+     * @throws EdexException
+     *             if the file cannot be written
+     */
+    protected File createTempWclFile(String wclStr) throws EdexException {
+        File tmpFile = null;
+        PrintStream wclOut = null;
+        try {
+            tmpFile = File.createTempFile("wcl", null);
+            wclOut = new PrintStream(tmpFile);
+            wclOut.println(wclStr);
+        } catch (IOException e) {
+            throw new EdexException("Error writing parsed WCL to file \""
+                    + tmpFile.getAbsolutePath() + "\"", e);
+        } finally {
+            if (wclOut != null) {
+                wclOut.close();
+            }
+        }
+        return tmpFile;
     }
 
     /**
@@ -308,7 +337,7 @@ public final class WCLWatchSrv {
                 cal.set(Calendar.MINUTE, minute);
                 cal.set(Calendar.MILLISECOND, 0);
                 // Guess whether end time crossed a month boundary.
-                if (day < dom - 7) {
+                if (day < (dom - 7)) {
                     cal.add(Calendar.MONTH, 1);
                 }
                 expireTime = cal.getTime();
@@ -382,12 +411,15 @@ public final class WCLWatchSrv {
      * getSiteIDs(), this is in a method rather than inline so that test code
      * can override it in subclasses.
      * 
+     * @param siteID
+     *            The siteID to write the WCL file for.
+     * 
      * @return the directory, as a File.
      */
-    protected File getWclDir() {
+    protected File getWclDir(String siteID) {
         IPathManager pathManager = PathManagerFactory.getPathManager();
-        LocalizationContext ctx = pathManager.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+        LocalizationContext ctx = pathManager.getContextForSite(
+                LocalizationType.CAVE_STATIC, siteID);
         String wclName = FileUtil.join("gfe", "wcl");
         File wclDir = pathManager.getFile(ctx, wclName);
         if (wclDir == null) {

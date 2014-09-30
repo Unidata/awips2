@@ -31,10 +31,9 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 
 /**
- * NcPafmBulletin is the highest level class for PAFM
- * (Point/Area Forecast Matrices) data.  Each instance holds
- * all of the data parsed from one bulletin.  Children
- * (NcPafmUgc) hold data from individual segments.
+ * NcPafmBulletin is the highest level class for PAFM (Point/Area Forecast
+ * Matrices) data. Each instance holds all of the data parsed from one bulletin.
+ * Children (NcPafmUgc) hold data from individual segments.
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  * 
@@ -52,6 +51,7 @@ import com.raytheon.uf.common.time.DataTime;
  * 										whole bulletin, but no longer the PDO.
  * 										Removed persistence annotations.
  * 12Oct2011    126         G. Hull     use a surfaceObsLocation object for the lat/lon/stationId.
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author F. J. Yen, SIB
@@ -59,8 +59,6 @@ import com.raytheon.uf.common.time.DataTime;
  */
 
 public class NcPafmBulletin {
-	
-	private static final long serialVersionUID = 1L;
 	
 	/** Report type */
 	private String reportType;
@@ -150,8 +148,8 @@ public class NcPafmBulletin {
 //    				npr.setLat(fips.getLat());
 //    				npr.setLon(fips.getLon());    	
 
-    				loc.setLatitude( fips.getLat().doubleValue() );
-    				loc.setLongitude( fips.getLon().doubleValue() );
+                    loc.setLatitude(fips.getLat().floatValue());
+                    loc.setLongitude(fips.getLon().floatValue());
     				loc.setElevation( fips.getElev().intValue() );
     				npr.setLocation( loc );
 

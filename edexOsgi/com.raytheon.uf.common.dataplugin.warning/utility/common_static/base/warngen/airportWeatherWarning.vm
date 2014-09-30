@@ -119,11 +119,11 @@ FOR THE FOLLOWING THREATS...
 ## If sites do not want watches in their AWW product comment out the
 ## section below
 #######################################################################
-#if(${list.contains(${includedWatches}, "torWatches")} && ${list.contains(${bullets}, "includeTorWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")} && ${list.contains(${bullets}, "includeTorWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")} && ${list.contains(${bullets}, "includeSvrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")} && ${list.contains(${bullets}, "includeSvrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 
 #end

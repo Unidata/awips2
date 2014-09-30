@@ -33,6 +33,8 @@
 #    04/10/13         1871         mnash          move getLatLonCoords to JGridData and add default args
 #    05/29/13         2023         dgilling       Hook up ThriftClientRouter.
 #    03/03/14         2673         bsteffen       Add ability to query only ref times.
+#    07/22/14         3185         njensen        Added optional/default args to newDataRequest
+#    07/30/14         3185         njensen        Renamed valid identifiers to optional
 #    
 # 
 #
@@ -46,10 +48,13 @@ THRIFT_HOST = subprocess.check_output(
                     shell=True).strip()
 USING_NATIVE_THRIFT = False
 
-try:
+if sys.modules.has_key('JavaImporter'):
+    # intentionally do not catch if this fails to import, we want it to
+    # be obvious that something is configured wrong when running from within
+    # Java instead of allowing false confidence and fallback behavior
     import JepRouter
     router = JepRouter
-except ImportError:
+else:
     from ufpy.dataaccess import ThriftClientRouter
     router = ThriftClientRouter.ThriftClientRouter(THRIFT_HOST)
     USING_NATIVE_THRIFT = True
@@ -61,10 +66,9 @@ def getAvailableTimes(request, refTimeOnly=False):
     
     Args: 
             request: the IDataRequest to get data for
-    
-    Args: 
-            refTimeOnly: True if only unique refTimes should be returned(without
-            a forecastHr)
+            refTimeOnly: optional, use True if only unique refTimes should be
+                          returned (without a forecastHr)
+                          
     Returns:
             a list of DataTimes    
     """
@@ -115,20 +119,93 @@ def getAvailableLocationNames(request):
     """
     return router.getAvailableLocationNames(request)
 
-def newDataRequest():
+def getAvailableParameters(request):
+    """
+    Gets the available parameters names that match the request without actually
+    requesting the data.
+    
+    Args:
+            request: the request to find matching parameter names for
+            
+    Returns:
+            a list of strings of available parameter names.
+    """
+    return router.getAvailableParameters(request)
+
+def getAvailableLevels(request):
+    """
+    Gets the available levels that match the request without actually
+    requesting the data.
+    
+    Args:
+            request: the request to find matching levels for
+            
+    Returns:
+            a list of strings of available levels.
+    """
+    return router.getAvailableLevels(request)
+
+def getRequiredIdentifiers(datatype):
+    """
+    Gets the required identifiers for this datatype.  These identifiers
+    must be set on a request for the request of this datatype to succeed.
+    
+    Args:
+            datatype: the datatype to find required identifiers for
+            
+    Returns:
+            a list of strings of required identifiers
+    """
+    return router.getRequiredIdentifiers(datatype)
+
+def getOptionalIdentifiers(datatype):
+    """
+    Gets the optional identifiers for this datatype.
+    
+    Args:
+            datatype: the datatype to find optional identifiers for
+            
+    Returns:
+            a list of strings of optional identifiers
+    """
+    return router.getOptionalIdentifiers(datatype)
+
+def newDataRequest(datatype=None, **kwargs):
     """"
     Creates a new instance of IDataRequest suitable for the runtime environment.
+    All args are optional and exist solely for convenience.
+        
+    Args:
+            datatype: the datatype to create a request for
+            parameters: a list of parameters to set on the request
+            levels: a list of levels to set on the request
+            locationNames: a list of locationNames to set on the request
+            envelope: an envelope to limit the request
+            **kwargs: any leftover kwargs will be set as identifiers
     
     Returns:
             a new IDataRequest
+    """    
+    return router.newDataRequest(datatype, **kwargs)
+
+def getSupportedDatatypes():
     """
-    return router.newDataRequest()
+    Gets the datatypes that are supported by the framework
+    
+    Returns:
+            a list of strings of supported datatypes
+    """
+    return router.getSupportedDatatypes()
+    
 
 def changeEDEXHost(newHostName):
-    """"
+    """
     Changes the EDEX host the Data Access Framework is communicating with. Only
-    works if using the native Python client implemenation, otherwise, this
+    works if using the native Python client implementation, otherwise, this
     method will throw a TypeError.
+    
+    Args:
+            newHostHame: the EDEX host to connect to
     """
     if USING_NATIVE_THRIFT:
         global THRIFT_HOST

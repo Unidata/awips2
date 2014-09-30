@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Obslocation
+Bundle-SymbolicName: com.raytheon.uf.edex.upgrade.obslocation
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.postgres;bundle-version="9.2.4"

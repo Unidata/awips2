@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.plugin.vil.common.VILConfig;
  * Feb 07, 2009 2037       dhladky     Initial Creation.
  * Feb 25, 2013 1660       D. Hladky   Fixed SCAN configuration bug.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Aug 26, 2014 3503       bclement    removed constructDataURI() call
  * 
  * </pre>
  * 
@@ -162,7 +163,6 @@ public class VILGenerator extends CompositeProductGenerator implements
                     vilRec.setSpatialInfo(vil_config.getSpatialInfo());
                     vilRec.setFieldName(name.name());
                     vilRec.setDataArray(vil.getFloatArrays().get(name.name()));
-                    vilRec.constructDataURI();
                     scanRecords[i] = vilRec;
                     i++;
                 }

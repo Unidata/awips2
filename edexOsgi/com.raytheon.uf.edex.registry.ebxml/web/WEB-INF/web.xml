@@ -12,6 +12,49 @@
 	version="2.4">
 	<display-name>Data Delivery Web Services</display-name>
 
+	<security-role>
+		<role-name>RegistryAdministrator</role-name>
+	</security-role>
+	<security-role>
+		<role-name>RegistryLocalAdministrator</role-name>
+	</security-role>
+	<security-role>
+		<role-name>RegistryUser</role-name>
+	</security-role>
+	<security-role>
+		<role-name>RegistryGuest</role-name>
+	</security-role>
+
+	<!-- Restrict user administration to only the registry admin -->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>
+				Registry User Admin pages
+			</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>RegistryLocalAdministrator</role-name>
+			<role-name>RegistryAdministrator</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>
+				Registry User Admin pages
+			</web-resource-name>
+			<url-pattern>/registry/services/users/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>RegistryAdministrator</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>RegistryRealm</realm-name>
+	</login-config>
+
 	<context-param>
 		<param-name>webAppRootKey</param-name>
 		<param-value>registryEbxml</param-value>
@@ -64,17 +107,6 @@
 	<servlet-mapping>
 		<servlet-name>RegistryWebServiceServlet</servlet-name>
 		<url-pattern>/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
-		<display-name>DWR Servlet</display-name>
-		<servlet-name>dwr-invoker</servlet-name>
-		<servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>dwr-invoker</servlet-name>
-		<url-pattern>/dwr/*</url-pattern>
 	</servlet-mapping>
 
 	<welcome-file-list>

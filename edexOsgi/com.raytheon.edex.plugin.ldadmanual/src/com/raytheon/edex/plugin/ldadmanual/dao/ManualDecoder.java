@@ -48,7 +48,6 @@ import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.edex.plugin.ldad.common.DecodedData;
 import com.raytheon.edex.plugin.ldad.common.LdadField;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -66,6 +65,7 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------ ----------  ----------- --------------------------
  * Sep 30, 2009             vkorolev    Initial creation
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author vkorolev
@@ -163,12 +163,12 @@ public class ManualDecoder<E> extends AbstractDecoder implements IBinaryDecoder 
                                 }
                             }
                             if (nn.equals("_lat")) {
-                                double val = Double.parseDouble(vv);
+                                float val = Float.parseFloat(vv);
                                 location.setLatitude(val);
                                 continue;
                             }
                             if (nn.equals("_lon")) {
-                                double val = Double.parseDouble(vv);
+                                float val = Float.parseFloat(vv);
                                 location.setLongitude(val);
                                 continue;
                             }
@@ -196,7 +196,6 @@ public class ManualDecoder<E> extends AbstractDecoder implements IBinaryDecoder 
                         DataTime dt = new DataTime(ot);
                         record.setDataTime(dt);
                         record.setLocation(location);
-                        record.constructDataURI();
                         retVal.add(record);
                         // logger.info("-------------------------------------------------------");
                     }
@@ -211,8 +210,6 @@ public class ManualDecoder<E> extends AbstractDecoder implements IBinaryDecoder 
                 logger.error(traceId + " - SecurityException:" + e);
             } catch (IllegalArgumentException e) {
                 logger.error(traceId + " - IllegalArgumentException:" + e);
-            } catch (PluginException e) {
-                logger.error(traceId + " - PluginException:" + e);
             }
         }
         return retVal.toArray(new PluginDataObject[retVal.size()]);

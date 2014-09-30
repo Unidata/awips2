@@ -34,7 +34,7 @@ import org.apache.cxf.annotations.FastInfoset;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 
 /**
  * <pre>

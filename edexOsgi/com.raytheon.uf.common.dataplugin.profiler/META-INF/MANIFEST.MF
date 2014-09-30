@@ -2,11 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Profiler Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.profiler
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.dataplugin.profiler,
  com.raytheon.uf.common.dataplugin.profiler.dao
 Require-Bundle: com.raytheon.uf.common.dataplugin,

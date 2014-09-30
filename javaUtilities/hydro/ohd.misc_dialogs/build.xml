@@ -1,5 +1,0 @@
-<?xml version="1.0" ?> 
-
-<project name="misc_dialogs" default="default" basedir=".">  
-    <import file="${basedir}/../build.ohd/build-common.xml"/>
-</project>

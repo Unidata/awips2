@@ -23,10 +23,12 @@ import java.sql.Timestamp;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
+import com.raytheon.uf.common.dataaccess.exception.IncompatibleRequestException;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory;
 import com.raytheon.uf.common.dataaccess.impl.FactoryUtil;
+import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
@@ -51,6 +53,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
  *                                    single request.
  * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
+ * Jul 14, 2014  3184     njensen     Overrode getAvailableLevels()
+ * Jul 30, 2014  3184     njensen     Added optional identifiers
  * 
  * </pre>
  * 
@@ -74,7 +78,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
     private static final String IHFS_DATABASE = "ihfs";
 
     public HydroGeometryFactory() {
-        super(IHFS_DATABASE, REQUIRED);
+        super(IHFS_DATABASE, REQUIRED, new String[] { COL_NAME_OPTION });
     }
 
     /*
@@ -149,8 +153,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * com.raytheon.uf.common.time.BinOffset)
      */
     @Override
-    protected String assembleGetTimes(IDataRequest request,
-            BinOffset binOffset) {
+    protected String assembleGetTimes(IDataRequest request, BinOffset binOffset) {
         return null;
     }
 
@@ -163,8 +166,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * com.raytheon.uf.common.time.DataTime[])
      */
     @Override
-    protected String assembleGetData(IDataRequest request,
-            DataTime... times) {
+    protected String assembleGetData(IDataRequest request, DataTime... times) {
         return HydroQueryAssembler.assembleGetData(request, times);
     }
 
@@ -177,8 +179,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * com.raytheon.uf.common.time.TimeRange)
      */
     @Override
-    protected String assembleGetData(IDataRequest request,
-            TimeRange timeRange) {
+    protected String assembleGetData(IDataRequest request, TimeRange timeRange) {
         return HydroQueryAssembler.assembleGetData(request, timeRange);
     }
 
@@ -194,4 +195,11 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
     protected String assembleGetAvailableLocationNames(IDataRequest request) {
         return "select lid from location;";
     }
+
+    @Override
+    public Level[] getAvailableLevels(IDataRequest request) {
+        throw new IncompatibleRequestException(request.getDatatype()
+                + " data does not support the concept of levels");
+    }
+
 }

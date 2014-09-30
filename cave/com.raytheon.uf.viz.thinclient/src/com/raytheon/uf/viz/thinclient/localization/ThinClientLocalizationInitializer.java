@@ -25,12 +25,14 @@ import org.apache.commons.collections.map.DefaultedMap;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.raytheon.uf.common.comm.HttpClient;
+import com.raytheon.uf.common.comm.HttpClientConfigBuilder;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.comm.ConnectivityManager;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
@@ -59,6 +61,7 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * Feb 04, 2014  2704       njensen     Single proxy address/preference
  * May 19, 2014  3164       bsteffen    Disable request compression if it
  *                                      doesn't work.
+ * Sep 05, 2014  3570       bclement    HTTP client API changes
  * 
  * </pre>
  * 
@@ -81,7 +84,11 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
 
     @Override
     protected void setupServers() throws VizException {
-        HttpClient.getInstance().setGzipResponseHandling(true);
+        HttpClient httpClient = HttpClient.getInstance();
+        HttpClientConfigBuilder confBuilder = new HttpClientConfigBuilder(
+                httpClient.getConfig());
+        confBuilder.setHandlingGzipResponses(true);
+        HttpClient.configureGlobalInstance(confBuilder.build());
         if (promptUI) {
             ThinClientConnectivityDialog dlg = new ThinClientConnectivityDialog(
                     checkAlertviz);
@@ -107,7 +114,7 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                 try {
                     ConnectivityManager.checkLocalizationServer(servicesProxy,
                             true);
-                } catch (ServerRequestException e) {
+                } catch (ServerRequestException | VizCommunicationException e) {
                     HttpClient.getInstance().setCompressRequests(false);
                     statusHandler
                             .error("Server ("

@@ -2045,6 +2045,13 @@
           name="Purge Rules"
           value="purge">
     	</path>
+    	<path
+          application="D2D"
+          localizationType="CAVE_STATIC"
+          name="Volume Browser Menus"
+          value="menus/volumebrowser" 
+          recursive="true">
+       </path>
     </extension>
     <extension
        point="com.raytheon.uf.viz.ui.menus.tearoffperspective">

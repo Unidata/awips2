@@ -7,6 +7,8 @@
 		factory-method="getInstance" >
 	    <property name="maxSize" value="50" />	
 	</bean>
+    
+    <bean id="jaxbMessageRegistry" class="com.raytheon.uf.common.message.JAXBMessageRegistry" factory-method="getInstance" />
 
 	<bean id="uEngine" class="com.raytheon.edex.services.ProductSrv" />
 
@@ -28,7 +30,7 @@
 			<from uri="ref:uEngineHttpJaxb_from" />
 			<removeHeaders pattern="CamelHttp*" />
 			<bean ref="uEngine" method="executePython" />
-			<bean ref="serializationUtil" method="marshalToXml" />
+			<bean ref="jaxbMessageRegistry" method="marshalToXml" />
 		</route>
 
 	</camelContext>
