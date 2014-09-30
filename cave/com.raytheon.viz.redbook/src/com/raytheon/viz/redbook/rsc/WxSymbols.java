@@ -22,6 +22,7 @@ package com.raytheon.viz.redbook.rsc;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -40,9 +41,24 @@ import org.w3c.dom.Text;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.exception.VizException;
 
+/**
+ * Create weather symbol images to be drawn on the target.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation.
+ * Aug 11, 2014 3504       mapeters    Replaced deprecated IODataPreparer
+ *                                     instances with IRenderedImageCallback.
+ * 
+ * </pre>
+ */
 public class WxSymbols {
     private IGraphicsTarget target;
 
@@ -120,7 +136,7 @@ public class WxSymbols {
             // should use the bridge context to get the TextNode and change
             // that instead of the origonal DOM and rebuild..
 
-            BufferedImage bufferedImage = new BufferedImage(12, 12,
+            final BufferedImage bufferedImage = new BufferedImage(12, 12,
                     BufferedImage.TYPE_BYTE_INDEXED, tm);
             Graphics2D g2d = bufferedImage.createGraphics();
 
@@ -140,8 +156,12 @@ public class WxSymbols {
              * g2d.drawRect(0, 0, 13, 13);
              */
 
-            image = target.initializeRaster(new IODataPreparer(bufferedImage,
-                    String.format("wxsym%x", (int) c), 0), null);
+            image = target.initializeRaster(new IRenderedImageCallback() {
+                @Override
+                public RenderedImage getImage() throws VizException {
+                    return bufferedImage;
+                }
+            });
             images.put(c, image);
 
             g2d.dispose();

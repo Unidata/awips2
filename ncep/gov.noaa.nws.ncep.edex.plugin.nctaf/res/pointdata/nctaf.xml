@@ -18,7 +18,6 @@
     
   <!--<parameter name="RAWDATA" numDims="1" type="STRING" size="1000"/>  -->
   <parameter name="REPORTTYPE" numDims="1" type="STRING" size="8"/> 
-  <parameter name="DATAURI" numDims="1" type="STRING" size="256"/> 
   <parameter name="WMOHEADER" numDims="1" type="STRING" size="32" />
   <parameter name="TAFTEXT" numDims="1" type="STRING" size="1024" />
   <parameter name="STID" numDims="1" type="STRING" size="16"/>

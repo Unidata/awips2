@@ -48,6 +48,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 15Jan2008           682 ebabin      Updated to remove non calculated parameters.
  * 16Jan2008           682 ebabin      Updates for grib model traps on multiple loads.
  * 04Oct2008               dhladky     Many changes.
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author jkorman
@@ -598,7 +599,7 @@ public class VerticalSounding implements Iterable<SoundingLayer>, Cloneable {
      * Set the geometry latitude.
      * 
      */
-    public void setLatitude(double latitude) {
+    public void setLatitude(float latitude) {
         spatialInfo.setLatitude(latitude);
     }
 
@@ -606,7 +607,7 @@ public class VerticalSounding implements Iterable<SoundingLayer>, Cloneable {
      * Set the geometry longitude.
      * 
      */
-    public void setLongitude(double longitude) {
+    public void setLongitude(float longitude) {
         spatialInfo.setLongitude(longitude);
     }
 

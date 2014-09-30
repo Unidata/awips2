@@ -35,10 +35,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.ccfp.CcfpRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
@@ -53,9 +56,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * 
@@ -69,6 +69,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 22, 2009 3072       bsteffen     Initial creation
  * Aug 23, 2012  1096     njensen      Fixed memory leaks
  * Dec 20, 2012 DCS 135    tk          Changes for CCFP 2010 and 2012 TIN's
+ * Jul 29, 2014 3465       mapeters    Updated deprecated drawStrings() calls.
+ * Aug 04, 2014 3489       mapeters    Updated deprecated getStringBounds() calls.
  * 
  * </pre>
  * 
@@ -358,9 +360,11 @@ public class CcfpResource extends
         double[] pt = descriptor.worldToPixel(new double[] {
                 record.getBoxLong(), record.getBoxLat() });
         // Draw the text
-        target.drawStrings(null, lines, pt[0], pt[1], pt[2], TextStyle.BLANKED,
-                new RGB[] { color, color, color, color },
-                HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE);
+        DrawableString string = new DrawableString(lines, color);
+        string.setCoordinates(pt[0], pt[1], pt[2]);
+        string.addTextStyle(TextStyle.BLANKED);
+        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        target.drawStrings(string);
     }
 
     /**
@@ -417,15 +421,11 @@ public class CcfpResource extends
 
         // Determine the dimensions of the text lines;
         String[] lines = getFormattedData(record);
-        double maxWidth = 0;
-        double height = 0;
-        for (String line : lines) {
-            Rectangle2D rect = target.getStringBounds(null, line);
-            if (rect.getWidth() > maxWidth) {
-                maxWidth = rect.getWidth();
-                height = rect.getHeight() + 3;
-            }
-        }
+        DrawableString string = new DrawableString(lines);
+        Rectangle2D rect = target.getStringsBounds(string);
+        double maxWidth = rect.getWidth();
+        double height = rect.getHeight() / lines.length + 3;
+
         // This point should be the center left on the box
         double[] pt = descriptor.worldToPixel(new double[] {
                 record.getBoxLong(), record.getBoxLat() });
@@ -439,7 +439,7 @@ public class CcfpResource extends
                 { x1, y1 } };
         frame.zoomDependentShapes.addLineSegment(box);
 
-        // Calcualte the center of the box and the polygon
+        // Calculate the center of the box and the polygon
         Coordinate polyCenterLL = record.getLocation().getGeometry()
                 .getCentroid().getCoordinate();
         double[] polyCenter = descriptor.worldToPixel(new double[] {

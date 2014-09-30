@@ -148,4 +148,10 @@
             value="Monospaced-regular-12">
       </fontDefinition>
    </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.graphicsExtension">
+      <graphicsExtension
+            class="com.raytheon.viz.radar.rsc.image.GeneralRadialMeshExtension">
+      </graphicsExtension>
+   </extension>
 </plugin>

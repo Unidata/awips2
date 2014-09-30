@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StateMatch;
@@ -39,7 +40,6 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.plugin.text.dao.StateMatchDao;
 import com.raytheon.uf.edex.plugin.text.dao.StdTextProductDao;
 import com.raytheon.uf.edex.plugin.text.dao.TextProductInfoDao;
@@ -74,6 +74,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * May 15, 2014 2536        bclement    moved asciiToHex() hexToAscii() and getProperty() to PropConverter
  * May 20, 2014 2536        bclement    moved from edex.textdb to edex.plugin.text
+ * Jul 10, 2014 2914        garmendariz Remove EnvProperties
  * </pre>
  * 
  * @author jkorman
@@ -84,8 +85,7 @@ public class TextDB {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    private String siteName = PropertiesFactory.getInstance()
-            .getEnvProperties().getEnvValue("SITENAME");
+    private String siteName = SiteUtil.getSite();
 
     private boolean operationalMode = true;
 

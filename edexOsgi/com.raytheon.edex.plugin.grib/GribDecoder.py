@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+# SOFTWARE HISTORY
+# 
+# Date         Ticket#    Engineer    Description
+# ------------ ---------- ----------- --------------------------
+# ???                                 Initial creation
+# Jul 07, 2014 3344       rferrel     Change GRID_FILL_VALUE to new plugin location.
+# 
 
 import grib2
 import numpy
@@ -49,7 +57,7 @@ from com.raytheon.uf.common.dataplugin.level import LevelFactory
 
 from com.raytheon.edex.plugin.grib.spatial import GribSpatialCache 
 from com.raytheon.edex.util.grib import GribTableLookup
-from com.raytheon.edex.util import Util
+from com.raytheon.uf.common.util import GridUtil
 
 from com.raytheon.edex.util.grib import GribParamTranslator
 
@@ -123,6 +131,8 @@ logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "E
 #                                    grib files.
 # Feb 11, 2014  2765     bsteffen    Better handling of probability parameters.
 # Apr 28, 2014  3084     bsteffen    Use full grid for looking up parameter aliases.
+# Aug 15, 2014  15699    MPorricelli Import GridUtil and update reference 
+#                                    to GRID_FILL_VALUE 
 #
 class GribDecoder():
 
@@ -333,7 +343,7 @@ class GribDecoder():
                 subGridDataArray = numpy.zeros((subny, subnx), numpy.float32)
                 midx = nx - startx
                 subGridDataArray[0:subny, 0:midx] = numpyDataArray[starty:endY, startx:nx]
-                subGridDataArray[0:subny, midx:subnx] = Util.GRID_FILL_VALUE
+                subGridDataArray[0:subny, midx:subnx] = GridUtil.GRID_FILL_VALUE
                 numpyDataArray = subGridDataArray
             else:
                 numpyDataArray = numpyDataArray[starty:endY, startx:endX]

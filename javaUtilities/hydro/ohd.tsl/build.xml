@@ -1,5 +1,0 @@
-<?xml version="1.0" ?> 
-
-<project name="tsl" default="default" basedir=".">  
-    <import file="${basedir}/../build.ohd/build-common.xml"/>
-</project>

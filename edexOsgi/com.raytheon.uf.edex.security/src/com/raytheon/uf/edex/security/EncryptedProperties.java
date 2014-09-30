@@ -25,12 +25,14 @@ import java.util.Properties;
 
 import org.eclipse.jetty.util.security.Password;
 
+import com.raytheon.uf.common.security.encryption.AESEncryptor;
+
 /**
  * 
  * Class used with the WSS4j interceptors. This class extends the java
- * Properties class to allow obfuscated properties to be contained in the
- * properties file. The properties may be obfuscated using Jetty's obfuscation
- * methods. 
+ * Properties class to allow obfuscated and encrypted password properties to be contained in the
+ * properties file. The password properties may be obfuscated using Jetty's obfuscation
+ * method or may be encrypted using the com.raytheon.uf.common.security.encryption.AESEncryptor class
  * 
  * <pre>
  * 
@@ -39,46 +41,56 @@ import org.eclipse.jetty.util.security.Password;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 6/5/2014     1712        bphillip    Initial Creation
+ * 7/10/2014    1717        bphillip    Added support for additional encryption
  * </pre>
  * 
  * @author bphillip
  * @version 1
- * @see org.eclipse.jetty.util.security.Password.obfuscate(String)
- * @see org.eclipse.jetty.util.security.Password.deobfuscate(String)
  **/
 public class EncryptedProperties extends Properties {
 
-	private static final long serialVersionUID = -8799654229761166379L;
+    private static final long serialVersionUID = -8799654229761166379L;
 
-	/** The prefix prepended to an obfuscated property */
-	private static final String OBFUSCATED_PREFIX = "OBF:";
+    private AESEncryptor encryption;
 
-	/**
-	 * Creates a new EncryptedProperties object
-	 * 
-	 * @param filename
-	 *            The file containing the properties
-	 * @throws IOException
-	 *             If errors occur while reading the properties file
-	 */
-	public EncryptedProperties(String filename) throws IOException {
-		FileInputStream fis = null;
-		try {
-			fis = new FileInputStream(filename);
-			load(fis);
-		} finally {
-			if (fis != null) {
-				fis.close();
-			}
-		}
-	}
-	
-	public String getProperty(String propertyName){
-		String property = super.getProperty(propertyName);
-		if (property != null
-				&& property.startsWith(OBFUSCATED_PREFIX)) {
-			return Password.deobfuscate(property);
-		}
-		return property;
-	}
+    /**
+     * Creates a new EncryptedProperties object
+     * 
+     * @param filename
+     *            The file containing the properties
+     * @throws IOException
+     *             If errors occur while reading the properties file
+     */
+    public EncryptedProperties(String filename) throws IOException {
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(filename);
+            load(fis);
+        } finally {
+            if (fis != null) {
+                fis.close();
+            }
+        }
+        encryption = new AESEncryptor();
+    }
+
+    public String getProperty(String propertyName) {
+        String property = super.getProperty(propertyName);
+        if (property != null) {
+            if (property.startsWith("OBF:")) {
+                return Password.deobfuscate(property);
+            } else if (propertyName.contains("password")) {
+                try {
+                    return encryption.decrypt(
+                            getProperty("edex.security.encryption.key"),
+                            property);
+                } catch (Exception e) {
+                    throw new RuntimeException(
+                            "Error decrypting password property "
+                                    + propertyName, e);
+                }
+            }
+        }
+        return property;
+    }
 }

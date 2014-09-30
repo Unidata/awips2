@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013            bkowal     Initial creation
  * Feb 6, 2013  #1555      bkowal     Improve Geometry Loop
+ * Aug 13, 2014 #3492      mapeters   Updated deprecated createWireframeShape() calls.
  * </pre>
  * 
  * @author bkowal
@@ -207,7 +208,7 @@ public class GenericGeometryResource extends
 
         if (numberOfPoints > 0) {
             // create the wireframe shape
-            shape = target.createWireframeShape(false, this.descriptor, 0.0f);
+            shape = target.createWireframeShape(false, this.descriptor);
 
             JTSCompiler jtsCompiler = new JTSCompiler(null, shape,
                     this.descriptor, PointStyle.CROSS);

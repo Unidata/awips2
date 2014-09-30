@@ -50,6 +50,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Oct 23, 2012 1286       djohnson     Handle executing tests in Eclipse/command-line transparently.
  * Apr 18, 2013 1914       djohnson     Allow initializing test localization support from Spring.
  * Jan 08, 2014 2615       bgonzale     Fixes for PropertiesFactory configuration loading in test.
+ * Sep 04, 2014 3365       ccody        Changes for removing Data_Delivery dependencies
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class PathManagerFactoryTest implements BeanFactoryPostProcessor {
     public static void initLocalization(final String site) {
 
         // Clear known file cache and the directory each time
-        PathManager.fileCache.clear();
+        //This method is no longer supported by PathManager or PathManagerFactory PathManager.fileCache.clear();
         File file = TestUtil.setupTestClassDir(PathManagerFactoryTest.class);
         savedLocalizationFileDir = new File(file, "data");
         savedLocalizationFileDir = new File(savedLocalizationFileDir, "utility");
@@ -83,12 +84,12 @@ public class PathManagerFactoryTest implements BeanFactoryPostProcessor {
 
         // But only install the path manager if the test version is not already
         // installed
-        if (!(PathManagerFactory.pathManager instanceof TestPathManager)) {
+        if (!(PathManagerFactory.getPathManager() instanceof TestPathManager)) {
             TestLocalizationAdapter adapter = (isRunningInEclipse()) ? new EclipseTestLocalizationAdapter(
                     site, savedLocalizationFileDir)
                     : new CommandLineTestLocalizationAdapter(site,
                             savedLocalizationFileDir);
-            PathManagerFactory.pathManager = new TestPathManager(adapter);
+            PathManagerFactory.setAdapter(adapter);
             
             System.setProperty("edex.home", file.getAbsolutePath());
             File confResDataDir = new File(file, "conf/res");
@@ -136,26 +137,13 @@ public class PathManagerFactoryTest implements BeanFactoryPostProcessor {
     }
 
     @Test
-    public void testFindingCommonBaselineLocalizationFile() {
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.BASE);
-
-        LocalizationFile lf = pm.getLocalizationFile(lc,
-                "datadelivery/proxy.properties");
-        File file = lf.getFile();
-        assertTrue("Unable to find common baseline localization file!",
-                file.exists());
-    }
-
-    @Test
     public void testFindingWorkAssignmentPluginLocalizationFile() {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.BASE);
 
         LocalizationFile lf = pm.getLocalizationFile(lc,
-                "datadelivery/bandwidthmap.xml");
+                "awips2_baseline/obsPurgeRules.xml");
         File file = lf.getFile();
         assertTrue(
                 "Unable to find work assignment plugin provided localization file!",

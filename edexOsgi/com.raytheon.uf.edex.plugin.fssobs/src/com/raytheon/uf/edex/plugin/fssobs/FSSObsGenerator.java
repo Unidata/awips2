@@ -24,7 +24,6 @@ import java.util.ArrayList;
 
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -45,6 +44,7 @@ import com.raytheon.uf.edex.plugin.fssobs.common.FSSObsConfig;
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2010            skorolev     Initial creation
  * May 23, 2014 3086       skorolev     Cleaned code.
+ * Aug 18, 2014 3530       bclement     removed constructDataURI() call
  * 
  * </pre>
  * 
@@ -90,12 +90,6 @@ public class FSSObsGenerator extends CompositeProductGenerator {
         for (String uri : genMessage.getUris()) {
             FSSObsRecord fssObsRec = new FSSObsRecord();
             fssObsRec = fss_config.getTableRow(uri);
-            try {
-                fssObsRec.constructDataURI();
-            } catch (PluginException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
             FSSObsDataTransform.buildView(fssObsRec);
             fssRecs[i] = fssObsRec;
             i++;
