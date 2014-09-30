@@ -67,6 +67,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.BulletActionGroup;
 import com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GridSpacing;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialDataResult;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialDataSet;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialFactory;
@@ -231,6 +232,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 09/15/2014  3353        rferrel     No longer have null parent shell for the GenerateGeoDataSetDialog.
  * 09/17/2014  ASM #15465  Qinglu Lin  get backupOfficeShort and backupOfficeLoc from backup WFO config.xml, and pop up AlertViz if
  *                                     any of them is missing.
+ * 11/03/2014  3353        rferrel     Ignore GeoSpatialData notification when this is the instance layer will do an update.
  * </pre>
  * 
  * @author mschenke
@@ -242,12 +244,20 @@ public class WarngenLayer extends AbstractStormTrackResource {
             .getHandler(WarngenLayer.class);
 
     String uniqueFip = null;
+
     String backupOfficeShort = null;
+
     String backupOfficeLoc = null;
 
     Map<String, Double> geomArea = new HashMap<String, Double>();
 
     Map<String, Point> geomCentroid = new HashMap<String, Point>();
+
+    /**
+     * Geospatial data generator notifications caused by instance's actions.
+     * When notification arrives no futher work needs to be done.
+     */
+    private final Set<String> ignoreNotifications = new HashSet<String>();
 
     private static class GeospatialDataList {
 
@@ -654,20 +664,32 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         @Override
         public void notificationArrived(NotificationMessage[] messages) {
+            boolean initWarngen = false;
             for (NotificationMessage message : messages) {
                 try {
                     Object payload = message.getMessagePayload();
-                    if (payload instanceof String) {
-                        System.out
-                                .println("Geometry Metadata has been updated based on "
-                                        + payload + " shapefile data");
-                        warngenLayer.siteMap.clear();
-                        warngenLayer.init(warngenLayer.configuration);
+                    if (payload instanceof GenerateGeospatialDataResult) {
+                        GenerateGeospatialDataResult result = (GenerateGeospatialDataResult) payload;
+                        synchronized (warngenLayer.ignoreNotifications) {
+                            String curKey = result.getArea() + "."
+                                    + result.getSite();
+
+                            if (warngenLayer.ignoreNotifications
+                                    .contains(curKey)) {
+                                warngenLayer.ignoreNotifications.remove(curKey);
+                            } else {
+                                siteMap.remove(curKey);
+                                initWarngen = true;
+                            }
+                        }
                     }
                 } catch (NotificationException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Getting notification message's payload", e);
                 }
+            }
+            if (initWarngen) {
+                warngenLayer.init(warngenLayer.configuration);
             }
         }
     }
@@ -1220,12 +1242,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
+            customMaps.loadCustomMaps(Arrays.asList(config.getMaps()));
+
+            createAreaAndCentroidMaps();
+
+            this.configuration = config;
         }// end synchronize
-        customMaps.loadCustomMaps(Arrays.asList(config.getMaps()));
 
-        createAreaAndCentroidMaps();
-
-        this.configuration = config;
         System.out.println("Total time to init warngen config = "
                 + (System.currentTimeMillis() - t0) + "ms");
     }
@@ -1267,6 +1290,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         } else {
                             // This makes sure dialog exists and is open
                             createDialog();
+
+                            /*
+                             * Add to list prior to opening the genDialog. That
+                             * way if the notfication arrives prior to or after
+                             * closing the genDialog the notfication will be
+                             * ignored.
+                             */
+                            synchronized (ignoreNotifications) {
+                                ignoreNotifications.add(currKey);
+                            }
                             GenerateGeoDataSetDialog genDialog = new GenerateGeoDataSetDialog(
                                     dialog.getShell(), site, gmd);
 
@@ -1490,10 +1523,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 boolean shortTag = false;
                 boolean locTag = false;
                 String infoType = null;
-                if (backupOfficeShort == null || backupOfficeShort.trim().length() == 0) {
+                if (backupOfficeShort == null
+                        || backupOfficeShort.trim().length() == 0) {
                     shortTag = true;
                 }
-                if (backupOfficeLoc == null || backupOfficeLoc.trim().length() == 0) {
+                if (backupOfficeLoc == null
+                        || backupOfficeLoc.trim().length() == 0) {
                     locTag = true;
                 }
                 if (shortTag && locTag) {
@@ -1506,8 +1541,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     }
                 }
                 if (infoType != null) {
-                    statusHandler.handle(Priority.CRITICAL, "Info for " + infoType + " in " + backupSite + 
-                            "'s config.xml is missing.");
+                    statusHandler.handle(Priority.CRITICAL, "Info for "
+                            + infoType + " in " + backupSite
+                            + "'s config.xml is missing.");
                 }
             }
         }
@@ -1601,7 +1637,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
     public enum GeoFeatureType {
         COUNTY("county", "FIPS"), MARINE("marinezones", "ID");
         final private String tableName;
+
         final private String fipsField;
+
         private GeoFeatureType(String tableName, String fipsField) {
             this.tableName = tableName;
             this.fipsField = fipsField;
@@ -1649,7 +1687,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             else if (type == GeoFeatureType.MARINE)
                 templateName = "specialMarineWarning";
             else
-                throw new IllegalArgumentException("Unsupported geo feature type " + type);
+                throw new IllegalArgumentException(
+                        "Unsupported geo feature type " + type);
             WarngenConfiguration config = WarngenConfiguration.loadConfig(
                     templateName, getLocalizedSite(), null);
             loadGeodataForConfiguration(config);
