@@ -37,6 +37,7 @@ import com.raytheon.viz.texteditor.TextWarningConstants;
  *    Date          Ticket#     Engineer    Description
  *    ------------  ----------  ----------- --------------------------
  *    06182008                  bwoodle     additional format method overloads, javadocs.
+ *    Sep 12, 2014 ASM RM#15551 Qinglu Lin  Added formatUseNoonMidnight().
  * 
  * </pre>
  * 
@@ -44,6 +45,8 @@ import com.raytheon.viz.texteditor.TextWarningConstants;
  * 
  */
 public class DateUtil {
+
+    Pattern timePtrn = Pattern.compile("(1200\\s(AM|PM))");
 
     /**
      * Format a date for the severe weather warnings templates
@@ -103,6 +106,28 @@ public class DateUtil {
         synchronized (format) {
             format.setTimeZone(tz);
             str = format.format(workingDate);
+        }
+        return str;
+    }
+
+    public String formatUseNoonMidnight(Date date, DateFormat format, int interval, String tz) {
+        return formatUseNoonMidnight(date, format, interval, getTimeZoneFromString(tz));
+    }
+
+    public String formatUseNoonMidnight(Date date, DateFormat format, int interval, TimeZone tz) {
+        String str;
+        Date workingDate = date;
+        if (interval > 0) {
+            workingDate = roundDate(date, interval);
+        }
+        synchronized (format) {
+            format.setTimeZone(tz);
+            str = format.format(workingDate);
+        }
+        Matcher m = timePtrn.matcher(str);
+        if(m.find()) {
+            str = str.replace("1200 AM", "MIDNIGHT");
+            str = str.replace("1200 PM", "NOON");
         }
         return str;
     }
