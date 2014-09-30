@@ -1743,22 +1743,26 @@ public class PgenResource extends
     }
 
     /**
-     * De-activate all PGEN tools
+     * De-activate all PGEN tools for all perspectives
      */
     public void deactivatePgenTools() {
-        AbstractVizPerspectiveManager mgr = VizPerspectiveListener
-                .getCurrentPerspectiveManager();
-        if (mgr != null) {
-            Iterator<AbstractModalTool> it = mgr.getToolManager()
-                    .getSelectedModalTools().iterator();
-            while (it.hasNext()) {
-                AbstractModalTool tool = it.next();
-                if (tool != null && tool instanceof AbstractPgenTool) {
-                    tool.deactivate();
-                    it.remove();
+        
+        for (String pid : VizPerspectiveListener.getManagedPerspectives()){
+            AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getInstance().getPerspectiveManager(pid);
+            if (mgr != null) {
+                Iterator<AbstractModalTool> it = mgr.getToolManager()
+                        .getSelectedModalTools().iterator();
+                while (it.hasNext()) {
+                    AbstractModalTool tool = it.next();
+                    if (tool != null && tool instanceof AbstractPgenTool) {
+                        tool.deactivate();
+                        it.remove();
+                    }
                 }
             }
         }
+        
+       
     }
 
     /**
