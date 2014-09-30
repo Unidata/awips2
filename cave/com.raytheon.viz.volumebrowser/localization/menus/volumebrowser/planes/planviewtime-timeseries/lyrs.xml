@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="Layer" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="LowLyr" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="MidLyr" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="HiLyr" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="SIG0.8-0.5" indentText="false" />
+    <contribute xsi:type="titleImgItem" titleText="Pressure"
+        displayImage="true" displayDashes="true" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="300MB-200MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="400MB-200MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="500MB-100MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="500MB-300MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="700MB-300MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="700MB-500MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="850MB-300MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="850MB-500MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="850MB-700MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="925MB-700MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="925MB-850MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="1000MB-400MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="1000MB-500MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="1000MB-700MB" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="1000MB-850MB" indentText="false" />
+    <contribute xsi:type="titleImgItem" titleText="Height"
+        displayImage="true" displayDashes="true" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="0-1kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="0-2kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="0-3kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="0-4kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="0-5kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="0-6kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="0-10kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="2-5kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping"
+        key="3-6kmAgl" indentText="false" />
+
+    <contribute xsi:type="toolbarSubMenu" menuText="thin layers">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/planes/planviewtime-timeseries/lyrs/thinLayers.xml" />
+    </contribute>
+
+    <contribute xsi:type="titleImgItem" titleText="Temp"
+        displayImage="true" displayDashes="true" />
+    <contribute xsi:type="menuItem" menuText="3C to -1C" key="3C_-1C"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="-3C to -10C"
+        key="-3C_-10C" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="-12C to -18C"
+        key="-12C_-18C" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="-10C to -30C"
+        key="-10C_-30C" indentText="false" />
+</menuTemplate>

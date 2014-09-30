@@ -212,7 +212,7 @@ public class NsharpPaneConfigDialog extends Dialog {
 			else {
 				NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
 		    	if(paletteWin!=null){
-		    		paletteWin.updateSpcGraphBtn(paneConfigurationName);
+		    		paletteWin.updateSpecialGraphBtn(paneConfigurationName);
 		    	}
 			}
 		}

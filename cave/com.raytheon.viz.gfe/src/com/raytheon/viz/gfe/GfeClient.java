@@ -41,7 +41,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
 
 /**
  * GFE Client application component
@@ -62,6 +62,9 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  *                                      which was adding an empty string into the 
  *                                      python path causing python to look in user's
  *                                      current default directory for modules.
+ * Aug 22, 2014  3500      bclement     override postStartupActions()
+ * Aug 29, 2014  3500      bclement     removed override of postStartupActions() 
+ *                                      since ProcedureXMLManager startup was moved to the CAVE subclass
  * 
  * </pre>
  * 
@@ -69,7 +72,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class GfeClient extends AbstractCAVEComponent {
+public class GfeClient extends AbstractAWIPSComponent {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GfeClient.class);
 
@@ -196,4 +199,5 @@ public class GfeClient extends AbstractCAVEComponent {
         return new HashSet<String>(Arrays.asList("-site", "-server", "-mode",
                 "-time"));
     }
+
 }

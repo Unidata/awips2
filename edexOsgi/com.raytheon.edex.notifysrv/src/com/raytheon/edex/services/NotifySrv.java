@@ -23,7 +23,6 @@ package com.raytheon.edex.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -34,7 +33,6 @@ import com.raytheon.edex.subscription.SubscriptionManager;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
  * Processes incoming data events to determine if the data matches an existing
@@ -51,7 +49,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * 06Feb2007    TO5         MW Fegan    Removed JMX registration.
  * 27Apr2007    208         MW Fegan    Pass only dataURI in message.
  * 26Nov2007    443         bphillip    Modified to receive lists of PluginDataObjects
- * 
+ * Jul 10, 2014 2914        garmendariz Remove EnvProperties
  * </pre>
  * 
  * @author mfegan
@@ -105,21 +103,8 @@ public class NotifySrv {
                     // messages = new ArrayList<String>();
                     logger.info("-subscription exists for "
                             + StringUtil.printString(dataURI));
-                    Configuration properties = PropertiesFactory.getInstance()
-                            .getConfiguration(
-                                    ISubscriptionManager.CONFIGURATION_NAME);
                     Subscription subscription = subscriptionManager
                             .getSubscription(subscriptionKey);
-                    // logger.info(this.traceID + "-Subscription is "
-                    // + Util.printString(subscription));
-                    // this.message.setStringProperty("dataURI", dataURI);
-                    // this.message.setStringProperty("subscriptKey",
-                    // subscriptionKey);
-                    // this.message
-                    // .setProperty(
-                    // properties
-                    // .getString(ISubscriptionManager.SUBSCRIPTION_QUERY_VAR),
-                    // dataURI);
                     for (Script script : subscription.getScripts()) {
                         if (script != null) {
                             String key = script.getScriptid();

@@ -491,7 +491,7 @@ class IrtAccess():
             self.logEvent("Transmit: ", cmd) 
             import siteConfig
             from subprocess import Popen,PIPE
-            output,err = Popen(cmd.split(" "), stdout=PIPE,stderr=PIPE).communicate()
+            output,err = Popen(cmd, shell=True, stdout=PIPE,stderr=PIPE).communicate()
             if output.find(siteConfig.GFESUITE_MHSID+"-") == -1:
                 alertMsg = "ISC Send failed transmission to : "+",".join(addresses)+" --> "+output+" "+err
                 self.logProblem(alertMsg)

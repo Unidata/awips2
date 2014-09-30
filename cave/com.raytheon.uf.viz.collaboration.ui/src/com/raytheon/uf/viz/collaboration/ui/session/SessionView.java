@@ -114,6 +114,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Mar 28, 2014 #2960      lvenable    Added check to make sure the SashForm is not getting
  *                                     negative weights - set to zero if negative.
  * Jun 17, 2014 3078       bclement    added private chat to menu and double click
+ * Jul 03, 2014 3342       bclement    added count to participants label
  * 
  * </pre>
  * 
@@ -681,6 +682,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         }
         usersTable.setInput(participants);
         usersTable.refresh();
+        participantsLabel.setText("Participants (" + participants.size() + ")");
     }
 
     @Subscribe

@@ -22,7 +22,7 @@
 export INIT_MEM=412 # in Meg
 export MAX_MEM=796 # in Meg
 
-export METADATA_POOL_MIN=4
+export METADATA_POOL_MAX=25
 export EDEX_DEBUG_PORT=5006
 export EDEX_JMX_PORT=1617
 export LOG4J_CONF=log4j-ingest.xml

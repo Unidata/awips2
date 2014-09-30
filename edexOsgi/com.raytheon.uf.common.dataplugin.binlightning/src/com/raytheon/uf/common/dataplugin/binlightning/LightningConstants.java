@@ -29,6 +29,7 @@ package com.raytheon.uf.common.dataplugin.binlightning;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 30, 2014 3226       bclement     Initial creation
+ * Jul 07, 2014 3333       bclement     added SOURCE
  * 
  * </pre>
  * 
@@ -38,6 +39,10 @@ package com.raytheon.uf.common.dataplugin.binlightning;
 public class LightningConstants {
 
     public static final String PULSE_HDF5_GROUP_SUFFIX = "pulse";
+
+    // metadata column names
+
+    public static final String SOURCE = "source";
 
     // HDF5 dataset names
 

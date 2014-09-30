@@ -22,10 +22,7 @@
     SvrWx
 -->
 <pointDataDescription>
-  <parameter name="latitude" numDims="1" type="FLOAT" unit="degree_N" />
-  <parameter name="longitude" numDims="1" type="FLOAT" unit="degree_E" />
   <parameter name="wmoHeader" numDims="1" type="STRING" />
-  <parameter name="dataURI" numDims="1" type="STRING" /> 
   <parameter name="eventKey" numDims="1" type="STRING" />
   <parameter name="details" numDims="1" type="STRING" />
   <parameter name="greenTime" numDims="1" type="STRING" />

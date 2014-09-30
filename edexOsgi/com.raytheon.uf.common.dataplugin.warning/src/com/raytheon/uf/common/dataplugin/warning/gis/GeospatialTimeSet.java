@@ -28,6 +28,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.serialization.comm.IServerRequest;
+
 /**
  * Collection of GeospatialTime representing a set of generated geospatial data
  * for warngen configurations
@@ -39,6 +43,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 15, 2011            rjpeter     Initial creation
+ * Aug 21, 2014 3353       rferrel     Allow serialization.
  * 
  * </pre>
  * 
@@ -48,8 +53,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "geoTimeSet")
-public class GeospatialTimeSet {
+@DynamicSerialize
+public class GeospatialTimeSet implements IServerRequest {
     @XmlElement(name = "geoTime")
+    @DynamicSerializeElement
     private List<GeospatialTime> data;
 
     public List<GeospatialTime> getData() {

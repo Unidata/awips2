@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener;
@@ -56,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Jun 18, 2009 #1318      randerso    Ported AWIPS I pickup value dialogs
  * Nov 13, 2012 #1298      rferrel     Changes for non-blocking dialog.
  * Mar 29, 2013 #1790      rferrel     Bug fix for non-blocking dialogs.
+ * Aug 20, 2014 #1664      randerso    Fixed invalid thread access
  * 
  * </pre>
  * 
@@ -167,7 +169,6 @@ public class SetValueDialog extends CaveJFACEDialog implements
         valueFrame.setLayoutData(layoutData);
 
         setValue = null;
-        setSetValueOrder();
 
         dataManager.getParmManager().addDisplayedParmListChangedListener(this);
         dataManager.getSpatialDisplayManager().addActivatedParmChangedListener(
@@ -187,9 +188,7 @@ public class SetValueDialog extends CaveJFACEDialog implements
     protected Control createContents(Composite parent) {
         Control contents = super.createContents(parent);
 
-        Point size = getInitialSize();
-        getShell().setSize(size);
-        getShell().setLocation(getInitialLocation(size));
+        setSetValueOrder();
 
         return contents;
     }
@@ -240,9 +239,8 @@ public class SetValueDialog extends CaveJFACEDialog implements
             origin = Geometry.getLocation(monitorBounds);
         }
 
-        return new Point(origin.x + 50, Math.max(
-                monitorBounds.y,
-                Math.min(origin.y + 550, monitorBounds.y + monitorBounds.height
+        return new Point(origin.x + 50, Math.max(monitorBounds.y, Math.min(
+                origin.y + 550, (monitorBounds.y + monitorBounds.height)
                         - initialSize.y)));
     }
 
@@ -260,7 +258,12 @@ public class SetValueDialog extends CaveJFACEDialog implements
         if (activeParm != null) {
             if (Arrays.asList(deletions).contains(activeParm)) {
                 activeParm = null;
-                setSetValueOrder();
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        setSetValueOrder();
+                    }
+                });
             }
         }
     }
@@ -274,11 +277,17 @@ public class SetValueDialog extends CaveJFACEDialog implements
     @Override
     public void activatedParmChanged(Parm newParm) {
         activeParm = newParm;
-        setSetValueOrder();
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                setSetValueOrder();
+            }
+        });
     }
 
     private void setSetValueOrder() {
         // no active parm case
+        getButton(ASSIGN_ID).setEnabled(activeParm != null);
         if (activeParm == null) {
             pnLabel.setText("No active weather element");
             if (setValue != null) {
@@ -286,42 +295,39 @@ public class SetValueDialog extends CaveJFACEDialog implements
                 setValue.dispose();
                 setValue = null;
             }
-            return;
+        } else {
+
+            // no change in parm
+            if ((setValue != null) && (setValue.getParm() == activeParm)) {
+                return;
+            }
+
+            // change in parm
+            if (setValue != null) {
+                setValue.dispose();
+                setValue = null;
+            }
+
+            pnLabel.setText(activeParm.getParmID().compositeNameUI());
+
+            GridType gridType = activeParm.getGridInfo().getGridType();
+            if (gridType.equals(GridType.SCALAR)) {
+                setValue = new ScalarSetValue(valueFrame, activeParm);
+
+            } else if (gridType.equals(GridType.VECTOR)) {
+                setValue = new VectorSetValue(valueFrame, activeParm);
+
+            } else if (gridType.equals(GridType.WEATHER)) {
+                setValue = new WxSetValue(valueFrame, activeParm, true, true,
+                        true);
+
+            } else if (gridType.equals(GridType.DISCRETE)) {
+                setValue = new DiscreteSetValue(valueFrame, activeParm, true,
+                        true, true);
+            }
+
+            setValue.pack(true);
         }
-
-        // no change in parm
-        if (setValue != null && setValue.getParm() == activeParm) {
-            return;
-        }
-
-        // change in parm
-        if (setValue != null) {
-            // delete the old one
-            // setValue.pack_forget();
-            // setValue.unregister();
-            // setValue.destroy();
-            setValue.dispose();
-            setValue = null;
-        }
-
-        pnLabel.setText(activeParm.getParmID().compositeNameUI());
-
-        GridType gridType = activeParm.getGridInfo().getGridType();
-        if (gridType.equals(GridType.SCALAR)) {
-            setValue = new ScalarSetValue(valueFrame, activeParm);
-
-        } else if (gridType.equals(GridType.VECTOR)) {
-            setValue = new VectorSetValue(valueFrame, activeParm);
-
-        } else if (gridType.equals(GridType.WEATHER)) {
-            setValue = new WxSetValue(valueFrame, activeParm, true, true, true);
-
-        } else if (gridType.equals(GridType.DISCRETE)) {
-            setValue = new DiscreteSetValue(valueFrame, activeParm, true, true,
-                    true);
-        }
-
-        setValue.pack(true);
         valueFrame.layout();
         valueFrame.setSize(valueFrame.computeSize(SWT.DEFAULT, SWT.DEFAULT));
         getShell().layout();
