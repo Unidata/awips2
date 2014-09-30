@@ -19,21 +19,16 @@
  **/
 package com.raytheon.uf.edex.plugin.fssobs;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -56,6 +51,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * Jan 02, 2014 2580       skorolev    Fixed FSSObs error.
  * Jan 06, 2014 2653       skorolev    Corrected decoding of snincrHourly and snincrTotal.
  * Apr 28, 2014 3086       skorolev    Updated getStations method.
+ * Sep 04, 2014 3220       skorolev    Removed getStations method.
  * 
  * </pre>
  * 
@@ -417,40 +413,5 @@ public class FSSObsUtils {
             retVal = (float) (TK - (b - Math.sqrt((b * b - 223.1986)) / 0.0182758048f));
         }
         return retVal;
-    }
-
-    /**
-     * Gets stations which FSSObs monitor is using.
-     * 
-     * @param monitor
-     * @return stations
-     */
-    public static List<String> getStations(String monitor) {
-        String currentSite = SiteUtil.getSite();
-
-        List<String> stations = new ArrayList<String>();
-        // Which monitor should use this station: fog, ss or snow
-        if (monitor.equals(MonName.fog.name())) {
-            FSSObsMonitorConfigurationManager fogConfigManager = new FSSObsMonitorConfigurationManager(
-                    currentSite, MonName.fog.name());
-            List<String> fogStations = fogConfigManager.getStations();
-            stations.addAll(fogStations);
-            fogConfigManager = null;
-        }
-        if (monitor.equals(MonName.ss.name())) {
-            FSSObsMonitorConfigurationManager ssConfigManger = new FSSObsMonitorConfigurationManager(
-                    currentSite, MonName.ss.name());
-            List<String> ssStaitions = ssConfigManger.getStations();
-            stations.addAll(ssStaitions);
-            ssConfigManger = null;
-        }
-        if (monitor.equals(MonName.snow.name())) {
-            FSSObsMonitorConfigurationManager snowConfigManager = new FSSObsMonitorConfigurationManager(
-                    currentSite, MonName.snow.name());
-            List<String> snowStations = snowConfigManager.getStations();
-            stations.addAll(snowStations);
-            snowConfigManager = null;
-        }
-        return stations;
     }
 }

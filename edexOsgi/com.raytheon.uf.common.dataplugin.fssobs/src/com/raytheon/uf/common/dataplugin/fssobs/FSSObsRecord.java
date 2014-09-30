@@ -60,6 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Sep 04, 2014  3220     skorolev    Removed cwa and monitorUse from record.
  * 
  * </pre>
  */
@@ -88,23 +89,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @XmlElement
     protected boolean isNew = true;
 
-    // Current CWA (WFO)
-    @Column
-    @DataURI(position = 2)
-    @DynamicSerializeElement
-    @XmlElement(nillable = false)
-    private String cwa;
-
-    // Monitor which should use this station record
-    // fog = "fog"
-    // safeseas = "ss"
-    // snow = "snow"
-    @Column
-    @DataURI(position = 4)
-    @DynamicSerializeElement
-    @XmlElement
-    private String monitorUse = "";
-
     // Station name
     @Column
     @DynamicSerializeElement
@@ -120,7 +104,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     protected String reportType;
 
     @Embedded
-    @DataURI(position = 3, embedded = true)
+    @DataURI(position = 2, embedded = true)
     @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
@@ -384,28 +368,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @return the cwa
-     */
-    public String getCwa() {
-        return cwa;
-    }
-
-    /**
-     * @param monitorUse
-     *            the monitorUse to set
-     */
-    public void setMonitorUse(String monitorUse) {
-        this.monitorUse = monitorUse;
-    }
-
-    /**
-     * @return the monitorUse
-     */
-    public String getMonitorUse() {
-        return monitorUse;
-    }
-
-    /**
      * @return the stnName
      */
     public String getStnName() {
@@ -442,7 +404,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the geometry latitude.
+     * Gets the geometry latitude.
      * 
      * @return The geometry latitude.
      */
@@ -451,7 +413,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the geometry longitude.
+     * Gets the geometry longitude.
      * 
      * @return The geometry longitude.
      */
@@ -460,7 +422,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the station identifier for this observation.
+     * Gets the station identifier for this observation.
      * 
      * @return the stationId
      */
@@ -469,7 +431,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the elevation, in meters, of the observing platform or location.
+     * Gets the elevation, in meters, of the observing platform or location.
      * 
      * @return The observation elevation, in meters.
      */
@@ -727,14 +689,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param cwa
-     *            the cwa to set
-     */
-    public void setCwa(String cwa) {
-        this.cwa = cwa;
-    }
-
-    /**
+     * Sets station name.
+     * 
      * @param stnName
      *            the stnName to set
      */
@@ -743,6 +699,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
+     * Sets report type.
+     * 
      * @param reportType
      *            the reportType to set
      */
@@ -751,6 +709,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
+     * Sets location
+     * 
      * @param location
      *            the location to set
      */
