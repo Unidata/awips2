@@ -21,5 +21,5 @@
 @javax.xml.bind.annotation.XmlSchema(namespace = EbxmlNamespaces.RS_URI, elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package oasis.names.tc.ebxml.regrep.xsd.rs.v4;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 

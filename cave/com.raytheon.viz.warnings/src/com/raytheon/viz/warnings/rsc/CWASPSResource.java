@@ -58,6 +58,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * May 10, 2013 1951       rjpeter     Initial history entry, updated ugcZones references
  * Nov 08, 2013	16758	   mgamazaychikov Added mergeWatches to simplify SPS processing 
  * 										  and getEventKey to create SPS-unique key
+ * Aug 01, 2014 3471       mapeters    Updated deprecated createShadedShape() calls.
  * </pre>
  * 
  * @author rjpeter
@@ -210,7 +211,7 @@ public class CWASPSResource extends WatchesResource {
                     }
 
                     entry.shadedShape = target.createShadedShape(false,
-                            descriptor, false);
+                            descriptor.getGridGeometry(), false);
                     try {
                         geo = wktr.read(record.getGeometry().toString());
 

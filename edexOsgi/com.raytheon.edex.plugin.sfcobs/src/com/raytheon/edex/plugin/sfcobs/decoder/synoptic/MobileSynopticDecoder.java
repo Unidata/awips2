@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author jkorman
@@ -49,9 +50,9 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
     // The logger
     private Log logger = LogFactory.getLog(getClass());
 
-    private Double mobileLatitude = null;
+    private Float mobileLatitude = null;
 
-    private Double mobileLongitude = null;
+    private Float mobileLongitude = null;
 
     private Integer mobileQuadrant = null;
 
@@ -173,7 +174,7 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
         if (matchElement(element, "99\\d{3}")) {
             Integer lat = getInt(element, 2, 5);
             if (lat != null) {
-                mobileLatitude = lat.doubleValue() / 10.0;
+                mobileLatitude = lat.floatValue() / 10.0f;
             }
         }
     }
@@ -192,7 +193,7 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
         if (matchElement(element, "[1357]((0\\d{3})|(1(([0-7]\\d{2})|(800))))")) {
             Integer lon = getInt(element, 2, 5);
             if (lon != null) {
-                mobileLongitude = lon.doubleValue() / 10.0;
+                mobileLongitude = lon.floatValue() / 10.0f;
             }
             mobileQuadrant = getInt(element, 0, 1);
         }
@@ -207,8 +208,8 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
         if ((mobileLatitude != null) && (mobileLongitude != null)
                 && (mobileQuadrant != null)) {
             if ((mobileLatitude >= 0) && (mobileLongitude >= 0)) {
-                double lat = 0;
-                double lon = 0;
+                float lat = 0;
+                float lon = 0;
                 switch (mobileQuadrant) {
                 case 1: {
                     lat = 1;

@@ -22,6 +22,8 @@ package com.raytheon.viz.grid.rsc.general;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -64,12 +66,14 @@ import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.PaintStatus;
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension.ImageProvider;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -125,7 +129,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 14, 2014  2594     bsteffen    Switch vector mag/dir to use data source
  *                                    instead of raw float data.
  * Feb 28, 2014  2791     bsteffen    Switch all data to use data source.
- * 
+ * Aug 21, 2014  DR 17313 jgerth      Implements ImageProvider
  * 
  * </pre>
  * 
@@ -134,7 +138,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @param <T>
  */
 public abstract class AbstractGridResource<T extends AbstractResourceData>
-        extends AbstractVizResource<T, IMapDescriptor> {
+        extends AbstractVizResource<T, IMapDescriptor> implements ImageProvider {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractGridResource.class);
 
@@ -345,6 +349,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 this.getCapability(ImagingCapability.class)
                         .setInterpolationState(true);
             }
+            this.getCapability(ImagingCapability.class).setProvider(this);
             altDisplayTypes.add(DisplayType.CONTOUR);
             break;
         case BARB:
@@ -438,43 +443,6 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         }
     }
 
-    @Override
-    protected void paintInternal(IGraphicsTarget target,
-            PaintProperties paintProps) throws VizException {
-        DataTime time = paintProps.getDataTime();
-        if (time == null) {
-            time = getTimeForResource();
-        }
-        if (time == null) {
-            return;
-        }
-        synchronized (renderableMap) {
-            if (renderableMap.containsKey(time)) {
-                for (IRenderable renderable : renderableMap.get(time)) {
-                    renderable.paint(target, paintProps);
-                }
-                return;
-            }
-
-            List<GeneralGridData> dataList = requestData(time);
-            if (dataList == null) {
-                updatePaintStatus(PaintStatus.INCOMPLETE);
-                return;
-            }
-
-            List<IRenderable> renderableList = new ArrayList<IRenderable>(
-                    dataList.size());
-            for (GeneralGridData data : dataList) {
-                IRenderable renderable = createRenderable(target, data);
-                if (renderable != null) {
-                    renderableList.add(renderable);
-                    renderable.paint(target, paintProps);
-                }
-            }
-            renderableMap.put(time, renderableList);
-        }
-    }
-
     /**
      * Create a renderable for this data.
      * 
@@ -496,8 +464,9 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         case IMAGE:
             ColorMapCapability colorMapCap = getCapability(ColorMapCapability.class);
             ImagingCapability imagingCap = getCapability(ImagingCapability.class);
+            ColorMapParameters params = null;
             if (renderableMap.isEmpty()) {
-                ColorMapParameters params = createColorMapParameters(data);
+                params = createColorMapParameters(data);
                 if (params.getColorMap() == null) {
                     if (params.getColorMapName() == null) {
                         params.setColorMapName("Grid/gridded data");
@@ -506,6 +475,11 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                             .getColorMapName()));
                 }
                 colorMapCap.setColorMapParameters(params);
+            } else {
+                params = colorMapCap.getColorMapParameters();
+            }
+            if (params.getDataMapping() != null) {
+                data.convert(params.getColorMapUnit());
             }
             TileImageCreator creator = new DataSourceTileImageCreator(
                     data.getScalarData(), data.getDataUnit(),
@@ -993,4 +967,63 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         return new ArrayList<PluginDataObject>(list);
     }
 
+    public Collection<DrawableImage> getImages(IGraphicsTarget target, PaintProperties paintProps) throws VizException {
+        if (getCapability(DisplayTypeCapability.class).getDisplayType() != DisplayType.IMAGE) {
+            throw new VizException("Grid resource not configured for image rendering");
+        }
+        Collection<IRenderable> renderables = getOrCreateRenderables(target, paintProps);
+        if (renderables.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<DrawableImage> images = new ArrayList<DrawableImage>();
+        for (IRenderable renderable : renderables) {
+            images.addAll(((TileSetRenderable)renderable).getImagesToRender(target, paintProps));
+        }
+        return images;
+    }
+
+    protected Collection<IRenderable> getOrCreateRenderables(
+            IGraphicsTarget target, PaintProperties paintProps)
+                    throws VizException {
+        DataTime time = paintProps.getDataTime();
+        if (time == null) {
+            time = getTimeForResource();
+        }
+        if (time == null) {
+            return Collections.emptyList();
+        }
+
+        List<IRenderable> renderables;
+
+        synchronized (renderableMap) {
+            if (renderableMap.containsKey(time)) {
+                renderables = renderableMap.get(time);
+            } else {
+                List<GeneralGridData> dataList = requestData(time);
+                if (dataList == null) {
+                    updatePaintStatus(PaintStatus.INCOMPLETE);
+                    return Collections.emptyList();
+                }
+
+                renderables = new ArrayList<IRenderable>(dataList.size());
+                for (GeneralGridData data : dataList) {
+                    IRenderable renderable = createRenderable(target, data);
+                    if (renderable != null) {
+                        renderables.add(renderable);
+                    }
+                }
+                renderableMap.put(time, renderables);
+            }
+        }
+        return renderables;
+    }
+
+    @Override
+    protected void paintInternal(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        for (IRenderable renderable : getOrCreateRenderables(target, paintProps)) {
+            renderable.paint(target, paintProps);
+        }
+    }
 }

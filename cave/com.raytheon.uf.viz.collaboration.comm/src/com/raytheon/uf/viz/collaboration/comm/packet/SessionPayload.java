@@ -23,6 +23,7 @@ import java.util.Arrays;
 
 import org.jivesoftware.smack.util.Base64;
 
+import com.raytheon.uf.common.serialization.MarshalOptions;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -46,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.SerializationMode;
  * Dec 11, 2013 2562       bclement     Initial creation
  * Feb 27, 2013 2756       bclement     extends BaseExtension
  * Jun 12, 2013 2903       bclement     default to wrap jaxb xml in base64
+ * Jul 15, 2014 3373       bclement     added fragment marshal options
  * 
  * </pre>
  * 
@@ -68,6 +70,9 @@ public class SessionPayload extends BaseExtension {
     public static final String TYPE_ATTRIBUTE = "payloadtype";
 
     public static final String ENCODING_ATTRIBUTE = "encoding";
+
+    private static final MarshalOptions UNFORMATTED_FRAGMENT = new MarshalOptions(
+            false, true);
 
     private final PayloadType payloadType;
 
@@ -135,7 +140,7 @@ public class SessionPayload extends BaseExtension {
             try {
                 CollaborationXmlManager jaxb = CollaborationXmlManager
                         .getInstance();
-                String xml = jaxb.marshalToFragment(data);
+                String xml = jaxb.marshalToXml(data, UNFORMATTED_FRAGMENT);
                 /*
                  * wrap JAXB XML in base64 to avoid problems with openfire
                  * disconnecting due to complex XML

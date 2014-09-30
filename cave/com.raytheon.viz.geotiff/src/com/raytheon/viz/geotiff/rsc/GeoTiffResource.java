@@ -20,13 +20,12 @@
 
 package com.raytheon.viz.geotiff.rsc;
 
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-
+import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -37,12 +36,12 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.core.rsc.hdf5.PureMemoryBasedTileSet;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.core.tile.TileSetRenderable;
+import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
 
 /**
  * Supports GeoTIFF imagery
- * 
- * NOTE: maximum of 2048 height/width in pixels.
  * 
  * <pre>
  * 
@@ -51,6 +50,7 @@ import com.raytheon.viz.core.rsc.hdf5.PureMemoryBasedTileSet;
  *     Date         Ticket#     Engineer    Description
  *     ------------   ----------  -----------   --------------------------
  *     8/24/06                    chammack    Initial Creation.
+ *     Aug 14, 2014 3522          bclement    reworked to use TileSetRenderable
  * 
  * </pre>
  * 
@@ -60,10 +60,16 @@ import com.raytheon.viz.core.rsc.hdf5.PureMemoryBasedTileSet;
 public class GeoTiffResource extends
         AbstractVizResource<GeoTiffResourceData, MapDescriptor> {
 
-    /** The tiled image */
-    private PureMemoryBasedTileSet image;
+    private static final int TILE_SIZE = 512;
+
+    private TileSetRenderable image;
+
+    private ImageStreamTileCreator tileCreator;
 
     private String filePath;
+
+    /* true since TileSetRenderable needs reproject() called on it before use */
+    private boolean project = true;
 
     protected GeoTiffResource(GeoTiffResourceData data, LoadProperties props)
             throws VizException, IOException {
@@ -78,6 +84,14 @@ public class GeoTiffResource extends
      */
     @Override
     protected void disposeInternal() {
+        if (tileCreator != null) {
+            try {
+                tileCreator.close();
+            } catch (IOException e) {
+                statusHandler.error(
+                        "Unable to close geotiff tile image stream", e);
+            }
+        }
         if (image != null) {
             image.dispose();
         }
@@ -92,28 +106,31 @@ public class GeoTiffResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+        File imgFile = new File(filePath);
+        if (!imgFile.canRead()) {
+            String msg = "Check file permissions.";
+            if (!imgFile.exists()) {
+                msg = "File does not exist.";
+            }
+            throw new VizException("Unable to open geotiff image: "
+                    + imgFile.getAbsolutePath()
+                    + ". " + msg);
+        }
         try {
             GeoTiffReader gcr = (GeoTiffReader) new GeoTiffFormat()
-                    .getReader(new File(filePath));
-
-            // Read in the image itself using ImageIO as it is much more
-            // reliable
-            RenderedImage img = ImageIO.read(new File(filePath));
+                    .getReader(imgFile);
             GridCoverage2D gridCoverage = (GridCoverage2D) gcr.read(null);
 
-            image = new PureMemoryBasedTileSet(resourceData.getNameGenerator()
-                    .getName(this), this, gridCoverage.getGridGeometry(),
-                    PureMemoryBasedTileSet.calculateLevels(img),
-                    target.getViewType());
-            image.setMapDescriptor(this.descriptor);
-            image.setImage(img);
-            image.init(target);
+            ImagingCapability imaging = getCapability(ImagingCapability.class);
+            GridGeometry2D tileSetGeometry = gridCoverage.getGridGeometry();
+            TileImageCreator tileCreator = new ImageStreamTileCreator(imgFile);
 
+            image = new TileSetRenderable(imaging, tileSetGeometry,
+                    tileCreator, 1, TILE_SIZE);
             gridCoverage = null;
-            img = null;
         } catch (Exception e) {
-            // TODO: Handle exception
-            e.printStackTrace();
+            throw new VizException("Unable to process geotiff image: "
+                    + imgFile.getAbsolutePath(), e);
         }
     }
 
@@ -129,6 +146,14 @@ public class GeoTiffResource extends
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         if (image != null) {
+            if (project) {
+                project = false;
+                GeneralGridGeometry targetGeometry = descriptor
+                        .getGridGeometry();
+                if (image.getTargetGeometry() != targetGeometry) {
+                    image.project(targetGeometry);
+                }
+            }
             image.paint(target, paintProps);
         }
     }
@@ -142,6 +167,6 @@ public class GeoTiffResource extends
      */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
-        image.reproject();
+        project = true;
     }
 }

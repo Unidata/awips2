@@ -28,6 +28,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -59,6 +60,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
  * ------------ ---------- ----------- --------------------------
  * Sep 23, 2010            jkorman     Initial creation
  * May 14, 2014 2536       bclement    removed TimeTools usage
+ * Aug 18, 2014 3530       bclement    removed rest of TimeTools usage
  * 
  * </pre>
  * 
@@ -229,8 +231,8 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
                         String[] parts = splitBuilder(s);
                         if (parts != null) {
                             ACARSRecord rec = new ACARSRecord(parts[2]);
-                            rec.setTimeObs(TimeTools.newCalendar(Long
-                                    .parseLong(parts[1])));
+                            rec.setTimeObs(TimeUtil.newGmtCalendar(new Date(
+                                    Long.parseLong(parts[1]))));
                             recs.add(rec);
                         }
                         // tag items what we have read.

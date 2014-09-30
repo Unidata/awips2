@@ -14,6 +14,7 @@
  * 10/26/2011              S. Gurung    Added probable parameters (for TEMPO/PROB)
  * 11/03/2011              S. Gurung    Added additional parameters and renamed some parameters
  * 11/07/2011              S. Gurung    Added LOW_LEVEL_WIND_SHEAR
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -23,6 +24,13 @@
  */
 
 package gov.noaa.nws.ncep.common.dataplugin.nctaf.dao;
+
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafIcingLayer;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafSkyCover;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTemperatureForecast;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTurbulenceLayer;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafWeatherCondition;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,14 +43,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafIcingLayer;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafSkyCover;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTemperatureForecast;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTurbulenceLayer;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafWeatherCondition;
 
 public class NcTafToRecord {
 
@@ -181,8 +181,8 @@ public class NcTafToRecord {
             	record.setStationId(pdv.getString("STID"));
             
             SurfaceObsLocation loc = new SurfaceObsLocation(pdv.getString("STID"));
-            Double lat = pdv.getNumber(LATITUDE).doubleValue();
-            Double lon = pdv.getNumber(LONGITUDE).doubleValue();
+            float lat = pdv.getNumber(LATITUDE).floatValue();
+            float lon = pdv.getNumber(LONGITUDE).floatValue();
             loc.assignLocation(lat, lon);
             loc.setElevation(pdv.getNumber(ELEVATION).intValue());              
             record.setLocation(loc);
@@ -234,18 +234,15 @@ public class NcTafToRecord {
 				record.setSequenceId(pdv.getInt("SEQID"));
 			
             if (parameters.contains("END_DATE")) {
-				long vt = pdv.getNumber("END_DATE").longValue();
-            	record.setEndDate(TimeTools.newCalendar(vt));      
+                record.setEndDate(pdv.getCalendar("END_DATE"));
 			}
 			
 			if (parameters.contains("START_DATE")) {
-				long vt = pdv.getNumber("START_DATE").longValue();
-            	record.setStartDate(TimeTools.newCalendar(vt));      
+                record.setStartDate(pdv.getCalendar("START_DATE"));
 			}
 			
 			if (parameters.contains("TRANS_END_DATE")) {
-				long vt = pdv.getNumber("TRANS_END_DATE").longValue();
-            	record.setTransitionEndDate(TimeTools.newCalendar(vt));      
+                record.setTransitionEndDate(pdv.getCalendar("TRANS_END_DATE"));
 			}
 		  
             if (parameters.contains("VISIBILITY"))

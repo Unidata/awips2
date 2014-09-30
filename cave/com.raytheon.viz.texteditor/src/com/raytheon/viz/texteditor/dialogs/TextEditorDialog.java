@@ -47,6 +47,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -114,9 +115,10 @@ import org.eclipse.ui.menus.IMenuService;
 import com.raytheon.uf.common.activetable.SendPracticeProductRequest;
 import com.raytheon.uf.common.dataplugin.text.RemoteRetrievalResponse;
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
+import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
+import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProductId;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest;
 import com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest;
 import com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateRequest;
@@ -125,13 +127,16 @@ import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OUPTestRequest;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -142,9 +147,6 @@ import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.status.StatusConstants;
@@ -337,6 +339,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 14Mar2014   DR 17175     D. Friedman Get correct time zone for MND header time sync.
  * 08May2014   DR 16041     kshrestha   Save unofficial text products from text editor.
  * 13May2014   2536         bclement    moved WMO Header to common, switched from TimeTools to TimeUtil
+ * 11Sep2014   3580         mapeters    Replaced SerializationTuil usage with JAXBManager, 
+ *                                      removed IQueryTransport usage (no longer exists).
  * 
  * </pre>
  * 
@@ -350,8 +354,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Handler used for messges.
      */
-    private final IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TextEditorDialog.class);
+
+    private static volatile JAXBManager jaxb;
 
     /**
      * List of CCCs that can be handled even if the PIL is on the gfe pil list.
@@ -1196,11 +1202,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private final boolean hasScripting;
 
     /**
-     * Transport usded to send query to server and get results.
-     */
-    private IQueryTransport queryTransport = null;
-
-    /**
      * Job to handle query for products off the UI thread.
      */
     private final ProductQueryJob productQueryJob = new ProductQueryJob(this);
@@ -1460,6 +1461,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         this.textWorkstationFlag = textWorkstationFlag;
     }
 
+    private static JAXBManager getJaxbManager() throws JAXBException {
+        if (jaxb == null) {
+            jaxb = new JAXBManager(OperationalStdTextProduct.class,
+                    PracticeStdTextProduct.class);
+        }
+        return jaxb;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -1536,10 +1545,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     close();
                 }
             });
-        }
-
-        if (isWarnGenDlg) {
-            queryTransport = TextEditorUtil.getTextDbsrvTransport();
         }
 
         commandHistory = new CommandHistory();
@@ -4396,7 +4401,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     .getProductCategory(token)
                     + tdm.getProductDesignator(token);
             // Set the header text field.
-            if (bbbid.equals("NOR") || tdm.getAfosPil(token) != null) {
+            if (bbbid.equals("NOR") || (bbbid.isEmpty() && tdm.getAfosPil(token) != null)) {
                 String wmoId = tdm.getWmoId(token);
                 wmoId = (wmoId.length() > 0 ? wmoId : "-");
                 String siteId = tdm.getSiteId(token);
@@ -6040,10 +6045,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 + TextEditorUtil.getCommandText(command));
         statusBarLabel.update();
         setBusy(true);
-
-        if (queryTransport == null) {
-            queryTransport = TextEditorUtil.getTextDbsrvTransport();
-        }
         productQueryJob.addRequest(command, isObsUpdated,
                 accumChkBtn.getSelection());
     }
@@ -7134,17 +7135,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         updateButtonology(commandText);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IWmoBrowserCallback#getQueryTransport()
-     */
-    @Override
-    public IQueryTransport getQueryTransport() {
-        return queryTransport;
-    }
-
     /**
      * Checks product to verify all required fields have been filled in.
      * 
@@ -7311,15 +7301,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     synchronized (this) {
                         bufStream = new BufferedOutputStream(
                                 new FileOutputStream(file));
-                        bufStream.write(SerializationUtil.marshalToXml(
-                                stdTextProduct).getBytes());
+                        getJaxbManager().marshalToStream(stdTextProduct,
+                                bufStream);
                     }
                 }
 
                 // TODO Should the edit session be backed up to the server?
                 // lFile.save();
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, "Auto save failed", e);
+                statusHandler.handle(Priority.PROBLEM, "Auto save failed to "
+                        + filename, e);
             } finally {
                 if (bufStream != null) {
                     try {
@@ -7339,20 +7330,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 BufferedInputStream bufStream = null;
 
                 try {
-                    String xml = null;
                     synchronized (this) {
-                        byte[] b = new byte[(int) file.length()];
                         bufStream = new BufferedInputStream(
                                 new FileInputStream(file));
-                        bufStream.read(b);
-                        xml = new String(b);
                     }
 
-                    rval = SerializationUtil.unmarshalFromXml(
-                            StdTextProduct.class, xml);
+                    rval = (StdTextProduct) getJaxbManager()
+                            .unmarshalFromInputStream(bufStream);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Retrieval of product failed", e);
+                            "Retrieval of product failed:" + file.getName(), e);
                 } finally {
                     if (bufStream != null) {
                         try {
@@ -7421,14 +7408,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /*
      * (non-Javadoc)
      * 
-     * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[]) This is the
-     * callback method called by the NotificationManagerJob when observations
-     * are received. It parses the notifications and triggers a load of a
-     * product that matches the currently loaded product. Short circuits are
-     * provided for cases when the dialog is either not displaying a product or
-     * is in edit mode.
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[]) This is
+     * the callback method called by the NotificationManagerJob when
+     * observations are received. It parses the notifications and triggers a
+     * load of a product that matches the currently loaded product. Short
+     * circuits are provided for cases when the dialog is either not displaying
+     * a product or is in edit mode.
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {

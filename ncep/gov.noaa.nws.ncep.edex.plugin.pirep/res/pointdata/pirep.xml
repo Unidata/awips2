@@ -16,11 +16,8 @@
   <parameter name="wmoHeader" numDims="1" type="STRING" size="8" />
   <parameter name="stationId" numDims="1" type="STRING" size="16" />
   <parameter name="flightLevel" numDims="1" type="INT" unit="ft" />
-  <parameter name="latitude" numDims="1" type="FLOAT" unit="degree" />
-  <parameter name="longitude" numDims="1" type="FLOAT" unit="degree" />
   <!-- correctionCode is corIndicator in  PirepRecord -->
   <parameter name="correctionCode" numDims="1" type="STRING" size="8" />
-  <parameter name="dataURI" numDims="1" type="STRING" size="128" />
   <parameter name="aircraftType" numDims="1" type="STRING" size="16" /> 
   <!--  temperature is temp and unit="Kelvin" in PirepRecord -->
   <parameter name="temperature" numDims="1" type="FLOAT" unit="Celsius" />

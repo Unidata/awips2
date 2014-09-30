@@ -36,7 +36,6 @@
             <zipfileset dir="${baseline.directory}/org.apache.commons.beanutils" includes="commons-beanutils-1.8.3.jar"/>
             <zipfileset dir="${baseline.directory}/org.apache.commons.digester" includes="commons-digester-1.8.1.jar"/>
             <zipfileset dir="${baseline.directory}/org.apache.commons.lang" includes="commons-lang-2.3.jar"/>
-            <zipfileset dir="${baseline.directory}/org.apache.commons.configuration" includes="commons-configuration-1.6.jar"/>
             <fileset dir="${baseline.directory}/com.raytheon.wes2bridge.common/${bin.dir}"/>
             <fileset dir="${baseline.directory}/com.raytheon.wes2bridge.configuration/${bin.dir}"/>
         </jar>

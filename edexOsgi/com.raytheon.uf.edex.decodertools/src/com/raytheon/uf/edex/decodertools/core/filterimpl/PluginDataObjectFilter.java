@@ -22,12 +22,7 @@ package com.raytheon.uf.edex.decodertools.core.filterimpl;
 import static com.raytheon.uf.common.localization.LocalizationContext.LocalizationType.EDEX_STATIC;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -43,7 +38,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -57,6 +52,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Jul 16, 2009           jkorman     Initial creation
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 23, 2014 3410      bclement    location changed to floats
+ * Sep 09, 2014  3548     mapeters    Improved constructor's error messages.
+ * Sep 11, 2014  3548     mapeters    Replaced use of SerializationUtil
+ *                                    with JAXBManager.
+ * Sep 18, 2014  3627     mapeters    Removed unused getInputStream().
  * 
  * </pre>
  * 
@@ -94,26 +94,18 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
                     filterDir = manager.getFile(context, FILTERS_DIR);
                     if (filterDir.exists()) {
                         File srcFile = new File(filterDir, filterConfigFile);
+                        JAXBManager jaxb = new JAXBManager(
+                                PluginDataObjectFilter.class,
+                                RadiusFilterElement.class,
+                                RectFilterElement.class,
+                                StationIdFilterElement.class,
+                                WMOHeaderFilterElement.class);
+                        PluginDataObjectFilter filter = jaxb
+                                .unmarshalFromXmlFile(
+                                        PluginDataObjectFilter.class, srcFile);
 
-                        byte[] data = new byte[(int) srcFile.length()];
-
-                        InputStream stream = getInputStream(srcFile);
-                        try {
-                            stream.read(data);
-                            stream.close();
-
-                            AbstractObsFilter filter = SerializationUtil
-                                    .unmarshalFromXml(AbstractObsFilter.class,
-                                            new String(data));
-
-                            setFilterElements(filter.getFilterElements());
-                            setFilterName(filter.getFilterName());
-                        } catch (IOException e) {
-                            logger.error("Unable to read filter config", e);
-                        } catch (JAXBException e) {
-                            logger.error("Unable to unmarshall filter config",
-                                    e);
-                        }
+                        setFilterElements(filter.getFilterElements());
+                        setFilterName(filter.getFilterName());
                     } else {
                         logger.error(String.format(ERROR_2_FMT,
                                 filterDir.getPath()));
@@ -128,7 +120,7 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
                 // Could not create PathManager
             }
         } catch (Exception e) {
-            logger.error("Error creating filter.", e);
+            logger.error("Error creating filter from " + filterConfigFile, e);
             createDummyFilter();
         }
         logger.info("Filter name = " + getFilterName());
@@ -209,22 +201,6 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         addFilterElement(dummy);
     }
 
-    /**
-     * 
-     * @param file
-     * @return
-     */
-    private static FileInputStream getInputStream(File file) {
-        FileInputStream fis = null;
-
-        try {
-            fis = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return fis;
-    }
-
     private static class TestObject extends PluginDataObject implements
             ISpatialEnabled {
 
@@ -255,13 +231,13 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
 
         TestObject p = new TestObject();
         p.location = new SurfaceObsLocation("1.1");
-        p.location.assignLocation(.8, .8);
+        p.location.assignLocation(.8f, .8f);
         p = (TestObject) element.filter(p);
         System.out.println((p == null) ? "passed" : "failed");
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("1.2");
-        p.location.assignLocation(.7, .7);
+        p.location.assignLocation(.7f, .7f);
         p = (TestObject) element.filter(p);
         System.out.println((p == null) ? "failed" : p);
 
@@ -271,13 +247,13 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("2.1");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
+        p.location.assignLocation(38.78f, -97.65f); // KSLN 38 47N 097 39W
         p = (TestObject) element.filter(p);
         System.out.println((p == null) ? p : "failed");
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("2.2");
-        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N 096 41W
+        p.location.assignLocation(39.13f, -96.68f); // KMHK 39 08N 096 41W
         p = (TestObject) element.filter(p);
         System.out.println((p != null) ? p : "failed");
 
@@ -299,17 +275,17 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         PluginDataObject[] pp = new PluginDataObject[3];
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSLN");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
+        p.location.assignLocation(38.78f, -97.65f); // KSLN 38 47N 097 39W
         pp[0] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KMHK");
-        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N 096 41W
+        p.location.assignLocation(39.13f, -96.68f); // KMHK 39 08N 096 41W
         pp[1] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSTJ");
-        p.location.assignLocation(41, -96.00);
+        p.location.assignLocation(41f, -96.00f);
         pp[2] = p;
 
         pp = filter.filter(pp);
@@ -326,22 +302,22 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KORD");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
+        p.location.assignLocation(38.78f, -97.65f); // KSLN 38 47N 097 39W
         pp[0] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSLN");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
+        p.location.assignLocation(38.78f, -97.65f); // KSLN 38 47N 097 39W
         pp[1] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KMHK");
-        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N 096 41W
+        p.location.assignLocation(39.13f, -96.68f); // KMHK 39 08N 096 41W
         pp[2] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSTJ");
-        p.location.assignLocation(41, -96.00);
+        p.location.assignLocation(41f, -96.00f);
         pp[3] = p;
 
         filter = new PluginDataObjectFilter();

@@ -83,6 +83,8 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * Sep 17, 2013 2378        njensen     Improve 3/6 hr precip decoding
  * May 12, 2014 DR 17151    D. Friedman Fix 6hr min/max temp decoding.
  * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014  3410       bclement    location changed to floats
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -288,8 +290,8 @@ public class MetarDecoder extends AbstractDecoder {
                     ObStation station = getStationInfo(icao);
                     if (station != null) {
                         SurfaceObsLocation loc = new SurfaceObsLocation(icao);
-                        Double lat = station.getGeometry().getY();
-                        Double lon = station.getGeometry().getX();
+                        float lat = (float) station.getGeometry().getY();
+                        float lon = (float) station.getGeometry().getX();
                         loc.assignLocation(lat, lon);
                         loc.setElevation(station.getElevation());
 
