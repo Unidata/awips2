@@ -24,7 +24,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -49,10 +55,11 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.Pair;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.alarmalert.dialogs.AlarmDisplayWindow.ACCUMULATE_STATE;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertFunctions;
@@ -63,7 +70,6 @@ import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
-import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.ModeListener;
@@ -97,9 +103,12 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  *                                      Alarm Queue" GUI
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
  * Sep 25, 2012  1196      lvenable    Dialog refactor for AlarmDisplayWindow.
- * Mar 05,2013  15173   mgamazaychikov The dimensions and location of closed window
+ * Mar 05, 2013 15173   mgamazaychikov The dimensions and location of closed window
  * 									   are saved and set on the next open.
  * Jun 23, 2014 #3161      lvenable    Added SWT dialog trim to the dialogs for thin client.
+ * Jul 24, 2014  3423   randerso       Created eclipse job to get afos command 
+ *                                     execution off the UI thread
+ * Sep 09, 2014  3580      mapeters    Removed IQueryTransport usage (no longer exists).
  * 
  * </pre>
  * 
@@ -133,8 +142,6 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
 
     private Button displayAll;
 
-    private IQueryTransport queryTransport = null;
-
     private java.util.List<StdTextProduct> prodList = null;
 
     private static CurrentAlarmQueue INSTANCE;
@@ -159,6 +166,57 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
     private static final int INIT_HEIGHT = 200;
 
     private static final int INIT_OFFSET = 15;
+
+    /**
+     * Job to retrieve text products off the UI thread
+     */
+    private class ProduceTextProductsJob extends Job {
+        private Queue<Pair<Long, String[]>> queue = new ConcurrentLinkedQueue<Pair<Long, String[]>>();
+
+        /**
+         * Constructor
+         */
+        public ProduceTextProductsJob() {
+            super("ProduceTextProductsJob");
+            setSystem(true);
+        }
+
+        /**
+         * Queue a text product retrieval job
+         * 
+         * @param refTime
+         * @param commands
+         */
+        public void queue(Long refTime, String... commands) {
+            queue.add(new Pair<Long, String[]>(refTime, commands));
+            this.schedule();
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            while (queue.size() > 0) {
+                Pair<Long, String[]> pair = queue.poll();
+                if (pair != null) {
+                    final java.util.List<StdTextProduct> prods = produceTextProducts(
+                            pair.getFirst(), pair.getSecond());
+
+                    VizApp.runSync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if (alarmDisplayDlg != null
+                                    && !alarmDisplayDlg.isDisposed()) {
+                                alarmDisplayDlg.setProds(prods);
+                            }
+                        }
+                    });
+                }
+            }
+            return Status.OK_STATUS;
+        }
+    }
+
+    private ProduceTextProductsJob produceTextProductsJob = new ProduceTextProductsJob();
 
     /**
      * @param parentShell
@@ -268,6 +326,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
          * closed window.
          */
         shell.addShellListener(new ShellAdapter() {
+            @Override
             public void shellClosed(ShellEvent event) {
                 closeLocation = getShell().getLocation();
                 closeDimensions = getShell().getSize();
@@ -423,7 +482,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      * Display the selected product the current alarm queue list.
      */
     private void displayList() {
-        String command = "";
+        String command = null;
         Date refDate = null;
         if (list != null && list.getItemCount() > 0
                 && list.getSelectionCount() > 0 && list.getSelection() != null) {
@@ -438,14 +497,9 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             }
         }
 
-        java.util.List<StdTextProduct> prods = null;
-        if (command != "" && refDate != null) {
-            prods = produceTextProduct(command, refDate.getTime());
-        }
-
         // Display the Alarm Display Window
         if (alarmDisplayDlg == null || alarmDisplayDlg.getShell().isDisposed()) {
-            alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
+            alarmDisplayDlg = new AlarmDisplayWindow(shell,
                     ACCUMULATE_STATE.UNCHANGE);
             alarmDisplayDlg.setCloseCallback(new ICloseCallback() {
 
@@ -460,8 +514,12 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
 
             alarmDisplayDlg.open();
         } else {
-            alarmDisplayDlg.setProds(prods);
             alarmDisplayDlg.setDialogFocus();
+        }
+
+        if (command != null && refDate != null) {
+            alarmDisplayDlg.setLoading();
+            produceTextProductsJob.queue(refDate.getTime(), command);
         }
     }
 
@@ -469,49 +527,39 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      * Display all the products in the alarm queue list and clear the list.
      */
     private void displayAll() {
-        String[] command = null;
-        if (list != null) {
-            command = new String[list.getItemCount()];
-            for (int i = 0; i < list.getItemCount(); i++) {
-                command[i] = list.getItems()[i].split(" ")[0];
-            }
-            // Do a count of how many instances of each command are in
-            // the queue.
-            Map<String, Integer> counter = new HashMap<String, Integer>();
-            for (int i = 0; i < command.length; ++i) {
-                if (counter.get(command[i]) == null) {
-                    counter.put(command[i], 0);
-                } else {
-                    counter.put(command[i], (counter.get(command[i]) + 1));
-                }
-            }
-            // For each command, see how far back it needs to go to
-            // account for multiple instances, and construct the
-            // appropriate AFOS command.
-            for (int j = 0; j < command.length; ++j) {
-                Integer count = counter.get(command[j]);
-                if (count > 0) {
-                    String newCom = "-" + count.toString() + ":" + command[j];
-                    counter.put(command[j], (count - 1));
-                    command[j] = newCom;
-                }
-            }
-            AlarmAlertLists.getInstance().getCurrentAlarms().clear();
-            listDates.clear();
-            list.removeAll();
-            AlarmAlertFunctions.getAlarmalertbell().close();
+        String[] command = new String[list.getItemCount()];
+        for (int i = 0; i < list.getItemCount(); i++) {
+            command[i] = list.getItems()[i].split(" ")[0];
         }
-
-        java.util.List<StdTextProduct> prods = new ArrayList<StdTextProduct>();
-        if (command.length > 0) {
-            for (int i = 0; i < command.length; i++) {
-                prods.addAll(produceTextProduct(command[i]));
+        // Do a count of how many instances of each command are in
+        // the queue.
+        Map<String, Integer> counter = new HashMap<String, Integer>();
+        for (int i = 0; i < command.length; ++i) {
+            if (counter.get(command[i]) == null) {
+                counter.put(command[i], 0);
+            } else {
+                counter.put(command[i], (counter.get(command[i]) + 1));
             }
         }
+        // For each command, see how far back it needs to go to
+        // account for multiple instances, and construct the
+        // appropriate AFOS command.
+        for (int j = 0; j < command.length; ++j) {
+            Integer count = counter.get(command[j]);
+            if (count > 0) {
+                String newCom = "-" + count.toString() + ":" + command[j];
+                counter.put(command[j], (count - 1));
+                command[j] = newCom;
+            }
+        }
+        AlarmAlertLists.getInstance().getCurrentAlarms().clear();
+        listDates.clear();
+        list.removeAll();
+        AlarmAlertFunctions.getAlarmalertbell().close();
 
         // Display the Alarm Display Window
         if (alarmDisplayDlg == null || alarmDisplayDlg.getShell().isDisposed()) {
-            alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
+            alarmDisplayDlg = new AlarmDisplayWindow(shell,
                     ACCUMULATE_STATE.TRUE);
             alarmDisplayDlg.setCloseCallback(new ICloseCallback() {
                 @Override
@@ -525,10 +573,12 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             });
             alarmDisplayDlg.open();
         } else {
-            alarmDisplayDlg.setProds(prods);
             alarmDisplayDlg.setAccumulate(true);
             alarmDisplayDlg.setDialogFocus();
         }
+
+        alarmDisplayDlg.setLoading();
+        produceTextProductsJob.queue(null, command);
     }
 
     /**
@@ -580,12 +630,6 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         }
     }
 
-    public java.util.List<StdTextProduct> produceTextProduct(String command) {
-        ICommand cmd = CommandFactory.getAfosCommand(command);
-        executeCommand(cmd);
-        return prodList;
-    }
-
     /**
      * Get the product for the given AFOS command and reference time.
      * 
@@ -593,11 +637,16 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      * @param refTime
      * @return prodList
      */
-    private java.util.List<StdTextProduct> produceTextProduct(String command,
-            Long refTime) {
-        ICommand cmd = CommandFactory.getAfosCommand(command, refTime);
-        executeCommand(cmd);
-        return prodList;
+    private java.util.List<StdTextProduct> produceTextProducts(Long refTime,
+            String... commands) {
+
+        java.util.List<StdTextProduct> prods = new ArrayList<StdTextProduct>();
+        for (String command : commands) {
+            ICommand cmd = CommandFactory.getAfosCommand(command, refTime);
+            executeCommand(cmd);
+            prods.addAll(prodList);
+        }
+        return prods;
     }
 
     /*
@@ -620,9 +669,8 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      */
     @Override
     public void executeCommand(ICommand command) {
-        queryTransport = TextEditorUtil.getTextDbsrvTransport();
         try {
-            prodList = command.executeCommand(queryTransport);
+            prodList = command.executeCommand();
             if (prodList == null || prodList.size() <= 0) {
                 prodList = new ArrayList<StdTextProduct>();
             }
@@ -654,12 +702,19 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      */
     @Override
     public void currentAlarmChanged(CurrentAlarmEvent event) {
-        AlarmAlertProduct aap = (AlarmAlertProduct) event.getSource();
+        final AlarmAlertProduct aap = (AlarmAlertProduct) event.getSource();
         if (!shell.isDisposed() && shell != null) {
             CAVEMode mode = CAVEMode.getMode();
             if ((CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST
                     .equals(mode)) && aap.getOperationalMode()) {
-                addToQueue(aap.getProductId(), aap.getDateReceived());
+
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        addToQueue(aap.getProductId(), aap.getDateReceived());
+                    }
+                });
             }
         }
     }

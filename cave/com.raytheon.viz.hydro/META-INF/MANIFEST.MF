@@ -2,10 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hydro Plug-in
 Bundle-SymbolicName: com.raytheon.viz.hydro;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.hydro.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.ui,
@@ -28,5 +27,5 @@ Export-Package: com.raytheon.viz.hydro,
  com.raytheon.viz.hydro.perspective,
  com.raytheon.viz.hydro.timeseries,
  com.raytheon.viz.hydro.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.ohd

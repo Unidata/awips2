@@ -19,7 +19,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
-import com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyEnforcementPoint;
 
 /**
  * 
@@ -56,8 +55,6 @@ public class EDEXRegistryManager extends
 
     @VisibleForTesting
     static final String CAN_ONLY_STORE_SINGLE_OBJECT = "Only one object can be stored at a time, ignoring all but the first item in the list!";
-
-    private XACMLPolicyEnforcementPoint xacmlPep;
 
     private RegistryHandler registryHandler;
 
@@ -123,11 +120,7 @@ public class EDEXRegistryManager extends
     @Transactional
     public AuthorizationResponse authorized(IUser user,
             IRegistryRequest<?> request) throws AuthorizationException {
-        return xacmlPep.handleRegistryRequest(user, request);
-    }
-
-    public void setXacmlPep(XACMLPolicyEnforcementPoint xacmlPep) {
-        this.xacmlPep = xacmlPep;
+        return new AuthorizationResponse(true);
     }
 
     public void setRegistryHandler(RegistryHandler registryHandler) {

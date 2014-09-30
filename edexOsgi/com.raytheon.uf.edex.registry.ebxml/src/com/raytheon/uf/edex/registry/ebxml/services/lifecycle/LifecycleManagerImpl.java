@@ -52,7 +52,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.DeletionScope;
@@ -73,6 +72,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.publish.PublishRegistryEvent;
 import com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl;
@@ -113,6 +113,7 @@ import com.raytheon.uf.edex.registry.events.DeleteSlotEvent;
  * Mar 31, 2014 2889       dhladky     Added username for notification center tracking.
  * 4/11/2014    3011       bphillip    Modified merge behavior
  * 4/17/2014    3011       bphillip    Delete slot events now contain strings
+ * June 25, 2014 2760      dhladky     Added external delivery of registry events
  * 
  * 
  * </pre>
@@ -153,6 +154,9 @@ public class LifecycleManagerImpl implements LifecycleManager {
     private RegistryObjectDao registryObjectDao;
 
     private RegistryXPathProcessor xpathProcessor;
+    
+    /** publishes registry events **/
+    private PublishRegistryEvent publisher = PublishRegistryEvent.getInstance();
 
     /**
      * The Remove Objects protocol allows a client to remove or delete one or
@@ -300,15 +304,15 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 event.setAction(Action.DELETE);
                 event.setLid(obj.getLid());
                 event.setObjectType(objectType);
-                EventBus.publish(event);
+                publisher.publish(event);
             }
             DeleteSlotEvent deleteEvent = new DeleteSlotEvent(obj.getSlot());
-            EventBus.publish(deleteEvent);
-            EventBus.publish(new RegistryStatisticsEvent(obj.getObjectType(),
+            publisher.publish(deleteEvent);
+            publisher.publish(new RegistryStatisticsEvent(obj.getObjectType(),
                     obj.getStatus(), obj.getOwner(), avTimePerRecord));
         }
 
-        EventBus.publish(new CreateAuditTrailEvent(request.getId(), request,
+        publisher.publish(new CreateAuditTrailEvent(request.getId(), request,
                 ActionTypes.delete, objectsToRemove, TimeUtil
                         .currentTimeMillis()));
 
@@ -474,24 +478,24 @@ public class LifecycleManagerImpl implements LifecycleManager {
         long currentTime = TimeUtil.currentTimeMillis();
         if (!objsCreated.isEmpty()) {
             for (RegistryObjectType obj : objsCreated) {
-                EventBus.publish(new InsertRegistryEvent(obj.getId(), obj
+                publisher.publish(new InsertRegistryEvent(obj.getId(), obj
                         .getLid(), request.getUsername(), obj.getObjectType()));
-                EventBus.publish(new RegistryStatisticsEvent(obj
+                publisher.publish(new RegistryStatisticsEvent(obj
                         .getObjectType(), obj.getStatus(), obj.getOwner(),
                         avTimePerRecord));
             }
-            EventBus.publish(new CreateAuditTrailEvent(request.getId(),
+            publisher.publish(new CreateAuditTrailEvent(request.getId(),
                     request, ActionTypes.create, objsCreated, currentTime));
         }
         if (!objsUpdated.isEmpty()) {
             for (RegistryObjectType obj : objsUpdated) {
-                EventBus.publish(new UpdateRegistryEvent(obj.getId(), obj
+                publisher.publish(new UpdateRegistryEvent(obj.getId(), obj
                         .getLid(), request.getUsername(), obj.getObjectType()));
-                EventBus.publish(new RegistryStatisticsEvent(obj
+                publisher.publish(new RegistryStatisticsEvent(obj
                         .getObjectType(), obj.getStatus(), obj.getOwner(),
                         avTimePerRecord));
             }
-            EventBus.publish(new CreateAuditTrailEvent(request.getId(),
+            publisher.publish(new CreateAuditTrailEvent(request.getId(),
                     request, ActionTypes.update, objsUpdated, currentTime));
         }
 
@@ -746,7 +750,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
             mergeObjects(updatedObject, objToUpdate);
         }
         if (!objectsToUpdate.isEmpty()) {
-            EventBus.publish(new CreateAuditTrailEvent(request.getId(),
+            publisher.publish(new CreateAuditTrailEvent(request.getId(),
                     request, ActionTypes.update, objectsToUpdate, TimeUtil
                             .currentTimeMillis()));
         }
@@ -762,7 +766,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
             RegistryObjectType existingObject) {
         DeleteSlotEvent deleteSlotEvent = new DeleteSlotEvent(existingObject.getSlot());
         registryObjectDao.merge(newObject, existingObject);
-        EventBus.publish(deleteSlotEvent);
+        publisher.publish(deleteSlotEvent);
     }
 
     private RegistryObjectType applyUpdates(RegistryObjectType objectToUpdate,
@@ -858,5 +862,5 @@ public class LifecycleManagerImpl implements LifecycleManager {
     public void setXpathProcessor(RegistryXPathProcessor xpathProcessor) {
         this.xpathProcessor = xpathProcessor;
     }
-
+    
 }

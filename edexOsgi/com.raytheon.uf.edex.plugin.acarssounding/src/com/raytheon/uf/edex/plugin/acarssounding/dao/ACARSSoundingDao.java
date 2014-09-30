@@ -30,7 +30,6 @@ import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
 
 /**
@@ -42,6 +41,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009       1939 jkorman     Initial creation
+ * Aug 18, 2014 3530       bclement    removed warning from executeSoundingQuery()
  * 
  * </pre>
  * 
@@ -104,7 +104,7 @@ public class ACARSSoundingDao extends DefaultPluginDao {
     public List<?> executeSoundingQuery(final String hqlQuery) {
 
         List<?> result = (List<?>) txTemplate
-                .execute(new TransactionCallback() {
+                .execute(new TransactionCallback<Object>() {
                     public List<?> doInTransaction(TransactionStatus status) {
                         Query hibQuery = getSession(false)
                                 .createQuery(hqlQuery);

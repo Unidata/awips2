@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.exception.UnrecognizedDataException;
-import com.raytheon.uf.common.dataplugin.lsr.LSREventType;
 import com.raytheon.uf.common.dataplugin.lsr.LocalStormReport;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -58,6 +57,9 @@ import com.raytheon.uf.edex.plugin.lsr.LocalStormReportDao;
  * Jan 07, 2013 2581       njensen     Check to end of string for source, not a set length
  * Jan 13, 2013 2581       njensen     Improved error handling and logging
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
+ * Jul 30, 2014 3410       bclement    lat, lon and data uri moved to database point data desc
+ * Sep 16, 2014 2707       bclement    removed event type from PDV, generated stationId
  * 
  * </pre>
  * 
@@ -237,15 +239,9 @@ public class LSRParser {
 
                 // Populate the point data.
                 PointDataView view = pdc.append();
-                view.setLong("timeObs", report.getDataTime()
-                        .getRefTimeAsCalendar().getTimeInMillis());
-                view.setFloat("latitude", (float) report.getLatitude());
-                view.setFloat("longitude", (float) report.getLongitude());
                 view.setString("wmoHeader", report.getWmoHeader());
 
-                view.setInt("eventType", report.getEventType().getValue());
-                view.setString("eventUnit", report.getEventType()
-                        .getEventUnits().name());
+                view.setString("eventUnit", report.getEventUnits());
                 view.setFloat("magnitude", report.getMagnitude());
                 view.setString("countylocation", report.getCountyLoc());
                 view.setString("statelocation", report.getStateLoc());
@@ -254,8 +250,6 @@ public class LSRParser {
                 view.setString("source", report.getSource());
                 view.setInt("injuries", report.getInjuries());
                 view.setInt("fatalities", report.getFatalities());
-
-                view.setString("dataURI", report.getDataURI());
 
                 report.setPointDataView(view);
             }
@@ -322,7 +316,7 @@ public class LSRParser {
                         try {
                             if (parseTimeLine(s, rpt)) {
                                 List<InternalReport> rptLines = r.getSubLines();
-                                if (rptLines != null) {
+                                if (rptLines != null && !rptLines.isEmpty()) {
                                     r = rptLines.get(0);
                                     if (InternalType.DATE.equals(r
                                             .getLineType())) {
@@ -377,12 +371,7 @@ public class LSRParser {
                 }
             }
             ss = timeLine.substring(EVENT, EVENT + EVENT_LENGTH).trim();
-            LSREventType eventType = LSREventType.lookup(ss);
-            if (eventType == null) {
-                throw new UnrecognizedDataException(
-                        "LSRParser does not recognize eventType " + ss);
-            }
-            rpt.setEventType(eventType);
+            rpt.setEventType(ss);
 
             ss = timeLine.substring(LOCATION, LOCATION + LOCATION_LENGTH)
                     .trim();
@@ -450,20 +439,21 @@ public class LSRParser {
         Matcher m = LATLON_PTRN.matcher(latlon);
         if (m.find()) {
             String ss = m.group(2);
-            Double lat = Double.parseDouble(ss.substring(0, ss.length() - 1));
+            float lat = Float.parseFloat(ss.substring(0, ss.length() - 1));
             if (ss.endsWith("S")) {
                 lat *= -1;
             }
 
             ss = m.group(4);
-            Double lon = Double.parseDouble(ss.substring(0, ss.length() - 1));
+            float lon = Float.parseFloat(ss.substring(0, ss.length() - 1));
             if (ss.endsWith("W")) {
                 lon *= -1;
             }
 
-            SurfaceObsLocation loc = new SurfaceObsLocation("LSR");
+            SurfaceObsLocation loc = new SurfaceObsLocation();
             loc.assignLocation(lat, lon);
             loc.setElevation(PDV_FILL_INT);
+            loc.generateCoordinateStationId();
             rpt.setLocation(loc);
             locOk = true;
         }
@@ -534,12 +524,7 @@ public class LSRParser {
                 } catch (NumberFormatException nfe) {
                     logger.info("Unknown magnitude value " + magData);
                 }
-                String eventUnits = rpt.getEventType().getEventUnits()
-                        .toString();
-                if (!eventUnits.equals(magUnit)) {
-                    logger.info(traceId + "- Units do not match [" + magUnit
-                            + "|" + eventUnits + "]");
-                }
+                rpt.setEventUnits(magUnit);
             } else if (magData.startsWith("F")) {
                 // Tornado fujita scale data.
                 rpt.setMagQual(0);

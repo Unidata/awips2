@@ -73,6 +73,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     error, cleaned up code to prevent buttons
  *                                     from magically appearing, removed dead code,
  *                                     and other code clean up.
+ * 03 Jul 2014 #3348       rferrel     Handle Enter event.
  * 
  * </pre>
  * 
@@ -257,6 +258,15 @@ public class ProcedureListDlg extends CaveSWTDialog {
              */
             if (this.mode == Mode.OPEN) {
                 procedureTF.setEditable(false);
+                procedureTF.addSelectionListener(new SelectionAdapter() {
+
+                    @Override
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                        if (procedureTF.getText().length() > 0) {
+                            selectAction();
+                        }
+                    }
+                });
             }
         }
 
@@ -331,6 +341,11 @@ public class ProcedureListDlg extends CaveSWTDialog {
                                         .getText());
                     }
                 }
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                selectAction();
             }
         });
 

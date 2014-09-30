@@ -5,7 +5,8 @@
 	<bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit">
         <property name="dao" ref="registryObjectDao" />
 		<property name="sessionFactory" ref="metadataSessionFactory" />
-		        <property name="lcm" ref="lcmServiceImpl" />
+	    <property name="lcm" ref="lcmServiceImpl" />
+	    <property name="xacmlPolicyAdmin" ref="XACMLPolicyAdministrator"/>
 	</bean>
 	
 	

@@ -31,6 +31,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
+import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension.RadialMeshData;
 
 /**
  * TODO Add Description
@@ -48,6 +49,7 @@ import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
  * 09-04-2012              B. Hebbard  Add getGridGeometry() to descriptor per OB12.9.1 RTS
  *                                     change IRadialMeshExtension.constructMesh 2nd param
  * 06/16/2014   #2061      bsteffen    update IRangeableResource
+ * 06/24/2014   #2061      bsteffen    Remove RadarRecord dependency for Radial Mesh
  * 
  * </pre>
  * 
@@ -166,7 +168,8 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
     public IMesh buildMesh(IGraphicsTarget target, VizRadarRecord radarRecord)
             throws VizException {
         return target.getExtension(IRadialMeshExtension.class).constructMesh(
-                radarRecord, ((IMapDescriptor) descriptor).getGridGeometry());
+                new RadialMeshData(radarRecord),
+                ((IMapDescriptor) descriptor).getGridGeometry());
     }
 }
 

@@ -30,28 +30,28 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 public class NsharpMapResourceData extends AbstractResourceData {
 
-	private MarkerState 	markerState = MarkerState.MARKER_ONLY;
+    private MarkerState markerState = MarkerState.MARKER_ONLY;
 
-	private MarkerType  	markerType = MarkerType.DIAMOND;
+    private MarkerType markerType = MarkerType.DIAMOND;
 
-	private Float       	markerSize = 1f;
+    private Float markerSize = 1f;
 
-	private Integer     	markerWidth = 2;
+    private Integer markerWidth = 2;
 
-	private MarkerTextSize 	markerTextSize = MarkerTextSize.MEDIUM;
+    private MarkerTextSize markerTextSize = MarkerTextSize.MEDIUM;
 
-	private String 			mapName = "NSHARP";
+    private String mapName = "NSHARP";
 
-	private MarkerType  	stnMarkerType = MarkerType.LARGE_X;
-	
-	public MarkerType getStnMarkerType() {
-		return stnMarkerType;
-	}
+    private MarkerType stnMarkerType = MarkerType.LARGE_X;
 
-	public NsharpMapResourceData() {
-		super();
-	}
-	
+    public MarkerType getStnMarkerType() {
+        return stnMarkerType;
+    }
+
+    public NsharpMapResourceData() {
+        super();
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -59,13 +59,13 @@ public class NsharpMapResourceData extends AbstractResourceData {
      * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
      * .uf.viz.core.comm.LoadProperties,
      * com.raytheon.uf.viz.core.drawables.IDescriptor)
-	 */
-	@Override
-	public NsharpMapResource construct(LoadProperties loadProperties,
-			IDescriptor descriptor) throws VizException {
-		// TODO Auto-generated method stub
-		return new NsharpMapResource(this, loadProperties);
-	}
+     */
+    @Override
+    public NsharpMapResource construct(LoadProperties loadProperties,
+            IDescriptor descriptor) throws VizException {
+        // TODO Auto-generated method stub
+        return new NsharpMapResource(this, loadProperties);
+    }
 
     /*
      * (non-Javadoc)
@@ -73,15 +73,15 @@ public class NsharpMapResourceData extends AbstractResourceData {
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object
      * )
-	 */
-	@Override
-	public void update(Object updateData) {
-		// TODO Auto-generated method stub
+     */
+    @Override
+    public void update(Object updateData) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public boolean equals(Object obj) {
+    @Override
+    public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof NsharpMapResourceData))
             return false;
         NsharpMapResourceData rdata = (NsharpMapResourceData) obj;
@@ -93,54 +93,54 @@ public class NsharpMapResourceData extends AbstractResourceData {
                 && this.stnMarkerType.equals(rdata.getStnMarkerType()))
             return true;
 
-		return false;
-	}
-	
-	public MarkerState getMarkerState() {
-		return markerState;
-	}
+        return false;
+    }
 
-	public void setMarkerState(MarkerState markerState) {
-		this.markerState = markerState;
-	}
+    public MarkerState getMarkerState() {
+        return markerState;
+    }
 
-	public MarkerType getMarkerType() {
-		return markerType;
-	}
+    public void setMarkerState(MarkerState markerState) {
+        this.markerState = markerState;
+    }
 
-	public void setMarkerType(MarkerType markerType) {
-		this.markerType = markerType;
-	}
+    public MarkerType getMarkerType() {
+        return markerType;
+    }
 
-	public Float getMarkerSize() {
-		return markerSize;
-	}
+    public void setMarkerType(MarkerType markerType) {
+        this.markerType = markerType;
+    }
 
-	public void setMarkerSize(Float markerSize) {
-		this.markerSize = markerSize;
-	}
+    public Float getMarkerSize() {
+        return markerSize;
+    }
 
-	public Integer getMarkerWidth() {
-		return markerWidth;
-	}
+    public void setMarkerSize(Float markerSize) {
+        this.markerSize = markerSize;
+    }
 
-	public void setMarkerWidth(Integer markerWidth) {
-		this.markerWidth = markerWidth;
-	}
+    public Integer getMarkerWidth() {
+        return markerWidth;
+    }
 
-	public MarkerTextSize getMarkerTextSize() {
-		return markerTextSize;
-	}
+    public void setMarkerWidth(Integer markerWidth) {
+        this.markerWidth = markerWidth;
+    }
 
-	public void setMarkerTextSize(MarkerTextSize markerTextSize) {
-		this.markerTextSize = markerTextSize;
-	}
+    public MarkerTextSize getMarkerTextSize() {
+        return markerTextSize;
+    }
 
-	public String getMapName() {
-		return mapName;
-	}
+    public void setMarkerTextSize(MarkerTextSize markerTextSize) {
+        this.markerTextSize = markerTextSize;
+    }
 
-	public void setMapName(String mapName) {
-		this.mapName = mapName;
-	}
+    public String getMapName() {
+        return mapName;
+    }
+
+    public void setMapName(String mapName) {
+        this.mapName = mapName;
+    }
 }

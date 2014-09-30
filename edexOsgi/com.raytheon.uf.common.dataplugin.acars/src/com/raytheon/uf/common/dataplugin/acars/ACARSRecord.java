@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -45,7 +45,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * TODO Add Description
+ * Record object for Aircraft Communications Addressing and Reporting System
+ * data.
  * 
  * <pre>
  * 
@@ -64,6 +65,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                   PluginDataObject.
  * Aug 30, 2013  2298    rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061    bsteffen    Remove IDecoderGettable, drop datauri
+ * Jul 22, 2014  3392    nabowle     Change Double fields to Float.
  * 
  * 
  * </pre>
@@ -128,32 +130,32 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     @Column
     @DynamicSerializeElement
     @XmlElement
-    private Double temp;
+    private Float temp;
 
     // Observation dewpoint temperature in degrees Kelvin.
     // Decimal(5,2)
     @Column
     @DynamicSerializeElement
     @XmlElement
-    private Double dwpt;
+    private Float dwpt;
 
     // Pressure in Pascals.
     @Column
     @DynamicSerializeElement
     @XmlElement
-    private Double pressure;
+    private Float pressure;
 
     // Relative Humidity in percent.
     @Column
     @DynamicSerializeElement
     @XmlElement
-    private Double humidity;
+    private Float humidity;
 
     // Mixing Ratio in Kg/Kg.
     @Column
     @DynamicSerializeElement
     @XmlElement
-    private Double mixingRatio;
+    private Float mixingRatio;
 
     // Observation wind direction in angular degrees. Integer
     @Column
@@ -166,7 +168,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     @Column
     @DynamicSerializeElement
     @XmlElement
-    private Double windSpeed;
+    private Float windSpeed;
 
     // Base height of reported icing.
     @Column
@@ -222,7 +224,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     /**
      * Constructor for DataURI construction through base class. This is used by
      * the notification service.
-     * 
+     *
      * @param uri
      *            A data uri applicable to this class.
      */
@@ -276,7 +278,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      */
     @Override
     public AircraftObsLocation getSpatialObject() {
@@ -284,7 +286,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @return
      */
     public AircraftObsLocation getLocation() {
@@ -292,7 +294,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @param location
      */
     public void setLocation(AircraftObsLocation location) {
@@ -301,7 +303,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get this observation's geometry.
-     * 
+     *
      * @return The geometry for this observation.
      */
     public Geometry getGeometry() {
@@ -310,7 +312,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the geometry latitude.
-     * 
+     *
      * @return The geometry latitude.
      */
     public double getLatitude() {
@@ -319,7 +321,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the geometry longitude.
-     * 
+     *
      * @return The geometry longitude.
      */
     public double getLongitude() {
@@ -328,7 +330,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the elevation, in meters, of the observing platform or location.
-     * 
+     *
      * @return The observation elevation, in meters.
      */
     public Boolean getLocationDefined() {
@@ -337,7 +339,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the elevation, in meters, of the observing platform or location.
-     * 
+     *
      * @return The observation elevation, in meters.
      */
     public Integer getFlightLevel() {
@@ -345,7 +347,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @return
      */
     public String getFlightNumber() {
@@ -354,7 +356,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the receiving station.
-     * 
+     *
      * @return the receiver
      */
     public String getReceiver() {
@@ -363,7 +365,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Set the receiving station.
-     * 
+     *
      * @param receiver
      *            the receiver to set
      */
@@ -389,7 +391,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     /**
      * @return the temp
      */
-    public Double getTemp() {
+    public Float getTemp() {
         return temp;
     }
 
@@ -397,14 +399,14 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
      * @param temp
      *            the temp to set
      */
-    public void setTemp(Double temp) {
+    public void setTemp(Float temp) {
         this.temp = temp;
     }
 
     /**
      * @return the dwpt
      */
-    public Double getDwpt() {
+    public Float getDwpt() {
         return dwpt;
     }
 
@@ -412,14 +414,14 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
      * @param dwpt
      *            the dwpt to set
      */
-    public void setDwpt(Double dwpt) {
+    public void setDwpt(Float dwpt) {
         this.dwpt = dwpt;
     }
 
     /**
      * @return the pressure
      */
-    public Double getPressure() {
+    public Float getPressure() {
         return pressure;
     }
 
@@ -427,14 +429,14 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
      * @param pressure
      *            the pressure to set
      */
-    public void setPressure(Double pressure) {
+    public void setPressure(Float pressure) {
         this.pressure = pressure;
     }
 
     /**
      * @return the humidity
      */
-    public Double getHumidity() {
+    public Float getHumidity() {
         return humidity;
     }
 
@@ -442,14 +444,14 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
      * @param humidity
      *            the humidity to set
      */
-    public void setHumidity(Double humidity) {
+    public void setHumidity(Float humidity) {
         this.humidity = humidity;
     }
 
     /**
      * @return the mixingRatio
      */
-    public Double getMixingRatio() {
+    public Float getMixingRatio() {
         return mixingRatio;
     }
 
@@ -457,7 +459,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
      * @param mixingRatio
      *            the mixingRatio to set
      */
-    public void setMixingRatio(Double mixingRatio) {
+    public void setMixingRatio(Float mixingRatio) {
         this.mixingRatio = mixingRatio;
     }
 
@@ -479,7 +481,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     /**
      * @return the windSpeed
      */
-    public Double getWindSpeed() {
+    public Float getWindSpeed() {
         return windSpeed;
     }
 
@@ -487,7 +489,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
      * @param windSpeed
      *            the windSpeed to set
      */
-    public void setWindSpeed(Double windSpeed) {
+    public void setWindSpeed(Float windSpeed) {
         this.windSpeed = windSpeed;
     }
 
@@ -582,7 +584,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @return the rollAngleQuality
      */
     public Integer getRollAngleQuality() {
@@ -590,7 +592,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      * @param rollAngleQuality
      *            the rollAngleQuality to set
      */
@@ -615,7 +617,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -631,7 +633,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -664,7 +666,7 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * 
+     *
      */
     @Override
     public int compareTo(ACARSRecord other) {

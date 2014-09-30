@@ -35,8 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.JarUtil;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * Determines the classes that extend ScriptTask. Derived from original
@@ -47,6 +46,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Date             PR#             Engineer            Description
  * -----------      ----------      ------------        --------------------------
  * Apr 2, 2007                      njensen             Initial Creation
+ * Jul 10, 2014     2914            garmendariz         Remove EnvProperties
  * </PRE>
  * 
  */
@@ -88,7 +88,6 @@ public class MicroEngineTaskManager {
         Class<?> task = null;
         URLClassLoader uriLoader;
         ClassLoader loader = ClassLoader.getSystemClassLoader();
-        EnvProperties envProperties;
 
         String jarPath = null;
         String jarName = null;
@@ -106,8 +105,7 @@ public class MicroEngineTaskManager {
             /*
              * next, get a listing of plugin JARs and search for tasks.
              */
-            envProperties = PropertiesFactory.getInstance().getEnvProperties();
-            pluginPath = envProperties.getEnvValue("PLUGINDIR");
+            pluginPath = EDEXUtil.getEdexPlugins();
             pluginPath = FileUtil.convertFilePath(pluginPath);
             File[] files = JarUtil.getJarFiles(new File(pluginPath));
             uriLoader = Util.getLibrariesClassLoader(files);
@@ -155,8 +153,8 @@ public class MicroEngineTaskManager {
                 if (!fullName.equals(taskName) &&
 
                 task.isAssignableFrom(temp)) {
-                    packages.add(fullName.substring(0, fullName
-                            .lastIndexOf(".")));
+                    packages.add(fullName.substring(0,
+                            fullName.lastIndexOf(".")));
                 }
             }
         }

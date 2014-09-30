@@ -32,6 +32,10 @@
 # Feb 20, 2014  #2780     bclement    added site type ini file check
 #
 # Mar 13  2014  #15348    kjohnson    added function to remove logs
+# Jun 20, 2014  #3245     bclement    forEachRunningCave now accounts for child processes
+# Jul 02, 2014  #3245     bclement    account for memory override in vm arguments
+# Jul 10, 2014  #3363     bclement    fixed precedence order for ini file lookup
+# Jul 11, 2014  #3371     bclement    added killSpawn()
 
 
 source /awips2/cave/iniLookup.sh
@@ -48,40 +52,46 @@ BYTES_IN_KB=1024
 BYTES_IN_MB=1048576
 BYTES_IN_GB=1073741824
 
+# Looks up ini file first by component/perspective
+# then by SITE_TYPE before falling back to cave.ini.
+# Sets ini file cave argument string in $CAVE_INI_ARG.
+# Returns 0 if component/perspective found in args, else 1.
 function lookupINI()
 {
-   # Arguments:
-   # 
-   if [ "${1}" == "" ]; then
-      return 1
+   # only check for component/perspective if arguments aren't empty
+   if [[ "${1}" != "" ]]; then
+       position=1
+       for arg in $@; do
+           if [ "${arg}" == "-component" ] ||
+               [ "${arg}" == "-perspective" ]; then
+               # Get The Next Argument.
+               position=$(( $position + 1 ))
+               nextArg=${!position}
+
+               retrieveAssociatedINI ${arg} "${nextArg}"
+               RC=$?
+               if [ ${RC} -eq 0 ]; then
+                   export CAVE_INI_ARG="--launcher.ini /awips2/cave/${ASSOCIATED_INI}"
+                   return 0
+               fi
+           fi
+           position=$(( $position + 1 ))
+       done
    fi   
 
-   position=1
-   for arg in $@; do
-      if [ "${arg}" == "-component" ] ||
-         [ "${arg}" == "-perspective" ]; then
-            # Get The Next Argument.
-            position=$(( $position + 1 ))
-            nextArg=${!position}
-
-            retrieveAssociatedINI ${arg} "${nextArg}"
-            RC=$?
-            if [ ${RC} -eq 0 ]; then
-               export CAVE_INI_ARG="--launcher.ini /awips2/cave/${ASSOCIATED_INI}"
-            else
-               siteTypeIni="/awips2/cave/${SITE_TYPE}.ini"
-               if [[ -e ${siteTypeIni} ]] 
-               then
-                   export CAVE_INI_ARG="--launcher.ini ${siteTypeIni}"
-               else
-                   export CAVE_INI_ARG="--launcher.ini /awips2/cave/cave.ini"
-               fi
-            fi
-            return 0
-      fi
-      position=$(( $position + 1 ))
-   done
-
+   # if ini wasn't found through component or perspective
+   if [[ -z $CAVE_INI_ARG ]]
+   then
+       # attempt to fall back to site type specific ini
+       siteTypeIni="/awips2/cave/${SITE_TYPE}.ini"
+       if [[ -e ${siteTypeIni} ]]
+       then
+           export CAVE_INI_ARG="--launcher.ini ${siteTypeIni}"
+       else
+           # cave.ini if all else fails
+           export CAVE_INI_ARG="--launcher.ini /awips2/cave/cave.ini"
+       fi
+   fi
    return 1
 }
 
@@ -135,17 +145,23 @@ function copyVizShutdownUtilIfNecessary()
 function forEachRunningCave()
 {
    local user=`whoami`
-   local caveProcs=`ps -ef | grep -E "(/awips2/cave|/usr/local/viz)/cave " | grep -v "grep" | grep $user`
 
-   # preserve IFS and set it to line feed only
-   local PREV_IFS=$IFS
-   IFS=$'\n'
-
-   for caveProc in $caveProcs
+   for parent in $(pgrep -u $user '^cave$')
    do
-      "$@" $caveProc
+       # the cave process starts a new JVM as a child process
+       # find all children of the cave process
+       children=$(pgrep -P $parent)
+       if [[ -z $children ]]
+       then
+           # no children, assume that this is a main cave process
+           "$@" "$(ps --no-header -fp $parent)"
+       else
+           for child in $children
+           do
+               "$@" "$(ps --no-header -fp $child)"
+           done
+       fi
    done
-   IFS=$PREV_IFS
 }
 
 # takes in ps string of cave process, stores pid in _pids and increments _numPids
@@ -179,6 +195,14 @@ function readMemFromIni()
             break
         fi
     done < "$inifile"
+    convertMemToBytes $mem $unit
+}
+
+# takes in integer amount and string units (K|M|G), echos the amount converted to bytes
+function convertMemToBytes()
+{
+    local mem=$1
+    local unit=$2
     # convert to bytes
     case "$unit" in
         [kK]) 
@@ -206,14 +230,22 @@ function addMemOfCave()
 {
     local inifile
     # get ini file from process string
-    local regex='--launcher.ini\s(.+\.ini)'
-    if [[ $1 =~ $regex ]]
+    local iniRegex='--launcher.ini\s(.+\.ini)'
+    local xmxRegex='-Xmx([0-9]*)([^\s]*)'
+    if [[ $1 =~ $xmxRegex ]]
     then
-        inifile="${BASH_REMATCH[1]}"
+       local mem="${BASH_REMATCH[1]}"
+       local unit="${BASH_REMATCH[2]}"
+       let "_totalRunningMem+=$(convertMemToBytes $mem $unit)"
     else
-        inifile="/awips2/cave/cave.ini"
+       if [[ $1 =~ $iniRegex ]]
+       then
+          inifile="${BASH_REMATCH[1]}"
+       else
+          inifile="/awips2/cave/cave.ini"
+       fi
+       let "_totalRunningMem+=$(readMemFromIni "$inifile")"
     fi
-    let "_totalRunningMem+=$(readMemFromIni "$inifile")"
 }
 
 # finds total max memory of running caves in bytes and places it in _totalRunningMem
@@ -281,13 +313,23 @@ function deleteOldCaveDiskCaches()
    cd $curDir
 }
 
+# takes in a process id
+# kills spawned subprocesses of pid
+# and then kills the process itself
+function killSpawn()
+{
+    pid=$1
+    pkill -P $pid
+    kill $pid
+}
+
 # log the exit status and time to a log file, requires 2 args pid and log file
 function logExitStatus()
 {
    pid=$1
    logFile=$2
    
-   trap 'kill $pid' SIGHUP SIGINT SIGQUIT SIGTERM
+   trap 'killSpawn $pid' SIGHUP SIGINT SIGQUIT SIGTERM
    wait $pid
    exitCode=$?
    curTime=`date --rfc-3339=seconds`

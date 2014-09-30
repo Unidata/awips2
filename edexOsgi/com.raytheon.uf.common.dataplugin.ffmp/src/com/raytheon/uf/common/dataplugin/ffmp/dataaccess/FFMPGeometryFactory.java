@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.dataplugin.ffmp.dataaccess;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
+import com.raytheon.uf.common.dataaccess.exception.IncompatibleRequestException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
@@ -40,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.HucLevelGeometriesFactory;
+import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
@@ -50,6 +53,8 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -68,6 +73,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jan,14, 2014 2667       mnash       Remove getGridData method
  * May 1, 2014  3099       bkowal      No longer use an empty pfaf list when the
  *                                     data request locationNames list is empty.
+ * Jun 24, 2014 3170       mnash       Get the accumulated time if multiple times are requested
+ * Jul 14, 2014 3184       njensen     Overrode getAvailableLevels()
+ * Jul 30, 2014 3184       njensen     Overrode required and optional identifiers
  * 
  * </pre>
  * 
@@ -114,10 +122,29 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
             DbQueryResponse dbQueryResponse) {
         List<Map<String, Object>> results = dbQueryResponse.getResults();
         Map<Long, DefaultGeometryData> cache = new HashMap<Long, DefaultGeometryData>();
+        FFMPRecord record = null;
+        Date start = new Date(Long.MAX_VALUE);
+        Date end = new Date(0);
 
         for (Map<String, Object> map : results) {
             for (Map.Entry<String, Object> es : map.entrySet()) {
                 FFMPRecord rec = (FFMPRecord) es.getValue();
+                /*
+                 * Adding all of the basin data to a single record so that we
+                 * can get the accumulated values from that record
+                 */
+                if (record == null) {
+                    record = rec;
+                }
+                // building a time range of the earliest FFMP time (based on
+                // each record) to the latest FFMP time (based on each record)
+                if (start.after(rec.getDataTime().getRefTime())) {
+                    start = rec.getDataTime().getRefTime();
+                }
+                if (end.before(rec.getDataTime().getRefTime())) {
+                    end = rec.getDataTime().getRefTime();
+                }
+
                 try {
                     rec.retrieveMapFromDataStore(templates);
                 } catch (Exception e) {
@@ -126,15 +153,32 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                                     + rec.toString(), e);
                 }
 
-                try {
-                    cache = makeGeometryData(rec, request, cache);
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
+                /*
+                 * loop over each pfaf id in the current record (rec) we are
+                 * iterating. Add that basin data to the record that we are
+                 * keeping around (record) to use to get the accumulated value.
+                 */
+                for (Long pfaf : rec.getBasinData().getPfafIds()) {
+                    // setValue is a misnomer here, it is actually an add
+                    record.getBasinData()
+                            .get(pfaf)
+                            .setValue(rec.getDataTime().getRefTime(),
+                                    rec.getBasinData().get(pfaf).getValue());
                 }
+
             }
         }
-
+        /*
+         * now that we have all the basin data in a single record (record), we
+         * can use the methods on the FFMPRecord class to get the accumulated
+         * value in the case of a non-guidance basin
+         */
+        try {
+            cache = makeGeometryData(record, request, cache, start, end);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to create the geoemtry data from the records.", e);
+        }
         return cache.values().toArray(
                 new DefaultGeometryData[cache.values().size()]);
     }
@@ -189,8 +233,8 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
      * @throws Exception
      */
     private Map<Long, DefaultGeometryData> makeGeometryData(FFMPRecord rec,
-            IDataRequest request, Map<Long, DefaultGeometryData> cache)
-            throws Exception {
+            IDataRequest request, Map<Long, DefaultGeometryData> cache,
+            Date start, Date end) throws Exception {
         String huc = (String) request.getIdentifiers().get(HUC);
         String dataKey = (String) request.getIdentifiers().get(DATA_KEY);
         String siteKey = (String) request.getIdentifiers().get(SITE_KEY);
@@ -239,6 +283,8 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                     data.setAttributes(attrs);
                     data.setLocationName(String.valueOf(pfaf));
                     data.setGeometry(geomMap.get(pfaf));
+                    data.setDataTime(new DataTime(start.getTime(),
+                            new TimeRange(start, end)));
                     cache.put(pfaf, data);
                 }
 
@@ -258,7 +304,10 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                     value = ((FFMPGuidanceBasin) basin).getValue(
                             rec.getSourceName(), 1000);
                 } else {
-                    value = basin.getValue(rec.getDataTime().getRefTime());
+                    value = basin.getAccumValue(start, end,
+                            sourceXml.getExpirationMinutes(rec.getSiteKey()),
+                            false);
+                    // value = basin.getValue(rec.getDataTime().getRefTime());
                 }
                 String parameter = rec.getSourceName();
                 String unitStr = sourceXml.getUnit();
@@ -317,5 +366,21 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
         }
 
         return pfafList.toArray(new String[pfafList.size()]);
+    }
+
+    @Override
+    public Level[] getAvailableLevels(IDataRequest request) {
+        throw new IncompatibleRequestException(request.getDatatype()
+                + " data does not support the concept of levels");
+    }
+
+    @Override
+    public String[] getRequiredIdentifiers() {
+        return new String[] { SITE_KEY, WFO, HUC };
+    }
+
+    @Override
+    public String[] getOptionalIdentifiers() {
+        return new String[] { DATA_KEY };
     }
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.edex.plugin.text.subscription.runners.ASubscribeRunner;
+import com.raytheon.uf.edex.plugin.text.subscription.runners.ISubscribeRunner;
 import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeAddRunner;
 import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeDeleteRunner;
 import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeQueryRunner;
@@ -45,6 +46,7 @@ import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeUpdateRunn
  * 14Nov2008    1709       MW Fegan    Initial creation.
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
  *                                      removed hard coded class names
+ * Sep 05, 2014 2926       bclement    switched map from class names to class objects
  * 
  * </pre>
  * 
@@ -67,17 +69,18 @@ public enum SubscribeAction {
             put("query",ACTION_QUERY);
         }
     };
+    
     /**
-     * A mapping of SubscribeAction objects to implementation class names.
+     * A mapping of SubscribeAction objects to implementation class
      */
-    private static final Map<SubscribeAction, String> runners = new HashMap<SubscribeAction, String>() {
+    private static final Map<SubscribeAction, Class<? extends ISubscribeRunner>> runners = new HashMap<SubscribeAction, Class<? extends ISubscribeRunner>>() {
         private static final long serialVersionUID = 1L;
         {
-            put(ACTION_ADD, SubscribeAddRunner.class.getName());
-            put(ACTION_READ, SubscribeReadRunner.class.getName());
-            put(ACTION_DELETE, SubscribeDeleteRunner.class.getName());
-            put(ACTION_UPDATE, SubscribeUpdateRunner.class.getName());
-            put(ACTION_QUERY, SubscribeQueryRunner.class.getName());
+            put(ACTION_ADD, SubscribeAddRunner.class);
+            put(ACTION_READ, SubscribeReadRunner.class);
+            put(ACTION_DELETE, SubscribeDeleteRunner.class);
+            put(ACTION_UPDATE, SubscribeUpdateRunner.class);
+            put(ACTION_QUERY, SubscribeQueryRunner.class);
         }
     };
     /**
@@ -97,7 +100,7 @@ public enum SubscribeAction {
     /**
      * Returns the class name of the runner associated with the action.
      */
-    public final String getRunner() {
+    public final Class<? extends ISubscribeRunner> getRunner() {
         return runners.get(this);
     }
 }

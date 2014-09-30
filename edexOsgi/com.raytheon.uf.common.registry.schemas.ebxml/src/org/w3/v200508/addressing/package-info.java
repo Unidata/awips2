@@ -28,5 +28,5 @@
 @javax.xml.bind.annotation.XmlSchema(namespace = EbxmlNamespaces.ADDRESSING_URI, elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.w3.v200508.addressing;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 

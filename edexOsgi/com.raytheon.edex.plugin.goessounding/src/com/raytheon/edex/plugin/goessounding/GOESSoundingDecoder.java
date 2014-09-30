@@ -40,14 +40,14 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.DefaultDescriptorDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.BUFRDocument;
+import com.raytheon.uf.edex.bufrtools.BUFRFile;
+import com.raytheon.uf.edex.bufrtools.descriptors.DefaultDescriptorDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactoryDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 
 /**
  * Perform decode on BUFR GOES satellite sounding data. Currently this decoder
@@ -227,7 +227,7 @@ public class GOESSoundingDecoder extends AbstractDecoder implements
      * always returns "DEFAULT".
      * 
      * @return Return the string value "DEFAULT".
-     * @see com.raytheon.edex.tools.bufr.descriptors.IDescriptorFactorySelector#getSelector()
+     * @see com.raytheon.uf.edex.bufrtools.descriptors.tools.bufr.descriptors.IDescriptorFactorySelector#getSelector()
      */
     @Override
     public String getSelector() {

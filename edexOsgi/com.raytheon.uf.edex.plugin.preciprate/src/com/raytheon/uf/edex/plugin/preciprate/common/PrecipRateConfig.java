@@ -39,6 +39,24 @@ import com.raytheon.uf.edex.plugin.preciprate.PrecipRateURIGenerateMessage;
 import com.raytheon.uf.edex.plugin.scan.common.ScanCommonUtils;
 import com.vividsolutions.jts.geom.Coordinate;
 
+/**
+ * Config holder object for radar parameters used to filter for precipitation
+ * rates
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ???          ???         ???        Initial creation
+ * Aug 26, 2014 3503       bclement    removed unused maxExtent field
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class PrecipRateConfig {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -64,9 +82,6 @@ public class PrecipRateConfig {
 
     /** The geometry for the radar **/
     private GridGeometry2D radarGeometry = null;
-
-    /** max radar extent **/
-    private double maxExtent = 0.00;
 
     /** create a date formatter for SQL **/
     private SimpleDateFormat dateFmt = new SimpleDateFormat(
