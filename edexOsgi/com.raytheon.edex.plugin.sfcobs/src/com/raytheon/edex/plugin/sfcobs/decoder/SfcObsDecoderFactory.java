@@ -19,8 +19,6 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder;
 
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.SPACE_CHAR;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +46,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070925            391 jkorman     Initial Coding.
+ * Sep 26, 2014       3629 mapeters    Added SPACE_CHAR constant.
  * </pre>
  * 
  * @author jkorman
@@ -56,6 +55,8 @@ import com.raytheon.uf.common.wmo.WMOHeader;
 public class SfcObsDecoderFactory {
     /** The logger */
     private static Log logger = LogFactory.getLog(SfcObsDecoderFactory.class);
+
+    private static final char SPACE_CHAR = ' ';
 
     private static final Map<String, Class<? extends ISfcObsDecoder>> DECODER_MAP = new HashMap<String, Class<? extends ISfcObsDecoder>>();
     static {
