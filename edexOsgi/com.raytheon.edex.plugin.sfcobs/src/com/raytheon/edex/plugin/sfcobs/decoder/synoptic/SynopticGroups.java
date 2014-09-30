@@ -19,6 +19,8 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
+import java.util.regex.Pattern;
+
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
@@ -54,12 +56,17 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 20071109            391 jkorman     Factored out time constants.
  * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter}.
  * Sep 26, 2014 #3629      mapeters    Replaced static imports.
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ *                                     calls, added HUMIDITY_PATTERN.
+ * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class SynopticGroups {
+
+    private static final Pattern HUMIDITY_PATTERN = Pattern.compile("2\\d{4}");
 
     private static final int PREFIX_START = 0;
 
@@ -88,7 +95,7 @@ public class SynopticGroups {
             int lookingForSect) {
         DataItem decodedItem = null;
 
-        if (AbstractSfcObsDecoder.matchElement(groupData, "2\\d{4}")) {
+        if (HUMIDITY_PATTERN.matcher(groupData).find()) {
             Integer val = Integer.parseInt(groupData.substring(2, 5));
             if ((val != null) && (val >= 0)) {
                 if (lookingForSect == 1) {
