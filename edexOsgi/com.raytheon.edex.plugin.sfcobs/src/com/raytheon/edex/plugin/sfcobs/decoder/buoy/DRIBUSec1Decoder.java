@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 20071010            391 jkorman     Initial coding.
  * Sep 18, 2014       3627 mapeters    Updated deprecated {@link TimeTools} usage.
  * Sep 26, 2014       3629 mapeters    Replaced static imports.
+ * Sep 30, 2014       3629 mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * 
  * </pre>
  * 
@@ -110,17 +111,13 @@ public class DRIBUSec1Decoder extends AbstractSectionDecoder {
                     break;
                 }
 
-                if (AbstractSfcObsDecoder.matchElement(element,
-                        DRIBUSec2Decoder.SEC_2_PATTERN)) {
+                if (DRIBUSec2Decoder.SEC_2_PATTERN.matcher(element).find()) {
                     break;
-                } else if (AbstractSfcObsDecoder.matchElement(element,
-                        ISynoptic.SEC_3_LEAD)) {
+                } else if (ISynoptic.SEC_3_LEAD_PATTERN.matcher(element).find()) {
                     break;
-                } else if (AbstractSfcObsDecoder.matchElement(element,
-                        ISynoptic.SEC_4_LEAD)) {
+                } else if (ISynoptic.SEC_4_LEAD_PATTERN.matcher(element).find()) {
                     break;
-                } else if (AbstractSfcObsDecoder.matchElement(element,
-                        ISynoptic.SEC_5_LEAD)) {
+                } else if (ISynoptic.SEC_5_LEAD_PATTERN.matcher(element).find()) {
                     break;
                 }
 
