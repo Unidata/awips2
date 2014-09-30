@@ -116,6 +116,8 @@ public class PgenResourceData extends AbstractResourceData implements
     private boolean needsDisplay = false;
 
     private int numberOfResources = 0;
+    
+    private ArrayList<PgenResource> rscList = new ArrayList<PgenResource>();
 
     // private static final String PRD_GRAPHIC = "xml";
 
@@ -142,7 +144,9 @@ public class PgenResourceData extends AbstractResourceData implements
     public PgenResource construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
         numberOfResources++;
-        return new PgenResource(this, loadProperties);
+        PgenResource rsc = new PgenResource(this, loadProperties);
+        rscList.add(rsc);
+        return rsc;
     }
 
     /*
@@ -740,10 +744,13 @@ public class PgenResourceData extends AbstractResourceData implements
      */
     public synchronized void cleanup(BufferedImage paneImage) {
 
+        closeDialogs();
         numberOfResources--;
-        if (numberOfResources != 0)
+        if (numberOfResources != 0){
             return; // not ready yet
 
+        }
+        
         commandMgr.flushStacks();
         commandMgr.removeStackListener(this);
 
@@ -751,14 +758,14 @@ public class PgenResourceData extends AbstractResourceData implements
          * remove Temp recovery file
          */
         removeTempFile();
-
-        if (autosave)
-            storeAllProducts();
-        // saveProducts(autoSaveFilename, multiSave);
-
+        
         if (needsSaving) {
             promptToSave(paneImage);
         }
+        
+        if (autosave)
+            storeAllProducts();
+        // saveProducts(autoSaveFilename, multiSave);
 
         if (PgenUtil.getPgenMode() == PgenMode.SINGLE)
             PgenUtil.resetResourceData();
