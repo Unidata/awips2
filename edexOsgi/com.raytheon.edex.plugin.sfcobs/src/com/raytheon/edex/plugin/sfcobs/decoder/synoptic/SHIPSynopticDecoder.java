@@ -30,7 +30,6 @@ import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
@@ -198,9 +197,9 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
         if (report != null) {
 
             if (isFixedBuoy) {
-                report.setReportType(IDecoderConstants.SYNOPTIC_MOORED_BUOY);
+                report.setReportType(SYNOPTIC_MOORED_BUOY);
             } else {
-                report.setReportType(IDecoderConstants.SYNOPTIC_SHIP);
+                report.setReportType(SYNOPTIC_SHIP);
             }
 
             SurfaceObsLocation loc = new SurfaceObsLocation(
