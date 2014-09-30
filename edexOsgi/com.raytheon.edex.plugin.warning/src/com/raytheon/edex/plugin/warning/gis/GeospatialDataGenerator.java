@@ -47,6 +47,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialDataResult;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialDataSet;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialFactory;
@@ -109,6 +110,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Apr 29, 2014  3033      jsanchez    Properly handled site and back up site files.
  * Jul 15, 2014  3352      rferrel     Better logging and threading added.
  * Aug 21, 2014  3353      rferrel     Added getGeospatialTimeset and cluster locking of METADATA_FILE.
+ *                                      generateGeoSpatialList now sends GenerateGeospatialDataResult.
  * </pre>
  * 
  * @author rjpeter
@@ -457,12 +459,15 @@ public class GeospatialDataGenerator {
                     persistGeoData(site, lastRunTimeMap, curTime, dataSet);
 
                     if (updaterEndpoint != null) {
+                        GenerateGeospatialDataResult result = new GenerateGeospatialDataResult();
                         String updatedTimeStamp = getTimeStamp(curTime,
                                 lastRunTime);
-
+                        result.setTimestamp(updatedTimeStamp);
+                        result.setSite(site);
+                        result.setArea(metaData.getAreaSource());
                         try {
                             EDEXUtil.getMessageProducer().sendAsync(
-                                    updaterEndpoint, updatedTimeStamp);
+                                    updaterEndpoint, result);
                         } catch (EdexException e) {
                             statusHandler.error("Could not send message to "
                                     + updaterEndpoint, e);
