@@ -19,8 +19,6 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
-import java.util.regex.Pattern;
-
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
@@ -42,6 +40,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 20071109            391 jkorman     Added guard for short data.
  * 2013/8			757	   	T. Lee		Checked missing wave height from ship report
  * Sep 26, 2014       3629 mapeters    Replaced static imports.
+ * Sep 30, 2014       3629 mapeters    Conformed to changes in {@link ISynoptic} constants.
  * 
  * </pre>
  * 
@@ -108,13 +107,12 @@ public class SynopticSec2Decoder extends AbstractSectionDecoder {
      *             Thrown when an relevant error has occurred.
      */
     public void decode(ReportParser reportParser) throws DecoderException {
-        Pattern pattern = Pattern.compile(ISynoptic.SEC_2_LEAD);
         init();
         if (reportParser == null) {
             // nothing to do.
             return;
         }
-        if (reportParser.positionTo(pattern)) {
+        if (reportParser.positionTo(ISynoptic.SEC_2_LEAD)) {
             String element = reportParser.getElement();
             // need to decode the Ds vs data
             shipDirection = AbstractSfcObsDecoder.getInt(element, 3, 4);
@@ -129,11 +127,11 @@ public class SynopticSec2Decoder extends AbstractSectionDecoder {
                     break;
                 }
 
-                if (ISynoptic.SEC_3_LEAD.equals(element)) {
+                if (ISynoptic.SEC_3_LEAD_STRING.equals(element)) {
                     break;
-                } else if (ISynoptic.SEC_4_LEAD.equals(element)) {
+                } else if (ISynoptic.SEC_4_LEAD_STRING.equals(element)) {
                     break;
-                } else if (ISynoptic.SEC_5_LEAD.equals(element)) {
+                } else if (ISynoptic.SEC_5_LEAD_STRING.equals(element)) {
                     break;
                 } else if ("80000".equals(element)) {
                     break;
