@@ -1,13 +1,14 @@
 package gov.noaa.nws.ncep.viz.overlays.resources;
 
-
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -27,6 +28,7 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
@@ -43,7 +45,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
+import com.raytheon.viz.core.rsc.jts.JTSCompiler.JTSGeometryData;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -62,6 +64,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * July 30, 2009           ghull       implement INatlCntrsResource
  * Nov 18,  2009           ghull       Incorporate to11d6 changes 
  * Oct 19, 2012  898       sgurung     Fix for fuzzy fonts
+ * Sep 12, 2014            sgilbert    Add world wrap check (needed for 14.3.1).
+ *                                     Corrected deprecated calls.
  * 
  * </pre>
  * 
@@ -71,11 +75,13 @@ import com.vividsolutions.jts.io.WKBReader;
  * @version 1.0
  */
 public class DbOverlayResource extends
-    AbstractVizResource<DbOverlayResourceData, MapDescriptor> implements INatlCntrsResource {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DbOverlayResource.class);
+        AbstractVizResource<DbOverlayResourceData, MapDescriptor> implements
+        INatlCntrsResource {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DbOverlayResource.class);
 
-	private static class LabelNode {
-		private final String label;
+    private static class LabelNode {
+        private final String label;
 
         private final ReferencedCoordinate location;
 
@@ -102,8 +108,9 @@ public class DbOverlayResource extends
     private static class MapQueryJob extends Job {
 
         private static final int QUEUE_LIMIT = 1;
-        private String dbName=null;//uma
-        
+
+        private String dbName = null;// uma
+
         private static class Request {
             static Random rand = new Random(System.currentTimeMillis());
 
@@ -136,7 +143,7 @@ public class DbOverlayResource extends
                 }
                 RGB color = colorMap.get(key);
                 if (color == null) {
-               		color = new RGB(rand.nextInt(206) + 50,
+                    color = new RGB(rand.nextInt(206) + 50,
                             rand.nextInt(206) + 50, rand.nextInt(206) + 50);
                     colorMap.put(key, color);
                 }
@@ -172,9 +179,9 @@ public class DbOverlayResource extends
 
         private boolean canceled;
 
-        public MapQueryJob( String dbname ) {//uma
+        public MapQueryJob(String dbname) {// uma
             super("Retrieving map...");
-            dbName = dbname;//uma
+            dbName = dbname;// uma
         }
 
         public void request(IGraphicsTarget target, IMapDescriptor descriptor,
@@ -194,14 +201,6 @@ public class DbOverlayResource extends
             return resultQueue.poll();
         }
 
-        public int numRequests() {
-            return requestQueue.size();
-        }
-
-        public int numResults() {
-            return resultQueue.size();
-        }
-
         /*
          * (non-Javadoc)
          * 
@@ -215,11 +214,13 @@ public class DbOverlayResource extends
                 try {
                     // System.out.println(req.query);
                     // long t0 = System.currentTimeMillis();
-                 /*   List<Object[]> results = NcDirectDbQuery.executeQuery(
-                            req.query, "maps", QueryLanguage.SQL);*/ //uma
-                	 List<Object[]> results = NcDirectDbQuery.executeQuery(
-                             req.query, dbName, QueryLanguage.SQL);
-                	 
+                    /*
+                     * List<Object[]> results = NcDirectDbQuery.executeQuery(
+                     * req.query, "maps", QueryLanguage.SQL);
+                     */// uma
+                    List<Object[]> results = NcDirectDbQuery.executeQuery(
+                            req.query, dbName, QueryLanguage.SQL);
+
                     // long t1 = System.currentTimeMillis();
                     // System.out.println("Maps DB query took: " + (t1 - t0)
                     // + "ms");
@@ -232,11 +233,13 @@ public class DbOverlayResource extends
                     IShadedShape newShadedShape = null;
                     if (req.shaded) {
                         newShadedShape = req.target.createShadedShape(false,
-                                req.descriptor, true);
+                                req.descriptor.getGridGeometry(), true);
                     }
 
                     JTSCompiler jtsCompiler = new JTSCompiler(newShadedShape,
-                            newOutlineShape, req.descriptor, PointStyle.CROSS);
+                            newOutlineShape, req.descriptor);
+                    JTSGeometryData jtsData = jtsCompiler.createGeometryData();
+                    jtsData.setWorldWrapCorrect(true);
 
                     WKBReader wkbReader = new WKBReader();
                     for (Object[] result : results) {
@@ -251,8 +254,8 @@ public class DbOverlayResource extends
                         // System.out.println(name + ": " + g.toText());
 
                         if (req.labeled && result[i] != null && g != null) {
-                            LabelNode node = new LabelNode(result[i++]
-                                    .toString(), g.getCentroid());
+                            LabelNode node = new LabelNode(
+                                    result[i++].toString(), g.getCentroid());
 
                             newLabels.add(node);
                         }
@@ -262,14 +265,18 @@ public class DbOverlayResource extends
                             if (req.shaded && result[i] != null) {
                                 Object shadedField = result[i++];
                                 color = req.getColor(shadedField);
+                                jtsData.setGeometryColor(color);
                             }
                             try {
-                                jtsCompiler.handle(g, color);
+                                jtsCompiler.handle(g, jtsData);
                             } catch (VizException e) {
-//                                UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
-//                                        StatusConstants.CATEGORY_WORKSTATION,
-//                                        null, "Error reprojecting map outline", e);
-                            	System.out.println("Error reprojecting map outline:"+e.getMessage());
+                                // UFStatus.handle(Priority.PROBLEM,
+                                // Activator.PLUGIN_ID,
+                                // StatusConstants.CATEGORY_WORKSTATION,
+                                // null, "Error reprojecting map outline", e);
+                                System.out
+                                        .println("Error reprojecting map outline:"
+                                                + e.getMessage());
                             }
                         }
                     }
@@ -340,13 +347,14 @@ public class DbOverlayResource extends
     private MapQueryJob queryJob;
 
     private String geometryType;
-    
+
     private DbOverlayResourceData ncRscData;
 
-    public DbOverlayResource(DbOverlayResourceData data, LoadProperties loadProperties) {
+    public DbOverlayResource(DbOverlayResourceData data,
+            LoadProperties loadProperties) {
         super(data, loadProperties);
         ncRscData = this.resourceData;
-        queryJob = new MapQueryJob(resourceData.getDbName());//uma
+        queryJob = new MapQueryJob(resourceData.getDbName());// uma
     }
 
     @Override
@@ -371,14 +379,13 @@ public class DbOverlayResource extends
         Envelope env = null;
         try {
             Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
-            ReferencedEnvelope ref = new ReferencedEnvelope(e, descriptor
-                    .getCRS());
+            ReferencedEnvelope ref = new ReferencedEnvelope(e,
+                    descriptor.getCRS());
 
-            if ( descriptor.getCRS().getName().toString().startsWith("MCIDAS") ) {
+            if (descriptor.getCRS().getName().toString().startsWith("MCIDAS")) {
                 env = new Envelope(-180., 180., -90., 90.);
-            }
-            else {
-            	env = ref.transform(MapUtil.LATLON_PROJECTION, true);
+            } else {
+                env = ref.transform(MapUtil.LATLON_PROJECTION, true);
             }
         } catch (Exception e) {
             throw new VizException("Error transforming extent", e);
@@ -390,17 +397,15 @@ public class DbOverlayResource extends
 
         String geometryField = resourceData.getGeomField() + suffix;
 
-        if( env.getMinX() == Double.NaN || 
-            env.getMaxX() == Double.NaN ||
-            env.getMinY() == Double.NaN ||
-            env.getMaxY() == Double.NaN ) {
+        if (env.getMinX() == Double.NaN || env.getMaxX() == Double.NaN
+                || env.getMinY() == Double.NaN || env.getMaxY() == Double.NaN) {
             System.out.println("Extents is not valid for DB Overlay query");
         }
         // create the geospatial constraint from the envelope
         String geoConstraint = String.format(
                 "%s && ST_SetSrid('BOX3D(%f %f, %f %f)'::box3d,4326)",
-                geometryField, env.getMinX(), env.getMinY(), env.getMaxX(), env
-                        .getMaxY());
+                geometryField, env.getMinX(), env.getMinY(), env.getMaxX(),
+                env.getMaxY());
 
         // get the geometry field
         StringBuilder query = new StringBuilder("SELECT AsBinary(");
@@ -485,8 +490,8 @@ public class DbOverlayResource extends
     }
 
     @Override
-    public void paintInternal(IGraphicsTarget aTarget, PaintProperties paintProps)
-            throws VizException {
+    public void paintInternal(IGraphicsTarget aTarget,
+            PaintProperties paintProps) throws VizException {
         PixelExtent screenExtent = (PixelExtent) paintProps.getView()
                 .getExtent();
 
@@ -497,21 +502,19 @@ public class DbOverlayResource extends
         double[] c1 = descriptor.pixelToWorld(new double[] { x1, yc });
         double[] c2 = descriptor.pixelToWorld(new double[] { x2, yc });
         double simpLev;
-        
-        if ( (c1 != null) && (c2 != null) ) {
-        	int screenWidth = paintProps.getCanvasBounds().width;
-        	double dppX = Math.abs(c2[0] - c1[0]) / screenWidth;
 
-        	simpLev = getSimpLev(dppX);
-        }
-        else {
-        	simpLev = lastSimpLev;
+        if ((c1 != null) && (c2 != null)) {
+            int screenWidth = paintProps.getCanvasBounds().width;
+            double dppX = Math.abs(c2[0] - c1[0]) / screenWidth;
+
+            simpLev = getSimpLev(dppX);
+        } else {
+            simpLev = lastSimpLev;
         }
 
         boolean isLabeled = resourceData.getLabelField() != null
-        	&& resourceData.isLabeled(); 
-        boolean isShaded = isPolygonal()
-        	&& resourceData.isShaded(); 
+                && resourceData.isLabeled();
+        boolean isShaded = isPolygonal() && resourceData.isShaded();
 
         if (simpLev < lastSimpLev
                 || (isLabeled && !lastLabeled)
@@ -519,11 +522,11 @@ public class DbOverlayResource extends
                 || lastExtent == null
                 || !lastExtent.getEnvelope().contains(
                         screenExtent.getEnvelope())) {
-        	
+
             if (!paintProps.isZooming()) {
                 PixelExtent expandedExtent = getExpandedExtent(screenExtent);
                 String query = buildQuery(aTarget, expandedExtent, simpLev);
-                
+
                 queryJob.request(aTarget, descriptor, query, isLabeled,
                         isShaded, colorMap);
                 lastExtent = expandedExtent;
@@ -555,38 +558,41 @@ public class DbOverlayResource extends
         }
 
         if (outlineShape != null && outlineShape.isDrawable()
-                && ncRscData.isOutlineOn() ) {
-            aTarget.drawWireframeShape(outlineShape, 
-            		ncRscData.getColor(),  
-                    ncRscData.getLineWidth(),
-                    ncRscData.getLineStyle() );
+                && ncRscData.isOutlineOn()) {
+            aTarget.drawWireframeShape(outlineShape, ncRscData.getColor(),
+                    ncRscData.getLineWidth(), ncRscData.getLineStyle());
 
-        } else if (outlineShape == null
-        		&& ncRscData.isOutlineOn() ) {
+        } else if (outlineShape == null && ncRscData.isOutlineOn()) {
             aTarget.setNeedsRefresh(true);
         }
 
         if (labels != null && isLabeled) {
             IFont font = aTarget.initializeFont(aTarget.getDefaultFont()
                     .getFontName(), 10, null);
-			font.setSmoothing(false);
-			font.setScaleFont(false);
+            font.setSmoothing(false);
+            font.setScaleFont(false);
+
+            Collection<DrawableString> labelStrings = new HashSet<DrawableString>();
 
             for (LabelNode node : labels) {
                 try {
-                    Coordinate c = node.location.asPixel(descriptor
-                            .getGridGeometry());
+                    Coordinate c = node.getLocation().asPixel(
+                            descriptor.getGridGeometry());
 
-                    aTarget.drawString(font, node.label, c.x, c.y, 0.0,
-                            IGraphicsTarget.TextStyle.NORMAL, getCapability(
-                                    ColorableCapability.class).getColor(),
-                            HorizontalAlignment.CENTER,
-                            VerticalAlignment.MIDDLE, null);
+                    DrawableString another = new DrawableString(
+                            node.getLabel(), getCapability(
+                                    ColorableCapability.class).getColor());
+                    another.font = font;
+                    another.setCoordinates(c.x, c.y, 0.0);
+                    another.horizontalAlignment = HorizontalAlignment.CENTER;
+                    another.verticallAlignment = VerticalAlignment.MIDDLE;
+                    labelStrings.add(another);
                 } catch (Exception e) {
                     throw new VizException("Unable to transform", e);
                 }
 
             }
+            aTarget.drawStrings(labelStrings);
             font.dispose();
         }
     }
@@ -594,7 +600,7 @@ public class DbOverlayResource extends
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
 
-    	if (this.outlineShape != null) {
+        if (this.outlineShape != null) {
             outlineShape.dispose();
             this.outlineShape = null;
         }
@@ -624,10 +630,13 @@ public class DbOverlayResource extends
                 query.append("' AND f_geometry_column LIKE '");
                 query.append(resourceData.getGeomField());
                 query.append("_%';");
-                /*List<Object[]> results = NcDirectDbQuery.executeQuery(query
-                        .toString(), "maps", QueryLanguage.SQL);/*/                    //uma
-                List<Object[]> results = NcDirectDbQuery.executeQuery(query
-                        .toString(),resourceData.getDbName(), QueryLanguage.SQL);
+                /*
+                 * List<Object[]> results = NcDirectDbQuery.executeQuery(query
+                 * .toString(), "maps", QueryLanguage.SQL);/
+                 */// uma
+                List<Object[]> results = NcDirectDbQuery.executeQuery(
+                        query.toString(), resourceData.getDbName(),
+                        QueryLanguage.SQL);
 
                 levels = new double[results.size()];
                 int i = 0;
@@ -659,12 +668,14 @@ public class DbOverlayResource extends
                 query.append("' AND f_table_name='");
                 query.append(table);
                 query.append("' LIMIT 1;");
-               /* List<Object[]> results = NcDirectDbQuery.executeQuery(query
-                        .toString(), "maps", QueryLanguage.SQL);*/    //uma
-                List<Object[]> results = NcDirectDbQuery.executeQuery(query
-                        .toString(), resourceData.getDbName(), QueryLanguage.SQL);
-                
-                
+                /*
+                 * List<Object[]> results = NcDirectDbQuery.executeQuery(query
+                 * .toString(), "maps", QueryLanguage.SQL);
+                 */// uma
+                List<Object[]> results = NcDirectDbQuery.executeQuery(
+                        query.toString(), resourceData.getDbName(),
+                        QueryLanguage.SQL);
+
                 geometryType = (String) results.get(0)[0];
             } catch (Throwable e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -693,8 +704,9 @@ public class DbOverlayResource extends
         return this.resourceData.toString();
     }
 
-	@Override
-	public void resourceAttrsModified() {
-		// Nothing to do. The modified color, linewidth.... will be picked up on the next paint
-	}
+    @Override
+    public void resourceAttrsModified() {
+        // Nothing to do. The modified color, linewidth.... will be picked up on
+        // the next paint
+    }
 }

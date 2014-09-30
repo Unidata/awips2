@@ -178,9 +178,6 @@ public class StorageUtils {
         } else {
             return result.getDataURI();
         }
-        // throw new PgenStorageException(
-        // "testline1\nline2\netcetera\nline4\n55555555\n6666666"
-        // + "\n7777777");
     }
 
     /*
