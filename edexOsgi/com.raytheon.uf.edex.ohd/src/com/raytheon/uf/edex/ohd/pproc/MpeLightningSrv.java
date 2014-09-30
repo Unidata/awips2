@@ -57,6 +57,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 18, 2013       1469      bkowal      Removed the hdf5 data directory.
  * Mar 28, 2014       2952      mpduff      Changed to use UFStatus for logging.
  * Jun 05, 2014       3226      bclement    BinLightning refactor
+ * Aug 20, 2014       3549      njensen     Fixed spelling in exceptions
+ * Sep 17, 2014       3015      bclement    improved exception handling
  * 
  * </pre>
  * 
@@ -99,7 +101,7 @@ public class MpeLightningSrv {
             rs = (QueryResult) coreDao.executeNativeSql(lgtSQL, true);
         } catch (Exception e) {
             throw new EdexException("Couldn't get BinLightning records from"
-                    + " metadata database. " + e);
+                    + " metadata database. Failed SQL: " + lgtSQL, e);
         }
         return rs.getRows();
     }
@@ -183,13 +185,16 @@ public class MpeLightningSrv {
 
         } catch (StorageException se) {
             throw new EdexException(
-                    "Could not retrive datasets from datastore : " + se);
+                    "Could not retrieve datasets from datastore for dataURI: "
+                            + dataURI, se);
         } catch (HibernateException he) {
             throw new EdexException(
-                    "Could not insert into ifhs ligthning table : " + he);
+                    "Could not insert into ifhs lightning table for dataURI: "
+                            + dataURI, he);
         } catch (Exception e) {
-            throw new EdexException("Could not convert to grid coordinate : "
-                    + e);
+            throw new EdexException(
+                    "Could not convert to grid coordinate for dataURI: "
+                            + dataURI, e);
         }
     }
 

@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
@@ -60,8 +61,9 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Mar 10, 2008					Eric Babin Initial Creation
+ * Mar 10, 2008			   Eric Babin  Initial Creation
  * Nov 10, 2012 1298       rferrel     Changes for non-blocking dialog.
+ * Aug 20, 2014 #1664      randerso    Fixed invalid thread access
  * 
  * </pre>
  * 
@@ -95,7 +97,8 @@ public class FuzzValueDialog extends CaveJFACEDialog implements
     private static FuzzValueDialog dialog;
 
     public static void openDialog(DataManager dataManager) {
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+        if ((dialog == null) || (dialog.getShell() == null)
+                || dialog.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
 
@@ -113,8 +116,6 @@ public class FuzzValueDialog extends CaveJFACEDialog implements
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.dataManager = dataManager;
         this.parm = dataManager.getSpatialDisplayManager().getActivatedParm();
-        this.minimum = parm.getGridInfo().getMinValue();
-        this.maximum = parm.getGridInfo().getMaxValue();
     }
 
     @Override
@@ -134,40 +135,34 @@ public class FuzzValueDialog extends CaveJFACEDialog implements
     }
 
     private void initializeComponents() {
-        GridData data = new GridData(GridData.FILL_HORIZONTAL);
+        GridData data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         data.horizontalSpan = 2;
-        data.horizontalAlignment = SWT.CENTER;
-        lab = new Label(top, SWT.BORDER);
-        lab.setText(this.parm.getParmID().getParmName() + " Fuzz");
+        lab = new Label(top, SWT.CENTER);
         lab.setLayoutData(data);
 
         data = new GridData(200, SWT.DEFAULT);
         data.horizontalAlignment = SWT.CENTER;
         fuzzSlider = new Scale(top, SWT.HORIZONTAL);
         fuzzSlider.setLayoutData(data);
-
-        int precision = parm.getGridInfo().getPrecision();
-        resolution = Math.pow(10, precision);
+        fuzzSlider.setMinimum(0);
 
         scaleSlider = new Label(top, SWT.NONE);
         data = new GridData(40, SWT.DEFAULT);
         data.horizontalAlignment = SWT.CENTER;
         scaleSlider.setLayoutData(data);
 
-        fuzzSlider.setMinimum(0);
-        fuzzSlider.setMaximum((int) (maximum - minimum) / 5 * (int) resolution);
-        fuzzSlider.setSelection((int) (resolution * this.parm.getParmState()
-                .getFuzzValue()));
+        updateDialog();
 
         fuzzSlider.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetDefaultSelected(SelectionEvent arg0) {
             }
 
+            @Override
             public void widgetSelected(SelectionEvent arg0) {
                 setValues();
             }
         });
-        setValues();
     }
 
     private void setValues() {
@@ -225,19 +220,33 @@ public class FuzzValueDialog extends CaveJFACEDialog implements
     @Override
     public void activatedParmChanged(Parm newParm) {
         parm = newParm;
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                updateDialog();
+            }
+        });
+    }
+
+    /**
+     * 
+     */
+    private void updateDialog() {
         if (parm != null) {
-            lab.setText(parm.getParmID().getParmName() + " Delta");
+            lab.setText(parm.getParmID().getParmName() + " Fuzz");
             minimum = parm.getGridInfo().getMinValue();
             maximum = parm.getGridInfo().getMaxValue();
             int precision = parm.getGridInfo().getPrecision();
             resolution = Math.pow(10, precision);
-            fuzzSlider.setMaximum((int) (maximum - minimum) / 5
+            fuzzSlider.setMaximum(((int) (maximum - minimum) / 5)
                     * (int) resolution);
             fuzzSlider.setSelection((int) (resolution * this.parm
                     .getParmState().getDeltaValue()));
+            fuzzSlider.setEnabled(true);
             setValues();
         } else {
             lab.setText("No active weather element");
+            fuzzSlider.setEnabled(false);
         }
     }
 
@@ -255,6 +264,12 @@ public class FuzzValueDialog extends CaveJFACEDialog implements
         if (parm != null) {
             if (Arrays.asList(deletions).contains(parm)) {
                 parm = null;
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateDialog();
+                    }
+                });
             }
         }
     }

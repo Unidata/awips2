@@ -86,6 +86,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 22, 2013   1926       njensen     Faster rendering
  * Mar  3, 2014 2804       mschenke    Set back up clipping pane
  * May 09, 2014   3145     mpduff      Dispose the ScanDrawer font
+ * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * </pre>
  * 
  * @author dhladky
@@ -415,54 +417,42 @@ public class ScanResource extends
         float mag = getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue();
 
-        DrawableString string = new DrawableString(
+        DrawableString[] strings = new DrawableString[4];
+        strings[0] = new DrawableString(
                 getScanDrawer().sdc.getAttrName(), getCapability(
                         ColorableCapability.class).getColor());
-        string.basics.x = pixel[0];
-        string.basics.y = pixel[1];
-        string.font = getScanDrawer().font;
-        string.textStyle = TextStyle.BLANKED;
-        string.horizontalAlignment = HorizontalAlignment.LEFT;
-        string.verticallAlignment = VerticalAlignment.MIDDLE;
-        target.drawStrings(string);
+        strings[0].basics.x = pixel[0];
+        strings[0].basics.y = pixel[1];
 
         double[] pixel1 = paintProps.getView().getDisplayCoords(
                 new double[] { titleOffset * 2 * mag, titleOffset }, target);
-        string = new DrawableString(String.valueOf(getScanDrawer().sdc
+        strings[1] = new DrawableString(String.valueOf(getScanDrawer().sdc
                 .getUpperVal()), ScanDrawer.red);
-        string.basics.x = pixel1[0];
-        string.basics.y = pixel1[1];
-        string.font = getScanDrawer().font;
-        string.textStyle = TextStyle.BLANKED;
-        string.horizontalAlignment = HorizontalAlignment.LEFT;
-        string.verticallAlignment = VerticalAlignment.MIDDLE;
-        target.drawStrings(string);
+        strings[1].basics.x = pixel1[0];
+        strings[1].basics.y = pixel1[1];
 
         double[] pixel2 = paintProps.getView().getDisplayCoords(
                 new double[] { titleOffset * 3 * mag, titleOffset }, target);
-        string = new DrawableString(String.valueOf(getScanDrawer().sdc
+        strings[2] = new DrawableString(String.valueOf(getScanDrawer().sdc
                 .getMidVal()), ScanDrawer.yellow);
-        string.basics.x = pixel2[0];
-        string.basics.y = pixel2[1];
-        string.font = getScanDrawer().font;
-        string.textStyle = TextStyle.BLANKED;
-        string.horizontalAlignment = HorizontalAlignment.LEFT;
-        string.verticallAlignment = VerticalAlignment.MIDDLE;
-        target.drawStrings(string);
+        strings[2].basics.x = pixel2[0];
+        strings[2].basics.y = pixel2[1];
 
         double[] pixel3 = paintProps.getView().getDisplayCoords(
                 new double[] { titleOffset * 4 * mag, titleOffset }, target);
 
-        string = new DrawableString(String.valueOf(getScanDrawer().sdc
+        strings[3] = new DrawableString(String.valueOf(getScanDrawer().sdc
                 .getLowerVal()), ScanDrawer.white);
-        string.basics.x = pixel3[0];
-        string.basics.y = pixel3[1];
-        string.font = getScanDrawer().font;
-        string.textStyle = TextStyle.BLANKED;
-        string.horizontalAlignment = HorizontalAlignment.LEFT;
-        string.verticallAlignment = VerticalAlignment.MIDDLE;
-        target.drawStrings(string);
+        strings[3].basics.x = pixel3[0];
+        strings[3].basics.y = pixel3[1];
 
+        for (DrawableString string : strings) {
+            string.font = getScanDrawer().font;
+            string.addTextStyle(TextStyle.BLANKED);
+            string.horizontalAlignment = HorizontalAlignment.LEFT;
+            string.verticallAlignment = VerticalAlignment.MIDDLE;
+        }
+        target.drawStrings(strings);
     }
 
     private void paintElevationAngle(IGraphicsTarget target,
@@ -485,7 +475,7 @@ public class ScanResource extends
             string.font = getScanDrawer().font;
             string.horizontalAlignment = HorizontalAlignment.LEFT;
             string.verticallAlignment = VerticalAlignment.MIDDLE;
-            string.textStyle = TextStyle.BLANKED;
+            string.addTextStyle(TextStyle.BLANKED);
             string.basics.x = pixel[0];
             string.basics.y = pixel[1];
             target.drawStrings(string);

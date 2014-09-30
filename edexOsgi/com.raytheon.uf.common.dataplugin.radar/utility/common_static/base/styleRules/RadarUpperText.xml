@@ -70,6 +70,7 @@
 		<sails />
 		<srmSource />
 		<srmMovement />
+		<sails />
 	</upperText>
 	
 	<!-- Base Spectrum Width -->

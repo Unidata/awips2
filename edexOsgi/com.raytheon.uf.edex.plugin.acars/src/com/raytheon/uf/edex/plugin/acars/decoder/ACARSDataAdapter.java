@@ -1,28 +1,23 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.edex.plugin.acars.decoder;
-
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.SubSetList;
-import static com.raytheon.uf.edex.plugin.acars.common.ACARSConstants.NO_ICING;
-import static com.raytheon.uf.edex.plugin.acars.common.ACARSConstants.RESERVE_13;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -40,9 +35,11 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.plugin.acars.common.ACARSConstants;
 
 /**
  * Adapter used to decode ACARS data in BUFR format.
@@ -58,6 +55,9 @@ import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
  * Mar 27, 2014  2811     skorolev    Added check for empty message.
  * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
  * Jun 12, 2014  2061     bsteffen    Generate unique stationid
+ * Jul 22, 2014  3392     nabowle     ACARSRecord has Float fields instead of Double
+ * Jul 23, 2014  3410     bclement    location changed to floats
+ * Sep 16, 2014  3628     mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -90,7 +90,7 @@ public class ACARSDataAdapter {
     private String traceId = null;
 
     /**
-     * 
+     *
      * @param name
      */
     @Deprecated
@@ -98,7 +98,7 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
+     *
      */
     public ACARSDataAdapter() {
     }
@@ -155,7 +155,7 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
+     *
      * @param data
      * @return
      */
@@ -279,7 +279,8 @@ public class ACARSDataAdapter {
                                     getFlightPhase(subList, rpt, 9);
 
                                     IBUFRDataPacket wxData = subList.get(10);
-                                    if (RepSubList.getPacketType().equals(
+                                    if (DataPacketTypes.RepSubList
+                                            .getPacketType().equals(
                                             wxData.getUnits())) {
                                         List<IBUFRDataPacket> dataList = (List<IBUFRDataPacket>) wxData
                                                 .getValue();
@@ -452,7 +453,7 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
+     *
      * @param packets
      * @param locPos
      * @return
@@ -484,8 +485,8 @@ public class ACARSDataAdapter {
 
         if ((lat != null) && (lon != null)) {
             loc = new AircraftObsLocation();
-            loc.setLatitude(lat);
-            loc.setLongitude(lon);
+            loc.setLatitude(lat.floatValue());
+            loc.setLongitude(lon.floatValue());
             loc.setLocation(lat, lon);
 
             // We can pick up the height here for some data. Have to look
@@ -506,7 +507,7 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
+     *
      * @param packets
      * @param locPos
      * @return
@@ -537,8 +538,8 @@ public class ACARSDataAdapter {
 
         if ((lat != null) && (lon != null)) {
             loc = new AircraftObsLocation();
-            loc.setLatitude(lat);
-            loc.setLongitude(lon);
+            loc.setLatitude(lat.floatValue());
+            loc.setLongitude(lon.floatValue());
             loc.setLocation(lat, lon);
             generateStationId(loc);
         }
@@ -554,7 +555,7 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
+     *
      * @param dataList
      * @param record
      * @return
@@ -566,7 +567,7 @@ public class ACARSDataAdapter {
         int d = packet.getReferencingDescriptor().getDescriptor();
         if (d == BUFRDescriptor.createDescriptor(0, 12, 1)) {
             if (!packet.isMissing()) {
-                record.setTemp((Double) packet.getValue());
+                record.setTemp(((Double) packet.getValue()).floatValue());
             }
         }
 
@@ -582,7 +583,7 @@ public class ACARSDataAdapter {
         d = packet.getReferencingDescriptor().getDescriptor();
         if (d == BUFRDescriptor.createDescriptor(0, 11, 2)) {
             if (!packet.isMissing()) {
-                record.setWindSpeed((Double) packet.getValue());
+                record.setWindSpeed(((Double) packet.getValue()).floatValue());
             }
         }
 
@@ -638,7 +639,8 @@ public class ACARSDataAdapter {
         }
 
         Integer ice = record.getIcing();
-        if ((ice != null) && (ice > NO_ICING) && (ice < RESERVE_13)) {
+        if ((ice != null) && (ice > ACARSConstants.NO_ICING)
+                && (ice < ACARSConstants.RESERVE_13)) {
             if (record.getIceBaseHgt() == null) {
                 record.setIceBaseHgt(record.getFlightLevel());
             }
@@ -670,7 +672,8 @@ public class ACARSDataAdapter {
 
         List<IBUFRDataPacket> subList = null;
         IBUFRDataPacket packet = dataList.get(0);
-        if (SubSetList.getPacketType().equals(packet.getUnits())) {
+        if (DataPacketTypes.SubSetList.getPacketType()
+                .equals(packet.getUnits())) {
             subList = (List<IBUFRDataPacket>) packet.getValue();
             if ((subList != null) && (subList.size() >= 6)) {
                 packet = subList.get(0); // Height
@@ -697,7 +700,8 @@ public class ACARSDataAdapter {
                 d = packet.getReferencingDescriptor().getDescriptor();
                 if (d == BUFRDescriptor.createDescriptor(0, 11, 2)) {
                     if (!packet.isMissing()) {
-                        record.setWindSpeed((Double) packet.getValue());
+                        record.setWindSpeed(((Double) packet.getValue())
+                                .floatValue());
                     }
                 }
 
@@ -714,7 +718,8 @@ public class ACARSDataAdapter {
                 d = packet.getReferencingDescriptor().getDescriptor();
                 if (d == BUFRDescriptor.createDescriptor(0, 12, 101)) {
                     if (!packet.isMissing()) {
-                        record.setTemp((Double) packet.getValue());
+                        record.setTemp(((Double) packet.getValue())
+                                .floatValue());
                     }
                 }
 
@@ -722,7 +727,8 @@ public class ACARSDataAdapter {
                 d = packet.getReferencingDescriptor().getDescriptor();
                 if (d == BUFRDescriptor.createDescriptor(0, 12, 103)) {
                     if (!packet.isMissing()) {
-                        record.setDwpt((Double) packet.getValue());
+                        record.setDwpt(((Double) packet.getValue())
+                                .floatValue());
                     }
                 }
             }
@@ -751,7 +757,7 @@ public class ACARSDataAdapter {
         d = packet.getReferencingDescriptor().getDescriptor();
         if (d == BUFRDescriptor.createDescriptor(0, 11, 2)) {
             if (!packet.isMissing()) {
-                record.setWindSpeed((Double) packet.getValue());
+                record.setWindSpeed(((Double) packet.getValue()).floatValue());
             }
         }
 
@@ -759,7 +765,7 @@ public class ACARSDataAdapter {
         d = packet.getReferencingDescriptor().getDescriptor();
         if (d == BUFRDescriptor.createDescriptor(0, 12, 1)) {
             if (!packet.isMissing()) {
-                record.setTemp((Double) packet.getValue());
+                record.setTemp(((Double) packet.getValue()).floatValue());
             }
         }
 
@@ -767,7 +773,7 @@ public class ACARSDataAdapter {
         d = packet.getReferencingDescriptor().getDescriptor();
         if (d == BUFRDescriptor.createDescriptor(0, 13, 2)) {
             if (!packet.isMissing()) {
-                record.setMixingRatio((Double) packet.getValue());
+                record.setMixingRatio(((Double) packet.getValue()).floatValue());
             }
         }
 
@@ -775,7 +781,7 @@ public class ACARSDataAdapter {
         d = packet.getReferencingDescriptor().getDescriptor();
         if (d == BUFRDescriptor.createDescriptor(0, 13, 3)) {
             if (!packet.isMissing()) {
-                record.setHumidity((Double) packet.getValue());
+                record.setHumidity(((Double) packet.getValue()).floatValue());
             }
         }
 
@@ -824,7 +830,7 @@ public class ACARSDataAdapter {
         d = packet.getReferencingDescriptor().getDescriptor();
         if (d == BUFRDescriptor.createDescriptor(0, 11, 2)) {
             if (!packet.isMissing()) {
-                record.setWindSpeed((Double) packet.getValue());
+                record.setWindSpeed(((Double) packet.getValue()).floatValue());
             }
         }
 
@@ -849,7 +855,7 @@ public class ACARSDataAdapter {
         d = packet.getReferencingDescriptor().getDescriptor();
         if (d == BUFRDescriptor.createDescriptor(0, 12, 101)) {
             if (!packet.isMissing()) {
-                record.setTemp((Double) packet.getValue());
+                record.setTemp(((Double) packet.getValue()).floatValue());
             }
         }
 
@@ -898,8 +904,8 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * @param dataList
      * @param pos
      * @return
@@ -973,7 +979,7 @@ public class ACARSDataAdapter {
         int d = packet.getReferencingDescriptor().getDescriptor();
         if (d == BUFRDescriptor.createDescriptor(0, 7, 4)) {
             if (!packet.isMissing()) {
-                record.setPressure((Double) packet.getValue());
+                record.setPressure(((Double) packet.getValue()).floatValue());
             }
         }
     }

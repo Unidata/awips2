@@ -23,12 +23,37 @@ import types
 
 import lib.CommandLine as CL
 import lib.InputOutput as IO
-import lib.CommHandler as CH
-import lib.Message as MSG
 import lib.Util as util
 import subscription.SubscriptionManager as SM
 
 import conf.TDBConfig as config
+import collections
+
+from ufpy import ThriftClient
+from dynamicserialize.dstypes.com.raytheon.uf.common.message import Message, Header, Property
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.text.dbsrv import TextDBRequest
+
+##############################################################################
+# General exception to be raised when errors occur when processing messages
+##############################################################################
+class MessageError(Exception):
+    def __init__(self,value,cause=None):
+          self.value = value
+          self.cause = cause
+    def __str__(self):
+        msg = 'MessageError: ' + repr(self.value)
+        if self.cause is not None:
+            msg += "\n caused by " + repr(self.cause)
+        return msg
+    def __repr__(self):
+        return self.__str__()
+
+# appends value to list assoticated with key in multimap if the key isn't
+# present in the map. map must be defaultdict so that list is auto created
+def appendIfNotPresent(multimap, key, value):
+    if key not in multimap:
+        multimap[key].append(value)
+
 
 ##############################################################################
 # Class implementing the text database (textdb) Command Line Interface (CLI)
@@ -59,6 +84,9 @@ import conf.TDBConfig as config
 #    12/07/10        7656          cjeanbap       Retrieve environment variable.
 #    04/07/11        8686          cjeanbap       Fixed $ACTION has -i associated
 #    05/12/14       16954          kshrestha      Added Multiple flag functionality for textdb
+#    08/15/14        2926          bclement       Fixed hasSubOperations()
+#    08/22/14        2926          bclement       Switched to ThriftClient
+#    09/05/14        2926          bclement       Moved TextDBRequest to common
 ##############################################################################
 class TextDB:
 
@@ -208,24 +236,14 @@ class TextDB:
             raise IO.InputOutputError("Unable to read product from standard input",e)
 
     # Generates the request message to be sent to the EDEX server.
-    # The message is similar to
-    #     <message>
-    #        <header>
-    #           <properties name="VIEW" value="text" />
-    #           <properties name="OP" value="PUT" />
-    #           <properties name="PRODID" value="CCCNNNXX" />
-    #           <properties name="product" value="This is a test." />
-    #        </header>
-    #     </message>
     #
     # return:
-    #    the generated message in XML format
+    #    the generated message in a serializable object
     # raises:
     #    MessageError if any error occurs
     def __generateRequestMessage(self):
         try:
-            msg = MSG.Message(True)
-            msg.initializeMessage(False)
+            multimap = collections.defaultdict(list)
             commands = self.commands['command']
             isJoin = False
             for command in commands:
@@ -240,27 +258,28 @@ class TextDB:
                     if isinstance(value,types.IntType):
                         if args == config.MSG_VAR_ARGS:
                             for item in data:
-                                msg.addProperty(name=key,value=item,replace=False)
-                        else:    
-                            if (len(commands) == 1) or (len(commands) == 3):
+                                multimap[key].append(item)
+                        else:
+                            l = len(commands)
+                            if (l == 1) or (l == 3):
                                 if ((key == "SITE") and (self.commands.get("site_node") is not None) and (len(self.commands.get("site_node")) == 0)):
-                                    val = str(os.getenv("sitename"))            
-                                    msg.addProperty(name=key,value=val,replace=True)
+                                    val = str(os.getenv("sitename"))
+                                    appendIfNotPresent(multimap, key, val)
                                 elif(isJoin == True):
-                                    msg.addProperty(name=key,value=data,replace=True)
+                                    appendIfNotPresent(multimap, key, data)
                                     isJoin = False
                                 else:
-                                    msg.addProperty(name=key,value=data[value],replace=True)
+                                    appendIfNotPresent(multimap, key, data[value])
                             else:
-                                msg.addProperty(name=key,value=data,replace=True)                            
+                                appendIfNotPresent(multimap, key, data)
                     else:
-                        msg.addProperty(name=key,value=value,replace=True)
+                        appendIfNotPresent(multimap, key, value)
             operationalMode = os.getenv("OPERATIONAL_MODE", 'TRUE')
-            msg.addProperty(name='operational',value=operationalMode,replace=False)
-            return msg.getXML()
+            multimap['operational'].append(operationalMode)
+            return Message(header=Header(multimap=multimap))
         except Exception,e:
-            raise MSG.MessageError('unable to create message for textdb request',e)
-    
+            raise MessageError('unable to create message for textdb request',e)
+
     # reads the command line and sets up the command data structure
     #
     # raises:
@@ -323,14 +342,12 @@ class TextDB:
     # return:
     #   0 if the message contained valid results, 0 otherwise
     def __processRequestResponse(self,msg):
-        psr = MSG.Message(True)
-        psr.parse(msg)
         status = 0
         io = IO.InputOutput()
         # process the return message
-        for prop in psr.getProperties():
-            name = prop['name']
-            value = prop['value']
+        for prop in msg.getHeader().getProperties():
+            name = prop.getName()
+            value = prop.getValue()
             if name == 'STDERR':
                 parts = value.split(':',2)
                 if parts[0] == 'ERROR':
@@ -341,10 +358,8 @@ class TextDB:
                 io.setStream(sys.stdout)
             io.writeln(data=value)
         return status
-        
+
     # Submits the request to the server and waits for a response.
-    # Does a quick check to eliminate an invalid response from the
-    # server. 
     #
     # args:
     #   msg: the message to submit to the server
@@ -352,22 +367,16 @@ class TextDB:
     #   the message received from the from the server,
     #   or Null if a connection error occurred.
     # raise:
-    #   CommError if any error occurred.
+    #   ThriftRequestException if any error occurred.
     def __submitRequestMessage(self,msg):
-        try:
-            runner = self.commands.get('runner')
-            service = config.endpoint.get(runner)
-            
-            # send the request to the server
-            connection=str(os.getenv("DEFAULT_HOST", "localhost") + ":" + os.getenv("DEFAULT_PORT", "9581"))
-            ch = CH.CommHandler(connection,service)
-            ch.process(msg)
-            if not ch.isGoodStatus():
-                util.reportHTTPResponse(ch.formatResponse())
-                return None
-            return ch.getContents()
-        except Exception,e:
-            raise CH.CommError("Unable to submit request to server",e)
+        # send the request to the server
+        host = os.getenv("DEFAULT_HOST", "localhost")
+        port = os.getenv("DEFAULT_PORT", "9581")
+        tClient = ThriftClient.ThriftClient(host, port)
+        req = TextDBRequest()
+        req.setMessage(msg)
+        return tClient.sendRequest(req)
+
     # Handles the LDAD (script) requests by
     #   1. morphing the command line to match the micro-engine command line
     #   2. passing the modified command line to the micro-engine client
@@ -375,7 +384,7 @@ class TextDB:
     # return:
     #    returns the result of executing the micro-engine client
     # raise:
-    #    propagates any exception received 
+    #    propagates any exception received
     def __handleScriptRequest(self):
         cmd = self.commands.get('command')[0]
         fmt = config.convldad.get(cmd)
@@ -394,7 +403,7 @@ class TextDB:
         if (config.ldaddel == cmd):
             temp = cline[len(cline)-1]
             cline[len(cline)-1] = " ".join(temp.split('|'))
-        
+
         sm = SM.SubscriptionManager(name='textdb',args=cline)
         return sm.execute()
 
@@ -411,7 +420,7 @@ class TextDB:
                     self.__deleteWatchWarn()
                     self.__deleteSubscriptions()
                 except Exception,e:
-                        raise MSG.MessageError('unable to create message for textdb request',e)           
+                        raise MessageError('unable to create message for textdb request',e)           
                 try:    
                     for i in range(len(args)):    
                         f = open(args[i],'r')
@@ -419,78 +428,71 @@ class TextDB:
                             # remove all white-spaces at beginning of the line.
                             line = line.lstrip()
                             if (line.find('#') == -1):                        
-                                try:                  
+                                try:
                                     values = line.split(' ', 1)
                                     try:
-                                        msg = MSG.Message(True)
-                                        msg.initializeMessage(False)
-                                        msg.addProperty(name='VIEW',value='warn',replace=False)    
-                                        msg.addProperty(name='OP',value='PUT',replace=False)
-                                        msg.addProperty(name='PRODID',value=values[0],replace=False)
-                                        msg.addProperty(name='SCRIPT',value=values[1],replace=False)
+                                        props = []
+                                        props.append(Property(name='VIEW',value='warn'))
+                                        props.append(Property(name='OP',value='PUT'))
+                                        props.append(Property(name='PRODID',value=values[0]))
+                                        props.append(Property(name='SCRIPT',value=values[1]))
+                                        msg = Message(header=Header(props))
                                     except Exception,e:
-                                            raise MSG.MessageError('unable to create message for textdb request',e)
-    
+                                            raise MessageError('unable to create message for textdb request',e)
+
                                     if ((len(values[0]) >= 8) & (len(values[1].strip('\r\n')) > 0)):
                                         # print "Insert Subscription [" + values[0] + "] Status:" + str(sm.execute())
                                         cline = ['-o','add', '-t','ldad', '-r','ldad', '-p', values[0], '-f', values[1], '-c','%TRIGGER%']
                                         sm = SM.SubscriptionManager(name='textdb',args=cline)
                                         sm.execute()
-                                        msg = self.__submitRequestMessage(msg.getXML())
+                                        msg = self.__submitRequestMessage(msg)
                                         status = self.__processRequestResponse(msg)
                                 except ValueError:
                                     util.printMessage(sys.stderr,
                                         header='Error processing line',
-                                        body=line)            
+                                        body=line)
                 finally:
                     f.close()
             else:
-                raise MSG.MessageError('Unable to locate file: ' + args[0])
+                raise MessageError('Unable to locate file: ' + args[0])
         else:
             self.__deleteSubscriptions()
         return
-    
+
     #
     #
     #
     def __deleteWatchWarn(self):
-        msg = MSG.Message(True)
-        msg.initializeMessage(False)        
-        msg.addProperty(name='VIEW',value='warn',replace=False)
-        msg.addProperty(name='OP',value='DELETE',replace=False)
-        msg = self.__submitRequestMessage(msg.getXML())
+        props = []
+        props.append(Property(name='VIEW',value='warn'))
+        props.append(Property(name='OP',value='DELETE'))
+        msg = self.__submitRequestMessage(Message(header=Header(props)))
         status = self.__processRequestResponse(msg)
-        
+
     #
     #
     #
     def __deleteSubscriptions(self):
         cline = ['-o','delete']
         sm = SM.SubscriptionManager(name='textdb',args=cline)
-        sm.execute()        
+        sm.execute()
 
     # Determine if command line has sub operations
+    # Returns true if any flags in self.commands[CL.DEFAULT_KEY]
+    # are in config.mayJoin
     #
-    # raise:
-    #    propagates any exception received 
     def __hasSubOperations(self):
-        for key in self.commands.keys():            
+        for key in self.commands.keys():
             if key is CL.DEFAULT_KEY:
-               subJoins = self.commands.get(key)            
-               length = len(self.commands.get(key))
+               flags = self.commands.get(key)
                #specifically looking for config.flags of subJoins
-               if length <= 6:
-                   for pos in range(0, length, 2):
-                       value = config.flags.get(subJoins[pos])[0]
-                       try:
-                           config.mayJoin.index(value)
-                       except:
-                           raise CL.ArgError("Invalid command count - JOIN command includes invalid option(s)")
+               for flag in flags:
+                   configFlag = config.flags.get(flag)
+                   # some flags aren't in configs.flags
+                   if configFlag and configFlag[0] in config.mayJoin:
                        return True
-               else:
-                   return False
-            else:
-                return False                
+        return False
+
     # Correct the sub operational command line .
     #
     #

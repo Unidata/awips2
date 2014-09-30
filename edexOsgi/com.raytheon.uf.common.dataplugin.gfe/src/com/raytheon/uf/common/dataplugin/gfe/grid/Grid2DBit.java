@@ -76,6 +76,7 @@ import java.nio.ByteBuffer;
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2008 879        rbell       Initial Creation.
  * Oct 22, 2008 1624       wdougherty  Speed up translate method
+ * Sep 01, 2014 3572       randerso    Added clear(x,y) method
  * 
  * </pre>
  * 
@@ -215,6 +216,23 @@ public class Grid2DBit extends Grid2DByte implements Cloneable {
             throw new IllegalArgumentException("Dimensions are invalid");
         }
         buffer.put(yDim * this.xdim + xDim, (byte) 1);
+    }
+
+    /**
+     * 
+     * Sets a bit to 0.
+     * 
+     * @param xDim
+     *            xDim x coordinate of bit to set
+     * @param yDim
+     *            yDim y coordinate of bit to set
+     */
+    @Override
+    public void clear(int xDim, int yDim) {
+        if (!isValid(xDim, yDim)) {
+            throw new IllegalArgumentException("Dimensions are invalid");
+        }
+        buffer.put(yDim * this.xdim + xDim, (byte) 0);
     }
 
     /**

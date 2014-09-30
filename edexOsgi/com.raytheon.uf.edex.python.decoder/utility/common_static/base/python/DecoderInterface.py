@@ -34,14 +34,14 @@ from java.util import ArrayList
 # ------------- -------- ----------- --------------------------
 # Sep 22, 2008           njensen     Initial Creation.
 # Oct 03, 2013  2402     bsteffen    Make PythonDecoder more extendable.
+# Aug 04, 2014  3427     bclement    loadModule() now takes full path to jar
 #    
 # 
 #
-def loadModule(pluginDir, pluginFQN, moduleName):
-    jarname = pluginDir + pluginFQN + ".jar"
+def loadModule(jarpath, moduleName):
 
     if not sys.modules.has_key(moduleName):
-        jar = zipimport.zipimporter(jarname)
+        jar = zipimport.zipimporter(jarpath)
         jar.load_module(moduleName)
 
 def decode(moduleName, **kwargs):

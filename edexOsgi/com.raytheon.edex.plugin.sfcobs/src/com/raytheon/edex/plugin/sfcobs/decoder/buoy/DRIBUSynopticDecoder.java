@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author jkorman
@@ -47,9 +48,9 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
     // private Integer dateMM = null; // Month
     // private Integer dateJ = null; // Units digit of year
     // private Integer dategg = null; // Minutes
-    private Double buoyLatitude = null;
+    private Float buoyLatitude = null;
 
-    private Double buoyLongitude = null;
+    private Float buoyLongitude = null;
 
     private Integer buoyQuadrant = null;
 
@@ -183,21 +184,21 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
         Integer lat = null;
-        double divisor = 1000.0;
+        float divisor = 1000.0f;
         if (matchElement(element, "[1357]\\d{5}")) {
             buoyQuadrant = getInt(element, 0, 1);
             lat = getInt(element, 1, 6);
         } else if (matchElement(element, "[1357]\\d{4}/")) {
             buoyQuadrant = getInt(element, 0, 1);
             lat = getInt(element, 1, 5);
-            divisor = 100.0;
+            divisor = 100.0f;
         } else if (matchElement(element, "[1357]\\d{3}//")) {
             buoyQuadrant = getInt(element, 0, 1);
             lat = getInt(element, 1, 4);
-            divisor = 10.0;
+            divisor = 10.0f;
         }
         if ((lat != null) && (lat >= 0)) {
-            buoyLatitude = lat.doubleValue() / divisor;
+            buoyLatitude = lat.floatValue() / divisor;
         } else {
             buoyLatitude = null;
         }
@@ -216,18 +217,18 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
         Integer lon = null;
-        double divisor = 1000.0;
+        float divisor = 1000.0f;
         if (matchElement(element, "\\d{6}")) {
             lon = getInt(element, 0, 6);
         } else if (matchElement(element, "\\d{5}/")) {
             lon = getInt(element, 0, 5);
-            divisor = 100.0;
+            divisor = 100.0f;
         } else if (matchElement(element, "\\d{4}//")) {
             lon = getInt(element, 0, 4);
-            divisor = 10.0;
+            divisor = 10.0f;
         }
         if ((lon != null) && (lon >= 0)) {
-            buoyLongitude = lon.doubleValue() / divisor;
+            buoyLongitude = lon.floatValue() / divisor;
         } else {
             buoyLongitude = null;
         }
@@ -242,8 +243,8 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         if ((buoyLatitude != null) && (buoyLongitude != null)
                 && (buoyQuadrant != null)) {
             if ((buoyLatitude >= 0) && (buoyLongitude >= 0)) {
-                double lat = 0;
-                double lon = 0;
+                float lat = 0;
+                float lon = 0;
                 switch (buoyQuadrant) {
                 case 1: {
                     lat = 1;

@@ -2,10 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Aviation Advisory Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.aviation.advisory;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.aviation.advisory.Activator
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Require-Bundle: com.raytheon.uf.viz.core
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.geospatial,
@@ -35,7 +34,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.geotools.referencing.datum,
  org.opengis.referencing.crs,
  org.osgi.framework
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.aviation.advisory,
  com.raytheon.uf.viz.aviation.advisory.adapter,
