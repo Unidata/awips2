@@ -38,6 +38,7 @@ import com.raytheon.uf.common.dataplugin.gfe.DiscreteTerm;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKeyDef;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.msgs.ICombineModeChangedListener;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState.CombineMode;
@@ -51,7 +52,8 @@ import com.raytheon.viz.gfe.core.wxvalue.DiscreteWxValue;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 22, 2009 #1318      randerso     Initial creation
+ * Jun 22, 2009 #1318      randerso    Initial creation
+ * Aug 20, 2014 #1664      randerso    Fixed invalid thread access
  * 
  * </pre>
  * 
@@ -224,9 +226,15 @@ public class DiscreteSetValue extends AbstractSetValue implements
      * com.raytheon.viz.gfe.core.parm.ParmState.CombineMode)
      */
     @Override
-    public void combineModeChanged(Parm parm, CombineMode mode) {
+    public void combineModeChanged(Parm parm, final CombineMode mode) {
         // Parm Client notification
-        combineButton.setSelection(mode.equals(CombineMode.COMBINE));
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                combineButton.setSelection(mode.equals(CombineMode.COMBINE));
+            }
+        });
     }
 
     protected void addToSession() {

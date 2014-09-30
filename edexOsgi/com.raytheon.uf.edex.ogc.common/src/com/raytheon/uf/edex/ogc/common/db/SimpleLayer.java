@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
+import com.raytheon.uf.common.geospatial.adapter.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Polygon;

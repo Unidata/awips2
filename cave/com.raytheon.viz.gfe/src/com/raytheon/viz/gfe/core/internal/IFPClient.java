@@ -120,6 +120,8 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * 11/20/2013   #2331      randerso    Added getTopoData method
  * 04/03/2014   #2737      randerso    Moved clientISCSendStatus to SaveGFEGridRequest
  * 04/09/2014   #3004      dgilling    Support moved ClearPracticeVTECTableRequest.
+ * 07/01/2014   #3149      randerso    Changed getGridData to handle limited number of grids returned 
+ *                                     and re-request if not all data returned
  * 
  * </pre>
  * 
@@ -563,21 +565,34 @@ public class IFPClient {
      * @return List of grid slices
      * @throws GFEServerException
      */
+    @SuppressWarnings("unchecked")
     public List<IGridSlice> getGridData(ParmID parmId, List<TimeRange> gridTimes)
             throws GFEServerException {
-        return getGridData(parmId, gridTimes, false);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<IGridSlice> getGridData(ParmID parmId,
-            List<TimeRange> gridTimes, boolean convertUnit)
-            throws GFEServerException {
         GetGridRequest req = new GetGridRequest(parmId, gridTimes);
-        req.setConvertUnit(convertUnit);
         GetGridDataRequest request = new GetGridDataRequest();
         request.addRequest(req);
-        ServerResponse<?> resp = makeRequest(request);
-        List<IGridSlice> slices = (List<IGridSlice>) resp.getPayload();
+
+        List<IGridSlice> slices = new ArrayList<IGridSlice>(gridTimes.size());
+        while (slices.size() < gridTimes.size()) {
+            ServerResponse<List<IGridSlice>> resp = (ServerResponse<List<IGridSlice>>) makeRequest(request);
+            slices.addAll(resp.getPayload());
+
+            // if no slices returned (shouldn't happen unless server code is
+            // broken)
+            if (slices.isEmpty()) {
+                String msg = "No data returned from GetGridDataRequest for "
+                        + parmId + " for times:" + req.getTimes();
+                statusHandler.error(msg);
+                throw new GFEServerException(msg);
+            }
+
+            // if not all slices returned
+            if (slices.size() < gridTimes.size()) {
+                // request remaining times.
+                req.setTimes(gridTimes.subList(slices.size(), gridTimes.size()));
+            }
+        }
+
         return slices;
     }
 

@@ -46,6 +46,7 @@ import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -74,7 +75,6 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
 import com.raytheon.viz.core.rsc.hdf5.FileBasedTileSet;
@@ -117,6 +117,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  05/20/2013      862      ghull       implement IAreaProviderCapable
  *  Nov 14, 2013    2393     bclement    changed how numLevels is calculated for mcidas
  *  03/12/2014      920      pswamy      Implemented changes to fix GINI VIS image display problems.
+ *  08/07/2014      3492     mapeters    Removed IGraphicsTarget.setUseBuiltinColorbar() call from initResource() 
+ *                                       as it had no effect and has been removed from IGraphicsTarget.
+ * 
  * </pre>
  * 
  * @author chammack
@@ -565,8 +568,6 @@ public abstract class AbstractSatelliteResource extends
         synchronized (this) {
             this.viewType = target.getViewType();
             this.grphTarget = target;
-
-            grphTarget.setUseBuiltinColorbar(false);
 
             // create the colorBar Resource and add it to the resourceList for
             // this descriptor.

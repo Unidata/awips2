@@ -15,6 +15,13 @@
   		<constructor-arg value="com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialDataRequest"/>
   		<constructor-arg ref="generateGeospatialDataRequestHandler"/>
   	</bean>
+   
+    <bean id="generateGeospatialTimeSetHandler" class="com.raytheon.edex.plugin.warning.gis.GenerateGeospatialTimeSetRequestHandler"/>
+   
+    <bean id="generateGeospatialTimesetRequest" factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialTimeSetRequest"/>
+        <constructor-arg ref="generateGeospatialTimeSetHandler"/>
+    </bean>
 
     <camelContext id="geospatialDataGenerator-camel"
         xmlns="http://camel.apache.org/schema/spring"

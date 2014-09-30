@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.thinclient.cave.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -30,11 +29,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.core.comm.ConnectivityManager;
 import com.raytheon.uf.viz.core.comm.ConnectivityManager.ConnectivityResult;
 import com.raytheon.uf.viz.core.comm.IConnectivityCallback;
+import com.raytheon.uf.viz.core.localization.TextOrCombo;
+import com.raytheon.uf.viz.core.localization.TextOrComboEditor;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.ThinClientUriUtil;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  *                                     preference.
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * Feb 04, 2014 2704       njensen     Only one field for proxy server
+ * Jun 26, 2014 3236       njensen     Proxy server can now be text or combo field
  * 
  * </pre>
  * 
@@ -63,7 +64,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
 
     private BooleanFieldEditor useProxies;
 
-    private StringFieldEditor proxyServer;
+    private TextOrComboEditor proxyServer;
 
     private Button connectivityButton;
 
@@ -86,15 +87,23 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
      */
     @Override
     protected void createFieldEditors() {
-
         useProxies = new BooleanFieldEditor(
                 ThinClientPreferenceConstants.P_USE_PROXIES,
                 "&Use Proxy Servers", getFieldEditorParent());
 
         addField(useProxies);
-        proxyServer = new StringFieldEditor(
+        proxyServer = new TextOrComboEditor(getFieldEditorParent(),
+                this.getPreferenceStore(),
                 ThinClientPreferenceConstants.P_PROXY_ADDRESS,
-                "&Proxy Address: ", getFieldEditorParent());
+                ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS,
+                "&Proxy Address: ");
+        proxyServer.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                checkConnectivity();
+            }
+        });
+
         proxyServer.setErrorMessage("Cannot connect to Proxy server");
         addField(proxyServer);
 
@@ -132,7 +141,8 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         boolean serverError = false;
 
         // check HTTP Server
-        Text text = proxyServer.getTextControl(getFieldEditorParent());
+        TextOrCombo text = proxyServer
+                .getTextOrComboControl(getFieldEditorParent());
         String proxyAddr = text.getText().trim();
         ConnectivityManager.checkLocalizationServer(
                 ThinClientUriUtil.getServicesAddress(proxyAddr),
@@ -154,10 +164,10 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
                 });
 
         if (servicesResult.hasConnectivity && pypiesResult.hasConnectivity) {
-            text.setBackground(Display.getDefault().getSystemColor(
-                    SWT.COLOR_WHITE));
+            text.widget.setBackground(null);
+            proxyServer.clearErrorMessage();
         } else {
-            text.setBackground(Display.getDefault().getSystemColor(
+            text.widget.setBackground(Display.getDefault().getSystemColor(
                     SWT.COLOR_RED));
             serverError = true;
         }

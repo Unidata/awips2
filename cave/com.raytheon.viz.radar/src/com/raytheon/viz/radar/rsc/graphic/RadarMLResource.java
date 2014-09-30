@@ -55,7 +55,6 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -83,6 +82,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 13, 2103 2223       njensen     Overrode remove() to fix memory leak
  * Jul 28, 2013 2227       mnash       Fixing the projection issues, moving things
  *                                     around for better logical separation
+ * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * </pre>
  * 
  * @author mnash
@@ -220,7 +221,6 @@ public class RadarMLResource extends RadarGraphicsResource {
         info.verticallAlignment = VerticalAlignment.TOP;
         info.setCoordinates(extent.getMinX() + X_OFFSET * ratio,
                 extent.getMinY() + Y_OFFSET * ratio);
-        info.textStyle = TextStyle.NORMAL;
         target.drawStrings(info);
         target.setupClippingPlane(extent);
     }

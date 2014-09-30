@@ -24,20 +24,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jep.JepException;
 
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.core.script.AbstractScriptCatalog;
+import com.raytheon.uf.common.util.FileUtil;
 
 /**
- * TODO Add Description
+ * Catalog of gfe config files
  * 
  * <pre>
  * 
@@ -45,6 +47,7 @@ import com.raytheon.viz.gfe.core.script.AbstractScriptCatalog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2010            randerso     Initial creation
+ * Jul 08, 2014 3361       njensen      Consolidated code
  * 
  * </pre>
  * 
@@ -52,11 +55,12 @@ import com.raytheon.viz.gfe.core.script.AbstractScriptCatalog;
  * @version 1.0
  */
 
-public class ConfigCatalog extends AbstractScriptCatalog {
+public class ConfigCatalog {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ConfigCatalog.class);
 
-    private static final String[] EXTENSIONS = new String[] { ".py" };
+    private static final String EXTENSION = ".py";
 
     protected List<String> preEvals;
 
@@ -66,41 +70,6 @@ public class ConfigCatalog extends AbstractScriptCatalog {
         preEvals.add("HideConfigFile = False\n");
         preEvals.add("def checkHideConfigFile(): return bool(HideConfigFile)\n\n");
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptCatalog#
-     * getScriptTypePathPrefix()
-     */
-    @Override
-    public String getScriptTypePathPrefix() {
-        return GfePyIncludeUtil.CONFIG;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptCatalog#getExtensions
-     * ()
-     */
-    @Override
-    public String[] getExtensions() {
-        return EXTENSIONS;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.script.AbstractScriptCatalog#getNames()
-     */
-    @Override
-    public Collection<String> getNames() {
-        Collection<String> result = new HashSet<String>();
-        LocalizationFile[] procFiles = getFiles();
-        result = scriptNames(procFiles);
-        return result;
     }
 
     /**
@@ -145,4 +114,67 @@ public class ConfigCatalog extends AbstractScriptCatalog {
         }
         return rtnVal;
     }
+
+    /**
+     * Get all the localization files for this catalog.
+     * 
+     * @return the localization files for the procedures.
+     */
+    public LocalizationFile[] getFiles() {
+        LocalizationFile[] procFiles = PathManagerFactory.getPathManager()
+                .listStaticFiles(GfePyIncludeUtil.CONFIG,
+                        new String[] { EXTENSION },
+                        false, true);
+        return procFiles;
+    }
+
+    /**
+     * Get the simple names of the procedures.
+     * 
+     * @return the simple names of the procedures.
+     */
+    public Collection<String> getNames() {
+        Collection<String> result = new HashSet<String>();
+        LocalizationFile[] procFiles = getFiles();
+        result = scriptNames(procFiles);
+        return result;
+    }
+
+    /**
+     * @param scriptName
+     *            The simple name of a procedure, i.e., "Align_Grids".
+     * @return The localization file for the script
+     */
+    public LocalizationFile getFile(String scriptName) {
+        String fname = GfePyIncludeUtil.CONFIG + File.separator + scriptName
+                + EXTENSION;
+        LocalizationFile file = PathManagerFactory.getPathManager()
+                .getStaticLocalizationFile(fname);
+        return file;
+    }
+
+    /**
+     * Get the script names from an array of LocalizationFiles, with any leading
+     * directories and trailing ".py"s removed.
+     * 
+     * @param scriptFiles
+     *            the array of LocalizationFiles.
+     * @return a Collection of simple script names with no duplicates.
+     */
+    protected Collection<String> scriptNames(LocalizationFile[] scriptFiles) {
+        Set<String> procs = new HashSet<String>();
+        String fname = null;
+        String[] fsplit = null;
+        String script = null;
+        if (scriptFiles != null) {
+            for (LocalizationFile file : scriptFiles) {
+                fname = file.getName();
+                fsplit = fname.split(FileUtil.fileSeparatorRegex);
+                script = fsplit[fsplit.length - 1].replaceAll("\\.py$", "");
+                procs.add(script);
+            }
+        }
+        return procs;
+    }
+
 }

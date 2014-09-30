@@ -65,7 +65,11 @@ import com.vividsolutions.jts.geom.Point;
  * Oct 13, 2009   2307       dhladky     Initial creation
  * Apr 22, 2013   1926       njensen     Faster rendering
  * May 09, 2014   3145       mpduff      Add getter for font so it can be disposed, javadoc fix
- * 
+ * Jul 22, 2014   3422       mapeters    Updated deprecated drawArc() call.
+ * Jul 23, 2014   3429       mapeters    Updated deprecated drawLine() call.
+ * Jul 29, 2014   3465       mapeters    Updated deprecated drawString() calls.
+ * Aug 14, 2014   3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                       assignments.
  * </pre>
  * 
  * @author dhladky
@@ -74,9 +78,7 @@ import com.vividsolutions.jts.geom.Point;
 
 public class ScanDrawer {
 
-    private static final int HEX_ANGLE = 60;
-
-    private static final double SIN_HEX_ANGLE = Math.sin(HEX_ANGLE);
+    private static final double SIN_HEX_ANGLE = Math.sin(60);
 
     public static final RGB red = new RGB(255, 0, 0);
 
@@ -358,63 +360,73 @@ public class ScanDrawer {
             wLeftX = center[0] - (size);
             topY = center[1] - (size);
             bottomY = center[1] + (size);
+            
+            DrawableCircle circle = new DrawableCircle();
+            circle.setCoordinates(center[0], center[1]);
+            circle.radius = size;
+            circle.basics.color = getResourceColor();
+            
             if (mesoType == 0) {
                 if (isExt) {
                     // draw a broken circle
-                    aTarget.drawArc(center[0], center[1], 0.0, size,
-                            getResourceColor(), outlineWidth * 4, 0, 360,
-                            LineStyle.DASHED, true);
-                } else {
-                    DrawableCircle circle = new DrawableCircle();
-                    circle.setCoordinates(center[0], center[1], 0.0);
-                    circle.basics.color = getResourceColor();
-                    circle.radius = size;
                     circle.lineWidth = outlineWidth * 4;
-                    circle.filled = false;
+                    circle.lineStyle = LineStyle.DASHED;
+                    aTarget.drawCircle(circle);          
+                } else {  
+                    circle.lineWidth = outlineWidth * 4;
                     aTarget.drawCircle(circle);
                 }
             } else if (mesoType == 2) {
                 if (isExt) {
                     // draw a broken circle
-                    aTarget.drawArc(center[0], center[1], 0.0, size,
-                            getResourceColor(), outlineWidth, 0, 360,
-                            LineStyle.DASHED, true);
-                } else {
-                    DrawableCircle circle = new DrawableCircle();
-                    circle.setCoordinates(center[0], center[1], 0.0);
-                    circle.basics.color = getResourceColor();
-                    circle.radius = size;
                     circle.lineWidth = outlineWidth;
-                    circle.filled = false;
+                    circle.lineStyle = LineStyle.DASHED;
+                    aTarget.drawCircle(circle);   
+                } else {
+                    circle.lineWidth = outlineWidth;
                     aTarget.drawCircle(circle);
                 }
             } else if (mesoType == 1) {
                 if (isExt) {
-                    // draw a broken circle
-                    aTarget.drawArc(center[0], center[1], 0.0, size,
-                            getResourceColor(), outlineWidth * 4, 0, 360,
-                            LineStyle.DASHED, true);
-                } else {
-                    DrawableCircle circle = new DrawableCircle();
-                    circle.setCoordinates(center[0], center[1], 0.0);
-                    circle.basics.color = getResourceColor();
-                    circle.radius = size;
+                    // draw a broken circle                  
                     circle.lineWidth = outlineWidth * 4;
-                    circle.filled = false;
+                    circle.lineStyle = LineStyle.DASHED;
+                    aTarget.drawCircle(circle);
+                } else {
+                    circle.lineWidth = outlineWidth * 4;
                     aTarget.drawCircle(circle);
                 }
+                
+                DrawableLine[] lines = new DrawableLine[4];
                 // top spike
-                aTarget.drawLine(center[0], topY, 0.0, center[0], topY - size,
-                        0.0, getResourceColor(), outlineWidth * 4);
+                lines[0] = new DrawableLine();
+                lines[0].setCoordinates(center[0], topY);
+                lines[0].addPoint(center[0], topY - size);
+                lines[0].basics.color = getResourceColor();
+                lines[0].width = outlineWidth * 4;
+
                 // bottom spike
-                aTarget.drawLine(center[0], bottomY, 0.0, center[0], bottomY
-                        + size, 0.0, getResourceColor(), outlineWidth * 4);
+                lines[1] = new DrawableLine();
+                lines[1].setCoordinates(center[0], bottomY);
+                lines[1].addPoint(center[0], bottomY + size);
+                lines[1].basics.color = getResourceColor();
+                lines[1].width = outlineWidth * 4;
+
                 // right spike
-                aTarget.drawLine(wRightX, center[1], 0.0, wRightX + size,
-                        center[1], 0.0, getResourceColor(), outlineWidth * 4);
+                lines[2] = new DrawableLine();
+                lines[2].setCoordinates(wRightX, center[1]);
+                lines[2].addPoint(wRightX + size, center[1]);
+                lines[2].basics.color = getResourceColor();
+                lines[2].width = outlineWidth * 4;
+
                 // left spike
-                aTarget.drawLine(wLeftX, center[1], 0.0, wLeftX - size,
-                        center[1], 0.0, getResourceColor(), outlineWidth * 4);
+                lines[3] = new DrawableLine();
+                lines[3].setCoordinates(wLeftX, center[1]);
+                lines[3].addPoint(wLeftX - size, center[1]);
+                lines[3].basics.color = getResourceColor();
+                lines[3].width = outlineWidth * 4;
+
+                aTarget.drawLine(lines);
             }
 
             double zoomLevel = this.descriptor.getRenderableDisplay().getZoom();
@@ -426,7 +438,7 @@ public class ScanDrawer {
             ds.horizontalAlignment = HorizontalAlignment.RIGHT;
             ds.verticallAlignment = VerticalAlignment.BOTTOM;
             ds.font = font;
-            ds.textStyle = TextStyle.DROP_SHADOW;
+            ds.addTextStyle(TextStyle.DROP_SHADOW);
 
             if (km < 50) {
                 ds.setCoordinates(center[0] - 1, center[1] - 1);
@@ -481,9 +493,14 @@ public class ScanDrawer {
                     dir, totalLength / 1.25);
 
             // draw it
-            if (sdc.getArrowMode()) {
-                aTarget.drawLine(center[0], center[1], 0, end[0], end[1], 0,
-                        getColor(), outlineWidth);
+            DrawableLine[] lines = null;
+            DrawableLine line = null;
+            int size;
+            if (sdc.getArrowMode()) { 
+                line = new DrawableLine();
+                line.setCoordinates(center[0], center[1]);
+                line.addPoint(end[0], end[1]);
+                line.basics.color = getColor();
             } else {
                 // Find the intersection to use instead of the center point.
                 Point intersectPoint = null;
@@ -518,16 +535,28 @@ public class ScanDrawer {
                         totalLength / 1.25);
                 labelEnd = getPixelRelativeCoordinate(intersectPoint,
                         totalLength + 1, dir);
+                
+                size = ears.size();
+                lines = new DrawableLine[size + 1];
+                lines[size] = new DrawableLine();
+                lines[size].setCoordinates(end[0], end[1]);
+                lines[size].addPoint(intersect[0], intersect[1]);
+                lines[size].addPoint(center[0], center[1]);
+                lines[size].basics.color = getColor();
 
-                aTarget.drawLine(intersect[0], intersect[1], 0, end[0], end[1],
-                        0, getColor(), outlineWidth);
-                aTarget.drawLine(center[0], center[1], 0, intersect[0],
-                        intersect[1], 0, getColor(), outlineWidth);
             }
-            for (double[] ear : ears) {
-                aTarget.drawLine(end[0], end[1], 0, ear[0], ear[1], 0,
-                        getColor(), outlineWidth);
+            size = ears.size();
+            if(lines == null) {
+                lines = new DrawableLine[size + 1];
+                lines[size] = line;
             }
+            for (int i = 0; i < size; i++) {
+                lines[i] = new DrawableLine();
+                lines[i].setCoordinates(end[0], end[1]);
+                lines[i].addPoint(ears.get(i)[0], ears.get(i)[1]);
+                lines[i].basics.color = getColor();
+            }
+            aTarget.drawLine(lines);
 
             drawArrowLabel(labelEnd[0], labelEnd[1],
                     new Integer((int) speed).toString());
@@ -548,15 +577,16 @@ public class ScanDrawer {
         int mapWidth = this.descriptor.getMapWidth() / 1000;
         double km = zoomLevel * mapWidth;
 
+        DrawableString string = new DrawableString(label, getColor());
+        string.font = font;
+        string.addTextStyle(TextStyle.DROP_SHADOW);
+        string.horizontalAlignment = HorizontalAlignment.RIGHT;
         if (km < 50) {
-            aTarget.drawString(font, label, center[0] - 1, center[1] - 1, 0,
-                    TextStyle.DROP_SHADOW, getColor(),
-                    HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, 0.0);
+            string.setCoordinates(center[0] - 1, center[1] - 1);
         } else {
-            aTarget.drawString(font, label, wLeftX, topY, 0,
-                    TextStyle.DROP_SHADOW, getColor(),
-                    HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, 0.0);
+            string.setCoordinates(wLeftX, topY);
         }
+        aTarget.drawStrings(string);
     }
 
     /**
@@ -571,10 +601,13 @@ public class ScanDrawer {
      */
     public void drawArrowLabel(double x, double y, String label)
             throws VizException {
-
-        aTarget.drawString(font, label, x, y, 0, TextStyle.DROP_SHADOW,
-                getColor(), HorizontalAlignment.CENTER,
-                VerticalAlignment.MIDDLE, 0.0);
+        DrawableString string = new DrawableString(label, getColor());
+        string.font = font;
+        string.setCoordinates(x, y);
+        string.addTextStyle(TextStyle.DROP_SHADOW);
+        string.horizontalAlignment = HorizontalAlignment.CENTER;
+        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        aTarget.drawStrings(string);
     }
 
     /**
@@ -918,13 +951,15 @@ public class ScanDrawer {
      */
     public void drawDMDTrack(DMDTableDataRow dtdr) throws VizException {
 
+        List<DrawableLine> lines = new ArrayList<DrawableLine>();
+        
         if ((dtdr.getFcstLat() != null) && (dtdr.getFcstLon() != null)) {
 
             double[] futurePoint = null;
             double[] pastPoint = null;
             int count = Math.min(dtdr.getFcstLon().size(), dtdr.getFcstLat()
                     .size());
-
+            
             for (int i = 0; i < count; i++) {
                 futurePoint = descriptor.worldToPixel(new double[] {
                         dtdr.getFcstLon().get(i), dtdr.getFcstLat().get(i) });
@@ -933,9 +968,12 @@ public class ScanDrawer {
                     pastPoint = center;
                 }
 
-                aTarget.drawLine(pastPoint[0], pastPoint[1], 0.0,
-                        futurePoint[0], futurePoint[1], 0.0,
-                        getResourceColor(), outlineWidth);
+                DrawableLine line = new DrawableLine();
+                line.setCoordinates(pastPoint[0], pastPoint[1]);
+                line.addPoint(futurePoint[0], futurePoint[1]);
+                line.basics.color = getResourceColor();
+                lines.add(line);
+
                 drawPlus(futurePoint, getResourceColor());
                 pastPoint = futurePoint;
             }
@@ -947,7 +985,7 @@ public class ScanDrawer {
             double[] pastPoint = null;
             int count = Math.min(dtdr.getPastLon().size(), dtdr.getPastLat()
                     .size());
-
+            
             for (int i = 0; i < count; i++) {
                 try {
                     futurePoint = descriptor
@@ -958,10 +996,13 @@ public class ScanDrawer {
                     if (pastPoint == null) {
                         pastPoint = center;
                     }
+                    
+                    DrawableLine line = new DrawableLine();
+                    line.setCoordinates(pastPoint[0], pastPoint[1]);
+                    line.addPoint(futurePoint[0], futurePoint[1]);
+                    line.basics.color = getResourceColor();
+                    lines.add(line);
 
-                    aTarget.drawLine(pastPoint[0], pastPoint[1], 0.0,
-                            futurePoint[0], futurePoint[1], 0.0,
-                            getResourceColor(), outlineWidth);
                     drawFilledCircle(futurePoint, getResourceColor());
                     pastPoint = futurePoint;
                 } catch (Exception e) {
@@ -969,6 +1010,7 @@ public class ScanDrawer {
                 }
             }
         }
+        aTarget.drawLine(lines.toArray(new DrawableLine[0]));
     }
 
     public void drawCellTrack(CellTableDataRow ctdr) throws VizException {
@@ -1065,35 +1107,19 @@ public class ScanDrawer {
      */
     public void drawPlus(double[] point, RGB color) throws VizException {
         // bottom to top
-        aTarget.drawLine(point[0], (point[1] - 4.0 / screenToWorldRatio), 0.0,
-                point[0], (point[1] + 4.0 / screenToWorldRatio), 0.0, color,
-                outlineWidth);
+        DrawableLine[] lines = new DrawableLine[2];
+        lines[0] = new DrawableLine();
+        lines[0].setCoordinates(point[0], (point[1] - 4.0 / screenToWorldRatio));
+        lines[0].addPoint(point[0], (point[1] + 4.0 / screenToWorldRatio));
+        lines[0].basics.color = color;
         // left to right
-        aTarget.drawLine((point[0] - 4.0 / screenToWorldRatio), point[1], 0.0,
-                (point[0] + 4.0 / screenToWorldRatio), point[1], 0.0, color,
-                outlineWidth);
+        lines[1] = new DrawableLine();
+        lines[1].setCoordinates((point[0] - 4.0 / screenToWorldRatio), point[1]);
+        lines[1].addPoint((point[0] + 4.0 / screenToWorldRatio), point[1]);
+        lines[1].basics.color = color;
 
-    }
+        aTarget.drawLine(lines);
 
-    /**
-     * draws the X sign
-     * 
-     * @param point
-     * @throws VizException
-     */
-    public void drawX(double[] point) throws VizException {
-        // uppe left to lower right
-        aTarget.drawLine((point[0] - 4.0 / screenToWorldRatio),
-                (point[1] + 4.0 / screenToWorldRatio), 0.0,
-                (point[0] + 4.0 / screenToWorldRatio),
-                (point[1] - 4.0 / screenToWorldRatio), 0.0, getResourceColor(),
-                outlineWidth);
-        // lower left to upper right
-        aTarget.drawLine((point[0] - 4.0 / screenToWorldRatio),
-                (point[1] - 4.0 / screenToWorldRatio), 0.0,
-                (point[0] + 4.0 / screenToWorldRatio),
-                (point[1] + 4.0 / screenToWorldRatio), 0.0, getResourceColor(),
-                outlineWidth);
     }
 
     /**

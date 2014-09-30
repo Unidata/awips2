@@ -83,6 +83,10 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Mar 31, 2014 2889       dhladky     Added username for notification center tracking.
  * Apr 24, 2014 2992       dhladky     fixed all objects in ebxml owned by NCF, bad.
  * 6/5/2014     1712       bphillip    Registry now communicates over https
+ * June 25, 2014 3273      dhladky     Remove all DD environment variables from setup.env
+ * 7/10/2014    1717       bphillip    Changed default user
+ * Jul 28, 2014 3474        dhladky    Fixed bad default user settings.
+ * 
  * 
  * </pre>
  * 
@@ -100,17 +104,17 @@ public final class RegistryUtil {
     public static final String registryObjectClassName = "registryObjectClassName";
     
     public static final String registryObjectDefaultVersion = "1.0";
-    
-    public static final String registryUser = "Registry";
-    
+        
     public static final String defaultUser = "NCF";
+    
+    public static final String DEFAULT_OWNER = "System";
 
     static {
-        if (System.getenv("EBXML_REGISTRY_HOST") != null
-                && System.getenv("EBXML_REGISTRY_WEBSERVER_PORT") != null) {
+        if (System.getProperty("ebxml.registry.host") != null
+                && System.getProperty("ebxml.registry.webserver.port") != null) {
             LOCAL_REGISTRY_ADDRESS = "https://"
-                    + System.getenv("EBXML_REGISTRY_HOST") + ":"
-                    + System.getenv("EBXML_REGISTRY_WEBSERVER_PORT");
+                    + System.getProperty("ebxml.registry.host") + ":"
+                    + System.getProperty("ebxml.registry.webserver.port");
         }
 
     }
@@ -120,7 +124,7 @@ public final class RegistryUtil {
     /**
      * The default internal owner is the local registry ID
      */
-    public static final String DEFAULT_OWNER = ClusterIdUtil.getId();
+    public static final String registryUser = ClusterIdUtil.getId();
 
     // A private mapping of attribute types to slot types, used when storing an
     // object to the registry to map QueryableAttributes to SlotConverters.
@@ -380,7 +384,7 @@ public final class RegistryUtil {
                         registryObject, RegistryObjectOwner.class);
                 registryObject.setOwner(objectOwner);
                 if (objectOwner == null) {
-                    registryObject.setOwner(DEFAULT_OWNER);
+                    registryObject.setOwner(registryUser);
                 }
 
                 registryObject.setName(getInternationalString(ReflectionUtil

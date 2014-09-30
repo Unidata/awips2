@@ -31,8 +31,6 @@ import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.request.SaveCombinationsFileRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.CombinationsFileChangedNotification;
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -41,7 +39,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.StringUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * Request handler for <code>SaveCombinationsFileRequest</code>. Writes the
@@ -58,6 +55,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Dec 02, 2013  #2591     dgilling     Only send notification after Writer is
  *                                      flushed/closed.
  * Feb 05, 2014  #2591                  Added CombinationFileChangedNotification
+ * Jul 21, 2014  2768      bclement     removed FileUpdateMessage
  * 
  * </pre>
  * 
@@ -89,7 +87,6 @@ public class SaveCombinationsFileHandler implements
         String comboName = request.getFileName();
         String fileName = FileUtil.join(COMBO_FILE_DIR, comboName) + ".py";
         LocalizationFile lf = pm.getLocalizationFile(localization, fileName);
-        boolean isAdded = (!lf.exists());
 
         Writer outWriter = null;
         try {
@@ -123,19 +120,12 @@ public class SaveCombinationsFileHandler implements
         }
         lf.save();
 
-        // placing the notification code here ensures we only send the
-        // notification on a successful file write operation. Otherwise we would
-        // have thrown an IOException and never gotten to this portion of the
-        // request handler.
-
-        // TODO: remove sending of FileUpdateMessage after DR #2768 is fixed
-        FileChangeType changeType = isAdded ? FileChangeType.ADDED
-                : FileChangeType.UPDATED;
-        EDEXUtil.getMessageProducer().sendAsync(
-                "utilityNotify",
-                new FileUpdatedMessage(localization, fileName, changeType, lf
-                        .getTimeStamp().getTime()));
-
+        /*
+         * placing the notification code here ensures we only send the
+         * notification on a successful file write operation. Otherwise we would
+         * have thrown an IOException and never gotten to this portion of the
+         * request handler.
+         */
         CombinationsFileChangedNotification notif = new CombinationsFileChangedNotification(
                 comboName, request.getWorkstationID(), siteID);
         SendNotifications.send(notif);

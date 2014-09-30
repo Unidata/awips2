@@ -10,11 +10,42 @@
 		
 		<antcall target="cleanup" />
 		
+		<!-- Determine if any Work Assignments have been specified. -->
+		<condition property="wa.enabled">
+			<not><equals arg1="${wa.to.deploy}" arg2="" /></not>
+		</condition>
+		
 		<antcall target="deploy.esb" />
 		<if>
 			<equals arg1="${deploy.data}" arg2="true" />
 			<then>
 				<antcall target="deploy.esb-data" />
+			</then>
+		</if>
+		
+		<if>
+			<isset property="wa.enabled" />
+			<then>
+				<for list="${wa.to.deploy}" param="wa"
+				delimiter="${path.separator}">
+					<sequential>
+						<basename property="wa.name" file="@{wa}" />
+						<var name="wa.base.directory"
+							value="@{wa}/edex/deploy.edex-${wa.name}" /> 
+						<if>
+							<available file="${wa.base.directory}/esb" 
+								type="dir" />	
+							<then>
+								<copy todir="${edex.root.directory}"
+								overwrite="${esb.overwrite}" failonerror="true">
+									<fileset dir="${wa.base.directory}/esb">
+										<include name="**/*" />
+									</fileset>
+								</copy>
+							</then>
+						</if>
+					</sequential>
+				</for>
 			</then>
 		</if>
 	</target>

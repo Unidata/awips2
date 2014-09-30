@@ -35,9 +35,11 @@ import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 17, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 17, 2012           mschenke    Initial creation
+ * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
+ *                                    Mesh
  * 
  * </pre>
  * 
@@ -56,7 +58,7 @@ public class RadarGraphicsExtRenderingHandler extends
             dataManager.putRenderableObject(
                     meshId,
                     target.getExtension(IRadialMeshExtension.class)
-                            .constructMesh(event.getRadarRecord(),
+                            .constructMesh(event.getMeshData(),
                                     event.getTargetGeometry()));
         } catch (VizException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,

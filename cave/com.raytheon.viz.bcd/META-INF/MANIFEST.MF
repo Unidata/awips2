@@ -2,10 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: BCD Plug-in
 Bundle-SymbolicName: com.raytheon.viz.bcd;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.bcd.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.viz.ui
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.core,
@@ -17,4 +16,4 @@ Require-Bundle: org.eclipse.ui,
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.bcd
 Import-Package: com.raytheon.uf.common.colormap
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.google.common.collect.Sets;
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
@@ -46,7 +45,6 @@ import com.raytheon.uf.edex.auth.AuthManagerFactory;
 import com.raytheon.uf.edex.auth.authorization.IAuthorizer;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
 /**
@@ -66,6 +64,7 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  *                                     method to retrieve list of svcbu
  *                                     sites.
  * May 28, 2014 3211       njensen     Use IAuthorizer instead of IRoleStorage
+ * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * 
  * </pre>
  * 
@@ -119,10 +118,8 @@ public class SvcBackupUtil {
     private static String executeProcess(String... args) throws GfeException {
         RunProcess proc = RunProcess.getRunProcess();
         ProcessBuilder pBuilder = new ProcessBuilder();
-        pBuilder.environment().put(
-                "LOCALIZATION_PATH",
-                PropertiesFactory.getInstance().getEnvProperties()
-                        .getEnvValue("UTILITYDIR"));
+        pBuilder.environment().put("LOCALIZATION_PATH",
+                EDEXUtil.getEdexUtility());
         pBuilder.environment().put("AWIPS_HOME", "/awips2/");
         pBuilder.redirectErrorStream(true);
         pBuilder.command(args);
@@ -206,7 +203,7 @@ public class SvcBackupUtil {
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(
-                    EDEXUtil.EDEX_HOME
+                    EDEXUtil.getEdexHome()
                             + "/../GFESuite/ServiceBackup/configuration/svcbu.properties");
             svcbuProperties.load(fis);
         } catch (Exception e) {
@@ -278,7 +275,7 @@ public class SvcBackupUtil {
 
     public static Set<String> getPrimarySites() {
         Properties svcbuProps = SvcBackupUtil.getSvcBackupProperties();
-        String siteList = SiteUtil.getSite();
+        String siteList = EDEXUtil.getEdexSite();
         if (svcbuProps != null) {
             String propVal = svcbuProps.getProperty("PRIMARY_SITES", "").trim();
             if (!propVal.isEmpty()) {

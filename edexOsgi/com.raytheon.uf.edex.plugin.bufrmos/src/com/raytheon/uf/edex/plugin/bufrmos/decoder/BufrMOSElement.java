@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.bufrmos.decoder;
 
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
+import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
 
 
 

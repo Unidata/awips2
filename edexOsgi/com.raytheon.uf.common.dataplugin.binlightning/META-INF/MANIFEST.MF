@@ -4,7 +4,6 @@ Bundle-Name: Binlightning Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.binlightning
 Bundle-Version: 1.14.0
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.common.dataplugin.binlightning.dataaccess,

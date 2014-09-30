@@ -20,7 +20,9 @@
 package com.raytheon.viz.awipstools.ui.layer;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
@@ -35,17 +37,18 @@ import org.geotools.referencing.GeodeticCalculator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.DrawableCircle;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -67,7 +70,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * TODO Add Description
+ * Layer for displaying a radar's range rings.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -75,7 +78,9 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  *  10-21-09     #717       bsteffen    Refactor to common MovableTool model
  *  15Mar2013	15693	mgamazaychikov	Added magnification capability.
- * 
+ *  07-21-14    #3412       mapeters    Updated deprecated drawCircle call.
+ *  07-29-14    #3465       mapeters    Updated deprecated drawString() calls.
+ *  08-13-14    #3467       mapeters    ringDialog notifies this of changes.
  * </pre>
  * 
  * @author ebabin
@@ -114,6 +119,9 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
             GenericToolsResourceData<RangeRingsLayer> resourceData,
             LoadProperties loadProperties) throws VizException {
         super(resourceData, loadProperties);
+        if (ringDialog != null) {
+            ringDialog.addChangeListenerToResourceData(this);
+        }
         getCapabilities().addCapability(new OutlineCapability());
         // add magnification capability
         getCapabilities().addCapability(new MagnificationCapability());
@@ -132,6 +140,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, false);
         super.disposeInternal();
         resourceData.removeChangeListener(this);
+        ringDialog.removeChangeListenerFromResourceData(this);
     }
 
     @Override
@@ -150,7 +159,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         setObjects(dataManager.getRangeRings());
     }
 
-    public void displayDialog() throws VizException {
+    public void displayDialog() {
 
         VizApp.runAsync(new Runnable() {
 
@@ -160,19 +169,17 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
                     Shell shell = PlatformUI.getWorkbench()
                             .getActiveWorkbenchWindow().getShell();
                     if (ringDialog == null || ringDialog.getReturnCode() != 0) {
-
                         ringDialog = new RangeRingDialog(shell, resourceData);
-
                         ringDialog.setBlockOnOpen(false);
                         ringDialog.open();
                     } else {
-                        ringDialog.open();
                         resourceData.addChangeListener(ringDialog);
+                        ringDialog.open();
                     }
 
                 } catch (VizException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
                 }
             }
 
@@ -203,6 +210,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
             IWireframeShape shape = target.createWireframeShape(false,
                     descriptor);
             int[] radii = ring.getRadii();
+            List<DrawableString> strings = new ArrayList<DrawableString>();
             for (int i = 0; i < radii.length; i++) {
                 int radius = radii[i];
                 if (radius != 0) {
@@ -213,26 +221,35 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
                                 .worldToPixel(new double[] {
                                         coords[LABEL_INDEX].x,
                                         coords[LABEL_INDEX].y });
-                        target.drawString(labelFont, radius + " nm", labelLoc[0],
-                                labelLoc[1], 0.0, TextStyle.NORMAL, color,
-                                HorizontalAlignment.CENTER,
-                                VerticalAlignment.TOP, null);
+                        DrawableString string = new DrawableString(radius
+                                + " nm", color);
+                        string.font = labelFont;
+                        string.setCoordinates(labelLoc[0], labelLoc[1]);
+                        string.horizontalAlignment = HorizontalAlignment.CENTER;
+                        string.verticallAlignment = VerticalAlignment.TOP;
+                        strings.add(string);
                     }
                 }
             }
+            target.drawStrings(strings);
             target.drawWireframeShape(shape, color, lineWidth, lineStyle);
             shape.dispose();
             double radius = (MAGIC_CIRCLE_RADIUS * paintProps.getZoomLevel());
             double[] centerPixel = descriptor.worldToPixel(new double[] {
                     center.x, center.y });
-            target.drawCircle(centerPixel[0], centerPixel[1], 0.0, radius,
-                    color, 1);
+            DrawableCircle circle = new DrawableCircle();
+            circle.setCoordinates(centerPixel[0], centerPixel[1]);
+            circle.radius = radius;
+            circle.basics.color = color;
+            target.drawCircle(circle);
+
             if (label.contains("C")) {
                 double labelLoc[] = target.getPointOnCircle(centerPixel[0],
                         centerPixel[1], 0.0, radius, 0);
-                target.drawString(labelFont, ring.getId(), labelLoc[0], labelLoc[1],
-                        0.0, TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                        null);
+                DrawableString string = new DrawableString(ring.getId(), color);
+                string.font = labelFont;
+                string.setCoordinates(labelLoc[0], labelLoc[1]);
+                target.drawStrings(string);
             }
         }
     }
@@ -267,12 +284,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         if (object instanceof EditableCapability) {
             EditableCapability cap = (EditableCapability) object;
             if (cap.isEditable()) {
-                try {
-                    displayDialog();
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
+                displayDialog();
             }
         } else if (object instanceof Boolean) {
             if ((Boolean) object) {
