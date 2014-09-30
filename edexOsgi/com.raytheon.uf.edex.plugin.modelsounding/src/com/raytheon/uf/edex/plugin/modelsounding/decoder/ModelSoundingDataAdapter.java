@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.modelsounding.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-
 import java.io.File;
 import java.util.Calendar;
 import java.util.List;
@@ -42,10 +40,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.plugin.modelsounding.SoundingModelTemporalData;
 import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
@@ -64,6 +63,8 @@ import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
  * Jul 03, 2013  2161     bkowal      Relocated the logic used to retrieve
  *                                    temporal information into its own function.
  * Dec 02, 2013  2537     bsteffen    Use SoundingSite setters instead of view.
+ * Jul 23, 2014  3410     bclement    location changed to floats
+ * Sep 16, 2014  3628     mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -269,7 +270,7 @@ public class ModelSoundingDataAdapter {
                 if (d == BUFRDescriptor.createDescriptor(0, 6, 2)) {
                     lon = (Double) dp.getValue();
                 }
-                location.assignLocation(lat, lon);
+                location.assignLocation(lat.floatValue(), lon.floatValue());
                 dp = dataList.get(index);
                 d = dp.getReferencingDescriptor().getDescriptor();
                 if (d == BUFRDescriptor.createDescriptor(0, 10, 194)) {
@@ -303,7 +304,8 @@ public class ModelSoundingDataAdapter {
             // get the replication sublist for the sounding data
             IBUFRDataPacket p = dataList.get(5);
             if ((p instanceof BUFRSublistPacket)
-                    && (RepSubList.getPacketType().equals(p.getUnits()))) {
+                    && (DataPacketTypes.RepSubList.getPacketType().equals(p
+                            .getUnits()))) {
 
                 List<IBUFRDataPacket> subList = (List<IBUFRDataPacket>) p
                         .getValue();
@@ -390,7 +392,8 @@ public class ModelSoundingDataAdapter {
             // get the replication sublist for the sounding data
             IBUFRDataPacket p = dataList.get(7);
             if ((p instanceof BUFRSublistPacket)
-                    && (RepSubList.getPacketType().equals(p.getUnits()))) {
+                    && (DataPacketTypes.RepSubList.getPacketType().equals(p
+                            .getUnits()))) {
 
                 List<IBUFRDataPacket> subList = (List<IBUFRDataPacket>) p
                         .getValue();

@@ -31,6 +31,7 @@ package com.raytheon.uf.edex.decodertools.core;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070925            391 jkorman     Initial Coding.
+ * Sep 18, 2014       3627 mapeters    Removed unused methods/fields.
  * </pre>
  * 
  * @author jkorman
@@ -42,49 +43,16 @@ public class DataItem {
 
     private String dataName = null;
 
-    private Integer decodeGroup = null;
-
-    private String dataUnits = null;
-
     private Integer dataPeriod = null;
 
     /**
-     * Construct a data item with units information only.
-     * 
-     * @param units
-     *            The units for this data item.
-     */
-    public DataItem(String units) {
-        dataUnits = units;
-    }
-
-    /**
-     * Construct a data item with units and name information.
-     * 
-     * @param units
-     *            The units for this data item.
-     * @param name
-     *            The name of this data item.
-     */
-    public DataItem(String units, String name) {
-        this(units);
-        dataName = name;
-    }
-
-    /**
      * Construct a data item with units, name, group information.
-     * 
-     * @param units
-     *            The units for this data item.
      * @param name
      *            The name of this data item.
-     * @param group
-     *            The decoder group where the data was found.
      * 
      */
-    public DataItem(String units, String name, int group) {
-        this(units, name);
-        decodeGroup = group;
+    public DataItem(String name) {
+        dataName = name;
     }
 
     /**
@@ -123,44 +91,6 @@ public class DataItem {
      */
     public void setDataName(String dataName) {
         this.dataName = dataName;
-    }
-
-    /**
-     * Get the group this data item was found in.
-     * 
-     * @return The decode group.
-     */
-    public Integer getDecodeGroup() {
-        return decodeGroup;
-    }
-
-    /**
-     * Set the group this data item was found in.
-     * 
-     * @param decodeGroup
-     *            The decodeGroup to set.
-     */
-    public void setDecodeGroup(Integer decodeGroup) {
-        this.decodeGroup = decodeGroup;
-    }
-
-    /**
-     * Get the data units of this item.
-     * 
-     * @return The dataUnits.
-     */
-    public String getDataUnits() {
-        return dataUnits;
-    }
-
-    /**
-     * Set the data units as a string value.
-     * 
-     * @param dataUnits
-     *            The dataUnits.
-     */
-    public void setDataUnits(String dataUnits) {
-        this.dataUnits = dataUnits;
     }
 
     /**

@@ -144,7 +144,6 @@
             </fileset>
             <fileset dir="${cots.dir}/org.itadaki.bzip2" includes="**/*.jar" />
             <fileset dir="${cots.dir}/org.quartz" includes="**/*.jar" />
-            <fileset dir="lib" includes="**/*.jar" />
         </copy>
 
         <delete dir="bin" />

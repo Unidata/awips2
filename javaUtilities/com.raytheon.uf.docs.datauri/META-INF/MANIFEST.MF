@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: DataURI Documenter Tool
-Bundle-SymbolicName: com.raytheon.uf.docs.datauri
-Bundle-Version: 1.14.0.qualifier
-Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.reflections;bundle-version="0.9.9"

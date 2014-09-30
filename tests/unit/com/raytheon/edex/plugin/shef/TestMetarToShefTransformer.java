@@ -30,7 +30,7 @@ import java.util.Iterator;
 import org.junit.Test;
 
 import com.raytheon.edex.transform.shef.MetarToShefTransformer;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+// REMOVED IDecoderGettable was removed under Issue 2537 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
 /**
@@ -44,6 +44,11 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2012 1185       jkorman     Extracted from mains
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Aug 26, 2014 3365       ccody       Separate Data Delivery tests out of AWIPS 2 baseline.
+ *                                     Required class (IDecoderGettable) no longer exists
+ *                                     Test functionality that is no longer supported (i.e. will not compile)
+ *                                     has been "deactivated" (commented out).
+ *                                     
  * </pre>
  * 
  * @author jkorman
@@ -76,11 +81,12 @@ public class TestMetarToShefTransformer {
     @Test
     public void testMetarToShefInteratorB() {
         PluginDataObject p = new PluginDataObject() {
-
+            /* REMOVED IDecoderGettable was removed under Issue 2537 BEGIN
             @Override
             public IDecoderGettable getDecoderGettable() {
                 return null;
             }
+            REMOVED IDecoderGettable was removed under Issue 2537 END */
 
             /*
              * (non-Javadoc)

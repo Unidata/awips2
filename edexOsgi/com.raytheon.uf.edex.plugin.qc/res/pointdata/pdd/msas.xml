@@ -39,8 +39,8 @@
   <parameter name="subsrc" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="analsta" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="olapsta" numDims="1" type="INT" fillValue="-2147483647" />
-  <parameter name="timeObs" numDims="1" type="DOUBLE" unit="seconds since 1-1-1970" fillValue="1.7976931348623157e+308" />
-  <parameter name="timeObsTrue" numDims="1" type="DOUBLE" unit="seconds since 1-1-1970" fillValue="1.7976931348623157e+308" />
+  <parameter name="timeObs" numDims="1" type="FLOAT" unit="seconds since 1-1-1970" fillValue="1.7976931348623157e+308" />
+  <parameter name="timeObsTrue" numDims="1" type="FLOAT" unit="seconds since 1-1-1970" fillValue="1.7976931348623157e+308" />
   <parameter name="MAPSseaLevelPress" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
   <parameter name="MAPSseaLevelPressDD" numDims="1" type="STRING" />
   <parameter name="MAPSseaLevelPressQCA" numDims="1" type="INT" />
@@ -54,7 +54,7 @@
   <parameter name="MAPSseaLevelPressNobs" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="MAPSseaLevelPressAnalStaNam" numDims="3" type="STRING" size="5" />
   <parameter name="MAPSseaLevelPressAnalStaSubsrc" numDims="2" type="INT" />
-  <parameter name="MAPSseaLevelPressAnalStaTime" numDims="2" type="DOUBLE" />
+  <parameter name="MAPSseaLevelPressAnalStaTime" numDims="2" type="FLOAT" />
   <parameter name="dewpoint" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
   <parameter name="dewpointDD" numDims="1" type="STRING" />
   <parameter name="dewpointQCA" numDims="1" type="INT" />
@@ -68,7 +68,7 @@
   <parameter name="dewpointNobs" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="dewpointAnalStaNam" numDims="3" type="STRING" size="5" />
   <parameter name="dewpointAnalStaSubsrc" numDims="2" type="INT" />
-  <parameter name="dewpointAnalStaTime" numDims="2" type="DOUBLE" />
+  <parameter name="dewpointAnalStaTime" numDims="2" type="FLOAT" />
   <parameter name="potentialTemp" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
   <parameter name="potentialTempDD" numDims="1" type="STRING" />
   <parameter name="potentialTempQCA" numDims="1" type="INT" />
@@ -82,7 +82,7 @@
   <parameter name="potentialTempNobs" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="potentialTempAnalStaNam" numDims="3" type="STRING" size="5" />
   <parameter name="potentialTempAnalStaSubsrc" numDims="2" type="INT" />
-  <parameter name="potentialTempAnalStaTime" numDims="2" type="DOUBLE" />
+  <parameter name="potentialTempAnalStaTime" numDims="2" type="FLOAT" />
   <parameter name="potentialTempSfchqc" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
   <parameter name="uwSfchqc" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
   <parameter name="vwSfchqc" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
@@ -99,7 +99,7 @@
   <parameter name="dewpointDepressionNobs" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="dewpointDepressionAnalStaNam" numDims="3" type="STRING" size="5" />
   <parameter name="dewpointDepressionAnalStaSubsrc" numDims="2" type="INT" />
-  <parameter name="dewpointDepressionAnalStaTime" numDims="2" type="DOUBLE" />
+  <parameter name="dewpointDepressionAnalStaTime" numDims="2" type="FLOAT" />
   <parameter name="uw" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
   <parameter name="uwDD" numDims="1" type="STRING" />
   <parameter name="uwQCA" numDims="1" type="INT" />
@@ -113,7 +113,7 @@
   <parameter name="uwNobs" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="uwAnalStaNam" numDims="3" type="STRING" size="5" />
   <parameter name="uwAnalStaSubsrc" numDims="2" type="INT" />
-  <parameter name="uwAnalStaTime" numDims="2" type="DOUBLE" />
+  <parameter name="uwAnalStaTime" numDims="2" type="FLOAT" />
   <parameter name="vw" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
   <parameter name="vwDD" numDims="1" type="STRING" />
   <parameter name="vwQCA" numDims="1" type="INT" />
@@ -127,7 +127,7 @@
   <parameter name="vwNobs" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="vwAnalStaNam" numDims="3" type="STRING" size="5" />
   <parameter name="vwAnalStaSubsrc" numDims="2" type="INT" />
-  <parameter name="vwAnalStaTime" numDims="2" type="DOUBLE" />
+  <parameter name="vwAnalStaTime" numDims="2" type="FLOAT" />
   <parameter name="pressChange3Hour" numDims="1" type="FLOAT" unit="Pa/s" fillValue="3.4028235e+38" />
   <parameter name="pressChange3HourDD" numDims="1" type="STRING" />
   <parameter name="pressChange3HourQCA" numDims="1" type="INT" />
@@ -139,7 +139,7 @@
   <parameter name="pressChange3HourNobs" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="pressChange3HourAnalStaNam" numDims="3" type="STRING" size="5" />
   <parameter name="pressChange3HourAnalStaSubsrc" numDims="2" type="INT" />
-  <parameter name="pressChange3HourAnalStaTime" numDims="2" type="DOUBLE" />
+  <parameter name="pressChange3HourAnalStaTime" numDims="2" type="FLOAT" />
   <parameter name="seaLevelPress" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
   <parameter name="seaLevelPressDD" numDims="1" type="STRING" />
   <parameter name="seaLevelPressQCA" numDims="1" type="INT" />
@@ -153,7 +153,7 @@
   <parameter name="seaLevelPressNobs" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="seaLevelPressAnalStaNam" numDims="3" type="STRING" size="5" />
   <parameter name="seaLevelPressAnalStaSubsrc" numDims="2" type="INT" />
-  <parameter name="seaLevelPressAnalStaTime" numDims="2" type="DOUBLE" />
+  <parameter name="seaLevelPressAnalStaTime" numDims="2" type="FLOAT" />
   <parameter name="altimeter" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
   <parameter name="altimeterDD" numDims="1" type="STRING" />
   <parameter name="altimeterQCA" numDims="1" type="INT" />
@@ -165,5 +165,5 @@
   <parameter name="altimeterNobs" numDims="1" type="INT" fillValue="-2147483647" />
   <parameter name="altimeterAnalStaNam" numDims="3" type="STRING" size="5" />
   <parameter name="altimeterAnalStaSubsrc" numDims="2" type="INT" />
-  <parameter name="altimeterAnalStaTime" numDims="2" type="DOUBLE" />
+  <parameter name="altimeterAnalStaTime" numDims="2" type="FLOAT" />
 </pointDataDescription>

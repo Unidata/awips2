@@ -92,6 +92,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * Nov 20, 2013  2033     njensen     Fix detecting plotModels dirs from multiple plugins
  * Mar 21, 2014  2868     njensen     Refactored python usage to PythonJobCoordinator
  * Jun 06, 2014  2061     bsteffen    Rename and add support for data formats in sampling.
+ * Aug 07, 2014  3478     bclement    removed PointDataDescription.Type.Double
  * 
  * </pre>
  * 
@@ -774,7 +775,6 @@ public class PlotModelFactory {
         dimensions = ob.getDimensions(param);
         switch (ob.getType(param)) {
         case FLOAT:
-        case DOUBLE:
         case INT:
         case LONG:
             if (dimensions == 1) {
@@ -985,7 +985,6 @@ public class PlotModelFactory {
         String[] fields = null;
         switch (ob.getType(element.parameter)) {
         case FLOAT:
-        case DOUBLE:
         case INT:
         case LONG:
             if (dimensions == 1) {
@@ -1041,7 +1040,6 @@ public class PlotModelFactory {
         String parameter = element.parameter;
         switch (ob.getType(parameter)) {
         case FLOAT:
-        case DOUBLE:
         case INT:
         case LONG:
             Number value = ob.getNumber(parameter);
@@ -1117,7 +1115,6 @@ public class PlotModelFactory {
         String sValue = null;
         switch (ob.getType(element.parameter)) {
         case FLOAT:
-        case DOUBLE:
         case INT:
         case LONG:
             Number value = ob.getNumber(element.parameter);

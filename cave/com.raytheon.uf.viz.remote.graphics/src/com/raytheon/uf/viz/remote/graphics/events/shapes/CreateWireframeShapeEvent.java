@@ -38,6 +38,8 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2012            mschenke     Initial creation
+ * Aug 13, 2014 3492       mapeters     Deprecated simplificationLevel, spatialChopFlag,
+ *                                      and extent fields.
  * 
  * </pre>
  * 
@@ -54,12 +56,15 @@ public class CreateWireframeShapeEvent extends AbstractDispatchingObjectEvent
     @DynamicSerializeElement
     private boolean mutable;
 
+    @Deprecated
     @DynamicSerializeElement
     private Float simplificationLevel;
 
+    @Deprecated
     @DynamicSerializeElement
     private Boolean spatialChopFlag;
 
+    @Deprecated
     @DynamicSerializeElement
     private double[] extent;
 

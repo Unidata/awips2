@@ -37,6 +37,7 @@ import com.raytheon.uf.common.dataaccess.impl.AbstractDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
 import com.raytheon.uf.common.dataaccess.util.PDOUtil;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -70,6 +71,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------- -------- ----------- --------------------------
  * Jan 21, 2014  2667     bclement    Initial creation
  * Feb 06, 2014  2672     bsteffen    Add envelope support
+ * Jul 07, 2014  3333     bclement    now uses lightning constants
+ * Jul 30, 2014  3184     njensen     Removed getValidIdentifiers()
  * 
  * </pre>
  * 
@@ -77,19 +80,19 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * @version 1.0
  */
 public class BinLightningAccessFactory extends AbstractDataPluginFactory {
-    
-    private static final String sourceKey = "source";
+
+    private static final String sourceKey = LightningConstants.SOURCE;
 
     private static final IUFStatusHandler log = UFStatus
             .getHandler(BinLightningRecord.class);
 
     private static final GeometryFactory geomFactory = new GeometryFactory();
 
-    private static final String timeKey = "obsTime";
+    private static final String timeKey = LightningConstants.TIME_DATASET;
 
-    private static final String latKey = "latitude";
+    private static final String latKey = LightningConstants.LAT_DATASET;
 
-    private static final String lonKey = "longitude";
+    private static final String lonKey = LightningConstants.LON_DATASET;
 
     private static final String[] requiredKeys = { timeKey, latKey, lonKey };
 
@@ -114,17 +117,6 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
      */
     @Override
     public String[] getRequiredIdentifiers() {
-        return new String[] { sourceKey };
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.dataaccess.impl.AbstractDataFactory#
-     * getValidIdentifiers()
-     */
-    @Override
-    public String[] getValidIdentifiers() {
         return new String[] { sourceKey };
     }
 
@@ -176,7 +168,6 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
         }
         return rval.toArray(new IGeometryData[rval.size()]);
     }
-
 
     /**
      * Add geometry data elements to dataList from data store
@@ -294,7 +285,7 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
     private Map<String, List<String>> getSourceDatasets(IDataRequest request,
             List<BinLightningRecord> recList) {
         List<String> includedDatasets = getIncludedDatasets(request);
-        
+
         Map<String, List<String>> rval = new HashMap<String, List<String>>();
         for (BinLightningRecord record : recList) {
             String src = record.getSource();
@@ -317,7 +308,7 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
      * @param request
      * @return
      */
-    private List<String> getIncludedDatasets(IDataRequest request){
+    private List<String> getIncludedDatasets(IDataRequest request) {
         String[] parameters = request.getParameters();
         List<String> rval = new ArrayList<String>(parameters.length
                 + requiredKeys.length);

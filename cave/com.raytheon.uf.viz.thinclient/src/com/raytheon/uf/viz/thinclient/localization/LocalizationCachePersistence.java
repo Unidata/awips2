@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.thinclient.localization;
 
 import java.io.File;
 
-import com.raytheon.uf.common.localization.PathManager;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
 import com.raytheon.uf.viz.core.localization.CAVELocalizationNotificationObserver;
@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2011            mschenke     Initial creation
+ * Jul 24, 2014 3378       bclement     cache serialization done via interface
  * 
  * </pre>
  * 
@@ -61,7 +62,12 @@ public class LocalizationCachePersistence extends AbstractCachePersistance {
      */
     @Override
     public void store(File cacheFile) {
-        PathManager.storeCache(cacheFile);
+        IPathManager pathManager = PathManagerFactory.getPathManager();
+        try {
+            pathManager.storeCache(cacheFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -73,7 +79,12 @@ public class LocalizationCachePersistence extends AbstractCachePersistance {
      */
     @Override
     public void restore(File cacheFile) {
-        PathManager.restoreCache(cacheFile);
+        IPathManager pathManager = PathManagerFactory.getPathManager();
+        try {
+            pathManager.restoreCache(cacheFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /*

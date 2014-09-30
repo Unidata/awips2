@@ -20,11 +20,13 @@
 
 package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
+import static java.lang.System.out;
+import gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea.GraphicsAreaCoordinates;
+import gov.noaa.nws.ncep.viz.common.preferences.GraphicsAreaPreferences;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
-import gov.noaa.nws.ncep.viz.common.preferences.GraphicsAreaPreferences;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelGenerator2;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.StaticPlotInfoPV;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.StaticPlotInfoPV.SPIEntry;
@@ -64,7 +66,6 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
@@ -72,9 +73,7 @@ import com.raytheon.viz.pointdata.PlotAlertParser;
 import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
 import com.vividsolutions.jts.geom.Coordinate;
-import gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea.GraphicsAreaCoordinates;
 
-import static java.lang.System.out;
 /**
  * Provides a resource that will display plot data for a given reference time.
  * 
@@ -118,6 +117,7 @@ import static java.lang.System.out;
  *  								   (this fixes the issue of slow performance when zooming all the way in, when Data Area is set)	
  *  11/04/2012     #944    ghull       add query for Fcst Plot resources
  * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
+ * Aug 08, 2014 3477       bclement     changed plot info locations to floats
  * </pre>
  * 
  * @author brockwoo
@@ -1090,7 +1090,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, N
 
 	// generate a string used as the key for the StationMap
 	// 
-	private String getStationMapKey( Double lat, Double lon ) {
+    private String getStationMapKey(Float lat, Float lon) {
     	return new String( ""+Math.round(lat*1000.0)  + ","+
 				  			  Math.round(lon*1000.0) ); 
 

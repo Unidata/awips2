@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="0.0 deg" key="0.0deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="0.5 deg" key="0.5deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="0.9 deg" key="0.9deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="1.5 deg" key="1.5deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="1.8 deg" key="1.8deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="2.4 deg" key="2.4deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="3.4 deg" key="3.4deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="4.3 deg" key="4.3deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="5.3 deg" key="5.3deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="6.0 deg" key="6.0deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="7.5 deg" key="7.5deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="8.7 deg" key="8.7deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="10 deg" key="10deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="12 deg" key="12deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="14 deg" key="14deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="17 deg" key="17deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="20 deg" key="20deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="25 deg" key="25deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="30 deg" key="30deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="35 deg" key="35deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="40 deg" key="40deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="45 deg" key="45deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="50 deg" key="50deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="55 deg" key="55deg"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="60 deg" key="60deg"
+        indentText="false" />
+</menuTemplate>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="FL180" key="18kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL190" key="19kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL200" key="20kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL210" key="21kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL220" key="22kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL230" key="23kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL240" key="24kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL250" key="25kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL260" key="26kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL270" key="27kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL280" key="28kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL290" key="29kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL300" key="30kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL310" key="31kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL320" key="32kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL330" key="33kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL340" key="34kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL350" key="35kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL360" key="36kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL370" key="37kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL380" key="38kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL390" key="39kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL400" key="40kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL410" key="41kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL420" key="42kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL430" key="43kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL440" key="44kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="FL450" key="45kft"
+        indentText="false" />
+</menuTemplate>
