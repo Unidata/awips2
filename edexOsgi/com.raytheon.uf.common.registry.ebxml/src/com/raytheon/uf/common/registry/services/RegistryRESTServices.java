@@ -76,24 +76,6 @@ public class RegistryRESTServices {
     /** JAXB Manager */
     private RegistryJaxbManager jaxbManager;
 
-    /** Policy used for rest connections */
-    private static final HTTPClientPolicy restPolicy;
-
-    static {
-        ProxyConfiguration proxyConfig = RegistrySOAPServices
-                .getProxyConfiguration();
-        restPolicy = new HTTPClientPolicy();
-        restPolicy.setConnection(ConnectionType.CLOSE);
-        restPolicy.setConnectionTimeout(2000);
-        restPolicy.setReceiveTimeout(30000);
-        restPolicy.setMaxRetransmits(1);
-        if (proxyConfig != null) {
-            restPolicy.setProxyServer(proxyConfig.getHost());
-            restPolicy.setProxyServerPort(proxyConfig.getPort());
-            restPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
-        }
-    }
-
     public RegistryRESTServices() throws JAXBException {
         jaxbManager = new RegistryJaxbManager(new RegistryNamespaceMapper());
     }
@@ -193,11 +175,27 @@ public class RegistryRESTServices {
         Client client = (Client) Proxy.getInvocationHandler((Proxy) service);
         ClientConfiguration config = WebClient.getConfig(service);
         HTTPConduit conduit = config.getHttpConduit();
-        conduit.setClient(restPolicy);
+        conduit.setClient(getRestPolicy());
 
         // Create HTTP header containing the calling registry
         client.header(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME,
                 RegistryUtil.LOCAL_REGISTRY_ADDRESS);
         return service;
+    }
+    
+    protected HTTPClientPolicy getRestPolicy(){
+        ProxyConfiguration proxyConfig = RegistrySOAPServices
+                .getProxyConfiguration();
+        HTTPClientPolicy restPolicy = new HTTPClientPolicy();
+        restPolicy.setConnection(ConnectionType.CLOSE);
+        restPolicy.setConnectionTimeout(2000);
+        restPolicy.setReceiveTimeout(30000);
+        restPolicy.setMaxRetransmits(1);
+        if (proxyConfig != null) {
+            restPolicy.setProxyServer(proxyConfig.getHost());
+            restPolicy.setProxyServerPort(proxyConfig.getPort());
+            restPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
+        }
+        return restPolicy;
     }
 }
