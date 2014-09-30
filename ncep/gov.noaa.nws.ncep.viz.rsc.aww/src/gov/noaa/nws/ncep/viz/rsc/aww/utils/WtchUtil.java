@@ -19,9 +19,9 @@ public class WtchUtil {
 //					|| WtchConstant.SEVERE_WEATHER_STATUS_REPORT.equalsIgnoreCase(reportType))  
 //				result = true;
 		
-		return ( rt == AwwReportType.TORNADO_REPORT ); // || 
-//				 rt == AwwReportType.THUNDERSTORM_REPORT ???
-//				 rt == AwwReportType.STATUS_REPORT );  ???
+		return ( rt == AwwReportType.TORNADO_REPORT   || 
+				 rt == AwwReportType.SEVERE_THUNDERSTORM_WATCH || //???
+				 rt == AwwReportType.STATUS_REPORT );  //???
 	}
 
 

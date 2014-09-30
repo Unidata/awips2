@@ -5,8 +5,9 @@
  *  open source "jcgm" package, to implement this interface.
  *  
  *  This gives them the ability to draw themselves in the AWIPS II
- *  (IGraphicsTarget) world.  More precisely, they contribute themselves
- *  to an image being built, whose state is kept in the ImageBuilder parameter.
+ *  (IGraphicsTarget) world.  In many cases, instead of drawing 
+ *  themselves immediately, they contribute themselves to an image
+ *  being built, whose state is kept in the ImageBuilder passed in.
  */
 package gov.noaa.nws.ncep.viz.rsc.ntrans.ncgm;
 
