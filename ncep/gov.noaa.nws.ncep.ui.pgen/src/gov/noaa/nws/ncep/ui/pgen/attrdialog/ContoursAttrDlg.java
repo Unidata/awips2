@@ -148,9 +148,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
     private String contourFcstHr = "f000";
 
-    private Calendar contourTime1 = (Calendar) Calendar.getInstance();
+    private Calendar contourTime1 = Calendar.getInstance();
 
-    private Calendar contourTime2 = (Calendar) Calendar.getInstance();
+    private Calendar contourTime2 = Calendar.getInstance();
 
     private String defCint = ContoursInfoDlg.getCints().get(
             contourParm + "-" + contourLevel);
@@ -397,6 +397,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         setInfoBtnText();
 
         infoBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 openContourInfoDlg();
             }
@@ -407,6 +408,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         makeGridBtn.setText("Make Grid");
         makeGridBtn.setToolTipText("Generate grid from this Contours");
         makeGridBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 openG2GDlg();
             }
@@ -468,6 +470,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                 quickLineBtns.add(btn);
 
                 btn.addListener(SWT.MouseDoubleClick, new Listener() {
+                    @Override
                     public void handleEvent(Event event) {
                         openLineTypePanel();
                     }
@@ -527,6 +530,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         lineClosedBtn.setToolTipText("Click to draw a closed line");
         lineClosedBtn.setSelection(drawClosedLine);
         lineClosedBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 drawClosedLine = lineClosedBtn.getSelection();
             }
@@ -564,7 +568,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     if (de != null && de.getParent() != null
                             && de.getParent() instanceof ContourLine) {
                         ContourLine pde = (ContourLine) de.getParent();
-                        lineAttrDlg.setAttrForDlg((IAttribute) pde.getLine());
+                        lineAttrDlg.setAttrForDlg(pde.getLine());
                     } else {
 
                         if (lineTemplate == null) {
@@ -577,7 +581,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                                             .toString());
                         }
 
-                        lineAttrDlg.setAttrForDlg((IAttribute) lineTemplate);
+                        lineAttrDlg.setAttrForDlg(lineTemplate);
 
                     }
 
@@ -642,6 +646,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                 quickSymbolBtns.add(btn);
 
                 btn.addListener(SWT.MouseDoubleClick, new Listener() {
+                    @Override
                     public void handleEvent(Event event) {
                         openSymbolPanel();
                     }
@@ -724,7 +729,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     DrawableElement de = drawingLayer.getSelectedDE();
                     if (de != null && de instanceof Symbol
                             && de.getParent() instanceof ContourMinmax) {
-                        minmaxAttrDlg.setAttrForDlg((IAttribute) de);
+                        minmaxAttrDlg.setAttrForDlg(de);
                     } else {
                         minmaxTemplate = (Symbol) contoursAttrSettings
                                 .get(activeQuickSymbolBtn.getData().toString());
@@ -736,8 +741,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
                         }
 
-                        minmaxAttrDlg
-                                .setAttrForDlg((IAttribute) minmaxTemplate);
+                        minmaxAttrDlg.setAttrForDlg(minmaxTemplate);
 
                     }
 
@@ -779,6 +783,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         setButtonColor(circleTypeBtn, circleTemplate.getColors()[0]);
 
         circleTypeBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (!ContoursAttrDlg.this.drawCircle()) {
                     if (circleTemplate == null) {
@@ -830,8 +835,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     if (de != null && de.getParent() != null
                             && de.getParent() instanceof ContourCircle) {
                         ContourCircle pde = (ContourCircle) de.getParent();
-                        circleAttrDlg.setAttrForDlg((IAttribute) pde
-                                .getCircle());
+                        circleAttrDlg.setAttrForDlg(pde.getCircle());
                     } else {
 
                         if (circleTemplate == null) {
@@ -840,8 +844,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                             circleTemplate.setPgenType("Circle");
                         }
 
-                        circleAttrDlg
-                                .setAttrForDlg((IAttribute) circleTemplate);
+                        circleAttrDlg.setAttrForDlg(circleTemplate);
 
                     }
 
@@ -891,6 +894,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         labelTxt.setText("0");
         labelTxt.addFocusListener(new FocusListener() {
 
+            @Override
             public void focusLost(FocusEvent e) {
                 float value = 0;
                 try {
@@ -905,6 +909,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
             }
 
+            @Override
             public void focusGained(FocusEvent e) {
             }
         });
@@ -912,6 +917,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         Button valueUpArrow = new Button(textValueComp, SWT.ARROW | SWT.UP);
         valueUpArrow.setLayoutData(new GridData(20, 22));
         valueUpArrow.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 changeLabel(true);
             }
@@ -921,6 +927,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         Button valueDownArrow = new Button(textValueComp, SWT.ARROW | SWT.DOWN);
         valueDownArrow.setLayoutData(new GridData(20, 22));
         valueDownArrow.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 changeLabel(false);
             }
@@ -967,18 +974,16 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                         if (de.getParent() instanceof ContourLine
                                 && ((ContourLine) (de.getParent())).getLabels()
                                         .size() > 0) {
-                            labelAttrDlg
-                                    .setAttrForDlg((IAttribute) ((ContourLine) (de
-                                            .getParent())).getLabels().get(0));
+                            labelAttrDlg.setAttrForDlg(((ContourLine) (de
+                                    .getParent())).getLabels().get(0));
                             if (isUseMainColor()) {
                                 labelAttrDlg.setColor(lineTemplate.getColors()[0]);
                             }
                         } else if (de.getParent() instanceof ContourMinmax
                                 && ((ContourMinmax) (de.getParent()))
                                         .getLabel() != null) {
-                            labelAttrDlg
-                                    .setAttrForDlg((IAttribute) ((ContourMinmax) (de
-                                            .getParent())).getLabel());
+                            labelAttrDlg.setAttrForDlg(((ContourMinmax) (de
+                                    .getParent())).getLabel());
                             if (isUseMainColor()) {
                                 labelAttrDlg.setColor(minmaxTemplate
                                         .getColors()[0]);
@@ -986,9 +991,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                         } else if (de.getParent() instanceof ContourCircle
                                 && ((ContourCircle) (de.getParent()))
                                         .getLabel() != null) {
-                            labelAttrDlg
-                                    .setAttrForDlg((IAttribute) ((ContourCircle) (de
-                                            .getParent())).getLabel());
+                            labelAttrDlg.setAttrForDlg(((ContourCircle) (de
+                                    .getParent())).getLabel());
                             if (isUseMainColor()) {
                                 labelAttrDlg.setColor(circleTemplate
                                         .getColors()[0]);
@@ -999,7 +1003,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                         labelTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Text) contoursAttrSettings
                                 .get(getLabelTempKey());
 
-                        labelAttrDlg.setAttrForDlg((IAttribute) labelTemplate);
+                        labelAttrDlg.setAttrForDlg(labelTemplate);
 
                         if (isUseMainColor()) {
                             if (drawingStatus == ContourDrawingStatus.DRAW_LINE) {
@@ -1381,6 +1385,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                 btn.setText(lblstr);
                 btn.setData(lblstr);
                 btn.addSelectionListener(new SelectionAdapter() {
+                    @Override
                     public void widgetSelected(SelectionEvent event) {
                         labelTxt.setText(event.widget.getData().toString());
                         if (labelTemplate != null) {
@@ -1572,6 +1577,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
      * Updates the selected contours and contour line, then redraws the PGEN
      * layer.
      */
+    @Override
     public void okPressed() {
 
         /*
@@ -2943,6 +2949,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         /**
          * Updates the selected type's data string and image icon.
          */
+        @Override
         public void okPressed() {
 
             Color clr = activeButtonColor;
@@ -3091,6 +3098,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         /**
          * Updates the selected type's data string and image icon.
          */
+        @Override
         public void okPressed() {
 
             /*
@@ -3195,7 +3203,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
              * Update the symbol template first.
              */
             minmaxTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Symbol) new DrawableElementFactory()
-                    .create(DrawableType.SYMBOL, (IAttribute) this, "Symbol",
+                    .create(DrawableType.SYMBOL, this, "Symbol",
                             getActiveSymbolObjType(), (Coordinate) null, null);
             contoursAttrSettings.put(getActiveSymbolObjType(), minmaxTemplate);
 
@@ -3690,6 +3698,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
     /**
      * Removes ghost line, handle bars, and closes the dialog
      */
+    @Override
     public void cancelPressed() {
 
         PgenUtil.setSelectingMode();
