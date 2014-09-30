@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Radar Requests Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.radarapps.requests;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.radarapps.requests.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -16,9 +16,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core;bundle-version="1.11.11",
  org.geotools;bundle-version="2.5.2",
  com.raytheon.viz.ui;bundle-version="1.11.11"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.viz.ui
 Export-Package: com.raytheon.uf.viz.radarapps.alertreq,
  com.raytheon.uf.viz.radarapps.otr,
  com.raytheon.uf.viz.radarapps.rmr

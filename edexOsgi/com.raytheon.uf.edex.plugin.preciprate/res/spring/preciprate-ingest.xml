@@ -6,6 +6,11 @@
 
    <bean id="preciprateGenerator" class="com.raytheon.uf.edex.plugin.preciprate.PrecipRateGenerator"/>
        
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="preciprate-camel" />
+        <constructor-arg ref="preciprateGenerator" />
+    </bean>     
+       
     <bean factory-bean="cpgSrvDispatcher" factory-method="register">
 		<constructor-arg ref="preciprateGenerator"/>
 	</bean>

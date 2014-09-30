@@ -19,34 +19,35 @@
  **/
 package com.raytheon.edex.uengine.runners;
 
-import org.apache.commons.configuration.Configuration;
-
 import com.raytheon.edex.uengine.exception.MicroEngineException;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
- * A factory class that creates and returns &mu;Engine script runners.
- * This class does not performing any logging.
+ * A factory class that creates and returns &mu;Engine script runners. This
+ * class does not performing any logging.
  * <P>
  * Basic usage:
- * <pre><code>
- *    IMicroEngine runner = MicroEngine.getInstance(type);
- * </code></pre>
  * 
  * <pre>
- *
+ * <code>
+ *    IMicroEngine runner = MicroEngine.getInstance(type);
+ * </code>
+ * </pre>
+ * 
+ * <pre>
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 17Nov2008    1709       MW Fegan    Initial creation.
+ * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * 
  * </pre>
- *
+ * 
  * @author mfegan
  * @version 1.0
  * @see com.raytheon.edex.uengine.runners.AMicroEngine
- * @see com.raytheon.edex.uengine.runners.IMicroEngine	
+ * @see com.raytheon.edex.uengine.runners.IMicroEngine
  */
 
 public final class MicroEngine {
@@ -56,39 +57,40 @@ public final class MicroEngine {
      */
     private MicroEngine() {
     }
+
     /**
      * Creates a &mu;Engine script runner of the specified type.
      * 
-     * @param type the type of script runner to create
+     * @param type
+     *            the type of script runner to create
      * 
      * @return the script runner
      * 
-     * @throws MicroEngineException if unable to create the script runner
+     * @throws MicroEngineException
+     *             if unable to create the script runner
      */
-    public static IMicroEngine getInstance(String type) throws MicroEngineException {
+    public static IMicroEngine getInstance(String type)
+            throws MicroEngineException {
         String className = null;
         Class<?> aClass = null;
-        Configuration config = null;
-        String configName = "micro_engine";
         IMicroEngine retVal = null;
         String runner = type.toLowerCase() + "_runner";
-        /* get the configuration for uEngine */
-        try {
-            config = PropertiesFactory.getInstance().getConfiguration(configName);
-        } catch (Exception e) {
-            throw new MicroEngineException("Unable to load properties for MicroEngine, type = " + type,e);
-        }
+
         /* get the class name for the uEngine script runner */
-        className = config.getString(runner);
+        className = System.getProperty(runner);
         if (className == null) {
-            throw new MicroEngineException("Unable to find class name for MicroEngine, type = " + type);
+            throw new MicroEngineException(
+                    "Unable to find class name for MicroEngine, type = " + type);
         }
+
         /* attempt to create the script runner class */
         try {
             aClass = Class.forName(className);
-            retVal = (IMicroEngine)aClass.newInstance();
+            retVal = (IMicroEngine) aClass.newInstance();
         } catch (Exception e) {
-            throw new MicroEngineException("Unable to create MicroEngine script runner, type = " + type,e);
+            throw new MicroEngineException(
+                    "Unable to create MicroEngine script runner, type = "
+                            + type, e);
         }
         return retVal;
     }

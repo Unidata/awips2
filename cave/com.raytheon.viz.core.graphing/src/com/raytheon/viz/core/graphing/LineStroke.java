@@ -19,9 +19,6 @@
  **/
 package com.raytheon.viz.core.graphing;
 
-import org.eclipse.swt.graphics.RGB;
-
-import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -33,6 +30,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06 Nov 2006             jkorman     Initial Coding
+ * 28 Jul 2014  3429       mapeters    Removed unused render() method.
  * </pre>
  * 
  * @author jkorman
@@ -175,27 +173,6 @@ public class LineStroke {
         case DRAWTO: {
             gc.drawLine(lastMoveX, lastMoveY, (int) point.x + relativeX,
                     (int) point.y + relativeY);
-            break;
-        }
-        }
-    }
-
-    /**
-     * Render the stroke.
-     * 
-     * @param world
-     *            The world graphics system.
-     * @param drawColor
-     *            The color to draw with.
-     */
-    public void render(IGraphicsTarget target, WGraphics world, RGB drawColor) {
-        switch (type) {
-        case MOVETO: {
-            world.moveTo(point.x, point.y);
-            break;
-        }
-        case DRAWTO: {
-            world.drawTo(target, point.x, point.y, drawColor);
             break;
         }
         }

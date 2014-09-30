@@ -67,6 +67,7 @@ import com.vividsolutions.jts.geom.LineString;
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2012            mschenke    Initial creation
  * Mar 05, 2014 2826       njensen     Fixed null pointer in renderShadedShapes
+ * Aug 07, 2014 3492       mapeters    Updated deprecated createWireframeShape() calls.
  * 
  * </pre>
  * 
@@ -81,22 +82,8 @@ public class ShapeRenderingHandler extends CollaborationRenderingHandler {
         IGraphicsTarget target = getGraphicsTarget();
         int shapeId = event.getObjectId();
         IWireframeShape shape = null;
-        if (event.getSimplificationLevel() != null) {
-            if (event.isSpatialChopFlag() != null) {
-                shape = target.createWireframeShape(event.isMutable(),
-                        event.getGridGeometry(),
-                        event.getSimplificationLevel(),
-                        event.isSpatialChopFlag(), event.getIExtent());
-            } else {
-                shape = target
-                        .createWireframeShape(event.isMutable(),
-                                event.getGridGeometry(),
-                                event.getSimplificationLevel());
-            }
-        } else {
-            shape = target.createWireframeShape(event.isMutable(),
-                    event.getGridGeometry());
-        }
+        shape = target.createWireframeShape(event.isMutable(),
+                event.getGridGeometry());
         dataManager.putRenderableObject(shapeId, shape);
     }
 

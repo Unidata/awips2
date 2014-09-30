@@ -42,8 +42,8 @@ import javax.measure.unit.UnitFormat;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.units.UnitAdapter;
 import com.raytheon.uf.viz.core.DrawableBasics;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 05/20/2013     988        Archana.S    Initial creation.
  * 02/26/2014    1061        B. Hebbard   Relax tolerance for extent/zoom compare to avoid infinite loop.
+ * Aug 08, 2014  3477        bclement     changed plot info locations to floats
  */
 
 public class NcPlotImageCreator {
@@ -892,7 +893,7 @@ public class NcPlotImageCreator {
          * @param lon
          * @return
          */
-        private String createStationMapKey(Double lon, Double lat) {
+        private String createStationMapKey(Float lon, Float lat) {
             return new String("" + Math.round(lon * 1000.0) + ","
                     + Math.round(lat * 1000.0));
 

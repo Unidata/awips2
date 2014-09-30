@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,18 +33,19 @@ import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * Internal Report
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 10, 2010            jsanchez     Initial creation
  * Apr 10, 2014  2971      skorolev     Cleaned code.
- * 
+ * Jun 25, 2014  3008      nabowle      Refactor for EventReport.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
  * @version 1.0
  */
@@ -74,8 +75,6 @@ public class InternalReport {
     public static final String RMK_LN = "^((.*)" + STATIONID + "(.*)" + LATLON
             + ")";
 
-    private static final Pattern RMK_LN_PTRN = Pattern.compile(RMK_LN);
-
     public static final String REFTIME = "(\\d{2,2}CST\\s\\w{3,3}\\s\\w{3,3}\\s{1,2}\\d{1,2}\\s{1,2}\\d{4,4})";
 
     public static final String TIME_RANGE_LN = "^((.*)FOR\\s" + REFTIME
@@ -91,7 +90,7 @@ public class InternalReport {
     private List<InternalReport> subLines = null;
 
     /**
-     * 
+     *
      * @param type
      * @param line
      */
@@ -102,7 +101,7 @@ public class InternalReport {
 
     /**
      * Get Line Type.
-     * 
+     *
      * @return the lineType
      */
     public InternalType getLineType() {
@@ -111,7 +110,7 @@ public class InternalReport {
 
     /**
      * Get Report Line.
-     * 
+     *
      * @return the reportLine
      */
     public String getReportLine() {
@@ -120,7 +119,7 @@ public class InternalReport {
 
     /**
      * Get SubLines.
-     * 
+     *
      * @return
      */
     public List<InternalReport> getSubLines() {
@@ -128,7 +127,7 @@ public class InternalReport {
     }
 
     /**
-     * 
+     *
      * @param buffer
      *            Buffer to receive String formatted internal data. If this
      *            reference is null, a new StringBuilder instance is created.
@@ -148,7 +147,7 @@ public class InternalReport {
 
     /**
      * Create a string representation of this class instance.
-     * 
+     *
      * @return The string representation of this class instance.
      */
     @Override
@@ -165,7 +164,7 @@ public class InternalReport {
 
     /**
      * Message identification.
-     * 
+     *
      * @param message
      * @return
      */
@@ -173,20 +172,25 @@ public class InternalReport {
         List<InternalReport> reports = new ArrayList<InternalReport>();
         List<String> lines = separateLines(message);
         if (lines != null) {
-            InternalType t1 = InternalType.REPORT_TYPE;
-            InternalType t2 = InternalType.EVENT_LN;
-            InternalType t3 = InternalType.REMARKS;
-            InternalType t4 = InternalType.TIME_RANGE;
 
-            Pattern patterns[] = { REPORT_TYPE_LN_PTRN, EVENT_LN_PTRN,
-                    RMK_LN_PTRN, TIME_RANGE_LN_PTRN };
-            InternalType types[] = { t1, t2, t3, t4 };
+            Pattern patterns[] = { REPORT_TYPE_LN_PTRN, TIME_RANGE_LN_PTRN };
+            InternalType types[] = { InternalType.REPORT_TYPE,
+                    InternalType.TIME_RANGE };
+
             boolean found;
+            EventReport.Builder builder = null;
+            Matcher m;
             for (String s : lines) {
                 found = false;
                 for (int i = 0; i < patterns.length; i++) {
-                    Matcher m = patterns[i].matcher(s);
+                    m = patterns[i].matcher(s);
                     if (m.matches()) {
+
+                        if (builder != null) {
+                            reports.add(builder.build());
+                            builder = null;
+                        }
+
                         InternalReport rptLine = new InternalReport(types[i], s);
                         reports.add(rptLine);
                         found = true;
@@ -194,20 +198,42 @@ public class InternalReport {
                     }
                 }
                 if (!found) {
-                    InternalReport rptLine = new InternalReport(
-                            InternalType.EXTRA, s);
-                    reports.add(rptLine);
+                    // TODO: An unrecognized event line will lead to either:
+                    // The previous report's remarks containing the report or
+                    // the report being tagged as EXTRA lines.
+                    //
+                    // In the former case, the issue may be noticed if the
+                    // remarks of the report are examined. In the latter,
+                    // the report will be lost without a trace.
+                    // More info:
+                    // http://www.nws.noaa.gov/directives/sym/pd01005012curr.pdf
+                    // http://www.spc.noaa.gov/misc/about.html#Statistics
+                    m = EVENT_LN_PTRN.matcher(s);
+                    if (m.matches()) {
+                        if (builder != null) {
+                            reports.add(builder.build());
+                        }
+                        builder = new EventReport.Builder().withEventLine(s);
+                    } else if (builder != null) {
+                        builder.withRemarks(s);
+                    } else {
+                        InternalReport rptLine = new InternalReport(
+                                InternalType.EXTRA, s);
+                        reports.add(rptLine);
+                    }
                 }
             }
-            InternalReport rptLine = new InternalReport(InternalType.END, "");
-            reports.add(rptLine);
+
+            if (builder != null) {
+                reports.add(builder.build());
+            }
         }
         return reports;
     }
 
     /**
      * Separate Lines.
-     * 
+     *
      * @param message
      * @return reportLines
      */
@@ -222,7 +248,7 @@ public class InternalReport {
                 String s;
                 reportLines = new ArrayList<String>();
                 while ((s = reader.readLine()) != null) {
-                    if (s.length() > 0) {
+                    if (s.trim().length() > 0) {
                         reportLines.add(s);
                     }
                 }

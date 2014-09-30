@@ -28,9 +28,8 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
 
 /**
@@ -44,6 +43,7 @@ import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 6/5/2014     1712        bphillip    Initial Creation
+ * 7/10/2014    1717        bphillip    Added authorization policy
  * </pre>
  * 
  * @author bphillip
@@ -51,141 +51,169 @@ import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
  **/
 public class SecurityConfiguration {
 
-	/** The logger instance */
-	private static final IUFStatusHandler statusHandler = UFStatus
-			.getHandler(SecurityConfiguration.class);
+    /** The directory containing security related files such as keystores */
+    private static final String SECURITY_DIR = EDEXModesUtil.CONF_DIR
+            + File.separator + "resources/site" + File.separator
+            + System.getenv("AW_SITE_IDENTIFIER") + File.separator;
 
-	/** The directory containing security related files such as keystores */
-	private static final String SECURITY_DIR = EDEXModesUtil.CONF_DIR
-			+ File.separator + "security" + File.separator;
+    /** The properties file containing the security configuration items */
+    private static final String SECURITY_PROPERTIES_FILE = SECURITY_DIR
+            + "security.properties";
 
-	/** The properties file containing the security configuration items */
-	private static final String SECURITY_PROPERTIES_FILE = SECURITY_DIR
-			+ "security.properties";
+    /** Properties object for the security configuration */
+    private EncryptedProperties securityProperties;
 
-	/** Properties object for the security configuration */
-	private EncryptedProperties securityProperties;
+    /** The https configuration */
+    private TLSClientParameters tlsParams;
 
-	/** The https configuration */
-	private TLSClientParameters tlsParams;
+    /** The authorization policy */
+    private AuthorizationPolicy authPolicy;
 
-	/** Keystore factory */
-	private KeyManagerFactory kmf;
+    /** Keystore factory */
+    private KeyManagerFactory kmf;
 
-	/** Trust store factory */
-	private TrustManagerFactory tmf;
+    /** Trust store factory */
+    private TrustManagerFactory tmf;
 
-	/**
-	 * Creates and initializes a new Security configuration object based on the
-	 * security properties specified
-	 * @throws IOException 
-	 */
-	public SecurityConfiguration() throws IOException {
-			securityProperties = new EncryptedProperties(SECURITY_PROPERTIES_FILE);
-			initKeyStore();
-			initTrustStore();
-			initTLSParams();
-	}
+    /**
+     * Creates and initializes a new Security configuration object based on the
+     * security properties specified
+     * 
+     * @throws IOException
+     */
+    public SecurityConfiguration() throws IOException {
+        securityProperties = new EncryptedProperties(SECURITY_PROPERTIES_FILE);
+        initKeyStore();
+        initTrustStore();
+        initTLSParams();
+        initAuthPolicy();
+    }
 
-	/**
-	 * Initializes the TLS parameters
-	 */
-	private void initTLSParams() {
-		tlsParams = new TLSClientParameters();
-		tlsParams.setKeyManagers(kmf.getKeyManagers());
-		tlsParams.setTrustManagers(tmf.getTrustManagers());
-		tlsParams.setDisableCNCheck(Boolean
-				.parseBoolean(getProperty("edex.security.disableCNCheck")));
-	}
+    /**
+     * Initializes the authorization policy
+     */
+    private void initAuthPolicy() {
+        authPolicy = new AuthorizationPolicy();
+        String user = getProperty("edex.security.auth.user");
+        authPolicy.setUserName(user);
+        authPolicy.setPassword(getProperty("edex.security.auth.password"));
+        authPolicy
+                .setAuthorizationType(getProperty("edex.security.auth.authorizationType"));
+    }
 
-	/**
-	 * Initializes the keystore
-	 */
-	private void initKeyStore() {
-		FileInputStream fis = null;
-		KeyStore keystore = null;
-		char[] storepass = getProperty("edex.security.keystore.password").toCharArray();
-		
-		try {
-			kmf = KeyManagerFactory
-					.getInstance(getProperty("edex.security.keystore.algorithm"));
-			fis = new FileInputStream(
-					getProperty("edex.security.keystore.path"));
-			keystore = KeyStore
-					.getInstance(getProperty("edex.security.keystore.type"));
-			keystore.load(fis, storepass);
-			kmf.init(keystore, storepass);
-		} catch (Exception e) {
-			throw new SecurityException("Error initializing keystore", e);
-		} finally {
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (IOException e) {
-					throw new RuntimeException(
-							"Error closing file input stream!", e);
-				}
-			}
-		}
-	}
+    /**
+     * Initializes the TLS parameters
+     */
+    private void initTLSParams() {
+        tlsParams = new TLSClientParameters();
+        tlsParams.setKeyManagers(kmf.getKeyManagers());
+        tlsParams.setTrustManagers(tmf.getTrustManagers());
+        tlsParams.setDisableCNCheck(Boolean
+                .parseBoolean(getProperty("edex.security.disableCNCheck")));
+    }
 
-	/**
-	 * Initializes the trust store
-	 */
-	private void initTrustStore() {
-		FileInputStream fis = null;
-		KeyStore truststore = null;
-		char[] storepass = getProperty("edex.security.truststore.password").toCharArray();
+    /**
+     * Initializes the keystore
+     */
+    private void initKeyStore() {
+        FileInputStream fis = null;
+        KeyStore keystore = null;
+        char[] storepass = getProperty("edex.security.keystore.password")
+                .toCharArray();
 
-		try {
-			tmf = TrustManagerFactory
-					.getInstance(getProperty("edex.security.truststore.algorithm"));
-			fis = new FileInputStream(
-					getProperty("edex.security.truststore.path"));
-			truststore = KeyStore
-					.getInstance(getProperty("edex.security.truststore.type"));
-			truststore.load(fis, storepass);
-			tmf.init(truststore);
-		} catch (Exception e) {
-			throw new SecurityException("Error initializing truststore", e);
-		} finally {
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (IOException e) {
-					throw new RuntimeException(
-							"Error closing file input stream!", e);
-				}
-			}
-		}
-	}
+        try {
+            kmf = KeyManagerFactory
+                    .getInstance(getProperty("edex.security.keystore.algorithm"));
+            fis = new FileInputStream(
+                    getProperty("edex.security.keystore.path"));
+            keystore = KeyStore
+                    .getInstance(getProperty("edex.security.keystore.type"));
+            keystore.load(fis, storepass);
+            kmf.init(keystore, storepass);
+        } catch (Exception e) {
+            throw new SecurityException("Error initializing keystore", e);
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                            "Error closing file input stream!", e);
+                }
+            }
+        }
+    }
 
-	/**
-	 * Gets a security property.
-	 * @param propertyName The name of the property to get
-	 * @return The property value
-	 */
-	private String getProperty(String propertyName) {
-		String prop = securityProperties.getProperty(propertyName);
-		if (prop == null || prop.trim().isEmpty()) {
-			throw new SecurityException("Required property not set: "
-					+ propertyName);
-		}
-		return prop;
-	}
+    /**
+     * Initializes the trust store
+     */
+    private void initTrustStore() {
+        FileInputStream fis = null;
+        KeyStore truststore = null;
+        char[] storepass = getProperty("edex.security.truststore.password")
+                .toCharArray();
 
-	/**
-	 * Gets the TLSClientParameters
-	 * 
-	 * @return The TLSClientParameters
-	 */
-	public TLSClientParameters getTlsParams() {
-		return tlsParams;
-	}
+        try {
+            tmf = TrustManagerFactory
+                    .getInstance(getProperty("edex.security.truststore.algorithm"));
+            fis = new FileInputStream(
+                    getProperty("edex.security.truststore.path"));
+            truststore = KeyStore
+                    .getInstance(getProperty("edex.security.truststore.type"));
+            truststore.load(fis, storepass);
+            tmf.init(truststore);
+        } catch (Exception e) {
+            throw new SecurityException("Error initializing truststore", e);
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                            "Error closing file input stream!", e);
+                }
+            }
+        }
+    }
 
-	public EncryptedProperties getSecurityProperties() {
-		return securityProperties;
-	}
-	
-	
+    public String getEncryptionKey() {
+        return getProperty("edex.security.encryption.key");
+    }
+
+    /**
+     * Gets a security property.
+     * 
+     * @param propertyName
+     *            The name of the property to get
+     * @return The property value
+     */
+    public String getProperty(String propertyName) {
+        String prop = securityProperties.getProperty(propertyName);
+        if (prop == null || prop.trim().isEmpty()) {
+            throw new SecurityException("Required property not set: "
+                    + propertyName);
+        }
+        return prop;
+    }
+
+    /**
+     * Gets the TLSClientParameters
+     * 
+     * @return The TLSClientParameters
+     */
+    public TLSClientParameters getTlsParams() {
+        return tlsParams;
+    }
+
+    public EncryptedProperties getSecurityProperties() {
+        return securityProperties;
+    }
+
+    /**
+     * @return the authPolicy
+     */
+    public AuthorizationPolicy getAuthPolicy() {
+        return authPolicy;
+    }
+
 }

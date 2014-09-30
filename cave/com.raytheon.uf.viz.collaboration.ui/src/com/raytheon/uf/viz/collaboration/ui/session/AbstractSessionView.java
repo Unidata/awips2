@@ -92,6 +92,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  *                                     running in an asynchronous thread.
  * Mar 11, 2014 #2865      lvenable    Added null checks for msgArchive.
  * Jun 20, 2014 3281       bclement    made sendErrorMessage() public
+ * Jun 27, 2014 3323       bclement    fixed disposed font issue
  * </pre>
  * 
  * @author rferrel
@@ -572,11 +573,12 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
     @Subscribe
     public void changeFont(FontData data) {
-        if (messagesTextFont != null) {
-            messagesTextFont.dispose();
-        }
+        Font oldFont = messagesTextFont;
         messagesTextFont = new Font(Display.getCurrent(), data);
         messagesText.setFont(messagesTextFont);
+        if (oldFont != null) {
+            oldFont.dispose();
+        }
     }
 
     public void setAlertWords(List<AlertWord> words) {

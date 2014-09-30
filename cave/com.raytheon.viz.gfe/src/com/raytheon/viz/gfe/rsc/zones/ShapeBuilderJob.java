@@ -48,6 +48,19 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
 /**
+ * TODO Add Description
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                         wldougher   Initial creation.
+ * Aug 01, 2014 3471       mapeters    Updated deprecated createShadedShape() calls.
+ * Aug 13, 2014 3492       mapeters    Updated deprecated createWireframeShape() calls.
+ * 
+ * </pre>
+ * 
  * @author wldougher
  * 
  */
@@ -175,11 +188,11 @@ public class ShapeBuilderJob extends Job {
             // class are both shaded and outlined, so the extra logic has not
             // been fully implemented.
             response.background = request.target.createShadedShape(false,
-                    descriptor, true);
+                    descriptor.getGridGeometry(), true);
             response.outline = request.target.createWireframeShape(false,
-                    descriptor, 0.0f);
+                    descriptor);
             response.cwaOutline = request.target.createWireframeShape(false,
-                    descriptor, 0.0f);
+                    descriptor);
             JTSCompiler compiler = new JTSCompiler(response.background,
                     response.outline, descriptor, PointStyle.CROSS);
             JTSCompiler cwaCompiler = new JTSCompiler(null,
@@ -267,7 +280,7 @@ public class ShapeBuilderJob extends Job {
                 RGB color = getColor(request, Integer.valueOf(groupNum));
 
                 IShadedShape groupShape = request.target.createShadedShape(
-                        false, descriptor, true);
+                        false, descriptor.getGridGeometry(), true);
                 JTSCompiler groupCompiler = new JTSCompiler(groupShape, null,
                         descriptor, PointStyle.CROSS);
 
