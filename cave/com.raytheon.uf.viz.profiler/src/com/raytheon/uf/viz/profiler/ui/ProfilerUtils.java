@@ -21,6 +21,7 @@
 package com.raytheon.uf.viz.profiler.ui;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
@@ -35,7 +36,7 @@ import com.raytheon.uf.common.dataplugin.profiler.ProfilerLevel;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -55,6 +56,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 10, 2009    2219      dhladky     Initial creation
  * Feb 08, 2011    8036      bkowal      Updated GRAPH_OFFSET to come
  *                                       close to centering the graph.
+ * Aug 11, 2014    3504      mapeters    Replaced deprecated IODataPreparer
+ *                                       instances with IRenderedImageCallback.
  * 
  * </pre>
  * 
@@ -252,7 +255,13 @@ public class ProfilerUtils {
      */
     public static IImage convertBufferedImage(IGraphicsTarget target,
             BufferedImage img, String name) throws VizException {
-        return target.initializeRaster(new IODataPreparer(img, name, 0), null);
+        final BufferedImage image = img;
+        return target.initializeRaster(new IRenderedImageCallback() {
+            @Override
+            public RenderedImage getImage() throws VizException {
+                return image;
+            }
+        });
     }
 
     /**

@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin.bufrua;
 import static com.raytheon.uf.common.sounding.SoundingLayer.MISSING;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,6 @@ import com.raytheon.uf.common.sounding.LayerType;
 import com.raytheon.uf.common.sounding.SoundingLayer;
 import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.sounding.adapter.AbstractVerticalSoundingAdapter;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * Adapter for convertung UAObs data into Vertical Soundings.
@@ -44,6 +42,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
  *                                     bufrua.
+ * Aug 18, 2014 3530       bclement    removed dead code
  * 
  * 
  * </pre>
@@ -433,105 +432,6 @@ public class UAObsAdapter extends AbstractVerticalSoundingAdapter {
         }
     }
 
-    private static void fixupWithWinds(List<SoundingLayer> layers) {
-        // sort data by height
-        Collections.sort(layers, SoundingLayer.getHeightComparator());
-        for (int i = 0; i < layers.size() - 1;) {
-            if (checkLayers(layers, i, i + 1)) {
-                continue;
-            }
-            i++;
-        }
-        // Interpolate temperatures if needed.
-        float deltaT = establishDeltaT(layers, 0, true);
-        if (deltaT != MISSING) {
-            for (int i = 1; i < layers.size() - 1; i++) {
-                SoundingLayer layer = layers.get(i);
-                if (layer.getTemperature() == MISSING) {
-                    float dh = layer.getGeoHeight()
-                            - layers.get(i - 1).getGeoHeight();
-                    layer.setTemperature(layers.get(i - 1).getTemperature()
-                            + (dh * deltaT));
-                    layer.setTmpInterpolated(true);
-                } else {
-                    deltaT = establishDeltaT(layers, i, true);
-                    if (deltaT == MISSING) {
-                        break;
-                    }
-                }
-            }
-        }
-        // Interpolate dewpoints if needed.
-        float deltaTd = establishDeltaT(layers, 0, false);
-        if (deltaTd != MISSING) {
-            for (int i = 1; i < layers.size() - 1; i++) {
-                SoundingLayer layer = layers.get(i);
-                if (layer.getDewpoint() == MISSING) {
-                    float dh = layer.getGeoHeight()
-                            - layers.get(i - 1).getGeoHeight();
-                    layer.setDewpoint(layers.get(i - 1).getDewpoint()
-                            + (dh * deltaTd));
-                    layer.setDptInterpolated(true);
-                } else {
-                    deltaTd = establishDeltaT(layers, i, false);
-                    if (deltaTd == MISSING) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        for (int i = 1; i < layers.size(); i++) {
-            if (layers.get(i).getPressure() == MISSING) {
-                double zA = layers.get(i - 1).getGeoHeight();
-                double zB = layers.get(i).getGeoHeight();
-                double dz = zB - zA;
-                double tvA = layers.get(i - 1).getVirtualTemp() + 273.13;
-                double tvB = layers.get(i).getVirtualTemp() + 273.13;
-                double k = (tvA + tvB) / 2 * 28.2898;
-                double pA = layers.get(i - 1).getPressure();
-                k = (-dz / k) + Math.log(pA);
-
-                float pB = (float) Math.exp(k);
-                layers.get(i).setPressure(pB);
-                layers.get(i).setPreInterpolated(true);
-            }
-        } // for
-    }
-
-    /**
-     * 
-     * @param layers
-     * @param index
-     * @param temp
-     * @return
-     */
-    private static float establishDeltaT(List<SoundingLayer> layers, int index,
-            boolean temp) {
-        float delta = MISSING;
-        float t;
-        if (temp) {
-            t = layers.get(index).getTemperature();
-        } else {
-            t = layers.get(index).getDewpoint();
-        }
-        float h = layers.get(index).getGeoHeight();
-        for (int i = index + 1; i < layers.size(); i++) {
-            float tt;
-            if (temp) {
-                tt = layers.get(i).getTemperature();
-            } else {
-                tt = layers.get(i).getDewpoint();
-            }
-            if (tt != MISSING) {
-                float hh = layers.get(i).getGeoHeight();
-                delta = (tt - t) / (hh - h);
-                break;
-            }
-        }
-        return delta;
-    }
-
     /**
      * 
      * @param layers
@@ -720,25 +620,6 @@ public class UAObsAdapter extends AbstractVerticalSoundingAdapter {
 
     /**
      * 
-     * @param p
-     * @param h
-     * @param tp
-     * @param td
-     * @return
-     */
-    private static final UAObsLevel createLevel(double p, double h, double tp,
-            double td, int type) {
-        UAObsLevel level = new UAObsLevel();
-        level.setPressure((int) p);
-        level.setVertSig(type);
-        level.setGeoHeight((int) h);
-        level.setTemp(tp);
-        level.setDwpt(td);
-        return level;
-    }
-
-    /**
-     * 
      * @param args
      */
     public static final void main(String[] args) {
@@ -800,8 +681,6 @@ public class UAObsAdapter extends AbstractVerticalSoundingAdapter {
         // while (it.hasNext()) {
         // System.out.println(it.next());
         // }
-
-        Calendar c = TimeTools.getSystemCalendar();
 
         SurfaceObsLocation loc = new SurfaceObsLocation("72558");
         UAObs[] obs = new UAObs[2];

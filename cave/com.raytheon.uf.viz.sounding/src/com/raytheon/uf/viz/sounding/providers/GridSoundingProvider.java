@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -42,6 +41,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.sounding.SoundingLayer;
 import com.raytheon.uf.common.sounding.VerticalSounding;
@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 22, 2013       2190 mschenke    Initial creation
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -239,8 +240,8 @@ public class GridSoundingProvider extends
                 vs = createSounding(index, records);
                 SurfaceObsLocation loc = new SurfaceObsLocation();
                 loc.setStationId(vs.getStationId());
-                loc.setLatitude(location.y);
-                loc.setLongitude(location.x);
+                loc.setLatitude((float) location.y);
+                loc.setLongitude((float) location.x);
                 vs.setSpatialInfo(loc);
                 vs.setName(GeoUtil.formatCoordinate(location));
                 sounding[index] = vs;

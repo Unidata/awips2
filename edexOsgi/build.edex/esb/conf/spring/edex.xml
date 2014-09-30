@@ -101,13 +101,18 @@
 	</bean>
 	-->
 
-	<bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="getInstance">
-		<property name="maxConnectionsPerHost" value="${PYPIES_MAX_CONN}"/>
+	<bean id="httpClientConfigBuilder" class="com.raytheon.uf.common.comm.HttpClientConfigBuilder">
+		<property name="maxConnections" value="${PYPIES_MAX_CONN}"/>
 		<!-- value in milliseconds to allow socket to timeout, don't allow this to be zero, bad things could happen -->
 	    <property name="socketTimeout" value="180000"/>
-	    <property name="compressRequests" value="false"/>
-	    <property name="gzipResponseHandling" value="false"/>
+	    <property name="handlingGzipResponses" value="false"/>
 	</bean>
+    
+    <bean id="httpClientConfig" factory-bean="httpClientConfigBuilder" factory-method="build"/>
+    
+    <bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="configureGlobalInstance">
+       <constructor-arg ref="httpClientConfig"/>
+    </bean>
 
 	<bean id="pypiesStoreProps" class="com.raytheon.uf.common.pypies.PypiesProperties">
 		<property name="address" value="${PYPIES_SERVER}" />
@@ -299,9 +304,14 @@
    <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="setGeotoolsLogFactory">
         <constructor-arg value="org.geotools.util.logging.Log4JLoggerFactory" />
    </bean>
+      
+   <bean id="spatialQueryFactory" class="com.raytheon.uf.common.geospatial.SpatialQueryFactory"
+        factory-method="setImplementation">
+        <constructor-arg value="com.raytheon.edex.common.SpatialDbQuery"/>    
+   </bean>
 
     <!-- Holds the registry of request routers by server key -->
-    <bean id="handlerRegistry" class="com.raytheon.uf.edex.auth.HandlerRegistry"
+    <bean id="handlerRegistry" class="com.raytheon.uf.edex.requestsrv.HandlerRegistry"
         factory-method="getInstance" />
 
     <bean id="requestRouterRegistry"
@@ -310,20 +320,20 @@
 
     <!-- Server Request routers -->
     <bean id="serverPrivilegedRequestHandler"
-        class="com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler">
+        class="com.raytheon.uf.edex.requestsrv.request.ServerPrivilegedRequestHandler">
         <constructor-arg ref="handlerRegistry" />
     </bean>
-
+    
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg
-            value="com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivilegedRequest" />
+            value="com.raytheon.uf.edex.requestsrv.request.ServerPrivilegedRequestHandler.ServerPrivilegedRequest" />
         <constructor-arg ref="serverPrivilegedRequestHandler" />
     </bean>
 
     <util:constant id="requestServerKey"
         static-field="com.raytheon.uf.common.auth.RequestConstants.REQUEST_SERVER" />
 
-    <bean id="requestServiceRouter" class="com.raytheon.uf.edex.auth.ServerRequestRouter">
+    <bean id="requestServiceRouter" class="com.raytheon.uf.edex.requestsrv.router.ServerRequestRouter">
         <!-- This bean will cause all RequestRouter.route(request) calls 
             to be processed internally to EDEX -->
     </bean>

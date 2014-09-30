@@ -43,9 +43,10 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
- * May 02, 2013 1949       bsteffen    Update GFE data access in Product
+ * May 02, 2013 1949      bsteffen     Update GFE data access in Product
  *                                     Browser, Volume Browser, and Data Access
  *                                     Framework.
+ * Jul 01, 2014 3149      randerso     Changed to use updated GetGridRequest
  * 
  * </pre>
  * 
@@ -96,9 +97,8 @@ public class GFEDataAccessUtil {
      * @throws Exception
      */
     public static IGridSlice getSlice(GFERecord gfeRecord) throws Exception {
-        GetGridRequest gridRequest = new GetGridRequest();
-        gridRequest.setParmId(gfeRecord.getParmId());
-        gridRequest.setRecords(Arrays.asList(gfeRecord));
+        GetGridRequest gridRequest = new GetGridRequest(gfeRecord.getParmId(),
+                Arrays.asList(gfeRecord.getDataTime().getValidPeriod()));
 
         GetGridDataRequest request = new GetGridDataRequest();
         request.setSiteID(gfeRecord.getDbId().getSiteId());

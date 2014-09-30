@@ -10,6 +10,16 @@ function buildRPM()
       exit 1
    fi
 
+	buildRPMExec "${RPM_SPECIFICATION}"
+
+   return 0
+}
+
+function buildRPMExec()
+{
+	# Arguments:
+	# 1) specs file location
+
    /usr/bin/rpmbuild -ba \
       --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
       --define '_baseline_workspace %(echo ${WORKSPACE})' \
@@ -22,13 +32,11 @@ function buildRPM()
       --define '_component_build_time %(echo ${COMPONENT_BUILD_TIME})' \
       --define '_component_build_system %(echo ${COMPONENT_BUILD_SYSTEM})' \
       --buildroot ${AWIPSII_BUILD_ROOT} \
-      ${RPM_SPECIFICATION}/component.spec
+      ${1}/component.spec
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build RPM ${1}."
       exit 1
    fi
-
-   return 0
 }
 
 # This script will build all of the 64-bit rpms.
@@ -78,6 +86,11 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+source ${dir}/WA_rpm_build.sh
+if [ $? -ne 0 ]; then
+	echo "WARNING: Unable to find the WA-RPM Build Contributions."
+fi
+
 export LIGHTNING=true
 # Determine if the optional '-nobinlightning' argument has been specified.
 if [ "${2}" = "-nobinlightning" ]; then
@@ -97,6 +110,11 @@ if [ "${1}" = "-buildRPM" -a -n "${2}" ]; then
       exit 1
    fi
    exit 0
+fi
+
+if [ "${1}" = "-WA" ]; then
+	WA_rpm_build
+	exit 0
 fi
 
 if [ "${1}" = "-64bit" ]; then

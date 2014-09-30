@@ -54,7 +54,6 @@ import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.edex.util.grib.Grib1TableMap;
 import com.raytheon.edex.util.grib.GribParamTranslator;
 import com.raytheon.edex.util.grib.GribTableLookup;
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -98,6 +97,8 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Oct 07, 2013  2402     bsteffen    Decode GribDecodeMessage instead of
  *                                    files.
  * Oct 15, 2013  2473     bsteffen    Removed deprecated and unused code.
+ * Jul 30, 2014  3469     bsteffen    Improve logging of invalid files.
+ * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -164,11 +165,14 @@ public class Grib1Decoder extends AbstractDecoder {
             }
             return gribRecords.toArray(new GridRecord[] {});
         } catch (IOException e) {
-            throw new GribException("Failed to decode grib1 file: [" + fileName
-                    + "]", e);
+            throw new GribException("IO failure decoding grib1 file: ["
+                    + fileName + "]", e);
         } catch (NoValidGribException e) {
             throw new GribException(
                     "Invalid grib1 message: [" + fileName + "]", e);
+        } catch (Exception e) {
+            throw new GribException("Unexpected error in grib1 file: ["
+                    + fileName + "]", e);
         } finally {
             if (raf != null) {
                 try {
@@ -423,6 +427,9 @@ public class Grib1Decoder extends AbstractDecoder {
                     }
                 }
 
+            }
+            if (data == null) {
+                throw new GribException("No valid data found in grib record.");
             }
             if (gdsVars != null) {
                 correctForScanMode(data, gdsVars.getNx(), gdsVars.getNy(),
@@ -1012,8 +1019,7 @@ public class Grib1Decoder extends AbstractDecoder {
      *            The value of the level
      * @return The converted level type information
      */
-    private float[] convertGrib1LevelInfo(int ltype1, float lval1,
-            float lval2) {
+    private float[] convertGrib1LevelInfo(int ltype1, float lval1, float lval2) {
         float level1Type = ltype1;
         float level1Scale = 0;
         float level1Value = 0;
@@ -1252,8 +1258,6 @@ public class Grib1Decoder extends AbstractDecoder {
         try {
             return LevelMapper.getInstance().lookupLevel(levelName, "grib",
                     levelOneValue, levelTwoValue, levelUnit);
-        } catch (CommunicationException e) {
-            throw new GribException("Error requesting levels", e);
         } catch (MultipleLevelMappingException e) {
             statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
             return e.getArbitraryLevelMapping();

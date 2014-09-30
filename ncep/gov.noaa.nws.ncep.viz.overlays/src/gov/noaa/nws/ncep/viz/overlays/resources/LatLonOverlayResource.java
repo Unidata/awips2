@@ -1,25 +1,23 @@
 package gov.noaa.nws.ncep.viz.overlays.resources; 
 
+import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Implements a drawing layer to draw lat/lon lines 
+ * Implements a drawing layer to draw lat/lon lines
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -31,6 +29,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *   11/18/09                Greg Hull   Incorporate to11d6 changes 
  *   11/04/13    #880        Xiaochuan   set one wireframeShape for one lat or Lon lines.
  *                                       Set spatialChopFlag to be false.
+ *   Jul 28, 2014  3397      bclement    switched to non deprecated version of createWireframeShape()
+ *                                          removed unneeded clearCoodrinatePointArrayList() method
  * </pre>
  * 
  * @author mgao
@@ -38,9 +38,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayResourceData, IMapDescriptor> 
                             implements INatlCntrsResource {
-
-	private final static org.apache.log4j.Logger log = 
-		org.apache.log4j.Logger.getLogger(LatLonOverlayResource.class);
 	
 	private LatLonOverlayResourceData latLonOverlayResourceData; 
 	
@@ -53,8 +50,6 @@ public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayReso
     private List<Coordinate[]> latitudeCoordinatePointArrayList; 
 
     private List<Coordinate[]> longitudeCoordinatePointArrayList; 
-    
-    private double offset = 0; //50000; 
     
 	private double mapMinX; 
 	private double mapMaxY; 
@@ -118,15 +113,12 @@ public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayReso
 	    	 */
 	    	clearWireFrameShapeArray(wireframeShapeForLatLineArray);
 	    	clearWireFrameShapeArray(wireframeShapeForLonLineArray); 
-	      	clearCoordinatePointArrayList(latitudeCoordinatePointArrayList); 
-	    	clearCoordinatePointArrayList(longitudeCoordinatePointArrayList); 
  	
 	       	latitudeCoordinatePointArrayList = new ArrayList<Coordinate[]>(latitudeDrawingLineNumber); 
 	    	longitudeCoordinatePointArrayList = new ArrayList<Coordinate[]>(longitudeDrawingLineNumber); 
 	    	
 	    	wireframeShapeForLatLineArray = target.createWireframeShape(false,
-					descriptor, 4.0f, false, new PixelExtent(
-							getViewMinX()+offset, getViewMaxX()-offset, getViewMinY()+offset, getViewMaxY()-offset));
+                    descriptor, 4.0f);
 	    	
 			double latitudeValue = -90;  
 			for(int i=0; i<latitudeDrawingLineNumber && latitudeValue <= 90; i++) {
@@ -143,8 +135,7 @@ public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayReso
 			wireframeShapeForLatLineArray.compile(); 
 
 			wireframeShapeForLonLineArray = target.createWireframeShape(false,
-					descriptor, 4.0f, false, new PixelExtent(
-							getViewMinX()+offset, getViewMaxX()-offset, getViewMinY()+offset, getViewMaxY()-offset));
+                    descriptor, 4.0f);
 			
 			double longitudeValue = -180;  
 			for(int i=0; i<longitudeDrawingLineNumber && longitudeValue <= 180; i++) {
@@ -377,15 +368,6 @@ public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayReso
     	if(wireframeShapeArray != null) {
     		wireframeShapeArray.dispose();
     		wireframeShapeArray = null;
-    	}
-    }
-    
-    private void clearCoordinatePointArrayList(List<Coordinate[]> coordinatePointArrayList) {
-    	if(coordinatePointArrayList != null) {
-    		for(Coordinate[] eachCoordinateArray : coordinatePointArrayList) {
-    			eachCoordinateArray = null; 
-    		}
-    		coordinatePointArrayList = null; 
     	}
     }
 

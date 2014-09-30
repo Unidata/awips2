@@ -39,9 +39,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.ObjectReferenceResolver;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;

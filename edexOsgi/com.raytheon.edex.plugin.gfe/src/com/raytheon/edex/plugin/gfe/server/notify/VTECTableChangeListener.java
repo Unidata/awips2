@@ -26,8 +26,6 @@ import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.VTECChange;
 import com.raytheon.uf.common.activetable.VTECTableChangeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.textproduct.DraftProduct;
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -38,8 +36,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.EdexException;
 
 /**
  * Listener to handle VTEC Table Change notifications
@@ -55,6 +51,7 @@ import com.raytheon.uf.edex.core.EdexException;
  *                                     Fixed to work with sites other than the EDEX site
  *                                     Added work around to Localization not sending
  *                                     FileUpdatedMessages on EDEX
+ * Jul 21, 2014 2768       bclement    removed FileUpdateMessage
  * 
  * </pre>
  * 
@@ -132,19 +129,6 @@ public class VTECTableChangeListener {
 
             if (markit) {
                 markDraft(lf);
-
-                // TODO: remove sending of FileUpdateMessage after DR #2768 is
-                // fixed
-                try {
-                    EDEXUtil.getMessageProducer().sendAsync(
-                            "utilityNotify",
-                            new FileUpdatedMessage(lf.getContext(), lf
-                                    .getName(), FileChangeType.UPDATED, lf
-                                    .getTimeStamp().getTime()));
-                } catch (EdexException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
             }
         }
     }

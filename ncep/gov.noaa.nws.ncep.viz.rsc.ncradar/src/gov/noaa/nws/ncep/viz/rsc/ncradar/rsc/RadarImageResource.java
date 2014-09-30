@@ -39,6 +39,8 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -85,7 +87,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * TODO Add Description
- *
+ * 
  * This class is based on Raytheon's code.
  * 
  * <pre>
@@ -101,7 +103,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      for the colorbar 
  * 12/19/2012   #960       Greg Hull   override propertiesChanged() to update colorBar.
  * 06/10/2013   #999       Greg Hull   RadarRecords from RadarFrameData, rm interrogator
- *                                      
+ * 06/30/2014    3165      njensen     Use ColorMapLoader to get ColorMap
+ * 
  * </pre>
  * 
  * @author sgurung
@@ -149,7 +152,8 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
 			super(time, interval);	
 		}
 
-		public boolean updateFrameData( IRscDataObject rscDataObj ) {
+		@Override
+        public boolean updateFrameData( IRscDataObject rscDataObj ) {
 
 			super.updateFrameData(rscDataObj);
 
@@ -166,7 +170,8 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
 			return true;
 		}
 		
-		public void dispose() {
+		@Override
+        public void dispose() {
 //			if( tileSet != baseTile && tileSet != null ) {
 //				tileSet.dispose();
 //				tileSet = null;
@@ -262,7 +267,7 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
 
 		ColorBarFromColormap colorBar = ((RadarResourceData)resourceData).getColorBar();
 
-		((ColorBarFromColormap)colorBar).setColorMap( colorMap );
+		colorBar.setColorMap( colorMap );
 
 		colorMapParameters = new ColorMapParameters();
 		colorMapParameters.setColorMap( colorMap );
@@ -456,7 +461,11 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
                 colorMapName = "Radar/OSF/16 Level Reflectivity";
             }
          
-            params.setColorMap(target.buildColorMap(colorMapName));
+            try {
+                params.setColorMap(ColorMapLoader.loadColorMap(colorMapName));
+            } catch (ColorMapException e) {
+                throw new VizException(e);
+            }
 
         }
 
