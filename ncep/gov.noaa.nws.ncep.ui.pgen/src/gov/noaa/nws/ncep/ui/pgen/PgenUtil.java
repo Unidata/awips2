@@ -81,6 +81,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -684,6 +685,67 @@ public class PgenUtil {
         AbstractEditor editor = getActiveEditor();
         if (editor != null) {
             try {
+                if ( editor instanceof VizMapEditor || PgenUtil.isNatlCntrsEditor(editor)){
+                    PgenSession.getInstance().addEditor(editor);
+                }
+                switch (getPgenMode()) {
+                case SINGLE:
+                    /*
+                     * Use existing (or new) PgenResourceData to construct new
+                     * Resources to add to each Pane's ResourceList
+                     */
+                    if (rscData == null) {
+                        rscData = new PgenResourceData();
+                    }
+                    int iii = 0;
+                    for (IDisplayPane pane : editor.getDisplayPanes()) {
+                        IDescriptor idesc = pane.getDescriptor();
+                        if (idesc.getResourceList().size() > 0) {
+                            drawingLayer = rscData.construct(
+                                    new LoadProperties(), idesc);
+                            // System.out.println("NEW pgen resource: "+drawingLayer);
+                            idesc.getResourceList().add(drawingLayer);
+                            idesc.getResourceList().addPreRemoveListener(
+                                    drawingLayer);
+                            drawingLayer.init(pane.getTarget());
+                        }
+                    }
+                    break;
+                case MULTIPLE:
+                    /*
+                     * Add a new PgenResourceData and Resource to active Pane's
+                     * ResourceList
+                     */
+                    IMapDescriptor desc = (IMapDescriptor) editor
+                            .getActiveDisplayPane().getRenderableDisplay()
+                            .getDescriptor();
+                    drawingLayer = new PgenResourceData().construct(
+                            new LoadProperties(), desc);
+                    desc.getResourceList().add(drawingLayer);
+                    desc.getResourceList().addPreRemoveListener(drawingLayer);
+                    drawingLayer
+                            .init(editor.getActiveDisplayPane().getTarget());
+                    break;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return drawingLayer;
+    }
+    
+    /**
+     * Create a new PgenResource and add it to the current editor.
+     * 
+     * @return the PgenResource
+     */
+    public static final PgenResource addPgenResourceToActiveEditor() {
+
+        PgenResource drawingLayer = null;
+        AbstractEditor editor = getActiveEditor();
+        if (editor != null) {
+            try {
                 switch (getPgenMode()) {
                 case SINGLE:
                     /*
@@ -696,8 +758,15 @@ public class PgenUtil {
                     for (IDisplayPane pane : editor.getDisplayPanes()) {
                         IDescriptor idesc = pane.getDescriptor();
                         if (idesc.getResourceList().size() > 0) {
-                            drawingLayer = rscData.construct(
+                            
+                            if ( PgenSession.getInstance().getPgenResource() != null ){
+                                drawingLayer = PgenSession.getInstance().getPgenResource();
+                            }
+                            else {
+                                drawingLayer = rscData.construct(
                                     new LoadProperties(), idesc);
+                            }
+                            
                             // System.out.println("NEW pgen resource: "+drawingLayer);
                             idesc.getResourceList().add(drawingLayer);
                             idesc.getResourceList().addPreRemoveListener(
