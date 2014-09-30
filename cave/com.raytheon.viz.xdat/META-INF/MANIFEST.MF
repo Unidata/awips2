@@ -10,9 +10,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core,
  com.raytheon.viz.ui,
  com.raytheon.viz.hydrocommon;bundle-version="1.10.13",
- org.postgres;bundle-version="1.0.0"
+ org.postgres;bundle-version="9.3.5"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.util

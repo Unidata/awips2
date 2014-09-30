@@ -39,9 +39,12 @@
 #    02/20/2014          #2824     randerso       Added log message when local override files are not found
 #    03/11/2014          #2897     dgilling       Add new MHWM databases to default configuration.
 #    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
-#    04/17/14        2934          dgilling       Remove alias for TPCSurgeProb D2D database.
-#    05/09/2014      3148          randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
+#    04/17/2014          #2934     dgilling       Remove alias for TPCSurgeProb D2D database.
+#    05/09/2014          #3148     randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
+#    06/20/2014          #3230     rferrel        Added URMA25.
 #
+#    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS 
+#    07/09/2014          #3146     randerso       Removed unused import
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -237,6 +240,7 @@ else:
     TdUnc =    ("TdUnc", SCALAR, "F", "Dewpoint Anl Uncertainty", 15.0, 0.0, 0, NO)
 WSpdUnc =  ("WSpdUnc", SCALAR, "kts", "WSpd Anl Uncertainty", 12.0, 0.0, 0, NO)
 WDirUnc =  ("WDirUnc", SCALAR, "deg", "WDir Anl Uncertainty", 10.0, 0.0, 0, NO)
+VisUnc  =  ("VisUnc", SCALAR, "SM", "Vsby Anl Uncertainty", 10.0, 0.0, 2, NO)
 
 # NamDNG5 parms
 QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 3.0, 0.0, 2, YES)
@@ -1034,6 +1038,7 @@ D2DDBVERSIONS = {
       "TPCStormSurge": 1,
       "CRMTopo": 1,
       "NED": 1,
+      "SPC": 8,
       }
 
 #---------------------------------------------------------------------------
@@ -1060,7 +1065,8 @@ if SID in ALASKA_SITES:
                  'AKwave10',
                  'AKwave4',
                  'GlobalWave',
-                 ('AK-RTMA','RTMA'),
+#                 ('AK-RTMA','RTMA'),
+                 ('AK-RTMA3','RTMA'),  # Only have one RTMA
                  ('AK-NamDNG5','NamDNG5'),
                  ('MOSGuide-AK', 'MOSGuide'),
                  ('HiResW-ARW-AK', 'HIRESWarw'),
@@ -1197,6 +1203,7 @@ elif SID in CONUS_EAST_SITES:
                  'NPHwave4',
                  'WPHwave10',
                  'GLOBHwave',
+                 'URMA25',
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1255,6 +1262,7 @@ else:   #######DCS3501 WEST_CONUS
                  'NPHwave4',
                  'WPHwave10',
                  'GLOBHwave',
+                 'URMA25',
                ]
 
 if SID in GreatLake_SITES:
@@ -1857,15 +1865,15 @@ TPCTCM_MODEL = [([HiWind], TC3)]
 # RTMA database parameter groupings
 #if SID in ALASKA_SITES: - not sure if this is right
 if SID in ALASKA_SITES or SID in ["HFO", "SJU"]:
-    RTMAPARMS = [([Temp,Td,RH,Wind],TC1),
+    RTMAPARMS = [([Temp,Td,RH,Wind,Vis],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc],TC1)]
 else:
-    RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky],TC1),
+    RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc],TC1)]
 
 # NamDNG5 database parameter groupings
 NamDNG5PARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
@@ -1983,7 +1991,7 @@ DATABASES.append((ISC, ISCPARMS))
 #----------------------------------------------------------------------------
 # Server settings     DO NOT CHANGE THESE DEFINITIONS
 #----------------------------------------------------------------------------
-from com.raytheon.edex.plugin.gfe.config import IFPServerConfig, SimpleServerConfig
+from com.raytheon.edex.plugin.gfe.config import SimpleServerConfig
 IFPConfigServer = SimpleServerConfig()
 #IFPConfigServer.allowedNodes             = []
 IFPConfigServer.allowTopoBelowZero       = 1

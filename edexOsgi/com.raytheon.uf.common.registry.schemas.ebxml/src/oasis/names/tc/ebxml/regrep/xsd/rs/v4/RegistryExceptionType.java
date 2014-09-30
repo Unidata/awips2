@@ -38,7 +38,7 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidationExceptionType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import com.raytheon.uf.common.registry.RegrepUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 

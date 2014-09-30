@@ -30,7 +30,7 @@ import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONSTATUS;
 
 /**
- * TODO Add Description
+ * Monitors site activation across all JVMs on all cluster members
  * 
  * <pre>
  * 
@@ -38,7 +38,8 @@ import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONS
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 9, 2011            bphillip     Initial creation
+ * Aug 09, 2011            bphillip    Initial creation
+ * Sep 11, 2014  #3622     randerso    Fixed logic so failures still remove pending requests
  * 
  * </pre>
  * 
@@ -47,7 +48,6 @@ import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONS
  */
 
 public class SiteActivationMonitor {
-
     private Map<String, Map<String, Set<String>>> activationMap = new HashMap<String, Map<String, Set<String>>>();
 
     private Map<String, Map<String, Set<String>>> deactivationMap = new HashMap<String, Map<String, Set<String>>>();
@@ -97,8 +97,8 @@ public class SiteActivationMonitor {
     public void resetFailure() {
         status = ACTIVATIONSTATUS.SUCCESS;
     }
-    
-    public ACTIVATIONSTATUS getStatus(){
+
+    public ACTIVATIONSTATUS getStatus() {
         return status;
     }
 
@@ -135,7 +135,7 @@ public class SiteActivationMonitor {
                 deactivationMap.get(plugin).get(modifiedSite)
                         .add(serverAndMode);
             }
-        } else if (notification.isSuccess()) {
+        } else {
             if (notification.isActivation()) {
                 activationMap.get(plugin).get(modifiedSite)
                         .remove(serverAndMode);
@@ -143,9 +143,11 @@ public class SiteActivationMonitor {
                 deactivationMap.get(plugin).get(modifiedSite)
                         .remove(serverAndMode);
             }
-        } else if (notification.isFailure()) {
-            status = ACTIVATIONSTATUS.FAILURE;
+            if (notification.isFailure()) {
+                status = ACTIVATIONSTATUS.FAILURE;
+            }
         }
+
         return notification;
     }
 }

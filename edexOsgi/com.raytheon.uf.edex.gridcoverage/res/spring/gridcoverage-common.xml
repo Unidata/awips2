@@ -21,7 +21,7 @@
 	<bean id="gridcoveragelookup"
 		class="com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup"
 		factory-method="getInstance"
-		depends-on="serializeServer,getGridCoverageHandlerRegistered,queryDataRegistered,registerRequestServiceRouter"
+		depends-on="getGridCoverageHandlerRegistered,queryDataRegistered,registerRequestServiceRouter"
 		lazy-init="true" />
 
 	<bean id="gridcoverageRegistered" factory-bean="dbPluginRegistry"
@@ -30,7 +30,7 @@
 		<constructor-arg ref="gridcoverageProperties" />
 	</bean>
 	
-	<bean class="com.raytheon.uf.common.util.ConvertUtil" factory-method="registerConverter">
+	<bean class="com.raytheon.uf.common.convert.ConvertUtil" factory-method="registerConverter">
   		<constructor-arg><bean class="com.raytheon.uf.common.gridcoverage.convert.GridCoverageConverter"/></constructor-arg>
   		<constructor-arg><value>com.raytheon.uf.common.gridcoverage.GridCoverage</value></constructor-arg>
 	</bean>

@@ -19,8 +19,6 @@
  **/
 package com.raytheon.edex.plugin.goessounding.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-
 import java.io.File;
 import java.util.Calendar;
 import java.util.List;
@@ -45,9 +43,10 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
@@ -62,6 +61,8 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 16, 2014 3628       mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -188,7 +189,8 @@ public class GOESSoundingDataAdapter {
                     SPIEntry s = SPI_DATA.nearest(lat, lon, MAX_DISTANCE);
                     if (s != null) {
                         SurfaceObsLocation location = new SurfaceObsLocation();
-                        location.assignLocation(lat, lon);
+                        location.assignLocation(lat.floatValue(),
+                                lon.floatValue());
                         location.setStationId(s.getId());
                         obsData.setLocation(location);
                     } else {
@@ -279,7 +281,8 @@ public class GOESSoundingDataAdapter {
             // get the replication sublist for the sounding data
             IBUFRDataPacket p = dataList.get(SAT_SOUNDERDATA_POS);
             if ((p instanceof BUFRSublistPacket)
-                    && (RepSubList.getPacketType().equals(p.getUnits()))) {
+                    && (DataPacketTypes.RepSubList.getPacketType().equals(p
+                            .getUnits()))) {
 
                 List<IBUFRDataPacket> subList = (List<IBUFRDataPacket>) p
                         .getValue();

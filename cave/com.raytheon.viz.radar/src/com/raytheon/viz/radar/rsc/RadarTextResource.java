@@ -55,6 +55,8 @@ import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 29, 2010            mschenke     Initial creation
+ * Aug 14, 2014 3523       mapeters     Updated deprecated {@link DrawableString#textStyle} 
+ *                                      assignments.
  * 
  * </pre>
  * 
@@ -244,7 +246,7 @@ public class RadarTextResource extends
             DrawableString dString = new DrawableString(pair.text, colors);
             dString.font = textFont;
             dString.setCoordinates(xOffset, yOffset, 0);
-            dString.textStyle = TextStyle.BLANKED;
+            dString.addTextStyle(TextStyle.BLANKED);
             dString.horizontalAlignment = hAlign;
             dString.verticallAlignment = VerticalAlignment.TOP;
             dString.basics.alpha = pair.alpha;

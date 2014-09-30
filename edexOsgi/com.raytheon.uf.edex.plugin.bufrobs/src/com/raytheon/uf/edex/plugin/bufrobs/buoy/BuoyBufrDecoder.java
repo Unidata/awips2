@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.plugin.bufrobs.BufrObsDecodeException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 11, 2014 3229       bclement     Initial creation
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -171,7 +172,7 @@ public class BuoyBufrDecoder extends AbstractBufrSfcObsDecoder {
                 throw new BufrObsDecodeException("BUFR file '"
                         + parser.getFile() + "' missing location information");
             }
-            location.assignLocation(lat.doubleValue(), lon.doubleValue());
+            location.assignLocation(lat.floatValue(), lon.floatValue());
         }
     }
 

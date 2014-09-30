@@ -2,11 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Graphing Plug-in
 Bundle-SymbolicName: com.raytheon.viz.core.graphing;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.core.graphing.Activator
 Bundle-Vendor: Raytheon
-Eclipse-BuddyPolicy: ext, registered, global
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.geotools,
@@ -24,5 +22,5 @@ Export-Package: com.raytheon.viz.core.graphing,
  com.raytheon.viz.core.graphing.rsc,
  com.raytheon.viz.core.graphing.util,
  com.raytheon.viz.core.graphing.xy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.wxmath

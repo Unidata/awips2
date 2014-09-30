@@ -2,10 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GFE Plug-in
 Bundle-SymbolicName: com.raytheon.viz.gfe;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.gfe.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.uf.viz.core, com.raytheon.viz.core, com.raytheon.viz.ui
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.core,
@@ -72,4 +71,4 @@ Import-Package: com.raytheon.uf.common.dissemination,
  org.eclipse.jface.text;resolution:=optional,
  org.eclipse.jface.text.contentassist;resolution:=optional,
  org.eclipse.ui.texteditor.spelling;resolution:=optional
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

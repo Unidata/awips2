@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.w3c.dom.Element;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 

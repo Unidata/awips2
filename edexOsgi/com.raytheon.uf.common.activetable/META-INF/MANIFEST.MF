@@ -4,8 +4,7 @@ Bundle-Name: Activetable Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.activetable
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.dataplugin.warning,

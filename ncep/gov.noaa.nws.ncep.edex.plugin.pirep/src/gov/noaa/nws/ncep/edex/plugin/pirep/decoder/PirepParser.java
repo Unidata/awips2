@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Point;
  * 10/20/2011   472        qzhou        Added WX_COND_WORDS. Removed SKY_SKC, SKY_CLR and other _COND_WORDS
  * 11/01/2011   286       Q.Zhou        Added month and year to decodetime
  * Sep 05, 2013 2316       bsteffen     Unify pirep and ncpirep.
+ * Jul 23, 2014 3410       bclement     location changed to floats
  * 
  * </pre>
  * 
@@ -183,7 +184,8 @@ public class PirepParser {
     
     private static final String ICE_REGEX = ICE_TURB_PREFIX + "((?: )(RIME|MXD|CLR))" + ICE_TURB_SUFFIX;//?
 
-    private static final String TRB_REGEX = ICE_TURB_PREFIX + "((?: )(CHOP|CAT))?" + ICE_TURB_SUFFIX;
+    private static final String TRB_REGEX = ICE_TURB_PREFIX
+            + "((?: )(CHOP|CAT))?" + ICE_TURB_SUFFIX;
 
     
     // 3901N 08446W
@@ -712,9 +714,9 @@ public class PirepParser {
                     LatLonPoint point2 = point1.positionOf(-bearing, dist);
                     interLocation = point2;
 
-                    location = new BasePoint(point2
-                            .getLatitude(LatLonPoint.INDEGREES), point2
-                            .getLongitude(LatLonPoint.INDEGREES));
+                    location = new BasePoint(
+                            point2.getLatitude(LatLonPoint.INDEGREES),
+                            point2.getLongitude(LatLonPoint.INDEGREES));
 
                     decodeStatus = true;
                 } else {
@@ -851,7 +853,7 @@ public class PirepParser {
                     }
                 }
                 if(lat != null && lon != null) {
-                    point = new BasePoint(lat,lon);
+                    point = new BasePoint(lat, lon);
                 }
             }            
         }

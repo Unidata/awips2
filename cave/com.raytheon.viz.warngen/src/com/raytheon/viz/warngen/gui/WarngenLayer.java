@@ -54,8 +54,11 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.GeodeticCalculator;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
@@ -65,6 +68,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GridSpacing;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
+import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialDataSet;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialFactory;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialMetadata;
 import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
@@ -72,6 +76,9 @@ import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 import com.raytheon.uf.common.geospatial.DestinationGeodeticCalculator;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -79,6 +86,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -95,9 +103,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
@@ -212,6 +217,14 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/23/2014  DR 16356    Qinglu Lin  Updated initializeState() and added reset().
  * 04/28,2014  3033        jsanchez    Properly handled back up configuration (*.xml) files. Set backupSite to null when backup site is not selected.
  * 05/16/2014  DR 17365    D. Friedman Check if moved vertex results in polygon valid in both lat/lon and local coordinates.
+ * 07/24/2014  3429        mapeters    Updated deprecated drawLine() calls.
+ * 08/01/2014  3471        mapeters    Updated deprecated createShadedShape() calls.
+ * 07/01/2014  DR 17450    D. Friedman Use list of templates from backup site.
+ * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
+ *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
+ * 08/20/2014  3353        rferrel     Generating Geo Spatial data set no longer on the UI thread.
+ * 08/20/2014  ASM #16703  D. Friedman Make geo feature types for watches explicit
+ * 09/15/2014  3353        rferrel     No longer have null parent shell for the GenerateGeoDataSetDialog.
  * </pre>
  * 
  * @author mschenke
@@ -223,6 +236,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
             .getHandler(WarngenLayer.class);
 
     String uniqueFip = null;
+
+    Map<String, Double> geomArea = new HashMap<String, Double>();
+
+    Map<String, Point> geomCentroid = new HashMap<String, Point>();
 
     private static class GeospatialDataList {
 
@@ -588,21 +605,24 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     }
 
-    private static class GeomMetaDataUpdateNotificationObserver implements INotificationObserver {
+    private static class GeomMetaDataUpdateNotificationObserver implements
+            INotificationObserver {
 
         private static final String SHAPEFILE_UPDATE_TOPIC = "edex.geospatialUpdate.msg";
 
         private static GeomMetaDataUpdateNotificationObserver instance = null;
-        
+
         static WarngenLayer warngenLayer;
 
         private GeomMetaDataUpdateNotificationObserver() {
         }
 
-        public static synchronized GeomMetaDataUpdateNotificationObserver getInstance(WarngenLayer wl) {
+        public static synchronized GeomMetaDataUpdateNotificationObserver getInstance(
+                WarngenLayer wl) {
             if (instance == null) {
                 instance = new GeomMetaDataUpdateNotificationObserver();
-                NotificationManagerJob.addObserver(SHAPEFILE_UPDATE_TOPIC, instance);
+                NotificationManagerJob.addObserver(SHAPEFILE_UPDATE_TOPIC,
+                        instance);
                 warngenLayer = wl;
             }
             return instance;
@@ -614,7 +634,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
          */
         public static synchronized void removeNotificationObserver() {
             if (instance != null) {
-                NotificationManagerJob.removeObserver(SHAPEFILE_UPDATE_TOPIC, instance);
+                NotificationManagerJob.removeObserver(SHAPEFILE_UPDATE_TOPIC,
+                        instance);
                 instance = null;
             }
         }
@@ -624,8 +645,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
             for (NotificationMessage message : messages) {
                 try {
                     Object payload = message.getMessagePayload();
-                    if (payload instanceof String ) {
-                        System.out.println("Geometry Metadata has been updated based on " + payload + " shapefile data");
+                    if (payload instanceof String) {
+                        System.out
+                                .println("Geometry Metadata has been updated based on "
+                                        + payload + " shapefile data");
                         warngenLayer.siteMap.clear();
                         warngenLayer.init(warngenLayer.configuration);
                     }
@@ -636,7 +659,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }
     }
-    
 
     private static Map<String, GeospatialDataList> siteMap = new HashMap<String, GeospatialDataList>();
 
@@ -908,8 +930,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         });
         manager = new WarngenUIManager(this);
         coveredAreaFrame = target.createWireframeShape(true, this.descriptor);
-        shadedCoveredArea = target.createShadedShape(true, this.descriptor,
-                true);
+        shadedCoveredArea = target.createShadedShape(true,
+                this.descriptor.getGridGeometry(), true);
     }
 
     /**
@@ -1017,6 +1039,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             double[] in1 = new double[2];
             double[] in2 = new double[2];
 
+            List<DrawableLine> lines = new ArrayList<DrawableLine>(
+                    (c.length - 1) * 2);
             for (int i = 0; i < (c.length - 1); i++) {
                 in1[0] = c[i].x;
                 in1[1] = c[i].y;
@@ -1025,8 +1049,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
                 double[] out1 = this.descriptor.worldToPixel(in1);
                 double[] out2 = this.descriptor.worldToPixel(in2);
-                target.drawLine(out1[0], out1[1], 0.0, out2[0], out2[1], 0.0,
-                        color, LINE_WIDTH);
+
+                DrawableLine line = new DrawableLine();
+                line.setCoordinates(out1[0], out1[1]);
+                line.addPoint(out2[0], out2[1]);
+                line.basics.color = color;
+                line.width = LINE_WIDTH;
+                lines.add(line);
 
                 double delta;
 
@@ -1043,15 +1072,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 double[] triRight = new double[] { out1[0] + delta,
                         out1[1] + delta };
 
-                target.drawLine(triTop[0], triTop[1], 0.0, triLeft[0],
-                        triLeft[1], 0.0, color, LINE_WIDTH);
-                target.drawLine(triTop[0], triTop[1], 0.0, triRight[0],
-                        triRight[1], 0.0, color, LINE_WIDTH);
-                target.drawLine(triLeft[0], triLeft[1], 0.0, triRight[0],
-                        triRight[1], 0.0, color, LINE_WIDTH);
-
+                DrawableLine line2 = new DrawableLine();
+                line2.setCoordinates(triLeft[0], triLeft[1]);
+                line2.addPoint(triTop[0], triTop[1]);
+                line2.addPoint(triRight[0], triRight[1]);
+                line2.addPoint(triLeft[0], triLeft[1]);
+                line2.basics.color = color;
+                line2.width = LINE_WIDTH;
+                lines.add(line2);
             }
-
+            target.drawLine(lines.toArray(new DrawableLine[0]));
         }
     }
 
@@ -1096,6 +1126,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 DrawableString string = new DrawableString(text, textColor);
                 string.magnification = magnification;
                 string.setCoordinates(out[0], out[1]);
+                string.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
+                string.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
                 strings.add(string);
             }
         }
@@ -1179,6 +1211,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }// end synchronize
         customMaps.loadCustomMaps(Arrays.asList(config.getMaps()));
 
+        createAreaAndCentroidMaps();
+
         this.configuration = config;
         System.out.println("Total time to init warngen config = "
                 + (System.currentTimeMillis() - t0) + "ms");
@@ -1186,7 +1220,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private void initializeGeomUpdateObserver() {
         if (geomUpdateObserver == null) {
-            geomUpdateObserver= GeomMetaDataUpdateNotificationObserver.getInstance(this);
+            geomUpdateObserver = GeomMetaDataUpdateNotificationObserver
+                    .getInstance(this);
         }
     }
 
@@ -1200,9 +1235,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
     private void loadGeodataForConfiguration(WarngenConfiguration config) {
         Map<String, GeospatialMetadata> metadataMap = GeospatialFactory
                 .getMetaDataMap(config);
-        String site = getLocalizedSite();
+        final String site = getLocalizedSite();
 
         synchronized (siteMap) {
+
             for (String areaSource : metadataMap.keySet()) {
                 String currKey = areaSource + "." + site;
                 GeospatialMetadata gmd = metadataMap.get(areaSource);
@@ -1212,122 +1248,29 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     try {
                         long tq0 = System.currentTimeMillis();
                         gData = new GeospatialDataList();
-                        gData.features = GeospatialFactory.getGeoSpatialList(
-                                getLocalizedSite(), gmd);
-
-                        // set the CountyUserData
-                        List<Geometry> geoms = new ArrayList<Geometry>(
-                                gData.features.length);
-                        for (GeospatialData gd : gData.features) {
-                            geoms.add(gd.geometry);
-                            CountyUserData cud = new CountyUserData(gd,
-                                    String.valueOf(gd.attributes
-                                            .get(WarngenLayer.GID)));
-                            GeometryUtil.setUserData(gd.geometry, cud);
-                        }
-
-                        List<Geometry> locals = new ArrayList<Geometry>();
-
-                        Coordinate c = new GeometryFactory()
-                                .buildGeometry(geoms).getCentroid()
-                                .getCoordinate();
-                        gData.latLonToLocal = MapUtil
-                                .getTransformFromLatLon(MapUtil
-                                        .constructStereographic(
-                                                MapUtil.AWIPS_EARTH_RADIUS,
-                                                MapUtil.AWIPS_EARTH_RADIUS,
-                                                c.y, c.x));
-                        gData.localToLatLon = gData.latLonToLocal.inverse();
-                        for (GeospatialData gd : gData.features) {
-                            Geometry local = JTS.transform(gd.geometry,
-                                    gData.latLonToLocal);
-                            gd.attributes.put(AREA, local.getArea());
-                            gd.attributes.put(GeospatialDataList.LOCAL_GEOM,
-                                    local);
-                            gd.attributes.put(
-                                    GeospatialDataList.LOCAL_PREP_GEOM,
-                                    PreparedGeometryFactory.prepare(local));
-                            locals.add(local);
-                        }
-
-                        Envelope env = new GeometryFactory().buildGeometry(
-                                locals).getEnvelopeInternal();
-                        IExtent localExtent = new PixelExtent(env.getMinX(),
-                                env.getMaxX(), env.getMinY(), env.getMaxY());
-
-                        int nx = 600;
-                        int ny = 600;
-                        // Boolean to change the aspect ratio of the extent to
-                        // match
-                        boolean keepAspectRatio = true;
-
-                        GridSpacing gridSpacing = dialogConfig.getGridSpacing();
-
-                        if ((gridSpacing != null)
-                                && (gridSpacing.getNx() != null)
-                                && (gridSpacing != null)) {
-                            nx = gridSpacing.getNx();
-                            ny = gridSpacing.getNy();
-                            keepAspectRatio = gridSpacing.isKeepAspectRatio();
-                        }
-
-                        double xinc, yinc;
-                        double width = localExtent.getWidth();
-                        double height = localExtent.getHeight();
-                        if (!keepAspectRatio) {
-                            xinc = (width / nx);
-                            yinc = (height / ny);
+                        GeospatialDataSet dataSet = GeospatialFactory
+                                .getGeoSpatialDataSet(getLocalizedSite(), gmd);
+                        if (dataSet != null) {
+                            updateGeoData(gData, dataSet, gmd, currKey, tq0);
                         } else {
-                            if (width > height) {
-                                ny = (int) ((height * nx) / width);
-                            } else if (height > width) {
-                                nx = (int) ((width * ny) / height);
-                            }
+                            // This makes sure dialog exists and is open
+                            createDialog();
+                            GenerateGeoDataSetDialog genDialog = new GenerateGeoDataSetDialog(
+                                    dialog.getShell(), site, gmd);
 
-                            xinc = yinc = (width / nx);
-                        }
-                        gData.localExtent = new PixelExtent(
-                                localExtent.getMinX() - xinc,
-                                localExtent.getMaxX() + xinc,
-                                localExtent.getMinY() - yinc,
-                                localExtent.getMaxY() + yinc);
-                        gData.nx = nx;
-                        gData.ny = ny;
-
-                        GeneralGridEnvelope range = new GeneralGridEnvelope(
-                                new int[] { 0, 0 }, new int[] { gData.nx,
-                                        gData.ny }, false);
-                        GeneralEnvelope ge = new GeneralEnvelope(new double[] {
-                                gData.localExtent.getMinX(),
-                                gData.localExtent.getMaxY() }, new double[] {
-                                gData.localExtent.getMaxX(),
-                                gData.localExtent.getMinY() });
-
-                        gData.localGridGeometry = new GeneralGridGeometry(
-                                range, ge);
-
-                        System.out.println("Time to lookup geospatial data "
-                                + (System.currentTimeMillis() - tq0));
-                        siteMap.put(currKey, gData);
-
-                        GeospatialData[] timezones = GeospatialFactory
-                                .getTimezones();
-                        if (timezones != null) {
-                            for (GeospatialData timezone : timezones) {
-                                if (timezone.attributes.containsKey(gmd
-                                        .getTimeZoneField())) {
-                                    String oneLetterTimezone = String
-                                            .valueOf(timezone.attributes
-                                                    .get(gmd.getTimeZoneField()));
-                                    if (timezoneMap
-                                            .containsKey(oneLetterTimezone) == false) {
-                                        timezoneMap.put(oneLetterTimezone,
-                                                timezone.geometry);
-                                    }
-                                }
+                            // Assume this is a blocking dialog.
+                            genDialog.open();
+                            Object o = genDialog.getReturnValue();
+                            if (o instanceof GeospatialDataSet) {
+                                dataSet = (GeospatialDataSet) genDialog
+                                        .getReturnValue();
+                                updateGeoData(gData, dataSet, gmd, currKey, tq0);
+                            } else if (o instanceof Exception) {
+                                Exception e = (Exception) o;
+                                statusHandler.handle(Priority.WARN,
+                                        "Error in initializing geometries.", e);
                             }
                         }
-
                     } catch (Exception e) {
                         statusHandler.handle(Priority.WARN,
                                 "Error in initializing geometries.", e);
@@ -1335,6 +1278,107 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             }
         }// end synchronize
+    }
+
+    private void updateGeoData(GeospatialDataList gData,
+            GeospatialDataSet dataSet, GeospatialMetadata gmd, String currKey,
+            long tq0) throws FactoryException, MismatchedDimensionException,
+            TransformException {
+        gData.features = GeospatialFactory.getGeoSpatialList(dataSet, gmd);
+
+        // set the CountyUserData
+        List<Geometry> geoms = new ArrayList<Geometry>(gData.features.length);
+        for (GeospatialData gd : gData.features) {
+            geoms.add(gd.geometry);
+            CountyUserData cud = new CountyUserData(gd,
+                    String.valueOf(gd.attributes.get(WarngenLayer.GID)));
+            GeometryUtil.setUserData(gd.geometry, cud);
+        }
+
+        List<Geometry> locals = new ArrayList<Geometry>();
+
+        Coordinate c = new GeometryFactory().buildGeometry(geoms).getCentroid()
+                .getCoordinate();
+        gData.latLonToLocal = MapUtil.getTransformFromLatLon(MapUtil
+                .constructStereographic(MapUtil.AWIPS_EARTH_RADIUS,
+                        MapUtil.AWIPS_EARTH_RADIUS, c.y, c.x));
+        gData.localToLatLon = gData.latLonToLocal.inverse();
+        for (GeospatialData gd : gData.features) {
+            Geometry local = JTS.transform(gd.geometry, gData.latLonToLocal);
+            gd.attributes.put(AREA, local.getArea());
+            gd.attributes.put(GeospatialDataList.LOCAL_GEOM, local);
+            gd.attributes.put(GeospatialDataList.LOCAL_PREP_GEOM,
+                    PreparedGeometryFactory.prepare(local));
+            locals.add(local);
+        }
+
+        Envelope env = new GeometryFactory().buildGeometry(locals)
+                .getEnvelopeInternal();
+        IExtent localExtent = new PixelExtent(env.getMinX(), env.getMaxX(),
+                env.getMinY(), env.getMaxY());
+
+        int nx = 600;
+        int ny = 600;
+        // Boolean to change the aspect ratio of the extent to
+        // match
+        boolean keepAspectRatio = true;
+
+        GridSpacing gridSpacing = dialogConfig.getGridSpacing();
+
+        if ((gridSpacing != null) && (gridSpacing.getNx() != null)
+                && (gridSpacing != null)) {
+            nx = gridSpacing.getNx();
+            ny = gridSpacing.getNy();
+            keepAspectRatio = gridSpacing.isKeepAspectRatio();
+        }
+
+        double xinc, yinc;
+        double width = localExtent.getWidth();
+        double height = localExtent.getHeight();
+        if (!keepAspectRatio) {
+            xinc = (width / nx);
+            yinc = (height / ny);
+        } else {
+            if (width > height) {
+                ny = (int) ((height * nx) / width);
+            } else if (height > width) {
+                nx = (int) ((width * ny) / height);
+            }
+
+            xinc = yinc = (width / nx);
+        }
+        gData.localExtent = new PixelExtent(localExtent.getMinX() - xinc,
+                localExtent.getMaxX() + xinc, localExtent.getMinY() - yinc,
+                localExtent.getMaxY() + yinc);
+        gData.nx = nx;
+        gData.ny = ny;
+
+        GeneralGridEnvelope range = new GeneralGridEnvelope(new int[] { 0, 0 },
+                new int[] { gData.nx, gData.ny }, false);
+        GeneralEnvelope ge = new GeneralEnvelope(new double[] {
+                gData.localExtent.getMinX(), gData.localExtent.getMaxY() },
+                new double[] { gData.localExtent.getMaxX(),
+                        gData.localExtent.getMinY() });
+
+        gData.localGridGeometry = new GeneralGridGeometry(range, ge);
+
+        System.out.println("Time to lookup geospatial data "
+                + (System.currentTimeMillis() - tq0));
+        siteMap.put(currKey, gData);
+
+        GeospatialData[] timezones = GeospatialFactory.getTimezones();
+        if (timezones != null) {
+            for (GeospatialData timezone : timezones) {
+                if (timezone.attributes.containsKey(gmd.getTimeZoneField())) {
+                    String oneLetterTimezone = String
+                            .valueOf(timezone.attributes.get(gmd
+                                    .getTimeZoneField()));
+                    if (timezoneMap.containsKey(oneLetterTimezone) == false) {
+                        timezoneMap.put(oneLetterTimezone, timezone.geometry);
+                    }
+                }
+            }
+        }
     }
 
     public GeospatialData[] getGeodataFeatures(String areaSource,
@@ -1380,6 +1424,54 @@ public class WarngenLayer extends AbstractStormTrackResource {
             backupSite = null;
         } else {
             backupSite = site;
+        }
+
+        DialogConfiguration dc = null;
+        if (backupSite != null) {
+            boolean haveBackupConfig = DialogConfiguration
+                    .isSiteDialogConfigExtant(backupSite);
+            if (haveBackupConfig) {
+                try {
+                    dc = DialogConfiguration.loadDialogConfigNoUser(backupSite);
+                } catch (Exception e) {
+                    statusHandler
+                            .error(String
+                                    .format("Unable to load WarnGen configuration for site %s.  Falling back to local configuration.",
+                                            getLocalizedSite()), e);
+                }
+            } else {
+                statusHandler
+                        .warn(String
+                                .format("WarnGen configuration for site %s does not exist.  Falling back to local configuration.",
+                                        backupSite));
+            }
+            if (dc == null) {
+                try {
+                    dc = DialogConfiguration
+                            .loadDialogConfigNoUser(LocalizationManager
+                                    .getInstance().getCurrentSite());
+                } catch (Exception e) {
+                    dc = new DialogConfiguration();
+                    statusHandler
+                            .error(String
+                                    .format("Unable to load WarnGen configuration for site %s.",
+                                            getLocalizedSite()), e);
+                }
+            }
+        } else {
+            try {
+                dc = DialogConfiguration.loadDialogConfig(LocalizationManager
+                        .getInstance().getCurrentSite());
+            } catch (Exception e) {
+                dc = new DialogConfiguration();
+                statusHandler.error(
+                        "Unable to load local WarnGen configuration.", e);
+            }
+        }
+        if (dc != null && dialogConfig != null) {
+            dialogConfig.setDefaultTemplate(dc.getDefaultTemplate());
+            dialogConfig.setMainWarngenProducts(dc.getMainWarngenProducts());
+            dialogConfig.setOtherWarngenProducts(dc.getOtherWarngenProducts());
         }
     }
 
@@ -1458,8 +1550,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     public Geometry getWarningAreaFromPolygon(Polygon polygon,
             AbstractWarningRecord record) {
-        Map<String, String[]> countyMap = FipsUtil.parseHeader(record
-                .getCountyheader(), "County");
+        Map<String, String[]> countyMap = FipsUtil.parseHeader(
+                record.getCountyheader(), "County");
         try {
             return getArea(polygon, countyMap);
         } catch (Exception e) {
@@ -1468,50 +1560,42 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return null;
     }
 
+    public enum GeoFeatureType {
+        COUNTY("county", "FIPS"), MARINE("marinezones", "ID");
+        final private String tableName;
+        final private String fipsField;
+        private GeoFeatureType(String tableName, String fipsField) {
+            this.tableName = tableName;
+            this.fipsField = fipsField;
+        }
+    }
+
     /**
      * Returns a set of UGCs for each area in the CWA that intersects the given
      * polygon.
      */
-    public Set<String> getUgcsForWatches(Polygon polygon)
+    public Set<String> getUgcsForWatches(Polygon polygon, GeoFeatureType type)
             throws Exception {
-        GeospatialDataAccessor gda = getGeospatialDataAcessor();
-        boolean isMarineZone = configuration.getGeospatialConfig()
-                .getAreaSource().equalsIgnoreCase(MARINE);
-        if (!isMarineZone) {
-            Set<String> ugcs = new HashSet<String>();
-            for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon))) {
-                ugcs.add(FipsUtil.getUgcFromFips(fips));
-            }
-            return ugcs;
-        } else {
-            Set<String> ids = new HashSet<String>();
-            Geometry g = gda.buildArea(polygon);
-            ids = getAllFipsInArea(g);
-            return ids;
-        }
+        Set<String> ugcs = new HashSet<String>();
+        GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
+        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon)))
+            ugcs.add(FipsUtil.getUgcFromFips(fips));
+        return ugcs;
     }
 
-    public Set<String> getAllUgcs() throws Exception {
-        GeospatialDataAccessor gda;
+    public Set<String> getAllUgcs(GeoFeatureType type) throws Exception {
+        // TODO: zig
+        GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
         Set<String> ugcs = new HashSet<String>();
-        gda = getGeospatialDataAcessor();
-        boolean isMarineZone = configuration.getGeospatialConfig()
-                .getAreaSource().equalsIgnoreCase(MARINE);
-        if (!isMarineZone) {
-            for (GeospatialData r : gda.geoData.features) {
-                ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
-            }
-        } else {
-            for (GeospatialData r : gda.geoData.features) {
-                ugcs.add(getFips(r));
-            }
+        for (GeospatialData r : gda.geoData.features) {
+            ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
         }
         return ugcs;
     }
 
-    private GeospatialDataAccessor getGeospatialDataAcessor()
+    private GeospatialDataAccessor getGeospatialDataAcessor(GeoFeatureType type)
             throws Exception {
-        GeospatialDataList gdl = searchGeospatialDataAccessor();
+        GeospatialDataList gdl = searchGeospatialDataAccessor(type);
         if (gdl == null) {
             // Cause county geospatial data to be loaded
             /*
@@ -1521,36 +1605,33 @@ public class WarngenLayer extends AbstractStormTrackResource {
              * the filename. What happens in the future if the base file gets
              * changed again? A ticket should be opened for this to be resolved.
              */
-            WarngenConfiguration torConfig = WarngenConfiguration.loadConfig(
-                    "tornadoWarning", getLocalizedSite(), null);
-            loadGeodataForConfiguration(torConfig);
-            gdl = searchGeospatialDataAccessor();
+            String templateName;
+            if (type == GeoFeatureType.COUNTY)
+                templateName = "tornadoWarning";
+            else if (type == GeoFeatureType.MARINE)
+                templateName = "specialMarineWarning";
+            else
+                throw new IllegalArgumentException("Unsupported geo feature type " + type);
+            WarngenConfiguration config = WarngenConfiguration.loadConfig(
+                    templateName, getLocalizedSite(), null);
+            loadGeodataForConfiguration(config);
+            gdl = searchGeospatialDataAccessor(type);
         }
 
-        // TODO: There should be some way to get the "county" configuration by
-        // name
-        // independent of a template
+        // TODO: FIPS field should not be hardcoded.
         AreaSourceConfiguration areaConfig = new AreaSourceConfiguration();
-        areaConfig.setFipsField("FIPS");
+        areaConfig.setFipsField(type.fipsField);
 
         return new GeospatialDataAccessor(gdl, areaConfig);
     }
 
-    private GeospatialDataList searchGeospatialDataAccessor() {
+    private GeospatialDataList searchGeospatialDataAccessor(GeoFeatureType type) {
         synchronized (siteMap) {
             for (Map.Entry<String, GeospatialDataList> entry : siteMap
                     .entrySet()) {
                 String[] keyParts = entry.getKey().split("\\.");
-                boolean isMarineZone = configuration.getGeospatialConfig()
-                        .getAreaSource().equalsIgnoreCase(MARINE);
-                String mapdataTable = null;
-                if (!isMarineZone) {
-                    mapdataTable = "county";
-                } else {
-                    mapdataTable = "marinezones";
-                }
                 if ((keyParts.length == 2)
-                        && mapdataTable.equalsIgnoreCase(keyParts[0])
+                        && type.tableName.equalsIgnoreCase(keyParts[0])
                         && getLocalizedSite().equals(keyParts[1])) {
                     return entry.getValue();
                 }
@@ -3151,66 +3232,141 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 toKeep.toArray(new Geometry[0]));
     }
 
+    private void createAreaAndCentroidMaps() {
+        String gid;
+        geomArea.clear();
+        geomCentroid.clear();
+        for (GeospatialData f : geoData.features) {
+            Geometry geom = f.getGeometry();
+            gid = ((CountyUserData) geom.getUserData()).gid;
+            geomArea.put(gid, geom.getArea());
+            geomCentroid.put(gid, geom.getCentroid());
+        }
+    }
+
     /**
      * Populate the W strings with the included counties
      */
     private void populateStrings() {
         state.strings.clear();
+        Geometry warningArea = state.getWarningArea();
         Set<String> prefixes = new HashSet<String>(Arrays.asList(GeometryUtil
-                .getGID(state.getWarningArea())));
+                .getGID(warningArea)));
 
         prefixes = removeDuplicateGid(prefixes);
 
-        for (GeospatialData f : geoData.features) {
-            Geometry geom = f.geometry;
-            Geometry geom2 = null;
-            Geometry warningAreaN = null;
-            Coordinate populatePt = null;
-            Geometry populatePtGeom;
-            boolean contained = false, closeTo = false;
-            double shift = 1.E-8, distance, minDistance = 10.0;
-            int loop, maxLoop = 10;
-            Geometry warningArea = state.getWarningArea();
-            String prefix = GeometryUtil.getPrefix(geom.getUserData());
-            if (prefixes.contains(prefix)) {
-                loop = 0;
-                warningAreaN = findLargestGeometry(GeometryUtil.intersection(geom, warningArea));
-                do {
-                    if (!warningAreaN.isEmpty()) {
-                        populatePt = GisUtil.d2dCoordinate(warningAreaN.getCentroid()
-                                .getCoordinate());
-                        for (GeospatialData f2 : geoData.features) {
-                            geom2 = f2.getGeometry();
-                            if (!GeometryUtil.getPrefix(geom2.getUserData()).equals(prefix)) {
-                                contained = false;
-                                closeTo = false;
-                                populatePtGeom = PolygonUtil.createPolygonByPoints(populatePt,
-                                        new Coordinate(populatePt.x + shift, populatePt.y + shift));
-                                if (GeometryUtil.contains(geom2, populatePtGeom)) {
-                                    // populatePt is in another county/zone.
-                                    warningAreaN = findLargestQuadrant(warningAreaN, geom);
-                                    contained = true;
-                                    break;
-                                } else {
-                                    distance = populatePtGeom.distance(geom2);
-                                    if (distance < minDistance) {
-                                        // populatePt is very close to the boundary of another county/zone.
-                                        warningAreaN = findLargestQuadrant(warningAreaN, geom);
-                                        closeTo = true;
-                                        break;
-                                    }
-                                }
-                            }
+        Set<Integer> indexes = new HashSet<Integer>();
+        String prefixM, prefixN;
+        double areaM, areaN, maxArea = -1.0;
+        int geomIndex = -1;
+        int geomNum = warningArea.getNumGeometries();
+        /*
+         * Find a unique index for each county in warningArea. If there is more
+         * than one index for one county, find the one with max area.
+         */
+        Geometry warningAreaM = null, warningAreaN = null;
+        for (int i = 0; i < geomNum; i++) {
+            warningAreaM = warningArea.getGeometryN(i);
+            prefixM = GeometryUtil.getPrefix(warningAreaM.getUserData());
+            if (!prefixes.contains(prefixM)) {
+                continue;
+            }
+            areaM = warningAreaM.getArea();
+            geomIndex = i;
+            while (i + 1 < geomNum) {
+                warningAreaN = warningArea.getGeometryN(i + 1);
+                prefixN = GeometryUtil.getPrefix(warningAreaN.getUserData());
+                if (prefixN.equals(prefixM)) {
+                    areaN = warningAreaN.getArea();
+                    if (areaN > areaM) {
+                        if (areaN > maxArea) {
+                            maxArea = areaN;
+                            geomIndex = i + 1;
                         }
                     } else {
-                        // use the existing populatePt
-                        break;
+                        if (areaM > maxArea) {
+                            maxArea = areaM;
+                        }
                     }
-                    loop += 1;
-                } while ((contained || closeTo) && loop <= maxLoop);
-                state.strings.put(populatePt, "W");
+                } else {
+                    break;
+                }
+                i = i + 1;
             }
+            indexes.add(geomIndex);
         }
+
+        Map<String, Coordinate> populatePtMap = new HashMap<String, Coordinate>();
+        GeometryFactory gf = new GeometryFactory();
+        Geometry geomN = null, populatePtGeom = null;
+        Coordinate populatePt = new Coordinate();
+        Point centroid = null;
+        int loop, maxLoop = 10;
+        double threshold = 0.1, weight = 0.5, shift = 1.E-8, minArea = 1.0E-2, area;
+        Iterator<Integer> iter = indexes.iterator();
+        while (iter.hasNext()) {
+            warningAreaM = warningArea.getGeometryN(iter.next().intValue());
+            prefixM = GeometryUtil.getPrefix(warningAreaM.getUserData());
+            area = warningAreaM.getArea();
+            if (area < minArea || area / geomArea.get(prefixM) < threshold) {
+                // Hatched area inside a county is small, move W toward to
+                // default centroid
+                centroid = movePopulatePt(gf, warningAreaM,
+                        geomCentroid.get(prefixM), weight);
+                populatePt = new Coordinate(centroid.getX(), centroid.getY());
+                populatePtGeom = PolygonUtil.createPolygonByPoints(gf,
+                        populatePt, shift);
+            } else {
+                // Use the controid of the hatched area in a county
+                centroid = warningAreaM.getCentroid();
+                populatePt = new Coordinate(centroid.getX(), centroid.getY());
+                populatePtGeom = PolygonUtil.createPolygonByPoints(gf,
+                        populatePt, shift);
+            }
+            for (GeospatialData gd : geoData.features) {
+                geomN = gd.getGeometry();
+                CountyUserData cud = (CountyUserData) geomN.getUserData();
+                prefixN = cud.gid;
+                if (prefixN.length() > 0 && prefixM.length() > 0
+                        && !prefixN.equals(prefixM)) {
+                    if (GeometryUtil.contains(geomN, populatePtGeom)) {
+                        // W is inside a county. Use default centroid of a
+                        // county (not that of its hatched area)
+                        centroid = geomCentroid.get(prefixM);
+                        populatePt = new Coordinate(centroid.getX(),
+                                centroid.getY());
+                        populatePtGeom = PolygonUtil.createPolygonByPoints(gf,
+                                populatePt, shift);
+                    }
+                    loop = 1;
+                    while (GeometryUtil.contains(geomN, populatePtGeom)
+                            && loop < maxLoop) {
+                        // W is still inside a county, move W to the largest
+                        // quadrant
+                        warningAreaM = findLargestQuadrant(gf, warningAreaM);
+                        centroid = warningAreaM.getCentroid();
+                        populatePt = new Coordinate(centroid.getX(),
+                                centroid.getY());
+                        populatePtGeom = PolygonUtil.createPolygonByPoints(gf,
+                                populatePt, shift);
+                        loop += 1;
+                    }
+                }
+            }
+            populatePtMap.put(prefixM, populatePt);
+        }
+        for (String key : populatePtMap.keySet()) {
+            state.strings.put(populatePtMap.get(key), "W");
+        }
+    }
+
+    private Point movePopulatePt(GeometryFactory gf, Geometry geom,
+            Point point, double weight) {
+        Point centroid = geom.getCentroid();
+        Coordinate coord = new Coordinate();
+        coord.x = centroid.getX() * weight + point.getX() * (1.0 - weight);
+        coord.y = centroid.getY() * weight + point.getY() * (1.0 - weight);
+        return gf.createPoint(new Coordinate(coord.x, coord.y));
     }
 
     public boolean featureProduct(Coordinate c) {
@@ -3480,42 +3636,18 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return localToLatLon(result);
     }
 
-    /** 
-     * If g is a GeometryCollection, find the largest Geomery in it; otherwise (i.e., g is Geometry), return g.
-     * 
-     * @param g
-     *     A Geometry or a GeometryCollection.
-     * @return Geometry
-     */
-    private Geometry findLargestGeometry(Geometry g) {
-        int size = g.getNumGeometries();
-        if (size == 1)
-            return g;
-        double area, maxArea = -1.0;
-        int index = 0;
-        for (int i = 0; i < size; i++) {
-            area = g.getGeometryN(i).getArea();
-            if (area > maxArea) {
-                maxArea = area;
-                index = i;
-            }
-        }
-        return g.getGeometryN(index);
-    }
-
-    /** 
+    /**
      * Split the hatched area into four quadrants, and return the largest one.
      * 
-     * @param hatchedArea
-     *     The initial hatched area or its a sub area.
+     * @param gf
+     *            - factory to use to generate polygon
      * @param geom
-     *     The geometry of a county/zone.
-     * @return Geometry
-     *     The geometey of largest quadrant among the four, which are the result of 
-     *     splitting of hatchedArea.
+     *            - the geometry of a county/zone.
+     * @return geometry - The Geometey of largest quadrant among the four, which
+     *         are the result of splitting of a county's hatched area.
      */
-    private Geometry findLargestQuadrant(Geometry hatchedArea, Geometry geom) {
-        Geometry envelope = hatchedArea.getEnvelope();
+    private Geometry findLargestQuadrant(GeometryFactory gf, Geometry geom) {
+        Geometry envelope = geom.getEnvelope();
         Coordinate centroidCoord = GisUtil.d2dCoordinate(envelope.getCentroid()
                 .getCoordinate());
         Coordinate[] envCoords = envelope.getCoordinates();
@@ -3525,19 +3657,24 @@ public class WarngenLayer extends AbstractStormTrackResource {
         double largestArea = -1.0, area = -1.0;
         int index = -1;
         for (int i = 0; i < size; i++) {
-            quadrants[i] = PolygonUtil.createPolygonByPoints(envCoords[i], centroidCoord);
-            intersections[i] = GeometryUtil.intersection(quadrants[i], hatchedArea);
-            area = intersections[i].getArea();
-            if (area > largestArea) {
-                largestArea = area;
-                index = i;
+            quadrants[i] = PolygonUtil.createPolygonByPoints(gf, envCoords[i],
+                    centroidCoord);
+            try {
+                intersections[i] = GeometryUtil
+                        .intersection(quadrants[i], geom);
+                area = intersections[i].getArea();
+                if (area > largestArea) {
+                    largestArea = area;
+                    index = i;
+                }
+            } catch (Exception e) {
+                ;
             }
         }
-        if (intersections[index].isValid())
+        if (null != intersections[index] && intersections[index].isValid())
             return intersections[index];
         else {
-            // "intersections[" + index + "] is invalid"
-            return hatchedArea;
+            return geom;
         }
     }
 
@@ -3553,4 +3690,5 @@ public class WarngenLayer extends AbstractStormTrackResource {
             StormTrackState.trackType = "lineOfStorms";
         }
     }
+
 }

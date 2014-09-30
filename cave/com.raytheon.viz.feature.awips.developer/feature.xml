@@ -176,6 +176,10 @@
    <includes
          id="com.raytheon.uf.viz.d2d.ui.awips.feature"
          version="0.0.0"/>
+         
+   <includes
+         id="com.raytheon.uf.viz.registry.feature"
+         version="0.0.0"/>         
 
    <requires>
       <import feature="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>
