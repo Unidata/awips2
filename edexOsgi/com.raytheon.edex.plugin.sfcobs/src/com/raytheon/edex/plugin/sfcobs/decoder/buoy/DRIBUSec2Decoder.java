@@ -49,6 +49,8 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
  * Sep 26, 2014       3629 mapeters    Removed unused fields, replaced static imports.
+ * Sep 30, 2014       3629 mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ *                                     calls, changed SEC_2_PATTERN from String to Pattern.
  * 
  * </pre>
  * 
@@ -57,7 +59,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  */
 public class DRIBUSec2Decoder extends AbstractSectionDecoder {
 
-    public static final String SEC_2_PATTERN = "222[/0-9]{2}";
+    public static final Pattern SEC_2_PATTERN = Pattern.compile("222[/0-9]{2}");
 
     private DataItem seaTemp = null;
 
@@ -84,7 +86,6 @@ public class DRIBUSec2Decoder extends AbstractSectionDecoder {
      *             Thrown when an relevant error has occurred.
      */
     public void decode(ReportParser reportParser) throws DecoderException {
-        Pattern sec2 = Pattern.compile(SEC_2_PATTERN);
         init();
         if (reportParser == null) {
             // nothing to do.
@@ -92,7 +93,7 @@ public class DRIBUSec2Decoder extends AbstractSectionDecoder {
         }
         String element = null;
 
-        if (reportParser.positionTo(sec2)) {
+        if (reportParser.positionTo(SEC_2_PATTERN)) {
             while (true) {
                 // if we run out of data, exit.
                 if (reportParser.next()) {
@@ -103,14 +104,11 @@ public class DRIBUSec2Decoder extends AbstractSectionDecoder {
                     break;
                 }
 
-                if (AbstractSfcObsDecoder.matchElement(element,
-                        ISynoptic.SEC_3_LEAD)) {
+                if (ISynoptic.SEC_3_LEAD_PATTERN.matcher(element).find()) {
                     break;
-                } else if (AbstractSfcObsDecoder.matchElement(element,
-                        ISynoptic.SEC_4_LEAD)) {
+                } else if (ISynoptic.SEC_4_LEAD_PATTERN.matcher(element).find()) {
                     break;
-                } else if (AbstractSfcObsDecoder.matchElement(element,
-                        ISynoptic.SEC_5_LEAD)) {
+                } else if (ISynoptic.SEC_5_LEAD_PATTERN.matcher(element).find()) {
                     break;
                 }
 
