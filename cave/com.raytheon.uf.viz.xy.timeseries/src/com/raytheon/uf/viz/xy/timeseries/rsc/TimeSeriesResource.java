@@ -99,6 +99,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 14, 2011 8244       bkowal      enabled magnification for wind barbs.
  * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * Jun 18, 2014 3242       njensen     Added ensembleId to legend
+ * Aug 15, 2014 3535       njensen     Bigger inset map point
  * 
  * </pre>
  * 
@@ -627,7 +628,7 @@ public class TimeSeriesResource extends
                 point.x, point.y });
         target.drawPoint(pixels[0], pixels[1], 0.0,
                 getCapability(ColorableCapability.class).getColor(),
-                PointStyle.STAR);
+                PointStyle.STAR, 1.5f);
     }
 
     public String[] getTitles() {

@@ -21,17 +21,38 @@ package com.raytheon.uf.common.message;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Random;
+//import java.util.Random;
 
 import org.junit.Assert;
 
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationMetadata;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
+/**
+ * TestWsIdAdapter test
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Nov 13, 2013            bclement    Initial creation
+ * Aug 26, 2014 3365       ccody       Separate Data Delivery tests out of AWIPS 2 baseline.
+ *                                     DynamicSerializationManager API Has changed since this test was created.
+ *                                     Test functionality that is no longer supported by the API (i.e. will not compile)
+ *                                     has been "deactivated" (commented out).
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class TestWsIdAdapter {
-    private Random rnd = new Random();
+    //private Random rnd = new Random();
 
     @DynamicSerialize
     public static class Test {
@@ -74,8 +95,10 @@ public class TestWsIdAdapter {
         DynamicSerializationManager dmgr = DynamicSerializationManager
                 .getManager(SerializationType.Thrift);
 
-        DynamicSerializationManager.inspect(inTest.getClass());
-        DynamicSerializationManager.inspect(wsId.getClass());
+        SerializationMetadata sm1 = DynamicSerializationManager.getSerializationMetadata(inTest.getClass());
+        //REMOVED DynamicSerializationManager.inspect(inTest.getClass());
+        SerializationMetadata sm2 = DynamicSerializationManager.getSerializationMetadata(wsId.getClass());
+        //REMOVED DynamicSerializationManager.inspect(wsId.getClass());
         byte[] bdata = null;
         try {
             bdata = dmgr.serialize(inTest);

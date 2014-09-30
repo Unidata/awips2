@@ -56,12 +56,12 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.texteditor.alarmalert.dialogs.AlarmAlertBell;
 import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.ICommand;
-import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -79,6 +79,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 03/19/2012              D. Friedman Fix determination of "Alarm" entries.
  * 12/07/2012	15555	   m.gamazaychikov	Added methods and constants for 
  * 											the implementation of proximity alarm
+ * 07/24/2014   3423       randerso    Ensure ringBell is called on UI thread
+ * 09/09/2014   3580       mapeters    Removed IQueryTransport usage (no longer exists).
  * 
  * </pre>
  * 
@@ -211,14 +213,16 @@ public class AlarmAlertFunctions {
                         match = true;
                     }
                     if (match) {
-                        if (productFound == null)
+                        if (productFound == null) {
                             productFound = p;
+                        }
                         if ("Alarm".equals(p.getAlarmType()) && p.isAlarm()) {
                             alarm = true;
                             productFound = p;
                         }
-                        if (alarm)
+                        if (alarm) {
                             break;
+                        }
                     }
                 }
             }
@@ -229,7 +233,14 @@ public class AlarmAlertFunctions {
                 instance.getCurrentAlarms().add(prod);
                 instance.fireNewCurrentAlarmEvent(prod);
 
-                ringBell(alarm);
+                final boolean sound = alarm;
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        ringBell(sound);
+                    }
+                });
             }
         }
     }
@@ -250,8 +261,7 @@ public class AlarmAlertFunctions {
 
         ICommand command = CommandFactory.getAfosCommand(productId);
         try {
-            productList = command.executeCommand(TextEditorUtil
-                    .getTextDbsrvTransport());
+            productList = command.executeCommand();
         } catch (CommandFailedException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }

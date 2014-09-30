@@ -52,7 +52,7 @@ import com.raytheon.uf.viz.thinclient.localization.LocalizationCachePersistence;
 import com.raytheon.uf.viz.thinclient.localization.ThinClientLocalizationInitializer;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
 import com.raytheon.viz.ui.personalities.awips.CAVE;
 
 /**
@@ -76,7 +76,7 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
 
 public class ThinClientComponent extends CAVE implements IThinClientComponent {
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AbstractCAVEComponent.class, "ThinClient");
+            .getHandler(AbstractAWIPSComponent.class, "ThinClient");
 
     private ThinClientCacheManager cacheManager;
 
@@ -152,15 +152,21 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
                         .getUnderlyingFactory()));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#
+     * initializeLocalization()
+     */
     @Override
-    protected void initializeLocalization(boolean nonui) {
+    protected void initializeLocalization() throws Exception {
         cacheManager = new ThinClientCacheManager(
                 new GeometryCachePersistence(),
                 new LocalizationCachePersistence(),
                 new MapQueryCachePersistence());
         cacheManager.restoreCaches();
         try {
-            new ThinClientLocalizationInitializer(!nonui,
+            new ThinClientLocalizationInitializer(!isNonUIComponent(),
                     !LocalizationManager.internalAlertServer).run();
         } catch (Exception e1) {
             e1.printStackTrace();

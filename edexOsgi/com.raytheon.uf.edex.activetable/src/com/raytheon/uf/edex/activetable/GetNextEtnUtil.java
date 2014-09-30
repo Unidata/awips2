@@ -57,11 +57,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
-import com.raytheon.uf.edex.auth.RemoteServerRequestRouter;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.cluster.handler.CurrentTimeClusterLockHandler;
+import com.raytheon.uf.edex.requestsrv.router.RemoteServerRequestRouter;
 
 /**
  * Library module of functions to support retrieval of next ETN in sequence for

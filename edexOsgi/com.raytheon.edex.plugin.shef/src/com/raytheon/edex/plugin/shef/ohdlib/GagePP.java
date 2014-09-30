@@ -36,6 +36,7 @@ import com.raytheon.uf.common.dataplugin.shef.tables.HourlyppId;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Duration;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
@@ -53,6 +54,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 02 Feb 2012    #15845     lbousaidi   added check for data that comes in as -999
  * 07 May 2013    #15880     lbousaidi   changed pPE parameter because it was inserting to the
  *                                       wrong hour field.
+ * 18 Sep 2014    #3627      mapeters    Updated deprecated {@link TimeTools} usage.
  * </pre>
  * 
  * @author mnash
@@ -151,7 +153,8 @@ public class GagePP {
         
         logger.info("Processing records at " + btime);
         
-        Calendar dt = TimeTools.newCalendar(rec.getObsTime().getTime());
+        Calendar dt = TimeUtil.newGmtCalendar();
+        dt.setTimeInMillis(rec.getObsTime().getTime());
 
         HourlyppId id = new HourlyppId(rec.getLocationId(), rec.getTypeSource()
                 .getCode(), btime);
@@ -221,7 +224,7 @@ public class GagePP {
             
             if(!dt.getTime().equals(rec.getObsTime())) {
                 rec.setObsTime(dt.getTime());
-                dp = TimeTools.copy(dt);
+                dp = TimeUtil.newCalendar(dt);
             }
             
             p6HourSlot = sHour[0];
@@ -637,11 +640,12 @@ public class GagePP {
         ppp_ppd_window *= SECONDS_PER_HOUR * 1000L;
 
         // Observation time as a calendar
-        Calendar timeTObs = TimeTools.getSystemCalendar();
+        Calendar timeTObs = TimeUtil.newGmtCalendar();
         timeTObs.setTime(yearsec_ansi);
 
         // Create a 12Z object
-        Calendar pStructTm = TimeTools.newCalendar(yearsec_ansi.getTime());
+        Calendar pStructTm = TimeUtil.newGmtCalendar();
+        pStructTm.setTimeInMillis(yearsec_ansi.getTime());
         pStructTm.set(Calendar.HOUR_OF_DAY, 12);
         pStructTm.set(Calendar.MINUTE, 0);
         pStructTm.set(Calendar.SECOND, 0);

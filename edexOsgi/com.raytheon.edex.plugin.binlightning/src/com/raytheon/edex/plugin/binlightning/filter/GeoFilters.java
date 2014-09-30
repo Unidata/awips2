@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
+import com.raytheon.uf.common.geospatial.adapter.GeometryAdapter;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**

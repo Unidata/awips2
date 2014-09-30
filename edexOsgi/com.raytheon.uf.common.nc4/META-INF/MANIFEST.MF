@@ -7,6 +7,6 @@ Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.common.nc4,
  com.raytheon.uf.common.nc4.cf
-Require-Bundle: ll.netcdf;bundle-version="1.0.0",
+Require-Bundle: edu.mit.ll.netcdf;bundle-version="1.3.0",
  org.apache.commons.lang;bundle-version="2.3.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174"
