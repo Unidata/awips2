@@ -103,6 +103,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 08/05/13     #1571      randerso    Added support for storing GridLocation and ParmStorageInfo in database
  * 09/30/2013   #2147      rferrel     Changes to archive hdf5 files.
  * 10/15/2013   #2446      randerso    Added ORDER BY clause to getOverlappingTimes
+ * 09/21/2014   #3648      randerso    Changed to do version purging when new databases are added
  * 
  * </pre>
  * 
@@ -482,7 +483,6 @@ public class GFEDao extends DefaultPluginDao {
 
             try {
                 GridParmManager gridParmMgr = ifpServer.getGridParmMgr();
-                gridParmMgr.versionPurge();
                 gridParmMgr.gridsPurge(gridNotifcations, lockNotifications);
                 PurgeLogger.logInfo(
                         "Purging Expired pending isc send requests...", "gfe");
@@ -1063,9 +1063,38 @@ public class GFEDao extends DefaultPluginDao {
      * Remove all GFE records for a particular DatabaseID
      * 
      * @param dbId
+     *            database to be purged
+     * @return true if database was removed, false if not found (already
+     *         removed)
      */
-    public void purgeGFEGrids(final DatabaseID dbId) {
-        delete(dbId);
+    public boolean purgeGFEGrids(final DatabaseID dbId) {
+        Session sess = null;
+        boolean purged = false;
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            Transaction tx = sess.beginTransaction();
+            Object toDelete = sess.get(DatabaseID.class, dbId.getId(),
+                    LockOptions.UPGRADE);
+
+            if (toDelete != null) {
+                sess.delete(toDelete);
+            }
+
+            tx.commit();
+            purged = true;
+        } catch (Exception e) {
+            statusHandler.error("Error purging " + dbId, e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+        return purged;
     }
 
     /**
