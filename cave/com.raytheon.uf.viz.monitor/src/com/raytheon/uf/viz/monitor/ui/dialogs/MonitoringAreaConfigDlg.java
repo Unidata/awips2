@@ -1283,14 +1283,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
      * Called when the cancel or "X" button is clicked.
      */
     private void closeWithoutSave() {
-        int choice = showMessage(shell, SWT.YES | SWT.NO, appName
-                + " Monitor Exit", "Are you sure you want to exit?");
-        if (choice == SWT.YES) {
-            configMgr.setAddedZones(new ArrayList<String>());
-            configMgr.setAddedStations(new ArrayList<String>());
-            setReturnValue(true);
-            close();
-        }
+        resetStatus();
+        setReturnValue(true);
+        close();
     }
 
     /**

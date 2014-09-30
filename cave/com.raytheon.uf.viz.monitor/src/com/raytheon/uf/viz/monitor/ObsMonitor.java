@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
  * Feb 04, 2014 2757       skorolev    Added filter for removed stations
  * May 08, 2014 3086       skorolev    Added current site definition.
+ * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUsefrom vals.
  * 
  * </pre>
  * 
@@ -73,10 +74,6 @@ public abstract class ObsMonitor extends Monitor {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ObsMonitor.class);
-
-    /** Current Site name */
-    protected String currentSite = LocalizationManager.getInstance()
-            .getCurrentSite();
 
     /*
      * (non-Javadoc)
@@ -240,10 +237,10 @@ public abstract class ObsMonitor extends Monitor {
     /**
      * Process products at startup
      * 
-     * @param monitorUse
+     * @param monitorName
      * 
      */
-    public void processProductAtStartup(String monitorUse) {
+    public void processProductAtStartup(String monitorName) {
 
         /**
          * Assume this number for MaxNumObsTimes is larger enough to cover data
@@ -253,10 +250,8 @@ public abstract class ObsMonitor extends Monitor {
         int MaxNumObsTimes = 240;
         Map<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
         try {
-            vals.put("cwa", new RequestConstraint(cwa));
             vals.put(FSSObsRecord.PLUGIN_NAME_ID, new RequestConstraint(
                     FSSObsRecord.PLUGIN_NAME));
-            vals.put("monitorUse", new RequestConstraint(monitorUse));
 
             DataTime[] dataTimesAvailable = DataCubeContainer.performTimeQuery(
                     vals, false);
@@ -291,7 +286,7 @@ public abstract class ObsMonitor extends Monitor {
             }
         } catch (DataCubeException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "No data in database at startup.  " + monitorUse);
+                    "No data in database at startup.  " + monitorName);
         }
     }
 
