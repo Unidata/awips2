@@ -50,6 +50,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -76,6 +77,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  *                                     creation of static data for all perturbations
  *                                     of Ensemble models
  * Apr 21, 2014 2060       njensen     Remove dependency on grid dataURI column
+ * Sep 19, 2014 3627       mapeters    Updated deprecated {@link TimeTools} usage.
  * 
  * </pre>
  * 
@@ -368,7 +370,7 @@ public class StaticDataGenerator {
 
         staticRecord = new GridRecord(record);
         staticRecord.setId(0);
-        staticRecord.setInsertTime(TimeTools.getSystemCalendar());
+        staticRecord.setInsertTime(TimeUtil.newGmtCalendar());
 
         Calendar refTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         refTime.setTime(record.getDataTime().getRefTime());

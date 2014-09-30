@@ -35,7 +35,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
@@ -49,8 +48,6 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -104,6 +101,11 @@ import com.vividsolutions.jts.io.WKBReader;
  * Jul 31, 2013     #2239  randerso    Fixed scaling of maps that cross the date line
  * Jan 07, 2014     #2662  randerso    Fixed limitZones (subDomainUGCs) support
  * Feb 18, 2014     #2819  randerso    Removed unnecessary clones of geometries
+ * Aug 13, 2014     #3492  mapeters    Updated deprecated createWireframeShape() calls.
+ * Aug 14, 2014     #3523  mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
+ * Aug 21, 2014     #3459  randerso    Restructured Map resource class hierarchy
+ * Sep 04, 2014     #3365  ccody       Changes for removing Data_Delivery dependencies
  * 
  * </pre>
  * 
@@ -112,8 +114,6 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 
 public class ZoneSelectorResource extends DbMapResource {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ZoneSelectorResource.class);
 
     private static final RGB NO_ZONE_COLOR;
     static {
@@ -263,7 +263,7 @@ public class ZoneSelectorResource extends DbMapResource {
                                 // zoneName = "";
                             }
 
-                            if (limitZones != null
+                            if ((limitZones != null)
                                     && !limitZones.contains(zoneName)) {
                                 continue;
                             }
@@ -314,7 +314,7 @@ public class ZoneSelectorResource extends DbMapResource {
                                 Point point = poly.getInteriorPoint();
                                 if (point.getCoordinate() != null) {
                                     LabelNode node = new LabelNode(zoneName,
-                                            point, req.target);
+                                            point, req.target, req.rsc.font);
                                     newLabels.add(node);
                                 }
                             }
@@ -322,7 +322,7 @@ public class ZoneSelectorResource extends DbMapResource {
                     }
 
                     IWireframeShape newOutlineShape = req.target
-                            .createWireframeShape(false, req.descriptor, 0.0f);
+                            .createWireframeShape(false, req.descriptor);
                     newOutlineShape.allocate(numPoints);
 
                     JTSCompiler outlineCompiler = new JTSCompiler(null,
@@ -354,8 +354,7 @@ public class ZoneSelectorResource extends DbMapResource {
 
                     if (wfoGeoms.size() > 0) {
                         IWireframeShape newWfoShape = req.target
-                                .createWireframeShape(false, req.descriptor,
-                                        0.0f);
+                                .createWireframeShape(false, req.descriptor);
                         newWfoShape.allocate(wfoPoints);
 
                         JTSCompiler wfoCompiler = new JTSCompiler(null,
@@ -699,22 +698,14 @@ public class ZoneSelectorResource extends DbMapResource {
             PaintProperties paintProps) throws VizException {
         this.target = aTarget;
 
+        if (font == null) {
+            font = GFEFonts.getFont(aTarget, 2);
+        }
+
         PixelExtent screenExtent = (PixelExtent) paintProps.getView()
                 .getExtent();
 
-        // compute an estimate of degrees per pixel
-        double yc = screenExtent.getCenter()[1];
-        double x1 = screenExtent.getMinX();
-        double x2 = screenExtent.getMaxX();
-        double[] c1 = descriptor.pixelToWorld(new double[] { x1, yc });
-        double[] c2 = descriptor.pixelToWorld(new double[] { x2, yc });
-        Rectangle canvasBounds = paintProps.getCanvasBounds();
-        int screenWidth = canvasBounds.width;
-        double dppX = Math.abs(c2[0] - c1[0]) / screenWidth;
-        // System.out.println("c1:" + Arrays.toString(c1) + "  c2:"
-        // + Arrays.toString(c2) + "  dpp:" + dppX);
-        double simpLev = getSimpLev(dppX);
-
+        double simpLev = getSimpLev(paintProps);
         if ((simpLev < lastSimpLev)
                 || (lastExtent == null)
                 || !lastExtent.getEnvelope().contains(
@@ -780,9 +771,6 @@ public class ZoneSelectorResource extends DbMapResource {
         }
 
         if ((labels != null) && (this.labelZones || this.labelZoneGroups)) {
-            if (font == null) {
-                font = GFEFonts.getFont(aTarget, 2);
-            }
             double worldToScreenRatio = paintProps.getView().getExtent()
                     .getWidth()
                     / paintProps.getCanvasBounds().width;
@@ -824,8 +812,7 @@ public class ZoneSelectorResource extends DbMapResource {
                         ds.font = font;
                         ds.horizontalAlignment = HorizontalAlignment.CENTER;
                         ds.verticallAlignment = VerticalAlignment.MIDDLE;
-                        ds.textStyle = TextStyle.DROP_SHADOW;
-                        ds.shadowColor = RGBColors.getRGBColor("black");
+                        ds.addTextStyle(TextStyle.DROP_SHADOW);
                         strings.add(ds);
 
                         alreadyDrawn.add(new LabelTuple(x, y, group, zone));
@@ -1088,7 +1075,7 @@ public class ZoneSelectorResource extends DbMapResource {
                     String zoneName = (String) mappedResult.getRowColumnValue(
                             i, "editarea");
 
-                    if (this.limitZones != null
+                    if ((this.limitZones != null)
                             && !this.limitZones.contains(zoneName)) {
                         continue;
                     }

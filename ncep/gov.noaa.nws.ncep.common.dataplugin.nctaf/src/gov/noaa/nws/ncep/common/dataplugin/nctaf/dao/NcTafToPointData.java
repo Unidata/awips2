@@ -14,6 +14,7 @@
  * 10/26/2011               sgurung         Added probable parameters (for TEMPO/PROB)
  * 11/03/2011               sgurung         Added additional parameters
  * 11/07/2011               sgurung         Added LOW_LEVEL_WIND_SHEAR
+ * Jul 30, 2014 3410        bclement        dataURI no longer stored in hdf5
  * 
  * </pre>
  * 
@@ -23,6 +24,14 @@
  */
 
 package gov.noaa.nws.ncep.common.dataplugin.nctaf.dao;
+
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafIcingLayer;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafSkyCover;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTemperatureForecast;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTurbulenceLayer;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafWeatherCondition;
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.io.File;
 import java.util.HashMap;
@@ -34,14 +43,6 @@ import com.raytheon.uf.common.pointdata.Dimension;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
-
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafIcingLayer;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafSkyCover;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTemperatureForecast;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTurbulenceLayer;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafWeatherCondition;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 public class NcTafToPointData {
 	private static final String DATAURI = "DATAURI";
@@ -232,9 +233,6 @@ public class NcTafToPointData {
             	maxWthrCond = d.getDimensionLength();
             }
         }
-        
-        if (record.getDataURI()!=null) 
-        	pdv.setString(DATAURI, record.getDataURI());
         
         if (record.getWmoHeader()!=null)
         	pdv.setString(WMO_HEADER, record.getWmoHeader());

@@ -24,6 +24,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -31,7 +33,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
- * TODO Add Description
+ * Send site activation notifications to the SiteActivationMonitor
  * 
  * <pre>
  * 
@@ -39,8 +41,10 @@ import com.raytheon.uf.edex.core.EdexException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 9, 2011            bphillip     Initial creation
+ * Aug 09, 2011            bphillip    Initial creation
  * Feb 15, 2013 1638       mschenke    Moved site activation notifier class into edex.site
+ * Sep 11, 2014 3622       randerso    Changed to use jms topic instead of vm queue so monitor
+ *                                     sees messages from all JVMs.
  * 
  * </pre>
  * 
@@ -52,7 +56,7 @@ public class SendSiteActivationNotifications {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SendSiteActivationNotifications.class);
 
-    private static String SITE_ACTIVATION_ROUTE = "siteActivateNotify";
+    public static String SITE_ACTIVATION_URI = "jms-generic:topic:siteActivateNotification?timeToLive=60000";
 
     public static void send(SiteActivationNotification notification)
             throws EdexException {
@@ -70,8 +74,14 @@ public class SendSiteActivationNotifications {
                 for (SiteActivationNotification notify : notifications) {
                     notify.setRunMode(modeName);
                     notify.setServerName(host);
-                    EDEXUtil.getMessageProducer().sendAsync(
-                            SITE_ACTIVATION_ROUTE, notify);
+                    try {
+                        EDEXUtil.getMessageProducer().sendAsyncUri(
+                                SITE_ACTIVATION_URI,
+                                SerializationUtil.transformToThrift(notify));
+                    } catch (SerializationException e) {
+                        statusHandler.error(
+                                "Error transforming notification to thrift", e);
+                    }
                 }
             } catch (EdexException e) {
                 statusHandler.error("Error sending gfe notification", e);

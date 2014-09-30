@@ -23,6 +23,7 @@ package com.raytheon.viz.radar.rsc.graphic;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +60,7 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -83,6 +84,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 13, 2009            chammack     Initial creation
  * Jan 20, 2010 DR 4059    Zihou Wang   Display more GSM status and
  *                                      correct display features.
+ * Aug 11, 2014  3504      mapeters     Replaced deprecated IODataPreparer
+ *                                      instances with IRenderedImageCallback.
  * 
  * </pre>
  * 
@@ -878,7 +881,13 @@ public class RadarGraphicFunctions {
      */
     public static IImage convertBufferedImage(IGraphicsTarget target,
             BufferedImage img, String name) throws VizException {
-        return target.initializeRaster(new IODataPreparer(img, name, 0), null);
+        final BufferedImage image = img;
+        return target.initializeRaster(new IRenderedImageCallback() {
+            @Override
+            public RenderedImage getImage() throws VizException {
+                return image;
+            }
+        });
     }
 
     /**

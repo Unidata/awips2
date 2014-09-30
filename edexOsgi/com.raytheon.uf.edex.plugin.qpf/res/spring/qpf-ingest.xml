@@ -6,6 +6,11 @@
 
    <bean id="qpfGenerator" class="com.raytheon.uf.edex.plugin.qpf.QPFGenerator"/>
        
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="qpf-camel" />
+        <constructor-arg ref="qpfGenerator" />
+    </bean>    
+       
     <bean factory-bean="cpgSrvDispatcher" factory-method="register">
 		<constructor-arg ref="qpfGenerator"/>
 	</bean>

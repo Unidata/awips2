@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  * Jun 23, 2014 3272       nabowle      Throw UnrecognizedDataException in
  *                                      {@link #getDecodedData()} if there were
  *                                      no reports. Switch to slf4j.
+ * Jul 30, 2014 3410       bclement     data uri moved to database point data desc
  * 
  * </pre>
  * 
@@ -145,7 +146,6 @@ public abstract class TCSDataAdapter implements TCSConstants {
                     headReport = report;
                     view = getContainer(report).append();
                     view.setString(WMO_HEADER, report.getWmoHeader());
-                    view.setString(DATAURI, report.getDataURI());
                     view.setString(TYPE, report.getProductType());
                     view.setString(NAME, report.getName());
                     view.setInt(PRESSURE, report.getPressure());

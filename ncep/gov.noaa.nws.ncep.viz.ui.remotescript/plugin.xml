@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.3"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+           
+       <command
+          id="gov.noaa.nws.ncep.viz.ui.remotescript"
+          name="Run Remote Script">
+      </command>  
+   
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.handlers">
+                
+       <handler
+            class="gov.noaa.nws.ncep.viz.ui.remotescript.RemoteScriptDialogHandler"
+            commandId="gov.noaa.nws.ncep.viz.ui.remotescript">
+       </handler> 
+   </extension>
+      
+   <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="COMMON_STATIC"
+             name="remoteScripts"
+             recursive="false"
+             value="ncep/remoteScripts"
+	         >
+       </path>
+   </extension>
+</plugin>

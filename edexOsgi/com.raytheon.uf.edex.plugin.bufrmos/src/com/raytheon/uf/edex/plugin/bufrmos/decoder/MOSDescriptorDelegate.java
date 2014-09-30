@@ -19,23 +19,15 @@
  **/
 package com.raytheon.uf.edex.plugin.bufrmos.decoder;
 
-import static com.raytheon.uf.edex.plugin.bufrmos.decoder.BUFRMOSStaticData.MODEL_AVN;
-import static com.raytheon.uf.edex.plugin.bufrmos.decoder.BUFRMOSStaticData.MODEL_ETA;
-import static com.raytheon.uf.edex.plugin.bufrmos.decoder.BUFRMOSStaticData.MODEL_GFS;
-import static com.raytheon.uf.edex.plugin.bufrmos.decoder.BUFRMOSStaticData.MODEL_HPC;
-import static com.raytheon.uf.edex.plugin.bufrmos.decoder.BUFRMOSStaticData.MODEL_LAMP;
-import static com.raytheon.uf.edex.plugin.bufrmos.decoder.BUFRMOSStaticData.MODEL_MRF;
-import static com.raytheon.uf.edex.plugin.bufrmos.decoder.BUFRMOSStaticData.MODEL_NGM;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.DescriptorFactory;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
+import com.raytheon.uf.edex.bufrtools.descriptors.DescriptorFactory;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactoryDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
 
 
 /**
@@ -46,7 +38,8 @@ import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySele
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ *                         jkorman     Initial creation.
+ * Sep 16, 2014 #3628      mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -62,19 +55,20 @@ public class MOSDescriptorDelegate implements IDescriptorFactoryDelegate {
     private static Map<String, DescriptorFactory> factories;
     static {
         factories = new HashMap<String, DescriptorFactory>();
-        factories.put(MODEL_AVN,
+        factories.put(BUFRMOSStaticData.MODEL_AVN,
                 createFactory("AVNBufrTableB", "AVNBufrTableD"));
-        factories.put(MODEL_ETA,
+        factories.put(BUFRMOSStaticData.MODEL_ETA,
                 createFactory("ETABufrTableB", "ETABufrTableD"));
-        factories.put(MODEL_GFS,
+        factories.put(BUFRMOSStaticData.MODEL_GFS,
                 createFactory("GFSBufrTableB", "GFSBufrTableD"));
-        factories.put(MODEL_HPC,
+        factories.put(BUFRMOSStaticData.MODEL_HPC,
                 createFactory("HPCBufrTableB", "HPCBufrTableD"));
-        factories.put(MODEL_LAMP, createFactory("LAMPBufrTableB",
+        factories.put(BUFRMOSStaticData.MODEL_LAMP,
+                createFactory("LAMPBufrTableB",
                 "LAMPBufrTableD"));
-        factories.put(MODEL_MRF,
+        factories.put(BUFRMOSStaticData.MODEL_MRF,
                 createFactory("MRFBufrTableB", "MRFBufrTableD"));
-        factories.put(MODEL_NGM,
+        factories.put(BUFRMOSStaticData.MODEL_NGM,
                 createFactory("NGMBufrTableB", "NGMBufrTableD"));
 
     }

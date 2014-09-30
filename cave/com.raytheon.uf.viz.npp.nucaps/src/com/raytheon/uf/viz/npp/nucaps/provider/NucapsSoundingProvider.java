@@ -65,6 +65,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Jul 25, 2013 2190       mschenke    Initial creation
  * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
  * Aug 27, 2013 2190       mschenke    Fixed point query request
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -114,8 +115,8 @@ public class NucapsSoundingProvider extends
                 sounding.setStationId(NucapsRecord.PLUGIN_NAME);
                 Coordinate location = getSoundingLocation();
                 sounding.setName(GeoUtil.formatCoordinate(location));
-                sounding.setLongitude(location.x);
-                sounding.setLongitude(location.y);
+                sounding.setLongitude((float) location.x);
+                sounding.setLongitude((float) location.y);
 
                 // Get pressure values
                 Number[] pressures = pdv

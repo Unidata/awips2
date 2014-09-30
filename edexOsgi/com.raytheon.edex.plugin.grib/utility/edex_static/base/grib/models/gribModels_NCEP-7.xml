@@ -25,6 +25,7 @@
 		<name>HRRR</name>
  		<center>7</center>
 		<subcenter>0</subcenter>
+		<grid>184</grid>
 		<process>
 			<id>83</id>
 		</process>
@@ -1365,26 +1366,6 @@
 	</model>
 
 	<model>
-		<name>hireswArwGuam</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>11731129</grid>
-		<process>
-			<id>116</id>
-		</process>
-	</model>
-
-	<model>
-		<name>hireswArwPR</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>13560489</grid>
-		<process>
-			<id>116</id>
-		</process>
-	</model>
-
-	<model>
 		<name>HiResW-NMM-East</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1440,26 +1421,6 @@
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255006</grid>
-		<process>
-			<id>112</id>
-		</process>
-	</model>
-
-	<model>
-		<name>hireswNmmGuam</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>11731129</grid>
-		<process>
-			<id>112</id>
-		</process>
-	</model>
-
-	<model>
-		<name>hireswNmmPR</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>13560489</grid>
 		<process>
 			<id>112</id>
 		</process>
@@ -1650,7 +1611,7 @@
 	</model>
 
 	<model>
-		<name>gfs</name>
+		<name>GFS229</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>229</grid>
@@ -1902,7 +1863,7 @@
 	</model>
 	
     <model>
-        <name>rap200</name>
+        <name>RAP200</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>RAP200</grid>
@@ -2324,57 +2285,7 @@
 			<id>96</id>
 		</process>
 	</model>
-
-	<model>
-		<name>gefs</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>2</grid>
-		<process>
-			<id>107</id>
-		</process>
-	</model>
-
-	<model>
-		<name>gefs</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>3</grid>
-		<process>
-			<id>107</id>
-		</process>
-	</model>
-
-	<model>
-		<name>gefs</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>361181001</grid>
-		<process>
-			<id>107</id>
-		</process>
-	</model>
-
-	<model>
-		<name>gefs</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>372</grid>
-		<process>
-			<id>107</id>
-		</process>
-	</model>
-
-	<model>
-		<name>gefs</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>375</grid>
-		<process>
-			<id>107</id>
-		</process>
-	</model>
-
+	
 	<model>
 		<name>SREF132</name>
 		<center>7</center>
@@ -2939,7 +2850,6 @@
 		<name>HPCGuide</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
-		<grid>197</grid>
 		<process>
 			<id>183</id>
 		</process>
@@ -3193,7 +3103,7 @@
 	</model>
 
 	<model>
-		<name>AK-RTMA-HR</name>
+		<name>AK-RTMA3</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>1023</grid>

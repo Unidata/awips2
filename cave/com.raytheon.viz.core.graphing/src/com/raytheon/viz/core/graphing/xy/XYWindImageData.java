@@ -20,10 +20,12 @@
 package com.raytheon.viz.core.graphing.xy;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 
 import javax.measure.converter.UnitConverter;
 
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.pointdata.PointWindDisplay;
 
 /**
@@ -34,7 +36,8 @@ import com.raytheon.viz.pointdata.PointWindDisplay;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 16, 2007            njensen     Initial creation
- * 
+ * Aug 11, 2014 #3504      mapeters    Replaced deprecated IODataPreparer
+ *                                     instances with IRenderedImageCallback.
  * </pre>
  * 
  * @author njensen
@@ -76,15 +79,19 @@ public class XYWindImageData extends XYImageData {
      */
     @Override
     protected void generateImage() {
-        PointWindDisplay windDisplay = new PointWindDisplay(IMAGE_SIZE * 0.4,
-                1.0, 0, IMAGE_SIZE / 32);
+        PointWindDisplay windDisplay = new PointWindDisplay(
+                IMAGE_SIZE * 0.4, 1.0, 0, IMAGE_SIZE / 32);
         windDisplay.setImageParameters(IMAGE_SIZE, IMAGE_SIZE, color.red,
                 color.green, color.blue, 1);
         windDisplay.setWind(windDir, windSpd, true);
-        BufferedImage windImage = windDisplay.getWindImage(false,
+        final BufferedImage windImage = windDisplay.getWindImage(false,
                 PointWindDisplay.DisplayType.BARB, 4.0);
-        image = target.initializeRaster(
-                new IODataPreparer(windImage, "wind", 0), null);
+        image = target.initializeRaster(new IRenderedImageCallback() {
+            @Override
+            public RenderedImage getImage() throws VizException {
+                return windImage;
+            }
+        });
     }
 
     /*

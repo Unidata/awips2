@@ -55,16 +55,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.units.UnitAdapter;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -86,6 +86,7 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * Apr 22, 2011            njensen     Initial creation
  * 09/2012      896        sgurung     Refactored raytheon's class PlotModelDataRequestJob and added
  * 									   code from ncep's PlotModelGenerator2	
+ * Aug 07, 2014 3478       bclement    removed PointDataDescription.Type.Double
  * 
  * </pre>
  * 
@@ -624,14 +625,14 @@ public class NcPlotModelDataRequestJob extends Job {
                 		metPrm.setMissingDataSentinel( 
                 				pDesc.getFillValue().floatValue() );
                 		break;
-                	case DOUBLE :
-                		metPrm.setMissingDataSentinel( 
-                				pDesc.getFillValue() );
-                		break;
                 	case INT :
                 		metPrm.setMissingDataSentinel( 
                 				pDesc.getFillValue().intValue() );
                 		break;
+                        case LONG:
+                            metPrm.setMissingDataSentinel(pDesc.getFillValue()
+                                    .longValue());
+                            break;
                 	case STRING :
                 		break;
                 	}

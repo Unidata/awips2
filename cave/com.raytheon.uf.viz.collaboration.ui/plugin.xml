@@ -49,9 +49,6 @@
                icon="icons/messages.gif"
                name="Collaboration Session"
                restorable="false"/>
-         <stickyView
-               closable="true"
-               id="com.raytheon.uf.viz.collaboration.CollaborationSession"/>
          <view
                allowMultiple="true"
                category="com.raytheon.viz.ui"
@@ -59,10 +56,7 @@
                id="com.raytheon.uf.viz.collaboration.SessionView"
                icon="icons/chats.gif"
                name="Private Session"
-               restorable="false"/>
-        <stickyView
-               closable="true"
-               id="com.raytheon.uf.viz.collaboration.SessionView"/>       
+               restorable="false"/>      
 		<view
                allowMultiple="true"
                category="com.raytheon.viz.ui"
