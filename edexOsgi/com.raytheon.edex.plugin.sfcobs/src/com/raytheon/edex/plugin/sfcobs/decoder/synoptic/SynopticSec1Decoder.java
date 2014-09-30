@@ -20,6 +20,7 @@
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
@@ -48,6 +49,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Sep 18, 2014 #3627      mapeters    Updated deprecated {@link TimeTools} usage, 
  *                                     removed unused lowCloudAmount field.
  * Sep 26, 2014 #3629      mapeters    Replaced static imports.
+ * Sep 30, 2014 #3629      mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ *                                     calls, added PATTERN_8094.
  * 
  * </pre>
  * 
@@ -55,6 +58,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * @version 1.0
  */
 public class SynopticSec1Decoder extends AbstractSectionDecoder {
+
+    private static final Pattern PATTERN_8094 = Pattern.compile("8[/0-9]{4}");
+
     // The report observation hour - from 9 group
     private Integer obsTimeHour = null;
 
@@ -144,8 +150,7 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 break;
             }
             if (!irix && !winds
-                    && AbstractSfcObsDecoder.matchElement(element,
-                            ISynoptic.SEC_1_IRIXHVV)) {
+                    && ISynoptic.SEC_1_IRIXHVV.matcher(element).find()) {
                 // iSubR = getInt(element, 0, 1);
                 AbstractSfcObsDecoder.getInt(element, 0, 1);
 
@@ -157,8 +162,7 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 irix = true;
                 continue;
             } else if (!winds
-                    && AbstractSfcObsDecoder.matchElement(element,
-                            ISynoptic.SEC_1_NDDFF)) {
+                    && ISynoptic.SEC_1_NDDFF.matcher(element).find()) {
                 totalCloud = AbstractSfcObsDecoder.getInt(element, 0, 1);
                 Integer temp = AbstractSfcObsDecoder.getInt(element, 1, 3);
                 if ((temp != null) && (temp >= 0)) {
@@ -186,14 +190,13 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 }
                 continue;
             } else if (winds
-                    && AbstractSfcObsDecoder.matchElement(element,
-                            ISynoptic.SEC_2_LEAD)) {
+                    && ISynoptic.SEC_2_LEAD.matcher(element).find()) {
                 break;
-            } else if (ISynoptic.SEC_3_LEAD.equals(element)) {
+            } else if (ISynoptic.SEC_3_LEAD_STRING.equals(element)) {
                 break;
-            } else if (ISynoptic.SEC_4_LEAD.equals(element)) {
+            } else if (ISynoptic.SEC_4_LEAD_STRING.equals(element)) {
                 break;
-            } else if (ISynoptic.SEC_5_LEAD.equals(element)) {
+            } else if (ISynoptic.SEC_5_LEAD_STRING.equals(element)) {
                 break;
             } else if ("80000".equals(element)) {
                 break;
@@ -253,8 +256,7 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 winds = true;
             } else if ("8".equals(element.substring(0, 1)) && doGroup(8)) {
                 if (!winds
-                        && AbstractSfcObsDecoder.matchElement(element,
-                                "8[/0-9]{4}")) {
+ && PATTERN_8094.matcher(element).find()) {
                     if ((lowCloudType = AbstractSfcObsDecoder.getInt(element,
                             2, 3)) < 0) {
                         lowCloudType = null;

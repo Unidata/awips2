@@ -19,7 +19,10 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.buoy;
 
+import java.util.regex.Pattern;
+
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
@@ -36,6 +39,9 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ *                                     calls, added Pattern constants.
+ * 
  * </pre>
  * 
  * @author jkorman
@@ -47,6 +53,22 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
     // private Integer dateMM = null; // Month
     // private Integer dateJ = null; // Units digit of year
     // private Integer dategg = null; // Minutes
+
+    private static final Pattern PATTERN_1357d5 = Pattern
+            .compile("[1357]\\d{5}");
+
+    private static final Pattern PATTERN_1357d4 = Pattern
+            .compile("[1357]\\d{4}/");
+
+    private static final Pattern PATTERN_1357d3 = Pattern
+            .compile("[1357]\\d{3}//");
+
+    private static final Pattern PATTERN_d6 = Pattern.compile("\\d{6}");
+
+    private static final Pattern PATTERN_d5 = Pattern.compile("\\d{5}/");
+
+    private static final Pattern PATTERN_d4 = Pattern.compile("\\d{4}//");
+
     private Float buoyLatitude = null;
 
     private Float buoyLongitude = null;
@@ -184,14 +206,14 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         String element = reportParser.getElement();
         Integer lat = null;
         float divisor = 1000.0f;
-        if (matchElement(element, "[1357]\\d{5}")) {
+        if (PATTERN_1357d5.matcher(element).find()) {
             buoyQuadrant = getInt(element, 0, 1);
             lat = getInt(element, 1, 6);
-        } else if (matchElement(element, "[1357]\\d{4}/")) {
+        } else if (PATTERN_1357d4.matcher(element).find()) {
             buoyQuadrant = getInt(element, 0, 1);
             lat = getInt(element, 1, 5);
             divisor = 100.0f;
-        } else if (matchElement(element, "[1357]\\d{3}//")) {
+        } else if (PATTERN_1357d3.matcher(element).find()) {
             buoyQuadrant = getInt(element, 0, 1);
             lat = getInt(element, 1, 4);
             divisor = 10.0f;
@@ -217,12 +239,12 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         String element = reportParser.getElement();
         Integer lon = null;
         float divisor = 1000.0f;
-        if (matchElement(element, "\\d{6}")) {
+        if (PATTERN_d6.matcher(element).find()) {
             lon = getInt(element, 0, 6);
-        } else if (matchElement(element, "\\d{5}/")) {
+        } else if (PATTERN_d5.matcher(element).find()) {
             lon = getInt(element, 0, 5);
             divisor = 100.0f;
-        } else if (matchElement(element, "\\d{4}//")) {
+        } else if (PATTERN_d4.matcher(element).find()) {
             lon = getInt(element, 0, 4);
             divisor = 10.0f;
         }
