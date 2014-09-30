@@ -47,6 +47,7 @@ import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
  * 20071010            391 jkorman     Initial coding.
  * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter}.
  * Sep 26, 2014 #3629      mapeters    Replaced static imports.
+ * Sep 30, 2014 #3629      mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * 
  * </pre>
  * 
@@ -98,7 +99,7 @@ public class Sec5Block72Decoder extends SynopticSec5Decoder {
             // nothing to do.
             return;
         }
-        if (reportParser.positionTo(ISynoptic.SEC_5_LEAD)) {
+        if (reportParser.positionTo(ISynoptic.SEC_5_LEAD_STRING)) {
             String element = null;
 
             while (true) {
@@ -111,8 +112,8 @@ public class Sec5Block72Decoder extends SynopticSec5Decoder {
                     break;
                 }
                 if (isBlock72Data) {
-                    if (AbstractSfcObsDecoder.matchElement(element,
-                            ISynoptic.SEC_5_72_CTEMP)) {
+                    if (ISynoptic.SEC_5_72_CTEMP.matcher(element)
+                            .find()) {
                         // City temperature.
                         Double val = decodeFahrenheit(element.substring(1, 4));
                         if (val != null) {
@@ -120,8 +121,8 @@ public class Sec5Block72Decoder extends SynopticSec5Decoder {
                             cityTemperature.setDataValue(val);
                             cityTemperature.setDataPeriod(0);
                         }
-                    } else if (AbstractSfcObsDecoder.matchElement(element,
-                            ISynoptic.SEC_5_72_CMAXMIN)) {
+                    } else if (ISynoptic.SEC_5_72_CMAXMIN.matcher(
+                            element).find()) {
                         // City maximum/minimum temperature.
                         Double val = decodeFahrenheit(element.substring(0, 3));
                         if (val != null) {
