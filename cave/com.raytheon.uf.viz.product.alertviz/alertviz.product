@@ -29,8 +29,6 @@ Developed on the Raytheon Visualization Environment (viz)
 -XX:MaxPermSize=128m
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme
 -Dqpid.dest_syntax=BURL
--Dcom.sun.management.jmxremote.authenticate=false
--Dcom.sun.management.jmxremote.ssl=false
 -Dlogback.configurationFile=logback-alertviz.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200</vmArgs>
