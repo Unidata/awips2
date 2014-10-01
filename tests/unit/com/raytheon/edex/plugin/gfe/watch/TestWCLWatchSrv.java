@@ -118,7 +118,6 @@ public class TestWCLWatchSrv {
                 return rtnSet;
             }
 
-            @Override
             protected File getWclDir(String siteID) {
                 String home = System.getenv("HOME");
                 File fakeDir = new File(home);
@@ -148,7 +147,6 @@ public class TestWCLWatchSrv {
         // the permanent file. Use an anonymous subclass to bypass CAVE
         // localization.
         wclWatchSrv = new WCLWatchSrv() {
-            @Override
             protected File getWclDir(String siteID) {
                 String home = System.getenv("HOME");
                 return new File(home);
