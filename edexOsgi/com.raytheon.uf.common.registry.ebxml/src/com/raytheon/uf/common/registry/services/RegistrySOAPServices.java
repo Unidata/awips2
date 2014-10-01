@@ -112,44 +112,12 @@ public class RegistrySOAPServices {
     /** The name of the validator service */
     protected static final String VALIDATOR_SERVICE_NAME = "validator";
 
-    protected static final ProxyConfiguration proxyConfig;
-
-    protected static final HTTPClientPolicy httpClientPolicy;
+    protected static final ProxyConfiguration proxyConfig = getProxyConfiguration();
 
     protected static final String HTTP_RECEIVE_TIMEOUT_PROPERTY = "ebxml-http-receive-timeout";
 
     protected static final String HTTP_CONNECTION_TIMEOUT_PROPERTY = "ebxml-http-connection-timeout";
 
-    static {
-        proxyConfig = getProxyConfiguration();
-        httpClientPolicy = new HTTPClientPolicy();
-
-        try {
-            httpClientPolicy.setReceiveTimeout(Long.parseLong(System
-                    .getProperty(HTTP_RECEIVE_TIMEOUT_PROPERTY)));
-        } catch (NumberFormatException e) {
-            statusHandler
-                    .error("ebxml-http-receive-timeout not specified.  Using default value of 1 minute",
-                            e);
-            httpClientPolicy.setReceiveTimeout(DEFAULT_RECEIVE_TIMEOUT);
-        }
-        try {
-            httpClientPolicy.setConnectionTimeout(Long.parseLong(System
-                    .getProperty(HTTP_CONNECTION_TIMEOUT_PROPERTY)));
-        } catch (NumberFormatException e) {
-            statusHandler
-                    .error("ebxml-http-connection-timeout not specified.  Using default value of 10 seconds",
-                            e);
-            httpClientPolicy.setConnectionTimeout(DEFAULT_CONNECT_TIMEOUT);
-        }
-        httpClientPolicy.setConnection(ConnectionType.CLOSE);
-        httpClientPolicy.setMaxRetransmits(5);
-        if (proxyConfig != null) {
-            httpClientPolicy.setProxyServer(proxyConfig.getHost());
-            httpClientPolicy.setProxyServerPort(proxyConfig.getPort());
-            httpClientPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
-        }
-    }
 
     /**
      * Gets the notification listener service URL for the given host
@@ -346,7 +314,7 @@ public class RegistrySOAPServices {
         T port = (T) ref.getPort(serviceInterface);
 
         Client client = ClientProxy.getClient(port);
-        ((HTTPConduit) client.getConduit()).setClient(httpClientPolicy);
+        ((HTTPConduit) client.getConduit()).setClient(getSoapPolicy());
         // Create HTTP header containing the calling registry
         Map<String, List<String>> headers = new HashMap<String, List<String>>();
         headers.put(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME,
@@ -373,5 +341,37 @@ public class RegistrySOAPServices {
             }
         }
         return proxyConfig;
+    }
+    
+    private HTTPClientPolicy getSoapPolicy(){
+    	
+    	HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+
+        try {
+            httpClientPolicy.setReceiveTimeout(Long.parseLong(System
+                    .getProperty(HTTP_RECEIVE_TIMEOUT_PROPERTY)));
+        } catch (NumberFormatException e) {
+            statusHandler
+                    .error("ebxml-http-receive-timeout not specified.  Using default value of 1 minute",
+                            e);
+            httpClientPolicy.setReceiveTimeout(DEFAULT_RECEIVE_TIMEOUT);
+        }
+        try {
+            httpClientPolicy.setConnectionTimeout(Long.parseLong(System
+                    .getProperty(HTTP_CONNECTION_TIMEOUT_PROPERTY)));
+        } catch (NumberFormatException e) {
+            statusHandler
+                    .error("ebxml-http-connection-timeout not specified.  Using default value of 10 seconds",
+                            e);
+            httpClientPolicy.setConnectionTimeout(DEFAULT_CONNECT_TIMEOUT);
+        }
+        httpClientPolicy.setConnection(ConnectionType.CLOSE);
+        httpClientPolicy.setMaxRetransmits(5);
+        if (proxyConfig != null) {
+            httpClientPolicy.setProxyServer(proxyConfig.getHost());
+            httpClientPolicy.setProxyServerPort(proxyConfig.getPort());
+            httpClientPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
+        }
+        return httpClientPolicy;
     }
 }
