@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IExtent;
@@ -94,6 +95,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *                                         fields when magnification set to 0
  *    Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
  *    Jun 6, 2014  DR 17367    D. Friedman Fix cache object usage.
+ *    Aug 04, 2014  3488       bclement    added sanity check for record bin range
  * 
  * </pre>
  * 
@@ -106,6 +108,8 @@ public class LightningResource extends
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LightningResource.class);
+
+    private static final long MAX_RECORD_BIN_MILLIS = TimeUtil.MILLIS_PER_DAY;
 
     private static class LightningFrame {
 
@@ -507,6 +511,13 @@ public class LightningResource extends
 
         for (BinLightningRecord obj : objs) {
         	if (obj.getLightSource().equals(this.lightSource) || this.lightSource.isEmpty()) {
+                long duration = obj.getDataTime().getValidPeriod()
+                        .getDuration();
+                if (duration > MAX_RECORD_BIN_MILLIS) {
+                    statusHandler.error("Record bin time larger than maximum "
+                            + "supported period. Skipping record: " + obj);
+                    continue;
+                }
         		DataTime time = new DataTime(obj.getStartTime());
         		DataTime end = new DataTime(obj.getStopTime());
         		time = this.getResourceData().getBinOffset()
