@@ -4398,7 +4398,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     .getProductCategory(token)
                     + tdm.getProductDesignator(token);
             // Set the header text field.
-            if (bbbid.equals("NOR") || tdm.getAfosPil(token) != null) {
+            if (bbbid.equals("NOR") || (bbbid.isEmpty() && tdm.getAfosPil(token) != null)) {
                 String wmoId = tdm.getWmoId(token);
                 wmoId = (wmoId.length() > 0 ? wmoId : "-");
                 String siteId = tdm.getSiteId(token);
