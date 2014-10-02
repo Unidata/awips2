@@ -3,6 +3,7 @@
 #include "grib2.h"
 
 //   PRGMMR: Gilbert         ORG: W/NP11    DATE: 2002-10-26
+//   2014-07-30  vkorolev    Added template 5.4
 //
 // ABSTRACT: This Fortran Module contains info on all the available 
 //   GRIB2 Data Representation Templates used in Section 5 (DRS).
@@ -31,7 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-      #define MAXDRSTEMP 9              // maximum number of templates
+      #define MAXDRSTEMP 10              // maximum number of templates
       #define MAXDRSMAPLEN 200          // maximum template map length
 
       struct drstemplate
@@ -49,6 +50,8 @@
          { 2, 16, 0, {4,-2,-2,1,1,1,1,4,4,4,1,1,4,1,4,1} },
              // 5.3: Grid point data - Complex Packing and spatial differencing
          { 3, 18, 0, {4,-2,-2,1,1,1,1,4,4,4,1,1,4,1,4,1,1,1} },
+             // 5.4: Grid Point Data - IEEE Floating Point Data
+         { 4, 1, 0, {1} },
              // 5.50: Spectral Data - Simple Packing
          { 50, 5, 0, {4,-2,-2,1,4} },
              // 5.51: Spherical Harmonics data - Complex packing 

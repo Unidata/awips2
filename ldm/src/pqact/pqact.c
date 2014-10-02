@@ -6,6 +6,9 @@
 
 /* 
  * ldm server mainline program module
+ *
+ *  Updated on: Aug 05, 2014 (Omaha #3458: Increased edexBridge queue size to 10000)
+ *      Author: rjpeter
  */
 
 #include <ldmconfig.h>
@@ -251,7 +254,7 @@ main(int ac, char *av[])
         prod_class_t clss;
         int toffset = TOFFSET_NONE;
         int loggingToStdErr = 0;
-        unsigned queue_size = 5000;
+        unsigned queue_size = 10000;
 
         conffilename = DEFAULT_CONFFILENAME;
 
