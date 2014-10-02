@@ -31,6 +31,7 @@ except:
     import NetCDF
 import JUtil
 import iscUtil
+import logging
 
 from java.util import ArrayList
 from java.io import File
@@ -72,6 +73,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    09/20/13        2405          dgilling       Clip grids before inserting into cache.
 #    10/22/13        2405          rjpeter        Remove WECache and store directly to cube.
 #    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
+#    08/14/2014      3526          randerso       Fixed to get sampling definition from appropriate site
 #
 
 # Original A1 BATCH WRITE COUNT was 10, we found doubling that
@@ -83,7 +85,7 @@ ifpNetcdfLogger=None
 ## Logging methods ##
 def initLogger(logFile=None):
     global ifpNetcdfLogger
-    ifpNetcdfLogger = iscUtil.getLogger("ifpnetCDF",logFile)
+    ifpNetcdfLogger = iscUtil.getLogger("ifpnetCDF",logFile, logLevel=logging.INFO)
 
 def logEvent(*msg):
     ifpNetcdfLogger.info(iscUtil.tupleToString(*msg))
@@ -249,7 +251,7 @@ def timeFromComponents(timeTuple):
         epochDays = epochDays + daysInMonth(pmonth, timeTuple[0])
         pmonth = pmonth + 1
 
-    epochDays = epochDays + timeTuple[2] - 1;   # but not this day
+    epochDays = epochDays + timeTuple[2] - 1   # but not this day
 
     epochTime = epochDays * 86400 + \
       timeTuple[3] * 3600 + timeTuple[4] * 60 + timeTuple[5]
@@ -409,7 +411,7 @@ def storeLatLonGrids(client, file, databaseID, invMask, krunch, clipArea):
     gridLoc = IFPServerConfigManager.getServerConfig(DatabaseID(databaseID).getSiteId()).dbDomain()
     pDict = gridLoc.getProjection()
 
-    latLonGrid = gridLoc.getLatLonGrid().__numpy__[0];
+    latLonGrid = gridLoc.getLatLonGrid().__numpy__[0]
     
     latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
 
@@ -1188,11 +1190,20 @@ def compressFile(filename, factor):
 ###------------
 # getSamplingDefinition - accesses server to retrieve definition,
 # returns None or the sampling definition as Python.
-def getSamplingDefinition(client, configName):
+def getSamplingDefinition(client, configName, siteId):
     if configName is None:
         return None  
-    file = PathManagerFactory.getPathManager().getStaticFile("isc/utilities/" + configName + ".py")
-    if file is None:
+    pathManager = PathManagerFactory.getPathManager()
+    fileName = "isc/utilities/" + configName + ".py"
+    siteContext = pathManager.getContextForSite(LocalizationType.COMMON_STATIC, siteId)
+    file = pathManager.getFile(siteContext, fileName)
+    
+    # if site file not found, try base level
+    if file is None or not file.exists():
+        baseContext = pathManager.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.BASE)
+        file = pathManager.getFile(baseContext, fileName)
+    
+    if file is None or not file.exists():
         s = "Sampling Definition " + configName + " not found, using all grids."
         logProblem(s)
         return None
@@ -1341,7 +1352,8 @@ def main(outputFilename, parmList, databaseID, startTime,
     #del maskGrid
 
     # Determine sampling definition
-    samplingDef = getSamplingDefinition(client, argDict['configFileName'])
+    siteId = DatabaseID(argDict['databaseID']).getSiteId()
+    samplingDef = getSamplingDefinition(client, argDict['configFileName'], siteId)
     logVerbose("Sampling Definition:", samplingDef)
 
     # Open the netCDF file
@@ -1385,7 +1397,7 @@ def main(outputFilename, parmList, databaseID, startTime,
           argDict['krunch'], clipArea)
         totalGrids = totalGrids + 3
 
-    storeGlobalAtts(file, argDict);
+    storeGlobalAtts(file, argDict)
 
     file.close()
 
