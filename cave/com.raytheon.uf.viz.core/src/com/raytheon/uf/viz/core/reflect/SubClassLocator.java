@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.osgi.framework.internal.core.BundleRepository;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -58,6 +57,8 @@ import com.raytheon.uf.viz.core.Activator;
  *                                    bundles.
  * Feb 03, 2013  2764     bsteffen    Use OSGi API to get dependencies.
  * Apr 17, 2014  3018     njensen     Synchronize against BundleRepository
+ * Aug 13, 2014  3500     bclement    uses BundleSynchronizer
+ * Aug 22, 2014  3500     bclement    removed sync on OSGi internals
  * 
  * </pre>
  * 
@@ -270,20 +271,7 @@ public class SubClassLocator implements ISubClassLocator {
             return Collections.emptySet();
         }
 
-        BundleRepository bundleRepo = BundleRepositoryGetter
-                .getFrameworkBundleRepository(bundle);
-        ClassLoader loader = null;
-        if (bundleRepo != null) {
-            synchronized (bundleRepo) {
-                loader = bundleWiring.getClassLoader();
-            }
-        } else {
-            /*
-             * even if we couldn't get the bundle repository to sync against,
-             * it's probably safe, see BundleRepositoryGetter javadoc
-             */
-            loader = bundleWiring.getClassLoader();
-        }
+        ClassLoader loader = bundleWiring.getClassLoader();
         if (loader == null) {
             return Collections.emptySet();
         }
