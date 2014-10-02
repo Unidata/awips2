@@ -53,9 +53,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.apache.http.conn.params.ConnRoutePNames;
@@ -67,9 +69,12 @@ import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
@@ -106,6 +111,7 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *                                           DynamicSerializeStreamHandler
  *    Feb 04, 2014  2704        njensen     Better error message with bad address
  *                                           Https authentication failures notify handler
+ *    Aug 15, 2014  3524        njensen      Pass auth credentials on every https request
  * 
  * </pre>
  * 
@@ -397,6 +403,20 @@ public class HttpClient {
     private IHttpsConfiguration httpsConfiguration;
 
     /**
+     * The authCache is for https requests only. Without the authCache, inside
+     * DefaultRequestDirector.execute() it will always attempt to connect to the
+     * https address without the credentials set, therefore receiving a 401 not
+     * authenticated, THEN apply the credentials we already validated and try
+     * again. ON EVERY SINGLE REQUEST. Without the authCache therefore every
+     * https request actually becomes two requests.
+     * 
+     * There may be other ways to work around this limitation that could be
+     * investigated as time allows. A newer version of apache httpclient may
+     * also alleviate this.
+     */
+    private AuthCache authCache;
+
+    /**
      * Private constructor.
      */
     private HttpClient() {
@@ -511,7 +531,11 @@ public class HttpClient {
         HttpResponse resp = null;
         if (put.getURI().getScheme().equalsIgnoreCase(HTTPS)) {
             org.apache.http.client.HttpClient client = getHttpsInstance();
-            resp = execute(client, put);
+            HttpContext context = new BasicHttpContext();
+            if (authCache != null) {
+                context.setAttribute(ClientContext.AUTH_CACHE, authCache);
+            }
+            resp = execute(client, put, context);
 
             // Check for not authorized, 401
             while (resp.getStatusLine().getStatusCode() == 401) {
@@ -533,8 +557,9 @@ public class HttpClient {
 
                 this.setCredentials(host, port, null, credentials[0],
                         credentials[1]);
+                context.setAttribute(ClientContext.AUTH_CACHE, authCache);
                 try {
-                    resp = execute(client, put);
+                    resp = execute(client, put, context);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.ERROR,
                             "Error retrying http request", e);
@@ -562,19 +587,29 @@ public class HttpClient {
     }
 
     /**
-     * Execute the HttpUriRequest using the provided HttpClient instance.
+     * Execute the HttpUriRequest using the provided HttpClient instance and
+     * context.
      * 
      * @param client
      *            The HttpClient instance
      * @param request
      *            The request
+     * @param context
+     *            The context
+     * 
      * @return HttpResponse
      * @throws ClientProtocolException
      * @throws IOException
      */
     private HttpResponse execute(org.apache.http.client.HttpClient client,
-            HttpUriRequest request) throws ClientProtocolException, IOException {
-        return client.execute(request);
+            HttpUriRequest request, HttpContext context)
+            throws ClientProtocolException, IOException {
+        /*
+         * The apache http client will fill in values not set on the context
+         * with defaults. See AbstractHttpClient line 801 where it does:
+         * execContext = new DefaultedHttpContext(context, defaultContext);
+         */
+        return client.execute(request, context);
     }
 
     /**
@@ -1185,6 +1220,10 @@ public class HttpClient {
         (HttpsHolder.sslClient).getCredentialsProvider().setCredentials(
                 new AuthScope(host, port),
                 new UsernamePasswordCredentials(username, password));
+        if(this.authCache == null) {
+            this.authCache = new BasicAuthCache();
+        }
+        authCache.put(new HttpHost(host, port, HTTPS), new BasicScheme());
     }
 
     /**

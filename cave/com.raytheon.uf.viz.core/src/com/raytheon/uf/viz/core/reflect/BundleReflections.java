@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.osgi.framework.internal.core.BundleRepository;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWiring;
 import org.reflections.Reflections;
@@ -49,6 +48,8 @@ import org.reflections.util.ConfigurationBuilder;
  * Oct 21, 2013  2491     bsteffen    Initial creation
  * Jan 22, 2014  2062     bsteffen    Handle bundles with no wiring.
  * Apr 16, 2014  3018     njensen     Synchronize against BundleRepository
+ * Aug 13, 2014  3500     bclement    uses BundleSynchronizer
+ * Aug 22, 2014  3500     bclement    removed sync on OSGi internals
  * 
  * </pre>
  * 
@@ -60,26 +61,13 @@ public class BundleReflections {
 
     private final Reflections reflections;
 
-    @SuppressWarnings("restriction")
     public BundleReflections(Bundle bundle, Scanner scanner) throws IOException {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
-        BundleRepository bundleRepo = BundleRepositoryGetter
-                .getFrameworkBundleRepository(bundle);
 
         if (bundleWiring != null) {
-            if (bundleRepo != null) {
-                synchronized (bundleRepo) {
-                    cb.addClassLoader(bundleWiring.getClassLoader());
-                }
-            } else {
-                /*
-                 * even if we couldn't get the bundle repository to sync
-                 * against, it's probably safe, see BundleRepositoryGetter
-                 * javadoc
-                 */
-                cb.addClassLoader(bundleWiring.getClassLoader());
-            }
+            cb.addClassLoader(bundleWiring.getClassLoader());
+
             cb.addUrls(FileLocator.getBundleFile(bundle).toURI().toURL());
             cb.setScanners(scanner);
             reflections = cb.build();
