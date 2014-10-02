@@ -108,7 +108,9 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     and generateExistingTrackInfo()
  *  08-21-2014  DR 15700   Qinglu Lin  handle the situation where frameTime is null in paintTrack().
  *  09-09-2014  RM #657    Qinglu Lin  handle StormTrackState.trackType is null.
- * 
+ *  09-25-2014  ASM #16773 D. Friedman Fix NPE.
+ *
+>>>>>>> master_14.2.4
  * </pre>
  * 
  * @author mschenke
@@ -1319,6 +1321,11 @@ public class StormTrackDisplay implements IRenderable {
     private void paintLabels(IGraphicsTarget target,
             StormTrackProperties paintProps) throws VizException {
         StormTrackState state = paintProps.getState();
+
+        if (state.timePoints == null || state.futurePoints == null) {
+            return;
+        }
+
         // get the magnification from the state
         float magnification = state.magnification;
         // find a nice looking radius
