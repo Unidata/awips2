@@ -93,6 +93,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.ClusterIdUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
@@ -156,6 +157,7 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  * 2/13/2014    2769        bphillip    Refactored registry sync. Created quartz tasks to monitor registry uptime as well as subscription integrity
  * 4/11/2014    3011        bphillip    Removed automatic registry sync check on startup
  * 4/15/2014    3012        dhladky     Merge fixes.
+ * 8/27/2014    3560        bphillip    Added updateRegistryEvents method
  * </pre>
  * 
  * @author bphillip
@@ -535,6 +537,16 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         }
 
     }
+    
+	@Transactional
+	@GET
+	@Path("updateRegistryEvents/{registryId}/{time}")
+	public void updateRegistryEvents(@PathParam("registryId") String registryId, @PathParam("time") String time) {
+		for(ReplicationEvent event: replicationEventDao.getEventsBeforeTime(time)){
+			event.addReplicatedTo(registryId);
+			replicationEventDao.update(event);
+		}
+	}
 
     /**
      * Synchronizes this registry's data with the registry at the specified URL
@@ -581,6 +593,9 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                 }
                 federatedRegistryMonitor.updateTime();
                 StringBuilder syncMsg = new StringBuilder();
+                
+                // Update the registry events table on the remote registry so duplicate data is not sent again
+                dataDeliveryRestClient.getRegistryFederationManager(remoteRegistryUrl).updateRegistryEvents(ClusterIdUtil.getId(), String.valueOf(start));
 
                 syncMsg.append("Registry synchronization using [")
                         .append(remoteRegistryUrl)
@@ -1256,5 +1271,4 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     public NotificationServers getServers() {
         return servers;
     }
-
 }

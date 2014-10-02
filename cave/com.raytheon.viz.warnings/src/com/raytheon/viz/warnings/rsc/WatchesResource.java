@@ -290,7 +290,7 @@ public class WatchesResource extends AbstractWWAResource {
         }
     }
 
-    private void setGeometry(AbstractWarningRecord record) {
+    protected void setGeometry(AbstractWarningRecord record) {
         List<String> county = new ArrayList<String>();
         List<String> marinezone = new ArrayList<String>();
         List<Geometry> geometries = new ArrayList<Geometry>();
