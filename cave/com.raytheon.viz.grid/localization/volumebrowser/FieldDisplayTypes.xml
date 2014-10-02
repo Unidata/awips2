@@ -81,6 +81,7 @@
 	<field key="NetIO" volumePlaneType="K"/>
 	<field key="PAdv" volumePlaneType="K"/>
 	<field key="DpDt" volumePlaneType="K"/>
+	<field key="OGRD" displayTypes="ARROW,STREAMLINE"/>
 	<field key="Surge10pctCumul_wTide" displayTypes="IMAGE" />
 	<field key="Surge20pctCumul_wTide" displayTypes="IMAGE" />
 	<field key="Surge30pctCumul_wTide" displayTypes="IMAGE" />
