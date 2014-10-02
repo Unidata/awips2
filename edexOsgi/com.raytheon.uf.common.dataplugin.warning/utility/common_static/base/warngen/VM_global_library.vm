@@ -230,10 +230,10 @@ ${currTime}##
 #set($lastTime = ${currTime})
 #end
 #end
-#if(!${watch.marineAreas})
+#if(!${watch.marineArea})
 #areaFormat(${watch.partOfState} true false true)${watch.state}##
 #else
-#formatMarineAreas(${watch.marineAreas})
+#formatMarineArea(${watch.marineArea})
 #end
 #set($lastEtn = ${watch.etn})
 #end
@@ -291,10 +291,10 @@ ${currTime}##
 #set($lastTime = ${currTime})
 #end
 #end
-#if(!${watch.marineAreas})
+#if(!${watch.marineArea})
 #areaFormat(${watch.partOfState} true false true)${watch.state}##
 #else
-#formatMarineAreas(${watch.marineAreas})
+#formatMarineArea(${watch.marineArea})
 #end
 #set($lastEtn = ${watch.etn})
 #end
@@ -304,22 +304,8 @@ ${currTime}##
 #end
 ########END MACRO
 
-#macro(formatMarineAreas $marineAreas)
-#set($macount = 0)
-#set($numMarineAreas = ${list.size(${marineAreas})})
-#foreach(${marineArea} in ${marineAreas})
-#set($macount = $macount + 1)
-#if(${marineArea}=="THE ADJACENT COASTAL WATERS" && $macount > 1)
-OTHER ADJACENT COASTAL WATERS##
-#else
+#macro(formatMarineArea $marineArea)
 ${marineArea}##
-#end
-#if($macount == $numMarineAreas - 1)
- AND ##
-#elseif($macount < $numMarineAreas)
-...##
-#end
-#end
 #end
 ########END MACRO
 
