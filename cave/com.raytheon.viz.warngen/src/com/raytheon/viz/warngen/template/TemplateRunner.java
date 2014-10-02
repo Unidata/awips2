@@ -140,6 +140,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Mar 17, 2014   DR 16309 Qinglu Lin  Updated getWatches(), processATEntries() and determineAffectedPortions(), and 
  *                                     added determineAffectedMarinePortions().
  * Jul 21, 2014   3419     jsanchez    Refactored WatchUtil. 
+ * Aug 15, 2014 DR15701 mgamazaychikov Removed static field watchUtil.
  * </pre>
  * 
  * @author njensen
@@ -156,8 +157,6 @@ public class TemplateRunner {
             .compile(".*\\sCC([A-Z])");
 
     private static Hashtable<String, DateFormat> dateFormat;
-
-    private static WatchUtil watchUtil;
 
     static {
         dateFormat = new Hashtable<String, DateFormat>();
@@ -851,9 +850,7 @@ public class TemplateRunner {
         // Store Watches
         try {
             t0 = System.currentTimeMillis();
-            if (watchUtil == null) {
-                watchUtil = new WatchUtil(warngenLayer);
-            }
+            WatchUtil watchUtil = new WatchUtil(warngenLayer);
             List<Watch> watches = watchUtil.getWatches(config, warnPolygon,
                     simulatedTime);
             System.out.println("getWatches time: "

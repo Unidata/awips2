@@ -64,6 +64,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2008            snaples     Initial creation
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
+ * Aug 26, 2014 14578      snaples     Changed the way we get current data to use new ending hydologic date.
  * 
  * </pre>
  * 
@@ -196,8 +197,8 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         Shell parent = this.getParent();
         Display display = parent.getDisplay();
         MPEDisplayManager displayMgr = MPEDisplayManager.getCurrent();
-        Date prevDate = displayMgr.getCurrentEditDate();
-        Date currDate = ChooseDataPeriodDialog.prevDate;
+        Date prevDate = ChooseDataPeriodDialog.getCurrentHydroEditDate();
+        Date currDate = ChooseDataPeriodDialog.prevHydDate;
         String QcArea = ChooseDataPeriodDialog.prevArea;
         AppsDefaults appDefaults = AppsDefaults.getInstance();
         DisplayFieldData df = displayMgr.getDisplayFieldType();
