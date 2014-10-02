@@ -290,9 +290,12 @@ class WECache(object):
         saveSize = 0   # number of grids in saveRequest
 
         # get full time range for flush
-        sortedList = sorted(trList, key=lambda t: t[0])
-        flushTR = (sortedList[0][0], sortedList[-1][1])
-
+        if (len(trList)):
+            sortedList = sorted(trList, key=lambda t: t[0])
+            flushTR = (sortedList[0][0], sortedList[-1][1])
+        else:
+            flushTR = (0, 2**31-1) # all times
+            
         timeSpan = None  # time span if this contiguous batch
         gridsToSave = ArrayList(self._batchSize)  # grids in this contiguous batch
         saveBatch = False
@@ -421,7 +424,7 @@ class WECache(object):
     def flush(self):
         """Writes all dirty time ranges in the WECache to HDF5/DB"""
         # flush entire inventory
-        self.__flushGrids(self._dirty)
+        self.__flushGrids(self.keys())
 
     def overlaps(self, tr1, tr2):
         if (tr1[0] >= tr2[0] and tr1[0] < tr2[1]) or \
