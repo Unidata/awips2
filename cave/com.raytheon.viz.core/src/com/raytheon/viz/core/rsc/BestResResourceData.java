@@ -36,10 +36,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.NoDataAvailableException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -52,9 +54,10 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 5, 2010            mnash     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 05, 2010           mnash       Initial creation
+ * Sep 26, 2014  3669     bsteffen    Fix updates so that no alert parser is used.
  * 
  * </pre>
  * 
@@ -73,6 +76,8 @@ public class BestResResourceData extends AbstractRequestableResourceData
     @XmlAttribute
     private String productIdentifierKey;
 
+    /** @deprecated only exists for xml compatibility. */
+    @Deprecated
     @XmlElement
     private AbstractSpatialEnabler enabler = null;
 
@@ -132,6 +137,67 @@ public class BestResResourceData extends AbstractRequestableResourceData
         }
     }
 
+    private AbstractResourceData getRscToUpdate(Map<String, Object> recordMap) {
+        AbstractVizResource<?, ?> rscToUse = null;
+        for (AbstractVizResource<?, ?> rsc : rscs) {
+            if (rsc != null) {
+                AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) rsc
+                        .getResourceData();
+                String rscValue = arrd.getMetadataMap()
+                        .get(productIdentifierKey).getConstraintValue();
+                String updateValue = recordMap.get(productIdentifierKey)
+                        .toString();
+                if (rscValue != null && rscValue.equals(updateValue)) {
+                    rscToUse = rsc;
+                    break;
+                }
+            }
+        }
+
+        // no resource found for update
+        if (rscToUse == null) {
+            return null;
+        }
+
+        DataTime updateTime = (DataTime) recordMap
+                .get(PluginDataObject.DATATIME_ID);
+        AbstractVizResource<?, ?> curRes = bestResTimes.get(updateTime);
+
+        // we already have this time?
+        if (rscToUse == curRes) {
+            return null;
+        }
+
+        // new time, rscToUse is best res
+        if (curRes == null) {
+            bestResTimes.put(updateTime, rscToUse);
+            return rscToUse.getResourceData();
+        } else {
+            // Check to see if rscToUse is higher res than curRes
+            int curIdx = rscs.indexOf(curRes);
+            int rscToUseIdx = rscs.indexOf(rscToUse);
+
+            if (curIdx == -1 /* shouldn't happen */
+                    || rscToUseIdx < curIdx) {
+                // rscToUse is higher res than curRes
+                curRes.remove(updateTime);
+                bestResTimes.put(updateTime, rscToUse);
+                return rscToUse.getResourceData();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void update(AlertMessage... messages) {
+        for (AlertMessage message : messages) {
+            AbstractResourceData rscData = getRscToUpdate(message.decodedAlert);
+            if (rscData != null) {
+                rscData.update(new AlertMessage[] { message });
+            }
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -151,57 +217,9 @@ public class BestResResourceData extends AbstractRequestableResourceData
                 } catch (VizException e) {
                     e.printStackTrace();
                 }
-                AbstractVizResource<?, ?> rscToUse = null;
-                for (AbstractVizResource<?, ?> rsc : rscs) {
-                    if (rsc != null) {
-                        AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) rsc
-                                .getResourceData();
-                        String rscValue = arrd.getMetadataMap()
-                                .get(productIdentifierKey).getConstraintValue();
-                        String updateValue = recordMap
-                                .get(productIdentifierKey).toString();
-                        if (rscValue != null && rscValue.equals(updateValue)) {
-                            rscToUse = rsc;
-                            break;
-                        }
-                    }
-                }
-
-                // no resource found for update
-                if (rscToUse == null) {
-                    continue;
-                }
-
-                // We know the resource it is for
-                if (enabler != null) {
-                    enabler.enable(updatePDO[i], this);
-                }
-                DataTime updateTime = updatePDO[i].getDataTime();
-                AbstractVizResource<?, ?> curRes = bestResTimes.get(updateTime);
-
-                // we already have this time?
-                if (rscToUse == curRes) {
-                    continue;
-                }
-
-                // new time, rscToUse is best res
-                if (curRes == null) {
-                    rscToUse.getResourceData().update(
-                            new PluginDataObject[] { updatePDO[i] });
-                    bestResTimes.put(updateTime, rscToUse);
-                } else {
-                    // Check to see if rscToUse is higher res than curRes
-                    int curIdx = rscs.indexOf(curRes);
-                    int rscToUseIdx = rscs.indexOf(rscToUse);
-
-                    if (curIdx == -1 /* shouldn't happen */
-                            || rscToUseIdx < curIdx) {
-                        // rscToUse is higher res than curRes
-                        curRes.remove(updateTime);
-                        rscToUse.getResourceData().update(
-                                new PluginDataObject[] { updatePDO[i] });
-                        bestResTimes.put(updateTime, rscToUse);
-                    }
+                AbstractResourceData rscData = getRscToUpdate(recordMap);
+                if (rscData != null) {
+                    rscData.update(new PluginDataObject[] { updatePDO[i] });
                 }
             }
         }
@@ -235,6 +253,7 @@ public class BestResResourceData extends AbstractRequestableResourceData
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
+        this.enabler = null;
         this.retrieveData = true;
         return new BestResResource(this, loadProperties);
     }
