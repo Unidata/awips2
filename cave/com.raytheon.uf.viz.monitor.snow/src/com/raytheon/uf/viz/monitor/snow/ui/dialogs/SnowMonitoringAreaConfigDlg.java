@@ -29,6 +29,7 @@ import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.snow.SnowMonitor;
 import com.raytheon.uf.viz.monitor.snow.threshold.SnowThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * SNOW Monitor area configuration dialog.
@@ -42,7 +43,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Nov 27, 2012 1351       skorolev    Changes for non-blocking dialog.
  * Jan 29, 2014 2757       skorolev    Changed OK button handler.
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
- * Sep 15, 2014 2757       skorolev    Removed extra dialog.
+ * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
  * 
  * </pre>
  * 
@@ -52,6 +53,14 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
+    private SnowMonDispThreshDlg snowMonitorDlg;
+
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param title
+     */
     public SnowMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SNOW);
         readConfigData();
@@ -64,11 +73,10 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      * (non-Javadoc)
      * 
      * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * handleOkBtnSelection()
+     * handleApplyBtnSelection()
      */
     @Override
     protected void handleOkBtnSelection() {
-        // Check for changes in the data
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
                     "SNOW Monitor Confirm Changes",
@@ -84,20 +92,32 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                  */
                 SnowThresholdMgr.reInitialize();
                 SnowMonitor.reInitialize();
-
                 if ((!configManager.getAddedZones().isEmpty())
                         || (!configManager.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
-                        SnowMonDispThreshDlg snowMonitorDlg = new SnowMonDispThreshDlg(
-                                shell, CommonConfig.AppName.SNOW,
-                                DataUsageKey.MONITOR);
+                        snowMonitorDlg = new SnowMonDispThreshDlg(shell,
+                                CommonConfig.AppName.SNOW, DataUsageKey.MONITOR);
+                        snowMonitorDlg.setCloseCallback(new ICloseCallback() {
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                // Clear added zones and stations.
+                                configManager.getAddedZones().clear();
+                                configManager.getAddedStations().clear();
+                                setReturnValue(true);
+                                close();
+                            }
+                        });
                         snowMonitorDlg.open();
                     }
+                    configManager.getAddedZones().clear();
+                    configManager.getAddedStations().clear();
                 }
-                configManager.getAddedZones().clear();
-                configManager.getAddedStations().clear();
             }
-        } 
+        }
+        if (snowMonitorDlg == null || snowMonitorDlg.isDisposed()) {
+            setReturnValue(true);
+            close();
+        }
     }
 
     /*
@@ -135,5 +155,4 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
         timeWindow.setSelection(configManager.getTimeWindow());
         setTimeScaleLabel();
     }
-
 }
