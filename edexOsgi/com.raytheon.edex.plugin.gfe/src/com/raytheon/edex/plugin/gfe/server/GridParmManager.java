@@ -126,6 +126,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     created in response to another DBInvChangeNotification so IFPServers stay in synch.
  *                                     Cleaned up commented code.
  * 07/21/2014   #3415      randerso    Fixed d2dGridDataPurged to not purge NetCDF databases.
+ * 09/21/2014   #3648      randerso    Changed to do version purging when new databases are added
  * </pre>
  * 
  * @author bphillip
@@ -203,7 +204,6 @@ public class GridParmManager {
         } else {
             statusHandler
                     .debug("No matching GridDatabase for requested ParmID  in createParm()");
-            // TODO: should we return null?
             return new GridParm();
         }
     }
@@ -861,13 +861,23 @@ public class GridParmManager {
                 ServerResponse<GridDatabase> status = createDB(dbId);
                 if (status.isOkay()) {
                     db = status.getPayload();
+                } else {
+                    statusHandler.error(status.message());
                 }
             }
 
             if (db != null) {
                 this.addDB(db);
+
+                // do version purging
+                List<DatabaseID> purged = null;
+                if (!db.getDbId().getModelTime()
+                        .equals(DatabaseID.NO_MODEL_TIME)) {
+                    purged = versionPurge(db.getDbId());
+                }
+
                 if (notify) {
-                    createDbNotification(Arrays.asList(dbId), null);
+                    createDbNotification(Arrays.asList(dbId), purged);
                 }
             }
         }
@@ -970,85 +980,6 @@ public class GridParmManager {
     }
 
     /**
-     * Perform database based on versions
-     * 
-     * @return ServerResponse containing status only
-     */
-    public ServerResponse<?> versionPurge() {
-
-        ServerResponse<?> sr = new ServerResponse<Object>();
-
-        ServerResponse<List<DatabaseID>> ssr = getDbInventory();
-        if (!ssr.isOkay()) {
-            sr.addMessage("VersionPurge failed - couldn't get database inventory");
-            sr.addMessages(ssr);
-            return sr;
-        }
-        List<DatabaseID> currentInv = ssr.getPayload();
-
-        // sort the inventory by site, type, model, time (most recent first)
-        Collections.sort(currentInv);
-
-        // process the inventory looking for "old" unwanted databases
-        String model = null;
-        String site = null;
-        String type = null;
-        int count = 0;
-        int desiredVersions = 0;
-        for (DatabaseID dbId : currentInv) {
-            // new series?
-            if (!dbId.getSiteId().equals(site)
-                    || !dbId.getDbType().equals(type)
-                    || !dbId.getModelName().equals(model)) {
-                site = dbId.getSiteId();
-                type = dbId.getDbType();
-                model = dbId.getModelName();
-                count = 0;
-
-                // determine desired number of versions
-                desiredVersions = this.config.desiredDbVersions(dbId);
-            }
-
-            // process the id and determine whether it should be purged
-            count++;
-            if ((count > desiredVersions)
-                    && !dbId.getModelTime().equals(DatabaseID.NO_MODEL_TIME)) {
-                deallocateDb(dbId, true);
-                PurgeLogger.logInfo("Purging " + dbId, "gfe");
-            }
-        }
-
-        List<DatabaseID> newInv = getDbInventory().getPayload();
-        List<DatabaseID> additions = new ArrayList<DatabaseID>(newInv);
-        additions.removeAll(currentInv);
-
-        List<DatabaseID> deletions = new ArrayList<DatabaseID>(currentInv);
-        deletions.removeAll(newInv);
-
-        // kludge to keep dbMap in synch until GridParmManager/D2DParmICache
-        // merge/refactor
-        List<DatabaseID> toRemove = new ArrayList<DatabaseID>(dbMap.keySet());
-        toRemove.removeAll(newInv);
-        for (DatabaseID dbId : toRemove) {
-            if (dbMap.remove(dbId) != null) {
-                statusHandler
-                        .info("Synching GridParmManager with database inventory, removing "
-                                + dbId);
-            }
-
-            // add any removals to the deletions list
-            // so notifications go to the other JVMs
-            if (!deletions.contains(dbId)) {
-                deletions.add(dbId);
-            }
-        }
-
-        createDbNotification(additions, deletions);
-
-        return sr;
-    }
-
-    /**
      * Purge grids based on time
      * 
      * @param gridNotifications
@@ -1112,13 +1043,8 @@ public class GridParmManager {
     }
 
     private ServerResponse<GridDatabase> createDB(DatabaseID id) {
+        // TODO: consider merging this into getDatabase()
         ServerResponse<GridDatabase> status = new ServerResponse<GridDatabase>();
-        GridDatabase db = this.dbMap.get(id);
-        if (db != null) {
-            status.setPayload(db);
-            return status;
-        } // already exists
-
         if (!id.isValid() || !id.getFormat().equals(DataType.GRID)) {
             status.addMessage("Database id "
                     + id
@@ -1127,6 +1053,7 @@ public class GridParmManager {
         }
 
         // create the grid database
+        IFPGridDatabase db = null;
         GridDbConfig dbConfig = this.config.gridDbConfig(id);
         if (dbConfig == null) {
             status.addMessage("Unable to obtain GridDbConfig information for creation"
@@ -1149,9 +1076,6 @@ public class GridParmManager {
                                 "Unable to mark database restored: " + dbId, e);
                     }
                 }
-
-                // add to list of databases
-                addDB(db);
             } else {
                 status.addMessage("Database " + id + " is not valid.");
                 db = null;
@@ -1202,12 +1126,8 @@ public class GridParmManager {
         }
 
         // create the databases (the list should now only contain GRID dbs)
-        ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
         for (DatabaseID dbId : inventory) {
-            sr = createDB(dbId);
-            if (!sr.isOkay()) {
-                statusHandler.error(sr.message());
-            }
+            getDatabase(dbId, false);
         }
 
         NetCDFDatabaseManager.initializeNetCDFDatabases(config);
@@ -1269,11 +1189,9 @@ public class GridParmManager {
 
                 for (Date refTime : D2DGridDatabase.getModelRunTimes(
                         d2dModelName, desiredVersions)) {
-                    D2DGridDatabase db = D2DGridDatabase.getDatabase(config,
-                            d2dModelName, refTime);
-                    if (db != null) {
-                        addDB(db);
-                    }
+                    dbId = D2DGridDatabase.getDbId(d2dModelName, refTime,
+                            config);
+                    getDatabase(dbId, false);
                 }
             } catch (Exception e) {
                 statusHandler.error("Error initializing D2D model: "
@@ -1288,30 +1206,18 @@ public class GridParmManager {
     public void filterGridRecords(List<GridRecord> gridRecords) {
         List<GridUpdateNotification> guns = new LinkedList<GridUpdateNotification>();
         for (GridRecord record : gridRecords) {
+
             String d2dModelName = record.getDatasetId();
             Date refTime = record.getDataTime().getRefTime();
             DatabaseID dbId = D2DGridDatabase.getDbId(d2dModelName, refTime,
                     config);
+
             // not a d2d model we care about
             if (dbId == null) {
                 continue;
             }
 
-            D2DGridDatabase db = (D2DGridDatabase) this.dbMap.get(dbId);
-            if (db == null) {
-                // New database
-                db = D2DGridDatabase.getDatabase(config, d2dModelName, refTime);
-                if (db == null) {
-                    continue;
-                }
-
-                addDB(db);
-                statusHandler.info("filterGridRecords new D2D database: "
-                        + dbId);
-                GfeNotification dbInv = new DBInvChangeNotification(
-                        Arrays.asList(dbId), null, siteID);
-                SendNotifications.send(dbInv);
-            }
+            D2DGridDatabase db = (D2DGridDatabase) getDatabase(dbId, true);
 
             GridUpdateNotification gun = db.update(record);
             if (gun != null) {
@@ -1509,6 +1415,10 @@ public class GridParmManager {
         if (notif instanceof DBInvChangeNotification) {
             DBInvChangeNotification invChanged = (DBInvChangeNotification) notif;
 
+            for (DatabaseID dbId : invChanged.getDeletions()) {
+                deallocateDb(dbId, false);
+            }
+
             ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
             for (DatabaseID dbId : invChanged.getAdditions()) {
                 this.getDatabase(dbId, false);
@@ -1516,14 +1426,6 @@ public class GridParmManager {
             if (!sr.isOkay()) {
                 statusHandler.error("Error updating GridParmManager: "
                         + sr.message());
-            }
-
-            for (DatabaseID dbId : invChanged.getDeletions()) {
-                if (this.dbMap.remove(dbId) != null) {
-                    statusHandler
-                            .info("handleGfeNotification removing database: "
-                                    + dbId);
-                }
             }
         } else if (notif instanceof GridUpdateNotification) {
             DatabaseID satDbId = D2DSatDatabase.getDbId(siteID);
@@ -1585,10 +1487,7 @@ public class GridParmManager {
                 iter.remove();
             } else {
                 // remove the database
-                if (this.dbMap.remove(dbid) != null) {
-                    statusHandler.info("d2dGridDataPurged removing database: "
-                            + dbid);
-                }
+                deallocateDb(dbid, false);
             }
         }
 
@@ -1610,5 +1509,47 @@ public class GridParmManager {
         List<GridUpdateNotification> notifs = db.update();
 
         SendNotifications.send(notifs);
+    }
+
+    /**
+     * Perform database purge based on versions for the given model
+     * 
+     * @param modelToPurge
+     *            DatabaseID for model to be purged
+     * 
+     * @return list of purged databases
+     */
+    public List<DatabaseID> versionPurge(DatabaseID modelToPurge) {
+        int desiredVersions = this.config.desiredDbVersions(modelToPurge);
+
+        List<DatabaseID> currentInv = new ArrayList<DatabaseID>(
+                this.dbMap.keySet());
+        // sort the inventory by site, type, model, time (most recent first)
+        Collections.sort(currentInv);
+
+        // process the inventory looking for "old" unwanted databases
+        List<DatabaseID> purged = new ArrayList<DatabaseID>();
+        String model = modelToPurge.getModelName();
+        String site = modelToPurge.getSiteId();
+        String type = modelToPurge.getDbType();
+        int count = 0;
+        for (DatabaseID dbId : currentInv) {
+            // new series?
+            if (dbId.getSiteId().equals(site) && dbId.getDbType().equals(type)
+                    && dbId.getModelName().equals(model)) {
+
+                // process the id and determine whether it should be purged
+                count++;
+                if ((count > desiredVersions)
+                        && !dbId.getModelTime()
+                                .equals(DatabaseID.NO_MODEL_TIME)) {
+                    deallocateDb(dbId, true);
+                    purged.add(dbId);
+                    PurgeLogger.logInfo("Purging " + dbId, "gfe");
+                }
+            }
+        }
+
+        return purged;
     }
 }
