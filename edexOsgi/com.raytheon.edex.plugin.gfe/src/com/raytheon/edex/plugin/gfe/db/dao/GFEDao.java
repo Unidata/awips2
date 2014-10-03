@@ -486,16 +486,9 @@ public class GFEDao extends DefaultPluginDao {
             try {
                 GridParmManager gridParmMgr = ifpServer.getGridParmMgr();
 
-                PurgeLogger.logInfo("Purging expired database versions...",
-                        "gfe");
-                ServerResponse<?> sr = gridParmMgr.versionPurge();
-                if (!sr.isOkay()) {
-                    PurgeLogger.logError(sr.message(), "gfe");
-                }
-
                 PurgeLogger.logInfo("Purging expired grids...", "gfe");
-                sr = gridParmMgr
-                        .gridsPurge(gridNotifcations, lockNotifications);
+                ServerResponse<?> sr = gridParmMgr.gridsPurge(gridNotifcations,
+                        lockNotifications);
                 if (!sr.isOkay()) {
                     PurgeLogger.logError(sr.message(), "gfe");
                 }
