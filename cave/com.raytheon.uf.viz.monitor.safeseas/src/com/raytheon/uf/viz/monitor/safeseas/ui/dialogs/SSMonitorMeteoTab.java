@@ -37,6 +37,22 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SafeSeasMonitor;
 import com.raytheon.uf.viz.monitor.xml.AreaXML;
 import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
 
+/**
+ * SAFESEAS Monitor Meteo Table.
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 17, 2014 2757       skorolev    Removed unnecessary printouts.
+ *
+ * </pre>
+ *
+ * @author skorolev
+ * @version 1.0	
+ */
 public class SSMonitorMeteoTab extends TabItemComp implements IUpdateMonitorMeteo
 {
     private SSMonitorMeteoEditDlg monitorMeteoEditDlg;
@@ -190,9 +206,6 @@ public class SSMonitorMeteoTab extends TabItemComp implements IUpdateMonitorMete
             xmlKey = SafeSeasMonitor.SS_MON_METEO_WIND_SPEED.getXmlKey();
             ssmmd.setWindSpeedR(sstm.getThresholdValue(duKey, threshKeyR, areaID, xmlKey));
             ssmmd.setWindSpeedY(sstm.getThresholdValue(duKey, threshKeyY, areaID, xmlKey));
-            
-            System.out.println("=== " + sstm.getThresholdValue(duKey, threshKeyR, areaID, xmlKey));
-            System.out.println("=== " + sstm.getThresholdValue(duKey, threshKeyY, areaID, xmlKey));
             
             /*
              * Peak Wind
