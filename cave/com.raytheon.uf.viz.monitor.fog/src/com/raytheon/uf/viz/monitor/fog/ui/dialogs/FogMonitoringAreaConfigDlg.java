@@ -29,6 +29,7 @@ import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.fog.FogMonitor;
 import com.raytheon.uf.viz.monitor.fog.threshold.FogThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Fog Monitor area configuration dialog.
@@ -42,7 +43,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Nov 27, 2012 1351       skorolev     Changes for non-blocking dialog.
  * Jan 29, 2014 2757       skorolev     Changed OK button handler.
  * Apr 23, 2014 3054       skorolev     Fixed issue with removing a new station from list.
- * Sep 15, 2014 2757       skorolev     Removed extra dialog.
+ * Sep 19, 2014 2757       skorolev     Updated handlers for dialog buttons.
  * 
  * </pre>
  * 
@@ -51,6 +52,15 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  */
 
 public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
+
+    private FogMonDispThreshDlg fogMonitorDlg;
+
+    /**
+     * Constructor.
+     * 
+     * @param parent
+     * @param title
+     */
     public FogMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.FOG);
         readConfigData();
@@ -67,7 +77,6 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     @Override
     protected void handleOkBtnSelection() {
-        // Check for changes in the data
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
                     "Fog Monitor Confirm Changes",
@@ -85,20 +94,32 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                  */
                 FogThresholdMgr.reInitialize();
                 FogMonitor.reInitialize();
-
                 if ((!configManager.getAddedZones().isEmpty())
                         || (!configManager.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
-                        FogMonDispThreshDlg fogMonitorDlg = new FogMonDispThreshDlg(
-                                shell, CommonConfig.AppName.FOG,
-                                DataUsageKey.MONITOR);
+                        fogMonitorDlg = new FogMonDispThreshDlg(shell,
+                                CommonConfig.AppName.FOG, DataUsageKey.MONITOR);
+                        fogMonitorDlg.setCloseCallback(new ICloseCallback() {
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                // Clear added zones and stations.
+                                configManager.getAddedZones().clear();
+                                configManager.getAddedStations().clear();
+                                setReturnValue(true);
+                                close();
+                            }
+                        });
                         fogMonitorDlg.open();
                     }
                     configManager.getAddedZones().clear();
                     configManager.getAddedStations().clear();
                 }
             }
-        } 
+        }
+        if (fogMonitorDlg == null || fogMonitorDlg.isDisposed()) {
+            setReturnValue(true);
+            close();
+        }
     }
 
     /*
