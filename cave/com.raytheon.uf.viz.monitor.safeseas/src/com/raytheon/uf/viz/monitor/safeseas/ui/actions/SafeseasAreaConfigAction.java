@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSMonitoringAreaConfigDlg
  * Dec 28, 2009 3963       dhladky    Initial creation.
  * March 5, 2012 14413     zhao       Launch AreaConfigDlg w/o monitor
  * Nov.27, 2012 1297       skorolev   Cleanup code for non-blocking dialog
+ * Sep 16, 2014 2757       skorolev   Added test of dialog on dispose.
  * 
  * </pre>
  * 
@@ -51,7 +52,7 @@ public class SafeseasAreaConfigAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (configDlg == null) {
+        if (configDlg == null || configDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             configDlg = new SSMonitoringAreaConfigDlg(shell,
