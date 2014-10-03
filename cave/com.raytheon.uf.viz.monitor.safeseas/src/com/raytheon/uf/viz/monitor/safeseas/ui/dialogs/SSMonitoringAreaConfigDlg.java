@@ -29,6 +29,7 @@ import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
 import com.raytheon.uf.viz.monitor.safeseas.threshold.SSThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * SAFESEAS area configuration dialog.
@@ -42,7 +43,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Nov 27, 2012 1351       skorolev    Changes for non-blocking dialog.
  * Jan 29, 2014 2757       skorolev    Changed OK button handler.
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
- * Sep 15, 2014 2757       skorolev    Removed extra dialog.
+ * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
+ * 
  * 
  * </pre>
  * 
@@ -51,6 +53,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  */
 
 public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
+
+    private SSDispMonThreshDlg ssMonitorDlg;
 
     /**
      * Constructor
@@ -66,15 +70,8 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     private SSMonitorConfigurationManager configManager = SSMonitorConfigurationManager
             .getInstance();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * handleOkBtnSelection()
-     */
     @Override
     protected void handleOkBtnSelection() {
-        // Check for changes in the data
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
                     "SAFESEAS Monitor Confirm Changes",
@@ -95,16 +92,30 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 if ((!configManager.getAddedZones().isEmpty())
                         || (!configManager.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
-                        SSDispMonThreshDlg ssMonitorDlg = new SSDispMonThreshDlg(
-                                shell, CommonConfig.AppName.SAFESEAS,
+                        ssMonitorDlg = new SSDispMonThreshDlg(shell,
+                                CommonConfig.AppName.SAFESEAS,
                                 DataUsageKey.MONITOR);
+                        ssMonitorDlg.setCloseCallback(new ICloseCallback() {
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                // Clear added zones and stations.
+                                configManager.getAddedZones().clear();
+                                configManager.getAddedStations().clear();
+                                setReturnValue(true);
+                                close();
+                            }
+                        });
                         ssMonitorDlg.open();
                     }
                     configManager.getAddedZones().clear();
                     configManager.getAddedStations().clear();
                 }
             }
-        } 
+        }
+        if (ssMonitorDlg == null || ssMonitorDlg.isDisposed()) {
+            setReturnValue(true);
+            close();
+        }
     }
 
     /*

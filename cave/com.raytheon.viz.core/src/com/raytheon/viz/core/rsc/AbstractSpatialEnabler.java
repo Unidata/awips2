@@ -26,8 +26,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 
 /**
- * To allow spatial information in various plugins based on what is in the
- * bundle
+ * @deprecated do not extend this class, only exists for XML compatibility.
  * 
  * <pre>
  * 
@@ -36,6 +35,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
  * ------------- -------- ----------- --------------------------
  * Mar 2, 2010            mnash       Initial creation
  * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * Sep 26, 2014  3669     bsteffen    Deprecate
  * 
  * 
  * </pre>
@@ -43,9 +43,11 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
  * @author mnash
  * @version 1.0
  */
+@Deprecated
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class AbstractSpatialEnabler {
 
     public void enable(PluginDataObject d, AbstractRequestableResourceData arrd) {
+        /* Nothing calls this method */
     }
 }

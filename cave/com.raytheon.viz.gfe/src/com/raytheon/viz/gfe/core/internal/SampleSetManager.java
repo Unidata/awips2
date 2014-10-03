@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.geotools.referencing.GeodeticCalculator;
 
@@ -55,6 +57,7 @@ import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.core.ISampleSetManager;
 import com.raytheon.viz.gfe.core.msgs.ISampleSetChangedListener;
 import com.raytheon.viz.gfe.edittool.GridID;
+import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -69,7 +72,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 9, 2009  1288        rjpeter     Added ISampleSetChangedListener handling.
  * Aug 6, 2013  1561        njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * Sep 30, 2013 2361        njensen     Use JAXBManager for XML
- * Sep 08, 2104 #3592       randerso    Changed to use new pm listStaticFiles()
+ * Sep 08, 2104 #3592       randerso    Changed to use new pm listStaticFiles().
+ *                                      Reworked inventory to use a map to better handle
+ *                                      files at multiple localization levels
  * </pre>
  * 
  * @author rbell
@@ -88,7 +93,7 @@ public class SampleSetManager implements ISampleSetManager,
 
     private SampleId loadedSet;
 
-    private Set<SampleId> inventory;
+    private SortedMap<String, SampleId> inventory;
 
     private ArrayList<Coordinate> locations;
 
@@ -110,7 +115,7 @@ public class SampleSetManager implements ISampleSetManager,
     public SampleSetManager() {
         this.loadedSet = new SampleId();
 
-        this.inventory = new HashSet<SampleId>();
+        this.inventory = new TreeMap<String, SampleId>();
 
         this.locations = new ArrayList<Coordinate>();
 
@@ -129,10 +134,11 @@ public class SampleSetManager implements ISampleSetManager,
                 LocalizationType.COMMON_STATIC, SAMPLE_SETS_DIR,
                 new String[] { ".xml" }, true, true);
 
-        for (LocalizationFile file : files) {
-            String fn = LocalizationUtil.extractName(file.getName()).replace(
+        for (LocalizationFile lf : files) {
+            String name = LocalizationUtil.extractName(lf.getName()).replace(
                     ".xml", "");
-            this.inventory.add(new SampleId(fn));
+            this.inventory.put(name, new SampleId(name, false, lf.getContext()
+                    .getLocalizationLevel()));
         }
         this.sampleSetDir.addFileUpdatedObserver(this);
 
@@ -140,9 +146,9 @@ public class SampleSetManager implements ISampleSetManager,
         String[] sampleSets = Activator.getDefault().getPreferenceStore()
                 .getStringArray("DefaultSamples");
         if (sampleSets != null) {
-            for (String id : sampleSets) {
-                SampleId sid = new SampleId(id);
-                if (this.inventory.contains(sid)) {
+            for (String name : sampleSets) {
+                SampleId sid = inventory.get(name);
+                if (sid != null) {
                     loadSampleSet(sid, SampleSetLoadMode.ADD);
                 }
             }
@@ -171,31 +177,27 @@ public class SampleSetManager implements ISampleSetManager,
     @Override
     public List<Coordinate> sampleSetLocations(final String setName) {
         // verify set in inventory
-        boolean found = false;
-        for (SampleId thisId : this.inventory) {
-            if (setName.equals(thisId.getName())) {
-                found = true;
-                break;
-            }
-        }
+        SampleId sampleId = this.inventory.get(setName);
 
-        if (!found) {
+        if (sampleId == null) {
             statusHandler
                     .error("Attempt to get locations for unknown sample set ["
                             + setName + "]");
             return Collections.emptyList();
         }
 
-        String fileName = FileUtil.join(SAMPLE_SETS_DIR, setName + ".xml");
+        String fileName = FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName()
+                + ".xml");
 
-        LocalizationFile file = PathManagerFactory.getPathManager()
-                .getStaticLocalizationFile(fileName);
+        LocalizationFile lf = this.pathManager.getLocalizationFile(
+                this.pathManager.getContext(LocalizationType.COMMON_STATIC,
+                        sampleId.getAccess()), fileName);
 
-        File f = null;
+        File file = null;
         try {
-            f = file.getFile(true);
+            file = lf.getFile(true);
         } catch (LocalizationException e) {
-            if (f == null) {
+            if (file == null) {
                 statusHandler.error("An error occurred retrieving SampleSet: "
                         + fileName, e);
                 return Collections.emptyList();
@@ -205,9 +207,9 @@ public class SampleSetManager implements ISampleSetManager,
         SampleData sampleData = null;
         try {
             sampleData = SampleData.getJAXBManager().unmarshalFromXmlFile(
-                    f.getAbsolutePath());
+                    file.getAbsolutePath());
         } catch (Exception e) {
-            statusHandler.error("Unable to load sampledata: " + f, e);
+            statusHandler.error("Unable to load sampledata: " + file, e);
             return Collections.emptyList();
         }
 
@@ -225,8 +227,8 @@ public class SampleSetManager implements ISampleSetManager,
     @Override
     public void loadSampleSet(final SampleId sampleId,
             SampleSetLoadMode loadMode) {
-        File f = PathManagerFactory.getPathManager().getStaticFile(
-                FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
+        File f = this.pathManager.getStaticFile(FileUtil.join(SAMPLE_SETS_DIR,
+                sampleId.getName() + ".xml"));
 
         SampleData sampleData = null;
         try {
@@ -414,12 +416,10 @@ public class SampleSetManager implements ISampleSetManager,
 
         SampleData sd = new SampleData(sampleId, sampleLocations);
 
-        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = this.pathManager.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
 
-        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.USER);
-
-        LocalizationFile file = pm.getLocalizationFile(lc,
+        LocalizationFile file = this.pathManager.getLocalizationFile(lc,
                 FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
 
         try {
@@ -459,27 +459,25 @@ public class SampleSetManager implements ISampleSetManager,
      */
     @Override
     public boolean deleteSampleSet(final SampleId sampleId) {
-        LocalizationFile file = PathManagerFactory.getPathManager()
-                .getStaticLocalizationFile(
-                        FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName()
-                                + ".xml"));
 
-        LocalizationContext context = file.getContext();
-        if (context.getLocalizationLevel() != LocalizationLevel.USER) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to delete "
-                    + sampleId.getName()
-                    + ", because it is not a sampleset owned by you.");
-            return false;
+        LocalizationContext ctx = this.pathManager.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+        LocalizationFile lf = this.pathManager.getLocalizationFile(ctx,
+                FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
+
+        if ((lf != null)
+                && (AccessMgr.verifyDelete(lf.getName(),
+                        LocalizationType.COMMON_STATIC, false))) {
+            try {
+                lf.delete();
+                return true;
+            } catch (LocalizationException e) {
+                statusHandler.handle(Priority.PROBLEM, "Unable to sample set "
+                        + sampleId.getName() + " from server.", e);
+            }
         }
 
-        try {
-            file.delete();
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error deleting from localization server", e);
-        }
-
-        return true;
+        return false;
     }
 
     /*
@@ -494,19 +492,24 @@ public class SampleSetManager implements ISampleSetManager,
 
         String name = LocalizationUtil.extractName(message.getFileName())
                 .replace(".xml", "");
-        SampleId id = new SampleId(name);
+        SampleId id = new SampleId(name, false, message.getContext()
+                .getLocalizationLevel());
 
         switch (message.getChangeType()) {
         case ADDED:
         case UPDATED:
-            this.inventory.add(id);
+            SampleId existing = this.inventory.get(id.getName());
+            if ((existing == null)
+                    || (existing.getAccess().compareTo(id.getAccess()) <= 0)) {
+                this.inventory.put(id.getName(), id);
 
-            // loaded sample set "added", may simply be a rename
-            if (id.getName().equals(this.loadedSet.getName())) {
-                loadSampleSet(id, SampleSetLoadMode.REPLACE);
-            }
-            if (id.getName().equals(SampleSetManager.MARKER_NAME)) {
-                getMarkerPoints();
+                // loaded sample set "added", may simply be a rename
+                if (id.getName().equals(this.loadedSet.getName())) {
+                    loadSampleSet(id, SampleSetLoadMode.REPLACE);
+                }
+                if (id.getName().equals(SampleSetManager.MARKER_NAME)) {
+                    getMarkerPoints();
+                }
             }
             break;
 
@@ -515,13 +518,15 @@ public class SampleSetManager implements ISampleSetManager,
                     LocalizationType.COMMON_STATIC, message.getFileName(),
                     new String[] { ".xml" }, false, true);
 
+            if (files.length == 0) {
+                this.inventory.remove(id.getName());
+            } else {
+                this.inventory.put(id.getName(), new SampleId(id.getName(),
+                        false, files[0].getContext().getLocalizationLevel()));
+            }
+
             if (id.getName().equals(this.loadedSet.getName())) {
-                if (files.length > 0) {
-                    loadSampleSet(id, SampleSetLoadMode.REPLACE);
-                } else {
-                    this.inventory.remove(id);
-                    this.loadedSet = new SampleId();
-                }
+                this.loadedSet = new SampleId();
             }
 
             if (id.getName().equals(SampleSetManager.MARKER_NAME)) {
@@ -608,11 +613,9 @@ public class SampleSetManager implements ISampleSetManager,
         // ensure it is in the inventory
         this.markerLocations.clear();
 
-        for (Iterator<SampleId> it = this.inventory.iterator(); it.hasNext();) {
-            SampleId id = it.next();
-            if (id.getName().startsWith(MARKER_NAME)) {
-                markerLocations.put(id.getName(),
-                        this.sampleSetLocations(id.getName()));
+        for (String name : this.inventory.keySet()) {
+            if (name.startsWith(MARKER_NAME)) {
+                markerLocations.put(name, this.sampleSetLocations(name));
             }
         }
     }
@@ -634,21 +637,8 @@ public class SampleSetManager implements ISampleSetManager,
      */
     @Override
     public SampleId[] getInventory() {
-        return this.inventory.toArray(new SampleId[this.inventory.size()]);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISampleSetManager#getInventoryAsList()
-     */
-    @Override
-    public ArrayList<SampleId> getInventoryAsList() {
-        ArrayList<SampleId> ids = new ArrayList<SampleId>();
-        for (SampleId id : this.inventory) {
-            ids.add(id);
-        }
-        return ids;
+        return this.inventory.values().toArray(
+                new SampleId[this.inventory.size()]);
     }
 
     /*
@@ -660,9 +650,8 @@ public class SampleSetManager implements ISampleSetManager,
     public String[] getInventoryAsStrings() {
         String[] retVal = new String[this.inventory.size()];
         int i = 0;
-        for (SampleId id : this.inventory) {
-            retVal[i] = id.getName();
-            i++;
+        for (String name : this.inventory.keySet()) {
+            retVal[i++] = name;
         }
 
         return retVal;
@@ -721,6 +710,15 @@ public class SampleSetManager implements ISampleSetManager,
 
     }
 
+    /**
+     * Load sample set (for Python use)
+     * 
+     * @param sampleId
+     *            id of sample set to load
+     * @param loadMode
+     *            load mode
+     * @throws GFEException
+     */
     public void loadSampleSet(final SampleId sampleId, String loadMode)
             throws GFEException {
         loadSampleSet(sampleId, SampleSetLoadMode.valueOf(loadMode));

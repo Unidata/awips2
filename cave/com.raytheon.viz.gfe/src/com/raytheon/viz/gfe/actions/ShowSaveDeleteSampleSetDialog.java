@@ -29,19 +29,19 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.gfe.dialogs.LoadSampleSetDialog;
+import com.raytheon.viz.gfe.dialogs.SaveDeleteSampleSetDialog;
 
 /**
- * Action to launch sampele set dialog.
+ * Action for launching delete samples dialog.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 7, 2008             Eric Babin  Initial Creation
- * Apr 9, 2009  1288       rjpeter     Removed explicit refresh of SpatialDisplayManager.
- * Oct 24, 2012 1287       rferrel     Changes for non-blocking SampleSetDialog.
- * Sep 15, 2014 3592       randerso    Move logic into dialog code.
+ * Mar  7, 2008            Eric Babin  Initial Creation
+ * Jul 28, 2008 #1275.     Eric Babin  Remove inadvertent dispose on parent shell.
+ * Oct 24, 2012 #1287      rferrel     Changes for non-blocking SampleSetDialog.
+ * Sep 15, 2014 #3592      randerso    Renamed class, moved logic to dialog.
  * 
  * </pre>
  * 
@@ -49,11 +49,11 @@ import com.raytheon.viz.gfe.dialogs.LoadSampleSetDialog;
  * @version 1.0
  */
 
-public class ShowLoadSampleSetDialog extends AbstractHandler {
+public class ShowSaveDeleteSampleSetDialog extends AbstractHandler {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ShowSaveDeleteSampleSetDialog.class);
 
-    private LoadSampleSetDialog dialog;
+    private SaveDeleteSampleSetDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -74,7 +74,9 @@ public class ShowLoadSampleSetDialog extends AbstractHandler {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
 
-            dialog = new LoadSampleSetDialog(dm.getSampleSetManager(), shell);
+            String action = event.getParameter("Action");
+            dialog = new SaveDeleteSampleSetDialog(dm.getSampleSetManager(),
+                    shell, action);
 
             dialog.setBlockOnOpen(false);
             dialog.open();
