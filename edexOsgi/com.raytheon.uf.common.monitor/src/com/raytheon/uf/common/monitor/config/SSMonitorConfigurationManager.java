@@ -27,28 +27,31 @@ import com.raytheon.uf.common.monitor.xml.MonAreaConfigXML;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 5, 2010            mpduff     Initial creation
  * Feb 21, 2012 14413     zhao       added code handling "adjacent areas"
+ * Sep 24, 2014 2757      skorolev   Added save for Adjacent Area config.
  * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public class SSMonitorConfigurationManager extends MonitorConfigurationManager {
     /** Path to Monitoring Area Configuration XML. */
-    private static final String CONFIG_FILE_NAME = "safeseas" + File.separatorChar
-            + "monitoringArea" + File.separatorChar + "monitorAreaConfig.xml";
+    private static final String CONFIG_FILE_NAME = "safeseas"
+            + File.separatorChar + "monitoringArea" + File.separatorChar
+            + "monitorAreaConfig.xml";
 
     /** Path to Adjacent Area Configuration XML. */
-    private static final String ADJ_AREA_CONFIG_FILE_NAME = "safeseas" + File.separatorChar
-            + "monitoringArea" + File.separatorChar + "adjacentAreaConfig.xml";
+    private static final String ADJ_AREA_CONFIG_FILE_NAME = "safeseas"
+            + File.separatorChar + "monitoringArea" + File.separatorChar
+            + "adjacentAreaConfig.xml";
 
     /** Singleton instance of this class */
     private static MonitorConfigurationManager instance = null;
@@ -57,7 +60,7 @@ public class SSMonitorConfigurationManager extends MonitorConfigurationManager {
     private SSMonitorConfigurationManager() {
         configXml = new MonAreaConfigXML();
         adjAreaConfigXml = new MonAreaConfigXML();
-   }
+    }
 
     /**
      * Get an instance of this singleton.
@@ -77,13 +80,15 @@ public class SSMonitorConfigurationManager extends MonitorConfigurationManager {
      */
     public void saveConfigData() {
         super.saveConfigXml(CONFIG_FILE_NAME);
+        super.saveAdjacentAreaConfigXml(ADJ_AREA_CONFIG_FILE_NAME);
     }
 
     /**
      * Read the XML configuration data for the current XML file name.
      */
     public void readConfigXml(String currentSite) {
-        super.readConfigXml(currentSite, CONFIG_FILE_NAME, ADJ_AREA_CONFIG_FILE_NAME);
+        super.readConfigXml(currentSite, CONFIG_FILE_NAME,
+                ADJ_AREA_CONFIG_FILE_NAME);
     }
 
     /**
