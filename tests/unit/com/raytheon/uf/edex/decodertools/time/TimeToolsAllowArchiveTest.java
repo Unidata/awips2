@@ -77,7 +77,7 @@ public class TimeToolsAllowArchiveTest {
             @Override
             public Calendar getCalendar() {
                 final Calendar c = Calendar.getInstance();
-                c.setTimeZone(TimeZone.getTimeZone(TimeTools.ZULU_TIMEZONE));
+                c.setTimeZone(TimeZone.getTimeZone("GMT"));
                 c.set(Calendar.YEAR, 2011);
                 c.set(Calendar.MONTH, Calendar.JULY);
                 c.set(Calendar.DAY_OF_MONTH, 15);

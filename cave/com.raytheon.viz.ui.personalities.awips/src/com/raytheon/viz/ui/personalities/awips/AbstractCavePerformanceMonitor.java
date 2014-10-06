@@ -23,30 +23,31 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
 /**
  * Abstract class for logging cave performance metrics
  * 
- * Modified to add the log() method so as to make sure timestamp, host, and user name will be logged.  
- * - By Wufeng Zhou 07/26/2010
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 3, 2010            mschenke     Initial creation
+ * Jul 03, 2010            mschenke    Initial creation
+ * Jul 26, 2010            wzhou       Added log methods
+ * Oct 01, 2014  2975      njensen     Cleaned up
  * 
  * </pre>
  * 
@@ -54,8 +55,14 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
  * @version 1.0
  */
 
-public class AbstractCavePerformanceMonitor {
-	private final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
+public abstract class AbstractCavePerformanceMonitor {
+
+    private final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(
+            "yyyyMMdd HH:mm:ss.SSS");
+
+    private final String hostname;
+
+    private final String username;
 
     private PrintStream out;
 
@@ -71,6 +78,8 @@ public class AbstractCavePerformanceMonitor {
         runTotalTimeMap = new HashMap<String, Long>();
 
         out = getPrintStream(fileName);
+        hostname = VizApp.getHostName();
+        username = LocalizationManager.getInstance().getCurrentUser();
     }
 
     /**
@@ -86,12 +95,14 @@ public class AbstractCavePerformanceMonitor {
                 .getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.USER);
 
-        File logFile = PathManagerFactory.getPathManager().getLocalizationFile(
-                ctx,
-                "logs" + File.separator + fileName + "-"
-                        + sdf.format(new Date()) + ".log").getFile();
+        File logFile = PathManagerFactory
+                .getPathManager()
+                .getLocalizationFile(
+                        ctx,
+                        "logs" + IPathManager.SEPARATOR + fileName + "-"
+                                + sdf.format(new Date()) + ".log").getFile();
         if (logFile.getParentFile().exists() == false) {
-            logFile.mkdirs();
+            logFile.getParentFile().mkdirs();
         }
 
         try {
@@ -105,26 +116,23 @@ public class AbstractCavePerformanceMonitor {
     }
 
     /**
-     * logg message along with timestamp, host, and user name information.  
-     *  -added by Wufeng Zhou 07/26/2010 
+     * log message along with timestamp, host, and user name information. -added
+     * by Wufeng Zhou 07/26/2010
+     * 
      * @param message
      */
     protected void log(String message) {
-    	String hostname = null;
-    	try {
-    		hostname = InetAddress.getLocalHost().getHostName();
-    	} catch (UnknownHostException e) {
-    		hostname = "unknown";
-    	}
-    	String timestamp = TIMESTAMP_FORMAT.format(new Date());
-    	out.println(timestamp + " Host=" + hostname + ", User=" + System.getProperty("user.name") + ", " + message);
+        String timestamp = TIMESTAMP_FORMAT.format(new Date());
+        out.println(timestamp + " Host=" + hostname + ", User=" + username
+                + ", " + message);
     }
-    
+
     /**
      * printout exception stacktrace
+     * 
      * @param e
      */
     protected void log(Exception e) {
-    	e.printStackTrace(out);
+        e.printStackTrace(out);
     }
 }
