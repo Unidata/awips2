@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
@@ -47,12 +48,18 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
  * May 14, 2014 2536       bclement    removed TimeTools usage
+ * Sep 30, 2014 3629       mapeters    Added LAT_PATTERN, LON_PATTERN.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
+
+    protected static final Pattern LAT_PATTERN = Pattern.compile("99\\d{3}");
+
+    protected static final Pattern LON_PATTERN = Pattern
+            .compile("[1357]((0\\d{3})|(1(([0-7]\\d{2})|(800))))");
 
     private static final int LINE_CUT_LENGTH = 58;
 
