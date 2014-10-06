@@ -24,6 +24,7 @@
     <vbSource key="AK-NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AK-NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AK-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="AK-RTMA3" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AKWAVE239" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AKwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="AKwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -37,6 +38,7 @@
     <vbSource key="EPwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="estofsPR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="GFE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFS199" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFSLAMPTstorm" name="GFSLAMP-Grid" category="SfcGrid"
@@ -95,7 +97,7 @@
         subCategory="Global" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTOFS-GulfAlaska" category="SfcGrid/RTOFS/forecast"
         subCategory="Global" views="PLANVIEW TIMESERIES" />
-    <vbSource key="RTOFS-Honolulu" category="SfcGrid/RTOFS/forecast"
+    <vbSource  key="RTOFS-Honolulu" category="SfcGrid/RTOFS/forecast"
         subCategory="Global" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTOFS-HudsonBaffin" category="SfcGrid/RTOFS/forecast"
         subCategory="Global" views="PLANVIEW TIMESERIES" />
