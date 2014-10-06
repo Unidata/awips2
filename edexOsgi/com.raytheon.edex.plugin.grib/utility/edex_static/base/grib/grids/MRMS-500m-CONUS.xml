@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<latLonGridCoverage>
+    <name>10001</name>
+    <description>CONUS domain for MRMS 500m products</description>
+    <la1>55</la1>
+    <lo1>230</lo1>
+    <firstGridPointCorner>UpperLeft</firstGridPointCorner>
+    <nx>14000</nx>
+    <ny>7000</ny>
+    <dx>0.005</dx>
+    <dy>0.005</dy>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>
