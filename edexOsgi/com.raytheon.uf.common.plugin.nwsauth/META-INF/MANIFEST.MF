@@ -13,6 +13,5 @@ Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.2",
  org.apache.commons.lang;bundle-version="2.3.0"
 Export-Package: com.raytheon.uf.common.plugin.nwsauth,
  com.raytheon.uf.common.plugin.nwsauth.exception,
- com.raytheon.uf.common.plugin.nwsauth.user,
  com.raytheon.uf.common.plugin.nwsauth.xml
 Import-Package: com.raytheon.uf.common.plugin.nwsauth.exception
