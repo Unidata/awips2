@@ -2264,7 +2264,7 @@
 	</styleRule>
 	<!--
 		* NBE, ETA, mesoEta212, ETA207, mesoEta216, mesoEta217, ETA218, ETA242, GFS213, GFS212
-		J/kg | -1| 0 | 1 | 450 | |,x| 29 | 0 | 100
+		J/kg | -1| 0 | -1000 | -1 | |,x| 29 | 0 | 100
 	-->
 	<styleRule>
 		<paramLevelMatches>
@@ -2283,8 +2283,8 @@
 			<!-- filterLow="true" -->
 			<displayUnits>J/kg</displayUnits>
 			<range scale="LINEAR">
-				<minValue>1</minValue>
-				<maxValue>450</maxValue>
+				<minValue>-1000</minValue>
+				<maxValue>-1</maxValue>
 			</range>
 			<defaultColormap>Grid/gridded data</defaultColormap>
 			<colorbarLabeling>
@@ -4048,7 +4048,7 @@
 	</styleRule>
 	<!--
 		* NBE, RUC130, Layer
-		J/kg | 1 | 0 | 1  | 450  | |,x | 29 | -1 | 100
+		J/kg | 1 | 0 | -1000  | -1  | |,x | 29 | -1 | 100
 	-->
 	<!-- DISABLED for plane type "EA"
 	<styleRule>
@@ -4988,5 +4988,530 @@
       </colorbarLabeling>
     </imageStyle>
  </styleRule>
-
+ <!-- MRMS Echo Top Products-->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>EchoTop18</parameter>
+		<parameter>EchoTop30</parameter>
+		<parameter>EchoTop50</parameter>
+		<parameter>EchoTop60</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kft</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>70</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsEchoTops</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="0.0015" operator="&gt;" displayValue='0.005' />
+			<entry pixelValue="3.048" operator="&gt;" displayValue='10' />
+			<entry pixelValue="6.095" operator="&gt;" displayValue='20' />
+			<entry pixelValue="9.144" operator="&gt;" displayValue='30' />
+			<entry pixelValue="12.191" operator="&gt;" displayValue='40' />
+			<entry pixelValue="15.239" operator="&gt;" displayValue='50' />
+			<entry pixelValue="18.287" operator="&gt;" displayValue='60' />
+			<entry pixelValue="21.335" operator="&gt;" displayValue='70' />
+		</dataMapping>	
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Composite Reflectivity Height -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>HeightCompositeReflectivity</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kft</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>70</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsEchoTops</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="1.5" operator="&gt;" displayValue='0.005' />
+			<entry pixelValue="3048" operator="&gt;" displayValue='10' />
+			<entry pixelValue="6095" operator="&gt;" displayValue='20' />
+			<entry pixelValue="9144" operator="&gt;" displayValue='30' />
+			<entry pixelValue="12191" operator="&gt;" displayValue='40' />
+			<entry pixelValue="15239" operator="&gt;" displayValue='50' />
+			<entry pixelValue="18287" operator="&gt;" displayValue='60' />
+			<entry pixelValue="21033.5" operator="&gt;" displayValue='70' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Thickness Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>H50AboveM20C</parameter>
+		<parameter>H60AboveM20C</parameter>
+		<parameter>H50Above0C</parameter>
+		<parameter>H60Above0C</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kft</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-20</minValue>
+			<maxValue>35</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsThickness</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-6.095" operator="&lt;" displayValue='-20' />
+			<entry pixelValue="-4.572" operator="&lt;" displayValue='-15' />
+			<entry pixelValue="-3.048" operator="&lt;" displayValue='-10' />
+			<entry pixelValue="-1.524" operator="&lt;" displayValue='-5' />
+			<entry pixelValue="0" operator="&gt;" displayValue='0'/>
+			<entry pixelValue="1.524" operator="&gt;" displayValue='5' />
+			<entry pixelValue="3.048" operator="&gt;" displayValue='10' />
+			<entry pixelValue="4.572" operator="&gt;" displayValue='15' />
+			<entry pixelValue="6.095" operator="&gt;" displayValue='20' />
+			<entry pixelValue="7.620" operator="&gt;" displayValue='25' />
+			<entry pixelValue="9.144" operator="&gt;" displayValue='30' />
+			<entry pixelValue="10.667" operator="&gt;" displayValue='35' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS CG Lightning Density-->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>LightningDensity1min</parameter>
+		<parameter>LightningDensity5min</parameter>
+		<parameter>LightningDensity15min</parameter>
+		<parameter>LightningDensity30min</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label=" flashes/min*km^2">*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-0.19</minValue>
+			<maxValue>50</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsLightning</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-0.19" operator="&lt;" label="" />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="0.001" operator="&gt;" displayValue='0.001' />
+			<entry pixelValue="0.10" operator="&gt;" displayValue='0.10' />
+			<entry pixelValue="0.25" operator="&gt;" displayValue='0.25' />
+			<entry pixelValue="0.50" operator="&gt;" displayValue='0.50' />
+			<entry pixelValue="1" operator="&gt;" displayValue='1' />
+			<entry pixelValue="2" operator="&gt;" displayValue='2' />
+			<entry pixelValue="5" operator="&gt;" displayValue='5' />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="15" operator="&gt;" displayValue='15' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="25" operator="&gt;" displayValue='25' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="35" operator="&gt;" displayValue='35' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="45" operator="&gt;" displayValue='45' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Lightning Probability-->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>LightningProbabilityNext30min</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>%</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>100</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsPOSH</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" displayValue='0' label="" />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="70" operator="&gt;" displayValue='70' />
+			<entry pixelValue="80" operator="&gt;" displayValue='80' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+			<entry pixelValue="100" operator="&gt;" displayValue='100' />
+		</dataMapping>	 		
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS MESH Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>MESH</parameter>
+		<parameter>MESHTrack30min</parameter>
+		<parameter>MESHTrack60min</parameter>
+		<parameter>MESHTrack120min</parameter>
+		<parameter>MESHTrack240min</parameter>
+		<parameter>MESHTrack360min</parameter>
+		<parameter>MESHTrack1440min</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>in</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>4.0</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsHail</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="0.126" operator="&gt;" displayValue='0.005'/>
+			<entry pixelValue="12.690" operator="&gt;" displayValue='0.5' />
+			<entry pixelValue="25.381" operator="&gt;" displayValue='1.0' />
+			<entry pixelValue="38.071" operator="&gt;" displayValue='1.5' />
+			<entry pixelValue="50.761" operator="&gt;" displayValue='2.0' />
+			<entry pixelValue="63.452" operator="&gt;" displayValue='2.5' />
+			<entry pixelValue="76.142" operator="&gt;" displayValue='3.0' />
+			<entry pixelValue="88.832" operator="&gt;" displayValue='3.5' />
+			<entry pixelValue="101.523" operator="&gt;" displayValue='4.0' />
+		</dataMapping>		
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Shear & Rotation Tracks Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>MergedAzShear02kmAGL</parameter>
+		<parameter>MergedAzShear36kmAGL</parameter>
+		<parameter>RotationTrackLL30min</parameter>
+		<parameter>RotationTrackLL60min</parameter>
+		<parameter>RotationTrackLL120min</parameter>
+		<parameter>RotationTrackLL240min</parameter>
+		<parameter>RotationTrackLL360min</parameter>
+		<parameter>RotationTrackLL1440min</parameter>
+		<parameter>RotationTrackML30min</parameter>
+		<parameter>RotationTrackML60min</parameter>
+		<parameter>RotationTrackML120min</parameter>
+		<parameter>RotationTrackML240min</parameter>
+		<parameter>RotationTrackML360min</parameter>
+		<parameter>RotationTrackML1440min</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label="*0.001 s^-1">*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>25</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsRotation</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="1" operator="&gt;" displayValue='1' />
+			<entry pixelValue="2" operator="&gt;" displayValue='2' />
+			<entry pixelValue="4" operator="&gt;" displayValue='4' />
+			<entry pixelValue="6" operator="&gt;" displayValue='6' />
+			<entry pixelValue="8" operator="&gt;" displayValue='8' />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="12" operator="&gt;" displayValue='12' />
+			<entry pixelValue="14" operator="&gt;" displayValue='14' />
+			<entry pixelValue="16" operator="&gt;" displayValue='16' />
+			<entry pixelValue="18" operator="&gt;" displayValue='18' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="22" operator="&gt;" displayValue='22' />
+			<entry pixelValue="24" operator="&gt;" displayValue='24' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Precipitation Type -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>PrecipType</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>100</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsPrecipType</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0.00" operator="&lt;" label="No Data" />
+			<entry pixelValue="1.00" operator="=" displayValue='1.00' label="Warm Stratiform" />
+			<entry pixelValue="3.00" operator="=" displayValue='3.00' label="Snow" />
+			<entry pixelValue="6.00" operator="=" displayValue='6.00' label="Convective" />
+			<entry pixelValue="7.00" operator="=" displayValue='7.00' label="Hail" />
+			<entry pixelValue="10.00" operator="=" displayValue='10.00' label="Cold Stratiform" />
+			<entry pixelValue="91.00" operator="=" displayValue='91.00' label="Tropical Stratiform" />
+			<entry pixelValue="96.00" operator="=" displayValue='96.00' label="Tropical Convection" />
+           </dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Precipitation Rate -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>PrecipRate</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label= "in/hr">in/h</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-0.05</minValue>
+			<maxValue>12.0</maxValue>
+		</range>
+		
+		<defaultColormap>mrms/mrmsSPRDP</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-1" operator="&lt;" label="" />
+			<entry pixelValue="1" operator="&gt;" displayValue='0.01' />
+			<entry pixelValue="30" operator="&gt;" displayValue='1' />
+			<entry pixelValue="60" operator="&gt;" displayValue='2' />
+			<entry pixelValue="90" operator="&gt;" displayValue='3' />
+			<entry pixelValue="120" operator="&gt;" displayValue='4' />
+			<entry pixelValue="150" operator="&gt;" displayValue='5' />
+			<entry pixelValue="180" operator="&gt;" displayValue='6' />
+			<entry pixelValue="210" operator="&gt;" displayValue='7' />
+			<entry pixelValue="240" operator="&gt;" displayValue='8' />
+			<entry pixelValue="304.568" operator="&gt;" displayValue='12' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS RQI-->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>RadarQualityIndex</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label="">*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>1</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsRQI</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" displayValue='0' label="" />
+			<entry pixelValue="0.1" operator="&gt;" displayValue='0.1' />
+			<entry pixelValue="0.2" operator="&gt;" displayValue='0.2' />
+			<entry pixelValue="0.3" operator="&gt;" displayValue='0.3' />
+			<entry pixelValue="0.4" operator="&gt;" displayValue='0.4' />
+			<entry pixelValue="0.5" operator="&gt;" displayValue='0.5' />
+			<entry pixelValue="0.6" operator="&gt;" displayValue='0.6' />
+			<entry pixelValue="0.7" operator="&gt;" displayValue='0.7' />
+			<entry pixelValue="0.8" operator="&gt;" displayValue='0.8' />
+			<entry pixelValue="0.9" operator="&gt;" displayValue='0.9' />
+			<entry pixelValue="1.0" operator="&gt;" displayValue='1.0' />
+		</dataMapping>	
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Reflectivity Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>MergedReflectivityQCComposite</parameter>
+		<parameter>MergedReflectivityQC</parameter>
+		<parameter>Reflectivity0C</parameter>
+		<parameter>ReflectivityM5C</parameter>
+		<parameter>ReflectivityM10C</parameter>
+		<parameter>ReflectivityM15C</parameter>
+		<parameter>ReflectivityM20C</parameter>
+		<parameter>ReflectivityAtLowestAltitude</parameter>
+		<parameter>SeamlessHSR</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label="dBZ">*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-34</minValue>
+			<maxValue>82</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsReflectivity</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-20" operator="&gt;" displayValue='-20' />
+			<entry pixelValue="-10" operator="&gt;" displayValue='-10' />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="70" operator="&gt;" displayValue='70' />
+			<entry pixelValue="80" operator="&gt;" displayValue='80' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+		</dataMapping>	 		
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS QPE Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>RadarOnlyQPE01H</parameter>
+		<parameter>RadarOnlyQPE03H</parameter>
+		<parameter>RadarOnlyQPE06H</parameter>
+		<parameter>RadarOnlyQPE12H</parameter>
+		<parameter>RadarOnlyQPE24H</parameter>
+		<parameter>RadarOnlyQPE48H</parameter>
+		<parameter>RadarOnlyQPE72H</parameter>
+		<parameter>GaugeCorrQPE01H</parameter>
+		<parameter>GaugeCorrQPE03H</parameter>
+		<parameter>GaugeCorrQPE06H</parameter>
+		<parameter>GaugeCorrQPE12H</parameter>
+		<parameter>GaugeCorrQPE24H</parameter>
+		<parameter>GaugeCorrQPE48H</parameter>
+		<parameter>GaugeCorrQPE72H</parameter>
+		<parameter>GaugeOnlyQPE01H</parameter>
+		<parameter>GaugeOnlyQPE03H</parameter>
+		<parameter>GaugeOnlyQPE06H</parameter>
+		<parameter>GaugeOnlyQPE12H</parameter>
+		<parameter>GaugeOnlyQPE24H</parameter>
+		<parameter>GaugeOnlyQPE48H</parameter>
+		<parameter>GaugeOnlyQPE72H</parameter>
+		<parameter>MountainMapperQPE01H</parameter>
+		<parameter>MountainMapperQPE03H</parameter>
+		<parameter>MountainMapperQPE06H</parameter>
+		<parameter>MountainMapperQPE12H</parameter>
+		<parameter>MountainMapperQPE24H</parameter>
+		<parameter>MountainMapperQPE48H</parameter>
+		<parameter>MountainMapperQPE72H</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>in</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-0.05</minValue>
+			<maxValue>12.0</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsQPEDP</defaultColormap> 
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="18.75" operator="&gt;" displayValue='0' />
+			<entry pixelValue="37.5" operator="&gt;" displayValue='0.1' />
+			<entry pixelValue="56.25" operator="&gt;" displayValue='0.25' />
+			<entry pixelValue="75" operator="&gt;" displayValue='0.5' />
+			<entry pixelValue="93.75" operator="&gt;" displayValue='0.75' />
+			<entry pixelValue="112.5" operator="&gt;" displayValue='1' />
+			<entry pixelValue="132.25" operator="&gt;" displayValue='1.25' />
+			<entry pixelValue="151" operator="&gt;" displayValue='1.50' />
+			<entry pixelValue="170.75" operator="&gt;" displayValue='1.75' />
+			<entry pixelValue="191.5" operator="&gt;" displayValue='2' />
+			<entry pixelValue="208.25" operator="&gt;" displayValue='2.5' />
+			<entry pixelValue="228" operator="&gt;" displayValue='3' />
+			<entry pixelValue="246.75" operator="&gt;" displayValue='4' />
+			<entry pixelValue="268.5" operator="&gt;" displayValue='6' />
+			<entry pixelValue="288.25" operator="&gt;" displayValue='8' />
+			<entry pixelValue="304.57" operator="&gt;" displayValue='12' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS POSH -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>POSH</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>%</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>100</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsPOSH</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" displayValue='0' label="" />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="70" operator="&gt;" displayValue='70' />
+			<entry pixelValue="80" operator="&gt;" displayValue='80' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+			<entry pixelValue="100" operator="&gt;" displayValue='100' />
+		</dataMapping>		
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS SHI -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>SHI</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label="">*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-1</minValue>
+			<maxValue>450</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsSHI</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-1.00" operator="=" label="" />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+			<entry pixelValue="120" operator="&gt;" displayValue='120' />
+			<entry pixelValue="150" operator="&gt;" displayValue='150' />
+			<entry pixelValue="180" operator="&gt;" displayValue='180' />
+			<entry pixelValue="210" operator="&gt;" displayValue='210' />
+			<entry pixelValue="240" operator="&gt;" displayValue='240' />
+			<entry pixelValue="270" operator="&gt;" displayValue='270' />
+			<entry pixelValue="300" operator="&gt;" displayValue='300' />
+			<entry pixelValue="330" operator="&gt;" displayValue='330' />
+			<entry pixelValue="360" operator="&gt;" displayValue='360' />
+			<entry pixelValue="390" operator="&gt;" displayValue='390' />
+			<entry pixelValue="420" operator="&gt;" displayValue='420' />
+			<entry pixelValue="450" operator="&gt;" displayValue='450' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS VII -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>VII</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kg*m^-2</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-1</minValue>
+			<maxValue>40</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsVII</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-1.00" operator="&lt;" label="" />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="3.33" operator="&gt;" displayValue='3.33' />
+			<entry pixelValue="6.53" operator="&gt;" displayValue='6.53' />
+			<entry pixelValue="9.33" operator="&gt;" displayValue='9.33' />
+			<entry pixelValue="12.13" operator="&gt;" displayValue='12.13' />
+			<entry pixelValue="17" operator="&gt;" displayValue='17' />
+			<entry pixelValue="25" operator="&gt;" displayValue='25' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS VIL -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>MRMSVIL</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kg*m^-2</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-34.00</minValue>
+			<maxValue>82.00</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsVIL</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-34.00" operator="&gt;" label="" />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="70" operator="&gt;" displayValue='70' />
+			<entry pixelValue="80" operator="&gt;" displayValue='80' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
 </styleRuleset>
