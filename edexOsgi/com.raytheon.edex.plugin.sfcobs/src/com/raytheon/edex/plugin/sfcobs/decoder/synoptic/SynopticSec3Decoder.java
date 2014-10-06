@@ -59,7 +59,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter}, removed 
  *                                     unused duration field, made patterns constant.
  * Sep 26, 2014 #3629      mapeters    Replaced static imports.
- * 
+ * Sep 30, 2014 #3629      mapeters    Conformed to changes in ISynoptic constants.
  * 
  * </pre>
  * 
@@ -129,7 +129,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
             return;
         }
         String element = null;
-        if (reportParser.positionTo(ISynoptic.SEC_3_LEAD)) {
+        if (reportParser.positionTo(ISynoptic.SEC_3_LEAD_STRING)) {
             while (true) {
                 // if we run out of data, exit.
                 if (reportParser.next()) {
@@ -139,9 +139,9 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                 } else {
                     break;
                 }
-                if (ISynoptic.SEC_4_LEAD.equals(element)) {
+                if (ISynoptic.SEC_4_LEAD_STRING.equals(element)) {
                     break;
-                } else if (ISynoptic.SEC_5_LEAD.equals(element)) {
+                } else if (ISynoptic.SEC_5_LEAD_STRING.equals(element)) {
                     break;
                 } else if ("80000".equals(element)) {
                     break;
