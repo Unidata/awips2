@@ -800,4 +800,10 @@
 		<keyValue>AKHwave4</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
+	<!-- Purge rules for MRMS -->
+	<rule>
+		<keyValue>MRMS</keyValue>
+		<versionsToKeep>120</versionsToKeep>
+		<period>03-00:00:00</period>
+	</rule>
 </purgeRuleSet>
