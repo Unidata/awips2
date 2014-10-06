@@ -369,14 +369,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private Set<String> mapsToLoad;
 
-        private Set<String> preloadedMaps;
-
         private final MapManager manager;
 
         public CustomMaps() {
             super("Loading WarnGen Maps");
             manager = MapManager.getInstance(descriptor);
-            preloadedMaps=new HashSet<String>();
         }
 
         @Override
@@ -393,15 +390,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
                 if (toLoad != null) {
                     for (String loaded : customMaps) {
-                        if (!preloadedMaps.contains(loaded)) {
-                            manager.unloadMap(loaded);
+                        manager.unloadMap(loaded);
+                    }
+                    customMaps.clear();
+                    for (String load : toLoad) {
+                        if (!manager.isMapLoaded(load)) {
+                            manager.loadMapByName(load);
+                            customMaps.add(load);
                         }
                     }
-
-                    for (String load : toLoad) {
-                        manager.loadMapByName(load);
-                    }
-                    customMaps = toLoad;
                     issueRefresh();
                 }
 
@@ -411,11 +408,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         public void loadCustomMaps(Collection<String> maps) {
-            for (String map : maps) {
-                if (manager.isMapLoaded(map)) {
-                    preloadedMaps.add(map);
-                }
-            }
             synchronized (this) {
                 mapsToLoad = new HashSet<String>(maps);
             }
