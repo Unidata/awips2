@@ -100,6 +100,7 @@ class TextProduct(GenericHazards.TextProduct):
             ('LS.S', allActions, 'CoastalFloodStatement'),     # LAKESHORE FLOOD STATEMENT
             ('SU.W', allActions, 'HighSurf'),         # HIGH SURF WARNING
             ('SU.Y', allActions, 'HighSurf'),         # HIGH SURF ADVISORY
+            ('BH.S', allActions, 'BeachHaz'),         # Beach Hazards Statement
             ('RP.S', allActions, 'RipCurrent'),       # HIGH RIP CURRENT RISK
         ]
 
