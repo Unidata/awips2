@@ -39,6 +39,8 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
+import com.raytheon.edex.plugin.gfe.server.database.TopoDatabase;
+import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.VGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue;
@@ -124,6 +126,9 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     Cleaned up commented code.
  * 07/21/2014   #3415      randerso    Fixed d2dGridDataPurged to not purge NetCDF databases.
  * 09/21/2014   #3648      randerso    Changed to do version purging when new databases are added
+ * 10/07/2014   #3684      randerso    Restructured IFPServer start up. 
+ *                                     Reordered handling of DbInvChangeNotification
+ *                                     Don't process GFENotifications sent by this JVM
  * </pre>
  * 
  * @author bphillip
@@ -155,6 +160,8 @@ public class GridParmManager {
 
     private LockManager lockMgr;
 
+    private TopoDatabaseManager topoMgr;
+
     private Map<DatabaseID, GridDatabase> dbMap = new ConcurrentHashMap<DatabaseID, GridDatabase>();
 
     /**
@@ -162,18 +169,16 @@ public class GridParmManager {
      * 
      * @param siteID
      * @param config
-     * @param lockMgr
      * @throws PluginException
      * @throws DataAccessLayerException
      * @throws GfeException
      */
-    public GridParmManager(String siteID, IFPServerConfig config,
-            LockManager lockMgr) throws PluginException,
-            DataAccessLayerException, GfeException {
+    public GridParmManager(String siteID, IFPServerConfig config)
+            throws PluginException, DataAccessLayerException, GfeException {
         this.siteID = siteID;
         this.config = config;
-        this.lockMgr = lockMgr;
-        this.lockMgr.setGridParmMgr(this);
+        this.lockMgr = new LockManager(siteID, config, this);
+        this.topoMgr = new TopoDatabaseManager(siteID, config);
 
         initializeManager();
     }
@@ -183,6 +188,20 @@ public class GridParmManager {
      */
     public void dispose() {
         NetCDFDatabaseManager.removeDatabases(siteID);
+    }
+
+    /**
+     * @return the lockMgr
+     */
+    public LockManager getLockMgr() {
+        return lockMgr;
+    }
+
+    /**
+     * @return the topoMgr
+     */
+    public TopoDatabaseManager getTopoMgr() {
+        return topoMgr;
     }
 
     private GridParm gridParm(ParmID id) {
@@ -1102,6 +1121,13 @@ public class GridParmManager {
 
     private void initializeManager() throws GfeException,
             DataAccessLayerException, PluginException {
+
+        // add the topo database
+        TopoDatabase topoDb = topoMgr.getTopoDatabase();
+        if (topoDb != null) {
+            this.addDB(topoDb);
+        }
+
         // get existing list (of just GRIDs)
         GFEDao gfeDao = new GFEDao();
         List<DatabaseID> inventory = gfeDao.getDatabaseInventory(siteID);
@@ -1146,7 +1172,9 @@ public class GridParmManager {
                 boolean clearTime = false;
                 try {
                     for (DatabaseID dbId : this.dbMap.keySet()) {
-                        if (dbId.getDbType().equals("D2D")) {
+                        if (dbId.getDbType().equals("D2D")
+                                && !config.initModels(dbId.getModelName())
+                                        .isEmpty()) {
                             statusHandler.info("Firing smartinit for: " + dbId);
                             VGridDatabase db = (VGridDatabase) getDatabase(dbId);
                             SortedSet<Date> validTimes = db.getValidTimes();
@@ -1169,7 +1197,7 @@ public class GridParmManager {
         }
     }
 
-    private void initD2DDbs() throws GfeException {
+    private void initD2DDbs() {
         for (String d2dModelName : config.getD2dModels()) {
             try {
                 // get dbId to get desiredDbVersions (date doesn't matter)
@@ -1181,7 +1209,7 @@ public class GridParmManager {
                         d2dModelName, desiredVersions)) {
                     dbId = D2DGridDatabase.getDbId(d2dModelName, refTime,
                             config);
-                    getDatabase(dbId, false);
+                    getDatabase(dbId, true);
                 }
             } catch (Exception e) {
                 statusHandler.error("Error initializing D2D model: "
@@ -1237,7 +1265,7 @@ public class GridParmManager {
     public void filterSatelliteRecords(List<SatelliteRecord> records) {
 
         DatabaseID dbId = D2DSatDatabase.getDbId(siteID);
-        D2DSatDatabase db = (D2DSatDatabase) getDatabase(dbId);
+        D2DSatDatabase db = (D2DSatDatabase) getDatabase(dbId, true);
 
         List<GridUpdateNotification> guns = new LinkedList<GridUpdateNotification>();
         for (SatelliteRecord record : records) {
@@ -1333,7 +1361,7 @@ public class GridParmManager {
             } else if (req.isDatabaseRequest()) {
 
                 // get the parm list for this database
-                GridDatabase db = this.getDatabase(req.getDbId());
+                GridDatabase db = this.getDatabase(req.getDbId(), true);
                 if (db != null) {
                     List<ParmID> parmList = db.getParmList().getPayload();
                     for (ParmID pid : parmList) {
@@ -1399,30 +1427,33 @@ public class GridParmManager {
      * @param notif
      */
     public void handleGfeNotification(GfeNotification notif) {
-        // TODO: add UUID or some other identifier (hostname/process id?) to
-        // notif so we can recognize
-        // and not process notifications sent by this GridParmManager instance
+        // Don't handle notifications sent by this JVM
+        if (notif.isLocal()) {
+            return;
+        }
+
         if (notif instanceof DBInvChangeNotification) {
             DBInvChangeNotification invChanged = (DBInvChangeNotification) notif;
+
+            // handle additions first to try to get old out-of-synch versions
+            // are purged sooner
+            for (DatabaseID dbId : invChanged.getAdditions()) {
+                this.getDatabase(dbId, false);
+            }
 
             for (DatabaseID dbId : invChanged.getDeletions()) {
                 deallocateDb(dbId, false);
             }
-
-            ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
-            for (DatabaseID dbId : invChanged.getAdditions()) {
-                this.getDatabase(dbId, false);
-            }
-            if (!sr.isOkay()) {
-                statusHandler.error("Error updating GridParmManager: "
-                        + sr.message());
-            }
         } else if (notif instanceof GridUpdateNotification) {
-            DatabaseID satDbId = D2DSatDatabase.getDbId(siteID);
             GridUpdateNotification gun = (GridUpdateNotification) notif;
-            if (gun.getParmId().getDbId().equals(satDbId)) {
-                D2DSatDatabase db = (D2DSatDatabase) this.dbMap.get(satDbId);
-                db.update(gun);
+            DatabaseID dbid = gun.getParmId().getDbId();
+
+            // get the database as an extra attempt to
+            // keep the IFPServers in sync
+            GridDatabase db = getDatabase(dbid, false);
+
+            if (db instanceof D2DSatDatabase) {
+                ((D2DSatDatabase) db).update(gun);
             }
         }
     }
@@ -1430,7 +1461,7 @@ public class GridParmManager {
     /**
      * @param db
      */
-    public void addDB(GridDatabase db) {
+    private void addDB(GridDatabase db) {
         DatabaseID dbId = db.getDbId();
         statusHandler.info("addDB called, adding " + dbId);
         this.dbMap.put(dbId, db);
