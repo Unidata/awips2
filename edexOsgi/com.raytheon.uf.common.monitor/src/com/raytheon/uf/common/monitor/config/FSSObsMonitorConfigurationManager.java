@@ -117,7 +117,7 @@ public class FSSObsMonitorConfigurationManager implements
     private String adjAreaConfigFileName = null;
 
     /** List of listeners */
-    private List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
+    private final List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
     /** Current site */
     private String currentSite;
@@ -175,7 +175,7 @@ public class FSSObsMonitorConfigurationManager implements
         if (instance == null) {
             instance = new FSSObsMonitorConfigurationManager(monitor);
         }
-        return (FSSObsMonitorConfigurationManager) instance;
+        return instance;
     }
 
     /**
@@ -417,10 +417,10 @@ public class FSSObsMonitorConfigurationManager implements
             AreaIdXML area = new AreaIdXML();
             area.setAreaId(areaId);
             area.setType(type);
-            if (lat > -90.0 && lat < 90.0) {
+            if ((lat > -90.0) && (lat < 90.0)) {
                 area.setCLat(lat);
             }
-            if (lon > -180.0 && lon < 180.0) {
+            if ((lon > -180.0) && (lon < 180.0)) {
                 area.setCLon(lon);
             }
             configXml.addAreaId(area);
@@ -971,4 +971,42 @@ public class FSSObsMonitorConfigurationManager implements
         this.isPopulated = isPopulated;
     }
 
+    /**
+     * Remove Adjacent Area.
+     * 
+     * @param zone
+     */
+    public void removeAdjArea(String zone) {
+        List<AreaIdXML> adjAreaList = adjAreaConfigXml.getAreaIds();
+        for (int i = 0; i < adjAreaList.size(); i++) {
+            if (adjAreaList.get(i).getAreaId().equals(zone)) {
+                adjAreaList.remove(i);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Add Adjacent Area.
+     * 
+     * @param areaId
+     * @param type
+     */
+    public void addAdjArea(String areaId, ZoneType type) {
+        List<AreaIdXML> adjAreaList = adjAreaConfigXml.getAreaIds();
+        boolean areaExists = false;
+        for (AreaIdXML area : adjAreaList) {
+            if (area.getAreaId().equals(areaId)) {
+                area.setType(type);
+                areaExists = true;
+                break;
+            }
+        }
+        if (areaExists == false) {
+            AreaIdXML area = new AreaIdXML();
+            area.setAreaId(areaId);
+            area.setType(type);
+            adjAreaConfigXml.addAreaId(area);
+        }
+    }
 }
