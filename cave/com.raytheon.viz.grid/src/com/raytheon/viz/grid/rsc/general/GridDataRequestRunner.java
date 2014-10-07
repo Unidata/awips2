@@ -22,11 +22,8 @@ package com.raytheon.viz.grid.rsc.general;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -37,7 +34,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * 
- * A Job for asynchronously requesting data for GridResources.
+ * Manages asynchronously requesting data for GridResources.
  * 
  * <pre>
  * 
@@ -49,16 +46,24 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jun 04, 2013 2041       bsteffen    Improve exception handing in grid
  *                                     resources.
  * Jun 24, 2013 2140       randerso    Moved safe name code into AbstractVizResource
+ * Oct 07, 2014 3668       bclement    uses executor instead of eclipse job
+ *                                      renamed to GridDataRequestRunner
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-class GridDataRequestJob extends Job {
+class GridDataRequestRunner implements Runnable {
+
+    private static final int POOL_SIZE = Integer.getInteger(
+            "grid.request.pool.size", 10);
+
+    private static final Executor executor = Executors
+            .newFixedThreadPool(POOL_SIZE);
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GridDataRequestJob.class);
+            .getHandler(GridDataRequestRunner.class);
 
     private static class GridDataRequest {
 
@@ -90,17 +95,18 @@ class GridDataRequestJob extends Job {
 
     }
 
+    private volatile boolean cancelled = false;
+
     private AbstractGridResource<?> resource;
 
     private List<GridDataRequest> requests = new ArrayList<GridDataRequest>();
 
-    public GridDataRequestJob(AbstractGridResource<?> resource) {
-        super("Requesting Gridded Data");
+    public GridDataRequestRunner(AbstractGridResource<?> resource) {
         this.resource = resource;
     }
 
     @Override
-    protected IStatus run(IProgressMonitor monitor) {
+    public void run() {
         for (GridDataRequest request = getNext(); request != null; request = getNext()) {
             try {
                 request.gridData = resource.getData(request.time, request.pdos);
@@ -117,13 +123,17 @@ class GridDataRequestJob extends Job {
                 request.exception = e;
                 resource.issueRefresh();
             }
-            if (monitor.isCanceled()) {
+            if (cancelled) {
                 break;
             }
         }
-        return Status.OK_STATUS;
     }
 
+    /**
+     * Get the next request that should be sent
+     * 
+     * @return null if no request should be sent
+     */
     protected GridDataRequest getNext() {
         synchronized (requests) {
             for (GridDataRequest request : requests) {
@@ -135,6 +145,11 @@ class GridDataRequestJob extends Job {
         return null;
     }
 
+    /**
+     * @param time
+     * @param pdos
+     * @return null if no requests matching time have been fulfilled
+     */
     public List<GeneralGridData> requestData(DataTime time,
             List<PluginDataObject> pdos) {
         GridDataRequest request = new GridDataRequest(time, pdos);
@@ -162,6 +177,14 @@ class GridDataRequestJob extends Job {
             this.schedule();
         }
         return null;
+    }
+
+    /**
+     * send current requests
+     */
+    private void schedule() {
+        cancelled = false;
+        executor.execute(this);
     }
 
     private void handleExceptions() {
@@ -245,6 +268,13 @@ class GridDataRequestJob extends Job {
             requests.clear();
         }
         this.cancel();
+    }
+
+    /**
+     * cancel current request
+     */
+    private void cancel() {
+        cancelled = true;
     }
 
 }
