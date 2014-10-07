@@ -55,6 +55,11 @@
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="HRRR" id="hrrrsurface" useReferenceTime="true">
+			<substitute key="modelName" value="${HRRRmodel}"/>
+			<substitute key="TP" value="TP1hr"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
 			menuText="RAP13" id="rap13surface" useReferenceTime="true">
 			<substitute key="modelName" value="${RAP13model}"/>
 			<substitute key="TP" value="TP3hr"/>
