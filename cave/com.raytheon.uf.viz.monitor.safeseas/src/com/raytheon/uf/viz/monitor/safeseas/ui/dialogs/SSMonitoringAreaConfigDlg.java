@@ -83,6 +83,8 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 getValues();
                 resetStatus();
                 configMgr.saveConfigXml();
+                configMgr.saveAdjacentAreaConfigXml();
+
                 SSThresholdMgr.reInitialize();
                 fireConfigUpdateEvent();
 
@@ -110,7 +112,7 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 }
             }
         }
-        if (ssMonitorDlg == null || ssMonitorDlg.isDisposed()) {
+        if ((ssMonitorDlg == null) || ssMonitorDlg.isDisposed()) {
             setReturnValue(true);
             close();
         }
@@ -138,11 +140,12 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#getInstance
      * ()
      */
+    @Override
     public FSSObsMonitorConfigurationManager getInstance() {
         if (configMgr == null) {
             configMgr = new FSSObsMonitorConfigurationManager(MonName.ss.name());
         }
-        return (FSSObsMonitorConfigurationManager) configMgr;
+        return configMgr;
     }
 
     /*
