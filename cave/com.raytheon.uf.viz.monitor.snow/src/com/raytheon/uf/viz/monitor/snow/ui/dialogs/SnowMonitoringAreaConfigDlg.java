@@ -87,12 +87,14 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 getValues();
                 resetStatus();
                 configMgr.saveConfigXml();
+                configMgr.saveAdjacentAreaConfigXml();
+
                 SnowThresholdMgr.reInitialize();
                 fireConfigUpdateEvent();
                 if ((!configMgr.getAddedZones().isEmpty())
                         || (!configMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
-                        if (snowMonitorDlg == null
+                        if ((snowMonitorDlg == null)
                                 || snowMonitorDlg.isDisposed()) {
                             snowMonitorDlg = new SnowMonDispThreshDlg(shell,
                                     CommonConfig.AppName.SNOW,
@@ -117,7 +119,7 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 }
             }
         }
-        if (snowMonitorDlg == null || snowMonitorDlg.isDisposed()) {
+        if ((snowMonitorDlg == null) || snowMonitorDlg.isDisposed()) {
             setReturnValue(true);
             close();
         }
@@ -136,7 +138,7 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
             configMgr = new FSSObsMonitorConfigurationManager(
                     MonName.snow.name());
         }
-        return (FSSObsMonitorConfigurationManager) configMgr;
+        return configMgr;
     }
 
     /*
