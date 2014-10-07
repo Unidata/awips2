@@ -60,8 +60,9 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 30, 2013       2044 randerso    Initial creation
- * Nov 20, 2013      #2331 randerso    Added getTopoData method
+ * May 30, 2013  #2044     randerso    Initial creation
+ * Nov 20, 2013  #2331     randerso    Added getTopoData method
+ * Oct 07, 2014  #3684     randerso    Restructured IFPServer start up
  * 
  * </pre>
  * 
@@ -191,26 +192,21 @@ public class IFPServer {
         return activeServers.get(siteID);
     }
 
-    String siteId;
+    private String siteId;
 
-    IFPServerConfig config;
+    private IFPServerConfig config;
 
-    GridParmManager gridParmMgr;
-
-    LockManager lockMgr;
-
-    TopoDatabaseManager topoMgr; // TODO do we need this?
+    private GridParmManager gridParmMgr;
 
     private IFPServer(String siteId, IFPServerConfig config)
             throws DataAccessLayerException, PluginException, GfeException {
         this.siteId = siteId;
         this.config = config;
-        this.lockMgr = new LockManager(siteId, config);
-        this.gridParmMgr = new GridParmManager(siteId, config, lockMgr);
-        this.topoMgr = new TopoDatabaseManager(siteId, config, gridParmMgr);
 
         statusHandler.info("MapManager initializing...");
         new MapManager(config);
+
+        this.gridParmMgr = new GridParmManager(siteId, config);
     }
 
     private void dispose() {
@@ -258,14 +254,14 @@ public class IFPServer {
      * @return the lockMgr
      */
     public LockManager getLockMgr() {
-        return lockMgr;
+        return this.gridParmMgr.getLockMgr();
     }
 
     /**
      * @return the topoMgr
      */
     public TopoDatabaseManager getTopoMgr() {
-        return topoMgr;
+        return this.gridParmMgr.getTopoMgr();
     }
 
     /**
@@ -317,8 +313,6 @@ public class IFPServer {
      */
     public static void filterDataURINotifications(
             DataURINotificationMessage message) throws Exception {
-        // ITimer timer = TimeUtil.getTimer();
-        // timer.start();
         List<GridRecord> gridRecords = new LinkedList<GridRecord>();
         List<SatelliteRecord> satRecords = new LinkedList<SatelliteRecord>();
 
@@ -332,26 +326,12 @@ public class IFPServer {
 
         for (IFPServer ifpServer : getActiveServers()) {
             if (!gridRecords.isEmpty()) {
-                // TODO: remove this info before check in
-                String msg = "Processing " + gridRecords.size()
-                        + " grid DataURINotifications";
-                statusHandler.info(msg);
-
                 ifpServer.getGridParmMgr().filterGridRecords(gridRecords);
             }
             if (!satRecords.isEmpty()) {
-                // TODO: remove this info before check in
-                String msg = "Processing " + satRecords.size()
-                        + " satellite DataURINotifications";
-                statusHandler.info(msg);
-
                 ifpServer.getGridParmMgr().filterSatelliteRecords(satRecords);
             }
         }
-        // timer.stop();
-        // perfLog.logDuration(
-        // "GfeIngestNotificationFilter: processing DataURINotificationMessage",
-        // timer.getElapsedTime());
     }
 
     /**
@@ -362,7 +342,7 @@ public class IFPServer {
      * @return topo gridslice
      */
     public ServerResponse<ScalarGridSlice> getTopoData(GridLocation gloc) {
-        return this.topoMgr.getTopoData(gloc);
+        return getTopoMgr().getTopoData(gloc);
     }
 
 }
