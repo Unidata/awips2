@@ -1,147 +1,184 @@
-# pointDataQuery.stationName_lat_lon.py
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
-import PointDataQuery
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
 
-# 1. 
-pdq = PointDataQuery.PointDataQuery("profiler")
+# Gets all available profiler data in the A-II database over a specified range
+# of times.  The data is output to stdout as ASCII. Each line is one
+# time/station combination. The individual data variables are comma delimited,
+# and when what is returned for a data item is a profile, each item in the
+# profile is vertical bar delimited
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Oct 6, 2014     3594          nabowle        Initial modification. Replace UEngine with DAF.
+#
+#
 
-# 3.  the stuff we want returned to us in PointDataContainer
-reqPar = "profilerId,validTime"
-reqPar += ",latitude,longitude,elevation"
-reqPar += ",pressure,temperature,relHumidity,windDirSfc,windSpeedSfc,rainRate"
-reqPar += ",submode,numProfLvls"
-reqPar += ",height,levelMode,uComponent,vComponent,wComponent"
-reqPar += ",peakPower,HorizSpStdDev,VertSpStdDev,uvQualityCode,consensusNum"
-pdq.setRequestedParameters(reqPar)
+import argparse
+import sys
 
-# 2.  some constraints
-pdq.addConstraint("dataTime","BBBBB:00.0",">=")
-pdq.addConstraint("dataTime","EEEEE:00.0","<=")
+from datetime import datetime
+from ufpy.dataaccess import DataAccessLayer
+from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 
-# 5.1  execute() returns a ResponseMessageGeneric
-pdq.requestAllLevels()
-rmg = pdq.execute()
+def get_args():    
+    parser = argparse.ArgumentParser(conflict_handler="resolve")
+    parser.add_argument("-h", action="store", dest="host",
+                    help="EDEX server hostname (optional)",
+                    metavar="hostname")
+    parser.add_argument("-b", action="store", dest="start", 
+                    help="The start of the time range in YYYY-MM-DD HH:MM",
+                    metavar="start")
+    parser.add_argument("-e", action="store", dest="end", 
+                    help="The end of the time range in YYYY-MM-DD HH:MM",
+                    metavar="end")
+    return parser.parse_args()
 
-# 5.1, cont'd.  RMG's payload is a PointDataContainer
-pdc = rmg.getContents()
-#return ResponseMessageGeneric(pdc)
+def main():
+    # The multi-dimensional parameters.
+    MULTI_DIM_PARAMS = set(['vComponent', 'uComponent', 'peakPower', 
+                            'levelMode', 'uvQualityCode', 'consensusNum', 
+                            'HorizSpStdDev', 'wComponent', 'height', 
+                            'VertSpStdDev'])
 
-# Get the data for each requested parameter.
-stn = pdc.getPointDataTypes().get("profilerId").getStringData()
-tobs = pdc.getPointDataTypes().get("validTime").getLongData()
-lat = pdc.getPointDataTypes().get("latitude").getFloatData()
-lon = pdc.getPointDataTypes().get("longitude").getFloatData()
-elev = pdc.getPointDataTypes().get("elevation").getFloatData()
-mslp = pdc.getPointDataTypes().get("pressure").getFloatData()
-t0 = pdc.getPointDataTypes().get("temperature").getFloatData()
-rh0 = pdc.getPointDataTypes().get("relHumidity").getFloatData()
-dd0 = pdc.getPointDataTypes().get("windDirSfc").getFloatData()
-ff0 = pdc.getPointDataTypes().get("windSpeedSfc").getFloatData()
-rr0 = pdc.getPointDataTypes().get("rainRate").getFloatData()
-subm = pdc.getPointDataTypes().get("submode").getIntData()
-nz = pdc.getPointDataTypes().get("numProfLvls").getIntData()
-z = pdc.getPointDataTypes().get("height").getFloatData()
-lvlm = pdc.getPointDataTypes().get("levelMode").getIntData()
-u = pdc.getPointDataTypes().get("uComponent").getFloatData()
-v = pdc.getPointDataTypes().get("vComponent").getFloatData()
-w = pdc.getPointDataTypes().get("wComponent").getFloatData()
-pp = pdc.getPointDataTypes().get("peakPower").getFloatData()
-uv2 = pdc.getPointDataTypes().get("HorizSpStdDev").getFloatData()
-w2 = pdc.getPointDataTypes().get("VertSpStdDev").getFloatData()
-qc = pdc.getPointDataTypes().get("uvQualityCode").getIntData()
-cnum = pdc.getPointDataTypes().get("consensusNum").getIntData()
+    user_args = get_args()
 
-# 5.2 and 5.3
-if len(tobs) == 0 :
-   msg = "couldn't get data"
-   return ResponseMessageGeneric(msg)
+    if user_args.host:
+        DataAccessLayer.changeEDEXHost(user_args.host)
 
-msg = "\n"
-i = i3 = 0
-while i < len(tobs) :
+    start = user_args.start
+    end = user_args.end
 
-    msg += stn[i] + ","
-    msg += str(tobs[i]/1000) + ","
-    msg += "%.4f"%lat[i] + ","
-    msg += "%.4f"%lon[i] + ","
-    msg += "%.0f"%elev[i] + ","
-    msg += "%.1f"%mslp[i] + ","
-    msg += "%.1f"%t0[i] + ","
-    msg += "%.1f"%rh0[i] + ","
-    msg += "%.0f"%dd0[i] + ","
-    msg += "%.1f"%ff0[i] + ","
-    msg += "%.1f"%rr0[i] + ","
-    msg += str(subm[i]) + ","
+    if not start or not end:
+        print >> sys.stderr, "Start or End date not provided"
+        return
 
-#   msg += str(nz[i]) + ","
-    kk = i3 + nz[i]
+    beginRange = datetime.strptime( start + ":00.0", "%Y-%m-%d %H:%M:%S.%f")
+    endRange = datetime.strptime( end + ":59.9", "%Y-%m-%d %H:%M:%S.%f")
+    timerange = TimeRange(beginRange, endRange)
 
-    if nz[i]>0 : msg += "%.0f"%(z[i3]-elev[i])
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + "%.0f"%(z[k]-elev[i])
-        k += 1
-    msg += ","
-    if nz[i]>0 : msg += str(lvlm[i3])
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + str(lvlm[k])
-        k += 1
-    msg += ","
+    req = DataAccessLayer.newDataRequest("profiler")
+    req.setParameters('numProfLvls', 'elevation', 'windDirSfc', 'validTime', 
+                      'windSpeedSfc', 'pressure', 'submode', 'relHumidity', 
+                      'profilerId', 'rainRate', 'temperature')
+    req.getParameters().extend(MULTI_DIM_PARAMS)
 
-    if nz[i]>0 : msg += "%.1f"%u[i3]
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + "%.1f"%u[k]
-        k += 1
-    msg += ","
-    if nz[i]>0 : msg += "%.1f"%v[i3]
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + "%.1f"%v[k]
-        k += 1
-    msg += ","
-    if nz[i]>0 : msg += "%.2f"%w[i3]
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + "%.2f"%w[k]
-        k += 1
-    msg += ","
+    geometries = DataAccessLayer.getGeometryData(req, timerange)
 
-    if nz[i]>0 : msg += "%.1f"%pp[i3]
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + "%.1f"%pp[k]
-        k += 1
-    msg += ","
-    if nz[i]>0 : msg += "%.1f"%uv2[i3]
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + "%.1f"%uv2[k]
-        k += 1
-    msg += ","
-    if nz[i]>0 : msg += "%.1f"%w2[i3]
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + "%.1f"%w2[k]
-        k += 1
-    msg += ","
+    if not geometries :
+#        print "couldn't get data"
+        return
 
-    if nz[i]>0 : msg += str(qc[i3])
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + str(qc[k])
-        k += 1
-    msg += ","
-    if nz[i]>0 : msg += str(cnum[i3])
-    k = i3 + 1
-    while k < kk :
-        msg += "|" + str(cnum[k])
-        k += 1
-    msg += "\n"
+    
+    subgeos = []
+    msg = ""
+    for geoData in geometries :
+        if set(geoData.getParameters()) & MULTI_DIM_PARAMS :
+            subgeos.append(geoData)
+            continue
 
-    i += 1
-    i3 += 64
+        elev = geoData.getNumber("elevation")
+        msg += geoData.getString("profilerId") + ","
+        msg += str(geoData.getNumber("validTime")/1000) + ","
+        msg += "%.4f"%geoData.getGeometry().y + ","
+        msg += "%.4f"%geoData.getGeometry().x + ","
+        msg += "%.0f"%elev + ","
+        msg += "%.1f"%geoData.getNumber("pressure") + ","
+        msg += "%.1f"%geoData.getNumber("temperature") + ","
+        msg += "%.1f"%geoData.getNumber("relHumidity") + ","
+        msg += "%.0f"%geoData.getNumber("windDirSfc") + ","
+        msg += "%.1f"%geoData.getNumber("windSpeedSfc") + ","
+        msg += "%.1f"%geoData.getNumber("rainRate") + ","
+        msg += str(geoData.getNumber("submode")) + ","
 
-return ResponseMessageGeneric(msg)
+        kk = len(subgeos)
+#        msg += str(kk) + ","
 
+        subgeos[0].getString("consensusNum")
+        if kk>0 : msg += "%.0f"%(subgeos[0].getNumber("height")-elev)
+        k = 1
+        while k < kk :
+            msg += "|" + "%.0f"%(subgeos[k].getNumber("height")-elev)
+            k += 1
+        msg += ","
+        if kk>0 : msg += str(subgeos[0].getNumber("levelMode"))
+        k = 1
+        while k < kk :
+            msg += "|" + str(subgeos[k].getNumber("levelMode"))
+            k += 1
+        msg += ","
+
+        if kk>0 : msg += "%.1f"%subgeos[0].getNumber("uComponent")
+        k = 1
+        while k < kk :
+            msg += "|" + "%.1f"%subgeos[k].getNumber("uComponent")
+            k += 1
+        msg += ","
+        if kk>0 : msg += "%.1f"%subgeos[0].getNumber("vComponent")
+        k = 1
+        while k < kk :
+            msg += "|" + "%.1f"%subgeos[k].getNumber("vComponent")
+            k += 1
+        msg += ","
+        if kk>0 : msg += "%.2f"%subgeos[0].getNumber("wComponent")
+        k = 1
+        while k < kk :
+            msg += "|" + "%.2f"%subgeos[k].getNumber("wComponent")
+            k += 1
+        msg += ","
+
+        if kk>0 : msg += "%.1f"%subgeos[0].getNumber("peakPower")
+        k = 1
+        while k < kk :
+            msg += "|" + "%.1f"%subgeos[k].getNumber("peakPower")
+            k += 1
+        msg += ","
+        if kk>0 : msg += "%.1f"%subgeos[0].getNumber("HorizSpStdDev")
+        k = 1
+        while k < kk :
+            msg += "|" + "%.1f"%subgeos[k].getNumber("HorizSpStdDev")
+            k += 1
+        msg += ","
+        if kk>0 : msg += "%.1f"%subgeos[0].getNumber("VertSpStdDev")
+        k = 1
+        while k < kk :
+            msg += "|" + "%.1f"%subgeos[k].getNumber("VertSpStdDev")
+            k += 1
+        msg += ","
+
+        if kk>0 : msg += subgeos[0].getString("uvQualityCode")
+        k = 1
+        while k < kk :
+            msg += "|" + subgeos[k].getString("uvQualityCode")
+            k += 1
+        msg += ","
+        if kk>0 : msg += subgeos[0].getString("consensusNum")
+        k = 1
+        while k < kk :
+            msg += "|" + subgeos[k].getString("consensusNum")
+            k += 1
+        msg += "\n"
+        subgeos = []
+
+    print msg.strip()
+
+if __name__ == '__main__':
+    main()
