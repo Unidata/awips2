@@ -44,7 +44,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchAdvisor;
 
 /**
- * AWIPS {@link VizWorkbenchAdvisor} that reqeusts menu creation service to run
+ * AWIPS {@link VizWorkbenchAdvisor} that requests menu creation service to run
  * before discovering dynamic menus
  * 
  * <pre>
@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchAdvisor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2013            mschenke     Initial creation
+ * Oct 01, 2014  3679      njensen      Fix propertyChange() for logPerformance
  * 
  * </pre>
  * 
@@ -81,7 +82,8 @@ public class AWIPSWorkbenchAdvisor extends VizWorkbenchAdvisor {
                     public void propertyChange(PropertyChangeEvent event) {
                         if (PreferenceConstants.P_LOG_PERF.equals(event
                                 .getProperty())) {
-                            Boolean log = (Boolean) event.getNewValue();
+                            Boolean log = Boolean.valueOf(event.getNewValue()
+                                    .toString());
                             if (log != logPeformance) {
                                 toggleLogging();
                             }
