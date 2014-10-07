@@ -91,8 +91,6 @@ fi
 # install the alertviz autostart script.
 viz_rpm_dir="%{_baseline_workspace}/rpms/awips2.cave"
 alertviz_project="${viz_rpm_dir}/Installer.alertviz"
-script_="${alertviz_project}/scripts/autostart/awips2-alertviz.desktop"
-/bin/cp ${script_} %{_build_root}/etc/xdg/autostart
 
 # install the gnome session kill script for cave and alertviz
 script_="%{_baseline_workspace}/build/static/linux/cave/awips2VisualizeUtility.sh"
