@@ -73,6 +73,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * May 02, 2013  #1969    randerso    Moved updateDbs method into IFPGridDatabase
  * Jun 13, 2013  #2044    randerso    Refactored to use IFPServer
  * Oct 16, 2013  #2475    dgilling    Better error handling for IRT activation.
+ * Oct 07, 2014  #3684    randerso    Restructured IFPServer start up
  * </pre>
  * 
  * @author njensen
@@ -297,7 +298,7 @@ public class GFESiteActivation implements ISiteActivationListener {
             statusHandler.info("IFPServerConfigManager initializing...");
             config = IFPServerConfigManager.initializeSite(siteID);
             statusHandler.info("Activating IFPServer...");
-            IFPServer ifpServer = IFPServer.activateServer(siteID, config);
+            IFPServer.activateServer(siteID, config);
         } finally {
             statusHandler
                     .handle(Priority.INFO,
