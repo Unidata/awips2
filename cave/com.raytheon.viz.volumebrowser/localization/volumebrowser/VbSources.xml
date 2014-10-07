@@ -28,6 +28,7 @@
 	<vbSource key="FNMOC-FAROP" category="Volume" />
 	<vbSource key="fnmocWave" category="Volume" />
 	<vbSource key="SREF-40km" category="Volume" />
+	<vbSource key="HRRR" category="Volume" />	
 	<vbSource key="RAP-13km" category="Volume" />
 	<vbSource key="RAP-20km" category="Volume" />
 	<vbSource key="RAP-40km" category="Volume" />

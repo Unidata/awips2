@@ -58,6 +58,12 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
+				menuText="HRRR" id="hrrr" useReferenceTime="true">
+				<substitute key="modelName" value="${HRRRmodel}"/>
+				<substitute key="TP" value="TP1hr"/>
+				<substitute key="frameCount" value="16"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
 				menuText="RAP13" id="rap13" useReferenceTime="true">
 				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>

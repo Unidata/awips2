@@ -632,43 +632,46 @@
 <filters>Mesoscale</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-40km">
-<filters>NGRID</filters>
+<filters>NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="GEFS">
 <filters>Ensemble,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MOS">
-<filters>NGRID</filters>
+<filters>NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-95km">
-<filters>CONUS,NGRID</filters>
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-NMM-West">
 <filters>Mesoscale</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-40km">
-<filters>CONUS,CONDUIT</filters>
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-20km">
-<filters>CONUS,CONDUIT</filters>
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-13km">
-<filters>CONUS,CONDUIT</filters>
+<filters>CONUS,NCEP</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HRRR">
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Hawaii-WRF-NMM">
-<filters>Hawaii,NGRID</filters>
+<filters>Hawaii,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-40km">
-<filters>CONUS,CONDUIT</filters>
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NamDNG5">
-<filters>CONUS,NGRID</filters>
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS">
-<filters>Global,CONDUIT</filters>
+<filters>Global,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-NH">
-<filters>NGRID</filters>
+<filters>NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-ARW-West">
 <filters>Mesoscale</filters>
@@ -677,31 +680,31 @@
 <filters>Global,Ocean,FNMOC</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NDFD">
-<filters>CONUS,CONDUIT</filters>
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-12km">
-<filters>CONUS,CONDUIT</filters>
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-40km">
-<filters>CONUS,CONDUIT</filters>
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-90km">
-<filters>CONUS,NGRID</filters>
+<filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-ARW-East">
-<filters>NGRID</filters>
+<filters>NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Hawaii-WRF-ARW">
-<filters>Hawaii</filters>
+<filters>NCEP,Hawaii</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSLAMPTstorm">
-<filters>NGRID</filters>
+<filters>NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA-2p5km">
-<filters>Analysis,NGRID</filters>
+<filters>Analysis,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA">
-<filters>Analysis,NGRID</filters>
+<filters>Analysis,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NIDS">
 <filters>Radar</filters>
@@ -749,6 +752,6 @@
 <filters>GINI</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="TAF">
-<filters>NGRID</filters>
+<filters>NCEP</filters>
 </ResourceDefinitionFilter>
 </ResourceDefinitionFilters>
