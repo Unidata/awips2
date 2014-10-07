@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 23, 2014 3054       skorolev     Fixed issue with removing a new station from list.
  * Apr 28, 2014 3086       skorolev     Updated getConfigManager.
  * Sep 04, 2014 3220       skorolev     Added fireConfigUpdateEvent method. Updated handler.
+ * Sep 19, 2014 2757       skorolev     Updated handlers for dialog buttons.
  * 
  * 
  * </pre>
@@ -61,7 +62,7 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     private FogMonDispThreshDlg fogMonitorDlg;
 
     /**
-     * Constructor
+     * Constructor.
      * 
      * @param parent
      * @param title
@@ -79,7 +80,6 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     @Override
     protected void handleOkBtnSelection() {
-        // Check for changes in the data
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
                     "Fog Monitor Confirm Changes",
@@ -89,13 +89,13 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 getValues();
                 resetStatus();
                 configMgr.saveConfigXml();
+                configMgr.saveAdjancentAreaConfigXml();
                 /**
                  * DR#11279: re-initialize threshold manager and the monitor
                  * using new monitor area configuration
                  */
                 FogThresholdMgr.reInitialize();
                 fireConfigUpdateEvent();
-
                 if ((!configMgr.getAddedZones().isEmpty())
                         || (!configMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {

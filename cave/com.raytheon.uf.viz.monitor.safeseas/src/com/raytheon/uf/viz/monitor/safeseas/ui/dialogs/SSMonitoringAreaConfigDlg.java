@@ -48,6 +48,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
  * Apr 28, 2014 3086       skorolev    Updated getConfigManager.
  * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
+ * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
+ * 
  * 
  * </pre>
  * 
@@ -70,15 +72,8 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
         SafeSeasMonitor.getInstance();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * handleOkBtnSelection()
-     */
     @Override
     protected void handleOkBtnSelection() {
-        // Check for changes in the data
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
                     "SAFESEAS Monitor Confirm Changes",
