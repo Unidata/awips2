@@ -89,7 +89,8 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 getValues();
                 resetStatus();
                 configMgr.saveConfigXml();
-                configMgr.saveAdjancentAreaConfigXml();
+                configMgr.saveAdjacentAreaConfigXml();
+
                 /**
                  * DR#11279: re-initialize threshold manager and the monitor
                  * using new monitor area configuration
@@ -119,7 +120,7 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 }
             }
         }
-        if (fogMonitorDlg == null || fogMonitorDlg.isDisposed()) {
+        if ((fogMonitorDlg == null) || fogMonitorDlg.isDisposed()) {
             setReturnValue(true);
             close();
         }
@@ -147,12 +148,13 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#getInstance
      * ()
      */
+    @Override
     protected FSSObsMonitorConfigurationManager getInstance() {
         if (configMgr == null) {
             configMgr = new FSSObsMonitorConfigurationManager(
                     MonName.fog.name());
         }
-        return (FSSObsMonitorConfigurationManager) configMgr;
+        return configMgr;
     }
 
     /*
