@@ -48,7 +48,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
  * Apr 28, 2014 3086       skorolev    Updated snowConfigManager.
  * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
- * 
+ * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
  * </pre>
  * 
  * @author mpduff
@@ -74,11 +74,10 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      * (non-Javadoc)
      * 
      * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * handleOkBtnSelection()
+     * handleApplyBtnSelection()
      */
     @Override
     protected void handleOkBtnSelection() {
-        // Check for changes in the data\
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
                     "SNOW Monitor Confirm Changes",
@@ -90,7 +89,6 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 configMgr.saveConfigXml();
                 SnowThresholdMgr.reInitialize();
                 fireConfigUpdateEvent();
-
                 if ((!configMgr.getAddedZones().isEmpty())
                         || (!configMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
@@ -166,5 +164,4 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
             }
         });
     }
-
 }
