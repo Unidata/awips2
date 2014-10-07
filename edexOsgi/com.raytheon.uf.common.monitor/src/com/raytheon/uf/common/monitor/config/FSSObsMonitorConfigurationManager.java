@@ -340,7 +340,7 @@ public class FSSObsMonitorConfigurationManager implements
      * @param filename
      *            adjacentAreaConfig.xml
      */
-    protected void saveAdjacentAreaConfigXml() {
+    public void saveAdjacentAreaConfigXml() {
         // Save the xml object to disk
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
