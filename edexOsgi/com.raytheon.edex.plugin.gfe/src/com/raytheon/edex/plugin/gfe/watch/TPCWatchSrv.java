@@ -39,9 +39,13 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 03, 2008            njensen      Initial creation
- * Jul 10, 2009  #2590     njensen      Added multiple site support
- * Jun 10, 2014  #3268     dgilling     Re-factor based on AbstractWatchNotifierSrv.
+ * Oct 03, 2008            njensen     Initial creation
+ * Jul 10, 2009  #2590     njensen     Added multiple site support
+ * Jun 10, 2014  #3268     dgilling    Re-factor based on AbstractWatchNotifierSrv.
+ * Oct 08, 2014  #4953     randerso    Refactored AbstractWatchNotifierSrv to allow 
+ *                                     subclasses to handle all watches if desired.
+ *                                     Added hooks for TCVAdvisory creation
+ * 
  * </pre>
  * 
  * @author njensen
@@ -52,13 +56,11 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
 
     private static final String TPC_WATCH_TYPE = "TPC";
 
-    private static final String TPC_SUPPORTED_PIL = "TCV";
-
     private static final String TPC_SITE_ATTRIBUTE = "VTEC_TPC_SITE";
 
     private static final String DEFAULT_TPC_SITE = "KNHC";
 
-    private static final String ALERT_TXT = "Alert: %s has arrived from TPC. "
+    private static final String ALERT_TXT = "Alert: TCV has arrived from TPC. "
             + "Check for 'red' locks (owned by others) on your Hazard grid and resolve them. "
             + "If hazards are separated into temporary grids, please run Mergehazards. "
             + "Next...save Hazards grid. Finally, select PlotTPCEvents from Hazards menu.";
@@ -83,8 +85,31 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         actMap = Collections.unmodifiableMap(actMapTemp);
     }
 
+    /**
+     * Constructor
+     */
     public TPCWatchSrv() {
-        super(TPC_WATCH_TYPE, TPC_SUPPORTED_PIL);
+        super(TPC_WATCH_TYPE);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.edex.plugin.gfe.watch.AbstractWatchNotifierSrv#handleWatch
+     * (java.util.List)
+     */
+    @Override
+    public void handleWatch(List<AbstractWarningRecord> warningRecs) {
+        super.handleWatch(warningRecs);
+
+        for (String siteId : getActiveSites()) {
+            for (AbstractWarningRecord record : warningRecs) {
+                // TODO: Sarah, add a call to your method that
+                // handles the TCV here:
+                // example: processTCV(siteID, record);
+            }
+        }
     }
 
     /*
@@ -123,8 +148,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         }
 
         // create the message
-        StringBuilder msg = new StringBuilder(String.format(ALERT_TXT,
-                supportedPIL));
+        StringBuilder msg = new StringBuilder(ALERT_TXT);
         for (String phensigStorm : phensigStormAct.keySet()) {
             Collection<String> acts = phensigStormAct.get(phensigStorm);
             String[] splitKey = phensigStorm.split(":");
