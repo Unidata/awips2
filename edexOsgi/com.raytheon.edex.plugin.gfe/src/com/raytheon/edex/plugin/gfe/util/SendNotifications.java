@@ -28,9 +28,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
-import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.EdexException;
 
 /**
  * Sends GFE notifications to the GFE notify JMS topic.
@@ -43,6 +42,8 @@ import com.raytheon.uf.edex.core.EdexException;
  * 09/22/09     3058       rjpeter     changed to utility.
  * 06/12/13     2099       dgilling    Remove error when passed empty list of
  *                                     notifications.
+ * 10/08/14     #3684      randerso    Changed to send directly to JMS topic
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -66,11 +67,12 @@ public class SendNotifications {
         }
 
         try {
-            EDEXUtil.getMessageProducer().sendAsync(GfeUtil.NOTIFY,
-                    notifications);
+            EDEXUtil.getMessageProducer().sendAsyncUri(
+                    "jms-generic:topic:edex.alerts.gfe?timeToLive=60000",
+                    SerializationUtil.transformToThrift(notifications));
             // logger.info("Sending " + notifications.size() + " "
             // + notifications.get(0).getClass().getSimpleName());
-        } catch (EdexException e) {
+        } catch (Exception e) {
             logger.error("Error sending gfe notification", e);
             sr.addMessage("Error sending gfe notification");
         }
