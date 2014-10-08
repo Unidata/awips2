@@ -895,7 +895,7 @@ public class GridParmManager {
                     createDbNotification(Arrays.asList(dbId), purged);
                 }
                 // always notify on purges
-                else if (!purged.isEmpty()) {
+                else {
                     createDbNotification(null, purged);
                 }
             }
