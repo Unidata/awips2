@@ -25,6 +25,7 @@ import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.reference.ReferenceMgr;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
+import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jul 25, 2012       #957  dgilling    Implement getEditAreaNames().
  * Jun 13, 2013      #2044  randerso    Refactored to use IFPServer
  * Nov 20, 2013      #2331  randerso    Changed return type of getTopoData
+ * Oct 08, 2014      #3684  randerso    Changed createDB to return status
  * 
  * </pre>
  * 
@@ -98,13 +100,11 @@ public class InitClient {
      * 
      * @param key
      */
-    public void createDB(String key) {
+    public ServerResponse<GridDatabase> createDB(String key) {
         DatabaseID id = new DatabaseID(key);
-        ServerResponse<?> sr = ifpServer.getGridParmMgr().createNewDb(id);
-        if (!sr.isOkay()) {
-            statusHandler.error("Error creating database " + id + ": "
-                    + sr.message());
-        }
+        ServerResponse<GridDatabase> sr = ifpServer.getGridParmMgr()
+                .createNewDb(id);
+        return sr;
     }
 
     /**
