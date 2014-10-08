@@ -34,13 +34,14 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.util.FileUtil;
 
 /**
- * TODO Add Description
+ * Area Dictionary Maker
  * 
  * <pre>
  * 
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 4, 2011             wldougher   Moved from MapManager
+ * Oct 8, 2014   #4953     randerso    Added hooks for TCVAreaDictionary creation
  * 
  * </pre>
  * 
@@ -66,21 +68,21 @@ public class AreaDictionaryMaker {
      * Generate the AreaDictionary.py and CityLocation.py scripts for site,
      * using editAreaAttrs.
      * 
-     * @param site
+     * @param siteID
      *            The site for which the area dictionary file and city location
      *            file should be generated.
      * @param editAreaAttrs
      *            A Map from edit area names to shape file attributes
      */
-    public void genAreaDictionary(String site,
+    public void genAreaDictionary(String siteID,
             Map<String, Map<String, Object>> editAreaAttrs) {
         theLogger.info("Area Dictionary generation phase");
 
-        if (site == null) {
+        if (siteID == null) {
             throw new IllegalArgumentException("site is null");
         }
 
-        if ("".equals(site)) {
+        if ("".equals(siteID)) {
             throw new IllegalArgumentException("site is an empty string");
         }
 
@@ -102,7 +104,7 @@ public class AreaDictionaryMaker {
         LocalizationContext caveStaticConfig = pathMgr.getContext(
                 LocalizationContext.LocalizationType.CAVE_STATIC,
                 LocalizationContext.LocalizationLevel.CONFIGURED);
-        caveStaticConfig.setContextName(site);
+        caveStaticConfig.setContextName(siteID);
         File outputDirFile = pathMgr.getLocalizationFile(caveStaticConfig,
                 FileUtil.join("gfe", "userPython", "textUtilities", "regular"))
                 .getFile();
@@ -119,6 +121,19 @@ public class AreaDictionaryMaker {
             // createCityLocation uses script globals modified by
             // createAreaDictionary()
             pyScript.execute("createCityLocation", argMap);
+
+            // check to see if Hazard_TCV was configured for this site
+            LocalizationFile lf = pathMgr.getLocalizationFile(caveStaticConfig,
+                    FileUtil.join("gfe", "userPython", "textProducts",
+                            "Hazard_TCV.py"));
+            if (lf.exists()) {
+                // TODO: Sarah add your TCVAreaDictionary creation code here
+                // if you add your code as a new method in
+                // createAreaDictionary.py which is probably the easiest way to
+                // do it, you can run it with the following line:
+                // pyScript.execute("createTCVAreaDictionary", argMap);
+            }
+
         } catch (JepException e) {
             theLogger.error("Error generating area dictionary", e);
         } finally {
