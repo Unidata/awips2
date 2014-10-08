@@ -43,7 +43,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
+import com.raytheon.uf.viz.collaboration.ui.data.TreeObjectContainer;
 
 /**
  * Provides contacts list UI elements with icons, text, tooltips, etc
@@ -64,6 +65,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Feb 17, 2014 2751       bclement    added block image logic to userLabelProvider
  * Mar 06, 2014 2848       bclement    get venueName directly from session
  * Jun 12, 2014 3267       bclement    fixed missing null-check for outdated UI info
+ * Oct 08, 2014 3705       bclement    replaced checks for SessionGroupContainer with TreeObjectContainer
  * 
  * </pre>
  * 
@@ -164,9 +166,9 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             key = "shared_group";
         } else if (element instanceof IVenueSession) {
             // key = "session_group";
-        } else if (element instanceof SessionGroupContainer) {
-            key = "session_group";
-        }
+        } else if (element instanceof TreeObjectContainer) {
+            key = ((TreeObjectContainer) element).getIcon();
+        } 
 
         if (imageMap.get(key) == null && !key.equals("")) {
             imageMap.put(key, CollaborationUtils.getNodeImage(key));
@@ -182,8 +184,8 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             return ((SharedGroup) element).getName();
         } else if (element instanceof RosterEntry) {
             return userLabelProvider.getText((RosterEntry) element);
-        } else if (element instanceof SessionGroupContainer) {
-            return "Active Sessions";
+        } else if (element instanceof TreeObjectContainer) {
+            return ((TreeObjectContainer) element).getLabel();
         } else if (element instanceof UserId) {
             UserId user = (UserId) element;
             String fullname = userLabelProvider.getText(element);
@@ -201,6 +203,8 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
                 return null;
             }
             return venue.getVenueName();
+        } else if (element instanceof VenueId) {
+            return ((VenueId) element).getName();
         }
         return null;
     }
@@ -208,7 +212,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
     @Override
     public Font getFont(Object element) {
         if (element instanceof RosterGroup || element instanceof SharedGroup
-                || element instanceof SessionGroupContainer) {
+                || element instanceof TreeObjectContainer) {
             // for this case do nothing, as it is not the top level of
             // session groups
             if (boldFont == null) {
