@@ -129,6 +129,10 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 10/07/2014   #3684      randerso    Restructured IFPServer start up. 
  *                                     Reordered handling of DbInvChangeNotification
  *                                     Don't process GFENotifications sent by this JVM
+ *                                     Prevent createDB from creating databases that are immediately purged
+ *                                     Send DBInvChangeNotifications at site activation so new D2D data
+ *                                     ingested while deactivated gets recognized
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -890,6 +894,10 @@ public class GridParmManager {
                 if (notify) {
                     createDbNotification(Arrays.asList(dbId), purged);
                 }
+                // always notify on purges
+                else if (!purged.isEmpty()) {
+                    createDbNotification(null, purged);
+                }
             }
         }
 
@@ -913,7 +921,10 @@ public class GridParmManager {
 
         GridDatabase db = this.getDatabase(dbId);
         if (db != null) {
+            sr.setPayload(db);
             return sr; // database already exists
+        } else {
+            sr.addMessage("Unable to create database: " + dbId);
         }
 
         // is it a singleton database?
@@ -1051,42 +1062,64 @@ public class GridParmManager {
         return sr;
     }
 
-    private ServerResponse<GridDatabase> createDB(DatabaseID id) {
+    private ServerResponse<GridDatabase> createDB(DatabaseID dbId) {
         // TODO: consider merging this into getDatabase()
         ServerResponse<GridDatabase> status = new ServerResponse<GridDatabase>();
-        if (!id.isValid() || !id.getFormat().equals(DataType.GRID)) {
+        if (!dbId.isValid() || !dbId.getFormat().equals(DataType.GRID)) {
             status.addMessage("Database id "
-                    + id
+                    + dbId
                     + " is not valid, or is not a grid-type.  Cannot create database.");
             return status;
         }
 
-        // create the grid database
+        // get the dbConfig
         IFPGridDatabase db = null;
-        GridDbConfig dbConfig = this.config.gridDbConfig(id);
+        GridDbConfig dbConfig = this.config.gridDbConfig(dbId);
         if (dbConfig == null) {
             status.addMessage("Unable to obtain GridDbConfig information for creation"
-                    + " in createDB() for " + id);
+                    + " in createDB() for " + dbId);
         } else {
+            // don't create if this version would be immediately purgeable
+            List<DatabaseID> existing = new ArrayList<DatabaseID>();
+            for (DatabaseID id : this.dbMap.keySet()) {
+                if (id.sameModel(dbId)) {
+                    existing.add(id);
+                }
+            }
+
+            if (!existing.contains(dbId)) {
+                existing.add(dbId);
+            }
+
+            // sort by model time (most recent first)
+            Collections.sort(existing);
+
+            int desiredVersions = this.config.desiredDbVersions(dbId);
+            if (existing.indexOf(dbId) >= desiredVersions) {
+                status.addMessage("Unable to create " + dbId
+                        + " as it would exceed the desired number of versions");
+                return status;
+            }
+
             // attempt to create the GridDatabase
-            db = new IFPGridDatabase(id, dbConfig);
+            db = new IFPGridDatabase(dbId, dbConfig);
             if (db.databaseIsValid()) {
                 // get databaseID object from database
-                DatabaseID dbId = db.getDbId();
+                DatabaseID id = db.getDbId();
 
-                if (dbId.getRemovedDate() != null) {
+                if (id.getRemovedDate() != null) {
                     // mark database as not removed
                     try {
                         GFEDao gfeDao = new GFEDao();
-                        gfeDao.setDatabaseRemovedDate(dbId, null);
-                        statusHandler.info("Database " + dbId + " restored");
+                        gfeDao.setDatabaseRemovedDate(id, null);
+                        statusHandler.info("Database " + id + " restored");
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
-                                "Unable to mark database restored: " + dbId, e);
+                                "Unable to mark database restored: " + id, e);
                     }
                 }
             } else {
-                status.addMessage("Database " + id + " is not valid.");
+                status.addMessage("Database " + dbId + " is not valid.");
                 db = null;
             }
         }
@@ -1095,12 +1128,13 @@ public class GridParmManager {
             // mark database as removed
             try {
                 GFEDao gfeDao = new GFEDao();
-                gfeDao.setDatabaseRemovedDate(id, new Date());
-                statusHandler.warn("Database " + id + " marked for removal in "
+                gfeDao.setDatabaseRemovedDate(dbId, new Date());
+                statusHandler.warn("Database " + dbId
+                        + " marked for removal in "
                         + GFEDao.REMOVED_DB_PURGE_TIME + " days.");
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Unable to mark database removed: " + id, e);
+                        "Unable to mark database removed: " + dbId, e);
             }
         }
 
@@ -1142,8 +1176,12 @@ public class GridParmManager {
         }
 
         // create the databases (the list should now only contain GRID dbs)
+        List<DatabaseID> added = new ArrayList<DatabaseID>(inventory.size());
         for (DatabaseID dbId : inventory) {
-            getDatabase(dbId, false);
+            GridDatabase db = getDatabase(dbId, false);
+            if (db != null) {
+                added.add(db.getDbId());
+            }
         }
 
         NetCDFDatabaseManager.initializeNetCDFDatabases(config);
@@ -1156,7 +1194,8 @@ public class GridParmManager {
         D2DSatDatabase satDb = new D2DSatDatabase(config);
         addDB(satDb);
 
-        initD2DDbs();
+        added.addAll(initD2DDbs());
+        createDbNotification(added, null);
 
         // only fire smartInits if queue is instantiated
         SmartInitQueue queue = SmartInitQueue.getQueue();
@@ -1197,7 +1236,8 @@ public class GridParmManager {
         }
     }
 
-    private void initD2DDbs() {
+    private List<DatabaseID> initD2DDbs() {
+        List<DatabaseID> added = new ArrayList<DatabaseID>();
         for (String d2dModelName : config.getD2dModels()) {
             try {
                 // get dbId to get desiredDbVersions (date doesn't matter)
@@ -1209,13 +1249,17 @@ public class GridParmManager {
                         d2dModelName, desiredVersions)) {
                     dbId = D2DGridDatabase.getDbId(d2dModelName, refTime,
                             config);
-                    getDatabase(dbId, true);
+                    GridDatabase db = getDatabase(dbId, false);
+                    if (db != null) {
+                        added.add(db.getDbId());
+                    }
                 }
             } catch (Exception e) {
                 statusHandler.error("Error initializing D2D model: "
                         + d2dModelName, e);
             }
         }
+        return (added);
     }
 
     /**
@@ -1236,6 +1280,9 @@ public class GridParmManager {
             }
 
             D2DGridDatabase db = (D2DGridDatabase) getDatabase(dbId, true);
+            if (db == null) {
+                continue;
+            }
 
             GridUpdateNotification gun = db.update(record);
             if (gun != null) {
@@ -1416,7 +1463,8 @@ public class GridParmManager {
 
     private void createDbNotification(List<DatabaseID> additions,
             List<DatabaseID> deletions) {
-        if (!additions.isEmpty() || !deletions.isEmpty()) {
+        if ((additions != null && !additions.isEmpty())
+                || (deletions != null && !deletions.isEmpty())) {
             DBInvChangeNotification notify = new DBInvChangeNotification(
                     additions, deletions, siteID);
             SendNotifications.send(notify);
@@ -1550,14 +1598,9 @@ public class GridParmManager {
 
         // process the inventory looking for "old" unwanted databases
         List<DatabaseID> purged = new ArrayList<DatabaseID>();
-        String model = modelToPurge.getModelName();
-        String site = modelToPurge.getSiteId();
-        String type = modelToPurge.getDbType();
         int count = 0;
         for (DatabaseID dbId : currentInv) {
-            // new series?
-            if (dbId.getSiteId().equals(site) && dbId.getDbType().equals(type)
-                    && dbId.getModelName().equals(model)) {
+            if (dbId.sameModel(modelToPurge)) {
 
                 // process the id and determine whether it should be purged
                 count++;
