@@ -23,12 +23,10 @@ package com.raytheon.edex.plugin.gfe.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
@@ -50,8 +48,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * @version 1.0
  */
 public class SendNotifications {
-    protected static final transient Log logger = LogFactory
-            .getLog(SendNotifications.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SendNotifications.class);
 
     public static ServerResponse<?> send(GfeNotification notification) {
         List<GfeNotification> notifications = new ArrayList<GfeNotification>();
@@ -67,13 +65,11 @@ public class SendNotifications {
         }
 
         try {
-            EDEXUtil.getMessageProducer().sendAsyncUri(
+            EDEXUtil.getMessageProducer().sendAsyncThriftUri(
                     "jms-generic:topic:edex.alerts.gfe?timeToLive=60000",
-                    SerializationUtil.transformToThrift(notifications));
-            // logger.info("Sending " + notifications.size() + " "
-            // + notifications.get(0).getClass().getSimpleName());
+                    notifications);
         } catch (Exception e) {
-            logger.error("Error sending gfe notification", e);
+            statusHandler.error("Error sending gfe notification", e);
             sr.addMessage("Error sending gfe notification");
         }
         return sr;
