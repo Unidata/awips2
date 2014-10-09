@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
  * Apr 23, 2012            mnash     Initial creation
  * Dec 20, 2013 2563       bclement  added items from server roster not in groups
  * Jan 24, 2014 2701       bclement  removed local groups, added shared groups
+ * Oct 08, 2014 3705       bclement  added public room group
  * 
  * </pre>
  * 
@@ -48,7 +49,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 
 public class CollaborationGroupContainer {
 
-    private SessionGroupContainer sessionGroup = new SessionGroupContainer();
+    private final SessionGroupContainer sessionGroup = new SessionGroupContainer();
+
+    private final PublicRoomContainer publicRoomGroup = new PublicRoomContainer();
 
     public CollaborationGroupContainer() {
     }
@@ -67,6 +70,7 @@ public class CollaborationGroupContainer {
         List<Object> result = new ArrayList<Object>();
         result.add(connection.getUser());
         result.add(sessionGroup);
+        result.add(publicRoomGroup);
         ContactsManager contactsManager = connection.getContactsManager();
         result.addAll(contactsManager.getSharedGroups());
         result.addAll(contactsManager.getGroups());
@@ -81,6 +85,13 @@ public class CollaborationGroupContainer {
      */
     public SessionGroupContainer getSessionGroup() {
         return sessionGroup;
+    }
+
+    /**
+     * @return the publicRoomGroup
+     */
+    public PublicRoomContainer getPublicRoomGroup() {
+        return publicRoomGroup;
     }
 
 }
