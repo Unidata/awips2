@@ -35,7 +35,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
-import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.TreeObjectContainer;
 
 /**
  * Provides access to contacts list tree
@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
  * Jan 27, 2014 2700       bclement    added support roster entries
  * Apr 24, 2014 3070       bclement    removed check for hasInteraction() from group entries
+ * Oct 08, 2014 3705       bclement    replaced checks for SessionGroupContainer with TreeObjectContainer
  * 
  * </pre>
  * 
@@ -93,9 +94,9 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
      */
     @Override
     public Object[] getElements(Object inputElement) {
-        if (inputElement instanceof SessionGroupContainer) {
-            SessionGroupContainer group = (SessionGroupContainer) inputElement;
-            return group.getObjects().toArray();
+        if (inputElement instanceof TreeObjectContainer) {
+            TreeObjectContainer cont = (TreeObjectContainer) inputElement;
+            return cont.getObjects();
         } else if (inputElement instanceof CollaborationGroupContainer) {
             CollaborationGroupContainer cont = (CollaborationGroupContainer) inputElement;
             return cont.getObjects().toArray();
@@ -115,9 +116,9 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
     public Object[] getChildren(Object parentElement) {
         // the only things that can have children are the sessions item or the
         // groups items
-        if (parentElement instanceof SessionGroupContainer) {
-            SessionGroupContainer cont = (SessionGroupContainer) parentElement;
-            return cont.getObjects().toArray();
+        if (parentElement instanceof TreeObjectContainer) {
+            TreeObjectContainer cont = (TreeObjectContainer) parentElement;
+            return cont.getObjects();
         } else if (parentElement instanceof RosterGroup) {
             RosterGroup group = (RosterGroup) parentElement;
             return getRosterChildren(group.getEntries());
@@ -177,9 +178,9 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
         } else if (element instanceof SharedGroup) {
             SharedGroup group = (SharedGroup) element;
             hasChildren = rosterHasChildren(group.getEntries());
-        } else if (element instanceof SessionGroupContainer) {
-            SessionGroupContainer cont = (SessionGroupContainer) element;
-            if (cont.getObjects() != null && cont.getObjects().size() > 0) {
+        } else if (element instanceof TreeObjectContainer) {
+            TreeObjectContainer cont = (TreeObjectContainer) element;
+            if (cont.getObjects() != null && cont.getObjects().length > 0) {
                 hasChildren = true;
             } else {
                 hasChildren = false;
