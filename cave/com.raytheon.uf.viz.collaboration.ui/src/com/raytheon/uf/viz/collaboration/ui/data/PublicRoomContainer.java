@@ -19,16 +19,16 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.data;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 
 /**
- * Retrieve session objects from contacts list
+ * Contributes bookmarked public rooms to the group view
  * 
  * <pre>
  * 
@@ -36,19 +36,17 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 6, 2012            rferrel     Initial creation
- * Jan 28, 2014 2698       bclement    removed venue info
- * Oct 08, 2014 3705       bclement    extends TreeObjectContainer
+ * Oct 8, 2014  3705      bclement     Initial creation
  * 
  * </pre>
  * 
- * @author rferrel
+ * @author bclement
  * @version 1.0
  */
-public class SessionGroupContainer extends TreeObjectContainer {
+public class PublicRoomContainer extends TreeObjectContainer {
 
-    public SessionGroupContainer() {
-        super("Active Sessions", "session_group");
+    public PublicRoomContainer() {
+        super("Bookmarked Rooms", "session_group");
     }
 
     public Object[] getObjects() {
@@ -57,14 +55,14 @@ public class SessionGroupContainer extends TreeObjectContainer {
         if (connection == null) {
             return new Object[0];
         }
-        Collection<ISession> sessions = connection.getSessions();
-        List<Object> result = new ArrayList<Object>();
-        for (ISession session : sessions) {
-            if (session instanceof IVenueSession) {
-                result.add(session);
-            }
+        Collection<VenueId> bookmarkedRooms;
+        try {
+            bookmarkedRooms = connection.getBookmarkedRooms();
+        } catch (CollaborationException e) {
+            Activator.statusHandler.error(
+                    "Unable to get bookmarked rooms from server", e);
+            bookmarkedRooms = Collections.emptyList();
         }
-        return result.toArray();
+        return bookmarkedRooms.toArray(new Object[0]);
     }
-
 }
