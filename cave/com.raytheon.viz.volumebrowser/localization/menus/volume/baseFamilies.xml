@@ -79,6 +79,12 @@
 		<substitute key="frameCount" value="29"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="HRRR" id="HRRR" useReferenceTime="true">
+		<substitute key="modelName" value="HRRR"/>
+		<substitute key="TP" value="TP1hr"/>
+		<substitute key="frameCount" value="16"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="RAP 13km" id="RAP-13km" useReferenceTime="true">
 		<substitute key="modelName" value="RAP-13km"/>
 		<substitute key="TP" value="TP1hr"/>
