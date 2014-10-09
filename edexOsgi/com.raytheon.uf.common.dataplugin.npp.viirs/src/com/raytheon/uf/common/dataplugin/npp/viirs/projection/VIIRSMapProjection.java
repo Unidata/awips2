@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.LineSegment;
  *                                      more accurate results
  * Aug 27, 2013  #2190     mschenke     Sped up transform functions
  * Mar 27, 2014  #2015     njensen      Overrode getParameterValues()
+ * Oct 08, 2014  #3674     bsteffen     Bug fixes.
  * 
  * </pre>
  * 
@@ -333,6 +334,11 @@ public class VIIRSMapProjection extends MapProjection {
 
             Coordinate a = index(xi, closestY);
             Coordinate b = index(xi, closestY2);
+            if (a.x - b.x > 180) {
+                b.x += 360;
+            } else if (b.x - a.x > 180) {
+                a.x += 360;
+            }
             LineSegment ls = new LineSegment(a, b);
             c = ls.pointAlong(-Math.abs(yDiff));
         }
@@ -523,7 +529,7 @@ public class VIIRSMapProjection extends MapProjection {
         // Compute potential bestY grid value
         bestY = actualHeight - idxToUse - 0.5;
         // Compute bestY value based on hypotenuse and angle diff in grid space
-        bestY = bestY * resolution - best.yDist * radius;
+        bestY = bestY * resolution + best.yDist * radius;
 
         Point2D point = ptDst != null ? ptDst : new Point2D.Double();
         point.setLocation(bestX, bestY);
