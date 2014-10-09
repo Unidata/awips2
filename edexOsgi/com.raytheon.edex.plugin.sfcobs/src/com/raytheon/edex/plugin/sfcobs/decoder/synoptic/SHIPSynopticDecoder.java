@@ -126,7 +126,8 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
             }
             reportParser.next();
             element = reportParser.getElement();
-            if (ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
+            if (element != null
+                    && ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
                 try {
                     Integer month = getHeader().getMonth();
                     if (month != -1) {
@@ -222,7 +223,7 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (LAT_PATTERN.matcher(element).find()) {
+        if (element != null && LAT_PATTERN.matcher(element).find()) {
             Integer lat = getInt(element, 2, 5);
             if ((lat != null) && (lat >= 0)) {
                 shipLatitude = lat.floatValue() / 10.0f;
@@ -240,7 +241,7 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (LON_PATTERN.matcher(element).find()) {
+        if (element != null && LON_PATTERN.matcher(element).find()) {
             Integer lon = getInt(element, 1, 5);
             if ((lon != null) && (lon >= 0)) {
                 shipLongitude = lon.floatValue() / 10.0f;
