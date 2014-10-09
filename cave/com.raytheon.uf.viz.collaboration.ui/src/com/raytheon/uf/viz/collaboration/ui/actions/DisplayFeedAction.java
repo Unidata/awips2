@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Apr 10, 2014 2937       bgonzale    Connect to the venue after the feed view is available
  *                                     to display messages.
  * Jun 16, 2014 3288       bclement    feed venue configuration changes
+ * Oct 08, 2014 3705       bclement    moved venue joining code to CollaborationConnection
  * 
  * </pre>
  * 
@@ -133,14 +134,11 @@ public class DisplayFeedAction extends Action {
         String defaultHandle = HandleUtil.getDefaultHandle();
         FeedVenueConfig config = FeedVenueConfigManager.getConfig();
         VenueId venueId = createVenueId(config);
-        VenueSession session = connection.createTextOnlyVenue(venueId,
-                defaultHandle);
         try {
-            session.configureVenue();
-            connection.postEvent(session);
+            VenueSession session = connection.joinTextOnlyVenue(venueId,
+                    defaultHandle);
             return session;
         } catch (CollaborationException e) {
-            connection.removeSession(session);
             final String msg = e.getLocalizedMessage()
                     + "\n\nDefault handle options can be set in the Collaboration Preferences page.";
             VizApp.runAsync(new Runnable() {
