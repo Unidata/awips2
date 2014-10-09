@@ -21,8 +21,11 @@ package com.raytheon.uf.viz.collaboration.comm.provider.connection;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +38,9 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.bookmark.BookmarkManager;
+import org.jivesoftware.smackx.bookmark.BookmarkedConference;
+import org.jivesoftware.smackx.muc.HostedRoom;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.pubsub.PubSubElementType;
 import org.jivesoftware.smackx.pubsub.packet.PubSubNamespace;
@@ -62,6 +68,8 @@ import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayloadProvider;
 import com.raytheon.uf.viz.collaboration.comm.provider.account.AccountManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.account.ClientAuthManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.BookmarkEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.BookmarkEvent.Type;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CreateSessionData;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.FeedVenueConfigManager;
@@ -126,6 +134,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * May 09, 2014 3107       bclement    added ability for packet timeout to be set via system properties
  * May 19, 2014 3180       bclement    added getJoinedVenueSessions()
  * Jun 16, 2014 3288       bclement    feed venue configuration changes
+ * Oct 08, 2014 3705       bclement    added bookmarks, joinTextOnlyVenue() and getPublicRooms()
  * 
  * </pre>
  * 
@@ -557,6 +566,27 @@ public class CollaborationConnection implements IEventPublisher {
     }
 
     /**
+     * Join existing chat room with provided handle
+     * 
+     * @param venueId
+     * @param handle
+     * @return
+     * @throws CollaborationException
+     */
+    public VenueSession joinTextOnlyVenue(VenueId venueId, String handle)
+            throws CollaborationException {
+        VenueSession session = createTextOnlyVenue(venueId, handle);
+        try {
+            session.configureVenue();
+            postEvent(session);
+            return session;
+        } catch (CollaborationException e) {
+            removeSession(session);
+            throw e;
+        }
+    }
+
+    /**
      * Check if venue exists on server
      * 
      * @param subdomain
@@ -626,6 +656,29 @@ public class CollaborationConnection implements IEventPublisher {
     }
 
     /**
+     * @return list of public chat rooms on server
+     */
+    public Collection<VenueId> getPublicRooms() {
+        XMPPConnection conn = getXmppConnection();
+        String mucService = VenueId.DEFAULT_SUBDOMAIN + "."
+                + conn.getServiceName();
+        Collection<HostedRoom> results;
+        try {
+            results = MultiUserChat.getHostedRooms(conn, mucService);
+        } catch (XMPPException e) {
+            statusHandler.error("Problem getting public room list from server",
+                    e);
+            results = Collections.emptyList();
+        }
+        Collection<VenueId> rval = new TreeSet<>();
+        for (HostedRoom room : results) {
+            rval.add(new VenueId(room.getJid()));
+        }
+
+        return rval;
+    }
+
+    /**
      * @return all IVenueSessions that this user is a participant in
      */
     public Collection<IVenueSession> getJoinedVenueSessions() {
@@ -682,4 +735,82 @@ public class CollaborationConnection implements IEventPublisher {
         return statusHandler;
     }
 
+    /**
+     * @return collection of chat rooms bookmarked by user
+     * @throws CollaborationException
+     */
+    public Collection<VenueId> getBookmarkedRooms()
+            throws CollaborationException {
+        Collection<BookmarkedConference> bookmarkedConferences;
+        try {
+            BookmarkManager bmkManager = BookmarkManager
+                    .getBookmarkManager(getXmppConnection());
+            bookmarkedConferences = bmkManager.getBookmarkedConferences();
+        } catch (XMPPException e) {
+            throw new CollaborationException(
+                    "Unable to get list of bookmarked rooms from server", e);
+        }
+        List<VenueId> rval = new ArrayList<>(bookmarkedConferences.size());
+        for (BookmarkedConference conf : bookmarkedConferences) {
+            rval.add(new VenueId(conf.getJid()));
+        }
+        return rval;
+    }
+
+    /**
+     * Bookmark room on server
+     * 
+     * @param room
+     * @throws CollaborationException
+     */
+    public void bookmarkRoom(VenueId room) throws CollaborationException {
+        try {
+            BookmarkManager bmkManager = BookmarkManager
+                    .getBookmarkManager(getXmppConnection());
+            bmkManager.addBookmarkedConference(room.getName(),
+                    room.getFQName(), false, null, null);
+            postEvent(new BookmarkEvent(Type.ADDED, room));
+        } catch (XMPPException e) {
+            throw new CollaborationException("Unable to bookmark room: "
+                    + room.getFQName(), e);
+        }
+    }
+
+    /**
+     * Remove bookmark for room from server
+     * 
+     * @param room
+     * @throws CollaborationException
+     */
+    public void removeBookmark(VenueId room) throws CollaborationException {
+        try {
+            BookmarkManager bmkManager = BookmarkManager
+                    .getBookmarkManager(getXmppConnection());
+            bmkManager.removeBookmarkedConference(room.getFQName());
+            postEvent(new BookmarkEvent(Type.REMOVED, room));
+        } catch (XMPPException e) {
+            throw new CollaborationException(
+                    "Unable to remove bookmark for room: " + room.getFQName(),
+                    e);
+        }
+    }
+
+    /**
+     * Find session this user is joined to by venue id
+     * 
+     * @param room
+     * @return null if not joined to room
+     */
+    public IVenueSession getJoinedVenueSession(VenueId room) {
+        IVenueSession rval = null;
+        Collection<IVenueSession> joinedRooms = getJoinedVenueSessions();
+        for (IVenueSession session : joinedRooms) {
+            VenueId vid = session.getVenueId();
+            if (room.equals(vid)) {
+                rval = session;
+                break;
+            }
+        }
+        return rval;
+    }
 }
