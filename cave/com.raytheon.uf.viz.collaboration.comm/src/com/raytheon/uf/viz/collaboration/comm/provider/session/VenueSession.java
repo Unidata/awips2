@@ -113,6 +113,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 29, 2014 3061       bclement    moved invite payload to shared display session
  * May 09, 2014 3107       bclement    removed catch from isRoomOwner() so callers know about errors
  * Jun 16, 2014 3288       bclement    changed String venueName to VenueId venueId, added createVenueId()
+ * Oct 08, 2014 3705       bclement    aded getVenueId()
  * 
  * 
  * </pre>
@@ -1002,6 +1003,18 @@ public class VenueSession extends BaseSession implements IVenueSession {
         XMPPConnection xmpp = conn.getXmppConnection();
         return new VenueId(VenueId.DEFAULT_SUBDOMAIN, xmpp.getServiceName(),
                 venueName);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#getVenueId
+     * ()
+     */
+    @Override
+    public VenueId getVenueId() {
+        return venueId;
     }
 
 }

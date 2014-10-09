@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
+import org.jivesoftware.smack.util.StringUtils;
+
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
@@ -35,6 +37,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * Feb 13, 2014 2751       bclement    removed resource, fixed getFQN
  * May 19, 2014 3180       bclement    added isSameVenue() fromString() and hashcode/equals
  * Jun 16, 2014 3288       bclement    added constructors, default subdomain
+ * Oct 08, 2014 3705       bclement    added single string constructor, compareTo()
  * 
  * </pre>
  * 
@@ -42,7 +45,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * @version 1.0
  */
 
-public class VenueId implements IQualifiedID {
+public class VenueId implements IQualifiedID, Comparable<VenueId> {
 
     public static final String DEFAULT_SUBDOMAIN = "conference";
 
@@ -54,6 +57,11 @@ public class VenueId implements IQualifiedID {
      * 
      */
     public VenueId() {
+    }
+
+    public VenueId(String jid) {
+        this.name = StringUtils.parseName(jid);
+        this.host = StringUtils.parseServer(jid);
     }
 
     /**
@@ -187,6 +195,32 @@ public class VenueId implements IQualifiedID {
         VenueId rval = new VenueId();
         rval.setName(Tools.parseName(venueId));
         rval.setHost(Tools.parseHost(venueId));
+        return rval;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(VenueId o) {
+        int rval;
+        if (o == null) {
+            rval = 1;
+        } else if (this.name == null) {
+            if (o.name == null) {
+                rval = 0;
+            } else {
+                rval = -1;
+            }
+        } else {
+            if (o.name == null) {
+                rval = 1;
+            } else {
+                rval = this.name.compareTo(o.name);
+            }
+        }
         return rval;
     }
 }

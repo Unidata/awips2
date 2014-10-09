@@ -17,33 +17,56 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.radar;
+package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
-import com.raytheon.viz.core.rsc.AbstractSpatialEnabler;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 
 /**
- * @deprecated do not use this class, it only exists for XML compatibility.
+ * Event triggered when the user adds or removes a bookmark for a chat room
  * 
- *             <pre>
+ * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 2, 2010            mnash     Initial creation
- * Sep 26, 2014  3669     bsteffen    Deprecate
+ * Oct 8, 2014  3705      bclement     Initial creation
  * 
  * </pre>
  * 
- * @author mnash
+ * @author bclement
  * @version 1.0
  */
-@Deprecated
-@XmlAccessorType(XmlAccessType.NONE)
-public final class RadarSpatialEnabler extends AbstractSpatialEnabler {
+public class BookmarkEvent {
 
-    /* Empty due to deprecation */
+    public static enum Type {
+        ADDED, REMOVED
+    };
+
+    private final Type type;
+
+    private final VenueId room;
+
+    /**
+     * 
+     */
+    public BookmarkEvent(Type type, VenueId room) {
+        this.type = type;
+        this.room = room;
+    }
+
+    /**
+     * @return the type
+     */
+    public Type getType() {
+        return type;
+    }
+
+    /**
+     * @return the room
+     */
+    public VenueId getRoom() {
+        return room;
+    }
 
 }
