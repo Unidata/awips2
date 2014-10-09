@@ -95,7 +95,7 @@ public class SynopticGroups {
             int lookingForSect) {
         DataItem decodedItem = null;
 
-        if (HUMIDITY_PATTERN.matcher(groupData).find()) {
+        if (groupData != null && HUMIDITY_PATTERN.matcher(groupData).find()) {
             Integer val = Integer.parseInt(groupData.substring(2, 5));
             if ((val != null) && (val >= 0)) {
                 if (lookingForSect == 1) {
