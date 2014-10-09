@@ -17,33 +17,50 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.radar;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
-import com.raytheon.viz.core.rsc.AbstractSpatialEnabler;
+package com.raytheon.uf.viz.collaboration.ui.data;
 
 /**
- * @deprecated do not use this class, it only exists for XML compatibility.
+ * Base class for containers that contribute groups to the collaboration group
+ * view
  * 
- *             <pre>
+ * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 2, 2010            mnash     Initial creation
- * Sep 26, 2014  3669     bsteffen    Deprecate
+ * Oct 8, 2014  3705      bclement     Initial creation
  * 
  * </pre>
  * 
- * @author mnash
+ * @author bclement
  * @version 1.0
  */
-@Deprecated
-@XmlAccessorType(XmlAccessType.NONE)
-public final class RadarSpatialEnabler extends AbstractSpatialEnabler {
+public abstract class TreeObjectContainer {
 
-    /* Empty due to deprecation */
+    private final String label;
+
+    private final String icon;
+
+    public TreeObjectContainer(String label, String icon) {
+        this.label = label;
+        this.icon = icon;
+    }
+
+    public abstract Object[] getObjects();
+
+    /**
+     * @return the label
+     */
+    public String getLabel() {
+        return label;
+    }
+
+    /**
+     * @return the icon
+     */
+    public String getIcon() {
+        return icon;
+    }
 
 }
