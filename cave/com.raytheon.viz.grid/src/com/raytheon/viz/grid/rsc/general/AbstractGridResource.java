@@ -130,6 +130,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    instead of raw float data.
  * Feb 28, 2014  2791     bsteffen    Switch all data to use data source.
  * Aug 21, 2014  DR 17313 jgerth      Implements ImageProvider
+ * Oct 07, 2014  3668     bclement    Renamed requestJob to requestRunner
  * 
  * </pre>
  * 
@@ -156,7 +157,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
     public static final String INTERROGATE_DIRECTION = "direction";
 
-    private final GridDataRequestJob requestJob;
+    private final GridDataRequestRunner requestRunner;
 
     private Map<DataTime, List<PluginDataObject>> pdoMap = new ConcurrentHashMap<DataTime, List<PluginDataObject>>();
 
@@ -214,7 +215,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             }
         });
         dataTimes = new ArrayList<DataTime>();
-        requestJob = new GridDataRequestJob(this);
+        requestRunner = new GridDataRequestRunner(this);
         // Capabilities need to be inited in construction for things like the
         // image combination tool.
         initCapabilities();
@@ -254,7 +255,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 }
             }
         }
-        requestJob.remove(time);
+        requestRunner.remove(time);
         dataMap.remove(time);
         if (!dataTimes.contains(dataTimes)) {
             dataTimes.add(time);
@@ -643,10 +644,10 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             List<PluginDataObject> pdos) throws VizException;
 
     protected List<GeneralGridData> requestData(DataTime time) {
-        synchronized (requestJob) {
+        synchronized (requestRunner) {
             List<GeneralGridData> data = this.dataMap.get(time);
             if (data == null) {
-                data = requestJob.requestData(time, pdoMap.get(time));
+                data = requestRunner.requestData(time, pdoMap.get(time));
                 if (data != null) {
                     data = mergeData(data);
                     this.dataMap.put(time, data);
@@ -898,7 +899,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     public void remove(DataTime dataTime) {
         pdoMap.remove(dataTime);
         dataMap.remove(dataTime);
-        requestJob.remove(dataTime);
+        requestRunner.remove(dataTime);
         dataTimes.remove(dataTime);
         synchronized (renderableMap) {
             List<IRenderable> renderableList = renderableMap.remove(dataTime);
@@ -940,7 +941,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      * 
      */
     protected void clearRequestedData() {
-        requestJob.stopAndClear();
+        requestRunner.stopAndClear();
         synchronized (renderableMap) {
             for (List<IRenderable> renderableList : renderableMap.values()) {
                 for (IRenderable renderable : renderableList) {
