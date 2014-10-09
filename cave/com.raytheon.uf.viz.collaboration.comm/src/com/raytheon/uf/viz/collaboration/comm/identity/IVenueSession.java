@@ -26,6 +26,7 @@ import org.jivesoftware.smack.packet.Presence;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
@@ -55,6 +56,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Mar 06, 2014 2751       bclement    added isAdmin()
  * Mar 07, 2014 2848       bclement    added getVenueName() and hasOtherParticipants()
+ * Oct 08, 2014 3705       bclement    added getVenueId()
  * 
  * </pre>
  * 
@@ -75,6 +77,11 @@ public interface IVenueSession extends ISession {
      * @return name of chat room serving as venue
      */
     public String getVenueName();
+
+    /**
+     * @return qualified id of venue on server
+     */
+    public VenueId getVenueId();
 
     /**
      * Send a chat message.
