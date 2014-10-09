@@ -695,7 +695,7 @@
 <filters>NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Hawaii-WRF-ARW">
-<filters>Hawaii</filters>
+<filters>NCEP,Hawaii</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSLAMPTstorm">
 <filters>NCEP</filters>
