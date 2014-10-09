@@ -34,6 +34,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.raytheon.uf.common.message.IMessage;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.IMessageProducer;
@@ -46,6 +48,7 @@ import com.raytheon.uf.edex.core.IMessageProducer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2008            njensen     Initial creation
+ * Oct 08, 2014     #3684  randerso    Added sendAsyncThriftUri
  * </pre>
  * 
  * @author njensen
@@ -72,6 +75,7 @@ public class MessageProducer implements ApplicationContextAware,
      * com.raytheon.uf.edex.esb.camel.IMessageProducer#sendAsync(java.lang.String
      * , java.lang.Object)
      */
+    @Override
     public void sendAsync(String endpoint, Object message) throws EdexException {
         CamelContext camelContext = getCamelContext(endpoint);
         ProducerTemplate template = getProducerTemplate(camelContext);
@@ -97,6 +101,7 @@ public class MessageProducer implements ApplicationContextAware,
      * com.raytheon.uf.edex.esb.camel.IMessageProducer#sendSync(java.lang.String
      * , java.lang.Object)
      */
+    @Override
     public Object sendSync(String endpoint, Object message)
             throws EdexException {
         CamelContext camelContext = getCamelContext(endpoint);
@@ -202,8 +207,28 @@ public class MessageProducer implements ApplicationContextAware,
                 template.sendBody(uri, ExchangePattern.InOnly, message);
             }
         } catch (CamelExecutionException e) {
-            throw new EdexException("Error sending asynchronous message: " + message
-                    + " to uri: " + uri, e);
+            throw new EdexException("Error sending asynchronous message: "
+                    + message + " to uri: " + uri, e);
+        }
+    }
+
+    @Override
+    public void sendAsyncThriftUri(String uri, Object message)
+            throws EdexException, SerializationException {
+        CamelContext ctx = getCamelContextList().get(0);
+        ProducerTemplate template = getProducerTemplate(ctx);
+        Map<String, Object> headers = getHeaders(message);
+        try {
+            if (headers != null) {
+                template.sendBodyAndHeaders(uri, ExchangePattern.InOnly,
+                        SerializationUtil.transformToThrift(message), headers);
+            } else {
+                template.sendBody(uri, ExchangePattern.InOnly,
+                        SerializationUtil.transformToThrift(message));
+            }
+        } catch (CamelExecutionException e) {
+            throw new EdexException("Error sending asynchronous message: "
+                    + message + " to uri: " + uri, e);
         }
     }
 
