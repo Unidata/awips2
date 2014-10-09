@@ -17,18 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.data;
+package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import org.eclipse.jface.action.Action;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 
 /**
- * Retrieve session objects from contacts list
+ * Adds bookmarks for public chatrooms
  * 
  * <pre>
  * 
@@ -36,35 +35,44 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 6, 2012            rferrel     Initial creation
- * Jan 28, 2014 2698       bclement    removed venue info
- * Oct 08, 2014 3705       bclement    extends TreeObjectContainer
+ * Oct 8, 2014  3705      bclement     Initial creation
  * 
  * </pre>
  * 
- * @author rferrel
+ * @author bclement
  * @version 1.0
  */
-public class SessionGroupContainer extends TreeObjectContainer {
+public class AddBookmarkAction extends Action {
 
-    public SessionGroupContainer() {
-        super("Active Sessions", "session_group");
+    private final VenueId[] rooms;
+
+    /**
+     * 
+     */
+    public AddBookmarkAction(VenueId... rooms) {
+        super("Add Bookmark");
+        this.rooms = rooms;
     }
 
-    public Object[] getObjects() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.action.Action#run()
+     */
+    @Override
+    public void run() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
-        if (connection == null) {
-            return new Object[0];
-        }
-        Collection<ISession> sessions = connection.getSessions();
-        List<Object> result = new ArrayList<Object>();
-        for (ISession session : sessions) {
-            if (session instanceof IVenueSession) {
-                result.add(session);
+        if (connection != null) {
+            for (VenueId room : rooms) {
+                try {
+                    connection.bookmarkRoom(room);
+                } catch (CollaborationException e) {
+                    Activator.statusHandler.error("Unable to bookmark room: "
+                            + room.getFQName(), e);
+                }
             }
         }
-        return result.toArray();
     }
 
 }
