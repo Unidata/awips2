@@ -81,7 +81,8 @@ public class CMANSynopticDecoder extends LandSynopticDecoder {
         if (isValid) {
             reportParser.next();
             element = reportParser.getElement();
-            if (ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
+            if (element != null
+                    && ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
                 try {
 
                     Integer month = getHeader().getMonth();

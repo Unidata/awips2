@@ -206,17 +206,19 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         String element = reportParser.getElement();
         Integer lat = null;
         float divisor = 1000.0f;
-        if (PATTERN_1357d5.matcher(element).find()) {
-            buoyQuadrant = getInt(element, 0, 1);
-            lat = getInt(element, 1, 6);
-        } else if (PATTERN_1357d4.matcher(element).find()) {
-            buoyQuadrant = getInt(element, 0, 1);
-            lat = getInt(element, 1, 5);
-            divisor = 100.0f;
-        } else if (PATTERN_1357d3.matcher(element).find()) {
-            buoyQuadrant = getInt(element, 0, 1);
-            lat = getInt(element, 1, 4);
-            divisor = 10.0f;
+        if (element != null) {
+            if (PATTERN_1357d5.matcher(element).find()) {
+                buoyQuadrant = getInt(element, 0, 1);
+                lat = getInt(element, 1, 6);
+            } else if (PATTERN_1357d4.matcher(element).find()) {
+                buoyQuadrant = getInt(element, 0, 1);
+                lat = getInt(element, 1, 5);
+                divisor = 100.0f;
+            } else if (PATTERN_1357d3.matcher(element).find()) {
+                buoyQuadrant = getInt(element, 0, 1);
+                lat = getInt(element, 1, 4);
+                divisor = 10.0f;
+            }
         }
         if ((lat != null) && (lat >= 0)) {
             buoyLatitude = lat.floatValue() / divisor;
@@ -239,14 +241,16 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         String element = reportParser.getElement();
         Integer lon = null;
         float divisor = 1000.0f;
-        if (PATTERN_d6.matcher(element).find()) {
-            lon = getInt(element, 0, 6);
-        } else if (PATTERN_d5.matcher(element).find()) {
-            lon = getInt(element, 0, 5);
-            divisor = 100.0f;
-        } else if (PATTERN_d4.matcher(element).find()) {
-            lon = getInt(element, 0, 4);
-            divisor = 10.0f;
+        if (element != null) {
+            if (PATTERN_d6.matcher(element).find()) {
+                lon = getInt(element, 0, 6);
+            } else if (PATTERN_d5.matcher(element).find()) {
+                lon = getInt(element, 0, 5);
+                divisor = 100.0f;
+            } else if (PATTERN_d4.matcher(element).find()) {
+                lon = getInt(element, 0, 4);
+                divisor = 10.0f;
+            }
         }
         if ((lon != null) && (lon >= 0)) {
             buoyLongitude = lon.floatValue() / divisor;
