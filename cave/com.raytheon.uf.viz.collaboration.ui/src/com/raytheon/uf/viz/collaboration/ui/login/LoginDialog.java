@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.ui.login;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -45,12 +46,11 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
 
-import com.google.common.collect.Iterators;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.HostConfig;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.HostConfig;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnectionData;
@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Apr 11, 2014 2903       bclement     added success flag, moved login logic to static method
  *                                       fixed populating server with previous, removed password from heap
  * Apr 23, 2014 2822       bclement     added version to initial presence
+ * Oct 10, 2014 3708       bclement     SiteConfigurationManager changes
  * 
  * </pre>
  * 
@@ -171,19 +172,13 @@ public class LoginDialog extends Dialog {
         serverText.setLayoutData(gd);
 
         // retrieve the servers
-        SiteConfigInformation information = SiteConfigurationManager
-                .getSiteConfigInformation();
-        List<HostConfig> siteServers = information.getServer();
-        if (siteServers == null) {
-            siteServers = new ArrayList<SiteConfigInformation.HostConfig>(0);
-        }
-        List<HostConfig> userServers = SiteConfigurationManager
-                .getUserHostConfig();
+        Collection<HostConfig> servers = SiteConfigurationManager
+                .getHostConfigs();
+
         // put configured as true so we don't disable the login button
         serverText.setData("configured", true);
-        String[] names = new String[siteServers.size() + userServers.size()];
-        Iterator<HostConfig> iter = Iterators.concat(siteServers.iterator(),
-                userServers.iterator());
+        String[] names = new String[servers.size()];
+        Iterator<HostConfig> iter = servers.iterator();
         int index = 0;
         String prevServer = loginData.getServer();
         for (int i = 0; iter.hasNext() && i < names.length; i++) {
@@ -264,11 +259,11 @@ public class LoginDialog extends Dialog {
         comp.setLayoutData(gd);
 
         // TODO: Default to previous settings
-        SiteConfigInformation information = SiteConfigurationManager
-                .getSiteConfigInformation();
+        Collection<SiteConfig> configs = SiteConfigurationManager
+                .getSiteConfigs();
         List<String> sites = new ArrayList<String>();
         final Map<String, String[]> roles = new HashMap<String, String[]>();
-        for (SiteConfig conf : information.getConfig()) {
+        for (SiteConfig conf : configs) {
             sites.add(conf.getSite());
             roles.put(conf.getSite(), conf.getRoles());
         }
@@ -387,7 +382,6 @@ public class LoginDialog extends Dialog {
         cancelButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                SiteConfigurationManager.nullifySiteConfigInstance();
                 shell.dispose();
             }
         });
