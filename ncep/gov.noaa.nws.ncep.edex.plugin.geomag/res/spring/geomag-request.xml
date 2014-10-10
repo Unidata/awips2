@@ -61,4 +61,28 @@
             value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.RetrieveSingleK1minRequest" />
         <constructor-arg ref="RetrieveSingleK1minHandler" />
     </bean>
+    
+     <bean id="RetrieveStationStateRequestHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.geomag.handler.RetrieveStationStateRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.RetrieveStationStateRequest" />
+        <constructor-arg ref="RetrieveStationStateRequestHandler" />
+    </bean>
+    
+    <bean id="ChangeStationStateRequestHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.geomag.handler.ChangeStationStateRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.ChangeStationStateRequest" />
+        <constructor-arg ref="ChangeStationStateRequestHandler" />
+    </bean>
+    
+     <bean id="RetrieveGeoMagDataRequestHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.geomag.handler.RetrieveGeoMagDataRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.RetrieveGeoMagDataRequest" />
+        <constructor-arg ref="RetrieveGeoMagDataRequestHandler" />
+    </bean>
 </beans>
