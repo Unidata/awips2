@@ -31,11 +31,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
-import com.raytheon.uf.viz.collaboration.ui.session.SubscribeList;
+import com.raytheon.uf.viz.collaboration.ui.session.SiteChangeEvent;
 
 /**
  * Change the site for the logged in user
@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.SubscribeList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 5, 2012            bsteffen     Initial creation
+ * Oct 10, 2014 3708       bclement    added SiteChangeEvent
  * 
  * </pre>
  * 
@@ -91,11 +92,8 @@ public class ChangeSiteAction extends Action {
 
         Presence presence = connection.getPresence();
         presence.setProperty(SiteConfigInformation.SITE_NAME, site);
-        // now need to send the new subscribe list out to those who are
-        // listening for it
-        SubscribeList list = new SubscribeList();
-        list.setEnabledSites(SiteConfigurationManager.getSubscribeList(site));
-        connection.postEvent(list);
+        /* now need to send the new site out to those who are listening for it */
+        connection.postEvent(new SiteChangeEvent(site));
 
         try {
             connection.getAccountManager().sendPresence(presence);
@@ -129,9 +127,7 @@ public class ChangeSiteAction extends Action {
         }
 
         private void fill() {
-            SiteConfigInformation siteInfo = SiteConfigurationManager
-                    .getSiteConfigInformation();
-            for (SiteConfig config : siteInfo.getConfig()) {
+            for (SiteConfig config : SiteConfigurationManager.getSiteConfigs()) {
                 Action action = new ChangeSiteAction(config.getSite());
                 IContributionItem contrib = new ActionContributionItem(action);
                 contrib.fill(menu, -1);
