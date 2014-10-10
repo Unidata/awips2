@@ -72,6 +72,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *    11/21/13       #1066     Greg Hull   save off Native gridGeometries during clone()
  *    10/29/13       #2491     bsteffen    Use custom JAXB context instead of SerializationUtil.
  *    05/15/2014     #1131     Quan Zhou   Added GRAPH_DISPLAY.
+ *    05/24/14       R4078     S. Gurung   Added NMAP_RTKP_WORLD_DISPLAY in getDefaultRBD().
+ * 
  * </pre>
  * 
  * @author ghull
@@ -583,6 +585,11 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
             dfltRbdName = null;
             return AbstractRBD.createEmptyRbdForDisplayType(displayType,
                     new NcPaneLayout(1, 1));
+
+        case NMAP_RTKP_WORLD_DISPLAY:
+            dfltRbdName = NcPathConstants.DFLT_RTKP_RBD;
+            break;
+
         default:
             throw new VizException("Unable to find the default RBD name for "
                     + displayType.toString());

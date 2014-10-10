@@ -894,7 +894,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
                     // if the needed param is not set in the resource defn or is
                     // set to empty
                     String paramValue = paramValues.get(implPrm);
-
+                    
                     if (paramValue == null || paramValue.isEmpty()) {
 
                         // paramValue = dfltParamValues.get( implPrm );
@@ -1813,8 +1813,11 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
                                             + subTypeGenerator);
                         }
                     } else if (getResourceCategory() == ResourceCategory.GraphRscCategory) {
-                        GeoMagRecord magRec = (GeoMagRecord) pdo;
-                        subType = magRec.getStationCode();
+
+                        if (pdo instanceof GeoMagRecord) {
+                            GeoMagRecord magRec = (GeoMagRecord) pdo;
+                            subType = magRec.getStationCode();
+                        }
                     }
 
                     // doing this will cause the dataTime query to fail because
