@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  *  02/10/13      #972        Greg Hull   Created
+ *  05/14/14      R4078      S. Gurung    Added NMAP_RTKP_WORLD_DISPLAY (T1122)
  * 
  * </pre>
  * 
@@ -47,7 +48,13 @@ public enum NcDisplayType {
             "BasicWX_US", "OVERLAY/GeoPolitical/default", false),
 
     GRAPH_DISPLAY("GRAPH", "gov.noaa.nws.ncep.viz.ui.display.NCPaneManager",
-            "DefaultCanvas", "", true);
+            "DefaultCanvas", "", true),
+
+    // FOR GEOMAG RTKP WORLD ACTIVITY MAP
+    NMAP_RTKP_WORLD_DISPLAY("NC-MAP-GEOMAG",
+            "gov.noaa.nws.ncep.viz.ui.display.NCPaneManager", "World",
+            "OVERLAY/GeoPolitical/default", true);
+
     // NC_TIME_SERIES_DISPLAY,
     // NC_CROSS_SECTION_DISPLAY;
 
