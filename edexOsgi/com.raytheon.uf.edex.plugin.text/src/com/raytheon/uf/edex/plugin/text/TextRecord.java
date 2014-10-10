@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.text;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -30,7 +27,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * 
+ * A TextRecord is a PluginDataObject representation of a StdTextProduct. Used
+ * for notifications when following the dataURI pattern.
  * 
  * <pre>
  * 
@@ -42,6 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 12, 2014 2536       bclement    removed IDecoderGettable
+ * Oct 10, 2014 3549       njensen     Remove unnecessary Column annotations
  * 
  * </pre>
  * 
@@ -54,7 +53,6 @@ public class TextRecord extends PluginDataObject {
     private static final long serialVersionUID = 1L;
 
     // Correction indicator from wmo header
-    @Column
     @DataURI(position = 1)
     @DynamicSerializeElement
     @XmlElement
@@ -72,8 +70,6 @@ public class TextRecord extends PluginDataObject {
      * 
      * @param uri
      *            A data uri applicable to this class.
-     * @param tableDef
-     *            The table definitions for this class.
      */
     public TextRecord(String uri) {
         super(uri);
@@ -92,13 +88,6 @@ public class TextRecord extends PluginDataObject {
      */
     public void setProductId(String productId) {
         this.productId = productId;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override
