@@ -29,7 +29,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer           Description
  * ------------ ---------- ----------------   --------------------------
  * 08/14/2013   T989       qzhou              Initial creation.
- * 03/03/2014   #1110      qzhou              modified get/set
+ * 03/03/2014   #1110      qzhou              modified get/set 
+ * 04/05/2014   R4078      sgurung            Added method match().
+ * 
  * </pre>
  * 
  * @author qzhou
@@ -364,5 +366,15 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
 
     public void setStationCode(String stationCode) {
         this.stationCode = stationCode;
+    }
+
+    public boolean match(Date refTime, String stationCode) {
+        if (this.refTime.compareTo(refTime) == 0
+                && this.stationCode.equals(stationCode)) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 }

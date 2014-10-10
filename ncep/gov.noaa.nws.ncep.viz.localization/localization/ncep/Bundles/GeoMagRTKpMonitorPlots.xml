@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle editor="com.raytheon.uf.viz.xy.timeseries.TimeSeriesEditor">
+	<displayList>
+        <displays xsi:type="timeSeriesRenderableDisplay" density="1.0" magnification="1.0" tabTitle="Real-time Kp Monitor" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="geoMagRTKpDescriptor">  
+             <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE" isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="graphResourceData" name="Time series background" overlayMode="OVERLAY"/>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="cyan"/>
+                            <capability xsi:type="displayTypeCapability" displayType="STREAMLINE"/>
+                            <!-- <capability xsi:type="kpPlotCapability" textSize="14" textFont="Times" textStyle="Bold" pointSize="1.75" pointStyle="POINT" >
+                                <textColor>RGB {255, 255, 255}</textColor> 
+                                <plotColor>RGB {0, 238, 238}</plotColor>
+                            </capability>   -->                           
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="UNKNOWN" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="geoMagRTKpResourceData" levelKey="" source="Kp" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" plotLengthInHours="12">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="geomag" constraintType="EQUALS"/>
+                            </mapping>                            
+                        </metadataMap>
+                        <yParameter>
+                            <code></code>
+                            <name>Real-time K-index</name>
+                        </yParameter>
+                        <xParameter>
+                            <code>time</code>
+                            <name>Universal Time</name>
+                        </xParameter>
+                    </resourceData>
+                </resource>
+              <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE" isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="graphResourceData" name="Time series background2" overlayMode="OVERLAY"/>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+                            <capability xsi:type="displayTypeCapability" displayType="STREAMLINE"/>
+                            <!--  <capability xsi:type="ksPlotCapability" textSize="14" textFont="Times" textStyle="Bold" pointSize="1.75" pointStyle="POINT" >
+                                <textColor>RGB {255, 255, 255}</textColor> 
+                                <plotColorStn0>RGB {0, 0, 0}</plotColorStn0>
+                                <plotColorStn1>RGB {0, 255, 0}</plotColorStn1>
+                                <plotColorStn2>RGB {78, 146, 88}</plotColorStn2>
+                                <plotColorStn3>RGB {255, 255, 0}</plotColorStn3>
+                                <plotColorStn4>RGB {255, 136, 0}</plotColorStn4>
+                                <plotColorStn5>RGB {255, 0, 0}</plotColorStn5>
+                                <plotColorStn6>RGB {136, 136, 136}</plotColorStn6>
+                                <plotColorStn7>RGB {68, 68, 68}</plotColorStn7>                                
+                                <plotColorStn8>RGB {255, 255, 255}</plotColorStn8>
+                            </capability>  -->
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="UNKNOWN" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="geoMagRTKpResourceData" levelKey="" source="Ks" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" plotLengthInHours="12">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="geomag" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <yParameter>
+                            <code></code>
+                            <name>Real-time K-index</name>
+                        </yParameter>
+                        <xParameter>
+                            <code>time</code>
+                            <name>Universal Time</name>
+                        </xParameter>
+                    </resourceData>
+                </resource>  
+                 
+               
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <numberOfFrames>4320</numberOfFrames>
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
+            </descriptor>
+        </displays>
+	</displayList>
+</bundle>

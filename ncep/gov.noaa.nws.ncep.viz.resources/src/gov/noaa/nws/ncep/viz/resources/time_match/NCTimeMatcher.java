@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 05/14/14       1131     Quan Zhou    Added graphRange and hourSnap.  MouModified generateTimeline
  * 07/11/14       TTR1032  J. Wu        No timeline needed if no data times available.
  * 07/28/14       TTR1034+ J. Wu        Build timeline only from available datatimes..
+ * 07/29/14       R4078    s. Gurung    Commented out code that sets numFrames=1 for graph/timeseries display
  * 
  * </pre>
  * 
@@ -584,9 +585,11 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             /*
              * For graph display, numFrames = 1
              */
-            if (this.getDominantResourceName().getRscCategory()
-                    .getCategoryName().equals("TIMESERIES"))
-                numFrames = 1;
+            /*
+             */
+            // if (this.getDominantResourceName().getRscCategory()
+            // .getCategoryName().equals("TIMESERIES"))
+            // numFrames = 1;
 
             for (skipCount = 0; skipCount < selectableDataTimes.size(); skipCount++) {
                 if (skipCount % (skipValue + 1) == 0) {
@@ -1268,9 +1271,9 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
                 /*
                  * For graph display, numFrames = 1
                  */
-                if (this.getDominantResourceName().getRscCategory()
-                        .getCategoryName().equals("TIMESERIES"))
-                    numFrames = 1;
+                // if (this.getDominantResourceName().getRscCategory()
+                // .getCategoryName().equals("TIMESERIES"))
+                // numFrames = 1;
 
                 for (skipCount = 0; skipCount < selectableDataTimes.size(); skipCount++) {
                     if (skipCount % (skipValue + 1) == 0) {
