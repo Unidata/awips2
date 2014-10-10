@@ -31,8 +31,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
 
@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 5, 2012            bsteffen     Initial creation
+ * Oct 10, 2014 3708       bclement    SiteConfigurationManager changes
  * 
  * </pre>
  * 
@@ -122,13 +123,11 @@ public class ChangeRoleAction extends Action {
         }
 
         private void fill() {
-            SiteConfigInformation siteInfo = SiteConfigurationManager
-                    .getSiteConfigInformation();
             Presence presence = CollaborationConnection.getConnection()
                     .getPresence();
             String currentSite = (String) presence
                     .getProperty(SiteConfigInformation.SITE_NAME);
-            for (SiteConfig config : siteInfo.getConfig()) {
+            for (SiteConfig config : SiteConfigurationManager.getSiteConfigs()) {
                 if (config.getSite().equals(currentSite)) {
                     for (String role : config.getRoles()) {
                         Action action = new ChangeRoleAction(role);
