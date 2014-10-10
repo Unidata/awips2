@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants.HandleOpti
  * Jan 14, 2014 2630       bclement     added away on idle
  * Jan 27, 2014 2700       bclement     added auto accept subscribe
  * Feb  3, 2014 2699       bclement     added handle preferences
+ * Oct  9, 2014 3711       mapeters     added chat lines preferences
  * 
  * </pre>
  * 
@@ -83,9 +84,15 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
      */
     @Override
     protected void createFieldEditors() {
+        FieldEditor chatLines = new BooleanFieldEditor("chatLines",
+                "Display Chat Messages On Separate Line From Time And Name",
+                getFieldEditorParent());
+        this.addField(chatLines);
+
         FieldEditor notifications = new BooleanFieldEditor("notifications",
-                "Show Notifications", getFieldEditorParent());
+                "Show Chat Notification Popups", getFieldEditorParent());
         this.addField(notifications);
+
         FieldEditor autojoinColl = new BooleanFieldEditor(
                 CollabPrefConstants.AUTO_JOIN, "Join Discussion On Login",
                 getFieldEditorParent());
