@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/17/2014    923         S. Russell   altered method setUpSymbolMappingTables()
  * 06/17/2014    923         S. Russell   altered method createRenderableData()
  * 07/08/2014    TTR1027     B. Hebbard   Force createRenderableData to recreate wind vectors each time.
+ * 09/10/2014    Redmine 4230 S. Russell   Fix wind barb/brbk menu option in plot model dialog box
  */
 
 public class NcPlotImageCreator {
@@ -249,7 +250,7 @@ public class NcPlotImageCreator {
 
     IFont prevFont;
 
-    public static enum Position { // TODO: Explain each?
+    public static enum Position {
         TC, UL, UC, UR, ML, MC, MR, LL, LC, LR, BC, SC, WD, INVALID
 
     }
@@ -285,7 +286,6 @@ public class NcPlotImageCreator {
 
         setUpPlotPositionToPlotModelElementMapping(plotModel);
         setUpSymbolMappingTables();
-
         plotDensity = initialDensity;
         initializeFonts();
         Tracer.print("< Exit");
@@ -508,6 +508,15 @@ public class NcPlotImageCreator {
                     // Redmine 4230
                     // NcPlotImageCreator will not process BRBK unless it has
                     // the abstract ( not on the grid of plot model buttons )
+                    // position "WD"
+                    if (pme.getParamName().equalsIgnoreCase("BRBK")) {
+                        pme.setPosition("WD");
+                    }
+
+
+                    // Redmine 4230
+                    // NcPlotImageCreator will not process BRBK unless it has
+                    // the abstract ( not on thcae grid of plot model buttons )
                     // position "WD"
                     if (pme.getParamName().equalsIgnoreCase("BRBK")) {
                         pme.setPosition("WD");
@@ -2265,10 +2274,15 @@ public class NcPlotImageCreator {
                                         if (symbolPatternName == null
                                                 || symbolPatternName.isEmpty()) {
                                             continue;
+                                        } else {
+                                            // Redmine 4230
+                                            symbolPatternName = symbolPatternName
+                                                    .trim();
                                         }
 
                                         Symbol symbol = symbolNameToSymbolMap
                                                 .get(symbolPatternName);
+
                                         RGB rgb = null;
                                         /*
                                          * Get the conditional color for the
@@ -2557,7 +2571,6 @@ public class NcPlotImageCreator {
             DrawableString drawableString = null;
             String metParamName = plotParamDefn.getMetParamName();
             Semaphore sm = new Semaphore(1);
-            String PTNDSign = null;
 
             synchronized (station.listOfParamsToPlot) {
                 sm.acquireUninterruptibly();
@@ -2568,12 +2581,14 @@ public class NcPlotImageCreator {
                     }
 
                     for (AbstractMetParameter metParamToPlot : station.listOfParamsToPlot) {
+
                         if (metParamToPlot.getMetParamName().compareTo(
                                 metParamName) == 0) {
 
                             try {
                                 String formattedString = getFormattedValueToPlot(
                                         plotParamDefn, metParamToPlot);
+
                                 if (formattedString == null) {
                                     return null;
                                 }
