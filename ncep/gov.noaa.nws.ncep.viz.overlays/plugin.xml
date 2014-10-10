@@ -37,6 +37,11 @@
             name="DbOverlay"
             renderingOrderId="MAP_OUTLINE">
       </resource>
+       <resource
+            class="gov.noaa.nws.ncep.viz.overlays.resources.DayNightTerminatorOverlayResource"
+            name="DayNightTerminatorOverlay"
+            renderingOrderId="MAP_OUTLINE">
+      </resource>
    </extension>
    <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
@@ -69,6 +74,11 @@
             class="gov.noaa.nws.ncep.viz.overlays.resources.PointOverlayResourceData"
             editDialogClass="gov.noaa.nws.ncep.viz.overlays.dialogs.PointOverlayAttributesDialog"
             name="PointOverlay">
+      </nc-resource>
+       <nc-resource
+            class="gov.noaa.nws.ncep.viz.overlays.resources.DayNightTerminatorOverlayResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.overlays.dialogs.ChangeDayNightTerminatorAttributesDialog"
+            name="DayNightTerminatorOverlay">
       </nc-resource>
    </extension>
    <extension
@@ -377,7 +387,128 @@
             paramName="mapName"
             paramType="IMPLEMENTATION_PARAM"
             ncResourceName="PointOverlay">
+      </nc-resourceParameter>    
+ 
+ <!-- The Resource for displaying Day/Night Terminator overlay -->     
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="termLineColor"
+            defaultValue="RGB {0, 0, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
       </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="termLineWidth"
+            defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="LineStyle"
+            paramName="termLineStyle"
+            defaultValue="SOLID"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="RGB"
+            paramName="sunMarkerColor"
+            defaultValue="RGB {255, 165, 79}"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="MarkerType"
+            paramName="sunMarkerType"
+            defaultValue="ASTERISK"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="sunMarkerSize"
+            defaultValue="1.3f"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="sunMarkerWidth"
+            defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>  
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="midnightMeridianLineColor"
+            defaultValue="RGB {127, 127, 127}"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="midnightMeridianLineWidth"
+            defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="LineStyle"
+            paramName="midnightMeridianLineStyle"
+            defaultValue="SHORT_DASHED"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="dayShadeColor"
+            defaultValue="RGB {255, 165, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>        
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="nightShadeColor"
+            defaultValue="RGB {30, 30, 163}"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>    
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="shadeAlpha"
+            defaultValue="0.5f"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="shadePattern"
+            defaultValue="SOLID"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="displaySun"
+            defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>          
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="applyShading"
+            defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>              
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="displayMidnightMeridian"
+            defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="DayNightTerminatorOverlay">
+      </nc-resourceParameter>  
    </extension>
        
    <extension

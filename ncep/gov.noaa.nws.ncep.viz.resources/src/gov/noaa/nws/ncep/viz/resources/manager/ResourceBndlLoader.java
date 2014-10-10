@@ -68,7 +68,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 02/01/13     #972        Greg Hull     RbdBundleEditorWrapper doesn't need to be a generic
  * 02/12/13     #972        Greg Hull     NcDisplayType and NatlCntrsEditor
  * 11/26/13     #1078       Greg Hull     Size Of Image fix (PixelExtent constructor)
- * 
+ * 04/24/14     #1122       S. Gurung     Modified method addDefaultRBD()to support any NcDisplayType(s).
+ *                                        Zoom slightly for graph displays.
  * </pre>
  * 
  * @version 1
@@ -118,7 +119,7 @@ public class ResourceBndlLoader implements Runnable { // extends Job {
 
     public void addDefaultRBD(NcDisplayType dt, AbstractEditor theEditor)
             throws VizException {
-        AbstractRBD<?> rbd = NcMapRBD.getDefaultRBD(NcDisplayType.NMAP_DISPLAY);
+        AbstractRBD<?> rbd = NcMapRBD.getDefaultRBD(dt); // NcMapRBD.getDefaultRBD(NcDisplayType.NMAP_DISPLAY);
 
         rbd.resolveLatestCycleTimes(); // shouldn't be needed but just in case
         seldRBDs.add(new RbdBundleEditorWrapper(rbd, theEditor, false));
@@ -272,6 +273,12 @@ public class ResourceBndlLoader implements Runnable { // extends Job {
 
                     if (seldPane == null) {
                         seldPane = displayPane;
+                    }
+
+                    if (rbdBndl.getPaneLayout().getNumberOfPanes() > 1
+                            && NcDisplayType.GRAPH_DISPLAY.equals(rbdBndl
+                                    .getDisplayType())) {
+                        displayPane.zoom(7);
                     }
 
                     // if the editor was just created and there was an error,
