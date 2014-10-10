@@ -94,6 +94,20 @@
             defaultValue="RGB {200, 200, 200}"
             paramType="IMPLEMENTATION_PARAM">
       </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="Boolean"
+            paramName="showReadoutView"
+            defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>
+       <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="Boolean"
+            paramName="showKTableView"
+            defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>
    </extension>
    
    <extension
@@ -124,14 +138,14 @@
            <view 
             category="gov.noaa.nws.ncep.viz.ui.nmap"
             allowMultiple="false"
-            restorable="true"
+            restorable="false"
             class="gov.noaa.nws.ncep.viz.rsc.timeseries.view.KTableView"
             id="gov.noaa.nws.ncep.viz.rsc.timeseries.view.KTableView"
             name="K-Index and Gamma values in the synoptic periods"/>
             <view 
             category="gov.noaa.nws.ncep.viz.ui.nmap"
             allowMultiple="false"
-            restorable="true"
+            restorable="false"
             class="gov.noaa.nws.ncep.viz.rsc.timeseries.view.SamplingView"
             id="gov.noaa.nws.ncep.viz.rsc.timeseries.view.SamplingView"
             name="Readout"/>

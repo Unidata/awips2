@@ -167,6 +167,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *                                       Modified creating new timelineControl in const and updateGUI
  * 08/14/2014		?		 B. Yin		 Added power legend (resource group) support.
  * 09/092014		?		 B. Yin		 Fixed NumPad enter issue and the "ResetToDefault" issue for groups. 
+ * 07/28/2014     R4079      sgurung     Fixed the issue related to CreateRbd dialog size (bigger than usual).
+ *                                       Also, added code to set geosync to true for graphs.
  * </pre>
  * 
  * @author ghull
@@ -379,9 +381,6 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                     @Override
                     public void dominantResourceChanged(
                             AbstractNatlCntrsRequestableResourceData newDomRsc) {
-                        // System.out.println("**createRbd "
-                        // + rbdMngr.isAutoUpdate() + " "
-                        // + newDomRsc.isAutoUpdateable());
                         if (newDomRsc == null) {
                             auto_update_btn.setSelection(rbdMngr.isAutoUpdate());
                             auto_update_btn.setEnabled(false);
@@ -390,6 +389,11 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                             // auto_update_btn.setSelection(
                             // rbdMngr.isAutoUpdate() );
                             auto_update_btn.setSelection(true);
+                            if (rbdMngr.getRbdType().equals(
+                                    NcDisplayType.GRAPH_DISPLAY)) {
+                                geo_sync_panes.setSelection(true);
+                                rbdMngr.syncPanesToArea();
+                            }
                         } else {
                             auto_update_btn.setSelection(false);
                             auto_update_btn.setEnabled(false);
@@ -882,7 +886,8 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
             @Override
             public void keyPressed(KeyEvent ke) {
                 Text txt = (Text) ke.widget;
-                if ((ke.keyCode == SWT.CR || ke.keyCode == SWT.KEYPAD_CR) && !txt.getText().isEmpty()) {
+                if ((ke.keyCode == SWT.CR || ke.keyCode == SWT.KEYPAD_CR)
+                        && !txt.getText().isEmpty()) {
 
                     if (txt.getText().equalsIgnoreCase(ungrpStr)) {
                         curGrp = -1;
@@ -2464,6 +2469,45 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
         updateAreaGUI();
 
+        // create new GraphTimelineControl if loading a Graph Display
+        timelineControl.dispose();
+        if (rbdMngr.getRbdType().equals(NcDisplayType.GRAPH_DISPLAY)) {
+
+            timelineControl = (GraphTimelineControl) new GraphTimelineControl(
+                    timeline_grp);
+        } else {
+            timelineControl = new TimelineControl(timeline_grp);
+        }
+
+        timelineControl
+                .addDominantResourceChangedListener(new IDominantResourceChangedListener() {
+                    @Override
+                    public void dominantResourceChanged(
+                            AbstractNatlCntrsRequestableResourceData newDomRsc) {
+                        if (newDomRsc == null) {
+                            auto_update_btn.setSelection(rbdMngr.isAutoUpdate());
+                            auto_update_btn.setEnabled(false);
+                        } else if (newDomRsc.isAutoUpdateable()) {
+                            auto_update_btn.setEnabled(true);
+                            auto_update_btn.setSelection(true);
+                            // auto_update_btn.setSelection(
+                            // rbdMngr.isAutoUpdate() );top_comp
+                            if (rbdMngr.getRbdType().equals(
+                                    NcDisplayType.GRAPH_DISPLAY)) {
+                                geo_sync_panes.setSelection(true);
+                                rbdMngr.syncPanesToArea();
+                            }
+                        } else {
+                            auto_update_btn.setSelection(false);
+                            auto_update_btn.setEnabled(false);
+                        }
+                    }
+                });
+
+        timeline_grp.pack();
+        shell.pack();
+        shell.setSize(initDlgSize);
+
         geo_sync_panes.setSelection(rbdMngr.isGeoSyncPanes());
         multi_pane_tog.setSelection(rbdMngr.isMultiPane());
 
@@ -2478,41 +2522,6 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         selectPane(rbdMngr.getSelectedPaneId());
 
         // timelineControl.clearTimeline();
-
-        // create new timelineControl if is Graph
-        timelineControl.dispose();
-
-        if (rbdMngr.getRbdType().equals(NcDisplayType.GRAPH_DISPLAY))
-
-            timelineControl = (GraphTimelineControl) new GraphTimelineControl(
-                    timeline_grp);
-        else
-            timelineControl = new TimelineControl(timeline_grp);
-
-        timelineControl
-                .addDominantResourceChangedListener(new IDominantResourceChangedListener() {
-                    @Override
-                    public void dominantResourceChanged(
-                            AbstractNatlCntrsRequestableResourceData newDomRsc) {
-                        // System.out.println("**createRbd2 "
-                        // + rbdMngr.isAutoUpdate() + " "
-                        // + newDomRsc.isAutoUpdateable());
-                        if (newDomRsc == null) {
-                            auto_update_btn.setSelection(rbdMngr.isAutoUpdate());
-                            auto_update_btn.setEnabled(false);
-                        } else if (newDomRsc.isAutoUpdateable()) {
-                            auto_update_btn.setEnabled(true);
-                            // auto_update_btn.setSelection(
-                            // rbdMngr.isAutoUpdate() );top_comp
-                            auto_update_btn.setSelection(true);
-                        } else {
-                            auto_update_btn.setSelection(false);
-                            auto_update_btn.setEnabled(false);
-                        }
-                    }
-                });
-
-        // timelineControl.setTimeMatcher(new NCTimeMatcher());
 
         INcPaneLayout paneLayout = rbdMngr.getPaneLayout();
 
@@ -2571,7 +2580,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
             auto_update_btn.setEnabled(false);
         }
 
-        shell.pack();
+        // shell.pack();
     }
 
     // TODO : we could have the pane buttons indicate whether
