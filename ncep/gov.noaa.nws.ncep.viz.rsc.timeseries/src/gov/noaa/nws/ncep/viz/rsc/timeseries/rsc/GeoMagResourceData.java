@@ -50,6 +50,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06/24/2014   #1136       qzhou      Initial creation
+ * 07/28/2014   R4079       sgurung    Added showReadoutView and showKTableView
+ * 
  * 
  * </pre>
  * 
@@ -86,6 +88,12 @@ public class GeoMagResourceData extends
 
     @XmlElement
     private Coordinate coordinate;
+
+    @XmlElement
+    private boolean showReadoutView;
+
+    @XmlElement
+    private boolean showKTableView;
 
     protected DataTime startTime;
 
@@ -265,4 +273,21 @@ public class GeoMagResourceData extends
     public String getPointLetter() {
         return null;
     }
+
+    public boolean getShowReadoutView() {
+        return showReadoutView;
+    }
+
+    public void setShowReadoutView(boolean showReadoutView) {
+        this.showReadoutView = showReadoutView;
+    }
+
+    public boolean getShowKTableView() {
+        return showKTableView;
+    }
+
+    public void setShowKTableView(boolean showKTableView) {
+        this.showKTableView = showKTableView;
+    }
+
 }

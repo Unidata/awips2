@@ -23,7 +23,6 @@ import java.util.Map;
  * -----------  ----------  ---------- --------------------------
  * 05/14/2013   #989        qzhou      Initial Creation
  * 06/23/2014   R4152       qzhou      Touched up 3 functions
- * 07/22/2014   R4152       qzhou      Fixed getMedian. This func. is uesd very rare if ever
  * </pre>
  * 
  * @author qzhou
@@ -535,10 +534,11 @@ public class CalcUtil {
 
         // remove missing data
         List<Float> newArray = new ArrayList<Float>();
-        for (int k = 0; k < arraySort.length; k++) {
+        for (int k = 0; k < arraySort.length - 1; k++)
             if (arraySort[k] != MISSING_VAL)
                 newArray.add(arraySort[k]);
-        }
+            else
+                break; // to sorted arraySort
 
         int size = newArray.size();
         if (size % 2 == 0)
