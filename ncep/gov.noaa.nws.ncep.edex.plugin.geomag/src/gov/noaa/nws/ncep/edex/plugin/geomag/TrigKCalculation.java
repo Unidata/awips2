@@ -12,6 +12,7 @@ import gov.noaa.nws.ncep.common.dataplugin.geomag.dao.GeoMagAvgDao;
 import gov.noaa.nws.ncep.common.dataplugin.geomag.dao.GeoMagDao;
 import gov.noaa.nws.ncep.common.dataplugin.geomag.dao.GeoMagK1minDao;
 import gov.noaa.nws.ncep.common.dataplugin.geomag.dao.GeoMagK3hrDao;
+import gov.noaa.nws.ncep.common.dataplugin.geomag.dao.GeoMagK3hrStateDao;
 import gov.noaa.nws.ncep.common.dataplugin.geomag.request.DatabaseUtil;
 
 import java.io.FileNotFoundException;
@@ -44,6 +45,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 06/07/2013   #989        qzhou       Initial Creation, event driven
  * 03/18/2014   #1123       qzhou       Move some functions to common. Modified FillAvgTimeGap in the moved functions
  * 06/26/2014   #1136       qzhou       Calculate hourly average when min>=55 instead of min=59
+ * 07/16/2014   R4078       sgurung     Modified method calcK3hr() to add states when a k3hr record is inserted
+ * 
  * </pre>
  * 
  * @author qzhou
@@ -465,7 +468,7 @@ public class TrigKCalculation {
                 // int h = d.getHours();
                 // int m = d.getMinutes();
                 // if (h == 10 && m == 41) { // && day == 14
-                // System.out.println("**dataURI " + dataURI);
+                // System.out.println("***********dataURI " + dataURI);
                 // teststr = dataURI;
                 // }
                 // } catch (ParseException e1) {
@@ -531,11 +534,12 @@ public class TrigKCalculation {
                     float[] qdaQdc = CalcEach1min.getQHAQDC(dQdc);
                     // test hQdc
                     // if (!teststr.equals("")) {
-                    // System.out.println("\n**qhaQdc length " + teststr);
+                    // System.out.println("\n**qhaQdctest2 length "
+                    // + qhaQdc.length);
                     // for (int i = 0; i < qhaQdc.length; i++)
                     // System.out.print((float) qhaQdc[i] + "  ");
-                    // System.out
-                    // .println("\n**qdaQdc length " + qdaQdc.length);
+                    // System.out.println("\n**qdaQdctest2 length "
+                    // + qdaQdc.length);
                     // for (int i = 0; i < qdaQdc.length; i++)
                     // System.out.print((float) qdaQdc[i] + "  ");
                     // teststr = "";
@@ -908,6 +912,11 @@ public class TrigKCalculation {
 
             GeoMagK3hrDao k3hrDao = new GeoMagK3hrDao();
             k3hrDao.persist(recK3hr);
+
+            if (recK3hr.getId() != null) {
+                GeoMagK3hrStateDao k3hrStateDao = new GeoMagK3hrStateDao();
+                k3hrStateDao.updateStates(recK3hr.getId(), stationCode, epTime);
+            }
         }
 
         else {
@@ -980,6 +989,11 @@ public class TrigKCalculation {
 
             GeoMagK3hrDao k3hrDao = new GeoMagK3hrDao();
             k3hrDao.persist(recK3hr);
+
+            if (recK3hr.getId() != null) {
+                GeoMagK3hrStateDao k3hrStateDao = new GeoMagK3hrStateDao();
+                k3hrStateDao.updateStates(recK3hr.getId(), stationCode, epTime);
+            }
         }
 
     }
