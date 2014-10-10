@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.common.dataplugin.geomag.util;
 
 import gov.noaa.nws.ncep.common.dataplugin.geomag.exception.GeoMagException;
+
 import java.io.File;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -8,13 +9,15 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
 /**
- *  TableTimeStamp - A Java class to update geoMagStations.xml.
- *
+ * TableTimeStamp - A Java class to update geoMagStations.xml.
+ * 
+ * <pre>
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 04/2013  	975		   S. Gurung   Initial creation
+ * 04/2013      975        S. Gurung   Initial creation
+ * 06/2014      R4078      S. Gurung   Added support for site level geoMagStations.xml file
  * 
  * </pre>
  * 
@@ -34,32 +37,55 @@ public class TableTimeStamp {
         long geoMagStationFileTime = 0;
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
+
         LocalizationContext commonStaticBase = pathMgr.getContext(
                 LocalizationContext.LocalizationType.COMMON_STATIC,
                 LocalizationContext.LocalizationLevel.BASE);
 
+        LocalizationContext commonStaticSite = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
+                LocalizationContext.LocalizationLevel.SITE);
+
         /* check geoMagStations.xml file */
-        String path = "";
+        String basePath = "";
+        String sitePath = "";
 
         try {
-        	path = pathMgr.getFile(commonStaticBase,
-            		"ncep" + File.separator + "geomag" + File.separator + "geoMagStations.xml")
-            		.getCanonicalPath();
+            basePath = pathMgr.getFile(
+                    commonStaticBase,
+                    "ncep" + File.separator + "geomag" + File.separator
+                            + "geoMagStations.xml").getCanonicalPath();
+
+            sitePath = pathMgr.getFile(
+                    commonStaticSite,
+                    "ncep" + File.separator + "geomag" + File.separator
+                            + "geoMagStations.xml").getCanonicalPath();
 
         } catch (Exception e) {
             throw new GeoMagException(
                     "Unable to unmarshal geoMagStations.xml file");
         }
 
-        File stnsTable = new File(path);
+        File stnsTableBase = new File(basePath);
+        File stnsTableSite = new File(sitePath);
         try {
-            if (stnsTable.exists()) {
-                geoMagStationFileTime = stnsTable.lastModified();
+            if (stnsTableSite.exists()) {
+                geoMagStationFileTime = stnsTableSite.lastModified();
                 if (geoMagStationFileTime != getGeoMagStationsTimeStamp()) {
                     System.out
-                            .println("geoMagStations.xml has been modified or the first time, so load it ...");
+                            .println("Site level geoMagStations.xml has been modified or the first time, so load it ...");
                     GeoMagStationLookup.ReloadInstance();
                     setGeoMagStationsTimeStamp(geoMagStationFileTime);
+                }
+            } else {
+                if (stnsTableBase.exists()) {
+                    geoMagStationFileTime = stnsTableBase.lastModified();
+                    if (geoMagStationFileTime != getGeoMagStationsTimeStamp()) {
+                        System.out
+                                .println("Base level geoMagStations.xml has been modified or the first time, so load it ...");
+                        GeoMagStationLookup.ReloadInstance();
+                        setGeoMagStationsTimeStamp(geoMagStationFileTime);
+                    }
                 }
             }
         } catch (Exception e) {
