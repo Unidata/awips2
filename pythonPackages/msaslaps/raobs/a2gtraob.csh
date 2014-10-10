@@ -33,12 +33,13 @@
 #  cleaning it up.  The path to the finalized python is /tmp/a2gtraobNNNNN.py
 #  where NNNNN is a unix process id.
 #
-#    
+#
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    Oct 10, 2014    3595          nabowle        Initial modification. Fix sed call.
+#    Oct 10, 2014    3595          nabowle        Handle DAF version.
 #
 set rmpy = yes
 if ( "$1" == "p" ) then
@@ -74,12 +75,22 @@ if ( $?FXA_HOME ) then
         set stubpy = $FXA_HOME/bin/${stubbase}
     endif
 endif
+
+set staInf = $PWD/wmoToNameRaob.txt
+if ( $?FXA_HOME ) then
+    if ( -e $FXA_HOME/data/wmoToNameRaob.txt ) \
+        set staInf = $FXA_HOME/data/wmoToNameRaob.txt
+endif
+
 #
 # Determine if we are using the data access framework or the uEngine.
 #
 grep DataAccessLayer $stubpy >& /dev/null
 if ( $status == 0 ) then
-    set method = "daf"
+# Replace first field with station names substitutions in wmoToNameRaob.txt or
+# with what's stored in the database. They are similar but do not match 100%.
+    /awips2/python/bin/python $stubpy -b "$1 $2" -e "$3 $4" | sed -f $staInf
+#    /awips2/python/bin/python $stubpy -b "$1 $2" -e "$3 $4" --use-station-name
 else
     #
     # Set up the environment we need to run the UEngine.
@@ -98,24 +109,17 @@ else
         exit
     endif
     source $ueenv
-endif
-#
-set staInf = $PWD/wmoToNameRaob.txt
-if ( $?FXA_HOME ) then
-    if ( -e $FXA_HOME/data/wmoToNameRaob.txt ) \
-        set staInf = $FXA_HOME/data/wmoToNameRaob.txt
-endif
-set specpy = /tmp/a2gtraob${$}.py
-rm -rf $specpy >& /dev/null
-touch $specpy
-chmod 775 $specpy
-cat $stubpy | sed "s/BBBBB/$1 $2/g" | sed "s/EEEEE/$3 $4/g" > $specpy
-if ( "$method" == "daf" ) then
-     /awips2/python/bin/python $specpy
-else
+
+    set specpy = /tmp/a2gtraob${$}.py
+    rm -rf $specpy >& /dev/null
+    touch $specpy
+    chmod 775 $specpy
+    cat $stubpy | sed "s/BBBBB/$1 $2/g" | sed "s/EEEEE/$3 $4/g" > $specpy
+
     cd $UE_BIN_PATH
     ( uengine -r python < $specpy ) | grep -v '<' | sed -n '2,$p' | \
          sed -f $staInf
+
+    if ( "$rmpy" == "yes" ) rm -rf $specpy >& /dev/null
 endif
-if ( "$rmpy" == "yes" ) rm -rf $specpy >& /dev/null
-#
+
