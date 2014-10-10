@@ -36,6 +36,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.xy.graph.IGraph;
@@ -52,6 +53,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * ------------ ---------- ---------- --------------------------
  * 06/13/2014   #1136      qzhou      Initial creation
  *                                    Added functions to set it up.
+ * 07/28/2014   R4079      sgurung    Added new constructor
  * </pre>
  * 
  * @author qzhou
@@ -70,6 +72,41 @@ public class GeoMagDescriptor extends NCTimeSeriesDescriptor implements
 
     public GeoMagDescriptor(PixelExtent pixelExtent) {
         super(pixelExtent);
+    }
+
+    public GeoMagDescriptor(NCTimeSeriesDescriptor desc) throws VizException {
+        super();
+
+        List<ResourcePair> rlist = desc.getResourceList();
+        if (rlist != null) {
+            ResourcePair[] rp = rlist.toArray(new ResourcePair[rlist.size()]);
+            this.setSerializableResources(rp);
+        }
+
+        IRenderableDisplay rendDisp = desc.getRenderableDisplay();
+        if (!(rendDisp instanceof NCTimeSeriesRenderableDisplay)) {
+            throw new VizException("Error: Renderable display is not of type "
+                    + rendDisp.getClass().getName());
+        }
+
+        rendDisp.setDescriptor(desc);
+        this.setRenderableDisplay(rendDisp);
+
+        NCTimeMatcher tm = (NCTimeMatcher) desc.getTimeMatcher();
+
+        if (tm == null) {
+            tm = (NCTimeMatcher) desc.getRenderableDisplay().getDescriptor()
+                    .getTimeMatcher();
+        }
+
+        desc.setTimeMatcher(tm);
+
+        this.setAutoUpdate(true);
+        // this.setDataTimes(desc.getDataTimes());
+        this.setFramesInfo(desc.getFramesInfo());
+        this.setNumberOfFrames(desc.getNumberOfFrames());
+        this.setGridGeometry(desc.getGridGeometry());
+
     }
 
     /*
@@ -110,6 +147,24 @@ public class GeoMagDescriptor extends NCTimeSeriesDescriptor implements
 
     }
 
+    public void addDescriptor(NCTimeSeriesDescriptor desc,
+            IRenderableDisplay rendDisp) {
+
+        if (!(rendDisp instanceof NCTimeSeriesRenderableDisplay)) {
+            try {
+                throw new VizException(
+                        "Error: can't zoom to resource in the renderable display : "
+                                + rendDisp.getClass().getName());
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }
+
+        rendDisp.setDescriptor(desc);
+
+    }
+
     public void setResourcePair(GeoMagDescriptor desc, IDisplayPane pane) {
 
         List<ResourcePair> rlist = pane.getRenderableDisplay().getDescriptor()
@@ -123,12 +178,26 @@ public class GeoMagDescriptor extends NCTimeSeriesDescriptor implements
 
     }
 
+    public void setResourcePair(List<ResourcePair> rlist) {
+
+        if (rlist != null) {
+
+            ResourcePair[] rp = rlist.toArray(new ResourcePair[rlist.size()]);
+            this.setSerializableResources(rp);
+        }
+
+    }
+
     public void setNCTimeMatcher(GeoMagDescriptor desc, IDisplayPane pane) {
 
         NCTimeMatcher tm = (NCTimeMatcher) pane.getDescriptor()
                 .getTimeMatcher();
 
         desc.setTimeMatcher(tm);
+    }
+
+    public void setNCTimeMatcher(NCTimeMatcher tm) {
+        this.setTimeMatcher(tm);
     }
 
 }

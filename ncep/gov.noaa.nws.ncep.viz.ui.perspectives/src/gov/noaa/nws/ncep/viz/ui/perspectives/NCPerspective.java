@@ -20,6 +20,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * 03/2009      75          B. Hebbard  Bring forward from TO9; rename all NMAP-->NC
  * 09/27/2009   169         G. Hull     require NCMapEditor
  * 07/07/2014   R4079       Q. Zhou     Add timeseries view
+ * 05/05/2014   R4078       S. Gurung   Added place holder for RTKp related views
  * </pre>
  * 
  * @author
@@ -70,6 +71,12 @@ public class NCPerspective implements IPerspectiveFactory {
                 IPageLayout.BOTTOM, 0.75f, refId);
 
         layout.addActionSet("gov.noaa.nws.ncep.viz.ui.personalities.NCActionSet");
+
+        layout.addPlaceholder("gov.noaa.nws.ncep.viz.rtkp.GEOMAGRTKPDATABLOCK",
+                IPageLayout.BOTTOM, 0.60f, refId);
+
+        layout.addPlaceholder("gov.noaa.nws.ncep.viz.rtkp.GEOMAGRTKPRECENTKP",
+                IPageLayout.RIGHT, 0.75f, refId);
 
         long t5 = System.currentTimeMillis();
         // System.out.println("Time to add Action set:  " + (t5-t4) + " ms");
