@@ -1732,104 +1732,89 @@ jvalue convert_pyarg_jvalue(JNIEnv *env,
 jarray numpyToJavaArray(JNIEnv* env, PyObject *param, jclass desiredType)
 {
 	int sz;
+        enum NPY_TYPES paType;
 	jarray arr = NULL;
-	PyObject *nobj = NULL;
-	PyObject *nvalue = NULL;
-	PyArrayObject *pa = NULL;
-	int minDim = 0;
-	int maxDim = 0;
+	PyArrayObject *copy = NULL;
 	initNumpy();
+
+        // determine what we can about the pyarray that is to be converted
 	sz  = PyArray_Size(param);
+        paType = ((PyArrayObject *) param)->descr->type_num;
 
 	if(desiredType == NULL)
 	{
-		if(((PyArrayObject *) param)->descr->type_num == NPY_BOOL)
+		if(paType == NPY_BOOL)
 			desiredType = JBOOLEAN_ARRAY_TYPE;
-		else if(((PyArrayObject *) param)->descr->type_num == NPY_BYTE)
+		else if(paType == NPY_BYTE)
 			desiredType = JBYTE_ARRAY_TYPE;
-                else if(((PyArrayObject *) param)->descr->type_num == NPY_INT16)
+                else if(paType == NPY_INT16)
                         desiredType = JSHORT_ARRAY_TYPE;
-		else if(((PyArrayObject *) param)->descr->type_num == NPY_INT32)
+		else if(paType == NPY_INT32)
 			desiredType = JINT_ARRAY_TYPE;
-		else if(((PyArrayObject *) param)->descr->type_num == NPY_INT64)
+		else if(paType == NPY_INT64)
 			desiredType = JLONG_ARRAY_TYPE;
-		else if(((PyArrayObject *) param)->descr->type_num == NPY_FLOAT32)
+		else if(paType == NPY_FLOAT32)
 			desiredType = JFLOAT_ARRAY_TYPE;
-		else if(((PyArrayObject *) param)->descr->type_num == NPY_FLOAT64)
+		else if(paType == NPY_FLOAT64)
 			desiredType = JDOUBLE_ARRAY_TYPE;
 	}
 
 	if(desiredType != NULL)
 	{
-		if((*env)->IsSameObject(env, desiredType, JBOOLEAN_ARRAY_TYPE)
-				&& (((PyArrayObject *) param)->descr->type_num == NPY_BOOL))
-		{
+                copy = (PyArrayObject *) PyArray_CopyFromObject(param, paType, 0, 0);
+		if((*env)->IsSameObject(env, desiredType, JBOOLEAN_ARRAY_TYPE) && (paType == NPY_BOOL)) {
 			arr = (*env)->NewBooleanArray(env, sz);
-			nobj = PyArray_ContiguousFromObject(param, NPY_BOOL, minDim, maxDim);
-			nvalue = (PyObject *)PyArray_Cast((PyArrayObject *)nobj, NPY_BOOL);
-			pa = (PyArrayObject *) nvalue;
-			(*env)->SetBooleanArrayRegion(env, arr, 0, sz, (const jboolean *)pa->data);
-		}
-		else if((*env)->IsSameObject(env, desiredType, JBYTE_ARRAY_TYPE)
-				 && (((PyArrayObject *) param)->descr->type_num == NPY_BYTE))
-		{
-			arr = (*env)->NewByteArray(env, sz);
-			nobj = PyArray_ContiguousFromObject(param, NPY_BYTE, minDim, maxDim);
-			nvalue = (PyObject *)PyArray_Cast((PyArrayObject *)nobj, NPY_BYTE);
-			pa = (PyArrayObject *) nvalue;
-			(*env)->SetByteArrayRegion(env, arr, 0, sz, (const jbyte *)pa->data);
-		}
-                else if((*env)->IsSameObject(env, desiredType, JSHORT_ARRAY_TYPE)
-                                 && (((PyArrayObject *) param)->descr->type_num == NPY_INT16))
-                {
-                        arr = (*env)->NewShortArray(env, sz);
-                        nobj = PyArray_ContiguousFromObject(param, NPY_INT16, minDim, maxDim);
-                        nvalue = (PyObject *)PyArray_Cast((PyArrayObject *)nobj, NPY_INT16);
-                        pa = (PyArrayObject *) nvalue;
-                        (*env)->SetShortArrayRegion(env, arr, 0, sz, (const jshort *)pa->data);
                 }
-		else if((*env)->IsSameObject(env, desiredType, JINT_ARRAY_TYPE)
-				&& (((PyArrayObject *) param)->descr->type_num == NPY_INT32))
-		{
+                else if((*env)->IsSameObject(env, desiredType, JBYTE_ARRAY_TYPE) && (paType == NPY_BYTE)) {
+			arr = (*env)->NewByteArray(env, sz);
+                }
+                else if((*env)->IsSameObject(env, desiredType, JSHORT_ARRAY_TYPE) && (paType == NPY_INT16)) {
+                        arr = (*env)->NewShortArray(env, sz);
+                }
+                else if((*env)->IsSameObject(env, desiredType, JINT_ARRAY_TYPE) && (paType == NPY_INT32)) {
 			arr = (*env)->NewIntArray(env, sz);
-			nobj = PyArray_ContiguousFromObject(param, NPY_INT32, minDim, maxDim);
-			nvalue = (PyObject *)PyArray_Cast((PyArrayObject *)nobj, NPY_INT32);
-			pa = (PyArrayObject *) nvalue;
-			(*env)->SetIntArrayRegion(env, arr, 0, sz, (const jint *)pa->data);
-		}
-		else if((*env)->IsSameObject(env, desiredType, JLONG_ARRAY_TYPE)
-				&& (((PyArrayObject *) param)->descr->type_num == NPY_INT64))
-		{
+                }
+                else if((*env)->IsSameObject(env, desiredType, JLONG_ARRAY_TYPE) && (paType == NPY_INT64)) {
 			arr = (*env)->NewLongArray(env, sz);
-			nobj = PyArray_ContiguousFromObject(param, NPY_INT64, minDim, maxDim);
-			nvalue = (PyObject *)PyArray_Cast((PyArrayObject *)nobj, NPY_INT64);
-			pa = (PyArrayObject *) nvalue;
-			(*env)->SetLongArrayRegion(env, arr, 0, sz, (const jlong *)pa->data);
-		}
-		else if ((*env)->IsSameObject(env, desiredType, JFLOAT_ARRAY_TYPE)
-				&& (((PyArrayObject *) param)->descr->type_num == NPY_FLOAT32))
-		{
+                }
+		else if ((*env)->IsSameObject(env, desiredType, JFLOAT_ARRAY_TYPE) && (paType == NPY_FLOAT32)) {
 			arr = (*env)->NewFloatArray(env, sz);
-			nobj = PyArray_ContiguousFromObject(param, NPY_FLOAT32, minDim, maxDim);
-			nvalue = (PyObject *)PyArray_Cast((PyArrayObject *)nobj, NPY_FLOAT32);
-			pa = (PyArrayObject *) nvalue;
-			(*env)->SetFloatArrayRegion(env, arr, 0, sz, (const jfloat *)pa->data);
-		}
-		else if((*env)->IsSameObject(env, desiredType, JDOUBLE_ARRAY_TYPE)
-				&& (((PyArrayObject *) param)->descr->type_num == NPY_FLOAT64))
-		{
+                }
+                else if((*env)->IsSameObject(env, desiredType, JDOUBLE_ARRAY_TYPE) && (paType == NPY_FLOAT64)) {
 			arr = (*env)->NewDoubleArray(env, sz);
-			nobj = PyArray_ContiguousFromObject(param, NPY_FLOAT64, minDim, maxDim);
-			nvalue = (PyObject *)PyArray_Cast((PyArrayObject *)nobj, NPY_FLOAT64);
-			pa = (PyArrayObject *) nvalue;
-			(*env)->SetDoubleArrayRegion(env, arr, 0, sz, (const jdouble *)pa->data);
+                }
+
+                // java exception could potentially be OutOfMemoryError if it couldn't allocate the array
+                if(process_java_exception(env) || arr == NULL) {
+                        return NULL;
+                }
+
+                // if arr was allocated, we already know it matched the python array type
+                if(paType == NPY_BOOL) {
+                	(*env)->SetBooleanArrayRegion(env, arr, 0, sz, (const jboolean *)copy->data);
+		}
+                else if(paType == NPY_BYTE) {
+			(*env)->SetByteArrayRegion(env, arr, 0, sz, (const jbyte *)copy->data);
+		}
+                else if(paType == NPY_INT16) {
+                        (*env)->SetShortArrayRegion(env, arr, 0, sz, (const jshort *)copy->data);
+                }
+		else if(paType == NPY_INT32) {
+			(*env)->SetIntArrayRegion(env, arr, 0, sz, (const jint *)copy->data);
+		}
+                else if(paType == NPY_INT64) {
+			(*env)->SetLongArrayRegion(env, arr, 0, sz, (const jlong *)copy->data);
+		}
+                else if(paType == NPY_FLOAT32) {
+			(*env)->SetFloatArrayRegion(env, arr, 0, sz, (const jfloat *)copy->data);
+		}
+                else if(paType == NPY_FLOAT64) {
+			(*env)->SetDoubleArrayRegion(env, arr, 0, sz, (const jdouble *)copy->data);
 		}
 	}
 
-	if(nobj != NULL)
-		Py_DECREF(nobj);
-	if(pa != NULL)
-		Py_DECREF(pa);
+	if(copy != NULL)
+             Py_DECREF(copy);
 
 	return arr;
 }
