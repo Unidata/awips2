@@ -19,13 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
-import java.util.List;
-
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-
 /**
- * TODO Add Description
+ * Event fired when the user changes the acting site
  * 
  * <pre>
  * 
@@ -33,30 +28,29 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 7, 2012            mnash     Initial creation
+ * Oct 9, 2014  3708      bclement     Initial creation
  * 
  * </pre>
  * 
- * @author mnash
+ * @author bclement
  * @version 1.0
  */
-@DynamicSerialize
-public class SubscribeList {
-    @DynamicSerializeElement
-    private List<String> enabledSites;
+public class SiteChangeEvent {
+
+    private final String newSite;
 
     /**
-     * @return the enabledUsers
+     * 
      */
-    public List<String> getEnabledSites() {
-        return enabledSites;
+    public SiteChangeEvent(String newSite) {
+        this.newSite = newSite;
     }
 
     /**
-     * @param enabledUsers
-     *            the enabledUsers to set
+     * @return the newSite
      */
-    public void setEnabledSites(List<String> enabledSites) {
-        this.enabledSites = enabledSites;
+    public String getNewSite() {
+        return newSite;
     }
+
 }
