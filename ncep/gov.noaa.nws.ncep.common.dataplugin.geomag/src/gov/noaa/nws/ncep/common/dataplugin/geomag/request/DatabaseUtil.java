@@ -196,7 +196,7 @@ public class DatabaseUtil {
         String station = CalcUtil.getStationFromUri(dataUri);
 
         List<GeoMagK3hr> resultsList = null;
-        resultsList = k3hrDao.getSingleK3hr(station, epTime);
+        resultsList = k3hrDao.getK3hr(station, epTime);
 
         return resultsList;
     }
