@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
@@ -40,6 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
+import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
 
 /**
  * Generate the Participant's label and icon image.
@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 13, 2014 2751       njensen     Added leader icons
  * Feb 18, 2014 2751       bclement    changed tooltip from JID to UserId
+ * Oct 10, 2014 3708       bclement    SiteConfigurationManager changes, added actingSite
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ public class ParticipantsLabelProvider extends
 
     protected String sessionId = null;
 
-    private List<String> enabledSites;
+    private String actingSite;
 
     protected Map<RGB, Color> colors = new HashMap<RGB, Color>();
 
@@ -220,8 +221,13 @@ public class ParticipantsLabelProvider extends
         if (presence != null) {
             String site = String.valueOf(presence
                     .getProperty(SiteConfigInformation.SITE_NAME));
-            if (enabledSites != null && enabledSites.contains(site)) {
-                builder.append("\n").append("Subscribed");
+            if (actingSite != null
+                    && SiteConfigurationManager.isVisible(actingSite, site)) {
+                builder.append("\n").append(
+                        "Messages from " + site + " are shown");
+            } else {
+                builder.append("\n").append(
+                        "Messages from " + site + " are hidden");
             }
         }
         if (isSomeKindOfLeader(user)) {
@@ -235,8 +241,11 @@ public class ParticipantsLabelProvider extends
         return builder.toString();
     }
 
-    protected void setEnabledSites(List<String> enabledSites) {
-        this.enabledSites = enabledSites;
+    /**
+     * @param actingSite
+     */
+    public void setActingSite(String actingSite) {
+        this.actingSite = actingSite;
     }
 
     /**
