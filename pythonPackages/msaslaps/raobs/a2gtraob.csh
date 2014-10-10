@@ -1,4 +1,23 @@
 #!/bin/csh
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
 #
 # A script wrapper around a UEngine call that is meant to get all available
 # raob data in the A-II database over a specified range of times.  The data
@@ -13,6 +32,13 @@
 #  the final version of the python submitted to the UEngine instead of
 #  cleaning it up.  The path to the finalized python is /tmp/a2gtraobNNNNN.py
 #  where NNNNN is a unix process id.
+#
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Oct 10, 2014    3595          nabowle        Initial modification. Fix sed call.
 #
 set rmpy = yes
 if ( "$1" == "p" ) then
@@ -88,7 +114,7 @@ if ( "$method" == "daf" ) then
      /awips2/python/bin/python $specpy
 else
     cd $UE_BIN_PATH
-    ( uengine -r python < $specpy ) | grep -v '<' | sed -n '3,$p' | \
+    ( uengine -r python < $specpy ) | grep -v '<' | sed -n '2,$p' | \
          sed -f $staInf
 endif
 if ( "$rmpy" == "yes" ) rm -rf $specpy >& /dev/null

@@ -1,3 +1,33 @@
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
+# Gets all available raob data in the A-II database over a specified range of
+# times. The data is output to stdout as ASCII.
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Oct 10, 2014    3595          nabowle        Initial modification. Fix Man and SigW indices.
+#
+#
 # pointDataQuery.stationName_lat_lon.py
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 import PointDataQuery
@@ -97,9 +127,9 @@ while i < len(tobs) :
     if ntrop[i]<0 : ntrop[i] = 0
     if nmxw[i]<0 : nmxw[i] = 0
     if nman[i]==0 and nsigt[i]==0 and nsigw[i]==0 or rtyp[i]>2022:
-       iMan += 100
+       iMan += 25
        iSigT += 120
-       iSigW += 120
+       iSigW += 80
        iTrop += 5
        iMxW += 5
        i += 1
@@ -150,7 +180,7 @@ while i < len(tobs) :
         msg += "|" + "%.1f"%ddman[k];
         k += 1
     msg += ","
-    iMan += 100
+    iMan += 25
 
     msg += str(nsigt[i]) + ","
     kk = iSigT + nsigt[i]
@@ -194,7 +224,7 @@ while i < len(tobs) :
         msg += "|" + "%.1f"%ddsigw[k];
         k += 1
     msg += ","
-    iSigW += 120
+    iSigW += 80
 
     msg += str(ntrop[i]) + ","
     kk = iTrop + ntrop[i]
