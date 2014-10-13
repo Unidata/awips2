@@ -718,8 +718,8 @@ if [ "${GRAB_CAVE_AND_ALERTVIZ_LOGS}" == "y" ]; then
       echo "${t1}: Capturing cave logs" >> $processFile
       mkdir -p ${dataPath}/consoleLogs
       if [ ! -z ${cavePid} ]; then
-         # logs have cave executable pid in the name, not worker pid
-         find $dir  -type f -name "*$(determineCaveProcess ${cavePid})*" -exec cp {} ${dataPath}/consoleLogs \;
+         # logs have cave executable pid or worker pid in the name (-o means OR)
+         find $dir  -type f -name "*$(determineCaveProcess ${cavePid})*" -o -name "*${cavePid}*" -exec cp {} ${dataPath}/consoleLogs \;
       else
          find $dir  -type f -mmin -120 -exec cp {} ${dataPath}/consoleLogs \;
       fi
