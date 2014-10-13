@@ -32,6 +32,7 @@
 # Jan 30, 2014  #2593     bclement    warns based on memory usage, fixed for INI files with spaces
 # Jul 10, 2014  #3363     bclement    logs command used to launch application to console logs
 # Oct 10, 2014  #3675     njensen     Logback now does console logging to ensure correct pid 
+# Oct 13, 2014  #3675     bclement    startup shutdown log includes both launching pid and placeholder
 #
 #
 
@@ -211,7 +212,9 @@ curTime=`date +%Y%m%d_%H%M%S`
 (
   export pid=`/bin/bash -c 'echo $PPID'`
 
-  LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_startup-shutdown.log"
+  # we include the PID of the launching process along with
+  # a %PID% placeholder to be replaced with the "real" PID
+  LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
   export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_logs.log"
   export LOGFILE_CONSOLE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_console.log"
   export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_perf.log"
@@ -245,9 +248,6 @@ curTime=`date +%Y%m%d_%H%M%S`
 
   echo "Launching cave application using the following command: " >> ${LOGFILE_STARTUP_SHUTDOWN}
   echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} ${USER_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
-  # TODO would be cool if we spawned another process to figure out the pid of
-  # the actual cave java process and logged that to the startup file to make it
-  # easier to correlate a startup log to the other cave logs
 
   if [[ "${redirect}" == "true" ]] ; then
      # send output to /dev/null because the logback CaveConsoleAppender will capture that output 
@@ -259,7 +259,7 @@ curTime=`date +%Y%m%d_%H%M%S`
 ) &
 
 pid=$!
-LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_startup-shutdown.log"
+LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
 logExitStatus $pid $LOGFILE_STARTUP_SHUTDOWN
 
 
