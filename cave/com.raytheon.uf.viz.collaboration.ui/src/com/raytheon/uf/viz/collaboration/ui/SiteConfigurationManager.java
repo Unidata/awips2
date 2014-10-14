@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformatio
  * Oct 10, 2014 3708       bclement    refactored to support blacklisting
  *                                      moved color config to SiteColorConfigManager
  *                                      site level now combined with site config
+ * Oct 10, 2014 3708       bclement    fixed possible NPE in getSiteConfig() getSiteVisibilityConfig()
  * 
  * </pre>
  * 
@@ -518,7 +519,8 @@ public class SiteConfigurationManager {
             SiteConfigInformation siteInstance = getSiteConfigInformation();
             if (siteInstance != null && siteInstance.getConfig() != null) {
                 for (SiteConfig config : siteInstance.getConfig()) {
-                    if (config.getSite().equals(site)) {
+                    String configSite = config.getSite();
+                    if (configSite != null && configSite.equals(site)) {
                         rval = new SiteVisiblityConfig(config,
                                 userSpecificConfigs);
                         break;
@@ -573,7 +575,8 @@ public class SiteConfigurationManager {
         SiteConfig rval = null;
         if (info.getConfig() != null) {
             for (SiteConfig config : info.getConfig()) {
-                if (config.getSite().equals(site)) {
+                String configSite = config.getSite();
+                if (configSite != null && configSite.equals(site)) {
                     rval = config;
                     break;
                 }
