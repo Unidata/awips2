@@ -3,8 +3,7 @@ import string, time, os, re, types, copy, LogStream, collections
 import ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
 import Tkinter
-DEG_TO_RAD = 0.017453292
-
+import numpy
 
 from AbsTime import *
 from StartupDialog import IFPDialog as Dialog
@@ -1791,6 +1790,12 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
         segment_vtecRecords_tuples = []
         for segment in segments:
             vtecRecords = self.getVtecRecords(segment)
+            for record in vtecRecords:
+                if record['act'] == "UPG":
+                    upgPhenSig = record['phen'] + "." + record['sig']
+                    newRecord = self._findNEWAssociatedWithUPG(upgPhenSig, vtecRecords)
+                    record['new_record'] = newRecord
+                print "SARAH: vtecRecord =", record
             segment_vtecRecords_tuples.append((segment, vtecRecords))
         
         productSegmentGroup = { 
@@ -1804,6 +1809,22 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
                        }
 
         return productSegmentGroup
+    
+    def _findNEWAssociatedWithUPG(self, upgPhenSig, vtecRecords):
+        import VTECTable
+        
+        possibleUpgrades = []
+        for upgradedTo, upgradedFrom in VTECTable.upgradeHazardsDict:
+            if upgPhenSig in upgradedFrom:
+                possibleUpgrades.append(upgradedTo)
+        
+        for record in vtecRecords:
+            if record['act'] == "NEW":
+                newPhenSig = record['phen'] + "." + record['sig']
+                if newPhenSig in possibleUpgrades:
+                    return record
+        
+        return None
     
     ######################################################
     #  Product Dictionary -- General product information        
@@ -2332,19 +2353,20 @@ class LegacyFormatter():
         for hazard in hazardsList:
             hazardText = ""
             if hazard['act'] == "CON":
-                hazardText = "A " + hazard['hdln'] + " remains in effect for:\n"
+                hazardText = "A " + hazard['hdln'] + " remains in effect for " + self._areaWords(hazard['id'])
             elif hazard['act'] in ["NEW", "EXA"]:
-                hazardText = "A " + hazard['hdln'] + " has been issued for:\n"
+                hazardText = "A " + hazard['hdln'] + " has been issued for " + self._areaWords(hazard['id'])
             elif hazard['act'] == "UPG":
-                hazardText = "A " + hazard['hdln'] + " has been upgraded for:\n"
+                if hazard['new_record'] is not None:
+                    hazardText = "A " + hazard['hdln'] + \
+                                 " has been upgraded to a " + hazard['new_record']['hdln'] + \
+                                 " for " + self._areaWords(hazard['id'])
+                else:
+                    hazardText = "A " + hazard['hdln'] + " has been upgraded for " + self._areaWords(hazard['id'])
             elif hazard['act'] == "CAN":
-                hazardText = "The " + hazard['hdln'] + " has been cancelled for:\n"
+                hazardText = "The " + hazard['hdln'] + " for " + self._areaWords(hazard['id']) + " has been cancelled"
             text += self._textProduct.indentText(hazardText,
                                                  indentFirstString = self.TAB + "- ",
-                                                 indentNextString = self.TAB + "  ",
-                                                 maxWidth=self._textProduct._lineLength)
-            text += self._textProduct.indentText(self._areaWords(hazard['id']) + "\n",
-                                                 indentFirstString = self.TAB + "  ",
                                                  indentNextString = self.TAB + "  ",
                                                  maxWidth=self._textProduct._lineLength)
         text += "\n"
@@ -2447,4 +2469,3 @@ class LegacyFormatter():
             print "SARAH: subpart newtext =", repr(newtext)
             text += newtext
         return text
-
