@@ -244,9 +244,8 @@ TCV_AreaDictionary = {
         context = pathManager.getContext(loctype, loclevel)
         context.setContextName(locname)
         localizationFile = pathManager.getLocalizationFile(context, filename)
-        pythonFile = File(localizationFile.getFile(), filename, 'r')
-        fileContents = pythonFile.read()
-        pythonFile.close()
+        with File(localizationFile.getFile(), filename, 'r') as pythonFile:
+            fileContents = pythonFile.read()
         
         return fileContents
 
