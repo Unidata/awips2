@@ -7,8 +7,6 @@ import math
 from AbsTime import *
 from StartupDialog import IFPDialog as Dialog
 from LockingFile import File
-from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
 AWIPS_ENVIRON = "AWIPS2"
 
 import Hazard_HLSTCV_Common
