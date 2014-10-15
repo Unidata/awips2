@@ -1128,12 +1128,7 @@ jobject pyembed_box_py(JNIEnv *env, PyObject *result) {
     // added by njensen
     init();
     if(PyArray_Check(result)) {
-        jarray arr = NULL;
-
-        arr = numpyToJavaArray(env, result, NULL);
-
-         if(arr != NULL)
-        	 return arr;
+        return numpyToJavaArray(env, result, NULL);
     }
 
     // convert everything else to string
