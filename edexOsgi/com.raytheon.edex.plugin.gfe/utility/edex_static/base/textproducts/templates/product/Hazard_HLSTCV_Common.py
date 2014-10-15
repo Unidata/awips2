@@ -657,9 +657,8 @@ FORECASTER STEWART"""
         pathManager = PathManagerFactory.getPathManager()
         context = pathManager.getContextForSite(loctype, siteID)
         localizationFile = pathManager.getLocalizationFile(context, filename)
-        pythonFile = File(localizationFile.getFile(), filename, 'r')
-        fileContents = pythonFile.read()
-        pythonFile.close()
+        with File(localizationFile.getFile(), filename, 'r') as pythonFile:
+            fileContents = pythonFile.read()
         
         return fileContents
     
@@ -667,9 +666,9 @@ FORECASTER STEWART"""
         pathManager = PathManagerFactory.getPathManager()
         context = pathManager.getContextForSite(loctype, siteID)
         localizationFile = pathManager.getLocalizationFile(context, filename)
-        pythonFile = File(localizationFile.getFile(), filename, 'w')
-        pythonFile.write(contents)
-        pythonFile.close()
+        with File(localizationFile.getFile(), filename, 'w') as pythonFile:
+            pythonFile.write(contents)
+        
         localizationFile.save()
     
     def _getAdvisoryFilename(self, advisoryName):
@@ -1973,6 +1972,5 @@ class TextProductCommon(DiscretePhrases.DiscretePhrases):
             if arrowIndex >= 0:
                 ugcStr = ugcStr[:arrowIndex] + '-' + ugcStr[arrowIndex+1:]
         return ugcStr
-
 
 
