@@ -19,12 +19,17 @@
  **/
 package com.raytheon.viz.gfe;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import jep.JepException;
 
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
+import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.python.controller.PythonScriptController;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -43,6 +48,9 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  * Nov 10, 2008            njensen     Initial creation
  * Jan 08, 2013  1486      dgilling    Refactor based on PythonScriptController.
  * Jan 18, 2013            njensen     Added garbageCollect()
+ * Oct 14, 2014  3676      njensen     Moved getNumpyResult(GridType) here and
+ *                                      hardened it by separating jep.getValue()
+ *                                      calls from python copying/casting to correct types
  * 
  * </pre>
  * 
@@ -179,4 +187,114 @@ public abstract class BaseGfePyController extends PythonScriptController {
                     "Error garbage collecting GFE python interpreter", e);
         }
     }
+
+    /**
+     * Transforms the execution result of a python GFE script to a type expected
+     * based on the GridType. Currently used by smart tools and VC modules.
+     * 
+     * @param type
+     *            the type of data that is coming back
+     * @return the result of the execution in Java format
+     * @throws JepException
+     */
+    protected Object getNumpyResult(GridType type) throws JepException {
+        Object result = null;
+        boolean resultFound = (Boolean) jep.getValue(RESULT + " is not None");
+
+        if (resultFound) {
+            int xDim, yDim = 0;
+            /*
+             * correctType is just a memory optimization. A copy is made when we
+             * call getValue(numpyArray), but doing array.astype(dtype) or
+             * numpy.ascontiguousarray(array, dtype) will create yet another
+             * copy.
+             * 
+             * Note that if you attempt jep.getValue(array.astype(dtype)) or
+             * jep.getValue(numpy.ascontiguousarray(array, dtype)) you can
+             * potentially crash the JVM. jep.getValue(variable) should
+             * primarily retrieve variables that are globally scoped in the
+             * python interpreter as opposed to created on the fly.
+             */
+            boolean correctType = false;
+            switch (type) {
+            case SCALAR:
+                correctType = (boolean) jep.getValue(RESULT
+                        + ".dtype.name == 'float32'");
+                if (!correctType) {
+                    /*
+                     * the following line needs to be separate from
+                     * jep.getValue() to be stable
+                     */
+                    jep.eval(RESULT + " = numpy.ascontiguousarray(" + RESULT
+                            + ", numpy.float32)");
+                }
+                float[] scalarData = (float[]) jep.getValue(RESULT);
+                xDim = (Integer) jep.getValue(RESULT + ".shape[1]");
+                yDim = (Integer) jep.getValue(RESULT + ".shape[0]");
+                result = new Grid2DFloat(xDim, yDim, scalarData);
+                break;
+            case VECTOR:
+                correctType = (boolean) jep.getValue(RESULT
+                        + "[0].dtype.name == 'float32'");
+                if (!correctType) {
+                    /*
+                     * the following line needs to be separate from
+                     * jep.getValue() to be stable
+                     */
+                    jep.eval(RESULT + "[0] = numpy.ascontiguousarray(" + RESULT
+                            + "[0], numpy.float32)");
+                }
+
+                correctType = (boolean) jep.getValue(RESULT
+                        + "[1].dtype.name == 'float32'");
+                if (!correctType) {
+                    /*
+                     * the following line needs to be separate from
+                     * jep.getValue() to be stable
+                     */
+                    jep.eval(RESULT + "[1] = numpy.ascontiguousarray(" + RESULT
+                            + "[1], numpy.float32)");
+                }
+
+                float[] mag = (float[]) jep.getValue(RESULT + "[0]");
+                float[] dir = (float[]) jep.getValue(RESULT + "[1]");
+                xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
+                yDim = (Integer) jep.getValue(RESULT + "[0].shape[0]");
+
+                Grid2DFloat magGrid = new Grid2DFloat(xDim, yDim, mag);
+                Grid2DFloat dirGrid = new Grid2DFloat(xDim, yDim, dir);
+                result = new Grid2DFloat[] { magGrid, dirGrid };
+                break;
+            case WEATHER:
+            case DISCRETE:
+                correctType = (boolean) jep.getValue(RESULT
+                        + "[0].dtype.name == 'int8'");
+                if (!correctType) {
+                    /*
+                     * the following line needs to be separate from
+                     * jep.getValue() to be stable
+                     */
+                    jep.eval(RESULT + "[0] = numpy.ascontiguousarray(" + RESULT
+                            + "[0], numpy.int8)");
+                }
+
+                byte[] bytes = (byte[]) jep.getValue(RESULT + "[0]");
+                String[] keys = (String[]) jep.getValue(RESULT + "[1]");
+                xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
+                yDim = (Integer) jep.getValue(RESULT + "[0].shape[0]");
+
+                Grid2DByte grid = new Grid2DByte(xDim, yDim, bytes);
+                List<String> keysList = new ArrayList<String>();
+                Collections.addAll(keysList, keys);
+
+                result = new Object[] { grid, keysList };
+                break;
+            }
+
+            jep.eval(RESULT + " = None");
+        }
+
+        return result;
+    }
+
 }
