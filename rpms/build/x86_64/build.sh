@@ -314,17 +314,17 @@ if [ "${1}" = "-full" ]; then
 #   buildRPM "awips2-python-pygtk"
 #   buildRPM "awips2-python-pycairo"
    buildRPM "awips2-cli"
-   buildRPM "awips2-data.hdf5-gfe.climo"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
+#   buildRPM "awips2-data.hdf5-gfe.climo"
+#   buildRPM "awips2-gfesuite-client"
+#   buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
 #
 # awips2-data.hdf5 and awips2-data.gfe require shapefiles in a 
 # directory 'awipscm' which is not provided in the source or ADE, 
 # but what extracted from the built RPMs used in 14.1.1
 #
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-data.gfe"
+#   buildRPM "awips2-data.hdf5-topo"
+#   buildRPM "awips2-data.gfe"
    buildRPM "awips2"
    unpackHttpdPypies
    if [ $? -ne 0 ]; then
