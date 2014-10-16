@@ -98,7 +98,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.ui.actions.AddNotifierAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.AddToGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ArchiveViewerAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeBackgroundColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeFontAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeForegroundColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangePasswordAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeRoleAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeSiteAction;
@@ -160,6 +162,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  *                                      added static utility method to show view
  * May 19, 2014 3180       bclement    fixed inviting multiple users to session
  * Oct 08, 2014 3705       bclement    added room search and bookmarking
+ * Oct 14, 2014 3709       mapeters    Added change background/foreground color actions to menu.
  * 
  * </pre>
  * 
@@ -361,6 +364,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
         mgr.add(roomSearchAction);
         mgr.add(new Separator());
         mgr.add(new ChangeFontAction());
+        mgr.add(new ChangeForegroundColorAction());
+        mgr.add(new ChangeBackgroundColorAction());
+        mgr.add(new Separator());
         mgr.add(new ChangeStatusAction());
         mgr.add(new ChangeStatusMessageAction());
         mgr.add(new ChangePasswordAction());
