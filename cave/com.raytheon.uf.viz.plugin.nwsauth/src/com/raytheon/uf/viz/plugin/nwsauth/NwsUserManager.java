@@ -21,12 +21,9 @@ package com.raytheon.uf.viz.plugin.nwsauth;
 
 import java.util.List;
 
-import com.raytheon.uf.common.auth.user.IAuthenticationData;
 import com.raytheon.uf.common.auth.user.IPermission;
 import com.raytheon.uf.common.auth.user.IRole;
-import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.plugin.nwsauth.user.User;
-import com.raytheon.uf.viz.core.auth.IUserManager;
+import com.raytheon.uf.viz.core.auth.BasicUserManager;
 import com.raytheon.uf.viz.core.requests.INotAuthHandler;
 
 /**
@@ -39,6 +36,7 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * ------------ ---------- ----------- --------------------------
  * May 27, 2010            rgeorge     Initial creation
  * Jun 07, 2013   1981     mpduff      Add an IUser field.
+ * Oct 06, 2014 3398       bclement    now extends BasicUserManager
  * 
  * </pre>
  * 
@@ -46,12 +44,9 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * @version 1.0
  */
 
-public class NwsUserManager implements IUserManager {
+public class NwsUserManager extends BasicUserManager {
 
     private final NwsNotAuthHandler notAuthHandler = new NwsNotAuthHandler();
-
-    /** Saved User Name */
-    private IUser user;
 
     /*
      * (non-Javadoc)
@@ -61,35 +56,6 @@ public class NwsUserManager implements IUserManager {
     @Override
     public INotAuthHandler getNotAuthHandler() {
         return notAuthHandler;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.auth.IUserManager#getUserObject()
-     */
-    @Override
-    public IUser getUserObject() {
-        if (this.user == null) {
-            String userId = System.getProperty("user.name");
-            this.user = new User(userId);
-            return this.user;
-        } else {
-            return user;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.auth.IUserManager#updateUserObject(com.raytheon
-     * .uf.common.auth.user.IUser,
-     * com.raytheon.uf.common.auth.user.IAuthenticationData)
-     */
-    @Override
-    public void updateUserObject(IUser user, IAuthenticationData authData) {
-        this.user = user;
     }
 
     /**
@@ -110,11 +76,4 @@ public class NwsUserManager implements IUserManager {
         return NwsRoleDataManager.getInstance().getRoles(application);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateUserObject(String userId, IAuthenticationData authData) {
-        user = new User(userId);
-    }
 }
