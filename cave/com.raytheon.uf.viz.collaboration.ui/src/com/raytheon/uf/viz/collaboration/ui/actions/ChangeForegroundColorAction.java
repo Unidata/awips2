@@ -21,54 +21,53 @@ package com.raytheon.uf.viz.collaboration.ui.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FontDialog;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChatDisplayChangeEvent.ChangeType;
+import com.raytheon.uf.viz.core.preferences.PreferenceConverter;
 
 /**
- * Open change font dialog
+ * Open change foreground color dialog
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 6, 2012            bsteffen     Initial creation
- * Oct 14, 2014 3709      mapeters     Post event using {@link ChatDisplayChangeEvent}.
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Oct 14, 2014 3709        mapeters    Initial creation.
+ * 
  * 
  * </pre>
  * 
- * @author bsteffen
+ * @author mapeters
  * @version 1.0
  */
 
-public class ChangeFontAction extends Action {
+public class ChangeForegroundColorAction extends Action {
 
-    public ChangeFontAction() {
-        super("Change Font...", IconUtil.getImageDescriptor(Activator
-                .getDefault().getBundle(), "font.gif"));
+    public ChangeForegroundColorAction() {
+        super("Change Foreground Color...");
     }
 
     @Override
     public void run() {
-        FontDialog dialog = new FontDialog(Display.getCurrent()
+        ColorDialog dialog = new ColorDialog(Display.getCurrent()
                 .getActiveShell());
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        FontData data = PreferenceConverter.getFontData(store, "font");
-        dialog.setFontList(new FontData[] { data });
-        FontData postData = dialog.open();
+        RGB data = PreferenceConverter.getRGB(store, "fg", "black");
+        dialog.setRGB(data);
+        RGB postData = dialog.open();
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (postData != null && connection != null) {
-            PreferenceConverter.setValue(store, "font", postData);
-            connection.postEvent(ChatDisplayChangeEvent
-                    .createFontEvent(postData));
+            PreferenceConverter.setValue(store, "fg", postData);
+            connection.postEvent(ChatDisplayChangeEvent.createColorEvent(
+                    ChangeType.FOREGROUND, postData));
         }
     };
 }
