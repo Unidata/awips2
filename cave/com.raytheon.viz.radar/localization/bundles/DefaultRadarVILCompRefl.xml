@@ -62,7 +62,6 @@
 							</properties>
 							<resourceData xsi:type="bestResResourceData"
 								productIdentifierKey="productCode" retrieveData="false">
-								<enabler xsi:type="radarSpatialEnabler" />
 								<metadataMap>
 									<mapping key="productCode">
 										<constraint constraintValue="37,35" constraintType="IN" />
@@ -132,7 +131,6 @@
 							<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 							</properties>
 							<resourceData xsi:type="bestResResourceData" productIdentifierKey="productCode" retrieveData="false">
-								<enabler xsi:type="radarSpatialEnabler" />
 								<metadataMap>
 									<mapping key="productCode">
 										<constraint constraintValue="38,36,57" constraintType="IN" />
