@@ -10,6 +10,30 @@
 
 <gribModelSet>
 
+	<!-- SUBCENTER 0 -->
+	<model>
+		<name>MRMS</name>
+		<center>161</center>
+		<subcenter>0</subcenter>
+		<grid>10000</grid>
+		<process>
+			<id>97</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>MRMS</name>
+		<center>161</center>
+		<subcenter>0</subcenter>
+		<grid>10001</grid>
+		<process>
+			<id>97</id>
+		</process>
+	</model>
+
+	<!-- END SUBCENTER 0 -->
+
+
 	<!-- SUBCENTER 1 -->
 
 	<model>

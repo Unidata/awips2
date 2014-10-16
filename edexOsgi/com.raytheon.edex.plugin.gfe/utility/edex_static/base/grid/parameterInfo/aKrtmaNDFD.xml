@@ -172,4 +172,34 @@
       <level>FHAG2</level>
     </levels>
   </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>vis</short_name>
+    <long_name>visibility</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>Vis</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>viserranl</short_name>
+    <long_name>visibility uncertainty</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>Viserranlind</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
 </gridParamInfo>
