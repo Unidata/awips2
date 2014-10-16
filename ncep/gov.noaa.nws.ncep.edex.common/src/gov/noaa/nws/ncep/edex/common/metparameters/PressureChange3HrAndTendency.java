@@ -21,7 +21,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PressureChange3HrAndTendency extends AbstractMetParameter implements Dimensionless, ISerializableObject {
+public class PressureChange3HrAndTendency extends AbstractMetParameter
+        implements Dimensionless, ISerializableObject {
 
     @DynamicSerializeElement
     private static final long serialVersionUID = -6602297437762954327L;
@@ -32,7 +33,9 @@ public class PressureChange3HrAndTendency extends AbstractMetParameter implement
     }
 
     @DeriveMethod
-    public PressureChange3HrAndTendency derive(PressChange3HrAbsVal p, PressureTendencySymbol ptsy) throws InvalidValueException, NullPointerException {
+    public PressureChange3HrAndTendency derive(PressChange3HrAbsVal p,
+            PressureTendencySymbol ptsy) throws InvalidValueException,
+            NullPointerException {
 
         if (p.hasValidValue() && ptsy.hasValidValue()) {
             Number n = (Number) new Integer(ptsy.getStringValue());
