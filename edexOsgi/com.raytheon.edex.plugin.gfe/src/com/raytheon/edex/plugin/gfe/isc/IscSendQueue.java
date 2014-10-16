@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * May 08, 2012 600        dgilling    Re-work logic for handling PENDING
  *                                     records.
  * Feb 07, 2014 2357       rjpeter     iscSendNotification uri.
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -333,7 +334,7 @@ public class IscSendQueue {
 
         for (IscSendRecord record : newJobs) {
             try {
-                s = cd.getHibernateTemplate().getSessionFactory().openSession();
+                s = cd.getSession();
                 tx = s.beginTransaction();
                 boolean foundDupe = false;
                 boolean foundMerge = false;
@@ -575,7 +576,7 @@ public class IscSendQueue {
         CoreDao dao = new CoreDao(DaoConfig.DEFAULT);
         List<IscSendRecord> pendingToSending = null;
         try {
-            lookupSess = dao.getHibernateTemplate().getSessionFactory()
+            lookupSess = dao.getSessionFactory()
                     .openStatelessSession();
 
             Criteria pendingCrit = lookupSess
@@ -607,8 +608,7 @@ public class IscSendQueue {
             Transaction tx = null;
 
             try {
-                dbModSess = dao.getHibernateTemplate().getSessionFactory()
-                        .openSession();
+                dbModSess = dao.getSession();
                 tx = dbModSess.beginTransaction();
 
                 IscSendRecord oldRecord = (IscSendRecord) dbModSess.get(
