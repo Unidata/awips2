@@ -42,8 +42,8 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
-import org.hibernatespatial.criterion.SpatialRelateExpression;
-import org.hibernatespatial.criterion.SpatialRestrictions;
+import org.hibernate.spatial.criterion.SpatialRelateExpression;
+import org.hibernate.spatial.criterion.SpatialRestrictions;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.edex.ogc.common.db.SQLParamRestriction;
@@ -73,6 +73,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2012            bclement     Initial creation
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
