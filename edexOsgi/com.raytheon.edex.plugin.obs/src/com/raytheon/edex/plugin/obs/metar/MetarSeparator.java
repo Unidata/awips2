@@ -58,6 +58,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * 20080418           1093  jkorman     Added filter for Alaskan &quot;Airways&quot;
  *                                      observations.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed unused HEADERREGEX
+ * Oct 02, 2014 3693       mapeters    Changed pattern String constants to Pattern constants.
  * </pre>
  * 
  * @author bphillip
@@ -75,15 +76,17 @@ public class MetarSeparator extends AbstractRecordSeparator {
     private final Log theLogger = LogFactory.getLog(getClass());
 
     /** Regex used for separating multi-record files */
-    private static final String ICAODATEPAIR = "\\p{Alnum}{4} (\\d{6}Z |(RMK )?NIL)";
+    private static final Pattern ICAODATEPAIR = Pattern
+            .compile("\\p{Alnum}{4} (\\d{6}Z |(RMK )?NIL)");
 
     /** Regex used for determining metar type */
-    private static final String METARTYPE = "METAR|SPECI";
+    private static final Pattern METARTYPE = Pattern.compile("METAR|SPECI");
 
-    private static final String AIRWAYS = "[A-Z][A-Z,0-9]{3} (SP|SA) \\d{4} AWOS";
+    private static final Pattern AIRWAYS = Pattern
+            .compile("[A-Z][A-Z,0-9]{3} (SP|SA) \\d{4} AWOS");
 
     /** Regex used to search for NIL messages */
-    private static final String NILREGEX = "NIL";
+    private static final Pattern NILREGEX = Pattern.compile("NIL");
 
     /** The WMO header */
     private WMOHeader header;
@@ -179,8 +182,7 @@ public class MetarSeparator extends AbstractRecordSeparator {
 //                header = matcher.group();
 //            }
             // Determines the type
-            Pattern pattern = Pattern.compile(METARTYPE);
-            Matcher matcher = pattern.matcher(message);
+            Matcher matcher = METARTYPE.matcher(message);
 
             if (matcher.find()) {
                 type = matcher.group();
@@ -189,8 +191,7 @@ public class MetarSeparator extends AbstractRecordSeparator {
             }
             message = message.replaceAll(type, "");
 
-            pattern = Pattern.compile(ICAODATEPAIR);
-            matcher = pattern.matcher(message);
+            matcher = ICAODATEPAIR.matcher(message);
 
             List<Integer> bodyIndex = new ArrayList<Integer>();
             Map<String, String> bodyMap = new HashMap<String, String>();
@@ -218,7 +219,7 @@ public class MetarSeparator extends AbstractRecordSeparator {
             for (int i = 0; i < bodyIndex.size() - 1; i += 2) {
                 String observation = message.substring(bodyIndex.get(i),
                         bodyIndex.get(i + 1));
-                matcher = pattern.matcher(observation);
+                matcher = ICAODATEPAIR.matcher(observation);
                 if (matcher.find()) {
                     // Get the key i.e. {ICAO|Date}
                     String obsKey = matcher.group();
@@ -240,15 +241,13 @@ public class MetarSeparator extends AbstractRecordSeparator {
                 // Check for old style AIRWAYS data from Alaskan stations. This
                 // data will be at the end of valid METAR/SPECI data so just
                 // remove it.
-                pattern = Pattern.compile(AIRWAYS);
-                matcher = pattern.matcher(observation);
+                matcher = AIRWAYS.matcher(observation);
                 if (matcher.find()) {
                     observation = observation.substring(0, matcher.start());
                 }
 
                 // Check for NIL observations and, if found, throw out
-                pattern = Pattern.compile(NILREGEX);
-                matcher = pattern.matcher(observation);
+                matcher = NILREGEX.matcher(observation);
                 if (!matcher.find()) {
                     String record = header.getWmoHeader() + "\n" + type + " " + observation;
                     records.add(record);
