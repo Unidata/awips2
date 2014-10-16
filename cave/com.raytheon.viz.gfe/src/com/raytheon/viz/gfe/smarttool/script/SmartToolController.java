@@ -21,7 +21,6 @@ package com.raytheon.viz.gfe.smarttool.script;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +28,7 @@ import java.util.Set;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
-import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
@@ -69,8 +66,10 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2008            njensen     Initial creation
- * Oct 29, 2013  2476       njensen     Renamed numeric methods to numpy
- * 10/31/2013   2508       randerso    Change to use DiscreteGridSlice.getKeys()
+ * Oct 29, 2013  2476      njensen     Renamed numeric methods to numpy
+ * 10/31/2013    2508      randerso    Change to use DiscreteGridSlice.getKeys()
+ * Oct 14, 2014  3676      njensen     Promoted getNumpyResult() to parent class
+ * 
  * </pre>
  * 
  * @author njensen
@@ -237,63 +236,6 @@ public class SmartToolController extends BaseGfePyController {
         HashMap<String, Object> args = new HashMap<String, Object>(1);
         args.put("name", toolName);
         return (String) execute("getWeatherElementEdited", INTERFACE, args);
-    }
-
-    /**
-     * Transforms the execution result of a smart tool to a type that can be
-     * handled by the GridCycler
-     * 
-     * @param type
-     *            the type of data that is coming back from the smart tool
-     * @return the result of the execution in Java format
-     * @throws JepException
-     */
-    protected Object getNumpyResult(GridType type) throws JepException {
-        Object result = null;
-        boolean resultFound = (Boolean) jep.getValue(RESULT + " is not None");
-
-        if (resultFound) {
-            int xDim, yDim = 0;
-            switch (type) {
-            case SCALAR:
-                float[] scalarData = (float[]) jep.getValue(RESULT
-                        + ".astype(numpy.float32)");
-                xDim = (Integer) jep.getValue(RESULT + ".shape[1]");
-                yDim = (Integer) jep.getValue(RESULT + ".shape[0]");
-                result = new Grid2DFloat(xDim, yDim, scalarData);
-                break;
-            case VECTOR:
-                float[] mag = (float[]) jep.getValue(RESULT
-                        + "[0].astype(numpy.float32)");
-                float[] dir = (float[]) jep.getValue(RESULT
-                        + "[1].astype(numpy.float32)");
-                xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
-                yDim = (Integer) jep.getValue(RESULT + "[0].shape[0]");
-
-                Grid2DFloat magGrid = new Grid2DFloat(xDim, yDim, mag);
-                Grid2DFloat dirGrid = new Grid2DFloat(xDim, yDim, dir);
-                result = new Grid2DFloat[] { magGrid, dirGrid };
-                break;
-            case WEATHER:
-            case DISCRETE:
-                byte[] bytes = (byte[]) jep.getValue(RESULT
-                        + "[0].astype(numpy.int8)");
-                String[] keys = (String[]) jep.getValue(RESULT + "[1]");
-                xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
-                yDim = (Integer) jep.getValue(RESULT + "[0].shape[0]");
-
-                Grid2DByte grid = new Grid2DByte(xDim, yDim, bytes);
-                List<String> keysList = new ArrayList<String>();
-                Collections.addAll(keysList, keys);
-
-                result = new Object[] { grid, keysList };
-                break;
-            }
-
-            jep.eval(RESULT + " = None");
-        }
-
-        return result;
     }
 
     /**
