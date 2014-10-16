@@ -157,6 +157,10 @@
     <PlotParameterDefn  plotParamName="SMPH" metParamName="WindSpeed" plotMode="text" dbParamName="windSpeed" plotUnit="mph" plotFormat="%.2f"/>
     <PlotParameterDefn  plotParamName="HOWW" metParamName="WindWaveHeight" plotMode="text" dbParamName="windWaveHeight" plotUnit="m"/>
     <PlotParameterDefn  plotParamName="POWW" metParamName="WindWavePeriod" plotMode="text" dbParamName="windWavePeriod" plotUnit="s"/>
+    
+    <!-- Redmine 4318 -->
+    <PlotParameterDefn  plotParamName="SGHT" metParamName="SignificantWaveHeight" plotMode="text" deriveParams="windWaveHeight,primarySwellWaveHeight" plotUnit="m" plotFormat="%.1f"/>
+
 	    
 	<!-- WEATHER -->   
 	<PlotParameterDefn  plotParamName="WSYM" metParamName="WxPresent" plotMode="table" dbParamName="wx_present" symbolFont="LargeSpecialSymbolFont" plotLookupTable="pgen_wsym.txt"/>
