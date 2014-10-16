@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
@@ -49,6 +48,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 28, 2014 3086       skorolev    Updated snowConfigManager.
  * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
  * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
+ * Oct 16, 2014 3220       skorolev    Corrected getInstance() method.
+ * 
  * </pre>
  * 
  * @author mpduff
@@ -134,11 +135,7 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     @Override
     protected FSSObsMonitorConfigurationManager getInstance() {
-        if (configMgr == null) {
-            configMgr = new FSSObsMonitorConfigurationManager(
-                    MonName.snow.name());
-        }
-        return configMgr;
+        return FSSObsMonitorConfigurationManager.getSnowObsManager();
     }
 
     /*
