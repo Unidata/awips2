@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  *                                     where query for  T (T%hr) returned TP6hr
  * Jun 13, 2013 2044       randerso    Cleaned up JavaDoc
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -130,7 +131,7 @@ public class GFED2DDao extends GridDao {
         Session s = null;
 
         try {
-            s = getHibernateTemplate().getSessionFactory().openSession();
+            s = getSession();
             // TODO: clean up so we only make one db query
             SortedMap<Integer, Integer> rawTimes = queryByParmId(d2dModelName,
                     refTime, d2dParmName, d2dLevel, s);
@@ -150,7 +151,7 @@ public class GFED2DDao extends GridDao {
                 try {
                     s.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -278,7 +279,7 @@ public class GFED2DDao extends GridDao {
         List<Integer> timeList = new ArrayList<Integer>();
         Session s = null;
         try {
-            s = getHibernateTemplate().getSessionFactory().openSession();
+            s = getSession();
 
             SortedMap<Integer, Integer> results = queryByParmId(d2dModelName,
                     refTime, d2dParmName, d2dLevel, s);
@@ -290,7 +291,7 @@ public class GFED2DDao extends GridDao {
                 try {
                     s.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
