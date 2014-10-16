@@ -154,5 +154,5 @@
 #???|256 | 0 | 0.25 | 230 | PRE | Inst Precip Rate (PRE)        | Radial  | y |   |   |   | Z |   |   |   |   |63
 166|  0 | 0 | 0.0  | 230 | ML  | Melting Layer (ML)            | Graphic | y |   |   |   | Z |   |   |   |   |67
 170|256 | 0 | 0.25 | 230 | DAA | One Hour Unbiased Accum (DAA) | Radial  |   |   |   |  |0.01S|   |   |   |   |69
-500 | 8 | 0 | 0.463  | 463 | HSR | Hybrid Scan Reflectivity (HSR)| Radial  |   |   |   |   |   |   |   |   |   |64
-550 | 8 | 0 | 0.926  | 111 | HSR | Hybrid Scan Reflectivity (HSR)| Radial  |   |   |   |   |   |   |   |   |   |64
+500|  8 | 0 | 0.463| 463 | Z   | Reflectivity (Z)              | Radial  |   |   |   |   |   |   |   |   |   |64
+550|  8 | 0 | 0.926| 111 | Z   | Reflectivity (Z)              | Radial  |   |   |   |   |   |   |   |   |   |64
