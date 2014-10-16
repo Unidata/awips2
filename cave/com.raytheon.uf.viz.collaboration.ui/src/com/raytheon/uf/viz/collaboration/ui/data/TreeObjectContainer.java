@@ -17,15 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.session;
-
-import java.util.List;
-
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+package com.raytheon.uf.viz.collaboration.ui.data;
 
 /**
- * TODO Add Description
+ * Base class for containers that contribute groups to the collaboration group
+ * view
  * 
  * <pre>
  * 
@@ -33,30 +29,38 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 7, 2012            mnash     Initial creation
+ * Oct 8, 2014  3705      bclement     Initial creation
  * 
  * </pre>
  * 
- * @author mnash
+ * @author bclement
  * @version 1.0
  */
-@DynamicSerialize
-public class SubscribeList {
-    @DynamicSerializeElement
-    private List<String> enabledSites;
+public abstract class TreeObjectContainer {
+
+    private final String label;
+
+    private final String icon;
+
+    public TreeObjectContainer(String label, String icon) {
+        this.label = label;
+        this.icon = icon;
+    }
+
+    public abstract Object[] getObjects();
 
     /**
-     * @return the enabledUsers
+     * @return the label
      */
-    public List<String> getEnabledSites() {
-        return enabledSites;
+    public String getLabel() {
+        return label;
     }
 
     /**
-     * @param enabledUsers
-     *            the enabledUsers to set
+     * @return the icon
      */
-    public void setEnabledSites(List<String> enabledSites) {
-        this.enabledSites = enabledSites;
+    public String getIcon() {
+        return icon;
     }
+
 }
