@@ -40,7 +40,8 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SafeSeasMonitor;
  * ------------ ---------- ----------- --------------------------
  * Dec 27, 2009 #3963      lvenable     Initial creation
  * Feb 03, 2014 #2757      skorolev     Fixed reInitialize().
- * Apr 28, 2014 3086       skorolev     Removed local getMonitorAreaConfig method.
+ * Apr 28, 2014  3086      skorolev     Removed local getMonitorAreaConfig method.
+ * Sep 04, 2014  3220      skorolev     Removed "site".
  * 
  * </pre>
  * 
@@ -58,8 +59,7 @@ public class SSThresholdMgr extends AbstractThresholdMgr {
         super("DefaultSSDisplayThresholds.xml",
                 "DefaultSSMonitorThresholds.xml", AppName.SAFESEAS.name()
                         .toLowerCase());
-        areaConfigMgr = new FSSObsMonitorConfigurationManager(site,
-                MonName.ss.name());
+        areaConfigMgr = new FSSObsMonitorConfigurationManager(MonName.ss.name());
         init();
     }
 
@@ -123,7 +123,7 @@ public class SSThresholdMgr extends AbstractThresholdMgr {
     @Override
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
         if (areaConfigMgr == null) {
-            areaConfigMgr = new FSSObsMonitorConfigurationManager(site,
+            areaConfigMgr = new FSSObsMonitorConfigurationManager(
                     MonName.ss.name());
         }
         return areaConfigMgr;

@@ -144,6 +144,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Aug 15, 2014 DR15701 mgamazaychikov Removed static field watchUtil.
  * Aug 28, 2014 ASM #15551 Qinglu Lin  Replaced 1200 PM/1200 AM by NOON/MIDNIGHT, removed days in
  *                                     included tornado/severe thunderstorm watch message.
+ * Sep 18, 2014 ASM #15465 Qinglu Lin  For backup, get officeShort and officeLoc from backup WFO's config.xml.
  * </pre>
  * 
  * @author njensen
@@ -261,8 +262,8 @@ public class TemplateRunner {
         if (backupData != null) {
             context.remove("officeLoc");
             context.remove("officeShort");
-            context.put("officeLoc", backupData.office);
-            context.put("officeShort", backupData.office);
+            context.put("officeLoc", warngenLayer.getBackupOfficeLoc());
+            context.put("officeShort", warngenLayer.getBackupOfficeShort());
             context.put("backupSite", warngenLayer.getDialogConfig()
                     .getWarngenOfficeShort());
         }
@@ -877,37 +878,7 @@ public class TemplateRunner {
         System.out.println("velocity time: "
                 + (System.currentTimeMillis() - tz0));
 
-        String watches[] = {"TORNADO WATCH", "SEVERE THUNDERSTORM WATCH"};
-        int index1 = -1, index2 = -1, index1ToUse = -1;
-        String doubleDollar = "$$";
-        boolean firstTime = true;
-        for (String s: watches) {
-            index1 = script.indexOf(s, 0);
-            if (index1 > 0) {
-                index2 = script.indexOf(doubleDollar, index1);
-            }
-            if (firstTime && index1 > -1) {
-                index1ToUse = index1;
-                firstTime = false;
-            }
-        }
-        String days[] = {"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"};
-        String substring = "", text;
-        if (index1ToUse > -1 && index2 > -1) {
-            substring = script.substring(index1ToUse, index2).toUpperCase();
-            // remove day
-            for (String day: days) {
-                substring = substring.replaceAll(day + " ", "");
-            }
-            // replace 1200 PM/1200 AM with NOON/MIDNIGHT
-            substring = substring.replaceAll("1200 PM", "NOON");
-            substring = substring.replaceAll("1200 AM", "MIDNIGHT");
-            // concatenate strings
-            text = script.substring(0, index1ToUse - 1);
-            text = text + " " + substring + script.substring(index2, script.length());
-        } else {
-            text = script.toString();
-        }
+        String text = script.toString();
         WarningTextHandler handler = WarningTextHandlerFactory.getHandler(
                 selectedAction, text, config.getAutoLockText());
         String handledText = handler.handle(text, areas, cancelareas,

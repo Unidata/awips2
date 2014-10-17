@@ -30,7 +30,6 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
@@ -58,12 +57,17 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed PLUGIN_NAME
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 26, 2014 3629       mapeters    Added RECCO_MANOBS, RECCO_INTEROBS constants.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class RECCODecoder extends AbstractDecoder {
+
+    private static final int RECCO_MANOBS = 4500;
+
+    private static final int RECCO_INTEROBS = 4510;
 
     private boolean removeNILs = true;
 
@@ -154,11 +158,11 @@ public class RECCODecoder extends AbstractDecoder {
                 record.setReportData(parser.getReportData());
 
                 if ("222".equals(parser.getObsType())) {
-                    record.setReportType(IDecoderConstants.RECCO_MANOBS);
+                    record.setReportType(RECCO_MANOBS);
                 } else if ("555".equals(parser.getObsType())) {
-                    record.setReportType(IDecoderConstants.RECCO_INTEROBS);
+                    record.setReportType(RECCO_INTEROBS);
                 } else if ("777".equals(parser.getObsType())) {
-                    record.setReportType(IDecoderConstants.RECCO_MANOBS);
+                    record.setReportType(RECCO_MANOBS);
                 }
 
                 location.setLatitude(parser.getLatitude());
