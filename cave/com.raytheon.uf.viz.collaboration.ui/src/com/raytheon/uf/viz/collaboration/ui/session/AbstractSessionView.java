@@ -93,6 +93,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Mar 11, 2014 #2865      lvenable    Added null checks for msgArchive.
  * Jun 20, 2014 3281       bclement    made sendErrorMessage() public
  * Jun 27, 2014 3323       bclement    fixed disposed font issue
+ * Oct 09, 2014 3711       mapeters    Display chat text in accordance with preferences.
  * </pre>
  * 
  * @author rferrel
@@ -358,8 +359,11 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 sb.append("(").append(time).append(") ");
                 int offset = sb.length();
 
-                sb.append(name).append(": ").append(body);
+                boolean newLine = Activator.getDefault()
+                        .getPreferenceStore().getBoolean("chatLines");
+                String displayPreference = newLine ? ("\n      ") : (": ");
 
+                sb.append(name).append(displayPreference).append(body);
                 // here is the place to put the font and color changes for
                 // keywords
                 // read in localization file once and then don't read in again,

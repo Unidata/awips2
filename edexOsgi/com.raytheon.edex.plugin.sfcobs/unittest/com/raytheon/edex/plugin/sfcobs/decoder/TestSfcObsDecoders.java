@@ -180,12 +180,8 @@ public class TestSfcObsDecoders extends TestCase {
             true,true,true,false,false,
         };
         
-        
-        Pattern p = Pattern.compile(ISynoptic.YYGGI_SUB_W);
-        
-        
         for(int i = 0;i < testData.length;i++) {
-            Matcher m = p.matcher(testData[i]);
+            Matcher m = ISynoptic.YYGGI_SUB_W.matcher(testData[i]);
             assertEquals(m.find(),testMatch[i]);
         }
     }
@@ -202,12 +198,8 @@ public class TestSfcObsDecoders extends TestCase {
             true,true,true,true,
         };
         
-        
-        Pattern p = Pattern.compile(ISynoptic.SEC_1_NDDFF);
-        
-        
         for(int i = 0;i < testData.length;i++) {
-            Matcher m = p.matcher(testData[i]);
+            Matcher m = ISynoptic.SEC_1_NDDFF.matcher(testData[i]);
             assertEquals(m.find(),testMatch[i]);
         }
     }
