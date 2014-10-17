@@ -13,7 +13,11 @@
                                 Added new areaSource object 
      Phil Kurimski   02-04-2013 OB13.2.1-5 Changed Sig Tor to Considerable
 	 Phil Kurimski   05-20-2013 Added selection for very weak tornadoes and landspouts  
-	 Phil Kurimski   09-19-2013 added geospatialConfig.xml                    
+	 Phil Kurimski   09-19-2013 added geospatialConfig.xml     
+	 Evan Bookbinder 2-18-2014 corrected supercell CTA typo & added DSSEvents & 2014 IBW impacts
+     Evan Bookbinder 2-27-2014 parseStrings for Tornado Emergency and Default CTAs
+     Evan Bookbinder 9-5-2014 fixed parseStrings for law enf CTA
+	                
 -->
 <!--
 	Velocity Variables:
@@ -41,9 +45,12 @@ PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
 turned on unless the corresponding .vm file is turned on in a given template's .vm file
 -->  
 <include file="mileMarkers.xml"/>
-<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in the impactSevereWeatherStatement.vm file -->
 <include file="pointMarkers.xml"/>
-<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in the impactSevereWeatherStatement.vm file -->
+<include file="dssEvents.xml" />
+<!--  To enable, make sure dssEvents.vm is added/uncommented in the impactSevereWeatherStatement.vm file -->
+
 
  <!-- Config distance/speed units -->
  <unitDistance>mi</unitDistance>
@@ -199,8 +206,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** TYPE OF WARNING **********" bulletType="title"/>
   <bullet bulletName="torEmergency" bulletText="TORNADO EMERGENCY/CATASTROPHIC TORNADO" bulletGroup="headline" parseString="TORNADO EMERGENCY"/>
   <bullet bulletName="considerableTornado" bulletText="CONSIDERABLE TORNADO TAG" bulletGroup="headline" parseString="TORNADO DAMAGE THREAT...CONSIDERABLE"/>
-  <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" parseString="IMPACT...MOBILE HOMES WILL BE DAMAGED OR DESTROYED"/>
-  <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...SPORADIC DAMAGE TO MOBILE HOMES"/>
+  <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" parseString="IMPACT...FLYING DEBRIS WILL BE DANGEROUS"/>
+  <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...EXPECT DAMAGE TO MOBILE HOMES"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="dopplerTOR" bulletText="Doppler radar indicated" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
@@ -231,7 +238,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="smallHail" bulletText="Small Hail" bulletGroup="group2" parseString="&lt;.75IN"/>
   <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="group2" parseString="1.00IN"/>
   <bullet bulletName="halfdollarHail" bulletText="Half Dollar size hail (1 1/4&quot;)" bulletGroup="group2" parseString="1.25IN"/>
-  <bullet bulletName="pingpongHail" bulletText="Ping pong size hail (1 1/2&quot;)" bulletGroup="group2" parseString="1.50IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="group2" parseString="1.50IN"/>
   <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="group2" parseString="1.75IN"/>
   <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="group2" parseString="2.00IN"/>
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="group2" parseString="2.50IN"/>
@@ -252,13 +259,13 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
   <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
   <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
-  <!-- <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>  -->
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE OUTDOORS...IN A MOBILE HOME...OR IN A VEHICLE" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE OUTDOORS OR IN A VEHICLE" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
   <bullet bulletName="largeTORCTA" bulletText="Large/Violent tornado" parseString="A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="lawEnforcementTORCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>
   <bullet bulletName="squallCTA" bulletText="Thunderstorm lines can produce tornadoes" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
@@ -285,7 +292,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="radioset3" parseString="0.88IN"/>
   <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="radioset3" parseString="1.00IN"/>
   <bullet bulletName="halfdollarHail" bulletText="Half dollar size hail (1 1/4&quot;)" bulletGroup="radioset3" parseString="1.25IN"/>
-  <bullet bulletName="pingpongHail" bulletText="Ping pong size hail (1 1/2&quot;)" bulletGroup="radioset3" parseString="1.50IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="radioset3" parseString="1.50IN"/>
   <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="radioset3" parseString="1.75IN"/>
   <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="radioset3" parseString="2.00IN"/>
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="radioset3" parseString="2.50IN"/>
@@ -319,12 +326,12 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
   <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
   <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
   <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
-  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can product all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
   <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>
@@ -336,8 +343,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** TYPE OF WARNING **********" bulletType="title"/>
   <bullet bulletName="torEmergency" bulletText="TORNADO EMERGENCY/CATASTROPHIC TORNADO" bulletGroup="headline" parseString="TORNADO EMERGENCY"/>
   <bullet bulletName="considerableTornado" bulletText="CONSIDERABLE TORNADO TAG" bulletGroup="headline" parseString="TORNADO DAMAGE THREAT...CONSIDERABLE"/>
-  <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" parseString="IMPACT...MOBILE HOMES WILL BE DAMAGED OR DESTROYED"/>
-  <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...SPORADIC DAMAGE TO MOBILE HOMES"/>
+  <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" parseString="IMPACT...FLYING DEBRIS WILL BE DANGEROUS"/>
+  <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...EXPECT DAMAGE TO MOBILE HOMES"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="dopplerTOR" bulletText="Doppler radar indicated" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
@@ -368,7 +375,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="smallHail" bulletText="Small Hail" bulletGroup="group2" parseString="&lt;.75IN"/>
   <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="group2" parseString="1.00IN"/>
   <bullet bulletName="halfdollarHail" bulletText="Half Dollar size hail (1 1/4&quot;)" bulletGroup="group2" parseString="1.25IN"/>
-  <bullet bulletName="pingpongHail" bulletText="Ping pong size hail (1 1/2&quot;)" bulletGroup="group2" parseString="1.50IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="group2" parseString="1.50IN"/>
   <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="group2" parseString="1.75IN"/>
   <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="group2" parseString="2.00IN"/>
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="group2" parseString="2.50IN"/>
@@ -389,13 +396,13 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
   <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
   <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
-  <!-- <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>  -->
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE OUTDOORS...IN A MOBILE HOME...OR IN A VEHICLE" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE OUTDOORS OR IN A VEHICLE" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
   <bullet bulletName="largeTORCTA" bulletText="Large/Violent tornado" parseString="A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="lawEnforcementTORCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>
   <bullet bulletName="squallCTA" bulletText="Thunderstorm line tornadoes" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
@@ -421,7 +428,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="radioset3" parseString="0.88IN"/>
   <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="radioset3" parseString="1.00IN"/>
   <bullet bulletName="halfdollarHail" bulletText="Half dollar size hail (1 1/4&quot;)" bulletGroup="radioset3" parseString="1.25IN"/>
-  <bullet bulletName="pingpongHail" bulletText="Ping pong size hail (1 1/2&quot;)" bulletGroup="radioset3" parseString="1.50IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="radioset3" parseString="1.50IN"/>
   <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="radioset3" parseString="1.75IN"/>
   <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="radioset3" parseString="2.00IN"/>
   <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="radioset3" parseString="2.50IN"/>
@@ -455,12 +462,12 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
   <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
   <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
   <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
-  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can product all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
   <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>

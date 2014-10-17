@@ -182,11 +182,11 @@ int read_nsharp_config(void)
         if ((fp = fopen("nsharp.cfg", "r")) == NULL) 
 		{
             	fprintf(stderr, "Could not read nsharp.cfg file. Use default.\n");
-		strcpy(sars_filename, "                                                                                ");
+		strcpy(sars_filename, "                                                                                                                                             ");
 		//strcpy(sars_filename, "/users/thompson/nsharp/bigsharp5/nlist.txt");
-		strcpy(sars_filename, "/export/cdbsrv/cchen/Desktop/bigsharp9-original/nlist.txt");
-                strcpy(sup_filename, "                                                                                ");
-                strcpy(sup_filename, "/export/cdbsrv/cchen/Desktop/bigsharp9-original/sup.txt");
+		strcpy(sars_filename,"/usr1/cchen/OB14.2.2/workspace/gov.noaa.nws.ncep.ui.nsharp/localization/ncep/nsharp/nlist.txt");// "/export/cdbsrv/cchen/Desktop/bigsharp9-original/nlist.txt");
+                strcpy(sup_filename, "                                                                                                                                  ");
+                strcpy(sup_filename, "/usr1/cchen/OB14.2.2/workspace/gov.noaa.nws.ncep.ui.nsharp/localization/ncep/nsharp/sup.txt");
 		return(1);
           	}
 

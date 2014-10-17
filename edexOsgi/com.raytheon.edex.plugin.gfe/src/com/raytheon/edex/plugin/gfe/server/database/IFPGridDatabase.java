@@ -115,6 +115,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 10/31/2013   #2508      randerso    Change to use DiscreteGridSlice.getKeys()
  * 12/10/13     #2611      randerso    Change saveGridData to set update time when saving grids
  * 05/29/2014   #3071      randerso    Fix NPE in getCachedParmID
+ * 09/21/2014   #3648      randerso    Changed deleteDatabase to handle database already being deleted by other JVM
  * 
  * </pre>
  * 
@@ -2038,15 +2039,18 @@ public class IFPGridDatabase extends GridDatabase {
      *            the DatabaseID of the datbase to be deleted
      */
     public static void deleteDatabase(DatabaseID id) {
+        boolean purged = false;
         try {
             GFEDao gfeDao = new GFEDao();
-            gfeDao.purgeGFEGrids(id);
+            purged = gfeDao.purgeGFEGrids(id);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to delete model database: " + id, e);
         }
 
-        deleteModelHDF5(id);
+        if (purged) {
+            deleteModelHDF5(id);
+        }
     }
 
     /**
