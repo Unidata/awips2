@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.regional.Sec5MaritimeDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
@@ -30,7 +31,6 @@ import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
@@ -50,12 +50,14 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  * 20120619      DR 14015  mporricelli Added elevation for fixed buoys
  * Feb 27, 2013 1638       mschenke    Moved ObStationDao to edex pointdata plugin
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
+
     // The logger
     private Log logger = LogFactory.getLog(getClass());
 
@@ -124,7 +126,8 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
             }
             reportParser.next();
             element = reportParser.getElement();
-            if (matchElement(element, ISynoptic.YYGGI_SUB_W)) {
+            if (element != null
+                    && ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
                 try {
                     Integer month = getHeader().getMonth();
                     if (month != -1) {
@@ -198,9 +201,9 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
         if (report != null) {
 
             if (isFixedBuoy) {
-                report.setReportType(IDecoderConstants.SYNOPTIC_MOORED_BUOY);
+                report.setReportType(SYNOPTIC_MOORED_BUOY);
             } else {
-                report.setReportType(IDecoderConstants.SYNOPTIC_SHIP);
+                report.setReportType(SYNOPTIC_SHIP);
             }
 
             SurfaceObsLocation loc = new SurfaceObsLocation(
@@ -220,7 +223,7 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (matchElement(element, "99\\d{3}")) {
+        if (element != null && LAT_PATTERN.matcher(element).find()) {
             Integer lat = getInt(element, 2, 5);
             if ((lat != null) && (lat >= 0)) {
                 shipLatitude = lat.floatValue() / 10.0f;
@@ -238,7 +241,7 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (matchElement(element, "[1357]((0\\d{3})|(1(([0-7]\\d{2})|(800))))")) {
+        if (element != null && LON_PATTERN.matcher(element).find()) {
             Integer lon = getInt(element, 1, 5);
             if ((lon != null) && (lon >= 0)) {
                 shipLongitude = lon.floatValue() / 10.0f;
