@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Dec 03, 2012 15216/15639 zhao fixed a bug related to Link-to-Frame 
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs.
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
+ * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
  * 
  * </pre>
  * 
@@ -114,7 +115,7 @@ public class FogZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     protected void configThreshAction() {
-        if (fogThreshDlg == null) {
+        if (fogThreshDlg == null || fogThreshDlg.isDisposed()) {
             fogThreshDlg = new FogMonDispThreshDlg(getParent().getShell(),
                     CommonConfig.AppName.FOG, DataUsageKey.DISPLAY);
         }
@@ -294,10 +295,16 @@ public class FogZoneTableDlg extends ZoneTableDlg {
         // Not used
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
+     * getMonitorAreaConfigInstance()
+     */
     @Override
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
-        if (configMgr == null) {
-            configMgr = new FSSObsMonitorConfigurationManager(site,
+        if (configMgr == null || configMgr.isPopulated()) {
+            configMgr = new FSSObsMonitorConfigurationManager(
                     MonName.fog.name());
         }
         return configMgr;

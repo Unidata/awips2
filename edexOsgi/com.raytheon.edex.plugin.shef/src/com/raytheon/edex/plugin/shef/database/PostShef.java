@@ -129,6 +129,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 07/14/2014              mpduff      Fix data range checks
  * 08/05/2014   15671      snaples     Fixed check for posting when not found in ingestfilter and token is set for load_shef_ingest
  * 09/03/2014              mpduff      Fixed river status table updates.
+ * 09/12/2014              mpduff      Fix for shef_load_ingest token
  * 09/18/2014   3627       mapeters    Updated deprecated {@link TimeTools} usage.
  * </pre>
  * 
@@ -2147,14 +2148,14 @@ public class PostShef {
                                 ingestSwitch = ShefConstants.IngestSwitch.POST_PE_OFF;
                             }
                             matchFound = true;
+                            ingestSwitchMap.put(key, ingestSwitch);
                             break;
                         }
                     }
                 }
-
-                ingestSwitchMap.put(key, ingestSwitch);
             }
 
+            matchFound = ingestSwitchMap.containsKey(key);
             ingestSwitch = ingestSwitchMap.get(key);
 
             /*

@@ -21,7 +21,6 @@ package com.raytheon.edex.plugin.binlightning.impl;
 
 import java.io.ByteArrayInputStream;
 
-import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
 
 /**
  * Wraps a ByteArrayInputStream with access methods specific to binary
