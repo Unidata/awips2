@@ -20,8 +20,6 @@
 
 package com.raytheon.uf.common.dataplugin.ccfp;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -58,6 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Nov 01, 2013 2361        njensen     Remove XML annotations
  * Apr 15, 2014 3001        bgonzale    Refactored to common package,
  *                                      com.raytheon.uf.common.dataplugin.ccfp.
+ * Oct 03, 2014 3644        mapeters    Removed dataURI column.
  * 
  * 
  * </pre>
@@ -67,13 +66,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ccfpseq")
-@Table(name = "ccfp", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-/*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
- */
+@Table(name = "ccfp", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "refTime", "producttype", "boxLat", "boxLong" }) })
+
 @org.hibernate.annotations.Table(appliesTo = "ccfp", indexes = { @Index(name = "ccfp_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+ "refTime" }) })
 @DynamicSerialize
 public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
 
@@ -270,13 +267,6 @@ public class CcfpRecord extends PluginDataObject implements ISpatialEnabled {
 
     public void setLocation(CcfpLocation location) {
         this.location = location;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

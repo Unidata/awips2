@@ -53,6 +53,14 @@
         key="REFD" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Derived Composite"
         key="REFC" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="CAPPI"
+        key="REFD"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="MAX 1hr CAPPI"
+        key="MXREF"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Derived VIL"
+        key="VILIQ"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Derived Echo Top"
+        key="RETOP"  indentText="true" />
     <contribute xsi:type="menuItem" menuText="CAPPI" key="REFD"
         indentText="true" />
     <contribute xsi:type="menuItem" menuText="MAX 1hr CAPPI"

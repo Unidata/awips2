@@ -10,11 +10,12 @@ import java.util.List;
  * <pre>
  * SOFTWARE HISTORY
  *                   
- * ate          Ticket#     Engineer   Description
+ * Date          Ticket#     Engineer   Description
  * -----------  ----------  ---------- --------------------------
  * 05/14/2013   #989        qzhou      Initial Creation
  * 03/18/2014   #1123       qzhou      Add getHdevOrDDev
  * 04/09/2014   #1123       qzhou      Modified getKIndex for gamma value
+ * 06/23/2014   R4152       qzhou      Fixed on getQHAQDC formula
  * </pre>
  * 
  * @author qzhou
@@ -25,7 +26,7 @@ public class CalcEach1min {
 
     private static final int MAX_GAP_LENGTH = 15;
 
-    private static final int SMOOTH_WINDOW = 60;//
+    private static final int SMOOTH_WINDOW = 60;
 
     private static final int TRANSITION_TIME = 60;
 
@@ -103,14 +104,14 @@ public class CalcEach1min {
 
         for (int i = 0; i < HOURS; i++) {
             fitLength[i] = 30.0f + defLength[i];
-            ind[i] = (int) Math.floor(i / 3);
+            ind[i] = (int) Math.floor(i / 3.0f);
             curK[i] = kIndex[ind[i]];
 
             if (curK[i] != MISSING_VAL)
                 fitLength[i] += kLength[(int) curK[i]];
 
-            if (fitLength[i] > 1440)
-                fitLength[i] = 1440;
+            if (fitLength[i] > 1440.0f)
+                fitLength[i] = 1440.0f;
         }
 
         return fitLength;
@@ -365,9 +366,11 @@ public class CalcEach1min {
         float jump = qdc[0] - qdc[1439];
 
         for (int i = 0; i < SMOOTH_WINDOW; i++) {
-            data[1440 - SMOOTH_WINDOW - i] += i / (SMOOTH_WINDOW - 1) * 0.5
-                    * jump;
-            data[i] -= (1 - i / (SMOOTH_WINDOW - 1)) * 0.5 * jump;
+
+            data[1440 - SMOOTH_WINDOW + i] += ((float) i / (SMOOTH_WINDOW - 1))
+                    * 0.5f * jump;
+            data[i] -= (1.0f - (float) i / (SMOOTH_WINDOW - 1)) * 0.5f * jump;
+
         }
 
         return data;
