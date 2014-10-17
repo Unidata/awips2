@@ -38,12 +38,9 @@
 /*  WW_TYPE						       */
 /***************************************************************/
 
-#ifndef _WIN32
 #include "xwcmn.h"
-#endif
 #include "sharp95.h"
 
-#ifndef _WIN32
 short switch_modes(short mode)
         /*************************************************************/
         /*  SWITCH_MODES                                             */
@@ -118,7 +115,6 @@ void disp_param(char *value, short rcol, short rlin)
 	outgtext(value, (rcol - getgtextextent(value)), rlin);
 }
 
-#endif
 /*
 
 grab_level should return an error as needed 
@@ -159,7 +155,7 @@ short grab_level(float pres)
 }
 
 
-#ifndef _WIN32
+
 	/*NP*/
 void skewt_cursor_data( short x, short y )
 	/*************************************************************/
@@ -171,7 +167,7 @@ void skewt_cursor_data( short x, short y )
 {
 	float pres, temp, hght, ix1;
 	short ii, x1, y1;
-	char st[20];
+	char st[80];
 	short pIndex, zIndex, tIndex, tdIndex, dIndex, sIndex;
 
         pIndex = getParmIndex("PRES");
@@ -211,12 +207,13 @@ void skewt_cursor_data( short x, short y )
 		outtext( st, skv.tlx+150, y);
 		/*sprintf( st, "RH = %s", qc2( relh(pres, &ix1), "%", 0 ));
         	outgtext( st, skv.tlx+150, y);*/
-	        }
 
-	/* Plot a point on the hodograph for this level */
-	hodo_to_pix(i_wdir(pres, I_PRES), i_wspd(pres, I_PRES), &x1, &y1);
-	sprintf( st, "x -- %.0fm %4.0f/%.0f kt", agl(i_hght(pres, I_PRES)), i_wdir(pres, I_PRES), i_wspd(pres, I_PRES));
-	outtext( st, x1, y1-3 );
+		/* Plot a point on the hodograph for this level */
+		hodo_to_pix(i_wdir(pres, I_PRES), i_wspd(pres, I_PRES), &x1, &y1);
+		sprintf( st, "x -- %.0fm %4.0f/%.0f kt", agl(i_hght(pres, I_PRES)), i_wdir(pres, I_PRES), i_wspd(pres, I_PRES));
+		// printf("HODO DIR/SPD , X/Y = %f/%f , %d/%d \n", i_wdir(pres, I_PRES), i_wspd(pres, I_PRES), x1, y1);
+		outtext( st, x1, y1 );
+	        }
 	
 	setcolor( 31 );
 	sprintf( st, "%5.0fmb ", pres );
@@ -310,7 +307,7 @@ void hodo_cursor_data( short x, short y )
 	sprintf( st, "%3.0f", ix4 );
 	outtext( st, skv.brx+315, skv.tly+60 );
 }
-#endif
+
 
 /*
 
@@ -354,12 +351,12 @@ short get_level_pointer(float pres)
 
 void bunkers_storm_motion(float *u, float *v, float *dir, float *spd)
         /*************************************************************/
-        /*  EFFECTIVE BUNKERS_STORM_MOTION                           */
+        /*  BUNKERS_STORM_MOTION                                     */
         /*  Rich Thompson and John Hart  SPC OUN                     */
         /*                                                           */
         /*  Calculates the motion of a right-moving supercell using  */
         /*  a method developed by Bunkers et. al. (2000),            */
-        /*  modified to account for storm depth                      */
+        /*  modified to account for clearly elevated storms          */
         /*                                                           */
         /*  *u, *v   - Storm motion vector (kt)                      */
         /*************************************************************/
@@ -370,7 +367,7 @@ void bunkers_storm_motion(float *u, float *v, float *dir, float *spd)
 /* 24 Mar 2008 */	
 /*        float base, el, depth, p_bot, p_top, oldlplpres, pres, mucp;*/
 
-	float base, el, depth, oldlplpres, pres, mucp;
+	float base, el, depth, oldlplpres, pres, mucp, mucn;
         struct _parcel pcl;
 
         short pIndex, oldlplchoice;
@@ -385,25 +382,24 @@ void bunkers_storm_motion(float *u, float *v, float *dir, float *spd)
         if (!sndg || pIndex == -1)
           return; 
 
-	/*printf("\n beginning storm dir = %0f\n", *dir);
-        printf("\n beggining storm spd = %0f\n", *spd);*/
-
+/*	printf("\n beginning storm dir = %0f\n", *dir);
+        printf("\n beggining storm spd = %0f\n", *spd);
+*/
         oldlplchoice = lplvals.flag;
-       /* printf("bunkers_storm_motion 1 calling define_parcel  flag=3-pres=400...oldlplchoice=%d------------------------->\n", oldlplchoice);*/
         define_parcel(3, 400);
         mucp = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+	mucn = pcl.bminus;
         el = agl(i_hght(pcl.elpres, I_PRES));
 
-        if (mucp >= 100 && el > 0)
+        if (mucp >= 100 && mucn > -250 && el > 0)
         {
 
-/* 24 Mar 2008 */
-/*	effective_inflow_layer(100,-250, &p_bot, &p_top);
+/* 8 April 2012 - need effective inflow base prior to if statements below */
+	effective_inflow_layer(100,-250, &p_bot, &p_top); 
 
-        printf("\nBunkers R inflow base  = %0.1f", agl(i_hght(p_bot, I_PRES)));
+/*      printf("\nBunkers R inflow base  = %0.1f", agl(i_hght(p_bot, I_PRES)));
         printf("\nBunkers R inflow top  = %0.1f\n", agl(i_hght(p_top, I_PRES)));
 */
-
 	base = agl(i_hght(p_bot, I_PRES));
         if (base >= 750){
 	    	depth = (el - base);
@@ -418,6 +414,7 @@ void bunkers_storm_motion(float *u, float *v, float *dir, float *spd)
 /*      printf("\n end elayer storm dir = %0f\n", *dir);
         printf("\n end elayer storm spd = %0f\n", *spd);
 */
+
                 }
           }
 	}
@@ -436,7 +433,6 @@ void bunkers_storm_motion(float *u, float *v, float *dir, float *spd)
         	}
 	}
 */	
-	
 	if (mucp < 100 || base < 750 ||  el < 0) {
         /* default to standard 0-6 km layer if cape > 100 but EL height is missing */
         /* Sfc-6km mean wind */
@@ -454,8 +450,7 @@ void bunkers_storm_motion(float *u, float *v, float *dir, float *spd)
 
                 }
         }
-	if(oldlplchoice < 1 || oldlplchoice>6)
-		return;
+
         /* set parcel back to user selection */
         if (oldlplchoice == 1)
           pres = 0;
@@ -469,23 +464,21 @@ void bunkers_storm_motion(float *u, float *v, float *dir, float *spd)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-       // printf("bunkers_storm_motion 2 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
-
         define_parcel(oldlplchoice, pres);
 
-	/*printf("\n ending storm dir = %0f\n", *dir);
-	printf("\n ending storm spd = %0f\n", *spd);*/
-
+/*	printf("\n ending storm dir = %0f\n", *dir);
+	printf("\n ending storm spd = %0f\n", *spd);
+*/
 }
 
 void bunkers_left_motion(float *ul, float *vl, float *dirl, float *spdl)
         /*************************************************************/
-        /*  EFFECTIVE BUNKERS_STORM_MOTION                           */
+        /*  BUNKERS_LEFT_MOTION                                      */
         /*  Rich Thompson and John Hart  SPC OUN                     */
         /*                                                           */
-        /*  Calculates the motion of a right-moving supercell using  */
+        /*  Calculates the motion of a left-moving supercell using   */
         /*  a method developed by Bunkers et. al. (2000),            */
-        /*  modified to account for storm depth                      */
+        /*  modified to account for clearly elevated storms          */
         /*                                                           */
         /*  *u, *v   - Storm motion vector (kt)                      */
         /*************************************************************/
@@ -496,7 +489,7 @@ void bunkers_left_motion(float *ul, float *vl, float *dirl, float *spdl)
 /* 24 Mar 2008 */
 /*        float base, el, depth, p_bot, p_top, oldlplpres, pres, mucp; */
 
-	float base, el, depth, oldlplpres, pres, mucp;
+	float base, el, depth, oldlplpres, pres, mucp, mucn;
         struct _parcel pcl;
 
         short pIndex, oldlplchoice;
@@ -515,14 +508,14 @@ void bunkers_left_motion(float *ul, float *vl, float *dirl, float *spdl)
 
         define_parcel(3, 400);
         mucp = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
-
+	mucn = pcl.bminus;
         el = agl(i_hght(pcl.elpres, I_PRES));
 
-        if (pcl.bplus >= 100 && el > 0)
+        if (mucp >= 100 && mucn > -250 && el > 0)
         {
 /* 24 Mar 2008 */
-/*        effective_inflow_layer(100,-250, &p_bot, &p_top);
-*/
+/*        effective_inflow_layer(100,-250, &p_bot, &p_top);*/
+
 
 /*      printf("\nBunkers L inflow base  = %0.1f", agl(i_hght(p_bot, I_PRES)));
         printf("\nBunkers L inflow top  = %0.1f\n", agl(i_hght(p_top, I_PRES)));
@@ -586,7 +579,6 @@ void bunkers_left_motion(float *ul, float *vl, float *dirl, float *spdl)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-       // printf("5 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
         define_parcel(oldlplchoice, pres);
 
 /*        printf("\n ending storm dir = %0f\n", *dir);
@@ -605,105 +597,98 @@ void bunkers_left_motion(float *ul, float *vl, float *dirl, float *spdl)
         /*                                                                */
         /******************************************************************/
         {
-        	short i, j, tIndex, tdIndex, pIndex, oldlplchoice, ok;
-        	float ix1, mucape, mucin, pres, mucp, mucn;
-        	Parcel pcl;
+        short i, j, tIndex, tdIndex, pIndex, oldlplchoice, ok;
+        float ix1, mucape, mucin, pres, mucp, mucn;
+        Parcel pcl;
 
-        	oldlplchoice = lplvals.flag;
+        oldlplchoice = lplvals.flag;
 
-        	define_parcel(3, 300);
-        	mucp = parcel(-1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
-        	mucn = pcl.bminus;
+	define_parcel(3, 300);
+	mucp = parcel(-1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+	mucn = pcl.bminus;
+	
+        define_parcel(3, 400);
+        parcel(-1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+        mucape = pcl.bplus;
+        mucin = pcl.bminus;
 
-        	define_parcel(3, 400);
-        	parcel(-1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
-        	mucape = pcl.bplus;
-        	mucin = pcl.bminus;
+	/* scenario where shallow buoyancy present for lesser theta parcel near ground */
+	if (mucp > mucape){
+		mucape = mucp;
+		mucin = mucn;
+		}	
 
-        	/* scenario where shallow buoyancy present for lesser theta parcel near ground */
-        	if (mucp > mucape){
-        		mucape = mucp;
-        		mucin = mucn;
-        	}
+        /* set parcel back to user selection */
+        if (oldlplchoice == 1)
+          pres = 0; 
+        else if (oldlplchoice == 2)
+          pres = 0;
+        else if (oldlplchoice == 3)
+          pres = mu_layer;
+        else if (oldlplchoice == 4)
+          pres = mml_layer; 
+        else if (oldlplchoice == 5)
+          pres = user_level;
+        else if (oldlplchoice == 6)
+          pres = mu_layer;
+        define_parcel(oldlplchoice, pres);
 
-        	/* set parcel back to user selection */
-        	if (oldlplchoice == 1)
-        		pres = 0;
-        	else if (oldlplchoice == 2)
-        		pres = 0;
-        	else if (oldlplchoice == 3)
-        		pres = mu_layer;
-        	else if (oldlplchoice == 4)
-        		pres = mml_layer;
-        	else if (oldlplchoice == 5)
-        		pres = user_level;
-        	else if (oldlplchoice == 6)
-        		pres = mu_layer;
-        	//printf("6 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
+        *bot = RMISSD;
+        *top = RMISSD;
 
-        	define_parcel(oldlplchoice, pres);
+        if (!sndg) { return; }
 
-        	*bot = RMISSD;
-        	*top = RMISSD;
+        pIndex  = getParmIndex("PRES");
+        tIndex  = getParmIndex("TEMP");
+        tdIndex = getParmIndex("DWPT");
 
-        	if (!sndg) { return; }
+        if (pIndex == -1 || tIndex == -1 || tdIndex == -1) { return; }
 
-        	pIndex  = getParmIndex("PRES");
-        	tIndex  = getParmIndex("TEMP");
-        	tdIndex = getParmIndex("DWPT");
+        if (mucape >= 100 && mucin >= -250)
+        {
 
-        	if (pIndex == -1 || tIndex == -1 || tdIndex == -1) { return; }
+        /*      printf( "Determining Effective Surface\n"); */
+                /* ----- Begin at surface and search upward for "Effective Surface" ----- */
+                for(i=sfc();i<=numlvl-1;i++)
+                {
+                ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
+                if((pcl.bplus >= ecape) && (pcl.bminus >= ecinh))
+                        {
+                        *bot = sndg[i][pIndex];
+                        /* printf( "EFFSFC = %f\n", *bot); */
+                        break;
+                        }
+                }
 
-        	if (mucape >= 100 && mucin >= -250)
-        	{
+                if (*bot == RMISSD) return;
 
-        		//     printf( "Determining Effective Surface\n");
-        		// ----- Begin at surface and search upward for "Effective Surface" -----
-        		for(i=sfc();i<=numlvl-1;i++)
-        		{
-        			ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
-        			if((pcl.bplus >= ecape) && (pcl.bminus >= ecinh))
-        			{
-        				*bot = sndg[i][pIndex];
-        				// printf( "EFFSFC = %f\n", *bot);
-        				break;
-        			}
-        		}
-
-        		if (*bot == RMISSD) return;
-
-        		//             printf( "Determining Effective Top\n");
-        		// ----- Keep searching upward for the "Effective Top" -----
-        		for(i=sfc();i<=numlvl-1;i++)
-        		{
-        			if (sndg[i][pIndex] <= *bot)
-        			{
-        				if ((sndg[i][tIndex] != RMISSD) && (sndg[i][tdIndex] != RMISSD)) {
-        					ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
-        					//printf("%.2f %.2f %.2f  - %.2f %.2f\n", sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], pcl.bplus, pcl.bminus);
-        					if((pcl.bplus <= ecape) || (pcl.bminus <= ecinh))
-        						//check for missing T/Td data with significant wind levels in obs soundings
-        					{
-        						ok = 0;
-        						j=1;
-
-        						while (!ok && i-j >=0 && i-j <= numlvl-1) {
-        							if ((sndg[i-j][tIndex] != RMISSD) && (sndg[i-j][tdIndex] != RMISSD)) { ok=1; } else { j++; }
-        						}
-        						if(i-j >=0 && i-j <= numlvl-1)
-        						*top = sndg[i-j][pIndex];
-        						//printf("inflow top = %f\n", *top);
-        						break;
-        					}
-        				}
-        			}
-        		}
-
-        	}
-        	//	printf( "EIL - %f\n", *bot);
-
-
+/*              printf( "Determining Effective Top\n"); */
+                /* ----- Keep searching upward for the "Effective Top" ----- */
+                for(i=sfc();i<=numlvl-1;i++)
+                {
+                if (sndg[i][pIndex] <= *bot)
+                        {
+			if ((sndg[i][tIndex] != RMISSD) && (sndg[i][tdIndex] != RMISSD)) {
+	                        ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
+				/*printf("%.2f %.2f %.2f  - %.2f %.2f\n", sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], pcl.bplus, pcl.bminus);*/
+                	        if((pcl.bplus <= ecape) || (pcl.bminus <= ecinh))
+                                        /* check for missing T/Td data with significant wind levels in obs soundings */
+                        	        {
+					ok = 0;
+					j=1;
+					while (!ok) {
+						if ((sndg[i-j][tIndex] != RMISSD) && (sndg[i-j][tdIndex] != RMISSD)) { ok=1; } else { j++; }
+						}
+                                	*top = sndg[i-j][pIndex];
+					/*printf("inflow top = %f\n", *top);*/
+        	                        break;
+                	                }
+				}
+                        }
+                }
         }
+/*	printf( "EIL - %f\n", *bot);
+*/      }
 
 float scp(float stdir, float stspd)
 /***************************************************************/
@@ -723,7 +708,7 @@ float scp(float stdir, float stspd)
 
         short oldlplchoice;
         struct _parcel pcl;
-        //fprintf(stderr,"scp called wdir=%f, wspd=%f\n", stdir, stspd);
+
         idxp = getParmIndex("PRES");
 
         oldlplchoice = lplvals.flag;
@@ -795,8 +780,6 @@ float scp(float stdir, float stspd)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-        //printf("7 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
-
         define_parcel(oldlplchoice, pres);
 
         return scp_new;
@@ -805,7 +788,7 @@ float scp(float stdir, float stspd)
 float sigtorn_fixed(float stdir, float stspd)
 /***************************************************************/
 /*                                                             */
-/*      WAF 2003 Significant Tornado Parameter (fixed layer)   */
+/*      Significant Tornado Parameter (fixed layer)   */
 /*      Rich Thompson SPC OUN                                  */
 /*      Adapted to sbCAPE and fixed layer shear terms          */
 /***************************************************************/
@@ -858,8 +841,6 @@ float sigtorn_fixed(float stdir, float stspd)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-        //printf("8 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
-
         define_parcel(oldlplchoice, pres);
 
 	return stpf;
@@ -962,12 +943,65 @@ float sigtorn(float stdir, float stspd)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-       // printf("9 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
-
         define_parcel(oldlplchoice, pres);
 
         return stp;
 	}
+
+
+float sigtorn_tc(float stdir, float stspd)
+/****************************************************************/
+/*                                                              */
+/*      Eastin et al. (2012) Tropical Cyclone Tornado Parameter */
+/*      Rich Thompson SPC OUN                                   */  
+/*                                                              */  
+/*      TCTP - modeled after WAF 2003 version of STP            */ 
+/*	uses 0-1 km SRH, 0-3 km bulk shear, and MLLCL height    */
+/*      in areas with MLCAPE > 0                                */
+/****************************************************************/
+        {
+        float ix1, ix2, ix3, ix4, srh1, shr3, mlcp, mllclh, pres, tctp;
+        short pIndex, oldlplchoice;
+        struct _parcel pcl;
+
+        oldlplchoice = lplvals.flag;
+
+        pIndex = getParmIndex("PRES");
+	tctp = 0.0;
+
+        /* mlCAPE and LCL */
+        define_parcel(4,100);
+        ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+        mlcp = pcl.bplus;
+        mllclh = agl(i_hght(pcl.lclpres, I_PRES));
+
+        /* 0-3 km bulk shear and 0-1 km SRH */
+        wind_shear(sndg[sfc()][pIndex], i_pres(msl(3000)), &ix1, &ix2, &ix3, &shr3);
+        srh1 = helicity(0, 1000, st_dir, st_spd, &ix2, &ix3);
+
+        if (mlcp > 0) {
+        	tctp = (srh1/40) * (shr3/23) * ((2000-mllclh)/1400);
+                } 
+        if (tctp < 0) tctp = 0;
+
+        /* set parcel back to user selection */
+        if (oldlplchoice == 1)
+          pres = 0;
+        else if (oldlplchoice == 2)
+          pres = 0;
+        else if (oldlplchoice == 3)
+          pres = mu_layer;
+        else if (oldlplchoice == 4)
+          pres = mml_layer;
+        else if (oldlplchoice == 5)
+          pres = user_level;
+        else if (oldlplchoice == 6)
+          pres = mu_layer;
+        define_parcel(oldlplchoice, pres);
+
+        return tctp;
+        }
+
 
 float sigtorn_test(float stdir, float stspd)
 /***************************************************************/
@@ -1055,8 +1089,6 @@ float sigtorn_test(float stdir, float stspd)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-       // printf("10 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
-
         define_parcel(oldlplchoice, pres);
 
         return stp;
@@ -1166,8 +1198,6 @@ float sigtorn_cin(float stdir, float stspd)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-        //printf("11 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
-
         define_parcel(oldlplchoice, pres);
 
         return stp_cin;
@@ -1230,8 +1260,6 @@ float CB_sigtor(void)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-       // printf("12 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
-
         define_parcel(oldlplchoice, pres);
 
         return cbt;
@@ -1281,8 +1309,6 @@ float esp(void)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-       // printf("13 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
-
         define_parcel(oldlplchoice, pres);
 
         return esp_1;
@@ -1337,8 +1363,6 @@ float damaging_wind(void)
           pres = user_level;
         else if (oldlplchoice == 6)
           pres = mu_layer;
-       // printf("14 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
-
         define_parcel(oldlplchoice, pres);
 
         return wndg;

@@ -20,7 +20,9 @@
     CMAN_STATION_ID  : 'stationId' in common_obs_spatial where catalogtype=33
     The menuName is optional and can be set to change the menu name from the areaName. If subMenuName is
     set then the menu will appear as a cascading sub menu.    
- -->
+ 
+    !Note - for sub-menu items under "GEMPAK", make sure they are also activated (uncommented) in geog.xml.
+-->
     <AreaMenuItem subMenuName="" menuName="BasicWX_US">
         <source>PREDEFINED_AREA</source>
         <areaName>BasicWX_US</areaName>

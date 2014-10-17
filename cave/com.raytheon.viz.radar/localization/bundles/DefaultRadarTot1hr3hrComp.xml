@@ -104,7 +104,6 @@
 					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 					</properties>
 					<resourceData xsi:type="bestResResourceData" productIdentifierKey="productCode" retrieveData="false">
-						<enabler xsi:type="radarSpatialEnabler" />
 						<metadataMap>
 							<mapping key="productCode">
 								<constraint constraintValue="153,94,19,20" constraintType="IN" />
