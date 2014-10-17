@@ -535,13 +535,13 @@ public class NsharpNativeConstants {
 
     public static final String SEVERE_MIDSRW_LINE = "Mid SRW (LFC - LFC+4km) _=    %.0f kt\r\n";
 
-    public static final String SEVERE_LOWSRWEL_LINE = "Low SRW (EL-4km - EL)   _=    %.0f kt\r\n";
+    public static final String SEVERE_UPPERSRWEL_LINE = "Upper SRW (EL-4km - EL)   _=    %.0f kt\r\n";
 
     public static final String SEVERE_LOWSRWSFC_MISSING = "Low SRW (Sfc - LFC)     _=    M \r\n";
 
     public static final String SEVERE_MIDSRW_MISSING = "Mid SRW (LFC - LFC+4km) _=    M \r\n";
 
-    public static final String SEVERE_LOWSRWEL_MISSING = "Low SRW (EL-4km - EL)   _=    M \r\n";
+    public static final String SEVERE_UPPERSRWEL_MISSING = "Upper SRW (EL-4km - EL)   _=    M \r\n";
 
     /*
      * PRECIPITATION TYPE data strings

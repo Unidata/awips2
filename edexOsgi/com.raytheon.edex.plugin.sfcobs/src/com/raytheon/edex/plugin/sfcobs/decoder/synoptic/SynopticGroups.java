@@ -19,14 +19,14 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
+import java.util.regex.Pattern;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.core.DataItem;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
@@ -55,12 +55,18 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 20070925            391 jkorman     Initial Coding.
  * 20071109            391 jkorman     Factored out time constants.
  * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter}.
+ * Sep 26, 2014 #3629      mapeters    Replaced static imports.
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ *                                     calls, added HUMIDITY_PATTERN.
+ * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class SynopticGroups {
+
+    private static final Pattern HUMIDITY_PATTERN = Pattern.compile("2\\d{4}");
 
     private static final int PREFIX_START = 0;
 
@@ -89,7 +95,7 @@ public class SynopticGroups {
             int lookingForSect) {
         DataItem decodedItem = null;
 
-        if (matchElement(groupData, "2\\d{4}")) {
+        if (groupData != null && HUMIDITY_PATTERN.matcher(groupData).find()) {
             Integer val = Integer.parseInt(groupData.substring(2, 5));
             if ((val != null) && (val >= 0)) {
                 if (lookingForSect == 1) {
@@ -126,7 +132,7 @@ public class SynopticGroups {
             if ("///".equals(s)) {
                 return decodedItem;
             }
-            Integer val = getInt(groupData, 2, 5);
+            Integer val = AbstractSfcObsDecoder.getInt(groupData, 2, 5);
             if ((val != null) && (val >= 0)) {
                 String dataItemName = null;
                 int sign = 0;
@@ -205,7 +211,7 @@ public class SynopticGroups {
         if ((groupData != null) && (groupData.length() == 5)) {
             if ((groupData.charAt(0) == '3') && (lookingForSect == 1)) {
 
-                Integer val = getInt(groupData, 1, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
                     decodedItem = new DataItem("stationPressure");
                     // RULE : If the value is between 0 and 100, assume the
@@ -239,7 +245,7 @@ public class SynopticGroups {
         if ((groupData != null) && (groupData.length() == 5)) {
             if ((groupData.charAt(0) == '4') && (lookingForSect == 1)) {
 
-                Integer val = getInt(groupData, 1, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
                     decodedItem = new DataItem("seaLevelPressure");
                     // RULE : If the value is between 0 and 100, assume the
@@ -273,7 +279,7 @@ public class SynopticGroups {
         if ((groupData != null) && (groupData.length() == 5)) {
             if ((groupData.charAt(0) == '5') && (lookingForSect == 1)) {
 
-                Integer val = getInt(groupData, 2, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 2, 5);
                 if ((val != null) && (val >= 0)) {
                     decodedItem = new DataItem("3HRChange");
                     decodedItem.setDataValue(hPaToPa.convert(val));
@@ -300,7 +306,7 @@ public class SynopticGroups {
         if ((groupData != null) && (groupData.length() == 5)) {
             if ((groupData.charAt(0) == '6')) {
                 if ((lookingForSect == 1) || (lookingForSect == 3)) {
-                    Integer val = getInt(groupData, 1, 4);
+                    Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 4);
                     if (val != null) {
                         decodedItem = new DataItem("precip");
                         if ((val >= 0) && (val < 990)) {
@@ -310,7 +316,7 @@ public class SynopticGroups {
                             decodedItem.setDataValue(value);
                         }
 
-                        val = getInt(groupData, 4, 5);
+                        val = AbstractSfcObsDecoder.getInt(groupData, 4, 5);
                         if ((val != null) && (val >= 0)) {
                             decodedItem.setDataPeriod(precipHours[val]
                                     * TimeUtil.SECONDS_PER_HOUR);
@@ -319,7 +325,7 @@ public class SynopticGroups {
                 }
             } else if ((groupData.charAt(0) == '7') && (lookingForSect == 3)) {
 
-                Integer val = getInt(groupData, 1, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
                     decodedItem = new DataItem("precip");
                     if (val > 9998) {
@@ -329,7 +335,7 @@ public class SynopticGroups {
                     decodedItem.setDataPeriod(TimeUtil.SECONDS_PER_DAY);
                 }
             } else if ((groupData.charAt(0) == '2') && (lookingForSect == 5)) {
-                Integer val = getInt(groupData, 1, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
                     decodedItem = new DataItem("cityPrecip");
                     if (!IDecoderConstants.VAL_MISSING.equals(val)) {

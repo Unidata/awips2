@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -36,8 +35,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 12, 2012            mnash     Initial creation
+ * Jun 12, 2012            mnash       Initial creation
  * Jan 08, 2014 2563       bclement    added format/parse methods to HostConfig
+ * Oct 10, 2014 3708       bclement    moved HostConfig and SiteConfig to separate files
  * 
  * </pre>
  * 
@@ -89,127 +89,4 @@ public class SiteConfigInformation {
         this.config = config;
     }
 
-    @XmlAccessorType(XmlAccessType.NONE)
-    public static class HostConfig {
-        @XmlAttribute
-        private String hostname;
-
-        @XmlAttribute
-        private String prettyName;
-
-        /**
-         * @return the hostname
-         */
-        public String getHostname() {
-            return hostname;
-        }
-
-        /**
-         * @param hostname
-         *            the hostname to set
-         */
-        public void setHostname(String hostname) {
-            this.hostname = hostname;
-        }
-
-        /**
-         * @return the prettyName
-         */
-        public String getPrettyName() {
-            return prettyName;
-        }
-
-        /**
-         * @param prettyName
-         *            the prettyName to set
-         */
-        public void setPrettyName(String prettyName) {
-            this.prettyName = prettyName;
-        }
-
-        /**
-         * Format for display to the user
-         */
-        @Override
-        public String toString() {
-            if (prettyName == null) {
-                return "Site Server : " + hostname;
-            } else {
-                return prettyName + " : " + hostname;
-            }
-        }
-
-        /**
-         * Remove description name from hostname
-         * 
-         * @param text
-         * @return
-         */
-        public static String removeDescription(String text) {
-            int firstColon = text.indexOf(':');
-            if (firstColon >= 0) {
-                text = text.substring(firstColon + 1);
-            }
-            return text.trim();
-        }
-
-    }
-
-    @XmlAccessorType(XmlAccessType.NONE)
-    public static class SiteConfig {
-
-        @XmlAttribute
-        private String site;
-
-        @XmlElement
-        private String[] subscribedSites;
-
-        @XmlElement
-        private String[] roles;
-
-        /**
-         * @return the site
-         */
-        public String getSite() {
-            return site;
-        }
-
-        /**
-         * @param site
-         *            the site to set
-         */
-        public void setSite(String site) {
-            this.site = site;
-        }
-
-        /**
-         * @return the subscribedSites
-         */
-        public String[] getSubscribedSites() {
-            return subscribedSites;
-        }
-
-        /**
-         * @param subscribedSites
-         *            the subscribedSites to set
-         */
-        public void setSubscribedSites(String[] subscribedSites) {
-            this.subscribedSites = subscribedSites;
-        }
-
-        /**
-         * @return the role
-         */
-        public String[] getRoles() {
-            return roles;
-        }
-
-        /**
-         * @param role
-         *            the role to set
-         */
-        public void setRoles(String[] roles) {
-            this.roles = roles;
-        }
-    }
 }

@@ -2,7 +2,6 @@
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resourceDefnName>GINI_Composite</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
-    <inventoryEnabled>true</inventoryEnabled>    
     <resourceParameters>
 ! This must match the "creatingEntity" in the
 ! satellite DB table valid values are 

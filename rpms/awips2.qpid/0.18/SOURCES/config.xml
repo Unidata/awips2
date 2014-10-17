@@ -49,8 +49,8 @@
             <keyStorePassword>keystorepass</keyStorePassword>
         </ssl>
         <port>5672</port>
-        <socketReceiveBuffer>262144</socketReceiveBuffer>
-        <socketSendBuffer>262144</socketSendBuffer>
+        <socketReceiveBuffer>32768</socketReceiveBuffer>
+        <socketWriteBuffer>16384</socketWriteBuffer>
     </connector>
     <management>
         <enabled>true</enabled>

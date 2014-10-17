@@ -2,18 +2,19 @@
 ## AIRPORT WEATHER WARNING TEMPLATE                 ##
 ## EXAMPLE TEMPLATE USING HUNTSVILLE PRODUCT        ##
 ## CREATED BY PHIL KURIMSKI - WFO DTX               ##
-##     UPDATED EVAN BOOKBINDER 9-18-2013 Implemented config.vm
+##     UPDATED EVAN BOOKBINDER 9-18-2013 Implemented config.vm ##
+##     MIKE DANGELO 06-25-2014 removed bullet format/went to free form text per request of local offices, moved ugcline per local examples ## 
 ##################################################################
-##
 #parse("config.vm")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 AWW${siteId}
+${ugcline} 
+
 #if(${productClass}=="T")
 TEST...AIRPORT WEATHER WARNING...TEST##
 #else
-AIRPORT WEATHER WARNING##
+AIRPORT WEATHER WARNING
 #end
-
 NATIONAL WEATHER SERVICE ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
@@ -22,21 +23,6 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 #end
 
-${ugcline}
-#foreach (${area} in ${areas})
-${area.name}##
-#if(${includeStateAbbreviation}==true)
- ${area.stateabbr}##
-#end
--##
-#end
-
-${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
-
-
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
-#end
 #######################################################################
 ## Set initial variables for initial issuance
 #######################################################################
@@ -77,12 +63,10 @@ ${site}
 #if(${list.contains(${bullets}, "cancelAWW")})
 !** GIVE REASON FOR CANCELLATION **!
 #else
-* ##
+
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
-
 
 FOR THE FOLLOWING THREATS...
 
@@ -91,23 +75,23 @@ FOR THE FOLLOWING THREATS...
 ## Sites can add or modify threats by changing the code below
 ###################################################################
 #if(${list.contains(${bullets}, "wind")})
-* WIND GUSTS 30 KNOTS OR HIGHER.
+WIND GUSTS 30 KNOTS OR HIGHER.
 
 #end
 #if(${list.contains(${bullets}, "lightning")})
-* CLOUD TO GROUND LIGHTNING WITHIN 5 NM OF THE AIRPORT.
+CLOUD TO GROUND LIGHTNING WITHIN 5 NM OF THE AIRPORT.
 
 #end
 #if(${list.contains(${bullets}, "hail")})
-* HAIL OF 1/2 INCH OR GREATER.
+HAIL OF 1/2 INCH OR GREATER.
 
 #end
 #if(${list.contains(${bullets}, "freezingRain")})
-* ONSET OF FREEZING RAIN.
+THE ONSET OF FREEZING RAIN.
 
 #end
 #if(${list.contains(${bullets}, "sleetSnow")})
-* ONSET OF ACCUMULATING SLEET OR SNOW.
+THE ONSET OF ACCUMULATING SLEET OR SNOW.
 
 #end
 
@@ -128,7 +112,7 @@ FOR THE FOLLOWING THREATS...
 
 #end
 
-###printcoords(${areaPoly}, ${list})
+## #printcoords(${areaPoly}, ${list})
 
 $$
 
