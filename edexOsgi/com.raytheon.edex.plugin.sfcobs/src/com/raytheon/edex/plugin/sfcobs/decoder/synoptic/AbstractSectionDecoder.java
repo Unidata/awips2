@@ -20,8 +20,8 @@
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
 
 /**
  * 

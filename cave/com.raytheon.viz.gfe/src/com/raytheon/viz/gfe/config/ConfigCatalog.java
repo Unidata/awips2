@@ -29,6 +29,7 @@ import java.util.Set;
 import jep.JepException;
 
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
@@ -48,6 +49,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2010            randerso     Initial creation
  * Jul 08, 2014 3361       njensen      Consolidated code
+ * Sep 29, 2014 2975       njensen      Only look up files in CAVE_STATIC
  * 
  * </pre>
  * 
@@ -122,8 +124,8 @@ public class ConfigCatalog {
      */
     public LocalizationFile[] getFiles() {
         LocalizationFile[] procFiles = PathManagerFactory.getPathManager()
-                .listStaticFiles(GfePyIncludeUtil.CONFIG,
-                        new String[] { EXTENSION },
+                .listStaticFiles(LocalizationType.CAVE_STATIC,
+                        GfePyIncludeUtil.CONFIG, new String[] { EXTENSION },
                         false, true);
         return procFiles;
     }
@@ -149,7 +151,7 @@ public class ConfigCatalog {
         String fname = GfePyIncludeUtil.CONFIG + File.separator + scriptName
                 + EXTENSION;
         LocalizationFile file = PathManagerFactory.getPathManager()
-                .getStaticLocalizationFile(fname);
+                .getStaticLocalizationFile(LocalizationType.CAVE_STATIC, fname);
         return file;
     }
 

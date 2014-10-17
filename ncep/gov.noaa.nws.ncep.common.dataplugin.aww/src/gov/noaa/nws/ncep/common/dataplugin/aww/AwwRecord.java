@@ -56,6 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * July 29, 2013 1028           ghull       add AwwReportType enum
  * Feb 11, 2014 2784            rferrel     Remove override of setIdentifier.
  * Jun 11, 2014 2061            bsteffen    Remove IDecoderGettable
+ * July 07, 2014 ???            D. Sushon   add handling for TORNADO_WATCH in getReportType(..)
  * 
  * </pre>
  * 
@@ -111,8 +112,12 @@ public class AwwRecord extends PluginDataObject {
             if (rtStr.equals("THUNDERSTORM_REPORT")) {
                 return SEVERE_THUNDERSTORM_WATCH;
             }
-            if (rtStr.endsWith("STATUS REPORT")) {
+            if (rtStr.equals("TORNADO_REPORT")) {
+                return TORNADO_WATCH;
+            }
+            if (rtStr.endsWith("STATUS_REPORT")) {
                 // ??? return AwwReportType.SEVERE_WEATHER_STATUS_NOTIFICATION
+                return AwwReportType.STATUS_REPORT;
             }
             // WSTM is looking for
             if (rtStr.equals("WINTER_STORM")) {
