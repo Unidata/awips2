@@ -65,7 +65,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sept 30, 2013 1797       dhladky     Some Generics
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
- * Dec 08, 2013 2584       dhladky     Version update   
+ * Dec 08, 2013 2584       dhladky     Version update
+ * Jul 28, 2014 2752       dhladky     Recurring constructor from SiteSubscription  
  * 
  * </pre>
  * 
@@ -89,6 +90,14 @@ public class SiteSubscription<T extends Time, C extends Coverage> extends
      */
     public SiteSubscription() {
 
+    }
+    
+    /**
+     * Constructor used for Adhocs
+     * @param sub
+     */
+    public SiteSubscription(RecurringSubscription<T, C> sub) {
+       super(sub);
     }
 
     /**
