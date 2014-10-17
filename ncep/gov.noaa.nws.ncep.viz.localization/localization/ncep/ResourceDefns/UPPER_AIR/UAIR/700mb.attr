@@ -1,5 +1,5 @@
 ! Parameters and Attributes for the default UAIR Resource
 levelKey=700
 plotModel=@PlotModels/ncuair/standard.xml
-plotDensity=10
+plotDensity=30
 conditionalFilter=
