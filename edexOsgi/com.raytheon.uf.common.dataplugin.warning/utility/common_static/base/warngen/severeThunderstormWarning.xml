@@ -12,6 +12,7 @@
      Mike Dangelo            2-4-2013 Added commented bullet for METS DETECTED
      Phil Kurimski           09-16-2013 Fixed some spelling errors
      Phil Kurimski           09-19-2013 added geospatialConfig.xml
+     Evan Bookbinder         09-05-2014 Fixed law enf CTA parse string
 -->
 <warngenConfig>
 
@@ -133,7 +134,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="historyHailCTA" bulletText="History of Producing Large Hail" parseString="HISTORY OF PRODUCING LARGE HAIL"/>
   <bullet bulletName="historyWindCTA" bulletText="History of Producing Wind Damage" parseString="HISTORY OF PRODUCING WIND DAMAGE"/>
   <bullet bulletName="historyWindHailCTA" bulletText="History of Dmgg Winds and Large Hail" parseString="HISTORY OF PRODUCING DESTRUCTIVE WINDS AND LARGE HAIL"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="LAW ENFORCEMENT AGENCY"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="squallLineCTA" bulletText="Thunderstorm lines can produce tornadoes (no TOR watch)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
@@ -190,7 +191,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="historyHailCTA" bulletText="History of Large Hail" parseString="HISTORY OF PRODUCING LARGE HAIL"/>
   <bullet bulletName="historyWindCTA" bulletText="History of Wind Damage" parseString="HISTORY OF PRODUCING WIND DAMAGE"/>
   <bullet bulletName="historyWindHailCTA" bulletText="History of Dmgg Winds and Large Hail" parseString="HISTORY OF PRODUCING DESTRUCTIVE WINDS AND LARGE HAIL"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="LAW ENFORCEMENT AGENCY"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="squallLineCTA" bulletText="Thunderstorm lines can produce tornadoes (no TOR watch)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>

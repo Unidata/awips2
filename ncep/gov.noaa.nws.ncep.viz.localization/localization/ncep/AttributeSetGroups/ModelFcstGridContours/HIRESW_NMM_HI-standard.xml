@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
     <resource>HIRESW_NMM_HI</resource>
     <attrSetGroupName>standard</attrSetGroupName>
-    <attrSetNames>500mb_hght_absv,500mb_hght_color,500mb_hght_wind</attrSetNames>
+    <attrSetNames>500mb_hght_absv,500mb_hght_color,500mb_hght_wind,simulated_radar</attrSetNames>
 </AttributeSetGroup>

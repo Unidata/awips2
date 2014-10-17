@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -85,6 +86,9 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Dec 11, 2013  2602     bsteffen    Remove dead catch block.
  * Mar 18, 2014  2874     bsteffen    Move creation of Sources toolbar
  *                                    contributions to VbSourceList
+ * Oct 03, 2014  2618     mapeters    Updated pointChangeListener's pointChanged() 
+ *                                    implementation to fully remove deleted points,
+ *                                    added createUniqueKey(String, String, String).
  * 
  * </pre>
  * 
@@ -818,11 +822,57 @@ public class DataListsProdTableComp extends Composite implements
                         public void run() {
                             MenuItemManager menuItemMgr = MenuItemManager
                                     .getInstance();
+                            HashMap<String, Object> planeListItemsMap = planeControl.list
+                                    .getAvailableKeys();
+                            Set<String> planeListItems = planeListItemsMap
+                                    .keySet();
+                            Collection<String> points = PointsDataManager
+                                    .getInstance().getPointNames();
+                            Set<String> deletedPoints = new HashSet<String>(0);
 
-                            Set<String> planeListItems = planeControl.list
-                                    .getAvailableKeys().keySet();
+                            int[] sourcesSelIdx = sourceControl.list
+                                    .getSelectedIndexes();
+                            int[] fieldsSelIdx = fieldControl.list
+                                    .getSelectedIndexes();
+
+                            for (String point : planeListItems) {
+                                /*
+                                 * PointsDataManager point names are stored as
+                                 * "A", planeListItems are "PointA"
+                                 */
+                                if (point.length() >= 5
+                                        && !points.contains(point.substring(5))) {
+                                    deletedPoints.add(point);
+
+                                    String uniqueKey;
+                                    for (int s : sourcesSelIdx) {
+                                        for (int f : fieldsSelIdx) {
+                                            /*
+                                             * Build unique product identifier
+                                             * for deleted planes items with
+                                             * each selected source/field
+                                             */
+                                            uniqueKey = createUniqueKey(
+                                                    sourceControl.list
+                                                            .createUniqueKey(s),
+                                                    fieldControl.list
+                                                            .createUniqueKey(f),
+                                                    point);
+                                            // Update products list
+                                            prodTable.removeProduct(uniqueKey);
+                                        }
+                                    }
+                                }
+                            }
+                            planeListItems.removeAll(deletedPoints);
+
+                            // Update selected items in planes table
+                            planeControl.list
+                                    .retainMatchingItems(planeListItemsMap);
 
                             menuItemMgr.clearPlanesMap();
+
+                            // Update selected items in planes drop-down menu
                             menuItemMgr.setSelectedPlaneItems(planeListItems);
                             pta.resetMenu();
                         }
@@ -997,12 +1047,27 @@ public class DataListsProdTableComp extends Composite implements
      * @return The unique key string.
      */
     private String createUniqueKey(int sourceIdx, int fieldsIdx, int planesIdx) {
+        return createUniqueKey(sourceControl.list.createUniqueKey(sourceIdx),
+                fieldControl.list.createUniqueKey(fieldsIdx),
+                planeControl.list.createUniqueKey(planesIdx));
+    }
+
+    /**
+     * Create a unique key that will be used to track if a product is in the
+     * product table.
+     * 
+     * @param source
+     *            The selected item in the Sources list control.
+     * @param field
+     *            The selected item in the Fields list control.
+     * @param plane
+     *            The selected item in the Planes list control.
+     * @return The unique key string.
+     */
+    private String createUniqueKey(String source, String field, String plane) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(sourceControl.list.createUniqueKey(sourceIdx)).append("::")
-                .append(fieldControl.list.createUniqueKey(fieldsIdx))
-                .append("::")
-                .append(planeControl.list.createUniqueKey(planesIdx));
+        sb.append(source).append("::").append(field).append("::").append(plane);
 
         return sb.toString();
     }
