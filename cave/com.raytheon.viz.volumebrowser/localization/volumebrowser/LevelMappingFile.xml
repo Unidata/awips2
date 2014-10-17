@@ -38,6 +38,7 @@
 	<Level displayName="Surface" key="Surface">
 		<DatabaseLevel levelName="SFC" levelOneValue="0.0" />
 		<DatabaseLevel levelName="MSL" levelOneValue="0.0" />
+		<DatabaseLevel levelName="FH" levelOneValue="0.0" />
 	</Level>
 	<Level displayName="10FHAG" key="10FHAG">
 		<DatabaseLevel levelName="FHAG" levelOneValue="10.0" />
@@ -1224,6 +1225,8 @@
 		<DatabaseLevel levelName="BL" levelOneValue="30"
 			levelTwoValue="0" />
 		<DatabaseLevel levelName="BL" levelOneValue="180"
+			levelTwoValue="0" />
+		<DatabaseLevel levelName="BL" levelOneValue="255"
 			levelTwoValue="0" />
 		<DatabaseLevel levelName="FHAG" levelOneValue="0"
 			levelTwoValue="30" />

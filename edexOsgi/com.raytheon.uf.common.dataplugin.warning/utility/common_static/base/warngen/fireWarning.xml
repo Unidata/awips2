@@ -5,6 +5,7 @@
                                   DR 14691 added feAreaField
               Evan Bookbinder 09-12-2012 added new areaSource object
               Phil Kurimski   09-19-2013 added geospatialConfig.xml
+              Mike Dangelo    06-25-2014 disabled autoLockText and added example requesting agency bullets
  -->
 <warngenConfig>
 
@@ -25,7 +26,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <unitDistance>mi</unitDistance>
  <unitSpeed>mph</unitSpeed>
 
- <!-- No WarnGen Pathcast Track -->
+ <!-- enable/disable WarnGen Pathcast Track -->
  <trackEnabled>false</trackEnabled>
 
  <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
@@ -49,7 +50,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <enableRestart>true</enableRestart>
  
   <!-- Enable/disables the system to lock text based on various patterns -->
- <autoLockText>true</autoLockText>
+ <autoLockText>false</autoLockText>
 
  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
  	included with the warning product include TO.A and/or SV.A, 
@@ -77,6 +78,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="NEW">
  <bullets>
   <bullet bulletName="fireEmergency" bulletText="** SELECT FOR FIRE EMERGENCY **" parseString="FIRE EMERGENCY" />
+  <bullet bulletText="******  REQUESTING AGENCY  *******" bulletType="title" />
+  <bullet bulletName="manualAgency" bulletText="manually enter other agency name" bulletGroup="requestingAgency" bulletDefault="true" />
+  <bullet bulletName="agency1" bulletText="Requesting Agency example number 1" bulletGroup="requestingAgency" />
+  <bullet bulletName="agency2" bulletText="Requesting Agency example number 2" bulletGroup="requestingAgency" />
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title" />
   <bullet bulletName="generic" bulletText="Generic wording..." bulletGroup="basis" bulletDefault="true" />
   <bullet bulletName="actual" bulletText="Actual Fire..." bulletGroup="basis" parseText="COULD AFFECT" />
@@ -90,6 +95,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="COR">
  <bullets>
   <bullet bulletName="fireEmergency" bulletText="** SELECT FOR FIRE EMERGENCY **" parseString="FIRE EMERGENCY" />
+  <bullet bulletText="******  REQUESTING AGENCY  *******" bulletType="title" />
+  <bullet bulletName="manualAgency" bulletText="manually enter other agency name" bulletGroup="requestingAgency" bulletDefault="true" />
+  <bullet bulletName="agency1" bulletText="Requesting Agency example number 1" bulletGroup="requestingAgency" />
+  <bullet bulletName="agency2" bulletText="Requesting Agency example number 2" bulletGroup="requestingAgency" />
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title" />
   <bullet bulletName="generic" bulletText="Generic wording..." bulletGroup="basis" bulletDefault="true" />
   <bullet bulletName="actual" bulletText="Actual Fire..." bulletGroup="basis" parseText="COULD AFFECT" />

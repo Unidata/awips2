@@ -19,10 +19,13 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
@@ -40,12 +43,17 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ *                                     calls, added ELEV_PATTERN.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class MobileSynopticDecoder extends AbstractSynopticDecoder {
+
+    private static final Pattern ELEV_PATTERN = Pattern
+            .compile("[/0-9]{4}[1-8]");
 
     // The logger
     private Log logger = LogFactory.getLog(getClass());
@@ -92,7 +100,8 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
             setReportIdentifier(reportParser.getElement());
             reportParser.next();
             element = reportParser.getElement();
-            if (matchElement(element, ISynoptic.YYGGI_SUB_W)) {
+            if (element != null
+                    && ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
                 try {
                     Integer month = getHeader().getMonth();
                     if (month != -1) {
@@ -171,7 +180,7 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (matchElement(element, "99\\d{3}")) {
+        if (element != null && LAT_PATTERN.matcher(element).find()) {
             Integer lat = getInt(element, 2, 5);
             if (lat != null) {
                 mobileLatitude = lat.floatValue() / 10.0f;
@@ -190,7 +199,7 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (matchElement(element, "[1357]((0\\d{3})|(1(([0-7]\\d{2})|(800))))")) {
+        if (element != null && LON_PATTERN.matcher(element).find()) {
             Integer lon = getInt(element, 2, 5);
             if (lon != null) {
                 mobileLongitude = lon.floatValue() / 10.0f;
@@ -257,7 +266,7 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (matchElement(element, "[/0-9]{4}[1-8]")) {
+        if (element != null && ELEV_PATTERN.matcher(element).find()) {
             Integer elev = getInt(element, 0, 4);
             if (elev != null) {
                 if (elev >= 0) {

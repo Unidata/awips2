@@ -72,6 +72,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 23, 2014 3054          skorolev     Fixed issue with removing from list a new zone and a new station.
  * Apr 28, 2014 3086          skorolev     Updated getConfigManager method.
  * 
+ * Sep 16, 2014 2757          skorolev     Updated createBottomButtons method.
+ * Sep 24, 2014 2757          skorolev     Fixed problem with adding and removing zones.
  * </pre>
  * 
  * @author lvenable
@@ -1064,14 +1066,20 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             if (!configMgr.getAddedZones().contains(entry)) {
                 configMgr.getAddedZones().add(entry);
             }
+            configMgr.removeAdjArea(entry);
         } else { // Station mode
             maStations.add(entry);
             Collections.sort(maStations);
             monitorAreaList.setItems(maStations.toArray(new String[maStations
                     .size()]));
             monitorAreaList.setSelection(maStations.indexOf(entry));
-            handleMonitorAreaListSelection();
             additionalStns.remove(entry);
+            String zone = associatedList.getItem(associatedList.getSelectionIndex());
+            String stnId = entry.substring(0, entry.indexOf('#'));
+            String stnType = entry.substring(entry.indexOf('#') + 1);
+            configMgr.addStation(zone, stnId, stnType, configMgr
+                    .getAddedStations().contains(stnId));
+            handleMonitorAreaListSelection();
         }
     }
 
@@ -1106,6 +1114,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             if (configMgr.getAddedZones().contains(entry)) {
                 configMgr.getAddedZones().remove(entry);
             }
+            
+            configMgr.addAdjArea(entry,entry.charAt(2) == 'Z' ? ZoneType.MARITIME
+                    : ZoneType.REGULAR);
         } else { // Station mode
             additionalStns.add(entry);
             Collections.sort(additionalStns);
@@ -1204,7 +1215,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
      * Removes an associated zone or station.
      */
     private void removeAssociated() {
-        if (associatedList.getItemCount() == 0) {
+        if (associatedList.getSelectionCount() == 0) {
             if (mode == Mode.Zone) {
                 showMessage(shell, SWT.ERROR, "Select Needed",
                         "You must select a station");
@@ -1280,17 +1291,12 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Called when the cancel or "X" button is clicked.
+     * Called when the cancel.
      */
     private void closeWithoutSave() {
-        int choice = showMessage(shell, SWT.YES | SWT.NO, appName
-                + " Monitor Exit", "Are you sure you want to exit?");
-        if (choice == SWT.YES) {
-            configMgr.setAddedZones(new ArrayList<String>());
-            configMgr.setAddedStations(new ArrayList<String>());
-            setReturnValue(true);
-            close();
-        }
+        resetStatus();
+        setReturnValue(true);
+        close();
     }
 
     /**
@@ -1302,7 +1308,8 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Handles OK button.
+     * Handles OK button. Save changes and close the dialog (or just close if
+     * there are no changes).
      */
     protected abstract void handleOkBtnSelection();
 
