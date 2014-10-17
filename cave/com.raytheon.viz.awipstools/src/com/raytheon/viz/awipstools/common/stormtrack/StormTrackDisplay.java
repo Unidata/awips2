@@ -109,7 +109,10 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     and generateExistingTrackInfo()
  *  07-24-2014  3429       mapeters    Updated deprecated drawLine() calls.
  *  08-21-2014  DR 15700   Qinglu Lin  handle the situation where frameTime is null in paintTrack().
- * 
+ *  09-09-2014  RM #657    Qinglu Lin  handle StormTrackState.trackType is null.
+ *  09-25-2014  ASM #16773 D. Friedman Fix NPE.
+ *
+>>>>>>> master_14.2.4
  * </pre>
  * 
  * @author mschenke
@@ -693,7 +696,8 @@ public class StormTrackDisplay implements IRenderable {
         }
 
         if (state.geomChanged) {
-            if (StormTrackState.trackType.equals("lineOfStorms") && state.justSwitchedToLOS) {
+            if (StormTrackState.trackType != null && StormTrackState.trackType.equals("lineOfStorms")
+                    && state.justSwitchedToLOS) {
                 GeodeticCalculator gc = new GeodeticCalculator();
                 Coordinate[] coords = state.dragMeGeom.getCoordinates();
                 gc.setStartingGeographicPoint(coords[0].x, coords[0].y);
@@ -720,7 +724,8 @@ public class StormTrackDisplay implements IRenderable {
                     state.lineWidth, state.lineStyle);
             paintLabels(target, paintProps);
         }
-        if (StormTrackState.trackType.equals("lineOfStorms") && state.justSwitchedToLOS) {
+        if (StormTrackState.trackType != null && StormTrackState.trackType.equals("lineOfStorms") 
+                && state.justSwitchedToLOS) {
             state.angle = StormTrackState.oneStormAngle;
         }
     }
@@ -800,7 +805,7 @@ public class StormTrackDisplay implements IRenderable {
                     currentState.pointMoved = false;
                     currentState.originalTrack = false;
                     moved = true;
-                    if (StormTrackState.trackType.equals("lineOfStorms") &&
+                    if (StormTrackState.trackType != null && StormTrackState.trackType.equals("lineOfStorms") &&
                             currentState.justSwitchedToLOS) {
                         currentState.justSwitchedToLOS = false;
                     }
@@ -1211,7 +1216,7 @@ public class StormTrackDisplay implements IRenderable {
 
         double angle = state.angle;
         if(!state.justSwitchedToOS) {
-            if (StormTrackState.trackType.equals("oneStorm")) {
+            if (StormTrackState.trackType != null && StormTrackState.trackType.equals("oneStorm")) {
                 StormTrackState.oneStormAngle = angle;
             }
         }
@@ -1315,6 +1320,11 @@ public class StormTrackDisplay implements IRenderable {
     private void paintLabels(IGraphicsTarget target,
             StormTrackProperties paintProps) throws VizException {
         StormTrackState state = paintProps.getState();
+
+        if (state.timePoints == null || state.futurePoints == null) {
+            return;
+        }
+
         // get the magnification from the state
         float magnification = state.magnification;
         // find a nice looking radius

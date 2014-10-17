@@ -125,9 +125,6 @@ import java.io.DataInput;
 import java.io.EOFException;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * Base class for all the CGM commands.
  * <p>
@@ -142,13 +139,10 @@ import org.apache.commons.logging.LogFactory;
  */
 public class NcCommand extends Command implements Cloneable {
 
-    private final Log logger = LogFactory.getLog(this.getClass()); // TODO
-                                                                   // static
-                                                                   // better??
+    // private final Log logger = LogFactory.getLog(this.getClass());
 
     public NcCommand(int ec, int eid, int l, DataInput in) throws IOException {
         super(ec, eid, l, in);
-        // TODO Auto-generated constructor stub
     }
 
     /**

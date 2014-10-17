@@ -11,6 +11,8 @@
 ##         MIKE DANGELO 1-22-2104  Tweaked default CTA wording to fix parseString problems and torEmerCTA to use new verbage ##
 ##         Removed preAmbleTOR (not used) -mmd 1/23/2014, preAmble for other tor-sighted/confirmed bullets retained
 ##         Mike Rega 4/24/2014 fixed MND blank line in CAN     ##
+##         Mike Dangelo 6/24/2014 fixed wording for plural storm references ##
+##         Evan Bookbinder 9/5/2014 fixed law enforcement CTA ##
 #################################################################
 ##
 ###################################################################
@@ -150,7 +152,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${action}=="EXP" || ${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
 #### SET A DEFAULT STATEMENT IN CASE NO BULLET WAS SELECTED OR AVAILABLE
 #if(${stormType} == "line")
-  #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE !** WEAKENED. **OR** MOVED OUT OF THE WARNED AREA. **! THEREFORE THE WARNING ${expcanBODYTag}.")
+  #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE !** WEAKENED. **OR** MOVED OUT OF THE WARNED AREA. **! THEREFORE THE WARNING ${expcanBODYTag}.")
 #else
   #if(${phenomena}=="SV")
     #set($expcanPhrase = "THE SEVERE THUNDERSTORM WHICH PROMPTED THE WARNING HAS !** WEAKENED. **OR** MOVED OUT OF THE WARNED AREA. **! THEREFORE THE WARNING ${expcanBODYTag}.")
@@ -162,9 +164,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${list.contains(${bullets}, "weakened")})
   #if(${stormType} == "line")
     #if(${phenomena}=="SV")
-      #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND NO LONGER POSES AN IMMEDIATE THREAT TO LIFE OR PROPERTY. THEREFORE THE WARNING ${expcanBODYTag}.")
+      #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND NO LONGER POSES AN IMMEDIATE THREAT TO LIFE OR PROPERTY. THEREFORE THE WARNING ${expcanBODYTag}.")
     #else
-      #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND NO LONGER APPEAR TO BE CAPABLE OF PRODUCING A TORNADO. THEREFORE THE WARNING ${expcanBODYTag}.")
+      #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND NO LONGER APPEAR TO BE CAPABLE OF PRODUCING A TORNADO. THEREFORE THE WARNING ${expcanBODYTag}.")
     #end
   #else
     #if(${phenomena}=="SV")
@@ -177,7 +179,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #### MOVED OUT OF THE WARNED AREA
 #if(${list.contains(${bullets}, "movedout")})
   #if(${stormType} == "line")
-      #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE MOVED OUT OF THE AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
+      #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE MOVED OUT OF THE AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
   #else
       #set($expcanPhrase = "THE STORM WHICH PROMPTED THE WARNING HAS MOVED OUT OF THE AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
   #end
@@ -185,7 +187,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #### WEAKENED AND MOVED OUT OF THE AREA
 #if(${list.contains(${bullets}, "wkndandmoved")})
   #if(${stormType} == "line")
-      #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND EXITED THE WARNED AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
+      #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS AND EXITED THE WARNED AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
   #else
       #set($expcanPhrase = "THE STORM WHICH PROMPTED THE WARNING HAS WEAKENED BELOW SEVERE LIMITS AND EXITED THE WARNED AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
   #end
@@ -766,8 +768,8 @@ TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT. DO NOT WAIT TO SE
 A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND. TAKE IMMEDIATE TORNADO PRECAUTIONS. THIS IS AN EMERGENCY SITUATION.
 
 #end
-#if(${list.contains(${bullets}, "lawEnforcementCTA")})
-IF A TORNADO OR OTHER SEVERE WEATHER IS SPOTTED...REPORT IT TO THE NATIONAL WEATHER SERVICE OR YOUR LOCAL AUTHORITY WHO WILL RELAY YOUR REPORT. THIS ACT MAY SAVE THE LIVES OF OTHERS IN THE PATH OF DANGEROUS WEATHER. 
+#if(${list.contains(${bullets}, "lawEnforcementTORCTA")})
+IF A TORNADO OR OTHER SEVERE WEATHER IS SPOTTED...REPORT IT TO THE NATIONAL WEATHER SERVICE OR YOUR NEAREST LAW ENFORECEMENT AGENCY WHO WILL RELAY YOUR REPORT. THIS ACT MAY SAVE THE LIVES OF OTHERS IN THE PATH OF DANGEROUS WEATHER. 
 
 #end
 #if(${list.contains(${bullets}, "squallCTA")} && ${stormType} == "line")
