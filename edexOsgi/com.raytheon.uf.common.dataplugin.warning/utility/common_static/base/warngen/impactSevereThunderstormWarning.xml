@@ -7,7 +7,8 @@
                          DR 14691 added feAreaField
      Evan Bookbinder 09-11-2012 Added settings for locations shapefile    
                                 Added new areaSource object     
-     Phil Kurimski   09-19-2013 added geospatialConfig.xml              
+     Phil Kurimski   09-19-2013 added geospatialConfig.xml      
+     Evan Bookbinder  2-18-2014 corrected supercell CTA typo & added DSS Events
 -->
 <warngenConfig>
 
@@ -19,10 +20,13 @@ PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
 <!-- Include Various geospatial XML files to create their objects. These are *NOT*
 turned on unless the corresponding .vm file is turned on in a given template's .vm file
 -->  
+
+<include file="dssEvents.xml"/>
+<!-- To enable, make sure dssEvents.vm is added/uncommented in the severeThunderstormWarning.vm .vm file -->
 <include file="mileMarkers.xml"/>
-<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in the severeThunderstormWarning.vm file -->
 <include file="pointMarkers.xml"/>
-<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in the severeThunderstormWarning.vm .vm file -->
 
  <!-- Config distance/speed units -->
  <unitDistance>mi</unitDistance>
@@ -142,7 +146,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
   <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
-  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can product all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
   <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>
@@ -207,7 +211,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
   <bullet bulletName="squallLineCTA" bulletText="(E) Thunderstorm lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
-  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can product all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can produce all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
   <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>
