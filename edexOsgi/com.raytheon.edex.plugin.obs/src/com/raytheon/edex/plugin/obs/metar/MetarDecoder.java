@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * May 12, 2014 DR 17151    D. Friedman Fix 6hr min/max temp decoding.
  * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * Jul 23, 2014  3410       bclement    location changed to floats
+ * Oct 02, 2014 3693        mapeters    Added Pattern constants.
  * 
  * </pre>
  * 
@@ -193,6 +194,14 @@ public class MetarDecoder extends AbstractDecoder {
     public static final Pattern SUNSHINE = Pattern
             .compile("(\\b)98(\\d{3}|///)");
 
+    private static final Pattern AUTO = Pattern.compile(" AUTO");
+
+    private static final Pattern D4_NDV = Pattern.compile("\\d{4}NDV");
+
+    private static final Pattern D4_NSEW = Pattern.compile("\\d{4}[NSEW]");
+
+    private static final Pattern D4 = Pattern.compile("\\d{4}");
+
     private boolean useMockInfo = false;
 
     private ObStation mockInfo = null;
@@ -238,7 +247,6 @@ public class MetarDecoder extends AbstractDecoder {
 
         while (sep.hasNext()) {
             byte[] messageData = sep.next();
-            Pattern thePattern;
 
             String message = new String(messageData);
             StringBuilder sbm = new StringBuilder(message);
@@ -367,8 +375,7 @@ public class MetarDecoder extends AbstractDecoder {
                 obsMsg.delete(0, cutPos);
 
                 // Gets the correction notifier
-                thePattern = Pattern.compile(" AUTO");
-                matcher = thePattern.matcher(obsMsg);
+                matcher = AUTO.matcher(obsMsg);
                 if (matcher.find()) {
                     obsMsg.delete(0, matcher.end());
                 }
@@ -457,8 +464,7 @@ public class MetarDecoder extends AbstractDecoder {
                         }
                     }
                     if (!foundVis) {
-                        thePattern = Pattern.compile("\\d{4}NDV");
-                        matcher = thePattern.matcher(obsMsg);
+                        matcher = D4_NDV.matcher(obsMsg);
                         if (matcher.find()) {
                             int start = matcher.start();
                             int end = matcher.end();
@@ -472,8 +478,7 @@ public class MetarDecoder extends AbstractDecoder {
 
                         boolean sectorFound = true;
                         while (sectorFound) {
-                            thePattern = Pattern.compile("\\d{4}[NSEW]");
-                            matcher = thePattern.matcher(obsMsg);
+                            matcher = D4_NSEW.matcher(obsMsg);
                             if (matcher.find()) {
                                 int start = matcher.start();
                                 int end = matcher.end();
@@ -488,8 +493,7 @@ public class MetarDecoder extends AbstractDecoder {
                             }
                         }
 
-                        thePattern = Pattern.compile("\\d{4}");
-                        matcher = thePattern.matcher(obsMsg);
+                        matcher = D4.matcher(obsMsg);
                         if (matcher.find()) {
                             int start = matcher.start();
                             if (start > 0) {

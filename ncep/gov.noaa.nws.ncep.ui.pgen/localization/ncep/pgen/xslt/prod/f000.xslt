@@ -12,6 +12,7 @@
 
 	B. Yin/Chugach	08/11	Initial Coding
 	B. Yin/SGT		02/14	Added contour support
+	P.Swamy         05/2014 TTR 993 - Highs and Lows do not decode for WPC SFC text product
 -->
 
 <xsl:variable name="newline"><xsl:text>
@@ -35,19 +36,19 @@
     	<xsl:if test="@pgenCategory= 'Front'">
    	      <xsl:value-of select="$newline"/>
    		<xsl:choose>
-                	<xsl:when test="@pgenType = 'COLD_FRONT'">
+                	<xsl:when test="@pgenType = 'COLD_FRONT' or @pgenType = 'COLD_FRONT_FORM' or @pgenType = 'COLD_FRONT_DISS'">
                         	<xsl:text>COLD WK </xsl:text>
                 	</xsl:when>
-                	<xsl:when test="@pgenType = 'WARM_FRONT'">
+                	<xsl:when test="@pgenType = 'WARM_FRONT' or @pgenType = 'WARM_FRONT_FORM' or @pgenType = 'WARM_FRONT_DISS'">
                         	<xsl:text>WARM WK </xsl:text>
                 	</xsl:when>
-                	<xsl:when test="@pgenType = 'STATIONARY_FRONT'">
+                	<xsl:when test="@pgenType = 'STATIONARY_FRONT' or @pgenType = 'STATIONARY_FRONT_FORM' or @pgenType = 'STATIONARY_FRONT_DISS'">
                         	<xsl:text>STNRY WK </xsl:text>
                 	</xsl:when>
-                	<xsl:when test="@pgenType = 'OCCLUDED_FRONT'">
+                	<xsl:when test="@pgenType = 'OCCLUDED_FRONT' or @pgenType = 'OCCLUDED_FRONT_FORM' or @pgenType = 'OCCLUDED_FRONT_DISS'">
                         	<xsl:text>OCFNT WK </xsl:text>
                 	</xsl:when>
-                	<xsl:when test="@pgenType = 'TROF'">
+                	<xsl:when test="@pgenType = 'TROF' or @pgenType = 'TROPICAL_TROF' or @pgenType = 'DRY_LINE' or @pgenType = 'INSTABILITY' or @pgenType = 'SHEAR_LINE'">
                         	<xsl:text>TROF </xsl:text>
                 	</xsl:when>
    		</xsl:choose>

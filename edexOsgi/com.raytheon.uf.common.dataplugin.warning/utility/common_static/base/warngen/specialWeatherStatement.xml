@@ -3,6 +3,8 @@
      Phil Kurimski 2.05.2013 (on build 13.2.1-5)
      Phil Kurimski 9-19-2013 added geospatialConfig.xml
      Mike Dangelo 1/23/2014 added blankStatement bullet
+     Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
+     Mike Dangelo 6/24/2014 removed unnecessary example bullets
 -->
 <warngenConfig>
 
@@ -49,7 +51,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
 
  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include TO.A and/or SV.A, 
+  	included with the warning product include TO.A and/or SV.A, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
   <includedWatch>TO.A</includedWatch>
@@ -104,20 +106,14 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle5" parseString="WILL BE NEAR..."/>
   <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="toggle5"/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
-  <!--
-  <bullet bulletText="************ OPTIONAL ROAD INFO  **************" bulletType="title"/>
-  <bullet bulletName="interstates" bulletText="include Interstates" bulletDefault="true"/>
-  <bullet bulletName="roads" bulletText="include Roads" bulletDefault="true"/>
-  <bullet bulletName="simple" bulletText="Only first and last mile markers" bulletDefault="true"/>
-  -->
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
-  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
-  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/> 
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/> 
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
@@ -161,20 +157,14 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle5" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle5" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
-  <!--
-  <bullet bulletText="************ OPTIONAL ROAD INFO  **************" bulletType="title"/>
-  <bullet bulletName="interstates" bulletText="include Interstates" bulletDefault="true"/>
-  <bullet bulletName="roads" bulletText="include Roads" bulletDefault="true"/>
-  <bullet bulletName="simple" bulletText="Only first and last mile markers" bulletDefault="true"/>
-  -->
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
-  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
-  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" parseString=""/>
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
