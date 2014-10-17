@@ -24,8 +24,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.core.DefaultParserStrategy;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
 
 /**
  * AbstractSfcObsDecoder is the base class for all surface observation decoders.

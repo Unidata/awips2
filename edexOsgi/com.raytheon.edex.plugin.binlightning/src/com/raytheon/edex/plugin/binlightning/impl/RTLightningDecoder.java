@@ -23,7 +23,6 @@ import java.util.Calendar;
 
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgMsgType;
-import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
 
 /**
  * Decode one or more Real Time Flash lightning observations. Decode algorithm
