@@ -50,7 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Oct 23, 2013   2484     dhladky      Unique ID for subscriptions updated.
  * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
  * jan 23, 2013   2584     dhladky     Versions.
- * Jul 28, 2014   2752     dhladky     Recurring constructor for Adhocs so that Shareds can have adhocs.
+ * Oct 14, 2014   3736     dhladky      Allow adhoc subs for Shared Subs.
  * 
  * </pre>
  * 
