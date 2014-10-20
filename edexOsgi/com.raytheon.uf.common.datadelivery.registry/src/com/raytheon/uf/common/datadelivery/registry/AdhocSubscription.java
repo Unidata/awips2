@@ -50,6 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Oct 23, 2013   2484     dhladky      Unique ID for subscriptions updated.
  * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
  * jan 23, 2013   2584     dhladky     Versions.
+ * Jul 28, 2014   2752     dhladky     Recurring constructor for Adhocs so that Shareds can have adhocs.
  * 
  * </pre>
  * 
@@ -73,8 +74,9 @@ public class AdhocSubscription<T extends Time, C extends Coverage> extends
         setGroupName("Adhoc");
     }
 
-    public AdhocSubscription(SiteSubscription<T, C> subscription) {
+    public AdhocSubscription(RecurringSubscription<T, C> subscription) {
         super(subscription);
+        this.setOwner(subscription.getOwner());
         setGroupName("Adhoc");
     }
 
