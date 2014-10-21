@@ -1,4 +1,33 @@
 #!/bin/csh -f
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
+# Gets all available raob data in the A-II database over a specified range of
+# times. The data is output to stdout as ASCII.
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    2014-10-16      3598          nabowle        Initial modification. Changed to handle DataAccessLayer.
+#
 #
 # A script wrapper that is meant to get a single slab of gridded data
 # from the A-II database.  The data is output to stdout as ASCII.
@@ -150,36 +179,10 @@ if ( $status == 0 || $#ids > 1 ) then
     endif
     set sss = $mmm
 endif
-#
-set rrrrr = ""
+
 @ i = $#argv - 3
 set vvvvv = $argv[$i]
-set aaa = `echo $vvvvv | grep -E '^CP|^TP|^LgSP' | tr 'A-z' ' '`
-set aaa = `echo $aaa`
-#
-#  Special case of formatting the times for accumulated precip
-#
-if ( "$aaa" != "" ) then
-    if ( -x ./gtasUtil ) then
-        set gtasUtil = ./gtasUtil
-    else if ( -x $mydir/gtasUtil ) then
-        set gtasUtil = $mydir/gtasUtil
-    else if ( -x $FXA_HOME/src/dm/point/gtasUtil ) then
-        set gtasUtil = $FXA_HOME/src/dm/point/gtasUtil
-    else if ( -x $FXA_HOME/bin/gtasUtil ) then
-        set gtasUtil = $FXA_HOME/bin/gtasUtil
-    else
-        bash -c "echo could not find gtasUtil executable 1>&2"
-        exit
-    endif
-    @ i++
-    set t = `echo $* | cut '-d ' -f${i}-$#argv`
-    @ fff = $t[3] * 3600
-    set vt = `$gtasUtil = $t[1] ${t[2]}:00:00.0 $fff`
-    @ aaa = $aaa * 3600
-    set bt = `$gtasUtil = $vt -$aaa`
-    set rrrrr = "[$bt--$vt]"
-endif
+
 #
 # Locate python stub that we will modify to create the final python logic.
 #
@@ -200,12 +203,25 @@ endif
 #
 grep DataAccessLayer $stubpy >& /dev/null
 if ( $status == 0 ) then
-    set method = "daf"
+    set userArgs = "--srcId $sss --varAbrev $vvvvv"
+    if ( ( "$dimStr" != "dimStr" ) && ( "$specpyName" != "a2rdmdlXdr" ) ) then
+        set userArgs = "$userArgs --dimLine"
+    endif
+
+    if ( "$5" == "" ) then
+        set userArgs = "$userArgs --date $2 --hour $3 --fcst $4"
+    else if ( "$6" == "" ) then
+        set userArgs = "$userArgs --lvlName $1 --date $3 --hour $4 --fcst $5"
+    else if ( "$7" == "" ) then
+        set userArgs = "$userArgs --lvlName $1 --lvlOne $2 --date $4 --hour $5 --fcst $6"
+    else
+        set userArgs = "$userArgs --lvlName $1 --lvlOne $2 --lvlTwo $3 --date $5 --hour $6 --fcst $7"
+    endif
+    python $stubpy $userArgs
 else
     #
     # Set up the environment we need to run the UEngine.
     #
-    set method = "uengine"
     if ( -e ./UEngine.cshsrc ) then
         set ueenv = ./UEngine.cshsrc
     else if ( -e $mydir/UEngine.cshsrc ) then
@@ -219,47 +235,71 @@ else
         exit
     endif
     source $ueenv
-endif
-#
-#  Modify the text of special tags in stub to create finalized script.
-#
-set specpy = /tmp/a2rdmdl${$}.py
-rm -rf $specpy >& /dev/null
-touch $specpy
-chmod 775 $specpy
-if ( "$5" == "" ) then
-  cat $stubpy | grep -v $dimStr | sed "s/SSSSS/$sss/g" | \
-      sed 's/^.*TTTTT.*$//g' | sed 's/^.*LLLLL.*$//g' | \
-      sed 's/^.*22222.*$//g' | sed "s/VVVVV/$1/g" | sed "s/DDDDD/$2/g" | \
-      sed "s/HHHHH/$3/g" | sed "s/FFFFF/$4/g" | sed "s/RRRRR/$rrrrr/g" >> \
-      $specpy
-else if ( "$6" == "" ) then
-  cat $stubpy | grep -v $dimStr | sed "s/SSSSS/$sss/g" | \
-      sed "s/TTTTT/$1/g" | sed 's/^.*LLLLL.*$//g' | sed 's/^.*22222.*$//g' | \
-      sed "s/VVVVV/$2/g" | sed "s/DDDDD/$3/g" | \
-      sed "s/HHHHH/$4/g" | sed "s/FFFFF/$5/g" | sed "s/RRRRR/$rrrrr/g" >> \
-      $specpy
-else if ( "$7" == "" ) then
-  cat $stubpy | grep -v $dimStr | sed "s/SSSSS/$sss/g" | \
-      sed "s/TTTTT/$1/g" | sed "s/LLLLL/$2/g" | sed 's/^.*22222.*$//g' | \
-      sed "s/VVVVV/$3/g" | sed "s/DDDDD/$4/g" | \
-      sed "s/HHHHH/$5/g" | sed "s/FFFFF/$6/g" | sed "s/RRRRR/$rrrrr/g" >> \
-      $specpy
-else
-  cat $stubpy | grep -v $dimStr | sed "s/SSSSS/$sss/g" | \
-      sed "s/TTTTT/$1/g" | sed "s/LLLLL/$2/g" | sed "s/22222/$3/g" | \
-      sed "s/VVVVV/$4/g" | sed "s/DDDDD/$5/g" | \
-      sed "s/HHHHH/$6/g" | sed "s/FFFFF/$7/g" | sed "s/RRRRR/$rrrrr/g" >> \
-      $specpy
-endif
-#
-#  Submit the temporary python script stripping any xml stuff, then remove it
-#
-if ( "$method" == "daf" ) then
-     /awips2/python/bin/python $specpy
-else
+
+    set rrrrr = ""
+    set aaa = `echo $vvvvv | grep -E '^CP|^TP|^LgSP' | tr 'A-z' ' '`
+    set aaa = `echo $aaa`
+    #
+    #  Special case of formatting the times for accumulated precip
+    #
+    if ( "$aaa" != "" ) then
+        if ( -x ./gtasUtil ) then
+            set gtasUtil = ./gtasUtil
+        else if ( -x $mydir/gtasUtil ) then
+            set gtasUtil = $mydir/gtasUtil
+        else if ( -x $FXA_HOME/src/dm/point/gtasUtil ) then
+            set gtasUtil = $FXA_HOME/src/dm/point/gtasUtil
+        else if ( -x $FXA_HOME/bin/gtasUtil ) then
+            set gtasUtil = $FXA_HOME/bin/gtasUtil
+        else
+            bash -c "echo could not find gtasUtil executable 1>&2"
+            exit
+        endif
+        @ i++
+        set t = `echo $* | cut '-d ' -f${i}-$#argv`
+        @ fff = $t[3] * 3600
+        set vt = `$gtasUtil = $t[1] ${t[2]}:00:00.0 $fff`
+        @ aaa = $aaa * 3600
+        set bt = `$gtasUtil = $vt -$aaa`
+        set rrrrr = "[$bt--$vt]"
+    endif
+
+    #
+    #  Modify the text of special tags in stub to create finalized script.
+    #
+    set specpy = /tmp/a2rdmdl${$}.py
+    rm -rf $specpy >& /dev/null
+    touch $specpy
+    chmod 775 $specpy
+    if ( "$5" == "" ) then
+      cat $stubpy | grep -v $dimStr | sed "s/SSSSS/$sss/g" | \
+          sed 's/^.*TTTTT.*$//g' | sed 's/^.*LLLLL.*$//g' | \
+          sed 's/^.*22222.*$//g' | sed "s/VVVVV/$1/g" | sed "s/DDDDD/$2/g" | \
+          sed "s/HHHHH/$3/g" | sed "s/FFFFF/$4/g" | sed "s/RRRRR/$rrrrr/g" >> \
+          $specpy
+    else if ( "$6" == "" ) then
+      cat $stubpy | grep -v $dimStr | sed "s/SSSSS/$sss/g" | \
+          sed "s/TTTTT/$1/g" | sed 's/^.*LLLLL.*$//g' | sed 's/^.*22222.*$//g' | \
+          sed "s/VVVVV/$2/g" | sed "s/DDDDD/$3/g" | \
+          sed "s/HHHHH/$4/g" | sed "s/FFFFF/$5/g" | sed "s/RRRRR/$rrrrr/g" >> \
+          $specpy
+    else if ( "$7" == "" ) then
+      cat $stubpy | grep -v $dimStr | sed "s/SSSSS/$sss/g" | \
+          sed "s/TTTTT/$1/g" | sed "s/LLLLL/$2/g" | sed 's/^.*22222.*$//g' | \
+          sed "s/VVVVV/$3/g" | sed "s/DDDDD/$4/g" | \
+          sed "s/HHHHH/$5/g" | sed "s/FFFFF/$6/g" | sed "s/RRRRR/$rrrrr/g" >> \
+          $specpy
+    else
+      cat $stubpy | grep -v $dimStr | sed "s/SSSSS/$sss/g" | \
+          sed "s/TTTTT/$1/g" | sed "s/LLLLL/$2/g" | sed "s/22222/$3/g" | \
+          sed "s/VVVVV/$4/g" | sed "s/DDDDD/$5/g" | \
+          sed "s/HHHHH/$6/g" | sed "s/FFFFF/$7/g" | sed "s/RRRRR/$rrrrr/g" >> \
+          $specpy
+    endif
+    #
+    #  Submit the temporary python script stripping any xml stuff, then remove it
+    #
     cd $UE_BIN_PATH
     ( uengine -r python < $specpy ) | grep -v '<' | grep -v Response
+    if ( "$rmpy" == "yes" ) rm -rf $specpy >& /dev/null
 endif
-if ( "$rmpy" == "yes" ) rm -rf $specpy >& /dev/null
-#
