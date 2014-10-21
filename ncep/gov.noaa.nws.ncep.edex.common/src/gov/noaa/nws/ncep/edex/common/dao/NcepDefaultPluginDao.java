@@ -1,20 +1,15 @@
 package gov.noaa.nws.ncep.edex.common.dao;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.core.hdf5.HDF5PluginFilenameFilter;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 public class NcepDefaultPluginDao extends PluginDao {
@@ -51,8 +46,7 @@ public class NcepDefaultPluginDao extends PluginDao {
 					+ " plugin. EDEX will not purge data for "
 					+ this.pluginName + " plugin");
 		} else {
-			Session s = this.getHibernateTemplate().getSessionFactory()
-					.openSession();
+			Session s = getSession();
 			
 			Transaction tx = s.beginTransaction();
 			try {
