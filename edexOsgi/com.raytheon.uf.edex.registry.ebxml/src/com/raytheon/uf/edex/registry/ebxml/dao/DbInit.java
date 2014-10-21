@@ -45,7 +45,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -95,6 +95,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * 7/10/2014    1717        bphillip    Removed xacml policy admin object
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
  * Jul 28, 2014 3474        dhladky     Fixed bad ownership settings.
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * </pre>
  * 
  * @author bphillip
@@ -319,12 +320,12 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
      * {@inheritDoc}
      */
     @Override
-    protected AnnotationConfiguration getAnnotationConfiguration() {
+    protected Configuration getConfiguration() {
         /*
          * Create a new configuration object which holds all the classes that
          * this Hibernate SessionFactory is aware of
          */
-        AnnotationConfiguration aConfig = new AnnotationConfiguration();
+        Configuration aConfig = new Configuration();
         for (Object obj : sessionFactory.getAllClassMetadata().keySet()) {
             try {
                 Class<?> clazz = Class.forName((String) obj);
