@@ -1,64 +1,91 @@
-# Example to retrieve a single grid point
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
+# Gets all available raob data in the A-II database over a specified range of
+# times. The data is output to stdout as ASCII.
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    2014-10-15      3598          nabowle        Initial modification. Changed to use DataAccessLayer.
+#
+
+import a2rdmdlCommon
+import argparse
+import numpy
 import xdrlib
 import bz2
-import GridRequest
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
-from com.raytheon.edex.uengine.tasks.decode import FileIn
+import sys
 
-# Perform a grid request for data of interest
-gr = GridRequest.GridRequest("grid")
-gr.addParameter("info.datasetId", "SSSSS")
-gr.addParameter("info.level.masterLevel.name", "TTTTT")
-gr.addParameter("info.level.levelonevalue", "LLLLL")
-gr.addParameter("info.level.leveltwovalue", "22222")
-gr.addParameter("info.parameter.abbreviation", "VVVVV")
-gr.addParameter("dataTime", "DDDDD HHHHH:00:00.0 (FFFFF)RRRRR")
+def get_args():
+    return a2rdmdlCommon.get_parser().parse_args()
 
-result = gr.query.execute()
-size = result.size()
-if size == 0:
-   return ResponseMessageGeneric("Data not available")
+def main():
+    user_args = get_args()
 
-# For the purposes of this script, take the first response
-currentQuery = result.get(0)
+    try:
+        grid, xLen, yLen = a2rdmdlCommon.do_request(user_args)
+    except Exception as e:
+        print >> sys.stderr, str(e)
+        return
 
-# Get the data in memory
-fileIn = FileIn("grid", currentQuery)
-data = fileIn.execute()
+    rawData = grid.getRawData()
 
-if data:
+    msg = str(xLen) + " " + str(yLen) + "\n"
 
-   # Pull out float[] and get sizes
-   rawData = data.getFloatData()
-   xLen = data.getSizes()[0]
-   yLen = data.getSizes()[1]
-   dimStr = str(xLen) + " " + str(yLen) + "\n"
+    nxy = yLen*xLen
+    j = nxy-xLen
+    mypacker = xdrlib.Packer()
+    mypacker.reset()
+    while j>=0 :
+        dataIdx, arrIdx = a2rdmdlCommon.get_indices(j, yLen)
+        arr = rawData[dataIdx]
+        i = 0
+        while i<xLen:
+            if arrIdx >= yLen:
+                arrIdx = 0
+                dataIdx += 1
+                arr = rawData[dataIdx]
 
-   # Pull out float[] and get sizes
-   rawData = data.getFloatData()
-   xLen = data.getSizes()[0]
-   yLen = data.getSizes()[1]
-   msg = "\n"
-   msg += dimStr
-   nxy = yLen*xLen
-   j = nxy-xLen
-   mypacker = xdrlib.Packer()
-   mypacker.reset()
-   while j>=0 :
-       i = 0
-       while i<xLen :
-           mypacker.pack_float(float(rawData[i+j]))
-           i += 1
-       j -= xLen
-   packLen = len(mypacker.get_buffer())
-   xdrbuf = bz2.compress(mypacker.get_buffer())
-   cmpLen = len(xdrbuf)
-   msg += str(packLen)+" "+str(cmpLen*2)+"\t\n"
-   i = 0
-   while i<cmpLen :
+            k = arr[arrIdx]
+            if numpy.isnan(k) :
+                k = 0
+
+            mypacker.pack_float(float(k))
+            i += 1
+            arrIdx += 1
+
+        j -= xLen
+
+    packLen = len(mypacker.get_buffer())
+    xdrbuf = bz2.compress(mypacker.get_buffer())
+    cmpLen = len(xdrbuf)
+    msg += str(packLen)+" "+str(cmpLen*2)+"\t\n"
+    i = 0
+    while i<cmpLen :
        msg += "%2.2x"%ord(xdrbuf[i])
        i += 1
-   msg += "\t\n"
-   return ResponseMessageGeneric(msg)
+    msg += "\t\n"
 
-return ResponseMessageGeneric("Data not available")
+    print msg.strip() + "\t"
+
+if __name__ == '__main__':
+    main()
