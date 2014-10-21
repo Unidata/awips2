@@ -106,6 +106,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 10/15/2013   #2446      randerso    Added ORDER BY clause to getOverlappingTimes
  * 06/12/14     #3244      randerso    Improved error handling
  * 09/21/2014   #3648      randerso    Changed to do version purging when new databases are added
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -153,7 +154,7 @@ public class GFEDao extends DefaultPluginDao {
         Session sess = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getSession();
             sess.setDefaultReadOnly(true);
             int tries = 0;
             Transaction tx = null;
@@ -202,7 +203,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -242,7 +243,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getSession();
             sess.setDefaultReadOnly(true);
             tx = sess.beginTransaction();
 
@@ -280,7 +281,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -304,8 +305,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory()
-                    .openStatelessSession();
+            sess = getSessionFactory().openStatelessSession();
             tx = sess.beginTransaction();
 
             for (ParmStorageInfo psi : psiList) {
@@ -331,7 +331,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -351,8 +351,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory()
-                    .openStatelessSession();
+            sess = getSessionFactory().openStatelessSession();
             tx = sess.beginTransaction();
             sess.update(psi);
             tx.commit();
@@ -374,7 +373,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -395,7 +394,7 @@ public class GFEDao extends DefaultPluginDao {
         Session sess = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getSession();
             sess.setDefaultReadOnly(true);
 
             // reattach so dbId doesn't requery
@@ -450,7 +449,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -515,18 +514,18 @@ public class GFEDao extends DefaultPluginDao {
         try {
             removed = txTemplate
                     .execute(new TransactionCallback<List<DatabaseID>>() {
+                        @SuppressWarnings("unchecked")
                         @Override
                         public List<DatabaseID> doInTransaction(
                                 TransactionStatus status) {
                             Date purgeDate = new Date(
                                     System.currentTimeMillis()
                                             - (REMOVED_DB_PURGE_TIME * TimeUtil.MILLIS_PER_DAY));
-                            @SuppressWarnings("unchecked")
-                            List<DatabaseID> removed = getHibernateTemplate()
-                                    .find("FROM DatabaseID where removedDate < ?",
-                                            purgeDate);
-
-                            return removed;
+                            return getCurrentSession()
+                                    .createQuery(
+                                            "FROM DatabaseID where removedDate < :removedDate")
+                                    .setParameter("removedDate", purgeDate)
+                                    .list();
                         }
                     });
         } catch (Exception e) {
@@ -555,8 +554,10 @@ public class GFEDao extends DefaultPluginDao {
         return txTemplate.execute(new TransactionCallback<Integer>() {
             @Override
             public Integer doInTransaction(TransactionStatus status) {
-                return getHibernateTemplate().bulkUpdate(
-                        "DELETE FROM DatabaseID WHERE siteId = ?", siteID);
+                return getCurrentSession()
+                        .createQuery(
+                                "DELETE FROM DatabaseID WHERE siteId = :siteId")
+                        .setParameter("siteId", siteID).executeUpdate();
             }
         });
     }
@@ -579,8 +580,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory()
-                    .openStatelessSession();
+            sess = getSessionFactory().openStatelessSession();
             tx = sess.beginTransaction();
             for (GFERecord rec : records) {
                 // TODO: Update saving a record, currently causes 2 inserts and
@@ -608,7 +608,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -632,8 +632,7 @@ public class GFEDao extends DefaultPluginDao {
         }
 
         try {
-            sess = getHibernateTemplate().getSessionFactory()
-                    .openStatelessSession();
+            sess = getSessionFactory().openStatelessSession();
             tx = sess.beginTransaction();
 
             // Update insert time
@@ -690,7 +689,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -713,15 +712,14 @@ public class GFEDao extends DefaultPluginDao {
         try {
             return txTemplate
                     .execute(new TransactionCallback<List<DatabaseID>>() {
+                        @SuppressWarnings("unchecked")
                         @Override
                         public List<DatabaseID> doInTransaction(
                                 TransactionStatus status) {
-                            @SuppressWarnings("unchecked")
-                            List<DatabaseID> result = getHibernateTemplate()
-                                    .find("FROM DatabaseID WHERE siteId = ? AND removeddate is null",
-                                            siteId);
-
-                            return result;
+                            return getCurrentSession()
+                                    .createQuery(
+                                            "FROM DatabaseID WHERE siteId = :siteId AND removeddate is null")
+                                    .setParameter("siteId", siteId).list();
                         }
                     });
         } catch (Exception e) {
@@ -746,7 +744,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getSession();
             sess.setDefaultReadOnly(true);
             tx = sess.beginTransaction();
 
@@ -776,7 +774,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -801,7 +799,7 @@ public class GFEDao extends DefaultPluginDao {
         try {
             // stateless session so we can bulk query histories instead of once
             // per record via hibernate
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getSession();
             sess.setDefaultReadOnly(true);
             tx = sess.beginTransaction();
 
@@ -837,7 +835,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -867,8 +865,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory()
-                    .openStatelessSession();
+            sess = getSessionFactory().openStatelessSession();
             tx = sess.beginTransaction();
             Query query = sess
                     .createQuery("DELETE FROM GFERecord WHERE parmId = :parmId"
@@ -878,7 +875,7 @@ public class GFEDao extends DefaultPluginDao {
             int rowsDeleted = query.executeUpdate();
             tx.commit();
             tx = null;
-            statusHandler.info("Deleted " + rowsDeleted
+            logger.info("Deleted " + rowsDeleted
                     + " records from the database.");
 
             Map<File, Pair<List<TimeRange>, String[]>> fileMap = GfeUtil
@@ -893,19 +890,19 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     dataStore.deleteGroups(groupsToDelete);
 
-                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                        statusHandler.handle(Priority.DEBUG, "Deleted: "
+                    if (logger.isPriorityEnabled(Priority.DEBUG)) {
+                        logger.handle(Priority.DEBUG, "Deleted: "
                                 + Arrays.toString(groupsToDelete) + " from "
                                 + hdf5File.getName());
                     }
                 } catch (Exception e) {
-                    statusHandler.handle(Priority.WARN,
+                    logger.handle(Priority.WARN,
                             "Error deleting hdf5 record(s) from file: "
                                     + hdf5File.getPath(), e);
                 }
             }
         } catch (Exception e) {
-            statusHandler.error("Error deleting database record(s) for parmId "
+            logger.error("Error deleting database record(s) for parmId "
                     + parmId + " timeRanges " + times, e);
 
             if (tx != null) {
@@ -920,7 +917,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -940,14 +937,14 @@ public class GFEDao extends DefaultPluginDao {
         try {
             return txTemplate
                     .execute(new TransactionCallback<List<TimeRange>>() {
+                        @SuppressWarnings("unchecked")
                         @Override
                         public List<TimeRange> doInTransaction(
                                 TransactionStatus status) {
-                            @SuppressWarnings("unchecked")
-                            List<TimeRange> result = getHibernateTemplate()
-                                    .find("SELECT dataTime.validPeriod FROM GFERecord WHERE parmId = ? ORDER BY dataTime.validPeriod.start",
-                                            parmId);
-                            return result;
+                            return getCurrentSession()
+                                    .createQuery(
+                                            "SELECT dataTime.validPeriod FROM GFERecord WHERE parmId = :parmId ORDER BY dataTime.validPeriod.start")
+                                    .setParameter("parmId", parmId).list();
                         }
                     });
         } catch (Exception e) {
@@ -972,19 +969,19 @@ public class GFEDao extends DefaultPluginDao {
         try {
             return txTemplate
                     .execute(new TransactionCallback<List<TimeRange>>() {
+                        @SuppressWarnings("unchecked")
                         @Override
                         public List<TimeRange> doInTransaction(
                                 TransactionStatus status) {
-                            @SuppressWarnings("unchecked")
-                            List<TimeRange> rval = getHibernateTemplate()
-                                    .find("SELECT dataTime.validPeriod"
-                                            + " FROM GFERecord WHERE parmId = ?"
-                                            + " AND dataTime.validPeriod.start < ?"
-                                            + " AND dataTime.validPeriod.end > ?"
-                                            + " ORDER BY dataTime.validPeriod.start",
-                                            new Object[] { parmId, tr.getEnd(),
-                                                    tr.getStart() });
-                            return rval;
+                            Query query = getCurrentSession().createQuery("SELECT dataTime.validPeriod"
+                                            + " FROM GFERecord WHERE parmId = :parmId"
+                                            + " AND dataTime.validPeriod.start < :start"
+                                            + " AND dataTime.validPeriod.end > :end"
+                                            + " ORDER BY dataTime.validPeriod.start");
+                            query.setParameter("parmId", parmId);
+                            query.setParameter("start", tr.getEnd());
+                            query.setParameter("end", tr.getStart());
+                            return query.list();
                         }
                     });
         } catch (Exception e) {
@@ -1020,7 +1017,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory()
+            sess = getSessionFactory()
                     .openStatelessSession();
             tx = sess.beginTransaction();
 
@@ -1059,7 +1056,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -1080,7 +1077,7 @@ public class GFEDao extends DefaultPluginDao {
         Session sess = null;
         boolean purged = false;
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getSessionFactory().openSession();
             Transaction tx = sess.beginTransaction();
             Object toDelete = sess.get(DatabaseID.class, dbId.getId(),
                     LockOptions.UPGRADE);
@@ -1092,13 +1089,13 @@ public class GFEDao extends DefaultPluginDao {
             tx.commit();
             purged = true;
         } catch (Exception e) {
-            statusHandler.error("Error purging " + dbId, e);
+            logger.error("Error purging " + dbId, e);
         } finally {
             if (sess != null) {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -1159,7 +1156,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory()
+            sess = getSessionFactory()
                     .openStatelessSession();
             tx = sess.beginTransaction();
             Query q = sess
@@ -1182,7 +1179,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -1208,7 +1205,7 @@ public class GFEDao extends DefaultPluginDao {
         List<Object[]> rows = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory()
+            sess = getSessionFactory()
                     .openStatelessSession();
             tx = sess.beginTransaction();
             // use intersection of time range, UPDATE statement don't auto join
@@ -1253,7 +1250,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -1293,7 +1290,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory()
+            sess = getSessionFactory()
                     .openStatelessSession();
             tx = sess.beginTransaction();
             Query q = sess
@@ -1316,7 +1313,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -1368,17 +1365,17 @@ public class GFEDao extends DefaultPluginDao {
         // TODO: Should this be done from GridParmManager?
         List<DatabaseID> results = Collections.emptyList();
         try {
-            final String[] queryParams = { siteId, modelName };
             results = txTemplate
                     .execute(new TransactionCallback<List<DatabaseID>>() {
+                        @SuppressWarnings("unchecked")
                         @Override
                         public List<DatabaseID> doInTransaction(
                                 TransactionStatus status) {
-                            @SuppressWarnings("unchecked")
-                            List<DatabaseID> result = getHibernateTemplate()
-                                    .find("FROM DatabaseID WHERE siteId = ? AND modelName = ? ORDER BY modelTime DESC LIMIT 1",
-                                            (Object[]) queryParams);
-                            return result;
+                            
+                            Query query = getCurrentSession().createQuery("FROM DatabaseID WHERE siteId = :siteId AND modelName = :modelName ORDER BY modelTime DESC LIMIT 1");
+                            query.setParameter("siteId", siteId);
+                            query.setParameter("modelName",modelName);
+                            return query.list();
                         }
                     });
         } catch (Exception e) {
@@ -1409,7 +1406,7 @@ public class GFEDao extends DefaultPluginDao {
         dbId.setRemovedDate(removedDate);
         Session sess = null;
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getSession();
             int tries = 0;
             Transaction tx = null;
             try {
@@ -1445,7 +1442,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -1465,7 +1462,7 @@ public class GFEDao extends DefaultPluginDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getSession();
             tx = sess.beginTransaction();
             sess.saveOrUpdate(gloc);
             tx.commit();
@@ -1486,7 +1483,7 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
