@@ -57,6 +57,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 08, 2013  2243     jsanchez    Removed super method in copy constructor.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -150,7 +151,7 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     private boolean ufn;
 
     @Column
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Type(type = "org.hibernate.spatial.GeometryType")
     @DynamicSerializeElement
     private Geometry geometry;
 
