@@ -9,7 +9,8 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.1",
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  org.geotools,
  javax.persistence,
- javax.measure
+ javax.measure,
+ com.raytheon.uf.common.status;bundle-version="1.14.1"
 Import-Package: com.raytheon.edex.plugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.wmo,
