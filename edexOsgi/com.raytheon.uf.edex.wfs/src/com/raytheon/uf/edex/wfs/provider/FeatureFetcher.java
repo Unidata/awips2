@@ -29,7 +29,7 @@ import net.opengis.filter.v_1_1_0.FilterType;
 
 import org.geotools.geometry.jts.JTS;
 import org.hibernate.criterion.Criterion;
-import org.hibernatespatial.criterion.SpatialRestrictions;
+import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.opengis.feature.simple.SimpleFeature;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 29, 2011            bclement     Initial creation
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
