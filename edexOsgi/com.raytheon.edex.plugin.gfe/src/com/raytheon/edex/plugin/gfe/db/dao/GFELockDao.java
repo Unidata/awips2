@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 06/17/08     #940       bphillip    Initial Creation
  * 04/19/13     #1949      rjpeter     Normalized GFE Database.
  * 06/20/13     #2127      rjpeter     Set session to read only.
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * </pre>
  * 
  * @author bphillip
@@ -98,7 +99,7 @@ public class GFELockDao extends CoreDao {
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getSession();
             sess.setDefaultReadOnly(true);
             tx = sess.beginTransaction();
 
@@ -137,7 +138,7 @@ public class GFELockDao extends CoreDao {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
@@ -159,7 +160,7 @@ public class GFELockDao extends CoreDao {
         Transaction tx = null;
 
         try {
-            s = this.getHibernateTemplate().getSessionFactory()
+            s = getSessionFactory()
                     .openStatelessSession();
             tx = s.beginTransaction();
 
@@ -185,7 +186,7 @@ public class GFELockDao extends CoreDao {
                 try {
                     s.close();
                 } catch (Exception e) {
-                    statusHandler.error(
+                    logger.error(
                             "Error occurred closing database session", e);
                 }
             }
