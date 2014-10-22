@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 21, 2014 3086       skorolev    Cleaned code.
+ * Oct 16, 2014 3220       skorolev    Added condition to avoid NPE.
  * 
  * </pre>
  * 
@@ -213,84 +214,86 @@ public class SnowDisplayMeteoTab extends TabItemComp implements
 
         List<AreaXML> areasArray = threshXML.getAreas();
 
-        for (AreaXML area : areasArray) {
-            areaID = area.getAreaId();
-            SnowDisplayMeteoData sdmd = new SnowDisplayMeteoData();
+        if (areasArray != null) {
+            for (AreaXML area : areasArray) {
+                areaID = area.getAreaId();
+                SnowDisplayMeteoData sdmd = new SnowDisplayMeteoData();
 
-            sdmd.setAreaID(areaID);
+                sdmd.setAreaID(areaID);
 
-            /* Tempature */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_TEMP.getXmlKey();
-            sdmd.setTempR(stm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            sdmd.setTempY(stm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
+                /* Tempature */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_TEMP.getXmlKey();
+                sdmd.setTempR(stm.getThresholdValue(duKey, threshKeyR, areaID,
+                        xmlKey));
+                sdmd.setTempY(stm.getThresholdValue(duKey, threshKeyY, areaID,
+                        xmlKey));
 
-            /* Dew point */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_DEWPT.getXmlKey();
-            sdmd.setDewpointR(stm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            sdmd.setDewpointY(stm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
+                /* Dew point */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_DEWPT.getXmlKey();
+                sdmd.setDewpointR(stm.getThresholdValue(duKey, threshKeyR,
+                        areaID, xmlKey));
+                sdmd.setDewpointY(stm.getThresholdValue(duKey, threshKeyY,
+                        areaID, xmlKey));
 
-            /* Visibility */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_VIS.getXmlKey();
-            sdmd.setVisR(stm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            sdmd.setVisY(stm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
+                /* Visibility */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_VIS.getXmlKey();
+                sdmd.setVisR(stm.getThresholdValue(duKey, threshKeyR, areaID,
+                        xmlKey));
+                sdmd.setVisY(stm.getThresholdValue(duKey, threshKeyY, areaID,
+                        xmlKey));
 
-            /* SLP */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_SLP.getXmlKey();
-            sdmd.setSlpR(stm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            sdmd.setSlpY(stm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
+                /* SLP */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_SLP.getXmlKey();
+                sdmd.setSlpR(stm.getThresholdValue(duKey, threshKeyR, areaID,
+                        xmlKey));
+                sdmd.setSlpY(stm.getThresholdValue(duKey, threshKeyY, areaID,
+                        xmlKey));
 
-            /* Hourly Precipitation */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_HOURLY_PRECIP.getXmlKey();
-            sdmd.setHrPrecipR(stm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            sdmd.setHrPrecipY(stm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
+                /* Hourly Precipitation */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_HOURLY_PRECIP.getXmlKey();
+                sdmd.setHrPrecipR(stm.getThresholdValue(duKey, threshKeyR,
+                        areaID, xmlKey));
+                sdmd.setHrPrecipY(stm.getThresholdValue(duKey, threshKeyY,
+                        areaID, xmlKey));
 
-            /* Wind Chill */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_WIND_CHILL.getXmlKey();
-            sdmd.setWindChillR(stm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            sdmd.setWindChillY(stm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
+                /* Wind Chill */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_WIND_CHILL.getXmlKey();
+                sdmd.setWindChillR(stm.getThresholdValue(duKey, threshKeyR,
+                        areaID, xmlKey));
+                sdmd.setWindChillY(stm.getThresholdValue(duKey, threshKeyY,
+                        areaID, xmlKey));
 
-            /* Frost Bite */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_FROSTBITE.getXmlKey();
-            sdmd.setFrostBiteR(stm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            sdmd.setFrostBiteY(stm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
+                /* Frost Bite */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_FROSTBITE.getXmlKey();
+                sdmd.setFrostBiteR(stm.getThresholdValue(duKey, threshKeyR,
+                        areaID, xmlKey));
+                sdmd.setFrostBiteY(stm.getThresholdValue(duKey, threshKeyY,
+                        areaID, xmlKey));
 
-            /* Snow Depth */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_SNOW_DEPTH.getXmlKey();
-            sdmd.setSnowDepthR(stm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            sdmd.setSnowDepthY(stm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
+                /* Snow Depth */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_SNOW_DEPTH.getXmlKey();
+                sdmd.setSnowDepthR(stm.getThresholdValue(duKey, threshKeyR,
+                        areaID, xmlKey));
+                sdmd.setSnowDepthY(stm.getThresholdValue(duKey, threshKeyY,
+                        areaID, xmlKey));
 
-            /* SNINCR Hourly */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_SNINCR_HOURLY.getXmlKey();
-            sdmd.setSnincrHrlyR(stm.getThresholdValue(duKey, threshKeyR,
-                    areaID, xmlKey));
-            sdmd.setSnincrHrlyY(stm.getThresholdValue(duKey, threshKeyY,
-                    areaID, xmlKey));
+                /* SNINCR Hourly */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_SNINCR_HOURLY.getXmlKey();
+                sdmd.setSnincrHrlyR(stm.getThresholdValue(duKey, threshKeyR,
+                        areaID, xmlKey));
+                sdmd.setSnincrHrlyY(stm.getThresholdValue(duKey, threshKeyY,
+                        areaID, xmlKey));
 
-            /* SNINCR Total */
-            xmlKey = SnowDisplay.SNOW_DISP_METEO_SNINCR_TOTAL.getXmlKey();
-            sdmd.setSnincrTotR(stm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            sdmd.setSnincrTotY(stm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
+                /* SNINCR Total */
+                xmlKey = SnowDisplay.SNOW_DISP_METEO_SNINCR_TOTAL.getXmlKey();
+                sdmd.setSnincrTotR(stm.getThresholdValue(duKey, threshKeyR,
+                        areaID, xmlKey));
+                sdmd.setSnincrTotY(stm.getThresholdValue(duKey, threshKeyY,
+                        areaID, xmlKey));
 
-            /* Add data to array. */
-            snowDataArray.add(sdmd);
+                /* Add data to array. */
+                snowDataArray.add(sdmd);
+            }
         }
     }
 

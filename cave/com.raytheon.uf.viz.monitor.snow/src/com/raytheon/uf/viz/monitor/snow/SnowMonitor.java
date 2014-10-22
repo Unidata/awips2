@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -74,6 +73,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
+ * Oct 16, 2014 3220       skorolev    Corrected snowConfig assignment.
  * 
  * </pre>
  * 
@@ -128,7 +128,7 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
      */
     private SnowMonitor() {
         pluginPatterns.add(snowPattern);
-        snowConfig = new FSSObsMonitorConfigurationManager(MonName.snow.name());
+        snowConfig = FSSObsMonitorConfigurationManager.getSnowObsManager();
         updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SNOW);
