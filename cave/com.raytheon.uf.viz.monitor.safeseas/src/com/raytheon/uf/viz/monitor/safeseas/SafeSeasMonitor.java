@@ -37,7 +37,6 @@ import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -87,6 +86,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
+ * Oct 16, 2014 3220       skorolev    Corrected ssAreaConfig assignment.
  * 
  * </pre>
  * 
@@ -161,7 +161,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      */
     private SafeSeasMonitor() {
         pluginPatterns.add(ssPattern);
-        ssAreaConfig = new FSSObsMonitorConfigurationManager(MonName.ss.name());
+        ssAreaConfig = FSSObsMonitorConfigurationManager.getSsObsManager();
         updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SAFESEAS);
@@ -685,5 +685,4 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         }
         MonitoringArea.setPlatformMap(zones);
     }
-
 }
