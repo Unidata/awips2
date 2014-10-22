@@ -505,7 +505,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             hazNameA = self.hazardName(eachHazard['hdln'], argDict, True)
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
 
-            if hazName == "WINTER WEATHER ADVISORY" or hazName == "WINTER STORM WARNING":
+#            if hazName == "WINTER WEATHER ADVISORY" or hazName == "WINTER STORM WARNING":
+            if hazName in ["WINTER WEATHER ADVISORY", "WINTER STORM WARNING", "BEACH HAZARDS STATEMENT"]:
                 forPhrase = " FOR |* ENTER HAZARD TYPE *|"
             else:
                 forPhrase =""
@@ -735,8 +736,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                             segmentTextSplit[1] = PRECAUTION + segmentTextSplit2[1]
                     segmentText = string.join(segmentTextSplit,"")
 
-            if removeBulletList != []:
+            if keepBulletList == []:
+                segmentText = "\n\n|* WRAP-UP TEXT GOES HERE *|.\n"
+            elif removeBulletList != []:
                 segmentText = "|*\n" + segmentText + "*|"
+            else:
+                segmentText = segmentText
 
         #
         # If segment passes the above checks, add the text
