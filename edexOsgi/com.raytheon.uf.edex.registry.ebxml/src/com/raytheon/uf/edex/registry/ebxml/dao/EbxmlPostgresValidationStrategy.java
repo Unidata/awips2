@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.internal.SessionFactoryImpl;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -39,6 +39,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2013 1693       djohnson     Initial creation
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -63,7 +64,7 @@ public class EbxmlPostgresValidationStrategy implements
      * {@inheritDoc}
      */
     @Override
-    public boolean isDbValid(AnnotationConfiguration aConfig,
+    public boolean isDbValid(Configuration aConfig,
             SessionFactory sessionFactory) {
         statusHandler.info("Verifying RegRep database...");
         final List<String> existingTables = new ArrayList<String>();
