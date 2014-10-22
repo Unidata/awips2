@@ -74,6 +74,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Sep 30, 2013  2333      mschenke    Refactored to store coordinates in CRS
  *                                     space
  * Apr 11, 2014  2947      bsteffen    Fix equals
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * 
  * </pre>
@@ -151,7 +152,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
 
     /** The map coverage */
     @Column(name = "the_geom")
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Type(type = "org.hibernate.spatial.GeometryType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Geometry location;

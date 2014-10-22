@@ -37,7 +37,7 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Mar 28, 2013      #1837  dgilling    Change error handling in 
  *                                      getLastUpdated().
  * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
