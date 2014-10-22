@@ -110,7 +110,7 @@ public class VIIRSDao extends PluginDao {
                         coverage = (VIIRSSpatialCoverage) obj;
                         break;
                     } else {
-                        statusHandler.handle(Priority.WARN,
+                        logger.handle(Priority.WARN,
                                 "VIIRSSpatialCoverage lookup returned type of: "
                                         + obj != null ? obj.getClass()
                                         .getSimpleName() : null);
@@ -118,7 +118,7 @@ public class VIIRSDao extends PluginDao {
                 }
             }
         } catch (DataAccessLayerException e) {
-            statusHandler.handle(Priority.PROBLEM,
+            logger.handle(Priority.PROBLEM,
                     "Error querying for viirs spatial object", e);
         }
         return coverage;
