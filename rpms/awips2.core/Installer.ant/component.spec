@@ -51,9 +51,7 @@ function copyLegal()
    tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp %{_baseline_workspace}/rpms/legal/license.txt \
-      %{_build_root}/${COMPONENT_BUILD_DIR}/licenses
-   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master_Rights_File.pdf" \
       %{_build_root}/${COMPONENT_BUILD_DIR}/licenses
    cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       %{_build_root}/${COMPONENT_BUILD_DIR}/licenses
