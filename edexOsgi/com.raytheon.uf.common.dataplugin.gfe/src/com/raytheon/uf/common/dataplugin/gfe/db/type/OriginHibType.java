@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 4/18/08      875        bphillip    Initial Creation
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -87,29 +89,30 @@ public class OriginHibType implements UserType {
     public boolean isMutable() {
         return false;
     }
-
+    
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
+    public Object nullSafeGet(ResultSet rs, String[] names,
+            SessionImplementor session, Object owner)
             throws HibernateException, SQLException {
         return GridDataHistory.OriginType
-                .valueOf(resultSet.getString(names[0]));
+                .valueOf(rs.getString(names[0]));
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement statement, Object value, int index)
-            throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, Object value, int index,
+            SessionImplementor session) throws HibernateException, SQLException {
         if (value == null) {
-            statement.setString(index, null);
+            st.setString(index, null);
         } else {
             if (value instanceof GridDataHistory.OriginType) {
-                statement.setString(index, ((GridDataHistory.OriginType) value)
+                st.setString(index, ((GridDataHistory.OriginType) value)
                         .name());
             } else {
                 throw new HibernateException("value is not of type "
                         + GridDataHistory.OriginType.class.getName());
             }
         }
-
+        
     }
 
     @Override
@@ -127,5 +130,4 @@ public class OriginHibType implements UserType {
     public int[] sqlTypes() {
         return OriginHibType.SQL_TYPES;
     }
-
 }
