@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2009 #3963      lvenable     Initial creation
  * Dec 4,  2012 #1351      skorolev     Cleaned code
+ * Oct 16, 2014 #3220      skorolev     Added error message when Default threshold configuration file is corrupted or empty.
  * 
  * </pre>
  * 
@@ -145,7 +146,11 @@ public class ThresholdMgr {
                     ThresholdsXML.class);
             createXmlFromDefaults(cfgXmlDefaults, areaIDs, keys);
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, e.getMessage());
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Default threshold configuration file "
+                                    + fullDefaultPathName
+                                    + " is corrupted.\nDelete the files in the folder on the server side and restart CAVE.");
             return false;
         }
         return true;
