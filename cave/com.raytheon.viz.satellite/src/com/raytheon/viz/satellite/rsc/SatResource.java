@@ -122,6 +122,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  May 06, 2014            njensen     Improve error message
  *  Jun 12, 2014  3238      bsteffen    Implement Interrogatable
  *  Aug 21, 2014  DR 17313  jgerth      Set no data value if no data mapping
+ *  Oct 15, 2014  3681      bsteffen    create renderable in interrogate if necessary.
  * 
  * </pre>
  * 
@@ -606,7 +607,12 @@ public class SatResource extends
     public InterrogateMap interrogate(ReferencedCoordinate coordinate,
             DataTime time, InterrogationKey<?>... keys) {
         InterrogateMap result = new InterrogateMap();
-        SatRenderable renderable = (SatRenderable) getRenderable(time);
+        SatRenderable renderable = null;
+        try {
+            renderable = (SatRenderable) getOrCreateRenderable(time);
+        } catch (VizException e) {
+            statusHandler.error("Unable to interrogate " + getSafeName(), e);
+        }
         if (renderable == null) {
             return result;
         }
