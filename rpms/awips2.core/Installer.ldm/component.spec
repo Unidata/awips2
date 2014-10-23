@@ -388,6 +388,8 @@ if [ ${_myHost} == "cpsbn1" -o ${_myHost} == "cpsbn2" ] ; then
       echo "NETMASK3=255.255.255.255" >> ${_route_eth1}
       echo "ADDRESS4=224.0.1.5" >> ${_route_eth1}
       echo "NETMASK4=255.255.255.255" >> ${_route_eth1}
+      echo "ADDRESS5=224.0.1.6" >> ${_route_eth1}
+      echo "NETMASK5=255.255.255.255" >> ${_route_eth1}
 
       # restart networking
       /sbin/service network restart
