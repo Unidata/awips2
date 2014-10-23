@@ -26,7 +26,6 @@ import java.util.List;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
@@ -55,6 +54,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
  * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
+ * Oct 16, 2014 3220       skorolev    Corrected configMgr assignment.
  * 
  * </pre>
  * 
@@ -75,6 +75,7 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
      */
     public SnowZoneTableDlg(Shell parent, ObMultiHrsReports obData) {
         super(parent, obData, CommonConfig.AppName.SNOW);
+        configMgr = FSSObsMonitorConfigurationManager.getSnowObsManager();
     }
 
     /**
@@ -255,19 +256,5 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
     @Override
     protected void shellDisposeAction() {
         // Not used
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#getInstance()
-     */
-    @Override
-    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
-        if (configMgr == null || configMgr.isPopulated()) {
-            configMgr = new FSSObsMonitorConfigurationManager(
-                    MonName.snow.name());
-        }
-        return configMgr;
     }
 }
