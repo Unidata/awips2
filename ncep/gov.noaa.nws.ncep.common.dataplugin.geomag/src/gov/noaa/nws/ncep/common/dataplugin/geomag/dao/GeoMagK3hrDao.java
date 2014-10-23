@@ -9,7 +9,6 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
@@ -27,6 +26,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * ------------ ---------- ----------------   --------------------------
  * 08/14/2013   T989       qzhou              Initial creation.
  * 03/13/2014              sgurung            Added method purgeDataByRefTime()
+ * 10/16/2014   3454       bphillip           Upgrading to Hibernate 4
  * </pre>
  * 
  * @author qzhou
@@ -52,8 +52,7 @@ public class GeoMagK3hrDao extends CoreDao {
         return (List<GeoMagK3hr>) txTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus status) {
-                HibernateTemplate ht = getHibernateTemplate();
-                Session sess = ht.getSessionFactory().getCurrentSession();
+                Session sess = getCurrentSession();
                 Criteria crit = sess.createCriteria(GeoMagK3hr.class);
                 Criterion where1 = Restrictions.eq("stationCode", stationCode);
                 crit.add(where1);
@@ -73,8 +72,7 @@ public class GeoMagK3hrDao extends CoreDao {
         return (List<GeoMagK3hr>) txTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus status) {
-                HibernateTemplate ht = getHibernateTemplate();
-                Session sess = ht.getSessionFactory().getCurrentSession();
+                Session sess = getCurrentSession();
                 Criteria crit = sess.createCriteria(GeoMagK3hr.class);
                 Criterion where1 = Restrictions.eq("stationCode", stationCode);
                 crit.add(where1);
