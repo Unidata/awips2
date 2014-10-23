@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct 15, 2013  2473     bsteffen    add @XmlSeeAlso for self contained JAXB
  *                                    context.
  * Apr 11, 2014  2947     bsteffen    Implement IGridGeometryProvider.
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -124,7 +125,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     /** Geometry object holding the corner points of the grid */
     @Column(name = "the_geom")
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Type(type = "org.hibernate.spatial.GeometryType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     protected Geometry geometry;
