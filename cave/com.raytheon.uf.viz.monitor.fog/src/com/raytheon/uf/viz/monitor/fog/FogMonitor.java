@@ -89,6 +89,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 23, 2014 3356       njensen     Remove unnecessary import
+ * Oct 16, 2014 3220       skorolev    Corrected fogConfig assignment.
  * 
  * 
  * </pre>
@@ -160,7 +161,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     private FogMonitor() {
         pluginPatterns.add(fogPattern);
-        fogConfig = new FSSObsMonitorConfigurationManager(MonName.fog.name());
+        fogConfig = FSSObsMonitorConfigurationManager.getFogObsManager();
         updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.FOG);
@@ -650,5 +651,4 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         }
         MonitoringArea.setPlatformMap(zones);
     }
-
 }
