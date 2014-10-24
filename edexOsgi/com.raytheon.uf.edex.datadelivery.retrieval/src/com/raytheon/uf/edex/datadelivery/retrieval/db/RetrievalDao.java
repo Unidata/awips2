@@ -35,6 +35,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * Feb 07, 2013 1543       djohnson     Use session management code.
  * Feb 13, 2013 1543       djohnson     Exported interface which is now implemented.
  * Feb 22, 2013 1543       djohnson     Made public as YAJSW doesn't like Spring exceptions.
+ * Oct 13, 2014 3707       dhladky      Shared subscription delivery requires you to create a new record.
  * 
  * </pre>
  * 
@@ -165,7 +166,7 @@ public class RetrievalDao extends
     public void completeRetrievalRequest(RetrievalRequestRecord rec)
             throws DataAccessLayerException {
         try {
-            update(rec);
+            createOrUpdate(rec);
         } catch (HibernateException e) {
             throw new DataAccessLayerException(
                     "Failed to update the database while changing the status on ["
