@@ -20,7 +20,7 @@
 package com.raytheon.uf.common.registry.schemas.ebxml.util;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.IdentifierGenerator;
 
 /**
@@ -33,6 +33,7 @@ import org.hibernate.id.IdentifierGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 11, 2012            bphillip     Initial creation
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 

@@ -19,15 +19,11 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.GENERAL_GROUP;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_4_LEAD;
-
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncCloud;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
 
 /**
  * Decode synoptic section 4 data. This section has a single group which
@@ -40,6 +36,7 @@ import com.raytheon.uf.edex.decodertools.core.ReportParser;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
+ * Sep 30, 2014       3629 mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * </pre>
  * 
  * @author jkorman
@@ -90,15 +87,17 @@ public class SynopticSec4Decoder extends AbstractSectionDecoder {
             // nothing to do.
             return;
         }
-        if (reportParser.positionTo(SEC_4_LEAD)) {
+        if (reportParser.positionTo(ISynoptic.SEC_4_LEAD_STRING)) {
 
             if (reportParser.next()) {
                 String element = reportParser.getElement();
-                if (matchElement(element, GENERAL_GROUP)) {
-                    cloudAmount = getInt(element, 0, 1);
-                    cloudGenus = getInt(element, 1, 2);
-                    cloudAltitude = getInt(element, 2, 4);
-                    cloudDescription = getInt(element, 4, 5);
+                if (element != null
+                        && ISynoptic.GENERAL_GROUP.matcher(element).find()) {
+                    cloudAmount = AbstractSfcObsDecoder.getInt(element, 0, 1);
+                    cloudGenus = AbstractSfcObsDecoder.getInt(element, 1, 2);
+                    cloudAltitude = AbstractSfcObsDecoder.getInt(element, 2, 4);
+                    cloudDescription = AbstractSfcObsDecoder.getInt(element, 4,
+                            5);
                 }
             }
         }

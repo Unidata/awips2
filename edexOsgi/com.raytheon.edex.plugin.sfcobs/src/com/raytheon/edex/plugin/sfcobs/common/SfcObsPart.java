@@ -19,11 +19,6 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.common;
 
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.CARRIAGECONTROL;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.MESSAGE_END;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.MESSAGE_START;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.REPORT_END;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +35,7 @@ import java.util.Map;
  * ------------- -------- ----------- --------------------------
  * Sep 25, 2007  391      jkorman     Initial Coding.
  * Oct 29, 2013  2489     bsteffen    Add NAVTEX_END_PART
+ * Sep 26, 2014  3629     mapeters    Removed static imports.
  * 
  * </pre>
  * 
@@ -47,13 +43,15 @@ import java.util.Map;
  * @version 1.0
  */
 public class SfcObsPart {
-    public static final SfcObsPart CR_PART = new SfcObsPart(CARRIAGECONTROL,false);
 
-    public static final SfcObsPart RE_PART = new SfcObsPart(REPORT_END, false);
+    public static final SfcObsPart CR_PART = new SfcObsPart("CARRIAGECONTROL",
+            false);
 
-    public static final SfcObsPart MS_PART = new SfcObsPart(MESSAGE_START,false);
+    public static final SfcObsPart RE_PART = new SfcObsPart("RPT_END", false);
 
-    public static final SfcObsPart ME_PART = new SfcObsPart(MESSAGE_END,false);
+    public static final SfcObsPart MS_PART = new SfcObsPart("MSG_START", false);
+
+    public static final SfcObsPart ME_PART = new SfcObsPart("MSG_END", false);
 
     public static final SfcObsPart AAXX_PART = new SfcObsPart("AAXX",false);
 

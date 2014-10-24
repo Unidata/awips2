@@ -40,6 +40,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul 14 2010  6567       zhao       Launch AreaConfigDlg w/o monitor
  * Nov.27, 2012 1297       skorolev   Cleanup code for non-blocking dialog.
  * May 08, 2014 3086       skorolev   Added CloseCallback to dialog.
+ * Sep 16, 2014 2757       skorolev   Added test of dialog on dispose.
+ * Sep 19, 2014 3220       skorolev   Added check on dispose.
  * 
  * </pre>
  * 
@@ -63,18 +65,16 @@ public class FogAreaConfigAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (areaDialog == null) {
+        if (areaDialog == null || areaDialog.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             areaDialog = new FogMonitoringAreaConfigDlg(shell,
                     "Fog Monitor Area Configuration");
             areaDialog.setCloseCallback(new ICloseCallback() {
-
                 @Override
                 public void dialogClosed(Object returnValue) {
                     areaDialog = null;
                 }
-
             });
         }
         areaDialog.open();

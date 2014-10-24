@@ -36,7 +36,15 @@ import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 
 /**
- * TODO Add Description
+ * ImageBuilder - Class which holds the state of a single image while it's under
+ * construction by sequential execution of CGM commands. For efficiency (and
+ * other) reasons, it is useful not to draw some elements immediately to the
+ * screen as each drawable CGM command is processed, but rather to accumulate
+ * simple objects (e.g., polylines) into larger aggregate constructs
+ * (wireframes) for drawing later by AWIPS II IGraphicsTarget commands. Also,
+ * some CGM commands are dependent on modes or states set by previous CGM
+ * commands (e.g., LineWidth); this structure also provides a place to hold
+ * these states.
  * 
  * <pre>
  * 
@@ -60,6 +68,13 @@ public class ImageBuilder {
     // construction by sequential execution of the CGM commands.
 
     public class WireframeKey {
+
+        // An object of this class forms a unique key to an AWIPS II
+        // wireframe (IWireframeShape) which can be drawn in a
+        // single operation. As such, it contains as fields all
+        // characteristics that must be held constant in a single
+        // such wireframe draw operation.
+
         public RGB color;
 
         public double width;
@@ -108,12 +123,19 @@ public class ImageBuilder {
         }
     }
 
+    // Collection of all wireframes under construction, keyed by unique output
+    // draw states
     public Map<WireframeKey, IWireframeShape> wireframes = new HashMap<WireframeKey, IWireframeShape>();
 
+    // Line color set by the most recent CGM LineColour command. Default to
+    // WHITE.
     public RGB currentLineColor = new RGB(255, 255, 255);
 
+    // Line width set by the most recent CGM LineWidth command. Default to 1
+    // pixel.
     public double currentLineWidth = 1.0;
 
+    // Accumulator for AWIPS II DrawableString text objects
     public List<DrawableString> strings = new ArrayList<DrawableString>();
 
     public RGB currentTextColor = new RGB(255, 255, 255);

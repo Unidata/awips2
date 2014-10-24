@@ -3,6 +3,31 @@
 # Alert VIZ Startup Script
 # Note: Alert VIZ will not run as 'root'
 
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+#
+#
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer    Description
+# ------------ ---------- ----------- --------------------------
+# Oct 09, 2014  #3675     bclement    added cleanExit signal trap
+#
+
 user=`/usr/bin/whoami`
 if [ ${user} == 'root' ]; then
    echo "WARNING: Alert VIZ cannot be run as user '${user}'!"
@@ -78,11 +103,21 @@ if [ ! -d $LOGDIR ]; then
  mkdir -p $LOGDIR
 fi
 
-# Special instructions for the 64-bit jvm.
-ARCH_ARGS=""
-if [ -f /awips2/java/jre/lib/amd64/server/libjvm.so ]; then
-   ARCH_ARGS="-vm /awips2/java/jre/lib/amd64/server/libjvm.so"
-fi
+# takes in a process id
+# kills spawned subprocesses of pid
+# and then kills the process itself and exits
+function cleanExit()
+{
+    pid=$1
+    if [[ -n $pid ]]
+    then
+        pkill -P $pid
+        kill $pid
+    fi
+    exit
+}
+
+trap 'cleanExit $pid' SIGHUP SIGINT SIGQUIT SIGTERM
 
 #run a loop for alertviz
 count=0
@@ -105,11 +140,13 @@ do
  else
   #finally check if we can write to the file
   if [ -w ${LOGFILE} ]; then
-   ${dir}/alertviz ${ARCH_ARGS} $*  > ${LOGFILE} 2>&1
+   ${dir}/alertviz $*  > ${LOGFILE} 2>&1 &
   else
-   ${dir}/alertviz ${ARCH_ARGS} $*
+   ${dir}/alertviz $* &
   fi
+  pid=$!
+  wait $pid
+  exitVal=$?
  fi
- exitVal=$?
 done
 

@@ -47,6 +47,7 @@ import java.io.Serializable;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080103            384 jkorman     Ported from JET JUTL classes.
+ * Sep 18, 2014       3627 mapeters    Removed unused methods/fields.
  * </pre>
  * 
  * @author jkorman
@@ -77,16 +78,6 @@ public class LatLonPoint implements Cloneable, Serializable {
     // the longitude value for this point in degrees.
     private double theLongitudeInDegrees;
 
-    // ***************************************************************************
-    // the quadrant of the sphere based on the above latitude/longitude.
-    // WMO Manual 306, Code table 3333, page I.1-C-98, 1995 Edition, Suppl. No.3
-    // quadrant = 1 0N - 90N ( 90) 0E - 180E (-180)
-    // quadrant = 3 0S - 90S (-90) 0E - 180E (-180)
-    // quadrant = 5 0S - 90S (-90) 0W - 180W ( 180)
-    // quadrant = 7 0N - 90N ( 90) 0W - 180W ( 180)
-    // ***************************************************************************
-    private int theQuadrant;
-
     /**
      * Construct a new LatLonPoint with the given data.
      * 
@@ -111,31 +102,7 @@ public class LatLonPoint implements Cloneable, Serializable {
      */
     public LatLonPoint(double aLatitude, double aLongitude, int units) {
         setLatLon(aLatitude, aLongitude, units);
-
-        theQuadrant = computeQuadrant(theLatitudeInDegrees,
-                theLongitudeInDegrees, INDEGREES);
     } // LatLonPoint
-
-    /**
-     * Construct a new LatLonPoint with the given data.
-     * 
-     * @param aLatitude
-     *            The value of the latitude
-     * @param aLongitude
-     *            The value of the longitude
-     * @param units
-     *            The units of the input latitude/longitude.
-     * @see #INRADIANS
-     * @see #INDEGREES
-     * @param aQuadrant
-     *            The units of the input latitude/longitude.
-     */
-    public LatLonPoint(double aLatitude, double aLongitude, int units,
-            int aQuadrant) {
-        setLatLon(aLatitude, aLongitude, units);
-
-        theQuadrant = aQuadrant;
-    }
 
     /**
      * Construct a new LatLonPoint from a given LatLonPoint. This is a copy
@@ -149,7 +116,6 @@ public class LatLonPoint implements Cloneable, Serializable {
         this.theLongitude = thePoint.theLongitude;
         this.theLatitudeInDegrees = thePoint.theLatitudeInDegrees;
         this.theLongitudeInDegrees = thePoint.theLongitudeInDegrees;
-        this.theQuadrant = thePoint.theQuadrant;
     }
 
     /**
@@ -324,9 +290,6 @@ public class LatLonPoint implements Cloneable, Serializable {
             theLatitude = aLatitude;
             theLatitudeInDegrees = Math.toDegrees(aLatitude);
         } // switch
-
-        theQuadrant = computeQuadrant(theLatitudeInDegrees,
-                theLongitudeInDegrees, INDEGREES);
     }
 
     /**
@@ -355,67 +318,11 @@ public class LatLonPoint implements Cloneable, Serializable {
             theLongitudeInDegrees = Math.toDegrees(aLongitude);
 
         } // switch
-
-        theQuadrant = computeQuadrant(theLatitudeInDegrees,
-                theLongitudeInDegrees, INDEGREES);
-    }
-
-    /**
-     * Get the global quadrant for this LatLonPoint.
-     * 
-     * @return The current global Quadrant for this point
-     */
-    public int getQuadrant() {
-        return theQuadrant;
     }
 
     // ***
     //
     // ***
-
-    /**
-     * Compute the square of an argument.
-     * 
-     * @param x
-     *            Value to square.
-     * @return the Square of the argument.
-     */
-    public static double sqr(double x) {
-        return (x * x);
-    }
-
-    /**
-     * Compute the square of an argument.
-     * 
-     * @param x
-     *            Value to square.
-     * @return the Square of the argument.
-     */
-    public static float sqr(float x) {
-        return (x * x);
-    }
-
-    /**
-     * Compute the square of an argument.
-     * 
-     * @param x
-     *            Value to square.
-     * @return the Square of the argument.
-     */
-    public static long sqr(long x) {
-        return (x * x);
-    }
-
-    /**
-     * Compute the square of an argument.
-     * 
-     * @param x
-     *            Value to square.
-     * @return the Square of the argument.
-     */
-    public static int sqr(int x) {
-        return (x * x);
-    }
 
     /**
      * This is a special Modulus function for floating point computations. It is
@@ -453,27 +360,12 @@ public class LatLonPoint implements Cloneable, Serializable {
         //
         // gc1 and gc2 are temporary computed terms.
         //
-        double gc1 = sqr(Math.sin((fromLat - toLat) / 2));
+        double gc1 = Math.pow(Math.sin((fromLat - toLat) / 2), 2);
 
         double gc2 = Math.cos(fromLat) * Math.cos(toLat)
-                * sqr(Math.sin((fromLon - toLon) / 2));
+                * Math.pow(Math.sin((fromLon - toLon) / 2), 2);
 
         return (2 * Math.asin(Math.sqrt(gc1 + gc2)));
-    }
-
-    /**
-     * Compute the great circle distance (in radians) between two points located
-     * on a spherical surface.
-     * 
-     * @param fromPoint
-     *            Latitude/Longitude of the first point as a point pair.
-     * @param toPoint
-     *            Latitude/Longitude of the second point as a point pair.
-     * @return The great circle distance in radians.
-     */
-    public static double GreatCircle(LatLonPoint fromPoint, LatLonPoint toPoint) {
-        return GreatCircle(fromPoint.getLatitude(), fromPoint.getLongitude(),
-                toPoint.getLatitude(), toPoint.getLongitude());
     }
 
     /**
@@ -559,20 +451,6 @@ public class LatLonPoint implements Cloneable, Serializable {
 
     /**
      * Compute the initial bearing (in radians) to travel from this point to a
-     * second point at a specified Latitude and Longitude.
-     * 
-     * @param aLatitude
-     *            Latitude of second point in radians.
-     * @param aLongitude
-     *            Longitude of second point in radians.
-     * @return The bearing (from north in radians) to the second point.
-     */
-    public double bearingTo(double aLatitude, double aLongitude) {
-        return bearingTo(theLatitude, theLongitude, aLatitude, aLongitude);
-    }
-
-    /**
-     * Compute the initial bearing (in radians) to travel from this point to a
      * second LatLonPoint.
      * 
      * @param toPoint
@@ -637,262 +515,5 @@ public class LatLonPoint implements Cloneable, Serializable {
      */
     public LatLonPoint positionOf(double aBearing, double aDistance) {
         return positionOf(theLatitude, theLongitude, aBearing, aDistance);
-    }
-
-    /**
-     * Calculate the Quadrant this Latitude/Longitude point resides in.
-     * <P>
-     * Points that exist on the <EM>Equator</EM> or the <EM>Prime Meridian
-     * </EM>
-     * are always considered North and West respectively.
-     * </P>
-     * 
-     * @param aLatitude
-     *            The Latitude corresponding to this point
-     * @param aLongitude
-     *            The Longitude corresponding to this point
-     * @param units
-     *            The units of measurement these coordinates are represented in
-     * @see #INRADIANS
-     * @see #INDEGREES
-     * @return The Global coordinate for this Lat/Long point
-     */
-    public static int computeQuadrant(double aLatitude, double aLongitude,
-            int units) {
-        // The quadrant that is being calculated.
-        int Quadrant = 0;
-        double Latitude = 0; // Incase we need to modify the
-        double Longitude = 0; // Lat/Long points
-
-        if (units == INDEGREES) // Measurement in Degrees?
-        {
-            Latitude = aLatitude; // Good, just copy the
-            Longitude = aLongitude; // values
-        } else {
-            // *********************************************************************
-            // * If it is not in Degrees we assume Radians. Since our tests are
-            // * using degrees we must convert these two values
-            // *********************************************************************
-            Latitude = Math.toDegrees(aLatitude);
-            Longitude = Math.toDegrees(aLongitude);
-        }
-
-        if (Latitude >= 0) // Northern Hemisphere?
-        {
-            if (Longitude >= 0) // West of the Prime Meridian?
-            {
-                Quadrant = 7; // Then we are in Quadrant 7
-            } else {
-                Quadrant = 1; // must be in Quadrant 1 then
-            }
-        } else
-        // West of the Prime Meridian?
-        {
-            if (Longitude >= 0) // Southern Hemisphere.
-            {
-                Quadrant = 5; // We are in Quadrant 5
-            } else {
-                Quadrant = 3; // Otherwuse we are in Quadrant 3
-            }
-        }
-
-        return Quadrant; // Return the calculated Quadrant
-    }
-
-    /**
-     * Gets the Marsden Square corresponding to the Lat/Long of this LatLonPoint
-     * object.
-     * 
-     * @return The Marsden Square number for this point
-     */
-    public int getMarsdenSquare() {
-        return calcMarsdenSquare(theLatitudeInDegrees, theLongitudeInDegrees,
-                INDEGREES, theQuadrant);
-    }
-
-    /**
-     * Given a point on the globe, this routine returns the Marsden Square
-     * number that corresponds with this point.
-     * 
-     * @param aLatitude
-     *            The Latitude of this point in Radians
-     * @param aLongitude
-     *            The Longitude of this point in Radians
-     * @return The Marsden Square number for the location entered
-     */
-    public static int calcMarsdenSquare(double aLatitude, double aLongitude) {
-        return calcMarsdenSquare(aLatitude, aLongitude, INRADIANS);
-    }
-
-    /**
-     * Given a point on the globe, this routine returns the Marsden Square
-     * number that corresponds with this point.
-     * 
-     * @param aLatitude
-     *            The Latitude of this point
-     * @param aLongitude
-     *            The Longitude of this point
-     * @param units
-     *            The units of measurement these coordinates are represented in
-     * @see #INRADIANS
-     * @see #INDEGREES
-     * @return The Marsden Square number for the location entered
-     */
-    public static int calcMarsdenSquare(double aLatitude, double aLongitude,
-            int units) {
-        return calcMarsdenSquare(aLatitude, aLongitude, units, computeQuadrant(
-                aLatitude, aLongitude, units));
-    }
-
-    /**
-     * Given a point on the globe, this routine returns the Marsden Square
-     * number that corresponds with this point.
-     * 
-     * @param aLatitude
-     *            The Latitude of this point
-     * @param aLongitude
-     *            The Longitude of this point
-     * @param units
-     *            The units of measurement these coordinates are represented in
-     * @see #INRADIANS
-     * @see #INDEGREES
-     * @param aQuadrant
-     *            The Quadrant this point is located in
-     * @return The Marsden Square number for the location entered
-     */
-    public static int calcMarsdenSquare(double aLatitude, double aLongitude,
-            int units, int aQuadrant) {
-        int MarsdenSquare = 0; // Space for our calculations
-        int xGrid = 0; // 10 Degree Longitude place holder
-        int yGrid = 0; // 10 degree Latitude place holder
-
-        validateLatLon(aLatitude, aLongitude, units);
-
-        // Convert radians to degrees if required
-        if (units != INDEGREES) {
-            aLatitude = Math.toDegrees(aLatitude);
-            aLongitude = Math.toDegrees(aLongitude);
-        }
-
-        // ***
-        // If the passed quadrant is invalid, recompute using the given
-        // latitude and longitude.
-        // ***
-        if ((aQuadrant < 1) || (aQuadrant > 7) || ((aQuadrant % 2) == 0)) {
-            aQuadrant = computeQuadrant(aLatitude, aLongitude, INDEGREES);
-        }
-
-        // Convert -180..0 degrees to the range 360..180
-        if (aLongitude < 0) {
-            aLongitude = 360 + aLongitude;
-        }
-
-        // Now get the primary grid intersection.
-        xGrid = (int) (aLatitude / 10);
-        yGrid = (int) (aLongitude / 10);
-
-        // If the grid point was in the Southern Hemisphere adjust it.
-        xGrid = Math.abs(xGrid);
-
-        // Special rules for North Polar region.
-        if (aLatitude >= 80) {
-            // Start at Marsden Square 901
-            MarsdenSquare = 901 + yGrid;
-        } else {
-            // Get the base Marsden Square number.
-            MarsdenSquare = (xGrid * 36) + yGrid;
-
-            // Now apply the offset based on Northern/Southern Hemisphere.
-            // MarsdenSquare += (aLatitude >= 0) ? 1 : 300;
-            if (aLatitude >= 0) {
-                MarsdenSquare += 1;
-            } else {
-                MarsdenSquare += 300;
-            }
-
-        }
-
-        // return the calculated Marsden Square
-        return MarsdenSquare;
-    }
-
-    /**
-     * Gets the Ship Edit Block corresponding to the Lat/Long of this
-     * LatLonPoint object.
-     * 
-     * @return The Ship Edit Block number for this point
-     */
-    public int getShipEditBlock() {
-        return calcShipEditBlock(theLatitudeInDegrees, theLongitudeInDegrees,
-                INDEGREES);
-    }
-
-    /**
-     * Given a point on the globe, this routine returns the Ship Edit Block
-     * number that corresponds with this point.
-     * 
-     * @param aLatitude
-     *            The Latitude of this point in Radians
-     * @param aLongitude
-     *            The Longitude of this point in Radians
-     * @return The Ship Edit Block number for the location entered
-     */
-    public static int calcShipEditBlock(double aLatitude, double aLongitude) {
-        return calcShipEditBlock(aLatitude, aLongitude, INRADIANS);
-    }
-
-    /**
-     * Given a point on the globe, this routine returns the Ship Edit Block
-     * number that corresponds with this point.
-     * 
-     * @param aLatitude
-     *            The Latitude of this point
-     * @param aLongitude
-     *            The Longitude of this point
-     * @param units
-     *            The units of measurement these coordinates are in
-     * @see #INRADIANS
-     * @see #INDEGREES
-     * @return The Ship Edit Block number for the location entered
-     */
-    public static int calcShipEditBlock(double aLatitude, double aLongitude,
-            int units) {
-        int shipEditBlock = 0; // Space for our calculations
-        int lonGrid = 0; // 30 Degree Longitude place holder
-        int latGrid = 0; // 30 degree Latitude place holder
-
-        validateLatLon(aLatitude, aLongitude, units);
-
-        // Convert radians to degrees if required
-        if (units != INDEGREES) {
-            aLatitude = Math.toDegrees(aLatitude);
-            aLongitude = Math.toDegrees(aLongitude);
-        }
-
-        // Convert -180..0 degrees to the range 360..180
-        if (aLongitude < 0) {
-            aLongitude = 360 + aLongitude;
-        }
-
-        // Now get the primary grid intersection.
-        // If the grid point was in the Southern Hemisphere adjust it.
-        latGrid = Math.abs((int) aLatitude / 30);
-        lonGrid = (int) aLongitude / 30;
-
-        // Compensate for the unlikly event the point is at a pole.
-        if (aLatitude >= 90 || aLatitude <= -90) {
-            latGrid -= 1;
-        }
-
-        // Get the base Ship Edit Block number.
-        shipEditBlock = (latGrid * 12) + lonGrid;
-
-        // Now apply the offset if Southern Hemisphere.
-        if (aLatitude < 0) {
-            shipEditBlock += 36;
-        }
-
-        // return the calculated Marsden Square
-        return shipEditBlock;
     }
 }
