@@ -23,7 +23,10 @@ import com.raytheon.uf.viz.core.rsc.URICatalog.IURIRefreshCallback;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  *  09/05/12     #860       Greg Hull   Created for the ResourceDefinitions time cache
- *  
+ *  07/14        TTR1034+   J. Wu       Make sure the input newTime is updated as latestTime 
+ *                                      in setAvailableTimes() and updateTime() to reflect 
+ *                                      a newer DataTime in DB.
+ * 
  * </pre>
  * 
  * @author ghull
@@ -31,146 +34,157 @@ import com.raytheon.uf.viz.core.rsc.URICatalog.IURIRefreshCallback;
  */
 
 public class DataTimesCacheEntry implements IURIRefreshCallback {
-   
-	// TODO : picked 30 seconds out of my ?#*@!.  We can use whatever makes the most sense.
-    private static final long cacheHoldTime = 30*1000; // 30 seconds
-    
+
+    // TODO : picked 30 seconds out of my ?#*@!. We can use whatever makes the
+    // most sense.
+    private static final long cacheHoldTime = 30 * 1000; // 30 seconds
+
     // set to true when we are added to the URICatalog.
-    // 
-    private Boolean inUriCatalog = false; 
-    
+    //
+    private Boolean inUriCatalog = false;
+
     private Map<String, RequestConstraint> resourceConstraints;
-    
-	private     DataTime  latestTime; // may be set separately from dataTimes 
 
-	private List<DataTime> dataTimes;
-	private long cacheTime; // the time the dataTimes were queried or 0 if not set yet
-	
-	public DataTimesCacheEntry( Map<String, RequestConstraint> reqCon ) {
-		resourceConstraints = reqCon;
-		cacheTime = 0;
-    	dataTimes = new ArrayList<DataTime>();
-    	latestTime = null;
-	}
+    private DataTime latestTime; // may be set separately from dataTimes
 
-	// if this is added to the URI Catalog then Raytheon's MenuUpdater will
-	// call updateTime() to update the latest time.
-	// 
-	public void addToUriCatalog() {
-		if( !inUriCatalog ) {
-			URICatalog.getInstance().catalogAndQueryDataURI( resourceConstraints, this );
-			inUriCatalog = true;
-		}
-	}
-	
-	// return the latest time, or a Null dataTime if no data, or a null value
-	// if either the cache has expired or a time has not been set yet.
-	//
-	// if in the catalog this will be up to date and no query is needed.
-	// if not and the cache is still valid, then use the stored time,
-	// if out of date then query all the times. 
-	// TODO (do we need to check if the inventory is being utilized and if not
-	// possibly not do the query since it may(?) take too long?)
-	//
-	public DataTime getLatestTime() {
+    private List<DataTime> dataTimes;
 
-		if( latestTime.isNull() ) {
-			return ( System.currentTimeMillis()-cacheTime < cacheHoldTime ?
-					          latestTime : null );
-		}
-		else if( inUriCatalog ) {
-			return latestTime;
-		}    		   
-		else if( System.currentTimeMillis()-cacheTime < cacheHoldTime ) {
-    		return latestTime;    			
-		}
-		else { // TODO : should we go ahead and query the inventory now?
-			return null;
-		}
-//		// sanity check
-//		if( latestTime != null && 
-//			!latestTime.isNull() ) {
-//			
-//			if( !dataTimes.isEmpty() &&
-//					latestTime.getValidTime().getTimeInMillis() != 
-//						dataTimes.get( dataTimes.size()-1 ).getValidTime().getTimeInMillis() ) {
-//				out.println("??latestTime and lastTime in availTimes list don't match");
-//			}
-//		}
-	}
+    private long cacheTime; // the time the dataTimes were queried or 0 if not
+                            // set yet
 
-	// return null to indicate not set
-	
-	public List<DataTime> getAvailableTimes( ) {
-		if( cacheTime == 0 ) {
-			return null;
-		}    		
-		else if( System.currentTimeMillis()-cacheTime < cacheHoldTime ) {
-//			out.println("returning cached times from "+ 
-//					(System.currentTimeMillis()-cacheTime) + " msecs ago");    			
-    		return dataTimes;
-		}
-		return null;
-	}
+    public DataTimesCacheEntry(Map<String, RequestConstraint> reqCon) {
+        resourceConstraints = reqCon;
+        cacheTime = 0;
+        dataTimes = new ArrayList<DataTime>();
+        latestTime = null;
+    }
 
-	public List<DataTime> getAvailableTimes( Boolean ignoreCacheTime ) {
-		if( ignoreCacheTime ) {
-			return dataTimes;
-		}
-		return getAvailableTimes();
-	}
+    // if this is added to the URI Catalog then Raytheon's MenuUpdater will
+    // call updateTime() to update the latest time.
+    //
+    public void addToUriCatalog() {
+        if (!inUriCatalog) {
+            URICatalog.getInstance().catalogAndQueryDataURI(
+                    resourceConstraints, this);
+            inUriCatalog = true;
+        }
+    }
 
-	// Set the cache time to the current time assuming that the times were 
-	// just queried.
-	public void setAvailableTimes( List<DataTime> dtlist ) {
-		cacheTime = System.currentTimeMillis();
-    	dataTimes = new ArrayList<DataTime>( dtlist );
-    	
-    	// if the latestTime has not been set yet, set it.
-    	if( latestTime == null ) {
-    		if( dataTimes.isEmpty() ) {
-    			synchronized ( this ) {
-    				latestTime = new DataTime(new Date(0));
-    			}
-    		}
-    		else {
-    			updateTime( dataTimes.get( dataTimes.size()-1 ) );
-    		}
-    	}
-	}
-	
-	// this is called by Raytheon's MenuUpdater class which processes DataURI 
-	// notifications and updates the URICatalog to which this has been added.
-	//
-	@Override
-	public void updateTime(DataTime newTime) {
-		synchronized ( this ) {
-			if( newTime == null ) {					
-				if( latestTime == null ) {
-					latestTime = new DataTime(new Date(0));
-				}
-				else if( !latestTime.isNull() ) {
-					out.println("Sanity check: updateTIme for "+ resourceConstraints.toString() +" with null time when the latestTime is already set" );
-					/// ??? what does this mean? Shouldn't  happen.
-				}
-			}
-			else if( latestTime == null ) {
-				latestTime = newTime;
-			}
-			// NOTE : I think this will rarely, if ever, matter, but in the case where the valid time is newer but the reftime is older,
-			// and choose the time with the most recent refTime.
-			//							  
-			else if( newTime.getRefTime().getTime() >= 
-				latestTime.getRefTime().getTime() && 
-					newTime.getValidTime().getTimeInMillis() > 
-						latestTime.getValidTime().getTimeInMillis() ) { 
+    // return the latest time, or a Null dataTime if no data, or a null value
+    // if either the cache has expired or a time has not been set yet.
+    //
+    // if in the catalog this will be up to date and no query is needed.
+    // if not and the cache is still valid, then use the stored time,
+    // if out of date then query all the times.
+    // TODO (do we need to check if the inventory is being utilized and if not
+    // possibly not do the query since it may(?) take too long?)
+    //
+    public DataTime getLatestTime() {
 
-//				out.println("updateTime() for RscName "+ resourceConstraints.toString()+
-//						"from :"+ latestTime.toString() + ") -> newTime ("+newTime.toString() );
+        if (latestTime.isNull()) {
+            return (System.currentTimeMillis() - cacheTime < cacheHoldTime ? latestTime
+                    : null);
+        } else if (inUriCatalog) {
+            return latestTime;
+        } else if (System.currentTimeMillis() - cacheTime < cacheHoldTime) {
+            return latestTime;
+        } else { // TODO : should we go ahead and query the inventory now?
+            return null;
+        }
+        // // sanity check
+        // if( latestTime != null &&
+        // !latestTime.isNull() ) {
+        //
+        // if( !dataTimes.isEmpty() &&
+        // latestTime.getValidTime().getTimeInMillis() !=
+        // dataTimes.get( dataTimes.size()-1 ).getValidTime().getTimeInMillis()
+        // ) {
+        // out.println("??latestTime and lastTime in availTimes list don't match");
+        // }
+        // }
+    }
 
-				latestTime = newTime;
-			}
-		}
-	}
-	
+    // return null to indicate not set
+
+    public List<DataTime> getAvailableTimes() {
+        if (cacheTime == 0) {
+            return null;
+        } else if (System.currentTimeMillis() - cacheTime < cacheHoldTime) {
+            // out.println("returning cached times from "+
+            // (System.currentTimeMillis()-cacheTime) + " msecs ago");
+            return dataTimes;
+        }
+        return null;
+    }
+
+    public List<DataTime> getAvailableTimes(Boolean ignoreCacheTime) {
+        if (ignoreCacheTime) {
+            return dataTimes;
+        }
+        return getAvailableTimes();
+    }
+
+    // Set the cache time to the current time assuming that the times were
+    // just queried.
+    public void setAvailableTimes(List<DataTime> dtlist) {
+        cacheTime = System.currentTimeMillis();
+        dataTimes = new ArrayList<DataTime>(dtlist);
+
+        // TTR1034 - this check makes the setter only once, which is not right!
+        // if the latestTime has not been set yet, set it.
+        // if( latestTime == null ) {
+        if (dataTimes.isEmpty()) {
+            synchronized (this) {
+                latestTime = new DataTime(new Date(0));
+            }
+        } else {
+            updateTime(dataTimes.get(dataTimes.size() - 1));
+        }
+        // } for if( latestTime == null )
+    }
+
+    // this is called by Raytheon's MenuUpdater class which processes DataURI
+    // notifications and updates the URICatalog to which this has been added.
+    //
+    @Override
+    public void updateTime(DataTime newTime) {
+        synchronized (this) {
+            if (newTime == null) {
+                if (latestTime == null) {
+                    latestTime = new DataTime(new Date(0));
+                } else if (!latestTime.isNull()) {
+                    out.println("Sanity check: updateTIme for "
+                            + resourceConstraints.toString()
+                            + " with null time when the latestTime is already set");
+                    // / ??? what does this mean? Shouldn't happen.
+                }
+            } else {
+                latestTime = newTime;
+            }
+
+            // TTR1034 - Before this TTR, the following code is used to update
+            // latestTime -so only when latestTime is not set yet or the newTime
+            // is newer than the latestTime, the newTime will replace the
+            // latestTime - this logic could not reflect the actual "latestTime"
+            // in DB.....
+            // ***********************************************
+            // else if (latestTime == null) {
+            // latestTime = newTime;
+            // }
+
+            // NOTE : I think this will rarely, if ever, matter, but in the case
+            // where the valid time is newer but the reftime is older,
+            // and choose the time with the most recent refTime.
+            //
+            // else if (newTime.getRefTime().getTime() >=
+            // latestTime.getRefTime()
+            // .getTime()
+            // && newTime.getValidTime().getTimeInMillis() > latestTime
+            // .getValidTime().getTimeInMillis()) {
+            // latestTime = newTime;
+            // }
+            // ****************************************************
+        }
+    }
+
 }

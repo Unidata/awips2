@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channel;
 
 /**
@@ -41,7 +42,7 @@ import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channe
  * ------------- -------- ----------- --------------------------
  * Aug 20, 2012           mschenke    Initial creation
  * Apr 18, 2014  2947     bsteffen    Support unitless data.
- * 
+ * Sep 9, 2014   DR 17313 jgerth      Support for ColorMapParameters
  * 
  * </pre>
  * 
@@ -60,7 +61,9 @@ public class ChannelInfo {
     @XmlElement
     private double rangeMax = 1.0;
 
-    private Unit<?> unit = Unit.ONE;
+    private Unit<?> unit;
+
+    private ColorMapParameters parameters;
 
     /**
      * @return the channel
@@ -143,6 +146,14 @@ public class ChannelInfo {
         return unit != Unit.ONE ? UnitFormat.getUCUMInstance().format(unit)
                 : null;
     }
+
+	public ColorMapParameters getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(ColorMapParameters parameters) {
+		this.parameters = parameters;
+	}
 
     /*
      * (non-Javadoc)

@@ -1201,7 +1201,7 @@ short ww_type(short *wwtype, short *dcp)
 /* all "p_bot" below were changed from "pbot" */
 
 /* Decision tree below is identical to the operational "ww_type" flow chart documentation 9/23/09 RLT */
-        if ((sig_tor >= 3.0) && (sig_tor_winter >= 3.0) && (srh1 >= 150) && (esrh >= 150) && (sr46_spd >= 15.0) && (shr8 >= 40.0) && (sblcl < 1000) && (mllcl < 1100) && (lr1 >= 5.0) && (bot == 0.0)) {
+        if ((sig_tor >= 3.0) && (sig_tor_winter >= 4.0) && (srh1 >=200) && (esrh >= 200) && (sr46_spd >= 15.0) && (shr8 >= 45.0) && (sblcl < 1000) && (mllcl < 1200) && (lr1 >= 5.0) && (mlcn > -50.0) && (bot == 0.0)) {
 		*dcp = 1;
 		*wwtype = 5;
                 ww_choice = 5;
@@ -1222,7 +1222,7 @@ short ww_type(short *wwtype, short *dcp)
                 }
 */	
         else
-        if (((sig_tor >= 3.0) || (sig_tor_winter >= 4.0)) && (bot == 0.0)) {
+        if (((sig_tor >= 3.0) || (sig_tor_winter >= 4.0)) && (mlcn > -125.0) && (bot == 0.0)) {
                 *dcp = 3;
                 *wwtype = 4;
                 ww_choice = 4;
@@ -1233,7 +1233,7 @@ short ww_type(short *wwtype, short *dcp)
                 }
 	
         else
-        if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && ((sr46_spd >= 15.0) || (shr8 >= 40.0)) && (bot == 0.0)) {
+        if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && ((sr46_spd >= 15.0) || (shr8 >= 40.0)) && (mlcn > -75.0) && (bot == 0.0)) {
                 *dcp = 4;
                 *wwtype = 4;
                 ww_choice = 4;
@@ -1244,7 +1244,7 @@ short ww_type(short *wwtype, short *dcp)
                 }
 
         else
-        if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (low_mid_rh >= 60) && (lr1 >= 5.0) && (bot == 0.0)) {
+        if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (low_mid_rh >= 60) && (lr1 >= 5.0) && (mlcn > -50.0) && (bot == 0.0)) {
                 *dcp = 5;
                 *wwtype = 4;
                 ww_choice = 4;
@@ -1255,7 +1255,7 @@ short ww_type(short *wwtype, short *dcp)
                 }
 
         else
-        if ((( sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (bot == 0.0)) {
+        if ((( sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (mlcn > -150.0) && (bot == 0.0)) {
                 *dcp = 6;
                 *wwtype = 3;	
                 ww_choice = 3; 
@@ -1266,7 +1266,7 @@ short ww_type(short *wwtype, short *dcp)
                 }
 
         else
-        if (((( sig_tor >= 0.5) && (esrh >= 150)) || ((sig_tor_winter >= 0.5) && (srh1 >= 150))) && (bot == 0.0)) {
+        if (((( sig_tor >= 0.5) && (esrh >= 150)) || ((sig_tor_winter >= 0.5) && (srh1 >= 150))) && (mlcn > -50.0) && (bot == 0.0)) {
                 *dcp = 7;
                 *wwtype = 3;	
                 ww_choice = 3;
@@ -1331,8 +1331,6 @@ short ww_type(short *wwtype, short *dcp)
                 setcolor(19);
                 outgtext( "NONE",  tlx + 50, tly + 60 );
                 }
-    	//printf("sig_tor=%f sig_tor_winter=%f srh1=%f esrh=%f sr46_spd=%f shr8=%f sblcl=%f\n mllcl=%f lr1=%f bot=%f low_mid_rh=%f rm_scp=%f\n mucn=%f dncp=%f sighail=%f cbsig=%f wind_dmg=%f",
-    	//		sig_tor,sig_tor_winter,srh1,esrh,sr46_spd,shr8, sblcl, mllcl, lr1, bot, low_mid_rh, rm_scp,mucn, dncp, sighail, cbsig, wind_dmg);
 
 /*      define_parcel(oldlplchoice, oldlplpres); */
         

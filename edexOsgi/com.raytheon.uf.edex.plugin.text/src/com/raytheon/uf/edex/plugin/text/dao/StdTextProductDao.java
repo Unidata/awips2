@@ -47,6 +47,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate4.SessionFactoryUtils;
 
 import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
@@ -59,6 +60,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -89,6 +91,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 03Oct2012	15244		mgamazaychikov	Added the fix to query the appropriate table
  * 											(operational or practice)
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
+ * Sep 18, 2014 3627       mapeters    Updated deprecated {@link TimeTools} usage.
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * </pre>
  * 
  * @author garmendariz
@@ -456,7 +460,7 @@ public class StdTextProductDao extends CoreDao {
             Map<String, String> tmp = buildCriterions(ProdCCC_ID, ccc,
                     ProdNNN_ID, nnn, ProdXXX_ID, xxx);
             long searchTime = System.currentTimeMillis() - pastHours
-                    * TimeTools.MILLIS_HOUR;
+                    * TimeUtil.MILLIS_PER_HOUR;
 
             Criteria criteria = session
                     .createCriteria(getStdTextProductInstance().getClass());
@@ -905,7 +909,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            conn = session.connection();
+            conn = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
 
             String ccc = null;
 
@@ -1120,7 +1124,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             ps1 = c.prepareStatement(query1);
             ps2 = c.prepareStatement(query2);
             ps3 = c.prepareStatement(query3);
@@ -1244,7 +1248,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             ps1 = c.prepareStatement(query);
             ps1.setString(1, wmoId);
             ps1.setInt(2, startTimeSeconds);
@@ -1311,7 +1315,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             ps1 = c.prepareStatement(query1);
             ps2 = c.prepareStatement(query2);
             ps3 = c.prepareStatement(query3);
@@ -1435,7 +1439,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             ps1 = c.prepareStatement(query);
             ps1.setString(1, site);
             ps1.setInt(2, startTimeSeconds);
@@ -1502,7 +1506,7 @@ public class StdTextProductDao extends CoreDao {
 
             try {
                 session = getSession();
-                c = session.connection();
+                c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
                 ps1 = c.prepareStatement(query1);
                 ps2 = c.prepareStatement(query2);
                 ps1.setString(1, nnnId);
@@ -1598,7 +1602,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             ps1 = c.prepareStatement(query1);
             ps1.setString(1, wmoId);
             ps1.setString(2, site);
@@ -1665,7 +1669,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             ps1 = c.prepareStatement(query1);
             ps1.setString(1, wmoId);
             ps1.setString(2, site);
@@ -1758,7 +1762,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             int count = 0;
 
             /*
@@ -1907,7 +1911,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             ps1 = c.prepareStatement(query);
             ps1.setString(1, wmoId);
             ps1.setString(2, site);
@@ -1965,7 +1969,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             ps1 = c.prepareStatement(hdrQuery);
             ps1.setString(1, wmoId);
             ps1.setString(2, site);
@@ -2055,7 +2059,7 @@ public class StdTextProductDao extends CoreDao {
 
             try {
                 session = getSession();
-                c = session.connection();
+                c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
                 ps1 = c.prepareStatement(hdrQuery);
                 ps1.setString(1, wmoId);
                 ps1.setString(2, site);
@@ -2152,7 +2156,7 @@ public class StdTextProductDao extends CoreDao {
 
             try {
                 session = getSession();
-                c = session.connection();
+                c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
 
                 if (xxxId == null || xxxId.length() > 0) {
                     ps1 = c.prepareStatement(noXxxQuery);
@@ -2253,7 +2257,7 @@ public class StdTextProductDao extends CoreDao {
 
             try {
                 session = getSession();
-                c = session.connection();
+                c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
 
                 ps1 = c.prepareStatement(hdrQuery);
                 ps1.setString(1, wmoId);
@@ -2350,7 +2354,7 @@ public class StdTextProductDao extends CoreDao {
 
             try {
                 session = getSession();
-                c = session.connection();
+                c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
 
                 ps1 = c.prepareStatement(hdrQuery);
                 ps1.setString(1, wmoId);
@@ -2450,7 +2454,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
 
             switch (intlProd) {
             case 0: // fall through
@@ -2574,7 +2578,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
 
             switch (intlProd) {
             case 0: // fall through
@@ -2679,7 +2683,7 @@ public class StdTextProductDao extends CoreDao {
 
         try {
             session = getSession();
-            c = session.connection();
+            c = SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection();
             ret = read_product(c, wmoId, site, cccId, nnnId, xxxId, version);
         } catch (SQLException e) {
             // don't need to worry about rolling back transaction

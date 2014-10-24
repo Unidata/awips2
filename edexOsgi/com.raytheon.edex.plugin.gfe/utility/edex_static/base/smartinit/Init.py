@@ -402,7 +402,11 @@ class Forecaster(GridUtilities):
     #--------------------------------------------------------------------------
     def convertKtoF(self, t):
         return self.KtoF(t)
-
+    #--------------------------------------------------------------------------
+    # Converts the value from meters to statute miles
+    #--------------------------------------------------------------------------
+    def convertMtoSM(self, d):
+        return d * 0.00062
     #--------------------------------------------------------------------------
     # Calculates the saturation vapor pressure give the temperature in K
     #--------------------------------------------------------------------------

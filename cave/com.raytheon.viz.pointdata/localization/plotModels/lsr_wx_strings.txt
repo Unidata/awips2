@@ -1,42 +1,49 @@
-n2s
-0 : 197
-1 : 198
-2 : 53
-3 : 199
-4 :
-5 : 58
-6 :
-7 :
-8 :
-9 :
-10 :
-11 : 204
-12 : 71
-13 : 43
-14 :
-15 : 165
-16 : 77
-17 : 161
-18 :
-19 :
-20 :
-21 : 121
-22 : 71
-23 : 37
-24 :
-25 :
-26 : 200
-27 :
-28 : 201
-29 :
-30 :
-31 : 77
-32 : 89
-33 :
-34 : 137
-35 : 120
-36 :
-37 : 203
-38 : 138
-39 :
-40 :
+s2s
+'AVALANCHE'            197 
+'BLIZZARD'             198
+'DENSE FOG'            53
+'DOWNBURST'            199
+'DROUGHT'
+'DUST STORM'           58
+'EXCESSIVE HEAT'
+'EXTREME COLD'
+'EXTR WIND CHILL'
+'FLASH FLOOD'
+'FLOOD'
+'FREEZE'               204
+'FREEZING RAIN'        71
+'FUNNEL CLOUD'         43
+'HAIL'                 80
+'HEAVY RAIN'           165
+'HEAVY SLEET'          77
+'HEAVY SNOW'           161
+'HIGH ASTR TIDES'
+'HIGH SURF'
+'HIGH SUST WINDS'
+'HURRICANE'            121
+'ICE STORM'            71
+'LIGHTNING'            37
+'LOW ASTR TIDES'
+'MARINE HAIL'
+'MARINE TSTM WIND'     200
+'NON-TSTM WND DMG'
+'NON-TSTM WND GST'     201
+'RIP CURRENTS'
+'SEICHE'
+'SLEET'                77
+'SNOW'                 163
+'STORM SURGE'
+'TORNADO'              137
+'TROPICAL STORM'       120
+'TSTM WND DMG'         41
+'TSTM WND GST'         203
+'WATER SPOUT'          138
+'WILDFIRE' 
+'FREEZING DRIZZLE'     68
+'COASTAL FLOOD'
+'DEBRIS FLOW'
+'BLOWING SNOW'         38
+'RAIN'                 63
+'BLOWING DUST'         55    
+'SNOW_24'              163
+'NO SGFNT WX'          0

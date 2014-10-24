@@ -13,7 +13,7 @@
  * 04/30/2012	229			Chin Chen	Initial coding
  * 01/13/2014               Chin Chen   TTR829- when interpolation, edit graph is allowed
  * 02/03/2014   1106        Chin Chen   Need to be able to use clicking on the Src,Time, or StnId to select display 
- *
+ * 08/12/2014               Chin Chen   fixed issue that "load archive file with wrong time line displayed"
  * </pre>
  * 
  * @author Chin Chen
@@ -987,6 +987,7 @@ public class NsharpResourceHandler {
         // update active sounding layer and picked stn info
         // re-populate snd data to nsharp native code lib for later calculating
         nsharpNative.populateSndgData(soundingLys);
+
         if (skewtPaneRsc != null)
             skewtPaneRsc.resetData(soundingLys, previousSoundingLys);
         if (hodoPaneRsc != null)
@@ -1049,6 +1050,12 @@ public class NsharpResourceHandler {
             insetPaneRsc.createInsetWireFrameShapes();
         if (witoPaneRsc != null)
             witoPaneRsc.createAllWireFrameShapes();
+        if (spcGraphsPaneRsc != null) {
+            // Chin: SPC graphs performance concern, as it need to call get
+            // info functions from bigSharo.so and cause long delay.
+            // Therefore, do it once only when reset data.
+            spcGraphsPaneRsc.getSpcGraphsInfo();
+        }
     }
 
     private class NsharpOperationElementComparator implements
@@ -1709,11 +1716,12 @@ public class NsharpResourceHandler {
 
     }
 
+    // D2D load data use this route
     public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,
             NsharpStationInfo stnInfo, boolean fromNCP) {
         if (fromNCP) {
             // this is from NCP do nothing now
-            this.addRsc(true, soundMap, stnInfo);
+            this.addRsc(true, soundMap, stnInfo, false);
             // NCP case:
             // Key String format will be like this for NCUAIR
             // KGRI 100616/03(Wed)-NCUAIR
@@ -1763,7 +1771,7 @@ public class NsharpResourceHandler {
             }
             // this is from D2D, and it does not want to display new data right
             // away.
-            this.addRsc(false, newmap, stnInfo);
+            this.addRsc(false, newmap, stnInfo, false);
         }
     }
 
@@ -1848,9 +1856,10 @@ public class NsharpResourceHandler {
      * }
      */
 
+    // This api peforms real load data function
     private void addRsc(boolean displayNewData,
             Map<String, List<NcSoundingLayer>> soundMap,
-            NsharpStationInfo stnInfo) {
+            NsharpStationInfo stnInfo, boolean fromArchive) {
 
         // // testing code // stnInfo.setStnId("KUKI");
         // Set<String> keysettest = new HashSet<String>(soundMap.keySet());
@@ -1930,69 +1939,74 @@ public class NsharpResourceHandler {
                 e.printStackTrace();
                 return;
             }
-            // start FixMark:nearByStnCompSnd d2dlite
-            if (!(sndType.contentEquals("NCUAIR") || sndType
-                    .contentEquals("BUFRUA"))) {
-                // Chin's NOTE:
-                // Can Not use reference time directly from the stnInfo,
-                // Timestamp refTime = stnInfo.getReftime()
-                // AS there is a "BUG" in Timestamp or Database. In some cases,
-                // Timestamp's "nanos" filelds contains non zero value of
-                // some nanoseconds and cause "hour" value shifted one hour, and
-                // therefore when calling refTime.getTime() will return
-                // unexpected reference time,
-                // So, use the following way to get referrence time.
-                // Based on timeline format "100616/03(Wed)Vxxx" do
-                // the following. to append reference time format of "DD.HH" at
-                // end of sndType.
-                SimpleDateFormat df = new SimpleDateFormat("yyMMdd/HH");
-                String dateStr = timeLine.substring(0, 9);
-                try {
-                    Date date = df.parse(dateStr);
-                    String vStr = timeLine.substring(15, 18);
-                    int vNum = Integer.parseInt(vStr);
-                    date.setTime(date.getTime() - vNum * 60 * 60 * 1000);
-                    String dateOfMonthStr, hourStr;
-                    if (date.getDate() < 10)
-                        dateOfMonthStr = "0" + date.getDate();
-                    else
-                        dateOfMonthStr = "" + date.getDate();
+            if (!fromArchive) {
+                // start FixMark:nearByStnCompSnd d2dlite
+                if (!(sndType.contentEquals("NCUAIR") || sndType
+                        .contentEquals("BUFRUA"))) {
+                    // Chin's NOTE:
+                    // Can Not use reference time directly from the stnInfo,
+                    // Timestamp refTime = stnInfo.getReftime()
+                    // AS there is a "BUG" in Timestamp or Database. In some
+                    // cases,
+                    // Timestamp's "nanos" filelds contains non zero value of
+                    // some nanoseconds and cause "hour" value shifted one hour,
+                    // and
+                    // therefore when calling refTime.getTime() will return
+                    // unexpected reference time,
+                    // So, use the following way to get referrence time.
+                    // Based on timeline format "100616/03(Wed)Vxxx" do
+                    // the following. to append reference time format of "DD.HH"
+                    // at
+                    // end of sndType.
+                    SimpleDateFormat df = new SimpleDateFormat("yyMMdd/HH");
+                    String dateStr = timeLine.substring(0, 9);
+                    try {
+                        Date date = df.parse(dateStr);
+                        String vStr = timeLine.substring(15, 18);
+                        int vNum = Integer.parseInt(vStr);
+                        date.setTime(date.getTime() - vNum * 60 * 60 * 1000);
+                        String dateOfMonthStr, hourStr;
+                        if (date.getDate() < 10)
+                            dateOfMonthStr = "0" + date.getDate();
+                        else
+                            dateOfMonthStr = "" + date.getDate();
 
-                    if (date.getHours() < 10)
-                        hourStr = "0" + date.getHours();
-                    else
-                        hourStr = "" + date.getHours();
-                    sndType = dateOfMonthStr + "." + hourStr + "@" + sndType;
-                } catch (ParseException e) {
-                    // TODO Auto-generated catch block. Please revise as
-                    // appropriate.
-                    e.printStackTrace();
+                        if (date.getHours() < 10)
+                            hourStr = "0" + date.getHours();
+                        else
+                            hourStr = "" + date.getHours();
+                        sndType = dateOfMonthStr + "." + hourStr + "@"
+                                + sndType;
+                    } catch (ParseException e) {
+                        // TODO Auto-generated catch block. Please revise as
+                        // appropriate.
+                        e.printStackTrace();
+                    }
+
                 }
 
+                /*
+                 * As of 2014 April 9, current time description string is
+                 * defined as "YYMMDD/HH(DOW)" or "YYMMDD/HH(DOW)Vxxx". Convert
+                 * them to "DD.HH(DOW)" or "DD.HHVxxx(DOW)" for GUI display.
+                 */
+                timeLine = timeLine.substring(4); // get rid of YYMM
+                if (timeLine.contains("V")) {
+                    String[] s1Str = timeLine.split("V"); // split
+                                                          // DD/HH(DOW)Vxxx to
+                                                          // "DD/HH(DOW)" and
+                                                          // "xxx"
+                    String[] s2Str = s1Str[0].split("\\("); // split
+                                                            // "DD/HH(DOW)" to
+                                                            // "DD/HH" and
+                                                            // "DOW)"
+                    timeLine = s2Str[0] + "V" + s1Str[1] + "(" + s2Str[1]; // put
+                                                                           // together
+                                                                           // to
+                                                                           // "DD/HHVxxx(DOW)"
+                }
+                timeLine = timeLine.replace("/", "."); // replace "/" with "."
             }
-
-            /*
-             * As of 2014 April 9, current time description string is defined as
-             * "YYMMDD/HH(DOW)" or "YYMMDD/HH(DOW)Vxxx". Convert them to
-             * "DD.HH(DOW)" or "DD.HHVxxx(DOW)" for GUI display.
-             */
-            timeLine = timeLine.substring(4); // get rid of YYMM
-            if (timeLine.contains("V")) {
-                String[] s1Str = timeLine.split("V"); // split
-                                                      // DD/HH(DOW)Vxxx to
-                                                      // "DD/HH(DOW)" and
-                                                      // "xxx"
-                String[] s2Str = s1Str[0].split("\\("); // split
-                                                        // "DD/HH(DOW)" to
-                                                        // "DD/HH" and
-                                                        // "DOW)"
-                timeLine = s2Str[0] + "V" + s1Str[1] + "(" + s2Str[1]; // put
-                                                                       // together
-                                                                       // to
-                                                                       // "DD/HHVxxx(DOW)"
-            }
-            timeLine = timeLine.replace("/", "."); // replace "/" with "."
-
             // recreate stnId_timeLine_sndType
             stnId_timeLine_sndType = stnId + " " + timeLine + " " + sndType;
             // end FixMark:nearByStnCompSnd d2dlite
@@ -2063,11 +2077,19 @@ public class NsharpResourceHandler {
 
     }
 
+    // NCP loads data from DB always uses this route.
     public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,
             NsharpStationInfo stnInfo) {
         // by default, display new data
-        // NCP always call from this route.
-        this.addRsc(true, soundMap, stnInfo);
+        this.addRsc(true, soundMap, stnInfo, false);
+        return;
+    }
+
+    // NCP loads archive data uses this route.
+    public void addArchiveRsc(Map<String, List<NcSoundingLayer>> soundMap,
+            NsharpStationInfo stnInfo) {
+        // by default, display new data
+        this.addRsc(true, soundMap, stnInfo, true);
         return;
     }
 
@@ -3396,6 +3418,7 @@ public class NsharpResourceHandler {
         // elementColorMap.put(NsharpConstants.ActState.OVERLAY,NsharpConstants.color_red);
         // elementColorMap.put(NsharpConstants.LoadState.AVAIL.name(),NsharpConstants.color_yellow);
         nsharpNative = new NsharpNative();
+
         // System.out.println("NsharpResourceHandler constructed"+this.toString()
         // + " nsharpNative="+nsharpNative.toString());
         // based on BigNsharp storm slinky color used and gempak color

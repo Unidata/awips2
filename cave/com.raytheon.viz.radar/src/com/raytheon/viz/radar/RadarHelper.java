@@ -71,7 +71,9 @@ import com.raytheon.viz.awipstools.common.StormTrackData;
  * Feb 16, 2009            mnash       Initial creation
  * 03/07/2012   DR 14660   D. Friedman Added time-based getSTIData* functions.
  * 03/01/2013   DR 15496   zwang       Handle the expanded GSM
- *                                     Correct some status according to B14 ICD 
+ *                                     Correct some status according to B14 ICD
+ * 08/20/2014   DR17214    zwang       Report more status for VCP supplemental Info
+ *                                     according to RPG B16 ICD 
  * 
  * </pre>
  * 
@@ -178,7 +180,7 @@ public class RadarHelper {
             "RDA 1", "RDA 2" };
     
     public static final String[] vcpInfoStr = { "AVSET",
-        "SAILS", "Site-Specific VCP" };
+        " SAILS", " Site-Specific VCP", " RxRN", " CBT" };
 
 	/**
 	 * The default maximimum difference in time used when retrieving STI data (15 minutes.)
