@@ -33,6 +33,8 @@
         indentText="false" />
     <contribute xsi:type="menuItem" menuText="Visibility"
         key="Vis" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Vsby Anl Uncertainty"
+        key="Viserranl" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Altimeter" key="MSLSA"
         indentText="false" />
     <contribute xsi:type="menuItem" menuText="Fire Danger"

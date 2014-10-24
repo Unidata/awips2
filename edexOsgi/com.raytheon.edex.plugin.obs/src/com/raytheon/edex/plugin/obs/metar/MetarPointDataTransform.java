@@ -31,6 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+
 import com.raytheon.edex.plugin.obs.ObsDao;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
@@ -42,7 +46,6 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 
 /**
  * Provides a transform from MetarRecords to PointDataContainer and vice versa.
@@ -63,6 +66,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * Dec 16, 2013 DR 16920   D. Friemdan Fix type of tempFromTenths access.
  * May 14, 2014 2536       bclement    removed TimeTools usage
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 18, 2014 3627       mapeters    Convert units using {@link UnitConverter}.
  * 
  * </pre>
  * 
@@ -71,6 +75,9 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  */
 
 public class MetarPointDataTransform {
+
+    public static final UnitConverter inToPa = NonSI.INCH_OF_MERCURY
+            .getConverterTo(SI.PASCAL);
 
     public static final String ALTIMETER = "altimeter";
 
@@ -416,7 +423,7 @@ public class MetarPointDataTransform {
 
         mr.setSeaLevelPress(pdv.getNumber(SEA_LEVEL_PRESS).floatValue());
         mr.setAltimeter(pdv.getNumber(ALTIMETER).floatValue());
-        double pa = DecoderTools.inToPa(pdv.getNumber(ALTIMETER).doubleValue());
+        double pa = inToPa.convert(pdv.getNumber(ALTIMETER).doubleValue());
         mr.setAltimeterInPa((float) pa);
         mr.setPressChange3Hour(pdv.getNumber(PRESS_CHANGE3_HOUR).floatValue());
         mr.setPressChangeChar(pdv.getString(PRESS_CHANGE_CHAR));

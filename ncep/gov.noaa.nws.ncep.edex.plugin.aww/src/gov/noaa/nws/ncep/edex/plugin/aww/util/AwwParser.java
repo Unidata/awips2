@@ -47,13 +47,15 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 public class AwwParser {
 
-    private static Logger logger = Logger.getLogger(AwwParser.class.getName());
+    private static Logger logger = Logger.getLogger(AwwParser.class
+            .getCanonicalName());
 
     /**
      * Constructor
@@ -91,14 +93,17 @@ public class AwwParser {
             record = new AwwRecord();
 
             String wmoHeader = theMatcher.group(1);
-            if (wmoHeader == null)
+            if (wmoHeader == null) {
                 wmoHeader = "";
+            }
             String issueOffice = theMatcher.group(2);
-            if (issueOffice == null)
+            if (issueOffice == null) {
                 issueOffice = "";
+            }
             String designatorBBB = theMatcher.group(5);
-            if (designatorBBB == null)
+            if (designatorBBB == null) {
                 designatorBBB = "";
+            }
 
             record.setWmoHeader(wmoHeader);
             record.setIssueOffice(issueOffice);
@@ -112,17 +117,21 @@ public class AwwParser {
             DataTime dataTime = new DataTime(issueTime);
             record.setDataTime(dataTime);
 
-            /* set mndTime to record object, if mndTime is NULL, set
-             * mndtimeString to an empty string */
+            /*
+             * set mndTime to record object, if mndTime is NULL, set
+             * mndtimeString to an empty string
+             */
             String mndTimeString = "";
-            if (mndTime != null)
+            if (mndTime != null) {
                 TimeUtil.formatCalendar(mndTime);
+            }
             record.setMndTime(mndTimeString);
         }
         return record;
     }
 
-    public static String processSevereWeatherStatusEventTrackNumber(String wmoline) {
+    public static String processSevereWeatherStatusEventTrackNumber(
+            String wmoline) {
         // String severeWeatherStatusStringMatchPattern = "STATUS REPORT ON WW";
         // final String SEVERE_WEATHER_STATUS_EXP =
         // "STATUS REPORT ON WW ([0-9]{3})? *\\x0d\\x0d\\x0a";
@@ -138,14 +147,16 @@ public class AwwParser {
 
     }
 
-    private static boolean isSevereWeatherStatusInfo(String stringInfo, String strPatternToBeSearched) {
+    private static boolean isSevereWeatherStatusInfo(String stringInfo,
+            String strPatternToBeSearched) {
         boolean isSereveWeatherStatus = false;
         if (stringInfo.indexOf(strPatternToBeSearched) >= 0)
             isSereveWeatherStatus = true;
         return isSereveWeatherStatus;
     }
 
-    private static String getSevereWeatherStatusEventTrackNumber(String wmoLine, String matchPatternString) {
+    private static String getSevereWeatherStatusEventTrackNumber(
+            String wmoLine, String matchPatternString) {
         Pattern matchPattern = Pattern.compile(matchPatternString);
         Matcher theMatcher = matchPattern.matcher(wmoLine);
         String severeWeatherStatusEventTrackNumber = theMatcher.group(1);
@@ -217,11 +228,13 @@ public class AwwParser {
 
         if (attnMatcher.find()) {
             String attentionLine = attnMatcher.group();
-            Scanner sc = new Scanner(attentionLine).useDelimiter("\\x2e\\x2e\\x2e|\\x0d\\x0d\\x0a");
+            Scanner sc = new Scanner(attentionLine)
+                    .useDelimiter("\\x2e\\x2e\\x2e|\\x0d\\x0d\\x0a");
 
             while (sc.hasNext()) {
                 attnToken = sc.next();
-                if (attnToken.length() == 3 && (attnToken.compareTo("WFO") != 0)) {
+                if (attnToken.length() == 3
+                        && (attnToken.compareTo("WFO") != 0)) {
                     attnList.add(attnToken);
                 }
             }
@@ -231,7 +244,8 @@ public class AwwParser {
                 if (idxAttn == 0) {
                     collectAttn = attnList.get(idxAttn);
                 } else {
-                    collectAttn = collectAttn.concat(";").concat(attnList.get(idxAttn));
+                    collectAttn = collectAttn.concat(";").concat(
+                            attnList.get(idxAttn));
                 }
             }
 
@@ -242,7 +256,8 @@ public class AwwParser {
         return collectAttn;
     }
 
-    public static String processUgcToRetrieveWatchNumberForThunderstormOrTornado(String segment) {
+    public static String processUgcToRetrieveWatchNumberForThunderstormOrTornado(
+            String segment) {
         String watchNumber = "";
         // "WW\\s\\d{3}\\sTORNADO\\s([A-Z]{2}\\s)+CW\\s(\\d{6}Z)\\s\\-\\s(\\d{6}Z)"
         // Pattern used to extract Thunderstorm watch number for WATCH
@@ -254,8 +269,10 @@ public class AwwParser {
                                                                                           // (\\d{3})
                                                                                           // with
                                                                                           // (\\d{1,4}
-        Pattern thunderstormWatchNumberPattern = Pattern.compile(THUNDERSTORM_WATCH_NUMBER_EXP);
-        Matcher thunderstormWatchNumberMatcher = thunderstormWatchNumberPattern.matcher(segment);
+        Pattern thunderstormWatchNumberPattern = Pattern
+                .compile(THUNDERSTORM_WATCH_NUMBER_EXP);
+        Matcher thunderstormWatchNumberMatcher = thunderstormWatchNumberPattern
+                .matcher(segment);
 
         String THUNDERSTORM_WATCH_NUMBER_EXP2 = "WW\\s(\\d{1,4})\\sSEVERE\\sTSTM"; // T976
                                                                                    // -
@@ -263,8 +280,10 @@ public class AwwParser {
                                                                                    // (\\d{3})
                                                                                    // with
                                                                                    // (\\d{1,4}
-        Pattern thunderstormWatchNumberPattern2 = Pattern.compile(THUNDERSTORM_WATCH_NUMBER_EXP2);
-        Matcher thunderstormWatchNumberMatcher2 = thunderstormWatchNumberPattern2.matcher(segment);
+        Pattern thunderstormWatchNumberPattern2 = Pattern
+                .compile(THUNDERSTORM_WATCH_NUMBER_EXP2);
+        Matcher thunderstormWatchNumberMatcher2 = thunderstormWatchNumberPattern2
+                .matcher(segment);
 
         if (thunderstormWatchNumberMatcher.find()) {
             watchNumber = thunderstormWatchNumberMatcher.group(1).trim();
@@ -281,8 +300,10 @@ public class AwwParser {
                                                                            // (\\d{3})
                                                                            // with
                                                                            // (\\d{1,4}
-            Pattern tornadoWatchNumberPattern = Pattern.compile(TORNADO_WATCH_NUMBER_EXP);
-            Matcher tornadoWatchNumberMatcher = tornadoWatchNumberPattern.matcher(segment);
+            Pattern tornadoWatchNumberPattern = Pattern
+                    .compile(TORNADO_WATCH_NUMBER_EXP);
+            Matcher tornadoWatchNumberMatcher = tornadoWatchNumberPattern
+                    .matcher(segment);
             if (tornadoWatchNumberMatcher.find()) {
                 watchNumber = tornadoWatchNumberMatcher.group(1).trim();
                 // System.out.println("in processUgcToRetrieveWatchNumber - find TORNADO_WATCH_NUMBER="
@@ -310,7 +331,8 @@ public class AwwParser {
         return watchNmbr;
     }
 
-    public static String processUgcToRetrieveWatchNumberForStatusReport(String segment) {
+    public static String processUgcToRetrieveWatchNumberForStatusReport(
+            String segment) {
         String watchNumber = "";
         String STATUS_REPORT_WATCH_NUMBER_EXP = "STATUS REPORT ON WW\\s(\\d{1,4})"; // T976
                                                                                     // -
@@ -318,8 +340,10 @@ public class AwwParser {
                                                                                     // (\\d{3})
                                                                                     // with
                                                                                     // (\\d{1,4}
-        Pattern statusReportWatchNumberPattern = Pattern.compile(STATUS_REPORT_WATCH_NUMBER_EXP);
-        Matcher statusReportWatchNumberMatcher = statusReportWatchNumberPattern.matcher(segment);
+        Pattern statusReportWatchNumberPattern = Pattern
+                .compile(STATUS_REPORT_WATCH_NUMBER_EXP);
+        Matcher statusReportWatchNumberMatcher = statusReportWatchNumberPattern
+                .matcher(segment);
         if (statusReportWatchNumberMatcher.find()) {
             watchNumber = statusReportWatchNumberMatcher.group(1).trim();
             // System.out.println("in processUgcToRetrieveWatchNumber - find STATUS_REPORT_WATCH_NUMBER="
@@ -336,8 +360,10 @@ public class AwwParser {
                                                                                     // (\\d{3})
                                                                                     // with
                                                                                     // (\\d{1,4}
-        Pattern statusReportWatchNumberPattern = Pattern.compile(STATUS_REPORT_WATCH_NUMBER_EXP);
-        Matcher statusReportWatchNumberMatcher = statusReportWatchNumberPattern.matcher(segment);
+        Pattern statusReportWatchNumberPattern = Pattern
+                .compile(STATUS_REPORT_WATCH_NUMBER_EXP);
+        Matcher statusReportWatchNumberMatcher = statusReportWatchNumberPattern
+                .matcher(segment);
         if (statusReportWatchNumberMatcher.find()) {
             isSegmentValid = true;
         }
@@ -357,7 +383,8 @@ public class AwwParser {
      *            The collection of watch numbers
      * @return a AwwUgc table
      */
-    public static AwwUgc processUgc(String ugcline, String segment, Calendar mndTime, ArrayList<String> watchList) {
+    public static AwwUgc processUgc(String ugcline, String segment,
+            Calendar mndTime, ArrayList<String> watchList) {
 
         final String delim = "\n";
         String pvtecLine;
@@ -392,7 +419,8 @@ public class AwwParser {
         // System.out.println("in Ugc - ugcline=" + ugcline);
 
         if (vtecMatcher.find()) {
-            StringTokenizer vtecToken = new StringTokenizer(vtecMatcher.group(), delim);
+            StringTokenizer vtecToken = new StringTokenizer(
+                    vtecMatcher.group(), delim);
 
             // Each bulletin may have multiple VTEC lines
             while (vtecToken.hasMoreTokens()) {
@@ -406,8 +434,10 @@ public class AwwParser {
                 }
                 trackingNO.append(trackingNumber);
 
-                /* Store the event tracking number as a primary key in the AWW
-                 * record recognized as "watch number" */
+                /*
+                 * Store the event tracking number as a primary key in the AWW
+                 * record recognized as "watch number"
+                 */
                 if (!watchList.contains(trackingNumber)) {
                     watchList.add(trackingNumber);
                 }
@@ -430,14 +460,18 @@ public class AwwParser {
         if (latlonMatcher.find()) {
 
             // New AwwLatlons record to hold LAT/LON values
-            AwwParser.processLatlons(latlonMatcher.group(), currentUgc, latlonIndex);
+            AwwParser.processLatlons(latlonMatcher.group(), currentUgc,
+                    latlonIndex);
 
             Matcher conlatlonMatcher = conlatlonPattern.matcher(segment);
 
-            /* find the continuation of LAT/LON polygon pairs if any note that
-             * LAT/LON may have more than one line */
+            /*
+             * find the continuation of LAT/LON polygon pairs if any note that
+             * LAT/LON may have more than one line
+             */
             if (conlatlonMatcher.find()) {
-                AwwParser.processLatlons(conlatlonMatcher.group(), currentUgc, latlonIndex);
+                AwwParser.processLatlons(conlatlonMatcher.group(), currentUgc,
+                        latlonIndex);
             }
         }
 
@@ -447,7 +481,9 @@ public class AwwParser {
         currentUgc.setEventTrackingNumber(trackingNO.toString());
         // Replace special characters with a blank; it is more readable and set
         // the segment
-        currentUgc.setSegment(UtilN.removeLeadingWhiteSpaces(segment.replace('\r', ' ').replace('\003', ' ').replace('\000', ' ').replace('\001', ' ').replace('\036', ' ')));
+        currentUgc.setSegment(UtilN.removeLeadingWhiteSpaces(segment
+                .replace('\r', ' ').replace('\003', ' ').replace('\000', ' ')
+                .replace('\001', ' ').replace('\036', ' ')));
 
         return currentUgc;
 
@@ -584,7 +620,8 @@ public class AwwParser {
      *            The collection of watch numbers
      * @return a AwwUgc table
      */
-    public static AwwUgc processUgcForWtch(String ugcline, String segment, Calendar mndTime, String issueOfficeId, ArrayList<String> watchList) {
+    public static AwwUgc processUgcForWtch(String ugcline, String segment,
+            Calendar mndTime, String issueOfficeId, ArrayList<String> watchList) {
 
         final String delim = "\n";
         String pvtecLine;
@@ -605,7 +642,8 @@ public class AwwParser {
         final String WTCH_LATLON_EXP = "LAT...LON( (\\d{5}|\\d{4})(\\d{5}|\\d{4}))+", WTCH_CON_LATLON_EXP = "(( )+( (\\d{5}|\\d{4})(\\d{5}|\\d{4}))+\\x0d\\x0d\\x0a)+";
         // Regular expression for the continuation of LAT/LON polygon
         final String CON_LATLON_EXP = "(( )+( (\\d{5}|\\d{4}) (\\d{5}|\\d{4}))+\\x0d\\x0d\\x0a)+";
-        final Pattern wtchLatLonPattern = Pattern.compile(WTCH_LATLON_EXP), wtchConLatlonPattern = Pattern.compile(WTCH_CON_LATLON_EXP);
+        final Pattern wtchLatLonPattern = Pattern.compile(WTCH_LATLON_EXP), wtchConLatlonPattern = Pattern
+                .compile(WTCH_CON_LATLON_EXP);
         // Pattern used to extract LAT/LON line
         final Pattern latlonPattern = Pattern.compile(LATLON_EXP);
 
@@ -623,10 +661,12 @@ public class AwwParser {
         Matcher wtchVtecMatcher = wtchVtecPattern.matcher(segment);
         // System.out.println("in Ugc - ugcline=" + ugcline);
         if (wtchVtecMatcher.find()) {
-            AwwParser.processVtecWtch(wtchVtecMatcher, issueOfficeId, currentUgc);
+            AwwParser.processVtecWtch(wtchVtecMatcher, issueOfficeId,
+                    currentUgc);
         }
         if (vtecMatcher.find()) {
-            StringTokenizer vtecToken = new StringTokenizer(vtecMatcher.group(), delim);
+            StringTokenizer vtecToken = new StringTokenizer(
+                    vtecMatcher.group(), delim);
 
             // Each bulletin may have multiple VTEC lines
             while (vtecToken.hasMoreTokens()) {
@@ -640,8 +680,10 @@ public class AwwParser {
                 }
                 trackingNO.append(trackingNumber);
 
-                /* Store the event tracking number as a primary key in the AWW
-                 * record recognized as "watch number" */
+                /*
+                 * Store the event tracking number as a primary key in the AWW
+                 * record recognized as "watch number"
+                 */
                 if (!watchList.contains(trackingNumber)) {
                     watchList.add(trackingNumber);
                 }
@@ -652,18 +694,14 @@ public class AwwParser {
             }
         }
 
-        if (currentUgc.getAwwVtecLine() == null || currentUgc.getAwwVtecLine().size() == 0) // T976
-                                                                                            // -
-                                                                                            // If
-                                                                                            // the
-                                                                                            // UGC
-                                                                                            // has
-                                                                                            // no
-                                                                                            // VTEC/HVTEC
-                                                                                            // info,
-                                                                                            // return
-                                                                                            // null.
+        if (currentUgc.getAwwVtecLine() == null
+                || currentUgc.getAwwVtecLine().size() == 0) { // T976 - If the
+                                                              // UGC has no
+                                                              // VTEC/HVTEC
+                                                              // info, return
+                                                              // null.
             return null;
+        }
 
         AwwParser.processFips(ugcline, currentUgc, mndTime);
 
@@ -675,22 +713,28 @@ public class AwwParser {
         if (latlonMatcher.find()) {
 
             // New AwwLatlons record to hold LAT/LON values
-            AwwParser.processLatlons(latlonMatcher.group(), currentUgc, latlonIndex);
+            AwwParser.processLatlons(latlonMatcher.group(), currentUgc,
+                    latlonIndex);
 
             Matcher conlatlonMatcher = wtchConLatlonPattern.matcher(segment);
 
-            /* find the continuation of LAT/LON polygon pairs if any note that
-             * LAT/LON may have more than one line */
+            /*
+             * find the continuation of LAT/LON polygon pairs if any note that
+             * LAT/LON may have more than one line
+             */
             if (conlatlonMatcher.find()) {
-                AwwParser.processLatlons(conlatlonMatcher.group(), currentUgc, latlonIndex);
+                AwwParser.processLatlons(conlatlonMatcher.group(), currentUgc,
+                        latlonIndex);
             }
         }
 
         if (wtchLatLonMatcher.find()) {
-            AwwParser.processLatlonsWtch(wtchLatLonMatcher.group(), currentUgc, latlonIndex);
+            AwwParser.processLatlonsWtch(wtchLatLonMatcher.group(), currentUgc,
+                    latlonIndex);
             Matcher wtchConlatlonMatcher = conlatlonPattern.matcher(segment);
             if (wtchConlatlonMatcher.find()) {
-                AwwParser.processLatlonsWtch(wtchConlatlonMatcher.group(), currentUgc, latlonIndex);
+                AwwParser.processLatlonsWtch(wtchConlatlonMatcher.group(),
+                        currentUgc, latlonIndex);
             }
         }
 
@@ -700,7 +744,9 @@ public class AwwParser {
         currentUgc.setEventTrackingNumber(trackingNO.toString());
         // Replace special characters with a blank; it is more readable and set
         // the segment
-        currentUgc.setSegment(UtilN.removeLeadingWhiteSpaces(segment.replace('\r', ' ').replace('\003', ' ').replace('\000', ' ').replace('\001', ' ').replace('\036', ' ')));
+        currentUgc.setSegment(UtilN.removeLeadingWhiteSpaces(segment
+                .replace('\r', ' ').replace('\003', ' ').replace('\000', ' ')
+                .replace('\001', ' ').replace('\036', ' ')));
 
         return currentUgc;
 
@@ -777,14 +823,17 @@ public class AwwParser {
             // endTime = AwwParser.findEventTime(pvtokenMatcher.group(8));
             // currentVtec.setEventEndTime(endTime);
 
-            /* The follow logic is the modified way of setting the event
+            /*
+             * The follow logic is the modified way of setting the event
              * start/end times. Basically it tries to look at the previous
-             * records of the same event in DB and fill the missed values */
+             * records of the same event in DB and fill the missed values
+             */
             String eventStartTimeString = pvtokenMatcher.group(7);
             String eventEndTimeString = pvtokenMatcher.group(8);
 
-            AwwVtecDataInfo awwVtecEventTimeInfoObject = getEventTimeInfo(eventStartTimeString, eventEndTimeString, productClass, officeId, phenomena, significance,
-                    eventTrackingNumber);
+            AwwVtecDataInfo awwVtecEventTimeInfoObject = getEventTimeInfo(
+                    eventStartTimeString, eventEndTimeString, productClass,
+                    officeId, phenomena, significance, eventTrackingNumber);
 
             startTime = awwVtecEventTimeInfoObject.getEventStartTime();
             currentVtec.setEventStartTime(startTime);
@@ -792,17 +841,25 @@ public class AwwParser {
             endTime = awwVtecEventTimeInfoObject.getEventEndTime();
             currentVtec.setEventEndTime(endTime);
 
-            /* Now we add one more logic to try to fill the holes of
-             * eventstarttime is null */
-            if (isEventStartTimeValidToBeUsedToFillNullValues(action, NEW_ACTION_VALUE, awwVtecEventTimeInfoObject.getEventStartTime())) {
-                fillNullEventStartTimeValues(awwVtecEventTimeInfoObject.getEventStartTime(), productClass, officeId, phenomena, significance, eventTrackingNumber);
+            /*
+             * Now we add one more logic to try to fill the holes of
+             * eventstarttime is null
+             */
+            if (isEventStartTimeValidToBeUsedToFillNullValues(action,
+                    NEW_ACTION_VALUE,
+                    awwVtecEventTimeInfoObject.getEventStartTime())) {
+                fillNullEventStartTimeValues(
+                        awwVtecEventTimeInfoObject.getEventStartTime(),
+                        productClass, officeId, phenomena, significance,
+                        eventTrackingNumber);
             }
 
             // Check if any H-VTEC line after the P-VTEC line
             Matcher hvtokenMatcher = hvtokenPattern.matcher(segment);
 
             if (hvtokenMatcher.find()) {
-                AwwHVtec currentHVtec = AwwParser.processHVtec(hvtokenMatcher.group());
+                AwwHVtec currentHVtec = AwwParser.processHVtec(hvtokenMatcher
+                        .group());
 
                 // Add current H-VTEC message to set.
                 currentVtec.addAwwHVtecLine(currentHVtec);
@@ -821,7 +878,8 @@ public class AwwParser {
      * @param eventStartTime
      * @return
      */
-    private static boolean isEventStartTimeValidToBeUsedToFillNullValues(String action, String newActionValue, Calendar eventStartTime) {
+    private static boolean isEventStartTimeValidToBeUsedToFillNullValues(
+            String action, String newActionValue, Calendar eventStartTime) {
         boolean isValid = false;
         if (newActionValue.equalsIgnoreCase(action) && eventStartTime != null) {
             isValid = true;
@@ -841,25 +899,36 @@ public class AwwParser {
      * @param eventTrackingNumber
      * @return
      */
-    private static AwwVtecDataInfo getEventTimeInfo(String eventStartTimeString, String eventEndTimeString, String productClass, String officeId, String phenomena,
+    private static AwwVtecDataInfo getEventTimeInfo(
+            String eventStartTimeString, String eventEndTimeString,
+            String productClass, String officeId, String phenomena,
             String significance, String eventTrackingNumber) {
         AwwVtecDataInfo awwVtecDataInfo = new AwwVtecDataInfo();
         Calendar eventStartTime = AwwParser.findEventTime(eventStartTimeString);
         Calendar eventEndTime = AwwParser.findEventTime(eventEndTimeString);
-        if (eventStartTime != null)
+        if (eventStartTime != null) {
             awwVtecDataInfo.setEventStartTime(eventStartTime);
-        if (eventEndTime != null)
+        }
+        if (eventEndTime != null) {
             awwVtecDataInfo.setEventEndTime(eventEndTime);
-        awwVtecDataInfo = AwwVtecDataUtil.populateAwwVtecEventTimeInfo(awwVtecDataInfo, productClass, officeId, phenomena, significance, eventTrackingNumber);
+        }
+        awwVtecDataInfo = AwwVtecDataUtil.populateAwwVtecEventTimeInfo(
+                awwVtecDataInfo, productClass, officeId, phenomena,
+                significance, eventTrackingNumber);
         return awwVtecDataInfo;
     }
 
-    private static void fillNullEventStartTimeValues(Calendar eventStartTime, String productClass, String officeId, String phenomena, String significance,
-            String eventTrackingNumber) {
+    private static void fillNullEventStartTimeValues(Calendar eventStartTime,
+            String productClass, String officeId, String phenomena,
+            String significance, String eventTrackingNumber) {
         try {
-            AwwVtecDataUtil.populateAwwVtecEventStartTimeWithValidValue(eventStartTime, productClass, officeId, phenomena, significance, eventTrackingNumber);
+            AwwVtecDataUtil.populateAwwVtecEventStartTimeWithValidValue(
+                    eventStartTime, productClass, officeId, phenomena,
+                    significance, eventTrackingNumber);
         } catch (DataAccessLayerException dale) {
-            System.out.println("======Caught DataAccessLayerException in method fillNullEventStartTimeValues(...), error=" + dale.getMessage());
+            System.out
+                    .println("======Caught DataAccessLayerException in method fillNullEventStartTimeValues(...), error="
+                            + dale.getMessage());
         }
     }
 
@@ -897,7 +966,8 @@ public class AwwParser {
      *            The index of Lat/Long
      * 
      */
-    public static void processLatlons(String latlons, AwwUgc UGC, int[] latlonIndex) {
+    public static void processLatlons(String latlons, AwwUgc UGC,
+            int[] latlonIndex) {
 
         String currentToken = null;
         String latlon = "LAT...LON";
@@ -919,7 +989,9 @@ public class AwwParser {
                     // New AwwLatlons record to hold LAT/LON values.
                     flat = (float) (Integer.parseInt(latitude) / 100.0);
                     flong = (float) ((Integer.parseInt(longitude) / 100.0) * (-1.0));
-                    AwwLatlons currentLatlons = AwwParser.setLatlon(flat, flong, latlonIndex[0]);
+
+                    AwwLatlons currentLatlons = AwwParser.setLatlon(flat,
+                            flong, latlonIndex[0]);
 
                     // Add current LAT/LON and index to set.
                     UGC.addAwwLatLon(currentLatlons);
@@ -950,7 +1022,8 @@ public class AwwParser {
         final String delim = "-,\n";
         final String inclusiveDelim = ">";
 
-        /* Here are many possible cases: 1. PAC055-057-140130- 2.
+        /*
+         * Here are many possible cases: 1. PAC055-057-140130- 2.
          * ILZ027>031-036>038-040>045-047>054-061-141015- 3.
          * LAC001-003-009-011-019-023-039-045-053-055-079-097-099-101-113-^M
          * 115-131500-^M 4. ILC129-221523- 5.
@@ -959,13 +1032,15 @@ public class AwwParser {
          * KYC001-003-005-009-015-017-021-023-027-029-031-037-041-045-049-^M
          * 053-057-061-067-073-077-079-081-085-087-093-097-099-103-111-113-^M
          * 117-123-137-141-151-155-161-163-167-169-171-179-181-185-187-191-^M
-         * 201-207-209-211-213-215-217-223-227-229-239-190900-^M */
+         * 201-207-209-211-213-215-217-223-227-229-239-190900-^M
+         */
         StringTokenizer fipsTokens = new StringTokenizer(ugc, delim);
         while (fipsTokens.hasMoreTokens()) {
 
             fipsToken = fipsTokens.nextToken();
 
-            if (fipsToken.length() == 6 && Character.isLetter(fipsToken.toCharArray()[0])) {
+            if (fipsToken.length() == 6
+                    && Character.isLetter(fipsToken.toCharArray()[0])) {
                 // A brand new county FIPS with format NAMDDD
                 countyFips = fipsToken;
                 county = fipsToken.substring(0, 3);
@@ -977,7 +1052,8 @@ public class AwwParser {
                 county = fipsToken.substring(0, 3);
 
                 // Format in NAMDDD1>DDD2
-                StringTokenizer twoTokens = new StringTokenizer(intervalToken, inclusiveDelim);
+                StringTokenizer twoTokens = new StringTokenizer(intervalToken,
+                        inclusiveDelim);
                 String firstToken = twoTokens.nextToken();
                 String secondToken = twoTokens.nextToken();
 
@@ -1002,15 +1078,18 @@ public class AwwParser {
                     AwwFips currentFips = AwwFips.setFIPS(countyFips);
                     UGC.addAwwFIPS(currentFips);
                 }
-            } else if (fipsToken.length() == 3 && Character.isDigit(fipsToken.toCharArray()[0])) {
+            } else if (fipsToken.length() == 3
+                    && Character.isDigit(fipsToken.toCharArray()[0])) {
                 // A continuation of previous county FIPS with format DDD
                 countyFips = county.concat(fipsToken);
 
                 AwwFips currentFips = AwwFips.setFIPS(countyFips);
                 UGC.addAwwFIPS(currentFips);
-            } else if (fipsToken.length() == 7 && Character.isDigit(fipsToken.toCharArray()[0])) {
+            } else if (fipsToken.length() == 7
+                    && Character.isDigit(fipsToken.toCharArray()[0])) {
                 // A continuation of previous county FIPS with format DDD1>DDD2
-                StringTokenizer twoTokens = new StringTokenizer(fipsToken, inclusiveDelim);
+                StringTokenizer twoTokens = new StringTokenizer(fipsToken,
+                        inclusiveDelim);
                 String firstToken = twoTokens.nextToken();
                 String secondToken = twoTokens.nextToken();
 
@@ -1035,7 +1114,8 @@ public class AwwParser {
                     AwwFips currentFips = AwwFips.setFIPS(countyFips);
                     UGC.addAwwFIPS(currentFips);
                 }
-            } else if (fipsToken.length() == 6 && Character.isDigit(fipsToken.toCharArray()[0])) {
+            } else if (fipsToken.length() == 6
+                    && Character.isDigit(fipsToken.toCharArray()[0])) {
                 // The last item is the UGC product purge time
                 try {
                     Calendar purgeDate = UtilN.findDataTime(fipsToken, mndTime);
@@ -1118,7 +1198,8 @@ public class AwwParser {
      */
     public static String getReportType(String bull) {
 
-        /* There are many report types as follows: 1. SEVERE THUNDERSTORM
+        /*
+         * There are many report types as follows: 1. SEVERE THUNDERSTORM
          * WARNING 2. SEVERE THUNDERSTORM WATCH 3. TORNADO WARNING 4. TORNADO
          * WATCH 5. SEVERE THUNDERSTORM OUTLINE UPDATE 6. TORNADO WATCH OUTLINE
          * UPDATE 7. FLASH FLOOD WARNING 8. FLASH FLOOD WATCH 9. FLOOD WARNING
@@ -1129,15 +1210,18 @@ public class AwwParser {
          * WEATHER ADVISORY 23. SIGNIGICANT WEATHER ADVISORY 24. SPECIAL WEATHER
          * STATEMENT 25. RED FLAG WARNING 26. TORNADO REPORT 27. HIGH WIND
          * WARNING 28. FREEZE WARNING 29. ADVERTENCIA DE INUNDACIONES 30.
-         * HYDROLOGIC STATEMENT 31. URGENT WEATHER MESSAGE */
+         * HYDROLOGIC STATEMENT 31. URGENT WEATHER MESSAGE
+         */
 
         String reportType = null;
 
         // Regular expression for report type
         // final String REPORT_EXP =
         // "(SEVERE THUNDERSTORM|TORNADO|FLOOD|WINTER STORM|WATCH COUNTY NOTIFICATION|ADVISORY|WEATHER STATEMENT|RED FLAG WARNING)";
-        /* add the key words "STATUS REPORT" at the beginning of the regular
-         * expression string pattern */
+        /*
+         * add the key words "STATUS REPORT" at the beginning of the regular
+         * expression string pattern
+         */
         final String REPORT_EXP = "(STATUS REPORT|SEVERE THUNDERSTORM|SEVERE TSTM|TORNADO|FLOOD|WINTER STORM|WATCH COUNTY NOTIFICATION|ADVISORY|WEATHER STATEMENT|RED FLAG WARNING)";
 
         // Pattern used for extracting data from the report type
@@ -1149,7 +1233,8 @@ public class AwwParser {
             String type = reportMatcher.group(1);
             if (type.compareTo("STATUS REPORT") == 0) {
                 reportType = getStatusReportType(bull);
-            } else if (type.compareTo("SEVERE THUNDERSTORM") == 0 || type.compareTo("SEVERE TSTM") == 0) {
+            } else if (type.compareTo("SEVERE THUNDERSTORM") == 0
+                    || type.compareTo("SEVERE TSTM") == 0) {
                 reportType = getThunderstormType(bull);
             } else if (type.compareTo("TORNADO") == 0) {
                 reportType = getTornadoType(bull);
@@ -1171,7 +1256,8 @@ public class AwwParser {
         }
 
         if (AwwReportType.getReportType(reportType) == AwwReportType.UNKNOWN_AWW_REPORT_TYPE) {
-            logger.warn("Warning: decoded aww report type, " + reportType + ", not recogized.");
+            logger.warn("Warning: decoded aww report type, " + reportType
+                    + ", not recogized.");
         }
 
         return reportType;
@@ -1314,7 +1400,8 @@ public class AwwParser {
         Matcher reportMatcher = reportPattern.matcher(bull);
 
         if (reportMatcher.find()) {
-            weatherstatementType = reportMatcher.group(1).concat(weatherstatementType);
+            weatherstatementType = reportMatcher.group(1).concat(
+                    weatherstatementType);
         }
         return weatherstatementType;
     }
@@ -1359,14 +1446,15 @@ public class AwwParser {
     // ---------------------------------Ticket 456:
     public static final String WTCH_BOX_UGC_LINE = "";
 
-    public static void processLatlonsWtch(String latlons, AwwUgc UGC, int[] latlonIndex) {
+    public static void processLatlonsWtch(String latlons, AwwUgc UGC,
+            int[] latlonIndex) {
 
         String currentToken = null;
         String latlon = "LAT...LON";
         String latitude = null;
         String longitude = null;
         boolean pair = false;
-        Float flat, flong;
+        Float flat, flong, flongTmp;
 
         StringTokenizer latlonTokens = new StringTokenizer(latlons);
 
@@ -1378,13 +1466,43 @@ public class AwwParser {
                 longitude = currentToken.substring(4);
 
                 flat = (float) (Integer.parseInt(latitude) / 100.0);
-                flong = (float) ((Integer.parseInt(longitude) / 100.0) * (-1.0));
+                flongTmp = (float) ((Integer.parseInt(longitude) / 100.0) * (-1.0));
+
+                if (-62.0f < flongTmp) { // now -40.0f W, was -62.0f W
+                                         // this is one solution for WATCH
+                                         // decoding, however it may be possible
+                                         // that LAT's LSB is really hiding the
+                                         // missing 100, an ATBD-type document
+                                         // for WATCH should be investigated, or
+                                         // deep-dive GEMPAK's wwdcod.f +
+                                         // nwxp_wwcrnr.c
+                    flongTmp = flongTmp - (100.0f);
+
+                    if (-180.00f > flongTmp) { // always false unless some
+                                               // unforeseen critical JVM or
+                                               // hardware-level error occurs &
+                                               // processing does not halt..
+                        Float ferror = flongTmp;
+                        // flongTmp = -180.00f; // keep both ends checked & warn
+                        // flongTmp = flongTmp + (-62.0f);
+                        flongTmp = flongTmp + (0);
+                        logger.warn(ferror// TODO keep?
+                                + " longitude beyond -180.00 maximum?",
+                                new DecoderException(ferror
+                                        + " longitude beyond -180.00 maximum"));
+                    }
+                }
+
+                flong = flongTmp;
+
                 latlonIndex[0]++;
 
-                AwwLatlons currentLatlons = AwwParser.setLatlon(flat, flong, latlonIndex[0]);
+                AwwLatlons currentLatlons = AwwParser.setLatlon(flat, flong,
+                        latlonIndex[0]);
                 UGC.addAwwLatLon(currentLatlons);
 
-                /* if ( pair ) { longitude = currentToken; latlonIndex[0]++;
+                /*
+                 * if ( pair ) { longitude = currentToken; latlonIndex[0]++;
                  * pair = false;
                  * 
                  * // New AwwLatlons record to hold LAT/LON values. flat =
@@ -1395,13 +1513,15 @@ public class AwwParser {
                  * 
                  * // Add current LAT/LON and index to set.
                  * UGC.addAwwLatLon(currentLatlons); } else { latitude =
-                 * currentToken; pair = true; } */
+                 * currentToken; pair = true; }
+                 */
 
             }
         }
     }
 
-    public static AwwVtec processVtectForSevereWeatherStatus(String wmoline, Calendar recordIssueTime, String issueOfficeId) {
+    public static AwwVtec processVtectForSevereWeatherStatus(String wmoline,
+            Calendar recordIssueTime, String issueOfficeId) {
         // STATUS REPORT ON WW 865^M
         //
         // SEVERE WEATHER THREAT CONTINUES RIGHT OF A LINE FROM 50 E JAX TO^M
@@ -1410,7 +1530,8 @@ public class AwwParser {
         AwwVtec awwVtec = new AwwVtec();
         final String TRACK_NUMBER_VTEC_EXP = "STATUS REPORT ON WW\\s(\\d{3}\\s)"; // (\\d{6}
         // Pattern used to extract track number for VTEC
-        final Pattern trackNumberPattern = Pattern.compile(TRACK_NUMBER_VTEC_EXP);
+        final Pattern trackNumberPattern = Pattern
+                .compile(TRACK_NUMBER_VTEC_EXP);
         Matcher trackNumberMatcher = trackNumberPattern.matcher(wmoline);
         if (trackNumberMatcher.find()) {
             String eventTrackingNumber = trackNumberMatcher.group(1).trim();
@@ -1420,16 +1541,20 @@ public class AwwParser {
         }
 
         String SEVERE_WEATHER_THREAT_LINE_EXP = "SEVERE WEATHER THREAT CONTINUES RIGHT OF A LINE FROM\\s((\\w|\\s)*).";
-        Pattern severeWeatherThreatLinePattern = Pattern.compile(SEVERE_WEATHER_THREAT_LINE_EXP);
-        Matcher severeWeatherThreatLineMatcher = severeWeatherThreatLinePattern.matcher(wmoline);
+        Pattern severeWeatherThreatLinePattern = Pattern
+                .compile(SEVERE_WEATHER_THREAT_LINE_EXP);
+        Matcher severeWeatherThreatLineMatcher = severeWeatherThreatLinePattern
+                .matcher(wmoline);
         if (severeWeatherThreatLineMatcher.find()) {
             // String group = severeWeatherThreatLineMatcher.group();
-            String severeWeatherThreatLine = severeWeatherThreatLineMatcher.group(1);
+            String severeWeatherThreatLine = severeWeatherThreatLineMatcher
+                    .group(1);
             // System.out.println("====, line info parser value group = " +
             // group);
             // System.out.println("====, line info parser value severeWeatherThreatLine = "
             // + severeWeatherThreatLine);
-            String vtecLine = severeWeatherThreatLine.replace("\t", " ").replace("\r", " ").replace("\n", " ");
+            String vtecLine = severeWeatherThreatLine.replace("\t", " ")
+                    .replace("\r", " ").replace("\n", " ");
             // System.out.println("====, vtecLine = " + vtecLine);
             awwVtec.setVtecLine(vtecLine);
         }
@@ -1439,11 +1564,14 @@ public class AwwParser {
         // awwVtec.setEventStartTime(recordIssueTime);
 
         String SEVERE_WEATHER_THREAT_EVENT_END_TIME_EXP = "WW-[a-zA-Z]\\s(\\d{6})\\s";
-        Pattern severeWeatherThreatEventEndTimePattern = Pattern.compile(SEVERE_WEATHER_THREAT_EVENT_END_TIME_EXP);
-        Matcher severeWeatherThreatEventEndTimeMatcher = severeWeatherThreatEventEndTimePattern.matcher(wmoline);
+        Pattern severeWeatherThreatEventEndTimePattern = Pattern
+                .compile(SEVERE_WEATHER_THREAT_EVENT_END_TIME_EXP);
+        Matcher severeWeatherThreatEventEndTimeMatcher = severeWeatherThreatEventEndTimePattern
+                .matcher(wmoline);
         String severeWeatherThreatEventEndTimeString = null;
         if (severeWeatherThreatEventEndTimeMatcher.find()) {
-            severeWeatherThreatEventEndTimeString = severeWeatherThreatEventEndTimeMatcher.group(1);
+            severeWeatherThreatEventEndTimeString = severeWeatherThreatEventEndTimeMatcher
+                    .group(1);
             // Calendar severeWeatherThreatEventEndTime =
             // convertStringToCalendar(severeWeatherThreatEventEndTimeString);
             // if(severeWeatherThreatEventEndTime != null)
@@ -1451,29 +1579,36 @@ public class AwwParser {
         }
 
         String SEVERE_WEATHER_THREAT_MONTH_DAY_YEAR_EXP = "..(\\d{2}/\\d{2}/\\d{2})\\s";
-        Pattern severeWeatherThreatMonthDayYearPattern = Pattern.compile(SEVERE_WEATHER_THREAT_MONTH_DAY_YEAR_EXP);
-        Matcher severeWeatherThreatMonthDayYearMatcher = severeWeatherThreatMonthDayYearPattern.matcher(wmoline);
+        Pattern severeWeatherThreatMonthDayYearPattern = Pattern
+                .compile(SEVERE_WEATHER_THREAT_MONTH_DAY_YEAR_EXP);
+        Matcher severeWeatherThreatMonthDayYearMatcher = severeWeatherThreatMonthDayYearPattern
+                .matcher(wmoline);
         String monthString = null;
         String yearString = null;
         if (severeWeatherThreatMonthDayYearMatcher.find()) {
-            String monthDayYearString = severeWeatherThreatMonthDayYearMatcher.group(1);
+            String monthDayYearString = severeWeatherThreatMonthDayYearMatcher
+                    .group(1);
             String[] monthDayYearStringArray = monthDayYearString.split("/");
             monthString = monthDayYearStringArray[0];
             // String dayString = monthDayYearStringArray[1];
             yearString = monthDayYearStringArray[2];
         }
 
-        Calendar severeWeatherThreatEventStartTime = addMonthAndYearValueToCalendar(recordIssueTime, monthString, yearString);
+        Calendar severeWeatherThreatEventStartTime = addMonthAndYearValueToCalendar(
+                recordIssueTime, monthString, yearString);
         awwVtec.setEventStartTime(severeWeatherThreatEventStartTime);
 
-        Calendar severeWeatherThreatEventEndTime = convertStringToCalendar(severeWeatherThreatEventEndTimeString, monthString, yearString);
-        if (severeWeatherThreatEventEndTime != null)
+        Calendar severeWeatherThreatEventEndTime = convertStringToCalendar(
+                severeWeatherThreatEventEndTimeString, monthString, yearString);
+        if (severeWeatherThreatEventEndTime != null) {
             awwVtec.setEventEndTime(severeWeatherThreatEventEndTime);
+        }
 
         return awwVtec;
     }
 
-    public static void processVtecWtch(Matcher wtchVtecMatcher, String issueOfficeId, AwwUgc awwugc) {
+    public static void processVtecWtch(Matcher wtchVtecMatcher,
+            String issueOfficeId, AwwUgc awwugc) {
 
         // WW 865 TORNADO FL GA CW 100825Z - 101700Z
         // WW 893 SEVERE TSTM AR OK TX 202140Z - 210500Z
@@ -1502,7 +1637,8 @@ public class AwwParser {
 
     }
 
-    public static void processVtecWtch2(String wtchLine, String issueOfficeId, AwwUgc awwugc) {
+    public static void processVtecWtch2(String wtchLine, String issueOfficeId,
+            AwwUgc awwugc) {
 
         // WW 865 TORNADO FL GA CW 100825Z - 101700Z
 
@@ -1531,9 +1667,12 @@ public class AwwParser {
 
     }
 
-    /* timeString is in format: e.g. 101102, 10 - day in the month, 11 - Hour of
-     * Day, 02 - minute */
-    public static Calendar addMonthAndYearValueToCalendar(Calendar calendar, String monthString, String yearString) {
+    /*
+     * timeString is in format: e.g. 101102, 10 - day in the month, 11 - Hour of
+     * Day, 02 - minute
+     */
+    public static Calendar addMonthAndYearValueToCalendar(Calendar calendar,
+            String monthString, String yearString) {
 
         if (calendar != null) {
             /* set up the month value */
@@ -1555,9 +1694,12 @@ public class AwwParser {
         return calendar;
     }
 
-    /* timeString is in format: e.g. 101102, 10 - day in the month, 11 - Hour of
-     * Day, 02 - minute */
-    public static Calendar convertStringToCalendar(String timeString, String monthString, String yearString) {
+    /*
+     * timeString is in format: e.g. 101102, 10 - day in the month, 11 - Hour of
+     * Day, 02 - minute
+     */
+    public static Calendar convertStringToCalendar(String timeString,
+            String monthString, String yearString) {
 
         final String zeroTimePattern = "000000T0000";
         Calendar calendar = null;
@@ -1601,8 +1743,9 @@ public class AwwParser {
         if (!isStringEmpty(monthString)) {
             try {
                 int monthInInteger = Integer.parseInt(monthString);
-                if (monthInInteger > 0 && monthInInteger < 13)
+                if (monthInInteger > 0 && monthInInteger < 13) {
                     isMonthValueValid = true;
+                }
             } catch (NumberFormatException nfe) {
                 // do nothing
             }
@@ -1615,12 +1758,15 @@ public class AwwParser {
         if (!isStringEmpty(yearString)) {
             try {
                 int yearInInteger = Integer.parseInt(yearString);
-                /* The assumption is users may use either 4 digits or 2 dogits
-                 * to represent the value of the year */
+                /*
+                 * The assumption is users may use either 4 digits or 2 dogits
+                 * to represent the value of the year
+                 */
                 // if((yearInInteger > 1900 && yearInInteger < 2150) ||
-                // (yearInInteger >= 0 && yearInInteger < 100))
-                if (yearInInteger >= 0 && yearInInteger < 100)
+                // (yearInInteger >= 0 && yearInInteger < 100)){
+                if (yearInInteger >= 0 && yearInInteger < 100) {
                     isYearValueValid = true;
+                }
             } catch (NumberFormatException nfe) {
                 // do nothing
             }
@@ -1630,8 +1776,9 @@ public class AwwParser {
 
     private static boolean isStringEmpty(String str) {
         boolean isStringEmpty = true;
-        if (str != null && str.trim().length() != 0)
+        if (str != null && str.trim().length() != 0) {
             isStringEmpty = false;
+        }
         return isStringEmpty;
     }
 
