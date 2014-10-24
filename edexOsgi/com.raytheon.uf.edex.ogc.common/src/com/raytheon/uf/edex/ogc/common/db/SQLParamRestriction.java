@@ -16,7 +16,7 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.engine.TypedValue;
+import org.hibernate.engine.spi.TypedValue;
 
 /**
  * Hibernate criterion that allows for direct SQL restrictions
@@ -28,6 +28,7 @@ import org.hibernate.engine.TypedValue;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2013            bclement     Initial creation
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 

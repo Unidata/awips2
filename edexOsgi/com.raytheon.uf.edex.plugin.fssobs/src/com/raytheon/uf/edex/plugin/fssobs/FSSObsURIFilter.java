@@ -3,13 +3,11 @@ package com.raytheon.uf.edex.plugin.fssobs;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.edex.urifilter.URIFilter;
-import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -24,6 +22,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Dec 5, 2012  #1351      skorolev    Cleaned code
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
+ * Sep 04, 2014 3220       skorolev    Removed CWA from filter.
+ * Oct 17, 2014 3220       skorolev    Replaced HashSet with Set.
  * 
  * </pre>
  * 
@@ -34,12 +34,6 @@ public class FSSObsURIFilter extends URIFilter {
 
     /** Station ID **/
     private String stn;
-
-    /** CWA **/
-    private String cwa;
-
-    /** Monitor's name **/
-    private String monitorName;
 
     /** Station coordinates **/
     private Coordinate stationCoor = null;
@@ -59,8 +53,8 @@ public class FSSObsURIFilter extends URIFilter {
     /** Current data type #METAR, #Maritime or #Mesonet **/
     private String dataType;
 
-    /** Current Site **/
-    private String currentSite = SiteUtil.getSite();
+    /** All filtered stations */
+    private Set<String> stations = null;
 
     /** Date format **/
     private static String datePattern = "yyyy-MM-dd_HH:mm:ss.S";
@@ -74,9 +68,12 @@ public class FSSObsURIFilter extends URIFilter {
      * Constructor
      * 
      * @param name
-     *            Monitor name
+     *            of filter
+     * 
+     * @param stations
+     *            for FSSObs filter
      */
-    public FSSObsURIFilter(String name) {
+    public FSSObsURIFilter(String name, Set<String> stations) {
         super(name);
         logger.info("FSSObsFilter " + name + " Filter construction...");
         setDataTypes(new String[] { "obs", "sfcobs", "ldadmesonet" });
@@ -84,9 +81,7 @@ public class FSSObsURIFilter extends URIFilter {
         SimpleDateFormat datef = new SimpleDateFormat(datePattern);
         datef.setTimeZone(TimeZone.getTimeZone("Zulu"));
         setDateFormatter(datef);
-        setCwa(currentSite);
-        // Which monitor should use: fog, ss or snow
-        this.setMonitorName(name);
+        this.stations = stations;
         setMatchURIs();
     }
 
@@ -97,9 +92,8 @@ public class FSSObsURIFilter extends URIFilter {
      */
     @Override
     public void setMatchURIs() {
-        List<String> stns = FSSObsUtils.getStations(name);
         Pattern pat = Pattern.compile("#");
-        for (String st : stns) {
+        for (String st : stations) {
             String[] tokens = pat.split(st);
             setStn(tokens[0]);
             setDataType(tokens[1]);
@@ -258,24 +252,6 @@ public class FSSObsURIFilter extends URIFilter {
     }
 
     /**
-     * Gets CWA
-     * 
-     * @return cwa
-     */
-    public String getCwa() {
-        return cwa;
-    }
-
-    /**
-     * Sets CWA
-     * 
-     * @param cwa
-     */
-    public void setCwa(String cwa) {
-        this.cwa = cwa;
-    }
-
-    /**
      * Gets station coordinates
      * 
      * @return stationCoor
@@ -344,16 +320,6 @@ public class FSSObsURIFilter extends URIFilter {
                 + uriSeperator + getStn());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.urifilter.URIFilter#createGenerateMessage()
-     */
-    @Override
-    public URIGenerateMessage createGenerateMessage() {
-        return new FSSObsURIGenrtMessage(this);
-    }
-
     /**
      * Gets station name
      * 
@@ -391,24 +357,4 @@ public class FSSObsURIFilter extends URIFilter {
     public String getDataType() {
         return dataType;
     }
-
-    /**
-     * Gets Monitor Name.
-     * 
-     * @return the monitorName
-     */
-    public String getMonitorName() {
-        return monitorName;
-    }
-
-    /**
-     * Sets Monitor Name.
-     * 
-     * @param monitorName
-     *            the monitorName to set
-     */
-    public void setMonitorName(String monitorName) {
-        this.monitorName = monitorName;
-    }
-
 }

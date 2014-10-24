@@ -53,6 +53,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Dec 11, 2013 #2624      rferrel     Clear display variables when recomputing sizes.
  * Mar 27, 2014 #2879      rferrel     Loading Case no longer changes Start/End times.
  * Apr 23, 2014 #3045      rferrel     Changes to prevent race condition while getting labels.
+ * Aug 26, 2014 #3553      rferrel     Option to force update of table's display data.
  * 
  * </pre>
  * 
@@ -157,7 +158,7 @@ public class SizeJob extends Job {
     private boolean stopComputeSize;
 
     /**
-     * Priority queue for getting display data all archive/category tables.
+     * Priority queue for getting display data for all archive/category tables.
      */
     // Do not use a PriorityBlockingQueue since the load select and change
     // display methods need to be notified when the display data is available.
@@ -473,11 +474,11 @@ public class SizeJob extends Job {
      * @return displayData
      */
     public List<DisplayData> changeDisplay(String archiveName,
-            String categoryName, AtomicBoolean shutdown) {
+            String categoryName, AtomicBoolean shutdown, boolean forceUpdate) {
         List<DisplayData> displayDatas = null;
 
         // Only get data when the display really needs to be changed.
-        if (!archiveName.equals(displayArchive)
+        if (forceUpdate || !archiveName.equals(displayArchive)
                 || !categoryName.equals(displayCategory)) {
 
             // Update visible status of current display.
