@@ -98,7 +98,7 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
 <bulletActionGroup action="NEW" phen="FA" sig="W">
  <bullets>
   <bullet bulletText="*************   TYPE OF WARNING   ***********" bulletType="title"/>
-  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletDefault="true" bulletGroup="ttt" parseString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletDefault="true" bulletGroup="ttt" parseString="&quot;FLOOD WARNING FOR&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
   <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" />
   <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN"/>
   <bullet bulletText="****** PRIMARY CAUSE ******" bulletType="title"/>
@@ -121,9 +121,7 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
   <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
   <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/>
-<!-- added by GP -->
   <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
-<!--  GP end --> 
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="&quot;THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
   <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
@@ -157,7 +155,7 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
 <bulletActionGroup action="COR" phen="FA" sig="W">
  <bullets>
   <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
-  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING FOR&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING FOR&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
   <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
   <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
   <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
@@ -216,7 +214,7 @@ Must be paired with proper vm code (also commented out in arealFloodWarning.vm)!
 <bulletActionGroup action="EXT" phen="FA" sig="W">
  <bullets>
   <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
-  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING FOR&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING FOR&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
   <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
   <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
   <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
