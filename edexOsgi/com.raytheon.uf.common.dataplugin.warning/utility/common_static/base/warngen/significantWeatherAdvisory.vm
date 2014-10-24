@@ -5,6 +5,7 @@
 ## Modified by:                                                  ##
 ##             Phil Kurimski 16 Sep 2013 OB13.5.2-4              ## 
 ##             Evan Bookbinder Sep 18 2013 Implemented config.vm ##
+##             Mike Dangelo 26 June 2014 made inclusion of both watches dependent on GUI bullet choices ##
 ###################################################################
 ##
 ##SET SOME INITIAL VARIABLES
@@ -309,10 +310,10 @@ IF ON OR NEAR !**Name Of Lake**!...GET OUT OF THE WATER AND MOVE INDOORS OR INSI
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "TO.A")})
+#if(${list.contains(${includedWatches}, "TO.A")} && ${list.contains(${bullets}, "includeTorWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "SV.A")})
+#if(${list.contains(${includedWatches}, "SV.A")} && ${list.contains(${bullets}, "includeSvrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 ####################################

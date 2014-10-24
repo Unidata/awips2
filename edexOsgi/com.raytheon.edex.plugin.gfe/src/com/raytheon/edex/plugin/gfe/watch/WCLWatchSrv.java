@@ -22,8 +22,6 @@
  */
 package com.raytheon.edex.plugin.gfe.watch;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,18 +34,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
-import com.raytheon.edex.plugin.gfe.util.SendNotifications;
-import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
-import com.raytheon.uf.common.dataplugin.gfe.server.notify.UserMessageNotification;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
@@ -64,6 +62,8 @@ import com.raytheon.uf.edex.core.EdexException;
  * ??? ??, 20??            wldougher    Initial creation
  * Jun 09, 2014  #3268     dgilling     Ensure code works in multi-domain scenarios.
  * Jun 13, 2014  #3278     dgilling     Ensure temporary files get deleted.
+ * Sep 25, 2014  #3661     randerso     Update WCLWatchSrv to use localization correctly
+ * Sep 25, 2014, #3670     randerso     Send notification directly to AlertViz
  * 
  * </pre>
  * 
@@ -72,8 +72,13 @@ import com.raytheon.uf.edex.core.EdexException;
  */
 public class WCLWatchSrv {
 
-    private static final String ALERT_FORM = "Alert: " + "%1$s has arrived. "
-            + "Please select ViewWCL and use %1$s. (Hazards menu)";
+    private static final String ALERT_SINGLE = "Alert: "
+            + "%1$s has arrived. "
+            + "Please open a GFE session for site %2$s and select ViewWCL and use %1$s. (Hazards menu)";
+
+    private static final String ALERT_MULTIPLE = "Alert: "
+            + "%1$s has arrived. "
+            + "Please open GFE sessions for each of the following sites %2$s and select ViewWCL and use %1$s. (Hazards menu)";
 
     private static final Pattern EXPIRE_TIME_PATTERN = Pattern
             .compile("(\\d{2})(\\d{2})(\\d{2})\\-");
@@ -96,17 +101,14 @@ public class WCLWatchSrv {
 
     /**
      * Process a WCL watch, partially parsed and passed as a WclInfo object.
-     * More parsing is performed on the input parameter, a summary script in
-     * JSON format is written and moved into the "wcl" folder (whose location is
-     * determined by localization). If any of the local site IDs are mentioned
-     * in the WCL, a UserMessageNotification is created and sent to the user.
-     * framework will use to alert the user. Otherwise, a message is written to
-     * the log.
+     * More parsing is performed on the input parameter, a summary script is
+     * written and moved into the "wcl" folder (whose location is determined by
+     * localization). If any of the active local site IDs are mentioned in the
+     * WCL, a AlertViz message is created and sent to alert the user. Otherwise,
+     * a message is written to the log.
      * 
      * @param wclInfo
      *            The partially-parsed warning
-     * @return null or a UserMessageNotification that will be handled by the SOA
-     *         framework.
      * @throws EdexException
      *             When portions of the warning cannot be parsed (i.e., dates),
      *             or when there are problems generating the WCL script file.
@@ -117,13 +119,7 @@ public class WCLWatchSrv {
                 .findAttnWFOs(wclInfo.getLines());
         Set<String> siteIDs = getSiteIDs();
 
-        boolean doNotify = true;
-
         sitesToNotify.retainAll(siteIDs); // Keep shared IDs
-        if (sitesToNotify.isEmpty()) {
-            statusHandler.debug("WCL notification:  sites not in ATTN list");
-            doNotify = false;
-        }
 
         // Process the WCL regardless of whether we are sending a notice
 
@@ -142,32 +138,29 @@ public class WCLWatchSrv {
         // Get the WCL 'letter'
         String completeProductPil = wclInfo.getCompleteProductPil();
 
-        // Create a dummy Procedure for export
+        // Create a wcl info string
         String wclStr = makeWclStr(finalUGCList, expireTime, issueTime,
                 watchType);
         statusHandler.info("WCLData: " + wclStr);
 
-        // Write dummy procedure to temp file
-        File tmpFile = createTempWclFile(wclStr);
+        // Write wcl info to files for required sites
+        createWclFile(siteIDs, completeProductPil, wclStr);
 
-        // Move the file to the wcl folder
-        // Rename it to <wclDir>/<completeProductPil>
-        statusHandler.info("Placing WCL Procedure Utility in ifpServer ");
-        try {
-            makePermanent(tmpFile, completeProductPil, siteIDs);
-        } finally {
-            if (tmpFile != null) {
-                tmpFile.delete();
+        if (sitesToNotify.isEmpty()) {
+            statusHandler
+                    .debug("WCL notification: no acitve sites in ATTN list");
+        } else if (wclInfo.getNotify()) {
+            String msg;
+            if (sitesToNotify.size() == 1) {
+                msg = String.format(ALERT_SINGLE, completeProductPil,
+                        sitesToNotify.iterator().next());
+            } else {
+                msg = String.format(ALERT_MULTIPLE, completeProductPil,
+                        sitesToNotify.toString());
             }
-        }
-
-        if (doNotify && wclInfo.getNotify()) {
-            for (String siteID : sitesToNotify) {
-                String msg = String.format(ALERT_FORM, completeProductPil);
-                GfeNotification notify = new UserMessageNotification(msg,
-                        Priority.CRITICAL, "GFE", siteID);
-                SendNotifications.send(notify);
-            }
+            EDEXUtil.sendMessageAlertViz(Priority.CRITICAL,
+                    "com.raytheon.edex.plugin.gfe", "GFE", "GFE", msg, msg,
+                    null);
         } else {
             statusHandler.info("Notification of WCL skipped");
         }
@@ -176,74 +169,35 @@ public class WCLWatchSrv {
     }
 
     /**
-     * Convert a temporary parsed WCL file to a permanent one by copying its
-     * contents to the localization path cave_static.SITE/gfe/wcl/ for each of
-     * the specified sites.
+     * Save WCL info to the localization path cave_static.SITE/gfe/wcl/ for each
+     * of the specified sites.
      * 
-     * @param tmpFile
-     *            The temporary file (may be {@code null})
-     * @param completeProductPil
-     *            The base name of the files to write.
      * @param siteIDs
-     *            The set of siteIDs to write out the WCL data for.
-     */
-    protected void makePermanent(File tmpFile, String completeProductPil,
-            Collection<String> siteIDs) {
-        statusHandler.debug("makePermanent(" + tmpFile + ","
-                + completeProductPil + ") started");
-        if (tmpFile != null) {
-            for (String siteID : siteIDs) {
-                try {
-                    File wclDir = getWclDir(siteID);
-                    if (wclDir != null) {
-                        File dest = new File(wclDir, completeProductPil);
-                        FileUtil.copyFile(tmpFile, dest);
-                        statusHandler.info("Wrote WCL "
-                                + tmpFile.getAbsolutePath() + " to "
-                                + dest.getAbsolutePath());
-                    } else {
-                        statusHandler
-                                .error("Could not determine WCL directory for site "
-                                        + siteID);
-                    }
-                } catch (IOException e) {
-                    statusHandler.error("Could not copy temporary WCL file "
-                            + tmpFile.getAbsolutePath()
-                            + " to site directory for " + siteID, e);
-                }
-            }
-        }
-
-        statusHandler.debug("makePermanent(" + tmpFile + ","
-                + completeProductPil + ") ending");
-    }
-
-    /**
-     * Create a temporary file with the prefix "wcl" and the default suffix in
-     * the default temporary file directory. Write all of wclStr into it.
-     * 
+     *            list of site IDs to create files for
+     * @param completeProductPil
+     *            WCL pil (used for file name)
      * @param wclStr
-     *            the String containing the contents to write to the file
-     * @return the File created.
-     * @throws EdexException
-     *             if the file cannot be written
+     *            WCL info to be written to the file
      */
-    protected File createTempWclFile(String wclStr) throws EdexException {
-        File tmpFile = null;
-        PrintStream wclOut = null;
-        try {
-            tmpFile = File.createTempFile("wcl", null);
-            wclOut = new PrintStream(tmpFile);
-            wclOut.println(wclStr);
-        } catch (IOException e) {
-            throw new EdexException("Error writing parsed WCL to file \""
-                    + tmpFile.getAbsolutePath() + "\"", e);
-        } finally {
-            if (wclOut != null) {
+    protected void createWclFile(Collection<String> siteIDs,
+            String completeProductPil, String wclStr) {
+        IPathManager pathManager = PathManagerFactory.getPathManager();
+        for (String siteID : siteIDs) {
+            LocalizationContext ctx = pathManager.getContextForSite(
+                    LocalizationType.CAVE_STATIC, siteID);
+            LocalizationFile wclFile = pathManager.getLocalizationFile(ctx,
+                    FileUtil.join("gfe", "wcl", completeProductPil));
+            try (PrintStream wclOut = new PrintStream(
+                    wclFile.openOutputStream())) {
+                wclOut.println(wclStr);
                 wclOut.close();
+                wclFile.save();
+            } catch (LocalizationException e) {
+                statusHandler.error("Error writing WCL file to " + wclFile, e);
+                continue;
             }
+            statusHandler.info("Wrote WCL to " + wclFile);
         }
-        return tmpFile;
     }
 
     /**
@@ -351,7 +305,7 @@ public class WCLWatchSrv {
      * Get the current simulated time. Declared as a method so test code can
      * override it so EDEX and/or CAVE don't have to be started to test.
      * 
-     * @return
+     * @return current simulated time
      */
     protected Date currentTime() {
         return SimulatedTime.getSystemTime().getTime();
@@ -404,31 +358,5 @@ public class WCLWatchSrv {
     protected Set<String> getSiteIDs() {
         Set<String> siteIDs = IFPServer.getActiveSites();
         return siteIDs;
-    }
-
-    /**
-     * Get the directory in which parsed WCLs should be placed. Like
-     * getSiteIDs(), this is in a method rather than inline so that test code
-     * can override it in subclasses.
-     * 
-     * @param siteID
-     *            The siteID to write the WCL file for.
-     * 
-     * @return the directory, as a File.
-     */
-    protected File getWclDir(String siteID) {
-        IPathManager pathManager = PathManagerFactory.getPathManager();
-        LocalizationContext ctx = pathManager.getContextForSite(
-                LocalizationType.CAVE_STATIC, siteID);
-        String wclName = FileUtil.join("gfe", "wcl");
-        File wclDir = pathManager.getFile(ctx, wclName);
-        if (wclDir == null) {
-            statusHandler.error("Path manager could not locate " + wclName);
-        } else if (!wclDir.exists()) {
-            wclDir.mkdir();
-            statusHandler.info("Directory " + wclDir.getAbsolutePath()
-                    + " created.");
-        }
-        return wclDir;
     }
 }

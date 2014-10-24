@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.obs.metar.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
@@ -29,17 +30,18 @@ import javax.measure.unit.SI;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 24, 2009            brockwoo     Initial creation
- *
+ * Oct 02, 2014 3693       mapeters     Made Patterns and UnitConverters constants.
+ * 
  * </pre>
- *
+ * 
  * @author brockwoo
- * @version 1.0	
+ * @version 1.0
  */
 
 public class VisibilityParser {
@@ -47,30 +49,34 @@ public class VisibilityParser {
     private String visibility;
     private double prevail_vsbySM;
     private String vsby_Dir;
-    private Pattern digitsOnly;
-    private Pattern twoDigitDir;
-    private Pattern oneDigitDir;
-    private Pattern parseNumber;
-    private UnitConverter meters2Miles;
-    private UnitConverter km2Miles;
-    private UnitConverter miles2Meters;
-    private UnitConverter miles2Km;
+
+    private static final Pattern DIGITS_ONLY = Pattern.compile("^\\d+$");
+
+    private static final Pattern TWO_DIGIT_DIR = Pattern.compile("^[NS][EW]$");
+
+    private static final Pattern ONE_DIGIT_DIR = Pattern.compile("^[NSEW]$");
+
+    private static final Pattern PARSE_NUMBER = Pattern.compile("^(\\d+)\\D*$");
+
+    private static final UnitConverter METERS_TO_MILES = SI.METER
+            .getConverterTo(NonSI.MILE);
+
+    private static final UnitConverter KM_TO_MILES = SI.KILOMETER
+            .getConverterTo(NonSI.MILE);
+
+    private static final UnitConverter MILES_TO_METERS = NonSI.MILE
+            .getConverterTo(SI.METER);
+
+    private static final UnitConverter MILES_TO_KM = NonSI.MILE
+            .getConverterTo(SI.KILOMETER);
     
     // MAX value taken from AWIPSI code
     private static final double MAX = 2147483647;
     
     public VisibilityParser() {
-        this.meters2Miles = SI.METER.getConverterTo(NonSI.MILE);
-        this.km2Miles = SI.KILOMETER.getConverterTo(NonSI.MILE);
-        this.miles2Meters = NonSI.MILE.getConverterTo(SI.METER);
-        this.miles2Km = NonSI.MILE.getConverterTo(SI.KILOMETER);
         this.visibility = new String();
         this.prevail_vsbySM = 0.0;
         this.vsby_Dir = new String();
-        this.digitsOnly = Pattern.compile("^\\d+$");
-        this.twoDigitDir = Pattern.compile("^[NS][EW]$");
-        this.oneDigitDir = Pattern.compile("^[NSEW]$");
-        this.parseNumber = Pattern.compile("^(\\d+)\\D*$");
     }
     
     public String getVisibility() {
@@ -82,11 +88,11 @@ public class VisibilityParser {
     }
     
     public double getPrevail_vsbyKM() {
-        return this.miles2Km.convert(prevail_vsbySM);
+        return MILES_TO_KM.convert(prevail_vsbySM);
     }
     
     public double getPrevail_vsbyM() {
-        return this.miles2Meters.convert(prevail_vsbySM);
+        return MILES_TO_METERS.convert(prevail_vsbySM);
     }
 
     public String getVsby_Dir() {
@@ -116,10 +122,10 @@ public class VisibilityParser {
         /* CHECK FOR VISIBILITY MEASURED IN KILOMETERS */
         /***********************************************/
         if((offset = vis[0].indexOf("KM")) != -1) {
-            Matcher km = digitsOnly.matcher(vis[0].substring(0, offset));
+            Matcher km = DIGITS_ONLY.matcher(vis[0].substring(0, offset));
             if(km.matches()) {
                 this.prevail_vsbySM = 
-                    this.km2Miles.convert(prevailVSBY(vis[0]));
+ KM_TO_MILES.convert(prevailVSBY(vis[0]));
                 this.visibility = vis[0];
                 return true;
             }
@@ -133,9 +139,9 @@ public class VisibilityParser {
         /***********************************/
         else if( (charOffset = vis[0].indexOf('/')) != -1 &&
                 (offset = vis[0].indexOf("SM")) != -1 ) {
-            Matcher num = digitsOnly.matcher(vis[0].substring(0, charOffset));
+            Matcher num = DIGITS_ONLY.matcher(vis[0].substring(0, charOffset));
             Matcher den = 
-                digitsOnly.matcher(vis[0].substring(charOffset+1, offset));
+                DIGITS_ONLY.matcher(vis[0].substring(charOffset+1, offset));
             if(num.matches() && den.matches()) {
                 this.prevail_vsbySM = prevailVSBY(vis[0]);
                 this.visibility = vis[0];
@@ -149,7 +155,7 @@ public class VisibilityParser {
         /*     IN WHOLE STATUTE MILES      */
         /***********************************/
         else if((offset = vis[0].indexOf("SM")) != -1) {
-            Matcher sm = digitsOnly.matcher(vis[0].substring(0, offset));
+            Matcher sm = DIGITS_ONLY.matcher(vis[0].substring(0, offset));
             if(sm.matches()) {
                 prevail_vsbySM = prevailVSBY(vis[0]);
                 this.visibility = vis[0];
@@ -165,7 +171,7 @@ public class VisibilityParser {
         /*             MILES               */
         /***********************************/
         else if( vis[0].length() < 4 ) {
-            Matcher wholeNumber = digitsOnly.matcher(vis[0]);
+            Matcher wholeNumber = DIGITS_ONLY.matcher(vis[0]);
             if(!wholeNumber.matches()) {
                 return false;
             }
@@ -177,9 +183,9 @@ public class VisibilityParser {
             if( (charOffset = vis[1].indexOf('/')) != -1 &&
                     (offset = vis[1].indexOf("SM")) != -1 ) {
                 Matcher num = 
-                    digitsOnly.matcher(vis[1].substring(0, charOffset));
+                    DIGITS_ONLY.matcher(vis[1].substring(0, charOffset));
                 Matcher den = 
-                    digitsOnly.matcher(vis[1].substring(charOffset+1, offset));
+                    DIGITS_ONLY.matcher(vis[1].substring(charOffset+1, offset));
                 if( num.matches() && den.matches() )
                 {
                     prevail_vsbySM = prevailVSBY(vis[1]);
@@ -200,20 +206,20 @@ public class VisibilityParser {
             /* IN METERS WITH OR WITHOUT DI-   */
             /*     RECTION OF OBSERVATION      */
             /***********************************/
-            Matcher firstFourChar = digitsOnly.matcher(vis[0].substring(0, 4));
+            Matcher firstFourChar = DIGITS_ONLY.matcher(vis[0].substring(0, 4));
             if(!firstFourChar.matches()) {
                 return false;
             }
             
             if(vis[0].length() == 6) {
                 String dir = vis[0].substring(4, 6);
-                if(this.twoDigitDir.matcher(dir).matches()) {
+                if (TWO_DIGIT_DIR.matcher(dir).matches()) {
                     vsby_Dir = dir;
                 }
             }
             else if(vis[0].length() == 5) {
                 String dir = vis[0].substring(4, 5);
-                if(this.oneDigitDir.matcher(dir).matches()) {
+                if (ONE_DIGIT_DIR.matcher(dir).matches()) {
                     vsby_Dir = dir;
                 }
             }
@@ -223,7 +229,7 @@ public class VisibilityParser {
             if( visValue >= 50f &&
                     visValue <= 500f &&
                     (visValue % 50) == 0 ) {
-                this.prevail_vsbySM = this.meters2Miles.convert(visValue);
+                this.prevail_vsbySM = METERS_TO_MILES.convert(visValue);
                 this.visibility = vis[0];
                 return true;
             }
@@ -231,7 +237,7 @@ public class VisibilityParser {
                     visValue <= 3000.0f &&
                     (visValue % 100) == 0 )
             {
-                prevail_vsbySM = this.meters2Miles.convert(visValue);
+                prevail_vsbySM = METERS_TO_MILES.convert(visValue);
                 this.visibility = vis[0];
                 return true;
             }
@@ -239,7 +245,7 @@ public class VisibilityParser {
                     visValue <= 3000.0f &&
                     (visValue % 100) == 0 )
             {
-                prevail_vsbySM = this.meters2Miles.convert(visValue);
+                prevail_vsbySM = METERS_TO_MILES.convert(visValue);
                 this.visibility = vis[0];
                 return true;
             }
@@ -247,7 +253,7 @@ public class VisibilityParser {
                     visValue <= 5000.0f &&
                     (visValue % 500) == 0 )
             {
-                this.prevail_vsbySM = this.meters2Miles.convert(visValue);
+                this.prevail_vsbySM = METERS_TO_MILES.convert(visValue);
                 this.visibility = vis[0];
                 return true;
             }
@@ -256,7 +262,7 @@ public class VisibilityParser {
                     (visValue % 500) == 0 ||
                     visValue == 9999 )
             {
-                this.prevail_vsbySM = this.meters2Miles.convert(visValue);
+                this.prevail_vsbySM = METERS_TO_MILES.convert(visValue);
                 this.visibility = vis[0];
                 return true;
             }
@@ -272,7 +278,7 @@ public class VisibilityParser {
         if(vis.length() < 0) {
             return MAX;
         }
-        Matcher number = this.parseNumber.matcher(vis);
+        Matcher number = PARSE_NUMBER.matcher(vis);
         if(number.matches()) {
             return Double.valueOf(number.group(1));
         }

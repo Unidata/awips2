@@ -21,9 +21,13 @@ package com.raytheon.uf.common.monitor.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -32,6 +36,7 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
+import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
@@ -61,6 +66,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 23 2014  3054      skorolev   Removed unnecessary parameter in the addArea method.
  * May 13 2014  3133      njensen    getStationType returns String instead of ObsHistType
  * May 15 2014  3086      skorolev   Renamed from MonitorConfigurationManager. Replaces three separate area configuration managers with one.
+ * Sep 04 2014  3220      skorolev   Added fileUpdated method.
  * 
  * </pre>
  * 
@@ -68,7 +74,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class FSSObsMonitorConfigurationManager {
+public class FSSObsMonitorConfigurationManager implements
+        ILocalizationFileObserver {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FSSObsMonitorConfigurationManager.class);
 
@@ -98,7 +105,10 @@ public class FSSObsMonitorConfigurationManager {
     protected List<String> addedStations = new ArrayList<String>();
 
     /** Name of plugin */
-    private static String pluginName;
+    private static String pluginName = null;
+
+    /** Monitor name */
+    private static String monitorName = null;
 
     /** Name of area configuration file */
     private String configFileName = null;
@@ -107,8 +117,9 @@ public class FSSObsMonitorConfigurationManager {
     private String adjAreaConfigFileName = null;
 
     /** List of listeners */
-    private List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
+    private final List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
+    /** Current site */
     private String currentSite;
 
     /** Monitor Name **/
@@ -116,23 +127,34 @@ public class FSSObsMonitorConfigurationManager {
         ss, fog, snow
     };
 
-    /** Singleton instance of this class */
-    private static FSSObsMonitorConfigurationManager instance;
+    /** Instance of SAFESEAS monitor configuration manager. */
+    private static FSSObsMonitorConfigurationManager ssInstance = new FSSObsMonitorConfigurationManager(
+            MonName.ss.name());
+
+    /** Instance of Fog monitor configuration manager. */
+    private static FSSObsMonitorConfigurationManager fogInstance = new FSSObsMonitorConfigurationManager(
+            MonName.fog.name());
+
+    /** Instance of SNOW monitor configuration manager. */
+    private static FSSObsMonitorConfigurationManager snowInstance = new FSSObsMonitorConfigurationManager(
+            MonName.snow.name());
+
+    /** Localization Area Configuration File. */
+    private LocalizationFile lacf = null;
 
     /**
      * Private Constructor
      * 
-     * @param site
      * @param monitorName
      */
-    public FSSObsMonitorConfigurationManager(String site, String monitorName) {
+    public FSSObsMonitorConfigurationManager(String monitorName) {
+        setMonitorName(monitorName);
         // Avoid confusion in file path
         if (monitorName == MonName.ss.name()) {
             pluginName = "safeseas";
         } else {
             pluginName = monitorName;
         }
-        currentSite = site;
         /** Path to Monitoring Area Configuration XML. */
         setConfigFileName(pluginName + File.separatorChar + "monitoringArea"
                 + File.separatorChar + "monitorAreaConfig.xml");
@@ -141,39 +163,9 @@ public class FSSObsMonitorConfigurationManager {
         setAdjAreaConfigFileName(pluginName + File.separatorChar
                 + "monitoringArea" + File.separatorChar
                 + "adjacentAreaConfig.xml");
-
         configXml = new MonAreaConfigXML();
         adjAreaConfigXml = new MonAreaConfigXML();
         readConfigXml();
-    }
-
-    /**
-     * Get an instance of Configuration manager for FSSObs monitors.
-     * 
-     * @param site
-     *            Current site
-     * @param monitor
-     *            Name of monitor
-     * @return
-     */
-    public static synchronized FSSObsMonitorConfigurationManager getInstance(
-            String site, String monitor) {
-        if (instance == null) {
-            instance = new FSSObsMonitorConfigurationManager(site, monitor);
-        }
-        return (FSSObsMonitorConfigurationManager) instance;
-    }
-
-    /**
-     * Reads the XML configuration file
-     */
-    public void readConfigXml() {
-        try {
-            readConfigXml(configFileName, adjAreaConfigFileName);
-        } catch (Throwable t) {
-            statusHandler.error("Could not configure " + pluginName
-                    + " for site " + currentSite, t);
-        }
     }
 
     /**
@@ -181,18 +173,18 @@ public class FSSObsMonitorConfigurationManager {
      * monitor area config file name adjAreaFileName: adjacent areas config file
      * name
      * 
-     * @param filename
-     * @param adjAreaFilename
      */
-    protected void readConfigXml(String filename, String adjAreaFilename) {
+    public void readConfigXml() {
         boolean monitorAreaFileExists = true;
         boolean adjacentAreaFileExists = true;
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
-            String monitorAreaFilePath = pm.getFile(
-                    pm.getContext(LocalizationType.COMMON_STATIC,
-                            LocalizationLevel.SITE), filename)
-                    .getAbsolutePath();
+            LocalizationContext lc = pm.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+            this.currentSite = lc.getContextName();
+            lacf = pm.getLocalizationFile(lc, configFileName);
+            lacf.addFileUpdatedObserver(this);
+            String monitorAreaFilePath = lacf.getFile().getAbsolutePath();
             MonAreaConfigXML configXmltmp = jaxb
                     .unmarshalFromXmlFile(monitorAreaFilePath.toString());
             configXml = configXmltmp;
@@ -210,11 +202,12 @@ public class FSSObsMonitorConfigurationManager {
             IPathManager pm = PathManagerFactory.getPathManager();
             String adjacentAreaFilePath = pm.getFile(
                     pm.getContext(LocalizationType.COMMON_STATIC,
-                            LocalizationLevel.SITE), adjAreaFilename)
+                            LocalizationLevel.SITE), adjAreaConfigFileName)
                     .getAbsolutePath();
             MonAreaConfigXML configXmltmp = jaxb
                     .unmarshalFromXmlFile(adjacentAreaFilePath.toString());
             adjAreaConfigXml = configXmltmp;
+
         } catch (Exception e) {
             statusHandler
                     .handle(Priority.WARN,
@@ -297,7 +290,7 @@ public class FSSObsMonitorConfigurationManager {
                         adjAreaConfigXml.addAreaId(zoneXml);
                     }
                 }
-                saveAdjacentAreaConfigXml(adjAreaFilename);
+                saveAdjacentAreaConfigXml();
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, e.getMessage());
@@ -305,16 +298,16 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Save the monitor area XML configuration data to the current XML file
+     * Saves the monitor area XML configuration data to the current XML file
      * name.
      */
     public void saveConfigXml() {
         // Save the xml object to disk
-        String filename = this.getConfigFileName();
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
-        LocalizationFile newXmlFile = pm.getLocalizationFile(lc, filename);
+        LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
+                getConfigFileName());
         if (newXmlFile.getFile().getParentFile().exists() == false) {
             newXmlFile.getFile().getParentFile().mkdirs();
         }
@@ -322,24 +315,27 @@ public class FSSObsMonitorConfigurationManager {
             jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
                     .getAbsolutePath());
             newXmlFile.save();
+            lacf = newXmlFile;
+            lacf.addFileUpdatedObserver(this);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, e.getMessage());
         }
     }
 
     /**
-     * Save the adjacent area XML configuration data to the current XML file
+     * Saves the adjacent area XML configuration data to the current XML file
      * name.
      * 
      * @param filename
      *            adjacentAreaConfig.xml
      */
-    protected void saveAdjacentAreaConfigXml(String filename) {
+    public void saveAdjacentAreaConfigXml() {
         // Save the xml object to disk
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
-        LocalizationFile newXmlFile = pm.getLocalizationFile(lc, filename);
+        LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
+                getAdjAreaConfigFileName());
         if (newXmlFile.getFile().getParentFile().exists() == false) {
             newXmlFile.getFile().getParentFile().mkdirs();
         }
@@ -353,7 +349,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Add a new Area to the configuration. This method only adds the area, the
+     * Adds a new Area to the configuration. This method only adds the area, the
      * other info will need to be added to the area via the other methods in
      * this class.
      * 
@@ -383,7 +379,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Add a new Area to the configuration. This method only adds the area, the
+     * Adds a new Area to the configuration. This method only adds the area, the
      * other info will need to be added to the area via the other methods in
      * this class.
      * 
@@ -410,10 +406,10 @@ public class FSSObsMonitorConfigurationManager {
             AreaIdXML area = new AreaIdXML();
             area.setAreaId(areaId);
             area.setType(type);
-            if (lat > -90.0 && lat < 90.0) {
+            if ((lat > -90.0) && (lat < 90.0)) {
                 area.setCLat(lat);
             }
-            if (lon > -180.0 && lon < 180.0) {
+            if ((lon > -180.0) && (lon < 180.0)) {
                 area.setCLon(lon);
             }
             configXml.addAreaId(area);
@@ -424,7 +420,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Add a station to the area.
+     * Adds a station to the area.
      * 
      * @param areaId
      *            The area id to add the station to
@@ -453,7 +449,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Get the areas of a particular type.
+     * Gets the areas of a particular type.
      * 
      * @param type
      *            ZoneType of the area
@@ -471,7 +467,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Get stations associated with an area.
+     * Gets stations associated with an area.
      * 
      * @param areaId
      *            AreaId of associated stations
@@ -492,7 +488,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Get stations associated with an adjacent area.
+     * Gets stations associated with an adjacent area.
      * 
      * @param areaId
      *            AreaId of associated stations
@@ -513,7 +509,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Get stations associated with an area.
+     * Gets stations associated with an area.
      * 
      * @param areaId
      *            AreaId of associated stations
@@ -534,7 +530,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Get an area of a station.
+     * Gets an area of a station.
      * 
      * @param stationId
      *            The station to get the area
@@ -555,7 +551,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Get all the stations associated with the areas.
+     * Gets all the stations associated with the areas.
      * 
      * @return List of stations
      */
@@ -573,7 +569,24 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Get a list of all monitoring areas.
+     * Get Station IDs.
+     * 
+     * @return List of all stations IDs in the area configuration.
+     */
+    public Set<String> getStationIDs() {
+        List<AreaIdXML> areaXml = configXml.getAreaIds();
+        Set<String> stations = new HashSet<String>();
+        for (AreaIdXML area : areaXml) {
+            List<StationIdXML> stationList = area.getStationIds();
+            for (StationIdXML station : stationList) {
+                stations.add(station.getName());
+            }
+        }
+        return stations;
+    }
+
+    /**
+     * Gets a list of all monitoring areas.
      * 
      * @return List<String> of monitor area ids
      */
@@ -587,7 +600,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Get a list of all adjacent areas.
+     * Gets a list of all adjacent areas.
      * 
      * @return ArrayList<String> of adjacent area ids
      */
@@ -601,7 +614,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Remove a station from the area.
+     * Removes a station from the area.
      * 
      * @param area
      *            Area to remove the station from
@@ -625,7 +638,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Remove a station from the monitoring area.
+     * Removes a station from the monitoring area.
      * 
      * @param station
      *            The station to remove
@@ -645,7 +658,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Get an AreaIdXML object.
+     * Gets an AreaIdXML object.
      * 
      * @param area
      *            The area to get
@@ -662,7 +675,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Remove an area from the monitoring area.
+     * Removes an area from the monitoring area.
      * 
      * @param area
      *            The area to remove
@@ -684,7 +697,7 @@ public class FSSObsMonitorConfigurationManager {
     }
 
     /**
-     * Remove an added area.
+     * Removes an added area.
      * 
      * @param area
      *            The area to remove
@@ -804,7 +817,7 @@ public class FSSObsMonitorConfigurationManager {
 
     // TODO: Include Mesonet data types.
     /**
-     * Get station type.
+     * Gets station type.
      * 
      * @param theZone
      * @param theStation
@@ -882,6 +895,119 @@ public class FSSObsMonitorConfigurationManager {
         listeners.remove(ml);
     }
 
-    // TODO: Make a loopback to change FSSObs URI filters according to changes
-    // in the configuration files.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
+     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
+     */
+    @Override
+    public void fileUpdated(FileUpdatedMessage message) {
+        if (message.getFileName().equals(getConfigFileName())) {
+            try {
+                // inform listeners
+                for (MonitorConfigListener fl : listeners) {
+                    fl.configChanged(new MonitorConfigEvent(this));
+                }
+                statusHandler.handle(
+                        Priority.INFO,
+                        "FSSObsMonitorConfigurationManager: "
+                                + message.getFileName() + " is updated.");
+            } catch (Exception e) {
+                statusHandler.handle(
+                        Priority.WARN,
+                        "FSSObsMonitorConfigurationManager: "
+                                + message.getFileName()
+                                + " couldn't be updated.", e);
+            }
+        }
+    }
+
+    /**
+     * Gets Monitor Name.
+     * 
+     * @return monitor name
+     */
+    public String getMonitorName() {
+        return monitorName;
+    }
+
+    /**
+     * Sets Monitor Name.
+     * 
+     * @param monitorName
+     */
+    public void setMonitorName(String monitorName) {
+        FSSObsMonitorConfigurationManager.monitorName = monitorName;
+    }
+
+    /**
+     * Remove Adjacent Area.
+     * 
+     * @param zone
+     */
+    public void removeAdjArea(String zone) {
+        List<AreaIdXML> adjAreaList = adjAreaConfigXml.getAreaIds();
+        for (int i = 0; i < adjAreaList.size(); i++) {
+            if (adjAreaList.get(i).getAreaId().equals(zone)) {
+                adjAreaList.remove(i);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Add Adjacent Area.
+     * 
+     * @param areaId
+     * @param type
+     */
+    public void addAdjArea(String areaId, ZoneType type) {
+        List<AreaIdXML> adjAreaList = adjAreaConfigXml.getAreaIds();
+        boolean areaExists = false;
+        for (AreaIdXML area : adjAreaList) {
+            if (area.getAreaId().equals(areaId)) {
+                area.setType(type);
+                areaExists = true;
+                break;
+            }
+        }
+        if (areaExists == false) {
+            AreaIdXML area = new AreaIdXML();
+            area.setAreaId(areaId);
+            area.setType(type);
+            adjAreaConfigXml.addAreaId(area);
+        }
+    }
+
+    /**
+     * Get Fog monitor area configuration manager.
+     * 
+     * @return
+     */
+    public static FSSObsMonitorConfigurationManager getFogObsManager() {
+        fogInstance.readConfigXml();
+        return fogInstance;
+    }
+
+    /**
+     * Get SAFESEAS monitor area configuration manager.
+     * 
+     * @return
+     */
+    public static FSSObsMonitorConfigurationManager getSsObsManager() {
+        ssInstance.readConfigXml();
+        return ssInstance;
+    }
+
+    /**
+     * Get SNOW monitor area configuration manager.
+     * 
+     * @return
+     */
+    public static FSSObsMonitorConfigurationManager getSnowObsManager() {
+        snowInstance.readConfigXml();
+        return snowInstance;
+    }
 }

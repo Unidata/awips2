@@ -36,7 +36,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups;
 import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.PhysicalElementValue;
 
@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  * 09/24/2012   1210        jkorman     Modified the decode method to create the
  *                                      IDataRecord required by the SatelliteDao
  * 12/03/2013   DR 16841    D. Friedman Allow record overwrites
+ * 09/18/2014   3627        mapeters    Updated deprecated method calls.
  * </pre>
  * 
  * @author
@@ -245,8 +246,7 @@ public class McidasSatelliteDecoder {
             }
 
             rec.setTraceId(traceId);
-            rec.setPersistenceTime(TimeTools.getSystemCalendar().getTime());
-            rec.constructDataURI();
+            rec.setPersistenceTime(TimeUtil.newGmtCalendar().getTime());
             rec.setOverwriteAllowed(true);
 
             // Set the data into the IDataRecord
@@ -303,7 +303,6 @@ public class McidasSatelliteDecoder {
             double clon = flipLon(unpackDdmmss(nrmlLonDDMMSS), westPositive);
             double clat = unpackDdmmss(stdLatDDMMSS);
             double dx = spacingAtStdLatInMeters * xImgRes;
-            double dy = spacingAtStdLatInMeters * yImgRes;
 
             double phi0r = clat * DTR;
             double rxp = (((double) (elementOfEquator - ulX) / xImgRes) + 1.);
@@ -323,10 +322,10 @@ public class McidasSatelliteDecoder {
             la2 = (float) (((2. * Math.atan(arg)) - HALFPI) * RTD);
             lo2 = (float) prnlon((clon + (((dx * dxp) / rcos) * RTD)));
             lo2 = (float) prnlon(lo2);
-
-            result = SatSpatialFactory.getInstance().getMapCoverage(
-                    SatSpatialFactory.PROJ_MERCATOR, nx, ny, (float) dx,
-                    (float) dy, (float) clon, (float) clat, la1, lo1, la2, lo2);
+            
+            result = SatSpatialFactory.getInstance().getCoverageTwoCorners(
+                    SatSpatialFactory.PROJ_MERCATOR, nx, ny, (float) clon,
+                    (float) clat, la1, lo1, la2, lo2);
         } else {
             unimplemented(String.format("navigation type \"%s\"", navType));
         }
