@@ -20,8 +20,8 @@
 package com.raytheon.uf.viz.collaboration.ui.login;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Button;
@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.HostConfig;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.HostConfig;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
 
 /**
@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
  * Jan 07, 2014 2563       bclement     updated default xmpp port
  * Jan 08, 2014 2563       bclement     renamed from ServerInput to ServerListListener
  *                                      moved input responsibility to ServerInputDialog
+ * Oct 10, 2014 3708       bclement     SiteConfigurationManager changes
  * 
  * </pre>
  * 
@@ -115,11 +116,10 @@ public class ServerListListener implements Listener {
      */
     private void remove() {
         Shell shell = Display.getCurrent().getActiveShell();
-        List<HostConfig> userHosts = SiteConfigurationManager
-                .getUserHostConfig();
-        if (!userHosts.isEmpty()) {
-            String[] options = new String[userHosts.size()];
-            Iterator<HostConfig> iter = userHosts.iterator();
+        Collection<HostConfig> hosts = SiteConfigurationManager.getHostConfigs();
+        if (!hosts.isEmpty()) {
+            String[] options = new String[hosts.size()];
+            Iterator<HostConfig> iter = hosts.iterator();
             for (int i = 0; iter.hasNext() && i < options.length; ++i) {
                 options[i] = iter.next().toString();
             }

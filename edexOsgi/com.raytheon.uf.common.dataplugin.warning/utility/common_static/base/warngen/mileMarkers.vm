@@ -1,5 +1,6 @@
 #*
 CREATED 9-16-2013 BY EVAN BOOKBINDER
+COMMENTS UPDATED 9-5-2014 BY EVAN BOOKBINDER
 ### THIS PLUG-IN VM FILE ALLOWS YOU TO CONSOLIDATE ALL YOUR 
 ### MILEMARKER/EXIT/ROUTE OUTPUT INTO A SINGLE FUNCTION CALL
 ### A #parse("mileMarkers.vm") entry in your WarnGen .vm templates will thus 
@@ -24,7 +25,7 @@ $simplify is a boolean value (true or false)
 ###########################
 CONFIGURATION:
 ###########################
-#COMMENT OUT LINES 61-64 BELOW AS NEEDED, REPLACING/ADDING TO THE EXAMPLE WITH YOUR 
+#COMMENT OUT LINES 63-67 BELOW AS NEEDED, REPLACING/ADDING TO THE EXAMPLE WITH YOUR 
 #MILE MARKER/ROUTE ENTRIES
 #EACH LINE CONTAINS A VARIABLE MM1,MM2,MM3,etc... REFERENCING AN ARRAY (LIST) OF DATA THAT
 #WILL BE PASSED TO THE MMARKERS ROUTINE. 
@@ -43,25 +44,29 @@ The items in the array are as follows:
 NOTE: PLEASE ENSURE PROPER SYNTAX. Java Objects are ${variable}, Text Strings are 'TEXT', and 
       Booleans are true/false (no quote)..see examples below
       ALSO ENSURE THAT EACH LINE CONTAINS A UNIQUE VARIABLE NAME: MM1, MM2, MM3, etc..
+*#
 
-
+############## EXAMPLES FOLLOW BELOW ###########
+#*
 HERE IS AN EXAMPLE:	
 	e.g.
-	#set ($mm1 = [${i435mm},${i435mmid},'INTERSTATE 435','MILE MARKER',true])
-	#set ($mm2 = [${i70momm},${i70mommid},'INTERSTATE 70 IN MISSOURI','MILE MARKER',true])
-	#set ($mm3 = [${route22mm},${route22mmid},'ROUTE 22','EXIT',true])
+	#set ($mm1 = [${EAX_i435mm},${EAX_i435mmid},'INTERSTATE 435','MILE MARKER',true])
+	#set ($mm2 = [${EAX_i70momm},${EAX_i70mommid},'INTERSTATE 70 IN MISSOURI','MILE MARKER',true])
+	#set ($mm3 = [${CTP_route22mm},${CTP_route22mmid},'ROUTE 22','EXIT',true])
  
 After creating these, we must create a match list containing all of our variable names
     e.g.           
     #set ($varList = [$mm1,$mm2,$mm3])
 *#
 
+############# END INSTRUCTIONS ########################################################################
+
 #set($hits = 0)
 #set($bigList = '')
 
-##set ($mm1 = [${i435mm},${i435mmid},'INTERSTATE 435','MILE MARKER',true])
-##set ($mm2 = [${i70momm},${i70mommid},'INTERSTATE 70 IN MISSOURI','MILE MARKER',true])
-##set ($mm3 = [${i35momm},${i35mommid},'INTERSTATE 70 IN KANSAS','MILE MARKER',true])
+##set ($mm1 = [${EAX_i435mm},${EAX_i435mmid},'INTERSTATE 435','MILE MARKER',true])
+##set ($mm2 = [${EAX_i70momm},${EAX_i70mommid},'INTERSTATE 70 IN MISSOURI','MILE MARKER',true])
+##set ($mm3 = [${EAX_i35momm},${EAX_i35mommid},'INTERSTATE 70 IN KANSAS','MILE MARKER',true])
 ##set ($varList = [$mm1,$mm2,$mm3])
 
 #foreach ($var in $varList)

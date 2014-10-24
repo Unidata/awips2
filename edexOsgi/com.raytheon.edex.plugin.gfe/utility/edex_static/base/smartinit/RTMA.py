@@ -114,6 +114,15 @@ class RTMAForecaster(Forecaster):
     def calcWDirUnc(self, wderranl_FHAG10):
         return wderranl_FHAG10
 
+##--------------------------------------------------------------------------
+##  Visibility
+##--------------------------------------------------------------------------
+    def calcVis(self, vis_SFC):
+        return self.convertMtoSM(vis_SFC)
+
+    def calcVisUnc(self, viserranl_SFC):
+        return self.convertMtoSM(viserranl_SFC)
+
 ##-------------------------------------------------------------------------
 ##  TdAft and TdMrn - simply calculate from MaxT/MinRH and MinT/MaxRH
 ##-------------------------------------------------------------------------

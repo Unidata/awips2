@@ -25,7 +25,6 @@ import java.nio.FloatBuffer;
 
 import jep.INumpyable;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2008 879        rbell       Initial Creation.
+ * Sep 01, 2014 3572       randerso    Changed getNumpy to use getFloats()
  * 
  * </pre>
  * 
@@ -45,8 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class Grid2DFloat implements IGrid2D, Cloneable, INumpyable,
-        ISerializableObject {
+public class Grid2DFloat implements IGrid2D, Cloneable, INumpyable {
 
     /**
      * The data buffer, holding the grid's contents
@@ -321,14 +320,17 @@ public class Grid2DFloat implements IGrid2D, Cloneable, INumpyable,
         this.buffer.put(other.getBuffer());
     }
 
+    @Override
     public int getXdim() {
         return xdim;
     }
 
+    @Override
     public int getYdim() {
         return ydim;
     }
 
+    @Override
     public Point getGridSize() {
         return new Point(xdim, ydim);
     }
@@ -426,7 +428,7 @@ public class Grid2DFloat implements IGrid2D, Cloneable, INumpyable,
 
     @Override
     public Object[] getNumpy() {
-        return new Object[] { buffer.array() };
+        return new Object[] { getFloats() };
     }
 
     @Override
