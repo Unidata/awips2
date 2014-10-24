@@ -110,6 +110,11 @@
 		<unit>K</unit>
 	</parameter>
 	<parameter>
+		<name>Dew Point Temperature Error Analysis</name>
+		<abbreviation>DpTerranl</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
 		<name>Direction of Wind Waves</name>
 		<abbreviation>WVDIR</abbreviation>
 		<unit>deg</unit>
@@ -232,6 +237,11 @@
 	<parameter>
 		<name>Pressure</name>
 		<abbreviation>P</abbreviation>
+		<unit>Pa</unit>
+	</parameter>
+	<parameter>
+		<name>Pressure Error Analysis</name>
+		<abbreviation>Perranl</abbreviation>
 		<unit>Pa</unit>
 	</parameter>
 	<parameter>
@@ -365,6 +375,11 @@
 		<unit>K</unit>
 	</parameter>
 	<parameter>
+		<name>Temperature Error Analysis</name>
+		<abbreviation>Terranl</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
 		<name>Total Cloud Cover</name>
 		<abbreviation>TCC</abbreviation>
 		<unit>%</unit>
@@ -465,6 +480,11 @@
 		<unit>m</unit>
 	</parameter>
 	<parameter>
+		<name>Visibility Error Analysis</name>
+		<abbreviation>Viserranl</abbreviation>
+		<unit>m</unit>
+	</parameter>
+	<parameter>
 		<name>Virtual Potential Temperature</name>
 		<abbreviation>VPT</abbreviation>
 		<unit>K</unit>
@@ -485,6 +505,11 @@
 		<unit>deg</unit>
 	</parameter>
 	<parameter>
+		<name>Wind Direction Error Analysis</name>
+		<abbreviation>WDerranl</abbreviation>
+		<unit>deg</unit>
+	</parameter>
+	<parameter>
 		<name>Wind Mixing Energy</name>
 		<abbreviation>WMIXE</abbreviation>
 		<unit>J</unit>
@@ -495,8 +520,18 @@
 		<unit>m/s</unit>
 	</parameter>
 	<parameter>
+		<name>Wind Speed Error Analysis</name>
+		<abbreviation>WSerranl</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+	<parameter>
 		<name>Wind Gust Speed</name>
 		<abbreviation>WGS</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+	<parameter>
+		<name>Wind Gust Speed Error Analysis</name>
+		<abbreviation>WGSerranl</abbreviation>
 		<unit>m/s</unit>
 	</parameter>
 	<parameter>

@@ -44,6 +44,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 07/14/09      1995       bphillip    Initial release
+ * 09/01/2014    3572       randerso    Removed unused inOurSite method
  * 
  * </pre>
  * 
@@ -97,20 +98,6 @@ public interface IISCDataAccess {
      * @return The site associated with the grid coordinate
      */
     public String getISCSite(Point coord, GridID gid);
-
-    /**
-     * Returns true if the coordinate (and grid id) is in our own domain. The
-     * officeType for the parm and our officeType must be the same to be
-     * considered "inOurSite".
-     * 
-     * @param loc
-     *            The coordinate to check
-     * @param gid
-     *            The gridID associated with the coordinate
-     * @return true if coordinate is in our domain and the parm and office type
-     *         match
-     */
-    public boolean inOurSite(Point loc, GridID gid);
 
     /**
      * Returns the data point for the gridid. Will return either the data point

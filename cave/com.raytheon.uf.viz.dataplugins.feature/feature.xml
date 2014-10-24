@@ -27,22 +27,13 @@
          id="com.raytheon.uf.common.dataplugin.acars"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.airep"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.binlightning"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.bufrascat"
@@ -97,8 +88,7 @@
          id="com.raytheon.uf.common.dataplugin.bufrua"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.ccfp"
@@ -130,13 +120,6 @@
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.lsr"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.pirep"
          download-size="0"
          install-size="0"
          version="0.0.0"

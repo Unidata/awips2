@@ -25,6 +25,7 @@
 		<name>HRRR</name>
  		<center>7</center>
 		<subcenter>0</subcenter>
+		<grid>184</grid>
 		<process>
 			<id>83</id>
 		</process>
@@ -1365,6 +1366,16 @@
 	</model>
 
 	<model>
+        <name>HiResW-ARW-US</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>14731025001</grid>
+        <process>
+            <id>116</id>
+        </process>
+    </model>
+
+	<model>
 		<name>HiResW-NMM-East</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1424,6 +1435,17 @@
 			<id>112</id>
 		</process>
 	</model>
+	
+	<model>
+        <name>HiResW-NMM-US</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>14731025001</grid>
+        <process>
+            <id>112</id>
+        </process>
+    </model>
+	
 
 	<model>
 		<name>GRLKwave</name>
@@ -3102,7 +3124,7 @@
 	</model>
 
 	<model>
-		<name>AK-RTMA-HR</name>
+		<name>AK-RTMA3</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>1023</grid>

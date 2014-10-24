@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 20, 2013 15962      lbousaidi   Added a new routine getRadarIdsTrue()
  *                                     for Radar Sites dialog.                                    
  * Mar 05, 2014 17114      lbousaidi   display PC data in gage table. 
+ * Sep 04, 2014 16699      cgobs       Fixed 14.3.1 issue with reading MPE field data.
  * </pre>
  * 
  * @author mpduff
@@ -1136,10 +1137,9 @@ public class GageTableDataManager {
         double returnValue = -999.0;
 
         try {
-            String cv_use = dataType.getCv_use();
             String dirname = appsDefaults.getToken(dataType.getDirToken());
             String fname = FileUtil.join(dirname,
-                    cv_use + sdf.format(displayManager.getCurrentEditDate()) + "z");
+                    dataType.getFileNamePrefix() + sdf.format(displayManager.getCurrentEditDate()) + "z");
 
             Rectangle extent = dataManager.getHRAPExtent();
 

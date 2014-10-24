@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Localization Perspective Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.localization.perspective;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.localization.perspective.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.python.pydev,
@@ -25,5 +25,5 @@ Require-Bundle: org.python.pydev,
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.python.pydev.analysis;bundle-version="2.7.3"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.viz.localization.perspective.editor

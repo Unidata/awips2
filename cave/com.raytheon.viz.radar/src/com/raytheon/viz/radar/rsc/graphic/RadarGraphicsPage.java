@@ -106,6 +106,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Jun 04, 2014  3232     bsteffen    Cleanup.
  * Aug 11, 2014  3504     mapeters    Replaced deprecated IODataPreparer
  *                                    instances with IRenderedImageCallback.
+ * Sep 03, 2014  3574     njensen      Properly dispose objects
  * 
  * </pre>
  * 
@@ -1416,6 +1417,21 @@ public class RadarGraphicsPage implements IRenderable {
         if (this.wireframeShape != null) {
             this.wireframeShape.dispose();
             this.wireframeShape = null;
+        }
+
+        if (this.gfmFcstWireframeShape != null) {
+            this.gfmFcstWireframeShape.dispose();
+            this.gfmFcstWireframeShape = null;
+        }
+
+        if (plotObjects != null) {
+            for (PlotObject po : plotObjects) {
+                if (po != null) {
+                    po.image.dispose();
+                    po.image = null;
+                }
+            }
+            plotObjects.clear();
         }
 
         if (this.font != null) {
