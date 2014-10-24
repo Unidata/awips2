@@ -72,7 +72,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
- * Abstrct Zone table dialog that is the foundation for all Zone dialogs.
+ * Abstract Zone table dialog that is the foundation for all Zone dialogs.
  * 
  * <pre>
  * 
@@ -88,6 +88,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Nov.11, 2012 1297      skorolev     new abstract initiateProdArray()
  * May 13, 2014 3133      njensen      Updated getting ObsHistType from configMgr
  * May 15, 2014 3086      skorolev     Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager.
+ * Sep 15, 2014 3220      skorolev     Added refreshZoneTableData method.
+ * Oct 17, 2014 3220      skorolev     Added condition into launchTrendPlot to avoid NPE.
  * 
  * </pre>
  * 
@@ -238,6 +240,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * Constructor
      * 
      * @param parent
+     * @param obData
      * @param appName
      */
     public ZoneTableDlg(Shell parent, ObMultiHrsReports obData,
@@ -473,7 +476,8 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     public void updateTableDlg(ObHourReports obHrData) {
         nominalTime = obHrData.getNominalTime();
         updateZoneTable(nominalTime);
-        if (!selectedZone.equals("")) {
+        if (!selectedZone.equals("")
+                && obHrData.getHourReports().containsKey(selectedZone)) {
             updateStationTable(nominalTime);
         }
         updateNominalTimeLabel(nominalTime);
@@ -529,9 +533,12 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         // their current values
         setStnSortColumnAndDirection();
         stnTblData = obData.getStationTableData(nominalTime, selectedZone);
-        stnTblData.setSortColumnAndDirection(stnSortColumn, stnSortDirection);
-        stnTblData.sortData();
-        stationTable.setTableData(stnTblData);
+        if (stnTblData != null) {
+            stnTblData.setSortColumnAndDirection(stnSortColumn,
+                    stnSortDirection);
+            stnTblData.sortData();
+            stationTable.setTableData(stnTblData);
+        }
         stationTable.setZoneCountyId(selectedZone);
         stationTable.setIdLabel(selectedZoneHoverText);
         stationTable.table.redraw();
@@ -730,10 +737,14 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         }
         // Set dialog index
         String dialogID = appName.name() + station;
-        String strHistType = getMonitorAreaConfigInstance().getStationType(
-                selectedZone, station);
-        ObsHistType histType = ObsHistType.valueOf(strHistType);
-
+        ObsHistType histType = null;
+        if (configMgr != null) {
+            String strHistType = configMgr
+                    .getStationType(selectedZone, station);
+            histType = ObsHistType.valueOf(strHistType);
+        }
+        if (histType == null)
+            return;
         /**
          * For Snow monitor, no history table is displayed for a Maritime
          * station
@@ -948,9 +959,12 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Gets Configuration manager.
+     * Refreshes Zone Table.
      * 
-     * @return manager
+     * @param obData
      */
-    protected abstract FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance();
+    public void refreshZoneTableData(ObMultiHrsReports obData) {
+        obData.getObHourReports().updateZones();
+        this.updateTableDlg(obData.getObHourReports());
+    }
 }

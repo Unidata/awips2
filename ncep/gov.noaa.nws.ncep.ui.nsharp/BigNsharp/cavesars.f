@@ -32,7 +32,7 @@ c        print *, "****************************************************"
 1     format(a)
 
 	fname1 = fname(1:len_trim(fname))
-c	print *, "Opening input file:  ", fname1(1:len_trim(fname1))
+c	print *, "cavesars Opening input file:  ", fname1(1:len_trim(fname1))
 	open(unit=10,status='old',file=fname1,err=999,iostat=IERR)
        
 *************  Read file list.txt into array ********************

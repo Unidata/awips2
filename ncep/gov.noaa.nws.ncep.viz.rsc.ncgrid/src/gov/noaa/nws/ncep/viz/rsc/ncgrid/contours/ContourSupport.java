@@ -66,6 +66,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
+import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -82,6 +83,7 @@ import com.raytheon.viz.core.contours.util.StreamLineContainer;
 import com.raytheon.viz.core.contours.util.StreamLineContainer.StreamLinePoint;
 import com.raytheon.viz.core.contours.util.StrmPak;
 import com.raytheon.viz.core.contours.util.StrmPakConfig;
+import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateArrays;
 import com.vividsolutions.jts.geom.CoordinateList;
@@ -131,7 +133,7 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  *    Aug 27, 2013 2262        bsteffen    Convert to use new StrmPak.
  *    Apr 23,  2014  #856      pswamy      Missing color fill in grid diagnostics.
  *    Apr 30, 2014   862       pswamy      Grid Precipitable Water Contour Labels needs two decimal points
- * 
+ *    Jun 26, 2014             sgilbert    Change world wrap processing.
  * </pre>
  * 
  * @author chammack
@@ -190,11 +192,10 @@ public class ContourSupport {
 
     private boolean globalData = false;
 
-    // world map with central meridian at 180 degree
-    private boolean isWorld180;
-
     // return value from raytheon's worlWrapChecker
     private boolean worldWrapChecker;
+
+    private WorldWrapCorrector corrector;
 
     // flag that indicates world wrap is needed
     private boolean worldWrap;
@@ -269,6 +270,8 @@ public class ContourSupport {
         public List<Double> fvalues;
 
         public HashMap<String, Geometry> data;
+
+        public HashMap<String, Geometry> latlonContours;
 
         public LinearRing grid;
 
@@ -467,10 +470,12 @@ public class ContourSupport {
         this.centralMeridian = getCentralMeridian(descriptor);
         if (centralMeridian == -180)
             centralMeridian = 180;
-        this.isWorld180 = (centralMeridian == 180.0);
         this.worldWrapChecker = new WorldWrapChecker(descriptor
                 .getGridGeometry().getEnvelope()).needsChecking();
+        // this.worldWrapChecker = false;
+        this.corrector = new WorldWrapCorrector(descriptor.getGridGeometry());
         this.worldWrap = needWrap(imageGridGeometry, rastPosToLatLon);
+        // this.worldWrap = false;
         mapScreenWidth = this.getMapWidth();
         maxGridX = this.getMaxGridX(imageGridGeometry);
         initContourGroup(target, contourGp);
@@ -601,22 +606,31 @@ public class ContourSupport {
         return env;
     }
 
-    private static void createContourLabel(IExtent extent,
-            ContourGroup contourGroup, float contourValue, double[][] valsArr,
-            IMapDescriptor descriptor) {
+    private void createContourLabel(IExtent extent, ContourGroup contourGroup,
+            float contourValue, Coordinate[] llcoords, IMapDescriptor descriptor) {
 
         double minx = extent.getMinX();
         double miny = extent.getMinY();
         double maxx = extent.getMaxX();
         double maxy = extent.getMaxY();
 
-        double[][] visiblePts = new double[valsArr.length][valsArr[0].length];
+        double[][] visiblePts = new double[llcoords.length][2];
         int actualLength = 0;
 
-        for (double[] dl : valsArr) {
-            if (dl[0] > minx && dl[0] < maxx && dl[1] > miny && dl[1] < maxy) {
-                visiblePts[actualLength][0] = dl[0];
-                visiblePts[actualLength][1] = dl[1];
+        double[] in = new double[2];
+        double[] out = new double[2];
+        for (Coordinate coord : llcoords) {
+            in[0] = coord.x;
+            in[1] = coord.y;
+            try {
+                rastPosLatLonToWorldGrid.transform(in, 0, out, 0, 1);
+            } catch (TransformException e) {
+                continue;
+            }
+            if (out[0] > minx && out[0] < maxx && out[1] > miny
+                    && out[1] < maxy) {
+                visiblePts[actualLength][0] = out[0];
+                visiblePts[actualLength][1] = out[1];
                 actualLength++;
             }
         }
@@ -650,58 +664,6 @@ public class ContourSupport {
 
     }
 
-    private double[][] toScreen(Coordinate[] coords, MathTransform xform,
-            int minX, int minY) {
-
-        int size = coords.length;
-
-        // remove points on longitude 360 degree. to avoid long cross lines
-        if (isWorld180) {
-            for (Coordinate pt : coords) {
-                if (pt.x == maxGridX)
-                    size--;
-            }
-        }
-
-        double[][] out = new double[size][3];
-        long nx = records.getSizes()[0] - 1;
-
-        for (int i = 0, jj = 0; i < coords.length; i++, jj++) {
-            if (isWorld180 && coords[i].x == maxGridX) {
-                jj--;
-                continue;
-            }
-
-            double[] tmp = new double[2];
-            tmp[0] = coords[i].x + minX;
-            tmp[1] = coords[i].y + minY;
-            // if (tmp[0] > 180) tmp[0] -= 360;
-
-            try {
-                xform.transform(tmp, 0, out[jj], 0, 1);
-            } catch (TransformException e) {
-                // TODO Auto-generated catch block
-                // e.printStackTrace();
-                return null;
-            }
-
-            if (worldWrap) {
-                if (tmp[0] > (nx - 1) && out[jj][0] < 0) {
-                    out[jj][0] = mapScreenWidth;
-                } else if (tmp[0] < 1 && out[jj][0] > mapScreenWidth * 0.9) {
-                    out[jj][0] = 0;
-                }
-            }
-
-        }
-
-        if (out.length > 0) {
-            return out;
-        } else {
-            return null;
-        }
-    }
-
     private double[][] toScreenRightOfZero(Coordinate[] coords,
             MathTransform xform, int minX, int minY) {
         // Coordinate[] out = new Coordinate[coords.length];
@@ -728,40 +690,6 @@ public class ContourSupport {
 
         if (out.length > 0) {
             return out;
-        } else {
-            return null;
-        }
-    }
-
-    private LineString toScreenLSRightOfZero(Coordinate[] coords,
-            MathTransform xform, int minX, int minY) {
-        GeometryFactory gf = new GeometryFactory();
-        Coordinate[] out = new Coordinate[coords.length];
-        double[] tmpout = new double[3];
-
-        for (int i = 0; i < coords.length; i++) {
-            double[] tmp = new double[2];
-            tmp[0] = coords[i].x + minX;
-            tmp[1] = coords[i].y + minY;
-
-            try {
-                xform.transform(tmp, 0, tmpout, 0, 1);
-            } catch (TransformException e) {
-                // e.printStackTrace();
-                return null;
-            }
-
-            if (tmpout[0] < zeroLonOnScreen
-                    || (tmp[0] == maxGridX && tmpout[0] == zeroLonOnScreen)) {
-                tmpout[0] += mapScreenWidth;
-            }
-
-            out[i] = new Coordinate(tmpout[0], tmpout[1]);
-
-        }
-
-        if (out.length >= 2) {
-            return gf.createLineString(out);
         } else {
             return null;
         }
@@ -802,94 +730,7 @@ public class ContourSupport {
         }
     }
 
-    private LineString toScreenLSLeftOfZero(Coordinate[] coords,
-            MathTransform xform, int minX, int minY) {
-        GeometryFactory gf = new GeometryFactory();
-        Coordinate[] out = new Coordinate[coords.length];
-        double[] tmpout = new double[3];
-
-        for (int i = 0; i < coords.length; i++) {
-            double[] tmp = new double[2];
-            tmp[0] = coords[i].x + minX;
-            tmp[1] = coords[i].y + minY;
-
-            try {
-                xform.transform(tmp, 0, tmpout, 0, 1);
-            } catch (TransformException e) {
-                // e.printStackTrace();
-                return null;
-            }
-
-            if (tmpout[0] > zeroLonOnScreen
-                    || (tmp[0] == 0 && tmpout[0] == zeroLonOnScreen)) {
-                tmpout[0] -= mapScreenWidth;
-            }
-
-            out[i] = new Coordinate(tmpout[0], tmpout[1]);
-
-        }
-
-        if (out.length >= 2) {
-            return gf.createLineString(out);
-        } else {
-            return null;
-        }
-    }
-
-    private LineString toScreenLS(Coordinate[] coords, MathTransform xform,
-            int minX, int minY) {
-
-        GeometryFactory gf = new GeometryFactory();
-        long nx = records.getSizes()[0] - 1;
-
-        int size = coords.length;
-        // remove points on 360. to avoid long cross lines
-        if (isWorld180) {
-            for (Coordinate pt : coords) {
-                if (pt.x == maxGridX)
-                    size--;
-            }
-        }
-
-        Coordinate[] out = new Coordinate[size];
-        double[] tmpout = new double[3];
-
-        for (int i = 0, jj = 0; i < coords.length; i++, jj++) {
-            if (isWorld180 && coords[i].x == maxGridX) {
-                jj--;
-                continue;
-            }
-
-            double[] tmp = new double[2];
-            tmp[0] = coords[i].x + minX;
-            tmp[1] = coords[i].y + minY;
-            // if (tmp[0] > 180) tmp[0] -= 360;
-
-            try {
-                xform.transform(tmp, 0, tmpout, 0, 1);
-            } catch (TransformException e) {
-                // TODO Auto-generated catch block
-                // e.printStackTrace();
-                return null;
-            }
-            if (worldWrap) {
-                if (tmp[0] > (nx - 1) && tmpout[0] < 0) {
-                    tmpout[0] = extent.getMaxX();
-                } else if (tmp[0] < 1 && tmpout[0] > extent.getMaxX() * 0.9) {
-                    tmpout[0] = 0;
-                }
-            }
-
-            out[jj] = new Coordinate(tmpout[0], tmpout[1]);
-        }
-
-        if (out.length >= 2) {
-            return gf.createLineString(out);
-        } else {
-            return null;
-        }
-    }
-
+    @SuppressWarnings("unused")
     private static Geometry polyToLine(Polygon poly) {
         GeometryFactory gf = new GeometryFactory();
 
@@ -905,8 +746,7 @@ public class ContourSupport {
         TreeMap<Coordinate, LineString> orderedHoles = new TreeMap<Coordinate, LineString>();
         for (int i = 0; i < poly.getNumInteriorRing(); i++) {
             LineString hole = poly.getInteriorRingN(i);
-            // if ( hole.getArea() == 8.0 )
-            // System.out.println("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFound");
+
             Coordinate min = CoordinateArrays.minCoordinate(hole
                     .getCoordinates());
             orderedHoles.put(min, hole);
@@ -1034,8 +874,8 @@ public class ContourSupport {
                 descriptor);
         contourGroup.negValueShape = target.createWireframeShape(false,
                 descriptor);
-        contourGroup.fillShapes = target.createShadedShape(false, descriptor,
-                true);
+        contourGroup.fillShapes = target.createShadedShape(false,
+                descriptor.getGridGeometry(), true);
 
         contourGroup.zoomLevel = 1.0 / Math.pow(2.0, level);
 
@@ -1044,6 +884,7 @@ public class ContourSupport {
         contourGroup.fvalues = new ArrayList<Double>();
 
         contourGroup.data = new HashMap<String, Geometry>();
+        contourGroup.latlonContours = new HashMap<String, Geometry>();
 
         contourGroup.grid = null;
 
@@ -1056,6 +897,10 @@ public class ContourSupport {
             }
             if (contourGp.data != null && contourGp.data.size() > 0) {
                 contourGroup.data.putAll(contourGp.data);
+            }
+            if (contourGp.latlonContours != null
+                    && contourGp.latlonContours.size() > 0) {
+                contourGroup.latlonContours.putAll(contourGp.latlonContours);
             }
             if (contourGp.grid != null)
                 contourGroup.grid = contourGp.grid;
@@ -1214,10 +1059,7 @@ public class ContourSupport {
                 }
             }
 
-            int n = 0, minX = 0, minY = 0;
-
-            double[][] screen = null;
-            double[][] screenx = null;
+            int n = 0;
 
             for (Double cval : contourGroup.cvalues) {
                 float fval = (float) (cval * 1.0f);
@@ -1238,53 +1080,22 @@ public class ContourSupport {
                         toLabel = (n % labelFreq == 0) ? true : false;
                 }
 
-                Geometry g = contourGroup.data.get(cval.toString());
+                Geometry g = contourGroup.latlonContours.get(cval.toString());
                 if (g == null)
                     continue;
 
-                for (int i = 0; i < g.getNumGeometries(); i++) {
-                    Geometry gn = g.getGeometryN(i);
-                    if (worldWrap) {
-                        // screen = toScreenRightPart( gn.getCoordinates(), 0,
-                        // rastPosToLatLon,rastPosLatLonToWorldGrid, minX, minY
-                        // );
-                        // if ( screen != null )
-                        // contourGroup.negValueShape.addLineSegment(screen);
+                Geometry correctedGeom = corrector.correct(g);
+                // Geometry correctedGeom = g;
 
-                        screen = toScreenRightOfZero(gn.getCoordinates(),
-                                rastPosToWorldGrid, minX, minY);
-                        if (screen != null)
-                            contourGroup.negValueShape.addLineSegment(screen);
+                for (int i = 0; i < correctedGeom.getNumGeometries(); i++) {
+                    Geometry gn = correctedGeom.getGeometryN(i);
+                    contourGroup.negValueShape.addLineSegment(gn
+                            .getCoordinates());
 
-                        screenx = toScreenLeftOfZero(gn.getCoordinates(),
-                                rastPosToWorldGrid, minX, minY);
-                        if (screenx != null)
-                            contourGroup.negValueShape.addLineSegment(screenx);
-                    } else {
-                        screen = toScreen(gn.getCoordinates(),
-                                rastPosToWorldGrid, minX, minY);
-                        if (screen != null)
-                            contourGroup.negValueShape.addLineSegment(screen);
-                    }
-
-                    /*
-                     * if ( isWorld0 ) { screen1 = toScreenSubtract360(
-                     * gn.getCoordinates(),
-                     * rastPosToLatLon,rastPosLatLonToWorldGrid, minX, minY );
-                     * if ( screen1 != null )
-                     * contourGroup.negValueShape.addLineSegment(screen1); }
-                     */
                     if (toLabel) {
                         long tl0 = System.currentTimeMillis();
-                        // prepareLabel(contourGroup, zoom, fval,
-                        // labelPoints, screen);
-                        if (screen != null)
-                            createContourLabel(extent, contourGroup, fval,
-                                    screen, descriptor);
-                        if (screenx != null) {
-                            createContourLabel(extent, contourGroup, fval,
-                                    screenx, descriptor);
-                        }
+                        createContourLabel(extent, contourGroup, fval,
+                                gn.getCoordinates(), descriptor);
                         long tl1 = System.currentTimeMillis();
                         total_labeling_time += (tl1 - tl0);
                     }
@@ -1310,6 +1121,9 @@ public class ContourSupport {
         if (type.trim().toUpperCase().contains("F")
                 && contourGroup.fvalues.size() > 0) {
 
+            JTSCompiler jts = new JTSCompiler(contourGroup.fillShapes, null,
+                    descriptor);
+
             try {
 
                 // Prepare colors for color fills
@@ -1325,19 +1139,6 @@ public class ContourSupport {
                     FLine flineInfo = new FLine(fline.trim());
                     fillColorsIndex = flineInfo.getFillColorList();
 
-                    // /*
-                    // * Apply last color if not enough input color.
-                    // */
-                    // if (contourGroup.fvalues != null
-                    // && fillColorsIndex.size() < (contourGroup.fvalues
-                    // .size() + 1)) {
-                    // for (int i = fillColorsIndex.size(); i <
-                    // contourGroup.fvalues
-                    // .size() + 2; i++) {
-                    // fillColorsIndex.add(i);
-                    // }
-                    // }
-
                     /*
                      * Repeat colors if not enough input color(s) provided.
                      */
@@ -1349,7 +1150,6 @@ public class ContourSupport {
                     }
                 }
 
-                int minX = 0, minY = 0;
                 long t11 = System.currentTimeMillis();
                 FillGenerator fgen = new FillGenerator(contourGroup.grid);
                 long t12 = System.currentTimeMillis();
@@ -1386,43 +1186,13 @@ public class ContourSupport {
                         }
                         for (int j = 0; j < fillPolys.getNumGeometries(); j++) {
                             Geometry g = fillPolys.getGeometryN(j);
-                            if (g instanceof Polygon)
-                                g = polyToLine((Polygon) g);
-
-                            if (worldWrap) {
-                                LineString ls = toScreenLSRightOfZero(
-                                        g.getCoordinates(), rastPosToWorldGrid,
-                                        minX, minY);
-                                if (ls != null)
-                                    contourGroup.fillShapes
-                                            .addPolygonPixelSpace(
-                                                    new LineString[] { ls },
-                                                    color);
-                                ls = toScreenLSLeftOfZero(g.getCoordinates(),
-                                        rastPosToWorldGrid, minX, minY);
-                                if (ls != null)
-                                    contourGroup.fillShapes
-                                            .addPolygonPixelSpace(
-                                                    new LineString[] { ls },
-                                                    color);
-                            } else {
-                                LineString ls = toScreenLS(g.getCoordinates(),
-                                        rastPosToWorldGrid, minX, minY);
-                                if (ls != null)
-                                    contourGroup.fillShapes
-                                            .addPolygonPixelSpace(
-                                                    new LineString[] { ls },
-                                                    color);
+                            if (g instanceof Polygon) {
+                                // g = polyToLine((Polygon) g);
+                                Geometry llgeom = transformGeometry(g,
+                                        rastPosToLatLon);
+                                jts.handle(llgeom, color, true);
                             }
 
-                            // if ( isWorld0 ) {
-                            // ls = toScreenLSSubtract360( g.getCoordinates(),
-                            // rastPosToLatLon,rastPosLatLonToWorldGrid, minX,
-                            // minY);
-                            // if ( ls != null )
-                            // contourGroup.fillShapes.addPolygonPixelSpace(new
-                            // LineString[]{ls}, color);
-                            // }
                         }
                     } catch (FillException e) {
                         // e.printStackTrace();
@@ -1756,22 +1526,111 @@ public class ContourSupport {
         if (cvalues != null) {
             for (Double cval : cvalues) {
                 float fval = (float) (cval * 1.0f);
-                contourGroup.data.put(cval.toString(), cgen.getContours(fval));
+                // System.out.println("Contour Value = " + fval);
+                Geometry geom = cgen.getContours(fval);
+                contourGroup.data.put(cval.toString(), geom);
+                Geometry llgeom = transformGeometry(geom, rastPosToLatLon);
+                contourGroup.latlonContours.put(cval.toString(), llgeom);
+                // System.out.println("  "
+                // + contourGroup.data.get(cval.toString()));
             }
         }
         if (fvalues != null) {
             for (Double cval : fvalues) {
                 float fval = (float) (cval * 1.0f);
+                // System.out.println("Fill Value = " + fval);
                 contourGroup.data.put(cval.toString(), cgen.getContours(fval));
+                // System.out.println("  "
+                // + contourGroup.data.get(cval.toString()));
             }
         }
 
         if (contourGroup.grid == null) {
+            // System.out.println("EDGES:");
             contourGroup.grid = cgen.getEdges();
+            // System.out.println("   " + contourGroup.grid);
         }
         cgen.dispose();
         ContourCalculationReentrantLock.releaseReentrantLock();
         // }
+    }
+
+    private Geometry transformGeometry(Geometry geom, MathTransform xform) {
+        GeometryFactory gf = geom.getFactory();
+        List<Geometry> llgeoms = new ArrayList<Geometry>();
+
+        for (int i = 0; i < geom.getNumGeometries(); i++) {
+            Geometry gn = geom.getGeometryN(i);
+
+            if (gn instanceof LineString) {
+                Coordinate[] llcoords = transformCoordinates(
+                        gn.getCoordinates(), xform);
+                LineString ls = gf.createLineString(llcoords);
+                llgeoms.add(ls);
+            } else if (gn instanceof Polygon) {
+                Polygon poly = transformPolygon((Polygon) gn, xform);
+                llgeoms.add(poly);
+            }
+
+        }
+
+        return gf.createGeometryCollection(llgeoms.toArray(new Geometry[] {}));
+    }
+
+    private Polygon transformPolygon(Polygon pgn, MathTransform xform) {
+        GeometryFactory gf = pgn.getFactory();
+        Polygon poly;
+        int numInterior;
+
+        // Transform exterior ring
+        Coordinate[] llcoords = transformCoordinates(pgn.getExteriorRing()
+                .getCoordinates(), xform);
+        LinearRing lr = gf.createLinearRing(llcoords);
+
+        numInterior = pgn.getNumInteriorRing();
+
+        if (numInterior == 0) {
+            poly = gf.createPolygon(lr, null);
+            return poly;
+        }
+
+        // Transform all interior rings
+        LinearRing[] holes = new LinearRing[numInterior];
+        for (int n = 0; n < numInterior; n++) {
+            llcoords = transformCoordinates(pgn.getInteriorRingN(n)
+                    .getCoordinates(), xform);
+            holes[n] = gf.createLinearRing(llcoords);
+        }
+
+        poly = gf.createPolygon(lr, holes);
+        return poly;
+    }
+
+    private Coordinate[] transformCoordinates(Coordinate[] coordinates,
+            MathTransform xform) {
+        CoordinateList clist = new CoordinateList();
+        double[] tmp = new double[2];
+        double[] out = new double[2];
+
+        for (Coordinate loc : coordinates) {
+
+            tmp[0] = loc.x;
+            tmp[1] = loc.y;
+
+            try {
+                xform.transform(tmp, 0, out, 0, 1);
+                if (out[0] < -180 || out[0] > 180.) {
+                    out[0] = ((out[0] + 180) % 360) - 180;
+                }
+                if (out[0] == 0.0)
+                    out[0] = 0.001;
+                clist.add(new Coordinate(out[0], out[1]), true);
+            } catch (TransformException e) {
+            }
+
+        }
+
+        return clist.toCoordinateArray();
     }
 
     public ContourGroup getContours() {

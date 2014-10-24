@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
+    <resource>GFS0P5</resource>
+    <attrSetGroupName>precip</attrSetGroupName>
+    <attrSetNames>precip_12hr,precip_12hr_mm,precip_24hr,precip_24hr_mm,precip_3-day,precip_4-day,precip_48hr,precip_5-day,precip_54hr,precip_60hr,precip_66hr,precip_6hr,precip_6hr_mslp,precip_6hr_mslp_sfchght,precip_6hr_mslphilo,precip_72hr,precip_78hr</attrSetNames>
+</AttributeSetGroup>

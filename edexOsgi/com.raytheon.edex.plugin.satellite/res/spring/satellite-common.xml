@@ -4,10 +4,11 @@
 
 	<bean id="satelliteProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties" 
 	depends-on="satellitePluginName">
-		<property name="pluginName" ref="satellitePluginName" />
-		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.satellite" />
-		<property name="dao" value="com.raytheon.edex.plugin.satellite.dao.SatelliteDao" />
-		<property name="record" value="com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord" />
+        <property name="pluginName" ref="satellitePluginName" />
+        <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.satellite" />
+        <property name="dao" value="com.raytheon.edex.plugin.satellite.dao.SatelliteDao" />
+        <property name="record" value="com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord" />
+        <property name="compression" value="LZF" />
 	</bean>
 	
 	<bean id="satelliteRegistered" factory-bean="pluginRegistry" factory-method="register">
