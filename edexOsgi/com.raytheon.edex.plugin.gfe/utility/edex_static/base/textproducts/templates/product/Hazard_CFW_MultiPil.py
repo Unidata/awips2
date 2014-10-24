@@ -100,6 +100,7 @@ class TextProduct(GenericHazards.TextProduct):
             ('LS.S', allActions, 'CoastalFloodStatement'),     # LAKESHORE FLOOD STATEMENT
             ('SU.W', allActions, 'HighSurf'),         # HIGH SURF WARNING
             ('SU.Y', allActions, 'HighSurf'),         # HIGH SURF ADVISORY
+            ('BH.S', allActions, 'BeachHaz'),         # Beach Hazards Statement
             ('RP.S', allActions, 'RipCurrent'),       # HIGH RIP CURRENT RISK
         ]
 
@@ -107,6 +108,7 @@ class TextProduct(GenericHazards.TextProduct):
         return {
             "CF" : ("COASTAL FLOODING,TIMING,IMPACTS"),  ### coastal flood warning, advisory, watch
             "LS" : ("LAKE SHORE FLOODING,TIMING,IMPACTS"),  ### lake shore flood warning, advisory, watch
+            "BH" : ("HAZARDS,TIMING,LOCATION,POTENTIAL IMPACTS"),  ### hazardous beach conditions
             "SU" : ("WAVES AND SURF,TIMING,IMPACTS"),  ### high surf warning, advisory
             "RP" : ("TIMING,IMPACTS"),                 ### high rip current risk
                }
@@ -116,11 +118,14 @@ class TextProduct(GenericHazards.TextProduct):
             "COASTAL FLOODING",
             "LAKE SHORE FLOODING",
             "WAVES AND SURF",
+            "HAZARDS",
             "TIMING",
+            "LOCATION",
+            "POTENTIAL IMPACTS",
             "IMPACTS",
             ]
 
-            
+
     #
     # Overridden to allow for attribution statement
     #

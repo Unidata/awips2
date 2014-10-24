@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.core.rsc.IRefreshListener;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.rsc.BestResResource;
@@ -85,6 +86,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 01, 2014  3100     bsteffen    perform time matching on data update.
  * Jun 02, 2014  2918     bsteffen    Make dataTimes a synchronized list.
  * Jun 12, 2014  3263     bsteffen    Check for null when async time matching.
+ * Sep 10, 2014  3604     bsteffen    Ensure capability changes propogate to
+ *                                    all resources/listeners.
+ * 
  * 
  * 
  * </pre>
@@ -233,12 +237,6 @@ public class RadarMosaicResource extends
         return maxSeverity;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#paint(com.raytheon.viz.core.
-     * IGraphicsTarget, com.raytheon.viz.core.PixelExtent, double, float)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -638,11 +636,32 @@ public class RadarMosaicResource extends
             }
             dataTimes.remove(time);
             break;
+        case CAPABILITY:
+            AbstractCapability cap = (AbstractCapability) object;
+            /*
+             * Since mosaic shares capabilities, need to make sure resourceData
+             * is always set to the mosaic resource data so that all resources
+             * are notified.
+             */
+            if (cap.getResourceData() != resourceData) {
+                cap.setResourceData(resourceData);
+                resourceData.fireChangeListeners(type, object);
+            }
         }
         synchronized (this) {
             force = true;
         }
         issueRefresh();
+    }
+
+    @Override
+    protected void resourceDataChanged(ChangeType type, Object updateObject) {
+        if (ChangeType.CAPABILITY == type) {
+            for (ResourcePair rp : getResourceList()) {
+                rp.getResourceData().fireChangeListeners(type, updateObject);
+
+            }
+        }
     }
 
     @Override

@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 6, 2012            bsteffen     Initial creation
+ * Oct 14, 2014 3709      mapeters     Post event using {@link ChatDisplayChangeEvent}.
  * 
  * </pre>
  * 
@@ -66,7 +67,8 @@ public class ChangeFontAction extends Action {
                 .getConnection();
         if (postData != null && connection != null) {
             PreferenceConverter.setValue(store, "font", postData);
-            connection.postEvent(postData);
+            connection.postEvent(ChatDisplayChangeEvent
+                    .createFontEvent(postData));
         }
     };
 }
