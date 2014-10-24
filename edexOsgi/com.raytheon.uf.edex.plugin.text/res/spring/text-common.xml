@@ -3,6 +3,17 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   
+    <bean id="fxaCommonDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.uf.edex.database" />
+        <property name="database" value="fxa" />
+        <property name="forceCheck" value="true" />
+    </bean>
+    
+    <bean id="fxaCommonDbRegistered" factory-bean="dbPluginRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.edex.database.fxa" />
+        <constructor-arg ref="fxaCommonDbPluginProperties" />
+    </bean>
+  
   	<bean id="textProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" value="text" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.text" />
@@ -12,7 +23,7 @@
 	</bean>
 	
 	<bean id="textRegistered" factory-bean="pluginRegistry" factory-method="register"
-			depends-on="fxaTxManager">
+			depends-on="fxaTxManager,fxaCommonDbRegistered">
 		<constructor-arg value="text"/>
 		<constructor-arg ref="textProperties"/>
 	</bean>
@@ -22,6 +33,7 @@
         <property name="includes">
            <list>
                 <value>com.raytheon.uf.common.dataplugin.text</value>
+                <value>com.raytheon.uf.edex.database</value>
            </list>
         </property>
     </bean>
@@ -34,7 +46,7 @@
 	</bean>
 
 	<bean id="fxaTxManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="fxaSessionFactory" />
 	</bean>
  	

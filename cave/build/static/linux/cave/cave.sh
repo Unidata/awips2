@@ -31,6 +31,8 @@
 # Jan 24, 2014  #2739     bsteffen    Log exit status
 # Jan 30, 2014  #2593     bclement    warns based on memory usage, fixed for INI files with spaces
 # Jul 10, 2014  #3363     bclement    logs command used to launch application to console logs
+# Oct 10, 2014  #3675     njensen     Logback now does console logging to ensure correct pid 
+# Oct 13, 2014  #3675     bclement    startup shutdown log includes both launching pid and placeholder
 #
 #
 
@@ -210,13 +212,16 @@ curTime=`date +%Y%m%d_%H%M%S`
 (
   export pid=`/bin/bash -c 'echo $PPID'`
 
-  LOGFILE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_console.log"
-  export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_alertviz.log"
-  export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_perf.log"
+  # we include the PID of the launching process along with
+  # a %PID% placeholder to be replaced with the "real" PID
+  LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
+  export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_logs.log"
+  export LOGFILE_CONSOLE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_console.log"
+  export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_perf.log"
 
   # can we write to log directory
   if [ -w ${LOGDIR} ]; then
-    touch ${LOGFILE}
+    touch ${LOGFILE_STARTUP_SHUTDOWN}
   fi
 
   # remove "-noredirect" flag from command-line if set so it doesn't confuse any
@@ -241,18 +246,20 @@ curTime=`date +%Y%m%d_%H%M%S`
     nohup ${CAVE_INSTALL}/monitorThreads.sh $pid >> /dev/null 2>&1 &
   fi
 
-  echo "Launching cave application using the following command: " >> ${LOGFILE}
-  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} ${USER_ARGS[@]}" >> ${LOGFILE}
+  echo "Launching cave application using the following command: " >> ${LOGFILE_STARTUP_SHUTDOWN}
+  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} ${USER_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
 
-  if [[ "${redirect}" == "true" ]] ; then 
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" >> ${LOGFILE} 2>&1
+  if [[ "${redirect}" == "true" ]] ; then
+     # send output to /dev/null because the logback CaveConsoleAppender will capture that output 
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" >> /dev/null 2>&1
   else
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" 2>&1 | tee -a ${LOGFILE}
+    # allow output to print to the console/terminal that launched CAVE
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" 2>&1
   fi
 ) &
 
 pid=$!
-LOGFILE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_console.log"
-logExitStatus $pid $LOGFILE
+LOGFILE_STARTUP_SHUTDOWN="${LOGDIR}/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
+logExitStatus $pid $LOGFILE_STARTUP_SHUTDOWN
 
 

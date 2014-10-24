@@ -66,6 +66,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 22, 2008            randerso     Initial creation
  * Apr  1, 2009            jelkins      added getTokens
  * Oct 19, 2012            bgonzale     App Context variable setup and token access.
+ * Sep 22, 2014 3356       njensen      Fix constructor usage in viz finding VizApp class
+ * 
  * </pre>
  * 
  * @author randerso
@@ -94,6 +96,8 @@ public class AppsDefaults {
     private static Set<String> _trueSet = new HashSet<String>();
 
     private static AppsDefaults instance;
+
+    private static Class<?> dataDirClass;
 
     private final Properties _envProperties;
 
@@ -130,11 +134,16 @@ public class AppsDefaults {
         _envProperties = new Properties();
         _envProperties.putAll(System.getenv());
 
+        /*
+         * TODO this is nearly unmaintainable, figure out a better way to do it
+         * that works in both CAVE and EDEX, perhaps through a combination of a
+         * properties file and Spring. It's not even clear if apps_dir should be
+         * coming from the data dir in CAVE or somewhere else, and it's not
+         * clear how much it's used in CAVE.
+         */
         if (_envProperties.get("EDEX_HOME") == null) {
             try {
-                Class<?> vizapp = Class
-                        .forName("com.raytheon.uf.viz.core.VizApp");
-                Method getDataDir = vizapp.getMethod("getDataDir");
+                Method getDataDir = dataDirClass.getMethod("getDataDir");
                 String shareDir = (String) getDataDir.invoke(null);
                 _envProperties.put("apps_dir",
                         FileUtil.join(shareDir, "hydroapps"));
@@ -988,6 +997,17 @@ public class AppsDefaults {
         if (appContextVar != null) {
             processBuilder.environment().put(APP_CONTEXT, appContextVar);
         }
+    }
+
+    /**
+     * Sets the class used to determine the data dir, if necessary. See
+     * AppsDefaults's private constructor. At present only intended for use by
+     * CAVE since edex receives a corresponding environment variable.
+     * 
+     * @param dataDirClass
+     */
+    public static void setDataDirClass(Class<?> dataDirClass) {
+        AppsDefaults.dataDirClass = dataDirClass;
     }
 
 } // end class AppsDefaults

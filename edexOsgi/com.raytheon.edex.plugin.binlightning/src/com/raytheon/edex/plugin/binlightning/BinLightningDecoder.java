@@ -46,6 +46,7 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.binlightning.filter.LightningGeoFilter;
 import com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory;
+import com.raytheon.edex.plugin.binlightning.impl.IBinDataSource;
 import com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder;
 import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -60,7 +61,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
 
 /**
  * AWIPS decoder adapter strategy for binary lightning data.<br/>

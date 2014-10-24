@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.metartohmdb.dao;
 
 import java.util.Calendar;
 
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -29,17 +30,18 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2009            jkorman     Initial creation
- *
+ * Sep 18, 2014 #3627      mapeters    Updated deprecated {@link TimeTools} usage.
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 public class HMDBRptDao extends CoreDao {
 
@@ -75,7 +77,7 @@ public class HMDBRptDao extends CoreDao {
     public boolean purgeTable(int purgeHours) {
         boolean status = true;
         
-        Calendar c = TimeTools.getSystemCalendar();
+        Calendar c = TimeUtil.newGmtCalendar();
         c.add(Calendar.HOUR_OF_DAY,-purgeHours);
         
         StringBuilder sb = new StringBuilder("delete from rpt where nominal < ");

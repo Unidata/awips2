@@ -1,10 +1,31 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.viz.pointdata.lookup;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -21,6 +42,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 21, 2011            ekladstrup     Initial creation
+ * Sep 16, 2014 2707       bclement     added splitGroupedString()
  * 
  * </pre>
  * 
@@ -28,6 +50,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 public class LookupUtils {
+
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+
+    private static enum QuotedState {
+        OUTSIDE_GROUP, IN_SINGLE_QUOTES, IN_DOUBLE_QUOTES, IN_REGULAR_BLOCK
+    }
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LookupUtils.class);
 
@@ -56,10 +85,8 @@ public class LookupUtils {
      *         non-critical errors
      */
     public static TableTypes getTableType(File table) {
-        try {
-            BufferedReader input = new BufferedReader(new FileReader(table));
+        try (BufferedReader input = new BufferedReader(new FileReader(table))) {
             String line = "";
-            try {
                 boolean stillLoop = true;
                 while (stillLoop && (line = input.readLine()) != null) {
                     line = line.trim();
@@ -91,14 +118,10 @@ public class LookupUtils {
                         return TableTypes.UNKNOWN;
                     }
                 }
-            } catch (IOException e) {
-                statusHandler.handle(Priority.SIGNIFICANT,
-                        e.getLocalizedMessage(), e);
-                return TableTypes.UNKNOWN;
-            }
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.CRITICAL, e.getLocalizedMessage(), e);
-            return null;
+        } catch (IOException e) {
+            statusHandler
+                    .error("Problem parsing SVG config table: " + table, e);
+            return TableTypes.UNKNOWN;
         }
     }
 
@@ -158,8 +181,85 @@ public class LookupUtils {
         return rval;
     }
 
+    /**
+     * Split string on whitespaces
+     * 
+     * @param line
+     * @return
+     */
     public static String[] splitString(String line) {
-        String[] rval = line.split("\\s+");
-        return rval;
+        return WHITESPACE.split(line);
     }
+
+    /**
+     * Split string on whitespaces with double or single quoted groups. Any
+     * character (including whitespaces) inside a quoted group will be a single
+     * string in the returned array. Double quotes can be nested inside of
+     * single quotes and vice versa.
+     * 
+     * @param line
+     * @return empty array if line is empty
+     */
+    public static String[] splitGroupedString(String line) {
+        QuotedState state = QuotedState.OUTSIDE_GROUP;
+        List<String> rval = new ArrayList<String>();
+        StringBuilder sb = new StringBuilder();
+        /* iterate over string; splitting out groups */
+        for (int i = 0; i < line.length(); ++i) {
+            char c = line.charAt(i);
+            if (state == QuotedState.OUTSIDE_GROUP) {
+                /* outside of a group all whitespace is ignored */
+                if (!Character.isWhitespace(c)) {
+                    /* any non-whitespace transitions inside group */
+                    if (c == '\'') {
+                        state = QuotedState.IN_SINGLE_QUOTES;
+                    } else if (c == '"') {
+                        state = QuotedState.IN_DOUBLE_QUOTES;
+                    } else {
+                        state = QuotedState.IN_REGULAR_BLOCK;
+                        sb.append(c);
+                    }
+                }
+            } else {
+                /* inside a group, look for transition out of group */
+                QuotedState newState = null;
+                switch (state) {
+                case IN_REGULAR_BLOCK:
+                    if (Character.isWhitespace(c)) {
+                        newState = QuotedState.OUTSIDE_GROUP;
+                    } else if (c == '\'') {
+                        newState = QuotedState.IN_SINGLE_QUOTES;
+                    } else if (c == '"') {
+                        newState = QuotedState.IN_DOUBLE_QUOTES;
+                    }
+                    break;
+                case IN_SINGLE_QUOTES:
+                    if (c == '\'') {
+                        newState = QuotedState.OUTSIDE_GROUP;
+                    }
+                    break;
+                case IN_DOUBLE_QUOTES:
+                    if (c == '"') {
+                        newState = QuotedState.OUTSIDE_GROUP;
+                    }
+                    break;
+                default:
+                }
+                if (newState != null) {
+                    /* state changed, leave group */
+                    state = newState;
+                    rval.add(sb.toString());
+                    sb = new StringBuilder();
+                } else {
+                    sb.append(c);
+                }
+            }
+        }
+        /* add last group */
+        if (sb.length() > 0) {
+            rval.add(sb.toString());
+        }
+        return rval.toArray(new String[rval.size()]);
+    }
+
 }

@@ -39,6 +39,7 @@ import com.raytheon.uf.common.dataplugin.shef.tables.HourlyppId;
 import com.raytheon.uf.common.dataplugin.shef.tables.IHourlyTS;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -54,6 +55,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Nov 5, 2008   1649     snaples     Initial creation
  * May 7, 2013   15880    lbousaidi   changed minute_offset to offset in
  *                                    in write_1_HourValue routine.
+ * Sep 18, 2014  3627     mapeters    Updated deprecated {@link TimeTools} usage.
  * 
  * </pre>
  * 
@@ -101,7 +103,8 @@ public final class GagePPWrite {
             char manual_qc_code) {
 
 
-        Calendar dt = TimeTools.newCalendar(dtime.getTime());
+        Calendar dt = TimeUtil.newGmtCalendar();
+        dt.setTimeInMillis(dtime.getTime());
 
         int hour_slot = dt.get(Calendar.HOUR_OF_DAY);
         Arrays.fill(hourly_qc, '-');
@@ -422,7 +425,7 @@ public final class GagePPWrite {
     }
     
     private Calendar getCalendar(Date obsDate) {
-        Calendar dt = TimeTools.getSystemCalendar();
+        Calendar dt = TimeUtil.newGmtCalendar();
         dt.setTime(obsDate);
 
 
@@ -478,7 +481,7 @@ public final class GagePPWrite {
         int status = 0;
         boolean record_exists;
 
-        Calendar dt = TimeTools.getSystemCalendar();
+        Calendar dt = TimeUtil.newGmtCalendar();
         dt.setTime(obsDate);
         dt.set(Calendar.HOUR_OF_DAY, 0);
         dt.set(Calendar.MINUTE, 0);
@@ -488,11 +491,6 @@ public final class GagePPWrite {
         Date starttime = dt.getTime();
         dt.add(Calendar.DAY_OF_MONTH, 1);
         Date endtime = dt.getTime();
-
-        char qcc = 'Z'; // ShefQC.buildQcSymbol(qualityCode).charAt(0);
-        if(qual != null) {
-            qcc = qual.charAt(0);
-        }
 
         String qcsym = "Z"; // ShefQC.buildQcSymbol(quality_code);
         if((qual != null)&&(qual.length() > 0)) {
