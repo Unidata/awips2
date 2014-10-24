@@ -73,26 +73,35 @@ public class DeactivateSiteHandler implements
 
         private DeactivateSiteRequest request;
 
+        private SiteActivationMonitor monitor;
+
         public DeactivateMonitor(DeactivateSiteRequest request) {
             this.request = request;
+            try {
+                this.monitor = SiteActivationMonitor.getInstance();
+            } catch (EdexException e) {
+                // This will not happen as instance is created by camel so
+                // JVM will not start if exception occurs.
+            }
         }
 
+        @Override
         public void run() {
             try {
                 Thread.sleep(3000);
-                while (SiteActivationMonitor.getInstance()
-                        .getPendingDeactivations(request.getPlugin(), request.getSiteID())
-                        .size() > 0) {
+                while (this.monitor.getPendingDeactivations(
+                        request.getPlugin(), request.getSiteID()).size() > 0) {
                     Thread.sleep(1000);
                 }
             } catch (InterruptedException e) {
                 // ignore
             }
             ClusterActivationNotification notify = new ClusterActivationNotification(
-                    SiteUtil.getSite(), request.getSiteID(), request.getPlugin(),
+                    SiteUtil.getSite(), request.getSiteID(),
+                    request.getPlugin(),
                     SiteActivationNotification.ACTIVATIONTYPE.DEACTIVATE,
-                    SiteActivationMonitor.getInstance().getStatus(), true);
-            SiteActivationMonitor.getInstance().resetFailure();
+                    this.monitor.getStatus(), true);
+            this.monitor.resetFailure();
             try {
                 SendSiteActivationNotifications.send(notify);
             } catch (EdexException e) {

@@ -146,14 +146,16 @@
 		<command id="com.raytheon.viz.gfe.actions.ShowProcessMonitorDialog"
 			name="ShowProcessMonitorDialog">
 		</command>
-		<command id="com.raytheon.viz.gfe.actions.ShowDeleteSampleSetDialog"
-			name="ShowDeleteSampleSetDialog">
-		</command>
 		<command id="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
 			name="ShowLoadSampleSetDialog">
 		</command>
-		<command id="com.raytheon.viz.gfe.actions.ShowSaveSampleSetDialog"
-			name="ShowSaveSampleSetDialog">
+		<command id="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
+			name="ShowSaveDeleteSampleSetDialog">
+     <commandParameter
+           id="Action"
+           name="Action"
+           optional="false">
+     </commandParameter>
 		</command>
 		<command id="com.raytheon.viz.gfe.actions.ShowClearSamples"
 			name="ShowClearSamples">
@@ -576,13 +578,6 @@
                 </reference>
             </activeWhen>
 		</handler>
-		<handler class="com.raytheon.viz.gfe.actions.ShowDeleteSampleSetDialog"
-			commandId="com.raytheon.viz.gfe.actions.ShowDeleteSampleSetDialog">
-            <activeWhen>
-                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-                </reference>
-            </activeWhen>
-		</handler>
 		<handler class="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
 			commandId="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog">
             <activeWhen>
@@ -590,8 +585,8 @@
                 </reference>
             </activeWhen>
 		</handler>
-		<handler class="com.raytheon.viz.gfe.actions.ShowSaveSampleSetDialog"
-			commandId="com.raytheon.viz.gfe.actions.ShowSaveSampleSetDialog">
+		<handler class="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog">
             <activeWhen>
                 <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
                 </reference>
@@ -1349,11 +1344,19 @@
 					<command commandId="com.raytheon.viz.gfe.actions.ShowClearSamples"
 						label="Clear">
 					</command>
-					<command commandId="com.raytheon.viz.gfe.actions.ShowSaveSampleSetDialog"
+					<command commandId="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
 						label="Save...">
+        <parameter
+              name="Action"
+              value="Save">
+        </parameter>
 					</command>
-					<command commandId="com.raytheon.viz.gfe.actions.ShowDeleteSampleSetDialog"
+					<command commandId="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
 						label="Delete...">
+        <parameter
+              name="Action"
+              value="Delete">
+        </parameter>
 					</command>
 					<separator name="xxx" visible="true" />
 					<command

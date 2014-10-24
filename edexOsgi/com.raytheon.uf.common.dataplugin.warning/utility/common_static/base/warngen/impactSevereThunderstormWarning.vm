@@ -2,12 +2,11 @@
 ## SEVERE THUNDERSTORM WARNING TEMPLATE                         ##
 ## FOR CR IMPACT BASED SVR INITIATIVE                           ## 
 ## CREATED BY PHIL KURIMSKI - WFO DTX                           ##
-##        UPDATED          9-18-2013 Implement global config.vm ##
+##        UPDATED BOOKBINDER    9-18-2013 Implement global config.vm ##
+##        UPDATED BOOKBINDER    2-18-2014 Wind/hail order matrix     ##
+##        UPDATED BOOKBINDER    9-16-2014 2015 IBW Tags        ##
 ##################################################################
-## Commented out Impact statements Feb 2013 and created file to
-## be parsed into the template called impactStatements.vm
-## Changes to the impact statements can be made to this file
-## instead of the template
+## Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
 ##
 #parse("config.vm")
@@ -153,7 +152,7 @@
 #if(${list.contains(${bullets}, "pingpongHail")})
   #set($hailThreat = "PING PONG BALL SIZE") 
   #set($hailLead = "LARGE HAIL UP TO ") 
-  #set($hailHazard = "PING PONG SIZE HAIL")
+  #set($hailHazard = "PING PONG BALL SIZE HAIL")
   #set($hailTrail = "")
   #set($hailSize = 1.50)  
   #set($hailTag = "1.50IN")
@@ -260,6 +259,14 @@
           #set($hazard = "${windHazard}...${hailHazard} AND POSSIBLE TORNADO.")
         #end
         *#
+    #elseif(${windSpeed} >= 80 || (${windSpeed} >= 70 && ${hailSize} <= 1.5) || (${windSpeed} >= 58 && ${hailSize} <= 1.25))
+        #set($hailwind = " ${reportAuthSVR} ${windThreat} AND ${hailLead}${hailThreat}${hailTrail}")
+        #set($hazard = "${windHazard} AND ${hailHazard}.")
+        #*
+        #if(${list.contains(${bullets}, "svrTorTag")})
+          #set($hazard = "${windHazard}...${hailHazard} AND POSSIBLE TORNADO.")
+        #end
+        *#    
 	#else
   		#set($hailwind = " ${reportAuthSVR} ${hailLead}${hailThreat}${hailTrail} AND ${windThreat}")
   		#set($hazard = "${hailHazard} AND ${windHazard}.")
@@ -429,10 +436,14 @@ THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF THIS STORM
 #end
 #end
 
+## Comment out #parse command below to pull in Dynamic DSS Event Info
+## If this feature is utilized, the "specialEvent" bullet (output above) can
+## likely be commented out from the impactSevereThunderstormWarning.xml file
+#parse("dssEvents.vm")
+## parse file command here is to pull in mile marker info
+##parse("mileMarkers.vm")
 ## parse file command here is to pull in extra points (venues) info
 ## #parse("pointMarkers.vm")
-## parse file command here is to pull in mile marker info
-## #parse("mileMarkers.vm")
 
 ##################################
 ######### CALLS TO ACTION ########
@@ -652,6 +663,14 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 ${torTag}
 <L>HAIL...${hailTag}</L>
 <L>WIND...${windTag}</L>
+### 2015 IBW ENHANCEMENT
+#* REMOVE THIS COMMENT LINE WHEN DIRECTION BY YOUR REGION
+#if((${hailSize} >= $svrHailExtremeThreshold) || (${windSpeed} >= $svrWindExtremeThreshold))
+<L>$svrDamageExtremePhrase</L>
+#elseif ((${hailSize} >= $svrHailConsiderableThreshold) || (${windSpeed} >= $svrWindConsiderableThreshold))
+<L>$svrDamageConsiderablePhrase</L>
+#end
+*# ##REMOVE THIS COMMENT BLOCK WHEN DIRECTION BY YOUR REGION
 
 $$
 

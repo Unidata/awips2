@@ -142,6 +142,9 @@ import com.vividsolutions.jts.io.WKTReader;
  * Apr 28, 2014   3033     jsanchez    Set the site and backup site in Velocity Engine's properties
  * Jul 21, 2014   3419     jsanchez    Refactored WatchUtil. 
  * Aug 15, 2014 DR15701 mgamazaychikov Removed static field watchUtil.
+ * Aug 28, 2014 ASM #15551 Qinglu Lin  Replaced 1200 PM/1200 AM by NOON/MIDNIGHT, removed days in
+ *                                     included tornado/severe thunderstorm watch message.
+ * Sep 18, 2014 ASM #15465 Qinglu Lin  For backup, get officeShort and officeLoc from backup WFO's config.xml.
  * </pre>
  * 
  * @author njensen
@@ -259,8 +262,8 @@ public class TemplateRunner {
         if (backupData != null) {
             context.remove("officeLoc");
             context.remove("officeShort");
-            context.put("officeLoc", backupData.office);
-            context.put("officeShort", backupData.office);
+            context.put("officeLoc", warngenLayer.getBackupOfficeLoc());
+            context.put("officeShort", warngenLayer.getBackupOfficeShort());
             context.put("backupSite", warngenLayer.getDialogConfig()
                     .getWarngenOfficeShort());
         }

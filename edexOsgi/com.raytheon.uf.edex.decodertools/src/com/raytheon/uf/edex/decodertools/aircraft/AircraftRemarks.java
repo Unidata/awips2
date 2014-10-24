@@ -29,6 +29,8 @@ package com.raytheon.uf.edex.decodertools.aircraft;
  * ------------   -------- ------------- -------------------------------------
  * Feb 28, 2005        753 jkorman       Initial creation.
  * 20071227            384 jkorman       Ported to edex.
+ * Sep 18, 2014       3627 mapeters      Removed unused insertRemarks().
+ * 
  * </pre>
  */
 public class AircraftRemarks
@@ -56,19 +58,6 @@ public class AircraftRemarks
             theRemarks.append(aRemark);
         }
     } // addRemarks()
-    
-    /**
-     * Inserts a remarks fragment at the beginning of the Remarks being built.
-     * @param aRemark A remarks fragment to insert.
-     */
-    public void insertRemarks(String aRemark)
-    {
-        if(aRemark != null)
-        {
-            theRemarks.insert(0," ");
-            theRemarks.insert(0,aRemark);
-        }
-    } // insertRemarks()
     
     /**
      * Get the current remarks string being built.

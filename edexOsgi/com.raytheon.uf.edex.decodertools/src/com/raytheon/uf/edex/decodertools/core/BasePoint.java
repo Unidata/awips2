@@ -38,6 +38,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 20070911            379 jkorman     Added comments.
  * 20070912            379 jkorman     Code review cleanup.
  * Jun 05, 2014 3226       bclement    deprecated class, removed time
+ * Sep 18, 2014 3627       mapeters    Removed unused methods/fields.
  * </pre>
  * 
  * @deprecated use {@link Coordinate} instead
@@ -49,26 +50,6 @@ public class BasePoint {
     private double latitude;
 
     private double longitude;
-
-    private double elevation;
-
-    /**
-     * Create an empty basepoint instance.
-     */
-    public BasePoint() {
-    }
-
-    /**
-     * Copy constructor for BasePoint.
-     * 
-     * @param point
-     *            A basepoint to copy.
-     */
-    public BasePoint(BasePoint point) {
-        this.latitude = point.latitude;
-        this.longitude = point.longitude;
-        this.elevation = point.elevation;
-    }
 
     /**
      * Create a base point at a given location.
@@ -118,24 +99,4 @@ public class BasePoint {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-
-    /**
-     * Get the elevation of this point. No units are specified.
-     * 
-     * @return The elevation of this point.
-     */
-    public double getElevation() {
-        return elevation;
-    }
-
-    /**
-     * Set the elevation of this point. No units are specified.
-     * 
-     * @param elevation
-     *            The elevation of this point.
-     */
-    public void setElevation(double elevation) {
-        this.elevation = elevation;
-    }
-
 }

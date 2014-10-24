@@ -66,7 +66,8 @@
 		<include>database-common.xml</include>
 		<include>radar-common.xml</include>
 		<include>text-common.xml</include>
-		<include>level-common.xml</include>
+        <include>level-common.xml</include>
+        <include>levelhandler-common.xml</include>
 		<include>pointdata-common.xml</include>
 		<include>bufrua-common.xml</include>
 		<include>shef-common.xml</include>

@@ -198,7 +198,7 @@ public class McidasMapCoverage extends PersistableDataObject implements
 
     /** The map coverage */
     @Column(name = "the_geom")
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Type(type = "org.hibernate.spatial.GeometryType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Polygon location;
