@@ -61,6 +61,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *    Apr 24, 2013  1943       jsanchez    Marked areaConfig as Deprecated.
  *    Oct 22, 2013  2361       njensen     Removed ISerializableObject
  *    Apr 28, 2014  3033       jsanchez    Properly handled back up configuration (*.xml) files.
+ *    Aug 28, 2014 ASM #15658  D. Friedman Add marine zone watch wording option.
  * </pre>
  * 
  * @author chammack
@@ -102,6 +103,9 @@ public class WarngenConfiguration {
     @XmlElementWrapper(name = "includedWatches")
     @XmlElement(name = "includedWatch")
     private String[] includedWatches;
+
+    @XmlElement
+    private boolean includeMarineAreasInWatches;
 
     @XmlElementWrapper(name = "durations")
     @XmlElement(name = "duration")
@@ -390,6 +394,14 @@ public class WarngenConfiguration {
 
     public String[] getIncludedWatches() {
         return includedWatches;
+    }
+
+    public boolean isIncludeMarineAreasInWatches() {
+        return includeMarineAreasInWatches;
+    }
+
+    public void setIncludeMarineAreasInWatches(boolean includeMarineAreasInWatches) {
+        this.includeMarineAreasInWatches = includeMarineAreasInWatches;
     }
 
     public boolean getEnableRestart() {

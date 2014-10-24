@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <resource>
+        <loadProperties loadWithoutData="true"/>                              
+        <properties isSystemResource="false"
+              isBlinking="false" isMapLayer="false" isHoverOn="false"
+              isVisible="true" />
+        <resourceData xsi:type="GeoMagResourceData"
+                        isUpdatingOnMetadataOnly="false" 
+                        isRequeryNecessaryOnTimeMatch="false"> 
+
+			  
+              <frameSpan>${frameSpan}</frameSpan>
+              <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+              <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+              <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
+              <timelineGenMethod>${timelineGenMethod}</timelineGenMethod>  
+                          
+              <yAxesData>${yAxesData}</yAxesData>
+              <dataColor>${dataColor}</dataColor>
+              <xAxesTitle>${xAxesTitle}</xAxesTitle>
+              <yAxesTitle>${yAxesTitle}</yAxesTitle>
+  			  <yDescription>${yDescription}</yDescription>
+  			  
+              <metadataMap>
+                <mapping key="pluginName">
+                  <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+                </mapping>
+                <mapping key="stationCode">
+                 <constraint constraintValue="${stationCode}" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="sourceId">
+                 <constraint constraintValue="${sourceId}" constraintType="EQUALS" />
+               </mapping>              
+                <mapping key="reportType">
+                  <constraint constraintValue="${reportType}" constraintType="EQUALS"/>
+                </mapping>                             
+              </metadataMap>             
+        </resourceData>
+    </resource>
+</resourceGroup>        

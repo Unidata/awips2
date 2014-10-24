@@ -60,6 +60,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  *                                    IPathManager.SEPARATOR
  * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
  * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
+ * Sep 16, 2014  2707     bclement    lsr no longer uses dataURI
  * 
  * </pre>
  * 
@@ -144,7 +145,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          */
         pluginProps.put("bufrquikscat", new PluginPlotProperties(false));
         pluginProps.put("radar", new PluginPlotProperties(false));
-        pluginProps.put("lsr", new PluginPlotProperties(false));
         pluginProps.put("tcg", new PluginPlotProperties(false));
         pluginProps.put("svrwx", new PluginPlotProperties(false));
         pluginProps.put("ldadhydro", new PluginPlotProperties(false));
@@ -180,6 +180,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("pirep", new PluginPlotProperties());
         pluginProps.put("airep", new PluginPlotProperties());
         pluginProps.put("acars", new PluginPlotProperties());
+        pluginProps.put("lsr", new PluginPlotProperties());
 
         ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }

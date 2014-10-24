@@ -52,7 +52,7 @@ hazardDict = OrderedDict([
     ('Fire Weather', ["FW.A", "FW.W"]),
     ('Convective Watches', ["SV.A", "TO.A"]),
     ('Coastal Flood', ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A", 
-          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "RP.S"]),
+          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "BH.S", "RP.S"]),
     ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.Y", 
           "DS.W", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A", 
           "HZ.W", "HZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A", 
@@ -60,7 +60,7 @@ hazardDict = OrderedDict([
     ('Marine', ["MA.S", "MH.W", "MH.Y", "BW.Y", "UP.Y", "MF.Y",
           "GL.A", "GL.W", "SE.A", "SE.W", "UP.A", "UP.W", "HF.A", "HF.W", "LO.Y", "SC.Y", "SW.Y", 
           "RB.Y", "SI.Y", "MS.Y", "SR.A", "SR.W"]),
-    ('Tropical Cyclone', ["HU.W", "HU.A", "HU.S", "TR.W", "TR.A"]),
+    ('Tropical Cyclone', ["HU.W", "HU.A", "TR.W", "TR.A"]),
     ('Tsunami', ["TS.A", "TS.W"]),
       
     # ('Local', ["TEST"]),  #example of adding local hazards
@@ -73,7 +73,7 @@ hazardDict = OrderedDict([
 #    ('Hydrology', ["FF.A", "FA.A"]),
 #    ('Fire Weather', ["FW.A", "FW.W"]),
 #    ('Coastal Flood', ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A", 
-#          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "RP.S"]),
+#          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "RP.S", "BH.S"]),
 #    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.Y", 
 #          "DS.W", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A", 
 #          "HZ.W", "HZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A", 
