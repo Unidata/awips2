@@ -40,6 +40,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * March 5, 2012 14413     zhao       Launch AreaConfigDlg w/o monitor
  * Nov.27, 2012 1297       skorolev   Cleanup code for non-blocking dialog.
  * May 08, 2014 3086       skorolev   Added CloseCallback to dialog.
+ * Sep 16, 2014 2757       skorolev   Added test of dialog on dispose.
+ * Sep 19, 2014 3220       skorolev   Added check on dispose.
  * 
  * </pre>
  * 
@@ -63,18 +65,16 @@ public class SnowAreaConfigAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (configDlg == null) {
+        if (configDlg == null || configDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             configDlg = new SnowMonitoringAreaConfigDlg(shell,
                     "SNOW Monitor Area Configuration");
             configDlg.setCloseCallback(new ICloseCallback() {
-
                 @Override
                 public void dialogClosed(Object returnValue) {
                     configDlg = null;
                 }
-
             });
         }
         configDlg.open();

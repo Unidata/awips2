@@ -54,6 +54,31 @@
   </contourStyle>
 </styleRule>
 
+<!-- HRRR -->
+<styleRule>
+  <paramLevelMatches>
+    <parameter>MaxWHRRR</parameter>
+  </paramLevelMatches>
+  <contourStyle>
+    <displayUnits>kts</displayUnits>
+    <contourLabeling labelSpacing="4">
+        <increment>10</increment>
+    </contourLabeling>
+  </contourStyle>
+</styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>HRRR</creatingEntity>
+      <parameter>CPOFP</parameter>
+    </paramLevelMatches>  
+    <contourStyle>
+        <displayUnits>%</displayUnits>
+        <contourLabeling labelSpacing="4">
+         <values>0 10 20 30 40 50 60 70 80 90 100</values> 
+        </contourLabeling>
+    </contourStyle>
+  </styleRule>
+
 <!--
   * GH, GHxSM, zAGL
   dam | 0.1 | 0.0 | 4 | i4 |   |..|8000F0FF| | 0 | 50
@@ -3978,6 +4003,7 @@ kts | 1.0 | 0.0 | 4 |    |   |..|8000F0FF|,400,0.5,,0 | 8 | \
     <creatingEntity>HiResW-ARW-AK</creatingEntity>
     <creatingEntity>HiResW-ARW-PR</creatingEntity>
     <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+    <creatingEntity>HRRR</creatingEntity>
   </paramLevelMatches>
   <contourStyle>
     <displayUnits label="g/Kg/12hr">((g/kg)/h*12)*-1.0</displayUnits>
@@ -4096,6 +4122,7 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <creatingEntity>HiResW-ARW-AK</creatingEntity>
             <creatingEntity>HiResW-ARW-PR</creatingEntity>
             <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+            <creatingEntity>HRRR</creatingEntity>
   </paramLevelMatches>
   <contourStyle>
      <displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
@@ -4116,6 +4143,7 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
     <creatingEntity>HiResW-ARW-AK</creatingEntity>
     <creatingEntity>HiResW-ARW-PR</creatingEntity>
     <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+    <creatingEntity>HRRR</creatingEntity>
      <parameter>AV</parameter>
      <parameter>RV</parameter>
      <parameter>geoVort</parameter>
@@ -4143,6 +4171,7 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
     <creatingEntity>HiResW-ARW-AK</creatingEntity>
     <creatingEntity>HiResW-ARW-PR</creatingEntity>
     <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+    <creatingEntity>HRRR</creatingEntity>
     <parameter>VAdv</parameter>
     <parameter>dVAdv</parameter>
     <parameter>PIVA</parameter>

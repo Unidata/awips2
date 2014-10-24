@@ -73,6 +73,8 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Feb 05, 2014     #2591  randerso    Forced retrieval of combinations file
  *                                     Implemented retry on error
  * Aug 27, 2014     #3561  randerso    Yet another attempt to fix combinations file updating
+ * Sep 08, 2104     #3592  randerso    Changed to use only list site level files as all 
+ *                                     combo files are saved to the site level
  * 
  * </pre>
  * 
@@ -139,8 +141,8 @@ public class CombinationsFileUtil {
 
     public static LocalizationFile[] getSavedCombos() {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile[] combos = pm.listFiles(
-                pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
+        LocalizationFile[] combos = pm.listFiles(pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE),
                 SAVED_COMBO_DIR, new String[] { ".xml" }, false, true);
 
         return combos;
@@ -223,8 +225,9 @@ public class CombinationsFileUtil {
         IPathManager pm = PathManagerFactory.getPathManager();
 
         // retrieve combinations file if it's changed
-        LocalizationFile lf = pm.getStaticLocalizationFile(FileUtil.join(
-                COMBO_DIR_PATH, comboName + ".py"));
+        LocalizationFile lf = pm.getStaticLocalizationFile(
+                LocalizationType.CAVE_STATIC,
+                FileUtil.join(COMBO_DIR_PATH, comboName + ".py"));
         File pyFile = null;
         if (lf != null) {
             try {

@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.spellchecker.dialogs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -77,6 +78,7 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * ------------ ---------- ----------- --------------------------
  * 18 APR 2008  ###        lvenable    Initial creation
  * 01Mar2010    4765       MW Fegan    Moved from GFE plug-in.
+ * 09/24/2014   #16693     lshi        filter out swear words in spelling check
  * 
  * </pre>
  * 
@@ -85,6 +87,8 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 
  */
 public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
+	private static java.util.List<String> swearWords = Arrays.asList("ASSHOLE");
+
     private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(SpellCheckDlg.class);
 
     private static final Pattern DIGITS = Pattern.compile("\\d");
@@ -348,7 +352,8 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
                 if (pdMatch.matches()) {
                     String replString = pdMatch.group(1).toUpperCase();
                     // proposals may include case changes, which get lost
-                    if (replString != badWord) {
+                    //if (replString != badWord) { 
+                    if (!swearWords.contains(replString) && !replString.equals(badWord)) {
                         suggestionList.add(replString);
                     }
                 }
