@@ -11,7 +11,10 @@
 #####    Evan Bookbinder    05-05-2013 handleClosesPoints and 3rd bullet changes (OVER & now) 
 #####    Evan Bookbinder    09-20-2013 Fixed rural area otherPoints in pathcast section, added rural phrase
 #####         Qinglu Lin    03-17-2014 DR 16309. Updated inserttorwatches and insertsvrwatches. 
-#####         Qinglu Lin    05-21-2014 DR 16309. Updated inserttorwatches and insertsvrwatches by changing 'FOR##' to 'FOR ##'. 
+#####         Qinglu Lin    05-21-2014 DR 16309. Updated inserttorwatches and insertsvrwatches by changing 'FOR##' to 'FOR ##'.
+#####         D. Friedman   08-28-2014 ASM #15658.  Add marine watch wording.
+#####         Qinglu Lin    09-15-2014 ASM #15551. Overhauled inserttorwatches and insertsvrwatches, added until.
+#####         Qinglu Lin    10-06-2014 ASN #556.   Updated secondBullet.
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -189,94 +192,123 @@ ${drainage.name}##
 ########END MACRO
 
 #macro(inserttorwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($keys = [])
-#set($mymap = {})
+#set($tornadoWatches = [])
+#set($ALSO = "")
+
 #foreach(${watch} in ${watches})
 #if(${watch.getPhenSig()} == 'TO.A')
-#set($key = ${watch.action} + ${watch.etn} + ${watch.startTime} + ${watch.endTime})
-#if (${list.contains(${keys}, $key)})
-#set($value = ${mymap.get($key)})
-#else
-#set($value = [])
-#set($success = $keys.add($key))
-#end
-#set($success = $value.add($watch))
-#set($success = ${mymap.put($key,$value)})
+#set($success = $tornadoWatches.add($watch))
 #end
 #end
-#set($torWatchAlso = "")
-#foreach(${key} in ${keys})
-#set($tornadoWatches = ${mymap.get($key)})
-#set($tornadoWatch = ${tornadoWatches.get(0)})
-A TORNADO WATCH ${torWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${tornadoWatch.endTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${tornadoWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})}##
-#if(${secondtimezone})
-/${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
-#end
- FOR ##
-#set($numPortions = ${list.size(${tornadoWatches})})
+
+#set($etns = [])
+#set($lastTime = "")
+#set($currTime = "")
+#set($lastEtn = "")
 #set($count = 0)
 #foreach(${watch} in ${tornadoWatches})
+#set($success = $etns.add(${watch.etn}))
+#end
+#foreach(${watch} in ${tornadoWatches})
 #set($count = $count + 1)
-#areaFormat(${watch.partOfState} true false true)${watch.state}##
-#if($count == $numPortions - 1)
- AND ##
-#elseif($count < $numPortions)
-...##
-#end
-#end
-#set($torWatchAlso = "ALSO ")
+#if(${lastEtn} != "" && ${watch.etn} != ${lastEtn})
 . ##
 #end
-  
-  
+#set($endTime = ${watch.endTime})
+#if(${watch.etn} != ${lastEtn})
+#set($lastTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
+A TORNADO WATCH${ALSO} REMAINS IN EFFECT ${lastTime}##
+#set($ALSO = " ALSO")
+#else
+#if(!$foreach.hasNext() || ${watch.etn} != $etns.get(${count}))
+ AND ##
+#else
+...##
+#end
+#set($currTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
+#if(${currTime} != ${lastTime})
+${currTime}##
+#set($lastTime = ${currTime})
+#end
+#end
+#if(!${watch.marineArea})
+#areaFormat(${watch.partOfState} true false true)${watch.state}##
+#else
+#formatMarineArea(${watch.marineArea})
+#end
+#set($lastEtn = ${watch.etn})
+#end
+#if(${lastEtn} != "")
+.
+#end
 #end
 ########END MACRO
 
-#macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($keys = [])
-#set($mymap = {})
-#foreach(${watch} in ${watches})
-#if(${watch.getPhenSig()} == 'SV.A')
-#set($key = ${watch.action} + ${watch.etn} + ${watch.startTime} + ${watch.endTime})
-#if (${list.contains(${keys}, $key)})
-#set($value = ${mymap.get($key)})
-#else
-#set($value = [])
-#set($success = $keys.add($key))
-#end
-#set($success = $value.add($watch))
-#set($success = ${mymap.put($key,$value)})
-#end
-#end
-#set($svrWatchAlso = "")
-#foreach(${key} in ${keys})
-#set($severeWatches = ${mymap.get($key)})
-#set($svrWatch = ${severeWatches.get(0)})
-A SEVERE THUNDERSTORM WATCH ${svrWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${svrWatch.endTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${svrWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})}##
+#macro(until $endTime $timeFormat $secondtimezone $watch)
+UNTIL ${dateUtil.formatUseNoonMidnight(${endTime}, ${timeFormat.clock}, 15, ${localtimezone})}##
 #if(${secondtimezone})
-/${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
+/${dateUtil.formatUseNoonMidnight(${watch.getEndTime()}, ${timeFormat.clock}, 15, ${secondtimezone})}/##
 #end
  FOR ##
-#set($numPortions = ${list.size(${severeWatches})})
+#end
+
+#macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
+#set($svrWatches = [])
+#set($ALSO = "")
+
+#foreach(${watch} in ${watches})
+#if(${watch.getPhenSig()} == 'SV.A')
+#set($success = $svrWatches.add($watch))
+#end
+#end
+
+#set($etns = [])
+#set($lastTime = "")
+#set($currTime = "")
+#set($lastEtn = "")
 #set($count = 0)
-#foreach(${watch} in ${severeWatches})
+#foreach(${watch} in ${svrWatches})
+#set($success = $etns.add(${watch.etn}))
+#end
+#foreach(${watch} in ${svrWatches})
 #set($count = $count + 1)
-#areaFormat(${watch.partOfState} true false true)${watch.state}##
-#if($count == $numPortions - 1)
- AND ##
-#elseif($count < $numPortions)
-...##
-#end
-#end
-#set($svrWatchAlso = "ALSO ")
+#if(${lastEtn} != "" && ${watch.etn} != ${lastEtn})
 . ##
 #end
-
-
+#set($endTime = ${watch.endTime})
+#if(${watch.etn} != ${lastEtn})
+#set($lastTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
+A SEVERE THUNDERSTORM WATCH${ALSO} REMAINS IN EFFECT ${lastTime}##
+#set($ALSO = " ALSO")
+#else
+#if(!$foreach.hasNext() || ${watch.etn} != $etns.get(${count}))
+ AND ##
+#else
+...##
 #end
-########END
+#set($currTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
+#if(${currTime} != ${lastTime})
+${currTime}##
+#set($lastTime = ${currTime})
+#end
+#end
+#if(!${watch.marineArea})
+#areaFormat(${watch.partOfState} true false true)${watch.state}##
+#else
+#formatMarineArea(${watch.marineArea})
+#end
+#set($lastEtn = ${watch.etn})
+#end
+#if(${lastEtn} != "")
+.
+#end
+#end
+########END MACRO
+
+#macro(formatMarineArea $marineArea)
+${marineArea}##
+#end
+########END MACRO
 
 #macro(printcoords $coordinates $list)
 #set($count = 0)
@@ -1153,15 +1185,15 @@ ${partOfArea}${area.name}...
 ######### MACRO TO GENERATE SECOND BULLET (UNTIL XXXX AMPM TZ (DAY) IN WARNINGS ##########
 #macro(secondBullet $dateUtil $expire $timeFormat $localtimezone $secondtimezone $duration)
 #if(${duration} >= 360)
-UNTIL ${dateUtil.format(${expire}, ${timeFormat.plain}, 15, ${localtimezone})}##
+UNTIL ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${localtimezone})}##
 #else
-UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}##
+UNTIL ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}##
 #end
 #if(${secondtimezone})
 #if(${duration} >= 360)
-/${dateUtil.format(${expire}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
+/${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #else
-/${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${secondtimezone})}/##
+/${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${secondtimezone})}/##
 #end
 #end
 #end

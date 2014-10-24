@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformatio
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.SiteColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation.SiteColor;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
@@ -75,6 +76,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Mar 25, 2014 2938       mpduff      Show status message for site and role changes.
  * Apr 01, 2014 2938       mpduff      Update logic for site and role changes.
  * Apr 22, 2014 3038       bclement    added initialized flag to differentiate between roster population and new joins
+ * Oct 10, 2014 3708       bclement    SiteConfigurationManager refactor
  * 
  * </pre>
  * 
@@ -94,16 +96,14 @@ public class SessionFeedView extends SessionView {
 
     private Action userRemoveSiteAction;
 
-    private List<String> enabledSites;
-
-    private final List<String> userEnabledSites;
-
     private List<SiteColor> colors;
+
+    private String actingSite;
 
     /**
      * Set of users logged in.
      */
-    private final ConcurrentHashMap<String, Presence> enabledUsers = new ConcurrentHashMap<String, Presence>();
+    private final ConcurrentHashMap<String, Presence> otherParticipants = new ConcurrentHashMap<String, Presence>();
 
     private volatile boolean initialized = false;
 
@@ -112,11 +112,9 @@ public class SessionFeedView extends SessionView {
      */
     public SessionFeedView() {
         super();
-        String actingSite = CollaborationConnection.getConnection()
+        actingSite = CollaborationConnection.getConnection()
                 .getPresence().getProperty(SiteConfigInformation.SITE_NAME)
                 .toString();
-        enabledSites = SiteConfigurationManager.getSubscribeList(actingSite);
-        userEnabledSites = SiteConfigurationManager.getUserSubscribeList();
     }
 
     /*
@@ -129,7 +127,7 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void initComponents(Composite parent) {
         super.initComponents(parent);
-        colors = SiteConfigurationManager.getSiteColors();
+        colors = SiteColorConfigManager.getSiteColors();
         if (colors != null) {
             for (VenueParticipant user : session.getVenue().getParticipants()) {
                 setColorForSite(user);
@@ -141,8 +139,8 @@ public class SessionFeedView extends SessionView {
     }
 
     @Subscribe
-    public void refreshBlockList(SubscribeList list) {
-        enabledSites = list.getEnabledSites();
+    public void refreshBlockList(SiteChangeEvent event) {
+        this.actingSite = event.getNewSite();
     }
 
     /*
@@ -209,17 +207,19 @@ public class SessionFeedView extends SessionView {
                     }
                 });
 
-        userAddSiteAction = new Action("Subscribe") {
+        userAddSiteAction = new Action("Show Messages from Site") {
             @Override
             public void run() {
-                userEnabledSites.add(getSelectedSite());
+                SiteConfigurationManager
+                        .showSite(actingSite, getSelectedSite());
             };
         };
 
-        userRemoveSiteAction = new Action("Unsubscribe") {
+        userRemoveSiteAction = new Action("Hide Messages from Site") {
             @Override
             public void run() {
-                userEnabledSites.remove(getSelectedSite());
+                SiteConfigurationManager
+                        .hideSite(actingSite, getSelectedSite());
             }
         };
 
@@ -240,13 +240,12 @@ public class SessionFeedView extends SessionView {
         super.fillContextMenu(manager);
         manager.add(colorChangeAction);
         String site = getSelectedSite();
-        if (userEnabledSites.contains(site) == false
-                && enabledSites.contains(site) == false) {
-            userAddSiteAction.setText("Subscribe to " + getSelectedSite());
+        if (!SiteConfigurationManager.isVisible(actingSite, site)) {
+            userAddSiteAction
+                    .setText("Show Messages from " + getSelectedSite());
             manager.add(userAddSiteAction);
-        } else if (enabledSites.contains(site) == false
-                && userEnabledSites.contains(site)) {
-            userRemoveSiteAction.setText("Unsubscribe from "
+        } else {
+            userRemoveSiteAction.setText("Hide Messages from "
                     + getSelectedSite());
             manager.add(userRemoveSiteAction);
         }
@@ -262,7 +261,7 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void setParticipantValues(ParticipantsLabelProvider labelProvider) {
         super.setParticipantValues(labelProvider);
-        labelProvider.setEnabledSites(enabledSites);
+        labelProvider.setActingSite(actingSite);
     }
 
     /*
@@ -293,8 +292,9 @@ public class SessionFeedView extends SessionView {
         }
 
         // should we append?
-        if (site == null || enabledSites.contains(site)
-                || userEnabledSites.contains(site)) {
+        if (site == null
+                || SiteConfigurationManager
+                        .isVisible(actingSite, site.toString())) {
             appendMessage(msg);
         }
     }
@@ -433,10 +433,9 @@ public class SessionFeedView extends SessionView {
         String siteName = getSiteName(presence);
 
         // only show sites you care about
-        if (enabledSites.contains(siteName)
-                || userEnabledSites.contains(siteName)) {
+        if (SiteConfigurationManager.isVisible(actingSite, siteName)) {
             String user = participant.getName();
-            Presence prev = enabledUsers.get(user);
+            Presence prev = otherParticipants.get(user);
 
             String roleName = getRoleName(presence);
             if (presence.isAvailable()) {
@@ -447,7 +446,7 @@ public class SessionFeedView extends SessionView {
                     sendSystemMessage(message);
                 }
 
-                enabledUsers.put(user, presence);
+                otherParticipants.put(user, presence);
             }
         }
 
@@ -536,7 +535,7 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void participantDeparted(VenueParticipant participant,
             String description) {
-        if (enabledUsers.remove(participant.getName()) != null) {
+        if (otherParticipants.remove(participant.getName()) != null) {
             super.participantDeparted(participant, description);
         }
     }
@@ -551,11 +550,7 @@ public class SessionFeedView extends SessionView {
         super.dispose();
         SiteColorInformation information = new SiteColorInformation();
         information.setColors(this.colors);
-        SiteConfigurationManager.writeSiteColorInformation(information);
-
-        // write out the user enabled sites information to a file
-        String[] sites = userEnabledSites.toArray(new String[userEnabledSites
-                .size()]);
-        SiteConfigurationManager.writeUserEnabledSites(sites);
+        // TODO should color config be written more often?
+        SiteColorConfigManager.writeSiteColorInformation(information);
     }
 }

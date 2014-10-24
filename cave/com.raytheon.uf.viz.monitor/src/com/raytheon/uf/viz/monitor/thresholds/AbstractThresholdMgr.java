@@ -33,6 +33,9 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.filename.DefaultFilenameMgr;
@@ -53,6 +56,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Mar 22, 2010 #4282      zhao         obtain zone IDs from monitoring-area-config-manager
  * Feb 16, 2011 #7346      zhao         added getDirectionalThresholdValueCellType(...)
  * Apr 28, 2014  3086      skorolev     Updated getAreaConfigMgr method.
+ * Oct 17, 2014  3220      skorolev     Replaced System.out.print with debug statusHandler.
  * 
  * </pre>
  * 
@@ -60,6 +64,9 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * @version 1.0
  */
 public abstract class AbstractThresholdMgr {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractThresholdMgr.class);
 
     /**
      * Monitor Area Configuration Manager.
@@ -134,7 +141,6 @@ public abstract class AbstractThresholdMgr {
         this.defMonitorThreshName = defMonitorThreshName;
         this.appName = appName;
         this.site = LocalizationManager.getInstance().getCurrentSite();
-        this.areaConfigMgr = getMonitorAreaConfigInstance();
     }
 
     /**
@@ -201,7 +207,7 @@ public abstract class AbstractThresholdMgr {
         LocalizationFile locFile = pm.getLocalizationFile(context,
                 pathAndFileName);
 
-        System.out.println("--- validate path = "
+        statusHandler.handle(Priority.DEBUG, "--- validate path = "
                 + locFile.getFile().getAbsolutePath());
 
         return locFile.getFile().exists();
@@ -526,7 +532,8 @@ public abstract class AbstractThresholdMgr {
 
             ArrayList<String> threshKeys = getThresholdKeys(DataUsageKey.DISPLAY);
 
-            System.out.println("---- " + currFullDisplayXmlFileName);
+            statusHandler.handle(Priority.DEBUG, "---- "
+                    + currFullDisplayXmlFileName);
 
             displayThreshMgr.createConfigFromDefaults(
                     currFullDisplayXmlFileName, areaIDs, threshKeys);
@@ -764,14 +771,17 @@ public abstract class AbstractThresholdMgr {
         ArrayList<AreaXML> areasArray = displayXML.getAreas();
 
         for (AreaXML area : areasArray) {
-            System.out.println("--- " + area.getAreaId());
+            statusHandler.handle(Priority.DEBUG, "--- " + area.getAreaId());
 
             ArrayList<AreaThresholdXML> atXmlArray = area.getAreaThresholds();
 
             for (AreaThresholdXML atXml : atXmlArray) {
-                System.out.println("******    " + atXml.getKey());
-                System.out.println("     R    " + atXml.getRed());
-                System.out.println("     Y    " + atXml.getYellow());
+                statusHandler.handle(Priority.DEBUG,
+                        "******    " + atXml.getKey());
+                statusHandler.handle(Priority.DEBUG,
+                        "     R    " + atXml.getRed());
+                statusHandler.handle(Priority.DEBUG,
+                        "     Y    " + atXml.getYellow());
             }
         }
     }
@@ -784,23 +794,18 @@ public abstract class AbstractThresholdMgr {
         ArrayList<AreaXML> areasArray = threshXmlCopy.getAreas();
 
         for (AreaXML area : areasArray) {
-            System.out.println("--- " + area.getAreaId());
+            statusHandler.handle(Priority.DEBUG, "--- " + area.getAreaId());
 
             ArrayList<AreaThresholdXML> atXmlArray = area.getAreaThresholds();
 
             for (AreaThresholdXML atXml : atXmlArray) {
-                System.out.println("******    " + atXml.getKey());
-                System.out.println("     R    " + atXml.getRed());
-                System.out.println("     Y    " + atXml.getYellow());
+                statusHandler.handle(Priority.DEBUG,
+                        "******    " + atXml.getKey());
+                statusHandler.handle(Priority.DEBUG,
+                        "     R    " + atXml.getRed());
+                statusHandler.handle(Priority.DEBUG,
+                        "     Y    " + atXml.getYellow());
             }
         }
     }
-
-    /**
-     * Gets Monitor Area Configuration manager.
-     * 
-     * @return manager
-     */
-    protected abstract FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance();
-
 }

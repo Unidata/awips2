@@ -31,11 +31,9 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
@@ -50,7 +48,6 @@ import com.raytheon.uf.viz.monitor.snow.listeners.ISnowResourceListener;
 import com.raytheon.uf.viz.monitor.snow.threshold.SnowThresholdMgr;
 import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonitoringAreaConfigDlg;
 import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowZoneTableDlg;
-import com.raytheon.uf.viz.monitor.util.MonitorThresholdConfiguration;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
@@ -75,6 +72,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Nov. 1, 2012 1297       skorolev    Changed HashMap to Map and clean code
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
+ * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
+ * Oct 16, 2014 3220       skorolev    Corrected snowConfig assignment.
  * 
  * </pre>
  * 
@@ -83,7 +82,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  */
 
-public class SnowMonitor extends ObsMonitor {
+public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SnowMonitor.class);
@@ -98,13 +97,13 @@ public class SnowMonitor extends ObsMonitor {
     private SnowMonitoringAreaConfigDlg areaDialog = null;
 
     /** SNOW configuration manager **/
-    private FSSObsMonitorConfigurationManager snowConfig;
+    private FSSObsMonitorConfigurationManager snowConfig = null;
 
     /**
      * This object contains all observation data necessary for the table dialogs
      * and trending plots
      */
-    private final ObMultiHrsReports obData;
+    private ObMultiHrsReports obData;
 
     /** All SNOW datauri start with this */
     private final String OBS = "fssobs";
@@ -121,22 +120,20 @@ public class SnowMonitor extends ObsMonitor {
     /** Pattern for SNOW **/
     private final Pattern snowPattern = Pattern.compile(DataURI.SEPARATOR + OBS
             + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR + wildCard
             + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + "snow");
+            + DataURI.SEPARATOR + wildCard);
 
     /**
      * Private constructor, singleton
      */
     private SnowMonitor() {
         pluginPatterns.add(snowPattern);
-        snowConfig = new FSSObsMonitorConfigurationManager(currentSite,
-                MonName.snow.name());
-        readTableConfig(MonitorThresholdConfiguration.SNOW_THRESHOLD_CONFIG);
+        snowConfig = FSSObsMonitorConfigurationManager.getSnowObsManager();
+        updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SNOW);
         obData.setThresholdMgr(SnowThresholdMgr.getInstance());
-        // Pre-populate dialog with an observation (METAR) for KOMA
+        obData.getZoneTableData();
     }
 
     /**
@@ -153,19 +150,16 @@ public class SnowMonitor extends ObsMonitor {
         return monitor;
     }
 
-    // TODO: Provide the changes in EDEX URIFilters when area configuration file
-    // has been changed.
     /**
      * Re-initialization of monitor.
      * 
      * DR#11279: When monitor area configuration is changed, this module is
      * called to re-initialize monitor using new monitor area configuration
      */
-    public static void reInitialize() {
-        if (monitor != null) {
-            monitor = null;
-            monitor = new SnowMonitor();
-        }
+    public void reInitialize() {
+        if (monitor != null)
+            monitor.nullifyMonitor();
+        SnowMonitor.getInstance();
     }
 
     /**
@@ -261,24 +255,18 @@ public class SnowMonitor extends ObsMonitor {
     }
 
     /**
+     * Reads Table Configuration.
+     * 
      * Method that reads the table configuration and updates the zone monitor
      * threshold map
      * 
-     * @param file
-     *            -- the xml configuration filename
      */
-    public void readTableConfig(String file) {
+    public void updateMonitoringArea() {
         Map<String, List<String>> zones = new HashMap<String, List<String>>();
         // create zones and station list
-        try {
-            for (String zone : snowConfig.getAreaList()) {
-                List<String> stations = snowConfig.getAreaStations(zone);
-                zones.put(zone, stations);
-            }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Snow failed to load configuration..."
-                            + this.getClass().getName());
+        for (String zone : snowConfig.getAreaList()) {
+            List<String> stations = snowConfig.getAreaStations(zone);
+            zones.put(zone, stations);
         }
         MonitoringArea.setPlatformMap(zones);
     }
@@ -315,7 +303,12 @@ public class SnowMonitor extends ObsMonitor {
      */
     @Override
     public void configUpdate(IMonitorConfigurationEvent me) {
-        fireMonitorEvent(zoneDialog.getClass().getName());
+        snowConfig = (FSSObsMonitorConfigurationManager) me.getSource();
+        updateMonitoringArea();
+        if (zoneDialog != null && !zoneDialog.isDisposed()) {
+            zoneDialog.refreshZoneTableData(obData);
+            fireMonitorEvent(zoneDialog.getClass().getName());
+        }
     }
 
     /**

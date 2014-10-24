@@ -1,18 +1,20 @@
-################################################################
-## SEVERE WEATHER STATEMENT TEMPLATE                          ##
-## FOR CR IMPACT BASED TOR/SVR INITIATIVE                     ## 
-## CREATED BY PHIL KURIMSKI - WFO DTX                         ##
-## 	   UPDATED Evan Bookbinder 2-22-13 2013 IBW Changes       ##
-##     UPDATED -- Kurimski 5-20-13 2013 IBW Changes           ##
-##     UPDATED -- Kurimski 9/17/13 Tor Emer Headline          ##
-##     UPDATED -- Bookbinder 9/18/13 Implement config.vm      ##
+#################################################################
+## SEVERE WEATHER STATEMENT TEMPLATE                           ##
+## FOR CR IMPACT BASED TOR/SVR INITIATIVE                      ## 
+## CREATED BY PHIL KURIMSKI - WFO DTX                          ##
+## 	   UPDATED Evan Bookbinder 2-22-13 2013 IBW Changes        ##
+##     UPDATED -- Kurimski 5-20-13 2013 IBW Changes            ##
+##     UPDATED -- Kurimski 9/17/13 Tor Emer Headline           ##
+##     UPDATED -- Bookbinder 9/18/13 Implement config.vm       ##
 ##     Mike Dangelo 1/24/2014 added logic to keep defaultCTAs from being used in a TOR EMER (duplication)
-##     Mike Rega 4/23/14 fixed MND blank line in CAN segment  ##
+##     UPDATED -- Bookbinder 2/18/14 Hail/Wind priority matrix ##
+##     UPDATED -- Bookbinder 2/27/14 TOR EMER CTA              ##
+##     Mike Rega 4/23/14 fixed MND blank line in CAN segment   ##
+##     Bookbinder 6/24/14 Added code to prevent Lg/Vlnt TOR w/ base ##
+##     Evan Bookbinder 9/5/2014 Fixed law enf CTA             ##
+##     Evan Bookbinder 9/16/2014 2015 IBW tag                 ##
 ################################################################
-## Commented out Impact statements Feb 2013 and created file to
-## be parsed into the template called impactStatements.vm
-## Changes to the impact statements can be made to this file
-## instead of the template
+## Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
 #parse("config.vm")
 ###################################################################
@@ -178,7 +180,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${action}=="EXP" || ${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
 #### SET A DEFAULT STATEMENT IN CASE NO BULLET WAS SELECTED OR AVAILABLE
 #if(${stormType} == "line")
-  #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE !** WEAKENED. MOVED OUT OF THE WARNED AREA.**! THEREFORE THE WARNING ${expcanBODYTag}.")
+  #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE !** WEAKENED. MOVED OUT OF THE WARNED AREA.**! THEREFORE THE WARNING ${expcanBODYTag}.")
 #else
   #if(${phenomena}=="SV")
     #set($expcanPhrase = "THE SEVERE THUNDERSTORM WHICH PROMPTED THE WARNING HAS !** WEAKENED. MOVED OUT OF THE WARNED AREA. **! THEREFORE THE WARNING ${expcanBODYTag}.")
@@ -190,9 +192,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${list.contains(${bullets}, "weakened")})
   #if(${stormType} == "line")
     #if(${phenomena}=="SV")
-      #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND NO LONGER POSE AN IMMEDIATE THREAT TO LIFE OR PROPERTY. THEREFORE THE WARNING ${expcanBODYTag}.")
+      #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND NO LONGER POSE AN IMMEDIATE THREAT TO LIFE OR PROPERTY. THEREFORE THE WARNING ${expcanBODYTag}.")
     #else
-      #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND NO LONGER APPEAR CAPABLE OF PRODUCING A TORNADO. THEREFORE THE WARNING ${expcanBODYTag}.")
+      #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND NO LONGER APPEAR CAPABLE OF PRODUCING A TORNADO. THEREFORE THE WARNING ${expcanBODYTag}.")
     #end
   #else
     #if(${phenomena}=="SV")
@@ -205,7 +207,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #### MOVED OUT OF THE WARNED AREA
 #if(${list.contains(${bullets}, "movedout")})
   #if(${stormType} == "line")
-      #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE MOVED OUT OF THE AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
+      #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE MOVED OUT OF THE AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
   #else
       #set($expcanPhrase = "THE STORM WHICH PROMPTED THE WARNING HAS MOVED OUT OF THE AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
   #end
@@ -213,7 +215,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #### WEAKENED AND MOVED OUT OF THE AREA
 #if(${list.contains(${bullets}, "wkndandmoved")})
   #if(${stormType} == "line")
-      #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND EXITED THE WARNED AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
+      #set($expcanPhrase = "THE STORMS WHICH PROMPTED THE WARNING HAVE WEAKENED BELOW SEVERE LIMITS...AND EXITED THE WARNED AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
   #else
       #set($expcanPhrase = "THE STORM WHICH PROMPTED THE WARNING HAS WEAKENED BELOW SEVERE LIMITS AND EXITED THE WARNED AREA. THEREFORE THE WARNING ${expcanBODYTag}.")
   #end
@@ -532,13 +534,13 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING WILL OVERRIDE CERTAIN ##
 ## VARIABLES TO HEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION            ##
 ############################################################################
-#if(${list.contains(${bullets}, "torEmergency")})
-  #set($reportType = "TORNADO EMERGENCY FOR !** LOCATION **!. A CONFIRMED LARGE AND DESTRUCTIVE TORNADO WAS") 
+#if(${list.contains(${bullets}, "torEmergency")}) 
   #set($ctaSelected = "YES")
   #set($torTag = "OBSERVED")
   #set($torHazard = "DEADLY TORNADO")
   #set($torThreat = "<L>TORNADO DAMAGE THREAT...CATASTROPHIC</L>")
-  #set($pdstor = "THIS IS A PARTICULARLY DANGEROUS SITUATION.")
+  #set($reportType = "A CONFIRMED LARGE AND DESTRUCTIVE TORNADO WAS")
+  #set($pdstor = "TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!. TAKE COVER NOW. THIS IS A PARTICULARLY DANGEROUS SITUATION.")
   #if(${stormType} == "line")
     #set($pathcastLead = "THESE TORNADIC STORMS")
     #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
@@ -648,7 +650,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${list.contains(${bullets}, "pingpongHail")})
   #set($hailThreat = "PING PONG BALL SIZE") 
   #set($hailLead = "LARGE HAIL UP TO ") 
-  #set($hailHazard = "PING PONG SIZE HAIL")
+  #set($hailHazard = "PING PONG BALL SIZE HAIL")
   #set($hailTrail = "")
   #set($hailSize = 1.50)  
   #set($hailTag = "1.50IN")
@@ -751,8 +753,16 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 	  #if(${list.contains(${bullets}, "svrTorTag")})
         #set($hazard = "${windHazard}...${hailHazard} AND POSSIBLE TORNADO.")
       #end
- *#
+*#
     #end
+  #elseif(${windSpeed} >= 80 || (${windSpeed} >= 70 && ${hailSize} <= 1.5) || (${windSpeed} >= 58 && ${hailSize} <= 1.25))
+    #set($hailwind = " ${reportAuthSVR} ${windThreat} AND ${hailLead}${hailThreat}${hailTrail}")
+    #set($hazard = "${windHazard} AND ${hailHazard}.")
+#*
+        #if(${list.contains(${bullets}, "svrTorTag")})
+       #set($hazard = "${windHazard}...${hailHazard} AND POSSIBLE TORNADO.")
+    #end
+*#  
   #else
     #set($hailwind = " ${reportAuthSVR} ${hailLead}${hailThreat}${hailTrail} AND ${windThreat}")
   	#set($hazard = "${hailHazard} AND ${windHazard}.")
@@ -931,6 +941,8 @@ THOSE ATTENDING THE !**now/venue name or location**! ARE IN THE PATH OF THIS STO
 #end
 #end
 
+## parse file command here is to pull in mile marker info
+## #parse("dssEvents.vm")
 ## parse file command here is to pull in extra locations (venues) info
 ## #parse("pointMarkers.vm")
 ## parse file command here is to pull in mile marker info
@@ -954,7 +966,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #end
 #if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
 #if(${list.contains(${bullets}, "torEmergency")})
-THIS IS AN EXTREMELY DANGEROUS TORNADO WITH COMPLETE DEVASTATION LIKELY. YOU COULD BE KILLED IF NOT UNDERGROUND OR IN A TORNADO SHELTER. DO NOT DELAY...SEEK SHELTER NOW! IF NO UNDERGROUND SHELTER IS AVAILABLE SEEK SHELTER IN AN INTERIOR ROOM OF THE LOWEST LEVEL OF A STRUCTURE...OR IF TIME ALLOWS...CONSIDER MOVING TO AN UNDERGROUND SHELTER ELSEWHERE. MOBILE HOMES AND OUTBUILDINGS WILL OFFER NO SHELTER FROM THIS TORNADO.
+TO REPEAT...A LARGE...EXTREMELY DANGEROUS...AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TO PROTECT YOUR LIFE...TAKE COVER NOW. MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
 #else
 !** YOU SELECTED THE TORNADO EMERGENCY CTA WITHOUT SELECTING THE TORNADO EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
@@ -965,11 +977,11 @@ THIS IS AN EXTREMELY DANGEROUS TORNADO WITH COMPLETE DEVASTATION LIKELY. YOU COU
   #set($dummy='dummy')
 #else
 #if(${list.contains(${bullets}, "defaultMobileCTA")})
-${preAmbleTOR}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmbleTOR}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE OUTDOORS...IN A MOBILE HOME...OR IN A VEHICLE...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
 #end
 #if(${list.contains(${bullets}, "defaultUrbanCTA")})
-${preAmbleTOR}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmbleTOR}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE OUTDOORS OR IN A VEHICLE...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
 #end
 #end
@@ -986,11 +998,17 @@ TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT. DO NOT WAIT TO SE
 
 #end
 #if(${list.contains(${bullets}, "largeTORCTA")})
+#if(${list.contains(${bullets}, "baseTornado")} || ${list.contains(${bullets}, "landspoutTornado")})
+!** LARGE AND EXTREME DANGEROUS TORNADO CTA SELECTED WITH A BASE/WEAK TORNADO WARNING. PLEASE CHECK
+YOUR SELECTIONS AND REGENERATE THIS WARNING **!
+
+#else
 A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND. TAKE IMMEDIATE TORNADO PRECAUTIONS. THIS IS AN EMERGENCY SITUATION.
 
 #end
-#if(${list.contains(${bullets}, "lawEnforcementCTA")})
-IF A TORNADO OR OTHER SEVERE WEATHER IS SPOTTED...REPORT IT TO THE NATIONAL WEATHER SERVICE OR YOUR LOCAL AUTHORITY WHO WILL SEND YOUR REPORT. THIS ACT MAY SAVE LIVES OF OTHERS IN THE PATH OF DANGEROUS WEATHER. 
+#end
+#if(${list.contains(${bullets}, "lawEnforcementTORCTA")})
+IF A TORNADO OR OTHER SEVERE WEATHER IS SPOTTED...REPORT IT TO THE NATIONAL WEATHER SERVICE OR YOUR LOCAL NEAREST LAW ENFORCEMENT AGENCY WHO WILL SEND YOUR REPORT. THIS ACT MAY SAVE LIVES OF OTHERS IN THE PATH OF DANGEROUS WEATHER. 
 
 #end
 #if(${list.contains(${bullets}, "squallCTA")} && ${stormType} == "line")
@@ -1201,6 +1219,14 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 ${svrTorTag}
 <L>${hailTag}</L>
 <L>${windTag}</L>
+### 2015 IBW ENHANCEMENT
+#* REMOVE THIS COMMENT LINE WHEN DIRECTED BY YOUR REGION
+#if((${hailSize} >= $svrHailExtremeThreshold) || (${windSpeed} >= $svrWindExtremeThreshold))
+<L>$svrDamageExtremePhrase</L>
+#elseif ((${hailSize} >= $svrHailConsiderableThreshold) || (${windSpeed} >= $svrWindConsiderableThreshold))
+<L>$svrDamageConsiderablePhrase</L>
+#end
+*# ##REMOVE THIS COMMENT BLOCK WHEN DIRECTED BY YOUR REGION
 #end
 #################################################################################
 ## TOR Tornado/Hail/Wind Tags used by CR for the impact based Warning Experiment.

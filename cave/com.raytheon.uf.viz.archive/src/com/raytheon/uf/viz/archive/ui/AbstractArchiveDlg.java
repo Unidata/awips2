@@ -82,6 +82,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 15, 2014 3034       lvenable     Added dispose checks in runAsync calls.
  * Apr 10, 2014 3023       rferrel      Added setTotalSelectedSize method.
  * Apr 23, 2014 3045       rferrel      Changes to prevent race condition while getting labels.
+ * Aug 26, 2014 3553       rferrel      Force redisplay of table after getting all display labels.
  * 
  * </pre>
  * 
@@ -145,6 +146,9 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
     /** Job running to populate the currently selected archive/category. */
     private Job populateTableJob = null;
+
+    /** Flag to indicate all labels for all tables are loaded. */
+    protected volatile boolean haveAllLabels = false;
 
     /**
      * @param parentShell
@@ -360,6 +364,9 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      */
     protected void createTable() {
         tableComp = new ArchiveTableComp(shell, type, this, sizeJob);
+        // Indicate loading the table labels.
+        tableComp
+                .setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         sizeJob.addUpdateListener(this);
     }
 
@@ -491,6 +498,13 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * adjust sizes on the display table.
      */
     protected void populateTableComp() {
+        populateTableComp(false);
+    }
+
+    /**
+     * @param forceUpdate
+     */
+    protected void populateTableComp(final boolean forceUpdate) {
         final String archiveName = getSelectedArchiveName();
         final String categoryName = getSelectedCategoryName();
 
@@ -508,7 +522,8 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                getCategoryTableData(archiveName, categoryName, shutdown);
+                getCategoryTableData(archiveName, categoryName, shutdown,
+                        forceUpdate);
 
                 // Just populated the current table update cursor.
                 if (!shutdown.get()) {
@@ -543,7 +558,8 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * @param shutdown
      */
     private void getCategoryTableData(final String archiveName,
-            final String categoryName, final AtomicBoolean shutdown) {
+            final String categoryName, final AtomicBoolean shutdown,
+            boolean forceUpdate) {
 
         if (!sizeJob.isCurrentDisplay(archiveName, categoryName)) {
             VizApp.runAsync(new Runnable() {
@@ -558,7 +574,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         }
 
         final List<DisplayData> displayDatas = sizeJob.changeDisplay(
-                archiveName, categoryName, shutdown);
+                archiveName, categoryName, shutdown, forceUpdate);
 
         VizApp.runAsync(new Runnable() {
 
@@ -695,6 +711,8 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
                             .setToolTipText("Change display to show all case selections");
                 }
             }
+        } else {
+            showingSelected = false;
         }
     }
 
@@ -838,9 +856,23 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Allows sub-class to perform updates once all the display data is loaded.
+     * Perform updates once all the display data is loaded.
      */
-    abstract public void loadedAllDisplayData();
+    public void loadedAllDisplayData() {
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                haveAllLabels = true;
+                if (showingSelected) {
+                    populateSelectAllTable();
+                } else {
+                    populateTableComp(true);
+                }
+                tableComp.setCursor(null);
+            }
+        });
+    }
 
     /**
      * When unsaved modifications this asks the user to verify the close.

@@ -70,6 +70,12 @@
 		<substitute key="frameCount" value="17"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="HRRR" id="hrrr" useReferenceTime="true">
+		<substitute key="modelName" value="HRRR"/>
+		<substitute key="TP" value="TP"/>
+		<substitute key="frameCount" value="16"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="NAM12" id="nam12" useReferenceTime="true">
 		<substitute key="modelName" value="${NAM12model}"/>
 		<substitute key="TP" value="TP3hr"/>

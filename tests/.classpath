@@ -14,7 +14,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.comm"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.http"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.serialization"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.harvester"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.localization"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.edex.common"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.log4j"/>

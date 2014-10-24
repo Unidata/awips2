@@ -20,6 +20,10 @@
 package com.raytheon.viz.gfe.ui;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -40,7 +44,9 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 10, 2010     #4727  randerso     Initial creation
+ * Jun 10, 2010     #4727  randerso    Initial creation
+ * Sep 15, 2014     #3592  randerso    Fix logic to not include USER level.
+ *                                     Code cleanup.
  * 
  * </pre>
  * 
@@ -66,33 +72,24 @@ public class AccessMgr {
         IPathManager pm = PathManagerFactory.getPathManager();
         Map<LocalizationLevel, LocalizationFile> tieredData = pm
                 .getTieredLocalizationFile(type, itemName);
+        tieredData.remove(LocalizationLevel.USER);
 
-        StringBuilder kind = new StringBuilder();
-
-        int i = 1;
-        for (LocalizationLevel level : tieredData.keySet()) {
-            if (i == 1) {
-                kind.append(level.toString());
-            } else if (i == tieredData.size()) {
-                kind.append(" and ").append(level.toString());
-            } else {
-                kind.append(", ").append(level.toString());
-            }
-            i++;
-        }
+        List<LocalizationLevel> availableLevels = new ArrayList<LocalizationLevel>(
+                Arrays.asList(pm.getAvailableLevels()));
+        availableLevels.remove(LocalizationLevel.USER);
 
         boolean continueFlag = false;
         boolean answer = false;
         String message;
 
-        if (kind.length() == 0) {
-            message = "There is no version of " + altName
-                    + " at the BASE, CONFIGURED, or SITE levels.";
+        if (tieredData.isEmpty()) {
+            message = "There is no version of " + altName + " at the "
+                    + levelString(availableLevels) + " levels.";
         } else {
             message = "Note that " + altName
                     + " will continue to appear in your "
                     + "GFESuite since a version of it exists " + "at the "
-                    + kind + " level.";
+                    + levelString(tieredData.keySet()) + " level.";
             continueFlag = true;
         }
         message = altName + " will be deleted. \n\n" + message;
@@ -103,5 +100,26 @@ public class AccessMgr {
             answer = MessageDialog.openConfirm(shell, "Item Delete", message);
         }
         return answer;
+    }
+
+    private static String levelString(Collection<LocalizationLevel> levels) {
+        StringBuilder kind = new StringBuilder();
+
+        int i = 1;
+        for (LocalizationLevel level : levels) {
+            if (level.equals(LocalizationLevel.USER)) {
+                continue;
+            }
+            if (i == 1) {
+                kind.append(level.toString());
+            } else if (i == levels.size()) {
+                kind.append(" and ").append(level.toString());
+            } else {
+                kind.append(", ").append(level.toString());
+            }
+            i++;
+        }
+
+        return kind.toString();
     }
 }

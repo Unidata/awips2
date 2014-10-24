@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channel;
 
 /**
@@ -37,17 +38,25 @@ import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channe
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 16, 2012            mschenke     Initial creation
+ * Aug 22, 2014 DR 17313   jgerth       Support for load properties
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
+/**
+ * @author awips
+ *
+ */
 @XmlAccessorType(XmlAccessType.NONE)
 public class ChannelResource {
 
     @XmlElement
     protected AbstractResourceData resourceData;
+
+    @XmlElement
+    protected LoadProperties loadProperties;
 
     @XmlElement
     protected Channel channel;
@@ -98,6 +107,21 @@ public class ChannelResource {
      */
     public void setChannelName(String channelName) {
         this.channelName = channelName;
+    }
+
+    /**
+     * @return the loadProperties
+     */
+    public LoadProperties getLoadProperties() {
+        return loadProperties;
+    }
+
+    /**
+     * @param loadProperties
+     *            the loadProperties to set
+     */
+    public void setLoadProperties(LoadProperties loadProperties) {
+        this.loadProperties = loadProperties;
     }
 
     /*

@@ -23,7 +23,7 @@ c SARS For Supercells
      &ransrh3t1
        
        character datestn(maob)*16,dummy*25,matdatestn(maob)*16
-       character sndglist(saob)*15, fname*(80), fname1*(80)
+       character sndglist(saob)*15, fname*(256), fname1*(256)
        character tortype(maob)*8,suplist(saob)*8       
 
        integer i,j,cnt,mlmrmat(maob),mlcapemat(maob),
