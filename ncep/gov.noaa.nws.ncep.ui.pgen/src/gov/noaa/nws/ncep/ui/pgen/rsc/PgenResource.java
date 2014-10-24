@@ -225,7 +225,6 @@ public class PgenResource extends
      */
     @Override
     public void disposeInternal() {
-        // System.out.println("PGEN Resource being disposed");
 
         // remove this PGEN Resource from the PGEN Session
         if (PgenSession.getInstance().getCurrentResource() == this)
@@ -1410,8 +1409,6 @@ public class PgenResource extends
     @Override
     public void notifyRemove(ResourcePair rp) throws VizException {
 
-        // System.out.println("PGEN Resource being notified");
-
         if (rp.getResource() == this) {
             /*
              * this resource is about to be removed, allow resourceData chance
@@ -2222,6 +2219,15 @@ public class PgenResource extends
      */
     public void setNeedsDisplay(boolean needsDisplay) {
         this.needsDisplay = needsDisplay;
+    }
+
+    /**
+     * Adds a product into the PGEN drawing layer.
+     * 
+     * @return
+     */
+    public boolean removeEmptyDefaultProduct() {
+        return resourceData.removeEmptyDefaultProduct();
     }
 
 }

@@ -102,7 +102,7 @@ import de.micromata.opengis.kml.v_2_2_0.Vec2;
  * ------------- -------- ----------- --------------------------
  * Jun0 6, 2012           bsteffen    Initial creation
  * Jan 23, 2014  2703     bsteffen    Use framesInfo for frame count.
- * 
+ * Oct 06, 2014  3686     njensen     Ensure lastIndex is at least 1
  * 
  * </pre>
  * 
@@ -305,6 +305,8 @@ public class KmlExportJob extends Job {
                 int lastIndex = options.getLastFrameIndex();
                 lastIndex = Math.min(lastIndex, descriptor.getFramesInfo()
                         .getFrameCount());
+                // in case there's zero frames (i.e. all time agnostic)
+                lastIndex = Math.max(lastIndex, 1);
                 rscmonitor.beginTask("Saving " + rsc.getName(), lastIndex
                         - startIndex);
                 DataTime[] times = descriptor.getFramesInfo().getTimeMap()
@@ -321,6 +323,7 @@ public class KmlExportJob extends Job {
                         }
                     }
                 }
+
                 List<DataTime> pastFrames = new ArrayList<DataTime>();
                 for (int i = startIndex; i < lastIndex; i += 1) {
                     descriptor.setFramesInfo(new FramesInfo(i));

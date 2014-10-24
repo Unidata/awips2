@@ -12,6 +12,8 @@
 ##           Mike Rega       1-18-2014 added Alaska GP changes for 14.2.1
 ##           Mike Rega       2-27-2014 changed headline items to match 10-922
 ##           Mike Rega       4-23-2014 fixed MND blank line
+##           Phil Kurimski   6-24-2014 put type of warning in headline and changed CAN/EXP wording per 10-922 directive
+##           Evan Bookbinder 9-5-2014 corected advType inclusion in the headline
 #################################### SET SOME VARs ###################################
 #parse("config.vm")
 #set($hycType = "")
@@ -35,6 +37,8 @@
 #elseif(${ic} == "UU")
     #set($hycType = "")
     #set($floodReason = "")
+#elseif(${ic} == "ER")
+    #set($hycType = "")
 #elseif(${ic} == "DM")
     #set($hycType = "A LEVEE FAILURE")
     #set($floodReason = " FLOODING DUE TO A LEVEE FAILURE WILL CONTINUE.")
@@ -44,6 +48,13 @@
 #elseif(${ic} == "GO")
     #set($hycType = "A GLACIER-DAMMED LAKE OUTBURST")
     #set($floodReason = " FLOODING DUE TO A GLACIER-DAMMED LAKE OUTBURST WILL CONTINUE.")
+#end
+#if(${list.contains(${bullets}, "smallstreams")})
+	#set($advType = "FOR SMALL STREAMS ")
+#elseif(${list.contains(${bullets}, "urbansmallstreams")})
+	#set($advType = "FOR URBAN AREAS AND SMALL STREAMS ")
+#else
+	#set($advType = "")
 #end
 ##
 ######################################################################################
@@ -114,13 +125,13 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ############################
 ### CREATE PHRASING DEPENDING ON WHETHER WE ISSUE EXP PRIOR TO EXPIRATION TIME OR NOT
 #if(${now.compareTo(${expire})} >= 0 && ${action}=="EXP" )
-  #set($expcanHLTag = "HAS EXPIRED")
+  #set($expcanHLTag = "HAS EXPIRED FOR")
   #set($expcanBODYTag = "HAS BEEN ALLOWED TO EXPIRE")
 #elseif(${action}=="EXP")
   #set($expcanHLTag = "WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}")
   #set($expcanBODYTag = "WILL BE ALLOWED TO EXPIRE")
 #elseif(${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
-  #set($expcanHLTag = "IS CANCELLED")
+  #set($expcanHLTag = "HAS BEEN CANCELLED FOR")
   #set($expcanBODYTag = "HAS BEEN CANCELLED")
 #end
 ################################
@@ -128,39 +139,31 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ################################
 
 #if(${action}=="EXP" || ${action}=="CAN")
-...THE FLOOD WARNING FOR ##
-#### modified by GP
-#if(${hycType} != "" && ${alaska} != "true")
-<L>${hycType}</L> IN ##
-#end
-#if(${hycType} != "" && ${alaska} == "true")
-<L>${hycType}</L> ##
+...THE FLOOD WARNING ${advType}##
+#if(${hycType} != "")
+FOR <L>${hycType}</L> ##
 #end
 #if(${alaska}=="true")
-!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**! ${expcanHLTag}...
+${expcanHLTag} !**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
 #elseif(${wrZoneCounty}=="true")
-#headlineLocList(${affectedCounties} true true true false) ${expcanHLTag}...
+${expcanHLTag} #headlineLocList(${affectedCounties} true true true false)...
 #else
-#headlineLocList(${areas} true true true false) ${expcanHLTag}...
+${expcanHLTag} #headlineLocList(${areas} true true true false)...
 #end
 ### GP end
 
 ## SLIGHTLY DIFFERENT VARIABLE FOR PARTIAL CANCELLATION HEADLINE
 #elseif(${action}=="CANCON" || ${CORCAN}=="true")
-...THE FLOOD WARNING FOR ##
-### added by GP
-#if(${hycType} != "" && ${alaska} != "true")
-<L>${hycType}</L> IN ##
-#end
-#if(${hycType} != "" && ${alaska} == "true")
-<L>${hycType}</L> ##
+...THE FLOOD WARNING ${advType}##
+#if(${hycType} != "")
+FOR <L>${hycType}</L> ##
 #end
 #if(${alaska}=="true")
-!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**! ${expcanHLTag}...
+${expcanHLTag} !**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
 #elseif(${wrZoneCounty}=="true")
-#headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
+${expcanHLTag} #headlineLocList(${cancelaffectedCounties} true true true false)...
 #else
-#headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
+${expcanHLTag} #headlineLocList(${cancelareas} true true true false)...
 #end
 ### GP end
 #end
@@ -241,7 +244,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...A FLOOD WARNING ##
+...A FLOOD WARNING ${advType}##
 #if(${hycType} != "")
 FOR <L>${hycType}</L> ##
 #end
@@ -299,13 +302,14 @@ THIS IS A TEST MESSAGE. ##
 ############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
 #if(${list.contains(${bullets},"stormPosition")})
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#if(${stormType} == "line")
-...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
-#else
-...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#set($phenom="")
+#if(${stormType} == "line" && ${list.contains(${bullets}, "thunder")})
+  #set($phenom="A LINE OF THUNDERSTORMS PRODUCING ")
+#elseif(${list.contains(${bullets}, "thunder")})
+  #set($phenom="A THUNDERSTORM PRODUCING ")
 #end
+...${phenom}HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 ...AND IS STATIONARY. ##
 #else

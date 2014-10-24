@@ -78,6 +78,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 11, 2014 #3023      rferrel     Configurable Threshold options.
  * Apr 23, 2014 #3045      rferrel     To prevent race condition only allow a case
  *                                       load after all labels are loaded.
+ * Aug 26, 2014 #3553      rferrel     loadedAllDisplayData must now call its super.
  * 
  * </pre>
  * 
@@ -170,9 +171,6 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
 
     /** Manager for configurable values for the dialog. */
     private final CaseCreationManager ccManager;
-
-    /** Flag to indicate all labels for all tables are loaded. */
-    private volatile boolean haveAllLabels = false;
 
     /**
      * Constructor.
@@ -1112,8 +1110,6 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
      */
     @Override
     public void loadedAllDisplayData() {
-        haveAllLabels = true;
-
         /*
          * Restore the buttons' default background color and tooltip text. The
          * buttons color is not the system standard and the tool tip text
@@ -1133,6 +1129,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
                 }
             }
         });
+        super.loadedAllDisplayData();
     }
 
     @Override

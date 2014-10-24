@@ -29,9 +29,6 @@
 <extension
 	point="com.raytheon.uf.viz.core.graphicsExtension">
 	<graphicsExtension
-       class="com.raytheon.uf.viz.kml.export.graphics.ext.point.KmlPointImageExtension">
-	</graphicsExtension>
-	<graphicsExtension
        class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlSingleColorImageExtension">
 	</graphicsExtension>
 	<graphicsExtension
@@ -42,9 +39,6 @@
 	</graphicsExtension>
 	<graphicsExtension
        class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlMapMeshExtension">
-	</graphicsExtension>
-	<graphicsExtension
-       class="com.raytheon.uf.viz.kml.export.graphics.ext.radar.KmlRadialMeshExtension">
 	</graphicsExtension>
 	<graphicsExtension
        class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlMosaicImageExtension">

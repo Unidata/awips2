@@ -34,6 +34,8 @@ import java.nio.Buffer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 5/7/08       875        bphillip    Initial Creation.
+ * Sep 01, 2014 3572       randerso    Removed unnecessary @SuppressWarnings 
+ *                                     to eliminate Java Warning
  * 
  * </pre>
  * 
@@ -60,7 +62,6 @@ public class Grid2D<E> implements IGrid2D, Cloneable {
      * @param yDim
      *            The height of the grid
      */
-    @SuppressWarnings("unchecked")
     public Grid2D(int xDim, int yDim) {
         this.xDim = xDim;
         this.yDim = yDim;

@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Jun 13, 2013  #2044     randerso    Refactored to use IFPServer,
  *                                     moved smartInit queuing code here 
  *                                     from other modules, general code cleanup
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4                               
  * </pre>
  * 
  * @author njensen
@@ -217,7 +218,7 @@ public class SmartInitQueue {
             CoreDao cd = new CoreDao(DaoConfig.DEFAULT);
             Session s = null;
             try {
-                s = cd.getHibernateTemplate().getSessionFactory().openSession();
+                s = cd.getSession();
                 Transaction tx = null;
                 SmartInitRecord oldRecord = null;
 
