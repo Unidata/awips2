@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                      IDataRecord required by the SatelliteDao
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Apr 15, 2014 3017        bsteffen    Call new methods in SatSpatialFactory
+ * Sep 11, 2014 DR 17303    jgerth      Support for second standard latitude
  * </pre>
  * 
  * @author tk
@@ -116,26 +117,26 @@ public class RegionalSatDecoder extends AbstractDecoder {
             netCdfFile = NetcdfFile.openInMemory(filename, data);
 
             // set the source; Alaska Region
-            if (source == null) {
-                source = "Source"; // use to look up source value; default of
-                                   // Source
+            String gaSourceStr = "Unknown";
+            Attribute gaSource = netCdfFile.findGlobalAttribute("source");
+            if (gaSource != null) {
+                gaSourceStr = gaSource.getStringValue().trim();
             }
-            record.setSource(getSource(source)); // lookup source value
+            record.setSource(getSource(gaSourceStr).replace("/", " ")); // lookup source value
 
             // set the creating entity
             Attribute satName = netCdfFile.findGlobalAttribute("satelliteName");
-
             String entity = null; // "HRPT"; "GOESR-PG"; "Blended2";
             if (satName != null) {
-                entity = satName.getStringValue();
+                entity = satName.getStringValue().trim();
             }
 
             if (entity != null) {
                 String parsed = getCreatingEntity(entity);
                 if ((parsed != null) && (parsed.length() > 0)) {
-                    record.setCreatingEntity(parsed);
+                    record.setCreatingEntity(parsed.replace("/", " "));
                 } else {
-                    record.setCreatingEntity(entity);
+                    record.setCreatingEntity(entity.replace("/", " "));
                 }
             } else {
                 record.setCreatingEntity("Unknown");
@@ -156,9 +157,9 @@ public class RegionalSatDecoder extends AbstractDecoder {
                 pev = getPhysicalElement(entity, channel);
                 String element = pev.name;
                 if (pev.name != null) {
-                    record.setPhysicalElement(element);
+                    record.setPhysicalElement(element.replace("/", " "));
                 } else {
-                    record.setPhysicalElement(channel);
+                    record.setPhysicalElement(channel.replace("/", " "));
                 }
             } else {
                 record.setPhysicalElement("Imager Visible");
@@ -181,10 +182,10 @@ public class RegionalSatDecoder extends AbstractDecoder {
 
             // read the valid time in seconds and store the time in milliseconds
             long time = netCdfFile.findVariable("validTime").readScalarLong(); // time
-                                                                               // in
-                                                                               // seconds
+            // in
+            // seconds
             calendar.setTimeInMillis(time * 1000); // need to convert seconds to
-                                                   // milliseconds
+            // milliseconds
 
             /*
              * Date date = new Date(); // used for setting the test data time
@@ -199,9 +200,10 @@ public class RegionalSatDecoder extends AbstractDecoder {
                     .getNumericValue().floatValue();
 
             int mapProjection = SatSpatialFactory.PROJ_POLAR; // STEREOGRAPHIC
-                                                                  // projection
-                                                                  // default
+            // projection
+            // default
             float latin = 0.0f; // set to zero for Stereographic projections
+            Attribute rot = netCdfFile.findGlobalAttribute("rotation");
             float rotation = 0.0f;
 
             // read the projection
@@ -214,6 +216,9 @@ public class RegionalSatDecoder extends AbstractDecoder {
                 if (projection.equalsIgnoreCase("LAMBERT")
                         || projection.equalsIgnoreCase("LAMBERT_CONFORMAL")) {
                     mapProjection = SatSpatialFactory.PROJ_LAMBERT;
+                    if (rot != null) {
+                        rotation = rot.getNumericValue().floatValue();
+                    }
                 } else if (projection.equalsIgnoreCase("MERCATOR")) {
                     mapProjection = SatSpatialFactory.PROJ_MERCATOR;
                 } else if (projection
@@ -222,7 +227,6 @@ public class RegionalSatDecoder extends AbstractDecoder {
                 }
 
             } else {
-                Attribute rot = netCdfFile.findGlobalAttribute("rotation");
                 if (rot != null) {
                     rotation = rot.getNumericValue().floatValue();
                     // STEREOGRAPHIC projection add rotation to lov
@@ -274,9 +278,15 @@ public class RegionalSatDecoder extends AbstractDecoder {
                         "Unable to decode Satellite: Encountered Unknown projection");
             } // end of if map projection block
 
-            SatMapCoverage mapCoverage = SatSpatialFactory.getInstance()
-                    .getCoverageTwoCorners(mapProjection, nx, ny, lov, latin,
-                            la1, lo1, la2, lo2);
+            SatMapCoverage mapCoverage;
+            if (mapProjection == SatSpatialFactory.PROJ_LAMBERT && rot != null && rotation != latin)
+                mapCoverage = SatSpatialFactory.getInstance()
+                .getCoverageTwoCorners(mapProjection, nx, ny, lov, latin, rotation,
+                        la1, lo1, la2, lo2);
+            else
+                mapCoverage = SatSpatialFactory.getInstance()
+                .getCoverageTwoCorners(mapProjection, nx, ny, lov, latin,
+                        la1, lo1, la2, lo2);
 
             record.setTraceId(traceId);
             record.setCoverage(mapCoverage);

@@ -44,6 +44,12 @@
 			<substitute key="modelName" value="${MMMmodel2}"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/HRRR.xml"
+			menuText="HRRR" id="hrrrsurface" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
 			menuText="NAM12" id="nam12surface" useReferenceTime="true">
 			<substitute key="modelName" value="${NAM12model}"/>

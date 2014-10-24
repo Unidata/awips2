@@ -1,10 +1,27 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.viz.pointdata.lookup;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -49,6 +66,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 21, 2011            ekladstrup     Initial creation
+ * Sep 16, 2014 2707       bclement    removed warnings, closed input
  * 
  * </pre>
  * 
@@ -71,16 +89,8 @@ public class N2SLookupTable implements IAbstractLookupTable {
             return key;
         }
 
-        public void setKey(Double key) {
-            this.key = key;
-        }
-
         public String getValue() {
             return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
         }
 
         @Override
@@ -118,7 +128,6 @@ public class N2SLookupTable implements IAbstractLookupTable {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(N2SLookupTable.class);
 
-    private String mode = "";
 
     /**
      * default value, for keys that do not specify a value in the table or other
@@ -135,8 +144,7 @@ public class N2SLookupTable implements IAbstractLookupTable {
     public N2SLookupTable(File table) {
         lookupList = new LinkedList<N2SPair>();
         tablePath = table.getAbsolutePath();
-        try {
-            BufferedReader input = new BufferedReader(new FileReader(table));
+        try (BufferedReader input = new BufferedReader(new FileReader(table))) {
             String line = null;
             int lineNumber = 0;
             while ((line = input.readLine()) != null) {
@@ -153,10 +161,8 @@ public class N2SLookupTable implements IAbstractLookupTable {
                     }
                 }
             }
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.CRITICAL, e.getLocalizedMessage(), e);
-        } catch (IOException e) {
-            statusHandler.handle(Priority.CRITICAL, e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            statusHandler.error("Unable to parse SVG table: " + table, e);
         }
     }
 
@@ -277,7 +283,6 @@ public class N2SLookupTable implements IAbstractLookupTable {
 
     @Override
     public void setMode(String mode) {
-        this.mode = mode;
     }
 
 }

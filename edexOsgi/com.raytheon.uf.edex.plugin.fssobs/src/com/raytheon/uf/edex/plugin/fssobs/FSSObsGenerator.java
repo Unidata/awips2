@@ -20,17 +20,23 @@
 
 package com.raytheon.uf.edex.plugin.fssobs;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
+import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator;
+import com.raytheon.uf.edex.dat.utils.DatMenuUtil;
 import com.raytheon.uf.edex.plugin.fssobs.common.FSSObsConfig;
 
 /**
@@ -45,6 +51,7 @@ import com.raytheon.uf.edex.plugin.fssobs.common.FSSObsConfig;
  * Oct 26, 2010            skorolev     Initial creation
  * May 23, 2014 3086       skorolev     Cleaned code.
  * Aug 18, 2014 3530       bclement     removed constructDataURI() call
+ * Sep 04, 2014 3220       skorolev     Replaced 3 URI filters with one.
  * 
  * </pre>
  * 
@@ -52,13 +59,28 @@ import com.raytheon.uf.edex.plugin.fssobs.common.FSSObsConfig;
  * @version 1.0
  */
 
-public class FSSObsGenerator extends CompositeProductGenerator {
+public class FSSObsGenerator extends CompositeProductGenerator implements
+        MonitorConfigListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FSSObsGenerator.class);
 
+    /** Name of composite generator */
     private static final String genName = "FSSObs";
 
+    /** Product */
     private static final String productType = "fssobs";
+
+    /** All stations to be filtered. */
+    private Set<String> allStations = null;
+
+    /** Fog monitor area configuration file */
+    public FSSObsMonitorConfigurationManager fogAreaConfig = null;
+
+    /** SAFESEAS monitor area configuration file */
+    public FSSObsMonitorConfigurationManager ssAreaConfig = null;
+
+    /** SNOW monitor area configuration file */
+    public FSSObsMonitorConfigurationManager snowAreaConfig = null;
 
     /**
      * Public construction
@@ -79,8 +101,7 @@ public class FSSObsGenerator extends CompositeProductGenerator {
 
         FSSObsConfig fss_config = null;
         try {
-            fss_config = new FSSObsConfig((FSSObsURIGenrtMessage) genMessage,
-                    this);
+            fss_config = new FSSObsConfig(genMessage, this);
             this.setPluginDao(new FSSObsDAO(productType));
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -110,11 +131,9 @@ public class FSSObsGenerator extends CompositeProductGenerator {
      */
     @Override
     protected void createFilters() {
-        ArrayList<URIFilter> tmp = new ArrayList<URIFilter>(3);
-        tmp.add(new FSSObsURIFilter(MonName.fog.name()));
-        tmp.add(new FSSObsURIFilter(MonName.ss.name()));
-        tmp.add(new FSSObsURIFilter(MonName.snow.name()));
-        filters = tmp.toArray(new FSSObsURIFilter[tmp.size()]);
+        filters = new URIFilter[1];
+        filters[0] = new FSSObsURIFilter(genName, allStations);
+        allStations = null;
     }
 
     /*
@@ -125,6 +144,18 @@ public class FSSObsGenerator extends CompositeProductGenerator {
      */
     @Override
     protected void configureFilters() {
+        statusHandler.handle(Priority.INFO, getGeneratorName()
+                + " process Filter Config...");
+        allStations = new HashSet<String>();
+
+        List<String> ssStations = getSSAreaConfig().getStations();
+        allStations.addAll(ssStations);
+
+        List<String> fogStations = getFogAreaConfig().getStations();
+        allStations.addAll(fogStations);
+
+        List<String> snowStations = getSnowAreaConfig().getStations();
+        allStations.addAll(snowStations);
     }
 
     /**
@@ -146,4 +177,65 @@ public class FSSObsGenerator extends CompositeProductGenerator {
         return getConfigManager().getFSSState();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.monitor.events.MonitorConfigListener#configChanged
+     * (com.raytheon.uf.common.monitor.events.MonitorConfigEvent)
+     */
+    @Override
+    public void configChanged(MonitorConfigEvent fce) {
+        if (fce.getSource() instanceof FSSObsMonitorConfigurationManager) {
+            statusHandler
+                    .handle(Priority.INFO,
+                            "Re-configuring FSSObs URI filters...Run Area Config change");
+            resetFilters();
+            DatMenuUtil dmu = new DatMenuUtil();
+            dmu.setDatSite(SiteUtil.getSite());
+            dmu.setOverride(true);
+            dmu.createMenus();
+        }
+    }
+
+    /**
+     * Gets Fog monitor area configuration file.
+     * 
+     * @return
+     */
+    public FSSObsMonitorConfigurationManager getFogAreaConfig() {
+        if (fogAreaConfig == null) {
+            fogAreaConfig = FSSObsMonitorConfigurationManager
+                    .getFogObsManager();
+            fogAreaConfig.addListener(this);
+        }
+        return fogAreaConfig;
+    }
+
+    /**
+     * Gets SAFESEAS monitor area configuration file.
+     * 
+     * @return
+     */
+    public FSSObsMonitorConfigurationManager getSSAreaConfig() {
+        if (ssAreaConfig == null) {
+            ssAreaConfig = FSSObsMonitorConfigurationManager.getSsObsManager();
+            ssAreaConfig.addListener(this);
+        }
+        return ssAreaConfig;
+    }
+
+    /**
+     * Gets SNOW monitor area configuration file.
+     * 
+     * @return
+     */
+    public FSSObsMonitorConfigurationManager getSnowAreaConfig() {
+        if (snowAreaConfig == null) {
+            snowAreaConfig = FSSObsMonitorConfigurationManager
+                    .getSnowObsManager();
+            snowAreaConfig.addListener(this);
+        }
+        return snowAreaConfig;
+    }
 }

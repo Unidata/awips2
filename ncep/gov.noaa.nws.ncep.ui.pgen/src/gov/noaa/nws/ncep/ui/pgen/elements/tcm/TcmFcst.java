@@ -60,7 +60,7 @@ public class TcmFcst extends SinglePointElement implements ITcmFcst{
 		this.fcstHr = fcstHr;
 		this.setLocation(loc);
 		winds = new TcmWindQuarters[3];
-		winds[0] = new TcmWindQuarters( loc, 32, quatros[0][0], quatros[1][0], quatros[2][0], quatros[3][0]);
+		winds[0] = new TcmWindQuarters( loc, 34, quatros[0][0], quatros[1][0], quatros[2][0], quatros[3][0]);
 		winds[1] = new TcmWindQuarters( loc, 50, quatros[0][1], quatros[1][1], quatros[2][1], quatros[3][1]);
 		winds[2] = new TcmWindQuarters( loc, 64, quatros[0][2], quatros[1][2], quatros[2][2], quatros[3][2]);
 
