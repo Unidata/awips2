@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.comm.HttpClient;
@@ -52,6 +51,7 @@ import com.raytheon.uf.viz.thinclient.localization.LocalizationCachePersistence;
 import com.raytheon.uf.viz.thinclient.localization.ThinClientLocalizationInitializer;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher;
+import com.raytheon.viz.ui.personalities.awips.AWIPSWorkbenchAdvisor;
 import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
 import com.raytheon.viz.ui.personalities.awips.CAVE;
 
@@ -178,12 +178,11 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#
-     * getWorkbenchAdvisor()
+     * @see com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent#
+     * createAWIPSWorkbenchAdvisor()
      */
     @Override
-    protected WorkbenchAdvisor getWorkbenchAdvisor() {
-        // Use custom workbench advisor, will add thin client preferences page
+    protected AWIPSWorkbenchAdvisor createAWIPSWorkbenchAdvisor() {
         return new ThinClientWorkbenchAdvisor();
     }
 
