@@ -71,9 +71,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jan 29, 2014 2757          skorolev     Added status variables.
  * Apr 23, 2014 3054          skorolev     Fixed issue with removing from list a new zone and a new station.
  * Apr 28, 2014 3086          skorolev     Updated getConfigManager method.
- * 
  * Sep 16, 2014 2757          skorolev     Updated createBottomButtons method.
  * Sep 24, 2014 2757          skorolev     Fixed problem with adding and removing zones.
+ * Oct 27, 2014 3667          skorolev     Corrected functionality of dialog. Cleaned code.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -1043,40 +1044,49 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         if (additionalList.getSelectionCount() == 0) {
             if (mode == Mode.Zone) {
                 showMessage(shell, SWT.ERROR, "Selection Needed",
-                        "You must select a station first");
+                        "You must select an additional zone to add.");
             } else {
                 showMessage(shell, SWT.ERROR, "Selection Needed",
-                        "You must select a zone first");
+                        "You must select an additional station to add.");
             }
             return;
         }
-        String entry = additionalList.getItem(additionalList
-                .getSelectionIndex());
-        additionalList.remove(additionalList.getSelectionIndex());
         if (mode == Mode.Zone) {
-            maZones.add(entry);
+            String zone = additionalList.getItem(additionalList
+                    .getSelectionIndex());
+            additionalList.remove(additionalList.getSelectionIndex());
+            maZones.add(zone);
             Collections.sort(maZones);
             monitorAreaList
                     .setItems(maZones.toArray(new String[maZones.size()]));
-            monitorAreaList.setSelection(maZones.indexOf(entry));
+            monitorAreaList.setSelection(maZones.indexOf(zone));
             handleMonitorAreaListSelection();
-            additionalZones.remove(entry);
-            configMgr.addArea(entry, entry.charAt(2) == 'Z' ? ZoneType.MARITIME
+            additionalZones.remove(zone);
+            configMgr.addArea(zone, zone.charAt(2) == 'Z' ? ZoneType.MARITIME
                     : ZoneType.REGULAR);
-            if (!configMgr.getAddedZones().contains(entry)) {
-                configMgr.getAddedZones().add(entry);
+            if (!configMgr.getAddedZones().contains(zone)) {
+                configMgr.getAddedZones().add(zone);
             }
-            configMgr.removeAdjArea(entry);
+            configMgr.removeAdjArea(zone);
         } else { // Station mode
-            maStations.add(entry);
+            if (associatedList.getSelectionCount() == 0) {
+                showMessage(shell, SWT.ERROR, "Selection Needed",
+                        "You must select an associated zone first.");
+                return;
+            }
+            String stn = additionalList.getItem(additionalList
+                    .getSelectionIndex());
+            additionalList.remove(additionalList.getSelectionIndex());
+            maStations.add(stn);
             Collections.sort(maStations);
             monitorAreaList.setItems(maStations.toArray(new String[maStations
                     .size()]));
-            monitorAreaList.setSelection(maStations.indexOf(entry));
-            additionalStns.remove(entry);
-            String zone = associatedList.getItem(associatedList.getSelectionIndex());
-            String stnId = entry.substring(0, entry.indexOf('#'));
-            String stnType = entry.substring(entry.indexOf('#') + 1);
+            monitorAreaList.setSelection(maStations.indexOf(stn));
+            additionalStns.remove(stn);
+            String zone = associatedList.getItem(associatedList
+                    .getSelectionIndex());
+            String stnId = stn.substring(0, stn.indexOf('#'));
+            String stnType = stn.substring(stn.indexOf('#') + 1);
             configMgr.addStation(zone, stnId, stnType, configMgr
                     .getAddedStations().contains(stnId));
             handleMonitorAreaListSelection();
@@ -1090,10 +1100,10 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         if (monitorAreaList.getSelectionCount() == 0) {
             if (mode == Mode.Zone) {
                 showMessage(shell, SWT.ERROR, "Selection Needed",
-                        "You must select a station first");
+                        "You must select a monitor area zone to remove.");
             } else {
                 showMessage(shell, SWT.ERROR, "Selection Needed",
-                        "You must select a zone first");
+                        "You must select a monitor area station to remove.");
             }
             return;
         }
@@ -1114,9 +1124,10 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             if (configMgr.getAddedZones().contains(entry)) {
                 configMgr.getAddedZones().remove(entry);
             }
-            
-            configMgr.addAdjArea(entry,entry.charAt(2) == 'Z' ? ZoneType.MARITIME
-                    : ZoneType.REGULAR);
+
+            configMgr.addAdjArea(entry,
+                    entry.charAt(2) == 'Z' ? ZoneType.MARITIME
+                            : ZoneType.REGULAR);
         } else { // Station mode
             additionalStns.add(entry);
             Collections.sort(additionalStns);
@@ -1135,21 +1146,23 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         if (monitorAreaList.getSelectionCount() == 0) {
             if (mode == Mode.Zone) {
                 showMessage(shell, SWT.ERROR, "Select Needed",
-                        "You must select a zone");
+                        "You must select a monitor area zone to add.");
                 monitorAreaList.select(0);
             } else {
-                showMessage(shell, SWT.ERROR, "Select Needed",
-                        "You must select a station");
+                if (additionalList.getSelectionCount() == 0) {
+                    showMessage(shell, SWT.ERROR, "Select Needed",
+                            "You must select a monitor area station to add.");
+                }
             }
             return;
         }
         if (maRegionalList.getSelectionCount() == 0) {
             if (mode == Mode.Zone) {
                 showMessage(shell, SWT.ERROR, "Select Needed",
-                        "You must select a station");
+                        "You must select a station to add into Associated Stations.");
             } else {
                 showMessage(shell, SWT.ERROR, "Select Needed",
-                        "You must select a zone");
+                        "You must select a zone to add into Associated Zones.");
                 associatedList.select(0);
             }
             return;
@@ -1218,10 +1231,10 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         if (associatedList.getSelectionCount() == 0) {
             if (mode == Mode.Zone) {
                 showMessage(shell, SWT.ERROR, "Select Needed",
-                        "You must select a station");
+                        "You must select an associated station to remove.");
             } else {
                 showMessage(shell, SWT.ERROR, "Select Needed",
-                        "You must select a zone");
+                        "You must select an associated zone to remove.");
             }
             return;
         }
@@ -1293,10 +1306,20 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /**
      * Called when the cancel.
      */
-    private void closeWithoutSave() {
+    protected void closeWithoutSave() {
         resetStatus();
         setReturnValue(true);
         close();
+    }
+
+    /**
+     * Reset and Saving configuration parameters.
+     */
+    protected void resetAndSave() {
+        getValues();
+        resetStatus();
+        configMgr.saveConfigXml();
+        configMgr.saveAdjacentAreaConfigXml();
     }
 
     /**
@@ -1458,12 +1481,6 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
      * @return
      */
     protected int editDialog() {
-        showMessage(shell, SWT.ICON_INFORMATION | SWT.OK, appName
-                + " Config Change", "You're updating the " + appName
-                + " monitoring settings." + "\n\nIf " + appName
-                + " is running anywhere within "
-                + "the office, please clear it.\n");
-
         String message = "New zones have been added, and their monitoring thresholds "
                 + "have been set to default values; would you like to modify "
                 + "their threshold values now?";
