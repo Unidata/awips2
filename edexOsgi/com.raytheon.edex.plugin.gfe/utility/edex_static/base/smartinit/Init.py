@@ -28,7 +28,8 @@
 #    04/04/13        #1787         randerso       fix validTime check to work with accumulative parms
 #                                                 fix logging so you can actually determine why 
 #                                                 a smartInit is not calculating a parameter
-#    Oct 29, 2013  2476       njensen         Improved getting wx/discrete keys when retrieving data
+#    10/29/2013      #2476         njensen        Improved getting wx/discrete keys when retrieving data
+#    10/27/2014      #3766         randerso       Changed _getLatest to include error text returned from InitClient.createDB() 
 # 
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
@@ -654,7 +655,8 @@ class Forecaster(GridUtilities):
             if sr.isOkay():
                 newdb = self.getDb(newdb)
             else:
-                msg = "Unable to create database for " + str(newdb)
+                msg = "Unable to create database for " + str(newdb) + ":\n" + \
+                      str(sr.message())
                 LogStream.logProblem(msg)
                 newdb = None   
 
