@@ -246,7 +246,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00IN"/>
   <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="4.25IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** ADDITIONAL REPORTS ********" bulletType="title"/>
   <bullet bulletName="addlTorInfo" bulletText="Select to include additional tornado/damage information..."/>
@@ -300,7 +300,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="radioset3" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="radioset3" parseString="3.00IN"/>
   <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="radioset3" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="radioset3" parseString="4.25IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
   <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
@@ -383,7 +383,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00IN"/>
   <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="4.25IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** ADDITIONAL REPORTS ********" bulletType="title"/>
   <bullet bulletName="addlTorInfo" bulletText="Select to include additional tornado/damage information..."/>
@@ -436,7 +436,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="radioset3" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="radioset3" parseString="3.00IN"/>
   <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="radioset3" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="radioset3" parseString="4.25IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
   <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
