@@ -1940,9 +1940,10 @@ public class NsharpResourceHandler {
                 return;
             }
             if (!fromArchive) {
-                // start FixMark:nearByStnCompSnd d2dlite
-                if (!(sndType.contentEquals("NCUAIR") || sndType
-                        .contentEquals("BUFRUA"))) {
+                // For those sounding report with forecast time, e.g. model/pfc sounding
+                if (timeLine.contains("V")) { //fix D2D loading issue. 10/8/2014
+               // if (!(sndType.contentEquals("NCUAIR") || sndType
+               //         .contentEquals("BUFRUA"))) {
                     // Chin's NOTE:
                     // Can Not use reference time directly from the stnInfo,
                     // Timestamp refTime = stnInfo.getReftime()
