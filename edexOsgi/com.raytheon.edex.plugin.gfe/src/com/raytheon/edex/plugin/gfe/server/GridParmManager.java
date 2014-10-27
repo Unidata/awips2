@@ -132,6 +132,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     Prevent createDB from creating databases that are immediately purged
  *                                     Send DBInvChangeNotifications at site activation so new D2D data
  *                                     ingested while deactivated gets recognized
+ * 10/27/2014   #3766      randerso    Fixed return type and javadoc for createNewDb
  * 
  * </pre>
  * 
@@ -908,11 +909,11 @@ public class GridParmManager {
      * Create a new database
      * 
      * @param dbId
-     * @return ServerResponse containing the created database
+     * @return ServerResponse containing status only
      */
-    public ServerResponse<GridDatabase> createNewDb(DatabaseID dbId) {
+    public ServerResponse<?> createNewDb(DatabaseID dbId) {
 
-        ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
+        ServerResponse<?> sr = new ServerResponse<Object>();
 
         if (!dbId.getFormat().equals(DataType.GRID)) {
             sr.addMessage("Invalid database id for createNewDb(): " + dbId);
@@ -921,7 +922,6 @@ public class GridParmManager {
 
         GridDatabase db = this.getDatabase(dbId);
         if (db != null) {
-            sr.setPayload(db);
             return sr; // database already exists
         } else {
             sr.addMessage("Unable to create database: " + dbId);
