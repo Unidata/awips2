@@ -25,7 +25,6 @@ import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.reference.ReferenceMgr;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
-import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
@@ -51,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jun 13, 2013      #2044  randerso    Refactored to use IFPServer
  * Nov 20, 2013      #2331  randerso    Changed return type of getTopoData
  * Oct 08, 2014      #3684  randerso    Changed createDB to return status
+ * Oct 27, 2014      #3766  randerso    Fixed return type for createDB
  * 
  * </pre>
  * 
@@ -100,10 +100,9 @@ public class InitClient {
      * 
      * @param key
      */
-    public ServerResponse<GridDatabase> createDB(String key) {
+    public ServerResponse<?> createDB(String key) {
         DatabaseID id = new DatabaseID(key);
-        ServerResponse<GridDatabase> sr = ifpServer.getGridParmMgr()
-                .createNewDb(id);
+        ServerResponse<?> sr = ifpServer.getGridParmMgr().createNewDb(id);
         return sr;
     }
 
