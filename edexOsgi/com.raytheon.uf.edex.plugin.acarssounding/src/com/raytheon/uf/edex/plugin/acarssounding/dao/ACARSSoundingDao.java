@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009       1939 jkorman     Initial creation
  * Aug 18, 2014 3530       bclement    removed warning from executeSoundingQuery()
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * 
  * </pre>
  * 
@@ -107,7 +108,7 @@ public class ACARSSoundingDao extends DefaultPluginDao {
         List<?> result = (List<?>) txTemplate
                 .execute(new TransactionCallback<Object>() {
                     public List<?> doInTransaction(TransactionStatus status) {
-                        Query hibQuery = getSession(false)
+                        Query hibQuery = getCurrentSession()
                                 .createQuery(hqlQuery);
                         return hibQuery.list();
                     }
