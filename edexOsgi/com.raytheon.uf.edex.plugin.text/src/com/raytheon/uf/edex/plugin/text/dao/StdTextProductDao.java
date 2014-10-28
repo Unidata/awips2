@@ -93,6 +93,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
  * Sep 18, 2014 3627       mapeters    Updated deprecated {@link TimeTools} usage.
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * </pre>
  * 
  * @author garmendariz
@@ -191,47 +192,52 @@ public class StdTextProductDao extends CoreDao {
         prodId.setCccid(ccc);
         prodId.setNnnid(nnn);
         prodId.setXxxid(xxx);
+        Session session = this.getSession();
         try {
-            Query query = this.getSession().createQuery(
-                    "SELECT refTime from "
-                            + textProduct.getClass().getSimpleName()
-                            + " where prodId = :prodid");
-            query.setParameter("prodid", prodId);
-            List<?> results = query.list();
-
-            if (results == null || results.size() < 1) {
-                // save
-                create(textProduct);
-                success = true;
-            } else {
-                // don't save
-                success = false;
-            }
-        } catch (Exception e) {
-            logger.error("Error storing text product", e);
-        }
-
-        if (success) {
             try {
-                String cccid = prodId.getCccid();
-                String nnnid = prodId.getNnnid();
-                String xxxid = prodId.getXxxid();
-                Query query = this
-                        .getSession()
-                        .createQuery(
-                                "SELECT versionstokeep FROM TextProductInfo WHERE "
-                                        + "prodId.cccid = :cccid AND prodId.nnnid = :nnnid AND prodId.xxxid = :xxxid");
-                query.setParameter("cccid", cccid);
-                query.setParameter("nnnid", nnnid);
-                query.setParameter("xxxid", xxxid);
+                Query query = session.createQuery("SELECT refTime from "
+                        + textProduct.getClass().getSimpleName()
+                        + " where prodId = :prodid");
+                query.setParameter("prodid", prodId);
                 List<?> results = query.list();
+
                 if (results == null || results.size() < 1) {
-                    TextProductInfo tpi = new TextProductInfo(cccid, nnnid,
-                            xxxid);
-                    create(tpi);
+                    // save
+                    create(textProduct);
+                    success = true;
+                } else {
+                    // don't save
+                    success = false;
                 }
             } catch (Exception e) {
-                logger.error("Error verify text product info", e);
+                logger.error("Error storing text product", e);
+            }
+
+            if (success) {
+                try {
+                    String cccid = prodId.getCccid();
+                    String nnnid = prodId.getNnnid();
+                    String xxxid = prodId.getXxxid();
+                    Query query = session
+                            .createQuery(
+                                    "SELECT versionstokeep FROM TextProductInfo WHERE "
+                                            + "prodId.cccid = :cccid AND prodId.nnnid = :nnnid AND prodId.xxxid = :xxxid");
+                    query.setParameter("cccid", cccid);
+                    query.setParameter("nnnid", nnnid);
+                    query.setParameter("xxxid", xxxid);
+                    List<?> results = query.list();
+                    if (results == null || results.size() < 1) {
+                        TextProductInfo tpi = new TextProductInfo(cccid, nnnid,
+                                xxxid);
+                        create(tpi);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error verify text product info", e);
+                }
+            }
+        } finally {
+            if (session != null) {
+                session.close();
             }
         }
 
@@ -550,8 +556,10 @@ public class StdTextProductDao extends CoreDao {
     public long getLatestTime(AFOSProductId afosId) {
         long latestTime = 0L;
 
+        Session sess = null;
+        
         try {
-            Session sess = getSession();
+            sess = getSession();
 
             Map<?, ?> tmp = buildCriterions(ProdCCC_ID, afosId.getCcc(),
                     ProdNNN_ID, afosId.getNnn(), ProdXXX_ID, afosId.getXxx());
@@ -573,6 +581,10 @@ public class StdTextProductDao extends CoreDao {
             }
         } catch (Exception e) {
             logger.error("Error occurred getting latest time", e);
+        }finally{
+            if(sess != null){
+                sess.close();
+            }
         }
 
         return latestTime;
