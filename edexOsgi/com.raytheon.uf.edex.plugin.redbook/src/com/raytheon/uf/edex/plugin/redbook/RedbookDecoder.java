@@ -36,6 +36,7 @@ import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.plugin.redbook.dao.RedbookDao;
 import com.raytheon.uf.edex.plugin.redbook.decoder.RedbookParser;
 
@@ -61,6 +62,8 @@ import com.raytheon.uf.edex.plugin.redbook.decoder.RedbookParser;
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Oct 24, 2014 3720       mapeters    Identify existing records using unique 
+ *                                     constraints instead of dataURI.
  * </pre>
  * 
  * @author jkorman
@@ -198,13 +201,26 @@ public class RedbookDecoder extends AbstractDecoder {
 
     private RedbookRecord createdBackDatedVersionIfNeeded(RedbookRecord record) {
         RedbookDao dao;
-        RedbookRecord existingRecord;
+        RedbookRecord existingRecord = null;
 
         try {
             dao = (RedbookDao) PluginFactory.getInstance().getPluginDao(
                     PLUGIN_NAME);
-            existingRecord = (RedbookRecord) dao.getMetadata(record
-                    .getDataURI());
+            DatabaseQuery query = new DatabaseQuery(RedbookRecord.class);
+            query.addQueryParam("wmoTTAAii", record.getWmoTTAAii());
+            query.addQueryParam("corIndicator", record.getCorIndicator());
+            query.addQueryParam("fcstHours", record.getFcstHours());
+            query.addQueryParam("productId", record.getProductId());
+            query.addQueryParam("fileId", record.getFileId());
+            query.addQueryParam("originatorId", record.getOriginatorId());
+            query.addQueryParam("dataTime", record.getDataTime());
+
+            PluginDataObject[] resultList = dao.getMetadata(query);
+
+            if (resultList != null && resultList.length > 0
+                    && resultList[0] instanceof RedbookRecord) {
+                existingRecord = (RedbookRecord) resultList[0];
+            }
         } catch (PluginException e) {
             logger.error(traceId + "Could not create back-dated copy of "
                     + record.getDataURI(), e);
