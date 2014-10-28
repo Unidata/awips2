@@ -69,6 +69,8 @@ import com.raytheon.uf.common.time.DataTime;
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
  * Oct 10, 2014 3720       mapeters    Removed dataURI column.
+ * Oct 28, 2014 3720       mapeters    Added refTime and forecastTime to unique 
+ *                                     constraints.
  * 
  * </pre>
  * 
@@ -78,8 +80,8 @@ import com.raytheon.uf.common.time.DataTime;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "redbookseq")
 @Table(name = "redbook", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "wmoTTAAii", "corIndicator", "fcstHours", "productId", "fileId",
-        "originatorId" }) })
+        "refTime", "forecastTime", "wmoTTAAii", "corIndicator", "fcstHours",
+        "productId", "fileId", "originatorId" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
