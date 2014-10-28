@@ -17,7 +17,8 @@
           Modified Mike Rega             01-18-2014 added Alaska GP changes for 14.2.1   
           Mike Dangelo - 1/23/2014 multiple changes to CTAs for FFW EMER    
           Evan Bookbinder 10/24/2014 commented out AK additions from baseline and
-                                     corrected their bulletGroup="" settings                                  
+                                     corrected their bulletGroup="" settings
+          Mike Rega 10/27/2014 fixed EMER floodSeverity=3 error                                  
 -->
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -174,7 +175,7 @@ Alaska end -->
  <bullets>
   <bullet bulletText="***CORRECTED PRODUCT. CLICK CREATE TEXT***" bulletType="title"/>
   <bullet bulletText="" bulletType="title"/>
-  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" bulletGroup="ffwEMER" floodSeverity="3" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" bulletGroup="ffwEMER" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
   <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"/>
   <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
@@ -252,7 +253,7 @@ Alaska end -->
 </bulletActionGroup>
 <bulletActionGroup action="EXT" phen="FF" sig="W">
  <bullets>
-  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" floodSeverity="3" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
   <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"/>
   <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
