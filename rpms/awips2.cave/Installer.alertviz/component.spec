@@ -102,13 +102,8 @@ script_="%{_baseline_workspace}/build/static/linux/cave/awips2VisualizeUtility.s
 
 # add the license information.
 license_dir="%{_baseline_workspace}/rpms/legal"
-cp "${license_dir}/license.txt" \
-   %{_build_root}/awips2/alertviz
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
-cp "${license_dir}/Master Rights File.pdf" \
+cp "${license_dir}/Master_Rights_File.pdf" \
    %{_build_root}/awips2/alertviz
 if [ $? -ne 0 ]; then
    exit 1
@@ -157,7 +152,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/alertviz/features
 /awips2/alertviz/features/*
 %doc /awips2/alertviz/*.pdf
-%doc /awips2/alertviz/license.txt
 %dir /awips2/alertviz/plugins
 /awips2/alertviz/plugins/*
 
