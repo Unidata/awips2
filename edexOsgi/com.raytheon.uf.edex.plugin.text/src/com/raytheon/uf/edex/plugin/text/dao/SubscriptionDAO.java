@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
@@ -57,6 +58,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Nov 08, 2013 2361       njensen     Chaged method signature of saveOrUpdate(Object)
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * </pre>
  * 
  * @author mfegan
@@ -110,25 +112,30 @@ public class SubscriptionDAO extends CoreDao {
      */
     public boolean write(SubscriptionRecord record) {
         // query
-        Query query = this
-                .getSession()
-                .createQuery(
-                        "from SubscriptionRecord where type = :type and trigger = :trigger and runner = :runner and script = :script and filepath = :filepath and arguments = :arguments");
-        query.setParameter("type", record.getType());
-        query.setParameter("trigger", record.getTrigger());
-        query.setParameter("runner", record.getRunner());
-        query.setParameter("script", record.getScript());
-        query.setParameter("filepath", record.getFilepath());
-        query.setParameter("arguments", record.getArguments());
-        List<?> results = query.list();
+        Session session = this.getSession();
+        try {
+            Query query = session
+                    .createQuery("from SubscriptionRecord where type = :type and trigger = :trigger and runner = :runner and script = :script and filepath = :filepath and arguments = :arguments");
+            query.setParameter("type", record.getType());
+            query.setParameter("trigger", record.getTrigger());
+            query.setParameter("runner", record.getRunner());
+            query.setParameter("script", record.getScript());
+            query.setParameter("filepath", record.getFilepath());
+            query.setParameter("arguments", record.getArguments());
+            List<?> results = query.list();
 
-        if (results.size() > 0) {
-            return false;
-        } else {
-            create(record);
-            sendSubscriptionNotifyMessage(String
-                    .valueOf(record.getIdentifier()));
-            return true;
+            if (results.size() > 0) {
+                return false;
+            } else {
+                create(record);
+                sendSubscriptionNotifyMessage(String.valueOf(record
+                        .getIdentifier()));
+                return true;
+            }
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 
@@ -172,7 +179,7 @@ public class SubscriptionDAO extends CoreDao {
                     @Override
                     public List<SubscriptionRecord> doInTransaction(
                             TransactionStatus status) {
-                        Criteria criteria = getSession().createCriteria(
+                        Criteria criteria = getCurrentSession().createCriteria(
                                 daoClass);
                         return criteria.list();
                     }
