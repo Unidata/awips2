@@ -49,6 +49,22 @@ function buildQPID()
 
    pushd . > /dev/null 2>&1
 
+   # ensure that the destination rpm directories exist
+   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/noarch ]; then
+      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/noarch
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+
+   # ensure that the destination rpm directories exist
+   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/x86_64 ]; then
+      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/x86_64
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+   
    cd ${WORKSPACE}/rpms/awips2.qpid/0.18/deploy.builder
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
@@ -59,14 +75,6 @@ function buildQPID()
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
       return 1
-   fi
-
-   # ensure that the destination rpm directories exist
-   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/noarch ]; then
-      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/noarch
-      if [ $? -ne 0 ]; then
-         exit 1
-      fi
    fi
 
    # Copy the 0.18 qpid rpms
@@ -89,6 +97,11 @@ function buildQPID()
    if [ $? -ne 0 ]; then
       return 1
    fi
+
+   #build 0.28
+   export AWIPS_II_TOP_DIR
+   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker-0.28
+   /bin/bash build.sh
 
    popd > /dev/null 2>&1
 

@@ -41,13 +41,13 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.StatelessSession;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate4.SessionFactoryUtils;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
@@ -93,6 +93,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
  * Sep 18, 2014 3627       mapeters    Updated deprecated {@link TimeTools} usage.
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * </pre>
  * 
  * @author garmendariz
@@ -191,47 +192,52 @@ public class StdTextProductDao extends CoreDao {
         prodId.setCccid(ccc);
         prodId.setNnnid(nnn);
         prodId.setXxxid(xxx);
+        Session session = this.getSession();
         try {
-            Query query = this.getSession().createQuery(
-                    "SELECT refTime from "
-                            + textProduct.getClass().getSimpleName()
-                            + " where prodId = :prodid");
-            query.setParameter("prodid", prodId);
-            List<?> results = query.list();
-
-            if (results == null || results.size() < 1) {
-                // save
-                create(textProduct);
-                success = true;
-            } else {
-                // don't save
-                success = false;
-            }
-        } catch (Exception e) {
-            logger.error("Error storing text product", e);
-        }
-
-        if (success) {
             try {
-                String cccid = prodId.getCccid();
-                String nnnid = prodId.getNnnid();
-                String xxxid = prodId.getXxxid();
-                Query query = this
-                        .getSession()
-                        .createQuery(
-                                "SELECT versionstokeep FROM TextProductInfo WHERE "
-                                        + "prodId.cccid = :cccid AND prodId.nnnid = :nnnid AND prodId.xxxid = :xxxid");
-                query.setParameter("cccid", cccid);
-                query.setParameter("nnnid", nnnid);
-                query.setParameter("xxxid", xxxid);
+                Query query = session.createQuery("SELECT refTime from "
+                        + textProduct.getClass().getSimpleName()
+                        + " where prodId = :prodid");
+                query.setParameter("prodid", prodId);
                 List<?> results = query.list();
+
                 if (results == null || results.size() < 1) {
-                    TextProductInfo tpi = new TextProductInfo(cccid, nnnid,
-                            xxxid);
-                    create(tpi);
+                    // save
+                    create(textProduct);
+                    success = true;
+                } else {
+                    // don't save
+                    success = false;
                 }
             } catch (Exception e) {
-                logger.error("Error verify text product info", e);
+                logger.error("Error storing text product", e);
+            }
+
+            if (success) {
+                try {
+                    String cccid = prodId.getCccid();
+                    String nnnid = prodId.getNnnid();
+                    String xxxid = prodId.getXxxid();
+                    Query query = session
+                            .createQuery(
+                                    "SELECT versionstokeep FROM TextProductInfo WHERE "
+                                            + "prodId.cccid = :cccid AND prodId.nnnid = :nnnid AND prodId.xxxid = :xxxid");
+                    query.setParameter("cccid", cccid);
+                    query.setParameter("nnnid", nnnid);
+                    query.setParameter("xxxid", xxxid);
+                    List<?> results = query.list();
+                    if (results == null || results.size() < 1) {
+                        TextProductInfo tpi = new TextProductInfo(cccid, nnnid,
+                                xxxid);
+                        create(tpi);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error verify text product info", e);
+                }
+            }
+        } finally {
+            if (session != null) {
+                session.close();
             }
         }
 
@@ -255,118 +261,134 @@ public class StdTextProductDao extends CoreDao {
      * @param pastHours
      * @return
      */
-    public List<StdTextProduct> cccnnnxxxReadVersion(String ccc, String nnn,
-            String xxx, int version) {
+    public List<StdTextProduct> cccnnnxxxReadVersion(final String ccc, final String nnn,
+            final String xxx, final int version) {
         List<StdTextProduct> products = null;
-        ccc = StringUtils.rightPad(ccc, MAX_FIELD_LENGTH);
-        nnn = StringUtils.rightPad(nnn, MAX_FIELD_LENGTH);
-        xxx = StringUtils.rightPad(xxx, MAX_FIELD_LENGTH);
         boolean hasCCC = ((ccc != null) && (ccc.length() > 0) && (!ccc
                 .equals("000")));
         boolean hasNNN = ((nnn != null) && (nnn.length() > 0) && (!nnn
                 .equals("000")));
         boolean hasXXX = ((xxx != null) && (xxx.length() > 0) && (!xxx
                 .equals("000")));
-        boolean createInitialFilter = !(hasCCC && hasNNN && hasXXX);
-
-        AFOSProductId[] afosIds = null;
-        StatelessSession session = null;
-        Transaction tx = null;
+        final boolean createInitialFilter = !(hasCCC && hasNNN && hasXXX);
 
         try {
-            session = getSessionFactory().openStatelessSession();
-            tx = session.beginTransaction();
-            StdTextProduct stdTextProduct = getStdTextProductInstance();
+            final AFOSProductId[] afosIds = txTemplate
+                    .execute(new TransactionCallback<AFOSProductId[]>() {
 
-            if (createInitialFilter) {
-                stdTextProduct.setCccid(ccc);
-                stdTextProduct.setNnnid(nnn);
-                stdTextProduct.setXxxid(xxx);
+                        @Override
+                        public AFOSProductId[] doInTransaction(
+                                TransactionStatus status) {
+                            String paddedccc = StringUtils.rightPad(ccc,
+                                    MAX_FIELD_LENGTH);
+                            String paddednnn = StringUtils.rightPad(nnn,
+                                    MAX_FIELD_LENGTH);
+                            String paddedxxx = StringUtils.rightPad(xxx,
+                                    MAX_FIELD_LENGTH);
+                            Session session = getCurrentSession();
+                            AFOSProductId[] afosIds = null;
+                            StdTextProduct stdTextProduct = getStdTextProductInstance();
 
-                Map<String, String> map = buildCriterions(ProdCCC_ID, ccc,
-                        ProdNNN_ID, nnn, ProdXXX_ID, xxx);
-                Criteria criteria = session.createCriteria(stdTextProduct
-                        .getClass());
-                ProjectionList projList = Projections.projectionList();
-                projList.add(Projections.property(ProdCCC_ID));
-                projList.add(Projections.property(ProdNNN_ID));
-                projList.add(Projections.property(ProdXXX_ID));
-                criteria.setProjection(Projections.distinct(projList));
-                criteria.add(Restrictions.allEq(map));
-                criteria.addOrder(Order.asc(ProdCCC_ID));
-                criteria.addOrder(Order.asc(ProdNNN_ID));
-                criteria.addOrder(Order.asc(ProdXXX_ID));
+                            if (createInitialFilter) {
+                                stdTextProduct.setCccid(paddedccc);
+                                stdTextProduct.setNnnid(paddednnn);
+                                stdTextProduct.setXxxid(paddedxxx);
 
-                List<?> list = criteria.list();
-                if (list != null && list.size() > 0) {
-                    afosIds = new AFOSProductId[list.size()];
-                    int i = 0;
-                    for (Object row : list) {
-                        Object[] cols = (Object[]) row;
-                        afosIds[i++] = new AFOSProductId((String) cols[0],
-                                (String) cols[1], (String) cols[2]);
-                    }
-                } else {
-                    afosIds = new AFOSProductId[0];
-                }
-                tx.commit();
-            } else {
-                afosIds = new AFOSProductId[1];
-                afosIds[0] = new AFOSProductId(ccc, nnn, xxx);
-            }
+                                Map<String, String> map = buildCriterions(
+                                        ProdCCC_ID, paddedccc, ProdNNN_ID,
+                                        paddednnn, ProdXXX_ID, paddedxxx);
+                                Criteria criteria = session
+                                        .createCriteria(stdTextProduct
+                                                .getClass());
+                                ProjectionList projList = Projections
+                                        .projectionList();
+                                projList.add(Projections.property(ProdCCC_ID));
+                                projList.add(Projections.property(ProdNNN_ID));
+                                projList.add(Projections.property(ProdXXX_ID));
+                                criteria.setProjection(Projections
+                                        .distinct(projList));
+                                criteria.add(Restrictions.allEq(map));
+                                criteria.addOrder(Order.asc(ProdCCC_ID));
+                                criteria.addOrder(Order.asc(ProdNNN_ID));
+                                criteria.addOrder(Order.asc(ProdXXX_ID));
 
-            tx = session.beginTransaction();
-            /*
-             * DR15244 - Make sure that the query is performed on the appropriate
-             * table based on what StdTextProduct is requested (ultimately on CAVE mode)
-             */
-            Matcher m = Pattern.compile("StdTextProduct").matcher(AFOS_QUERY_STMT);
-            String tableName = stdTextProduct.getClass().getSimpleName();
-            String tableQuery = m.replaceAll(tableName);
-            Query query = session.createQuery(tableQuery);
+                                List<?> list = criteria.list();
+                                if (list != null && list.size() > 0) {
+                                    afosIds = new AFOSProductId[list.size()];
+                                    int i = 0;
+                                    for (Object row : list) {
+                                        Object[] cols = (Object[]) row;
+                                        afosIds[i++] = new AFOSProductId(
+                                                (String) cols[0],
+                                                (String) cols[1],
+                                                (String) cols[2]);
+                                    }
+                                } else {
+                                    afosIds = new AFOSProductId[0];
+                                }
+                            } else {
+                                afosIds = new AFOSProductId[1];
+                                afosIds[0] = new AFOSProductId(paddedccc,
+                                        paddednnn, paddedxxx);
+                            }
+                            return afosIds;
+                        }
+                    });
+
+                    products = txTemplate.execute(new TransactionCallback<List<StdTextProduct>>() {
+
+                        @Override
+                        public List<StdTextProduct> doInTransaction(
+                                TransactionStatus status) {
+                            List<StdTextProduct> products = null;
+                            Session session = getCurrentSession();
+                            /*
+                             * DR15244 - Make sure that the query is performed on the appropriate
+                             * table based on what StdTextProduct is requested (ultimately on CAVE mode)
+                             */
+                            Matcher m = Pattern.compile("StdTextProduct").matcher(AFOS_QUERY_STMT);
+                            String tableName = getStdTextProductInstance().getClass().getSimpleName();
+                            String tableQuery = m.replaceAll(tableName);
+                            Query query = session.createQuery(tableQuery);
+                            
+
+                            if (version >= 0) {
+                                query.setMaxResults(version + 1);
+                            }
+                            for (AFOSProductId afosId : afosIds) {
+                                query.setParameter(CCC_ID, afosId.getCcc());
+                                query.setParameter(NNN_ID, afosId.getNnn());
+                                query.setParameter(XXX_ID, afosId.getXxx());
+
+                                List<?> results = query.list();
+                                if (results != null && results.size() > 0) {
+                                    if (version == -1) {
+                                        // want all versions
+                                        if (products == null) {
+                                            products = new ArrayList<StdTextProduct>(
+                                                    results.size() * afosIds.length);
+                                        }
+                                        for (Object row : results) {
+                                            products.add((StdTextProduct) row);
+                                        }
+                                    } else if (results.size() > version) {
+                                        // want specific version
+                                        if (products == null) {
+                                            products = new ArrayList<StdTextProduct>(
+                                                    afosIds.length);
+                                        }
+                                        products.add((StdTextProduct) results.get(version));
+                                    }
+                                }
+                            }
+                            return products;
+                        }
+                    });
+                    
+
             
-
-            if (version >= 0) {
-                query.setMaxResults(version + 1);
-            }
-            for (AFOSProductId afosId : afosIds) {
-                query.setParameter(CCC_ID, afosId.getCcc());
-                query.setParameter(NNN_ID, afosId.getNnn());
-                query.setParameter(XXX_ID, afosId.getXxx());
-
-                List<?> results = query.list();
-                if (results != null && results.size() > 0) {
-                    if (version == -1) {
-                        // want all versions
-                        if (products == null) {
-                            products = new ArrayList<StdTextProduct>(
-                                    results.size() * afosIds.length);
-                        }
-                        for (Object row : results) {
-                            products.add((StdTextProduct) row);
-                        }
-                    } else if (results.size() > version) {
-                        // want specific version
-                        if (products == null) {
-                            products = new ArrayList<StdTextProduct>(
-                                    afosIds.length);
-                        }
-                        products.add((StdTextProduct) results.get(version));
-                    }
-                }
-            }
-            tx.commit();
         } catch (Exception e) {
             logger.error("Error occurred reading products", e);
-            if (tx != null) {
-                try {
-                    tx.rollback();
-                } catch (Exception e1) {
-                    logger.error("Error occurred rolling back transaction", e1);
-                }
-            }
-        } finally {
-            closeSession(session);
         }
 
         if (products == null) {
@@ -534,8 +556,10 @@ public class StdTextProductDao extends CoreDao {
     public long getLatestTime(AFOSProductId afosId) {
         long latestTime = 0L;
 
+        Session sess = null;
+        
         try {
-            Session sess = getSession();
+            sess = getSession();
 
             Map<?, ?> tmp = buildCriterions(ProdCCC_ID, afosId.getCcc(),
                     ProdNNN_ID, afosId.getNnn(), ProdXXX_ID, afosId.getXxx());
@@ -557,6 +581,10 @@ public class StdTextProductDao extends CoreDao {
             }
         } catch (Exception e) {
             logger.error("Error occurred getting latest time", e);
+        }finally{
+            if(sess != null){
+                sess.close();
+            }
         }
 
         return latestTime;
@@ -625,55 +653,41 @@ public class StdTextProductDao extends CoreDao {
     }
 
     private AFOSProductId[] getDistinctAfosIds() throws HibernateException {
+        return txTemplate.execute(new TransactionCallback<AFOSProductId[]>() {
+            @Override
+            public AFOSProductId[] doInTransaction(TransactionStatus status) {
+                AFOSProductId[] products = null;
+                Session sess = getCurrentSession();
+                Criteria crit = sess
+                        .createCriteria((operationalMode ? OperationalStdTextProduct.class
+                                : PracticeStdTextProduct.class));
+                ProjectionList fields = Projections.projectionList();
+                fields.add(Projections.property(ProdCCC_ID));
+                fields.add(Projections.property(ProdNNN_ID));
+                fields.add(Projections.property(ProdXXX_ID));
+                crit.setProjection(Projections.distinct(fields));
+                crit.addOrder(Order.asc(ProdCCC_ID));
+                crit.addOrder(Order.asc(ProdNNN_ID));
+                crit.addOrder(Order.asc(ProdXXX_ID));
+                List<?> results = crit.list();
 
-        AFOSProductId[] products = null;
-        StatelessSession sess = null;
-        Transaction tx = null;
-
-        try {
-            sess = getSessionFactory().openStatelessSession();
-            tx = sess.beginTransaction();
-            Criteria crit = sess
-                    .createCriteria((this.operationalMode ? OperationalStdTextProduct.class
-                            : PracticeStdTextProduct.class));
-            ProjectionList fields = Projections.projectionList();
-            fields.add(Projections.property(ProdCCC_ID));
-            fields.add(Projections.property(ProdNNN_ID));
-            fields.add(Projections.property(ProdXXX_ID));
-            crit.setProjection(Projections.distinct(fields));
-            crit.addOrder(Order.asc(ProdCCC_ID));
-            crit.addOrder(Order.asc(ProdNNN_ID));
-            crit.addOrder(Order.asc(ProdXXX_ID));
-            List<?> results = crit.list();
-
-            if (results != null && results.size() > 0) {
-                products = new AFOSProductId[results.size()];
-                String cccid = null;
-                String nnnid = null;
-                String xxxid = null;
-                int i = 0;
-                for (Object row : results) {
-                    Object[] cols = (Object[]) row;
-                    cccid = cols[0].toString();
-                    nnnid = cols[1].toString();
-                    xxxid = cols[2].toString();
-                    products[i++] = new AFOSProductId(cccid, nnnid, xxxid);
+                if (results != null && results.size() > 0) {
+                    products = new AFOSProductId[results.size()];
+                    String cccid = null;
+                    String nnnid = null;
+                    String xxxid = null;
+                    int i = 0;
+                    for (Object row : results) {
+                        Object[] cols = (Object[]) row;
+                        cccid = cols[0].toString();
+                        nnnid = cols[1].toString();
+                        xxxid = cols[2].toString();
+                        products[i++] = new AFOSProductId(cccid, nnnid, xxxid);
+                    }
                 }
+                return products;
             }
-            tx.commit();
-            tx = null;
-        } finally {
-            if (tx != null) {
-                try {
-                    tx.rollback();
-                } catch (Exception e) {
-                    logger.error("Caught Exception rolling back transaction", e);
-                }
-            }
-            closeSession(sess);
-        }
-
-        return products;
+        });
     }
 
     /**
@@ -693,8 +707,6 @@ public class StdTextProductDao extends CoreDao {
      * @return
      */
     public int versionPurge(String afosId) {
-        StatelessSession session = null;
-        Transaction tx = null;
         int rval = 0;
         if (PurgeLogger.isDebugEnabled()) {
             if (afosId == null) {
@@ -721,120 +733,103 @@ public class StdTextProductDao extends CoreDao {
             }
 
             if (ids != null && ids.size() > 0) {
-                String cccid = null;
-                String nnnid = null;
-                String xxxid = null;
 
-                String refTimeQueryString = null;
-                {
-                    StringBuilder refTimeQueryBuilder = new StringBuilder(200);
-                    refTimeQueryBuilder.append("SELECT refTime FROM ");
-                    refTimeQueryBuilder.append(getStdTextProductInstance()
-                            .getClass().getSimpleName());
-                    refTimeQueryBuilder.append(" WHERE ");
-                    refTimeQueryBuilder.append(ProdCCC_ID).append(" = :cccid")
-                            .append(" AND ");
-                    refTimeQueryBuilder.append(ProdNNN_ID).append(" = :nnnid")
-                            .append(" AND ");
-                    refTimeQueryBuilder.append(ProdXXX_ID).append(" = :xxxid");
-                    refTimeQueryBuilder.append(" ORDER BY refTime DESC");
-                    refTimeQueryBuilder.append(", insertTime DESC");
-                    refTimeQueryString = refTimeQueryBuilder.toString();
-                }
+                StringBuilder refTimeQueryBuilder = new StringBuilder(200);
+                refTimeQueryBuilder.append("SELECT refTime FROM ");
+                refTimeQueryBuilder.append(getStdTextProductInstance()
+                        .getClass().getSimpleName());
+                refTimeQueryBuilder.append(" WHERE ");
+                refTimeQueryBuilder.append(ProdCCC_ID).append(" = :cccid")
+                        .append(" AND ");
+                refTimeQueryBuilder.append(ProdNNN_ID).append(" = :nnnid")
+                        .append(" AND ");
+                refTimeQueryBuilder.append(ProdXXX_ID).append(" = :xxxid");
+                refTimeQueryBuilder.append(" ORDER BY refTime DESC");
+                refTimeQueryBuilder.append(", insertTime DESC");
+                final String refTimeQueryString = refTimeQueryBuilder.toString();
+            
+            
+                StringBuilder delQueryBuilder = new StringBuilder(200);
+                delQueryBuilder.append("DELETE FROM ");
+                delQueryBuilder.append(getStdTextProductInstance()
+                        .getClass().getSimpleName());
+                delQueryBuilder.append(" WHERE ");
+                delQueryBuilder.append(ProdCCC_ID).append(" = :cccid")
+                        .append(" AND ");
+                delQueryBuilder.append(ProdNNN_ID).append(" = :nnnid")
+                        .append(" AND ");
+                delQueryBuilder.append(ProdXXX_ID).append(" = :xxxid")
+                        .append(" AND ");
+                delQueryBuilder.append("refTime < :refTime");
+                final String delQueryString = delQueryBuilder.toString();
+                
 
-                String delQueryString = null;
-                {
-                    StringBuilder delQueryBuilder = new StringBuilder(200);
-                    delQueryBuilder.append("DELETE FROM ");
-                    delQueryBuilder.append(getStdTextProductInstance()
-                            .getClass().getSimpleName());
-                    delQueryBuilder.append(" WHERE ");
-                    delQueryBuilder.append(ProdCCC_ID).append(" = :cccid")
-                            .append(" AND ");
-                    delQueryBuilder.append(ProdNNN_ID).append(" = :nnnid")
-                            .append(" AND ");
-                    delQueryBuilder.append(ProdXXX_ID).append(" = :xxxid")
-                            .append(" AND ");
-                    delQueryBuilder.append("refTime < :refTime");
-                    delQueryString = delQueryBuilder.toString();
-                }
+                for (final TextProductInfo prodInfo : ids) {
+                    rval += txTemplate.execute(new TransactionCallback<Integer>() {
 
-                session = getSessionFactory().openStatelessSession();
+                        @Override
+                        public Integer doInTransaction(TransactionStatus status) {
+                            Session session = getCurrentSession();
+                            TextProductInfoPK pk = prodInfo.getProdId();
+                            String cccid = pk.getCccid();
+                            String nnnid = pk.getNnnid();
+                            String xxxid = pk.getXxxid();
+                            int rowsDeleted = 0;
 
-                for (TextProductInfo prodInfo : ids) {
-                    TextProductInfoPK pk = prodInfo.getProdId();
-                    cccid = pk.getCccid();
-                    nnnid = pk.getNnnid();
-                    xxxid = pk.getXxxid();
-
-                    try {
-                        tx = session.beginTransaction();
-                        Query refTimeQuery = session
-                                .createQuery(refTimeQueryString);
-                        refTimeQuery.setString("cccid", cccid);
-                        refTimeQuery.setString("nnnid", nnnid);
-                        refTimeQuery.setString("xxxid", xxxid);
-                        refTimeQuery
-                                .setMaxResults(prodInfo.getVersionstokeep());
-                        List<?> refTimes = refTimeQuery.list();
-                        if (refTimes.size() >= prodInfo.getVersionstokeep()) {
-                            long refTime = ((Number) refTimes.get(prodInfo
-                                    .getVersionstokeep() - 1)).longValue();
-                            Query delQuery = session
-                                    .createQuery(delQueryString);
-                            delQuery.setString("cccid", cccid);
-                            delQuery.setString("nnnid", nnnid);
-                            delQuery.setString("xxxid", xxxid);
-                            delQuery.setLong("refTime", refTime);
-
-                            if (PurgeLogger.isDebugEnabled()) {
-                                PurgeLogger.logDebug("Purging records for ["
-                                        + cccid + nnnid + xxxid
-                                        + "] before refTime [" + refTime + "]",
-                                        PLUGIN_NAME);
-                            }
-
-                            int rowsDeleted = delQuery.executeUpdate();
-
-                            // commit every afos id purge
-                            tx.commit();
-                            tx = null;
-                            if (PurgeLogger.isDebugEnabled()) {
-                                PurgeLogger.logDebug("Purged [" + rowsDeleted
-                                        + "] records for [" + cccid + nnnid
-                                        + xxxid + "]", PLUGIN_NAME);
-                            }
-                            rval += rowsDeleted;
-                        } else if (PurgeLogger.isDebugEnabled()) {
-                            PurgeLogger.logDebug(
-                                    "VersionPurge: Product [" + cccid + nnnid
-                                            + xxxid + "] has fewer than ["
-                                            + prodInfo.getVersionstokeep()
-                                            + "] versions", PLUGIN_NAME);
-                        }
-                    } catch (Exception e) {
-                        PurgeLogger.logError(
-                                "Exception occurred purging text products ["
-                                        + cccid + nnnid + xxxid + "]",
-                                PLUGIN_NAME, e);
-                        if (tx != null) {
                             try {
-                                tx.rollback();
-                            } catch (Exception e1) {
-                                PurgeLogger
-                                        .logError(
-                                                "Error occurred rolling back transaction",
-                                                PLUGIN_NAME, e1);
+                                Query refTimeQuery = session
+                                        .createQuery(refTimeQueryString);
+                                refTimeQuery.setString("cccid", cccid);
+                                refTimeQuery.setString("nnnid", nnnid);
+                                refTimeQuery.setString("xxxid", xxxid);
+                                refTimeQuery
+                                        .setMaxResults(prodInfo.getVersionstokeep());
+                                List<?> refTimes = refTimeQuery.list();
+                                if (refTimes.size() >= prodInfo.getVersionstokeep()) {
+                                    long refTime = ((Number) refTimes.get(prodInfo
+                                            .getVersionstokeep() - 1)).longValue();
+                                    Query delQuery = session
+                                            .createQuery(delQueryString);
+                                    delQuery.setString("cccid", cccid);
+                                    delQuery.setString("nnnid", nnnid);
+                                    delQuery.setString("xxxid", xxxid);
+                                    delQuery.setLong("refTime", refTime);
+
+                                    if (PurgeLogger.isDebugEnabled()) {
+                                        PurgeLogger.logDebug("Purging records for ["
+                                                + cccid + nnnid + xxxid
+                                                + "] before refTime [" + refTime + "]",
+                                                PLUGIN_NAME);
+                                    }
+
+                                    rowsDeleted = delQuery.executeUpdate();
+                                    if (PurgeLogger.isDebugEnabled()) {
+                                        PurgeLogger.logDebug("Purged [" + rowsDeleted
+                                                + "] records for [" + cccid + nnnid
+                                                + xxxid + "]", PLUGIN_NAME);
+                                    }
+                                } else if (PurgeLogger.isDebugEnabled()) {
+                                    PurgeLogger.logDebug(
+                                            "VersionPurge: Product [" + cccid + nnnid
+                                                    + xxxid + "] has fewer than ["
+                                                    + prodInfo.getVersionstokeep()
+                                                    + "] versions", PLUGIN_NAME);
+                                }
+                            } catch (Exception e) {
+                                PurgeLogger.logError(
+                                        "Exception occurred purging text products ["
+                                                + cccid + nnnid + xxxid + "]",
+                                        PLUGIN_NAME, e);
                             }
+                            return rowsDeleted;
                         }
-                    }
+                    });
+                    
                 }
             }
         } catch (Exception e) {
             // don't need to worry about rolling back transaction
             PurgeLogger.logError("Error purging text products", PLUGIN_NAME, e);
-        } finally {
-            closeSession(session);
         }
         return rval;
     }
@@ -2809,16 +2804,6 @@ public class StdTextProductDao extends CoreDao {
     }
 
     private void closeSession(Session s) {
-        if (s != null) {
-            try {
-                s.close();
-            } catch (Exception e) {
-                logger.error("Error closing Session", e);
-            }
-        }
-    }
-
-    private void closeSession(StatelessSession s) {
         if (s != null) {
             try {
                 s.close();
