@@ -1,4 +1,8 @@
 #!/bin/csh
+if ( $USER != "awips" && $USER != 'root' ) then
+  return
+  exit 0
+endif
 
 # Determine where cave has been installed.
 set CAVE_INSTALL="/awips2/cave"
