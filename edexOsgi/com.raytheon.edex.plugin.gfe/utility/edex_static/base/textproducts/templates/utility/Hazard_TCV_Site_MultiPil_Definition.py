@@ -3,10 +3,10 @@
 # technical  support, and with no warranty, express or implied, as to
 # its usefulness for any purpose.
 #
-# Hazard_HLS_<site>_<MultiPil>_Definition.TextUtility
+# Hazard_TCV_<site>_<MultiPil>_Definition.TextUtility
 #
 #  This file sets up all the Product Definition overrides for the 
-#  Hazard_HLS formatter for a site. 
+#  Hazard_TCV formatter for a site. 
 #
 # ---------------------------------------------------------------------
 
@@ -23,12 +23,12 @@ Definition = {}
 #
 #VariableList = []
 
-#----- WFO <site> Hazard_HLS Definition -----
+#----- WFO <site> TCV Definition -----
 # Definition Statements must start in column 1.
 
 # REQUIRED CONFIGURATION ITEMS 
 #Definition['displayName'] = None
-Definition['displayName'] = "Hazard_HLS_<MultiPil> (Hurricane Local Statement)"
+Definition['displayName'] = "Hazard_TCV_<MultiPil> (Tropical Cyclone VTEC)"
 
 # Header configuration items
 Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
@@ -36,7 +36,7 @@ Definition["wmoID"] = "<wmoID>"        # WMO ID
 Definition["pil"] = "<pil>"          # product pil
 Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
 Definition["awipsWANPil"] = "<awipsWANPil>"   # Product ID for transmitting to AWIPS WAN.
-Definition["outputFile"] =  "{prddir}/TEXT/Hazard_HLS_<MultiPil>.txt"
+Definition["outputFile"] =  "{prddir}/TEXT/TCV_<MultiPil>.txt"
 
 # OPTIONAL CONFIGURATION ITEMS
 #Definition["database"] = "Official"    # Source database. "Official", "Fcst", or "ISC"
