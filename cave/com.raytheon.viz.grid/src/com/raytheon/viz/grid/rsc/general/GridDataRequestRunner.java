@@ -22,8 +22,6 @@ package com.raytheon.viz.grid.rsc.general;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -31,6 +29,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.jobs.JobPool;
 
 /**
  * 
@@ -48,6 +47,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jun 24, 2013 2140       randerso    Moved safe name code into AbstractVizResource
  * Oct 07, 2014 3668       bclement    uses executor instead of eclipse job
  *                                      renamed to GridDataRequestRunner
+ * Oct 23, 2014 3668       bsteffen    replace executor with job pool so user
+ *                                     sees progress.
  * 
  * </pre>
  * 
@@ -59,8 +60,8 @@ class GridDataRequestRunner implements Runnable {
     private static final int POOL_SIZE = Integer.getInteger(
             "grid.request.pool.size", 10);
 
-    private static final Executor executor = Executors
-            .newFixedThreadPool(POOL_SIZE);
+    private static final JobPool jobPool = new JobPool("Requesting Grid Data",
+            POOL_SIZE);
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridDataRequestRunner.class);
@@ -95,7 +96,15 @@ class GridDataRequestRunner implements Runnable {
 
     }
 
-    private volatile boolean cancelled = false;
+    /**
+     * This class is not designed to handle multiple requests concurrently. To
+     * ensure this doesn't happen we track when it is scheduled and do not
+     * schedule again. It would have been simpler to synchronize the run method
+     * but that ties up threads from the pool that other resources should use.
+     * So we don't leave dangling requests this should only be modified while
+     * synchronized on requests.
+     */
+    private volatile boolean scheduled = false;
 
     private AbstractGridResource<?> resource;
 
@@ -111,8 +120,10 @@ class GridDataRequestRunner implements Runnable {
             try {
                 request.gridData = resource.getData(request.time, request.pdos);
                 if (request.gridData == null) {
-                    // need to remove unfulfillable requests to avoid infinite
-                    // loop.
+                    /*
+                     * need to remove unfulfillable requests to avoid infinite
+                     * loop.
+                     */
                     synchronized (requests) {
                         requests.remove(request);
                     }
@@ -122,9 +133,6 @@ class GridDataRequestRunner implements Runnable {
             } catch (VizException e) {
                 request.exception = e;
                 resource.issueRefresh();
-            }
-            if (cancelled) {
-                break;
             }
         }
     }
@@ -141,6 +149,7 @@ class GridDataRequestRunner implements Runnable {
                     return request;
                 }
             }
+            scheduled = false;
         }
         return null;
     }
@@ -172,19 +181,12 @@ class GridDataRequestRunner implements Runnable {
             if ((request.exception != null) && !request.exceptionHandled) {
                 handleExceptions();
             }
-        }
-        if (request.shouldRequest()) {
-            this.schedule();
+            if (!scheduled && request.shouldRequest()) {
+                scheduled = true;
+                jobPool.schedule(this);
+            }
         }
         return null;
-    }
-
-    /**
-     * send current requests
-     */
-    private void schedule() {
-        cancelled = false;
-        executor.execute(this);
     }
 
     private void handleExceptions() {
@@ -266,15 +268,10 @@ class GridDataRequestRunner implements Runnable {
     public void stopAndClear() {
         synchronized (requests) {
             requests.clear();
+            if (jobPool.cancel(this)) {
+                scheduled = false;
+            }
         }
-        this.cancel();
-    }
-
-    /**
-     * cancel current request
-     */
-    private void cancel() {
-        cancelled = true;
     }
 
 }
