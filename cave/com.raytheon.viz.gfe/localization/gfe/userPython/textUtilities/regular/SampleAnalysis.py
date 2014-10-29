@@ -1632,6 +1632,133 @@ class SampleAnalysis(CommonUtils.CommonUtils):
         #print "discreteTimeRangesByKey keyList", keyList
         return keyList
 
+    def mostSignificantDiscreteValue(self, parmHisto, timeRange, componentName, withAux=0):
+        """Using mostSignificantDiscrete_keyOrder_dict and mostSignificantDiscrete_coveragePercentage_dict,
+           report the most significant discrete value for the given timeRange. If there is a tie,
+           report the most significant value.
+        """
+        totalHours = 0
+        totalPoints = parmHisto.numberOfGridPoints()
+        compositeNameUI = parmHisto.parmID().compositeNameUI()
+
+        #  Loop over all samples, which are for all grids and
+        #  all keys on each of those grids.
+        #  We will have just one entry per
+        #  discrete key (with or without Aux value).
+
+        #print "\n\nIn mostSignificantDiscreteValue: DataType, TimeRange", "DISCRETE", timeRange
+        #print "STEP 1 -- Aggregate per grid"
+        
+        subkeyTypeDict = {}
+        # STEP 1:
+        #    For each discrete key found in the grids,
+        #    gather its 'hours' of coverage and 'count' of points covered. 
+        for histSample in parmHisto.histoSamples():
+            validTime = TimeRange.TimeRange(histSample.validTime())
+            if self.temporalCoverage_flag(
+                parmHisto, timeRange, componentName, histSample) == 0:
+                continue
+            #   Get the number of hours inside the timeRange that this
+            #   sample comes from (i.e., we can get a sample that lasts
+            #   for 3 weeks - but only 1 hour of it is inside the
+            #   timeRange - and we only want to rank it by the 1 hour
+            #   inside the range)
+            #
+            hours = validTime.intersection(timeRange).duration()/3600
+            if hours < 1:
+                continue
+
+            totalHours += hours
+
+            # Gather the subkey Types for this grid in subkeyTypeDict
+            #  Each entry ends up being a list of tuples: (discreteKey, hours, count)
+            self.gatherSubkeyTypes(
+                parmHisto, timeRange, componentName, histSample, 'DISCRETE', hours,
+                subkeyTypeDict, withAux)
+        
+        # STEP 2: For each subkeyType,
+        #     --determine an aggregate subkey and rank i.e.
+        #          aggregate areal coverage over time percentage
+        #     --compare the rank to coverage threshold.
+        #print "subkeyTypeDict", subkeyTypeDict
+        keyRankDict = {}  # Holds:  subkeyType: rank
+        for subkeyType in subkeyTypeDict.keys():
+            #print "\nsubkeyType", subkeyType
+            subkeyList = subkeyTypeDict[subkeyType]
+            subkeyTypeRank = 0
+            # Determine a subkeyType rank
+            subkeyTotalPoints = 0
+            for subkey, hours, count in subkeyList:
+                #print "   subkey, hours, count", subkey, hours, count
+                subkeyTotalPoints += count
+                subkeyTypeRank += hours * count
+            #print "total points =", subkeyTotalPoints
+            
+            #print "subkeyTypeRank =", subkeyTypeRank
+            #print "totalHours =", totalHours
+            #print "totalPoints =", totalPoints
+            # Determine rank for the subkeyType
+            rank = int(round(float(subkeyTypeRank)/(totalHours*totalPoints)*100.0))
+            keyRankDict[subkeyType] = rank
+            #print "rank =", rank
+        
+        # Check to see if each subkeyType meets the required coverage percentage
+        keyOrderDict = self.mostSignificantDiscrete_keyOrder_dict(parmHisto, timeRange, compositeNameUI)
+        keyOrder = keyOrderDict[compositeNameUI]
+        mostSignificantSubkey = None
+        highestOrderIndex = None
+        for subkeyType in keyRankDict.keys():
+            rank = keyRankDict[subkeyType]
+            thresholdDict = self.mostSignificantDiscrete_coveragePercentage_dict(
+                    parmHisto, timeRange, componentName, subkeyType)
+            threshold = thresholdDict.get(compositeNameUI, 0)
+            #print "threshold =", threshold
+            flag = rank >= threshold
+            if not flag:
+                # Get another chance to pass
+                flag = self.checkPercentages(
+                    parmHisto, timeRange, componentName, subkeyType, keyRankDict)
+            if flag: # This type meets the threshold criteria
+                if self.cleanOutEmptyValues(parmHisto, timeRange, componentName, "DISCRETE"):
+                    # Don't save empty values
+                    #print "Ignoring", subkeyType
+                    continue
+                try:
+                    orderIndex = keyOrder.index(subkeyType)
+                    if highestOrderIndex is None or orderIndex > highestOrderIndex:
+                        highestOrderIndex = orderIndex
+                        mostSignificantSubkey = subkeyType
+                        #print "Found higher significance key =", subkeyType
+                except:
+                    pass
+            else:
+                #print "didn't make the cut", rank, subkeyType
+                pass
+        
+        #print "mostSignificantSubkey =", mostSignificantSubkey
+        return mostSignificantSubkey
+    
+    def mostSignificantDiscrete_coveragePercentage_dict(self, parmHisto, timeRange, componentName, keyStr):
+        """ Return the required coverage percentage for the given key which will be
+            compared to its "rank" i.e. the percentage of areal coverage over the time period.
+        """
+        return {
+                "WindThreat": 5,
+                "FloodingRainThreat": 5,
+                "StormSurgeThreat": 5,
+                "TornadoThreat": 5,
+               }
+    
+    def mostSignificantDiscrete_keyOrder_dict(self, parmHisto, timeRange, componentName):
+        """ Returns a list of keys from least to most significant for a discrete type (componentName). """
+        threatKeyOrder = [None, "None", "Elevated", "Mod", "High", "Extreme"]
+        return {
+                "WindThreat": threatKeyOrder,
+                "FloodingRainThreat": threatKeyOrder,
+                "StormSurgeThreat": threatKeyOrder,
+                "TornadoThreat": threatKeyOrder,
+               }
+    
 
     ########################################
     ## UTILITIES
