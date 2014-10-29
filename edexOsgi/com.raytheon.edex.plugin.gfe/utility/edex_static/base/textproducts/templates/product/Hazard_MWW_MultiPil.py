@@ -97,6 +97,8 @@ class TextProduct(GenericHazards.TextProduct):
         allActions = ["NEW", "EXA", "EXB", "EXT", "CAN", "CON", "EXP"]
         return [
 
+            ('HU.W',  allActions, 'Tropical'), # HURRICANE WARNING
+            ('TR.W',  allActions, 'Tropical1'),# TROPICAL STORM WARNING
             ('GL.W',  allActions, 'Marine3'),  # GALE WARNING
             ('HF.W',  allActions, 'Marine'),   # HURRICANE FORCE WIND WARNING
             ('MH.W',  allActions, 'Ashfall'),  # VOLCANIC ASHFALL WARNING
@@ -115,6 +117,8 @@ class TextProduct(GenericHazards.TextProduct):
             ('SW.Y', allActions, 'Marine4'),   # SMALL CRAFT ADVISORY
             ('UP.Y', allActions, 'IceAccr'),   # HEAVY FREEZING SPRAY ADVISORY
 
+            ('HU.A',  allActions, 'Tropical'), # HURRICANE WATCH
+            ('TR.A',  allActions, 'Tropical1'),# TROPICAL STORM WATCH
             ('GL.A',  allActions, 'Marine3'),  # GALE WATCH
             ('HF.A',  allActions, 'Marine'),   # HURRICANE FORCE WIND WATCH
             ('SE.A',  allActions, 'Marine4'),  # HAZARDOUS SEAS WATCH
@@ -125,6 +129,8 @@ class TextProduct(GenericHazards.TextProduct):
 
     def _bulletDict(self):
         return {
+            "HU" : ("WINDS,WAVES/SEAS"),                 ### hurricane warning, watch
+            "TR" : ("WINDS,WAVES/SEAS"),                 ### tropical storm warning, watch
             "GL" : ("WINDS,WAVES/SEAS"),                 ### gale warning, watch
             "HF" : ("WINDS,WAVES/SEAS"),                 ### hurricane force wind warnings, watch
             "MH" : ("VOLCANIC ASH INFO"),                ### volcanic ashfall warning, advisory
