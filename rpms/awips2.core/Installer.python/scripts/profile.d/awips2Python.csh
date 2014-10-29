@@ -1,4 +1,8 @@
 #!/bin/csh
+if ( $USER != "awips" && $USER != 'root' ) then
+  return
+  exit 0
+endif
 
 set PYTHON_INSTALL="/awips2/python"
 setenv AWIPS_PYTHON ${PYTHON_INSTALL}

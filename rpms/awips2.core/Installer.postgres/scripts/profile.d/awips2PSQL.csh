@@ -1,5 +1,8 @@
 #!/bin/csh
-
+if ( $USER != "awips" && $USER != 'root' ) then
+  return
+  exit 0
+endif
 # Determine where psql has been installed.
 set PSQL_INSTALL="/awips2/psql"
 
