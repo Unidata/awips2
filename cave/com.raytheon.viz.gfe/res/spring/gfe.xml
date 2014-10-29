@@ -24,6 +24,8 @@
                  <value>HU.W</value>
                  <value>TR.A</value>
                  <value>TR.W</value>
+                 <value>SS.A</value>
+                 <value>SS.W</value>
               </set>
            </property>
            <property name="tropicalEtnPhensigs">
@@ -33,6 +35,8 @@
                  <value>HU.W</value>
                  <value>TR.A</value>
                  <value>TR.W</value>
+                 <value>SS.A</value>
+                 <value>SS.W</value>
               </set>
            </property>
         </bean>
