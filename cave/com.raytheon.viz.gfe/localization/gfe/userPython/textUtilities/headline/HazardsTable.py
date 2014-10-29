@@ -94,8 +94,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         self.__tpcKeys = self.__processJavaCollection(GFEVtecUtil.TROPICAL_PHENSIGS, self.__convertPhensig)
         self.__tpcBaseETN = '1001'
         self.__ncKeys = self.__processJavaCollection(GFEVtecUtil.NATIONAL_PHENSIGS, self.__convertPhensig)
-        self.__ufnKeys = [('HU', 'A'), ('HU', 'S'), ('HU', 'W'), ('TR', 'A'), ('TR', 'W'),
-          ('TY', 'A'), ('TY', 'W')]
+        self.__ufnKeys = [('HU', 'A'), ('HU', 'W'), ('TR', 'A'), ('TR', 'W'),
+          ('TY', 'A'), ('TY', 'W'), ('SS', 'A'), ('SS', 'W')]
 
         self.__sitesIgnoreNatlEtn = self.__processJavaCollection(GFEVtecUtil.IGNORE_NATIONAL_ETN, str)
 
