@@ -27,6 +27,15 @@
 #
 # Author: davis
 # ----------------------------------------------------------------------------
+##
+#
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# Oct 20, 2014    #3685          randerso    Changed to support mixed case
+#
+##
+
 #-------------------------------------------------------------------------
 # Example Output:
 #  Refer to the NWS 10-518 Directive for further information.
@@ -111,7 +120,6 @@ class TextProduct(CivilEmerg.TextProduct):
         return fcst
 
     def _postProcessProduct(self, fcst, argDict):
-        fcst = string.upper(fcst)
         fcst = self.endline(fcst, linelength=self._lineLength, breakStr=[" ", "...", "-"])
         self.setProgressPercentage(100)
         self.progressMessage(0, 100, self._displayName + " Complete")
