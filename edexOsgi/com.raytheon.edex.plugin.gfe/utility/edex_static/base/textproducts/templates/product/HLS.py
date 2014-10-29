@@ -11,9 +11,9 @@ from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, Refer
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit as JavaGrid2DBit
 AWIPS_ENVIRON = "AWIPS2"
 
-import Hazard_HLSTCV_Common
+import HLSTCV_Common
 
-class TextProduct(Hazard_HLSTCV_Common.TextProduct):
+class TextProduct(HLSTCV_Common.TextProduct):
     Definition = copy.deepcopy(GenericHazards.TextProduct.Definition)
 
     Definition["displayName"]   = "None"
@@ -49,7 +49,7 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
     Definition["callToAction"] = 1
 
     def __init__(self):
-        Hazard_HLSTCV_Common.TextProduct.__init__(self)
+        HLSTCV_Common.TextProduct.__init__(self)
 
     #####################################################################
     #####################################################################
@@ -221,7 +221,9 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
             ]
         
         if self._ImpactsAnticipated:
-            for (_, sectionName) in self._IncludedImpacts:
+            includedImpacts = sorted(self._IncludedImpacts, key=self._impactsKeyFunction)
+            for ((_, sectionName), _) in includedImpacts:
+                print "SARAH: adding section", sectionName
                 partsList.append(sectionName)
         
         partsList.append('preparednessSection')
@@ -237,6 +239,14 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
         return {
             'partsList': partsList
             }
+    
+    def _impactsKeyFunction(self, optionIndexTuple):
+        ((_, _), indexStr) = optionIndexTuple
+        indexStr = indexStr.strip()
+        if len(indexStr) == 0:
+            return 9999
+        else:
+            return int(indexStr)
     
     def _ugcHeader(self, productDict, productSegmentGroup, productSegment):
         self._ugcs = self._allAreas()
@@ -809,7 +819,7 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
         # Set up the areaDictionary for all to use
         accessor = ModuleAccessor.ModuleAccessor()
         self._areaDict = accessor.variable(self._areaDictionary, "AreaDictionary")
-        self._tpc = Hazard_HLSTCV_Common.TextProductCommon()
+        self._tpc = HLSTCV_Common.TextProductCommon()
         self._tpc.setUp(self._areaDict)
         
         return None
@@ -1657,23 +1667,23 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
     # Returns the distance from lat0, lon0 to lat1, lon1 in kilometers
     def _distanceFromLatLon(self, lat0, lon0, lat1, lon1):
         R = 6371.0
-        lat0 = lat0 * DEG_TO_RAD
-        lon0 = lon0 * DEG_TO_RAD
-        lat1 = lat1 * DEG_TO_RAD
-        lon1 = lon1 * DEG_TO_RAD
+        lat0 = numpy.deg2rad(lat0)
+        lon0 = numpy.deg2rad(lon0)
+        lat1 = numpy.deg2rad(lat1)
+        lon1 = numpy.deg2rad(lon1)
         dist = math.acos(math.sin(lat0) * math.sin(lat1) + math.cos(lat0) * math.cos(lat1) * math.cos(lon1 - lon0)) * R
         return dist
 
     def _bearing(self, lat0, lon0, lat1, lon1):
 
-        dlat = (lat0 - lat1) * DEG_TO_RAD
-        dlon = (lon0 - lon1) * DEG_TO_RAD
+        dlat = numpy.deg2rad((lat0 - lat1))
+        dlon = numpy.deg2rad((lon0 - lon1))
 
-        y = math.sin(dlon) * math.cos(lat1 * DEG_TO_RAD)
-        x = math.cos(lat0 * DEG_TO_RAD) * math.sin(lat1 * DEG_TO_RAD) - \
-            (math.sin(lat0 * DEG_TO_RAD) * math.cos(lat1 * DEG_TO_RAD) * math.cos(dlon))
+        y = math.sin(dlon) * math.cos(numpy.deg2rad(lat1))
+        x = math.cos(numpy.deg2rad(lat0)) * math.sin(numpy.deg2rad(lat1)) - \
+            (math.sin(numpy.deg2rad(lat0)) * math.cos(numpy.deg2rad(lat1)) * math.cos(dlon))
 
-        direction = (math.atan2(x, y) / DEG_TO_RAD) - 90.0
+        direction = numpy.rad2deg(math.atan2(x, y)) - 90.0
         if direction < 0.0:
             direction = direction + 360.0
         direction = direction % 360
@@ -1996,9 +2006,9 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
         return "|* " + text + " *|"
 
 
-class Overview_Dialog(Hazard_HLSTCV_Common.Common_Dialog):
+class Overview_Dialog(HLSTCV_Common.Common_Dialog):
     def __init__(self, parent, title, infoDict=None):
-        Hazard_HLSTCV_Common.Common_Dialog.__init__(self, parent, title, infoDict)
+        HLSTCV_Common.Common_Dialog.__init__(self, parent, title, infoDict)
 
     def body(self, master):
         # build the main display dialog
@@ -2047,7 +2057,7 @@ class Overview_Dialog(Hazard_HLSTCV_Common.Common_Dialog):
             if name == "MainHeadline": entryField = None
 
             if name == "IncludedImpacts":
-                tkObject_dict[name], entryObject = self._makeStep3(
+                tkObject_dict[name] = self._makeStep3(
                     box, label, options, default, buttonSide=buttonSide, frameSide=frameSide,
                     entryField=entryField, headerFG=headerFG,
                     headerFont=headerFont)
@@ -2080,7 +2090,7 @@ class Overview_Dialog(Hazard_HLSTCV_Common.Common_Dialog):
             listLabel.pack(side=Tkinter.TOP, fill=Tkinter.X, expand=Tkinter.NO, padx=10)
 
         ivar = Tkinter.IntVar()
-        ivarList = []
+        ivarEntryPairList = []
         for element in elementList:
             index = elementList.index(element)
             if type(element) is types.TupleType:
@@ -2095,16 +2105,14 @@ class Overview_Dialog(Hazard_HLSTCV_Common.Common_Dialog):
             button= Tkinter.Checkbutton(buttonFrame, variable=ivar, text=element)
             button.grid(row=0, column=0, sticky=Tkinter.W+Tkinter.E)
             button.grid_columnconfigure(0, weight=1)
-            ivarList.append(ivar)
             
-            entry = Tkinter.Entry(buttonFrame, relief=Tkinter.SUNKEN, width=3)
+            svar = Tkinter.StringVar()
+            entry = Tkinter.Entry(buttonFrame, textvariable=svar, relief=Tkinter.SUNKEN, width=3)
             entry.grid(row=0, column=1, sticky=Tkinter.E)
             
+            ivarEntryPairList.append((ivar, svar))
+            
             buttonFrame.pack(side=buttonSide, fill=Tkinter.X, expand=Tkinter.YES, padx=4)
-
-        entryObject = None
-        if entryField is not None:
-            entryObject = self._makeEntry(listFrame, entryField)
         
         noteLabel = Tkinter.Label(listFrame, text="Note: Check Hazards to include (left) and order number (right)")
         noteLabel.pack(side=Tkinter.TOP, fill=Tkinter.X, expand=Tkinter.NO, padx=10)
@@ -2112,8 +2120,7 @@ class Overview_Dialog(Hazard_HLSTCV_Common.Common_Dialog):
         # packing
         listFrame.pack(side=frameSide, expand=Tkinter.NO, fill=Tkinter.Y) #, anchor=Tkinter.N)
 
-        ivar = ivarList
-        return ivar, entryObject
+        return ivarEntryPairList
 
     def _makeButtons(self, master):
         frame = Tkinter.Frame(master)
@@ -2131,11 +2138,12 @@ class Overview_Dialog(Hazard_HLSTCV_Common.Common_Dialog):
         # pull the data from the tkObject_dict before they get toasted
         tkObject_dict  = self._tkObject_dict
         overviewList = self._parent._overview_list()
+        print "SARAH: in okCB!"
         for infoDict in overviewList:
             name = infoDict["name"]
             label = infoDict["label"]            
             options = infoDict.get("options", [])
-            entryField = infoDict.get("entryField", None)           
+            entryField = infoDict.get("entryField", None)
             default = infoDict.get("default", None)
             optionType = infoDict.get("optionType", "radio")
 
@@ -2143,8 +2151,14 @@ class Overview_Dialog(Hazard_HLSTCV_Common.Common_Dialog):
                 checkList = []
                 ivarList = tkObject_dict[name]
                 for i in range(len(options)):
-                    if ivarList[i].get():
-                        checkList.append(options[i])
+                    if name == "IncludedImpacts":
+                        ivar, svar = ivarList[i]
+                        if ivar.get():
+                            checkList.append((options[i], svar.get()))
+                    else:
+                        if ivarList[i].get():
+                            print "SARAH: adding option =", options[i]
+                            checkList.append(options[i])
                 value = checkList
                 self._setVarDict(name, value)
             else:
@@ -2153,7 +2167,7 @@ class Overview_Dialog(Hazard_HLSTCV_Common.Common_Dialog):
                         
             if entryField is not None:
                 entryName = self._entryName(name)
-                self._setVarDict(entryName, tkObject_dict[entryName].get())                
+                self._setVarDict(entryName, tkObject_dict[entryName].get())
         # close window and set status "Ok"
         self._status = "Ok"
         self.withdraw()
@@ -2164,7 +2178,7 @@ class LegacyFormatter():
     def __init__(self, textProduct):
         self._textProduct = textProduct
         self.TAB = " "*self._textProduct._tabLength
-        self._tpc = Hazard_HLSTCV_Common.TextProductCommon()
+        self._tpc = HLSTCV_Common.TextProductCommon()
     
     def execute(self, productDict):
         self.productDict = productDict
