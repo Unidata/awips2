@@ -39,6 +39,7 @@ VTECMessageTypeDict = {
     'CFW' : 'O',
     'HLS' : 'O',
     'MWW' : 'O',
+    'TCV' : 'O',
     }
 
 
