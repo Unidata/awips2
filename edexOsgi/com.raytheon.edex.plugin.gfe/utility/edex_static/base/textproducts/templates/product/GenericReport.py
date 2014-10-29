@@ -105,6 +105,13 @@
 # Example Output:
 #  Refer to the NWS C11 and 10-503 Directives for Public Weather Services.
 #-------------------------------------------------------------------------
+#
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# Oct 20, 2014    #3685          randerso    Removed upper case conversions
+#
+##
 
 import TextRules
 import SampleAnalysis
@@ -200,7 +207,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             fcst = self._postProcessArea(fcst, editArea, areaLabel, argDict)
             fraction = fractionOne
         fcst = self._postProcessProduct(fcst, argDict)
-        fcst = string.upper(fcst)
         return fcst
 
     def _getVariables(self, argDict):
@@ -252,13 +258,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
                "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
 
-        fcst = string.upper(fcst)
+        fcst =  fcst + s.upper()
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
@@ -278,7 +284,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         return fcst + "\n\n$$\n"
 
     def _postProcessProduct(self, fcst, argDict):
-        fcst = string.upper(fcst)
         self.setProgressPercentage(100)
         self.progressMessage(0, 100, self._displayName + " Complete")
         return fcst
