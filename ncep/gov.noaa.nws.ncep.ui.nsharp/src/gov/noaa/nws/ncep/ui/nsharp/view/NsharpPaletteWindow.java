@@ -16,7 +16,7 @@
  * 01/08/2014               Chin Chen   Only initializing inventory when in NCP
  * 01/13/2014               Chin Chen   TTR829- when interpolation, edit graph is allowed 
  * 01/22/2014	            Chin Chen   DR17003 issue:  NSHARP sounding display throws errors when swapping into main pane when show text is turned on.
- *                                       
+ * 10/20/2014               Chin Chen   DR16864, D2D does not use unload button. Check to make sure not D2D instance before access unload button.                                      
  * </pre>
  * 
  * @author Chin Chen
@@ -150,7 +150,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
 
     private boolean spcGpCreated = false;
 
-    private boolean awcGpCreated = false;
+    private boolean imD2d = false; // fixMark:NcInventory
 
     public static NsharpPaletteWindow getInstance() {
         if (VizPerspectiveListener.getCurrentPerspectiveManager() != null) {
@@ -220,7 +220,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
-                unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
+                if (!imD2d)
+                    unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
             } else if (compareStnIsOn) {
                 compareStnBtn.setText(COMP_STN_ON);
                 graphEditBtn.setEnabled(false);
@@ -231,7 +232,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
-                unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
+                if (!imD2d)
+                    unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
             } else if (compareSndIsOn) {
                 compareSndBtn.setText(COMP_SND_ON);
                 graphEditBtn.setEnabled(false);
@@ -242,7 +244,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
-                unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
+                if (!imD2d)
+                    unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
             } else if (compareTmIsOn) {
                 compareTmBtn.setText(COMP_TM_ON);
                 compareSndBtn.setEnabled(false);
@@ -253,7 +256,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
-                unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
+                if (!imD2d)
+                    unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
             } else if (editGraphOn) {
                 graphEditBtn.setText(EDIT_GRAPH_ON);
                 dataEditBtn.setEnabled(false);
@@ -264,7 +268,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
-                unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
+                if (!imD2d)
+                    unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
             }
 
         } else if (currentGraphMode == NsharpConstants.GRAPH_TURB) {
@@ -377,7 +382,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
     public NsharpPaletteWindow() {
         super();
         instance = this;
-        boolean imD2d = false; // fixMark:NcInventory
+        //boolean imD2d = false; // fixMark:NcInventory
         if (VizPerspectiveListener.getCurrentPerspectiveManager() != null) {
             if (VizPerspectiveListener.getCurrentPerspectiveManager()
                     .getPerspectiveId().equals(D2D5Pane.ID_PERSPECTIVE)) {
@@ -945,7 +950,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     graphModeBtnIcing.setEnabled(false);
                     interpBtn.setEnabled(false);
                     cfgBtn.setEnabled(false);
-                    unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
+                    if (!imD2d)
+                        unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
                 } else {
                     overlayIsOn = false;
                     overlayBtn.setText(OVLY_OFF);
@@ -958,7 +964,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     graphModeBtnIcing.setEnabled(true);
                     interpBtn.setEnabled(true);
                     cfgBtn.setEnabled(true);
-                    unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
+                    if (!imD2d)
+                        unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
                 }
                 NsharpResourceHandler rsc = getRscHandler();
                 if (rsc != null) {
@@ -1001,7 +1008,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     graphModeBtnIcing.setEnabled(false);
                     interpBtn.setEnabled(false);
                     cfgBtn.setEnabled(false);
-                    unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
+                    if (!imD2d)
+                        unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
                 } else {
                     compareStnIsOn = false;
                     compareStnBtn.setText(COMP_STN_OFF);
@@ -1014,7 +1022,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     graphModeBtnIcing.setEnabled(true);
                     interpBtn.setEnabled(true);
                     cfgBtn.setEnabled(true);
-                    unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
+                    if (!imD2d)
+                        unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
                 }
                 NsharpResourceHandler rsc = getRscHandler();
                 if (rsc != null) {
@@ -1059,7 +1068,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     graphModeBtnIcing.setEnabled(false);
                     interpBtn.setEnabled(false);
                     cfgBtn.setEnabled(false);
-                    unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
+                    if (!imD2d)
+                        unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
                 } else {
                     compareTmIsOn = false;
                     compareTmBtn.setText(COMP_TM_OFF);
@@ -1072,7 +1082,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     graphModeBtnIcing.setEnabled(true);
                     interpBtn.setEnabled(true);
                     cfgBtn.setEnabled(true);
-                    unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
+                    if (!imD2d)
+                        unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
                 }
                 NsharpResourceHandler rsc = getRscHandler();
                 if (rsc != null) {
@@ -1115,7 +1126,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     graphModeBtnIcing.setEnabled(false);
                     interpBtn.setEnabled(false);
                     cfgBtn.setEnabled(false);
-                    unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
+                    if (!imD2d)
+                        unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
                 } else {
                     compareSndIsOn = false;
                     compareSndBtn.setText(COMP_SND_OFF);
@@ -1128,7 +1140,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     graphModeBtnIcing.setEnabled(true);
                     interpBtn.setEnabled(true);
                     cfgBtn.setEnabled(true);
-                    unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
+                    if (!imD2d)
+                        unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
                 }
                 NsharpResourceHandler rsc = getRscHandler();
                 if (rsc != null) {
@@ -1187,7 +1200,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                             compareSndBtn.setEnabled(true);
                             compareStnBtn.setEnabled(true);
                             overlayBtn.setEnabled(true);
-                            unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
+                            if (!imD2d)
+                                unloadBtn.setEnabled(true);// FixMark:nearByStnCompSnd
                         }
                     } else {
                         editGraphOn = true;
@@ -1200,7 +1214,8 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                         compareSndBtn.setEnabled(false);
                         compareStnBtn.setEnabled(false);
                         overlayBtn.setEnabled(false);
-                        unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
+                        if (!imD2d)
+                            unloadBtn.setEnabled(false);// FixMark:nearByStnCompSnd
                     }
                     NsharpResourceHandler rsc = getRscHandler();
                     if (rsc != null) {
