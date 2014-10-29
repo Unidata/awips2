@@ -9,9 +9,9 @@ from StartupDialog import IFPDialog as Dialog
 from LockingFile import File
 AWIPS_ENVIRON = "AWIPS2"
 
-import Hazard_HLSTCV_Common
+import HLSTCV_Common
 
-class TextProduct(Hazard_HLSTCV_Common.TextProduct):
+class TextProduct(HLSTCV_Common.TextProduct):
     Definition = copy.deepcopy(GenericHazards.TextProduct.Definition)
 
     Definition["displayName"]   = "None"
@@ -47,7 +47,7 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
     Definition["callToAction"] = 1
 
     def __init__(self):
-        Hazard_HLSTCV_Common.TextProduct.__init__(self)
+        HLSTCV_Common.TextProduct.__init__(self)
 
     #####################################################################
     #####################################################################
@@ -248,7 +248,7 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
         # Set up the areaDictionary for all to use
         accessor = ModuleAccessor.ModuleAccessor()
         self._areaDict = accessor.variable(self._areaDictionary, "AreaDictionary")
-        self._tpc = Hazard_HLSTCV_Common.TextProductCommon()
+        self._tpc = HLSTCV_Common.TextProductCommon()
         self._tpc.setUp(self._areaDict)
         
         return None
@@ -730,9 +730,9 @@ class TextProduct(Hazard_HLSTCV_Common.TextProduct):
             return dialog.getVarDict()
 
 import Tkinter
-class Overview_Dialog(Hazard_HLSTCV_Common.Common_Dialog):
+class Overview_Dialog(HLSTCV_Common.Common_Dialog):
     def __init__(self, parent, title, infoDict=None):
-        Hazard_HLSTCV_Common.Common_Dialog.__init__(self, parent, title, infoDict)
+        HLSTCV_Common.Common_Dialog.__init__(self, parent, title, infoDict)
 
     def body(self, master):
         # build the main display dialog
@@ -1804,7 +1804,7 @@ class LegacyFormatter():
     def __init__(self, textProduct):
         self._textProduct = textProduct
         self.TAB = " "*self._textProduct._tabLength
-        self._tpc = Hazard_HLSTCV_Common.TextProductCommon()
+        self._tpc = HLSTCV_Common.TextProductCommon()
     
     def execute(self, productDict):
         self.productDict = productDict
