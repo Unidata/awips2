@@ -52,12 +52,12 @@ class TextProduct(GenericHazards.TextProduct):
     Definition = copy.deepcopy(GenericHazards.TextProduct.Definition)
 
     Definition["displayName"]   = "None"
-    Definition["outputFile"]    = "{prddir}/TEXT/HLS.txt"
+    Definition["outputFile"]    = "{prddir}/TEXT/Hazard_HLS.txt"
     Definition["database"]      =  "Official"  # Source database
     Definition["debug"]         =  1
-    Definition["mapNameForCombinations"] = ["Marine_Zones_<site>", "Zones_<site>"]
+    Definition["mapNameForCombinations"] = ["Zones_<site>"]
     #Definition["mapNameForCombinations"] = ["Zones_<site>","Marine_Zones_<site>"]
-    Definition["defaultEditAreas"] = "EditAreas_PublicMarine_<site>"
+    Definition["defaultEditAreas"] = "EditAreas_PublicZones_<site>"
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
 
     Definition["productName"]       = "TROPICAL CYCLONE LOCAL STATEMENT"
