@@ -1,4 +1,8 @@
 #!/bin/csh
+if ( $USER != "awips" && $USER != 'root' ) then
+  return
+  exit 0
+endif
 
 # Determine where notification has been installed.
 set NOTIFICATION_INSTALL="/awips2/notification"

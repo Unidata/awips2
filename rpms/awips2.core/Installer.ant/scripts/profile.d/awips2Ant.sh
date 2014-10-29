@@ -1,4 +1,8 @@
 #!/bin/bash
+if [[ $USER != "awips" && $USER != 'root' ]]; then
+  return
+  exit 0
+fi
 
 # Is Ant Installed?
 rpm -q awips2-ant > /dev/null 2>&1

@@ -1,4 +1,8 @@
 #!/bin/bash
+if [[ $USER != "awips" && $USER != 'root' ]]; then
+  return
+  exit 0
+fi
 
 # Is awips2-notification Installed?
 rpm -q awips2-notification > /dev/null 2>&1
