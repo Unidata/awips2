@@ -13,6 +13,8 @@
      Mike Dangelo 1/23/2014 changed parseString for defaultCTAs to match iTW.vm statements, 
      removed cta1 bulletGroup from COR to ensure it is selected when doing a COR for a torEMER
      Evan Bookbinder 2-18-2014 added dssEvents hook, 2014 IBW impacts
+     Evan Bookbinder 10-24-2014 Fixed parse strings for Base TOR option for COR
+                                Fixed parseString for SqLn embedded TOR for COR
 -->
 
 <warngenConfig>
@@ -82,12 +84,12 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** TYPE OF WARNING **********" bulletType="title"/>
   <bullet bulletName="torEmergency" bulletText="TORNADO EMERGENCY/CATASTROPHIC TORNADO" bulletGroup="headline" parseString="TORNADO EMERGENCY"/>
   <bullet bulletName="considerableTornado" bulletText="CONSIDERABLE TORNADO TAG" bulletGroup="headline" parseString="TORNADO DAMAGE THREAT...CONSIDERABLE"/>
-  <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" bulletDefault="true" parseString="IMPACT...MOBILE HOMES WILL BE DAMAGED OR DESTROYED"/>
+  <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" bulletDefault="true" parseString="IMPACT...FLYING DEBRIS WILL BE DANGEROUS"/>
   <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...EXPECT DAMAGE TO MOBILE HOMES"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
-  <bullet bulletName="dopplerSquall" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;SQUALL LINE&quot;"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE&quot;"/>
+  <bullet bulletName="dopplerSquall" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE&quot;"/>
   <bullet bulletName="confirmedDoppler" bulletText="Confirmed tornado (TDS sig - OBSERVED Tag)" bulletGroup="group1" parseString="SOURCE...RADAR CONFIRMED"/>
   <bullet bulletName="spotter" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;-FUNNEL CLOUD&quot;"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
@@ -154,12 +156,12 @@ do not have mobile homes. If you wish to switch defaults or provide a single opt
   <bullet bulletText="*********** TYPE OF WARNING **********" bulletType="title"/>
   <bullet bulletName="torEmergency" bulletText="TORNADO EMERGENCY/CATASTROPHIC TORNADO" bulletGroup="headline" parseString="TORNADO EMERGENCY"/>
   <bullet bulletName="considerableTornado" bulletText="CONSIDERABLE TORNADO TAG" bulletGroup="headline" parseString="TORNADO DAMAGE THREAT...CONSIDERABLE"/>
-  <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" bulletDefault="true" parseString="IMPACT...MOBILE HOMES WILL BE DAMAGED OR DESTROYED"/>
+  <bullet bulletName="baseTornado" bulletText="BASE TORNADO WARNING" bulletGroup="headline" bulletDefault="true" parseString="IMPACT...FLYING DEBRIS WILL BE DANGEROUS"/>
   <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...EXPECT DAMAGE TO MOBILE HOMES"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
-  <bullet bulletName="dopplerSquall" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;SQUALL LINE&quot;"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE&quot;"/>
+  <bullet bulletName="dopplerSquall" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE&quot;"/>
   <bullet bulletName="confirmedDoppler" bulletText="Confirmed tornado (TDS sig - OBSERVED Tag)" bulletGroup="group1" parseString="SOURCE...RADAR CONFIRMED"/>
   <bullet bulletName="spotter" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;-FUNNEL CLOUD&quot;"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
