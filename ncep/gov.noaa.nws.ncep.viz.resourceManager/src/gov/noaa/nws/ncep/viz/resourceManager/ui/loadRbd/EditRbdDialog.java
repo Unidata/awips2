@@ -45,7 +45,7 @@ public class EditRbdDialog extends Dialog {
     	rbdMngr = new RscBundleDisplayMngr( new NcPaneLayout(6,6), seldRbd.getDisplayType() );
 
 		shell = new Shell( parShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL );
-		shell.setText( "Edit RBD "+seldRbd.getRbdName() );
+		shell.setText( "Edit Bundle "+seldRbd.getRbdName() );
 
 		GridLayout mainLayout = new GridLayout(1, true);
 		mainLayout.marginHeight = 1;

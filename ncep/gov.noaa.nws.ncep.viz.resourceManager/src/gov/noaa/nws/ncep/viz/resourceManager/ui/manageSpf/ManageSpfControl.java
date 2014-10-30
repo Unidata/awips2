@@ -473,7 +473,7 @@ public class ManageSpfControl extends Composite {
    		});
 
 
-       	// ignore the imput and return the managedRbdsList
+       	// ignore the input and return the managedRbdsList
         seldRbdsLviewer.setContentProvider( new IStructuredContentProvider() {
 			@Override
 			public Object[] getElements(Object inputElement) {
@@ -788,7 +788,7 @@ public class ManageSpfControl extends Composite {
 			if( isUserLevel ) {
 				
 			}
-			LocalizationContext cntxt = SpfsManager.getInstance().getSpfContext(seldSpfGroup, seldSpfName);
+			LocalizationContext cntxt = SpfsManager.getInstance().getSpfContext("default", seldSpfName);
 			spfLocationLbl.setText( "Localization="+cntxt.getLocalizationLevel().toString()+":"+
 													cntxt.getContextName() );			
 		} catch (VizException e) {
@@ -1002,14 +1002,14 @@ public class ManageSpfControl extends Composite {
     		
     		MessageBox mb = new MessageBox( shell, SWT.OK );         								
     		mb.setText( "Group Saved" );
-    		mb.setMessage( "\nGroup "+ seldSpfGroup+File.separator+seldSpfName+
-    						" has been saved.");
+    		mb.setMessage( "\nGroup \""+ seldSpfName+
+    						"\" has been saved.");
     		mb.open();
     	}
     	catch( VizException e ) {
 			MessageDialog errDlg = new MessageDialog( 
 					shell, "Error", null, 
-					"Error Saving Group "+ seldSpfGroup+File.separator+seldSpfName+":\n\n"+
+					"Error Saving group \""+ seldSpfName+"\":\n\n"+
 							e.getMessage(),
 					MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();
@@ -1023,8 +1023,8 @@ public class ManageSpfControl extends Composite {
 			
     		MessageBox mb = new MessageBox( shell, SWT.OK );         								
     		mb.setText( "Group Created" );
-    		mb.setMessage( "\nGroup "+ seldSpfGroup+File.separator+seldSpfName+
-    						" has been created.");
+    		mb.setMessage( "\nGroup \""+ seldSpfName+
+    						"\" has been created.");
     		mb.open();
     		
     		// reset the gui after creating the SPF
@@ -1036,7 +1036,7 @@ public class ManageSpfControl extends Composite {
 		} catch (VizException e) {
 			MessageDialog errDlg = new MessageDialog( 
 					shell, "Error", null, 
-					"Error Creating Group "+ seldSpfGroup+File.separator+seldSpfName+":\n\n"+
+					"Error creating group \""+seldSpfName+"\":\n\n"+
 							e.getMessage(),
 					MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();
@@ -1049,8 +1049,8 @@ public class ManageSpfControl extends Composite {
 			
     		MessageBox mb = new MessageBox( shell, SWT.OK );         								
     		mb.setText( "Group Deleted" );
-    		mb.setMessage( "\nGroup "+ seldSpfGroup+File.separator+seldSpfName+
-    						" has been deleted.");
+    		mb.setMessage( "\nGroup \""+seldSpfName+
+    						"\" has been deleted.");
     		mb.open();
     		
     		currActionBtn.setSelection( false );
@@ -1060,7 +1060,7 @@ public class ManageSpfControl extends Composite {
 		} catch (VizException e) {
 			MessageDialog errDlg = new MessageDialog( 
 					shell, "Info", null, 
-					"Error Deleting Group "+ seldSpfName+":\n"+
+					"Error deleting group \""+ seldSpfName+"\":\n"+
 					e.getMessage(),
 					MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();

@@ -376,8 +376,9 @@ public class CreateRbdControl extends Composite {
     //  
     private void createRBDGroup() {	
 
-    	/*
+    	
         import_lbl = new Label( rbd_grp, SWT.None );
+        /*
         import_lbl.setText(ImportFromSPF);
         form_data = new FormData();
      	form_data.left = new FormAttachment( import_rbd_btn, 0, SWT.LEFT );
@@ -394,7 +395,7 @@ public class CreateRbdControl extends Composite {
     	rbd_name_txt.setLayoutData( form_data );
 
     	rbd_name_lbl = new Label( rbd_grp, SWT.None );
-        rbd_name_lbl.setText("RBD Name");
+        rbd_name_lbl.setText("Bundle Name");
         form_data = new FormData();
         form_data.width = 180;
      	form_data.left = new FormAttachment( rbd_name_txt, 0, SWT.LEFT );
@@ -688,7 +689,7 @@ public class CreateRbdControl extends Composite {
    		seld_rscs_lviewer = new ListViewer( seld_rscs_group,
    				     SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
     	form_data = new FormData();
-    	form_data.top = new FormAttachment( 0, 5 );
+    	form_data.top = new FormAttachment( 0, 10 );
     	form_data.right = new FormAttachment( 100, -5 );
     	form_data.left = new FormAttachment( 0, 95);//-110 ); //80, 0 );
     	form_data.bottom = new FormAttachment( 100, -40 );
@@ -1396,7 +1397,7 @@ public class CreateRbdControl extends Composite {
        				catch (VizException e) {
        					MessageDialog errDlg = new MessageDialog( 
        							shell, "Error", null, 
-       							"Error Importing Rbd, "+impRbd.getRbdName()+".\n"+e.getMessage(),
+       							"Error Importing Bundle, "+impRbd.getRbdName()+".\n"+e.getMessage(),
        							MessageDialog.ERROR, new String[]{"OK"}, 0);
        					errDlg.open();
        				}
@@ -1428,8 +1429,8 @@ public class CreateRbdControl extends Composite {
 // allow the user to change the name
 //   		rbd_name_txt.setEditable( false );
 //   		rbd_name_txt.setBackground( rbd_name_txt.getParent().getBackground() );
-   		import_lbl.setVisible( false );
-   		import_rbd_btn.setVisible( false );
+   		import_lbl.setVisible( true );
+   		import_rbd_btn.setVisible( true );
    		clear_rbd_btn.setVisible( false );
    		save_rbd_btn.setVisible( false );
    		load_pane_btn.setVisible( false );
@@ -2231,7 +2232,7 @@ public class CreateRbdControl extends Composite {
     		rbdBndl = AbstractRBD.clone( rbdBndl );
     
     		ResourceBndlLoader rbdLoader = null;
-    		rbdLoader = new ResourceBndlLoader("RBD Previewer");
+    		rbdLoader = new ResourceBndlLoader("Bundle Previewer");
 
     		rbdLoader.setLoadSelectedPaneOnly();
     		
@@ -2249,9 +2250,9 @@ public class CreateRbdControl extends Composite {
     		if( !activeEditorName.equals( rbdName ) ) {
     			MessageDialog confirmDlg = new MessageDialog( 
     					shell, "Confirm Load Pane", null, 
-    					"You will first need to Load the RBD before\n"+
+    					"You will first need to Load the Bundle before\n"+
     					"re-loading a pane. \n\n"+
-    					"Do you want to load the currently defined RBD?",
+    					"Do you want to load the currently defined Bundle?",
     					MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
     			confirmDlg.open();
 
@@ -2267,7 +2268,7 @@ public class CreateRbdControl extends Composite {
     			MessageDialog msgDlg = new MessageDialog( 
     					shell, "Load Pane", null, 
     					"The pane layout of the display doesn't match the currently selected\n"+
-    					"RBD pane layout. You will first need to Load the RBD before\n"+
+    					"Bundle pane layout. You will first need to Load the Bundle before\n"+
     					"changing the number of panes.",
     					MessageDialog.INFORMATION, new String[]{"OK"}, 0);
     			msgDlg.open();
@@ -2509,9 +2510,9 @@ public class CreateRbdControl extends Composite {
     		VizApp.runSync(new Runnable() {
     			public void run() {
     				String msg = null;
-    				msg = new String("Bundle "+
-    						rbd_name_txt + " saved to Group "+
-    						savedSpfGroup + File.separator+ savedSpfName+".");
+    				msg = new String("bundle \""+
+    						rbd_name_txt + "\" saved to \""+
+    						savedSpfName+"\"");
     				MessageBox mb = new MessageBox( shell, SWT.OK );         								
     				mb.setText( "Bundle Saved" );
     				mb.setMessage( msg );

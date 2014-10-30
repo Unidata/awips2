@@ -646,7 +646,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-NMM-West">
 <filters>Mesoscale</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-40km">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="RAP-40km">
 <filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-20km">
@@ -658,7 +658,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HRRR">
 <filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Hawaii-WRF-NMM">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Hawaii-WRF-NMM">
 <filters>Hawaii,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-40km">
@@ -694,7 +694,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-ARW-East">
 <filters>NCEP</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Hawaii-WRF-ARW">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Hawaii-WRF-ARW">
 <filters>NCEP,Hawaii</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSLAMPTstorm">
@@ -712,22 +712,22 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="FNEXRAD">
 <filters>Radar</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GEFS_ENS">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="GEFS_ENS">
 <filters>Ensemble,Global</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS_ENS">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="GFS_ENS">
 <filters>Ensemble,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="POES-NPOESS">
 <filters>GINI</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="LCI West">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="LCI West">
 <filters>GOES,GINI</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES 13 - GINI">
 <filters>GOES,GINI</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_Composite">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_Composite">
 <filters>GINI</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES 15 - GINI">
@@ -742,7 +742,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Arctic Composite">
 <filters>Standard,McIdas,GOES</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="LCI East">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="LCI East">
 <filters>GOES,GINI</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_GOES10">
