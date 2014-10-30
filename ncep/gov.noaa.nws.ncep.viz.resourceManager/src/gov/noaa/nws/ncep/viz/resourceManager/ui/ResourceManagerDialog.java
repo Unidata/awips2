@@ -108,7 +108,7 @@ public class ResourceManagerDialog extends Dialog {
     	loadRbdCntrl = new LoadRbdControl( mngrTabFolder );
 
     	final TabItem mngrTabItem = new TabItem( mngrTabFolder, SWT.NONE );
-    	mngrTabItem.setText( "Load Data" );
+    	mngrTabItem.setText( "Create Bundle" );
     	
     	// get the active Display and set the rbd_mngr with it 
     	AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();

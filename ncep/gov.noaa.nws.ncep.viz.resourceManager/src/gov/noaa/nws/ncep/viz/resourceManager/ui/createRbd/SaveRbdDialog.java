@@ -343,7 +343,7 @@ public class SaveRbdDialog extends Dialog {
         
         save_btn = new Button( shell, SWT.PUSH );
         fd = new FormData();
-        save_btn.setText("  Save Bundle  ");
+        save_btn.setText("  Save  ");
         fd.bottom = new FormAttachment( 100, -10 );
         fd.right  = new FormAttachment( can_btn, -20, SWT.LEFT );
         save_btn.setLayoutData( fd );

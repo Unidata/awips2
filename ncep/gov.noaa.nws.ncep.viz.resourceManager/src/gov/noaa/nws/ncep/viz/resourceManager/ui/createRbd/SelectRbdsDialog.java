@@ -192,7 +192,7 @@ public class SelectRbdsDialog extends Dialog {
         sel_rbds_grp.setLayoutData( fd );
 
         selFromGrp = new Group( sel_rbds_grp, SWT.SHADOW_NONE );
-        selFromGrp.setText("Select RBDs ");
+        selFromGrp.setText("Select Bundles ");
         fd = new FormData();
         fd.top = new FormAttachment( 0, 20 );
         fd.left  = new FormAttachment( 0, 10 );
@@ -202,7 +202,7 @@ public class SelectRbdsDialog extends Dialog {
         selFromGrp.setLayout( new GridLayout( 1, false ) );
 
         selFromSpfsBtn = new Button( selFromGrp, SWT.RADIO );
-        selFromSpfsBtn.setText( "From SPFs" );
+        selFromSpfsBtn.setText( "From Group" );
 
         selFromDisplaysBtn = new Button( selFromGrp, SWT.RADIO );
         selFromDisplaysBtn.setText( "From Displays" );
@@ -243,7 +243,7 @@ public class SelectRbdsDialog extends Dialog {
         spfNameCombo.setLayoutData( fd );
 
         spf_name_lbl = new Label(sel_rbds_grp, SWT.NONE);
-        spf_name_lbl.setText("SPF Name");
+        spf_name_lbl.setText("Bundle Group");
         fd = new FormData();
         fd.bottom = new FormAttachment( spfNameCombo, -3, SWT.TOP );
         fd.left   = new FormAttachment( spfNameCombo, 0, SWT.LEFT );
@@ -262,7 +262,7 @@ public class SelectRbdsDialog extends Dialog {
         rbdLviewer.getList().setLayoutData( fd );
 
         Label rbd_lbl = new Label( sel_rbds_grp, SWT.NONE);
-        rbd_lbl.setText("RBDs");
+        rbd_lbl.setText("Bundles");
        	fd = new FormData();
         fd.bottom  = new FormAttachment( rbdLviewer.getList(), -3, SWT.TOP );
         fd.left  = new FormAttachment( rbdLviewer.getList(), 0, SWT.LEFT );
@@ -418,7 +418,7 @@ public class SelectRbdsDialog extends Dialog {
 	    		if( element instanceof AbstractRBD<?> ) {
 	    			return ((AbstractRBD<?>)element).getRbdName();
 	    		}
-	    		else  return "Error: bad RBD element";
+	    		else  return "Error: bad Bundle element";
 	    	}
         });
         

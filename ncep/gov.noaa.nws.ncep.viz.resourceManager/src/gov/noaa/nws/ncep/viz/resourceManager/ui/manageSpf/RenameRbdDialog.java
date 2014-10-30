@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
  */
 public class RenameRbdDialog extends Dialog {
 
-	private String dialogTitle = "Rename Rbd"; 
+	private String dialogTitle = "Rename Bundle"; 
     private Shell myShell;    
     private Text newRbdNameText;
     
@@ -108,7 +108,7 @@ public class RenameRbdDialog extends Dialog {
         newRbdNameText.setLayoutData( fd );
 
         Label newRbdNameLabel = new Label(topComp, SWT.NONE); 
-        newRbdNameLabel.setText("Enter New RBD Name:");
+        newRbdNameLabel.setText("Enter New Bundle Name:");
 
         fd = new FormData();
         fd.bottom = new FormAttachment( newRbdNameText, -3, SWT.TOP );
@@ -188,7 +188,7 @@ public class RenameRbdDialog extends Dialog {
 
     	if( !SpfsManager.getInstance().isValidRbdName( newRbdName ) ) {
     		MessageBox mb = new MessageBox(myShell, SWT.ICON_ERROR);
-    		mb.setMessage("Invalid RBD name.");
+    		mb.setMessage("Invalid Bundle name.");
     		mb.setText("Error");
     		mb.open();
     		return;

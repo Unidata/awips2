@@ -69,7 +69,7 @@ public class RbdViewComposite extends Composite {
         rscLviewer.getList().setBackground( parent.getBackground() );
 
         rbdNameLabel = new Label( topComp, SWT.NONE);
-        rbdNameLabel.setText("View RBD");
+        rbdNameLabel.setText("View Bundle");
        	fd = new FormData();
         fd.bottom  = new FormAttachment( rscLviewer.getList(), -3, SWT.TOP );
         fd.left  = new FormAttachment( rscLviewer.getList(), 0, SWT.LEFT );
@@ -191,7 +191,7 @@ public class RbdViewComposite extends Composite {
 			rbdLocationLabel.setText("");
 		}
 		else {
-			rbdNameLabel.setText( "RBD: " + rbd.getRbdName() );
+			rbdNameLabel.setText( "Bundle: " + rbd.getRbdName() );
 
 			LocalizationFile lFile = rbd.getLocalizationFile();
 			if( lFile == null ) {
