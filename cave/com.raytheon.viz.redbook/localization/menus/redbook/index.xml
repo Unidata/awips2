@@ -19,15 +19,8 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-    <include installTo="menu:upperAir?before=PROFILER" fileName="menus/upperair/baseUpperAir.xml" />
-    <include installTo="menu:upperAir?before=ProfilerMenuEnd"
-        fileName="menus/upperair/baseNPNPlot.xml" />
-    <include installTo="menu:upperAir?after=RADAR" fileName="menus/upperair/baseRadar.xml" />
-    <include subMenu="PIREP plots" installTo="menu:upperAir?after=AIRCRAFT" fileName="menus/upperair/basePirep.xml" />
-    <include subMenu="MDCRS plots" installTo="menu:upperAir?before=AircraftMenuEnd"
-        fileName="menus/upperair/baseMDCRS.xml" />
-    <include installTo="menu:upperAir?before=AircraftMenuEnd"
-        fileName="menus/upperair/baseAviation.xml" />
-    <include installTo="menu:upperAir?after=RAOB" fileName="menus/upperair/baseRAOB.xml" />
-    <include installTo="menu:upperAir?before=RAOBMenuMiddle" fileName="menus/upperair/baseAddedFeatures.xml" />
+    <include installTo="menu:UAplots?before=NCEPEnd"
+        fileName="menus/upperair/baseUpperAirRedbook.xml" />
+    <include installTo="menu:upperAir?before=baseUpperAirEnd"
+        fileName="menus/upperair/uaMenus.xml" />
 </menuContributionFile>
