@@ -20,15 +20,15 @@
     -->
 <menuContributionFile>
     <include installTo="menu:Aviation?after=ConvectionProductsStart"
-        fileName="menus/aviationadvisory/baseAviationConvectionProducts.xml" />
+        fileName="menus/upperair/baseAviationConvectionProducts.xml" />
     <include installTo="menu:Aviation?before=IcingProductsEnd"
-        fileName="menus/aviationadvisory/baseAviationIcingProducts.xml" />
+        fileName="menus/upperair/baseAviationIcingProducts.xml" />
     <include installTo="menu:Aviation?before=TurbulenceProductsEnd"
-        fileName="menus/aviationadvisory/baseAviationTurbulenceProducts.xml" />
+        fileName="menus/upperair/baseAviationTurbulenceProducts.xml" />
     <include installTo="menu:Aviation?before=VisibilityProductsEnd"
-        fileName="menus/aviationadvisory/baseAviationVisibilityProducts.xml" />
+        fileName="menus/upperair/baseAviationVisibilityProducts.xml" />
     <include installTo="menu:Aviation?before=TropicalCycloneEnd"
-        fileName="menus/aviationadvisory/baseAviationTropicalCyclone.xml" />
+        fileName="menus/upperair/baseAviationTropicalCyclone.xml" />
     <include installTo="menu:Aviation?after=VolcanicAshStart"
-        fileName="menus/aviationadvisory/baseAviationVolcanicAsh.xml" />
+        fileName="menus/upperair/baseAviationVolcanicAsh.xml" />
 </menuContributionFile>
