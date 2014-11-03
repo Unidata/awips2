@@ -1,22 +1,3 @@
-##
-# This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
-# This software product contains export-restricted data whose
-# export/transfer/disclosure is restricted by U.S. law. Dissemination
-# to non-U.S. persons whether in the United States or abroad requires
-# an export license or other authorization.
-# 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
-# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-# further licensing information.
-##
 # ----------------------------------------------------------------------------
 # SVN: $Revision: 134 $  $Date: 2010-08-26 17:32:30 +0000 (Thu, 26 Aug 2010) $
 #
@@ -24,10 +5,22 @@
 # support, and with no warranty, express or implied, as to its usefulness for
 # any purpose.
 #
-# ObjAnal - version 2.8 - various Objective Analysis routines
+# ObjAnal - version 2.12 - various Objective Analysis routines
 #
 # Author: Tim Barker - SOO Boise, ID
 #
+# 2014/10/06 - Version 2.12.  Fix typo with timetupe in logtime which handles
+#              when running in simulations.
+# 2014/08/31 - Version 2.11.  Get rid of debug print statement that shouldn't
+#              have been there in the first place.
+# 2014/07/28 - Version 2.10.  Fix issues when ActualElev=1 and landMask is
+#              used, and a control point near the edge of the landMask has
+#              an elevation that is wildly different than the grid elevation
+#              at at that location.  Also introduce the concept of a 'missing'
+#              elevation value for the point obs.  If the elevation is missing
+#              the code will use the grid elevation - regardless of the 
+#              setting of ActualElev.   Defaults to -500ft.  Can be changed
+#              with new setMissingElevThreshold routine (but doubt anybody will)
 # 2014/03/20 - Version 2.8.  Better import of numpy.  Used SmartScript for
 #              _gmtime instead of time module (for more effective playback)
 # 2014/01/10 - Version 2.7.  Fixed copy of self._empty
@@ -93,8 +86,12 @@ class ObjAnal(SmartScript.SmartScript):
       #     otherwise.......use the elevation of the gridpoint that
       #                     contains the station for elevation related
       #                     calculations
+      #     However...if the station elevation is lower than the missing
+      #               elevation Threshold, then use the grid elevation
+      #               even if ActualElev is equal to 1.
       #
       self.ActualElev=1
+      self.MissingElevThreshold=-500
       #
       #  Default Serp parameters
       #    Cache (500 by default) (between 0 and 1000) amount of memory
@@ -126,9 +123,7 @@ class ObjAnal(SmartScript.SmartScript):
       #
       self.DSquaredDist=-1
       self.DSquaredMaxPoints=-1
-      #
-      #
-      #
+      
       return
 
    #---------------------------------------------------------------------------
@@ -189,25 +184,50 @@ class ObjAnal(SmartScript.SmartScript):
       yloclist=[]
       hloclist=[]
       zlist=[]
+      if landMask is None:
+          newlandMask=(topoGrid*0)+1
+      else:
+          newLandMask=landMask
       self.logtime("Point values used in analysis:",4)
       for i in range(len(values)):
          (name,x,y,elev,val)=values[i]
          if (x>(self.xmax-1))or(x<0)or(y>(self.ymax-1))or(y<0):
             continue
-         hloclist.append(elev)
+         #
+         #  If the ob point elevation is missing - always use
+         #  the gridpoint elevation
+         #
+         if elev>self.MissingElevThreshold:
+            hloclist.append(elev)
+         else:
+            hloclist.append(topoGrid[y,x])
          xloclist.append(x)
          yloclist.append(y)
          #
-         # If using actual elevations (rather than grid elevation)
-         # we will estimate what the grid WOULD have at that elevation
-         # and use THAT for determining the change that needs to be
-         # made
+         #  If using the grid elevation at the point, then the
+         #  z value (change)is simply the observed value minus the guess
+         #  grid value.
          #
-         if self.ActualElev==1:
+         if self.ActualElev!=1:
+            self.logtime("  %12s %3d,%3d %5d Val:%5.1f -- grid:%5.1f -- change:%5.1f"%(name,x,y,elev,val,guessGrid[y,x],val-guessGrid[y,x]),4)
+            zlist.append(val-guessGrid[y,x])
+             
+         #
+         # If using actual elevations - then need to make the z value the
+         # difference between what the guess grid WOULD have at the ob elevation
+         # rather than the guess grid value itself.   Searches outward until
+         # it finds a guess grid point with an elevation less than 100 feet
+         # from the ob's elevation.
+         #
+         else:
             pt=topoGrid[y,x]
+            obLandMask=newLandMask[y,x]
             desiredDiff=100
             bestval=guessGrid[y,x]
-            bestdif=abs(elev-pt)
+            if elev>self.MissingElevThreshold:
+               bestdif=abs(elev-pt)
+            else:
+               bestdif=0
             bestele=pt
             wid=1
             #
@@ -219,46 +239,48 @@ class ObjAnal(SmartScript.SmartScript):
             #  to change the grid at the observation gridpoint.
             #
             while ((bestdif>desiredDiff)and(wid<10)):
+               #print "  searching with wid=%d"%wid
                if ((y+wid)<self.ymax):
                   for ii in range(max(0,x-wid),min(x+wid+1,self.xmax)):
-                     gelev=topoGrid[y+wid,ii]
-                     dif=abs(elev-gelev)
-                     if dif<bestdif:
-                        bestdif=dif
-                        bestele=gelev
-                        bestval=guessGrid[y+wid,ii]
+                     if obLandMask==newLandMask[y+wid,ii]:
+                        gelev=topoGrid[y+wid,ii]
+                        dif=abs(elev-gelev)
+                        if dif<bestdif:
+                           bestdif=dif
+                           bestele=gelev
+                           bestval=guessGrid[y+wid,ii]
                if ((y-wid)>=0):
                   for ii in range(max(0,x-wid),min(x+wid+1,self.xmax)):
-                     gelev=topoGrid[y-wid,ii]
-                     dif=abs(elev-gelev)
-                     if dif<bestdif:
-                        bestdif=dif
-                        bestele=gelev
-                        bestval=guessGrid[y-wid,ii]
+                     if obLandMask==newLandMask[y-wid,ii]:
+                        gelev=topoGrid[y-wid,ii]
+                        dif=abs(elev-gelev)
+                        if dif<bestdif:
+                           bestdif=dif
+                           bestele=gelev
+                           bestval=guessGrid[y-wid,ii]
                if ((x+wid)<self.xmax):
                   for jj in range(max(0,y-wid),min(y+wid+1,self.ymax)):
-                     gelev=topoGrid[jj,x+wid]
-                     dif=abs(elev-gelev)
-                     if dif<bestdif:
-                        bestdif=dif
-                        bestele=gelev
-                        bestval=guessGrid[jj,x+wid]
+                     if obLandMask==newLandMask[jj,x+wid]:
+                        gelev=topoGrid[jj,x+wid]
+                        dif=abs(elev-gelev)
+                        if dif<bestdif:
+                           bestdif=dif
+                           bestele=gelev
+                           bestval=guessGrid[jj,x+wid]
                if ((x-wid)>=0):
                   for jj in range(max(0,y-wid),min(y+wid+1,self.ymax)):
-                     gelev=topoGrid[jj,x-wid]
-                     dif=abs(elev-gelev)
-                     if dif<bestdif:
-                        bestdif=dif
-                        bestele=gelev
-                        bestval=guessGrid[jj,x-wid]
+                     if obLandMask==newLandMask[jj,x-wid]:
+                        gelev=topoGrid[jj,x-wid]
+                        dif=abs(elev-gelev)
+                        if dif<bestdif:
+                           bestdif=dif
+                           bestele=gelev
+                           bestval=guessGrid[jj,x-wid]
                if bestdif>desiredDiff:
                   wid+=1
             estval=bestval   
             self.logtime("  %12s %3d,%3d, est at %5d:%5.1f --- grid at %5d:%5.1f --- (%5d diff) -- Val:%5.1f -- Change:%5.1f"%(name,x,y,elev,estval,pt,guessGrid[y,x],pt-elev,val,val-estval),4)
             zlist.append(val-estval)
-         else:
-            self.logtime("  %12s %3d,%3d %5d Val:%5.1f -- grid:%5.1f -- change:%5.1f"%(name,x,y,elev,val,guessGrid[y,x],val-guessGrid[y,x]),4)
-            zlist.append(val-guessGrid[y,x])
       #
       #  Do the requested analysis
       #
@@ -669,7 +691,7 @@ class ObjAnal(SmartScript.SmartScript):
       #  Get distance squared of control points to every gridpoint
       #
       self.logtime("Getting distance squared between control points and gridpoints",3)
-      dists=zeros((numpts,self.ymax,self.xmax),np.float32)
+      dists=np.zeros((numpts,self.ymax,self.xmax),np.float32)
       for k in range(numpts):
          d=self.getDistance(xarr[k],yarr[k],harr[k],scaledtopo,newlandMask)*self.gridres
          dists[k]=(d*d).astype(np.float32)
@@ -711,8 +733,8 @@ class ObjAnal(SmartScript.SmartScript):
       #  Barnes PASS 1
       #
       self.logtime("Barnes Pass 1",3)
-      totweights=zeros((self.ymax,self.xmax),np.float32)
-      totsum=zeros((self.ymax,self.xmax),np.float32)
+      totweights=np.zeros((self.ymax,self.xmax),np.float32)
+      totsum=np.zeros((self.ymax,self.xmax),np.float32)
       for k in range(numpts):
          #
          #  get scaled distance squared divided by kappa 
@@ -740,8 +762,8 @@ class ObjAnal(SmartScript.SmartScript):
       #  Barnes PASS 2
       #
       self.logtime("Barnes Pass 2",3)
-      totweights=zeros((self.ymax,self.xmax),np.float32)
-      totsum=zeros((self.ymax,self.xmax),np.float32)
+      totweights=np.zeros((self.ymax,self.xmax),np.float32)
+      totsum=np.zeros((self.ymax,self.xmax),np.float32)
       for k in range(numpts):
          #
          #  get scaled distance squared divided by gamma *kappa 
@@ -1080,6 +1102,15 @@ class ObjAnal(SmartScript.SmartScript):
       self.verbose=0
       return
    #---------------------------------------------------------------------------
+   #  setMissingElevThreshold - set the MissingElevThreshold value
+   #     Obs with elevation values less than or equal to this threshold
+   #     will use the topo grid elevation instead, even if ActualElev is set
+   #     to 1.
+   #
+   def setMissingElevThreshold(self,value):
+      self.MissingElevThreshold=value
+      return
+   #---------------------------------------------------------------------------
    #  logtime - write a string with date/time stamp.  Can dynamically control 
    #      which get printed by using the importance and verbosity settings.  
    #      Will only print message with importance less or equal to verbosity 
@@ -1089,7 +1120,7 @@ class ObjAnal(SmartScript.SmartScript):
    #
    def logtime(self,string,importance=0):
       if importance<=self.verbose:
-         tt=self._gmtime().timetuple
+         tt=self._gmtime().timetuple()
          ts="%4.4d/%2.2d/%2.2d %2.2d:%2.2d:%2.2d"%(tt[0],tt[1],tt[2],tt[3],tt[4],tt[5])
          print "%s|ObjAnal - %s" % (ts,string)
          sys.stdout.flush()

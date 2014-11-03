@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.monitor.safeseas.threshold;
 import java.util.ArrayList;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
@@ -42,6 +41,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SafeSeasMonitor;
  * Feb 03, 2014 #2757      skorolev     Fixed reInitialize().
  * Apr 28, 2014  3086      skorolev     Removed local getMonitorAreaConfig method.
  * Sep 04, 2014  3220      skorolev     Removed "site".
+ * Oct 16, 2014  3220      skorolev     Corrected areaConfigMgr assignment.
  * 
  * </pre>
  * 
@@ -59,7 +59,7 @@ public class SSThresholdMgr extends AbstractThresholdMgr {
         super("DefaultSSDisplayThresholds.xml",
                 "DefaultSSMonitorThresholds.xml", AppName.SAFESEAS.name()
                         .toLowerCase());
-        areaConfigMgr = new FSSObsMonitorConfigurationManager(MonName.ss.name());
+        areaConfigMgr = FSSObsMonitorConfigurationManager.getSsObsManager();
         init();
     }
 
@@ -112,20 +112,5 @@ public class SSThresholdMgr extends AbstractThresholdMgr {
             }
         }
         return threshKeys;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr#
-     * getMonitorAreaConfigInstance()
-     */
-    @Override
-    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
-        if (areaConfigMgr == null) {
-            areaConfigMgr = new FSSObsMonitorConfigurationManager(
-                    MonName.ss.name());
-        }
-        return areaConfigMgr;
     }
 }
