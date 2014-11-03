@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- -------------
  * May 21, 2014 3086       skorolev    Cleaned code.
+ * Oct 16, 2014 3220       skorolev    Added condition to avoid NPE.
  * 
  * </pre>
  * 
@@ -178,22 +179,23 @@ public class FogMonitorMeteoTab extends TabItemComp implements
         ThresholdsXML threshXML = ftm.getThresholdsXmlData(duKey);
 
         List<AreaXML> areasArray = threshXML.getAreas();
+        if (areasArray != null) {
+            for (AreaXML area : areasArray) {
+                String areaID = area.getAreaId();
+                FogMonitorMeteoData fmmd = new FogMonitorMeteoData();
+                fmmd.setAreaID(areaID);
 
-        for (AreaXML area : areasArray) {
-            String areaID = area.getAreaId();
-            FogMonitorMeteoData fmmd = new FogMonitorMeteoData();
-            fmmd.setAreaID(areaID);
+                /*
+                 * Visibility
+                 */
+                String xmlKey = FogMonitor.FOG_MONITOR_METEO_VIS.getXmlKey();
+                fmmd.setMeteoVisR(ftm.getThresholdValue(duKey, threshKeyR,
+                        areaID, xmlKey));
+                fmmd.setMeteoVisY(ftm.getThresholdValue(duKey, threshKeyY,
+                        areaID, xmlKey));
 
-            /*
-             * Visibility
-             */
-            String xmlKey = FogMonitor.FOG_MONITOR_METEO_VIS.getXmlKey();
-            fmmd.setMeteoVisR(ftm.getThresholdValue(duKey, threshKeyR, areaID,
-                    xmlKey));
-            fmmd.setMeteoVisY(ftm.getThresholdValue(duKey, threshKeyY, areaID,
-                    xmlKey));
-
-            fogDataArray.add(fmmd);
+                fogDataArray.add(fmmd);
+            }
         }
     }
 
