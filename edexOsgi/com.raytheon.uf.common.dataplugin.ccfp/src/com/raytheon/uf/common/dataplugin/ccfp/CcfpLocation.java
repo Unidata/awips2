@@ -48,6 +48,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Nov 01, 2013 2361        njensen     Remove XML annotations
  * Apr 15, 2014 3001        bgonzale    Refactored to common package,
  *                                      com.raytheon.uf.common.dataplugin.ccfp.
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * 
  * </pre>
@@ -62,7 +63,7 @@ public class CcfpLocation implements ISpatialObject {
     private static final long serialVersionUID = 8890315829188793187L;
 
     @Column(name = "location")
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Type(type = "org.hibernate.spatial.GeometryType")
     @DynamicSerializeElement
     private Geometry geometry;
 
