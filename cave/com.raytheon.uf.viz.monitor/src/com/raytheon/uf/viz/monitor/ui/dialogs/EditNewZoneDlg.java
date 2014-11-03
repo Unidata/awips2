@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
@@ -53,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Fixed issues with removing a new zone from list.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
+ * Nov 10, 2014 3741      skorolev     Fixed configXML issue.
  * 
  * </pre>
  * 
@@ -97,8 +97,6 @@ public class EditNewZoneDlg extends CaveSWTDialog {
     /** Deleted zone */
     private String delZone;
 
-    private FSSObsMonitorConfigurationManager areaConfigMgr;
-
     /**
      * Constructor.
      * 
@@ -113,7 +111,6 @@ public class EditNewZoneDlg extends CaveSWTDialog {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(appName.toString() + ": Edit a Newly Added Zone");
         this.macDlg = macDlg;
-        areaConfigMgr = macDlg.getInstance();
     }
 
     /*
@@ -313,7 +310,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
      * Populate list of added zones.
      */
     private void populate() {
-        java.util.List<String> newList = areaConfigMgr.getAddedZones();
+        java.util.List<String> newList = macDlg.configMgr.getAddedZones();
         zoneList.setItems(newList.toArray(new String[newList.size()]));
     }
 
@@ -322,7 +319,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
      */
     private void handleZoneSelection() {
         String zone = zoneList.getItem(zoneList.getSelectionIndex());
-        AreaIdXML areaXml = areaConfigMgr.getAreaXml(zone);
+        AreaIdXML areaXml = macDlg.configMgr.getAreaXml(zone);
         // DR #7343: a null areaXml causes an "Unhandled event loop exception"
         if (areaXml != null) {
             idTF.setText(areaXml.getAreaId());
@@ -355,7 +352,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
             }
             String area = zoneList.getItem(zoneList.getSelectionIndex());
             zoneList.remove(zoneList.getSelectionIndex());
-            areaConfigMgr.removeArea(area);
+            macDlg.configMgr.removeArea(area);
             idTF.setText("");
             latTF.setText("");
             lonTF.setText("");
@@ -393,8 +390,8 @@ public class EditNewZoneDlg extends CaveSWTDialog {
                         type = ZoneType.MARITIME;
                     }
                     // Replace previously added zone
-                    areaConfigMgr.removeArea(area);
-                    areaConfigMgr.removeAddedArea(area);
+                    macDlg.configMgr.removeArea(area);
+                    macDlg.configMgr.removeAddedArea(area);
                     macDlg.configMgr.addArea(area, lat, lon, type);
                     populate();
                     // Return cursor to the top of the list.
