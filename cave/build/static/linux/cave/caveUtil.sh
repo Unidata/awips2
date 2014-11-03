@@ -36,6 +36,7 @@
 # Jul 02, 2014  #3245     bclement    account for memory override in vm arguments
 # Jul 10, 2014  #3363     bclement    fixed precedence order for ini file lookup
 # Jul 11, 2014  #3371     bclement    added killSpawn()
+# Oct 13, 2014  #3675     bclement    logExitStatus() waits for child to start and renames log with child PID 
 
 
 source /awips2/cave/iniLookup.sh
@@ -330,6 +331,14 @@ function logExitStatus()
    logFile=$2
    
    trap 'killSpawn $pid' SIGHUP SIGINT SIGQUIT SIGTERM
+   
+   childPid=$(waitForChildToStart $pid)
+   if [[ -n $childPid ]]
+   then 
+       newFileName=${logFile/\%PID\%/$childPid}
+       mv $logFile $newFileName
+       logFile=$newFileName
+   fi
    wait $pid
    exitCode=$?
    curTime=`date --rfc-3339=seconds`
@@ -346,6 +355,24 @@ function logExitStatus()
        mv $coreFile $hostPath
      fi
    fi
+}
+
+# takes in a PID
+# waits for PID to spawn child
+# outputs the PID of the child or nothing if PID exits first
+function waitForChildToStart()
+{
+    pid=$1
+    # check if PID is still running
+    while ps -p $pid > /dev/null
+    do
+        sleep 1s
+        if child=$(pgrep -P $pid)
+        then
+            echo $child
+            break
+        fi
+    done
 }
 
 #Delete old CAVE logs DR 15348

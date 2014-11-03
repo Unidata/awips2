@@ -115,8 +115,11 @@ function setupEnv() {
 		logIt INFO main "User passed an argument which we're using for the input file name : $1"
 	fi
 
-	
-	inputFile=${fullScriptPath}/${inputFileName}
+	if echo ${inputFileName} | grep '/' > /dev/null ; then
+		inputFile=${inputFileName}
+	else
+		inputFile=${fullScriptPath}/${inputFileName}
+	fi
 	
 	runTimeStamp=$( date +%Y%m%d_%H%M%S )
 

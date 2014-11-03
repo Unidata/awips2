@@ -26,6 +26,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
+import com.raytheon.uf.viz.core.preferences.StringConverter;
 
 /**
  * Preference field editor for selecting a color for the DataStoreResource
