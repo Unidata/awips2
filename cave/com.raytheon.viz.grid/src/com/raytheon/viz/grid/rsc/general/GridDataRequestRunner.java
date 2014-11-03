@@ -22,8 +22,6 @@ package com.raytheon.viz.grid.rsc.general;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -34,7 +32,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * 
- * Manages asynchronously requesting data for GridResources.
+ * Manages asynchronously requesting data for {@link AbstractGridResource}s.
  * 
  * <pre>
  * 
@@ -48,19 +46,15 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jun 24, 2013 2140       randerso    Moved safe name code into AbstractVizResource
  * Oct 07, 2014 3668       bclement    uses executor instead of eclipse job
  *                                      renamed to GridDataRequestRunner
+ * Oct 29, 2014 3668       bsteffen    replace executor with custom job pool.
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
+ * @see GridDataRequestJobPool
  */
-class GridDataRequestRunner implements Runnable {
-
-    private static final int POOL_SIZE = Integer.getInteger(
-            "grid.request.pool.size", 10);
-
-    private static final Executor executor = Executors
-            .newFixedThreadPool(POOL_SIZE);
+class GridDataRequestRunner {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridDataRequestRunner.class);
@@ -79,6 +73,8 @@ class GridDataRequestRunner implements Runnable {
         // been notified.)
         public boolean exceptionHandled = false;
 
+        public boolean isRunning = false;
+
         public GridDataRequest(DataTime time, List<PluginDataObject> pdos) {
             this.time = time;
             if (pdos == null) {
@@ -90,12 +86,11 @@ class GridDataRequestRunner implements Runnable {
         }
 
         public boolean shouldRequest() {
-            return (gridData == null) && (exception == null);
+            return (gridData == null) && (exception == null)
+                    && (isRunning == false);
         }
 
     }
-
-    private volatile boolean cancelled = false;
 
     private AbstractGridResource<?> resource;
 
@@ -105,39 +100,46 @@ class GridDataRequestRunner implements Runnable {
         this.resource = resource;
     }
 
-    @Override
-    public void run() {
-        for (GridDataRequest request = getNext(); request != null; request = getNext()) {
-            try {
-                request.gridData = resource.getData(request.time, request.pdos);
-                if (request.gridData == null) {
-                    // need to remove unfulfillable requests to avoid infinite
-                    // loop.
-                    synchronized (requests) {
-                        requests.remove(request);
-                    }
-                } else {
-                    resource.issueRefresh();
+    /**
+     * Attempt to process a request if there are any that need to be processed
+     * 
+     * @return true if a request was processed or false if no requests need to
+     *         be processed.
+     */
+    public boolean processOneRequest() {
+        GridDataRequest request = getNext();
+        if (request == null) {
+            return false;
+        }
+        try {
+            request.gridData = resource.getData(request.time, request.pdos);
+            if (request.gridData == null) {
+                /* need to remove unfulfillable requests to avoid infinite loop. */
+                synchronized (requests) {
+                    requests.remove(request);
                 }
-            } catch (VizException e) {
-                request.exception = e;
+            } else {
                 resource.issueRefresh();
             }
-            if (cancelled) {
-                break;
-            }
+        } catch (VizException e) {
+            request.exception = e;
+            resource.issueRefresh();
+        } finally {
+            request.isRunning = false;
         }
+        return true;
     }
 
     /**
-     * Get the next request that should be sent
+     * Get the next request that should be processed
      * 
-     * @return null if no request should be sent
+     * @return null if no request should be processed
      */
     protected GridDataRequest getNext() {
         synchronized (requests) {
             for (GridDataRequest request : requests) {
                 if (request.shouldRequest()) {
+                    request.isRunning = true;
                     return request;
                 }
             }
@@ -172,19 +174,11 @@ class GridDataRequestRunner implements Runnable {
             if ((request.exception != null) && !request.exceptionHandled) {
                 handleExceptions();
             }
-        }
-        if (request.shouldRequest()) {
-            this.schedule();
+            if (request.shouldRequest()) {
+                GridDataRequestJobPool.schedule(this);
+            }
         }
         return null;
-    }
-
-    /**
-     * send current requests
-     */
-    private void schedule() {
-        cancelled = false;
-        executor.execute(this);
     }
 
     private void handleExceptions() {
@@ -267,14 +261,6 @@ class GridDataRequestRunner implements Runnable {
         synchronized (requests) {
             requests.clear();
         }
-        this.cancel();
-    }
-
-    /**
-     * cancel current request
-     */
-    private void cancel() {
-        cancelled = true;
     }
 
 }

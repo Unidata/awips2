@@ -79,7 +79,8 @@ public class MAROBSynopticDecoder extends SHIPSynopticDecoder {
             setReportIdentifier(reportParser.getElement());
             reportParser.next();
             element = reportParser.getElement();
-            if (ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
+            if (element != null
+                    && ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
                 try {
                     Integer month = getHeader().getMonth();
                     if (month != -1) {

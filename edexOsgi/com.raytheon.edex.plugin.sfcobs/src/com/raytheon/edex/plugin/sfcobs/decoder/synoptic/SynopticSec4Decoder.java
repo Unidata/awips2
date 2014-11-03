@@ -91,7 +91,8 @@ public class SynopticSec4Decoder extends AbstractSectionDecoder {
 
             if (reportParser.next()) {
                 String element = reportParser.getElement();
-                if (ISynoptic.GENERAL_GROUP.matcher(element).find()) {
+                if (element != null
+                        && ISynoptic.GENERAL_GROUP.matcher(element).find()) {
                     cloudAmount = AbstractSfcObsDecoder.getInt(element, 0, 1);
                     cloudGenus = AbstractSfcObsDecoder.getInt(element, 1, 2);
                     cloudAltitude = AbstractSfcObsDecoder.getInt(element, 2, 4);
