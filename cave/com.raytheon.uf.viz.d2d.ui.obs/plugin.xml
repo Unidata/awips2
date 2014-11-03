@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<?eclipse version="3.5"?>
+<plugin>
+    <extension point="org.eclipse.ui.menus">
+        <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=d2d.obsMenu">
+            <menu id="obs" label="Obs" mnemonic="O">
+                <visibleWhen>
+                    <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                    </reference>
+                </visibleWhen>
+                <separator name="SURFACE" visible="false">
+                </separator>
+                <separator name="EndOfInitial" visible="true">
+                </separator>
+                <command commandId="com.raytheon.viz.ui.actions.titleAction"
+                    label="------ METAR ------">
+                </command>
+                <separator name="METAR" visible="false">
+                </separator>
+                <separator name="EndOfMetar" visible="true">
+                </separator>
+                <command commandId="com.raytheon.viz.ui.actions.titleAction"
+                    label="------ Synoptic ------">
+                </command>
+                <separator name="SYNOPTIC" visible="false">
+                </separator>
+                <separator name="EndOfSynoptic" visible="true">
+                </separator>
+                <command commandId="com.raytheon.viz.ui.actions.titleAction"
+                    label="------ Local data ------">
+                </command>
+                <separator name="LocalData" visible="false">
+                </separator>
+                <separator name="EndOfLocalData" visible="true">
+                </separator>
+                <command commandId="com.raytheon.viz.ui.actions.titleAction"
+                    label="------ Maritime ------" id="MARITIME">
+                </command>
+                <separator name="EndOfMaritime" visible="true">
+                </separator>
+                <command commandId="com.raytheon.viz.ui.actions.titleAction"
+                    label="------ Hazards ------">
+                </command>
+                <separator name="HAZARDS" visible="false" />
+                <separator name="LIGHTNINGPLACEHOLDER"
+                    visible="false" />
+                <separator name="FOGPLACEHOLDER" visible="false" />
+                <separator name="SNOWPLACEHOLDER" visible="false" />
+                <separator name="EndOfHazards" visible="true">
+                </separator>
+            </menu>
+        </menuContribution>
+    </extension>
+</plugin>
