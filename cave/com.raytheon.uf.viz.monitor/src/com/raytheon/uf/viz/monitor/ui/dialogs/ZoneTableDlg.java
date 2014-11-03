@@ -89,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 13, 2014 3133      njensen      Updated getting ObsHistType from configMgr
  * May 15, 2014 3086      skorolev     Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager.
  * Sep 15, 2014 3220      skorolev     Added refreshZoneTableData method.
+ * Oct 17, 2014 3220      skorolev     Added condition into launchTrendPlot to avoid NPE.
  * 
  * </pre>
  * 
@@ -736,10 +737,14 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         }
         // Set dialog index
         String dialogID = appName.name() + station;
-        String strHistType = getMonitorAreaConfigInstance().getStationType(
-                selectedZone, station);
-        ObsHistType histType = ObsHistType.valueOf(strHistType);
-
+        ObsHistType histType = null;
+        if (configMgr != null) {
+            String strHistType = configMgr
+                    .getStationType(selectedZone, station);
+            histType = ObsHistType.valueOf(strHistType);
+        }
+        if (histType == null)
+            return;
         /**
          * For Snow monitor, no history table is displayed for a Maritime
          * station
@@ -952,13 +957,6 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         }
         return varName;
     }
-
-    /**
-     * Gets Configuration manager.
-     * 
-     * @return manager
-     */
-    protected abstract FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance();
 
     /**
      * Refreshes Zone Table.
