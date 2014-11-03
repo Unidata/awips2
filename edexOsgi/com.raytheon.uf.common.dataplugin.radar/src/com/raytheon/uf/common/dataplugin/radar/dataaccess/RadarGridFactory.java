@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -48,8 +49,10 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfo;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
@@ -80,7 +83,9 @@ import com.vividsolutions.jts.geom.Envelope;
  *                                    single request.
  * Feb 04, 2014  2672     bsteffen    Enable requesting icaos within envelope.
  * Jul 30, 2014  3184     njensen     Overrode optional identifiers
- * 
+ * Oct 28, 2014  3755     nabowle     Implement getAvailableParameters, handle
+ *                                    empty parameters, fix error message, and
+ *                                    handle dataless radial radars.
  * 
  * </pre>
  * 
@@ -159,8 +164,8 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
      * Theoretically two radial geometries could have the same name but
      * internally different angleData but this is very unlikely and the points
      * would be very nearly identical.
-     * 
-     * 
+     *
+     *
      * @param radarRecord
      *            a record.
      * @return A unique location name
@@ -201,6 +206,9 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
                 if (angleData == null) {
                     populateRecord(radarRecord);
                     angleData = radarRecord.getAngleData();
+                }
+                if (angleData == null) {
+                    return null;
                 }
 
                 // NOTE: do not set swapXY=true even though it matches the raw
@@ -274,7 +282,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     /**
      * Populate a DataSource from the raw data(byte or short) in the provided
      * record.
-     * 
+     *
      * @param radarRecord
      * @return a DataSource or null if the record is not populated or has no
      *         grid data.
@@ -310,7 +318,8 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     protected Map<String, RequestConstraint> buildConstraintsFromRequest(
             IDataRequest request) {
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        if (request.getParameters() != null) {
+        if (request.getParameters() != null
+                && request.getParameters().length > 0) {
             Set<Integer> codes = new HashSet<Integer>();
             for (String parameter : request.getParameters()) {
                 codes.addAll(getProductCodesFromParameter(parameter));
@@ -377,8 +386,8 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
             }
         }
         if (codes.isEmpty()) {
-            // If any valid produt codes are founf then don't complain.
-            if (exception == null) {
+            // If any valid product codes are found then don't complain.
+            if (exception != null) {
                 throw new DataRetrievalException(exception);
             } else {
                 throw new DataRetrievalException(parameter
@@ -417,27 +426,57 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
         return getAvailableLocationNames(request, ICAO);
     }
 
+    /**
+     * Get the available parameters for {@link #SUPPORTED_FORMATS supported
+     * formats}.
+     */
+    @Override
+    public String[] getAvailableParameters(IDataRequest request) {
+        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
+        dbQueryRequest.addConstraint(FORMAT, new RequestConstraint(
+                SUPPORTED_FORMATS));
+        dbQueryRequest.setDistinct(Boolean.TRUE);
+        dbQueryRequest.addRequestField(PRODUCT_CODE);
+
+        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                dbQueryRequest, request.toString());
+        Set<Integer> productCodes = new TreeSet<Integer>();
+        for (Map<String, Object> result : dbQueryResponse.getResults()) {
+            productCodes.add((Integer) result.get(PRODUCT_CODE));
+        }
+        Set<String> parameters = new HashSet<String>();
+        for (RadarInfo info : getRadarInfo()) {
+            if (productCodes.contains(Integer.valueOf(info.getProductCode()))) {
+                parameters.add(info.getName());
+                parameters.add(info.getMnemonic());
+                parameters.add(Integer.toString(info.getProductCode()));
+            }
+        }
+
+        return parameters.toArray(new String[0]);
+    }
+
     @Override
     public String[] getOptionalIdentifiers() {
         return new String[] { ICAO };
     }
 
     /**
-     * 
+     *
      * This is used to convert data from bin,radial format to radial bin format.
-     * 
+     *
      * <pre>
-     * 
+     *
      * SOFTWARE HISTORY
-     * 
+     *
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Jan 25, 2013            bsteffen     Initial creation
      * Feb 14, 2013 1614       bsteffen    refactor data access framework to use
      *                                          single request.
-     * 
+     *
      * </pre>
-     * 
+     *
      * @author bsteffen
      * @version 1.0
      */

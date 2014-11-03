@@ -100,7 +100,8 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
             setReportIdentifier(reportParser.getElement());
             reportParser.next();
             element = reportParser.getElement();
-            if (ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
+            if (element != null
+                    && ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
                 try {
                     Integer month = getHeader().getMonth();
                     if (month != -1) {
@@ -179,7 +180,7 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (LAT_PATTERN.matcher(element).find()) {
+        if (element != null && LAT_PATTERN.matcher(element).find()) {
             Integer lat = getInt(element, 2, 5);
             if (lat != null) {
                 mobileLatitude = lat.floatValue() / 10.0f;
@@ -198,7 +199,7 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (LON_PATTERN.matcher(element).find()) {
+        if (element != null && LON_PATTERN.matcher(element).find()) {
             Integer lon = getInt(element, 2, 5);
             if (lon != null) {
                 mobileLongitude = lon.floatValue() / 10.0f;
@@ -265,7 +266,7 @@ public class MobileSynopticDecoder extends AbstractSynopticDecoder {
         reportParser.next();
         String element = reportParser.getElement();
 
-        if (ELEV_PATTERN.matcher(element).find()) {
+        if (element != null && ELEV_PATTERN.matcher(element).find()) {
             Integer elev = getInt(element, 0, 4);
             if (elev != null) {
                 if (elev >= 0) {
