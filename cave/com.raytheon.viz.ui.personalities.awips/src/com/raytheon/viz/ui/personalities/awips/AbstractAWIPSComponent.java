@@ -122,10 +122,10 @@ public abstract class AbstractAWIPSComponent extends CAVEApplication {
      * getWorkbenchAdvisor()
      */
     @Override
-    protected WorkbenchAdvisor getWorkbenchAdvisor() {
+    protected final WorkbenchAdvisor getWorkbenchAdvisor() {
         WorkbenchAdvisor workbenchAdvisor = null;
         if ((getRuntimeModes() & WORKBENCH) != 0) {
-            workbenchAdvisor = new AWIPSWorkbenchAdvisor();
+            workbenchAdvisor = createAWIPSWorkbenchAdvisor();
         } else if (!isNonUIComponent()) {
             workbenchAdvisor = new HiddenWorkbenchAdvisor(getComponentName(),
                     this);
@@ -139,6 +139,14 @@ public abstract class AbstractAWIPSComponent extends CAVEApplication {
             }
         }
         return workbenchAdvisor;
+    }
+
+    /**
+     * @return A new instance of {@link AWIPSWorkbenchAdvisor} to use for the
+     *         component's {@link WorkbenchAdvisor}
+     */
+    protected AWIPSWorkbenchAdvisor createAWIPSWorkbenchAdvisor() {
+        return new AWIPSWorkbenchAdvisor();
     }
 
     /*
