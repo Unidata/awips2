@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.plugin.satellite;
+package com.raytheon.uf.edex.plugin.satellite.gini;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,19 +26,13 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
-import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.satellite.dao.SatelliteDao;
-import com.raytheon.edex.plugin.satellite.gini.SatelliteCreatingEntity;
-import com.raytheon.edex.plugin.satellite.gini.SatellitePhysicalElement;
-import com.raytheon.edex.plugin.satellite.gini.SatellitePosition;
-import com.raytheon.edex.plugin.satellite.gini.SatelliteSectorId;
-import com.raytheon.edex.plugin.satellite.gini.SatelliteSource;
-import com.raytheon.edex.plugin.satellite.gini.SatelliteUnit;
+import com.raytheon.edex.plugin.satellite.SatelliteDecoderException;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.exception.UnrecognizedDataException;
@@ -46,6 +40,10 @@ import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
@@ -54,7 +52,11 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.ArraysUtil;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.header.WMOHeaderFinder;
+import com.raytheon.uf.edex.plugin.satellite.gini.lookup.GeostationaryPosition;
+import com.raytheon.uf.edex.plugin.satellite.gini.lookup.GeostationaryPositionTable;
+import com.raytheon.uf.edex.plugin.satellite.gini.lookup.NumericLookupTable;
 
 /**
  * Decodes GINI formatted satelitte data into {@link SatelliteRecord}s.
@@ -92,13 +94,16 @@ import com.raytheon.uf.common.util.header.WMOHeaderFinder;
  * Jan 20, 2014  2359     njensen     Better error handling when fields are not
  *                                    recognized
  * Apr 15, 2014  3017     bsteffen    Call new methods in SatSpatialFactory
+ * Nov 04, 2014  2714     bclement    moved from satellite to satellite.gini
+ *                                      renamed from SatelliteDecoder to GiniDecoder
+ *                                      replaced database lookups with in memory tables
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class SatelliteDecoder {
+public class GiniSatelliteDecoder {
 
     private IUFStatusHandler statusHandler = UFStatus.getHandler(getClass());
 
@@ -115,9 +120,101 @@ public class SatelliteDecoder {
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("Satellite:");
 
-    private SatelliteDao dao;
+    public static final String LOOKUP_LOCALIZATION_DIR = System.getProperty(
+            "gini.lookup.table.dir", "satellite/gini/lookuptables");
 
-    public PluginDataObject[] decode(File file) throws Exception {
+    private static final String CREATING_ENTITY_TABLE_ID = "creatingEntities";
+
+    private static final String PHYSICAL_ELEMENT_TABLE_ID = "physicalElements";
+
+    private static final String SECTOR_ID_TABLE_ID = "sectorIds";
+
+    private static final String SOURCE_TABLE_ID = "sources";
+
+    private static final String UNIT_TABLE_ID = "units";
+
+    private static final String POSITION_TABLE_ID = "geostationaryPositions";
+
+    private final NumericLookupTable creatingEntityTable;
+
+    private final NumericLookupTable physicalElementTable;
+
+    private final NumericLookupTable sectorIdTable;
+
+    private final NumericLookupTable sourceTable;
+
+    private final NumericLookupTable unitTable;
+
+    private final Map<String, GeostationaryPosition> positionMap;
+
+    /**
+     * @throws Exception
+     *             if lookup tables cannot be initialized
+     */
+    public GiniSatelliteDecoder() throws Exception {
+        SingleTypeJAXBManager<NumericLookupTable> numericManager = new SingleTypeJAXBManager<>(
+                false, NumericLookupTable.class);
+        this.creatingEntityTable = createTable(numericManager,
+                CREATING_ENTITY_TABLE_ID);
+        this.physicalElementTable = createTable(numericManager,
+                PHYSICAL_ELEMENT_TABLE_ID);
+        this.sectorIdTable = createTable(numericManager, SECTOR_ID_TABLE_ID);
+        this.sourceTable = createTable(numericManager, SOURCE_TABLE_ID);
+        this.unitTable = createTable(numericManager, UNIT_TABLE_ID);
+
+        SingleTypeJAXBManager<GeostationaryPositionTable> positionManager = new SingleTypeJAXBManager<>(
+                false, GeostationaryPositionTable.class);
+        GeostationaryPositionTable positionTable = createTable(positionManager,
+                POSITION_TABLE_ID);
+        this.positionMap = positionTable.createMap();
+    }
+
+    /**
+     * Read in lookup table XML from localization and unmarshal into table
+     * object
+     * 
+     * @param manager
+     * @param id
+     * @return
+     * @throws SatelliteDecoderException
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T createTable(SingleTypeJAXBManager<T> manager, String id)
+            throws SatelliteDecoderException {
+        T rval = null;
+        try {
+            IPathManager pathManager = PathManagerFactory.getPathManager();
+            String filename = FileUtil.join(LOOKUP_LOCALIZATION_DIR, id
+                    + ".xml");
+            LocalizationFile file = pathManager
+                    .getStaticLocalizationFile(filename);
+            if (file != null) {
+                rval = (T) manager.unmarshalFromInputStream(file
+                        .openInputStream());
+            }
+            if (rval == null) {
+                throw new SatelliteDecoderException(
+                        "Unable to find table XML file: "
+                        + filename);
+            }
+        } catch (Exception e) {
+            throw new SatelliteDecoderException("Unable to initialize gini "
+                    + "satellite lookup table: " + id, e);
+        }
+
+        return rval;
+    }
+
+    /**
+     * Parses GINI satellite file and populates a SatelliteRecord
+     * 
+     * @param file
+     * @return a pdo array with one entry on success or an empty array on parse
+     *         error
+     * @throws IOException
+     *             if file cannot be read
+     */
+    public PluginDataObject[] decode(File file) throws IOException {
 
         PluginDataObject[] retData = null;
 
@@ -137,7 +234,7 @@ public class SatelliteDecoder {
 
             try {
                 removeWmoHeader(byteBuffer);
-            } catch (DecoderException e) {
+            } catch (SatelliteDecoderException e) {
                 statusHandler.error("Error removing WMO header", e);
                 byteBuffer = null;
             }
@@ -182,47 +279,45 @@ public class SatelliteDecoder {
 
                 // read the source
                 byte sourceByte = byteBuffer.get(0);
-                SatelliteSource source = dao.getSource(sourceByte);
+                String source = sourceTable.lookup(sourceByte);
                 if (source == null) {
                     throw new UnrecognizedDataException(
                             "Unknown satellite source id: " + sourceByte);
                 }
-                record.setSource(source.getSourceName());
+                record.setSource(source);
 
                 // read the creating entity
                 byte entityByte = byteBuffer.get(1);
-                SatelliteCreatingEntity entity = dao
-                        .getCreatingEntity(entityByte);
+                String entity = creatingEntityTable.lookup(entityByte);
                 if (entity == null) {
                     throw new UnrecognizedDataException(
                             "Unknown satellite entity id: " + entityByte);
                 }
-                record.setCreatingEntity(entity.getEntityName());
+                record.setCreatingEntity(entity);
 
                 // read the sector ID
                 byte sectorByte = byteBuffer.get(2);
-                SatelliteSectorId sector = dao.getSectorId(sectorByte);
+                String sector = sectorIdTable.lookup(sectorByte);
                 if (sector == null) {
                     throw new UnrecognizedDataException(
                             "Unknown satellite sector id: " + sectorByte);
                 }
-                record.setSectorID(sector.getSectorName());
+                record.setSectorID(sector);
 
                 // read the physical element
                 byte physByte = byteBuffer.get(3);
-                SatellitePhysicalElement physElem = dao
-                        .getPhysicalElement(physByte);
+                String physElem = physicalElementTable.lookup(physByte);
                 if (physElem == null) {
                     throw new UnrecognizedDataException(
                             "Unknown satellite physical element id: "
                                     + physByte);
                 }
-                record.setPhysicalElement(physElem.getElementName());
+                record.setPhysicalElement(physElem);
 
                 // read the units
-                SatelliteUnit unit = dao.getUnit(byteBuffer.get(3));
+                String unit = unitTable.lookup(byteBuffer.get(3));
                 if (unit != null) {
-                    record.setUnits(unit.getUnitName());
+                    record.setUnits(unit);
                 }
 
                 // read the century
@@ -300,8 +395,8 @@ public class SatelliteDecoder {
                     record.setSatSubPointLon(lonSub);
                     record.setSatHeight(satHeight);
                 } else {
-                    SatellitePosition position = dao
-                            .getSatellitePosition(record.getCreatingEntity());
+                    GeostationaryPosition position = positionMap.get(record
+                            .getCreatingEntity());
                     if (position == null) {
                         statusHandler
                                 .info("Unable to determine geostationary location of ["
@@ -414,8 +509,7 @@ public class SatelliteDecoder {
                      */
                     mapCoverage = SatSpatialFactory.getInstance()
                             .getCoverageSingleCorner(mapProjection, nx, ny,
-                                    lov,
-                                    latin, la1, lo1, dx, dy);
+                                    lov, latin, la1, lo1, dx, dy);
                 }
                 // Do specialized decoding and retrieve spatial data for
                 // Mercator projection
@@ -435,7 +529,7 @@ public class SatelliteDecoder {
                                     latin, la1, lo1, la2, lo2);
 
                 } else {
-                    throw new DecoderException(
+                    throw new SatelliteDecoderException(
                             "Unable to decode GINI Satellite: Encountered Unknown projection: "
                                     + mapProjection);
                 }
@@ -479,7 +573,7 @@ public class SatelliteDecoder {
      *            position is set the beginning of the GINI header.
      */
     private void removeWmoHeader(ByteBuffer messageData)
-            throws DecoderException {
+            throws SatelliteDecoderException {
 
         // Copy to a char [], carefully, as creating a string from
         // a byte [] with binary data can create erroneous data
@@ -497,11 +591,12 @@ public class SatelliteDecoder {
                 messageData.position(startOfSatellite);
                 messageData.limit(messageData.capacity());
             } else {
-                throw new DecoderException(
+                throw new SatelliteDecoderException(
                         "First character of the WMO header must be 'T'");
             }
         } else {
-            throw new DecoderException("Cannot decode an empty WMO header");
+            throw new SatelliteDecoderException(
+                    "Cannot decode an empty WMO header");
         }
     }
 
@@ -536,7 +631,7 @@ public class SatelliteDecoder {
      * @throws DecoderException
      */
     private byte[][] decompressSatellite(byte[] messageData)
-            throws DecoderException {
+            throws SatelliteDecoderException {
         byte[] retVal = null;
 
         boolean firstCall = true;
@@ -575,7 +670,7 @@ public class SatelliteDecoder {
                     // check to see if the decompression used the buffer w/o
                     // finishing - this indicates a truncated file
                     if (inflatedBytes == 0) {
-                        throw new DecoderException(
+                        throw new SatelliteDecoderException(
                                 "Unable to decompress satellite data - input data appears to be truncated");
                     }
                     // retrieve the total compressed bytes input so far
@@ -612,7 +707,8 @@ public class SatelliteDecoder {
                 decompressor.reset();
             }
         } catch (DataFormatException e) {
-            throw new DecoderException("Unable to decompress satellite data", e);
+            throw new SatelliteDecoderException(
+                    "Unable to decompress satellite data", e);
         } finally {
             decompressor.end();
             inputArray = null;
@@ -732,11 +828,4 @@ public class SatelliteDecoder {
         return longitude / 10000;
     }
 
-    public SatelliteDao getDao() {
-        return dao;
-    }
-
-    public void setDao(SatelliteDao dao) {
-        this.dao = dao;
-    }
 }
