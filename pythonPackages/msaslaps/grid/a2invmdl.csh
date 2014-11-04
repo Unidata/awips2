@@ -1,4 +1,23 @@
 #!/bin/csh
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
 #
 # A script wrapper that is meant to get inventories of gridded data
 # from the A-II database.  The data is output to stdout as ASCII.
@@ -52,6 +71,15 @@
 #  The literal p option means preserve the final version of the python
 #  submitted to the UEngine instead of cleaning it up.  The path to the
 #  finalized python is /tmp/a2rdmdlNNNNN.py where NNNNN is a unix process id.
+#
+# Gets all available raob data in the A-II database over a specified range of
+# times. The data is output to stdout as ASCII.
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    2014-10-22      3599          nabowle        Initial modification. Changed to properly call DAF version.
 #
 set rmpy = yes
 if ( "$1" == "p" ) then
@@ -112,16 +140,7 @@ if ( $status == 0 || $#ids > 1 ) then
     endif
     set sss = $mmm
 endif
-#
-if ( "$*" == "+" ) then
-    set varList = `$me $sss`
-    foreach onevar ( $varList )
-        echo ${onevar}:
-        $me $sss $onevar | tr '\n' ' '
-        echo
-    end
-    exit
-endif
+
 #
 # Locate python stub that we will modify to create the final python logic.
 #
@@ -142,12 +161,36 @@ endif
 #
 grep DataAccessLayer $stubpy >& /dev/null
 if ( $status == 0 ) then
-    set method = "daf"
+    if ( "$*" == "+" ) then
+        /awips2/python/bin/python $stubpy --mode fieldplane --srcId $sss
+    else if ( "$1" == "" ) then
+        /awips2/python/bin/python $stubpy --mode field --srcId $sss
+    else if ( "$1" == "@" ) then
+        /awips2/python/bin/python $stubpy --mode time --srcId $sss
+    else if ( "$2" == "" ) then
+        /awips2/python/bin/python $stubpy --mode plane --srcId $sss --varAbrev $1
+    else if ( "$3" == "" ) then
+        /awips2/python/bin/python $stubpy --mode time --srcId $sss --lvlName $1 --varAbrev $2
+    else if ( "$4" == "" ) then
+        /awips2/python/bin/python $stubpy --mode time --srcId $sss --lvlName $1 --lvlOne $2 --varAbrev $3
+    else
+        /awips2/python/bin/python $stubpy --mode time --srcId $sss --lvlName $1 --lvlOne $2 --lvlTwo $3 --varAbrev $4
+    endif
 else
+    #
+    if ( "$*" == "+" ) then
+        set varList = `$me $sss`
+        foreach onevar ( $varList )
+            echo ${onevar}:
+            $me $sss $onevar | tr '\n' ' '
+            echo
+        end
+        exit
+    endif
+
     #
     # Set up the environment we need to run the UEngine.
     #
-    set method = "uengine"
     if ( -e ./UEngine.cshsrc ) then
         set ueenv = ./UEngine.cshsrc
     else if ( -e $mydir/UEngine.cshsrc ) then
@@ -161,53 +204,51 @@ else
         exit
     endif
     source $ueenv
-endif
-#
-#  Modify the text of special tags in stub to create finalized script.
-#
-set specpy = /tmp/a2invmdl${$}.py
-rm -rf $specpy >& /dev/null
-touch $specpy
-chmod 775 $specpy
-set plane = no
-if ( "$1" == "" ) then
-  cat $stubpy | sed "s/MMMMM/field/g" | sed "s/SSSSS/$sss/g" | \
-      sed 's/^.*TTTTT.*$//g' | sed 's/^.*LLLLL.*$//g' | \
-      sed 's/^.*22222.*$//g' | sed 's/^.*VVVVV.*$//g' >> $specpy
-else if ( "$1" == "@" ) then
-  cat $stubpy | sed "s/MMMMM/time/g" | sed "s/SSSSS/$sss/g" | \
-      sed 's/^.*TTTTT.*$//g' | sed 's/^.*LLLLL.*$//g' | \
-      sed 's/^.*22222.*$//g' | sed 's/^.*VVVVV.*$//g' >> $specpy
-else if ( "$2" == "" ) then
-  set plane = yes
-  cat $stubpy | sed "s/MMMMM/plane/g" | sed "s/SSSSS/$sss/g" | \
-      sed 's/^.*TTTTT.*$//g' | sed 's/^.*LLLLL.*$//g' | \
-      sed 's/^.*22222.*$//g' | sed "s/VVVVV/$1/g" >> $specpy
-else if ( "$3" == "" ) then
-  cat $stubpy | sed "s/MMMMM/time/g" | sed "s/SSSSS/$sss/g" | \
-      sed "s/TTTTT/$1/g" | sed 's/^.*LLLLL.*$//g' | \
-      sed 's/^.*22222.*$//g' | sed "s/VVVVV/$2/g" >> $specpy
-else if ( "$4" == "" ) then
-  cat $stubpy |  sed "s/MMMMM/time/g" | sed "s/SSSSS/$sss/g" | \
-      sed "s/TTTTT/$1/g" | sed "s/LLLLL/$2/g"| \
-      sed 's/^.*22222.*$//g' | sed "s/VVVVV/$3/g" >> $specpy
-else
-  cat $stubpy |  sed "s/MMMMM/time/g" | sed "s/SSSSS/$sss/g" | \
-      sed "s/TTTTT/$1/g" | sed "s/LLLLL/$2/g" | \
-      sed "s/22222/$3/g" | sed "s/VVVVV/$4/g" >> $specpy
-endif
-if ( "$method" == "daf" ) then
-     /awips2/python/bin/python $specpy
-else if ( "$plane" == "no" ) then
-    cd $UE_BIN_PATH
-    ( uengine -r python < $specpy ) |& grep attributes | cut '-d"' -f4
-else
-    cd $UE_BIN_PATH
-    ( uengine -r python < $specpy ) |& sed 's|.*</items>.*|@|g' | \
-        grep -E 'attributes|@' | cut '-d"' -f4 | tr '\n' ' ' | tr '@' '\n' | \
-        sed 's/ -999999.0//g' | sed 's/^ *//g' | sed 's/ *$//g'
-endif
-if ( "$rmpy" == "yes" ) rm -rf $specpy >& /dev/null
-#
 
+    #
+    #  Modify the text of special tags in stub to create finalized script.
+    #
+    set specpy = /tmp/a2invmdl${$}.py
+    rm -rf $specpy >& /dev/null
+    touch $specpy
+    chmod 775 $specpy
+    set plane = no
+    if ( "$1" == "" ) then
+      cat $stubpy | sed "s/MMMMM/field/g" | sed "s/SSSSS/$sss/g" | \
+          sed 's/^.*TTTTT.*$//g' | sed 's/^.*LLLLL.*$//g' | \
+          sed 's/^.*22222.*$//g' | sed 's/^.*VVVVV.*$//g' >> $specpy
+    else if ( "$1" == "@" ) then
+      cat $stubpy | sed "s/MMMMM/time/g" | sed "s/SSSSS/$sss/g" | \
+          sed 's/^.*TTTTT.*$//g' | sed 's/^.*LLLLL.*$//g' | \
+          sed 's/^.*22222.*$//g' | sed 's/^.*VVVVV.*$//g' >> $specpy
+    else if ( "$2" == "" ) then
+      set plane = yes
+      cat $stubpy | sed "s/MMMMM/plane/g" | sed "s/SSSSS/$sss/g" | \
+          sed 's/^.*TTTTT.*$//g' | sed 's/^.*LLLLL.*$//g' | \
+          sed 's/^.*22222.*$//g' | sed "s/VVVVV/$1/g" >> $specpy
+    else if ( "$3" == "" ) then
+      cat $stubpy | sed "s/MMMMM/time/g" | sed "s/SSSSS/$sss/g" | \
+          sed "s/TTTTT/$1/g" | sed 's/^.*LLLLL.*$//g' | \
+          sed 's/^.*22222.*$//g' | sed "s/VVVVV/$2/g" >> $specpy
+    else if ( "$4" == "" ) then
+      cat $stubpy |  sed "s/MMMMM/time/g" | sed "s/SSSSS/$sss/g" | \
+          sed "s/TTTTT/$1/g" | sed "s/LLLLL/$2/g"| \
+          sed 's/^.*22222.*$//g' | sed "s/VVVVV/$3/g" >> $specpy
+    else
+      cat $stubpy |  sed "s/MMMMM/time/g" | sed "s/SSSSS/$sss/g" | \
+          sed "s/TTTTT/$1/g" | sed "s/LLLLL/$2/g" | \
+          sed "s/22222/$3/g" | sed "s/VVVVV/$4/g" >> $specpy
+    endif
+    if ( "$plane" == "no" ) then
+        cd $UE_BIN_PATH
+        ( uengine -r python < $specpy ) |& grep attributes | cut '-d"' -f4
+    else
+        cd $UE_BIN_PATH
+        ( uengine -r python < $specpy ) |& sed 's|.*</items>.*|@|g' | \
+            grep -E 'attributes|@' | cut '-d"' -f4 | tr '\n' ' ' | tr '@' '\n' | \
+            sed 's/ -999999.0//g' | sed 's/^ *//g' | sed 's/ *$//g'
+    endif
+    #if ( "$rmpy" == "yes" ) rm -rf $specpy >& /dev/null
+    #
+endif
 
