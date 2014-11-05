@@ -2,8 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: D2D Ncep Hydro
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.ui.ncephydro;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.d2d.ui.ncephydro.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.d2d.ui;bundle-version="1.12.1174",
@@ -13,5 +12,5 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.warnings;bundle-version="1.12.1174",
  com.raytheon.uf.viz.tcs;bundle-version="1.12.1174",
  com.raytheon.uf.viz.ccfp;bundle-version="1.12.1174"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

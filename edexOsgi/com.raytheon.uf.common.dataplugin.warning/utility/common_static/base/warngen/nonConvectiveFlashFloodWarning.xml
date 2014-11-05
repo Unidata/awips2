@@ -15,7 +15,10 @@
           Modified Evan Bookbinder       06-26-2013 Added "U" Unknown severity          
           Modified Phil Kurimski         09-19-2013 added geospatialConfig.xml
           Modified Mike Rega             01-18-2014 added Alaska GP changes for 14.2.1   
-          Mike Dangelo - 1/23/2014 multiple changes to CTAs for FFW EMER                                      
+          Mike Dangelo - 1/23/2014 multiple changes to CTAs for FFW EMER    
+          Evan Bookbinder 10/24/2014 commented out AK additions from baseline and
+                                     corrected their bulletGroup="" settings
+          Mike Rega 10/27/2014 fixed EMER floodSeverity=3 error                                  
 -->
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -108,13 +111,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="glacier" bulletText="Glacier-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
   <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
   <bullet bulletName="rain" bulletText="Rapid snowmelt (with or without rain)" bulletGroup="ic" parseString=".RS." showString=".RS."/>
-<!-- modified by GP -->
+<!-- Uncomment for Alaska
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
-<!-- GP end -->
-<!-- following two lines from 13.5.2 baseline, may need the more complex parseString added to the GP changes above -->
-<!-- <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
-  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/> -->
+Alaska end -->
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
@@ -122,12 +122,12 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
   <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
   <bullet bulletName="public" bulletText="Public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
-<!-- added by GP -->
-  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
-  <bullet bulletName="CAP" bulletText="Civil Air Patrol" bulletGroup="source" parseString="CIVIL AIR PATROL "/>
-  <bullet bulletName="alaskaVoc" bulletText="Alaska Volcano Observatory" bulletGroup="source" parseString="ALASKA VOLCANO OBSERVATORY "/>
-  <bullet bulletName="cascadeVoc" bulletText="Cascades Volcano Observatory" bulletGroup="source" parseString="CASCADES VOLCANO OBSERVATORY "/>
-<!--  GP end -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="reportedBy" parseString="GAUGE REPORTS "/>
+<!-- Uncomment for Alaska
+  <bullet bulletName="CAP" bulletText="Civil Air Patrol" bulletGroup="reportedBy" parseString="CIVIL AIR PATROL "/>
+  <bullet bulletName="alaskaVoc" bulletText="Alaska Volcano Observatory" bulletGroup="reportedBy" parseString="ALASKA VOLCANO OBSERVATORY "/>
+  <bullet bulletName="cascadeVoc" bulletText="Cascades Volcano Observatory" bulletGroup="reportedBy" parseString="CASCADES VOLCANO OBSERVATORY "/>
+Alaska end -->
   <bullet bulletText="************ (OPTIONAL) LOCATIONS IMPACTED  **************" bulletType="title"/>
 <!-- <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/> -->
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast"/>
@@ -175,7 +175,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <bullets>
   <bullet bulletText="***CORRECTED PRODUCT. CLICK CREATE TEXT***" bulletType="title"/>
   <bullet bulletText="" bulletType="title"/>
-  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" bulletGroup="ffwEMER" floodSeverity="3" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" bulletGroup="ffwEMER" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
   <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"/>
   <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
@@ -190,13 +190,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
   <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
   <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
-<!-- modified by GP -->
+<!-- Uncomment for Alaska
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
-<!-- GP end -->
-<!-- following two lines from 13.5.2 baseline, may need the more complex parseString added to the GP changes above -->
-<!--  <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
-  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/> -->
+Alaska end -->
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
@@ -204,12 +201,12 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
   <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
   <bullet bulletName="public" bulletText="The public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
-<!-- added by GP -->
-  <bullet bulletName="onlyGauge" bulletText="gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
-  <bullet bulletName="CAP" bulletText="Civil Air Patrol" bulletGroup="source" parseString="CIVIL AIR PATROL "/>
-  <bullet bulletName="alaskaVoc" bulletText="Alaska Volcano Observatory" bulletGroup="source" parseString="ALASKA VOLCANO OBSERVATORY "/>
-  <bullet bulletName="cascadeVoc" bulletText="Cascades Volcano Observatory" bulletGroup="source" parseString="CASCADES VOLCANO OBSERVATORY "/>
-<!--  GP end -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="reportedBy" parseString="GAUGE REPORTS "/>
+<!-- Uncomment for Alaska  
+  <bullet bulletName="CAP" bulletText="Civil Air Patrol" bulletGroup="reportedBy" parseString="CIVIL AIR PATROL "/>
+  <bullet bulletName="alaskaVoc" bulletText="Alaska Volcano Observatory" bulletGroup="reportedBy" parseString="ALASKA VOLCANO OBSERVATORY "/>
+  <bullet bulletName="cascadeVoc" bulletText="Cascades Volcano Observatory" bulletGroup="reportedBy" parseString="CASCADES VOLCANO OBSERVATORY "/>
+Alaska end -->
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletText="************ (OPTIONAL) LOCATIONS IMPACTED  **************" bulletType="title"/>
 <!-- <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/> -->
@@ -256,7 +253,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 </bulletActionGroup>
 <bulletActionGroup action="EXT" phen="FF" sig="W">
  <bullets>
-  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" floodSeverity="3" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
   <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"/>
   <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
@@ -271,13 +268,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
   <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
   <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
-<!-- modified by GP -->
+<!-- Uncomment for Alaska  
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
-<!-- GP end -->
-<!-- following two lines from 13.5.2 baseline, may need the more complex parseString added to the GP changes above -->
-<!-- <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
-  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>  -->
+Alaska end -->
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
@@ -285,12 +279,12 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
   <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
   <bullet bulletName="public" bulletText="The public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
-<!-- added by GP -->
-  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
-  <bullet bulletName="CAP" bulletText="Civil Air Patrol" bulletGroup="source" parseString="CIVIL AIR PATROL "/>
-  <bullet bulletName="cascadeVoc" bulletText="Cascades Volcano Observatory" bulletGroup="source" parseString="CASCADES VOLCANO OBSERVATORY "/>
-  <bullet bulletName="alaskaVoc" bulletText="Alaska Volcano Observatory" bulletGroup="source" parseString="ALASKA VOLCANO OBSERVATORY "/>
-<!--  GP end -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="reportedBy" parseString="GAUGE REPORTS "/>
+<!-- Uncomment for Alaska    
+  <bullet bulletName="CAP" bulletText="Civil Air Patrol" bulletGroup="reportedBy" parseString="CIVIL AIR PATROL "/>
+  <bullet bulletName="cascadeVoc" bulletText="Cascades Volcano Observatory" bulletGroup="reportedBy" parseString="CASCADES VOLCANO OBSERVATORY "/>
+  <bullet bulletName="alaskaVoc" bulletText="Alaska Volcano Observatory" bulletGroup="reportedBy" parseString="ALASKA VOLCANO OBSERVATORY "/>
+Alaska end -->
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletText="************ (OPTIONAL) LOCATIONS IMPACTED  **************" bulletType="title"/>
 <!-- <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/> -->
