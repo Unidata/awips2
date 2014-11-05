@@ -23,6 +23,12 @@ package com.raytheon.edex.plugin.satellite.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.ConstraintViolationException;
+
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
@@ -36,12 +42,12 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 7/24/07      353         bphillip    Initial Check in    
- * - AWIPS2 Baseline Repository --------
- * 06/27/2012   798         jkorman     Corrected id query type.
- * 10/02/2013   2333        mschenke    Removed unused code
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Jul 24, 2007  353      bphillip  Initial Check in    
+ * Jun 27, 2012  798      jkorman   Corrected id query type.
+ * Oct 02, 2013  2333     mschenke  Removed unused code
+ * Nov 05, 2014  3788     bsteffen  add getOrCreateCoverage
  * 
  * </pre>
  * 
@@ -68,6 +74,74 @@ public class SatMapCoverageDao extends CoreDao {
      */
     public SatMapCoverage queryByMapId(Integer mapId) {
         return (SatMapCoverage) this.queryById(mapId);
+    }
+
+    /**
+     * Convenience method to retrieve a SatelliteMapCoverage from the database
+     * given a map ID
+     * 
+     * @param mapId
+     *            The Map ID
+     * @return A SatelliteMapCoverage object with the corresponding ID. Null if
+     *         not found.
+     */
+    public SatMapCoverage getOrCreateCoverage(SatMapCoverage coverage) {
+        Session sess = null;
+        Transaction trans = null;
+        try {
+            sess = getSessionFactory().openSession();
+            trans = sess.beginTransaction();
+            SatMapCoverage result = query(coverage, sess);
+            if (result != null) {
+                return result;
+            } else {
+                try {
+                    sess.save(coverage);
+                    trans.commit();
+                    return coverage;
+                } catch (ConstraintViolationException e) {
+                    trans.rollback();
+                    trans = sess.beginTransaction();
+                    /*
+                     * To support multithreading/clustering its possible it
+                     * could have been created elsewhere between the query and
+                     * the save, so requery and throw an exception if it is not
+                     * found.
+                     */
+                    result = query(coverage, sess);
+                    trans.commit();
+                    if (result == null) {
+                        logger.error(
+                                "Unable to create entry in satellite_coverage table.",
+                                e);
+                        return coverage;
+                    } else {
+                        return result;
+                    }
+                }
+            }
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    logger.error("Error occurred closing session", e);
+                }
+            }
+        }
+    }
+
+    private SatMapCoverage query(SatMapCoverage coverage, Session sess) {
+        Criteria crit = sess.createCriteria(coverage.getClass());
+
+        crit.add(Restrictions.eq("nx", coverage.getNx()));
+        crit.add(Restrictions.eq("ny", coverage.getNy()));
+        crit.add(Restrictions.eq("dx", coverage.getDx()));
+        crit.add(Restrictions.eq("dy", coverage.getDy()));
+        crit.add(Restrictions.eq("minX", coverage.getMinX()));
+        crit.add(Restrictions.eq("minY", coverage.getMinY()));
+        crit.add(Restrictions.eq("crsWKT", coverage.getCrsWKT()));
+        return (SatMapCoverage) crit.uniqueResult();
     }
 
     /**
