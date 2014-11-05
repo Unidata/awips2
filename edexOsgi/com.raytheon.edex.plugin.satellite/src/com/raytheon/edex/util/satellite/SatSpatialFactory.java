@@ -44,8 +44,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * Apr 15, 2014  3017     bsteffen    Add new getCoverage methods to support
  *                                    either one corner + dx/dy or two corners.
  * Jun 05, 2014  3243     bsteffen    Remove deprecated lambert conformal call.
- * Sep 15, 2014  DR 17303 jgerth      Support for second standard latitude
+ * Sep 15, 2014  17303    jgerth      Support for second standard latitude
  * Nov 05, 2014  2714     bclement    replaced DecoderException with SatelliteDecoderException
+ * Nov 05, 2014  3788     bsteffen    use getOrCreateCoverage in place of queryByMapId
+ * 
  * 
  * </pre>
  */
@@ -290,11 +292,7 @@ public class SatSpatialFactory {
     /** Load or persist a {@link SatMapCoverage} */
     private synchronized SatMapCoverage checkPersisted(
             SatMapCoverage mapCoverage) {
-        SatMapCoverage persisted = satDao.queryByMapId(mapCoverage.getGid());
-        if (persisted == null) {
-            persisted = mapCoverage;
-            satDao.persist(persisted);
-        }
+        SatMapCoverage persisted = satDao.getOrCreateCoverage(mapCoverage);
         return persisted;
     }
 
