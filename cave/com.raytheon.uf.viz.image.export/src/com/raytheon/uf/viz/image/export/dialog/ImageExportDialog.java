@@ -54,6 +54,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------- -------- ----------- --------------------------
  * Jan 20, 2014  2312     bsteffen    Initial creation
  * Mar 10, 2014  2867     bsteffen    Better frame range validation.
+ * Oct 28, 2014  3767     bsteffen    Automatically change filename if selected
+ *                                    format does not support all options.
  * 
  * </pre>
  * 
@@ -412,13 +414,23 @@ public class ImageExportDialog extends CaveSWTDialog {
             }
         }
         if (!goodSuffix) {
-            MessageBox mb = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Invalid Suffix");
-            mb.setMessage("The file extension(" + suffix
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
+                    | SWT.YES | SWT.NO);
+            mb.setText("Incompatible Format");
+            ImageFormat format = options.getImageFormat();
+            mb.setMessage("The format(" + suffix
                     + ") of the selected file is not valid for "
-                    + options.getImageFormat().getDescription());
-            mb.open();
-            return false;
+                    + format.getDescription()
+                    + ". Would you like to continue and export the file in "
+                    + format.getExtensions()[0] + " format?");
+            int result = mb.open();
+            if (result == SWT.YES) {
+                suffix = format.getExtensions()[0];
+                path = path.substring(0, path.lastIndexOf('.') + 1) + suffix;
+                options.setFileLocation(new File(path));
+            } else {
+                return false;
+            }
         }
 
         File file = options.getFileLocation();

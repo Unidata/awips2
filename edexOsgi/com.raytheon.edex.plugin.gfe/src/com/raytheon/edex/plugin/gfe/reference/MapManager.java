@@ -106,6 +106,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Sep 30, 2013     #2361   njensen     Use JAXBManager for XML
  * Jan 21, 2014     #2720   randerso    Improve efficiency of merging polygons in edit area generation
  * Aug 27, 2014     #3563   randerso    Fix issue where edit areas are regenerated unnecessarily
+ * Oct 20, 2014     #3685   randerso    Changed structure of editAreaAttrs to keep zones from different maps separated
  * 
  * </pre>
  * 
@@ -131,7 +132,7 @@ public class MapManager {
 
     private final Map<String, List<String>> editAreaMap = new HashMap<String, List<String>>();
 
-    private final Map<String, Map<String, Object>> editAreaAttrs = new HashMap<String, Map<String, Object>>();
+    private final Map<String, List<Map<String, Object>>> editAreaAttrs = new HashMap<String, List<Map<String, Object>>>();
 
     private final List<String> iscMarkersID = new ArrayList<String>();
 
@@ -811,6 +812,8 @@ public class MapManager {
     private List<ReferenceData> createReferenceData(DbShapeSource mapDef) {
         // ServerResponse sr;
         List<ReferenceData> data = new ArrayList<ReferenceData>();
+        List<Map<String, Object>> attributes = new ArrayList<Map<String, Object>>();
+        editAreaAttrs.put(mapDef.getDisplayName(), attributes);
 
         // Module dean("DefaultEditAreaNaming");
         ArrayList<String> created = new ArrayList<String>();
@@ -871,7 +874,8 @@ public class MapManager {
                 // handle new case
                 else {
                     created.add(ean);
-                    editAreaAttrs.put(ean, info);
+                    info.put("editarea", ean);
+                    attributes.add(info);
                 }
 
                 tempData.put(ean, mp);
