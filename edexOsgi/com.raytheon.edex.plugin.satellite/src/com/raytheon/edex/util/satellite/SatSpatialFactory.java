@@ -24,7 +24,7 @@ import org.geotools.geometry.DirectPosition2D;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.satellite.SatelliteDecoderException;
 import com.raytheon.edex.plugin.satellite.dao.SatMapCoverageDao;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -45,6 +45,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *                                    either one corner + dx/dy or two corners.
  * Jun 05, 2014  3243     bsteffen    Remove deprecated lambert conformal call.
  * Sep 15, 2014  DR 17303 jgerth      Support for second standard latitude
+ * Nov 05, 2014  2714     bclement    replaced DecoderException with SatelliteDecoderException
  * 
  * </pre>
  */
@@ -168,7 +169,7 @@ public class SatSpatialFactory {
      */
     public SatMapCoverage getCoverageSingleCorner(int crsType, int nx, int ny,
             double lov, double latin, double latin2, double la1, double lo1, double dx,
-            double dy) throws DecoderException {
+ double dy) throws SatelliteDecoderException {
         try {
             ProjectedCRS crs = createCRS(crsType, lov, latin, latin2, 0.0);
             DirectPosition2D corner = new DirectPosition2D(lo1, la1);
@@ -193,7 +194,7 @@ public class SatSpatialFactory {
             buf.append("lo1=" + lo1).append("\n\t");
             buf.append("dx=" + dx).append("\n\t");
             buf.append("dy=" + dy).append("\n");
-            throw new DecoderException(buf.toString(), e);
+            throw new SatelliteDecoderException(buf.toString(), e);
         }
     }
 
@@ -202,7 +203,7 @@ public class SatSpatialFactory {
      */
     public SatMapCoverage getCoverageSingleCorner(int crsType, int nx, int ny,
             double lov, double latin, double la1, double lo1, double dx,
-            double dy) throws DecoderException {
+            double dy) throws SatelliteDecoderException {
         return getCoverageSingleCorner(crsType, nx, ny, lov, latin, latin, la1, lo1, dx, dy);
     }
 
@@ -242,7 +243,7 @@ public class SatSpatialFactory {
      */
     public SatMapCoverage getCoverageTwoCorners(int crsType, int nx, int ny,
             double lov, double latin, double latin2, double la1, double lo1, double la2,
-            double lo2) throws DecoderException {
+ double lo2) throws SatelliteDecoderException {
         try {
             double cm = 0.0;
             if ((lo1 > 0.0) && (lo2 < 0.0)) {
@@ -273,7 +274,7 @@ public class SatSpatialFactory {
             buf.append("lo1=" + lo1).append("\n\t");
             buf.append("la2=" + la2).append("\n\t");
             buf.append("lo2=" + lo2).append("\n");
-            throw new DecoderException(buf.toString(), e);
+            throw new SatelliteDecoderException(buf.toString(), e);
         }
     }
 
@@ -282,7 +283,7 @@ public class SatSpatialFactory {
      */
     public SatMapCoverage getCoverageTwoCorners(int crsType, int nx, int ny,
             double lov, double latin, double la1, double lo1, double la2,
-            double lo2) throws DecoderException {
+            double lo2) throws SatelliteDecoderException {
         return getCoverageTwoCorners(crsType, nx, ny, lov, latin, latin, la1, lo1, la2, lo2);
     }
 
