@@ -15,3 +15,5 @@ Require-Bundle: com.raytheon.edex.plugin.satellite;bundle-version="1.14.1",
  com.raytheon.uf.common.util;bundle-version="1.14.1",
  com.raytheon.uf.edex.core;bundle-version="1.14.1",
  com.raytheon.uf.common.datastorage;bundle-version="1.14.0"
+Export-Package: com.raytheon.uf.edex.plugin.satellite.gini,
+ com.raytheon.uf.edex.plugin.satellite.gini.lookup
