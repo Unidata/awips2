@@ -30,7 +30,6 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory.OriginType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -75,6 +74,7 @@ import com.raytheon.uf.common.topo.TopoQuery;
  *                                     code cleanup
  * Nov 20, 2013  #2331     randerso    Changed return type of getTopoData
  * Feb 11, 2014  #2788     randerso    Set missing data points to 0 to match A1
+ * Oct 07, 2014  #3684     randerso    Restructured IFPServer start up
  * 
  * </pre>
  * 
@@ -100,10 +100,8 @@ public class TopoDatabaseManager {
      * 
      * @param siteID
      * @param config
-     * @param gridMgr
      */
-    public TopoDatabaseManager(String siteID, IFPServerConfig config,
-            GridParmManager gridMgr) {
+    public TopoDatabaseManager(String siteID, IFPServerConfig config) {
         this.config = config;
 
         statusHandler.info("Topography Manager started for " + siteID);
@@ -118,15 +116,20 @@ public class TopoDatabaseManager {
         // create the disk cache
         createDiskCache(gloc);
 
-        // Add the topo database.
+        statusHandler.info("Topography Manager ready for " + siteID);
+    }
+
+    /**
+     * @return the topo database
+     */
+    public TopoDatabase getTopoDatabase() {
         TopoDatabase tdb = new TopoDatabase(this.config, this);
         if (tdb.databaseIsValid()) {
-            gridMgr.addDB(tdb);
+            return tdb;
         } else {
             statusHandler.error("Invalid Topo database");
         }
-
-        statusHandler.info("Topography Manager ready for " + siteID);
+        return null;
     }
 
     /**

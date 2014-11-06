@@ -144,6 +144,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 05/01/2014    #3105     dgilling    Ensure mutable db gets into availableServerDatabases
  *                                     if it has to be created during ParmManager construction.
  * 09/08/2104    #3592     randerso    Changed to use new pm listStaticFiles()
+ * 10/08/14     #3684      randerso    Minor code optimization
  * </pre>
  * 
  * @author chammack
@@ -2926,7 +2927,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         List<DatabaseID> newAdditions = new ArrayList<DatabaseID>(additions);
         newAdditions.removeAll(availableDatabases);
 
-        availableDatabases.addAll(additions);
+        availableDatabases.addAll(newAdditions);
         availableDatabases.removeAll(deletions);
 
         List<ParmID> toDelete = new ArrayList<ParmID>();
