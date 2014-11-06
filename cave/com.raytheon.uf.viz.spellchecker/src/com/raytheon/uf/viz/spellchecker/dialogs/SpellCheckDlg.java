@@ -66,7 +66,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.spellchecker.Activator;
 import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
 
 /**
@@ -79,6 +78,8 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 18 APR 2008  ###        lvenable    Initial creation
  * 01Mar2010    4765       MW Fegan    Moved from GFE plug-in.
  * 09/24/2014   #16693     lshi        filter out swear words in spelling check
+ * 10/23/2014   #3685      randerso    Changes to support mixed case
+ * 10/30/2014   #16693     lshi        Add more swear words to the filter
  * 
  * </pre>
  * 
@@ -87,9 +88,12 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 
  */
 public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
-	private static java.util.List<String> swearWords = Arrays.asList("ASSHOLE");
+	private static java.util.List<String> swearWords = Arrays.asList("asshole", "asshole's", "assholes",
+			"bitch", "bitch's", "bitches", "leprosy", "gayest",
+			"shit", "piss", "pissed","psser","pisses","pissing","tits");
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(SpellCheckDlg.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SpellCheckDlg.class);
 
     private static final Pattern DIGITS = Pattern.compile("\\d");
 
@@ -331,6 +335,7 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
      * org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#accept(org
      * .eclipse.ui.texteditor.spelling.SpellingProblem)
      */
+    @Override
     public void accept(SpellingProblem problem) {
         if (shell.isDisposed()) {
             return;
@@ -345,15 +350,16 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
         misspelledLbl.setText(badWord);
 
         ICompletionProposal[] proposals = problem.getProposals();
-        if (proposals != null && proposals.length > 0) {
+        if ((proposals != null) && (proposals.length > 0)) {
             for (ICompletionProposal proposal : proposals) {
                 String pdString = proposal.getDisplayString();
                 Matcher pdMatch = CHANGE_TO.matcher(pdString);
                 if (pdMatch.matches()) {
-                    String replString = pdMatch.group(1).toUpperCase();
+                    String replString = pdMatch.group(1);
                     // proposals may include case changes, which get lost
-                    //if (replString != badWord) { 
-                    if (!swearWords.contains(replString) && !replString.equals(badWord)) {
+                    // if (replString != badWord) {
+                    if (!swearWords.contains(replString)
+                            && !replString.equals(badWord)) {
                         suggestionList.add(replString);
                     }
                 }
@@ -370,7 +376,7 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
 
         StyleRange styleRange = styledText.getStyleRangeAtOffset(problem
                 .getOffset());
-        if (styleRange == null || styleRange.isUnstyled()
+        if ((styleRange == null) || styleRange.isUnstyled()
                 || styleRange.similarTo(REDSTYLE)) {
             if (ignoreAll.contains(badWord)) {
                 scanForErrors();
@@ -407,6 +413,7 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
      * org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#beginCollecting
      * ()
      */
+    @Override
     public void beginCollecting() {
         // nothing at present
     }
@@ -531,7 +538,7 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
                     probStart = matcher.start(2);
                     // Only replace unstyled (unlocked) instances
                     styleRange = styledText.getStyleRangeAtOffset(probStart);
-                    if (styleRange == null || styleRange.isUnstyled()) {
+                    if ((styleRange == null) || styleRange.isUnstyled()) {
                         repList.addFirst(Integer.valueOf(probStart));
                     }
                     found = matcher.find();
@@ -582,7 +589,8 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
                 try {
                     userDLFile.save();
                 } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM, "Error saving user dictionary", e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error saving user dictionary", e);
                 }
                 // The spell check job might have a backlog of errors
                 // for this word, which no longer apply.
@@ -658,6 +666,7 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
      * org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#endCollecting
      * ()
      */
+    @Override
     public void endCollecting() {
         MessageDialog.openInformation(shell, "", "Done checking document");
         styledText.setSelectionRange(0, 0);
