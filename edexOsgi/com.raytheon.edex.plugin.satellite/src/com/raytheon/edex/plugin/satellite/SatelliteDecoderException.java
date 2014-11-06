@@ -17,40 +17,42 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-
-package com.raytheon.edex.plugin.satellite.dao;
-
-import com.raytheon.edex.plugin.satellite.gini.SatelliteCreatingEntity;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
+package com.raytheon.edex.plugin.satellite;
 
 /**
- * Data Access Object for interacting with satellite creating entities
+ * Exception thrown when errors happen decoding satellite data
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *                         bphillip    Initial Creation
+ * Nov 05, 2014  2714      bclement     Initial creation
+ * 
  * </pre>
  * 
- * @author bphillip
+ * @author bclement
  * @version 1.0
  */
-public class SatelliteCreatingEntityDao extends CoreDao {
+public class SatelliteDecoderException extends Exception {
 
-    /**
-     * Constructs a new SatelliteCreatingEntityDao
-     */
-    public SatelliteCreatingEntityDao() {
-        super(DaoConfig.forClass(SatelliteCreatingEntity.class));
+    private static final long serialVersionUID = -1935587862793689258L;
+
+    public SatelliteDecoderException() {
+        super();
     }
 
-    public SatelliteCreatingEntity queryById(int entityId) {
-        return (SatelliteCreatingEntity) super.queryById(entityId);
+    public SatelliteDecoderException(String message, Throwable cause) {
+        super(message, cause);
     }
-    
-    public String getCreatingEntityName(int entityId){
-        return queryById(entityId).getEntityName();
+
+    public SatelliteDecoderException(String message) {
+        super(message);
     }
+
+    public SatelliteDecoderException(Throwable cause) {
+        super(cause);
+    }
+
 }
