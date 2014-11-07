@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
  * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
  * Oct 16, 2014 3220       skorolev    Corrected getInstance() method.
+ * Oct 27, 2014 3667       skorolev    Cleaned code.
  * 
  * </pre>
  * 
@@ -80,18 +81,14 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     @Override
     protected void handleOkBtnSelection() {
         if (dataIsChanged()) {
-            int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
-                    "SNOW Monitor Confirm Changes",
-                    "Want to update the SNOW setup files?");
-            if (choice == SWT.OK) {
-                // Save the config xml file
-                getValues();
-                resetStatus();
-                configMgr.saveConfigXml();
-                configMgr.saveAdjacentAreaConfigXml();
-
+            int choice = showMessage(shell, SWT.YES | SWT.NO,
+                    "SNOW Monitor Confirm Changes", "Save changes?");
+            if (choice == SWT.YES) {
+                // Save the config xml file.
+                resetAndSave();
                 SnowThresholdMgr.reInitialize();
                 fireConfigUpdateEvent();
+                // Open Threshold Dialog if zones/stations are added.
                 if ((!configMgr.getAddedZones().isEmpty())
                         || (!configMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
@@ -118,6 +115,8 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     configMgr.getAddedZones().clear();
                     configMgr.getAddedStations().clear();
                 }
+            } else { // Return back to continue edit.
+                return;
             }
         }
         if ((snowMonitorDlg == null) || snowMonitorDlg.isDisposed()) {
