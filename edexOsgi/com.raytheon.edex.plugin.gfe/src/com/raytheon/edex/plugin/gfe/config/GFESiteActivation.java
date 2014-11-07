@@ -78,6 +78,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * Mar 21, 2014  #2726    rjpeter      Updated wait for running loop.
  * Jul 09, 2014  #3146    randerso     Eliminated redundant evaluation of serverConfig
  *                                     Sent activation failure message to alertViz
+ * Oct 07, 2014  #3684    randerso    Restructured IFPServer start up
  * </pre>
  * 
  * @author njensen
