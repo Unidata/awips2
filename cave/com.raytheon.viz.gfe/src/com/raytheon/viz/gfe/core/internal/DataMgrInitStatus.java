@@ -29,6 +29,7 @@ package com.raytheon.viz.gfe.core.internal;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 25, 2011            njensen     Initial creation
+ * Oct 30, 2014  #3775     randerso    Added parmCacheInit to initStatus
  * 
  * </pre>
  * 
@@ -38,11 +39,21 @@ package com.raytheon.viz.gfe.core.internal;
 
 public class DataMgrInitStatus {
 
+    private boolean parmCacheInitDone = false;
+
     private boolean iscInitDone = false;
 
     private boolean selectTRMgrDone = false;
 
     private boolean sampleSetMgrDone = false;
+
+    public boolean isParmCacheInitDone() {
+        return parmCacheInitDone;
+    }
+
+    public void setParmCacheInitDone(boolean parmCacheInitDone) {
+        this.parmCacheInitDone = parmCacheInitDone;
+    }
 
     public boolean isIscInitDone() {
         return iscInitDone;
@@ -69,7 +80,8 @@ public class DataMgrInitStatus {
     }
 
     public boolean isDone() {
-        return iscInitDone && sampleSetMgrDone && selectTRMgrDone;
+        return parmCacheInitDone && iscInitDone && sampleSetMgrDone
+                && selectTRMgrDone;
     }
 
 }
