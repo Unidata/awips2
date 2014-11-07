@@ -48,8 +48,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 28, 2014 3086       skorolev     Updated getConfigManager.
  * Sep 04, 2014 3220       skorolev     Added fireConfigUpdateEvent method. Updated handler.
  * Sep 19, 2014 2757       skorolev     Updated handlers for dialog buttons.
- * Oct 16, 2014  3220      skorolev     Corrected getInstance() method.
- * 
+ * Oct 16, 2014 3220       skorolev     Corrected getInstance() method.
+ * Oct 27, 2014 3667       skorolev     Cleaned code.
  * 
  * </pre>
  * 
@@ -81,22 +81,18 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     @Override
     protected void handleOkBtnSelection() {
         if (dataIsChanged()) {
-            int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
-                    "Fog Monitor Confirm Changes",
-                    "Want to Update Fog Monitor's Setup files?");
-            if (choice == SWT.OK) {
-                // Save the configuration xml file
-                getValues();
-                resetStatus();
-                configMgr.saveConfigXml();
-                configMgr.saveAdjacentAreaConfigXml();
-
+            int choice = showMessage(shell, SWT.YES | SWT.NO,
+                    "Fog Monitor Confirm Changes", "Save changes?");
+            if (choice == SWT.YES) {
+                // Save the config xml file.
+                resetAndSave();
                 /**
                  * DR#11279: re-initialize threshold manager and the monitor
                  * using new monitor area configuration
                  */
                 FogThresholdMgr.reInitialize();
                 fireConfigUpdateEvent();
+                // Open Threshold Dialog if zones/stations are added.
                 if ((!configMgr.getAddedZones().isEmpty())
                         || (!configMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
@@ -118,6 +114,8 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     configMgr.getAddedZones().clear();
                     configMgr.getAddedStations().clear();
                 }
+            } else { // Return back to continue edit.
+                return;
             }
         }
         if ((fogMonitorDlg == null) || fogMonitorDlg.isDisposed()) {
