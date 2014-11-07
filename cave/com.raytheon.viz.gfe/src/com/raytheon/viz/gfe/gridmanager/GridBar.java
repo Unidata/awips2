@@ -85,6 +85,8 @@ import com.raytheon.viz.gfe.rsc.GFEFonts;
  * 02/19/2008              dfitch      Initial creation.
  * Apr 7, 2009       #2212 randerso    Reimplemented
  * Jun 23, 2011  #9897     ryu         Update static variables on new GFE config
+ * Oct 29, 2014  #3776     randerso    Cached fill patterns used in history mode
+ *                                     Renamed static variables to match AWIPS standards
  * 
  * </pre>
  * 
@@ -108,18 +110,22 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     private static final Date BASE_DATE = new Date(0);
 
-    private static Color DEFAULT_COLOR = new Color(null,
+    private static final Color DEFAULT_COLOR = new Color(null,
             RGBColors.getRGBColor("gray75"));
 
-    protected static Pattern LockedByMe;
+    protected static Pattern lockedByMe;
 
-    public static Pattern LockedByOther;
+    public static Pattern lockedByOther;
 
-    protected static Color TimeBlockVisible_color;
+    protected static Map<RGB, Pattern> modifiedByMe = new HashMap<RGB, Pattern>();
 
-    protected static Color TimeBlockActive_color;
+    protected static Map<RGB, Pattern> modifiedByOther = new HashMap<RGB, Pattern>();
 
-    protected static Color TimeBlockInvisible_color;
+    protected static Color timeBlockVisible_color;
+
+    protected static Color timeBlockActive_color;
+
+    protected static Color timeBlockInvisible_color;
 
     protected static boolean showEditorTimeLines;
 
@@ -140,10 +146,10 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
                 if ((pattern = prefs.getString("LockedByMe_pattern")).isEmpty()) {
                     pattern = "WHOLE";
                 }
-                if (LockedByMe != null) {
-                    LockedByMe.dispose();
+                if (lockedByMe != null) {
+                    lockedByMe.dispose();
                 }
-                LockedByMe = FillPatterns.getSWTPattern(
+                lockedByMe = FillPatterns.getSWTPattern(
                         RGBColors.getRGBColor(color), pattern);
 
                 if ((color = prefs.getString("LockedByOther_color")).isEmpty()) {
@@ -153,40 +159,50 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
                         .isEmpty()) {
                     pattern = "WHOLE";
                 }
-                if (LockedByOther != null) {
-                    LockedByOther.dispose();
+                if (lockedByOther != null) {
+                    lockedByOther.dispose();
                 }
-                LockedByOther = FillPatterns.getSWTPattern(
+                lockedByOther = FillPatterns.getSWTPattern(
                         RGBColors.getRGBColor(color), pattern);
+
+                for (RGB key : modifiedByMe.keySet()) {
+                    Pattern pat = modifiedByMe.remove(key);
+                    pat.dispose();
+                }
+
+                for (RGB key : modifiedByOther.keySet()) {
+                    Pattern pat = modifiedByOther.remove(key);
+                    pat.dispose();
+                }
 
                 if ((color = prefs.getString("TimeBlockVisible_color"))
                         .isEmpty()) {
                     color = "White";
                 }
-                if (TimeBlockVisible_color != null) {
-                    TimeBlockVisible_color.dispose();
+                if (timeBlockVisible_color != null) {
+                    timeBlockVisible_color.dispose();
                 }
-                TimeBlockVisible_color = new Color(Display.getDefault(),
+                timeBlockVisible_color = new Color(Display.getDefault(),
                         RGBColors.getRGBColor(color));
 
                 if ((color = prefs.getString("TimeBlockActive_color"))
                         .isEmpty()) {
                     color = "Yellow";
                 }
-                if (TimeBlockActive_color != null) {
-                    TimeBlockActive_color.dispose();
+                if (timeBlockActive_color != null) {
+                    timeBlockActive_color.dispose();
                 }
-                TimeBlockActive_color = new Color(Display.getDefault(),
+                timeBlockActive_color = new Color(Display.getDefault(),
                         RGBColors.getRGBColor(color));
 
                 if ((color = prefs.getString("TimeBlockInvisible_color"))
                         .isEmpty()) {
                     color = "Gray50";
                 }
-                if (TimeBlockInvisible_color != null) {
-                    TimeBlockInvisible_color.dispose();
+                if (timeBlockInvisible_color != null) {
+                    timeBlockInvisible_color.dispose();
                 }
-                TimeBlockInvisible_color = new Color(Display.getDefault(),
+                timeBlockInvisible_color = new Color(Display.getDefault(),
                         RGBColors.getRGBColor(color));
 
                 showEditorTimeLines = true;
@@ -496,7 +512,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
         LockTable lockTable = parm.getLockTable();
 
-        gc.setBackgroundPattern(LockedByMe);
+        gc.setBackgroundPattern(lockedByMe);
         for (TimeRange timeRange : lockTable.lockedByMe()) {
             if (timeRange.overlaps(this.gridManager.getVisibleTimeRange())) {
                 Rectangle rect = computeLockRect(timeRange);
@@ -505,7 +521,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
         }
 
-        gc.setBackgroundPattern(LockedByOther);
+        gc.setBackgroundPattern(lockedByOther);
         for (TimeRange timeRange : lockTable.lockedByOther()) {
             if (timeRange.overlaps(this.gridManager.getVisibleTimeRange())) {
                 Rectangle rect = computeLockRect(timeRange);
@@ -519,7 +535,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
             TimeRange dataTR[]) {
         GC gc = event.gc;
         TimeRange visibleRange = gridManager.getVisibleTimeRange();
-        gc.setForeground(TimeBlockInvisible_color);
+        gc.setForeground(timeBlockInvisible_color);
 
         gc.setLineStyle(DATA_BLOCK_LINE_STYLE);
         gc.setLineWidth(0);
@@ -684,18 +700,18 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         }
 
         if (!active && !visible) {
-            gc.setBackground(TimeBlockInvisible_color);
+            gc.setBackground(timeBlockInvisible_color);
             gc.fillRectangle(rect);
         } else if (!active && visible) {
-            gc.setBackground(TimeBlockVisible_color);
+            gc.setBackground(timeBlockVisible_color);
             gc.fillRectangle(rect);
         } else if (active && visible) {
-            gc.setBackground(TimeBlockActive_color);
+            gc.setBackground(timeBlockActive_color);
             gc.fillRectangle(rect);
         } else {
-            gc.setBackground(TimeBlockInvisible_color);
+            gc.setBackground(timeBlockInvisible_color);
             gc.fillRectangle(rect);
-            gc.setForeground(TimeBlockActive_color);
+            gc.setForeground(timeBlockActive_color);
             gc.drawRectangle(rect);
         }
     }
@@ -760,13 +776,21 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
                 patt = Activator.getDefault().getPreferenceStore()
                         .getString("HistoryUserModPattern_Me");
                 if (!patt.isEmpty()) {
-                    fp = FillPatterns.getSWTPattern(color.getRGB(), patt);
+                    fp = modifiedByMe.get(color.getRGB());
+                    if (fp == null) {
+                        fp = FillPatterns.getSWTPattern(color.getRGB(), patt);
+                        modifiedByMe.put(color.getRGB(), fp);
+                    }
                 }
             } else {
                 patt = Activator.getDefault().getPreferenceStore()
                         .getString("HistoryUserModPattern_Other");
                 if (!patt.isEmpty()) {
-                    fp = FillPatterns.getSWTPattern(color.getRGB(), patt);
+                    fp = modifiedByOther.get(color.getRGB());
+                    if (fp == null) {
+                        fp = FillPatterns.getSWTPattern(color.getRGB(), patt);
+                        modifiedByOther.put(color.getRGB(), fp);
+                    }
                 }
             }
         }
