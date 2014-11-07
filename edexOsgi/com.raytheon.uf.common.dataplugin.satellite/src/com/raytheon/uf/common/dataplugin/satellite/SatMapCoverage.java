@@ -24,9 +24,13 @@ import java.awt.geom.Rectangle2D;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -65,22 +69,24 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date          Ticket#   Engineer    Description
- * ------------- --------  ----------- --------------------------
- * Jul 24, 2007  353       bphillip    Initial Checkin
- * Jul 12, 2012  798       jkorman     Changed projection "magic" numbers
- * Jul 16, 2013  2181      bsteffen    Convert geometry types to use hibernate-
- *                                     spatial
- * Sep 30, 2013  2333      mschenke    Refactored to store coordinates in CRS
- *                                     space
- * Apr 11, 2014  2947      bsteffen    Fix equals
- * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
- * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 24, 2007  353      bphillip    Initial Checkin
+ * Jul 12, 2012  798      jkorman     Changed projection "magic" numbers
+ * Jul 16, 2013  2181     bsteffen    Convert geometry types to use hibernate-
+ *                                    spatial
+ * Sep 30, 2013  2333     mschenke    Refactored to store coordinates in CRS
+ *                                    space
+ * Apr 11, 2014  2947     bsteffen    Fix equals
+ * Oct 16, 2014  3454     bphillip    Upgrading to Hibernate 4
+ * Nov 05, 2014  3788     bsteffen    Make gid a sequence instead of a hash.
  * 
  * </pre>
  */
 @Entity
-@Table(name = "satellite_spatial")
+@Table(name = "satellite_spatial", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "minX", "minY", "dx", "dy", "nx", "ny", "crsWKT" }) })
+@SequenceGenerator(name = "SATELLITE_SPATIAL_GENERATOR", sequenceName = "satspatial_seq", allocationSize = 1)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class SatMapCoverage extends PersistableDataObject<Object> implements
@@ -89,6 +95,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SATELLITE_SPATIAL_GENERATOR")
     @DynamicSerializeElement
     @DataURI(position = 0)
     private int gid;
@@ -219,7 +226,6 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         this.dx = dx;
         this.dy = dy;
         this.crsObject = crs;
-        this.gid = hashCode();
         if (latLonGeometry == null) {
             try {
                 latLonGeometry = EnvelopeIntersection
