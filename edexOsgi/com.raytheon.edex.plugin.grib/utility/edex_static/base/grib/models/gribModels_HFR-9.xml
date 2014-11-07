@@ -138,17 +138,17 @@
         <name>HFR-EAST_6KM</name>
         <center>9</center>
         <subcenter>0</subcenter>
-        <grid>gridHFR-EAST1_6KM</grid>
+        <grid>gridHFR-EAST_6KM</grid>
         <process>
             <id>255</id>
         </process>
     </model>
 
     <model>
-        <name>HFR-EAST_6KM</name>
+        <name>HFR-EAST_PR_6KM</name>
         <center>9</center>
         <subcenter>0</subcenter>
-        <grid>gridHFR-EAST2_6KM</grid>
+        <grid>gridHFR-EAST_PR_6KM</grid>
         <process>
             <id>255</id>
         </process>
@@ -168,17 +168,17 @@
         <name>HFR-WEST_6KM</name>
         <center>9</center>
         <subcenter>0</subcenter>
-        <grid>gridHFR-WEST1_6KM</grid>
+        <grid>gridHFR-WEST_6KM</grid>
         <process>
             <id>255</id>
         </process>
     </model>
 
     <model>
-        <name>HFR-WEST_6KM</name>
+        <name>HFR-US_HAWAII_6KM</name>
         <center>9</center>
         <subcenter>0</subcenter>
-        <grid>gridHFR-WEST2_6KM</grid>
+        <grid>gridHFR-US_HAWAII_6KM</grid>
         <process>
             <id>255</id>
         </process>
