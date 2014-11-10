@@ -67,34 +67,6 @@ class Procedure (SmartScript.SmartScript):
 #             "Downtown Miami",
 #         ],
 #         
-#         # Threat statements can be overriden here; anything not overriden here
-#         # will use the generic threat statements
-#         'threatStatements': {
-#             # Section name: "Wind", "Storm Surge", "Flooding Rain" or "Tornado"
-#             "Wind": {
-#                 # Threat level: "None", "Low", "Mod", "High" or "Extreme"
-#                 "Extreme": {
-#                     # tr: "nothing to see here", "recovery", "hunker down",
-#                     #     "complete preparations" or "check plans"
-#                     "hunker down": {
-#                         # "Make plans: " will be prepended to this
-#                         "planning": "For chance that wind could locally reach major " +\\
-#                                     "hurricane force; enact your emergency action plan " +\\
-#                                     "accordingly",
-#                         # "Take action: " will be prepended to this
-#                         "action": "For extremely dangerous and life threatening wind " +\\
-#                                   "to possibly occur; failure to act may result in " +\\
-#                                   "injury or loss of life",
-#                         # "Prepare: " will be prepended to this
-#                         "preparation": "Aggressively for chance of devastating to " +\\
-#                                        "catastrophic wind impacts based on threat " +\\
-#                                        "assessment that considers plausible worst " +\\
-#                                        "case scenario for safety",
-#                     },
-#                 },
-#             },
-#         },
-#         
 #         # Potential impacts statements can be overriden here; anything not
 #         # overriden here will use the generic potential impacts statements
 #         'potentialImpactsStatements': {
@@ -151,7 +123,6 @@ TCV_AreaDictionary = {
 """
         self._zoneSkeletonContents = {
             'locationsAffected' : [],
-            'threatStatements' : {},
             'potentialImpactsStatements' : {},
             'infoSection' : [],
         }
