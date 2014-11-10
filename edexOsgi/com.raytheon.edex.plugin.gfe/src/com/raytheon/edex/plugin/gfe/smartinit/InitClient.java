@@ -49,6 +49,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jul 25, 2012       #957  dgilling    Implement getEditAreaNames().
  * Jun 13, 2013      #2044  randerso    Refactored to use IFPServer
  * Nov 20, 2013      #2331  randerso    Changed return type of getTopoData
+ * Oct 08, 2014      #3684  randerso    Changed createDB to return status
+ * Oct 27, 2014      #3766  randerso    Fixed return type for createDB
  * 
  * </pre>
  * 
@@ -98,13 +100,10 @@ public class InitClient {
      * 
      * @param key
      */
-    public void createDB(String key) {
+    public ServerResponse<?> createDB(String key) {
         DatabaseID id = new DatabaseID(key);
         ServerResponse<?> sr = ifpServer.getGridParmMgr().createNewDb(id);
-        if (!sr.isOkay()) {
-            statusHandler.error("Error creating database " + id + ": "
-                    + sr.message());
-        }
+        return sr;
     }
 
     /**
