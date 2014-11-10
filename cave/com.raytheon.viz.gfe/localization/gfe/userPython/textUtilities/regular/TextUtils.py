@@ -781,8 +781,8 @@ class  TextUtils:
                 self._debugDict[name] = count
 
                 #  Print the traceback message
-                print "\n\tDEBUG:",name, "in", file, "at line",\
-                      lineno,"Class=", self.__class__, count
+                print "DEBUG: %s in %s at line %d" % (name, file, lineno)
+                print "DEBUG: Class = %s %d\n\n" % (self.__class__, count)
                 #print "Super classes:",self.__class__.__bases__
 
             #  If there is a message, print that too
