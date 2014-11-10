@@ -20,20 +20,20 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["outputFile"]    = "{prddir}/TEXT/HLS.txt"
     Definition["database"]      =  "Official"  # Source database
     Definition["debug"]         =  1
-    Definition["mapNameForCombinations"] = "Zones_<site>"
-    Definition["defaultEditAreas"] = "EditAreas_PublicMarine_<site>"
-    Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
+    Definition["mapNameForCombinations"] = "Zones_MFL"
+    Definition["defaultEditAreas"] = "Combinations_HLS_MFL"
+    Definition["showZoneCombiner"] = 0 # 1 to cause zone combiner to display
 
     Definition["productName"]       = "LOCAL STATEMENT"
 
-    Definition["fullStationID" ]    = "<fullStationID>"
-    Definition["wmoID" ]            = "<wmoID>"
-    Definition["wfoCityState" ]     = "<wfoCityState>"
-    Definition["pil" ]              = "<pil>"
-    Definition["textdbPil" ]        = "<textdbPil>"
-    Definition["awipsWANPil" ]      = "<awipsWANPil>"
-    Definition["site"]              = "<site>"
-    Definition["wfoCity"]           = "<wfoCity>"
+    Definition["fullStationID" ]    = "KMFL"
+    Definition["wmoID" ]            = "WTUS82"
+    Definition["wfoCityState" ]     = "MIAMI FL"
+    Definition["pil" ]              = "HLSMIA"
+    Definition["textdbPil" ]        = "MIAHLSMIA"
+    Definition["awipsWANPil" ]      = "KMFLHLSMIA"
+    Definition["site"]              = "MFL"
+    Definition["wfoCity"]           = "MIAMI"
 
     Definition["areaName"]          = ""  #optional area name for product
     Definition["areaDictionary"]    = "AreaDictionary"
@@ -173,13 +173,16 @@ class TextProduct(HLSTCV_Common.TextProduct):
         analysisList = [
             # Wind Section
             ("WindThreat", self.rankedDiscreteValue),
+            ("WindThreat", self.mostSignificantDiscreteValue),
             
             # Flooding Rain Section
             ("QPFtoFFGRatio", self.moderatedMax, [6]),
             ("FloodingRainThreat", self.rankedDiscreteValue),
+            ("FloodingRainThreat", self.mostSignificantDiscreteValue),
             
             # Tornado Section
             ("TornadoThreat", self.rankedDiscreteValue),
+            ("TornadoThreat", self.mostSignificantDiscreteValue),
             ]
 
         return analysisList
@@ -198,6 +201,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         analysisList = [
             ("InundationMax", self.moderatedMax, [6]),
             ("StormSurgeThreat", self.rankedDiscreteValue),
+            ("StormSurgeThreat", self.mostSignificantDiscreteValue),
             ]
 
         return analysisList
@@ -223,7 +227,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         if self._ImpactsAnticipated:
             includedImpacts = sorted(self._IncludedImpacts, key=self._impactsKeyFunction)
             for ((_, sectionName), _) in includedImpacts:
-                print "SARAH: adding section", sectionName
+                print "SARAH: adding section = '%s'" % (sectionName)
                 partsList.append(sectionName)
         
         partsList.append('preparednessSection')
@@ -249,7 +253,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             return int(indexStr)
     
     def _ugcHeader(self, productDict, productSegmentGroup, productSegment):
-        self._ugcs = self._allAreas()
+        self._ugcs = self._allAreas() 
         productDict['ugcCodes'] = self._formatUGC_entries()
         self._ugcHeader_value = self._tpc.formatUGCs(self._ugcs, self._expireTime)
         productDict['ugcHeader'] = self._ugcHeader_value
@@ -334,7 +338,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         #  If there is only one impact across the entire CWA, and it is the max
         if impactMax != "none" and impactMin == impactMax and inputThreatDominant != "None":
-            sectionDict['impactRange'] = "Prepare for " + impactMax + " damage across " + self._cwa() + "."
+            sectionDict['impactRange'] = "Prepare for " + impactMax + " damage across " + self._cwa_descriptor() + "."
         #  Handle the case where the impacts are not the same across the entire CWA
         else:
             sectionDict['variedImpacts'] = True
@@ -344,14 +348,27 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         #  If there are additional areas
         if impactRange != impactMax:
-            sectionDict['additionalImpactRange'].append("Prepare for " +
-                                                        impactRange +
-                                                        " damage across " +
-                                                        self._frame("ENTER AREA DESCRIPTION") + ".")
+            
+            curPhrase = "Prepare for %s damage across %s." % \
+                (impactRange, self._frame("ENTER AREA DESCRIPTION"))
+            
+            #  If this phrase is not already part of the additional impacts
+            if curPhrase not in sectionDict['additionalImpactRange']:
+                
+                #  Add it now
+                sectionDict['additionalImpactRange'].append(curPhrase)
         
         #  If there is no impact across more than one half the area, include a statement for that as well
         if inputThreatDominant == "None":
-            sectionDict['additionalImpactRange'].append("Elsewhere across " + self._cwa() + ", little to no impact is anticipated.")
+            
+            curPhrase = "Elsewhere across " + self._cwa_descriptor() + \
+                ", little to no impact is anticipated."
+            
+            #  If this phrase is not already part of the additional impacts
+            if curPhrase not in sectionDict['additionalImpactRange']:
+                
+                #  Add it now
+                sectionDict['additionalImpactRange'].append(curPhrase)
         
         productDict['windSection'] = sectionDict
     
@@ -384,7 +401,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         sectionDict['impactRange'] = "Prepare for " + \
                                      lifeThreatening + impactMax + \
-                                     " damage in surge prone areas of " + self._cwa() + ", with the greatest impacts " + \
+                                     " damage in surge prone areas of " + self._cwa_descriptor() + ", with the greatest impacts " + \
                                      self._frame("ENTER AREA DESCRIPTION") + "."
         
         sectionDict['impactLib'] = self._getPotentialImpactsStatements("Storm Surge", self._impactCategoryToThreatLevel(impactMax))
@@ -414,20 +431,40 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         #  If there are additional life-threatening surge areas
         if impactRange != impactMax and impactRange != impactMin:
-            sectionDict['additionalImpactRange'].append("Brace for " +
-                                                        lifeThreatening + impactRange +
-                                                        " damage " + self._frame("ENTER AREA DESCRIPTION"))
+            
+            curPhrase = "Brace for %s%s damage across %s." % \
+                (lifeThreatening, impactRange, self._frame("ENTER AREA DESCRIPTION"))
+            
+            #  If this phrase is not already part of the additional impacts
+            if curPhrase not in sectionDict['additionalImpactRange']:
+                
+                #  Add it now
+                sectionDict['additionalImpactRange'].append(curPhrase)
         
         #  If there are additional areas
         if impactRangeRest != impactMax:
-            sectionDict['additionalImpactRange'].append("Prepare for " +
-                                                        impactRangeRest +
-                                                        " damage from storm surge " + self._frame("ENTER AREA DESCRIPTION"))
+            
+            curPhrase = "Prepare for %s damage from storm surge across %s." % \
+                (impactRangeRest, self._frame("ENTER AREA DESCRIPTION"))
+            
+            #  If this phrase is not already part of the additional impacts
+            if curPhrase not in sectionDict['additionalImpactRange']:
+                
+                #  Add it now
+                sectionDict['additionalImpactRange'].append(curPhrase)
         
         #  If there is no impact across more than one half the area, include a statement for that as well
         if inputThreatDominant == "None":
-            sectionDict['additionalImpactRange'].append("Elsewhere across " + self._cwa() + ", little to no impact is anticipated.")
-        
+            
+            curPhrase = "Elsewhere across " + self._cwa_descriptor() + \
+                ", little to no impact is anticipated."
+            
+            #  If this phrase is not already part of the additional impacts
+            if curPhrase not in sectionDict['additionalImpactRange']:
+                
+                #  Add it now
+                sectionDict['additionalImpactRange'].append(curPhrase)
+                
         productDict['surgeSection'] = sectionDict
     
     def _floodingRainSection(self, productDict, productSegmentGroup, productSegment):
@@ -443,6 +480,9 @@ class TextProduct(HLSTCV_Common.TextProduct):
         impactRange = self._samplingDict['FloodingRainThreat']['impactRange']
         inputThreatDominant = self._samplingDict['FloodingRainThreat']['inputThreatDominant']
         
+        self.debug_print("In _floodingRainSection", 1)
+        self.debug_print("_samplingDict = %s" % (repr(self._samplingDict['FloodingRainThreat'])), 1)
+        
         #  Test the simplest case first
         if impactMin == "none" and impactMax == "none":
             sectionDict['impactRange'] = impactRange
@@ -452,7 +492,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         #  If there is only one impact across the entire CWA, and it is the max
         if impactMax != "none" and impactMin == impactMax and inputThreatDominant != "None":
-            sectionDict['impactRange'] = "Prepare for " + impactMax + " flooding across " + self._cwa() + "."
+            sectionDict['impactRange'] = "Prepare for " + impactMax + " flooding across " + self._cwa_descriptor() + "."
         #  Handle the case where the impacts are not the same across the entire CWA
         else:
             sectionDict['variedImpacts'] = True
@@ -462,14 +502,27 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         #  If there are additional areas
         if impactRange != impactMax:
-            sectionDict['additionalImpactRange'].append("Prepare for " +
-                                                        impactRange +
-                                                        " flooding impacts " +
-                                                        self._frame("ENTER AREA DESCRIPTION") + ".")
+            
+            curPhrase = "Prepare for %s flooding impacts across %s." % \
+                (impactRange, self._frame("ENTER AREA DESCRIPTION"))
+            
+            #  If this phrase is not already part of the additional impacts
+            if curPhrase not in sectionDict['additionalImpactRange']:
+                
+                #  Add it now
+                sectionDict['additionalImpactRange'].append(curPhrase)
         
         #  If there is no impact across more than one half the area, include a statement for that as well
         if inputThreatDominant == "None":
-            sectionDict['additionalImpactRange'].append("Elsewhere across " + self._cwa() + ", little to no impact is anticipated.")
+            
+            curPhrase = "Elsewhere across " + self._cwa_descriptor() + \
+                ", little to no impact is anticipated."
+            
+            #  If this phrase is not already part of the additional impacts
+            if curPhrase not in sectionDict['additionalImpactRange']:
+                
+                #  Add it now
+                sectionDict['additionalImpactRange'].append(curPhrase)
         
         productDict['floodingRainSection'] = sectionDict
     
@@ -517,7 +570,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         #  If there is only one impact across the entire CWA, and it is the max
         if impactMax != "none" and impactMin == impactMax and inputThreatDominant != "None":
-            sectionDict['impactRange'] = "Prepare for " + impactMax + " damage across " + self._cwa() + "."
+            sectionDict['impactRange'] = "Prepare for " + impactMax + " damage across " + self._cwa_descriptor() + "."
         #  Handle the case where the impacts are not the same across the entire CWA
         else:
             sectionDict['variedImpacts'] = True
@@ -527,14 +580,27 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         #  If there are additional areas
         if impactRange != impactMax:
-            sectionDict['additionalImpactRange'].append("Prepare for " +
-                                                        impactRange +
-                                                        " damage " +
-                                                        self._frame("ENTER AREA DESCRIPTION") + ".")
+            
+            curPhrase = "Prepare for %s damage across %s." % \
+                (impactRange, self._frame("ENTER AREA DESCRIPTION"))
+            
+            #  If this phrase is not already part of the additional impacts
+            if curPhrase not in sectionDict['additionalImpactRange']:
+                
+                #  Add it now
+                sectionDict['additionalImpactRange'].append(curPhrase)
         
         #  If there is no impact across more than one half the area, include a statement for that as well
         if inputThreatDominant == "None":
-            sectionDict['additionalImpactRange'].append("Elsewhere across " + self._cwa() + ", little to no impact is anticipated.")
+            
+            curPhrase = "Elsewhere across " + self._cwa_descriptor() + \
+                ", little to no impact is anticipated."
+            
+            #  If this phrase is not already part of the additional impacts
+            if curPhrase not in sectionDict['additionalImpactRange']:
+                
+                #  Add it now
+                sectionDict['additionalImpactRange'].append(curPhrase)
         
         productDict['tornadoSection'] = sectionDict
     
@@ -565,7 +631,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         actionsDict['title'] = "Other Preparedness Information"
         
         import TCVDictionary
-        actionsDict['actions'] = TCVDictionary.OtherPreparednessActions
+        actionsDict['actions'] = TCVDictionary.OtherPreparednessActions[self._GeneralOnsetTime]
         
         productDict['otherPreparednessActions'] = actionsDict
     
@@ -581,15 +647,15 @@ class TextProduct(HLSTCV_Common.TextProduct):
     def _nextUpdate(self, productDict, productSegmentGroup, productSegment):
         if self._NextUpdate == "LastIssuance" or not self._ImpactsAnticipated:
             productDict['nextUpdate'] = "As it pertains to this event...this will be the last local statement issued by the National Weather Service in " + \
-                                        self._cwa() + \
+                                        self._wfoCityState + \
                                         " regarding the effects of tropical cyclone hazards upon the area."
         elif self._NextUpdate == "Conditions":
             productDict['nextUpdate'] = "The next local statement will be issued by the National Weather Service in " + \
-                                        self._cwa() + \
+                                        self._wfoCityState + \
                                         " as conditions warrant."
         elif self._NextUpdate == "Enter":
             productDict['nextUpdate'] = "The next local statement will be issued by the National Weather Service in " + \
-                                        self._cwa() + \
+                                        self._wfoCityState + \
                                         " around " + self._NextUpdate_entry.strip() + ", or sooner if conditions warrant."
     
     def _getPotentialImpactsStatements(self, elementName, maxThreat):
@@ -621,6 +687,10 @@ class TextProduct(HLSTCV_Common.TextProduct):
         if error is not None:
             return error
         
+        # Determine time ranges
+        self._initializeTimeVariables(argDict)
+        self._determineTimeRanges(argDict)
+        
         error = self._initializeStormInformation()
         if error is not None:
             return error
@@ -629,41 +699,25 @@ class TextProduct(HLSTCV_Common.TextProduct):
         if self._stormName is None or self._stormName.strip() == "":
             return "Could not determine the storm name"
         
+        self._loadLastTwoAdvisories()
+        if self._previousAdvisory is None:
+            return "A TCV must be transmitted before an HLS can be run"
+        
         self._initializeHeadlines()
  
         self._initializeHazardsTable(argDict)
         
         self._determineHazardStates()
 
-        # Determine time ranges
-        self._initializeTimeVariables(argDict)
-        self._determineTimeRanges(argDict)
-
-        # Sample the data
-        self._initializeSamplingDict()
-        
-        previousAdvisory = self._loadAdvisory("previous")
-        if previousAdvisory is not None:
-            self._sampleTCVAdvisory(previousAdvisory)
-        else:
-            self._segmentList = self._determineSegments()
-            print "Segment Information: ", self._segmentList, "\n\n"
-            if len(self._segmentList) == 0:
-                return "NO HAZARDS TO REPORT"
+        if self._ImpactsAnticipated:
+            # Sample the data
+            self._initializeSamplingDict()
             
-            self._initializeAdvisories()
-            self._sampleTCVData(argDict)
-            for segment in self._segmentList:
-                self._initializeSegmentZoneData(segment)
-                self._getTCVStats(argDict, segment, self._editAreaDict, self._timeRangeList)
-            
-            self._sampleTCVAdvisory(self._currentAdvisory)
-        
-        self._sampleHLSData(argDict)
-
-        for threatName in ['WindThreat', 'StormSurgeThreat', 'FloodingRainThreat', 'TornadoThreat']:
-            self._setHazardImpactCategories(threatName)
-
+            self._sampleHLSData(argDict)
+    
+            for threatName in ['WindThreat', 'StormSurgeThreat', 'FloodingRainThreat', 'TornadoThreat']:
+                self._setHazardImpactCategories(threatName)
+    
         # Create the product dictionary and format it to create the output
         productDict = self._createProductDictionary()
         productOutput = self._formatProductDictionary(productDict)
@@ -672,16 +726,14 @@ class TextProduct(HLSTCV_Common.TextProduct):
     
     
     def _determineHazardStates(self):
-        hazardTable = self._argDict["hazards"]
-        hazardsList = hazardTable.getHazardList(self._allAreas())
         self._currentHazardsList = []
         self._changesHazardsList = []
-        for hazard in hazardsList:
-            if hazard['act'] == 'CON':
-                self._currentHazardsList.append(hazard)
-            else:
+        
+        for hazard in self._previousAdvisory["HazardsForHLS"]:
+            print "SARAH DEBUG Hazard: %s" % (repr(hazard))
+            if hazard['act'] != 'CON':
                 self._changesHazardsList.append(hazard)
-    
+            self._currentHazardsList.append(hazard)
     
     ###############################################################
     ### Sampling and Statistics related methods
@@ -698,18 +750,24 @@ class TextProduct(HLSTCV_Common.TextProduct):
                                     self._cwa())
         
         for period in range(len(statList)):
+            
+            self.debug_print("=" * 100, 1)
+            self.debug_print("In _sampleHLSData for period %s (%s)" % \
+                             (period, repr(self._timeRangeList[period][0])), 1)
+
             statDict = statList[period]
             for threatName in ['WindThreat', 'FloodingRainThreat', 'TornadoThreat']:
-                self._sampleThreatGrid(threatName, statDict)
+                self._sampleRankedDiscreteValue(threatName, statDict)
+                self._sampleMostSignificantDiscreteValue(threatName, statDict)
             
             qpfToFfgRatio = self._getStatValue(statDict, "QPFtoFFGRatio", "Max")
             decidingField = self._samplingDict['FloodingRainThreat']['decidingField']
             if decidingField is None or qpfToFfgRatio > decidingField:
                 self._samplingDict['FloodingRainThreat']['decidingField'] = qpfToFfgRatio
         
-        print "SARAH: WindThreat =", self._samplingDict['WindThreat']['inputThreatDominant']
-        print "SARAH: FloodingRainThreat =", self._samplingDict['FloodingRainThreat']['inputThreatDominant']
-        print "SARAH: TornadoThreat =", self._samplingDict['TornadoThreat']['inputThreatDominant']
+        print "SARAH: WindThreat = %s" % (self._samplingDict['WindThreat']['inputThreatDominant'])
+        print "SARAH: FloodingRainThreat = %s" % (self._samplingDict['FloodingRainThreat']['inputThreatDominant'])
+        print "SARAH: TornadoThreat = %s" % (self._samplingDict['TornadoThreat']['inputThreatDominant'])
         
         
         
@@ -744,14 +802,15 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         for period in range(len(statList)):
             statDict = statList[period]
-            self._sampleThreatGrid('StormSurgeThreat', statDict)
+            self._sampleRankedDiscreteValue('StormSurgeThreat', statDict)
+            self._sampleMostSignificantDiscreteValue('StormSurgeThreat', statDict)
             
             inundationMax = self._getStatValue(statDict, "InundationMax", "Max")
             decidingField = self._samplingDict['StormSurgeThreat']['decidingField']
             if decidingField is None or inundationMax > decidingField:
                 self._samplingDict['StormSurgeThreat']['decidingField'] = inundationMax
         
-        print "SARAH: StormSurgeThreat =", self._samplingDict['StormSurgeThreat']['inputThreatDominant']
+        print "SARAH: StormSurgeThreat = %s" % (self._samplingDict['StormSurgeThreat']['inputThreatDominant'])
     
     def _createWholeDomainEditArea(self, argDict):
         editAreaUtils = EditAreaUtils.EditAreaUtils()
@@ -765,16 +824,44 @@ class TextProduct(HLSTCV_Common.TextProduct):
         refData = ReferenceData(gridLoc, refID, grid2Dbit)
         editAreaUtils.saveEditAreas([refData])
     
-    def _sampleThreatGrid(self, threatName, statDict):
-        rankedThreatLevels = self.getStats(statDict, threatName)
-        print "SARAH: sampling", threatName
-        print "SARAH: sampleData: rankedThreatLevels =", rankedThreatLevels
-        dominantThreatLevel = self._getDominantThreatLevel(threatName, rankedThreatLevels)
-        
-        currentDominantThreatLevel = self._samplingDict[threatName]['inputThreatDominant']
-        self._samplingDict[threatName]['inputThreatDominant'] = self._getHighestThreat(threatName,
-                                                                                       dominantThreatLevel,
-                                                                                       currentDominantThreatLevel)
+    def _sampleMostSignificantDiscreteValue(self, threatName, statDict):
+        print "SARAH: _sampleMostSignificantDiscreteValue for %s" % (threatName)
+        threatLevel = self.getStats(statDict, threatName + "__mostSignificantDiscreteValue")
+        print "SARAH: threatLevel =", threatLevel
+        if threatLevel is not None:
+            inputThreatLow = self._samplingDict[threatName]['inputThreatLow']
+            print "SARAH: current inputThreatLow =", inputThreatLow
+            if inputThreatLow is None:
+                self._samplingDict[threatName]['inputThreatLow'] = threatLevel
+            else:
+                self._samplingDict[threatName]['inputThreatLow'] = self._getLowestThreat(threatName,
+                                                                                         threatLevel,
+                                                                                         inputThreatLow)
+            print "SARAH: new inputThreatLow =", self._samplingDict[threatName]['inputThreatLow']
+            
+            inputThreatHigh = self._samplingDict[threatName]['inputThreatHigh']
+            print "SARAH: current inputThreatHigh =", inputThreatHigh
+            self._samplingDict[threatName]['inputThreatHigh'] = self._getHighestThreat(threatName,
+                                                                                       threatLevel,
+                                                                                       inputThreatHigh)
+            print "SARAH: new inputThreatHigh =", self._samplingDict[threatName]['inputThreatHigh']
+    
+    def _sampleRankedDiscreteValue(self, threatName, statDict):
+        print "-" * 60
+        print "_sampleRankedDiscreteValue statDict = %s" % (repr(statDict))
+        rankedThreatLevels = self.getStats(statDict, threatName + "__rankedDiscreteValue")
+        print "SARAH: sampling %s" % (threatName)
+        print "SARAH: sampleData: rankedThreatLevels = %s" % (repr(rankedThreatLevels))
+        if rankedThreatLevels is not None:
+            dominantThreatLevel = self._getDominantThreatLevel(threatName, rankedThreatLevels)
+            print "SARAH: dominantThreatLevel =", dominantThreatLevel
+            
+            currentDominantThreatLevel = self._samplingDict[threatName]['inputThreatDominant']
+            print "SARAH: currentDominantThreatLevel =", currentDominantThreatLevel
+            self._samplingDict[threatName]['inputThreatDominant'] = self._getHighestThreat(threatName,
+                                                                                           dominantThreatLevel,
+                                                                                           currentDominantThreatLevel)
+            print "SARAH: new dominant =", self._samplingDict[threatName]['inputThreatDominant']
     
     def _getDominantThreatLevel(self, threatName, rankedThreatLevels):
         dominantLevelWithHighestRank = None
@@ -804,6 +891,20 @@ class TextProduct(HLSTCV_Common.TextProduct):
             return threatLevel1
         else:
             return threatLevel1
+    
+    def _getLowestThreat(self, threatName, threatLevel1, threatLevel2):
+        keyOrderDict = self.mostSignificantDiscrete_keyOrder_dict(None, None, None)
+        keyOrder = keyOrderDict[threatName]
+        
+        level1Index = keyOrder.index(threatLevel1)
+        level2Index = keyOrder.index(threatLevel2)
+        
+        if level1Index < level2Index:
+            return threatLevel1
+        elif level1Index == level2Index:
+            return threatLevel1
+        else:
+            return threatLevel2
     
     def _initializeVariables(self, argDict):
         # Get variables
@@ -860,15 +961,16 @@ class TextProduct(HLSTCV_Common.TextProduct):
     def _sampleTCVAdvisory(self, advisory):
         print "SARAH: sampling TCV advisory!"
         for zone in advisory["ZoneData"]:
-            print "Looking at zone", zone
+            print "-" * 60
+            print "Looking at zone %s" % (zone)
             for key in advisory["ZoneData"][zone]:
                 if "Threat" not in key:
                     continue
                 
-                print "Looking at key", key
+                print "Looking at key '%s'" % (key)
                 
                 threatLevel = advisory["ZoneData"][zone][key]
-                print "Threat level =", threatLevel
+                print "   Threat level = %s" % (threatLevel)
                 if self._samplingDict[key]['inputThreatLow'] is None:
                     self._samplingDict[key]['inputThreatLow'] = threatLevel
                 if self._samplingDict[key]['inputThreatHigh'] is None:
@@ -883,13 +985,13 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 if threatOrder.index(threatLevel) > threatOrder.index(highThreat):
                     highThreat = threatLevel
                 
-                print "low threat =", lowThreat
-                print "high threat =", highThreat
+                print "   low threat = %s" % (lowThreat)
+                print "   high threat = %s" % (highThreat)
                 
                 self._samplingDict[key]['inputThreatLow'] = lowThreat
                 self._samplingDict[key]['inputThreatHigh'] = highThreat
         
-        print "Sampling dict =", self._samplingDict
+        print "Sampling dict = %s" % (repr(self._samplingDict))
     
     def _setHazardImpactCategories(self, threatName):
         inputThreatLow = self._samplingDict[threatName]['inputThreatLow']
@@ -897,7 +999,10 @@ class TextProduct(HLSTCV_Common.TextProduct):
         inputThreatDominant = self._samplingDict[threatName]['inputThreatDominant']
         decidingField = self._samplingDict[threatName]['decidingField']
         catastrophicThreshold = self._samplingDict[threatName]['catastrophicThreshold']
-        
+
+        print "-" * 60
+        print "MATT DEBUG: _setHazardImpactCategories for %s" % (threatName)
+
         impactMin = None
         impactMax = None
         impactRange = None
@@ -926,22 +1031,25 @@ class TextProduct(HLSTCV_Common.TextProduct):
             else:
                 impactMax = "devastating"
                 impactRangeMax = "extensive"
-        elif inputThreatLow == "High":
+        elif inputThreatHigh == "High":
             impactMax = "extensive"
             impactRangeMax = "significant"
-        elif inputThreatLow == "Mod":
+        elif inputThreatHigh == "Mod":
             impactMax = "significant"
             impactRangeMax = "limited"
-        elif inputThreatLow == "Elevated":
+        elif inputThreatHigh == "Elevated":
             impactMax = "limited"
             impactRangeMax = "none"
         else:
             impactMax = "none"
             impactRangeMax = "none"
+
+        print "MATT DEBUG: impactMin = '%s'  impactMax = '%s' impactRangeMax = '%s'" % \
+        (impactMin, impactMax, impactRangeMax)
         
         #  Determine dominant impact category for rest of CWA - No impact
         if impactMin == "none" and impactMax == "none":
-            impactRange = "No impacts are anticipated at this time across " + self._cwa() + "."
+            impactRange = "No impacts are anticipated at this time across " + self._cwa_descriptor() + "."
         #  Otherwise, at least some impact will be experienced across the CWA
         else:
             #  Do not permit the lowest category to be "None", if the highest category is also not "None"
@@ -967,18 +1075,29 @@ class TextProduct(HLSTCV_Common.TextProduct):
         #  Fixed pattern to grab headline (MHB 04/08/2009)
         #  See if there is a headline in this text
         headlineSearch = re.findall("(?ism)^(\.{3}.+?\.{3}) *\n", text)
+        
+        #  If we could not find original headlines, try to use 'new' HLS style
+        if headlineSearch is None:
+            headlineSearch = re.findall("(?ism)^\*\*.+?\*\* *\n", text)
 
         self.debug_print("headlineSearch = %s" % (headlineSearch))
 
         #  If we found a headline
         if len(headlineSearch) > 0:
 
+            #  Remove the first and last ellipses - if they exist
+            headlineSearch[0] = re.sub("^\.\.\.", "", headlineSearch[0])
+            headlineSearch[0] = re.sub("\.\.\.$", "", headlineSearch[0])
+
+#             #  Remove the first and last '**' - if they exist
+#             headlineSearch[0] = headlineSearch[0].sub("**", "").strip()
+
             #  Return the first cleaned-up headline string we found
             return self._cleanText(headlineSearch[0])
 
         #  Otherwise, return an indicator there is no headline in this text
         else:
-            return ''       #  Changed to an null string instead of None
+            return ""       #  Changed to an null string instead of None
                             #  (MHB  04/08/2009)
     
     def _determineHazards(self, segments):
@@ -1071,18 +1190,18 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._stormIntensityTrend = "Storm Intensity " + stormDict.get("StormIntensity","")
         
         print "SARAH: BEGIN STORM INFORMATION"
-        print "storm dict =", stormDict
-        print "storm name =", self._stormName
-        print "type =", self._stormType
-        print "type name =", self._stormTypeName
-        print "time =", self._stormTime
-        print "lat =", self._stormLat
-        print "lon =", self._stormLon
-        print "location =", self._stormLocation
-        print "reference =", self._stormReference
-        print "references =", self._stormLocalReferences
-        print "movement trend =", self._stormMovementTrend
-        print "intensity trend =", self._stormIntensityTrend
+        print "storm dict = %s" % (stormDict)
+        print "storm name = %s" % (self._stormName)
+        print "type = %s" % (self._stormType)
+        print "type name = %s" % (self._stormTypeName)
+        print "time = %s" % (self._stormTime)
+        print "lat = %s" % (self._stormLat)
+        print "lon = %s" % (self._stormLon)
+        print "location = %s" % (str(self._stormLocation))
+        print "reference = %s" % (self._stormReference)
+        print "references = %s" % (self._stormLocalReferences)
+        print "movement trend = %s" % (self._stormMovementTrend)
+        print "intensity trend = %s" % (self._stormIntensityTrend)
         print "SARAH: END STORM INFORMATION"
     
     def _grabStormInfo(self, tcp):
@@ -1758,7 +1877,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                         removedParts.append(part)
         
         for part in removedParts:
-            print "SARAH: Removing part =", part
+            print "SARAH: Removing part = %s" % (part)
             partsList.remove(part)
                     
     def _noOpParts(self):
@@ -1805,7 +1924,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                     upgPhenSig = record['phen'] + "." + record['sig']
                     newRecord = self._findNEWAssociatedWithUPG(upgPhenSig, vtecRecords)
                     record['new_record'] = newRecord
-                print "SARAH: vtecRecord =", record
+                print "SARAH: vtecRecord = %s" % (repr(record))
             segment_vtecRecords_tuples.append((segment, vtecRecords))
         
         productSegmentGroup = { 
@@ -1888,7 +2007,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     def _initializeHazardsTable(self, argDict):
         import VTECMessageType
         productID = self._pil[0:3]
-        vtecMode = VTECMessageType.getVTECMessageType(productID)
+        vtecMode = VTECMessageType.getVTECMessageType(productID.upper())
         argDict["vtecMode"] = vtecMode
         
         self._setVTECActiveTable(argDict)
@@ -1902,6 +2021,11 @@ class TextProduct(HLSTCV_Common.TextProduct):
     def _setVTECActiveTable(self, argDict):
         dataMgr = argDict["dataMgr"]
         gfeMode = dataMgr.getOpMode().name()
+        
+        print "*" *100
+        print "gfeMode = '%s'" % (gfeMode)
+        print "*" *100
+        
             
         if gfeMode == "PRACTICE":
             argDict["vtecActiveTable"] = "PRACTICE"
@@ -1960,7 +2084,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                         ("Tornadoes", 'tornadoSection'),
                         ("Other Coastal Hazards", 'coastalHazardsSection')
                         ],
-            "default": ["Wind", "Surge", "Flooding Rain", "Tornadoes", "Other Coastal Hazards"],
+            "default": ["Wind", "Surge", "Flooding Rain", "Tornadoes"],
             },
             {
             "name":"LocalReferencePoints",
@@ -1971,14 +2095,14 @@ class TextProduct(HLSTCV_Common.TextProduct):
             "default": self._localReferencePoints_defaults(),
             },
             {
-            "name": "MainHeadline",
-            "label": "Step 5. Input Main Headline (required)",
+            "name":"GeneralOnsetTime",
+            "label": "Step 5. General Time to Onset",
             "options": [
-                ("Enter Unique Headline (below)", "Enter"),
-                ("Use Previous HLS Headline", "UsePrev"),
-                ("Use Latest TCP Headline", "UseTCP"),
-                ],
-            "entryField": "     ",
+                        ("Watch", 'check plans'),
+                        ("Warning", 'complete preparations'),
+                        ("Conditions/Ongoing", 'hunker down'),
+                        ("Recovery", 'recovery'),
+                        ],
             },
             {
             "name": "NextUpdate",
@@ -1990,6 +2114,16 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 ],
             "default": "Shortly",
             "entryField": "     e.g. 6 AM EDT",
+            },
+            {
+            "name": "MainHeadline",
+            "label": "Step 7. Input Main Headline (required)",
+            "options": [
+                ("Enter Unique Headline (below)", "Enter"),
+                ("Use Previous HLS Headline", "UsePrev"),
+                ("Use Latest TCP Headline", "UseTCP"),
+                ],
+            "entryField": "     ",
             },
             ]
     
@@ -2043,10 +2177,12 @@ class Overview_Dialog(HLSTCV_Common.Common_Dialog):
                 boxNum = 0
                 buttonSide=Tkinter.TOP
                 frameSide = Tkinter.LEFT
-            elif index in [3,4]:
+            elif index in [3,4,5]:
                 boxNum = 1
-                buttonSide=Tkinter.LEFT
-                frameSide=Tkinter.TOP
+#                 buttonSide=Tkinter.LEFT
+#                 frameSide=Tkinter.TOP
+                buttonSide=Tkinter.TOP
+                frameSide=Tkinter.LEFT
             else:
                 boxNum = 2
                 buttonSide=Tkinter.TOP
@@ -2126,7 +2262,7 @@ class Overview_Dialog(HLSTCV_Common.Common_Dialog):
         frame = Tkinter.Frame(master)
         buttonList = self._parent._GUI1_configDict().get("buttonList", [])
         for button, label in buttonList:
-            if button == "Next":
+            if button == "Run":
                 command = self.okCB
             else: # Cancel
                 command = self.cancelCB
@@ -2157,7 +2293,7 @@ class Overview_Dialog(HLSTCV_Common.Common_Dialog):
                             checkList.append((options[i], svar.get()))
                     else:
                         if ivarList[i].get():
-                            print "SARAH: adding option =", options[i]
+                            print "SARAH: adding option = %s" % (repr(options[i]))
                             checkList.append(options[i])
                 value = checkList
                 self._setVarDict(name, value)
@@ -2195,7 +2331,7 @@ class LegacyFormatter():
         @return text -- product string
         '''
         text = ''
-        print "SARAH: productParts =", productParts
+        print "SARAH: productParts = %s" % (productParts)
         for part in productParts:             
             valtype = type(part)
             if valtype is str:
@@ -2203,11 +2339,11 @@ class LegacyFormatter():
             elif valtype is tuple:
                 name = part[0]
                 infoDicts = part[1]
-                print "SARAH: name =", str(name)
-                print "SARAH: infoDicts =", infoDicts
+                print "SARAH: name = %s" % (str(name))
+                print "SARAH: infoDicts = %s" % (repr(infoDicts))
                 newtext = self.processSubParts(productDict.get(name), infoDicts)
-                print "SARAH: newtext type =", type(newtext)
-                print "SARAH: newtext =", repr(newtext)
+                print "SARAH: newtext type = %s" % (type(newtext))
+                print "SARAH: newtext = %s" % (repr(newtext))
                 text += newtext
                 continue
             elif valtype is list:
@@ -2291,8 +2427,8 @@ class LegacyFormatter():
                 text += '&&\n'
             elif name not in self._noOpParts():
                 textStr = productDict.get(name)
-                print "SARAH: name =", name
-                print "SARAH: textStr =", textStr
+                print "SARAH: name = %s" % (name)
+                print "SARAH: textStr = '%s'" % (textStr)
                 if textStr:
                     text += textStr + '\n'
         return text
@@ -2355,7 +2491,7 @@ class LegacyFormatter():
                 text += self._textProduct.indentText("**" + headline + "**\n",
                                                      maxWidth=self._textProduct._lineLength)
             
-            text = self._textProduct._frame(text) + "\n"
+            text = self._textProduct._frame(text) + "\n\n"
         
         return text
     
@@ -2456,13 +2592,32 @@ class LegacyFormatter():
             text += "\n"
             
             additionalImpactRangeText = ""
+            curAdditionalImpactText = ""
+            count = 1
             for additionalImpact in sectionDict['additionalImpactRange']:
-                additionalImpactRangeText += additionalImpact + " "
+                
+                curAdditionalImpactText += \
+                    self._textProduct.indentText(additionalImpact, 
+                            maxWidth=self._textProduct._lineLength)
+                
+                if count != len(sectionDict['additionalImpactRange']) and \
+                   len(curAdditionalImpactText) > 0:
+                  curAdditionalImpactText +=  "\n"
+                
+                #  If this additional impact is not already included in the output
+                if additionalImpactRangeText.find(curAdditionalImpactText) == -1:
+
+                    #  Add this additional impact text
+                    print "Adding current impact."
+                    additionalImpactRangeText += curAdditionalImpactText  
+                count += 1
             
             # Remove the trailing space
-            additionalImpactRangeText = additionalImpactRangeText[:-1]
+#             additionalImpactRangeText = additionalImpactRangeText[:-1]
             
-            text += self._textProduct.indentText(additionalImpactRangeText, maxWidth=self._textProduct._lineLength)
+#             text += self._textProduct.indentText(additionalImpactRangeText, maxWidth=self._textProduct._lineLength)
+
+            text += additionalImpactRangeText
             
         text += "\n"
         return text
@@ -2476,10 +2631,10 @@ class LegacyFormatter():
         """
         text = '' 
         for i in range(len(subParts)):
-            print "SARAH: subpart subParts[i] =", subParts[i]
-            print "SARAH: subpart infoDicts[i] =", infoDicts[i]
+            print "SARAH: subpart subParts[i] = %s" % (subParts[i])
+            print "SARAH: subpart infoDicts[i] = %s" % (infoDicts[i])
             newtext = self._processProductParts(subParts[i], infoDicts[i].get('partsList'))
-            print "SARAH: subpart newtext type =", type(newtext)
-            print "SARAH: subpart newtext =", repr(newtext)
+            print "SARAH: subpart newtext type = %s" % (type(newtext))
+            print "SARAH: subpart newtext = '%s'" % (repr(newtext))
             text += newtext
         return text
