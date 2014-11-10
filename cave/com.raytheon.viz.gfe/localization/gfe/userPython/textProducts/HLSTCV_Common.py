@@ -282,7 +282,7 @@ class TextProduct(GenericHazards.TextProduct):
         # Set up the time range for 0-120 hours
 
         # Create a time range from the issuanceHour out 120 hours
-        startTime = self._calculateStartTime(time.localtime(self._issueTime_secs))
+        startTime = self._calculateStartTime(time.gmtime(self._issueTime_secs))
         self._timeRange = self.makeTimeRange(startTime, startTime+120*3600)
 
         # Determine the time range list, making sure they are on hour boundaries
@@ -300,20 +300,141 @@ class TextProduct(GenericHazards.TextProduct):
         day = localCreationTime[2]
         hour = localCreationTime[3]
         
+        #  If we are more than halfway though a 6 hr period
+        if hour % 6 > 3:
+            adjust = 6      #  move on to the next 6 hr block
+        else:
+            adjust = 0
+#         print "MATT: _calculateStartTime %d   adjust = %d" % (hour % 6, adjust)
+        
         #  Now "truncate" to a 6-hourly boundary and compute startTime in local Time.
-        hour =  int (int(hour/6) * 6)
+        hour =  int( (hour/6) * 6) + adjust
+        if hour > 23:
+            hour -= 24
+        elif hour < 0:
+            hour += 24
+
         startTime = absTimeYMD(year, month, day, hour)
-        # Finally, convert back to GMT
-        localTime, shift = self.determineTimeShift()
-        startTime = startTime - shift
         
         return startTime
     
     def _resolution(self):
         return 3
+
+    def _formatPeriod(self, period, wholePeriod=False, shiftToLocal=True, useEndTime=False,
+                      resolution=3):
+        # Format period (a timeRange) resulting in
+        #     DAY + MORNING / AFTERNOON / EVENING / OVERNIGHT.
+        # If wholePeriod, format FROM ... TO...
+
+        print "\nMATT Format period wholePeriod = %s, period = %s, useEndTime =%s" % (str(wholePeriod), str(period), str(useEndTime))
+        if period is None:  return ""
+        if useEndTime:
+            startTime = period.endTime()
+        else:
+            startTime = period.startTime()
+        result = self._getTimeDesc(startTime, resolution, shiftToLocal)
+        print "MATT result = '%s'" % (result)
+        if wholePeriod:
+            endResult = self._getTimeDesc(period.endTime(), resolution, shiftToLocal)
+            print "MATT endResult = '%s'" % (endResult)
+            if result != endResult:
+                result=result + " TO "+ endResult 
+        return result
+
+    def _getTimeDesc(self, startTime, resolution=3, shiftToLocal=True):
+        # Create phrase such as Tuesday morning
+        # Handle today/tonight and "this" morning/afternoon/etc..
+        #
+        print "\n\n**************Formatting Period for GMT starttime ", startTime
+        labels = self.Labels()["SimpleWorded"]
+        currentTime = self._timeRange.startTime()
+        print "   currentTime = %s" % (repr(currentTime))  
+        if shiftToLocal:
+            currentLocalTime, shift = self.determineTimeShift()
+            startTime = startTime + shift
+            currentTime = currentTime + shift
+            print "  shift, shifted start, current", shift/3600, startTime, currentTime
+        hour = startTime.hour
+        prevDay = False
+        prevDay, partOfDay = self._getPartOfDay(hour, resolution)
+#         if prevDay:
+#             startTime = startTime - 24*3600
+        todayFlag = currentTime.day == startTime.day
+        if todayFlag:
+            if partOfDay.upper().find("MIDNIGHT")>0: todayWord = "tonight"
+            else: todayWord = "THIS"
+            weekday = todayWord
+        else:
+            weekday = labels["Weekday"][startTime.weekday()]
+        if partOfDay.find("<weekday>") >= 0:
+            result = partOfDay.replace('<weekday>', weekday)
+        else:
+            result =  weekday + " " + partOfDay
+        print "Result = '%s'" % (result)
+        return result
+
+    def _getPartOfDay(self, hour, resolution):
+        prevDay = False
+        if resolution == 3:
+            if hour < 3:
+                prevDay = True
+                partOfDay = "early <weekday> morning"
+#                 partOfDay = "AFTER MIDNIGHT"
+            elif hour < 6:
+                partOfDay = "early <weekday> morning"
+            elif hour < 9:
+                partOfDay = "morning"
+            elif hour < 12:
+                partOfDay = "late <weekday> morning"
+            elif hour < 15:
+                partOfDay = "early <weekday> afternoon"
+            elif hour < 18:
+                partOfDay = "late <weekday> afternoon"
+            elif hour < 21:
+                partOfDay = "early <weekday> evening"
+            else:
+                partOfDay = "late <weekday> evening"    
+        else:
+            if hour < 6:
+                prevDay = True
+#                 partOfDay = "AFTER MIDNIGHT"
+                partOfDay = "early <weekday> morning"
+            elif hour < 12: partOfDay = "morning"
+            elif hour < 18: partOfDay =  "afternoon"
+            else: partOfDay = "evening"
+        return prevDay, partOfDay
     
     ###############################################################
     ### Sampling and Statistics related methods
+    
+    def moderated_dict(self, parmHisto, timeRange, componentName):
+        """
+           Specifies the lower percentages and upper percentages of
+           data to be thrown out for moderated stats.
+        """
+        # COMMENT: This dictionary defines the low and high limit at which
+        # outliers will be removed when calculating moderated stats.
+        # By convention the first value listed is the percentage
+        # allowed for low values and second the percentage allowed
+        # for high values.
+
+        # Get Baseline thresholds
+        dict = SampleAnalysis.SampleAnalysis.moderated_dict(
+            self, parmHisto, timeRange, componentName)
+
+        #  Change thresholds
+        dict["Wind"] = (0, 15)
+        dict["WindGust"] = (0, 15)
+        dict["pws34int"] = (0, 5)
+        dict["pws64int"] = (0, 5)
+        dict["pwsD34"] = (0, 5)
+        dict["pwsN34"] = (0, 5)
+        dict["pwsD64"] = (0, 5)
+        dict["pwsN64"] = (0, 5)
+        dict["InundationMax"] = (0, 5)
+        dict["InundationTiming"] = (0, 5)
+        return dict
     
     def _getStatValue(self, statDict, element, method=None, dataType=None):
         stats = statDict.get(element, None)
@@ -600,25 +721,44 @@ FORECASTER STEWART"""
 
     ###############################################################
     ### Advisory related methods
-    
-    def _archiveCurrentAdvisory(self):
-        ### Determine if all actions are canceled
-        allCAN = True
-        for vtecRecord in self._getAllVTECRecords():
-            action = vtecRecord['act']
-            #print "vtecRecord", vtecRecord
-            if action != "CAN":
-                allCAN = False
-                break
-        
-        self._currentAdvisory["AllCAN"] = allCAN
-        self._currentAdvisory["CreationTime"] = self._issueTime_secs
-        self._currentAdvisory["Transmitted"] = False
-        self._currentAdvisory["StormName"] = self._getStormNameFromTCP()
-        self._saveAdvisory("pending", self._currentAdvisory)
 
+    def _synchronizeAdvisories(self):
+        pathManager = PathManagerFactory.getPathManager()
+        context = pathManager.getContextForSite(LocalizationType.CAVE_STATIC, self._site)
+        
+        # Retrieving a directory causes synching to occur
+        file = pathManager.getLocalizationFile(context, self._getAdvisoryPath()).getFile()
+        
+        return file
+    
+    def _getLocalAdvisoryDirectoryPath(self):
+        file = self._synchronizeAdvisories()
+
+        path = file.getPath()
+        return path
+    
+    def _loadLastTwoAdvisories(self):
+        advisoryDirectoryPath = self._getLocalAdvisoryDirectoryPath()
+        filenames = os.listdir(advisoryDirectoryPath)
+        allAdvisories = filter(lambda filename: filename[-5:] == ".json", filenames)
+        
+        stormAdvisories = filter(lambda filename: self._getStormNameFromTCP() in filename,
+                                 allAdvisories)
+        stormAdvisories = map(lambda filename: filename[:-5], stormAdvisories)
+        lastTwoAdvisories = sorted(stormAdvisories)[:2]
+        
+        self._previousAdvisory = None
+        if len(lastTwoAdvisories) >= 1:
+            self._previousAdvisory = self._loadAdvisory(lastTwoAdvisories[0])
+        
+        self._previousPreviousAdvisory = None
+        if len(lastTwoAdvisories) >= 2:
+            self._previousPreviousAdvisory = self._loadAdvisory(lastTwoAdvisories[1])
+    
     def _loadAdvisory(self, advisoryName):
         import json
+        
+        self._synchronizeAdvisories()
          
         try:
             jsonDict = self._getFileContents(LocalizationType.CAVE_STATIC,
@@ -630,28 +770,23 @@ FORECASTER STEWART"""
             print pythonDict
              
             # Only use transmitted advisories
-            if pythonDict["Transmitted"] == False:
+            if pythonDict["Transmitted"] == False and advisoryName != "pending":
                 return None
             else:
                 return pythonDict
         except Exception, e:
-            print "SARAH Load Exception for", self._getAdvisoryFilename(advisoryName), ":", e
+            print "SARAH Load Exception for %s : %s" % (self._getAdvisoryFilename(advisoryName), e)
             return None
-        
-    def _saveAdvisory(self, advisoryName, advisoryDict):
-        import json
-         
-        try:
-            self._writeFileContents(LocalizationType.CAVE_STATIC,
-                                    self._site,
-                                    self._getAdvisoryPath() + advisoryName + ".json",
-                                    json.dumps(advisoryDict))
-            print "SARAH: Wrote file contents for", (self._getAdvisoryPath() + advisoryName + ".json")
-        except Exception, e:
-            print "SARAH Save Exception for", (self._getAdvisoryPath() + advisoryName + ".json"), ":", e
         
     def _getAdvisoryPath(self):
         return "gfe/tcvAdvisories/"
+    
+    def _getLocalizationFile(self, loctype, siteID, filename):
+        pathManager = PathManagerFactory.getPathManager()
+        context = pathManager.getContextForSite(loctype, siteID)
+        localizationFile = pathManager.getLocalizationFile(context, filename)
+        
+        return localizationFile
     
     def _getFileContents(self, loctype, siteID, filename):
         pathManager = PathManagerFactory.getPathManager()
@@ -662,20 +797,8 @@ FORECASTER STEWART"""
         
         return fileContents
     
-    def _writeFileContents(self, loctype, siteID, filename, contents):
-        pathManager = PathManagerFactory.getPathManager()
-        context = pathManager.getContextForSite(loctype, siteID)
-        localizationFile = pathManager.getLocalizationFile(context, filename)
-        with File(localizationFile.getFile(), filename, 'w') as pythonFile:
-            pythonFile.write(contents)
-        
-        localizationFile.save()
-    
     def _getAdvisoryFilename(self, advisoryName):
-        year = time.gmtime(self._issueTime_secs).tm_year
         advisoryFilename = self._getAdvisoryPath() + \
-                           self._getStormNameFromTCP().upper() + \
-                           str(year) + \
                            advisoryName + \
                            ".json"
         return advisoryFilename
@@ -711,7 +834,7 @@ FORECASTER STEWART"""
             # Order and inclusion of GUI1 buttons
             # Each entry is (name of button in GUI code, desired label on GUI)
             "buttonList":[
-                ("Next","Next"),
+                ("Run","Run"),
                 ("Cancel","Cancel"),
                 ],
             }
@@ -724,68 +847,6 @@ FORECASTER STEWART"""
     
     ###############################################################
     ### TCV Statistics
-    
-    def _analysisList_TCV(self):
-        # Sample over 120 hours beginning at current time
-        analysisList = [
-            # Wind Section
-            ("Wind", self.vectorModeratedMax, [6]),
-            ("WindGust", self.moderatedMax, [6]),
-            ("WindThreat", self.mostSignificantDiscreteValue),
-            ("pws34int", self.moderatedMax, [6]),
-            ("pws64int", self.moderatedMax, [6]),
-            ("pwsD34", self.moderatedMax),
-            ("pwsN34", self.moderatedMax),
-            ("pwsD64", self.moderatedMax),
-            ("pwsN64", self.moderatedMax),
-            
-            # Flooding Rain Section
-            ("QPF", self.accumSum, [72]),
-            ("FloodingRainThreat", self.mostSignificantDiscreteValue),
-            
-            # Tornado Section
-            ("TornadoThreat", self.mostSignificantDiscreteValue),
-            ]
-
-        return analysisList
-    
-    def _intersectAnalysisList_TCV(self):
-        # The grids for the Surge Section will be intersected with a special edit area
-        analysisList = [
-            ("InundationMax", self.moderatedMax, [6]),
-            ("InundationTiming", self.moderatedMax, [6]),
-            ("StormSurgeThreat", self.mostSignificantDiscreteValue),
-            ]
-
-        return analysisList
-    
-    def moderated_dict(self, parmHisto, timeRange, componentName):
-        """
-           Specifies the lower percentages and upper percentages of
-           data to be thrown out for moderated stats.
-        """
-        # COMMENT: This dictionary defines the low and high limit at which
-        # outliers will be removed when calculating moderated stats.
-        # By convention the first value listed is the percentage
-        # allowed for low values and second the percentage allowed
-        # for high values.
-
-        # Get Baseline thresholds
-        dict = SampleAnalysis.SampleAnalysis.moderated_dict(
-            self, parmHisto, timeRange, componentName)
-
-        #  Change thresholds
-        dict["Wind"] = (0, 15)
-        dict["WindGust"] = (0, 15)
-        dict["pws34int"] = (0, 5)
-        dict["pws64int"] = (0, 5)
-        dict["pwsD34"] = (0, 5)
-        dict["pwsN34"] = (0, 5)
-        dict["pwsD64"] = (0, 5)
-        dict["pwsN64"] = (0, 5)
-        dict["InundationMax"] = (0, 5)
-        dict["InundationTiming"] = (0, 5)
-        return dict
     
     def threatKeyOrder(self):
         return [None, "None", "Elevated", "Mod", "High", "Extreme"]
@@ -812,50 +873,7 @@ FORECASTER STEWART"""
     def _initializeAdvisories(self):
         self._currentAdvisory = dict()
         self._currentAdvisory['ZoneData'] = dict()
-        self._previousAdvisory = self._loadAdvisory("previous")
-        print "SARAH: loaded previous advisory =", self._previousAdvisory
-        self._previousPreviousAdvisory = self._loadAdvisory("previousPrevious")
-        print "SARAH: loaded previousPrevious advisory =", self._previousPreviousAdvisory
-    
-    def _sampleTCVData(self, argDict):
-        # Sample the data
-        editAreas = self._makeSegmentEditAreas(argDict)
-        cwa = self._cwa()
-        editAreas.append((cwa, cwa))
-
-        self._sampler = self.getSampler(argDict,
-          (self._analysisList_TCV(), self._timeRangeList, editAreas))
-        
-        intersectAreas = self._computeIntersectAreas(editAreas, argDict)
-        
-        self._intersectSampler = self.getSampler(argDict,
-          (self._intersectAnalysisList_TCV(), self._timeRangeList, intersectAreas))
-
-    def _getTCVStats(self, argDict, segment, editAreaDict, timeRangeList):
-        # Get statistics for this segment
-        print "SARAH: issue time seconds =", self._issueTime_secs
-        print "SARAH: GMT issue time =", time.gmtime(self._issueTime_secs)
-        
-        editArea = editAreaDict[segment]
-        statList = self.getStatList(self._sampler,
-                                    self._analysisList_TCV(),
-                                    timeRangeList,
-                                    editArea)
-        
-        windStats = WindSectionStats(self, segment, statList, timeRangeList)
-        floodingRainStats = FloodingRainSectionStats(self, segment, statList, timeRangeList)
-        tornadoStats = TornadoSectionStats(self, segment, statList, timeRangeList)
-        
-        # The surge section needs sampling done with an intersected edit area
-        intersectEditArea = "intersect_"+editArea
-        intersectStatList = self.getStatList(self._intersectSampler,
-                                             self._intersectAnalysisList_TCV(),
-                                             timeRangeList,
-                                             intersectEditArea)
-        
-        stormSurgeStats = StormSurgeSectionStats(self, segment, intersectStatList, timeRangeList)
-        
-        return (windStats, stormSurgeStats, floodingRainStats, tornadoStats)
+        self._loadLastTwoAdvisories()
     
     def _initializeSegmentZoneData(self, segment):
         # The current advisory will be populated when setting a section's stats
@@ -894,10 +912,10 @@ FORECASTER STEWART"""
         if combos is None:
             LogStream.logVerbose("COMBINATION FILE NOT FOUND: " + self._defaultEditAreas)
             return [], None
-        print "\nSegments from Zone Combiner", combos
+        #print "\nSegments from Zone Combiner", combos
         # "Overlay" the forecaster-entered combinations onto the segments
         segmentList = self._refineSegments(hazSegments, combos)
-        print "\nNew segments", segmentList
+        #print "\nNew segments", segmentList
         
         # Instead of a segment being a group of zones, it will be just a single zone.
         # So collapse this list of lists down to a list of zones (aka. segments)
@@ -925,6 +943,7 @@ FORECASTER STEWART"""
             # (We need to define self._segmentList for the mapping function
             #   to use)
             self._segmentList = hazSegments
+            #print "self._segmentList = %s" % (repr(self._segmentList))
             segmentMapping = map(self._findSegment, combo)
             #print "   segmentMapping", segmentMapping
 
@@ -965,568 +984,6 @@ FORECASTER STEWART"""
             if areaName in segment:
                 return segment
         return []
-
-
-###############################################################
-### TCV Statistics Classes
-    
-class SectionCommonStats():
-    def __init__(self, textProduct, segment):
-        self._textProduct = textProduct
-        self._segment = segment
-        
-        self._initializeAdvisories()
-        
-        self._maxThreat = None
-    
-    def _initializeAdvisories(self):
-        self._currentAdvisory = self._textProduct._currentAdvisory['ZoneData'][self._segment]
-        
-        self._previousAdvisory = None
-#         print "MATT textProduct._previousAdvisory = '%s'" % (textProduct._previousAdvisory)
-        if self._textProduct._previousAdvisory is not None:
-            self._previousAdvisory = self._textProduct._previousAdvisory['ZoneData'][self._segment]
-            
-#         print "MATT textProduct._previousPreviousAdvisory = '%s'" % \
-#             (textProduct._previousPreviousAdvisory)
-        self._previousPreviousAdvisory = None
-        if self._textProduct._previousPreviousAdvisory is not None:
-            self._previousPreviousAdvisory = self._textProduct._previousPreviousAdvisory['ZoneData'][self._segment]
-    
-    def _updateThreatStats(self, tr, statDict, threatGridName):
-        print "SARAH: updateThreatStats for", threatGridName
-        threatLevel = self._textProduct.getStats(statDict, threatGridName)
-        if threatLevel is not None:
-            threatLevels = self._textProduct.threatKeyOrder()
-            print "SARAH: threatLevel =", threatLevel
-            print "SARAH: maxThreat =", self._maxThreat
-            if self._maxThreat is None or \
-               threatLevels.index(threatLevel) > threatLevels.index(self._maxThreat):
-                print "SARAH: updating max threat to =", threatLevel
-                self._maxThreat = threatLevel
-    
-    def _calculateHourOffset(self, targetTime):
-        seconds = targetTime.unixTime() - self._textProduct._issueTime_secs
-        hour = int(round(seconds/60/60))
-        if hour < 0:
-            hour = 0
-        
-        return hour
-
-
-class WindSectionStats(SectionCommonStats):
-    def __init__(self, textProduct, segment, statList, timeRangeList):
-        SectionCommonStats.__init__(self, textProduct, segment)
-        self._maxWind = None
-        self._maxGust = None
-        self._onset34Hour = None
-        self._end34Hour = None
-        self._onset64Hour = None
-        self._end64Hour = None
-        self._windowTS = None
-        self._windowHU = None
-        
-        self._setStats(statList, timeRangeList)
-    
-    class PwsXXintStats():
-        max = None
-        onsetHour = None
-    
-    class PwsTXXStats():
-        onsetHour = None
-        endHour = None
-    
-    class TimeInfo():
-        onsetHour = None
-        endHour = None
-        
-    class EventsOccurring():
-        pwsTXXEvent = False
-        windXXEvent = False
-    
-    def _setStats(self, statList, timeRangeList):
-        pws34intStats = self.PwsXXintStats()
-        pws64intStats = self.PwsXXintStats()
-        pwsT34Stats = self.PwsTXXStats()
-        pwsT64Stats = self.PwsTXXStats()
-        wind34timeInfo = self.TimeInfo()
-        wind64timeInfo = self.TimeInfo()
-        
-        events34 = self.EventsOccurring()
-        events64 = self.EventsOccurring()
-        
-        for period in range(len(statList)):
-            tr, _ = timeRangeList[period]
-            statDict = statList[period]
-            
-            self._updateStatsForPwsXXint(tr, statDict, "pws34int", pws34intStats)
-            self._updateStatsForPwsXXint(tr, statDict, "pws64int", pws64intStats)
-            
-            self._updateStatsForPwsTXX(tr, statDict, "pwsD34", "pwsN34", pwsT34Stats, events34, period)
-            self._updateStatsForPwsTXX(tr, statDict, "pwsD64", "pwsN64", pwsT64Stats, events64, period)
-            
-            wind = self._textProduct._getStatValue(statDict, "Wind", "Max", self._textProduct.VECTOR())
-            if wind is not None:
-                if wind >= 34:
-                    events34.windXXEvent = True
-                    if wind >= 64:
-                        events64.windXXEvent = True
-                    else:
-                        events64.windXXEvent = False
-                else:
-                    events34.windXXEvent = False
-                    events64.windXXEvent = False
-                
-                if self._maxWind is None or wind >= self._maxWind:
-                    self._maxWind = wind
-                    
-                    self._updateWindTimeInfo(tr, wind34timeInfo, speed=34)
-                    self._updateWindTimeInfo(tr, wind64timeInfo, speed=64)
-            
-            windGust = self._textProduct._getStatValue(statDict, "WindGust", "Max")
-            if windGust is not None:
-                if self._maxGust is None or windGust > self._maxGust:
-                    self._maxGust = windGust
-                    
-            self._updateThreatStats(tr, statDict, "WindThreat")
-        
-        #Tropical Storm
-        onsetEndInfo = self._computeWindOnsetAndEnd(wind34timeInfo, pws34intStats, pwsT34Stats)
-        self._onset34Hour = onsetEndInfo.onsetHour
-        self._end34Hour = onsetEndInfo.endHour
-        
-        nonEnding34Event = False
-        if events34.pwsTXXEvent and (wind34timeInfo.endHour is None or events34.windXXEvent):
-            nonEnding34Event = True
-        
-        print "SARAH: Tropical Storm Window:"
-        self._windowTS = self._createWindow("Tropical Storm",
-                                            self._onset34Hour,
-                                            self._end34Hour,
-                                            nonEnding34Event)
-        
-        #Hurricane
-        onsetEndInfo = self._computeWindOnsetAndEnd(wind64timeInfo, pws64intStats, pwsT64Stats)
-        self._onset64Hour = onsetEndInfo.onsetHour
-        self._end64Hour = onsetEndInfo.endHour
-        
-        nonEnding64Event = False
-        if events64.pwsTXXEvent and (wind64timeInfo.endHour is None or events64.windXXEvent):
-            nonEnding64Event = True
-        
-        print "SARAH: Hurricane Window:"
-        self._windowHU = self._createWindow("Hurricane",
-                                            self._onset64Hour,
-                                            self._end64Hour,
-                                            nonEnding64Event)
-        
-        self._currentAdvisory["WindThreat"] = self._maxThreat
-        self._currentAdvisory["WindForecast"] = self._maxWind
-    
-    def _updateStatsForPwsXXint(self, tr, statDict, gridName, pwsXXintStats):
-        pwsXXint = self._textProduct._getStatValue(statDict, gridName, "Max")
-        
-        if pwsXXint is not None:
-            if pwsXXintStats.max is None or pwsXXint > pwsXXintStats.max:
-                pwsXXintStats.max = pwsXXint
-                pwsXXintStats.onsetHour = self._calculateHourOffset(tr.startTime())
-                
-                print "SARAH: Window Debug: pwsXXintStats gridName =", gridName
-                print "SARAH: Window Debug: pwsXXintStats pwsXXint =", pwsXXint
-                print "SARAH: Window Debug: pwsXXintStats tr =", tr
-                print "SARAH: Window Debug: pwsXXintStats onsetHour =", pwsXXintStats.onsetHour
-    
-    def _updateStatsForPwsTXX(self, tr, statDict, dayGridName, nightGridName, pwsTXXStats, events, period):
-        
-        #  Convert this time to locatime
-        trStartLocalHour = time.localtime(tr.startTime().unixTime()).tm_hour
-        dayStartHour = self._textProduct.DAY()
-        nightStartHour = self._textProduct.NIGHT()
-        print "MATT _updateStatsForPwsTXX = %s  localStartHr = %d" % (repr(tr),
-                                                                      trStartLocalHour)
-        print "MATT dayStart = %s    nightStart = %s" % (repr(dayStartHour),
-                                                         repr(nightStartHour))
-
-        pwsDXX = self._textProduct._getStatValue(statDict, dayGridName, "Max")
-        pwsNXX = self._textProduct._getStatValue(statDict, nightGridName, "Max")
-        maxPws = None
-        print "MATT pwsDXX = %s    pwsNXX = %s " % (repr(pwsDXX), repr(pwsNXX))
-
-#         if pwsDXX is not None:
-#             print "SARAH: Window Debug: pwsTXXStats DAY"
-#             maxPws = pwsDXX
-#         elif pwsNXX is not None:
-#             print "SARAH: Window Debug: pwsTXXStats NIGHT"
-#             maxPws = pwsNXX
-        
-        #  SARAH - if we are close to the end of a day/night period, the first
-        #  period we would really want to consider would be the next period.
-        #  This is hard-coded to 3 hours to prove the concept. 
-        if (nightStartHour >= trStartLocalHour and \
-            (nightStartHour - trStartLocalHour) <= 3) or pwsDXX is None:
-            print "MATT: Window Debug: pwsTXXStats NIGHT"
-            maxPws = pwsNXX
-        elif (dayStartHour >= trStartLocalHour and \
-              (dayStartHour - trStartLocalHour) <= 3) or pwsNXX is None:
-            print "MATT: Window Debug: pwsTXXStats DAY"
-            maxPws = pwsDXX
-        
-        threshold34index = 0
-        threshold64index = 1
-        if maxPws is not None:
-            if "64" in dayGridName:
-                index = threshold64index
-            else: #if "34"
-                index = threshold34index
-            
-            threshold = None
-            thresholds = self.windSpdProb_thresholds()
-            if period == 0:
-                (thresholdLow, thresholdHigh) = thresholds[period][index]
-                threshold = thresholdLow
-            else:
-                if period >= 10:    # SARAH: TODO - remove???
-                    period = 9
-                threshold = thresholds[period][index]
-                
-            if maxPws > threshold:
-                events.pwsTXXEvent = True
-                
-                configuredEndTime = self._getCorrespondingConfiguredTime(tr.endTime(), isOnset = False)
-                pwsTXXStats.endHour = self._calculateHourOffset(configuredEndTime)
-                
-                print "SARAH: Window Debug: pwsTXXStats dayGridName =", dayGridName
-                print "SARAH: Window Debug: pwsTXXStats nightGridName =", nightGridName
-                print "SARAH: Window Debug: pwsTXXStats original tr =", tr
-                print "SARAH: Window Debug: pwsTXXStats maxPws =", maxPws
-                print "SARAH: Window Debug: pwsTXXStats endHour =", pwsTXXStats.endHour
-                
-                if pwsTXXStats.onsetHour is None:
-                    configuredStartTime = self._getCorrespondingConfiguredTime(tr.startTime(), isOnset = True)
-                    pwsTXXStats.onsetHour = self._calculateHourOffset(configuredStartTime)
-                    
-                    print "SARAH: Window Debug: pwsTXXStats dayGridName =", dayGridName
-                    print "SARAH: Window Debug: pwsTXXStats nightGridName =", nightGridName
-                    print "SARAH: Window Debug: pwsTXXStats original tr =", tr
-                    print "SARAH: Window Debug: pwsTXXStats maxPws =", maxPws
-                    print "SARAH: Window Debug: pwsTXXStats onsetHour =", pwsTXXStats.onsetHour
-            else:
-                events.pwsTXXEvent = False
-    
-    def _getCorrespondingConfiguredTime(self, gmtTime, isOnset):
-        dayStartHour = self._textProduct.DAY()
-        nightStartHour = self._textProduct.NIGHT()
-        
-        print "SARAH: gmtTime =", gmtTime
-        
-        gmtSeconds = gmtTime.unixTime()
-        localTime = time.localtime(gmtSeconds)
-        print "SARAH: localTime =", localTime
-        
-        localHour = localTime.tm_hour
-        print "SARAH: localHour =", localHour
-        
-        if isOnset:
-            print "SARAH: Window Debug: Adjusting start time"
-        else:
-            print "SARAH: Window Debug: Adjusting end time"
-        
-        newHour = None
-        if localHour < dayStartHour:
-            if isOnset:
-                # Subtract 24 hours to get to the previous day
-                newGmtTime = gmtTime - 24*60*60
-                gmtSeconds = newGmtTime.unixTime()
-                localTime = time.localtime(gmtSeconds)
-                print "SARAH: new localTime =", localTime
-            
-                newHour = nightStartHour
-            else:
-                 newHour = dayStartHour
-        elif dayStartHour <= localHour and localHour < nightStartHour:
-            if isOnset:
-                newHour = dayStartHour
-            else:
-                newHour = nightStartHour
-        else:
-            if isOnset:
-                newHour = nightStartHour
-            else:
-                # Add 24 hours to get to the next day
-                newGmtTime = gmtTime + 24*60*60
-                gmtSeconds = newGmtTime.unixTime()
-                localTime = time.localtime(gmtSeconds)
-                print "SARAH: new localTime =", localTime
-            
-                newHour = dayStartHour
-            
-        print "SARAH: new localHour =", localHour
-        
-        newTimeTuple = localTime[:3] + (newHour,) + localTime[4:]
-        import calendar
-        seconds = calendar.timegm(newTimeTuple)
-        adjustedGmtTime = AbsTime(seconds)
-        print "SARAH: new local time =", adjustedGmtTime
-        
-        seconds = time.mktime(newTimeTuple)
-        adjustedGmtTime = AbsTime(seconds)
-        print "SARAH: new GMT time =", adjustedGmtTime
-        return adjustedGmtTime
-    
-    #  SARAH - we don't want this here.  Use the inherited version from the
-    #  VectorRelatedPhrases module instead.  This way, changes only need to be 
-    #  made in one place.
-    def windSpdProb_thresholds(self):
-        return [
-            ((45.0, 80.0), (25.0, 60.0)), # Per 1
-            (35.0, 20.0),                 # Per 2
-            (30.0, 15.0),                 # Per 3
-            (25.0, 12.5),                 # Per 4
-            (22.5, 10.0),                 # Per 5
-            (20.0,  8.0),                 # Per 6
-            (17.5,  7.0),                 # Per 7
-            (15.0,  6.0),                 # Per 8
-            (12.5,  5.0),                 # Per 9
-            (10.0,  4.0),                 # Per 10
-            ]
-    
-    def _updateWindTimeInfo(self, tr, timeInfo, speed):
-        if self._maxWind is not None and self._maxWind >= speed:
-            timeInfo.endHour = self._calculateHourOffset(tr.endTime())
-            
-            print "SARAH: Window Debug: timeInfo speed =", speed
-            print "SARAH: Window Debug: timeInfo maxWind =", self._maxWind
-            print "SARAH: Window Debug: timeInfo tr =", tr
-            print "SARAH: Window Debug: timeInfo endHour =", timeInfo.endHour
-            
-            if timeInfo.onsetHour is None:
-                timeInfo.onsetHour = self._calculateHourOffset(tr.startTime())
-                
-                print "SARAH: Window Debug: timeInfo speed =", speed
-                print "SARAH: Window Debug: timeInfo maxWind =", self._maxWind
-                print "SARAH: Window Debug: timeInfo tr =", tr
-                print "SARAH: Window Debug: timeInfo onsetHour =", timeInfo.onsetHour
-    
-    def _computeWindOnsetAndEnd(self, windTimeInfo, pwsXXintStats, pwsTXXStats):
-        onsetEndInfo = self.TimeInfo()
-        
-        print "SARAH: Window Debug: windTimeInfo.onsetHour =", windTimeInfo.onsetHour
-        print "SARAH: Window Debug: pwsTXXStats.onsetHour =", pwsTXXStats.onsetHour
-        print "SARAH: Window Debug: pwsXXintStats.onsetHour =", pwsXXintStats.onsetHour
-        print "SARAH: Window Debug: windTimeInfo.endHour =", windTimeInfo.endHour
-        print "SARAH: Window Debug: pwsTXXStats.endHour =", pwsTXXStats.endHour
-        
-        if windTimeInfo.onsetHour is None:
-#             print "SARAH: Window Debug: windTimeInfo.onsetHour was None; using pwsTXXStats"
-#             windTimeInfo.onsetHour = pwsTXXStats.onsetHour
-#             print "SARAH: Window Debug: pwsTXXStats.onsetHour =", pwsTXXStats.onsetHour
-
-            #  Short-circuit this logic as a temporary measure. Basically, do 
-            #  not include a window if the deterministic winds do not support
-            #  a particular threshold
-            onsetEndInfo.endHour = None
-
-        if windTimeInfo.onsetHour is not None and pwsXXintStats.onsetHour is not None:
-            print "SARAH: Window Debug: windTimeInfo.onsetHour & pwsXXintStats.onsetHour not None; taking min"
-            onsetEndInfo.onsetHour = min(windTimeInfo.onsetHour, pwsXXintStats.onsetHour)
-            print "SARAH: Window Debug: min onsetHour =", onsetEndInfo.onsetHour
-            
-        if onsetEndInfo.onsetHour is not None:
-            if windTimeInfo.endHour is None:
-                print "SARAH: Window Debug: windTimeInfo.endHour was None; using pwsTXXStats"
-                onsetEndInfo.endHour = pwsTXXStats.endHour
-                print "SARAH: Window Debug: pwsTXXStats.endHour =", pwsTXXStats.endHour
-            elif pwsTXXStats.endHour is not None:
-                print "SARAH: windendHour =", windTimeInfo.endHour
-                print "SARAH: probendHour =", pwsTXXStats.endHour
-                onsetEndInfo.endHour = int(round(self._textProduct.average(windTimeInfo.endHour, pwsTXXStats.endHour)))
-                print "SARAH: endHour =", onsetEndInfo.endHour
-        return onsetEndInfo
-    
-    def _createWindow(self, windowName, onsetHour, endHour, nonEndingEvent):
-        window = "Window for " + windowName + " force winds: "
-        print "SARAH: window stats:"
-        print "SARAH: onsetHour =", onsetHour
-        print "SARAH: endHour =", endHour
-        print "SARAH: window nonEndingEvent =", nonEndingEvent
-        
-        if onsetHour is None:
-            
-            # SARAH - we do not want a statement of a non-existent window
-#             window += "None"
-            window = None
-        else:
-            startTime = AbsTime(self._textProduct._issueTime_secs + onsetHour*60*60)
-            if endHour is not None:
-                endTime = AbsTime(self._textProduct._issueTime_secs + endHour*60*60)
-                windowPeriod = self._textProduct.makeTimeRange(startTime, endTime)
-            else:
-                windowPeriod = self._textProduct.makeTimeRange(startTime, startTime + 1)
-            print "SARAH: window period =", windowPeriod
-            
-            startTimeDescriptor = ""
-            if onsetHour >= 18:
-                startTimeDescriptor = self._textProduct._formatPeriod(windowPeriod, resolution = 6)
-            elif 6 <= onsetHour and onsetHour < 18:
-                startTimeDescriptor = self._textProduct._formatPeriod(windowPeriod, resolution = 3)
-            
-            if endHour is None or nonEndingEvent:
-                if len(startTimeDescriptor) != 0:
-                    window += "Begins " + startTimeDescriptor
-                else:
-                    window += "None"
-            else:
-                connector = "through "
-                endTimeDescriptor = "the next few hours"
-                
-                if endHour >= 18:
-                    endTimeDescriptor = self._textProduct._formatPeriod(windowPeriod,
-                                                                        useEndTime = True,
-                                                                        resolution = 6)
-                elif 6 <= endHour and endHour < 18:
-                    endTimeDescriptor = self._textProduct._formatPeriod(windowPeriod,
-                                                                        useEndTime = True,
-                                                                        resolution = 3)
-            
-                if len(startTimeDescriptor) != 0:
-                    connector = " " + connector
-                window += startTimeDescriptor + connector + endTimeDescriptor
-                     
-        return window
-
-
-class StormSurgeSectionStats(SectionCommonStats):
-    def __init__(self, textProduct, segment, intersectStatList, timeRangeList):
-        SectionCommonStats.__init__(self, textProduct, segment)
-        self._inundationMax = None
-        self._onsetSurgeHour = None
-        self._endSurgeHour = None
-        self._windowSurge = None
-        
-        self._setStats(intersectStatList, timeRangeList)
-    
-    def _setStats(self, statList, timeRangeList):
-        phishStartTime = None
-        phishEndTime = None
-        possibleStop = 0
-        
-#         print "*"*100
-#         print "MATT phishStartTime = %s   phishEndTime  = %s   possibleStop = %d" % (str(phishStartTime), str(phishEndTime), possibleStop)
-        
-        for period in range(len(statList)):
-            tr, _ = timeRangeList[period]
-            statDict = statList[period]
-        
-            phishPeak = self._textProduct._getStatValue(statDict, "InundationMax", "Max")
-            if phishPeak is not None:
-                if self._inundationMax is None or phishPeak > self._inundationMax:
-                    self._inundationMax = phishPeak
-                    
-            curPhish = self._textProduct._getStatValue(statDict, "InundationTiming", "Max")
-#             print "MATT tr = %s" % (repr(tr))
-#             print "MATT curPhish = '%s'    possibleStop = %d" % (str(curPhish), possibleStop)
-#             print "MATT phishStartTime = %s   phishEndTime  = %s" % (str(phishStartTime), str(phishEndTime))
-            
-            if curPhish is not None and possibleStop != 2:
-                if curPhish > 0:
-                    if phishStartTime is None:
-                        phishStartTime = tr.startTime()
-                        possibleStop = 0
-                        phishEndTime = None
-                elif phishStartTime is not None:
-                    possibleStop += 1
-                    
-                    if phishEndTime is None:
-                        phishEndTime = tr.startTime()
-            
-            self._updateThreatStats(tr, statDict, "StormSurgeThreat")
-        
-        self._windowSurge = "Window for Storm Surge Inundation: "
-        
-        if phishStartTime is None:
-            self._windowSurge += "None"
-        else:
-            self._onsetSurgeHour = self._calculateHourOffset(phishStartTime)
-            startTime = AbsTime(self._textProduct._issueTime_secs + self._onsetSurgeHour*60*60)
-            
-#             print "MATT surge startTime = %s   self._onsetSurgeHour = %s " % (repr(startTime), self._onsetSurgeHour)
-            if phishEndTime is not None:
-                self._endSurgeHour = self._calculateHourOffset(phishEndTime)
-                endTime = AbsTime(self._textProduct._issueTime_secs + self._endSurgeHour*60*60)
-                windowPeriod = self._textProduct.makeTimeRange(startTime, endTime)
-            else:
-                windowPeriod = self._textProduct.makeTimeRange(startTime, startTime + 1)
-            print "SARAH: window period =", windowPeriod
-            
-            startTimeDescriptor = self._textProduct._formatPeriod(windowPeriod)
-            
-            if phishEndTime is None:
-                self._windowSurge += "Begins " + startTimeDescriptor
-            elif phishStartTime == phishEndTime:
-                self._windowSurge += startTimeDescriptor
-            else:
-                endTimeDescriptor = self._textProduct._formatPeriod(windowPeriod, useEndTime = True)
-            
-                if self._onsetSurgeHour > 12:
-                    self._windowSurge += startTimeDescriptor +\
-                                         " through " +\
-                                         endTimeDescriptor
-                else:
-                    self._windowSurge += "through " + endTimeDescriptor
-        
-        self._currentAdvisory["StormSurgeThreat"] = self._maxThreat
-        if self._inundationMax is not None:
-            # Round so we don't store values like 1.600000023841858
-            self._currentAdvisory["StormSurgeForecast"] = \
-                    int(self._inundationMax * 10.0) / 10.0
-
-
-class FloodingRainSectionStats(SectionCommonStats):
-    def __init__(self, textProduct, segment, statList, timeRangeList):
-        SectionCommonStats.__init__(self, textProduct, segment)
-        self._sumAccum = None
-        
-        self._setStats(statList, timeRangeList)
-    
-    def _setStats(self, statList, timeRangeList):
-        for period in range(len(statList)):
-            tr, _ = timeRangeList[period]
-            statDict = statList[period]
-        
-            stats = self._textProduct.getStats(statDict, "QPF")
-            if stats is not None:
-                for (value, tr) in stats:
-                    
-                    if value is not None:
-                        if self._sumAccum is None:
-                            self._sumAccum = value
-                        else:
-                            self._sumAccum += value
-            
-            self._updateThreatStats(tr, statDict, "FloodingRainThreat")
-        
-        self._currentAdvisory["FloodingRainThreat"] = self._maxThreat
-        if self._sumAccum is not None:
-            # Round so that we don't end up with stats like 4.03143835067749
-            self._currentAdvisory["FloodingRainForecast"] = \
-                    self._textProduct.round(self._sumAccum, "Nearest", 0.5)
-
-
-class TornadoSectionStats(SectionCommonStats):
-    def __init__(self, textProduct, segment, statList, timeRangeList):
-        SectionCommonStats.__init__(self, textProduct, segment)
-        
-        self._setStats(statList, timeRangeList)
-    
-    def _setStats(self, statList, timeRangeList):
-        for period in range(len(statList)):
-            tr, _ = timeRangeList[period]
-            statDict = statList[period]
-            
-            self._updateThreatStats(tr, statDict, "TornadoThreat")
-        
-        self._currentAdvisory["TornadoThreat"] = self._maxThreat
-
 
 import Tkinter
 class Common_Dialog(Dialog):
