@@ -43,33 +43,33 @@
     <vbSource key="GEFS" category="Volume" />
     <vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />
     <vbSource key="AVN-NorthernHemisphere" category="Volume" />
-    <vbSource key="HFR-EAST_6KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_DELAWARE_1KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_FLORIDA_2KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_NORTH_2KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_SOUTH_2KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_EAST_VIRGINIA_1KM" category="Volume"  views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_HAWAII_1KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_HAWAII_2KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-WEST_6KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_CENCAL_2KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_NORTH_2KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_SANFRAN_1KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_SOCAL_2KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_LOSANGELES_1KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_WEST_LOSOSOS_1KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HiResW-ARW-AK" category="Volume" />
-    <vbSource key="HiResW-ARW-East" category="Volume" />
-    <vbSource key="HiResW-ARW-GU" category="Volume" />
-    <vbSource key="HiResW-ARW-HI" category="Volume" />
-    <vbSource key="HiResW-ARW-SJU" category="Volume" />
-    <vbSource key="HiResW-ARW-West" category="Volume" />
-    <vbSource key="HiResW-NMM-AK" category="Volume" />
-    <vbSource key="HiResW-NMM-East" category="Volume" />
-    <vbSource key="HiResW-NMM-GU" category="Volume" />
-    <vbSource key="HiResW-NMM-HI" category="Volume" />
-    <vbSource key="HiResW-NMM-SJU" category="Volume" />
-    <vbSource key="HiResW-NMM-West" category="Volume" />
+    <vbSource key="HFR-EAST_6KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_EAST_DELAWARE_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_EAST_FLORIDA_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_EAST_NORTH_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_EAST_SOUTH_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_EAST_VIRGINIA_1KM" category="Volume/HFR"  views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_HAWAII_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_HAWAII_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-WEST_6KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_WEST_CENCAL_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_WEST_NORTH_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_WEST_SANFRAN_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_WEST_SOCAL_2KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_WEST_LOSANGELES_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_WEST_LOSOSOS_1KM" category="Volume/HFR" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HiResW-ARW-AK" category="Volume/HiResW" />
+    <vbSource key="HiResW-ARW-East" category="Volume/HiResW" />
+    <vbSource key="HiResW-ARW-GU" category="Volume/HiResW" />
+    <vbSource key="HiResW-ARW-HI" category="Volume/HiResW" />
+    <vbSource key="HiResW-ARW-SJU" category="Volume/HiResW" />
+    <vbSource key="HiResW-ARW-West" category="Volume/HiResW" />
+    <vbSource key="HiResW-NMM-AK" category="Volume/HiResW" />
+    <vbSource key="HiResW-NMM-East" category="Volume/HiResW" />
+    <vbSource key="HiResW-NMM-GU" category="Volume/HiResW" />
+    <vbSource key="HiResW-NMM-HI" category="Volume/HiResW" />
+    <vbSource key="HiResW-NMM-SJU" category="Volume/HiResW" />
+    <vbSource key="HiResW-NMM-West" category="Volume/HiResW" />
     <vbSource key="HRRR" category="Volume" />
     <vbSource key="LAMPQPF" category="Volume" />
     <vbSource key="LAPS" category="Volume" />
