@@ -30,6 +30,7 @@
  * 11/2/09       3375       brockwoo    Initial Creation
  * 08/13/13      2257       bkowal      Update for qpid 0.18.
  * 08/15/13      2169       bkowal      Qpid messages are now decompressed
+ * 11/04/14      2991       dlovely     Update for qpid 0.30.
  *
  * </pre>
  *
@@ -46,10 +47,7 @@
 #include <uuid/uuid.h>
 #include <qpid/messaging/Connection.h>
 #include <qpid/messaging/Duration.h>
-#include <qpid/Url.h>
 #include "EdexNotification.h"
-
-using qpid::Url;
 
 EdexNotification::EdexNotification(const string & brokerURI) :
 	duration(Duration(1000 * 120)) {
@@ -220,7 +218,7 @@ bool EdexNotification::connect() {
 		uuid_generate_random(uuidGenerated);
 		uuid_unparse(uuidGenerated, uuidBuff);
 
-		std::string connectionOptions = "{sasl-mechanism:PLAIN,"
+		std::string connectionOptions = "{sasl-mechanism:ANONYMOUS,"
 			"username:guest,password:guest}";
 
 		this->connection = Connection(this->brokerURI, connectionOptions);
