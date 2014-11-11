@@ -65,7 +65,7 @@ function buildQPID()
       fi
    fi
    
-   cd ${WORKSPACE}/rpms/awips2.qpid/0.18/deploy.builder
+   cd ${WORKSPACE}/rpms/awips2.qpid/0.30/deploy.builder
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
       return 1
@@ -77,10 +77,10 @@ function buildQPID()
       return 1
    fi
 
-   # Copy the 0.18 qpid rpms
-   cd ${WORKSPACE}/rpms/awips2.qpid/0.18/RPMS/noarch
+   # Copy the 0.28 qpid rpms
+   cd ${WORKSPACE}/rpms/awips2.qpid/0.30/RPMS/noarch
    if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid v0.18."
+      echo "ERROR: Failed to build Qpid v0.30."
       return 1
    fi
    /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/noarch
@@ -88,9 +88,9 @@ function buildQPID()
       return 1
    fi
 
-   cd ${WORKSPACE}/rpms/awips2.qpid/0.18/RPMS/x86_64
+   cd ${WORKSPACE}/rpms/awips2.qpid/0.30/RPMS/x86_64
    if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid v0.18."
+      echo "ERROR: Failed to build Qpid v0.30."
       return 1
    fi
    /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/x86_64
@@ -98,9 +98,9 @@ function buildQPID()
       return 1
    fi
 
-   #build 0.28
+   #build 0.30
    export AWIPS_II_TOP_DIR
-   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker-0.28
+   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker-0.30
    /bin/bash build.sh
 
    popd > /dev/null 2>&1
