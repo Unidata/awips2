@@ -25,12 +25,16 @@ import java.util.Arrays;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+//import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
+//import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -56,6 +60,8 @@ import com.vividsolutions.jts.geom.Envelope;
  *                         bsteffen    Intial creation.
  * 07-21-14     #3412      mapeters    Updated deprecated drawCircle call.
  * 07-29-14     #3465      mapeters    Updated deprecated drawString() calls.
+ * Nov 2013     #          mccaslin    Draw more graphical boxes: for CWA, previous domain, etc
+
  * </pre>
  * 
  * @author bsteffen
@@ -72,9 +78,15 @@ public class LapsToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     private final AbstractRightClickAction moveElementAction;
 
+    private IWireframeShape validShapeOrig;
+    
     private IWireframeShape validShape;
 
     private IWireframeShape gridShape;
+
+    private RGB labelColor;
+
+    public static String centerLabel = "Center Point";
 
     public LapsToolLayer(GenericToolsResourceData<LapsToolLayer> resourceData,
             LoadProperties loadProperties) {
@@ -129,31 +141,74 @@ public class LapsToolLayer extends AbstractMovableToolLayer<Coordinate>
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         super.paintInternal(target, paintProps);
+        
+        Envelope shapeArea = data.getValidArea();
         if (validShape == null) {
             validShape = target.createWireframeShape(false, descriptor);
             Coordinate[] coords = new Coordinate[5];
-            Envelope area = data.getValidArea();
-            coords[0] = new Coordinate(area.getMinX(), area.getMinY());
-            coords[1] = new Coordinate(area.getMinX(), area.getMaxY());
-            coords[2] = new Coordinate(area.getMaxX(), area.getMaxY());
-            coords[3] = new Coordinate(area.getMaxX(), area.getMinY());
+
+            coords[0] = new Coordinate(shapeArea.getMinX(), shapeArea.getMinY());
+            coords[1] = new Coordinate(shapeArea.getMinX(), shapeArea.getMaxY());
+            coords[2] = new Coordinate(shapeArea.getMaxX(), shapeArea.getMaxY());
+            coords[3] = new Coordinate(shapeArea.getMaxX(), shapeArea.getMinY());
             coords[4] = coords[0];
             validShape.addLineSegment(coords);
         }
+
+        Envelope shapeArea2 = data.getValidAreaOrig();
+        if (validShapeOrig == null) {
+            validShapeOrig = target.createWireframeShape(false, descriptor);
+            Coordinate[] coords = new Coordinate[5];
+            coords[0] = new Coordinate(shapeArea2.getMinX(), shapeArea2.getMinY());
+            coords[1] = new Coordinate(shapeArea2.getMinX(), shapeArea2.getMaxY());
+            coords[2] = new Coordinate(shapeArea2.getMaxX(), shapeArea2.getMaxY());
+            coords[3] = new Coordinate(shapeArea2.getMaxX(), shapeArea2.getMinY());
+            coords[4] = coords[0];
+            validShapeOrig.addLineSegment(coords);
+        }
+        
+        Envelope gridArea = data.getGridArea();
         if (gridShape == null) {
             gridShape = target.createWireframeShape(false, descriptor);
             Coordinate[] coords = new Coordinate[5];
-            Envelope area = data.getGridArea();
-            coords[0] = new Coordinate(area.getMinX(), area.getMinY());
-            coords[1] = new Coordinate(area.getMinX(), area.getMaxY());
-            coords[2] = new Coordinate(area.getMaxX(), area.getMaxY());
-            coords[3] = new Coordinate(area.getMaxX(), area.getMinY());
+
+            coords[0] = new Coordinate(gridArea.getMinX(), gridArea.getMinY());
+            coords[1] = new Coordinate(gridArea.getMinX(), gridArea.getMaxY());
+            coords[2] = new Coordinate(gridArea.getMaxX(), gridArea.getMaxY());
+            coords[3] = new Coordinate(gridArea.getMaxX(), gridArea.getMinY());
             coords[4] = coords[0];
             gridShape.addLineSegment(coords);
         }
+        
+        //Test domain sizes
+        data.setLimits(false);
+        if (gridArea.getMinX() > shapeArea.getMinX()) {
+            data.setLimits(true);
+        }  if (gridArea.getMaxX() < shapeArea.getMaxX()) {
+            data.setLimits(true);
+        }  if (gridArea.getMinY() > shapeArea.getMinY()) {
+            data.setLimits(true);
+        }  if (gridArea.getMaxY() < shapeArea.getMaxY()) {
+            data.setLimits(true);
+        }
+        
         RGB color = getCapability(ColorableCapability.class).getColor();
+        RGB color2 = color;    
+        
+        // Projected grid domain too small, below the limits of the CWA...
+        if (data.getLimits()) { 
+        	color2 = new RGB ( 250, 40, 40);
+        	labelColor = color2;
+        	centerLabel = "[Center point]\nFull CWA is NOT covered by domain";		
+        } else {
+        	labelColor = color;
+        	centerLabel = "Center point";
+        }
+        
         target.drawWireframeShape(validShape, color, 1, LineStyle.DASHED_LARGE);
-        target.drawWireframeShape(gridShape, color, 1, LineStyle.SOLID);
+        target.drawWireframeShape(gridShape, color2, 1, LineStyle.SOLID);
+    	RGB gray = new RGB ( 90, 90, 90);
+        target.drawWireframeShape(validShapeOrig, gray, 1, LineStyle.DASH_DOTTED);
     }
 
     @Override
@@ -171,11 +226,15 @@ public class LapsToolLayer extends AbstractMovableToolLayer<Coordinate>
         circle.radius = radius;
         circle.basics.color = color;
         target.drawCircle(circle);
+        //14.1.1 and earlier: target.drawCircle(center[0], center[1], 0, radius, color, 1);
         double labelLoc[] = target.getPointOnCircle(center[0], center[1], 0.0,
                 radius, 0);
-        DrawableString string = new DrawableString("center point", color);
+        //DrawableString string = new DrawableString("center point", color);
+        DrawableString string = new DrawableString(centerLabel, labelColor);
         string.setCoordinates(labelLoc[0], labelLoc[1]);
         target.drawStrings(string);
+        //14.1.1 and earlier: target.drawString(null, centerLabel, labelLoc[0], labelLoc[1], 0.0, 
+        //                    TextStyle.NORMAL, labelColor, HorizontalAlignment.LEFT, null);
     }
 
     @Override
@@ -248,6 +307,10 @@ public class LapsToolLayer extends AbstractMovableToolLayer<Coordinate>
                 validShape.dispose();
                 validShape = null;
             }
+            if (validShapeOrig != null) {
+                validShapeOrig.dispose();
+                validShapeOrig = null;
+            }
             if (gridShape != null) {
                 gridShape.dispose();
                 gridShape = null;
@@ -255,5 +318,54 @@ public class LapsToolLayer extends AbstractMovableToolLayer<Coordinate>
             issueRefresh();
         }
     }
+    
+    /*
+    @see
+    * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
+    * referencing.crs.CoordinateReferenceSystem)
+    */
+    
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+        if (validShape != null) {
+            validShape.dispose();
+            validShape = null;
+        }
+        if (validShapeOrig != null) {
+            validShapeOrig.dispose();
+            validShapeOrig = null;
+        }
+        if (gridShape != null) {
+            gridShape.dispose();
+            gridShape = null;
+        }
+        issueRefresh();
+    }   
+
+    protected void drawUpperLeftCornerLabel(IGraphicsTarget target,
+            PaintProperties paintProps, String label) throws VizException {
+        // TODO this screen location code is borrowed from MPELegendResource...
+        // should it be put into a shared class, possibly a paint
+        // properties method?
+        IExtent screenExtent = paintProps.getView().getExtent();
+        double scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
+        DrawableString tmpDS = new DrawableString("0", new RGB(100, 100, 100));
+        tmpDS.font = null;
+        double textHeight = target.getStringsBounds(tmpDS).getHeight() * scale;
+        double padding = 3 * scale;
+        double textSpace = textHeight + padding;
+        double cmapHeight = textHeight * 1.25;
+        double legendHeight = cmapHeight + 2.0 * textSpace + 2.0 * padding;
+        double y1 = screenExtent.getMinY() + legendHeight * 2.5;
+        double x1 = screenExtent.getMinX() + padding * 10.0;
+        DrawableString string = new DrawableString(label, this.getCapability(
+                ColorableCapability.class).getColor());
+        string.basics.x = x1; 
+        string.basics.y = y1; 
+        string.font = null;
+        //string.textStyle = IGraphicsTarget.TextStyle.NORMAL;
+        //string.horizontalAlignment = HorizontalAlignment.LEFT;
+        target.drawStrings(string);
+    }   
+
 
 }
