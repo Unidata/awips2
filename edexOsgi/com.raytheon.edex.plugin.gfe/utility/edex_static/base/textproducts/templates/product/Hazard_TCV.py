@@ -1,4 +1,6 @@
 import GenericHazards
+import JsonSupport
+import LocalizationSupport
 import string, time, os, types, copy, LogStream, collections
 import ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
@@ -6,8 +8,6 @@ import math
 
 from AbsTime import *
 from StartupDialog import IFPDialog as Dialog
-from LockingFile import File
-from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
 AWIPS_ENVIRON = "AWIPS2"
 
@@ -20,20 +20,20 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["outputFile"]    = "{prddir}/TEXT/TCV.txt"
     Definition["database"]      =  "Official"  # Source database
     Definition["debug"]         =  1
-    Definition["mapNameForCombinations"] = "Zones_MFL"
-    Definition["defaultEditAreas"] = "EditAreas_PublicZones_MFL"
+    Definition["mapNameForCombinations"] = "Zones_<site>"
+    Definition["defaultEditAreas"] = "EditAreas_PublicZones_<site>"
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
 
     Definition["productName"]       = "LOCAL WATCH/WARNING STATEMENT"
 
-    Definition["fullStationID" ]    = "KMFL"
-    Definition["wmoID" ]            = "WTUS82"
-    Definition["wfoCityState" ]     = "MIAMI FL"
-    Definition["pil" ]              = "TCVMFL"
-    Definition["textdbPil" ]        = "MIATCVMFL"
-    Definition["awipsWANPil" ]      = "KMFLTCVMFL"
-    Definition["site"]              = "MFL"
-    Definition["wfoCity"]           = "MIAMI"
+    Definition["fullStationID" ]    = "<fullStationID>"
+    Definition["wmoID" ]            = "<wmoID>"
+    Definition["wfoCityState" ]     = "<wfoCityState>"
+    Definition["pil" ]              = "<pil>"
+    Definition["textdbPil" ]        = "<textdbPil>"
+    Definition["awipsWANPil" ]      = "<awipsWANPil>"
+    Definition["site"]              = "<site>"
+    Definition["wfoCity"]           = "<wfoCity>"
 
     Definition["areaName"]          = ""  #optional area name for product
     Definition["areaDictionary"]    = "AreaDictionary"
@@ -240,9 +240,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
         if error is not None:
             return error
         
-#         self._archiveTransmittedAdvisory()
-#         return "Archived"
-
         self._segmentList = self._determineSegments()
         print "Segment Information: ", self._segmentList, "\n\n"
         if len(self._segmentList) == 0:
@@ -844,66 +841,20 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         self._saveAdvisory("pending", self._currentAdvisory)
     
-    def _archiveTransmittedAdvisory(self):
-        import unicodedata
-        
-        pendingDict = self._loadAdvisory("pending")
-        if pendingDict is None:
-            return
-        
-        stormName = pendingDict["StormName"]
-        advisoryNumber = pendingDict["AdvisoryNumber"]
-        
-        pendingDict["Transmitted"] = True
-            
-        transmittedName = stormName + advisoryNumber
-        transmittedName = unicodedata.normalize('NFKD', transmittedName).encode('ascii','ignore')
-
-        self._saveAdvisory(transmittedName, pendingDict)
-        
-        if pendingDict["AllCAN"]:
-            advisoryDirectoryPath = self._getLocalAdvisoryDirectoryPath()
-            filenames = os.listdir(advisoryDirectoryPath)
-            print "all filenames =", filenames
-            stormAdvisories = filter(lambda filename: (stormName in filename) or \
-                                                      ("pending" in filename),
-                                                      filenames)
-            print "storm advisories =", stormAdvisories
-            
-            for advisory in stormAdvisories:
-                self._deleteAdvisory(self._getAdvisoryPath() + advisory)
-                print "deleted advisory", advisory
-    
-    def _deleteAdvisory(self, fullAdvisoryName):
-        localizationFile = self._getLocalizationFile(LocalizationType.CAVE_STATIC,
-                                                     self._site,
-                                                     fullAdvisoryName)
-        localizationFile.delete()
-    
     def _saveAdvisory(self, advisoryName, advisoryDict):
-        import json
-        
         self._synchronizeAdvisories()
          
         try:
-            self._writeFileContents(LocalizationType.CAVE_STATIC,
-                                    self._site,
-                                    self._getAdvisoryFilename(advisoryName),
-                                    json.dumps(advisoryDict))
+            JsonSupport.saveToJson(LocalizationType.CAVE_STATIC,
+                                   self._site,
+                                   self._getAdvisoryFilename(advisoryName),
+                                   advisoryDict)
+            
             print "SARAH: Wrote file contents for", self._getAdvisoryFilename(advisoryName)
             
             self._synchronizeAdvisories()
         except Exception, e:
             print "SARAH Save Exception for", self._getAdvisoryFilename(advisoryName), ":", e
-    
-    def _writeFileContents(self, loctype, siteID, filename, contents):
-        pathManager = PathManagerFactory.getPathManager()
-        context = pathManager.getContextForSite(loctype, siteID)
-        localizationFile = pathManager.getLocalizationFile(context, filename)
-        with File(localizationFile.getFile(), filename, 'w') as pythonFile:
-            pythonFile.write(contents)
-        
-        localizationFile.save()
     
     def _getHazardsForHLS(self):
         hazardTable = self._argDict["hazards"]

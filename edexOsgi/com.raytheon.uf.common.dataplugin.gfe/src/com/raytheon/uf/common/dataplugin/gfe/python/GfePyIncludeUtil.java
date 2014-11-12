@@ -39,7 +39,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Feb 27, 2013      #1447 dgilling    Re-factor based on PythonPathIncludeUtil.
  * Mar 11, 2013      #1759 dgilling    Add method getGfeConfigLF().
  * Sep 16, 2013      #1759 dgilling    Move tests and autotests to GfeCavePyIncludeUtil.
- * Aug 22, 2014 3500       bclement    added python path in getConfigIncludePath()
+ * Aug 22, 2014      #3500 bclement    added python path in getConfigIncludePath()
+ * Nov 11, 2014      #4953 randerso    Changed COMMON_GFE to public
  * </pre>
  * 
  * @author njensen
@@ -50,7 +51,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
 
     public static final String GFE = "gfe";
 
-    private static final String COMMON_GFE = FileUtil.join(PYTHON, GFE);
+    public static final String COMMON_GFE = FileUtil.join(PYTHON, GFE);
 
     public static final String ITOOL = FileUtil.join(GFE, "itool");
 

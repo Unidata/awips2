@@ -1,4 +1,5 @@
 import GenericHazards
+import JsonSupport
 import string, time, os, re, types, copy, LogStream, collections
 import ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
@@ -267,7 +268,7 @@ class TextProduct(GenericHazards.TextProduct):
     ### Time related methods
     
     def _initializeTimeVariables(self, argDict):
-        argDict['creationTime'] = int(time.time()/60)*60.0
+        argDict['creationTime'] = int(time.time()/60)*60
         self._issueTime_secs = argDict['creationTime']
         self._issueTime = self._issueTime_secs * 1000 # in milliseconds
         
@@ -756,16 +757,13 @@ FORECASTER STEWART"""
             self._previousPreviousAdvisory = self._loadAdvisory(lastTwoAdvisories[1])
     
     def _loadAdvisory(self, advisoryName):
-        import json
-        
         self._synchronizeAdvisories()
          
         try:
-            jsonDict = self._getFileContents(LocalizationType.CAVE_STATIC,
+            pythonDict = JsonSupport.loadFromJson(LocalizationType.CAVE_STATIC,
                                              self._site,
                                              self._getAdvisoryFilename(advisoryName))
- 
-            pythonDict = json.loads(jsonDict)
+            
             print "SARAH: File contents for", self._getAdvisoryFilename(advisoryName), ":"
             print pythonDict
              
@@ -787,15 +785,6 @@ FORECASTER STEWART"""
         localizationFile = pathManager.getLocalizationFile(context, filename)
         
         return localizationFile
-    
-    def _getFileContents(self, loctype, siteID, filename):
-        pathManager = PathManagerFactory.getPathManager()
-        context = pathManager.getContextForSite(loctype, siteID)
-        localizationFile = pathManager.getLocalizationFile(context, filename)
-        with File(localizationFile.getFile(), filename, 'r') as pythonFile:
-            fileContents = pythonFile.read()
-        
-        return fileContents
     
     def _getAdvisoryFilename(self, advisoryName):
         advisoryFilename = self._getAdvisoryPath() + \
