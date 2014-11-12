@@ -41,10 +41,10 @@ import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.spi.InterceptStrategy;
 
 import com.raytheon.uf.common.message.IMessage;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.common.util.collections.BoundedMap;
 import com.raytheon.uf.edex.core.EDEXUtil;
@@ -179,7 +179,8 @@ public class MessageProducer implements IMessageProducer, InterceptStrategy {
     @Override
     public void sendAsyncThriftUri(String uri, Object message)
             throws EdexException, SerializationException {
-        if (!started && queueWaitingMessage(WaitingType.URI, uri, message)) {
+        if (!started
+                && queueWaitingMessage(WaitingType.THRIFT_URI, uri, message)) {
             return;
         }
 
@@ -193,7 +194,7 @@ public class MessageProducer implements IMessageProducer, InterceptStrategy {
                 template.sendBodyAndHeaders(ep, ExchangePattern.InOnly,
                         SerializationUtil.transformToThrift(message), headers);
             } else {
-                template.sendBody(ep, ExchangePattern.InOnly, 
+                template.sendBody(ep, ExchangePattern.InOnly,
                         SerializationUtil.transformToThrift(message));
             }
         } catch (Exception e) {
@@ -379,6 +380,9 @@ public class MessageProducer implements IMessageProducer, InterceptStrategy {
                     case URI:
                         sendAsyncUri(wm.dest, wm.msg);
                         break;
+                    case THRIFT_URI:
+                        sendAsyncThriftUri(wm.dest, wm.msg);
+                        break;
                     }
                 } catch (Exception e) {
                     statusHandler
@@ -448,7 +452,7 @@ public class MessageProducer implements IMessageProducer, InterceptStrategy {
      * Enum for handling whether the waiting type was uri or msg.
      */
     private enum WaitingType {
-        ID, URI
+        ID, URI, THRIFT_URI
     };
 
     /**
