@@ -31,11 +31,14 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
@@ -50,8 +53,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.awipstools.Activator;
 import com.raytheon.viz.awipstools.ui.action.LapsToolsData;
 import com.raytheon.viz.awipstools.ui.action.LapsToolsIO;
 import com.raytheon.viz.awipstools.ui.layer.LapsToolLayer;
@@ -68,7 +69,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * Nov 2013     #          mccaslin     Improved layout, more user friendly, no system calls
  * 
  * </pre>
  * 
@@ -76,6 +77,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * @version 1.0
  */
 public class LAPSToolsDlg extends CaveSWTDialog {
+	
     private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(LAPSToolsDlg.class);
 
     private final LapsToolsData data;
@@ -85,6 +87,8 @@ public class LAPSToolsDlg extends CaveSWTDialog {
      */
     private Composite mainComp;
 
+    public final String DIALOG_TITLE = "LAPS V2.0 Tools";
+
     /**
      * Label indicating which tool is selected.
      */
@@ -93,14 +97,19 @@ public class LAPSToolsDlg extends CaveSWTDialog {
     /**
      * Current Analysis string.
      */
-    private final String dataUsedByAnalysis = "Data Used by Current Analysis";
+    private final String dataUsedByAnalysis = "What-got-in to the Current Analysis Product";
 
     /**
      * Configure Analysis string.
      */
-    private final String configureAnalysis = "Configure Analysis Domain";
+    private final String configureAnalysis = "View or Redefine Analysis Domain";
 
     /**
+     * Flag indicating if LAPS 2.0 is installed.
+     */
+    private boolean isLapsInstalled = false;
+
+	/**
      * Flag indicating which tool is active.
      */
     private boolean isDataUsedByAnalysis = true;
@@ -130,18 +139,12 @@ public class LAPSToolsDlg extends CaveSWTDialog {
      */
     private Font selectToolLabelFont;
 
-    /*
+    /**
      * Spinner controls
      */
     private Spinner cenLatSpnr;
 
     private Spinner cenLonSpnr;
-
-    private Spinner latSpnr;
-
-    private Spinner lat2Spnr;
-
-    private Spinner lonSpnr;
 
     private Spinner nxSpnr;
 
@@ -151,30 +154,30 @@ public class LAPSToolsDlg extends CaveSWTDialog {
 
     private Spinner nzSpnr;
 
-    private Spinner dpPaSpnr;
-
-    private Spinner lowPaSpnr;
-
-    /*
+    /**
      * Settings buttons
      */
     private Button defaultBtn;
 
     private Button resetBtn;
 
-    /*
-     * LAPS Relocator buttons.
+    /**
+     * LAPS display domain buttons.
      */
     private Button loadBtn;
 
     private Button applyBtn;
 
-    private Button localizeLapsBtn;
+    private Button writeDomainBtn;
 
     /**
      * Stack layout.
      */
     private StackLayout stackLayout;
+
+	private MessageBox areaDialog;
+
+	private Label areaStrLbl;
 
     /**
      * Constructor.
@@ -185,18 +188,19 @@ public class LAPSToolsDlg extends CaveSWTDialog {
      */
     public LAPSToolsDlg(Shell parent) throws VizException {
         super(parent, SWT.DIALOG_TRIM);
+        setText(DIALOG_TITLE);
 
         try {
-            LapsToolsIO.lockLaps();
-            String failover = LapsToolsIO.getFailover();
-            if (failover != null) {
-                MessageDialog.openInformation(shell,
-                        "LAPS is running in failover.", failover);
-            }
             this.data = LapsToolsIO.loadData();
+            if(data==null){
+            	isLapsInstalled = false;
+            } else {
+            	isLapsInstalled = true;
+            }
+            
         } catch (VizException e) {
             MessageDialog
-                    .openInformation(shell, "LAPS Tools GUI is not available.",
+                    .openInformation(shell, "LAPS Tools GUI cannot run.",
                             e.getLocalizedMessage());
             throw e;
         } catch (Exception e) {
@@ -226,7 +230,6 @@ public class LAPSToolsDlg extends CaveSWTDialog {
     protected void initializeComponents(Shell shell) {
         selectToolLabelFont = new Font(this.getDisplay(), "Sans", 10, SWT.BOLD
                 | SWT.ITALIC);
-
         mainComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, true);
         gl.marginHeight = 2;
@@ -237,6 +240,11 @@ public class LAPSToolsDlg extends CaveSWTDialog {
 
         createMenus();
         createMainControls();
+
+        // create dialog with OK and cancel button and info icon
+        areaDialog = 
+          new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+        areaDialog.setText("Size of LAPS Domain");
     }
 
     /**
@@ -344,18 +352,27 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         // Create the Help menu item with a Help "dropdown" menu
         Menu helpMenu = new Menu(menuBar);
         helpMenuItem.setMenu(helpMenu);
-
+ 
+        // create dialog with OK and cancel button and info icon
+        final MessageBox dialog = 
+          new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+        dialog.setText("About LAPS details");
+        dialog.setMessage("For additional detailed information about LAPS Tools go to the URL" +
+        		"\n\t http://laps.noaa.gov/awipsii/");
+        
         // ------------------------------------------------------
         // Create all the items in the Help dropdown menu
         // ------------------------------------------------------
 
-        // Administration menu item
+        // Administration menu item     
         MenuItem aboutMI = new MenuItem(helpMenu, SWT.NONE);
-        aboutMI.setText("About...");
+        aboutMI.setText("About LAPS...");
         aboutMI.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
+            	dialog.open(); 
             }
         });
+       
     }
 
     /**
@@ -399,24 +416,36 @@ public class LAPSToolsDlg extends CaveSWTDialog {
                 true, false));
 
         Composite controlComp = new Composite(currentAnalysisComp, SWT.NONE);
-        controlComp.setLayout(new GridLayout(3, false));
+
+        controlComp.setLayout(new GridLayout(4, false));
         controlComp.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, true,
                 false));
 
         Label selectTypeLbl = new Label(controlComp, SWT.NONE);
-        selectTypeLbl.setText("Select Type: ");
+        selectTypeLbl.setText("What got into the: ");
 
         Combo typeCbo = new Combo(controlComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         populateTypeCombo(typeCbo);
-        typeCbo.select(0);
         typeCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 Combo c = (Combo) e.widget;
-                typeAction((c.getItem(c.getSelectionIndex())));
+                if(c.getSelectionIndex() == 0 && c.getItem(0) == "-- Select a Type --") {
+                	//no action
+                } else if(c.getSelectionIndex() != 0 && c.getItem(0) == "-- Select a Type --") {
+                	c.remove(0);
+                	typeAction((c.getItem(c.getSelectionIndex())));
+                } else {
+                	typeAction((c.getItem(c.getSelectionIndex())));
+                }
             }
         });
-
+        typeCbo.select(0);
+        typeCbo.setToolTipText("Select one of the options to see what got into this LAPS product." );
+        
+        Label blank = new Label(controlComp, SWT.NONE);
+        blank.setText("     ");
+        
         Button clearBtn = new Button(controlComp, SWT.PUSH);
         clearBtn.setText(" Clear ");
         clearBtn.addSelectionListener(new SelectionAdapter() {
@@ -425,12 +454,13 @@ public class LAPSToolsDlg extends CaveSWTDialog {
                 clearAction();
             }
         });
-
+        clearBtn.setToolTipText("Clear screen.");
+        
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.widthHint = 500;
         gd.heightHint = 300;
         stText = new StyledText(currentAnalysisComp, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL | SWT.H_SCROLL);
+                | SWT.V_SCROLL | SWT.H_SCROLL | SWT.Deactivate);
         stText.setLayoutData(gd);
     }
 
@@ -448,21 +478,25 @@ public class LAPSToolsDlg extends CaveSWTDialog {
 
         createProjectionGroup();
         createGridGroup();
+        createAreaGroup();
         createSettingsLapsGroups();
         populateSpinners();
 
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = 180;
         gd.verticalIndent = 15;
-        localizeLapsBtn = new Button(configureAnalysisComp, SWT.PUSH);
-        localizeLapsBtn.setText("Localize LAPS");
-        localizeLapsBtn.setLayoutData(gd);
-        localizeLapsBtn.addSelectionListener(new SelectionAdapter() {
+        writeDomainBtn = new Button(configureAnalysisComp, SWT.PUSH);
+        writeDomainBtn.setText("Write file");
+        writeDomainBtn.setLayoutData(gd);
+        writeDomainBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                localizeLapsAction();
+            	writeXmlfileAction();
             }
         });
+        writeDomainBtn.setToolTipText("Write LAPS domain.xml file AND Exit.\n" +
+        		"This step will cause scripts to run that redefine the LAPS domain.\n" +
+        		"Next cycle of the analysis will show the change in domain made here." );
     }
 
     /**
@@ -480,7 +514,7 @@ public class LAPSToolsDlg extends CaveSWTDialog {
          */
         gd = new GridData(120, SWT.DEFAULT);
         Label projectionStrLbl = new Label(projectionGroup, SWT.CENTER);
-        projectionStrLbl.setText("PolarStr");
+        projectionStrLbl.setText("Polar Stereographic");
         projectionStrLbl.setLayoutData(gd);
 
         /*
@@ -533,62 +567,6 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         cenLonSpnr.setIncrement(1000);
         cenLonSpnr.setLayoutData(gd);
 
-        // 3 Filler Label
-        new Label(projectionGroup, SWT.NONE);
-        new Label(projectionGroup, SWT.NONE);
-        new Label(projectionGroup, SWT.NONE);
-
-        /*
-         * Lat
-         */
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, true);
-        Label latLbl = new Label(projectionGroup, SWT.NONE);
-        latLbl.setText("Lat: ");
-        latLbl.setLayoutData(gd);
-
-        gd = new GridData(50, SWT.DEFAULT);
-        latSpnr = new Spinner(projectionGroup, SWT.BORDER);
-        latSpnr.setDigits(4);
-        latSpnr.setMinimum(-900000);
-        latSpnr.setMaximum(900000);
-        latSpnr.setIncrement(1000);
-        latSpnr.setEnabled(false);
-        latSpnr.setLayoutData(gd);
-
-        /*
-         * Lat2
-         */
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, true);
-        Label lat2Lbl = new Label(projectionGroup, SWT.NONE);
-        lat2Lbl.setText("Lat2: ");
-        lat2Lbl.setLayoutData(gd);
-
-        gd = new GridData(50, SWT.DEFAULT);
-        lat2Spnr = new Spinner(projectionGroup, SWT.BORDER);
-        lat2Spnr.setDigits(4);
-        lat2Spnr.setMinimum(-900000);
-        lat2Spnr.setMaximum(900000);
-        lat2Spnr.setIncrement(1000);
-        lat2Spnr.setEnabled(false);
-        lat2Spnr.setLayoutData(gd);
-
-        /*
-         * Lon
-         */
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, true);
-        gd.widthHint = 60;
-        Label lonLbl = new Label(projectionGroup, SWT.RIGHT);
-        lonLbl.setText("Lon: ");
-        lonLbl.setLayoutData(gd);
-
-        gd = new GridData(50, SWT.DEFAULT);
-        lonSpnr = new Spinner(projectionGroup, SWT.BORDER);
-        lonSpnr.setDigits(4);
-        lonSpnr.setMinimum(-1800000);
-        lonSpnr.setMaximum(1800000);
-        lonSpnr.setIncrement(1000);
-        lonSpnr.setEnabled(false);
-        lonSpnr.setLayoutData(gd);
     }
 
     /**
@@ -622,12 +600,42 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         gd = new GridData(50, SWT.DEFAULT);
         nxSpnr = new Spinner(gridGroup, SWT.BORDER);
         nxSpnr.setDigits(0);
-        nxSpnr.setMinimum(1);
-        nxSpnr.setMaximum(100);
+        nxSpnr.setMinimum(61);
+        nxSpnr.setMaximum(301);
         nxSpnr.setIncrement(1);
-        nxSpnr.setEnabled(false);
+        nxSpnr.setEnabled(true);
         nxSpnr.setLayoutData(gd);
-
+        nxSpnr.addListener(SWT.Verify, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				data.setNx(nxSpnr.getSelection());
+		        areaStrLbl.setText(data.getAreaCoverageString());
+			}
+        });
+        /*nxSpnr.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				data.setNx(nxSpnr.getSelection());
+		        //areaStrLbl.setText(data.getAreaCoverageString());
+			}
+			@Override
+			public void focusLost(FocusEvent e) {
+				data.setNx(nxSpnr.getSelection());
+		        areaStrLbl.setText(data.getAreaCoverageString());				
+			}
+        });
+        nxSpnr.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				data.setNx(nxSpnr.getSelection());
+		        areaStrLbl.setText(data.getAreaCoverageString());				
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {				
+			}
+        });
+        */
+        
         /*
          * Ny
          */
@@ -641,16 +649,34 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         gd = new GridData(50, SWT.DEFAULT);
         nySpnr = new Spinner(gridGroup, SWT.BORDER);
         nySpnr.setDigits(0);
-        nySpnr.setMinimum(1);
-        nySpnr.setMaximum(100);
+        nySpnr.setMinimum(61);
+        nySpnr.setMaximum(301);
         nySpnr.setIncrement(1);
-        nySpnr.setEnabled(false);
+        nySpnr.setEnabled(true);
         nySpnr.setLayoutData(gd);
-
+        nySpnr.addListener(SWT.Verify, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				data.setNy(nySpnr.getSelection());
+		        areaStrLbl.setText(data.getAreaCoverageString());
+			}
+        });
+        /*nySpnr.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				data.setNy(nySpnr.getSelection());
+		        areaStrLbl.setText(data.getAreaCoverageString());				
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {				
+			}
+        });
+        */
         /*
          * Dx(m)
          */
         gd = new GridData(SWT.RIGHT, SWT.CENTER, false, true);
+        gd.horizontalIndent = 5;
         gd.widthHint = 60;
         Label dxmLbl = new Label(gridGroup, SWT.RIGHT);
         dxmLbl.setText("Dx(m): ");
@@ -659,12 +685,29 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         gd = new GridData(50, SWT.DEFAULT);
         dxmSpnr = new Spinner(gridGroup, SWT.BORDER);
         dxmSpnr.setDigits(0);
-        dxmSpnr.setMinimum(1000);
-        dxmSpnr.setMaximum(100000);
-        dxmSpnr.setIncrement(1000);
-        dxmSpnr.setEnabled(false);
+        dxmSpnr.setMaximum(12500);
+        dxmSpnr.setIncrement(500);
+        dxmSpnr.setEnabled(true);
         dxmSpnr.setLayoutData(gd);
-
+        dxmSpnr.setMinimum(1000);
+        dxmSpnr.addListener(SWT.Verify, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				data.setGridSpacing((double) dxmSpnr.getSelection());
+		        areaStrLbl.setText(data.getAreaCoverageString());
+			}
+        });
+        /*dxmSpnr.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				data.setGridSpacing((double) dxmSpnr.getSelection());
+		        areaStrLbl.setText(data.getAreaCoverageString());				
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {				
+			}
+        });
+*/
         /*
          * Vertical label
          */
@@ -690,39 +733,28 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         nzSpnr.setEnabled(false);
         nzSpnr.setLayoutData(gd);
 
-        /*
-         * Dp(Pa)
-         */
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, true);
-        Label dppaLbl = new Label(gridGroup, SWT.NONE);
-        dppaLbl.setText("Dp(Pa): ");
-        dppaLbl.setLayoutData(gd);
+    }
 
-        gd = new GridData(50, SWT.DEFAULT);
-        dpPaSpnr = new Spinner(gridGroup, SWT.BORDER);
-        dpPaSpnr.setDigits(0);
-        dpPaSpnr.setMinimum(0);
-        dpPaSpnr.setMaximum(200);
-        dpPaSpnr.setIncrement(10);
-        dpPaSpnr.setEnabled(false);
-        dpPaSpnr.setLayoutData(gd);
+    /**
+     * Create the area group.
+     */
+    private void createAreaGroup() {
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Group gridGroup = new Group(configureAnalysisComp, SWT.NONE);
+        gridGroup.setLayout(new GridLayout(1, false));
+        gridGroup.setLayoutData(gd);
+        gridGroup.setText(" Area of Coverage ");
+        
 
         /*
-         * Low(Pa)
+         * Calculated Area label
          */
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, true);
-        Label lowPaLbl = new Label(gridGroup, SWT.RIGHT);
-        lowPaLbl.setText("Low(Pa): ");
-        lowPaLbl.setLayoutData(gd);
-
-        gd = new GridData(50, SWT.DEFAULT);
-        lowPaSpnr = new Spinner(gridGroup, SWT.BORDER);
-        lowPaSpnr.setDigits(0);
-        lowPaSpnr.setMinimum(0);
-        lowPaSpnr.setMaximum(1050);
-        lowPaSpnr.setIncrement(10);
-        lowPaSpnr.setEnabled(false);
-        lowPaSpnr.setLayoutData(gd);
+        gd = new GridData(500, SWT.DEFAULT);
+        gd.widthHint = 500;
+        gd.horizontalIndent = 25;
+        areaStrLbl = new Label(gridGroup, SWT.HORIZONTAL);
+        areaStrLbl.setLayoutData(gd);
+        areaStrLbl.setText(data.getAreaCoverageString());
     }
 
     /**
@@ -736,8 +768,7 @@ public class LAPSToolsDlg extends CaveSWTDialog {
 
         Composite groupComp = new Composite(configureAnalysisComp, SWT.NONE);
         groupComp.setLayout(gl);
-        groupComp
-                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        groupComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         /*
          * Settings
@@ -759,6 +790,8 @@ public class LAPSToolsDlg extends CaveSWTDialog {
                 setDefaultDomain();
             }
         });
+        //defaultBtn.setToolTipText("Set to the default");
+        defaultBtn.setToolTipText("Reset all variables to values so that the LAPS domain will fully include the CWA area");
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = buttonWidth;
@@ -769,10 +802,10 @@ public class LAPSToolsDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 resetDomain();
-
             }
         });
-
+        resetBtn.setToolTipText("Set to the values that you started with" );
+        
         /*
          * LAPS Relocator
          */
@@ -780,12 +813,12 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         Group lapsRelocatorGroup = new Group(groupComp, SWT.NONE);
         lapsRelocatorGroup.setLayout(new GridLayout(2, true));
         lapsRelocatorGroup.setLayoutData(gd);
-        lapsRelocatorGroup.setText(" LAPS Relocator ");
+        lapsRelocatorGroup.setText(" LAPS Domain Viewer and Relocator ");
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = buttonWidth;
         loadBtn = new Button(lapsRelocatorGroup, SWT.PUSH);
-        loadBtn.setText("Load");
+        loadBtn.setText("Load in display");
         loadBtn.setLayoutData(gd);
         loadBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -793,11 +826,13 @@ public class LAPSToolsDlg extends CaveSWTDialog {
                 loadAction();
             }
         });
+        loadBtn.setToolTipText("Load the grid info into the display." +
+        		"\nRelocate the domain by selecting and moving the grid center.");
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = buttonWidth;
         applyBtn = new Button(lapsRelocatorGroup, SWT.PUSH);
-        applyBtn.setText("Apply");
+        applyBtn.setText("Apply changes");
         applyBtn.setLayoutData(gd);
         applyBtn.setEnabled(false);
         applyBtn.addSelectionListener(new SelectionAdapter() {
@@ -806,6 +841,8 @@ public class LAPSToolsDlg extends CaveSWTDialog {
                 applyAction();
             }
         });
+        applyBtn.setToolTipText("Fill the selectors with new values, if  you" +
+        		"\nmoved the domain by relocating the center point." );
     }
 
     /**
@@ -842,16 +879,18 @@ public class LAPSToolsDlg extends CaveSWTDialog {
     }
 
     private void populateTypeCombo(Combo combo) {
-        for (String choice : LapsToolsIO.getDataChoices()) {
+        combo.add("-- Select a Type --");
+    	for (String choice : LapsToolsIO.getDataChoices()) {
             combo.add(choice);
         }
     }
 
     private void typeAction(String type) {
         try {
+            stText.append("Begin "+type+"\n");
             stText.append(LapsToolsIO.getLogs(type));
-            stText.append("\n");
-            stText.append("__________________________________________\n");
+            stText.append("End of "+type);
+            stText.append("\n__________________________________________\n\n");
             stText.setTopIndex(stText.getLineCount());
         } catch (Exception ex) {
             statusHandler.handle(Priority.PROBLEM,
@@ -860,25 +899,23 @@ public class LAPSToolsDlg extends CaveSWTDialog {
     }
 
     private void populateSpinners() {
-        configureSpinner(latSpnr, data.getGridCenter().y);
-        configureSpinner(lat2Spnr, data.getLat2());
-        configureSpinner(lonSpnr, data.getLon());
-        configureSpinner(cenLatSpnr, data.getGridCenter().y, data
-                .getValidArea().getMinY(), data.getValidArea().getMaxY());
-        configureSpinner(cenLonSpnr, data.getGridCenter().x, data
-                .getValidArea().getMinX(), data.getValidArea().getMaxX());
+        configureSpinner(cenLatSpnr, data.getGridCenter().y, 
+        		data.getValidArea().getMinY(), data.getValidArea().getMaxY());
+        configureSpinner(cenLonSpnr, data.getGridCenter().x, 
+        		data.getValidArea().getMinX(), data.getValidArea().getMaxX());
         configureSpinner(nxSpnr, data.getNx());
         configureSpinner(nySpnr, data.getNy());
         configureSpinner(dxmSpnr, data.getGridSpacing());
         configureSpinner(nzSpnr, data.getNz());
-        configureSpinner(dpPaSpnr, data.getDp());
-        configureSpinner(lowPaSpnr, data.getLowp());
     }
 
-    private void readSpinners() {
+    public void readSpinners() {
         data.setGridCenterLat(readSpinner(cenLatSpnr));
         data.setLat(readSpinner(cenLatSpnr));
         data.setGridCenterLon(readSpinner(cenLonSpnr));
+        data.setNx(nxSpnr.getSelection());
+        data.setNy(nySpnr.getSelection());
+        data.setGridSpacing(readSpinner(dxmSpnr));
     }
 
     private Double readSpinner(Spinner spinner) {
@@ -909,10 +946,10 @@ public class LAPSToolsDlg extends CaveSWTDialog {
     private void setDefaultDomain() {
         boolean ok = MessageDialog
                 .openConfirm(getShell(), "Confirm Exit",
-                        "This will reset all variables to the default WFO localization values.");
+                        "This will reset all variables to values so that the LAPS domain will fully includes the CWA area.");
         if (ok) {
             try {
-                LapsToolsIO.readDefaultParmsFile(data);
+                LapsToolsIO.defaultDomain(data);
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         e.getLocalizedMessage(), e);
@@ -925,10 +962,10 @@ public class LAPSToolsDlg extends CaveSWTDialog {
     private void resetDomain() {
         boolean ok = MessageDialog
                 .openConfirm(getShell(), "Confirm Exit",
-                        "This will reset all variables to the existing localization values.");
+                        "This will reset all variables to values of the existing LAPS domain.");
         if (ok) {
             try {
-                LapsToolsIO.readParmsFile(data);
+                LapsToolsIO.readXmlFile(data);
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         e.getLocalizedMessage(), e);
@@ -938,13 +975,26 @@ public class LAPSToolsDlg extends CaveSWTDialog {
     }
 
     private void applyAction() {
+    	if(data.getLimits()) {
+    		System.out.print("LAPS Tools Dlg: problem with domain not covering CWA");
+            boolean yes = MessageDialog
+            .openQuestion(getShell(), "Domain Size Error",
+                    "The size of the LAPS domain does not cover the entire CWA." +
+                    "\nWould you like to move and recenter domain?" +
+                    "\n\n(Answering 'No' will allow you to reedit text values, instead.)");
+            if(yes){ return; }
+    	}
         cenLatSpnr.setEnabled(true);
         cenLonSpnr.setEnabled(true);
+        nxSpnr.setEnabled(true);
+        nySpnr.setEnabled(true);
+        dxmSpnr.setEnabled(true);
+
         applyBtn.setEnabled(false);
         loadBtn.setEnabled(true);
         resetBtn.setEnabled(true);
         defaultBtn.setEnabled(true);
-        localizeLapsBtn.setEnabled(true);
+        writeDomainBtn.setEnabled(true);
         populateSpinners();
 
         IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
@@ -961,15 +1011,19 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         }
     }
 
-    private void loadAction() {
+	private void loadAction() {
         cenLatSpnr.setEnabled(false);
         cenLonSpnr.setEnabled(false);
+        nxSpnr.setEnabled(false);
+        nySpnr.setEnabled(false);
+        dxmSpnr.setEnabled(false);
         applyBtn.setEnabled(true);
         loadBtn.setEnabled(false);
         resetBtn.setEnabled(false);
         defaultBtn.setEnabled(false);
-        localizeLapsBtn.setEnabled(false);
+        writeDomainBtn.setEnabled(false);
         readSpinners();
+        
         GenericToolsResourceData<LapsToolLayer> rd = new GenericToolsResourceData<LapsToolLayer>(
                 LapsToolLayer.DEFAULT_NAME, LapsToolLayer.class);
 
@@ -999,13 +1053,13 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         }
     }
 
-    private void localizeLapsAction() {
+	private void writeXmlfileAction() {
         if (MessageDialog.openQuestion(getShell(), "Confirmation",
-                LapsToolsIO.getLocalizationQuestion())) {
+                LapsToolsIO.getWriteXmlQuestion())) {
             try {
-                LapsToolsIO.localize(data);
-                statusHandler.handle(Priority.SIGNIFICANT,
-                        "Initiated LAPS Localization");
+                LapsToolsIO.writeXmlFile(data);
+                statusHandler.handle(Priority.INFO, //SIGNIFICANT
+                        "Write EDEX domain.xml file. This action will initiated a LAPS Localization process.");
                 close();
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -1013,4 +1067,9 @@ public class LAPSToolsDlg extends CaveSWTDialog {
             }
         }
     }
+	
+    public boolean isLapsInstalled() {
+		return isLapsInstalled;
+	}
+ 
 }
