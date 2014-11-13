@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// Preferred Ice Growth Temperatures 
+	//
+	
+	AWIPS 1 format
+	SnowT |0|N |Preferred Ice Growth |K      |CONTOUR,IMAGE,OTHER| |      *Alias|T  
+	
+	
+	varId: |SnowT| 
+	Cross Section (CS): |0| 
+	isAttachToSource: |N| 
+	varName: |Preferred Ice Growth | 
+	units: |K| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: || 							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Alias|	
+	varId: |T| 
+	
+	
+	AWIPS II NEW FILE - SnowT.xml
+-->
+<DerivedParameter unit="K" name="Preferred Ice Growth" abbreviation="SnowT" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Alias">
+        <Field abbreviation="T"/>
+    </Method>
+</DerivedParameter>
