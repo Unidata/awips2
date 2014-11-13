@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+//
+// Partial Thickness Precipitation Type Icons - Rain1
+// 
+
+AWIPS 1 format
+Rain1 | | |850-1000 ra thk  | | | |   *Test,Surface|dZ,1000MB-850MB| 1.|-1.e37|1290.|0.|1.|1291.|1.e37|1.  
+
+abbreviation: |Rain1| 
+Notused1: | | 
+Notused2: | | 
+name: |850-1000 ra thk  | 
+FIELD: || 
+FIELD: || 
+FIELD: || 
+FIELD: |dZ,1000MB-850MB| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |1290.| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |1291.| 
+FIELD: |1.e37| 
+FIELD: |1.| 
+
+-->
+<DerivedParameter name="850-1000 ra thk" abbreviation="Rain1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Test">
+        <Field level="1000MB-850MB" abbreviation="dZ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="1290.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1291.0"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="1.0"/>
+    </Method>
+</DerivedParameter>
