@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// IPLayer is a Situational Awareness field for environments that are 
+	// warm aloft (Tw>3C). The goal is to capture deep cloud processes where
+	// ice will be melted in the warm layer aloft to liquid, and then fall into a 
+	// deep, <0C cold air layer and refreeze to sleet instead of fzra. This field checks for
+	// Max Tw aloft above the frzlvl, then Max Tw > 3C, and RH>70%i at MaxTw level
+	// OB9 modification: 
+	// Checking for cold surface-based layer depth >1500ft and colder than -5.5 minT in
+	// lowest 3 km AGL.   
+	// Using an image and highlighting over 1500feet but then increasing sleet probs
+	// toward and above 2500ft gives the forecaster at least a flag to check further into sounding
+	// details. Used in Ptype Family.
+	//
+	
+	
+	AWIPS I format
+	IPLayer | |N |SFC Cold Lyr Probs Toward SLEET |ft |CONTOUR,IMAGE,OTHER|Layer|      *Test,650MB|INV,Layer|1.|-1.e37|1.|0.|1.|1.|1.e37|zAGL,FrzLvl|      
+																					   *Test,700MB|TwMax,0-6kmAgl| 1.|-1.e37|275.15|0.|1.|276.15|1.e37|IPLayer,650MB|      
+																					   *Test,750MB|IPLayer,700MB|-1.|457.|2134.|0.|      
+																					   *Test,800MB|RH,MaxTW|1.|-1.e37|69.|0.|1.|70.|1.e37|IPLayer,750MB|     
+																					   *Test,Layer|Tmin,0-3kmAgl|1.|267.66|1.e37|0.|1.|0.|267.65|IPLayer,800MB
+	
+	
+	varId: |IPLayer| 
+	Cross Section (CS): || 
+	isAttachToSource: |N| 
+	varName: |SFC Cold Lyr Probs Toward SLEET | 
+	units: |ft| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	
+	functionName, planeList: |Test,650MB|	
+	varId, plane: |INV,Layer| 
+	const: |1.| 
+	const: |-1.e37| 
+	const: |1.| 
+	const: |0.| 
+	const: |1.| 
+	const: |1.| 
+	const: |1.e37| 
+	varId, plane: |zAGL,FrzLvl| 
+	
+	functionName, planeList: |Test,700MB|	
+	varId, plane: |TwMax,0-6kmAgl| 
+	const: |1.| 
+	const: |-1.e37| 
+	const: |275.15| 
+	const: |0.| 
+	const: |1.| 
+	const: |276.15| 
+	const: |1.e37| 
+	varId, plane: |IPLayer,650MB|
+	
+	functionName, planeList: |Test,750MB|	 
+	varId, plane: |IPLayer,700MB| 
+	const: |-1.| 
+	const: |457.| 
+	const: |2134.| 
+	const: |0.| 
+	      
+	functionName, planeList: |Test,800MB|	
+	varId, plane: |RH,MaxTW| 
+	const: |1.| 
+	const: |-1.e37| 
+	const: |69.| 
+	const: |0.| 
+	const: |1.| 
+	const: |70.| 
+	const: |1.e37| 
+	varId, plane: |IPLayer,750MB| 
+	
+	functionName, planeList: |Test,Layer|	
+	varId, plane: |Tmin,0-3kmAgl| 
+	const: |1.| 
+	const: |267.66| 
+	const: |1.e37| 
+	const: |0.| 
+	const: |1.| 
+	const: |0.| 
+	const: |267.65| 
+	varId, plane: |IPLayer,800MB| 
+	
+	
+	AWIPS II NEW FILE - IPLayer.xml
+-->
+<DerivedParameter unit="ft" name="SFC Cold Lyr Probs Toward SLEET" abbreviation="IPLayer" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="650MB" name="Test">
+        <Field level="Layer" abbreviation="INV"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1e37"/>
+        <Field level="FrzLvl" abbreviation="zAGL"/>
+    </Method>
+    <Method levels="700MB" name="Test">
+        <Field level="0-6kmAgl" abbreviation="TwMax"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="275.15"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="276.15"/>
+        <ConstantField value="1e37"/>
+        <Field level="650MB" abbreviation="IPLayer"/>
+    </Method>
+    <Method levels="750MB" name="Test">
+        <Field level="700MB" abbreviation="IPLayer"/>
+        <ConstantField value="-1.0"/>
+        <ConstantField value="457.0"/>
+        <ConstantField value="2134.0"/>
+        <ConstantField value="0.0"/>
+    </Method>
+    <Method levels="800MB" name="Test">
+        <Field level="MaxTW" abbreviation="RH"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="69.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="70.0"/>
+        <ConstantField value="1e37"/>
+        <Field level="750MB" abbreviation="IPLayer"/>
+    </Method>
+    <Method levels="Layer" name="Test">
+        <Field level="0-3kmAgl" abbreviation="Tmin"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="267.66"/>
+        <ConstantField value="1e37"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="267.65"/>
+        <Field level="800MB" abbreviation="IPLayer"/>
+    </Method>
+</DerivedParameter>
