@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	// Warm Cloud Depth Approximation: Frzlvl-LCL of environment
+	
+	AWIPS I format
+	WCD | |N |Warm Cloud Depth Approx.: Frzlvl-LCL Thickness |m| CONTOUR,IMAGE,OTHER|Layer|      *Difference,Layer|zAGL,FrzLvl|zAGL,LiftCondLvl
+	
+	
+	varId: |WCD| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N | 
+	varName: |Warm Cloud Depth Approx.: Frzlvl-LCL Thickness | 
+	units: |m| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, plane: |Difference,Layer|	
+	varId, plane: |zAGL,FrzLvl| 
+	varId, plane: |zAGL,LiftCondLvl| 
+
+
+	AWIPS II NEW FILE - WCD.xml
+-->
+<DerivedParameter unit="m" name="Warm Cloud Depth Approx.: Frzlvl-LCL Thickness" abbreviation="WCD" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Difference">
+        <Field level="FrzLvl" abbreviation="zAGL"/>
+        <Field level="LiftCondLvl" abbreviation="zAGL"/>
+    </Method>
+</DerivedParameter>
