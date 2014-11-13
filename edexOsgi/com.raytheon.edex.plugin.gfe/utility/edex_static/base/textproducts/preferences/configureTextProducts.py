@@ -18,6 +18,13 @@
 # further licensing information.
 ##
 # configureTextProducts.py preferences
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    11/10/14        #4953         randerso       Added Hazard_TCV to templateProds
+##
 
 # ---- NWS Products --------------------------------------------------------
 # contains a list of pil category values to automatically
@@ -72,7 +79,7 @@ NWSProducts = ['ADR', 'AFD', 'AFM', 'AQA', 'AVA', 'AVW', 'CAE', 'CCF', 'CDW', 'C
 #contains the products to be generated (e.g., AFM). These products
 #follow the Baseline, Region, Site technique.
 templateProds= ['AFM', 'ZFP', 'CCF', 'CWF', 'CWF_Pacific', 'FWF', 'HLS',
-                'FWFTable', 'FWM', 'GLF', 'MVF', 'NSH', 'PFM', 'SFT', 'SRF', 'OFF', 'AFD']
+                'FWFTable', 'FWM', 'GLF', 'MVF', 'NSH', 'PFM', 'SFT', 'SRF', 'OFF', 'AFD', 'Hazard_TCV']
 templateProdsWsaf= ['AFM', 'ZFP', 'CCF', 'CWF', 'CWF_Pacific', 'FWF', 'HLS',
   'FWFTable', 'FWM', 'GLF', 'MVF', 'NSH', 'PFM', 'SFT', 'SRF', 'OFF', 'AFD', 'SAF',
   'FWS', 'Hazard_TCV', 'Hazard_HLS']
