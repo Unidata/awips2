@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+STP1 | | |Sig. Tornado Parameter (>1 Sig Tor) ||CONTOUR,IMAGE,OTHER|Layer|\
+      *Difference|2000.|MLLCL,ML
+-->
+<DerivedParameter name="Sig. Tornado Parameter (&gt;1 Sig Tor)" abbreviation="STP1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Add">
+        <Field level="ML" abbreviation="MLLCL"/>
+        <ConstantField value="-2000.0"/>
+    </Method>
+</DerivedParameter>

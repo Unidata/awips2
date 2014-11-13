@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+//
+// Partial Thickness Precipitation Type Icons - Snow3
+// 
+
+AWIPS 1 format
+Snow3 |0|N |Thickness: Snow Likely| |ICON|Surface |   *Test,Surface|dZ,1000MB-700MB| 1.|-1.e37|2850.|Snow2|1.|2851.|1.e37|0.  
+
+abbreviation: |Snow3| 
+Notused1: |0| 
+Notused2: |N | 
+name: |Thickness: Snow Likely| 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Surface| 
+FIELD: |dZ,1000MB-700MB| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |2850.| 
+FIELD: |Snow2| 
+FIELD: |1.| 
+FIELD: |2851.| 
+FIELD: |1.e37| 
+FIELD: |0.| 
+
+-->
+<DerivedParameter name="Thickness: Snow Likely" abbreviation="Snow3" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Test">
+        <Field level="1000MB-700MB" abbreviation="dZ"/>
+		<ConstantField value="1"/>
+        <ConstantField value="-1.e37"/>
+        <ConstantField value="2850"/>
+        <Field abbreviation="Snow2"/>
+ 		<ConstantField value="1"/>
+        <ConstantField value="2851"/>
+        <ConstantField value="1.e37"/>
+        <ConstantField value="0"/>
+    </Method>
+</DerivedParameter>
