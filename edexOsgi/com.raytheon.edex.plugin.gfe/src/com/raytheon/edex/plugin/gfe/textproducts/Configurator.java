@@ -21,7 +21,6 @@ package com.raytheon.edex.plugin.gfe.textproducts;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.utility.ProtectedFiles;
+import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  *                                      to create textProducts and textUtilities.
  * Sep 07,2012  #1150       dgilling    Fix isConfigured to check for textProducts
  *                                      and textUtilities dirs.
+ * Oct 20, 2014 #4953       randerso    Cleaned up how protected file updates are returned
  * 
  * </pre>
  * 
@@ -183,26 +184,23 @@ public class Configurator {
      */
     @SuppressWarnings("unchecked")
     public void execute() {
-        PythonScript python = null;
-        List<String> preEvals = new ArrayList<String>();
-
+        if (isConfigured()) {
+            statusHandler.info("All text products are up to date");
+            return;
+        }
         IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext context = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
+        context.setContextName(siteID);
+
+        PythonScript python = null;
+
         LocalizationContext edexCx = pathMgr.getContext(
                 LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
-        LocalizationContext commonCx = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
 
         String filePath = pathMgr.getFile(edexCx,
                 "textproducts" + File.separator + "Generator.py").getPath();
-        String textProductPath = pathMgr.getFile(edexCx,
-                "textProducts.Generator").getPath();
-        String jutilPath = pathMgr.getFile(commonCx, "python").getPath();
-
-        // Add some getters we need "in the script" that we want hidden
-        preEvals.add("from JUtil import pylistToJavaStringList");
-        preEvals.add("from textproducts.Generator import Generator");
-        preEvals.add("generator = Generator()");
-        preEvals.add("def getProtectedData():\n     return pylistToJavaStringList(generator.getProtectedFiles())");
+        String commonPython = GfePyIncludeUtil.getCommonPythonIncludePath();
 
         Map<String, Object> argList = new HashMap<String, Object>();
         argList.put("siteId", siteID);
@@ -210,20 +208,18 @@ public class Configurator {
 
         try {
             python = new PythonScript(filePath, PyUtil.buildJepIncludePath(
-                    pythonDirectory, textProductPath, jutilPath), this
-                    .getClass().getClassLoader(), preEvals);
+                    pythonDirectory, commonPython), this.getClass()
+                    .getClassLoader());
 
             // Open the Python interpreter using the designated script.
-            python.execute("generator.create", argList);
-            protectedFilesList = (List<String>) python.execute(
-                    "getProtectedData", null);
+            protectedFilesList = (List<String>) python.execute("runFromJava",
+                    argList);
 
             updateProtectedFile();
             updateLastRuntime();
         } catch (JepException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error Configuring Text Products", e);
-            e.printStackTrace();
         } finally {
             if (python != null) {
                 python.dispose();

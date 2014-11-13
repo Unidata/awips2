@@ -18,28 +18,33 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-
-"""Generate site specific text products.
-
-This script is run at install time to customize a set of the text products 
-for a given site.
-
-SOFTWARE HISTORY
-Date            Ticket#        Engineer    Description
-------------    ----------     ----------- --------------------------
-Jun 23, 2008    1180           jelkins     Initial creation
-Jul 08, 2008    1222           jelkins     Modified for use within Java
-Jul 09, 2008    1222           jelkins     Split command line loader from class
-Jul 24, 2012    #944           dgilling    Refactored to support separate
-                                           generation of products and utilities.
-Sep 07, 2012    #1150          dgilling    Ensure all necessary dirs get created.                                   
-
-@author: jelkins
-"""
+#
+# Generate site specific text products.
+#
+# This script is run at install time to customize a set of the text products 
+# for a given site.
+#
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# Jun 23, 2008    1180           jelkins     Initial creation
+# Jul 08, 2008    1222           jelkins     Modified for use within Java
+# Jul 09, 2008    1222           jelkins     Split command line loader from class
+# Jul 24, 2012    #944           dgilling    Refactored to support separate
+#                                            generation of products and utilities.
+# Sep 07, 2012    #1150          dgilling    Ensure all necessary dirs get created.                                   
+# Oct 20, 2014    #4953          randerso    Changed how SiteInfo is loaded.
+#                                            Fixed logging to log to a file
+#                                            Cleaned up how protected file updates are returned
+#
+# @author: jelkins
+#
+##
 __version__ = "1.0"
 
 import errno
 import os
+import JUtil
 from os.path import basename
 from os.path import join
 from os.path import dirname
@@ -63,7 +68,6 @@ from sys import path
 path.append(join(LIBRARY_DIR,"../"))
 path.append(join(PREFERENCE_DIR,"../"))
 
-from library.SiteInfo import SiteInfo as SITE_INFO
 from preferences.configureTextProducts import NWSProducts as NWS_PRODUCTS
 
 from os.path import basename
@@ -72,12 +76,21 @@ from os.path import abspath
 from os.path import join
 
 # ---- Setup Logging ----------------------------------------------------------
-LOG_CONF  = join(SCRIPT_DIR,"preferences","logging.conf")
+import logging
+from time import strftime, gmtime
+timeStamp = strftime("%Y%m%d", gmtime())
+logFile = '/awips2/edex/logs/configureTextProducts-'+timeStamp+'.log'
 
-import logging.config 
-logging.config.fileConfig(LOG_CONF)
+LOG = logging.getLogger("configureTextProducts")
+LOG.setLevel(logging.DEBUG)
+handler = logging.FileHandler(logFile)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(levelname)-5s %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s")
+handler.setFormatter(formatter)
+for h in LOG.handlers:
+    LOG.removeHandler(h)
+LOG.addHandler(handler)
 
-LOG = logging.getLogger("Generator")
 
 # List of protected files
 fileList = []
@@ -94,6 +107,17 @@ ProcessDirectories = [
      'dest': "textUtilities/regular"
   },
   ]
+
+# This will "load" SiteInfo in a more complicated way
+# than 'from SiteCFG import SiteInfo'.
+from LockingFile import File
+
+pathManager = PathManagerFactory.getPathManager()
+lf = pathManager.getStaticLocalizationFile(LocalizationType.COMMON_STATIC, "python/gfe/SiteCFG.py")
+with File(lf.getFile(), lf.getName(), 'r') as file:
+    fileContents = file.read()
+
+exec fileContents
 
 
 class Generator():
@@ -117,7 +141,7 @@ class Generator():
         
         @raise LookupError: when the site ID is invalid
         """
-        if siteId in SITE_INFO.keys():
+        if siteId in SiteInfo.keys():
             self.__siteId = siteId
         else:
             raise LookupError, ' unknown WFO: ' + siteId
@@ -178,6 +202,8 @@ class Generator():
             created += self.__create(dirInfo['src'], dirInfo['dest'])
         LOG.info("%d text products created" % created)
         LOG.debug("Configuration of Text Products Finish")
+        
+        return JUtil.pylistToJavaStringList(self.getProtectedFiles())
     
     def delete(self):
         """Delete text products"""
@@ -215,11 +241,11 @@ class Generator():
         
         LOG.debug("PIL Information for all sites Begin.......")
         
-        for site in SITE_INFO.keys():
+        for site in SiteInfo.keys():
             LOG.info("--------------------------------------------")
             LOG.info("%s %s %s" % (site, 
-                                   SITE_INFO[site]['fullStationID'], 
-                                   SITE_INFO[site]['wfoCityState']))
+                                   SiteInfo[site]['fullStationID'], 
+                                   SiteInfo[site]['wfoCityState']))
             pils = self.__createPilDictionary(site)
             self.__printPilDictionary(pils)
             found += len(pils)
@@ -302,11 +328,11 @@ class Generator():
             
             subDict = {}
             subDict['<site>'] = siteid.strip()
-            subDict['<region>'] = SITE_INFO[siteid]['region'].strip()
-            subDict['<wfoCityState>'] = SITE_INFO[siteid]['wfoCityState'].strip()
-            subDict['<wfoCity>'] = SITE_INFO[siteid]['wfoCity'].strip()
-            subDict['<fullStationID>'] = SITE_INFO[siteid]['fullStationID'].strip()
-            subDict['<state>'] = SITE_INFO[siteid]['state'].strip()
+            subDict['<region>'] = SiteInfo[siteid]['region'].strip()
+            subDict['<wfoCityState>'] = SiteInfo[siteid]['wfoCityState'].strip()
+            subDict['<wfoCity>'] = SiteInfo[siteid]['wfoCity'].strip()
+            subDict['<fullStationID>'] = SiteInfo[siteid]['fullStationID'].strip()
+            subDict['<state>'] = SiteInfo[siteid]['state'].strip()
             if product is not None:
                 subDict['<product>'] = product.strip()
                 if ProductToStandardMapping.has_key(product):
@@ -341,7 +367,7 @@ class Generator():
             
             subDict = {}
             subDict['Site'] = siteid.strip()
-            subDict['Region'] = SITE_INFO[siteid]['region'].strip()
+            subDict['Region'] = SiteInfo[siteid]['region'].strip()
             if product is not None:
                 subDict['Product'] = product.strip()
             if pilInfo is not None and pilInfo.has_key("pil") and multiPilFlag:
@@ -377,10 +403,10 @@ class Generator():
             LOG.info("%s %s" % (p,pillist[p]))
     
     def __createPilDictionary(self, siteid):
-        """Update the SITE_INFO with a PIL dictionary
+        """Update the SiteInfo with a PIL dictionary
         
         Read the a2a data from the database, create PIL information, and add the information
-        to the SITE_INFO dictionary.
+        to the SiteInfo dictionary.
         
         @param site: the site for which PIL information is created
         @type site: string
@@ -389,7 +415,7 @@ class Generator():
         @rtype: dictionary
         """
         
-        siteD = SITE_INFO[siteid]
+        siteD = SiteInfo[siteid]
         stationID4 = siteD['fullStationID']
         
         from com.raytheon.edex.plugin.text.dao import AfosToAwipsDao
@@ -434,7 +460,7 @@ class Generator():
                 e['textdbPil'] = pil
                 e['awipsWANPil'] = site4 + pil[3:]
                 d.append(e)
-            siteD[nnn] = d #store the pil dictionary back into the SITE_INFO
+            siteD[nnn] = d #store the pil dictionary back into the SiteInfo
     
         return pillist
 
@@ -571,8 +597,8 @@ class Generator():
                     continue
         
                 # extract out the pil information from the dictionary
-                if SITE_INFO[siteid].has_key(pilNames[0]):
-                    pils = SITE_INFO[siteid][pilNames[0]]
+                if SiteInfo[siteid].has_key(pilNames[0]):
+                    pils = SiteInfo[siteid][pilNames[0]]
                 else:
                     #set pils to empty list if none defined
                     pils = [{'awipsWANPil': 'kssscccnnn',
@@ -727,4 +753,7 @@ class Generator():
         LOG.debug("     Deleting Existing Baseline Templates Finished........")
         
         return productsRemoved
-                        
+
+def runFromJava(siteId, destinationDir):
+    generator = Generator()
+    return generator.create(siteId, destinationDir)

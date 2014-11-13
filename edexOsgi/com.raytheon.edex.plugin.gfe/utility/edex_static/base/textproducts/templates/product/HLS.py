@@ -20,20 +20,20 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["outputFile"]    = "{prddir}/TEXT/HLS.txt"
     Definition["database"]      =  "Official"  # Source database
     Definition["debug"]         =  1
-    Definition["mapNameForCombinations"] = "Zones_MFL"
-    Definition["defaultEditAreas"] = "Combinations_HLS_MFL"
+    Definition["mapNameForCombinations"] = "Zones_<site>"
+    Definition["defaultEditAreas"] = "Combinations_HLS_<site>"
     Definition["showZoneCombiner"] = 0 # 1 to cause zone combiner to display
 
     Definition["productName"]       = "LOCAL STATEMENT"
 
-    Definition["fullStationID" ]    = "KMFL"
-    Definition["wmoID" ]            = "WTUS82"
-    Definition["wfoCityState" ]     = "MIAMI FL"
-    Definition["pil" ]              = "HLSMIA"
-    Definition["textdbPil" ]        = "MIAHLSMIA"
-    Definition["awipsWANPil" ]      = "KMFLHLSMIA"
-    Definition["site"]              = "MFL"
-    Definition["wfoCity"]           = "MIAMI"
+    Definition["fullStationID" ]    = "<fullStationID>"
+    Definition["wmoID" ]            = "<wmoID>"
+    Definition["wfoCityState" ]     = "<wfoCityState>"
+    Definition["pil" ]              = "<pil>"
+    Definition["textdbPil" ]        = "<textdbPil>"
+    Definition["awipsWANPil" ]      = "<awipsWANPil>"
+    Definition["site"]              = "<site>"
+    Definition["wfoCity"]           = "<wfoCity>"
 
     Definition["areaName"]          = ""  #optional area name for product
     Definition["areaDictionary"]    = "AreaDictionary"
