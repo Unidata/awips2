@@ -75,7 +75,7 @@ class RestManager():
             httpConn.timeout = _connTimeout
 
         httpConn.connect()
-        httpConn.request("GET", "/rest/" + service)
+        httpConn.request("GET", "/api/v2/" + service)
         response = httpConn.getresponse()
         
         if (response.status != 200):
