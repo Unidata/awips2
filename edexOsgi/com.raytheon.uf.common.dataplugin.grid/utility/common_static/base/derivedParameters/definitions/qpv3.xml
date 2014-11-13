@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    COMMENT:
+    
+    
+    AWIPS 1 format
+    QPV3 |9| |QPV Net         | |CONTOUR,IMAGE,OTHER|MB |   *Multiply|QPV1|QPV2  
+    
+    
+    abbreviation: |QPV3| 
+    Notused1: |9| 
+    Notused2: | | 
+    name: |QPV Net         | 
+    FIELD: || 
+    FIELD: |CONTOUR,IMAGE,OTHER| 
+    FIELD: |MB| 
+    FIELD: |QPV1| 
+    FIELD: |QPV2| 
+    
+    
+    NEW FILE - QPV3.xml
+    -->
+<DerivedParameter name="QPV Net" abbreviation="QPV3" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Multiply">
+        <Field abbreviation="QPV1"/>
+        <Field abbreviation="QPV2"/>
+    </Method>
+</DerivedParameter>
