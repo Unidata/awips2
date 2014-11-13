@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 	
+	AWIPS I format
+	POP_016| |N|Prob of 2in/48hr Precip|%|CONTOUR,IMAGE,OTHER|Surface|   *Test,ENSEMBLE37,100MB|TP48hr,Surface|1.0|-999999.0|50.7|0.0|1.0|50.8|999999.0|100.0|   
+																		 *Gather,150MB|POP_016,100MB|   
+																		 *Average,Surface|POP_016,150MB
+	
+	
+	varId: |POP_016| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N| 
+	varName: |Prob of 2in/48hr Precip| 
+	units: |%| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Surface| 					//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, planeList: |Test,ENSEMBLE37,100MB| 
+	varId: |TP48hr,Surface| 
+	const: |1.0| 
+	const: |-999999.0| 
+	const: |50.7| 
+	const: |0.0| 
+	const: |1.0| 
+	const: |50.8| 
+	const: |999999.0| 
+	const: |100.0| 
+	
+	functionName, planeList: |Gather,150MB| 
+	varId, plane: |POP_016,100MB| 
+
+	functionName, planeList: |Average,Surface| 
+	varId, plane: |POP_016,150MB| 
+
+
+	AWIPS II NEW FILE - POP_016.xml
+ -->
+<DerivedParameter unit="%" name="Prob of 2in/48hr Precip" abbreviation="POP_016" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method models="ENSEMBLE" levels="100MB" name="Test">
+        <Field level="Surface" abbreviation="TP48hr"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-999999.0"/>
+        <ConstantField value="50.7"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="50.8"/>
+        <ConstantField value="999999.0"/>
+        <ConstantField value="100.0"/>
+    </Method>
+    <Method levels="150MB" name="Gather">
+        <Field level="100MB" abbreviation="POP_016"/>
+    </Method>
+    <Method levels="Surface" name="Average">
+        <Field level="150MB" abbreviation="POP_016"/>
+    </Method>
+</DerivedParameter>
