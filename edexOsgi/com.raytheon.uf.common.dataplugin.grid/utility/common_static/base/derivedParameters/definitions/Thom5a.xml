@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  
+AWIPS 1 format
+Thom5a | | |S-R Flow      | | ||       *Test|SRMrM,0ZAGL|1.|-1.e37|8.0|0.|1.|7.9|1.e37|Thom5 
+
+
+abbreviation: |Thom5a| 
+Notused1: | | 
+Notused2: | | 
+name: |S-R Flow      | 
+FIELD: || 
+FIELD: || 
+
+changed OZAGL field level to OFHAG because 0ZAGL is replaced by OFHAG in AWIPS II.  10/12/2011.  David (Yi-Ping) Pan
+-->
+<DerivedParameter name="S-R Flow" abbreviation="Thom5a" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field level="0FHAG" abbreviation="SRMrM"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="8.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="7.9"/>
+        <ConstantField value="1.0E37"/>
+        <Field abbreviation="Thom5"/>
+    </Method>
+</DerivedParameter>
