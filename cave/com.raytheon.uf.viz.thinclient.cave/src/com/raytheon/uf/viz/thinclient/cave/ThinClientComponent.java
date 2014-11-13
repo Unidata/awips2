@@ -30,11 +30,13 @@ import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.jobs.StatsJob;
 import com.raytheon.uf.viz.core.localization.BundleScanner;
+import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.IThinClientComponent;
@@ -67,6 +69,8 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  * Aug  4, 2011            njensen     Initial creation
  * Apr 23, 2013 1939       randerso    Return null from initializeSerialization
  * Nov 14, 2013 2361       njensen     Remove initializeSerialization()
+ * Nov 06, 2014  3356      njensen     Always initialize ILocalizationAdapter   
+ *                                      in case cache preference is not enabled
  * 
  * </pre>
  * 
@@ -75,6 +79,7 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  */
 
 public class ThinClientComponent extends CAVE implements IThinClientComponent {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractAWIPSComponent.class, "ThinClient");
 
@@ -160,6 +165,12 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
      */
     @Override
     protected void initializeLocalization() throws Exception {
+        /*
+         * Set the normal adapter first, based on cache preference settings the
+         * next few lines may replace it with the thin client localization
+         * adapter
+         */
+        PathManagerFactory.setAdapter(new CAVELocalizationAdapter());
         cacheManager = new ThinClientCacheManager(
                 new GeometryCachePersistence(),
                 new LocalizationCachePersistence(),
