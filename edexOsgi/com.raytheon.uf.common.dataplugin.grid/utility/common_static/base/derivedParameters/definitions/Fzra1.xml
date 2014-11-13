@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+//
+// Partial Thickness Precipitation Type Icons - Fzra1
+// 
+
+AWIPS 1 format
+Fzra1 | | |850-1000 fz thk  | | | |   *Test,Surface|dZ,1000MB-850MB| 1.|-1.e37|1299.|1.|1.|1300.|1.e37|0.  
+
+abbreviation: |Fzra1| 
+Notused1: | | 
+Notused2: | | 
+name: |850-1000 fz thk  | 
+FIELD: || 
+FIELD: || 
+FIELD: || 
+FIELD: |dZ,1000MB-850MB| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |1299.| 
+FIELD: |1.| 
+FIELD: |1.| 
+FIELD: |1300.| 
+FIELD: |1.e37| 
+FIELD: |0.| 
+
+-->
+<DerivedParameter name="850-1000 fz thk" abbreviation="Fzra1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Test">
+	     <Field level="1000MB-850MB" abbreviation="dZ"/>
+		 <ConstantField value="1" />
+	     <ConstantField value="-1e37"/>
+	     <ConstantField value="1299"/>
+	     <ConstantField value="1"/>
+	     <ConstantField value="1"/>
+	     <ConstantField value="1300"/>
+	     <ConstantField value="1e37"/>
+	     <ConstantField value="0"/>
+    </Method>
+</DerivedParameter>

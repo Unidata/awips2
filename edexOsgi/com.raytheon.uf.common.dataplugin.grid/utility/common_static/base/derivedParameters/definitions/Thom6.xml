@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  
+AWIPS 1 format
+Thom6 | | |S-R Flow Suggests Tor Supercells | |ICON,CONTOUR,IMAGE|Layer|       *Test|PBE,Surface|1.|-1.e37|500.|0.|1.|499.|1.e37|Thom5a    
+
+abbreviation: |Thom6| 
+Notused1: | | 
+Notused2: | | 
+name: |S-R Flow Suggests Tor Supercells | 
+FIELD: || 
+FIELD: |ICON,CONTOUR,IMAGE| 
+FIELD: |Layer| 
+FIELD: |PBE,Surface| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |500.| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |499.| 
+FIELD: |1.e37| 
+FIELD: |Thom5a| 
+-->
+<DerivedParameter name="S-R Flow Suggests Tor Supercells" abbreviation="Thom6" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field level="Surface" abbreviation="PBE"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="500.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="499.0"/>
+        <ConstantField value="1.0E37"/>
+        <Field abbreviation="Thom5a"/>
+    </Method>
+</DerivedParameter>
