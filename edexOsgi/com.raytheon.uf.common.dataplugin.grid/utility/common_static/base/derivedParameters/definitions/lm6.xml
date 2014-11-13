@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	LM6   | |N|Elevated Left-Moving Supercell     | |BARB,ARROW         |Layer  |      *Difference,Layer | Wind,1-6kmAgl | RMprop2
+	
+	
+	varId: |LM6| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N| 
+	varName: |Elevated Left-Moving Supercell     | 
+	units: || 
+	displayTypes: |BARB,ARROW| 				//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+
+	functionName, planeList: |Difference,Layer| 	
+	varId, plane: |Wind,1-6kmAgl| 
+	varId: |RMprop2| 
+	
+	
+	AWIPS II NEW FILE - LM6.xml
+-->
+<DerivedParameter name="Elevated Left-Moving Supercell" abbreviation="LM6" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Difference">
+        <Field level="1-6kmAgl" abbreviation="Wind"/>
+        <Field abbreviation="RMprop2"/>
+    </Method>
+</DerivedParameter>
