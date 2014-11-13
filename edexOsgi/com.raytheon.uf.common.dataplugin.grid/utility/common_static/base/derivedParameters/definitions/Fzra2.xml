@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+//
+// Partial Thickness Precipitation Type Icons - Fzra1
+// 
+
+AWIPS 1 format
+Fzra2 |0|N |Thickness: FZRA/FZDZ  | |ICON|Surface |   *Test,Surface|dZ,850MB-700MB|1.|-1.e37|1553.|0.|1.|1554.|1.e37|Fzra1  
+
+
+abbreviation: |Fzra2| 
+Notused1: |0| 
+Notused2: |N | 
+name: |Thickness: FZRA/FZDZ  | 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Surface| 
+FIELD: |dZ,850MB-700MB| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |1553.| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |1554.| 
+FIELD: |1.e37| 
+FIELD: |Fzra1| 
+
+-->
+<DerivedParameter name="Thickness: FZRA/FZDZ" abbreviation="Fzra2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Test">
+        <Field level="850MB-700MB" abbreviation="dZ"/>
+		<ConstantField value="1" />
+	    <ConstantField value="-1e37" />
+	    <ConstantField value="1553" />
+	    <ConstantField value="0" />
+	    <ConstantField value="1" />
+	    <ConstantField value="1554" />
+	    <ConstantField value="1e37" />
+	    <Field abbreviation="Fzra1" />
+    </Method>
+</DerivedParameter>
