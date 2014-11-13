@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+COMMENT:
+// Calculate if shear increases above 0-3km layer for supercells
+
+
+AWIPS 1 format
+36SHRMi | |N |S=Shear incr >10kts 3-6km|  |ICON|Layer  |      *Test,Layer|BlkMag,3-6kmAgl| 1.|-1.e37|5.5|0.|1.|5.|1.e37|1. 
+
+
+abbreviation: |36SHRMi| 
+Notused1: | | 
+Notused2: |N | 
+name: |S=Shear incr >10kts 3-6km| 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Layer| 
+FIELD: |BlkMag,3-6kmAgl| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |5.5| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |5.| 
+FIELD: |1.e37| 
+FIELD: |1.| 
+
+
+NEW FILE - 36SHRMi.xml
+
+-->
+<DerivedParameter name="S=Shear incr &gt; 10kts 3-6km" abbreviation="36SHRMi" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Test">
+        <Field level="3-6kmAgl" abbreviation="BlkMag"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="5.5"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="5.0"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="1.0"/>
+    </Method>
+</DerivedParameter>
