@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	wSp_003_perts| ||Prob of Wind Grtn 60kts Perts||||   *Gather|wSp_003_bin
+	
+	
+	varId: |wSp_003_perts| 
+	Cross Section (CS): | | 
+	isAttachToSource: || 
+	varName: |Prob of Wind Grtn 60kts Perts| 
+	units: | | 
+	displayTypes: | |					 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: | |							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels	
+	
+	functionName: |Gather|
+	varId:  |wSp_003_bin|
+	
+	AWIPS II NEW FILE - wSp_003_perts.xml
+ -->
+<DerivedParameter name="Prob of Wind Grtn 60kts Perts" abbreviation="wSp_003_perts" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Gather">
+        <Field abbreviation="wSp_003_bin"/>
+    </Method>
+</DerivedParameter>
