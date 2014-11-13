@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// Strong Tornado Parameter
+	//   Craven Brooks, NWA Digest 2005
+	// http://www.srh.noaa.gov/jan/research/climo/climopaper.html
+	//
+	
+	
+	AWIPS 1 format
+	StrTP | | | Strong Tornado Parameter |m/s2 |CONTOUR,IMAGE,OTHER|Layer|      *Test,Surface|dCape,Surface|1.|-1.e37|100.|100.|1.|101.|1.e37|dCape,Surface|      
+																				*Multiply,ML|MLLCL,ML|StrTP,Surface|      
+																				*Divide,1000MB|1.0|StrTP,ML|      
+																				*Multiply,975MB|cCape,ML|BlkMag,0-1kmAgl|BlkMag,0-6kmAgl|StrTP,1000MB|      
+																				*Filter,Layer|StrTP,975MB|-2.|1.
+	
+	varId: |StrTP| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: | Strong Tornado Parameter | 
+	units: |m/s2| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	
+	functionName, planeList: |Test,Surface|	
+	varId, plane: |dCape,Surface| 
+	const: |1.| 
+	const: |-1.e37| 
+	const: |100.| 
+	const: |100.| 
+	const: |1.| 
+	const: |101.| 
+	const: |1.e37| 
+	varId, plane: |dCape,Surface| 
+	
+	functionName, planeList: |Multiply,ML|	
+	varId, plane: |MLLCL,ML| 
+	varId, plane: |StrTP,Surface| 
+	
+	functionName, planeList: |Divide,1000MB|	
+	const: |1.0| 
+	varId, plane: |StrTP,ML| 
+	
+	functionName, planeList: |Multiply,975MB|	
+	varId, plane: |cCape,ML| 
+	varId, plane: |BlkMag,0-1kmAgl| 
+	varId, plane: |BlkMag,0-6kmAgl| 
+	varId, plane: |StrTP,1000MB| 
+	
+	functionName, planeList: |Filter,Layer|	
+	varId, plane: |StrTP,975MB| 
+	const: |-2.| 
+	const: |1.| 
+	
+	
+	AWIPS II NEW FILE - StrTP.xml
+-->
+<DerivedParameter unit="m/s^2" name="Strong Tornado Parameter" abbreviation="StrTP" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Test">
+        <Field level="Surface" abbreviation="dCape"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="100.0"/>
+        <ConstantField value="100.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="101.0"/>
+        <ConstantField value="1.0E37"/>
+        <Field level="Surface" abbreviation="dCape"/>
+    </Method>
+    <Method levels="ML" name="Multiply">
+        <Field level="ML" abbreviation="MLLCL"/>
+        <Field level="Surface" abbreviation="StrTP"/>
+    </Method>
+    <Method levels="1000MB" name="Divide">
+        <ConstantField value="1.0"/>
+        <Field level="ML" abbreviation="StrTP"/>
+    </Method>
+    <Method levels="975MB" name="Multiply">
+        <Field level="ML" abbreviation="cCape"/>
+        <Field level="0-1kmAgl" abbreviation="BlkMag"/>
+        <Field level="0-6kmAgl" abbreviation="BlkMag"/>
+        <Field level="1000MB" abbreviation="StrTP"/>
+    </Method>
+    <Method levels="Layer" name="Filter">
+        <Field level="975MB" abbreviation="StrTP"/>
+        <ConstantField value="-2.0"/>
+	<Field abbreviation="dx"/>
+	<Field abbreviation="dy"/>
+    </Method>
+</DerivedParameter>

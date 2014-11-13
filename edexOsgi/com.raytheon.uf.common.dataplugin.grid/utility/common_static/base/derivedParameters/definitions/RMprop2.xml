@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	// Elevated Supercell Motion - assumes 1kmAGL is base of inflow layer.
+	// supplied by Matt Bunkers
+	
+	
+	AWIPS I format
+	RMprop2 | | |Elevated Right Mover Propagation Vector      |       | | |    *Rotate,0ZAGL|BlkShr,1-6kmAgl|0.0|7.5|-7.5|0.0|    
+																			   *Divide,Layer|RMprop,0ZAGL|BlkMag,1-6kmAgl
+	
+	
+	varId: |RMprop2| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Elevated Right Mover Propagation Vector      | 
+	units: || 
+	displayTypes: || 						//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: || 							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	
+	functionName, source: |Rotate,0ZAGL| 	
+	varId: |BlkShr,1-6kmAgl| 
+	const: |0.0| 
+	const: |7.5| 
+	const: |-7.5| 
+	const: |0.0| 
+	
+	functionName, planeList: |Divide,Layer| 	
+	varId, plane: |RMprop,0ZAGL| 
+	varId, plane: |BlkMag,1-6kmAgl| 
+	
+	
+	AWIPS II NEW FILE - RMprop2.xml
+-->
+<DerivedParameter name="Elevated Right Mover Propagation Vector" abbreviation="RMprop2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="0FHAG" name="Rotate">
+        <Field level="1-6kmAgl" abbreviation="BlkShr"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="7.5"/>
+        <ConstantField value="-7.5"/>
+        <ConstantField value="0.0"/>
+    </Method>
+    <Method levels="Layer" name="Divide">
+        <Field level="0FHAG" abbreviation="RMprop"/>
+        <Field level="1-6kmAgl" abbreviation="BlkMag"/>
+    </Method>
+</DerivedParameter>
