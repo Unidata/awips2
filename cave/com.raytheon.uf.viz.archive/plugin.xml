@@ -41,29 +41,25 @@
     </extension>
    <extension
          point="org.eclipse.ui.menus">
-       <menuContribution
-            allPopups="false"
-            locationURI="menu:CAVE?after=group1">
-         <command
-               commandId="com.raytheon.uf.viz.archive.retentionui"
-               id="archivetest"
-               label="Archive Retention..."
-               style="push">
-         </command>
-      </menuContribution>
-   </extension>
-  <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:CAVE?after=group1">
-         <command
-               commandId="com.raytheon.uf.viz.archive.casecreationui"
-               id="archivetest"
-               label="Archive Case Creation..."
-               style="push">
-         </command>
-      </menuContribution>
+         <menuContribution
+               locationURI="menu:CAVE?after=group1">
+               <menu
+                     label="Archive"
+                     id="archive">
+                    <command
+                        commandId="com.raytheon.uf.viz.archive.casecreationui"
+                        id="archivetest"
+                        label="Archive Case Creation..."
+                        style="push">
+                    </command>
+                     <command
+                           commandId="com.raytheon.uf.viz.archive.retentionui"
+                           id="archivetest"
+                           label="Archive Retention..."
+                           style="push">
+                    </command>
+               </menu>
+         </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
