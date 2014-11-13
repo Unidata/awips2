@@ -63,6 +63,7 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  *                                     when pmax < pmin
  * 08/14/2014   #3523      mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
+ * 11/04/2014   #3557      randerso    Fixed NPE when parm is removed from display
  * 
  * </pre>
  * 
@@ -124,9 +125,16 @@ public class ContinuousColorbar implements IColorBarDisplay {
         ISpatialDisplayManager spatialDisplayManager = dManager
                 .getSpatialDisplayManager();
 
-        ResourcePair parmRsc = spatialDisplayManager.getResourcePair(parm);
-        ColorMapParameters cmap = parmRsc.getResource()
-                .getCapability(ColorMapCapability.class)
+        ResourcePair rscPair = spatialDisplayManager.getResourcePair(parm);
+        if (rscPair == null) {
+            // spatial display manager deactivated since we got the color map?
+            log.debug("Cannot obtain resource pair for "
+                    + parm.getParmID().getCompositeName() + ", exiting paint()");
+            return;
+        }
+
+        GFEResource rsc = (GFEResource) rscPair.getResource();
+        ColorMapParameters cmap = rsc.getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
 
         if (cmap == null) {
@@ -137,20 +145,11 @@ public class ContinuousColorbar implements IColorBarDisplay {
         PixelExtent pe = colorbarResource.getExtent();
         float center = (float) ((pe.getMinY() + pe.getMaxY()) / 2.0);
 
-        ResourcePair rscPair = spatialDisplayManager.getResourcePair(parm);
-        if (rscPair == null) {
-            // spatial display manager deactivated since we got the color map?
-            log.debug("Cannot obtain resource pair for "
-                    + parm.getParmID().getCompositeName() + ", exiting paint()");
-            return;
-        }
-
         DrawableColorMap dcm = new DrawableColorMap(cmap);
         dcm.alpha = 1.0f;
         dcm.extent = pe;
         target.drawColorRamp(dcm);
 
-        GFEResource rsc = (GFEResource) rscPair.getResource();
         float minParm = rsc.getCapability(ColorMapCapability.class)
                 .getColorMapParameters().getColorMapMin();
         float maxParm = rsc.getCapability(ColorMapCapability.class)
