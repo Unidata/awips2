@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	climoPW    |0| |PW % of normal     |%normal |CONTOUR,IMAGE,OTHER|Layer|       *Divide|PW|climoPWimp
+	
+	
+	varId: |climoPW| 
+	Cross Section (CS): |0| 
+	isAttachToSource: | | 
+	varName: |PW % of normal     | 
+	units: |%normal| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Divide|	
+	FIELD: |PW| 
+	FIELD: |climoPWimp| 
+
+	
+	AWIPS II NEW FILE - climoPW.xml
+-->
+<DerivedParameter unit="%" name="PW % of normal" abbreviation="climoPW" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Divide">
+        <Field abbreviation="PW"/>
+        <Field abbreviation="climoPWimp"/>
+    </Method>
+</DerivedParameter>

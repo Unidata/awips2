@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// Total Theta Tendency
+	// provided by Greg Garrett
+	//
+	
+	
+	AWIPS I format
+	DthDt|0| |Total Theta Tendency |K/S |CONTOUR,IMAGE,OTHER| |     *Volume|K|    
+																    *Divide|DIABi|SSi
+	
+	
+	varId: |DthDt| 
+	Cross Section (CS): |0| 
+	isAttachToSource: | | 
+	varName: |Total Theta Tendency | 
+	units: |K/S| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: || 							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+
+	functionName: |Volume|												
+	varId: |K| 
+
+	functionName: |Divide|												
+	varId: |DIABi| 
+	varId: |SSi| 
+	
+	AWIPS II NEW FILE - DthDt.xml
+-->
+<DerivedParameter unit="K/S" name="Total Theta Tendency" abbreviation="DthDt" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Volume">
+        <Field abbreviation="K"/>
+    </Method>
+    <Method name="Divide">
+        <Field abbreviation="DIABi"/>
+        <Field abbreviation="SSi"/>
+    </Method>
+</DerivedParameter>
