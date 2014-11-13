@@ -26,6 +26,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -47,6 +49,7 @@ import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.Activator;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -74,6 +77,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 16, 2014 2757          skorolev     Updated createBottomButtons method.
  * Sep 24, 2014 2757          skorolev     Fixed problem with adding and removing zones.
  * Oct 27, 2014 3667          skorolev     Corrected functionality of dialog. Cleaned code.
+ * Nov 12, 2014 3650          skorolev     Added confirmation box for unsaved changes in the dialog.
  * 
  * </pre>
  * 
@@ -222,6 +226,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /** Delete a Newly Entered Station dialog */
     private DeleteStationDlg deleteStnDlg;
 
+    /** Flag set when user wants to close with unsaved modifications. */
+    protected boolean closeFlag = false;
+
     /**
      * Constructor.
      * 
@@ -323,6 +330,24 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         // Populate the dialog
         populateLeftLists();
         setValues();
+        shell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellClosed(ShellEvent event) {
+                if (closeFlag || !dataIsChanged()) {
+                    return;
+                }
+                event.doit = false;
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (verifyClose()) {
+                            resetStatus();
+                            close();
+                        }
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -767,7 +792,12 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                closeWithoutSave();
+                if (verifyClose()) {
+                    resetStatus();
+                    close();
+                } else {
+                    event.doit = false;
+                }
             }
         });
     }
@@ -1304,15 +1334,6 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Called when the cancel.
-     */
-    protected void closeWithoutSave() {
-        resetStatus();
-        setReturnValue(true);
-        close();
-    }
-
-    /**
      * Reset and Saving configuration parameters.
      */
     protected void resetAndSave() {
@@ -1452,6 +1473,12 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
      * Reset data status.
      */
     protected void resetStatus() {
+        if (!configMgr.getAddedZones().isEmpty()) {
+            configMgr.getAddedZones().clear();
+        }
+        if (!configMgr.getAddedStations().isEmpty()) {
+            configMgr.getAddedStations().clear();
+        }
         this.timeWindowChanged = false;
         this.maZonesRemoved = false;
         this.maStationsRemoved = false;
@@ -1487,6 +1514,24 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         int yesno = showMessage(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO,
                 "Edit Thresholds Now?", message);
         return yesno;
+    }
+
+    /**
+     * When unsaved modifications this asks the user to verify the close.
+     * 
+     * @return true when okay to close.
+     */
+    protected boolean verifyClose() {
+        boolean state = true;
+        if (dataIsChanged()) {
+            MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK
+                    | SWT.CANCEL);
+            box.setText("Confirm Close.");
+            box.setMessage("Unsaved changes.\nSelect OK to discard changes.");
+            state = box.open() == SWT.OK;
+        }
+        closeFlag = state;
+        return state;
     }
 
     /**
