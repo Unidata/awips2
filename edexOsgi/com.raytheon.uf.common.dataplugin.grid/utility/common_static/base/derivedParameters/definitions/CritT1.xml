@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS 1 format
+	CritT1| | |Layer Min Temperature -6C, -10C |    |CONTOUR,OTHER||     *Alias|Tmin
+	
+	
+	varId: |CritT1| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Layer Min Temperature -6C, -10C | 
+	units: || 
+	displayTypes: |CONTOUR,OTHER| 			//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer|						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Alias|
+	varId: |Tmin|
+		
+	
+	NEW FILE - CritT1.xml
+-->
+<DerivedParameter name="Layer Min Temperature -6C, -10C" abbreviation="CritT1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Alias">
+        <Field abbreviation="Tmin"/>
+    </Method>
+</DerivedParameter>
