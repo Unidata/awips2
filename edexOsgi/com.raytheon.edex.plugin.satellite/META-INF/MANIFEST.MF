@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Satellite Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.satellite
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.edex.plugin.satellite,
  com.raytheon.edex.plugin.satellite.dao,
@@ -23,5 +23,3 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
  com.raytheon.uf.edex.menus;bundle-version="1.0.0",
  com.raytheon.uf.common.numeric;bundle-version="1.14.0"
-Import-Package: com.raytheon.edex.exception,
- org.apache.commons.logging
