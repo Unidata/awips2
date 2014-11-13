@@ -9,6 +9,8 @@
  *      Author: rjpeter
  *  Updated on: Aug 05, 2014 (Omaha #3458: Added logging of error when issue occurs on send)
  *      Author: rjpeter
+ *  Updated on: Nov 04, 2014 (Omaha #2991 Updated to work with QPID 0.30)
+ *      Author: dlovely    
  */
 
 #include <qpid/messaging/Connection.h>
@@ -194,7 +196,7 @@ private:
             std::string qpidURL = qpidURLBuilder.str();
 
             std::stringstream connectionOptionsBuilder;
-            connectionOptionsBuilder << "{sasl-mechanism:PLAIN,username:";
+            connectionOptionsBuilder << "{sasl-mechanism:ANONYMOUS,username:";
             connectionOptionsBuilder << this->username;
             connectionOptionsBuilder << ",password:";
             connectionOptionsBuilder << this->password;

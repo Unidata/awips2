@@ -28,7 +28,8 @@
 #    04/04/13        #1787         randerso       fix validTime check to work with accumulative parms
 #                                                 fix logging so you can actually determine why 
 #                                                 a smartInit is not calculating a parameter
-#    Oct 29, 2013  2476       njensen         Improved getting wx/discrete keys when retrieving data
+#    10/29/2013      #2476         njensen        Improved getting wx/discrete keys when retrieving data
+#    10/27/2014      #3766         randerso       Changed _getLatest to include error text returned from InitClient.createDB() 
 # 
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
@@ -325,7 +326,9 @@ class Forecaster(GridUtilities):
             msg = "No databases for " + self._srcName
             LogStream.logProblem(msg)
             return
-            #sys.exit(1)
+                
+        if self.newdb() is None:
+            return
                 
         self.__topo = self.getTopo() * .3048
         srcdbkeys = self.srcdb().getKeys()
@@ -551,6 +554,9 @@ class Forecaster(GridUtilities):
 
         start = time.time()
         self.__init()
+        if self.newdb() is None:
+            return
+        
         msgDest = "Destination database:" + self.newdb().getModelIdentifier()
 
         if validTime is not None:
@@ -647,10 +653,16 @@ class Forecaster(GridUtilities):
                 break
         if singletonNeeded:
             newdb = newdb[:-13] + '00000000_0000'
+            newdb = self.getDb(newdb)    
         else:
-            client.createDB(newdb)
-
-        newdb = self.getDb(newdb)    
+            sr = client.createDB(newdb)
+            if sr.isOkay():
+                newdb = self.getDb(newdb)
+            else:
+                msg = "Unable to create database for " + str(newdb) + ":\n" + \
+                      str(sr.message())
+                LogStream.logProblem(msg)
+                newdb = None   
 
         return srcdb, newdb
 
