@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	
+	
+	AWIPS 1 format
+	EPVt2 | ||EPV* Instability is Slantwise=S Upright=U ||ICON||   *Test|MpV|1.|0.|1.e37|5.|1.|-1.e37|2.e-1|EPVt1
+	
+	
+	abbreviation: |EPVt2| 
+	Notused1: | | 
+	Notused2: || 
+	name: |EPV* Instability is Slantwise=S Upright=U | 
+	
+	
+	NEW FILE - EPVt2.xml
+ -->
+<DerivedParameter name="EPV* Instability is Slantwise=S Upright=U" abbreviation="EPVt2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field abbreviation="MpV"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="5.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="0.2"/>
+        <Field abbreviation="EPVt1"/>
+    </Method>
+</DerivedParameter>
