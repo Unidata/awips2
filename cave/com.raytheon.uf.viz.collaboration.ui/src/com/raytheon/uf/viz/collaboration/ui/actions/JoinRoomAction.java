@@ -48,7 +48,8 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 8, 2014  3705      bclement     Initial creation
+ * Oct  8, 2014  3705      bclement    Initial creation
+ * Nov 12, 2014  3705      bclement    fixed empty participant list problem
  * 
  * </pre>
  * 
@@ -106,11 +107,15 @@ public class JoinRoomAction extends Action {
             try {
                 VenueSession session = connection.joinTextOnlyVenue(room,
                         handle);
+                /*
+                 * connect to room before UI initializes so it gets the
+                 * participant list
+                 */
+                session.connectToRoom();
                 CaveWorkbenchPageManager page = CaveWorkbenchPageManager
                         .getActiveInstance();
                 page.showView(SessionView.ID, session.getSessionId(),
                         IWorkbenchPage.VIEW_ACTIVATE);
-                session.connectToRoom();
             } catch (CollaborationException | PartInitException e) {
                 log.error("Unable to join room " + room.getFQName(), e);
             }
