@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	Mean wind storm relative flow
+		- added a fix 4/4/2006 to remove the upper plane in the label.
+	
+	
+	AWIPS I format
+	SRMm | |N|Storm Relative Flow Vecs (Mean Wind)| |ARROW,BARB|MB,Surface|       *Difference|Wind|Wind,850MB-300MB
+	
+	
+	varId: |SRMm| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N| 
+	varName: |Storm Relative Flow Vecs (Mean Wind)| 
+	units: || 
+	displayTypes: |ARROW,BARB| 		//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |MB,Surface| 		//No longer used, planes are available and determined by levels attribute in the Method tag, default is
+									//all levels.  DerivedParameter planes are limited to the sum of all of its method levels
+	
+	functionName: |Difference|
+	varId: |Wind| 
+	varId, plane: |Wind,850MB-300MB| 
+	
+	
+	AWIPS II NEW FILE - SRMm.xml
+ -->
+<DerivedParameter name="Storm Relative Flow Vecs (Mean Wind)" abbreviation="SRMm" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Difference">
+        <Field abbreviation="Wind"/>
+        <Field level="850MB-300MB" abbreviation="Wind"/>
+    </Method>
+</DerivedParameter>

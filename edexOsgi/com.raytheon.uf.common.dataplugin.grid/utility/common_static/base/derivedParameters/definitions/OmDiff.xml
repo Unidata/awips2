@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// OB6 additions
+	//
+	// MaxOmega versus -15C Omega level calc
+	//
+	
+	
+	AWIPS 1 format
+	OmDiff| |N|mb between -15C Omega and MaxOmega|mb|CONTOUR,IMAGE,ICON|Layer|  *Difference|P,-15C|P,MaxOmega
+	
+	
+	abbreviation: |OmDiff| 
+	Notused1: | | 
+	Notused2: |N| 
+	name: |mb between -15C Omega and MaxOmega| 
+	FIELD: |mb| 
+	FIELD: |CONTOUR,IMAGE,ICON| 
+	FIELD: |Layer| 
+	FIELD: |P,-15C| 
+	FIELD: |P,MaxOmega| 
+	
+	
+	NEW FILE - OmDiff.xml
+-->
+<DerivedParameter unit="hPa" name="mb between -15C Omega and MaxOmega" abbreviation="OmDiff" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Difference">
+        <Field level="-15C" abbreviation="P"/>
+        <Field level="MaxOmega" abbreviation="P"/>
+    </Method>
+</DerivedParameter>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+COMMENT:
+AWIPS 1 format
+BRNEHIi | |N|72% Supercell Cases Tornadic| |ICON|Layer  |       *Test,Layer|BRNSHR| 1.|-1.e37|60.|0.|1.|60.|1.e37|EHIi  
+
+
+abbreviation: |BRNEHIi| 
+Notused1: | | 
+Notused2: |N| 
+name: |72% Supercell Cases Tornadic| 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Layer| 
+FIELD: |BRNSHR| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |60.| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |60.| 
+FIELD: |1.e37| 
+FIELD: |EHIi| 
+
+
+NEW FILE - BRNEHIi.xml
+-->
+<DerivedParameter name="72% Supercell Cases Tornadic" abbreviation="BRNEHIi" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Test">
+        <Field abbreviation="BRNSHR"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="60.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="60.0"/>
+        <ConstantField value="1e37"/>
+        <Field abbreviation="EHIi"/>
+    </Method>
+</DerivedParameter>
