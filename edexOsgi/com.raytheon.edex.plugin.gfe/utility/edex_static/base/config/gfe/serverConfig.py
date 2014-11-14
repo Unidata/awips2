@@ -41,9 +41,9 @@
 #    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
 #    04/17/2014          #2934     dgilling       Remove alias for TPCSurgeProb D2D database.
 #    05/09/2014          #3148     randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
-#
 #    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS 
 #    07/09/2014          #3146     randerso       Removed unused import
+#    07/10/2014                    swhite         Add surge and tropical threat WEs and their dependencies
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -162,7 +162,7 @@ VWaveDir = ("VWaveDir", SCALAR, "m/s", "V WaveDir Comp", 0.50, -0.50, 3, NO)
 LkSfcT = ("LkSfcT", SCALAR, "C", "Lake Surface T", 40.0, -2.0, 1, NO)
 SnowMap = ("SnowMap", SCALAR, "in", "Snowfall Map", 20.0, 0.0, 1, YES)
 WaveDir = ("WaveDir", VECTOR, "m/s", "Wave Direction", 5.0, 0.0, 2, NO)
-StormTotalQPF = ('StormTotalQPF', SCALAR, 'in', 'Storm Total QPF (in)', 10.0, 0.0, 2, YES)
+StormTotalQPF = ('StormTotalQPF', SCALAR, 'in', 'Storm Total QPF (in)', 10.0, 0.0, 2, NO)
 SeasonTotalSnow = ('SeasonTotalSnow', SCALAR, 'in', 'Season Total Snow (in)', 150.0, 0.0, 2, YES)
 
 # Marine Weather Elements
@@ -287,9 +287,31 @@ pwsN64 = ("pwsN64", SCALAR, "%", "Night64WSI PROB", 100.0, 0.0, 0, NO)
 pws34int = ("pws34int", SCALAR, "%", "34WSIntPROB", 100.0, 0.0, 0, NO)
 pws64int = ("pws64int", SCALAR, "%", "64WSIntPROB", 100.0, 0.0, 0, NO)
 
-# Surge parms for HLS
-SurgeHtPlusTide = ("SurgeHtPlusTide", SCALAR, "ft", "SurgeHtPlusTide", 50.0, -100.0, 2, NO)
-SurgeHtPlusTideWTopo = ("SurgeHtPlusTideWTopo", SCALAR, "ft", "SurgeHtPlusTideWTopo", 50.0, -100.0, 2, NO)
+# Surge parms for HLS/TCV
+InundationMax = ("InundationMax", SCALAR, "ft", "Max Inundation", 30.0, -100.0, 1, NO)
+InundationTiming = ("InundationTiming", SCALAR, "ft", "Incremental Inundation", 30.0, -100.0, 1, NO)
+SurgeHtPlusTideMSL = ("SurgeHtPlusTideMSL", SCALAR, "ft", "Surge above MSL", 30.0, -100.0, 1, NO)
+SurgeHtPlusTideMLLW = ("SurgeHtPlusTideMLLW", SCALAR, "ft", "Surge above MLLW", 30.0, -100.0, 1, NO)
+SurgeHtPlusTideMHHW = ("SurgeHtPlusTideMHHW", SCALAR, "ft", "Surge above MHHW", 30.0, -100.0, 1, NO)
+SurgeHtPlusTideNAVD = ("SurgeHtPlusTideNAVD", SCALAR, "ft", "Surge above NAVD88", 30.0, -100.0, 1, NO)
+
+# parms for storm surge collaboration
+SShazardKeys = [("<None>",""), ("SS.A", "STORM SURGE WATCH"), ("SS.W", "STORM SURGE WARNING")]
+ProposedSS = ("ProposedSS", DISCRETE, "w/w/a", "Proposed StormSurge Hazards", YES, SShazardKeys, 7)
+tempProposedSS = ("tempProposedSS", DISCRETE, "w/w/a", "Temp Proposed StormSurge Hazards",
+              YES, SShazardKeys, 4)
+InitialSS = ("InitialSS", DISCRETE, "w/w/a", "Initial StormSurge Hazards",
+              YES, SShazardKeys, 4)
+DiffSS = ("DiffSS", SCALAR, "None", "Difference StormSurge Hazards", 2.0, -1.0, 0, NO)
+
+# parms for tropical cyclone threat graphics
+Threat4Keys = [("None","None to Little"), ("Elevated","Elevated"), ("Mod", "Moderate"), ("High", "High"), ("Extreme","Extreme"),]
+
+FloodingRainThreat = ("FloodingRainThreat", DISCRETE, "Cat", "Flooding Rain Threat", NO, Threat4Keys,2)
+StormSurgeThreat = ("StormSurgeThreat", DISCRETE, "Cat", "Storm Surge Threat", NO, Threat4Keys,2)
+WindThreat = ("WindThreat", DISCRETE, "Cat", "Wind Threat", NO, Threat4Keys,2)
+TornadoThreat = ("TornadoThreat", DISCRETE, "Cat", "Tornado Threat", NO, Threat4Keys,2)
+QPFtoFFGRatio = ("QPFtoFFGRatio", SCALAR, "", "QPF to FFG Ratio", 8.0, 0.0, 0, NO) 
 
 # Hazards
 HazardKeys = []
@@ -440,23 +462,23 @@ HAZE = ('H', 'Haze',
           [INTEN_NONE],
           [PRIMARY, MENTION])
 BLWGSNOW = ('BS', 'Blowing Snow',
-          [AREAS,PATCHY,DEFN],
+          [PATCHY, AREAS, DEFN],
           [INTEN_NONE],
           [PRIMARY, MENTION])
 BLWGSAND = ('BN', 'Blowing Sand',
-          [AREAS,PATCHY,DEFN],
+          [PATCHY, AREAS, DEFN],
           [INTEN_NONE],
           [PRIMARY, MENTION])
 SMOKE = ('K', 'Smoke',
-          [AREAS, PATCHY, DEFN],
+          [PATCHY, AREAS, DEFN],
           [INTEN_NONE],
           [PRIMARY, MENTION])
 BLWGDUST = ('BD', 'Blowing Dust',
-          [AREAS,PATCHY,DEFN],
+          [PATCHY, AREAS, DEFN],
           [INTEN_NONE],
           [PRIMARY, MENTION])
 FROST = ('FR','Frost',
-          [AREAS, PATCHY, WIDE],
+          [PATCHY, AREAS, DEFN],
           [INTEN_NONE],
           [PRIMARY, MENTION, OUTLYNG])
 FRZSPRAY = ('ZY','Freezing Spray',
@@ -644,8 +666,8 @@ NDFD_Oceanic_10K = ('NDFD_Oceanic_10km', MERCATOR,
 
 #  Add a new domain for NHC purposes
 GridForNHA = ('GridForNHA', LAMBERT_CONFORMAL,
-      (-102.551, 16.6069), (-50.5524, 47.3806),
-      (-95.0, 35.0), 35.0, 35.0, (1, 1), (1729,1601), 0.0, 0.0, 0.0)
+      (-103.929, 20.164), (-50.8894, 42.9545),
+      (-95.0, 35.0), 35.0, 35.0, (1, 1), (1833,1241), 0.0, 0.0, 0.0)
 
 # list of all projections
 allProjections = [Grid201, Grid202, Grid203, Grid204, Grid205, Grid206,
@@ -830,7 +852,7 @@ SITES = {
     'TIR' : ([220, 171], (59.0, 25.0), (13.0, 12.0), 'EST5EDT', Grid211, "rfc"),
     'TUA' : ([281, 168], (39.0, 22.0), (18.0, 10.0), 'CST6CDT', Grid211, "rfc"),
 
-#Special Sites - Updated NHC and OPC domains in OB9.3
+#Special Sites - Added Hawaiian High Seas domain 
     'US' : ([267, 159], (18.0, 9.5), (67.0, 40.0), 'EDT5EDT', Grid211, "other"),
     'FSL' : ([161, 145], (38.50, 27.00), (10.0, 9.0), 'MST7MDT', Grid211, "other"),
 #    'NH1' : ([667, 461], (69.5, 4.5), (52.03125, 35.9375), 'EST5EDT', Grid204, "wfo"),
@@ -839,6 +861,7 @@ SITES = {
     'NH2' : ([1188, 363], (1328.0, 365.0), (1187.0, 362.0), 'EST5EDT', NDFD_Oceanic_10K, "wfo"),
     'ONA' : ([244, 383], (68.9375, 19.5625), (15.1875, 23.875), 'EST5EDT', Grid211, "wfo"),
     'ONP' : ([396, 415], (8.1875, 21.5625), (24.6875, 25.875), 'PST8PDT', Grid211, "wfo"),
+    'HPA' : ([899, 671], (284.0, 30.0), (898.0, 670.0), 'Pacific/Honolulu', NDFD_Oceanic_10K, "wfo"),
 
 #Ice Desk for AFC
     'AICE' : ([560, 340], (9.0, 11.0), (29.0, 19.0), 'America/Anchorage',
@@ -856,8 +879,9 @@ SITES = {
     
 #National Centers
     'HAK' : ( [825,553], ( 1.0, 1.0), (103.0, 69.0), 'EST5EDT', Grid214AK, "nc"),
-    'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),                
-    'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
+    'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),
+    #'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
+    'NHA' : ([1833,1241], (41.5,5.0), (54.0,40.5), 'EST5EDT', Grid211, "nc"),
 }
 
 
@@ -1202,6 +1226,18 @@ elif SID in CONUS_EAST_SITES:
                  'NPHwave4',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('FFG-ALR', 'FFGALR'),
+                 ('FFG-FWR', 'FFGFWR'),
+                 ('FFG-KRF', 'FFGKRF'),
+                 ('FFG-MSR', 'FFGMSR'),
+                 ('FFG-ORN', 'FFGORN'),
+                 ('FFG-PTR', 'FFGPTR'),
+                 ('FFG-RHA', 'FFGRHA'),
+                 ('FFG-RSA', 'FFGRSA'),
+                 ('FFG-STR', 'FFGSTR'),
+                 ('FFG-TAR', 'FFGTAR'),
+                 ('FFG-TIR', 'FFGTIR'),
+                 ('FFG-TUA', 'FFGTUA'),
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1260,6 +1296,18 @@ else:   #######DCS3501 WEST_CONUS
                  'NPHwave4',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('FFG-ALR', 'FFGALR'),
+                 ('FFG-FWR', 'FFGFWR'),
+                 ('FFG-KRF', 'FFGKRF'),
+                 ('FFG-MSR', 'FFGMSR'),
+                 ('FFG-ORN', 'FFGORN'),
+                 ('FFG-PTR', 'FFGPTR'),
+                 ('FFG-RHA', 'FFGRHA'),
+                 ('FFG-RSA', 'FFGRSA'),
+                 ('FFG-STR', 'FFGSTR'),
+                 ('FFG-TAR', 'FFGTAR'),
+                 ('FFG-TIR', 'FFGTIR'),
+                 ('FFG-TUA', 'FFGTUA'),
                ]
 
 if SID in GreatLake_SITES:
@@ -1288,6 +1336,7 @@ elif SID == "HFO":
 elif SID == "SJU":
     NETCDFDIRS = [('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
                   ]
     
 
@@ -1301,6 +1350,7 @@ elif SID in CONUS_EAST_SITES:
                   ('/awips2/edex/data/gfe/climo/NCDC'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
                   ]
         
 
@@ -1309,6 +1359,7 @@ else:   #######DCS3501 WEST_CONUS
                   ('/awips2/edex/data/gfe/climo/NCDC'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
                   ]
     
 
@@ -1601,7 +1652,7 @@ TRANSMIT_SCRIPT = GFESUITE_HOME + '/bin/gfe_msg_send -s %SUBJECT -a %ADDRESSES -
 # to the ISC database that is your own office type.  The format of this
 # entry is a list of tuples.  The tuple is a list of weather elements
 # objects (such as Temp and not "T"), and an office type, such as "rfc".
-EXTRA_ISC_PARMS = [([QPF], 'rfc'), ([QPF], 'wfo')]
+EXTRA_ISC_PARMS = [([QPF,FloodingRainThreat], 'rfc'), ([QPF,FloodingRainThreat], 'wfo'), ([ProposedSS,Hazards,InundationMax,InundationTiming,SurgeHtPlusTideMSL,SurgeHtPlusTideMLLW,SurgeHtPlusTideMHHW,SurgeHtPlusTideNAVD], 'nc'),([ProposedSS,Hazards,InundationMax,InundationTiming,SurgeHtPlusTideMSL,SurgeHtPlusTideMLLW,SurgeHtPlusTideMHHW,SurgeHtPlusTideNAVD], 'wfo')]
 
 #---------------------------------------------------------------------------
 #
@@ -1792,11 +1843,13 @@ OFFICIALDBS = [([Temp, Td, Wind, Weather, Sky, FzLevel, SnowLevel], TC1),
           ([Wetflag], FireWx1300TC),
           ([StormTotalSnow], TC1),
           # Tropical parms
-          ([prob34, prob50, prob64], TC1),
-          ([pws34,pws50,pws64,SurgeHtPlusTide,SurgeHtPlusTideWTopo], TC1),
+          ([prob34, prob50, prob64,pws34,pws50,pws64,], TC1),
+          ([InundationMax,SurgeHtPlusTideMSL,SurgeHtPlusTideMLLW,SurgeHtPlusTideMHHW,SurgeHtPlusTideNAVD], TC1),
+          ([ProposedSS,DiffSS,tempProposedSS,InitialSS], TC1),
+          ([WindThreat,StormSurgeThreat,FloodingRainThreat,TornadoThreat], TC1),
           ([pwsD34,pwsD64], PWSDTC),
           ([pwsN34,pwsN64], PWSNTC),
-          ([pws34int,pws64int], TC6NG),
+          ([pws34int,pws64int,InundationTiming,QPFtoFFGRatio], TC6NG),
           # DR20541 and 20482
           ([PoP12hr], TC12NG),
           ([QPF6hr, SnowAmt6hr], TC6NG),
