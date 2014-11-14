@@ -843,18 +843,19 @@ class TextProduct(HLSTCV_Common.TextProduct):
     
     def _saveAdvisory(self, advisoryName, advisoryDict):
         self._synchronizeAdvisories()
+        fileName = self._getAdvisoryFilename(advisoryName)
          
         try:
             JsonSupport.saveToJson(LocalizationType.CAVE_STATIC,
                                    self._site,
-                                   self._getAdvisoryFilename(advisoryName),
+                                   fileName,
                                    advisoryDict)
             
-            print "SARAH: Wrote file contents for", self._getAdvisoryFilename(advisoryName)
+            print "SARAH: Wrote file contents for", fileName
             
             self._synchronizeAdvisories()
         except Exception, e:
-            print "SARAH Save Exception for", self._getAdvisoryFilename(advisoryName), ":", e
+            print "SARAH Save Exception for", fileName, ":", e
     
     def _getHazardsForHLS(self):
         hazardTable = self._argDict["hazards"]
