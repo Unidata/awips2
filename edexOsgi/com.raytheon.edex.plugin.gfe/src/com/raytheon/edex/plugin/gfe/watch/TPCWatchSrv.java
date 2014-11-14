@@ -33,6 +33,7 @@ import jep.JepException;
 import com.raytheon.uf.common.activetable.VTECPartners;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -42,7 +43,9 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 
 /**
  * Watches ingested warnings for WOU products from the SPC (Storm Prediction
@@ -60,6 +63,8 @@ import com.raytheon.uf.common.util.FileUtil;
  *                                     subclasses to handle all watches if desired.
  *                                     Added hooks for TCVAdvisory creation
  *                                     Changed to use Python to store TCVAdvisory files
+ *                                     Added code to keep practice and operational 
+ *                                     advisory files separated
  * 
  * </pre>
  * 
@@ -68,6 +73,11 @@ import com.raytheon.uf.common.util.FileUtil;
  */
 
 public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
+    private static final String TCV_ADVISORY_PATH = FileUtil.join("gfe",
+            "tcvAdvisories");
+
+    private static final String PRACTICE_PATH = FileUtil.join(
+            TCV_ADVISORY_PATH, "practice");
 
     private static final String TPC_WATCH_TYPE = "TPC";
 
@@ -149,29 +159,31 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
     public void handleWatch(List<AbstractWarningRecord> warningRecs) {
         super.handleWatch(warningRecs);
 
-        // FIXME: This marks the pending.json file as Transmitted when ANY TCV
-        // is decoded not the one just sent by this office. You need to look and
-        // the warningRecs for a match to the issuing site and ETN or something
-        // like that.
+        /*
+         * Since all records originate from a single TCV product the issuing
+         * office and record type will be the same we only need to look at the
+         * first record.
+         */
+        AbstractWarningRecord record = warningRecs.get(0);
+        boolean practiceMode = (record instanceof PracticeWarningRecord);
+        String issuingOffice = record.getOfficeid();
 
-        // FIXME: The python created dicts are storing CreationTime and EndTime
-        // (but not StartTime for some reason)
-        // as python floats. These values are converted to Java floats which are
-        // single precision 32-bit floats causing a possible loss of precision.
-        // These should be stored a integer values or datetime objects to ensure
-        // no precision loss. I have fixed a couple of places where endTime may
-        // have been set to a float but we need to ensure we've got them all.
         for (String siteId : getActiveSites()) {
-            this.saveTCVAdvisories(siteId);
+            String site4 = SiteMap.getInstance().getSite4LetterId(siteId);
+            if (issuingOffice.equals(site4)) {
+                this.saveTCVAdvisories(siteId, practiceMode);
+                break; // found matching officeId so we're done
+            }
         }
     }
 
-    private void saveTCVAdvisories(String siteId) {
-        File advisoriesDirectory = this.synchronizeTCVAdvisories(siteId);
+    private void saveTCVAdvisories(String siteId, boolean practiceMode) {
+        File advisoriesDirectory = this.synchronizeTCVAdvisories(siteId,
+                practiceMode);
 
         String pendingFilename = "pending.json";
         LocalizationFile pendingFile = this.getLocalizationFile(siteId,
-                pendingFilename);
+                pendingFilename, practiceMode);
 
         Map<String, Object> pendingDict = this.loadJSONDictionary(pendingFile);
         if (pendingDict == null) {
@@ -185,7 +197,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         String transmittedFilename = stormName + advisoryNumber + ".json";
 
         LocalizationFile transmittedFile = this.getLocalizationFile(siteId,
-                transmittedFilename);
+                transmittedFilename, practiceMode);
         this.saveJSONDictionary(transmittedFile, pendingDict);
 
         boolean transmittedFileSaved = false;
@@ -200,11 +212,13 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         if (transmittedFileSaved) {
             boolean allCAN = (Boolean) pendingDict.get("AllCAN");
             if (allCAN) {
-                for (File advisory : advisoriesDirectory.listFiles()) {
+                for (File advisory : advisoriesDirectory
+                        .listFiles(FilenameFilters.byFileExtension(".json"))) {
                     String advisoryName = advisory.getName();
                     if (advisoryName.startsWith(stormName)) {
                         LocalizationFile advisoryFile = this
-                                .getLocalizationFile(siteId, advisoryName);
+                                .getLocalizationFile(siteId, advisoryName,
+                                        practiceMode);
                         try {
                             advisoryFile.delete();
                         } catch (LocalizationOpFailedException e) {
@@ -220,34 +234,35 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
             } catch (LocalizationOpFailedException e) {
             }
         }
-
-        this.synchronizeTCVAdvisories(siteId);
     }
 
-    private File synchronizeTCVAdvisories(String siteId) {
+    private File synchronizeTCVAdvisories(String siteId, boolean practiceMode) {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContextForSite(
                 LocalizationType.CAVE_STATIC, siteId);
 
         // Retrieving a directory causes synching to occur
         File file = pathMgr.getLocalizationFile(context,
-                this.getTCVAdvisoryPath()).getFile();
+                getTCVAdvisoryPath(practiceMode)).getFile();
 
         return file;
     }
 
-    private LocalizationFile getLocalizationFile(String siteId, String filename) {
+    private LocalizationFile getLocalizationFile(String siteId,
+            String filename, boolean practiceMode) {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContextForSite(
                 LocalizationType.CAVE_STATIC, siteId);
+
         LocalizationFile localizationFile = pathMgr.getLocalizationFile(
-                context, this.getTCVAdvisoryPath() + filename);
+                context,
+                FileUtil.join(getTCVAdvisoryPath(practiceMode), filename));
 
         return localizationFile;
     }
 
-    private String getTCVAdvisoryPath() {
-        return "gfe/tcvAdvisories/";
+    private String getTCVAdvisoryPath(boolean practiceMode) {
+        return practiceMode ? PRACTICE_PATH : TCV_ADVISORY_PATH;
     }
 
     private Map<String, Object> loadJSONDictionary(LocalizationFile lf) {
