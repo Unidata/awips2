@@ -32,6 +32,7 @@
 #                                                 ProjectionType enumeration
 #    07/09/2014          #3146     randerso       Added check for duplicate smartInit
 #                                  rferrel        Corrected log to alertviz.
+#    11/18/2014          #4953     randerso       Added check for empty unit string       
 #
 ########################################################################
 import types
@@ -210,6 +211,9 @@ def createParm(parminfo, domain, tc):
     #don't add parms with your own office type in the name.
     if name.find(officeType) != -1:
         return None     #skip this one
+    
+    if len(units) == 0:
+        raise Exception, 'Unit string must not be empty. For unitless quantities enter "1"'
     
     updateProjections(projection)
     start, repeat, duration = tc
