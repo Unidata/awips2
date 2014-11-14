@@ -19,7 +19,24 @@
  **/
 package com.raytheon.uf.edex.core;
 
+import com.raytheon.uf.common.serialization.SerializationException;
 
+/**
+ * Message Producer Interface
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 10/08/14     #3684      randerso    Added sendAsyncThriftUri
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 public interface IMessageProducer {
 
     /**
@@ -56,5 +73,16 @@ public interface IMessageProducer {
      *            the message to send
      */
     public void sendAsyncUri(String uri, Object message) throws EdexException;
+
+    /**
+     * Sends a message asynchronously using Thrift serialization.
+     * 
+     * @param uri
+     *            the uri to send the message to
+     * @param message
+     *            the message to send
+     */
+    public void sendAsyncThriftUri(String uri, Object message)
+            throws EdexException, SerializationException;
 
 }
