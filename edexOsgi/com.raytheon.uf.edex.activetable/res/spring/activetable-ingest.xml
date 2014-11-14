@@ -1,40 +1,66 @@
-<beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-	<camelContext id="clusteredActiveTableContext"
-		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler">
 
-		<route id="activeTablePendingRoute">
-			<from uri="jms-durable:queue:activeTablePending"/>
+    <bean id="toDataURI" class="com.raytheon.uf.edex.ingest.notification.ToDataURI"/>
+
+    <bean id="practiceVtecDecoder" class="com.raytheon.uf.edex.activetable.decoder.PracticeVtecDecoder">
+        <property name="pluginName" value="practicewarning"/>
+        <property name="pluginFQN" value="com.raytheon.edex.plugin.warning"/>
+        <property name="moduleName" value="WarningDecoder"/>
+        <property name="cache" value="false"/>
+        <property name="recordClassname" value="com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord"/>
+    </bean>
+
+    <camelContext id="clusteredActiveTableContext" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <route id="activeTablePendingRoute">
+            <from uri="jms-durable:queue:activeTablePending"/>
             <doTry>
-    			<bean ref="activeTableSrv" method="vtecArrived" />					
+                <bean ref="activeTableSrv" method="vtecArrived"/>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to uri="log:activeTable?level=ERROR"/>
                 </doCatch>
             </doTry>
-		</route>
-		
-		<route id="practiceNotifyRoute">
-			<from uri="jms-generic:queue:practiceNotify" />
+        </route>
+    </camelContext>
+
+    <camelContext id="activetable-ingest" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="practiceVtecRoute">
+            <from uri="jms-generic:queue:practiceVtec"/>
             <doTry>
-            	<multicast parallelProcessing="false">
-					<to uri="jms-durable:queue:edex.spcWatch" />
-					<to uri="jms-durable:queue:edex.tpcWatch" />
-            	</multicast>
+                <pipeline>
+                    <bean ref="serializationUtil" method="transformFromThrift"/>
+                    <setHeader headerName="notifygfe">
+                            <simple>${body?.notifyGFE}</simple>
+                    </setHeader>
+                    <bean ref="practiceVtecDecoder" method="decode"/>
+                    <bean ref="index" method="index"/>
+                    <multicast parallelProcessing="false">
+                        <filter>
+                            <simple>${header?.notifygfe.booleanValue}</simple>
+                            <to uri="direct-vm:stageNotification"/>
+                        </filter>
+                        <filter>
+                            <method bean="vtecFilter" method="hasVTEC"/>
+                            <bean ref="activeTableSrv" method="practiceVtecArrived"/>
+                            <bean ref="toDataURI" method="toPracticeNotificationMsg"/>
+                            <bean ref="serializationUtil" method="transformToThrift"/>
+                            <to uri="jms-generic:topic:edex.alerts.practicewarning?timeToLive=60000&amp;deliveryPersistent=false"/>
+                        </filter>
+                    </multicast>
+                </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to uri="log:practiceActiveTable?level=ERROR"/>
                 </doCatch>
             </doTry>
-		</route>
+        </route>
+    </camelContext>
 
-	</camelContext>
-		
-	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
-		<constructor-arg ref="clusteredActiveTableContext" />
-  	</bean>
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredActiveTableContext"/>
+    </bean>
 </beans>
