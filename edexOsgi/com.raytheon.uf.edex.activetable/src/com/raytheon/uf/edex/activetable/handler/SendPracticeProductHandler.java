@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.activetable;
+package com.raytheon.uf.edex.activetable.handler;
 
 import com.raytheon.uf.common.activetable.SendPracticeProductRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
- * TODO Add Description
+ * Send Practice VTEC Product
  * 
  * <pre>
  * 
@@ -32,6 +32,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 10, 2010            njensen     Initial creation
+ * Nov 14, 2014  4953      randerso    Changed to use sendAsyncThriftUri so headers
+ *                                     are not lost
  * 
  * </pre>
  * 
@@ -39,14 +41,14 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * @version 1.0
  */
 
-public class PracticeVtecHandler implements
+public class SendPracticeProductHandler implements
         IRequestHandler<SendPracticeProductRequest> {
 
     @Override
     public Object handleRequest(SendPracticeProductRequest request)
             throws Exception {
-        EDEXUtil.getMessageProducer().sendAsync("practiceVtecRoute",
-                request.getProductText());
+        EDEXUtil.getMessageProducer().sendAsyncThriftUri(
+                "jms-generic:queue:practiceVtec", request);
         return null;
     }
 
