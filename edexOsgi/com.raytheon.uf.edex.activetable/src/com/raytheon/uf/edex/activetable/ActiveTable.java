@@ -33,7 +33,6 @@ import jep.JepException;
 import org.apache.log4j.Logger;
 
 import com.raytheon.edex.site.SiteUtil;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.MergeResult;
@@ -55,9 +54,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -91,6 +90,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Jun 17, 2014    3296    randerso    Cached PythonScript. Moved active table 
  *                                     backup and purging to a separate thread.
  *                                     Added performance logging
+ * Nov 14, 2014    4953    randerso    Moved dumpProductToTempFile into PracticeVtecDecoder
+ *                                     since it had no reason to be in this class
  * 
  * </pre>
  * 
@@ -220,9 +221,9 @@ public class ActiveTable {
             ActiveTableMode mode, String phensigList, String act, String etn,
             String[] wfos) {
 
-        if (wfos == null || !Arrays.asList(wfos).contains("all")) {
+        if ((wfos == null) || !Arrays.asList(wfos).contains("all")) {
 
-            if (wfos == null || wfos.length == 0) {
+            if ((wfos == null) || (wfos.length == 0)) {
                 // default to WFOs from VTECPartners
 
                 Set<String> wfoSet = getDecoderSites(siteId);
@@ -352,14 +353,14 @@ public class ActiveTable {
             PythonScript python = threadLocalPythonScript.get();
             try {
                 result = (MergeResult) python.execute("mergeFromJava", args);
-                } catch (JepException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error updating active table", e);
-                }
-        } catch (Exception e) {
+            } catch (JepException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error initializing active table python", e);
+                        "Error updating active table", e);
             }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error initializing active table python", e);
+        }
 
         return result;
     }
@@ -419,11 +420,11 @@ public class ActiveTable {
                 query.addQueryParam("etn", etn, "in");
             }
 
-            if (requestValidTimes && currentTime != null) {
+            if (requestValidTimes && (currentTime != null)) {
                 // Current Time
                 query.addQueryParam("endTime", currentTime, "greater_than");
             }
-            if (latestEtn && currentTime != null) {
+            if (latestEtn && (currentTime != null)) {
                 Calendar yearStart = Calendar.getInstance();
                 yearStart.set(currentTime.get(Calendar.YEAR), Calendar.JANUARY,
                         0, 0, 0);
@@ -621,19 +622,6 @@ public class ActiveTable {
                 + GetNextEtnUtil.getEtnClusterLockName(requestedSiteId,
                         ActiveTableMode.PRACTICE) + "';";
         dao.executeNativeSql(sql);
-    }
-
-    /**
-     * Dump product text to temp file
-     * 
-     * @param productText
-     *            product text
-     * @return the temp file
-     */
-    public static File dumpProductToTempFile(String productText) {
-        File file = Util.createTempFile(productText.getBytes(), "vtec");
-        file.deleteOnExit();
-        return file;
     }
 
     /**
