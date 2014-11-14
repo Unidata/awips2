@@ -48,6 +48,7 @@ mask=ISC_Send_Area
 parmlist1="-p MaxT -p MinT -p MaxRH -p MinRH -p T -p Td -p RH -p WindChill -p HeatIndex -p ApparentT"
 parmlist2="-p PoP -p PoP12 -p Sky -p Wx -p Hazards -p SnowLevel -p QPF -p SnowAmt -p IceAccum -p Wind -p WindGust"
 parmlist3="-p ClearIndex -p FreeWind -p LAL -p Haines -p MixHgt -p VentRate -p TransWind -p Wind20ft -p CLRIndx"
+parmlist4="-p StormSurgeThreat -p WindThreat -p FloodingRainThreat -p TornadoThreat"
 parmlist5=""
 parmlist6=""
 parmlist="$parmlist1 $parmlist2 $parmlist3 $parmlist4 $parmlist5 $parmlist6"
