@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+	<valtimeMINUSreftime>
+		<fcst>0</fcst>
+                <fcst>21600</fcst>
+                <fcst>43200</fcst>
+                <fcst>64800</fcst>
+                <fcst>86400</fcst>
+	</valtimeMINUSreftime>
+	<gridParameterInfo xsi:typ="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>FFG0624hr</short_name>
+		<long_name>6 hr flash flood guidance</long_name>
+                <units>mm</units>
+		<udunits>millimeters</udunits>
+		<uiname>totalprecip</uiname>
+		<valid_range>0.0</valid_range>
+		<valid_range>1000.0</valid_range>
+		<fillValue>-99999.0</fillValue>
+		<n3D>1</n3D>
+		<levelsDesc>SFC</levelsDesc>
+		<levels>
+			<level>SFC</level>
+		</levels>
+	</gridParameterInfo>
+	<gridParameterInfo xsi:typ="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>FFG0324hr</short_name>
+		<long_name>3 hr flash flood guidance</long_name>
+                <units>mm</units>
+		<udunits>millimeters</udunits>
+		<uiname>totalprecip</uiname>
+		<valid_range>0.0</valid_range>
+		<valid_range>1000.0</valid_range>
+		<fillValue>-99999.0</fillValue>
+		<n3D>1</n3D>
+		<levelsDesc>SFC</levelsDesc>
+		<levels>
+			<level>SFC</level>
+		</levels>
+	</gridParameterInfo>
+	<gridParameterInfo xsi:typ="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>FFG0124hr</short_name>
+		<long_name>1 hr flash flood guidance</long_name>
+                <units>mm</units>
+		<udunits>millimeters</udunits>
+		<uiname>totalprecip</uiname>
+		<valid_range>0.0</valid_range>
+		<valid_range>1000.0</valid_range>
+		<fillValue>-99999.0</fillValue>
+		<n3D>1</n3D>
+		<levelsDesc>SFC</levelsDesc>
+		<levels>
+			<level>SFC</level>
+		</levels>
+	</gridParameterInfo>
+</gridParamInfo>
