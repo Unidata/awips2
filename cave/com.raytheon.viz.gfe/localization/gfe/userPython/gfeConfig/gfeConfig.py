@@ -1193,6 +1193,73 @@ FogW_defaultColorTable = "Sat/WV/Gray Scale Water Vapor"
 
 Hazards_defaultColorTable = "GFE/Hazards"
 
+# Start HTI entries
+ProposedSS_defaultColorTable="GFE/w"
+ProposedSSnc_defaultColorTable="GFE/w"
+
+InundationMax_defaultColorTable="GFE/Inundation"
+InundationMax_maxColorTableValue = 30.0
+InundationMax_minColorTableValue = 0.0
+
+InundationMaxnc_defaultColorTable="GFE/Inundation"
+InundationMaxnc_maxColorTableValue = 30.0
+InundationMaxnc_minColorTableValue = 0.0
+
+InundationTiming_defaultColorTable="GFE/Inundation"
+InundationTiming_maxColorTableValue = 30.0
+InundationTiming_minColorTableValue = 0.0
+
+InundationTimingnc_defaultColorTable="GFE/Inundation"
+InundationTimingnc_maxColorTableValue = 30.0
+InundationTimingnc_minColorTableValue = 0.0
+
+SurgeHtPlusTideMLLW_defaultColorTable="GFE/Inundation"
+SurgeHtPlusTideMLLW_maxColorTableValue = 30.0
+SurgeHtPlusTideMLLW_minColorTableValue = 0.0
+
+SurgeHtPlusTideMLLWnc_defaultColorTable="GFE/Inundation"
+SurgeHtPlusTideMLLWnc_maxColorTableValue = 30.0
+SurgeHtPlusTideMLLWnc_minColorTableValue = 0.0
+
+SurgeHtPlusTideMHHW_defaultColorTable="GFE/Inundation"
+SurgeHtPlusTideMHHW_maxColorTableValue = 30.0
+SurgeHtPlusTideMHHW_minColorTableValue = 0.0
+
+SurgeHtPlusTideMHHWnc_defaultColorTable="GFE/Inundation"
+SurgeHtPlusTideMHHWnc_maxColorTableValue = 30.0
+SurgeHtPlusTideMHHWnc_minColorTableValue = 0.0
+
+SurgeHtPlusTideNAVD_defaultColorTable="GFE/Inundation"
+SurgeHtPlusTideNAVD_maxColorTableValue = 30.0
+SurgeHtPlusTideNAVD_minColorTableValue = 0.0
+
+SurgeHtPlusTideNAVDnc_defaultColorTable="GFE/Inundation"
+SurgeHtPlusTideNAVDnc_maxColorTableValue = 30.0
+SurgeHtPlusTideNAVDnc_minColorTableValue = 0.0
+
+SurgeHtPlusTideMSL_defaultColorTable="GFE/Inundation"
+SurgeHtPlusTideMSL_maxColorTableValue = 30.0
+SurgeHtPlusTideMSL_minColorTableValue = 0.0
+
+SurgeHtPlusTideMSLnc_defaultColorTable="GFE/Inundation"
+SurgeHtPlusTideMSLnc_maxColorTableValue = 30.0
+SurgeHtPlusTideMSLnc_minColorTableValue = 0.0
+
+prob34_defaultColorTable="GFE/TPCprob"
+prob64_defaultColorTable="GFE/TPCprob"
+pwsD34_defaultColorTable="GFE/TPCprob"
+pwsD64_defaultColorTable="GFE/TPCprob"
+pwsN34_defaultColorTable="GFE/TPCprob"
+pwsN64_defaultColorTable="GFE/TPCprob"
+pws34int_defaultColorTable="GFE/TPCprob"
+pws64int_defaultColorTable="GFE/TPCprob"
+
+FloodingRainThreat_defaultColorTable = "GFE/gHLS_new"
+StormSurgeThreat_defaultColorTable = "GFE/gHLS_new"
+TornadoThreat_defaultColorTable = "GFE/gHLS_new"
+WindThreat_defaultColorTable = "GFE/gHLS_new"
+# End HTI entries
+
 # TopDownWx
 MaxTAloft_defaultColorTable="WarmNoseTemp"
 WetBulb_defaultColorTable="WetBulbTemp"
@@ -1610,6 +1677,9 @@ Scripts = [
     "Ascii Grids...: " +
     "ifpAG -h {host} -r {port} -o {prddir}/AG/{ztime}.ag " +\
       "-d {productDB} ",
+
+    "Make and Send HTI:" +
+     "xterm -e ssh px2 /awips2/GFESuite/hti/bin/make_hti.sh",
 
     "Official Grids to LDAD: " +
     "ifpAG -h {host} -r {port} -o - -d {productDB} | gzip -9 > " +
