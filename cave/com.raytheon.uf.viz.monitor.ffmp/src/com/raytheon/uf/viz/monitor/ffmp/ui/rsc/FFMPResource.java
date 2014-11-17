@@ -197,6 +197,7 @@ import com.vividsolutions.jts.geom.Point;
  * Aug 14, 2014 3523        mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                      assignments.
  * Sep 23, 2014 3009        njensen     Overrode recycleInternal()
+ * Nov 10, 2014 3026        dhladky     HPE BIAS displays.
  * </pre>
  * 
  * @author dhladky
@@ -1503,8 +1504,7 @@ public class FFMPResource extends
 
         // Paint the HPE bias source text if HPE
         if (isHpe && qpeRecord != null) {
-            String text = getText(paintTime.getRefTime(),
-                    qpeRecord.getMetaData());
+            String text = getText(paintTime.getRefTime());
             if (text != null) {
                 sb.append(StringUtil.NEWLINE);
                 sb.append(text);
@@ -4170,15 +4170,41 @@ public class FFMPResource extends
         return dataTimes;
     }
 
-    private String getText(Date date, String productId) {
+    /**
+     * This method creates the upper left legend text for HPE derived QPE sources.
+     * It is only used for HPE QPE sources.
+     * @param date
+     * @return
+     */
+    private String getText(Date date) {
         String text = hpeLegendMap.get(date);
         if (text == null) {
+            FFMPRecord hpeQpeRecord = getQpeRecord();
+            String productId = monitor.getProductID(paintTime.getRefTime(),
+                    hpeQpeRecord.getWfo(), hpeQpeRecord.getSiteKey(),
+                    hpeQpeRecord.getDataKey(), hpeQpeRecord.getSourceName());
             dataJob.scheduleRetrieval(date, productId);
         }
 
         return text;
     }
 
+    /**
+     * HPE source lookup job 
+     * 
+     * <pre>
+     *
+     * SOFTWARE HISTORY
+     *
+     * Date         Ticket#    Engineer    Description
+     * ------------ ---------- ----------- --------------------------
+     * Nov 11, 2014  3026       dhladky     Initial creation
+     *
+     * </pre>
+     *
+     * @author dhladky
+     * @version 1.0
+     */
     private class HpeSourceDataJob extends Job {
         private volatile String productId;
 
