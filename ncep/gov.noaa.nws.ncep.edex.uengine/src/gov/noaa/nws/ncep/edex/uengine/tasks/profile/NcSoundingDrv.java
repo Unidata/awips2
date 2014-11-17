@@ -31,6 +31,9 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * 06/25/2014               Chin Chen    support dropsonde
  * 07/23/2014               Chin Chen    Support PW
  * 08/26/2014               Chin Chen  index out of bound bug
+ * 10/03/2014               B. Hebbard  Performance improvement:  Pass level and pwRequired params to
+ *                                      ObservedSoundingQuery.getObservedSndNcUairDataGeneric( ) so
+ *                                      it can decide whether it can economize on DB params it needs
  * </pre>
  *  Python Script example to query multiple locations at one request:
  *  The following 3 query examples, returns same results.
@@ -1107,7 +1110,7 @@ public class NcSoundingDrv {
             long t003 = System.currentTimeMillis();
             uairRecordArrList = ObservedSoundingQuery
                     .getObservedSndNcUairDataGeneric(coordinateArray, stnIdArr,
-                            rangeTimeStringLst, rangeTimeArr);
+                            rangeTimeStringLst, rangeTimeArr, level, pwRequired);
             long t004 = System.currentTimeMillis();
             System.out.println("getObservedSndNcUairDataGeneric query took "
                     + (t004 - t003) + "ms");
@@ -1442,8 +1445,9 @@ public class NcSoundingDrv {
         // }
 
         returnedObject = cube;
-        // long t02 = System.currentTimeMillis();
-        // System.out.println("getSoundingData2Generic query took "+(t02-t01)+" ms in total");
+        long t02 = System.currentTimeMillis();
+        System.out.println("getSoundingData2Generic query took " + (t02 - t01)
+                + " ms in total");
 
         return returnedObject;
     }
@@ -1470,18 +1474,23 @@ public class NcSoundingDrv {
             }
 
             List<NcUairRecord[]> uairRecordArrList;
-            // long t003 = System.currentTimeMillis();
+            long t003 = System.currentTimeMillis();
             uairRecordArrList = ObservedSoundingQuery
                     .getObservedSndNcUairDataGeneric(coordinateArray, stnIdArr,
-                            rangeTimeStringLst, rangeTimeArr);
-            // long t004 = System.currentTimeMillis();
-            // System.out.println("getObservedSndNcUairDataGeneric API call took "+(t004-t003)+"ms");
+                            rangeTimeStringLst, rangeTimeArr, level, pwRequired);
+            long t004 = System.currentTimeMillis();
+            System.out.println("getObservedSndNcUairDataGeneric API call took "
+                    + (t004 - t003) + "ms");
             if (uairRecordArrList != null && uairRecordArrList.size() > 0) {
-                // long t005 = System.currentTimeMillis();
+                long t005 = System.currentTimeMillis();
                 soundingProfileList = processQueryReturnedNcUairData(
                         uairRecordArrList, useNcSoundingLayer2);
-                // long t006 = System.currentTimeMillis();
-                // System.out.println("getSoundingDataGeneric total sounding time merging for "+uairRecordArrList.size()+" profiles took "+(t006-t005)+"ms");
+                long t006 = System.currentTimeMillis();
+                System.out
+                        .println("getSoundingDataGeneric total sounding time merging for "
+                                + uairRecordArrList.size()
+                                + " profiles took "
+                                + (t006 - t005) + "ms");
             }
 
         } else if (sndType.equals(PfcSndType.NAMSND.toString())
