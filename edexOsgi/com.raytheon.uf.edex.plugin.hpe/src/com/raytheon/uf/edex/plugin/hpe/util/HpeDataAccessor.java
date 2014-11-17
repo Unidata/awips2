@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.plugin.hpe.util.HpeEnums.HpeDataSource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2014    3026    mpduff      Initial creation
+ * Nov 12, 2014    3026    mpduff      Fix handling of query results
  * 
  * </pre>
  * 
@@ -166,20 +167,23 @@ public class HpeDataAccessor {
 
             Object[] results = dao.executeSQLQuery(FULL_HPE_RADAR_RESULT_QUERY
                     + where);
-            if (results != null && results.length == 5) {
-                hpeResult.setHpeProductName((String) results[0]);
-                hpeResult.setProductTime((Date) results[1]);
+            if (results != null && results.length == 1) {
+                Object[] result = (Object[]) results[0];
+                if (result.length == 5) {
+                    hpeResult.setHpeProductName((String) result[0]);
+                    hpeResult.setProductTime((Date) result[1]);
 
-                if (results[2] != null) {
-                    hpeResult.setNumRadarAvailable((Integer) results[2]);
-                }
+                    if (result[2] != null) {
+                        hpeResult.setNumRadarAvailable((Short) result[2]);
+                    }
 
-                if (results[3] != null) {
-                    hpeResult.setBiasSource((String) results[3]);
-                }
+                    if (result[3] != null) {
+                        hpeResult.setBiasSource((String) result[3]);
+                    }
 
-                if (results[4] != null) {
-                    hpeResult.setRadarDataSource((String) results[4]);
+                    if (result[4] != null) {
+                        hpeResult.setRadarDataSource((String) result[4]);
+                    }
                 }
             }
         } catch (Exception e) {
