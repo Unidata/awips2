@@ -88,9 +88,9 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 
  */
 public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
-	private static java.util.List<String> swearWords = Arrays.asList("asshole", "asshole's", "assholes",
-			"bitch", "bitch's", "bitches", "leprosy", "gayest",
-			"shit", "piss", "pissed","psser","pisses","pissing","tits");
+	private static java.util.List<String> swearWords = Arrays.asList("ASSHOLE", "ASSHOLE'S", "ASSHOLES",
+			"BITCH", "BITCH'S", "BITCHES", "LEPROSY", "GAYEST",
+			"SHIT", "PISS", "PISSED","PISSER","PISSES","PISSING","TITS");
 
     private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(SpellCheckDlg.class);
 
