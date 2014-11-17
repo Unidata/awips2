@@ -100,6 +100,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * Jul 09, 2013 2152        njensen     Synchronize uri requests to avoid duplicating effort
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 16, 2013 2197        njensen     Use FFMPBasinData.hasAnyBasins() for efficiency
+ * Nov 10, 2014 3026        dhladky     HPE BIAS displays.
  * 
  * </pre>
  * 
@@ -2202,6 +2203,63 @@ public class FFMPMonitor extends ResourceMonitor {
                 }
             }
         }
+    }
+    
+    /**
+     * 
+     * Set and lookup metaData ID used by HPE for text bias string on D2D.
+     * 
+     * @param date
+     * @param wfo
+     * @param siteKey
+     * @param dataKey
+     * @param sourceName
+     * @return
+     */
+    public String getProductID(Date date, String wfo, String siteKey, String dataKey, String sourceName) {
+
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(FFMPRecord.class);
+        request.addRequestField("metaData");
+        request.addConstraint("dataTime.refTime", new RequestConstraint(
+                datePattern.get().format(date),
+                ConstraintType.EQUALS));
+        request.addConstraint("wfo", new RequestConstraint(wfo));
+        request.addConstraint("siteKey", new RequestConstraint(siteKey));
+        request.addConstraint("dataKey", new RequestConstraint(dataKey));
+        request.addConstraint("sourceName", new RequestConstraint(sourceName));
+
+        DbQueryResponse dbResponse = null;
+        try {
+            dbResponse = (DbQueryResponse) ThriftClient.sendRequest(request);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Couldn't lookup FFMP HPE metaData! date: " + date
+                            + ", wfo: " + wfo + ", siteKey: " + siteKey
+                            + " , dataKey: " + dataKey + ", sourceName: "
+                            + sourceName, e);
+        }
+        
+        if (dbResponse.getFieldObjects("metaData", String.class).length > 1) {
+            statusHandler
+                    .warn("There SHOULD only be one unique response for this query! date: "
+                            + date
+                            + ", wfo: "
+                            + wfo
+                            + ", siteKey: "
+                            + siteKey
+                            + " , dataKey: "
+                            + dataKey
+                            + ", sourceName: "
+                            + sourceName);
+        }
+
+        for (String metadata : dbResponse.getFieldObjects("metaData",
+                String.class)) {
+            return metadata;
+        }
+
+        return null;
     }
 
 }
