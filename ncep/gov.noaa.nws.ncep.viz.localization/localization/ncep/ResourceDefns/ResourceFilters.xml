@@ -719,37 +719,37 @@
 <filters>Ensemble,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="POES-NPOESS">
-<filters>GINI</filters>
+<filters>NIMAGE</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="LCI West">
-<filters>GOES,GINI</filters>
+<filters>NIMAGE</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES 13 - GINI">
-<filters>GOES,GINI</filters>
+<filters>NIMAGE</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_Composite">
-<filters>GINI</filters>
+<filters>NIMAGE</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES 15 - GINI">
-<filters>GOES,GINI</filters>
+<filters>NIMAGE</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES 13 - McIDAS">
-<filters>Standard,McIdas,GOES</filters>
+<filters>UNIWISC</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES 15 - McIDAS">
-<filters>Standard,McIdas,GOES</filters>
+<filters>UNIWISC</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Arctic Composite">
-<filters>Standard,McIdas,GOES</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Polar Composites">
+<filters>UNIWISC</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="LCI East">
-<filters>GOES,GINI</filters>
+<filters>NIMAGE</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="GINI_GOES10">
-<filters>GOES,GINI</filters>
+<filters>NIMAGE</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_Miscellaneous">
-<filters>GINI</filters>
+<filters>NIMAGE</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="TAF">
 <filters>NCEP</filters>

@@ -329,6 +329,8 @@ INSERT INTO awips.mcidas_area_names VALUES (9357,'NHem');
 insert into awips.mcidas_area_names VALUES (1103,'GOES-East');
 insert into awips.mcidas_area_names VALUES (1104,'GOES-West');
 insert into awips.mcidas_area_names VALUES (7101,'Arctic');
+insert into awips.mcidas_area_names VALUES (1000,'Antarctic');
+insert into awips.mcidas_area_names VALUES (2000,'Antarctic');
 insert into awips.mcidas_area_names VALUES (3000,'Antarctic');
 insert into awips.mcidas_area_names VALUES (9062,'GEWCOMP');
 insert into awips.mcidas_area_names VALUES (9053,'GEWCOMP');
