@@ -18,38 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-    	<contribute xsi:type="toolbarSubMenu" menuText="100mb Layers">
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="300MB-200MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="400-300MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="500-400MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="600-500MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="700-600MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="800-700MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="900-800MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000-900MB"  indentText="false"/>
-    	</contribute>
-
-    	<contribute xsi:type="toolbarSubMenu" menuText="50mb Layers">
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000-950MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="950-900MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="900-850MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="850-800MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="800-750MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="750-700MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="700-650MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="650-600MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="600-550MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="550-500MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="500-450MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="450-400MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="400-350MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="350-300MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="300-250MB"  indentText="false"/>
-    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="250-200MB"  indentText="false"/>
-    	</contribute>
-    	
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">    	
     <!-- 
         Don't override this file, it exists only to support legacy overrides. 
         Please override menus/volumebrowser/planes/planViewTime-timeSeries.xml instead.
