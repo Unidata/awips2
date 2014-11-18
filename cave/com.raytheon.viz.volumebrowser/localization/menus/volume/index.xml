@@ -20,7 +20,10 @@
     -->
 <menuContributionFile>
 	<substitute key="DGEXmodel" value="DGEX185" />
-	<substitute key="GFSmodel" value="GFS213" />
+    <substitute key="GFSmodel" value="GFS229" />
+    <!--  Replaced by the above GFS229 substitute.
+    	<substitute key="GFSmodel" value="GFS213" />
+    -->
 	<substitute key="NAM12model" value="ETA218" />
 	<substitute key="NAM40model" value="mesoEta212" />
 	<substitute key="ARWmodel1" value="HiResW-ARW-East" />
