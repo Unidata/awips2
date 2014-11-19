@@ -26,6 +26,7 @@
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=99
+-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -XX:MaxDirectMemorySize=1G
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M
@@ -51,11 +52,9 @@
       </win>
    </launcher>
 
-
    <vm>
       <windows include="true">jdk1.6.0</windows>
    </vm>
-
 
    <plugins>
    </plugins>
