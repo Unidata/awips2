@@ -4,12 +4,14 @@
 # support, and with no warranty, express or implied, as to its usefulness for
 # any purpose.
 # 
-# MFLWindThreat
+# XXXWindThreat
 #
 # Author: M. Volkmer/P. Santos
 # ----------------------------------------------------------------------------
 
 from gfeConfig import *
+
+HideConfigFile = 1
 
 #------------------------------------------------------------------------
 # GIF/PNG Graphic Product Generation (ifpIMAGE program)
@@ -47,19 +49,19 @@ WindThreat_defaultColorTable='GFE/gHLS_new'
 # FloodThreat_minColorTableValue = 0.0 
 ImageLegend_color = 'black'
 bgColor = 'white'
-Counties_MFL_graphicColor = 'black'
-Zones_MFL_graphicColor = 'black'
-Marine_Zones_MFL_graphicColor = 'black'
+Counties_XXX_graphicColor = 'black'
+Zones_XXX_graphicColor = 'black'
+Marine_Zones_XXX_graphicColor = 'black'
 Interstates_graphicColor = 'blue'
 States_graphicColor = 'gray'
 Lakes_graphicColor = 'blue'
 
 # MAP BACKGROUNDS
-#MapBackgrounds_default = ['Counties','Marine_Zones_MFL','Interstates']
-MapBackgrounds_default = ['Zones_MFL','Marine_Zones_MFL','Interstates','States','Lakes']
-MFL_mask = "MFL"
+#MapBackgrounds_default = ['Counties','Marine_Zones_XXX','Interstates']
+MapBackgrounds_default = ['Zones_XXX','Marine_Zones_XXX','Interstates','States','Lakes']
+XXX_mask = "XXX"
 
-DefaultSamples = ['MFLWindThreat']
+DefaultSamples = ['XXXWindThreat']
 # Customize FONT SIZES here
 #TextFont0 =  "Bitstream Vera Sans Mono-bold-10"
 #TextFont1 =  "Bitstream Vera Sans Mono-bold-10"
@@ -73,7 +75,7 @@ SEColorBar_fgTextColor = "black"
 
 
 #CONFIGURATION FILE SETTINGS
-Png_filenamePrefix = 'MFLWindThreat' 
+Png_filenamePrefix = 'XXXWindThreat' 
 Png_baseTimeFormat = ''
 
 #LEGENDS
