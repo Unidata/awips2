@@ -2,6 +2,7 @@ package gov.noaa.nws.ncep.viz.rsc.ncscat.rsc;
 
 import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatPoint;
 import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatRecord;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector;
@@ -80,6 +81,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     (instead of waiting for ANCR.paintInternal() to do it) so
  *                                     long CGM retrieval and parsing is done by the InitJob, and thus
  *                                     (1) user sees "Initializing..." and (2) GUI doesn't lock up
+ * 10 Oct 2014  R4864      B. Hebbard  (TTR 986) ColorBar plotting high to low when in horizontal;
+ *                                     regression caused by reverseOrder enhancement for imagery
+ *                                     resources (in vertical).  Fix:  Set reverseOrder for NCSCAT colorbars
+ *                                     to false for horizontal and true for vertical.
  * 
  * </pre>
  * 
@@ -393,9 +398,11 @@ public class NcscatResource extends
         // create a system resource for the colorBar and add it to the resource
         // list.
         //
+        ColorBar colorBar1 = ncscatResourceData.getColorBar1();
+        colorBar1
+                .setReverseOrder(colorBar1.getOrientation() == ColorBarOrientation.Vertical);
         cbar1RscPair = ResourcePair
-                .constructSystemResourcePair(new ColorBarResourceData(
-                        ncscatResourceData.getColorBar1()));
+                .constructSystemResourcePair(new ColorBarResourceData(colorBar1));
 
         getDescriptor().getResourceList().add(cbar1RscPair);
         getDescriptor().getResourceList().instantiateResources(getDescriptor(),
@@ -403,6 +410,9 @@ public class NcscatResource extends
 
         cbar1Resource = (ColorBarResource) cbar1RscPair.getResource();
 
+        ColorBar colorBar2 = ncscatResourceData.getColorBar2();
+        colorBar2
+                .setReverseOrder(colorBar2.getOrientation() == ColorBarOrientation.Vertical);
         cbar2RscPair = ResourcePair
                 .constructSystemResourcePair(new ColorBarResourceData(
                         ncscatResourceData.getColorBar2()));
@@ -699,18 +709,23 @@ public class NcscatResource extends
             cbar2Resource = (ColorBarResource) cbar2RscPair.getResource();
         } else if (!ncscatResourceData.use2ndColorForRainEnable
                 && isCbar2Enabled) {
-            // this will cause the ResourceCatalog to dispose of the resource so
-            // we will
-            // need to create a new one here.
+            // this will cause the ResourceCatalog to dispose of the
+            // resource so we will need to create a new one here.
             getDescriptor().getResourceList().remove(cbar2RscPair);
             cbar2RscPair = null;
             cbar2Resource = null;
         }
 
-        cbar1Resource.setColorBar(ncscatResourceData.getColorBar1());
+        ColorBar colorBar1 = ncscatResourceData.getColorBar1();
+        colorBar1
+                .setReverseOrder(colorBar1.getOrientation() == ColorBarOrientation.Vertical);
+        cbar1Resource.setColorBar(colorBar1);
 
         if (cbar2Resource != null) {
-            cbar2Resource.setColorBar(ncscatResourceData.getColorBar2());
+            ColorBar colorBar2 = ncscatResourceData.getColorBar2();
+            colorBar2
+                    .setReverseOrder(colorBar2.getOrientation() == ColorBarOrientation.Vertical);
+            cbar2Resource.setColorBar(colorBar2);
         }
     }
 
