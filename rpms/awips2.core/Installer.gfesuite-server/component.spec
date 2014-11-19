@@ -98,6 +98,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/GFESuite/bin
 /awips2/GFESuite/bin/*
+%dir /awips2/GFESuite/hti/bin
+/awips2/GFESuite/hti/bin/*
+%defattr(755,awips,fxalpha,777)
+%dir /awips2/GFESuite/hti/etc
+/awips2/GFESuite/hti/etc/*
 %defattr(644,awips,fxalpha,755)
 %dir /awips2/GFESuite/bin/src
 /awips2/GFESuite/bin/src/*
