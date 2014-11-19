@@ -1,7 +1,7 @@
 import GenericHazards
 import JsonSupport
-import string, time, os, re, types, copy, LogStream, collections
-import ModuleAccessor, SampleAnalysis, EditAreaUtils
+import string, time, os, errno, re, types, copy, collections
+import LogStream, ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
 
 
@@ -734,8 +734,14 @@ FORECASTER STEWART"""
     
     def _getLocalAdvisoryDirectoryPath(self):
         file = self._synchronizeAdvisories()
-
         path = file.getPath()
+        
+        try:
+             os.makedirs(path)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise        
+        
         return path
     
     def _loadLastTwoAdvisories(self):
@@ -758,13 +764,14 @@ FORECASTER STEWART"""
     
     def _loadAdvisory(self, advisoryName):
         self._synchronizeAdvisories()
+        fileName = self._getAdvisoryFilename(advisoryName)
          
         try:
             pythonDict = JsonSupport.loadFromJson(LocalizationType.CAVE_STATIC,
                                              self._site,
-                                             self._getAdvisoryFilename(advisoryName))
+                                             fileName)
             
-            print "SARAH: File contents for", self._getAdvisoryFilename(advisoryName), ":"
+            print "SARAH: File contents for", fileName, ":"
             print pythonDict
              
             # Only use transmitted advisories
@@ -773,23 +780,20 @@ FORECASTER STEWART"""
             else:
                 return pythonDict
         except Exception, e:
-            print "SARAH Load Exception for %s : %s" % (self._getAdvisoryFilename(advisoryName), e)
+            print "SARAH Load Exception for %s : %s" % (fileName, e)
             return None
         
     def _getAdvisoryPath(self):
-        return "gfe/tcvAdvisories/"
-    
-    def _getLocalizationFile(self, loctype, siteID, filename):
-        pathManager = PathManagerFactory.getPathManager()
-        context = pathManager.getContextForSite(loctype, siteID)
-        localizationFile = pathManager.getLocalizationFile(context, filename)
-        
-        return localizationFile
+        dataMgr = self._argDict["dataMgr"]
+        gfeMode = dataMgr.getOpMode().name()
+        if gfeMode == "PRACTICE":
+            return os.path.join("gfe", "tcvAdvisories", "practice")
+        else:
+            return os.path.join("gfe", "tcvAdvisories")
     
     def _getAdvisoryFilename(self, advisoryName):
-        advisoryFilename = self._getAdvisoryPath() + \
-                           advisoryName + \
-                           ".json"
+        advisoryFilename = os.path.join(self._getAdvisoryPath(),
+                           advisoryName+".json")
         return advisoryFilename
 
     ###############################################################
