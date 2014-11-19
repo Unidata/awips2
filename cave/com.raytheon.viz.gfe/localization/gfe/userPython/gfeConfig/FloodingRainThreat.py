@@ -1,62 +1,68 @@
+
 # ----------------------------------------------------------------------------
 # This software is in the public domain, furnished "as is", without technical
 # support, and with no warranty, express or implied, as to its usefulness for
 # any purpose.
 # 
-# MFLStormSurgeThreat
+# XXXFloodingRainThreat
 #
 # Author: M. Volkmer/P. Santos
 # ----------------------------------------------------------------------------
 
 from gfeConfig import *
-#HideConfigFile = 1
+
+HideConfigFile = 1
+
 #------------------------------------------------------------------------
 # GIF/PNG Graphic Product Generation (ifpIMAGE program)
 #------------------------------------------------------------------------
 
 # IMAGE SIZE
+# You can set the height and width (in pixels) for the Png images.
+# It is only necessary to set one of these, as the other will
+# be calculated using the aspect ratio of your office domain.
+# Do not include decimal points after the numbers.
 # Both default to 400
 #Png_height    = 720
 Png_width     = 492
 
 #NAME OF ELEMENT DISPLAYED AS IMAGE
-Png_image = 'StormSurgeThreat'
+Png_image = 'FloodingRainThreat'
 
-Png_parms = ['StormSurgeThreat_SFC:_Official -1']
-StormSurgeThreat_spatialImageType = ["Image"]
+
+Png_parms = ['FloodingRainThreat_SFC:_Official -1']
+FloodingRainThreat_spatialImageType = ["Image"]
 
 # Smoothing...
 #Png_smoothImage = 1
 
 # NWS Logos
 Png_logo = 1
-Png_logoString = "Storm Surge Threat - NWS Miami FL"
+Png_logoString = "Flooding Rain Threat - NWS Miami FL"
 
 # Turn off Color Bar
 Png_omitColorBar = 0
 
 # COLOR TABLES
-StormSurgeThreat_defaultColorTable='GFE/gHLS_new'
-#LocalSurgeThreat_maxColorTableValue = 6.0 
-#LocalSurgeThreat_minColorTableValue = 0.0 
+FloodingRainThreat_defaultColorTable='GFE/gHLS_new'
+# FloodThreat_maxColorTableValue = 6.0 
+# FloodThreat_minColorTableValue = 0.0 
 ImageLegend_color = 'black'
 bgColor = 'white'
-# Counties_graphicColor = 'grey'
-Counties_MFL_graphicColor = 'black'
-Zones_MFL_graphicColor = 'black'
-Marine_Zones_MFL_graphicColor = 'black'
+Counties_XXX_graphicColor = 'black'
+Zones_XXX_graphicColor = 'black'
+Marine_Zones_XXX_graphicColor = 'black'
 Interstates_graphicColor = 'blue'
 States_graphicColor = 'gray'
 Lakes_graphicColor = 'blue'
 
-
 # MAP BACKGROUNDS
-# MapBackgrounds_default = ['Counties','Marine_Zones_MFL','Interstates']
-MapBackgrounds_default = ['Zones_MFL','Marine_Zones_MFL','Interstates','States','Lakes']
-MFL_mask = "StormSurgeWW_EditArea"
+#MapBackgrounds_default = ['Counties','Marine_Zones_XXX','Interstates']
+MapBackgrounds_default = ['Zones_XXX','Marine_Zones_XXX','Interstates','States','Lakes']
+XXX_mask = "XXX"
 
-DefaultSamples = ['MFLStormSurgeThreat']
-# Customize FONT SIZES here
+DefaultSamples = ['XXXFloodingRainThreat']
+# Customize FONT SIZES here.
 #TextFont0 =  "Bitstream Vera Sans Mono-bold-10"
 #TextFont1 =  "Bitstream Vera Sans Mono-bold-10"
 #TextFont2 =  "Bitstream Vera Sans Mono-bold-11"
@@ -68,7 +74,7 @@ SELegend_font = 2
 SEColorBar_fgTextColor = "black"
 
 #CONFIGURATION FILE SETTINGS
-Png_filenamePrefix = 'MFLStormSurgeThreat' 
+Png_filenamePrefix = 'XXXFloodingRainThreat' 
 Png_baseTimeFormat = ''
 
 #LEGENDS
@@ -85,7 +91,7 @@ Png_localTime = 1 # legend displays time in local or UTC (default to UTC)
 # 1 for weather element descriptive name
 #Png_descriptiveWeName = 1
 Png_descriptiveWeName = "ALT"
-Png_StormSurgeThreat_AltName="Updated"
+Png_FloodingRainThreat_AltName = "Updated"
 Png_legendFormat_LT_dur = ""
 #Png_legendFormat_LT_start = "%A %b %d"
 Png_legendFormat_LT_start = "%I %p %a %h %d"
