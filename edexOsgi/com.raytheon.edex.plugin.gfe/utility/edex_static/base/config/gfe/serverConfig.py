@@ -311,7 +311,7 @@ FloodingRainThreat = ("FloodingRainThreat", DISCRETE, "Cat", "Flooding Rain Thre
 StormSurgeThreat = ("StormSurgeThreat", DISCRETE, "Cat", "Storm Surge Threat", NO, Threat4Keys,2)
 WindThreat = ("WindThreat", DISCRETE, "Cat", "Wind Threat", NO, Threat4Keys,2)
 TornadoThreat = ("TornadoThreat", DISCRETE, "Cat", "Tornado Threat", NO, Threat4Keys,2)
-QPFtoFFGRatio = ("QPFtoFFGRatio", SCALAR, "", "QPF to FFG Ratio", 8.0, 0.0, 0, NO) 
+QPFtoFFGRatio = ("QPFtoFFGRatio", SCALAR, "1", "QPF to FFG Ratio", 8.0, 0.0, 0, NO) 
 
 # Hazards
 HazardKeys = []
@@ -478,7 +478,7 @@ BLWGDUST = ('BD', 'Blowing Dust',
           [INTEN_NONE],
           [PRIMARY, MENTION])
 FROST = ('FR','Frost',
-          [PATCHY, AREAS, DEFN],
+          [PATCHY, AREAS, WIDE],
           [INTEN_NONE],
           [PRIMARY, MENTION, OUTLYNG])
 FRZSPRAY = ('ZY','Freezing Spray',
