@@ -142,12 +142,20 @@ public class VbSource {
 
     @Override
     public boolean equals(Object that) {
-        return that instanceof VbSource ? this.key.equals(((VbSource) that)
-                .getKey()) : false;
+
+        if (that instanceof VbSource) {
+            if ((this.key.equals(((VbSource) that).getKey()) && (this
+                    .getCategory().compareTo(((VbSource) that).getCategory()) == 0))) {
+                return true;
+            }
+        }
+        return false;
     }
-    
+
     @Override
     public int hashCode() {
-        return key.hashCode();
+        String newKey = key.concat(category);
+        return newKey.hashCode();
+
     }
 }
