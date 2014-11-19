@@ -112,7 +112,7 @@ for PARM in $PARMS
 do
      # NOTE: cannot run ifpIMAGE on dx3/dx4 - must ssh to a px
      echo "Creating ${PARM} image..." >> $LOG_FILE
-     ssh px1 "unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${SITE}${PARM} -o ${PRODUCTdir}"
+     ssh px1 "unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}"
      convert ${PRODUCTdir}/${SITE}${PARM}.png -resize 104x148 ${PRODUCTdir}/${SITE}${PARM}_sm.png
 done
     
