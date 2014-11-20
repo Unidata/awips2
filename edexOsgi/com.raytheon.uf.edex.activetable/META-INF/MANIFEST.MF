@@ -27,6 +27,7 @@ Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.11.1",
  com.google.guava;bundle-version="1.0.0",
  com.raytheon.uf.edex.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.edex.python.decoder;bundle-version="1.12.1174",
  org.apache.commons.io;bundle-version="2.4.0"
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.edex.activetable
