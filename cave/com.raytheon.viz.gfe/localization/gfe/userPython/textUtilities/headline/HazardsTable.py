@@ -1162,7 +1162,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         for proposed in pTable:
             if (proposed['phen'], proposed['sig']) in self.__ufnKeys:
                 proposed['startTime'] = self.__time   #now
-                proposed['endTime'] = float(2 ** 31 - 1)  #forever
+                proposed['endTime'] = 2 ** 31 - 1     #forever
                 proposed['ufn'] = 1  #until further notice
         return pTable
 
