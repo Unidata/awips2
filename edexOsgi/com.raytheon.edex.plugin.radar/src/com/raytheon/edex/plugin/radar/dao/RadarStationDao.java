@@ -47,6 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ----------  ----------- --------------------------
  * 7/24/07      353         bphillip    Initial Check in
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * 
  * </pre>
  * 
@@ -170,7 +171,13 @@ public class RadarStationDao extends CoreDao {
             }
             crit.add(stationEq);
             Session session = getSession();
-            return crit.getExecutableCriteria(session).list();
+            try {
+                return crit.getExecutableCriteria(session).list();
+            } finally {
+                if (session != null){
+                    session.close();
+                }
+            }
         } else {
             logger.warn("Cannot execute spatial query with less than 3 points");
             return new ArrayList<RadarStation>();
