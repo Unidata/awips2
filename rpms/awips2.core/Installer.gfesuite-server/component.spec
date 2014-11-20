@@ -81,6 +81,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+
 # Copy the profile.d scripts.
 PROFILE_D_DIR="rpms/common/environment/awips2-gfesuite/profile.d"
 cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
