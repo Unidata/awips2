@@ -21,7 +21,7 @@ package com.raytheon.edex.plugin.gfe.textproducts;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +32,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.utility.ProtectedFiles;
+import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
+import com.raytheon.uf.common.dataquery.db.QueryResult;
+import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
@@ -45,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
+import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
 
 /**
  * Generate and configure text products when needed.
@@ -59,11 +64,13 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * Jul 7, 2008  1222        jelkins     Initial creation
- * Jul 24,2012  #944        dgilling    Fix text product template generation
+ * Jul 7,  2008 1222        jelkins     Initial creation
+ * Jul 24, 2012 #944        dgilling    Fix text product template generation
  *                                      to create textProducts and textUtilities.
- * Sep 07,2012  #1150       dgilling    Fix isConfigured to check for textProducts
+ * Sep 07, 2012 #1150       dgilling    Fix isConfigured to check for textProducts
  *                                      and textUtilities dirs.
+ * Oct 20, 2014 #3685       randerso    Added code to generate SiteCFG.py from GIS database
+ *                                      Cleaned up how protected file updates are returned
  * 
  * </pre>
  * 
@@ -74,6 +81,8 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
 public class Configurator {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Configurator.class);
+
+    private static final String CWA_QUERY = "select wfo, region, fullstaid, citystate, city, state from mapdata.cwa order by wfo;";
 
     private static final String CONFIG_TEXT_PRODUCTS_TASK = "GfeConfigureTextProducts";
 
@@ -183,26 +192,79 @@ public class Configurator {
      */
     @SuppressWarnings("unchecked")
     public void execute() {
-        PythonScript python = null;
-        List<String> preEvals = new ArrayList<String>();
-
+        if (isConfigured()) {
+            statusHandler.info("All text products are up to date");
+            return;
+        }
         IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext context = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
+        context.setContextName(siteID);
+
+        // regenerate siteCFG.py
+        LocalizationFile lf = null;
+        try {
+            lf = pathMgr.getLocalizationFile(context,
+                    FileUtil.join("python", "gfe", "SiteCFG.py"));
+
+            SqlQueryTask task = new SqlQueryTask(CWA_QUERY, "maps");
+            QueryResult results = task.execute();
+            try (PrintWriter out = new PrintWriter(lf.openOutputStream())) {
+                out.println("##");
+                out.println("# Contains information about products, regions, etc. for each site");
+                out.println("# in the country.");
+                out.println("# region= two-letter regional identifier, mainly used for installation of");
+                out.println("#         text product templates");
+                out.println("SiteInfo= {");
+                for (QueryResultRow row : results.getRows()) {
+                    String wfo = (String) row.getColumn(0);
+                    String region = (String) row.getColumn(1);
+                    String fullStationID = (String) row.getColumn(2);
+                    String wfoCityState = (String) row.getColumn(3);
+                    String wfoCity = (String) row.getColumn(4);
+                    String state = (String) row.getColumn(5);
+
+                    out.println(formatEntry(wfo, region, fullStationID,
+                            wfoCityState, wfoCity, state));
+
+                    // Add in AFC's dual domain sites
+                    if (wfo.equals("AFC")) {
+                        out.println(formatEntry("AER", region, fullStationID,
+                                wfoCityState, wfoCity, state));
+                        out.println(formatEntry("ALU", region, fullStationID,
+                                wfoCityState, wfoCity, state));
+                    }
+                }
+
+                // Add in the national centers since they
+                // aren't in the shape file
+                out.println(formatEntry("NH1", "NC", "KNHC",
+                        "National Hurricane Center Miami FL", "Miami", ""));
+                out.println(formatEntry("NH2", "NC", "KNHC",
+                        "National Hurricane Center Miami FL", "Miami", ""));
+                out.println(formatEntry("ONA", "NC", "KWBC",
+                        "Ocean Prediction Center Washington DC",
+                        "Washington DC", ""));
+                out.println(formatEntry("ONP", "NC", "KWBC",
+                        "Ocean Prediction Center Washington DC",
+                        "Washington DC", ""));
+
+                out.println("}");
+            } // out is closed here
+
+            lf.save();
+        } catch (Exception e) {
+            statusHandler.error(e.getLocalizedMessage(), e);
+        }
+
+        PythonScript python = null;
+
         LocalizationContext edexCx = pathMgr.getContext(
                 LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
-        LocalizationContext commonCx = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
 
         String filePath = pathMgr.getFile(edexCx,
                 "textproducts" + File.separator + "Generator.py").getPath();
-        String textProductPath = pathMgr.getFile(edexCx,
-                "textProducts.Generator").getPath();
-        String jutilPath = pathMgr.getFile(commonCx, "python").getPath();
-
-        // Add some getters we need "in the script" that we want hidden
-        preEvals.add("from JUtil import pylistToJavaStringList");
-        preEvals.add("from textproducts.Generator import Generator");
-        preEvals.add("generator = Generator()");
-        preEvals.add("def getProtectedData():\n     return pylistToJavaStringList(generator.getProtectedFiles())");
+        String commonPython = GfePyIncludeUtil.getCommonPythonIncludePath();
 
         Map<String, Object> argList = new HashMap<String, Object>();
         argList.put("siteId", siteID);
@@ -210,25 +272,39 @@ public class Configurator {
 
         try {
             python = new PythonScript(filePath, PyUtil.buildJepIncludePath(
-                    pythonDirectory, textProductPath, jutilPath), this
-                    .getClass().getClassLoader(), preEvals);
+                    pythonDirectory, commonPython), this.getClass()
+                    .getClassLoader());
 
             // Open the Python interpreter using the designated script.
-            python.execute("generator.create", argList);
-            protectedFilesList = (List<String>) python.execute(
-                    "getProtectedData", null);
+            protectedFilesList = (List<String>) python.execute("runFromJava",
+                    argList);
 
             updateProtectedFile();
             updateLastRuntime();
         } catch (JepException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error Configuring Text Products", e);
-            e.printStackTrace();
         } finally {
             if (python != null) {
                 python.dispose();
             }
         }
+    }
+
+    private String formatEntry(String wfo, String region, String fullStationID,
+            String wfoCityState, String wfoCity, String state) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("  '").append(wfo).append("': {\n");
+        sb.append("         'region': '").append(region).append("',\n");
+        sb.append("         'fullStationID': '").append(fullStationID)
+                .append("',\n");
+        sb.append("         'wfoCityState': '").append(wfoCityState)
+                .append("',\n");
+        sb.append("         'wfoCity': '").append(wfoCity).append("',\n");
+        sb.append("         'state': '").append(state).append("',\n");
+        sb.append("         },");
+
+        return sb.toString();
     }
 
     /**
