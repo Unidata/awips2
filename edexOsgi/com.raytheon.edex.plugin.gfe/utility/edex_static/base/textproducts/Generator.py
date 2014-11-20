@@ -33,8 +33,7 @@
 # Jul 24, 2012    #944           dgilling    Refactored to support separate
 #                                            generation of products and utilities.
 # Sep 07, 2012    #1150          dgilling    Ensure all necessary dirs get created.                                   
-# Oct 20, 2014    #4953          randerso    Changed how SiteInfo is loaded.
-#                                            Fixed logging to log to a file
+# Oct 20, 2014    #4953          randerso    Fixed logging to log to a file
 #                                            Cleaned up how protected file updates are returned
 #
 # @author: jelkins
@@ -68,6 +67,7 @@ from sys import path
 path.append(join(LIBRARY_DIR,"../"))
 path.append(join(PREFERENCE_DIR,"../"))
 
+from library.SiteInfo import SiteInfo as SITE_INFO
 from preferences.configureTextProducts import NWSProducts as NWS_PRODUCTS
 
 from os.path import basename
@@ -108,17 +108,6 @@ ProcessDirectories = [
   },
   ]
 
-# This will "load" SiteInfo in a more complicated way
-# than 'from SiteCFG import SiteInfo'.
-from LockingFile import File
-
-pathManager = PathManagerFactory.getPathManager()
-lf = pathManager.getStaticLocalizationFile(LocalizationType.COMMON_STATIC, "python/gfe/SiteCFG.py")
-with File(lf.getFile(), lf.getName(), 'r') as file:
-    fileContents = file.read()
-
-exec fileContents
-
 
 class Generator():
     """Generates site specific text products from base template files.
@@ -141,7 +130,7 @@ class Generator():
         
         @raise LookupError: when the site ID is invalid
         """
-        if siteId in SiteInfo.keys():
+        if siteId in SITE_INFO.keys():
             self.__siteId = siteId
         else:
             raise LookupError, ' unknown WFO: ' + siteId
@@ -241,11 +230,11 @@ class Generator():
         
         LOG.debug("PIL Information for all sites Begin.......")
         
-        for site in SiteInfo.keys():
+        for site in SITE_INFO.keys():
             LOG.info("--------------------------------------------")
             LOG.info("%s %s %s" % (site, 
-                                   SiteInfo[site]['fullStationID'], 
-                                   SiteInfo[site]['wfoCityState']))
+                                   SITE_INFO[site]['fullStationID'], 
+                                   SITE_INFO[site]['wfoCityState']))
             pils = self.__createPilDictionary(site)
             self.__printPilDictionary(pils)
             found += len(pils)
@@ -328,11 +317,11 @@ class Generator():
             
             subDict = {}
             subDict['<site>'] = siteid.strip()
-            subDict['<region>'] = SiteInfo[siteid]['region'].strip()
-            subDict['<wfoCityState>'] = SiteInfo[siteid]['wfoCityState'].strip()
-            subDict['<wfoCity>'] = SiteInfo[siteid]['wfoCity'].strip()
-            subDict['<fullStationID>'] = SiteInfo[siteid]['fullStationID'].strip()
-            subDict['<state>'] = SiteInfo[siteid]['state'].strip()
+            subDict['<region>'] = SITE_INFO[siteid]['region'].strip()
+            subDict['<wfoCityState>'] = SITE_INFO[siteid]['wfoCityState'].strip()
+            subDict['<wfoCity>'] = SITE_INFO[siteid]['wfoCity'].strip()
+            subDict['<fullStationID>'] = SITE_INFO[siteid]['fullStationID'].strip()
+            subDict['<state>'] = SITE_INFO[siteid]['state'].strip()
             if product is not None:
                 subDict['<product>'] = product.strip()
                 if ProductToStandardMapping.has_key(product):
@@ -367,7 +356,7 @@ class Generator():
             
             subDict = {}
             subDict['Site'] = siteid.strip()
-            subDict['Region'] = SiteInfo[siteid]['region'].strip()
+            subDict['Region'] = SITE_INFO[siteid]['region'].strip()
             if product is not None:
                 subDict['Product'] = product.strip()
             if pilInfo is not None and pilInfo.has_key("pil") and multiPilFlag:
@@ -403,10 +392,10 @@ class Generator():
             LOG.info("%s %s" % (p,pillist[p]))
     
     def __createPilDictionary(self, siteid):
-        """Update the SiteInfo with a PIL dictionary
+        """Update the SITE_INFO with a PIL dictionary
         
         Read the a2a data from the database, create PIL information, and add the information
-        to the SiteInfo dictionary.
+        to the SITE_INFO dictionary.
         
         @param site: the site for which PIL information is created
         @type site: string
@@ -415,7 +404,7 @@ class Generator():
         @rtype: dictionary
         """
         
-        siteD = SiteInfo[siteid]
+        siteD = SITE_INFO[siteid]
         stationID4 = siteD['fullStationID']
         
         from com.raytheon.edex.plugin.text.dao import AfosToAwipsDao
@@ -460,7 +449,7 @@ class Generator():
                 e['textdbPil'] = pil
                 e['awipsWANPil'] = site4 + pil[3:]
                 d.append(e)
-            siteD[nnn] = d #store the pil dictionary back into the SiteInfo
+            siteD[nnn] = d #store the pil dictionary back into the SITE_INFO
     
         return pillist
 
@@ -597,8 +586,8 @@ class Generator():
                     continue
         
                 # extract out the pil information from the dictionary
-                if SiteInfo[siteid].has_key(pilNames[0]):
-                    pils = SiteInfo[siteid][pilNames[0]]
+                if SITE_INFO[siteid].has_key(pilNames[0]):
+                    pils = SITE_INFO[siteid][pilNames[0]]
                 else:
                     #set pils to empty list if none defined
                     pils = [{'awipsWANPil': 'kssscccnnn',
