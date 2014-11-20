@@ -53,6 +53,7 @@
 	
 	<property name="gfe.suite.home" value="${install.dir}" />
 	<property name="gfe.suite.bin" value="${install.dir}/bin" />
+	<property name="gfe.suite.hti" value="${install.dir}/hti" />
 
 	<!-- Create the copy filter -->	
 	<!-- filter set -->
@@ -66,7 +67,9 @@
 		<echo message="Updating ${gfe.suite.bin} with latest GFESuite tools" />
 		<echo message="deploy.client=${deploy.client}" />
 		<mkdir dir="${gfe.suite.bin}"/>
+		<mkdir dir="${gfe.suite.hti}"/>
 		<antcall target="-deploy.cli.common"/>
+		<antcall target="-deploy.hti"/>
 		<antcall target="-deploy.svcBackup"/>
 		<!-- <antcall target="-deploy.cli.client"/> -->
 		<antcall target="-set.permissions"/>
@@ -88,6 +91,16 @@
     	</copy>
 	</target>
 	
+	<target name="-deploy.hti" 
+		description="Deploys HTI software to a specific directory">
+		<!-- copy the CLI tools to the deploy directory -->
+		<echo message="Copying in HTI files" />
+		<copy todir="${gfe.suite.hti}" overwrite="true">
+			<fileset dir="${basedir}/hti"/>
+			<filterset refid="installer.filter.set"/>
+		</copy>
+	</target>
+		
 	<target name="-deploy.svcBackup" if="deploy.svcBackup"
 		description="Deploys service backup scripts to a specific directory">
 		<echo message="Copying in service backup scripts" />
