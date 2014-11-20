@@ -19,86 +19,54 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="Aviation">
-		<contribute xsi:type="titleItem" titleText="------ Convection Products ------" />
-		<contribute xsi:type="bundleItem" file="bundles/ConvSigmet.xml"
-			menuText="Convective SIGMET" id="ConvSigmet">
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/BufrNcwf.xml" menuText="NCWF" id="NCWF">
-		</contribute>
-		<contribute xsi:type="separator" id="separator1"/>
-		
-		<contribute xsi:type="titleItem" titleText="------ Icing Products ------" />
-		<contribute xsi:type="bundleItem" file="bundles/NonConvSigmet.xml" menuText="SIGMET" id="SIGMETICING">
-			<substitute key="hazardType" value="ICING"/>
-			<substitute key="color" value="#FFFFFF"/>
-			<substitute key="name" value="Icing SIGMET"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/Airmet.xml" menuText="AIRMET" id="AIRMETICING">
-			<substitute key="hazardType" value="ICING"/>
-			<substitute key="color" value="#0000FF"/>
-			<substitute key="name" value="Icing AIRMET"/>
-		</contribute>
-		<contribute xsi:type="separator" id="separator2"/>
-		
-		<contribute xsi:type="titleItem" titleText="------ Turbulence Products ------" />
-		<contribute xsi:type="bundleItem" file="bundles/NonConvSigmet.xml" menuText="SIGMET" id="SIGMETTURB">
-			<substitute key="hazardType" value="TURBULENCE"/>
-			<substitute key="color" value="#FF4444"/>
-			<substitute key="name" value="Turbulence SIGMET"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/Airmet.xml" menuText="AIRMET" id="AIRMETTURB">
-			<substitute key="hazardType" value="TURBULENCE"/>
-			<substitute key="color" value="#00FF00"/>
-			<substitute key="name" value="Turbulence AIRMET"/>
-		</contribute>
-		<contribute xsi:type="separator" id="separator3"/>
-		
-		<contribute xsi:type="titleItem" titleText="------ Visibility Products ------" />
-		<contribute xsi:type="subMenu" menuText="AIRMET">
-			<contribute xsi:type="bundleItem" file="bundles/Airmet.xml" menuText="IFR" id="AIRMETIFR">
-				<substitute key="hazardType" value="INSTRUMENT FLIGHT RULES"/>
-				<substitute key="color" value="#00FFFF"/>
-				<substitute key="name" value="IFR AIRMET"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/Airmet.xml" menuText="Mtn Obscn" id="AIRMETMTNOBSC">
-				<substitute key="hazardType" value="MOUNTAIN OBSCURATION"/>
-				<substitute key="color" value="#FF0088"/>
-				<substitute key="name" value="Mtn Obscn AIRMET"/>
-			</contribute>
-		</contribute>
-		<contribute xsi:type="separator" id="separator4"/>
-		
-		<contribute xsi:type="titleItem" titleText="------ Tropical Cyclone ------" />
-		<contribute xsi:type="bundleItem" file="bundles/NonConvSigmet.xml" menuText="SIGMET" id="SIGMETTTOPCYCLONE">
-			<substitute key="hazardType" value="TROPICAL CYCLONE"/>
-			<substitute key="color" value="#00FFFF"/>
-			<substitute key="name" value="Tropical Cyclone SIGMET"/>
-		</contribute>
-		<contribute xsi:type="separator" id="separator5"/>
-		
-		<contribute xsi:type="titleItem" titleText="------ Volcanic Ash ------" />
-		<contribute xsi:type="bundleItem" file="bundles/NonConvSigmet.xml" menuText="SIGMET" id="SIGMETVOLCANICASH">
-			<substitute key="hazardType" value="VOLCANIC ASH CLOUD"/>
-			<substitute key="color" value="#00FF00"/>
-			<substitute key="name" value="Volcanic Ash SIGMET"/>
-		</contribute>
-  		<contribute xsi:type="bundleItem" file="bundles/VAA.xml" menuText="Volcanic Ash Advisories" id="VAA">
-		</contribute>
-		<contribute xsi:type="separator" id="separator6"/>
-		
-		<contribute xsi:type="titleItem" titleText="------Center Weather ------" />
-		<contribute xsi:type="bundleItem" file="bundles/CWA.xml" menuText="Center Weather Advisories" id="cwa">
-		</contribute>
-		<contribute xsi:type="separator" id="separator7"/>
+    <contribute xsi:type="subMenu" id="Aviation" menuText="Aviation">
+        <contribute xsi:type="titleItem"
+            titleText="------ Convection Products ------" />
+        <contribute xsi:type="separator" id="ConvectionProductsStart"
+            visible="false" />
+        <contribute xsi:type="bundleItem" file="bundles/BufrNcwf.xml"
+            menuText="NCWF" id="NCWF">
+        </contribute>
+        <contribute xsi:type="separator" id="ConvectionProductsEnd" />
 
-		<contribute xsi:type="titleItem" titleText="------Significant Weather------" />
-		<contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml" menuText="Medium Level" id="SigWxMedium">
-			<substitute key="wxLayer" value="SWM"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml" menuText="High Level" id="SigWxHigh">
-			<substitute key="wxLayer" value="SWH"/>
-		</contribute>
-	</contribute>
-	<contribute xsi:type="separator" id="separator8"/>
+        <contribute xsi:type="titleItem" titleText="------ Icing Products ------" />
+        <contribute xsi:type="separator" id="IcingProductsEnd" />
+
+        <contribute xsi:type="titleItem"
+            titleText="------ Turbulence Products ------" />
+        <contribute xsi:type="separator" id="TurbulenceProductsEnd" />
+
+        <contribute xsi:type="titleItem"
+            titleText="------ Visibility Products ------" />
+        <contribute xsi:type="separator" id="VisibilityProductsEnd" />
+
+        <contribute xsi:type="titleItem" titleText="------ Tropical Cyclone ------" />
+        <contribute xsi:type="separator" id="TropicalCycloneEnd" />
+
+        <contribute xsi:type="titleItem" titleText="------ Volcanic Ash ------" />
+        <contribute xsi:type="separator" id="VolcanicAshStart"
+            visible="false" />
+        <contribute xsi:type="bundleItem" file="bundles/VAA.xml"
+            menuText="Volcanic Ash Advisories" id="VAA">
+        </contribute>
+        <contribute xsi:type="separator" id="VolcanicAshEnd" />
+
+        <contribute xsi:type="titleItem" titleText="------Center Weather ------" />
+        <contribute xsi:type="bundleItem" file="bundles/CWA.xml"
+            menuText="Center Weather Advisories" id="cwa">
+        </contribute>
+        <contribute xsi:type="separator" id="CenterWeatherEnd" />
+
+        <contribute xsi:type="titleItem"
+            titleText="------Significant Weather------" />
+        <contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml"
+            menuText="Medium Level" id="SigWxMedium">
+            <substitute key="wxLayer" value="SWM" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml"
+            menuText="High Level" id="SigWxHigh">
+            <substitute key="wxLayer" value="SWH" />
+        </contribute>
+    </contribute>
+    <contribute xsi:type="separator" id="AviationMenuEnd" />
 </menuTemplate>
