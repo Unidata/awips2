@@ -242,7 +242,7 @@ public class GridParmInfo implements Cloneable {
         this.rateParm = rateParm;
 
         if (!validCheck()) {
-            statusHandler.warn(this.errorMessage);
+            statusHandler.error(this.errorMessage);
             setDefaultValues();
         }
     }

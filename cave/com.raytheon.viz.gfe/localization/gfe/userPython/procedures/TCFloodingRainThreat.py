@@ -133,7 +133,7 @@ class Procedure (SmartScript.SmartScript):
             return 1
         elif diff < 72:
             return 2
-        else
+        else:
             return 3
 
         return 0
