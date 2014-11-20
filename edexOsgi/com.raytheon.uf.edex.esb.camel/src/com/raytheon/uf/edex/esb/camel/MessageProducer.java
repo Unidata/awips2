@@ -41,6 +41,8 @@ import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.spi.InterceptStrategy;
 
 import com.raytheon.uf.common.message.IMessage;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.Pair;
@@ -63,6 +65,7 @@ import com.raytheon.uf.edex.esb.camel.context.ContextManager;
  * Nov 14, 2008            njensen     Initial creation.
  * Mar 27, 2014 2726       rjpeter     Modified for graceful shutdown changes,
  *                                     added tracking of endpoints by context.
+ * Oct 08, 2014     #3684  randerso    Added sendAsyncThriftUri
  * </pre>
  * 
  * @author njensen
@@ -166,6 +169,33 @@ public class MessageProducer implements IMessageProducer, InterceptStrategy {
                         message, headers);
             } else {
                 template.sendBody(ep, ExchangePattern.InOnly, message);
+            }
+        } catch (Exception e) {
+            throw new EdexException("Error sending asynchronous message: "
+                    + message + " to uri: " + uri, e);
+        }
+    }
+
+    @Override
+    public void sendAsyncThriftUri(String uri, Object message)
+            throws EdexException, SerializationException {
+        if (!started
+                && queueWaitingMessage(WaitingType.THRIFT_URI, uri, message)) {
+            return;
+        }
+
+        try {
+            Pair<ProducerTemplate, Endpoint> ctxAndTemplate = getProducerTemplateAndEndpointForUri(uri);
+            Map<String, Object> headers = getHeaders(message);
+            ProducerTemplate template = ctxAndTemplate.getFirst();
+            Endpoint ep = ctxAndTemplate.getSecond();
+
+            if (headers != null) {
+                template.sendBodyAndHeaders(ep, ExchangePattern.InOnly,
+                        SerializationUtil.transformToThrift(message), headers);
+            } else {
+                template.sendBody(ep, ExchangePattern.InOnly,
+                        SerializationUtil.transformToThrift(message));
             }
         } catch (Exception e) {
             throw new EdexException("Error sending asynchronous message: "
@@ -350,6 +380,9 @@ public class MessageProducer implements IMessageProducer, InterceptStrategy {
                     case URI:
                         sendAsyncUri(wm.dest, wm.msg);
                         break;
+                    case THRIFT_URI:
+                        sendAsyncThriftUri(wm.dest, wm.msg);
+                        break;
                     }
                 } catch (Exception e) {
                     statusHandler
@@ -419,7 +452,7 @@ public class MessageProducer implements IMessageProducer, InterceptStrategy {
      * Enum for handling whether the waiting type was uri or msg.
      */
     private enum WaitingType {
-        ID, URI
+        ID, URI, THRIFT_URI
     };
 
     /**
