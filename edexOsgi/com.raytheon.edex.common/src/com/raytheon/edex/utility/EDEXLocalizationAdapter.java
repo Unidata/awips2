@@ -66,6 +66,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Nov 03, 2013 2511        mnash       Fix issue where if name occurs in path
  *                                      file won't be returned correctly
  * Feb 13, 2014             mnash       Add region level to localization
+ * Nov 13, 2014 4953        randerso    Changed delete() to also remove .md5 file
  * </pre>
  * 
  * @author jelkins
@@ -335,11 +336,19 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
     @Override
     public boolean delete(ModifiableLocalizationFile file)
             throws LocalizationOpFailedException {
+        boolean status = true;
         File localFile = file.getLocalFile();
         if (localFile.exists()) {
-            return localFile.delete();
+            status = localFile.delete();
         }
-        return true;
+
+        File md5File = new File(localFile.getAbsolutePath() + ".md5");
+        if (md5File.exists()) {
+            if (!md5File.delete()) {
+                handler.error("Unable to delete: " + md5File.getAbsolutePath());
+            }
+        }
+        return status;
     }
 
     @Override
@@ -349,8 +358,8 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
         String contextName = null;
         if (level == LocalizationLevel.BASE) {
             // nothing to add
-        } else if (level == LocalizationLevel.SITE
-                || level == LocalizationLevel.CONFIGURED) {
+        } else if ((level == LocalizationLevel.SITE)
+                || (level == LocalizationLevel.CONFIGURED)) {
             // fill in site name
             contextName = getSiteName();
         } else if (level == LocalizationLevel.REGION) {
