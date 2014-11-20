@@ -104,7 +104,7 @@ class TextProduct(GenericHazards.TextProduct):
             ('RP.S', allActions, 'RipCurrent'),       # HIGH RIP CURRENT RISK
         ]
 
-   def _bulletDict(self):
+    def _bulletDict(self):
         return {
             "CF" : ("COASTAL FLOODING,TIMING,IMPACTS"),  ### coastal flood warning, advisory, watch
             "LS" : ("LAKE SHORE FLOODING,TIMING,IMPACTS"),  ### lake shore flood warning, advisory, watch

@@ -23,6 +23,8 @@
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
 # 03/25/2014    #2664     randerso    Added support for importing non-WGS84 shape files
+# 10/23/2014    #3685     randerso    Fixed bug where .prj was not recognized when shape file
+#                                     was in the current directory (no directory specified)
 #     
 ##
 
@@ -46,7 +48,7 @@ if [ $# -lt 3 ] ; then
     exit -1
 fi
 
-SHP_PATH=${1}
+SHP_PATH=`readlink -f ${1}`
 SHP_DIR="${SHP_PATH%/*}"    # shape file dir
 SHP_NAME="${SHP_PATH##*/}"  # shape file name with extension
 SHP_BASE="${SHP_NAME%.*}"   # shape file name without extension
