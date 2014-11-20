@@ -101,9 +101,7 @@ function copyLegal()
    
    mkdir -p %{_build_root}/${COMPONENT_BUILD_DIR}/licenses
    
-   cp %{_baseline_workspace}/rpms/legal/license.txt \
-      %{_build_root}/${COMPONENT_BUILD_DIR}/licenses
-   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master_Rights_File.pdf" \
       %{_build_root}/${COMPONENT_BUILD_DIR}/licenses    
 }
 pushd . > /dev/null
