@@ -17,14 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.python.decoder;
+package com.raytheon.uf.edex.activetable.decoder;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.raytheon.edex.esb.Headers;
+import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.activetable.SendPracticeProductRequest;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.edex.python.decoder.PythonDecoder;
 
 /**
  * A PythonDecoder, modified to allow a time offset string (as passed in -z
@@ -40,6 +42,10 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * ------------- -------- ----------- --------------------------
  * Jun 27, 2011           wldougher   Initial creation
  * Oct 03, 2013  2402     bsteffen    Make PythonDecoder more extendable.
+ * Nov 14, 2014  4953     randerso    Renamed to PracticeVtecDecoder since it is now
+ *                                    used for all practice VTEC products
+ *                                    Changed to take in the SendPracticeProductRequest
+ *                                    to simplify spring wiring
  * 
  * </pre>
  * 
@@ -47,40 +53,51 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * @version 1.0
  */
 
-public class TimeOffsetDecoder extends PythonDecoder {
+public class PracticeVtecDecoder extends PythonDecoder {
 
     /**
      * Constructor.
      */
-    public TimeOffsetDecoder() {
+    public PracticeVtecDecoder() {
         super();
     }
 
     /**
-     * Decode a file with an offset time.
+     * Dump product text to temp file
      * 
-     * @param file
-     *            The file to decode
-     * @param drtString
-     *            The time offset string as used by
-     *            TimeUtil.py::determineDrtOffset()
+     * @param productText
+     *            product text
+     * @return the temp file
+     */
+    public static File dumpProductToTempFile(String productText) {
+        File file = Util.createTempFile(productText.getBytes(), "vtec");
+        file.deleteOnExit();
+        return file;
+    }
+
+    /**
+     * Decode a practice VTEC product with a time offset.
+     * 
+     * @param req
      * @return An array of decoded records, which may be zero-length, but is not
      *         null.
      * @throws Exception
      *             if anything goes wrong, typically in Python or converting
      *             Python structures to Java
      */
-    public PluginDataObject[] decode(File file, Headers headers)
+    public PluginDataObject[] decode(SendPracticeProductRequest req)
             throws Exception {
+
+        File file = dumpProductToTempFile(req.getProductText());
 
         StringBuilder sb = new StringBuilder("cmd -f ");
         sb.append(file.getPath());
-        Boolean notifyGFE = (Boolean) headers.get("notifygfe");
+        Boolean notifyGFE = req.isNotifyGFE();
         if (Boolean.TRUE.equals(notifyGFE)) {
             sb.append(" -g");
         }
-        String drtString = (String) headers.get("drtstring");
-        if (drtString != null && !"".equals(drtString)) {
+        String drtString = req.getDrtString();
+        if ((drtString != null) && !drtString.isEmpty()) {
             sb.append(" -z ").append(drtString);
         }
 
