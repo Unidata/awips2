@@ -41,7 +41,7 @@ return query.execute()'''
 
         if not ch.isGoodStatus():
             print ch.formatResponse()
-        exit(1)
+            exit(1)
 
         return self.__generateMap( ch.getContents() )
 
@@ -147,19 +147,19 @@ query.addReturnedField("dataTime.refTime")
 return query.execute()'''.format(atype,label)
 
 
-    service = '/services/pyproductjaxb'
-    host = os.getenv("DEFAULT_HOST", "localhost")
-    port = os.getenv("DEFAULT_PORT", "9581")
-    connection=str(host+":"+port)
-    ch = CH.CommHandler(connection,service)
-    ch.process(script)
+        service = '/services/pyproductjaxb'
+        host = os.getenv("DEFAULT_HOST", "localhost")
+        port = os.getenv("DEFAULT_PORT", "9581")
+        connection=str(host+":"+port)
+        ch = CH.CommHandler(connection,service)
+        ch.process(script)
 
-    if not ch.isGoodStatus():
+        if not ch.isGoodStatus():
             print ch.formatResponse()
             exit(1)
 
-    logger.debug( ch.getContents() )
-    return __parseResponse( ch.getContents() )
+        logger.debug( ch.getContents() )
+        return __parseResponse( ch.getContents() )
 
     #
     #  Parses the XML response from the uEngine and extracts

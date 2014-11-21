@@ -21,8 +21,11 @@ package com.raytheon.viz.satellite.rsc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.measure.Measure;
 
@@ -50,10 +53,16 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogatable;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Displays multiple satellite resources in a single resource. Uses graphics
+ * mosaicing to combine images so that alhpa blending correctly treats multiple
+ * images as a single layer when applying the alpha.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -67,6 +76,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    values and returns NaN now
  * Nov 18, 2013  2544     bsteffen    Override recycleInternal
  * Nov 20, 2013  2492     bsteffen    Update inspect to use Measure objects
+ * Oct 27, 2014  3681     bsteffen    Implement Interrogatable
  * 
  * </pre>
  * 
@@ -76,7 +86,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class SatBlendedResource extends
         AbstractVizResource<SatBlendedResourceData, MapDescriptor> implements
-        IResourceGroup, IRefreshListener, IResourceDataChanged {
+        IResourceGroup, IRefreshListener, IResourceDataChanged, Interrogatable {
 
     private IMosaicImage mosaicImage = null;
 
@@ -322,5 +332,41 @@ public class SatBlendedResource extends
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         refresh();
+    }
+
+    @Override
+    public Set<InterrogationKey<?>> getInterrogationKeys() {
+        Set<InterrogationKey<?>> set = new HashSet<>();
+        List<Interrogatable> resourceList = getResourceList()
+                .getResourcesByTypeAsType(Interrogatable.class);
+        for (Interrogatable resource : resourceList) {
+            set.addAll(resource.getInterrogationKeys());
+        }
+        return set;
+    }
+
+    @Override
+    public InterrogateMap interrogate(ReferencedCoordinate coordinate,
+            DataTime time, InterrogationKey<?>... keys) {
+        if (!Arrays.asList(keys).contains(Interrogator.VALUE)) {
+            keys = Arrays.copyOf(keys, keys.length + 1);
+            keys[keys.length - 1] = Interrogator.VALUE;
+        }
+        List<Interrogatable> list = getResourceList().getResourcesByTypeAsType(
+                Interrogatable.class);
+        Collections.reverse(list);
+        for (Interrogatable resource : list) {
+            InterrogateMap result = resource
+                    .interrogate(
+                    coordinate, time, keys);
+            Measure<? extends Number, ?> value = result.get(Interrogator.VALUE);
+            if (value != null) {
+                double quantity = value.getValue().doubleValue();
+                if (!Double.isNaN(quantity)) {
+                    return result;
+                }
+            }
+        }
+        return new InterrogateMap();
     }
 }
