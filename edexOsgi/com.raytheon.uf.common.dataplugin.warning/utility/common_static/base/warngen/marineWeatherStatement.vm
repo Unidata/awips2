@@ -8,6 +8,7 @@
 ## Phil Kurimski   -- FEB 07 2013  OB13.2.1-5      ##
 ## Phil Kurimski   -- SEP 17 2013  OB13.5.2-4      ##
 ## Evan Bookbinder -- SEP 18 2013  Implemented config.vm
+## Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
 #####################################################
 #parse("config.vm")
 ## Set the visibility variable to be used for dense fog
@@ -384,10 +385,10 @@ DENSE FOG WAS REDUCING VISIBILITIES TO BELOW ${visibility}. REDUCE YOUR SPEED...
 #############
 ## WATCHES ##
 #############
-#if(${list.contains($includedWatches, "torWatches")} && ${list.contains(${bullets}, "includeTorWatches")})
+#if(${list.contains($includedWatches, "TO.A")} && ${list.contains(${bullets}, "includeTorWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")} && ${list.contains(${bullets}, "includeSvrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")} && ${list.contains(${bullets}, "includeSvrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 ####################################

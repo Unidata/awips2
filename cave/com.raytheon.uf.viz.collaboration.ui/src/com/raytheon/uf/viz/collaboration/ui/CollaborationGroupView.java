@@ -87,16 +87,20 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.BookmarkEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager.GroupListener;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.ui.actions.AddNotifierAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.AddToGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ArchiveViewerAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeBackgroundColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeFontAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeForegroundColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangePasswordAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeRoleAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeSiteAction;
@@ -106,10 +110,12 @@ import com.raytheon.uf.viz.collaboration.ui.actions.CreateSessionAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.DeleteGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.DisplayFeedAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.InviteAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.JoinRoomAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.LinkToEditorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.LoginAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.LogoutAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.RemoveBookmarkAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.RemoveFromGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.RemoveFromRosterAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.SendSubReqAction;
@@ -117,6 +123,7 @@ import com.raytheon.uf.viz.collaboration.ui.actions.ShowVenueAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.UserSearchAction;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.PublicRoomContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
@@ -154,6 +161,8 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Apr 11, 2014 2903       bclement    login action changes, removed server disconnect listener, 
  *                                      added static utility method to show view
  * May 19, 2014 3180       bclement    fixed inviting multiple users to session
+ * Oct 08, 2014 3705       bclement    added room search and bookmarking
+ * Oct 14, 2014 3709       mapeters    Added change background/foreground color actions to menu.
  * 
  * </pre>
  * 
@@ -191,6 +200,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private Image pressedImage = null;
 
     private LogoutAction logOut;
+
+    private Action roomSearchAction;
 
     /**
      * @param parent
@@ -307,6 +318,15 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // this is either on or off, so it is a toggle
         displayFeedAction = new DisplayFeedAction();
 
+        roomSearchAction = new Action("Public Room Search...",
+                IconUtil.getImageDescriptor(Activator.getDefault().getBundle(),
+                        "spyglass.gif")) {
+            public void run() {
+                new RoomSearchDialog(Display.getCurrent().getActiveShell())
+                        .open();
+            };
+        };
+
         this.disableOrEnableToolbarActions();
     }
 
@@ -341,8 +361,12 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     private void createMenu(IMenuManager mgr) {
         mgr.add(new UserSearchAction());
+        mgr.add(roomSearchAction);
         mgr.add(new Separator());
         mgr.add(new ChangeFontAction());
+        mgr.add(new ChangeForegroundColorAction());
+        mgr.add(new ChangeBackgroundColorAction());
+        mgr.add(new Separator());
         mgr.add(new ChangeStatusAction());
         mgr.add(new ChangeStatusMessageAction());
         mgr.add(new ChangePasswordAction());
@@ -413,6 +437,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
         if (o instanceof SessionGroupContainer) {
             manager.add(createSessionAction);
             return;
+        } else if (o instanceof PublicRoomContainer){
+            manager.add(roomSearchAction);
+            return;
         } else if (o instanceof IVenueSession) {
             manager.add(new ShowVenueAction((IVenueSession) o));
             manager.add(new ArchiveViewerAction((IVenueSession) o));
@@ -458,6 +485,11 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 renameAction.setId(group.getName());
                 manager.add(renameAction);
             }
+        } else if (o instanceof VenueId) {
+            VenueId venue = (VenueId) o;
+            manager.add(new JoinRoomAction(venue, false));
+            manager.add(new JoinRoomAction(venue, true));
+            manager.add(new RemoveBookmarkAction(venue));
         }
     }
 
@@ -515,6 +547,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
                     new PeerToPeerChatAction(user).run();
                 } else if (o instanceof IVenueSession) {
                     new ShowVenueAction((IVenueSession) o).run();
+                } else if (o instanceof VenueId) {
+                    new JoinRoomAction((VenueId) o, false).run();
                 }
             }
         });
@@ -911,6 +945,11 @@ public class CollaborationGroupView extends CaveFloatingView implements
     @Subscribe
     public void handlSessionEvent(IVenueSession rosterChangeEvent) {
         refreshUsersTreeViewerAsync(topLevel.getSessionGroup());
+    }
+
+    @Subscribe
+    public void handleBookmarkEvent(BookmarkEvent event) {
+        refreshUsersTreeViewerAsync(topLevel.getPublicRoomGroup());
     }
 
     /**

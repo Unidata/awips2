@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.internal.ui.JavaPluginImages;
+import org.eclipse.jdt.internal.ui.JavaUIMessages;
 import org.eclipse.jdt.internal.ui.text.spelling.AddWordProposal;
 import org.eclipse.jdt.internal.ui.text.spelling.DisableSpellCheckingProposal;
 import org.eclipse.jdt.ui.PreferenceConstants;
@@ -83,6 +85,8 @@ import com.raytheon.uf.viz.spellchecker.jobs.EnhancedSpellCheckJob;
  *                                   disable of spell checking.
  * Aug 18, 2014 3453       rblum     Added the spell check dictionary
  *                                   to site level localization.
+ * Oct 01, 2014 3453       rblum     Allow MB3 click anywhere in the textbox
+ *                                   to enable/disable spellcheck.
  * 
  * </pre>
  * 
@@ -96,6 +100,8 @@ public class SpellCheckTextViewer extends TextViewer implements
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SpellCheckTextViewer.class);
+
+    private final String enableSpellCheckText = "Enable spell checking";
 
     private List<SpellingProblem> problems;
 
@@ -151,14 +157,18 @@ public class SpellCheckTextViewer extends TextViewer implements
                         offset = getTextWidget().getOffsetAtLocation(
                                 new Point(e.x, e.y));
                     } catch (Exception exception) {
-                        return;
+                        /*
+                         * Do Nothing - Did not click on text.
+                         */
                     }
                     SpellingProblem problem = getProblemInRange(offset);
                     final Menu menu = new Menu(getTextWidget());
                     if (store
                             .getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED) == false) {
                         MenuItem item = new MenuItem(menu, SWT.PUSH);
-                        item.setText("Enable spell checking");
+                        item.setText(enableSpellCheckText);
+                        item.setImage(JavaPluginImages
+                                .get(JavaPluginImages.IMG_CORRECTION_ADD));
                         item.addSelectionListener(new SelectionAdapter() {
                             @Override
                             public void widgetSelected(SelectionEvent e) {
@@ -177,7 +187,26 @@ public class SpellCheckTextViewer extends TextViewer implements
                             addSelectionAction(item);
                         }
 
+                    } else {
+                        /*
+                         * Spell check is enabled but did not click on
+                         * mis-spelled word - Allow disabling
+                         */
+                        MenuItem item = new MenuItem(menu, SWT.PUSH);
+                        item.setText(JavaUIMessages.Spelling_disable_label);
+                        item.setImage(JavaPluginImages
+                                .get(JavaPluginImages.IMG_OBJS_NLS_NEVER_TRANSLATE));
+                        item.addSelectionListener(new SelectionAdapter() {
+                            @Override
+                            public void widgetSelected(SelectionEvent e) {
+                                store.setValue(
+                                        SpellingService.PREFERENCE_SPELLING_ENABLED,
+                                        false);
+                                refreshAllTextViewers(false);
+                            }
+                        });
                     }
+
                     menu.addMenuListener(new MenuAdapter() {
                         @Override
                         public void menuHidden(MenuEvent e) {

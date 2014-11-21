@@ -19,23 +19,38 @@
  **/
 package com.raytheon.viz.satellite.tileset;
 
+import java.awt.Rectangle;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
+
+import org.eclipse.swt.widgets.Display;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
 import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.IImage.Status;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.tile.RecordTileSetRenderable;
 import com.raytheon.uf.viz.core.tile.Tile;
 import com.raytheon.uf.viz.core.tile.TileLevel;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Satellite tile set renderable, uses {@link SatDataRetriever} for {@link Tile}
@@ -50,6 +65,7 @@ import com.raytheon.uf.viz.core.tile.TileLevel;
  * Jun 19, 2013            mschenke     Initial creation
  * Jun 19, 2014 3238       bsteffen     Add method to create a DataSource for
  *                                      a tile level.
+ * Oct 15, 2014 3681       bsteffen    Allow asynchronous interrogation.
  * 
  * </pre>
  * 
@@ -60,6 +76,15 @@ import com.raytheon.uf.viz.core.tile.TileLevel;
 public class SatTileSetRenderable extends RecordTileSetRenderable {
 
     private final AbstractVizResource<?, ?> resource;
+
+    /**
+     * Provides a temporary cache of data so that if multiple interrogations
+     * and/or rendering will not retrieve data that has been recently used. The
+     * references in this map that have been cleared are ignored since the
+     * maximum size is limited to the number of tiles which should be fairly
+     * reasonable.
+     */
+    private final Map<Tile, Reference<ColorMapData>> dataCache = new ConcurrentHashMap<>();
 
     /**
      * Create satellite tile set renderable
@@ -78,8 +103,19 @@ public class SatTileSetRenderable extends RecordTileSetRenderable {
 
     @Override
     protected ColorMapData retrieveRecordData(Tile tile) {
-        return new SatDataRetriever((SatelliteRecord) record, tile.tileLevel,
-                tile.getRectangle()).getColorMapData();
+        Reference<ColorMapData> dataRef = dataCache.get(tile);
+        ColorMapData data = null;
+        if (dataRef != null) {
+            data = dataRef.get();
+        }
+        if (data == null) {
+            data = new SatDataRetriever((SatelliteRecord) record,
+                    tile.tileLevel, tile.getRectangle()).getColorMapData();
+        }
+        if (data != null) {
+            dataCache.put(tile, new SoftReference<ColorMapData>(data));
+        }
+        return data;
     }
 
     @Override
@@ -92,6 +128,11 @@ public class SatTileSetRenderable extends RecordTileSetRenderable {
         return (SatelliteRecord) record;
     }
 
+    /**
+     * @return a {@link GeographicDataSource} that can be used for interrogating
+     *         any point on the renderable for the most recently painted tile
+     *         level.
+     */
     public GeographicDataSource getCurrentLevelDataSource() {
         TileLevel level = tileSet.getTileLevel(lastPaintedLevel);
         DataSource tile = new TileLevelDataSource(level);
@@ -113,6 +154,122 @@ public class SatTileSetRenderable extends RecordTileSetRenderable {
         return new GeographicDataSource(tile, levelGeometry);
     }
 
+    @Override
+    public double interrogate(Coordinate coordinate, Unit<?> resultUnit)
+            throws VizException {
+        ColorMapParameters parameters = colormapping.getColorMapParameters();
+        /*
+         * RecordTileSetRenderable is nearly identical but it calls
+         * super.interrogate here which ignores the override of that specific
+         * interrogate method so we must override this method to ensure this
+         * classes interrogate methods are used.
+         */
+        return interrogate(coordinate, resultUnit, parameters.getNoDataValue());
+    }
+
+    @Override
+    public double interrogate(Coordinate coordinate, Unit<?> resultUnit,
+            double nanValue) throws VizException {
+        /* Overriden to provide accurate results asynchronously */
+        TileLevel level = tileSet.getTileLevel(lastPaintedLevel);
+
+        double[] grid = null;
+        try {
+            double[] local = new double[2];
+            llToLocalProj
+                    .transform(new double[] { coordinate.x, coordinate.y }, 0,
+                            local, 0, 1);
+            grid = level.crsToGrid(local[0], local[1]);
+        } catch (TransformException e) {
+            throw new VizException("Error interrogating ", e);
+        }
+
+        return getDataValue(level, grid[0], grid[1], resultUnit, nanValue);
+    }
+
+    /**
+     * Get a single data value for a specific 2d index. This method will load
+     * data from the image if it is calle don the appropriate thread and the
+     * image has data. Otherwise it requests the data from the datastore(with
+     * some caching).
+     * 
+     * @param level
+     *            the level to get the data for.
+     * @param x
+     *            the x index in the level.
+     * @param y
+     *            the y index in the level
+     * @param resultUnit
+     *            the unit the data should be in.
+     * @param nanValue
+     *            a special value that will return nan.
+     * @return a data value in the specified unit.
+     */
+    protected double getDataValue(TileLevel level, double x, double y,
+            Unit<?> resultUnit, double nanValue) {
+        double dataValue = Double.NaN;
+        IColormappedImage cmapImage = null;
+        Tile tile = level.getTile(x, y);
+        /**
+         * If we are not on the UI thread then do not use the image for the data
+         * value.
+         */
+        if (tile != null && Display.getCurrent() != null) {
+            DrawableImage di = imageMap.get(tile);
+            if (di != null) {
+                IImage image = di.getImage();
+                if (image instanceof IColormappedImage) {
+                    cmapImage = (IColormappedImage) image;
+                }
+            }
+        }
+        int tilex = (int) x % tileSize;
+        int tiley = (int) y % tileSize;
+        Unit<?> dataUnit = null;
+        /**
+         * In some implementations of IColormappedImage NaN is returned if the
+         * data is not loaded. So for those cases fall back to retrieving the
+         * tile.
+         */
+        if (cmapImage != null && (cmapImage.getStatus() == Status.STAGED || cmapImage.getStatus() == Status.LOADED)) {
+            dataValue = cmapImage.getValue(tilex, tiley);
+            if (dataValue == nanValue) {
+                dataValue = Double.NaN;
+            } else {
+                ColorMapParameters parameters = cmapImage
+                        .getColorMapParameters();
+                dataUnit = cmapImage.getDataUnit();
+                if (parameters.getDataMapping() != null) {
+                    dataUnit = parameters.getColorMapUnit();
+                }
+            }
+        } else if (tile != null) {
+            ColorMapData data = retrieveRecordData(tile);
+            Rectangle rect = tile.getRectangle();
+            DataSource source = BufferWrapper.wrap(data.getBuffer(),
+                    rect.width, rect.height);
+            dataValue = source.getDataValue(tilex, tiley);
+            dataUnit = data.getDataUnit();
+        }
+
+        /** Reconcile any unit discrepencies. */
+        if (resultUnit != null && dataUnit != null
+                && dataUnit.equals(resultUnit) == false) {
+            if (resultUnit.isCompatible(dataUnit)) {
+                dataValue = dataUnit.getConverterTo(resultUnit).convert(
+                        dataValue);
+            } else {
+                UnitFormat uf = UnitFormat.getUCUMInstance();
+                String message = String
+                        .format("Unable to interrogate tile set.  Desired unit (%s) is not compatible with data unit (%s).",
+                                uf.format(resultUnit), uf.format(dataUnit));
+                throw new IllegalArgumentException(message);
+            }
+        }
+
+        return dataValue;
+    }
+
     private class TileLevelDataSource implements DataSource {
 
         private final TileLevel level;
@@ -123,32 +280,10 @@ public class SatTileSetRenderable extends RecordTileSetRenderable {
 
         @Override
         public double getDataValue(final int x, final int y) {
-            Tile tile = level.getTile((double) x, (double) y);
-            IColormappedImage cmapImage = null;
-            if (tile != null) {
-                DrawableImage di = imageMap.get(tile);
-                if (di != null) {
-                    IImage image = di.getImage();
-                    if (image instanceof IColormappedImage) {
-                        cmapImage = (IColormappedImage) image;
-                    }
-                }
-            }
-            if (cmapImage != null) {
-                final IColormappedImage theImage = cmapImage;
-                final double[] result = new double[1];
-                VizApp.runSync(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        result[0] = theImage.getValue(x % tileSize, y
-                                % tileSize);
-                    }
-
-                });
-                return result[0];
-            }
-            return Double.NaN;
+            ColorMapParameters parameters = colormapping
+                    .getColorMapParameters();
+            return SatTileSetRenderable.this.getDataValue(level, x, y, null,
+                    parameters.getNoDataValue());
         }
 
     }
