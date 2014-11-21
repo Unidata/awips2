@@ -171,6 +171,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/bin/yajsw
 /awips2/edex/bin/yajsw/*
 
+%attr(775,awips,fxalpha) /awips2/edex/data/manual
+
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/edex/bin
 /awips2/edex/bin/*.sh
