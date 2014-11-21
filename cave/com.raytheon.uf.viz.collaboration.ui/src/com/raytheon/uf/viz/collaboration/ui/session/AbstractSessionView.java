@@ -61,8 +61,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
-import com.raytheon.uf.viz.collaboration.ui.actions.ChatDisplayChangeEvent;
-import com.raytheon.uf.viz.collaboration.ui.actions.ChatDisplayChangeEvent.ChangeType;
 import com.raytheon.uf.viz.collaboration.ui.actions.CopyTextAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.CutTextAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PasteTextAction;
@@ -97,6 +95,8 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Jun 27, 2014 3323       bclement    fixed disposed font issue
  * Oct 09, 2014 3711       mapeters    Display chat text in accordance with preferences.
  * Oct 14, 2014 3709       mapeters    Support changing foreground/background color.
+ * Nov 14, 2014 3709       mapeters    Changing foreground/background colors no longer 
+ *                                     implemented here, added messagesTextMenuMgr.
  * </pre>
  * 
  * @author rferrel
@@ -125,6 +125,8 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
     /** Font used with the messagesText control. */
     private Font messagesTextFont;
+
+    protected MenuManager messagesTextMenuMgr;
 
     private StyledText composeText;
 
@@ -223,23 +225,13 @@ public abstract class AbstractSessionView<T extends IUser> extends
                         store, "font"));
         messagesText.setFont(messagesTextFont);
 
-        // grab the background color from preferences (default to white)
-        RGB bgColor = com.raytheon.uf.viz.core.preferences.PreferenceConverter
-                .getRGB(store, "bg", "white");
-        messagesText.setBackground(new Color(Display.getCurrent(), bgColor));
-
-        // grab the foreground color from preferences (default to black)
-        RGB fgColor = com.raytheon.uf.viz.core.preferences.PreferenceConverter
-                .getRGB(store, "fg", "black");
-        messagesText.setForeground(new Color(Display.getCurrent(), fgColor));
-
         searchComp.setSearchText(messagesText);
 
         // adding a menu item so that Paste can be found when clicking on the
         // composeText styledtext
-        MenuManager menuMgr = new MenuManager();
-        menuMgr.add(new CopyTextAction(messagesText));
-        Menu menu = menuMgr.createContextMenu(messagesText);
+        messagesTextMenuMgr = new MenuManager();
+        messagesTextMenuMgr.add(new CopyTextAction(messagesText));
+        Menu menu = messagesTextMenuMgr.createContextMenu(messagesText);
         messagesText.setMenu(menu);
     }
 
@@ -591,20 +583,12 @@ public abstract class AbstractSessionView<T extends IUser> extends
     }
 
     @Subscribe
-    public void changeChatDisplay(ChatDisplayChangeEvent event) {
-        ChangeType type = event.getChangeType();
-        if (type == ChangeType.FOREGROUND) {
-            messagesText.setForeground(new Color(Display.getCurrent(), event.getColor()));
-        } else if (type == ChangeType.BACKGROUND) {
-            messagesText.setBackground(new Color(Display.getCurrent(), event
-                    .getColor()));
-        } else if (type == ChangeType.FONT) {
-            Font oldFont = messagesTextFont;
-            messagesTextFont = new Font(Display.getCurrent(), event.getFont());
-            messagesText.setFont(messagesTextFont);
-            if (oldFont != null) {
-                oldFont.dispose();
-            }
+    public void changeFont(FontData data) {
+        Font oldFont = messagesTextFont;
+        messagesTextFont = new Font(Display.getCurrent(), data);
+        messagesText.setFont(messagesTextFont);
+        if (oldFont != null) {
+            oldFont.dispose();
         }
     }
     
