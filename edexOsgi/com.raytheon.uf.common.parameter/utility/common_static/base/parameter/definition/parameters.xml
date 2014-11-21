@@ -559,28 +559,4 @@
 		<abbreviation>TKE</abbreviation>
 		<unit>J/kg</unit>
 	</parameter>
-	<!-- ::START:: MFL Parameter Naming Listing -->
-	<!-- START: nwpsCG1 parameters not in baseline -->
-	<parameter>
-		<name>Geometric Depth Below Sea Surface</name>
-		<abbreviation>DBSS</abbreviation>
-		<unit>m</unit>
-	</parameter>
-	<parameter>
-		<name>Deviation Of Sea Level from Mean</name>
-		<abbreviation>DEVMSL</abbreviation>
-		<unit>m</unit>
-	</parameter>
-	<parameter>
-		<name>Surface Current Speed</name>
-		<abbreviation>SPC</abbreviation>
-		<unit>m/s</unit>
-	</parameter>
-	<parameter>
-		<name>Surface Current Direction</name>
-		<abbreviation>DIRC</abbreviation>
-		<unit>degree</unit>
-	</parameter>
-	<!-- END: nwpsCG1 parameters not in baseline -->
-	<!-- ::END::  MFL Parameter Naming Listing -->
 </parameterList>
