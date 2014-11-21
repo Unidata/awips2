@@ -32,6 +32,7 @@ import com.raytheon.uf.common.time.DataTime;
  * 04/2013               B. Hebbard  IOC version (for OB13.4.1)
  * 10/2013               B. Hebbard  Modify model name inference from metafile name
  * Aug 30, 2013 2298     rjpeter     Make getPluginName abstract
+ * 6/2014                T. Lee      Added HYSPLIT and fixed "other" modelName
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -367,68 +368,27 @@ public class NtransDecoder extends AbstractDecoder {
          */
     }
 
-	private enum Model { 
-	    //TODO - Remove this, to make decoder agnostic w.r.t. list of available models.
-	    //       We do this temporarily because we don't yet know the possible formats
-	    //       of filename strings we're going to be fed, so for now we just look for
-	    //       known model names appearing anywhere in the file name.
-	    //       NOTE:  Sequence is important only insofar as any model name must appear
-	    //              after all model names of which it is a proper substring.
-	    //              Also, OPC_ENC comes first, since its metafiles may contain other
-	    //              model substrings
-        OPC_ENS,
-	    CMCE_AVGSPR,
-	    CMCE,
-	    CMCVER,
-	    CMC,
-	    CPC,
-	    DGEX,
-	    ECENS_AVGSPR,
-	    ECENS,
-	    ECMWFVER,
-	    ECMWF_HR,
-	    ECMWF,
-	    ENSVER,
-	    FNMOCWAVE,
-	    GDAS,
-	    GEFS_AVGSPR,
-	    GEFS,
-	    GFSP,
-	    GFSVERP,
-	    GFSVER,
-	    GFS,
-	    GHM,
-	    HPCQPF,
-	    HPCVER,
-	    HWRF,
-	    ICEACCR,
-	    JMAP,
-	    JMA,
-	    MEDRT,
-	    NAEFS,
-	    NAM20,
-	    NAM44,
-	    NAMVER,
-	    NAM,
-	    NAVGEM,
-	    NOGAPS,
-	    NWW3P,
-	    NWW3,
-	    RAPP,
-	    RAP,
-	    SREFX,
-	    SST,
-	    UKMETVER,
-	    UKMET,
-	    VAFTAD };
-	
-    private String inferModel(String fileName) {
+    private enum Model {
+        // TODO - Remove this, to make decoder agnostic w.r.t. list of available
+        // models.
+        // We do this temporarily because we don't yet know the possible formats
+        // of filename strings we're going to be fed, so for now we just look
+        // for
+        // known model names appearing anywhere in the file name.
+        // NOTE: Sequence is important only insofar as any model name must
+        // appear
+        // after all model names of which it is a proper substring.
+        // Also, OPC_ENC comes first, since its metafiles may contain other
+        // model substrings
+        OPC_ENS, CMCE_AVGSPR, CMCE, CMCVER, CMC, CPC, DGEX, ECENS_AVGSPR, ECENS, ECMWFVER, ECMWF_HR, ECMWF, ENSVER, FNMOCWAVE, GDAS, GEFS_AVGSPR, GEFS, GFSP, GFSVERP, GFSVER, GFS, GHM, HPCQPF, HPCVER, HWRF, ICEACCR, JMAP, JMA, MEDRT, NAEFS, NAM20, NAM44, NAMVER, NAM, NAVGEM, NOGAPS, NWW3P, NWW3, RAPP, RAP, SREFX, SST, UKMETVER, UKMET, VAFTAD
+    };
 
+    private String inferModel(String fileName) {
         // Infer the model name from the file name
         // (Use heuristics gleaned from $NTRANS_META contents)
         // TODO -- continuous improvement!
 
-        String modelName = ""; // TODO "default" model...?
+        String modelName = "other"; // TODO "default" model...?
         if (fileName.startsWith("ecens_prob")) {
             modelName = "ecens";
         } else if (fileName.startsWith("Day") || fileName.startsWith("Night")
@@ -436,33 +396,31 @@ public class NtransDecoder extends AbstractDecoder {
             modelName = "medrt";
         } else if (fileName.startsWith("meta_sst")) {
             modelName = "sst";
-        } else if (/* fileName.matches("^[A-Z]") */
-        fileName.contains("_GFS")) {
+        } else if (fileName.startsWith("hysplit")) {
+            modelName = "HYSPLIT";
+        } else if (fileName.contains("_GFS")) {
             modelName = "vaftad";
-        /*
-        } else if (fileName.contains("_2")) {
-            modelName = fileName.substring(0, fileName.indexOf("_2"));
+            /*
+             * } else if (fileName.contains("_2")) { modelName =
+             * fileName.substring(0, fileName.indexOf("_2")); if
+             * (modelName.equals("jma")) { modelName = "jmap"; } }
+             * 
+             * return modelName;
+             */
+
+        } else {
+            for (Model model : Model.values()) {
+                if (fileName.toLowerCase().contains(model.name().toLowerCase())) {
+                    modelName = model.name().toLowerCase();
+                    break;
+                }
+            }
             if (modelName.equals("jma")) {
                 modelName = "jmap";
             }
+            return modelName;
         }
-		
         return modelName;
-		*/
-		
-        } else {
-		    for (Model model : Model.values()) {
-		        if (fileName.toLowerCase().contains(model.name().toLowerCase())) {
-		            modelName = model.name().toLowerCase();
-		            break;
-		        }
-		    }
-	        if (modelName.equals("jma")) {
-	              modelName = "jmap";
-            }
-	        return modelName;
-		}
-		return "other";  // unrecognized
     }
 
     private ByteOrder determineEndianess(ByteBuffer byteBuffer) {

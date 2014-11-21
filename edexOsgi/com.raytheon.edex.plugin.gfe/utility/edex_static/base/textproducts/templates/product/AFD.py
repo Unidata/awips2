@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# Oct 20, 2014    #3685          randerso    Changed to support mixed case
+#
+##
+
 #-------------------------------------------------------------------------
 # File Name: AFD.py
 # Description: This product creates a Area Forecast Discussion product.
@@ -245,7 +253,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                ],
 
         "popStartZ_AM": 12,                 #hour UTC
-        "WWA_Nil" : "NONE.",
+        "WWA_Nil" : "None.",
 
         "hazardSamplingThreshold": (10, None),  #(%cov, #points)
           }
@@ -621,12 +629,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         productName = self.checkTestMode(argDict, self._productName) 
 
-        fcst = fcst + self._pil + "\n\n"
-        fcst = fcst + productName + "\n"
-        fcst = fcst + "NATIONAL WEATHER SERVICE "
-        fcst = fcst + self._wfoCityState +"\n"
-        fcst = fcst + issuedByString
-        fcst = fcst + self._timeLabel + "\n\n"
+        s = self._pil + "\n\n" + \
+            productName + "\n" + \
+            "NATIONAL WEATHER SERVICE " + \
+            self._wfoCityState +"\n" + \
+            issuedByString + \
+            self._timeLabel + "\n\n"
+        fcst = fcst + s.upper()
         return fcst
 
 ####################################################################
@@ -776,7 +785,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # If no hazards are found, append the null phrase
 
             if len(stateHazardList) == 0:
-                fcst = fcst + "NONE.\n"
+                fcst = fcst + self._WWA_Nil + "\n"
                 continue
 
             # If hazards are found, then build the hazard phrases
@@ -822,7 +831,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     idString = self.makeUGCString(ids)                    
 
                 # hazard phrase
-                phrase = hazName + ' ' + timing + ' FOR ' + idString + '.'
+                phrase = hazName + ' ' + timing + ' for ' + idString + '.'
 
                 # Indent if there is a state list associated
                 if len(self._state_IDs) > 1:
@@ -1088,6 +1097,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('SU.W', allActions, 'HighSurf'),     # HIGH SURF WARNING
             ('SU.Y', allActions, 'HighSurf1'),     # HIGH SURF ADVISORY
             ('RP.S', allActions, 'Rip'),           # HIGH RIP CURRENT RISK
+            ('BH.S', allActions, 'BeachHaz'),      # BEACH HAZARDS STATEMENT
             ('AF.W', allActions, 'Ashfall2'),      # VOLCANIC ASHFALL WARNING
             ('AF.Y', allActions, 'Ashfall'),      # VOLCANIC ASHFALL ADVISORY
             ('TS.W', allActions, 'Tsunami'),      # TSUNAMI WARNING

@@ -31,7 +31,7 @@
 			org.postgresql.Driver
 		</property>
 		<property name="dialect">
-			org.hibernatespatial.postgis.PostgisDialect
+			org.hibernate.spatial.dialect.postgis.PostgisDialect
 		</property>
 		<property name="connection.url">
 			jdbc:postgresql://${db.addr}:${db.port}/maps
@@ -73,6 +73,8 @@
 		<!-- Cache Properties  -->
 		<property name="hibernate.cache.use_second_level_cache">false</property>
 		<property name="hibernate.cache.use_query_cache">false</property>
+		<property name="hibernate.query.plan_cache_max_strong_references">8</property>
+		<property name="hibernate.query.plan_cache_max_soft_references">16</property>
 
 	</session-factory>
 </hibernate-configuration>

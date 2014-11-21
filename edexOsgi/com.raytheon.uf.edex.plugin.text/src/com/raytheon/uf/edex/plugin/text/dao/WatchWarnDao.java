@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 
 import com.raytheon.uf.common.dataplugin.text.db.WatchWarn;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Oct 1, 2008  1538        jkorman     Added additional functionality.
  * Aug 9, 2010  3944        cjeanbap    Added method, queryAllWatchWarn. 
  * May 20, 2014 2536        bclement    moved from edex.textdb to edex.plugin.text
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * </pre>
  * 
  * @author garmendariz
@@ -109,8 +111,15 @@ public class WatchWarnDao extends CoreDao {
     @SuppressWarnings("unchecked")
     public List<WatchWarn> queryAllWatchWarn() {
         
-        Criteria criteria = getSession().createCriteria(WatchWarn.class);   
+        Session session = getSession();
+        try{
+            Criteria criteria = session.createCriteria(WatchWarn.class);   
         
         return criteria.list();
+        } finally {
+            if(session != null){
+                session.close();
+            }
+        }
     }
 }

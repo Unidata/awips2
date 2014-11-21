@@ -319,6 +319,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    02APR2014       17211         zhao (code obtained from the listserver via Virgil that implements a new rule regarding CB, TS etc) 
 #    May 12, 2014    16928         zhao           Modified check_prev_time()
+#    Sep 17, 2014    16928         zhao           Added a line break "\n" to message 25 (since it appears together with message 49) 
 #
 #
 import exceptions, re, time, types
@@ -356,7 +357,7 @@ or precipitation event (NWSI 10-813, Appendix C, 1.2.9.4)""",
 22: """Invalid start hour""",
 23: """Invalid day""",
 24: """Issue and valid times do not match""",
-25: """Group time period not within TAF forecast period""",
+25: """Group time period not within TAF forecast period\n""",
 26: """Only PROB30 is allowed""",
 27: """The PROB group shall not be used in the first 
 9 hours of the valid TAF forecast 
