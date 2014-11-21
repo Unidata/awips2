@@ -1461,7 +1461,6 @@
 		<name>MSAS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
-		<grid>87</grid>
 		<process>
 			<id>100</id>
 		</process>
