@@ -10,6 +10,7 @@
          Modified Phil Kurimski          02-05-2013 Reordered GUI selections to make more sense
          Modified Phil Kurimski          09-19-2013 added geospatialConfig.xml
          Modified Mike Rega              01-18-2014 added Alaska GP changes for 14.2.1
+         Modified Phil Kurimski          06-24-2014 fixed Ice Jam Parse String error 14.2.2-9
 -->
 
 <warngenConfig>
@@ -190,7 +191,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE" showString="LEVEE FAILURE"/>
   <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="FLOODGATE RELEASE" showString="FLOODGATE RELEASE"/>
   <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
-  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString="ICE JAM FLOODING" showString=".IJ."/>
+  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
   <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString="EXTREMELY RAPID RAIN SNOWMELT" showString=".RS."/>
 <!-- modified by GP -->
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>

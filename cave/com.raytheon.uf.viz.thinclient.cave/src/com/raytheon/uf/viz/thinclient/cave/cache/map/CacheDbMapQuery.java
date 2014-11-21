@@ -28,6 +28,9 @@ import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -47,8 +50,9 @@ import com.vividsolutions.jts.io.WKBReader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 9, 2011            bsteffen     Initial creation
- * Apr 9, 2014   #2997    randerso     Added queryWithinGeometry
+ * Dec 09, 2011            bsteffen     Initial creation
+ * Apr 09, 2014   #2997    randerso     Added queryWithinGeometry
+ * Sep 25, 2014    3571    njensen      Better error handling of invalid geom
  * 
  * </pre>
  * 
@@ -57,6 +61,9 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 
 public class CacheDbMapQuery extends DefaultDbMapQuery {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CacheDbMapQuery.class);
 
     private static final String GID = "gid";
 
@@ -75,7 +82,7 @@ public class CacheDbMapQuery extends DefaultDbMapQuery {
     private List<String> columnNames = null;
 
     // the geometry type
-    private String geometryType = null;;
+    private String geometryType = null;
 
     // all levels for a the geometry
     private List<Double> levels = null;
@@ -274,7 +281,20 @@ public class CacheDbMapQuery extends DefaultDbMapQuery {
                     Envelope e = g.getEnvelopeInternal();
                     tree.insert(e, i);
                 } else {
-                    throw new VizException("Error populating GID Cache.");
+                    Object badGid = data.getRowColumnValue(i, GID);
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("The geometry ");
+                    sb.append(badGid);
+                    sb.append(" from the ");
+                    sb.append(table);
+                    sb.append(" table has an error and will not be displayed on the map(s).");
+                    sb.append("\nConsider turning off the map caching preference until this is resolved.");
+                    sb.append("\nSee the log for further details.");
+                    statusHandler.error(sb.toString());
+                    String debug = "Error populating GID cache. Received "
+                            + obj + " geometry with GID " + badGid;
+                    statusHandler.handle(Priority.DEBUG, debug, new Throwable(
+                            sb.toString()));
                 }
             }
         } catch (ParseException e) {

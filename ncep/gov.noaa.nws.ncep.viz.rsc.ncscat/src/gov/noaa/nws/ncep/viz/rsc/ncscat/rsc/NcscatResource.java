@@ -75,6 +75,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  12/19/2012    #960     Greg Hull   override propertiesChanged() to update colorBar.
  * 30 May 2013             B. Hebbard  Merge changes by RTS in OB13.3.1 for DataStoreFactory.getDataStore(...)
  * 11 Apr 2014  1128       B. Hebbard  Prevent overflow if unsigned longitude >= 327.68W (32768)
+ * 20 May 2014  TTR985     B. Hebbard  Reverse bit ordering in getBit(...); tweak QC circle scaling
+ * 29 Jul 2014  R4279      B. Hebbard  (TTR 1046) Add call to processNewRscDataList() in initResource()
+ *                                     (instead of waiting for ANCR.paintInternal() to do it) so
+ *                                     long CGM retrieval and parsing is done by the InitJob, and thus
+ *                                     (1) user sees "Initializing..." and (2) GUI doesn't lock up
  * 
  * </pre>
  * 
@@ -333,12 +338,13 @@ public class NcscatResource extends
         }
         
         private boolean getBit (int bits, int bitNum) {
-            int masks[] = {0x8000, 0x4000, 0x2000, 0x1000,
-                           0x0800, 0x0400, 0x0200, 0x0100,
-                           0x0080, 0x0040, 0x0020, 0x0010,
-                           0x0008, 0x0004, 0x0002, 0x0001};
-            int mask = masks[bitNum];
-            return (bits & mask) != 0;
+            // Little endian bit numbering:
+            // bit 0 is LSB; bit 15 is MSB
+            final int masks[] = {0x0001, 0x0002, 0x0004, 0x0008,
+                                 0x0010, 0x0020, 0x0040, 0x0080,
+                                 0x0100, 0x0200, 0x0400, 0x0800,
+                                 0x1000, 0x2000, 0x4000, 0x8000};
+            return (bits & masks[bitNum]) != 0;
         }
     }
     // @formatter:on
@@ -410,6 +416,17 @@ public class NcscatResource extends
         if (!ncscatResourceData.use2ndColorForRainEnable) {
             getDescriptor().getResourceList().remove(cbar2RscPair);
         }
+
+        // following is done in ANCR.paintInternal too, but want to get it done
+        // on the init thread since it's time-consuming and (1) we want to show
+        // the "Initializing..." pacifier message, and (2) not lock up the GUI
+        // thread during loading
+        if (!newRscDataObjsQueue.isEmpty()
+        // || (!newFrameTimesList.isEmpty() && getDescriptor().isAutoUpdate())
+        ) {
+            processNewRscDataList();
+        }
+
     }
 
     public void paintFrame(AbstractFrameData frameData, IGraphicsTarget target,
@@ -467,7 +484,7 @@ public class NcscatResource extends
         double sizeScale = ncscatResourceData.arrowSize * 0.135;
         double arrowHeadSize = ncscatResourceData.headSize * 0.2;
         double rainQcCircleRadiusPixels = ncscatResourceData.arrowSize
-                / screenToWorldRatio * 0.46;
+                / screenToWorldRatio * 1.0;
 
         // Arrow type
         String pgenCategory = "Vector";

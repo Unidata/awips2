@@ -26,7 +26,6 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
 
 /**
  * Provide the base class for the binary lightning decoders. This class

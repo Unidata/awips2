@@ -87,9 +87,8 @@ import org.apache.commons.logging.LogFactory;
  */
 public class NcCGM extends CGM implements Cloneable {
 
-    private final Log logger = LogFactory.getLog(this.getClass()); // TODO
-                                                                   // static
-                                                                   // better??
+    // TODO static better? If so, change sister classes as well.
+    private final Log logger = LogFactory.getLog(this.getClass());
 
     private List<Command> commands;
 
