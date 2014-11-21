@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * 4/11/2014    3011       bphillip    Changed merge to not delete unused slots
  * 4/21/2014    2992       dhladky     General list of Registry server nodes.
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -89,7 +90,7 @@ public class RegistryObjectDao extends
     public void merge(RegistryObjectType newObject,
             RegistryObjectType existingObject) {
         newObject.setId(existingObject.getId());
-        template.merge(newObject);
+        getCurrentSession().merge(newObject);
     }
 
     /**
@@ -168,7 +169,7 @@ public class RegistryObjectDao extends
      *            The persistent object to delete
      */
     public void deleteWithoutMerge(RegistryObjectType obj) {
-        this.template.delete(obj);
+        getCurrentSession().delete(obj);
     }
 
     public void deleteObjectWithoutDeletingChildren(RegistryObjectType obj)

@@ -6,6 +6,8 @@
 ## Phil Kurimski WFO DTX  9.16.2013 (BUILD 13.5.2-4)      ##
 ## Evan Bookbinder        9.18.2013 Implemented config.vm ##
 ## Mike Dangelo 1/23/2014 Added blankStatement logic - default is still near-severe storm w/list of cities
+## Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1 ##
+## Mike Dangelo 6/24/2014 headline tweak to add 'COUNTIES' ## 
 ############################################################
 ##
 ## SET SOME INITIAL VARIABLES
@@ -194,19 +196,21 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
+
 #if(${list.contains(${bullets}, "blankStatement")})
-... !** headline **! ...
+... !** edit headline **! ...
 
 #else
-...${describeEvent} WILL AFFECT ##
 #set($full = '')
 #foreach (${area} in ${areas})
 #set($full = "${full}${area.name}...")
 #end
-#if(${full.length()} > 120)
-!** DESCRIBE AREA **! ...
+#if(${full.length()} > 140)
+... !** edit headline **! ...
 #else
-${full}
+...${describeEvent} WILL AFFECT ##
+#headlineLocList(${affectedCounties} true true true false)...
+
 #end
 #end
 
@@ -346,13 +350,14 @@ ICY ROADS ARE POSSIBLE AS THE SNOW MELTS ON THE ROADS THEN QUICKLY REFREEZES.
 CONDITIONS CAN DETERIORATE RAPIDLY IN WINTER WEATHER SITUATIONS. BE PREPARED FOR SNOW OR ICE COVERED ROADS. SLOW DOWN AND ALLOW EXTRA TIME WHEN TRAVELING. 
 
 #end
+#end
 #############
 ## WATCHES ##
 #############
-#if(${list.contains($includedWatches, "torWatches")} && ${list.contains(${bullets}, "includeTorWatches")})
+#if(${list.contains($includedWatches, "TO.A")} && ${list.contains(${bullets}, "includeTorWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")} && ${list.contains(${bullets}, "includeSvrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")} && ${list.contains(${bullets}, "includeSvrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 ####################################
@@ -365,7 +370,6 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
 
-#end
 $$
 
 
