@@ -19,16 +19,13 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.buoy;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_4_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_LEAD;
-
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSectionDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
 
 /**
  * Decode synoptic section 4 data. This section has a single group which
@@ -41,6 +38,7 @@ import com.raytheon.uf.edex.decodertools.core.ReportParser;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
+ * Sep 30, 2014       3629 mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * </pre>
  * 
  * @author jkorman
@@ -77,7 +75,7 @@ public class DRIBUSec4Decoder extends AbstractSectionDecoder {
             return;
         }
         String element = null;
-        if (reportParser.positionTo(SEC_4_LEAD)) {
+        if (reportParser.positionTo(ISynoptic.SEC_4_LEAD_STRING)) {
             while (true) {
                 // if we run out of data, exit.
                 if (reportParser.next()) {
@@ -88,13 +86,14 @@ public class DRIBUSec4Decoder extends AbstractSectionDecoder {
                     break;
                 }
 
-                if (matchElement(element, SEC_5_LEAD)) {
+                if (ISynoptic.SEC_5_LEAD_PATTERN.matcher(element).find()) {
                     break;
                 }
 
                 if ("7".equals(element.substring(0, 1))) {
-                    driftSpeed = getInt(element, 1, 3);
-                    driftDirection = getInt(element, 3, 5);
+                    driftSpeed = AbstractSfcObsDecoder.getInt(element, 1, 3);
+                    driftDirection = AbstractSfcObsDecoder
+                            .getInt(element, 3, 5);
                     closeGroup(7);
                 }
 
