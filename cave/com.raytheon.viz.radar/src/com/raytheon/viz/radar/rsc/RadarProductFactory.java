@@ -34,6 +34,7 @@ import com.raytheon.viz.radar.interrogators.RadarGFMInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarDefaultInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarEETInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarGraphicInterrogator;
+import com.raytheon.viz.radar.interrogators.RadarMBAInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarPrecipInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarRadialInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarRasterInterrogator;
@@ -60,6 +61,7 @@ import com.raytheon.viz.radar.ui.xy.RadarXsectXYResource;
  * Aug 4, 2010            mnash     Initial creation
  * 03/04/2013   DCS51     zwang     Handle GFM product
  * 05/02/2013   DR 14587  D. Friedman  Add isVelocityProductCode
+ * 09/26/2014   DCS16776  zwang     Add product Microburst AMDA (MBA)
  * 
  * </pre>
  * 
@@ -99,6 +101,9 @@ public class RadarProductFactory {
             } 
             else if (productCode == 140) {
                 interrogator = new RadarGFMInterrogator();
+            }
+            else if (productCode == 196) {
+                interrogator = new RadarMBAInterrogator();
             } else {
                 interrogator = new RadarGraphicInterrogator();
             }
