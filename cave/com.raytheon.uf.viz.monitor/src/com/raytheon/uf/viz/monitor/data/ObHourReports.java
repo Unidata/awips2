@@ -19,11 +19,12 @@
  **/
 package com.raytheon.uf.viz.monitor.data;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
@@ -44,7 +45,8 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * ------------ ---------- ----------- --------------------------
  * Dec. 1, 2009  3424       zhao       Initial creation.
  * Oct.29, 2012  1297       skorolev   Changed HashMap to Map
- * Oct.31  2012  1297       skorolev   Clean code
+ * Oct.31  2012  1297       skorolev   Cleaned code.
+ * Sep 04  2014  3220       skorolev   Added updateZones method.
  * 
  * </pre>
  * 
@@ -62,7 +64,7 @@ public class ObHourReports {
     private Date nominalTime;
 
     /**
-     * application name (snow, fog, safeseas, etc)
+     * application name (SNOW, FOG, SAFESEAS)
      */
     private CommonConfig.AppName appName;
 
@@ -70,6 +72,8 @@ public class ObHourReports {
      * key is zone id, value is ObZoneHourReports object
      */
     private Map<String, ObZoneHourReports> hourReports;
+
+    private AbstractThresholdMgr thresholdMgr;
 
     /**
      * constructor
@@ -80,6 +84,7 @@ public class ObHourReports {
             AbstractThresholdMgr thresholdMgr) {
         this.nominalTime = nominalTime;
         this.appName = appName;
+        this.thresholdMgr = thresholdMgr;
         hourReports = new HashMap<String, ObZoneHourReports>();
         Map<String, List<String>> zoneStationMap = MonitoringArea
                 .getPlatformMap();
@@ -96,7 +101,7 @@ public class ObHourReports {
      */
     public void addReport(ObReport report) {
         String station = report.getPlatformId();
-        ArrayList<String> zones = MonitoringArea.getZoneIds(station);
+        List<String> zones = MonitoringArea.getZoneIds(station);
         if (zones.size() == 0) {
             statusHandler
                     .error("Error: station: "
@@ -108,7 +113,6 @@ public class ObHourReports {
         for (String zone : zones) {
             if (hourReports.containsKey(zone)) {
                 hasZone = true;
-                ;
                 hourReports.get(zone).addReport(report);
             }
         }
@@ -126,7 +130,7 @@ public class ObHourReports {
     }
 
     /**
-     * Get data for Zone table.
+     * Gets data for Zone table.
      * 
      * @return tblData
      */
@@ -140,7 +144,7 @@ public class ObHourReports {
     }
 
     /**
-     * Get data for Fog Table.
+     * Gets data for Fog Table.
      * 
      * @param algCellType
      * @return tblData
@@ -209,4 +213,48 @@ public class ObHourReports {
         return appName;
     }
 
+    /**
+     * Updates zones in the Hour Reports
+     */
+    public void updateZones() {
+        Map<String, List<String>> zoneStationMap = MonitoringArea
+                .getPlatformMap();
+        // remove zones or stations
+        List<String> hourZones = new CopyOnWriteArrayList<String>(
+                hourReports.keySet());
+        for (String zone : hourZones) {
+            if (hourReports.keySet().contains(zone)) {
+                List<String> stations = new CopyOnWriteArrayList<String>(
+                        hourReports.get(zone).getZoneHourReports().keySet());
+                for (String stn : stations) {
+                    if (!zoneStationMap.get(zone).contains(stn)) {
+                        hourReports.get(zone).getZoneHourReports().remove(stn);
+                    }
+                }
+                if (!zoneStationMap.keySet().contains(zone)) {
+                    hourReports.remove(zone);
+                }
+            }
+        }
+        // add zones
+        for (String zone : zoneStationMap.keySet()) {
+            List<String> stations = new CopyOnWriteArrayList<String>(
+                    zoneStationMap.get(zone));
+            for (String stn : stations) {
+                if (!hourReports.get(zone).getZoneHourReports()
+                        .containsKey(stn)) {
+                    hourReports
+                            .get(zone)
+                            .getZoneHourReports()
+                            .put(stn,
+                                    new ObStnHourReports(nominalTime, zone,
+                                            stn, appName, thresholdMgr));
+                }
+            }
+            if (!hourReports.containsKey(zone)) {
+                hourReports.put(zone, new ObZoneHourReports(nominalTime, zone,
+                        appName, thresholdMgr));
+            }
+        }
+    }
 }

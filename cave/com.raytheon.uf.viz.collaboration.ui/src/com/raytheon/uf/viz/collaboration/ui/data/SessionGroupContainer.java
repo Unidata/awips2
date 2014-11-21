@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.ui.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
@@ -39,19 +38,24 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
  * ------------ ---------- ----------- --------------------------
  * Mar 6, 2012            rferrel     Initial creation
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Oct 08, 2014 3705       bclement    extends TreeObjectContainer
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class SessionGroupContainer {
+public class SessionGroupContainer extends TreeObjectContainer {
 
-    public List<Object> getObjects() {
+    public SessionGroupContainer() {
+        super("Active Sessions", "session_group");
+    }
+
+    public Object[] getObjects() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
-            return Collections.emptyList();
+            return new Object[0];
         }
         Collection<ISession> sessions = connection.getSessions();
         List<Object> result = new ArrayList<Object>();
@@ -60,7 +64,7 @@ public class SessionGroupContainer {
                 result.add(session);
             }
         }
-        return result;
+        return result.toArray();
     }
 
 }

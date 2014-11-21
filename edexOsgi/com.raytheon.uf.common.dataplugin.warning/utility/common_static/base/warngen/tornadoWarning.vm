@@ -9,6 +9,8 @@
 ##         Evan Bookbinder 9-18-2013 Implemented config.vm                   ##
 ##         Josh Huber and Mike Dangelo 1/22/14 Emer CTA wording tweak        ##
 ##         Mike Dangelo 1/24/2014 - Removed preAmbleTOR (not used), preAmble for other tor-sighted/confirmed bullets retained, law enf CTA changed to match SVS parseString, prevented largeTORCTA if confirmedLarge not selected as type.  
+##         Phil Kurimski 6-26-2014 fixed large tornado cta     
+##         Evan Bookbinder 9-5-2014 fixed law enf cta		                 ##
 ###############################################################################
 ## ESTABLISH SOME INITIAL VARIABLES
 #parse("config.vm")
@@ -447,14 +449,14 @@ HEAVY RAINFALL MAY OBSCURE THIS TORNADO. DO NOT WAIT TO SEE OR HEAR THE TORNADO.
 TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT. DO NOT WAIT TO SEE OR HEAR THE TORNADO. TAKE COVER NOW.
 
 #end
-#if(${list.contains(${bullets}, "confirmedLarge")})
+#if(${list.contains(${bullets}, "largeTORCTA")})
 #if(${list.contains(${bullets}, "meteorologistsLarge")} || ${list.contains(${bullets}, "largeTORCTA")})
 A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND. TAKE IMMEDIATE TORNADO PRECAUTIONS. THIS IS A LIFE-THREATENING SITUATION.
 
 #end
 #end
 #if(${list.contains(${bullets}, "lawEnforcementCTA")})
-IF A TORNADO OR OTHER SEVERE WEATHER IS SPOTTED...CONTACT THE NATIONAL WEATHER SERVICE...OR YOUR LOCAL AUTHORITY WHO WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE OFFICE IN ${officeLoc}. THIS ACT MAY SAVE LIVES OF OTHERS IN THE PATH OF DANGEROUS WEATHER. 
+IF A TORNADO OR OTHER SEVERE WEATHER IS SPOTTED...CONTACT THE NATIONAL WEATHER SERVICE...OR YOUR NEAREST LAW ENFORCEMENT AGENCY WHO WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE OFFICE IN ${officeLoc}. THIS ACT MAY SAVE LIVES OF OTHERS IN THE PATH OF DANGEROUS WEATHER. 
 
 #end
 #if(${list.contains(${bullets}, "squallCTA")} && ${stormType} == "line")

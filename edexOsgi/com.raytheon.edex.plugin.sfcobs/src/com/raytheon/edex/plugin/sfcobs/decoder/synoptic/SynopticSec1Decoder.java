@@ -19,24 +19,17 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.checkRange;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_2_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_3_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_4_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_LEAD;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_ERROR;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_MISSING;
-
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncPrecip;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.core.DataItem;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
@@ -55,6 +48,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                     the correct day of month.
  * Sep 18, 2014 #3627      mapeters    Updated deprecated {@link TimeTools} usage, 
  *                                     removed unused lowCloudAmount field.
+ * Sep 26, 2014 #3629      mapeters    Replaced static imports.
+ * Sep 30, 2014 #3629      mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ *                                     calls, added PATTERN_8094.
  * 
  * </pre>
  * 
@@ -62,6 +58,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * @version 1.0
  */
 public class SynopticSec1Decoder extends AbstractSectionDecoder {
+
+    private static final Pattern PATTERN_8094 = Pattern.compile("8[/0-9]{4}");
+
     // The report observation hour - from 9 group
     private Integer obsTimeHour = null;
 
@@ -151,24 +150,25 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 break;
             }
             if (!irix && !winds
-                    && matchElement(element, ISynoptic.SEC_1_IRIXHVV)) {
+                    && ISynoptic.SEC_1_IRIXHVV.matcher(element).find()) {
                 // iSubR = getInt(element, 0, 1);
-                getInt(element, 0, 1);
+                AbstractSfcObsDecoder.getInt(element, 0, 1);
 
                 // iSubX = getInt(element, 1, 2);
-                getInt(element, 1, 2);
+                AbstractSfcObsDecoder.getInt(element, 1, 2);
 
-                loCloudHeight = getInt(element, 2, 3);
-                visibility = getInt(element, 3, 5);
+                loCloudHeight = AbstractSfcObsDecoder.getInt(element, 2, 3);
+                visibility = AbstractSfcObsDecoder.getInt(element, 3, 5);
                 irix = true;
                 continue;
-            } else if (!winds && matchElement(element, ISynoptic.SEC_1_NDDFF)) {
-                totalCloud = getInt(element, 0, 1);
-                Integer temp = getInt(element, 1, 3);
+            } else if (!winds
+                    && ISynoptic.SEC_1_NDDFF.matcher(element).find()) {
+                totalCloud = AbstractSfcObsDecoder.getInt(element, 0, 1);
+                Integer temp = AbstractSfcObsDecoder.getInt(element, 1, 3);
                 if ((temp != null) && (temp >= 0)) {
                     windDirection = temp * 10;
                 }
-                temp = getInt(element, 3, 5);
+                temp = AbstractSfcObsDecoder.getInt(element, 3, 5);
                 if ((temp != null) && (temp >= 0)) {
                     windSpeed = temp.doubleValue();
                 }
@@ -179,7 +179,8 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                     }
                     element = reportParser.getElement();
                     if ("00".equals(element.substring(0, 2))) {
-                        windSpeed = getInt(element, 2, 5).doubleValue();
+                        windSpeed = AbstractSfcObsDecoder.getInt(element, 2, 5)
+                                .doubleValue();
                         winds = true;
                     } else {
                         // TODO : Need to indicate an error here!
@@ -188,13 +189,14 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                     winds = true;
                 }
                 continue;
-            } else if (winds && matchElement(element, SEC_2_LEAD)) {
+            } else if (winds
+                    && ISynoptic.SEC_2_LEAD.matcher(element).find()) {
                 break;
-            } else if (SEC_3_LEAD.equals(element)) {
+            } else if (ISynoptic.SEC_3_LEAD_STRING.equals(element)) {
                 break;
-            } else if (SEC_4_LEAD.equals(element)) {
+            } else if (ISynoptic.SEC_4_LEAD_STRING.equals(element)) {
                 break;
-            } else if (SEC_5_LEAD.equals(element)) {
+            } else if (ISynoptic.SEC_5_LEAD_STRING.equals(element)) {
                 break;
             } else if ("80000".equals(element)) {
                 break;
@@ -232,7 +234,7 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 closeGroup(4);
                 winds = true;
             } else if ("5".equals(element.substring(0, 1)) && doGroup(5)) {
-                Integer val = getInt(element, 1, 2);
+                Integer val = AbstractSfcObsDecoder.getInt(element, 1, 2);
                 changeCharacter = new DataItem("changeCharacter");
                 changeCharacter.setDataValue(val.doubleValue());
                 changeCharacter.setDataPeriod(3 * 3600);
@@ -246,29 +248,33 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 winds = true;
             } else if ("7".equals(element.substring(0, 1)) && doGroup(7)) {
                 // TODO :
-                presentWeather = getInt(element, 1, 3);
-                pastWeather1 = getInt(element, 3, 4);
-                pastWeather2 = getInt(element, 4, 5);
+                presentWeather = AbstractSfcObsDecoder.getInt(element, 1, 3);
+                pastWeather1 = AbstractSfcObsDecoder.getInt(element, 3, 4);
+                pastWeather2 = AbstractSfcObsDecoder.getInt(element, 4, 5);
 
                 closeGroup(7);
                 winds = true;
             } else if ("8".equals(element.substring(0, 1)) && doGroup(8)) {
-                if (!winds && matchElement(element, "8[/0-9]{4}")) {
-                    if ((lowCloudType = getInt(element, 2, 3)) < 0) {
+                if (!winds
+ && PATTERN_8094.matcher(element).find()) {
+                    if ((lowCloudType = AbstractSfcObsDecoder.getInt(element,
+                            2, 3)) < 0) {
                         lowCloudType = null;
                     }
-                    if ((midCloudType = getInt(element, 3, 4)) < 0) {
+                    if ((midCloudType = AbstractSfcObsDecoder.getInt(element,
+                            3, 4)) < 0) {
                         midCloudType = null;
                     }
-                    if ((hiCloudType = getInt(element, 4, 5)) < 0) {
+                    if ((hiCloudType = AbstractSfcObsDecoder.getInt(element, 4,
+                            5)) < 0) {
                         hiCloudType = null;
                     }
                     closeGroup(8);
                 }
                 winds = true;
             } else if ("9".equals(element.substring(0, 1)) && doGroup(9)) {
-                obsTimeHour = getInt(element, 1, 3);
-                obsTimeMinute = getInt(element, 3, 5);
+                obsTimeHour = AbstractSfcObsDecoder.getInt(element, 1, 3);
+                obsTimeMinute = AbstractSfcObsDecoder.getInt(element, 3, 5);
                 break;
             }
         } // while()
@@ -282,8 +288,8 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
      * @return The populated receiver object.
      */
     public ObsCommon getDecodedData(ObsCommon receiver) {
-        final Double[] ignore = { VAL_ERROR.doubleValue(),
-                VAL_MISSING.doubleValue() };
+        final Double[] ignore = { IDecoderConstants.VAL_ERROR.doubleValue(),
+                IDecoderConstants.VAL_MISSING.doubleValue() };
 
         // Check to see if we need to convert knots to mps.
         int iSubW = decoderParent.getISubw();
@@ -359,8 +365,8 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
 
         // Do we need to override the observation time
         if ((obsTimeHour != null) && (obsTimeMinute != null)) {
-            if (checkRange(0, obsTimeHour, 23)
-                    && checkRange(0, obsTimeMinute, 59)) {
+            if (AbstractSfcObsDecoder.checkRange(0, obsTimeHour, 23)
+                    && AbstractSfcObsDecoder.checkRange(0, obsTimeMinute, 59)) {
                 Calendar obsT = receiver.getTimeObs();
 
                 Integer month = getParent().getHeader().getMonth();
