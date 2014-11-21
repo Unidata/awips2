@@ -12,17 +12,17 @@
 
 	<target name="all.plugins" depends="init">
 		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.satellite" target="${target}">
-			<property name="arch" value="x86"/>
+			<property name="arch" value="x86_64"/>
 			<property name="ws" value="gtk"/>
 			<property name="os" value="linux"/>
 		</ant>
 		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.satellite" target="${target}">
-			<property name="arch" value="x86"/>
+			<property name="arch" value="x86_64"/>
 			<property name="ws" value="gtk"/>
 			<property name="os" value="linux"/>
 		</ant>
 		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.satellite.mcidas" target="${target}">
-			<property name="arch" value="x86"/>
+			<property name="arch" value="x86_64"/>
 			<property name="ws" value="gtk"/>
 			<property name="os" value="linux"/>
 		</ant>

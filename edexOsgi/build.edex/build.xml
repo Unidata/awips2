@@ -8,7 +8,7 @@
 	<property name="build.ws"
 		value="gtk" />
 	<property name="build.arch"
-		value="x86" />
+		value="x86_64" />
 	<property name="lightning"
 		value="false" />
 	
