@@ -296,7 +296,7 @@ function logExitStatus()
    # If a core file was generated attempt to save it to a better place
    coreFile=core.$pid
    if [ -f "$coreFile" ]; then
-     basePath="/data/fxa/cave"
+     basePath="$HOME/caveData/logs/core"
      hostName=`hostname -s`
      hostPath="$basePath/$hostName/"
      mkdir -p $hostPath
