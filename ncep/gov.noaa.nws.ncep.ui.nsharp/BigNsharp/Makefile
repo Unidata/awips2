@@ -19,7 +19,8 @@ FFLAGS	= -fno-second-underscore -I$(OS_INC) -I$(GEMINC)
 CFLAGS_G = -DUNDERSCORE -DLinux
 CFLAGS	= $(CFLAGS_G) -I. -I./Sndglib -I$(OS_INC) -I$(GEMINC) \
 	-I$(NWX) -I$(NSHARP) \
-	-I/usr/include/X11R6 -I/usr/X11R6/include/Xm
+	-I/usr/include/X11R6 -I/usr/X11R6/include/Xm \
+        -I/awips2/python/include/python2.7 
 
 LFLAGS	=$(LFLAGS_G) $(LFLAGS_R)
 
@@ -32,7 +33,7 @@ LIBS	= -L./Sndglib -lsndg \
 	-lgemlib -lprmcnvlib -lgridlib -lgplt -lgridlib -lcgemlib \
 	-ldevice -lxwp -lxw -lps -lgn -lgemlib $(OS_LIB)/libnetcdf.a \
 	-ltextlib -lxml2 -lxslt -liconv -lbz2 \
-	$(XLIBS) -lz -lm
+	$(XLIBS) -lz -lm -L/awips2/python/lib -lpython2.7
 
 NOBJS	= xinitd.o xwvid1.o xwvid3.o xwvid6.o xwvid2.o \
 	xwvid5.o decoder.o readdata.o sharp95.o \

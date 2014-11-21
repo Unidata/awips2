@@ -217,14 +217,20 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/23/2014  DR 16356    Qinglu Lin  Updated initializeState() and added reset().
  * 04/28,2014  3033        jsanchez    Properly handled back up configuration (*.xml) files. Set backupSite to null when backup site is not selected.
  * 05/16/2014  DR 17365    D. Friedman Check if moved vertex results in polygon valid in both lat/lon and local coordinates.
- * 07/24/2014  3429        mapeters    Updated deprecated drawLine() calls.
- * 08/01/2014  3471        mapeters    Updated deprecated createShadedShape() calls.
+ * 06/23/2014  DR16322 m.gamazaychikov Fix Warngen unloading previously loaded maps.
  * 07/01/2014  DR 17450    D. Friedman Use list of templates from backup site.
+ * 07/24/2014  3429        mapeters    Updated deprecated drawLine() calls.
  * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
  *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
+ * 08/01/2014  3471        mapeters    Updated deprecated createShadedShape() calls.
  * 08/20/2014  3353        rferrel     Generating Geo Spatial data set no longer on the UI thread.
  * 08/20/2014  ASM #16703  D. Friedman Make geo feature types for watches explicit
+ * 09/10/2014  ASM #16730  D. Friedman Fix NPE.
+ * 09/14/2014  ASM #641    dhuffman    To facilitate Area.java need to filter the differences between Areas and Zones,
+ *                                     refactored filterCheck and added a new siginature version of filterArea.
  * 09/15/2014  3353        rferrel     No longer have null parent shell for the GenerateGeoDataSetDialog.
+ * 09/17/2014  ASM #15465  Qinglu Lin  get backupOfficeShort and backupOfficeLoc from backup WFO config.xml, and pop up AlertViz if
+ *                                     any of them is missing.
  * </pre>
  * 
  * @author mschenke
@@ -236,6 +242,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             .getHandler(WarngenLayer.class);
 
     String uniqueFip = null;
+    String backupOfficeShort = null;
+    String backupOfficeLoc = null;
 
     Map<String, Double> geomArea = new HashMap<String, Double>();
 
@@ -354,9 +362,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private Set<String> getAllFipsInArea(Geometry warningArea) {
             Set<String> fipsIds = new HashSet<String>();
-            for (int n = 0; n < warningArea.getNumGeometries(); ++n) {
-                Geometry area = warningArea.getGeometryN(n);
-                fipsIds.add(getFips(area));
+            if (warningArea != null) {
+                for (int n = 0; n < warningArea.getNumGeometries(); ++n) {
+                    Geometry area = warningArea.getGeometryN(n);
+                    fipsIds.add(getFips(area));
+                }
             }
             return fipsIds;
         }
@@ -392,11 +402,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     for (String loaded : customMaps) {
                         manager.unloadMap(loaded);
                     }
-
+                    customMaps.clear();
                     for (String load : toLoad) {
-                        manager.loadMapByName(load);
+                        if (!manager.isMapLoaded(load)) {
+                            manager.loadMapByName(load);
+                            customMaps.add(load);
+                        }
                     }
-                    customMaps = toLoad;
                     issueRefresh();
                 }
 
@@ -1472,6 +1484,32 @@ public class WarngenLayer extends AbstractStormTrackResource {
             dialogConfig.setDefaultTemplate(dc.getDefaultTemplate());
             dialogConfig.setMainWarngenProducts(dc.getMainWarngenProducts());
             dialogConfig.setOtherWarngenProducts(dc.getOtherWarngenProducts());
+            backupOfficeShort = dc.getWarngenOfficeShort();
+            backupOfficeLoc = dc.getWarngenOfficeLoc();
+            if (backupSite != null) {
+                boolean shortTag = false;
+                boolean locTag = false;
+                String infoType = null;
+                if (backupOfficeShort == null || backupOfficeShort.trim().length() == 0) {
+                    shortTag = true;
+                }
+                if (backupOfficeLoc == null || backupOfficeLoc.trim().length() == 0) {
+                    locTag = true;
+                }
+                if (shortTag && locTag) {
+                    infoType = "warngenOfficeShort and warngenOfficeLoc";
+                } else {
+                    if (shortTag) {
+                        infoType = "warngenOfficeShort";
+                    } else if (locTag) {
+                        infoType = "warngenOfficeLoc";
+                    }
+                }
+                if (infoType != null) {
+                    statusHandler.handle(Priority.CRITICAL, "Info for " + infoType + " in " + backupSite + 
+                            "'s config.xml is missing.");
+                }
+            }
         }
     }
 
@@ -2139,17 +2177,28 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     private boolean filterCheck(Geometry areaToConsider, Geometry wholeArea,
             double areaInMetersSq) {
+
+        return filterCheck(
+                areaToConsider,
+                wholeArea,
+                areaInMetersSq,
+                getConfiguration().getHatchedAreaSource().getInclusionPercent(),
+                getConfiguration().getHatchedAreaSource().getInclusionArea(),
+                getConfiguration().getHatchedAreaSource().getInclusionAndOr());
+    }
+
+    private boolean filterCheck(Geometry areaToConsider, Geometry wholeArea,
+            double areaInMetersSq, double inclusionPercent,
+            double inclusionArea, String inclusionAndOr) {
         double ratio = areaToConsider.getArea() / wholeArea.getArea();
         double ratioInPercent = ratio * 100.;
         double areaInKmSqOfIntersection = meterSqToKmSq.convert(areaInMetersSq
                 * ratio);
 
-        boolean percentOk = ratioInPercent >= getConfiguration()
-                .getHatchedAreaSource().getInclusionPercent();
-        boolean areaOk = areaInKmSqOfIntersection > getConfiguration()
-                .getHatchedAreaSource().getInclusionArea();
-        return getConfiguration().getHatchedAreaSource().getInclusionAndOr()
-                .equalsIgnoreCase("AND") ? percentOk && areaOk : percentOk
+        boolean percentOk = ratioInPercent >= inclusionPercent;
+        boolean areaOk = areaInKmSqOfIntersection > inclusionArea;
+
+        return inclusionAndOr.matches("AND") ? percentOk && areaOk : percentOk
                 || areaOk;
     }
 
@@ -2171,6 +2220,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
         double areaOfGeom = (Double) feature.attributes.get(AREA);
 
         return filterCheck(featureAreaToConsider, geom, areaOfGeom);
+    }
+
+    public boolean filterArea(GeospatialData feature,
+            Geometry featureAreaToConsider, AreaSourceConfiguration asc) {
+        double areaOfGeom = (Double) feature.attributes.get(AREA);
+        return filterCheck(featureAreaToConsider, feature.geometry, areaOfGeom,
+                asc.getInclusionPercent(), asc.getInclusionArea(),
+                asc.getInclusionAndOr());
     }
 
     private boolean filterAreaSecondChance(GeospatialData feature,
@@ -3689,6 +3746,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
             getStormTrackState().justSwitchedToLOS = true;
             StormTrackState.trackType = "lineOfStorms";
         }
+    }
+
+    public String getBackupOfficeShort() {
+        return backupOfficeShort;
+    }
+
+    public String getBackupOfficeLoc() {
+        return backupOfficeLoc;
     }
 
 }

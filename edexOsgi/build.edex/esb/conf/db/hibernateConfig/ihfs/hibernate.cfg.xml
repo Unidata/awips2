@@ -73,6 +73,8 @@
 		<!-- Cache Properties  -->
 		<property name="hibernate.cache.use_query_cache">false</property>
 		<property name="hibernate.cache.use_second_level_cache">false</property>
+		<property name="hibernate.query.plan_cache_max_strong_references">8</property>
+		<property name="hibernate.query.plan_cache_max_soft_references">16</property>
 
 	</session-factory>
 </hibernate-configuration>

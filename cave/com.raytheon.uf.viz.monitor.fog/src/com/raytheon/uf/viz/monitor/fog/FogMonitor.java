@@ -87,7 +87,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct.31  2012 1297       skorolev    Clean code
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
+ * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 23, 2014 3356       njensen     Remove unnecessary import
+ * Oct 16, 2014 3220       skorolev    Corrected fogConfig assignment.
+ * 
  * 
  * </pre>
  * 
@@ -112,7 +115,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     private ObMultiHrsReports obData;
 
     /** data holder for FOG **/
-    private ObsData obsData = null;
+    private ObsData obsData;
 
     /** data holder for FOG ALG data **/
     private SortedMap<Date, Map<String, FOG_THREAT>> algorithmData = null;
@@ -126,10 +129,10 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     private FogZoneTableDlg zoneDialog;
 
     /** zone table dialog **/
-    private MonitoringAreaConfigDlg areaDialog;
+    private MonitoringAreaConfigDlg areaDialog = null;
 
     /** area config manager **/
-    private FSSObsMonitorConfigurationManager fogConfig;
+    private FSSObsMonitorConfigurationManager fogConfig = null;
 
     /** table data for the station table **/
     private final TableData stationTableData = new TableData(
@@ -150,19 +153,21 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     /** Data URI pattern for fog **/
     private final Pattern fogPattern = Pattern.compile(DataURI.SEPARATOR + OBS
             + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR + wildCard
             + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + "fog");
+            + DataURI.SEPARATOR + wildCard);
 
     /**
      * Private constructor, singleton
      */
     private FogMonitor() {
         pluginPatterns.add(fogPattern);
-        fogConfig = new FSSObsMonitorConfigurationManager(currentSite,
-                MonName.fog.name());
-        readTableConfig(MonitorThresholdConfiguration.FOG_THRESHOLD_CONFIG);
+        fogConfig = FSSObsMonitorConfigurationManager.getFogObsManager();
+        updateMonitoringArea();
         initObserver(OBS, this);
+        obData = new ObMultiHrsReports(CommonConfig.AppName.FOG);
+        obData.setThresholdMgr(FogThresholdMgr.getInstance());
+        obData.getZoneTableData();
+        readTableConfig(MonitorThresholdConfiguration.FOG_THRESHOLD_CONFIG);
     }
 
     /**
@@ -183,17 +188,15 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         return monitor;
     }
 
-    // TODO: Provide the changes in EDEX URIFilters when area configuration file
-    // has been changed.
     /**
      * Re-initialization of monitor.
      * 
      * DR#11279: When monitor area configuration is changed, this module is
      * called to re-initialize monitor using new monitor area configuration
      */
-    public static void reInitialize() {
+    public void reInitialize() {
         if (monitor != null) {
-            monitor = null;
+            monitor.nullifyMonitor();
             monitor = new FogMonitor();
         }
     }
@@ -312,7 +315,12 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     @Override
     public void configUpdate(IMonitorConfigurationEvent me) {
-        fireMonitorEvent(zoneDialog.getClass().getName());
+        fogConfig = (FSSObsMonitorConfigurationManager) me.getSource();
+        updateMonitoringArea();
+        if (zoneDialog != null && !zoneDialog.isDisposed()) {
+            zoneDialog.refreshZoneTableData(obData);
+            fireMonitorEvent(zoneDialog.getClass().getName());
+        }
     }
 
     /**
@@ -320,6 +328,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     @Override
     public void nullifyMonitor() {
+        monitor.removeMonitorListener(zoneDialog);
         ProductAlertObserver.removeObserver(OBS, this);
         monitor = null;
     }
@@ -626,4 +635,20 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         return zoneDialog;
     }
 
+    /**
+     * Reads Table Configuration.
+     * 
+     * Method that reads the table configuration and updates the zone monitor
+     * threshold map
+     * 
+     */
+    private void updateMonitoringArea() {
+        Map<String, List<String>> zones = new HashMap<String, List<String>>();
+        // create zones and station list
+        for (String zone : fogConfig.getAreaList()) {
+            List<String> stations = fogConfig.getAreaStations(zone);
+            zones.put(zone, stations);
+        }
+        MonitoringArea.setPlatformMap(zones);
+    }
 }

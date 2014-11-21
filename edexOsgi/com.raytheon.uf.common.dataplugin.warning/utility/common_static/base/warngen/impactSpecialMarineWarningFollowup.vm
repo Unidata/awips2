@@ -4,11 +4,14 @@
 ## CREATED BY PHIL KURIMSKI - WFO DTX              ##
 ##        UPDATED KURIMSKI SEP 17 2013 OB13.5.2-4  ##
 ##        UPDATED BOOKBINDER 9-18-2013 Implemented config.vm
+##         PHIL KURIMSKI -- JUN 26 2014 OB14.2.2-9 ##
+##                          ADDED DSS EVENTS       ##
 #####################################################
 #parse("config.vm")
 ############################################
 ## Set null variables used in the template
 ############################################
+#set($marine = true)
 #set($capable = "")
 #set($windhailTag = "")
 #set($ashfallPath = "")
@@ -501,6 +504,12 @@ THIS IS A TEST MESSAGE. ##
 THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF ${specialEvent} AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
 
 #end
+
+## Comment out #parse command below to pull in Dynamic DSS Event Info
+## If this feature is utilized, the "specialEvent" bullet (output above) can
+## likely be commented out from the impactSevereThunderstormWarning.xml file
+#parse("dssEvents.vm")
+
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -810,6 +819,12 @@ THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS S
 
 #end
 #end
+
+## Comment out #parse command below to pull in Dynamic DSS Event Info
+## If this feature is utilized, the "specialEvent" bullet (output above) can
+## likely be commented out from the impactSevereThunderstormWarning.xml file
+#parse("dssEvents.vm")
+
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -1072,6 +1087,12 @@ THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS S
 
 #end
 #end
+
+## Comment out #parse command below to pull in Dynamic DSS Event Info
+## If this feature is utilized, the "specialEvent" bullet (output above) can
+## likely be commented out from the impactSevereThunderstormWarning.xml file
+#parse("dssEvents.vm")
+
 #####################
 ## CALL TO ACTIONS ##
 #####################

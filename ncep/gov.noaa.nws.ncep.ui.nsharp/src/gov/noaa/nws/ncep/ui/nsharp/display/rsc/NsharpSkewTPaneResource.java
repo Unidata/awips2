@@ -13,6 +13,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * 04/23/2012	229			Chin Chen	Initial coding
  * May 08, 2013 1847        bsteffen	Allow painting with no Wind Data.
  * 02/03/2014   1106        Chin Chen   Need to be able to use clicking on the Src,Time, or StnId to select display 
+ * 08/04/2014               Chin Chen   fixed effective level line drawing, height marker drawing
  *
  * </pre>
  * 
@@ -367,7 +368,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
         double y = world.mapY(NsharpWxMath.getSkewTXY(botPF.getValue(), 10).y);
         double[][] line1 = { { dispX1, y }, { dispX3, y } };
         effectiveLayerLineShape.addLineSegment(line1);
-        double[] lblXy = { dispX3, y };
+        double[] lblXy = { dispX0, y };
         effectiveLayerLineShape.addLabel(botStr, lblXy);
 
         // Draw effective top level
@@ -375,8 +376,8 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
         double y1 = world.mapY(NsharpWxMath.getSkewTXY(topPF.getValue(), 10).y);
         double[][] line2 = { { dispX1, y1 }, { dispX3, y1 } };
         effectiveLayerLineShape.addLineSegment(line2);
-        if (aglTop > aglBot) {
-            double[] lbl1Xy = { dispX3, y1 };
+        if (aglTop >= aglBot) {
+            double[] lbl1Xy = { dispX0, y1 - 10 * yRatio };
             effectiveLayerLineShape.addLabel(topStr, lbl1Xy);
         }
 
@@ -393,7 +394,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                 NsharpConstants.SQUARE_SYMBOL, NsharpConstants.SQUARE_SYMBOL);
 
         // draw kelicity
-        double[] lbl2Xy = { dispX0, y1 - 10 * yRatio };
+        double[] lbl2Xy = { dispX2, y1 - 10 * yRatio };
         effectiveLayerLineShape.addLabel(helicityStr, lbl2Xy);
         effectiveLayerLineShape.compile();
     }
@@ -2678,11 +2679,34 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             xmin = xDefault;
         double dispX1 = xmin + 15 * currentZoomLevel * xRatio;
         double dispX2 = xmin + 30 * currentZoomLevel * xRatio;
+        // Chin 08/04/2014, fixed surface height plotting bug
+        // also fixed to draw height mraker based on AGL (i.e. above surface
+        // level)
+        int sfcIndex = nsharpNative.nsharpLib.sfc();
+        int sfcAsl = 0;
+        if (sfcIndex >= 0
+                && sfcIndex < soundingLys.size()
+                && soundingLys.get(sfcIndex).getGeoHeight() != NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA) {
+            double y = world.mapY(NsharpWxMath.getSkewTXY(
+                    soundingLys.get(sfcIndex).getPressure(), 0).y);
+            try {
+                target.drawLine(dispX1, y, 0.0, dispX2, y, 0.0,
+                        NsharpConstants.color_red, 1);
+                sfcAsl = (int) (soundingLys.get(sfcIndex).getGeoHeight());
+
+                target.drawString(font10, "SFC(" + sfcAsl + "m)", dispX2,
+                        y - 5, 0.0, TextStyle.NORMAL,
+                        NsharpConstants.color_red, HorizontalAlignment.LEFT,
+                        VerticalAlignment.MIDDLE, null);
+            } catch (VizException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         for (int j = 0; j < NsharpConstants.HEIGHT_LEVEL_METERS.length; j++) {
             int meters = NsharpConstants.HEIGHT_LEVEL_METERS[j];
             // plot the meters scale
-            double pressure = nsharpNative.nsharpLib.ipres(meters
-                    + (int) (soundingLys.get(0).getGeoHeight()));
+            double pressure = nsharpNative.nsharpLib.ipres(meters + sfcAsl);
             double y = world.mapY(NsharpWxMath.getSkewTXY(pressure, 0).y);
             // System.out.println("world.mapX(NsharpConstants.left) + 20 =" +
             // (world.mapX(NsharpConstants.left) + 20));
@@ -2699,27 +2723,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                 e.printStackTrace();
             }
         }
-        // plot surface level mark{
-        if (soundingLys.get(0).getGeoHeight() != NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA) {
-            double y = world.mapY(NsharpWxMath.getSkewTXY(soundingLys.get(0)
-                    .getPressure(), 0).y);
-            try {
-                target.drawLine(dispX1, y, 0.0, dispX2, y, 0.0,
-                        NsharpConstants.color_red, 1);
-
-                target.drawString(
-                        font10,
-                        "SFC("
-                                + Integer.toString((int) (soundingLys.get(0)
-                                        .getGeoHeight())) + "m)", dispX2,
-                        y - 5, 0.0, TextStyle.NORMAL,
-                        NsharpConstants.color_red, HorizontalAlignment.LEFT,
-                        VerticalAlignment.MIDDLE, null);
-            } catch (VizException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+        // plot surface level mark
 
     }
 
@@ -2752,6 +2756,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
         }
         // plot surface level mark{
         if (soundingLys.get(0).getGeoHeight() != NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA) {
+            int sfc = nsharpNative.nsharpLib.sfc();
             double y = world.mapY(NsharpWxMath.getSkewTXY(soundingLys.get(0)
                     .getPressure(), 0).y);
             double[][] lines = { { dispX1, y }, { dispX2, y } };
