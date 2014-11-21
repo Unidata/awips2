@@ -27,8 +27,4 @@
 
     <!-- ECMWF decrypted -->
     <regex>ecmwf_decrypted</regex>
-
-    <!-- NWPS pattern -->
-    <regex>mfl_nwps_CG1*</regex>
-    <regex>mfl_nwpsTrkng_CG1*</regex>
 </requestPatterns>
