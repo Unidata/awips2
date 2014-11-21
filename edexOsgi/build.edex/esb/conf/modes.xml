@@ -78,10 +78,10 @@
 		<!-- end of ncep excludes -->
 	</mode>
 	<mode name="ingest">
-        	<exclude>mpeLightningSrv-ingest.xml</exclude>
-        	<exclude>freezingLevel-spring.xml</exclude>
-        	<exclude>alarmWhfs-spring.xml</exclude>
-        	<exclude>rpgenvdata-spring.xml</exclude>
+        <exclude>mpeLightningSrv-ingest.xml</exclude>
+        <exclude>freezingLevel-spring.xml</exclude>
+        <exclude>alarmWhfs-spring.xml</exclude>
+        <exclude>rpgenvdata-spring.xml</exclude>
 		<exclude>webservices.xml</exclude>
 		<exclude>ebxml.*\.xml</exclude>
 		<exclude>.*request.*</exclude>
@@ -91,6 +91,7 @@
 		<exclude>.*bandwidth.*</exclude>
 		<exclude>aww-ingest.xml</exclude>
 		<exclude>bufrquikscat.*</exclude>
+		<exclude>datadelivery.*</exclude>
 		<exclude>ldad.*</exclude>
 		<exclude>satellite.mcidas.*</exclude>
 		<exclude>q2.*</exclude>
@@ -106,7 +107,7 @@
 		<exclude>nctaf-ingest.xml</exclude>
 		<exclude>nctext-ingest.xml</exclude>
 		<exclude>ncuair-ingest.xml</exclude>
-        	<exclude>ntrans-ingest.xml</exclude>
+        <exclude>ntrans-ingest.xml</exclude>
 		<!-- end of ncep excludes -->
 	 	<!-- exclude DAT -->
 		<exclude>ffmp-ingest.xml</exclude>
@@ -117,8 +118,7 @@
 		<exclude>preciprate.*</exclude>
 		<exclude>qc.*</exclude>
 		<exclude>ssha.*</exclude>
-		<exclude>cpgsrv-spring.xml</exclude>
-        	<exclude>.*sbn-simulator.*</exclude>
+        <exclude>.*sbn-simulator.*</exclude>
 	</mode>
     <mode name="ingestHydro">
     	<include>distribution-spring.xml</include>
@@ -251,8 +251,8 @@
 		<include>manualIngest-common.xml</include>
 		<include>dataaccess-common.xml</include>
 		<exclude>nctext-common.xml</exclude>
-        	<includeMode>excludeDpaAndOgc</includeMode>
-        	<includeMode>statsTemplate</includeMode>
+        <includeMode>excludeDpaAndOgc</includeMode>
+        <includeMode>statsTemplate</includeMode>
 	</mode>
     <mode name="registry">
         <!-- Registry production mode -->
