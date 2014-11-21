@@ -1,7 +1,11 @@
 INSERT INTO awips.mcidas_area_names VALUES (7,'IND|INDOEX');
 INSERT INTO awips.mcidas_area_names VALUES (9,'VAAC|NHem-GOES-E');
-INSERT INTO awips.mcidas_area_names VALUES (12,'IND|INDOEX');
-INSERT INTO awips.mcidas_area_names VALUES (13,'IND|INDOEX');
+INSERT INTO awips.mcidas_area_names VALUES (10,'Composite');
+INSERT INTO awips.mcidas_area_names VALUES (11,'Composite');
+INSERT INTO awips.mcidas_area_names VALUES (12,'Global');
+INSERT INTO awips.mcidas_area_names VALUES (13,'Composite');
+INSERT INTO awips.mcidas_area_names VALUES (14,'Composite');
+INSERT INTO awips.mcidas_area_names VALUES (15,'Composite');
 INSERT INTO awips.mcidas_area_names VALUES (19,'VAAC|NHem-GOES-W');
 INSERT INTO awips.mcidas_area_names VALUES (20,'VAAC|NHem-GOES-E');
 INSERT INTO awips.mcidas_area_names VALUES (21,'VAAC|NHem-GOES-W');

@@ -410,7 +410,7 @@ public class McidasDecoder extends AbstractDecoder {
             String navtyp = byteArrayToString(navigation, 0, endian);
 
             /*
-             * For map coverage compliance: 1: Mecator (MERC), 3: Lambert
+             * For map coverage compliance: 1: Mercator (MERC), 3: Lambert
              * Conformal (LAMB), 5: Polar Stereographic (PS)
              */
             // TODO add MSAT and GVAR ??
