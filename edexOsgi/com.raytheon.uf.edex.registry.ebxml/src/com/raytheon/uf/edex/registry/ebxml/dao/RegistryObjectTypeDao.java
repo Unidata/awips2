@@ -26,7 +26,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Property;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +46,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * 8/1/2013     1693       bphillip    Moved the merge method down to RegistryObjectDao
  * 10/8/2013    1682       bphillip    Added like lid method, changed to use criteria queries for simple operations
  * 2/13/2014    2769       bphillip    Added read only flags to query methods
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -245,7 +245,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
 
     @Override
     public void setSessionFactory(SessionFactory sessionFactory) {
-        template = new HibernateTemplate(sessionFactory);
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
