@@ -1,3 +1,11 @@
+"""
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#        Engineer    Description
+ * -------        -------     --------     -----------
+ * 09/13/2010    301            Chin Chen    Initial coding
+ * 07/23/2014                   Chin Chen    Support PW
+"""
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 from gov.noaa.nws.ncep.edex.uengine.tasks.profile import NcSoundingDrv
 
@@ -71,6 +79,11 @@ class NcSoundingDataRequest():
     def setLevel(self, level):
         self.NcSoundingDrv.setLevel(level)
  
+    # Support PW
+    def setPwRequired(self, pwRequired):
+        self.NcSoundingDrv.setPwRequired(pwRequired)
+    
+    
     def setDbIdList(self, dbIdList):
         #print dbIdList
         from jep import jarray, JINT_ID

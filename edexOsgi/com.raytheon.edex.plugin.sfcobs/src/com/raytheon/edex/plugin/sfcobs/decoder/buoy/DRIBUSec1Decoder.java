@@ -19,24 +19,19 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.buoy;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_3_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_4_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_LEAD;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_ERROR;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_MISSING;
-
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSectionDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticGroups;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.core.DataItem;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
@@ -51,6 +46,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
  * Sep 18, 2014       3627 mapeters    Updated deprecated {@link TimeTools} usage.
+ * Sep 26, 2014       3629 mapeters    Replaced static imports.
+ * Sep 30, 2014       3629 mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * 
  * </pre>
  * 
@@ -114,23 +111,23 @@ public class DRIBUSec1Decoder extends AbstractSectionDecoder {
                     break;
                 }
 
-                if (matchElement(element, DRIBUSec2Decoder.SEC_2_PATTERN)) {
+                if (DRIBUSec2Decoder.SEC_2_PATTERN.matcher(element).find()) {
                     break;
-                } else if (matchElement(element, SEC_3_LEAD)) {
+                } else if (ISynoptic.SEC_3_LEAD_PATTERN.matcher(element).find()) {
                     break;
-                } else if (matchElement(element, SEC_4_LEAD)) {
+                } else if (ISynoptic.SEC_4_LEAD_PATTERN.matcher(element).find()) {
                     break;
-                } else if (matchElement(element, SEC_5_LEAD)) {
+                } else if (ISynoptic.SEC_5_LEAD_PATTERN.matcher(element).find()) {
                     break;
                 }
 
                 String s = element.substring(0, 1);
                 if ("0".equals(s) && doGroup(0)) {
-                    Integer temp = getInt(element, 1, 3);
+                    Integer temp = AbstractSfcObsDecoder.getInt(element, 1, 3);
                     if ((temp != null) && (temp >= 0)) {
                         windDirection = temp * 10;
                     }
-                    temp = getInt(element, 3, 5);
+                    temp = AbstractSfcObsDecoder.getInt(element, 3, 5);
                     if ((temp != null) && (temp >= 0)) {
                         windSpeed = temp.doubleValue();
                     }
@@ -153,7 +150,7 @@ public class DRIBUSec1Decoder extends AbstractSectionDecoder {
                             element, 1);
                     closeGroup(4);
                 } else if ("5".equals(s) && doGroup(5)) {
-                    Integer val = getInt(element, 1, 2);
+                    Integer val = AbstractSfcObsDecoder.getInt(element, 1, 2);
                     changeCharacter = new DataItem("changeCharacter");
                     changeCharacter.setDataValue(val.doubleValue());
                     changeCharacter
@@ -189,10 +186,11 @@ public class DRIBUSec1Decoder extends AbstractSectionDecoder {
      * @return The populated receiver object.
      */
     public ObsCommon getDecodedData(ObsCommon receiver) {
-        final Double[] ignore = { VAL_ERROR.doubleValue(),
-                VAL_MISSING.doubleValue() };
 
         if (receiver != null) {
+            final Double[] ignore = {
+                    IDecoderConstants.VAL_ERROR.doubleValue(),
+                    IDecoderConstants.VAL_MISSING.doubleValue() };
 
             int iSubW = decoderParent.getISubw();
             double conversion = 1.0;

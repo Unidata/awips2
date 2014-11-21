@@ -1,4 +1,4 @@
-%define _ldm_version 6.11.5
+%define _ldm_version 6.12.6
 %define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes
@@ -161,11 +161,16 @@ _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
 _myHost=`hostname`
 _myHost=`echo ${_myHost} | cut -f1 -d'-'`
 
+# Remove old ldm dir
+rm -rf ${_ldm_root_dir}
+
 pushd . > /dev/null 2>&1
-cd ${_ldm_dir}/SOURCES
+cp ${_ldm_dir}/SOURCES/%{_ldm_src_tar} ${_ldm_dir}
 # unpack the ldm source
-/bin/tar -xf %{_ldm_src_tar} \
-   -C ${_ldm_dir}
+#/bin/tar -xf %{_ldm_src_tar} \
+#   -C ${_ldm_dir}
+cd ${_ldm_dir}
+gunzip -c %{_ldm_src_tar} | pax -r '-s:/:/src/:'
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -194,7 +199,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
+su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --with-retrans --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
    > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
@@ -209,11 +214,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-su ldm -lc "cd ${_current_dir}; /bin/bash my-install" > my-install.log 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: my-install has failed!"
-   exit 1
-fi
 popd > /dev/null 2>&1
 pushd . > /dev/null 2>&1
 cd ${_ldm_root_dir}/src
@@ -225,6 +225,8 @@ fi
 popd > /dev/null 2>&1
 
 # unpack bin, decoders, and etc.
+pushd . > /dev/null 2>&1
+cd ${_ldm_dir}/SOURCES
 _PATCH_DIRS=( 'bin' 'decoders' 'etc' )
 for patchDir in ${_PATCH_DIRS[*]};
 do
@@ -386,6 +388,8 @@ if [ ${_myHost} == "cpsbn1" -o ${_myHost} == "cpsbn2" ] ; then
       echo "NETMASK3=255.255.255.255" >> ${_route_eth1}
       echo "ADDRESS4=224.0.1.5" >> ${_route_eth1}
       echo "NETMASK4=255.255.255.255" >> ${_route_eth1}
+      echo "ADDRESS5=224.0.1.6" >> ${_route_eth1}
+      echo "NETMASK5=255.255.255.255" >> ${_route_eth1}
 
       # restart networking
       /sbin/service network restart

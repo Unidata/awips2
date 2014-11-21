@@ -23,13 +23,12 @@ public class NcFillColour extends FillColour implements INcCommand {
     public NcFillColour(int ec, int eid, int l, DataInput in)
             throws IOException {
         super(ec, eid, l, in);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps,
             IDescriptor descriptor, ImageBuilder ib) throws VizException {
         ib.currentFillColor = GempakColor.convertToRGB(this.colorIndex);
-
     }
+
 }
