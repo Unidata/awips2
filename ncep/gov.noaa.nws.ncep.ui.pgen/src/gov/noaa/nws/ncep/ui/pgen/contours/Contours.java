@@ -460,13 +460,25 @@ public class Contours extends DECollection implements IContours {
      * Form a key that could be used to ID a given contour
      */
     public static String getKey(IContours ctr) {
+
+        String hr = "";
+        if (ctr.getTime1().get(Calendar.HOUR_OF_DAY) < 10) {
+            hr = "0";
+        }
+        hr += ctr.getTime1().get(Calendar.HOUR_OF_DAY);
+
+        String mt = "";
+        if (ctr.getTime1().get(Calendar.MINUTE) < 10) {
+            mt = "0";
+        }
+        mt += ctr.getTime1().get(Calendar.MINUTE);
+
         String key = ctr.getParm() + "," + ctr.getLevel() + ","
                 + ctr.getForecastHour() + "|"
                 + ctr.getTime1().get(Calendar.YEAR) + "-"
                 + (ctr.getTime1().get(Calendar.MONTH) + 1) + "-"
-                + ctr.getTime1().get(Calendar.DAY_OF_MONTH) + ","
-                + ctr.getTime1().get(Calendar.HOUR_OF_DAY) + ":"
-                + ctr.getTime1().get(Calendar.MINUTE) + "Z";
+                + ctr.getTime1().get(Calendar.DAY_OF_MONTH) + "," + hr + ":"
+                + mt + "Z";
         return key;
     }
 

@@ -21,6 +21,7 @@ package com.raytheon.viz.radar.ui.xy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +50,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.uf.viz.points.data.Point;
 import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.core.graphing.GraphProperties;
@@ -68,9 +70,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 16, 2009            askripsk     Initial creation
- * 10-21-09     #1711        bsteffen    Updated Baseline and Points to use new ToolsDataManager
- * 
+ * Mar 16, 2009            askripsk    Initial creation
+ * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
+ * Oct 20, 2014 #3418      dlovely     Fixed an NPE with the Points now showing on the inset map.
  * 
  * </pre>
  * 
@@ -274,16 +276,9 @@ public class RadarGraphResource extends
                     }
                 }
 
-                String selectedPoint = this.resourceData.getPointID();
-
-                // Default to Point A if somehow the point wasn't set
-                if ("".equals(selectedPoint)) {
-                    selectedPoint = "A";
-                }
-
                 // Find the packet that is closest to the selected point
-                CellTrendDataPacket packet = getNearestCell(selectedPoint,
-                        radarRecord.getSymbologyData());
+                CellTrendDataPacket packet = getNearestCell(
+                        getResourcePointID(), radarRecord.getSymbologyData());
 
                 // get the data for each trend code
                 for (Integer trendCode : packet.getLatestScans().keySet()) {
@@ -484,27 +479,54 @@ public class RadarGraphResource extends
         return sortedTimes;
     }
 
-    /** This should happen on initialization and cache it maybe */
-    private Coordinate getMapCoordinate() {
-        RadarRecord record = getRadarRecord(displayedDate);
-        if (record == null) {
-            return null;
+    /**
+     * Returns the Point ID for the local Radar Resource Data. The Point ID is
+     * verified and if not found a default Point is used.
+     * 
+     * @return String Point ID
+     */
+    private String getResourcePointID() {
+        String selectedPoint = this.resourceData.getPointID();
+        PointsDataManager manager = PointsDataManager.getInstance();
+        Collection<String> names = manager.getPointNames();
+
+        if (!names.contains(selectedPoint)) {
+            if (names.contains("A")) {
+                selectedPoint = "A";
+            } else {
+                selectedPoint = (String) names.toArray()[0];
+            }
         }
-        return new Coordinate(record.getLongitude(), record.getLatitude(), 0.0);
+
+        return selectedPoint;
     }
 
+    // This should happen on initialization and cache it maybe
+    /**
+     * Returns the coordinate for the currently referenced {@link Point}.
+     * 
+     * @return Coordinate
+     */
+    private Coordinate getMapCoordinate() {
+        Point pt = PointsDataManager.getInstance().getPoint(
+                getResourcePointID());
+        return new Coordinate(pt.getLongitude(), pt.getLatitude(), 0.0);
+    }
+
+    /** {@inheritDoc} */
     @Override
     public Geometry getInsetMapLocation() {
         return IInsetMapResource.factory.createPoint(getMapCoordinate());
     }
 
+    /** {@inheritDoc} */
     @Override
     public void paintInsetMap(IGraphicsTarget target,
             PaintProperties paintProps, MapDescriptor insetMapDescriptor)
             throws VizException {
         Coordinate latLon = getMapCoordinate();
-        double[] pixels = descriptor.worldToPixel(new double[] { latLon.x,
-                latLon.y });
+        double[] pixels = insetMapDescriptor.worldToPixel(new double[] {
+                latLon.x, latLon.y });
         target.drawPoint(pixels[0], pixels[1], 0.0,
                 getCapability(ColorableCapability.class).getColor(), style);
     }

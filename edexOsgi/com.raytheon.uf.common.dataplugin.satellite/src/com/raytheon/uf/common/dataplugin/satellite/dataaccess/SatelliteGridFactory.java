@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -57,6 +57,7 @@ import com.raytheon.uf.common.numeric.source.DataSource;
  *                                    single request.
  * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
  * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
+ * Sep 29, 2014  3596     nabowle     Always put creatingEntity in attributes.
  * 
  * </pre>
  * 
@@ -66,12 +67,14 @@ import com.raytheon.uf.common.numeric.source.DataSource;
 public class SatelliteGridFactory extends AbstractGridDataPluginFactory
         implements IDataFactory {
 
+    private static final String FIELD_CREATING_ENTITY = "creatingEntity";
+
     private static final String FIELD_PYHSICAL_ELEMENT = "physicalElement";
 
     private static final String FIELD_SECTOR_ID = "sectorID";
 
     private static final String[] OPTIONAL_IDENTIFIERS = { "source",
-            "creatingEntity", FIELD_SECTOR_ID, FIELD_PYHSICAL_ELEMENT };
+            FIELD_CREATING_ENTITY, FIELD_SECTOR_ID, FIELD_PYHSICAL_ELEMENT };
 
     public SatelliteGridFactory() {
         SatelliteUnits.register();
@@ -110,14 +113,21 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
             }
         }
         defaultGridData.setUnit(unit);
-        defaultGridData.setAttributes(request.getIdentifiers());
+
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(FIELD_CREATING_ENTITY,
+                satelliteRecord.getCreatingEntity());
+        if (request.getIdentifiers() != null) {
+            attributes.putAll(request.getIdentifiers());
+        }
+        defaultGridData.setAttributes(attributes);
 
         return defaultGridData;
     }
 
     /**
      * Builds the base constraint map based on the supplied grid request
-     * 
+     *
      * @param request
      *            the original grid request
      * @return the base constraint map
