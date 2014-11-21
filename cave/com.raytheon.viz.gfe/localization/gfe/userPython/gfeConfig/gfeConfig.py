@@ -1679,7 +1679,7 @@ Scripts = [
       "-d {productDB} ",
 
     "Make and Send HTI:" +
-     "xterm -e ssh px2 /awips2/GFESuite/hti/bin/make_hti.sh",
+     "xterm -e ssh px2f /awips2/GFESuite/hti/bin/make_hti.sh",
 
     "Official Grids to LDAD: " +
     "ifpAG -h {host} -r {port} -o - -d {productDB} | gzip -9 > " +
