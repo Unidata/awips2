@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04 DEC 2007  373        lvenable    Initial creation
+ * 06 Nov 2014  DCS 16776  zwang       Add control for MBA
  * 
  * </pre>
  * 
@@ -127,6 +128,11 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
      */
     private Scale minFeatureScale;
 
+    /**
+     * Show MBA Wind Shear check box.
+     */
+    private Button showMbaWindShear;
+    
     /**
      * Overlap Mesos check box.
      */
@@ -224,6 +230,8 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         addSeparator();
         createDmdControls();
         addSeparator();
+        createMbaControls();
+        addSeparator();
         createSrmControls();
         createCustomStormMotionGroup();
         createCloseButton();
@@ -273,6 +281,7 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
         overlapMesosChk.setSelection(values.isDmdShowOverlapping());
         dmdTrackToShowCbo.select(dmdTrackToShowCbo.indexOf(values
                 .getDmdTrackType().toString()));
+        showMbaWindShear.setSelection(values.isMbaShowWindShear());
         stormMotionRdo.setSelection(values.getSrmSource().equals(
                 RadarSRMResource.SRMSource.WARNGEN));
         averageStormRdo.setSelection(values.getSrmSource().equals(
@@ -658,6 +667,31 @@ public class RadarDisplayControlDlg extends CaveSWTDialog {
                         .fromString(dmdTrackToShowCbo.getText()));
             }
         });
+    }
+
+    /**
+     * Create the MBA controls.
+     */
+    private void createMbaControls() {
+        Composite mbaComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(2, false);
+        mbaComp.setLayout(gl);
+
+        GridData gd = new GridData(60, SWT.DEFAULT);
+        Label mbaLbl = new Label(mbaComp, SWT.NONE);
+        mbaLbl.setFont(labelFont);
+        mbaLbl.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
+        mbaLbl.setText("MBA");
+        mbaLbl.setLayoutData(gd);
+
+        showMbaWindShear = new Button(mbaComp, SWT.CHECK);
+        showMbaWindShear.setText("Show Wind Shear");
+        showMbaWindShear.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+                values.setMbaShowWindShear(showMbaWindShear.getSelection());
+            }
+        });
+
     }
 
     /**
