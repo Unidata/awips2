@@ -29,7 +29,7 @@ import com.raytheon.viz.radar.ui.RadarDisplayManager.TrackTypes;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * 11/06/2014   DCS 16776  zwang       Add control for MBA
  * 
  * </pre>
  * 
@@ -59,6 +59,8 @@ public class RadarDisplayControls {
     private boolean dmdShowOverlapping;
 
     private TrackTypes dmdTrackType = TrackTypes.PAST_AND_FORECAST;
+    
+    private boolean mbaShowWindShear;
 
     private SRMSource srmSource;
 
@@ -201,6 +203,25 @@ public class RadarDisplayControls {
         }
     }
 
+
+    /**
+     * @return the mbaShowWindShear
+     */
+    public boolean isMbaShowWindShear() {
+        return mbaShowWindShear;
+    }
+
+    /**
+     * @param mbaShowWindShear
+     *            the mbaShowWindShear to set
+     */
+    public void setMbaShowWindShear(boolean mbaShowWindShear) {
+        if (mbaShowWindShear != this.mbaShowWindShear) {
+            this.mbaShowWindShear = mbaShowWindShear;
+            RadarDisplayManager.getInstance().displayConfigUpdated();
+        }
+    }
+    
     /**
      * @return the srmSource
      */
