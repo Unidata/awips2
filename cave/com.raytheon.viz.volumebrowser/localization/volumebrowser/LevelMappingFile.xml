@@ -1370,34 +1370,4 @@
 		<DatabaseLevel levelName="FHAG" levelOneValue="2000"
 		levelTwoValue="5000.0" unit="m" /> 
 	</Level>
-	<Level displayName="Primary" key="Primary"> <!-- Start NWPS -->
-		<DatabaseLevel levelName="OSEQD" levelOneValue="1" />
-	</Level>
-	<Level displayName="Secondary" key="Secondary">
-		<DatabaseLevel levelName="OSEQD" levelOneValue="2" />
-	</Level>
-	<Level displayName="Tertiary" key="Tertiary">
-		<DatabaseLevel levelName="OSEQD" levelOneValue="3" />
-	</Level>
-	<Level displayName="OSEQD-4" key="OSEQD-4">
-		<DatabaseLevel levelName="OSEQD" levelOneValue="4" />
-	</Level>
-	<Level displayName="OSEQD-5" key="OSEQD-5">
-		<DatabaseLevel levelName="OSEQD" levelOneValue="5" />
-	</Level>
-	<Level displayName="OSEQD-6" key="OSEQD-6">
-		<DatabaseLevel levelName="OSEQD" levelOneValue="6" />
-	</Level>
-	<Level displayName="OSEQD-7" key="OSEQD-7">
-		<DatabaseLevel levelName="OSEQD" levelOneValue="7" />
-	</Level>
-	<Level displayName="OSEQD-8" key="OSEQD-8">
-		<DatabaseLevel levelName="OSEQD" levelOneValue="8" />
-	</Level>
-	<Level displayName="OSEQD-9" key="OSEQD-9">
-		<DatabaseLevel levelName="OSEQD" levelOneValue="9" />
-	</Level>
-	<Level displayName="OSEQD-10" key="OSEQD-10"> <!-- End NWPS -->
-		<DatabaseLevel levelName="OSEQD" levelOneValue="10" />
-	</Level>
 </LevelMappings>
