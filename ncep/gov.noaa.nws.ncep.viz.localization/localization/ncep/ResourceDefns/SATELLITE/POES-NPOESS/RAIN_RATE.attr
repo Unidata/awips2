@@ -1,4 +1,4 @@
-colorMapName=lingray
+colorMapName=microrain
 colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
 imageType=Rain fall rate
 displayUnitStr=RainfallRatePixel
