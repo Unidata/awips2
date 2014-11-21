@@ -3,6 +3,7 @@
 ## If you have any questions please contact Evan Bookbinder - WFO EAX
 ## CREATED 9/20/2013
 ## Edited by Mike Rega       01-17-2014 added Alaska changes for 14.12.1
+## Edited by Evan Bookbinder 09-16-2014 Changes for 2015 Impact-based warnings
 ############################################################################
 ### SET LAND REFERENCE DISTANCE UNITS
 #set($landDistanceUnits = "MILES")
@@ -66,3 +67,12 @@
 ### SET IF A WESTERN REGION WFO THAT USES MIXED ZONES / COUNTIES IN FLOOD PRODUCTS
 ### default is false
 #set($wrZoneCounty = false)
+###
+### CHANGES BELOW ANTICIPATED FOR 2015 IBW EXPERIMENT.
+###
+#set($svrHailConsiderableThreshold = 1.75)
+#set($svrHailExtremeThreshold = 4)
+#set($svrWindConsiderableThreshold = 80)
+#set($svrWindExtremeThreshold = 100)
+#set($svrDamageConsiderablePhrase = "SEVERE DAMAGE THREAT...CONSIDERABLE")
+#set($svrDamageExtremePhrase = "SEVERE DAMAGE THREAT...EXTREME")

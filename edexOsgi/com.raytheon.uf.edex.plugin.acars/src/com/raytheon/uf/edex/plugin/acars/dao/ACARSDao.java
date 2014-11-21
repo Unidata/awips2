@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Mar 27, 2014  2811     skorolev    Updated logger.
  * Jun 06, 2014  2061     bsteffen    Extend PointDataPluginDao
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * 
  * </pre>
  * 
@@ -122,13 +123,14 @@ public class ACARSDao extends PointDataPluginDao<ACARSRecord> {
      *            The HQL query string
      * @return The list of objects returned by the query
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<?> executeACARSQuery(final String hqlQuery) {
 
         List<?> result = (List<?>) txTemplate
                 .execute(new TransactionCallback() {
                     @Override
                     public List<?> doInTransaction(TransactionStatus status) {
-                        Query hibQuery = getSession(false)
+                        Query hibQuery = getCurrentSession()
                                 .createQuery(hqlQuery);
                         // hibQuery.setCacheMode(CacheMode.NORMAL);
                         // hibQuery.setCacheRegion(QUERY_CACHE_REGION);

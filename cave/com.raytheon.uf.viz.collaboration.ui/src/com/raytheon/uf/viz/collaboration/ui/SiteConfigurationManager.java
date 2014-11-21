@@ -23,19 +23,23 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.xml.bind.DataBindingException;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
-import com.raytheon.uf.common.localization.IPathManager;
+import org.apache.commons.collections.map.LRUMap;
+
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -47,10 +51,11 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.HostConfig;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfig;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfig.ListEntry;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfig.ListType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.HostConfig;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
-import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation.SiteColor;
 
 /**
  * Parse a file to grab attributes about a user
@@ -61,10 +66,14 @@ import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation.SiteColor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 12, 2012            mnash     Initial creation
+ * Jun 12, 2012            mnash       Initial creation
  * Jan 08, 2014 2563       bclement    duplicate code elimination
  *                                     added methods to partially modify user config
  * Jan 27, 2014 2700       bclement    fixed null list from jaxb object
+ * Oct 10, 2014 3708       bclement    refactored to support blacklisting
+ *                                      moved color config to SiteColorConfigManager
+ *                                      site level now combined with site config
+ * Oct 10, 2014 3708       bclement    fixed possible NPE in getSiteConfig() getSiteVisibilityConfig()
  * 
  * </pre>
  * 
@@ -72,25 +81,40 @@ import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation.SiteColor;
  * @version 1.0
  */
 public class SiteConfigurationManager {
-    
-    private static final IUFStatusHandler log = UFStatus.getHandler(SiteConfigurationManager.class);
 
-    private static SiteConfigInformation instance;
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(SiteConfigurationManager.class);
 
-    private static SiteConfigInformation userInstance;
+    private static final String PRIMARY_CONF_FILE = "config.xml";
 
-    private static final ReentrantLock userConfigLock = new ReentrantLock();
+    private static SiteConfigInformation _siteInstance;
 
-    private static SiteColorInformation colorInfo;
+    private static LocalizationFile siteConfigInfoFile;
+
+    private static SiteConfigInformation _userInstance;
+
+    private static LocalizationFile userConfigInfoFile;
+
+    @SuppressWarnings("unchecked")
+    private static final Map<String, SiteVisiblityConfig> siteVisibilityMap = new LRUMap(
+            2);
+
+    private static final ILocalizationFileObserver siteConfigObserver = new ILocalizationFileObserver() {
+        @Override
+        public void fileUpdated(FileUpdatedMessage message) {
+            clear();
+        }
+    };
 
     // level hierarchy for site config
     private static final LocalizationLevel[] siteLevels;
-    
-    static{
+
+    static {
         // load site levels with all levels except for USER
         PathManager pm = (PathManager) PathManagerFactory.getPathManager();
         LocalizationLevel[] available = pm.getAvailableLevels();
-        List<LocalizationLevel> levels = new ArrayList<LocalizationLevel>(available.length -1);
+        List<LocalizationLevel> levels = new ArrayList<LocalizationLevel>(
+                available.length - 1);
         for (int i = available.length - 1; i >= 0; --i) {
             if (!available[i].equals(LocalizationLevel.USER)) {
                 levels.add(available[i]);
@@ -102,15 +126,17 @@ public class SiteConfigurationManager {
     /**
      * Get first localization file for SiteConfigInformation found in levels
      * 
+     * @param filename
+     *            config file name
      * @param levels
      *            localization levels to search in order
      * @return null if none found
      */
-    private static LocalizationFile findConfigLocalizationFile(
+    private static LocalizationFile findConfigLocalizationFile(String filename,
             LocalizationLevel[] levels) {
         LocalizationFile rval = null;
         for (LocalizationLevel level : levels) {
-            rval = getConfigLocalizationFile(level);
+            rval = getConfigLocalizationFile(filename, level);
             if (rval != null && rval.exists()) {
                 break;
             }
@@ -121,29 +147,28 @@ public class SiteConfigurationManager {
     /**
      * Get LocalizationFile for SiteConfigInformation at specified level.
      * 
+     * @param filename
+     *            config file name
      * @param level
      * @return
      */
-    private static LocalizationFile getConfigLocalizationFile(
+    private static LocalizationFile getConfigLocalizationFile(String filename,
             LocalizationLevel level) {
         PathManager pm = (PathManager) PathManagerFactory.getPathManager();
         LocalizationContext localContext = pm.getContext(
                 LocalizationType.CAVE_STATIC, level);
         return pm.getLocalizationFile(localContext, "collaboration"
-                + File.separator + "config.xml");
+                + File.separator + filename);
     }
 
     /**
      * Read configuration file from file system. Must be externally
      * synchronized.
      * 
-     * @param levels
-     *            localization levels to search in order
      * @return null if configuration file wasn't found or an error occurred
      */
     private static SiteConfigInformation readConfigInformation(
-            LocalizationLevel[] levels) {
-        LocalizationFile file = findConfigLocalizationFile(levels);
+            LocalizationFile file) {
         SiteConfigInformation rval = null;
         if (file != null && file.exists()) {
             InputStream in = null;
@@ -182,7 +207,8 @@ public class SiteConfigurationManager {
     private static void writeConfigInformation(LocalizationLevel level,
             SiteConfigInformation config) throws JAXBException,
             LocalizationException {
-        LocalizationFile file = getConfigLocalizationFile(level);
+        LocalizationFile file = getConfigLocalizationFile(PRIMARY_CONF_FILE,
+                level);
         LocalizationFileOutputStream out = null;
         try {
             out = file.openOutputStream();
@@ -191,7 +217,7 @@ public class SiteConfigurationManager {
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
                     new Boolean(true));
-            marshaller.marshal(userInstance, out);
+            marshaller.marshal(config, out);
         } finally {
             if (out != null) {
                 try {
@@ -204,16 +230,19 @@ public class SiteConfigurationManager {
     }
 
     /**
-     * Go to the config.xml file and grab the user information, for use in
-     * determining what kind of user you are in collaboration
+     * Read site level configuration file
      * 
-     * @return
+     * @return null if no file was found or file is invalid
      */
-    public static synchronized SiteConfigInformation getSiteConfigInformation() {
-        if (instance == null) {
-            SiteConfigInformation info = readConfigInformation(siteLevels);
+    private static SiteConfigInformation getSiteConfigInformation() {
+        if (_siteInstance == null) {
+            LocalizationFile file = findConfigLocalizationFile(
+                    PRIMARY_CONF_FILE, siteLevels);
+            SiteConfigInformation info = readConfigInformation(file);
             if (isValid(info)) {
-                instance = info;
+                _siteInstance = info;
+                file.addFileUpdatedObserver(siteConfigObserver);
+                siteConfigInfoFile = file;
             } else {
                 log.handle(Priority.PROBLEM,
                         "Misconfigured config.xml file at site level. "
@@ -223,50 +252,28 @@ public class SiteConfigurationManager {
                                 + " attributes.");
             }
         }
-        return instance;
+        return _siteInstance;
     }
 
     /**
-     * Write the colorInfo.xml file out to user localization so that the user
-     * can retrieve it on CAVE restart
+     * Read user level configuration file. Creates new file if not found.
      * 
-     * @param information
+     * @return
      */
-    public static void writeSiteColorInformation(
-            SiteColorInformation information) {
-        colorInfo = information;
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext lContext = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile file = pathMgr.getLocalizationFile(lContext,
-                "collaboration" + File.separator + "colorInfo.xml");
-        try {
-            JAXBContext context = JAXBContext
-                    .newInstance(SiteColorInformation.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
-                    new Boolean(true));
-            marshaller.marshal(information, file.getFile());
-            file.save();
-        } catch (Exception e) {
-            Activator.statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
+    private static SiteConfigInformation getUserConfigInformation() {
+        if (_userInstance == null) {
+            LocalizationFile file = getConfigLocalizationFile(
+                    PRIMARY_CONF_FILE, LocalizationLevel.USER);
+            SiteConfigInformation info = readConfigInformation(file);
+            if (info == null) {
+                // user config doesn't exist, create a new one
+                info = new SiteConfigInformation();
+                file.addFileUpdatedObserver(siteConfigObserver);
+                userConfigInfoFile = file;
+            }
+            _userInstance = info;
         }
-    }
-
-    /**
-     * Allows users to have their own extra configured sites, but does not check
-     * for validity as we don't have to have a role or a site specified. Must be
-     * externally synchronized.
-     */
-    private static void readUserSiteConfigInformation() {
-        // we always want to read/write the same localization file, only give
-        // one level to search
-        userInstance = readConfigInformation(new LocalizationLevel[] { LocalizationLevel.USER });
-        if (userInstance == null) {
-            // user config doesn't exist, create a new one
-            userInstance = new SiteConfigInformation();
-        }
+        return _userInstance;
     }
 
     /**
@@ -274,31 +281,34 @@ public class SiteConfigurationManager {
      * 
      * @param userEnabledSites
      */
-    public static void writeUserEnabledSites(String[] userEnabledSites) {
-        userConfigLock.lock();
+    private static void writeUserConfiguredVisibility(
+            SiteVisiblityConfig visibility) {
         try {
-            if (userInstance == null) {
-                readUserSiteConfigInformation();
-            }
-            // update object
-            List<SiteConfig> configs = userInstance.getConfig();
-            SiteConfig config;
-            if (configs == null || configs.isEmpty()) {
-                configs = new ArrayList<SiteConfigInformation.SiteConfig>(1);
-                config = new SiteConfig();
-                configs.add(config);
-                userInstance.setConfig(configs);
-            } else {
-                config = configs.get(0);
-            }
-            config.setSubscribedSites(userEnabledSites);
+            SiteConfigInformation userInstance = getUserConfigInformation();
+            Map<String, ListEntry> userSpecificConfigs = visibility
+                    .getUserSpecificConfigs();
+            if (!userSpecificConfigs.isEmpty()) {
+                String site = visibility.getActingSite();
+                SiteConfig siteConfig = getSiteConfig(userInstance, site);
+                if (siteConfig == null) {
+                    siteConfig = new SiteConfig();
+                    siteConfig.setSite(site);
+                    List<SiteConfig> configs = userInstance.getConfig();
+                    if (configs == null) {
+                        configs = new ArrayList<>(1);
+                        userInstance.setConfig(configs);
+                    }
+                    configs.add(siteConfig);
+                }
+                ListEntry[] entries = userSpecificConfigs.values().toArray(
+                        new ListEntry[0]);
+                siteConfig.setListEntries(entries);
 
-            // update on file system
-            writeConfigInformation(LocalizationLevel.USER, userInstance);
+                // update on file system
+                writeConfigInformation(LocalizationLevel.USER, userInstance);
+            }
         } catch (Exception e) {
             log.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } finally {
-            userConfigLock.unlock();
         }
     }
 
@@ -308,40 +318,54 @@ public class SiteConfigurationManager {
      * 
      * @param config
      */
-    public static void addUserHostConfig(HostConfig config){
-        userConfigLock.lock();
-        try{
-            if(userInstance == null){
-                readUserSiteConfigInformation();
-            }
+    synchronized public static void addUserHostConfig(HostConfig config) {
+        updateUserHostConfig(config, false);
+    }
+
+    /**
+     * Update user level host overrides
+     * 
+     * @param config
+     * @param remove
+     *            true if the host entry specifies that the user doesn't want to
+     *            see the host in the UI
+     */
+    private static void updateUserHostConfig(HostConfig config, boolean remove) {
+        try {
+            SiteConfigInformation userInstance = getUserConfigInformation();
             List<HostConfig> servers = userInstance.getServer();
-            if (servers == null){
-                servers = new ArrayList<SiteConfigInformation.HostConfig>(1);
+            if (servers == null) {
+                servers = new ArrayList<HostConfig>(1);
                 userInstance.setServer(servers);
             }
-            if (!hasHost(servers, config)) {
+            HostConfig existing = findHost(servers, config);
+            if (existing == null) {
+                config.setRemoved(remove);
                 servers.add(config);
+                writeConfigInformation(LocalizationLevel.USER, userInstance);
+            } else if (existing.isRemoved() != remove) {
+                existing.setRemoved(remove);
+                existing.setPrettyName(config.getPrettyName());
                 writeConfigInformation(LocalizationLevel.USER, userInstance);
             }
         } catch (Exception e) {
             log.error(e.getLocalizedMessage(), e);
-        } finally {
-            userConfigLock.unlock();
         }
     }
 
     /**
      * @param servers
      * @param config
-     * @return true if the hostname in config matches any in servers
+     * @return null if matching host config not found
      */
-    private static boolean hasHost(List<HostConfig> servers, HostConfig config) {
+    private static HostConfig findHost(List<HostConfig> servers,
+            HostConfig config) {
         for (HostConfig hc : servers) {
             if (hc.getHostname().equalsIgnoreCase(config.getHostname())) {
-                return true;
+                return hc;
             }
         }
-        return false;
+        return null;
     }
 
     /**
@@ -351,100 +375,58 @@ public class SiteConfigurationManager {
      * @param serverAddress
      */
     public static void removeUserHostConfig(String serverAddress) {
-        userConfigLock.lock();
-        try {
-            if (userInstance == null) {
-                readUserSiteConfigInformation();
-            }
-            List<HostConfig> servers = userInstance.getServer();
-            if (servers != null) {
-                List<HostConfig> newServers = new ArrayList<HostConfig>();
-                for (HostConfig hc : servers) {
-                    if (!hc.getHostname().equalsIgnoreCase(serverAddress)) {
-                        newServers.add(hc);
-                    }
-                }
-                userInstance.setServer(newServers);
-                writeConfigInformation(LocalizationLevel.USER, userInstance);
-            }
-        } catch (Exception e) {
-            log.error(e.getLocalizedMessage(), e);
-        } finally {
-            userConfigLock.unlock();
-        }
+        updateUserHostConfig(new HostConfig(serverAddress), true);
     }
 
     /**
-     * Get host configuration added by this user.
+     * Constructs a list of host configs from the site level configs and the
+     * user level overrides
      * 
-     * @return empty list if none are found
+     * @return empty list if none found
      */
-    public static List<HostConfig> getUserHostConfig() {
-        List<HostConfig> rval;
-        userConfigLock.lock();
-        try {
-            if (userInstance == null) {
-                readUserSiteConfigInformation();
+    synchronized public static Collection<HostConfig> getHostConfigs() {
+        List<HostConfig> userConfigured = getUserHostConfigs();
+        SiteConfigInformation siteConfigInformation = getSiteConfigInformation();
+        if (siteConfigInformation == null) {
+            return Collections.emptyList();
+        }
+        List<HostConfig> siteConfigured = siteConfigInformation.getServer();
+        if (siteConfigured == null) {
+            siteConfigured = new ArrayList<>(0);
+        }
+
+        Collection<HostConfig> rval;
+        if (userConfigured.isEmpty()) {
+            rval = siteConfigured;
+        } else {
+            rval = new HashSet<HostConfig>(siteConfigured);
+            for (HostConfig user : userConfigured) {
+                if (user.isRemoved()) {
+                    rval.remove(user);
+                } else {
+                    rval.add(user);
+                }
             }
-            List<HostConfig> servers = userInstance.getServer();
-            if (servers == null) {
-                rval = new ArrayList<HostConfig>(0);
-            } else {
-                rval = new ArrayList<HostConfig>(servers);
-            }
-        } finally {
-            userConfigLock.unlock();
         }
         return rval;
     }
 
     /**
-     * Instantiate the colorInfo object so that the colors can be read in from
-     * the colorInfo.xml file and retrieved from localization
+     * Get host configuration added by this user. Must be externally read
+     * locked.
      * 
-     * @return
+     * @return empty list if none are found
      */
-    public static SiteColorInformation getSiteColorInformation() {
-        if (colorInfo == null) {
-            PathManager pm = (PathManager) PathManagerFactory.getPathManager();
-            Map<LocalizationLevel, LocalizationFile> files = pm
-                    .getTieredLocalizationFile(LocalizationType.CAVE_STATIC,
-                            "collaboration" + File.separator + "colorInfo.xml");
-            LocalizationLevel[] levels = LocalizationLevel.values();
-
-            for (int i = levels.length - 1; i >= 0 && colorInfo == null; --i) {
-                LocalizationLevel level = levels[i];
-                if (level == LocalizationLevel.SITE
-                        || level == LocalizationLevel.USER) {
-                    LocalizationFile file = files.get(level);
-                    if (file != null) {
-                        InputStream in = null;
-                        try {
-                            in = file.openInputStream();
-                            JAXBContext context = JAXBContext
-                                    .newInstance(SiteColorInformation.class);
-                            Unmarshaller unmarshaller = context
-                                    .createUnmarshaller();
-                            colorInfo = (SiteColorInformation) unmarshaller
-                                    .unmarshal(in);
-                        } catch (Exception e) {
-                            Activator.statusHandler.handle(Priority.PROBLEM,
-                                    e.getLocalizedMessage(), e);
-                        }
-                        if (in != null) {
-                            try {
-                                in.close();
-                            } catch (IOException e) {
-                                Activator.statusHandler.handle(
-                                        Priority.PROBLEM,
-                                        e.getLocalizedMessage(), e);
-                            }
-                        }
-                    }
-                }
-            }
+    private static List<HostConfig> getUserHostConfigs() {
+        List<HostConfig> rval;
+        SiteConfigInformation userInstance = getUserConfigInformation();
+        List<HostConfig> servers = userInstance.getServer();
+        if (servers == null) {
+            rval = new ArrayList<HostConfig>(0);
+        } else {
+            rval = new ArrayList<HostConfig>(servers);
         }
-        return colorInfo;
+        return rval;
     }
 
     /**
@@ -464,70 +446,159 @@ public class SiteConfigurationManager {
     }
 
     /**
-     * Get list of subscribed sites from site configuration
+     * Gets configuration objects for sites. Does not include user level
+     * overrides.
+     * 
+     * @return
+     */
+    synchronized public static Collection<SiteConfig> getSiteConfigs() {
+        Collection<SiteConfig> rval;
+        SiteConfigInformation info = getSiteConfigInformation();
+        if (info == null) {
+            rval = Collections.emptyList();
+        } else {
+            List<SiteConfig> configs = info.getConfig();
+            if (configs == null) {
+                rval = Collections.emptyList();
+            } else {
+                rval = configs;
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * @param actingSite
+     * @param otherSite
+     * @return true if the configuration for the acting site shows the other
+     *         site as visible (takes into account user level overrides)
+     */
+    synchronized public static boolean isVisible(String actingSite,
+            String otherSite) {
+        SiteVisiblityConfig config = getSiteVisibilityConfig(actingSite);
+        return config.isVisible(otherSite);
+    }
+
+    /**
+     * Add a user level override for the acting site config to set the other
+     * site as visible
+     * 
+     * @param actingSite
+     * @param otherSite
+     */
+    synchronized public static void showSite(String actingSite, String otherSite) {
+        SiteVisiblityConfig config = getSiteVisibilityConfig(actingSite);
+        config.show(otherSite);
+        writeUserConfiguredVisibility(config);
+    }
+
+    /**
+     * Add a user level override for the acting site config to set the other
+     * site as not visible
+     * 
+     * @param actingSite
+     * @param otherSite
+     */
+    synchronized public static void hideSite(String actingSite, String otherSite) {
+        SiteVisiblityConfig config = getSiteVisibilityConfig(actingSite);
+        config.hide(otherSite);
+        writeUserConfiguredVisibility(config);
+    }
+
+    /**
+     * Get site visibility configuration for acting site
      * 
      * @param site
      * @return
      */
-    public static List<String> getSubscribeList(String site) {
-        List<String> subscribed = new ArrayList<String>();
-        if (instance.getConfig() != null) {
-            for (SiteConfig config : instance.getConfig()) {
-                if (config.getSite().equals(site)) {
-                    subscribed = Arrays.asList(config.getSubscribedSites());
-                    break;
-                }
-            }
-        }
-        return subscribed;
-    }
-
-    /**
-     * Reads the user subscribe list
-     * 
-     * @return
-     */
-    public static List<String> getUserSubscribeList() {
-        List<String> subscribed = new ArrayList<String>();
-        userConfigLock.lock();
-        try {
-            if (userInstance == null) {
-                readUserSiteConfigInformation();
-            }
-            if (userInstance != null && userInstance.getConfig() != null) {
-                for (SiteConfig config : userInstance.getConfig()) {
-                    if (config.getSubscribedSites() != null) {
-                        subscribed = new ArrayList<String>();
-                        for (String item : config.getSubscribedSites()) {
-                            subscribed.add(item);
-                        }
+    private static SiteVisiblityConfig getSiteVisibilityConfig(String site) {
+        SiteVisiblityConfig rval = null;
+        rval = siteVisibilityMap.get(site);
+        if (rval == null) {
+            Map<String, ListEntry> userSpecificConfigs = getUserSpecificConfigs(site);
+            SiteConfigInformation siteInstance = getSiteConfigInformation();
+            if (siteInstance != null && siteInstance.getConfig() != null) {
+                for (SiteConfig config : siteInstance.getConfig()) {
+                    String configSite = config.getSite();
+                    if (configSite != null && configSite.equals(site)) {
+                        rval = new SiteVisiblityConfig(config,
+                                userSpecificConfigs);
                         break;
                     }
                 }
             }
-        } finally {
-            userConfigLock.unlock();
+            if (rval == null) {
+                /*
+                 * this shouldn't happen since you have to have an entry in the
+                 * site configuration file to log in
+                 */
+                log.warn("No configuration found for site '" + site
+                        + "'. Defaulting to showing all sites.");
+                rval = new SiteVisiblityConfig(site, new HashSet<String>(0),
+                        ListType.BLACKLIST, userSpecificConfigs);
+            } else {
+                siteVisibilityMap.put(site, rval);
+            }
         }
-        return subscribed;
+
+        return rval;
     }
 
     /**
-     * @return list of colors from site information config
+     * Get user level overrides for site visibility
+     * 
+     * @param site
+     * @return site configs indexed by name
      */
-    public static List<SiteColor> getSiteColors() {
-        SiteColorInformation colorInfo = getSiteColorInformation();
-        if (colorInfo != null) {
-            return getSiteColorInformation().getColors();
-        } else {
-            return null;
+    private static Map<String, ListEntry> getUserSpecificConfigs(String site) {
+        Map<String, ListEntry> rval = new HashMap<>();
+        SiteConfigInformation userInstance = getUserConfigInformation();
+        SiteConfig siteConfig = getSiteConfig(userInstance, site);
+        if (siteConfig != null) {
+            ListEntry[] entries = siteConfig.getListEntries();
+            if (entries != null) {
+                for (ListEntry entry : entries) {
+                    rval.put(entry.getValue(), entry);
+                }
+            }
         }
+        return rval;
+    }
+
+    /**
+     * @param info
+     * @param site
+     * @return null if no config exists for privided site in info
+     */
+    private static SiteConfig getSiteConfig(SiteConfigInformation info,
+            String site) {
+        SiteConfig rval = null;
+        if (info.getConfig() != null) {
+            for (SiteConfig config : info.getConfig()) {
+                String configSite = config.getSite();
+                if (configSite != null && configSite.equals(site)) {
+                    rval = config;
+                    break;
+                }
+            }
+        }
+        return rval;
     }
 
     /**
      * reset in-memory configuration
      */
-    public static void nullifySiteConfigInstance() {
-        instance = null;
-        userInstance = null;
+    synchronized private static void clear() {
+        if (siteConfigInfoFile != null) {
+            siteConfigInfoFile.removeFileUpdatedObserver(siteConfigObserver);
+            siteConfigInfoFile = null;
+        }
+        _siteInstance = null;
+        if (userConfigInfoFile != null) {
+            userConfigInfoFile.removeFileUpdatedObserver(siteConfigObserver);
+            userConfigInfoFile = null;
+        }
+        _userInstance = null;
+        siteVisibilityMap.clear();
     }
 }
