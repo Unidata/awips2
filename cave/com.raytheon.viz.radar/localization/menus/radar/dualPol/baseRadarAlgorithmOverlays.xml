@@ -223,6 +223,14 @@
 			<substitute key="latest" value="true" />
 			<substitute key="elevation" value="0.0--360.0" />
 		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+            menuText="Microburst AMDA (MBA)" id="${icao}MicroburstAMDA">
+            <substitute key="icao" value="${icao}" />
+            <substitute key="product" value="196" />
+            <substitute key="mode" value="" />
+            <substitute key="latest" value="true" />
+            <substitute key="elevation" value="0.0--360.0" />
+        </contribute>
 		<contribute xsi:type="command"
 			commandId="com.raytheon.viz.radar.ui.RadarDisplayControls" menuText="Radar Display Controls..."
 			id="${icao}GraphicsRadarDisplayControls" />
