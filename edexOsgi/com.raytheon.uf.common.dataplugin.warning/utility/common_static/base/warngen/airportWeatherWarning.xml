@@ -3,13 +3,14 @@
 <!-- Customized by Phil Kurimski WFO DTX 12 April 2012 
      Updated by Phil Kurimski 12 September 2012 OB12.9.1-12 
      Updated Evan Bookbinder 5-5-13 to change units per Directive 
-     Phil Kurimski 09-19-2013 added geospatialConfig.xml
+     Phil Kurimski 09-19-2013 added geospatialConfig.xml - used ZONE as default
 -->
 <warngenConfig>
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
 ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
-PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. CHANGE TO "geospatialConfig_COUNTY.xml" if desired
+-->
 <include file="geospatialConfig_ZONE.xml"/>
 
 <!-- Include Various geospatial XML files to create their objects. These are *NOT*
@@ -26,12 +27,13 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 
  <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
  	The various menu items are also the different maps
- 	that can be loaded with each template. -->
+ 	that can be loaded with each template.  -->
  <maps>
-  <map>ACARS Airport Locations</map>
+  <map>County Warning Areas</map>
   <map>Forecast Zones</map>
  </maps>
- 
+
+
  <!-- Followups: VTEC actions of allowable followups when this template is selected -->
  <followups>
   <followup>COR</followup>

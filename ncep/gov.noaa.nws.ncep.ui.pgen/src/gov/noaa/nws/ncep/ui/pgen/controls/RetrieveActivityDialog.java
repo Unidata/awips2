@@ -20,6 +20,8 @@ import gov.noaa.nws.ncep.ui.pgen.store.PgenStorageException;
 import gov.noaa.nws.ncep.ui.pgen.store.StorageUtils;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -71,7 +74,9 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	-----------------------------------
  * 03/13		#977		S.gilbert	Modified from PgenFileManageDialog1
- * 01/2014      #1105       jwu         Ues "subtype" for query as well.
+ * 01/2014      #1105       jwu         Use "subtype" for query as well.
+ * 08/2014      TTR867      jwu         Add "time stamp" for activities with same label.
+ * 08/2014      ?           jwu         Preserve "outputFile" name when opening an activity.
  * 
  * </pre>
  * 
@@ -609,15 +614,16 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
          */
         if (replace) {
             // Reset the output file name.
-            for (gov.noaa.nws.ncep.ui.pgen.elements.Product pp : pgenProds) {
-                pp.setOutputFile(null);
-            }
+            // for (gov.noaa.nws.ncep.ui.pgen.elements.Product pp : pgenProds) {
+            // pp.setOutputFile(null);
+            // }
 
             PgenFileNameDisplay.getInstance().setFileName(fullName);
-
             pgen.replaceProduct(pgenProds);
         } else {
-            if (pgen.getActiveProduct() == null) {
+
+            if (pgen.getActiveProduct() == null
+                    || pgen.removeEmptyDefaultProduct()) {
                 PgenFileNameDisplay.getInstance().setFileName(fullName);
             }
 
@@ -694,9 +700,6 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
             IStructuredSelection sel = (IStructuredSelection) fileListViewer
                     .getSelection();
             elem = (ActivityElement) sel.getFirstElement();
-            // System.out.println(elem.dataURI);
-            // System.out.println(elem.activityType);
-            // System.out.println(elem.activityLabel);
         } else {
 
             MessageDialog confirmDlg = new MessageDialog(PlatformUI
@@ -768,8 +771,17 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
                         }
                     });
 
-                    // Pick unique labels.
+                    // Remove time stamps resulting from "All"
                     java.util.List<String> actLbls = new ArrayList<String>();
+                    for (ActivityElement ae : elems) {
+                        int indx = ae.activityLabel.indexOf("$");
+                        if (indx >= 0) {
+                            ae.activityLabel = ae.activityLabel.substring(0,
+                                    indx);
+                        }
+                    }
+
+                    // Pick unique labels.
                     for (ActivityElement ae : elems) {
                         if (!actLbls.contains(ae.activityLabel)) {
                             actLbls.add(ae.activityLabel);
@@ -777,6 +789,39 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
                         }
                     }
                 } else {
+                    /*
+                     * For activities that have the same label but different
+                     * ref. time, affix the ref. time at the end to
+                     * differentiate them.
+                     */
+                    for (ActivityElement ae : elems) {
+                        boolean attachReftime = false;
+                        for (ActivityElement ae1 : elems) {
+                            if (ae1 != ae) {
+                                String aLbl = ae1.activityLabel;
+                                int loc = aLbl.indexOf("$");
+                                if (loc >= 0) {
+                                    aLbl = aLbl.substring(0, loc);
+                                }
+
+                                if (ae.activityLabel.equals(aLbl)) {
+                                    attachReftime = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Note, we are using "GMT" time zone when we save.
+                        if (attachReftime) {
+                            DateFormat fmt = new SimpleDateFormat(
+                                    "yy-MM-dd:HH:mm");
+                            fmt.setTimeZone(TimeZone.getTimeZone("GMT"));
+                            ae.activityLabel = ae.activityLabel + "$"
+                                    + fmt.format(ae.refTime);
+                        }
+
+                    }
+
                     filterElms.addAll(elems);
                 }
             }

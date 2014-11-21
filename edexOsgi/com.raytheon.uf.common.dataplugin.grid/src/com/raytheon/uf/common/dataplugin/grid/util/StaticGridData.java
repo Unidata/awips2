@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.grid.util;
 
+import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,11 +33,14 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * A class for calculating and caching static data for grids.
  * 
+ * Orignally ported from GridAccessor5.C
+ * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
+ * Date         Ticket#     Engineer    Description
  * ------------	----------	-----------	--------------------------
- * Jul 24, 2008				brockwoo	Initial creation
+ * Jul 24, 2008             brockwoo    Initial creation
+ * Oct 21, 2014 3721        dlovely     Optimized for reduced memory usage
  * 
  * </pre>
  * 
@@ -45,7 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class StaticGridData {
-    private static Map<GridCoverage, StaticGridData> instanceMap = new HashMap<GridCoverage, StaticGridData>();
+    private static Map<GridCoverage, SoftReference<StaticGridData>> instanceMap = new HashMap<GridCoverage, SoftReference<StaticGridData>>();
 
     private static final double R_EARTH = 6370.0;
 
@@ -61,11 +65,17 @@ public class StaticGridData {
 
     public static synchronized StaticGridData getInstance(
             GridCoverage gridCoverage) {
-        StaticGridData rval = instanceMap.get(gridCoverage);
+        SoftReference<StaticGridData> data = instanceMap.get(gridCoverage);
 
-        if (rval == null) {
+        StaticGridData rval = null;
+        if (null != data) {
+            rval = data.get();
+        }
+
+        if (null == data || null == rval) {
             rval = new StaticGridData(gridCoverage);
-            instanceMap.put(gridCoverage, rval);
+            data = new SoftReference<StaticGridData>(rval);
+            instanceMap.put(gridCoverage, data);
         }
 
         return rval;
@@ -83,6 +93,13 @@ public class StaticGridData {
         return this.dy;
     }
 
+    /**
+     * Initializes the Dx, Dy and Coriolis data from the provided
+     * {@link GridCoverage}.
+     * 
+     * @param gridCoverage
+     *            Grid Coverage.
+     */
     private void initStaticData(GridCoverage gridCoverage) {
         int nx = gridCoverage.getNx();
         int ny = gridCoverage.getNy();
@@ -91,52 +108,73 @@ public class StaticGridData {
         float[] dxPtr = new float[n];
         float[] dyPtr = new float[n];
         float[] avgPtr = new float[n];
-        double[] xx = new double[n];
-        double[] yy = new double[n];
-        double[] zz = new double[n];
+        float[] xxU = new float[nx];
+        float[] xxC = new float[nx];
+        float[] xxD = new float[nx];
+        float[] yyU = new float[nx];
+        float[] yyC = new float[nx];
+        float[] yyD = new float[nx];
+        float[] zzU = new float[nx];
+        float[] zzC = new float[nx];
+        float[] zzD = new float[nx];
+
+        float[] tmpXX, tmpYY, tmpZZ;
+
         int i, j, k;
 
-        for (j = k = 0; j < ny; j++) {
-            for (i = 0; i < nx; i++, k++) {
-                Coordinate location = new Coordinate(i, j);
-                Coordinate latLon = MapUtil.gridCoordinateToLatLon(location,
-                        PixelOrientation.CENTER, gridCoverage);
-                latLon.x = Math.toRadians(latLon.x);
-                latLon.y = Math.toRadians(latLon.y);
-                xx[k] = Math.cos(latLon.y);
-                yy[k] = xx[k] * Math.sin(latLon.x);
-                xx[k] *= Math.cos(latLon.x);
-                zz[k] = Math.sin(latLon.y);
-                _coriolis[k] = (float) (zz[k] * 1.458e-4);
-            }
+        // Populate Up rows.
+        for (i = 0; i < nx; i++) {
+            Coordinate location = new Coordinate(i, 1);
+            Coordinate latLon = MapUtil.gridCoordinateToLatLon(location,
+                    PixelOrientation.CENTER, gridCoverage);
+            latLon.x = Math.toRadians(latLon.x);
+            latLon.y = Math.toRadians(latLon.y);
+            xxU[i] = (float) Math.cos(latLon.y);
+            yyU[i] = (float) (xxU[i] * Math.sin(latLon.x));
+            xxU[i] *= Math.cos(latLon.x);
+            zzU[i] = (float) Math.sin(latLon.y);
         }
 
-        this.coriolis = newRecord(_coriolis, nx, ny);
+        // Populate Current rows.
+        for (i = 0; i < nx; i++) {
+            Coordinate location = new Coordinate(i, 0);
+            Coordinate latLon = MapUtil.gridCoordinateToLatLon(location,
+                    PixelOrientation.CENTER, gridCoverage);
+            latLon.x = Math.toRadians(latLon.x);
+            latLon.y = Math.toRadians(latLon.y);
+            xxC[i] = (float) Math.cos(latLon.y);
+            yyC[i] = (float) (xxC[i] * Math.sin(latLon.x));
+            xxC[i] *= Math.cos(latLon.x);
+            zzC[i] = (float) Math.sin(latLon.y);
+        }
 
-        int up, dn, lft, rgt;
-        long _nxm = nx - 1;
+        // Init Down as a copy of Current
+        System.arraycopy(xxC, 0, xxD, 0, nx);
+        System.arraycopy(yyC, 0, yyD, 0, nx);
+        System.arraycopy(zzC, 0, zzD, 0, nx);
+
+        int lft, rgt;
         double d;
         double icomp, jcomp, kcomp;
         double dmax = 0.0;
-        dn = 0;
-        up = nx;
+
         for (j = k = 0; j < ny; j++) {
-            if (up >= n) {
-                up -= nx;
-            }
-            lft = k;
+
+            lft = 0;
             for (i = 0; i < nx; i++, k++) {
-                rgt = (i < _nxm ? k + 1 : k);
-                icomp = yy[lft] * zz[rgt] - zz[lft] * yy[rgt];
-                jcomp = zz[lft] * xx[rgt] - xx[lft] * zz[rgt];
-                kcomp = xx[lft] * yy[rgt] - yy[lft] * xx[rgt];
+                _coriolis[k] = (float) (zzC[i] * 1.458e-4);
+                rgt = (i < nx - 1 ? i + 1 : i);
+                icomp = yyC[lft] * zzC[rgt] - zzC[lft] * yyC[rgt];
+                jcomp = zzC[lft] * xxC[rgt] - xxC[lft] * zzC[rgt];
+                kcomp = xxC[lft] * yyC[rgt] - yyC[lft] * xxC[rgt];
                 d = Math.sqrt(icomp * icomp + jcomp * jcomp + kcomp * kcomp);
                 dxPtr[k] = (float) (Math.asin(d) * 1000.0 * R_EARTH / (rgt - lft));
-                icomp = yy[dn] * zz[up] - zz[dn] * yy[up];
-                jcomp = zz[dn] * xx[up] - xx[dn] * zz[up];
-                kcomp = xx[dn] * yy[up] - yy[dn] * xx[up];
+                icomp = yyD[i] * zzU[i] - zzD[i] * yyU[i];
+                jcomp = zzD[i] * xxU[i] - xxD[i] * zzU[i];
+                kcomp = xxD[i] * yyU[i] - yyD[i] * xxU[i];
                 d = Math.sqrt(icomp * icomp + jcomp * jcomp + kcomp * kcomp);
-                dyPtr[k] = (float) (Math.asin(d) * 1000.0 * R_EARTH * nx / (up - dn));
+                dyPtr[k] = (float) (Math.asin(d) * 1000.0 * R_EARTH * (j == 0
+                        || j == (ny - 1) ? 1 : 0.5));
                 avgPtr[k] = (dxPtr[k] + dyPtr[k]) / 2.0f;
                 d = dxPtr[k] - dyPtr[k];
                 if (d < 0) {
@@ -146,14 +184,52 @@ public class StaticGridData {
                 if (d > dmax) {
                     dmax = d;
                 }
-                dn++;
-                up++;
-                lft = k;
+                if (i != 0) {
+                    lft++;
+                }
             }
-            if (j == 0) {
-                dn = 0;
+
+            // Move Current to Down and Up to Current.
+            tmpXX = xxD;
+            xxD = xxC;
+            xxC = xxU;
+
+            tmpYY = yyD;
+            yyD = yyC;
+            yyC = yyU;
+
+            tmpZZ = zzD;
+            zzD = zzC;
+            zzC = zzU;
+
+            // Construct the next Up row with new data unless this is the last
+            // pass then duplicate the current row.
+            if (j < ny - 2) {
+                // Populate the next Up row.
+                xxU = tmpXX;
+                yyU = tmpYY;
+                zzU = tmpZZ;
+                for (i = 0; i < nx; i++) {
+                    Coordinate location = new Coordinate(i, j + 2);
+                    Coordinate latLon = MapUtil.gridCoordinateToLatLon(
+                            location, PixelOrientation.CENTER, gridCoverage);
+                    latLon.x = Math.toRadians(latLon.x);
+                    latLon.y = Math.toRadians(latLon.y);
+                    xxU[i] = (float) Math.cos(latLon.y);
+                    yyU[i] = (float) (xxU[i] * Math.sin(latLon.x));
+                    xxU[i] *= Math.cos(latLon.x);
+                    zzU[i] = (float) Math.sin(latLon.y);
+                }
+            } else {
+                // If the last run, Duplicate the Current row to the Up row.
+                xxU = xxC;
+                yyU = yyC;
+                zzU = zzC;
             }
         }
+
+        this.coriolis = newRecord(_coriolis, nx, ny);
+
         if (dmax > 0.01) {
             this.dx = newRecord(dxPtr, nx, ny);
             this.dy = newRecord(dyPtr, nx, ny);

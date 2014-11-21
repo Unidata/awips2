@@ -55,26 +55,13 @@ public class RegistryServiceConfiguration {
     /** Default value for establishing an HTTP connection */
     private static final String DEFAULT_CONNECT_TIMEOUT = "10000";
 
-    /** The HTTP Communication policy configuration */
-    private HTTPClientPolicy httpClientPolicy;
-
     /**
      * Gets the HTTP communication policy.
      * 
      * @return The HTTP communication policy
      */
     public HTTPClientPolicy getHttpClientPolicy() {
-        if (httpClientPolicy == null) {
-            initHttpClientPolicy();
-        }
-        return httpClientPolicy;
-    }
-
-    /**
-     * Initializes the HTTP communication policy
-     */
-    private void initHttpClientPolicy() {
-        httpClientPolicy = new HTTPClientPolicy();
+        HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
         httpClientPolicy.setReceiveTimeout(Long.parseLong(System.getProperty(
                 RECEIVE_TIMEOUT_PROPERTY, DEFAULT_RECEIVE_TIMEOUT)));
         httpClientPolicy.setConnectionTimeout(Long.parseLong(System
@@ -88,5 +75,6 @@ public class RegistryServiceConfiguration {
             httpClientPolicy.setProxyServerPort(ProxyConfiguration.getHttpsProxyPort());
             httpClientPolicy.setNonProxyHosts(ProxyConfiguration.getHttpsNonProxyHosts());
         }
+        return httpClientPolicy;
     }
 }

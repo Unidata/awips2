@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean</programArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData</programArgs>
       <programArgsLin>-consoleLog</programArgsLin>
       <vmArgs>-XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true 
@@ -23,16 +23,13 @@
 -XX:MaxPermSize=128m
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme
 -Dqpid.dest_syntax=BURL
--Dcom.sun.management.jmxremote
--Dcom.sun.management.jmxremote.authenticate=false
--Dcom.sun.management.jmxremote.ssl=false
 -XX:OnOutOfMemoryError=&quot;capture -t no -p $pid &amp;&quot;
 -Dlogback.configurationFile=logback-viz-core.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=98
 -XX:+UnlockExperimentalVMOptions
--XX:G1HeapRegionSize=1
+-XX:G1HeapRegionSize=4M
 -XX:InitiatingHeapOccupancyPercent=25
 -XX:G1MixedGCCountTarget=16
 -XX:G1MixedGCLiveThresholdPercent=25
