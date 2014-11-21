@@ -74,6 +74,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.HdaHailPacket.HdaHailPoint
 import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedContourVectorPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVectorPacket;
+import com.raytheon.uf.common.dataplugin.radar.level3.MBAPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.MesocyclonePacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.MesocyclonePacket.MesocyclonePoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.SCITDataPacket;
@@ -135,7 +136,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 18, 2013  16002    kshrestha   Added logic to match all dBZ values in
  *                                    the DHR with AWIPS1
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
- * 
+ * Nov 06, 2014  16776    zwang       Handle AMDA product
  * 
  * </pre>
  * 
@@ -1192,9 +1193,9 @@ public class RadarRecord extends PersistablePluginDataObject implements
         if (needToConvert) {
             Coordinate coor;
 
-            // for MIGFA, i/j unit is 1km, for other radar products, unit is
+            // for MIGFA and AMDA, i/j unit is 1km, for other radar products, unit is
             // 1/4km
-            if (type == 140) {
+            if (type == 140 || type == 196) {
                 coor = convertStormLatLon(i * 4.0, j * 4.0);
             } else {
                 coor = convertStormLatLon(i, j);
@@ -1508,6 +1509,42 @@ public class RadarRecord extends PersistablePluginDataObject implements
                         j = currFeature.getPoints().get(0).getCoordinate2();
 
                         addPacketData(i, j, type, RadarProductType.GENERIC,
+                                currFeature, convertLatLon);
+                    }
+                    continue PACKET;
+                } else if (currPacket instanceof MBAPacket) {
+                    // Need to get each component/feature out and located the
+                    // thing
+                    MBAPacket packet = (MBAPacket) currPacket;
+
+                    // need to convert x/y to lon/lat
+                    convertLatLon = true;
+
+                    AreaComponent currFeature;
+                    for (GenericDataComponent currComponent : packet
+                            .getFeatures().values()) {
+                        currFeature = (AreaComponent) currComponent;
+                        
+                        // Calculate the center point of the MBA cell
+                        double x, y;
+                        double totalX = 0.0;
+                        double totalY = 0.0;
+                        double centerX = 0.0;
+                        double centerY = 0.0;
+                        int numP = currFeature.getPoints().size();
+                        
+                        for (int kk = 0; kk < numP; kk++) {
+                            x = currFeature.getPoints().get(kk).getCoordinate1();
+                            y = currFeature.getPoints().get(kk).getCoordinate2();
+                            totalX += x;
+                            totalY += y;
+                        }   
+                        
+                        if (numP != 0) {
+                            centerX = totalX / (double)numP;
+                            centerY = totalY / (double)numP;
+                        }
+                        addPacketData(centerX, centerY, type, RadarProductType.GENERIC,
                                 currFeature, convertLatLon);
                     }
                     continue PACKET;

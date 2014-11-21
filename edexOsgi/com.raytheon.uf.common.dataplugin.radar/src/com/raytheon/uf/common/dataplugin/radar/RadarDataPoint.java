@@ -27,6 +27,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket.GFMAttributeIDs;
+import com.raytheon.uf.common.dataplugin.radar.level3.MBAPacket.MBAAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.StormIDPacket.StormIDPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Feb 17, 2009 2000       askripsk     Initial creation
  * 03/04/2013   DCS51      zwang        Handle GFM product
+ * 09/26/2014   DCS16776   zwang        Handle AMDA product
  * 
  * </pre>
  * 
@@ -304,6 +306,11 @@ public class RadarDataPoint implements ISerializableObject {
 
     		stormID += ":";
     		stormID += deltaT;
+    	}
+    	// MBA
+    	else if (type == 196) {
+            stormID = point.getValue(MBAAttributeIDs.DETECT_ID
+                    .toString());
     	}
 
         if (!"".equalsIgnoreCase(stormID)) {
