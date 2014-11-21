@@ -25,7 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.text.db.SubscriptionRecord;
@@ -53,6 +57,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 04/24/13     1949       rjpeter     Removed @Override on delete.
  * Nov 08, 2013 2361       njensen     Chaged method signature of saveOrUpdate(Object)
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * </pre>
  * 
  * @author mfegan
@@ -106,25 +112,30 @@ public class SubscriptionDAO extends CoreDao {
      */
     public boolean write(SubscriptionRecord record) {
         // query
-        Query query = this
-                .getSession()
-                .createQuery(
-                        "from SubscriptionRecord where type = :type and trigger = :trigger and runner = :runner and script = :script and filepath = :filepath and arguments = :arguments");
-        query.setParameter("type", record.getType());
-        query.setParameter("trigger", record.getTrigger());
-        query.setParameter("runner", record.getRunner());
-        query.setParameter("script", record.getScript());
-        query.setParameter("filepath", record.getFilepath());
-        query.setParameter("arguments", record.getArguments());
-        List<?> results = query.list();
+        Session session = this.getSession();
+        try {
+            Query query = session
+                    .createQuery("from SubscriptionRecord where type = :type and trigger = :trigger and runner = :runner and script = :script and filepath = :filepath and arguments = :arguments");
+            query.setParameter("type", record.getType());
+            query.setParameter("trigger", record.getTrigger());
+            query.setParameter("runner", record.getRunner());
+            query.setParameter("script", record.getScript());
+            query.setParameter("filepath", record.getFilepath());
+            query.setParameter("arguments", record.getArguments());
+            List<?> results = query.list();
 
-        if (results.size() > 0) {
-            return false;
-        } else {
-            create(record);
-            sendSubscriptionNotifyMessage(String
-                    .valueOf(record.getIdentifier()));
-            return true;
+            if (results.size() > 0) {
+                return false;
+            } else {
+                create(record);
+                sendSubscriptionNotifyMessage(String.valueOf(record
+                        .getIdentifier()));
+                return true;
+            }
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 
@@ -146,10 +157,9 @@ public class SubscriptionDAO extends CoreDao {
      * 
      * @return the list of subscriptions
      */
-    @SuppressWarnings("unchecked")
     public List<SubscriptionRecord> getSubscriptions() {
         if ((cachedRecords == null) || dirtyRecords) {
-            List<?> retVal = getHibernateTemplate().loadAll(this.daoClass);
+            List<SubscriptionRecord> retVal = loadAll();
             if (retVal == null) {
                 logger.info("Unable to perform query, 'null' result returned");
                 cachedRecords = new ArrayList<SubscriptionRecord>();
@@ -160,6 +170,20 @@ public class SubscriptionDAO extends CoreDao {
         }
 
         return cachedRecords;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<SubscriptionRecord> loadAll() {
+        return (List<SubscriptionRecord>) txTemplate
+                .execute(new TransactionCallback<List<?>>() {
+                    @Override
+                    public List<SubscriptionRecord> doInTransaction(
+                            TransactionStatus status) {
+                        Criteria criteria = getCurrentSession().createCriteria(
+                                daoClass);
+                        return criteria.list();
+                    }
+                });
     }
 
     /**
@@ -204,7 +228,7 @@ public class SubscriptionDAO extends CoreDao {
                     return new ArrayList<SubscriptionRecord>();
                 }
             } catch (DataAccessLayerException e) {
-                logger.info("Unable to perform query, ", e);
+                logger.error("Unable to perform query, ", e);
                 return new ArrayList<SubscriptionRecord>();
             }
             rval = (List<SubscriptionRecord>) retVal;

@@ -19,20 +19,12 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_2_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_3_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_4_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_LEAD;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_ERROR;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_MISSING;
-
-import java.util.regex.Pattern;
-
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.DataItem;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * Decode synoptic section 2 data. This section has a single group which
@@ -46,7 +38,9 @@ import com.raytheon.uf.edex.decodertools.core.ReportParser;
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
  * 20071109            391 jkorman     Added guard for short data.
- * 2013/8			757	   	T. Lee		Checked missing wave height from ship report 
+ * 2013/8			757	   	T. Lee		Checked missing wave height from ship report
+ * Sep 26, 2014       3629 mapeters    Replaced static imports.
+ * Sep 30, 2014       3629 mapeters    Conformed to changes in {@link ISynoptic} constants.
  * 
  * </pre>
  * 
@@ -113,17 +107,16 @@ public class SynopticSec2Decoder extends AbstractSectionDecoder {
      *             Thrown when an relevant error has occurred.
      */
     public void decode(ReportParser reportParser) throws DecoderException {
-        Pattern pattern = Pattern.compile(SEC_2_LEAD);
         init();
         if (reportParser == null) {
             // nothing to do.
             return;
         }
-        if (reportParser.positionTo(pattern)) {
+        if (reportParser.positionTo(ISynoptic.SEC_2_LEAD)) {
             String element = reportParser.getElement();
             // need to decode the Ds vs data
-            shipDirection = getInt(element, 3, 4);
-            shipSpeed = getInt(element, 4, 5);
+            shipDirection = AbstractSfcObsDecoder.getInt(element, 3, 4);
+            shipSpeed = AbstractSfcObsDecoder.getInt(element, 4, 5);
             while (true) {
                 // if we run out of data, exit.
                 if (reportParser.next()) {
@@ -134,11 +127,11 @@ public class SynopticSec2Decoder extends AbstractSectionDecoder {
                     break;
                 }
 
-                if (SEC_3_LEAD.equals(element)) {
+                if (ISynoptic.SEC_3_LEAD_STRING.equals(element)) {
                     break;
-                } else if (SEC_4_LEAD.equals(element)) {
+                } else if (ISynoptic.SEC_4_LEAD_STRING.equals(element)) {
                     break;
-                } else if (SEC_5_LEAD.equals(element)) {
+                } else if (ISynoptic.SEC_5_LEAD_STRING.equals(element)) {
                     break;
                 } else if ("80000".equals(element)) {
                     break;
@@ -165,30 +158,36 @@ public class SynopticSec2Decoder extends AbstractSectionDecoder {
                     seaTemp = SynopticGroups.decodeTemperature(element, 2);
                     closeGroup(1);
                 } else if (doGroup(1) && "1".equals(element.substring(0, 1))) {
-                    wavePeriod = getInt(element, 1, 3);
-                    waveHeight = getInt(element, 3, 5);
+                    wavePeriod = AbstractSfcObsDecoder.getInt(element, 1, 3);
+                    waveHeight = AbstractSfcObsDecoder.getInt(element, 3, 5);
                     closeGroup(1);
                 } else if (doGroup(2) && "2".equals(element.substring(0, 1))) {
-                    windWavePeriod = getInt(element, 1, 3);
-                    windWaveHeight = getInt(element, 3, 5);
+                    windWavePeriod = AbstractSfcObsDecoder
+                            .getInt(element, 1, 3);
+                    windWaveHeight = AbstractSfcObsDecoder
+                            .getInt(element, 3, 5);
                     closeGroup(2);
                 } else if (doGroup(3) && "3".equals(element.substring(0, 1))) {
-                    swellWave1Dir = getInt(element, 1, 3);
-                    swellWave2Dir = getInt(element, 3, 5);
+                    swellWave1Dir = AbstractSfcObsDecoder.getInt(element, 1, 3);
+                    swellWave2Dir = AbstractSfcObsDecoder.getInt(element, 3, 5);
                     closeGroup(3);
                 } else if (doGroup(4) && "4".equals(element.substring(0, 1))) {
-                    swellWave1Period = getInt(element, 1, 3);
-                    swellWave1Height = getInt(element, 3, 5);
+                    swellWave1Period = AbstractSfcObsDecoder.getInt(element, 1,
+                            3);
+                    swellWave1Height = AbstractSfcObsDecoder.getInt(element, 3,
+                            5);
                     closeGroup(4);
                 } else if (doGroup(5) && "5".equals(element.substring(0, 1))) {
-                    swellWave2Period = getInt(element, 1, 3);
-                    swellWave2Height = getInt(element, 3, 5);
+                    swellWave2Period = AbstractSfcObsDecoder.getInt(element, 1,
+                            3);
+                    swellWave2Height = AbstractSfcObsDecoder.getInt(element, 3,
+                            5);
                     closeGroup(5);
                 } else if (doGroup(6) && "6".equals(element.substring(0, 1))) {
                     // TODO :
                     closeGroup(6);
                 } else if (doGroup(7) && "70".equals(element.substring(0, 2))) {
-                    heightOfWaves = getInt(element, 2, 5);
+                    heightOfWaves = AbstractSfcObsDecoder.getInt(element, 2, 5);
                     closeGroup(7);
                 } else if (doGroup(8) && "8".equals(element.substring(0, 1))) {
                     wetBulb = SynopticGroups.decodeTemperature(element, 2);
@@ -227,10 +226,12 @@ public class SynopticSec2Decoder extends AbstractSectionDecoder {
      * @return The populated receiver object.
      */
     public ObsCommon getDecodedData(ObsCommon receiver) {
-        final Double[] ignore = { VAL_ERROR.doubleValue(),
-                VAL_MISSING.doubleValue() };
 
         if (receiver != null) {
+            final Double[] ignore = {
+                    IDecoderConstants.VAL_ERROR.doubleValue(),
+                    IDecoderConstants.VAL_MISSING.doubleValue() };
+
             receiver.setShipIceData(iceCode);
             receiver.setSeaTemp(DataItem.getValue(seaTemp, ignore));
             receiver.setWetBulb(DataItem.getValue(wetBulb, ignore));

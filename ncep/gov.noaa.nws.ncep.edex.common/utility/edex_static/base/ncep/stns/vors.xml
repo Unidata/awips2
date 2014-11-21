@@ -3951,6 +3951,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>BTG</stid>
+          <stnnum>000208</stnnum>
+          <stnname>BATTLE_GROUND</stnname>
+          <state>WA</state>
+          <country>US</country>
+          <latitude>45.75</latitude>
+          <longitude>-122.59</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- REPLACED BY BTG (ABOVE); KEEP PDX ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>PDX</stid>
           <stnnum>000208</stnnum>
           <stnname>PORTLAND</stnname>
