@@ -24,8 +24,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -68,6 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Feb 10, 2014 2777        rferrel     Assign parent id when setting ChangeGroup.
  * Feb 11, 2014 2784        rferrel     Remove override of setIdentifier.
  * May 15, 2014 3002        bgonzale    Moved to com.raytheon.uf.common.dataplugin.taf.
+ * Oct 10, 2014 3722        mapeters    Removed dataURI column.
  * </pre>
  * 
  * @author bphillip
@@ -75,13 +74,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "tafseq")
-@Table(name = TafRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-/*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
- */
+@Table(name = TafRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "stationId", "corIndicator", "amdIndicator", "issue_timeString" }) })
+
 @org.hibernate.annotations.Table(appliesTo = TafRecord.PLUGIN_NAME, indexes = { @Index(name = "taf_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+ "refTime" }) })
 @DynamicSerialize
 public class TafRecord extends PluginDataObject implements ISpatialEnabled {
 
@@ -386,13 +383,6 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
             return false;
         }
         return true;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

@@ -1439,13 +1439,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     # These are sorted in priority order - most important first.
     def allowedHazards(self):
         allActions = ["NEW", "EXA", "EXB", "EXT", "CAN", "CON", "EXP"]
-        tropicalActions = ["NEW", "EXA", "EXB", "EXT", "UPG", "CAN", "CON", 
-          "EXP"]
+        tropicalActions = ["NEW", "EXA","UPG", "CAN", "CON"]
         return [
             ('HU.W', tropicalActions, 'Tropical'),     # HURRICANE WARNING
+            ('SS.W', tropicalActions, 'Surge'),        # Storm Surge WARNING
             ('TY.W', tropicalActions, 'Tropical'),     # TYPHOON WARNING
             ('TR.W', tropicalActions, 'Tropical1'),     # TROPICAL STORM WARNING
             ('HU.A', tropicalActions, 'Tropical'),     # HURRICANE WATCH
+            ('SS.A', tropicalActions, 'Surge'),        # Storm Surge WATCH
             ('TY.A', tropicalActions, 'Tropical'),     # TYPHOON WATCH
             ('TR.A', tropicalActions, 'Tropical1'),     # TROPICAL STORM WATCH
             ('HF.W', allActions, 'Marine'),       # HURRICANE FORCE WIND WARNING
@@ -1498,6 +1499,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('SU.W', allActions, 'HighSurf'),     # HIGH SURF WARNING
             ('SU.Y', allActions, 'HighSurf'),     # HIGH SURF ADVISORY
             ('RP.S', allActions, 'Rip'),          # HIGH RIP CURRENT RISK
+            ('BH.S', allActions, 'BeachHaz'),     # BEACH HAZARDS STATEMENT
             ('AF.W', allActions, 'Ashfall'),      # VOLCANIC ASHFALL WARNING
             ('AF.Y', allActions, 'Ashfall'),      # VOLCANIC ASHFALL ADVISORY
             ('LO.Y', allActions, 'Drought'),      # LOW WATER ADVISORY
