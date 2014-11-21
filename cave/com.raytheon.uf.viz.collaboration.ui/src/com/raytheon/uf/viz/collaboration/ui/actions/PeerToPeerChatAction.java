@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Jul 3, 2012            bsteffen     Initial creation
  * Jun 17, 2014 3078      bclement     changed user type to IUser, added isAvailable()
  * Jun 20, 2014 3281      bclement     fixed secondary id bug by using user.getClientIndependentId()
+ * Nov 14, 2014 3709      mapeters     upon creation of p2p chat, add color change menu actions
  * 
  * </pre>
  * 
@@ -140,6 +141,11 @@ public class PeerToPeerChatAction extends Action {
                             viewMode);
             if (p2pView.getPeer() == null) {
                 p2pView.setPeer(user);
+                /*
+                 * add color change actions to P2P right click menu upon first
+                 * creation of P2P chat.
+                 */
+                p2pView.addChangeUserColorActions();
             }
             return p2pView;
         } catch (PartInitException e) {
