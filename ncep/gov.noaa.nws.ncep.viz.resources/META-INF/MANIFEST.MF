@@ -74,9 +74,12 @@ Export-Package: gov.noaa.nws.ncep.viz.resources;
 Import-Package: com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.viz.core.maps,
+ com.raytheon.uf.viz.xy.graph,
+ com.raytheon.uf.viz.xy.timeseries.display,
  com.raytheon.viz.alerts.observers,
  com.raytheon.viz.core.gl,
  com.raytheon.viz.core.graphing,
+ gov.noaa.nws.ncep.common.dataplugin.geomag,
  gov.noaa.nws.ncep.common.dataplugin.mcidas,
  gov.noaa.nws.ncep.common.dataplugin.ntrans,
  gov.noaa.nws.ncep.common.dataplugin.pgen,
@@ -84,3 +87,4 @@ Import-Package: com.raytheon.uf.common.message.response,
  gov.noaa.nws.ncep.edex.plugin.mosaic.common,
  gov.noaa.nws.ncep.gempak.parameters.colorbar,
  gov.noaa.nws.ncep.viz.gempak.grid.inv
+

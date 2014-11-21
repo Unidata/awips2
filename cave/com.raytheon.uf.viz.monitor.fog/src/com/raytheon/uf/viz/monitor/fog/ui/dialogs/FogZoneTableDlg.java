@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
@@ -59,6 +58,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Dec 03, 2012 15216/15639 zhao fixed a bug related to Link-to-Frame 
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs.
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
+ * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
+ * Oct 16, 2014 3220       skorolev    Corrected configMgr assignment.
  * 
  * </pre>
  * 
@@ -78,6 +79,7 @@ public class FogZoneTableDlg extends ZoneTableDlg {
      */
     public FogZoneTableDlg(Shell parent, ObMultiHrsReports obData) {
         super(parent, obData, CommonConfig.AppName.FOG);
+        configMgr = FSSObsMonitorConfigurationManager.getFogObsManager();
     }
 
     /**
@@ -114,7 +116,7 @@ public class FogZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     protected void configThreshAction() {
-        if (fogThreshDlg == null) {
+        if (fogThreshDlg == null || fogThreshDlg.isDisposed()) {
             fogThreshDlg = new FogMonDispThreshDlg(getParent().getShell(),
                     CommonConfig.AppName.FOG, DataUsageKey.DISPLAY);
         }
@@ -292,14 +294,5 @@ public class FogZoneTableDlg extends ZoneTableDlg {
     @Override
     protected void shellDisposeAction() {
         // Not used
-    }
-
-    @Override
-    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
-        if (configMgr == null) {
-            configMgr = new FSSObsMonitorConfigurationManager(site,
-                    MonName.fog.name());
-        }
-        return configMgr;
     }
 }

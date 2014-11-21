@@ -35,8 +35,8 @@ from zones2cities import *
 #    ------------    ----------    -----------    --------------------------
 #    01/08/10             #1209    randerso       Initial Creation.
 #    10/19/12             #1091    dgilling       Support localMaps.py.
-#    
-# 
+#    10/20/2014           #3685    randerso       Converted text to mixed case
+#                                                 Fixed mapDict to keep zones from different maps separate 
 #
 
 CityLocationDict = {}
@@ -111,13 +111,23 @@ def makeCityString(dictRecord):
 # handle marine states
 def checkMarineState(ugcCode):        
     #returns None if unknown, description if known
-    areas = {'AM': 'ATLANTIC COASTAL WATERS', 'GM': 'GULF OF MEXICO',
-      'LE': 'LAKE ERIE', 'LO': 'LAKE ONTARIO', 'LH': 'LAKE HURON',
-      'SC': 'LAKE ST CLAIR', 'LM': 'LAKE MICHIGAN', 'LS': 'LAKE SUPERIOR',
-      'PZ': 'PACIFIC COASTAL WATERS', 'PK': 'ALASKAN COASTAL WATERS',
-      'PH': 'HAWAIIAN COASTAL WATERS', 'PM': 'MARIANAS WATERS',
-      'AN': 'ATLANTIC COASTAL WATERS', 'PS': 'AMERICAN SAMOA COASTAL WATERS',
-      'SL': 'ST LAWRENCE RIVER'}
+    areas = {
+      'AM': 'Atlantic coastal waters',
+      'GM': 'Gulf of Mexico',
+      'LE': 'Lake Erie',
+      'LO': 'Lake Ontario', 
+      'LH': 'Lake Huron',
+      'SC': 'Lake St Clair', 
+      'LM': 'Lake Michigan',
+      'LS': 'Lake Superior',
+      'PZ': 'Pacific coastal waters', 
+      'PK': 'Alaskan coastal waters',
+      'PH': 'Hawaiian coastal waters', 
+      'PM': 'Marianas waters',
+      'AN': 'Atlantic coastal waters', 
+      'PS': 'American Samoa coastal waters',
+      'SL': 'St Lawrence River',
+    }
     area = ugcCode[0:2]
     return areas.get(area, None)
     
@@ -128,82 +138,86 @@ def createAreaDictionary(outputDir, mapDict):
     areadict = {}
     mapIter = mapDict.entrySet().iterator()
     while mapIter.hasNext():
-        entry = mapIter.next() 
-        ean = str(entry.getKey())
-        att = entry.getValue()
-        if len(ean):
-            try:
-                d = {}
-                if att.containsKey('zone') and att.containsKey('state'):
-                    d['ugcCode'] = str(att.get('state')) + "Z" + str(att.get('zone'))
-                elif att.containsKey('id'):
-                    d['ugcCode'] = str(att.get('id'))
-                elif att.containsKey('fips') and att.containsKey('state') and \
-                  att.containsKey('countyname'):
-                    d['ugcCode'] = str(att.get('state')) + "C" + str(att.get('fips'))[-3:]
-                    d['ugcName'] = string.strip(str(att.get('countyname')))
-                else:
-                    continue
-
-                if att.containsKey('state'):
-                    d["stateAbbr"] = str(att.get('state'))
-
-                if att.containsKey('name'):
-                    d["ugcName"] = string.strip(str(att.get('name')))
-
-                if att.containsKey('time_zone'):
-                    tzvalue = getRealTimeZone(str(att.get('time_zone')))
-                    if tzvalue is not None:
-                        d["ugcTimeZone"] = tzvalue
-
-                if zonedata.has_key(d['ugcCode']):
-                    cityDict = zonedata[d['ugcCode']]
-                elif fipsdata.has_key(d['ugcCode']):
-                    cityDict = fipsdata[d['ugcCode']]
-                else:
-                    cityDict = None
-
-                if cityDict:
-                    cityString = makeCityString(cityDict)
-                    if cityString is not None:
-                        cityString, locs = cityString
-                        if len(cityString): 
-                            d["ugcCityString"] = cityString
-                            CityLocationDict[ean] = locs
-
-                # partOfState codes
-                if zonedata.has_key(d['ugcCode']):
-                    if zonedata[d['ugcCode']].has_key('partOfState'):
-                        d["partOfState"] = \
-                          zonedata[d['ugcCode']]['partOfState']
-                elif fipsdata.has_key(d['ugcCode']):
-                    if fipsdata[d['ugcCode']].has_key('partOfState'):
-                        d["partOfState"] = \
-                          fipsdata[d['ugcCode']]['partOfState']
-                      
-                # full state name
-                if zonedata.has_key(d['ugcCode']):
-                    if zonedata[d['ugcCode']].has_key('fullStateName'):
-                        d["fullStateName"] = \
-                          zonedata[d['ugcCode']]['fullStateName']
-                elif fipsdata.has_key(d['ugcCode']):
-                    if fipsdata[d['ugcCode']].has_key('fullStateName'):
-                        d["fullStateName"] = \
-                          fipsdata[d['ugcCode']]['fullStateName']
-                else: 
-                    marineState = checkMarineState(d['ugcCode'])
-                    if marineState is not None:
-                        d['fullStateName'] = marineState
-                
-                      
-                if areadict.has_key(ean) and d != areadict[ean]:
-                    LogStream.logDiag("Mismatch of definitions in " +\
-                      "AreaDictionary creation. EditAreaName=",  ean,
-                      "AreaDict=\n", areadict[ean], "\nIgnored=\n", d)
-                else:
-                    areadict[ean] = d
-            except:
-                LogStream.logProblem("Problem with ", ean, LogStream.exc())
+        mapEntry = mapIter.next() 
+        mapname = str(mapEntry.getKey())
+        attList = mapEntry.getValue()
+        attIter = attList.iterator()
+        while attIter.hasNext():
+            att = attIter.next()
+            ean = str(att.get("editarea"))
+            if len(ean):
+                try:
+                    d = {}
+                    if att.containsKey('zone') and att.containsKey('state'):
+                        d['ugcCode'] = str(att.get('state')) + "Z" + str(att.get('zone'))
+                    elif att.containsKey('id'):
+                        d['ugcCode'] = str(att.get('id'))
+                    elif att.containsKey('fips') and att.containsKey('state') and \
+                      att.containsKey('countyname'):
+                        d['ugcCode'] = str(att.get('state')) + "C" + str(att.get('fips'))[-3:]
+                        d['ugcName'] = string.strip(str(att.get('countyname')))
+                    else:
+                        continue
+    
+                    if att.containsKey('state'):
+                        d["stateAbbr"] = str(att.get('state'))
+    
+                    if att.containsKey('name'):
+                        d["ugcName"] = string.strip(str(att.get('name')))
+    
+                    if att.containsKey('time_zone'):
+                        tzvalue = getRealTimeZone(str(att.get('time_zone')))
+                        if tzvalue is not None:
+                            d["ugcTimeZone"] = tzvalue
+    
+                    if zonedata.has_key(d['ugcCode']):
+                        cityDict = zonedata[d['ugcCode']]
+                    elif fipsdata.has_key(d['ugcCode']):
+                        cityDict = fipsdata[d['ugcCode']]
+                    else:
+                        cityDict = None
+    
+                    if cityDict:
+                        cityString = makeCityString(cityDict)
+                        if cityString is not None:
+                            cityString, locs = cityString
+                            if len(cityString): 
+                                d["ugcCityString"] = cityString
+                                CityLocationDict[ean] = locs
+    
+                    # partOfState codes
+                    if zonedata.has_key(d['ugcCode']):
+                        if zonedata[d['ugcCode']].has_key('partOfState'):
+                            d["partOfState"] = \
+                              zonedata[d['ugcCode']]['partOfState']
+                    elif fipsdata.has_key(d['ugcCode']):
+                        if fipsdata[d['ugcCode']].has_key('partOfState'):
+                            d["partOfState"] = \
+                              fipsdata[d['ugcCode']]['partOfState']
+                          
+                    # full state name
+                    if zonedata.has_key(d['ugcCode']):
+                        if zonedata[d['ugcCode']].has_key('fullStateName'):
+                            d["fullStateName"] = \
+                              zonedata[d['ugcCode']]['fullStateName']
+                    elif fipsdata.has_key(d['ugcCode']):
+                        if fipsdata[d['ugcCode']].has_key('fullStateName'):
+                            d["fullStateName"] = \
+                              fipsdata[d['ugcCode']]['fullStateName']
+                    else: 
+                        marineState = checkMarineState(d['ugcCode'])
+                        if marineState is not None:
+                            d['fullStateName'] = marineState
+                    
+                          
+                    if areadict.has_key(ean) and d != areadict[ean]:
+                        LogStream.logDiag("Mismatch of definitions in " +\
+                          "AreaDictionary creation. EditAreaName=",  ean,
+                          "AreaDict=\n", areadict[ean], "\nIgnored=\n", d)
+                    else:
+                        areadict[ean] = d
+                except:
+                    LogStream.logProblem("Problem with ", ean, LogStream.exc())
 
     s = """
 # ----------------------------------------------------------------------------

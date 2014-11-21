@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>GFS0P5</resource>
+    <attrSetGroupName>medr</attrSetGroupName>
+    <attrSetNames>1000-500_thkn,bl_1000mb_temp,bl_2-meter_temp,bl_sgma_9950_temp</attrSetNames>
+</AttributeSetGroup>

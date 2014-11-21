@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.connection.ConnectionProvider;
-import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.service.jdbc.connections.spi.ConnectionProvider;
 
 import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
@@ -87,6 +87,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
  *                                     More performance fixes.
  * 09/03/2014              mpduff      postRiverStatus() writes directly, not via batch
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
