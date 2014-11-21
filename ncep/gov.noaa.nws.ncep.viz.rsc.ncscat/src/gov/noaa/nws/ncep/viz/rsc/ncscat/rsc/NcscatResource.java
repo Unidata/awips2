@@ -1,7 +1,10 @@
 package gov.noaa.nws.ncep.viz.rsc.ncscat.rsc;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatMode;
 import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatPoint;
 import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatRecord;
+import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatMode.LongitudeCoding;
+import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatMode.WindDirectionSense;
 import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
@@ -13,8 +16,6 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
-import gov.noaa.nws.ncep.viz.rsc.ncscat.rsc.NcscatMode.LongitudeCoding;
-import gov.noaa.nws.ncep.viz.rsc.ncscat.rsc.NcscatMode.WindDirectionSense;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
