@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Fixed issue with deleting a new station.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
+ * Nov 21, 2014 3841      skorolev     Corrected deleteSelected method.
  * 
  * </pre>
  * 
@@ -189,8 +190,8 @@ public class DeleteStationDlg extends CaveSWTDialog {
             if (stationList.getSelectionIndex() != -1) {
                 int idx = stationList.getSelectionIndex();
                 String selection = stationList.getItem(idx);
-                retval = configMgr.getAddedStations().get(idx);
-                configMgr.getAddedStations().remove(idx);
+                retval = macDlg.configMgr.getAddedStations().get(idx);
+                macDlg.configMgr.getAddedStations().remove(idx);
                 stationList.remove(selection);
                 populate();
             } else {
