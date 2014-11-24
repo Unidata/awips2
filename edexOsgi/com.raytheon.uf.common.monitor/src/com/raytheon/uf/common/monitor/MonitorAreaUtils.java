@@ -35,6 +35,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Apr 30, 2014  3086     skorolev   Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager
  * Oct 17, 2014 2757      skorolev   Corrected SQL in the getAdjacentZones to avoid duplicates.
  * Nov 03, 2014 3741      skorolev   Updated getZoneCenter and added getStationCenter methods.
+ * Dec 02, 2014 3841      skorolev   Fixed possible duplicates in SQL expression.
  * 
  * </pre>
  * 
@@ -191,7 +192,8 @@ public class MonitorAreaUtils {
                     + zoneEnvelope
                     + "', -1), the_geom) "
                     + "and (catalogtype = 1 or catalogtype = 33 or catalogtype = 32 or catalogtype = 1000) order by stationid asc";
-
+            // 1= CAT_TYPE_ICAO, 33=CAT_TYPE_CMAN ,
+            // 32=CAT_TYPE_BUOY_FXD 1000=CAT_TYPE_MESONET see ObStation.java
             ISpatialQuery sq = SpatialQueryFactory.create();
             Object[] results = sq.dbRequest(sql, META_DB);
             if (results.length != 0) {
@@ -599,7 +601,9 @@ public class MonitorAreaUtils {
         Coordinate stnCenter = null;
         ISpatialQuery sq = null;
         String sql = "select AsBinary(the_geom) from common_obs_spatial where stationid = '"
-                + stationid + "'";
+                + stationid
+                + "'"
+                + "and (catalogtype = 1 or catalogtype = 33 or catalogtype = 32 or catalogtype = 1000)";
         sq = SpatialQueryFactory.create();
         Object results[] = sq.dbRequest(sql, "metadata");
         if (results.length > 0) {

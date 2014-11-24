@@ -67,6 +67,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * May 13 2014  3133      njensen    getStationType returns String instead of ObsHistType
  * May 15 2014  3086      skorolev   Renamed from MonitorConfigurationManager. Replaces three separate area configuration managers with one.
  * Sep 04 2014  3220      skorolev   Added fileUpdated method.
+ * Nov 21 2014  3841      skorolev   Corrected addArea, addAdjArea and added getAdjAreaConfigXml.
  * 
  * </pre>
  * 
@@ -357,21 +358,18 @@ public class FSSObsMonitorConfigurationManager implements
      * @param type
      *            Type of zone
      */
-    public void addArea(String areaId, ZoneType type) {
+    public void addArea(AreaIdXML areaXML) {
         List<AreaIdXML> areaXmlList = configXml.getAreaIds();
         boolean areaExists = false;
+        String areaId = areaXML.getAreaId();
         for (AreaIdXML area : areaXmlList) {
             if (area.getAreaId().equals(areaId)) {
-                area.setType(type);
                 areaExists = true;
                 break;
             }
         }
         if (areaExists == false) {
-            AreaIdXML area = new AreaIdXML();
-            area.setAreaId(areaId);
-            area.setType(type);
-            configXml.addAreaId(area);
+            configXml.addAreaId(areaXML);
             if (!addedZones.contains(areaId)) {
                 addedZones.add(areaId);
             }
@@ -675,6 +673,23 @@ public class FSSObsMonitorConfigurationManager implements
     }
 
     /**
+     * Gets an AdjAreaXml.
+     * 
+     * @param zone
+     *            from additional list
+     * @return
+     */
+    public AreaIdXML getAdjAreaXML(String zone) {
+        List<AreaIdXML> areaList = adjAreaConfigXml.getAreaIds();
+        for (AreaIdXML adjAreaXml : areaList) {
+            if (adjAreaXml.getAreaId().equals(zone)) {
+                return adjAreaXml;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Removes an area from the monitoring area.
      * 
      * @param area
@@ -775,6 +790,15 @@ public class FSSObsMonitorConfigurationManager implements
      */
     public MonAreaConfigXML getConfigXml() {
         return configXml;
+    }
+
+    /**
+     * Gets Adjacent Configuration Xml
+     * 
+     * @return the adjAreaConfigXml
+     */
+    public MonAreaConfigXML getAdjAreaConfigXml() {
+        return adjAreaConfigXml;
     }
 
     /**
@@ -960,24 +984,19 @@ public class FSSObsMonitorConfigurationManager implements
     /**
      * Add Adjacent Area.
      * 
-     * @param areaId
-     * @param type
+     * @param area
      */
-    public void addAdjArea(String areaId, ZoneType type) {
+    public void addAdjArea(AreaIdXML areaXML) {
         List<AreaIdXML> adjAreaList = adjAreaConfigXml.getAreaIds();
         boolean areaExists = false;
         for (AreaIdXML area : adjAreaList) {
-            if (area.getAreaId().equals(areaId)) {
-                area.setType(type);
+            if (area.getAreaId().equals(areaXML.getAreaId())) {
                 areaExists = true;
                 break;
             }
         }
         if (areaExists == false) {
-            AreaIdXML area = new AreaIdXML();
-            area.setAreaId(areaId);
-            area.setType(type);
-            adjAreaConfigXml.addAreaId(area);
+            adjAreaConfigXml.addAreaId(areaXML);
         }
     }
 
