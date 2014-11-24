@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 12
+Release: 14
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -169,6 +169,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 chown -R ldm:fxalpha ${_ldm_dir}
+sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 
 # create .bash_profile
 if [ ! -f /usr/local/ldm/.bash_profile ]; then

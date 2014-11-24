@@ -5,7 +5,7 @@
 Name: awips2-edex-upc
 Summary: AWIPS II UPC EDEX Tools
 Version: 14.2.1
-Release: 2
+Release: 3
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A
@@ -50,7 +50,6 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/tools/bin
 
 %post
 /awips2/tools/bin/edex setup
-chmod 775 /awips2/edex/data/manual/
 
 %postun
 
