@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
@@ -79,7 +80,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/17/2014    923         S. Russell   altered method setUpSymbolMappingTables()
  * 06/17/2014    923         S. Russell   altered method createRenderableData()
  * 07/08/2014    TTR1027     B. Hebbard   Force createRenderableData to recreate wind vectors each time.
- * 09/10/2014    Redmine 4230 S. Russell   Fix wind barb/brbk menu option in plot model dialog box
+ * 09/10/2014    Redmine 4230 S. Russell  Fix wind barb/brbk menu option in plot model dialog box
+ * 11/03/2014    Redmine 5156 B. Hebbard  Allow use of system fonts in addition to file-based 3
+ * 11/06/2014    Redmine 5156 B. Hebbard  Rename Helvetica & Times lookalike fonts/files to make clear they aren't Java/AWT logical SansSerif & Serif
  */
 
 public class NcPlotImageCreator {
@@ -162,42 +165,42 @@ public class NcPlotImageCreator {
             .getInstance().getStaticFile(
                     NcPathManager.NcPathConstants.FONT_FILES_DIR + "cour.pfa");
 
-    private static final File SERIF_NORMAL_FONT_FILE = NcPathManager
+    private static final File TIMES_LIKE_NORMAL_FONT_FILE = NcPathManager
             .getInstance()
             .getStaticFile(
                     NcPathManager.NcPathConstants.FONT_FILES_DIR + "VeraSe.ttf");
 
-    private static final File SERIF_BOLD_FONT_FILE = NcPathManager
+    private static final File TIMES_LIKE_BOLD_FONT_FILE = NcPathManager
             .getInstance().getStaticFile(
                     NcPathManager.NcPathConstants.FONT_FILES_DIR
                             + "l049016t.pfa");
 
-    private static final File SERIF_ITALIC_FONT_FILE = NcPathManager
+    private static final File TIMES_LIKE_ITALIC_FONT_FILE = NcPathManager
             .getInstance().getStaticFile(
                     NcPathManager.NcPathConstants.FONT_FILES_DIR
                             + "l049033t.pfa");
 
-    private static final File SERIF_BOLD_ITALIC_FONT_FILE = NcPathManager
+    private static final File TIMES_LIKE_BOLD_ITALIC_FONT_FILE = NcPathManager
             .getInstance().getStaticFile(
                     NcPathManager.NcPathConstants.FONT_FILES_DIR
                             + "l049036t.pfa");
 
-    private static final File SANS_SERIF_NORMAL_FONT_FILE = NcPathManager
+    private static final File HELVETICA_LIKE_NORMAL_FONT_FILE = NcPathManager
             .getInstance()
             .getStaticFile(
                     NcPathManager.NcPathConstants.FONT_FILES_DIR + "luxisr.ttf");
 
-    private static final File SANS_SERIF_ITALIC_FONT_FILE = NcPathManager
+    private static final File HELVETICA_LIKE_ITALIC_FONT_FILE = NcPathManager
             .getInstance().getStaticFile(
                     NcPathManager.NcPathConstants.FONT_FILES_DIR
                             + "luxisri.ttf");
 
-    private static final File SANS_SERIF_BOLD_FONT_FILE = NcPathManager
+    private static final File HELVETICA_LIKE_BOLD_FONT_FILE = NcPathManager
             .getInstance()
             .getStaticFile(
                     NcPathManager.NcPathConstants.FONT_FILES_DIR + "luxisb.ttf");
 
-    private static final File SANS_SERIF_BOLD_ITALIC_FONT_FILE = NcPathManager
+    private static final File HELVETICA_LIKE_BOLD_ITALIC_FONT_FILE = NcPathManager
             .getInstance().getStaticFile(
                     NcPathManager.NcPathConstants.FONT_FILES_DIR
                             + "luxisbi.ttf");
@@ -210,21 +213,21 @@ public class NcPlotImageCreator {
 
     private static IFont COURIER_BOLD_ITALIC_FONT = null;
 
-    private static IFont SERIF_BOLD_ITALIC_FONT = null;
+    private static IFont TIMES_LIKE_BOLD_ITALIC_FONT = null;
 
-    private static IFont SANS_SERIF_BOLD_ITALIC_FONT = null;
+    private static IFont HELVETICA_LIKE_BOLD_ITALIC_FONT = null;
 
-    private static IFont SERIF_BOLD_FONT = null;
+    private static IFont TIMES_LIKE_BOLD_FONT = null;
 
-    private static IFont SANS_SERIF_BOLD_FONT = null;
+    private static IFont HELVETICA_LIKE_BOLD_FONT = null;
 
-    private static IFont SERIF_ITALIC_FONT = null;
+    private static IFont TIMES_LIKE_ITALIC_FONT = null;
 
-    private static IFont SANS_SERIF_ITALIC_FONT = null;
+    private static IFont HELVETICA_LIKE_ITALIC_FONT = null;
 
-    private static IFont SERIF_NORMAL_FONT = null;
+    private static IFont TIMES_LIKE_NORMAL_FONT = null;
 
-    private static IFont SANS_SERIF_NORMAL_FONT = null;
+    private static IFont HELVETICA_LIKE_NORMAL_FONT = null;
 
     private RGB defaultColor;
 
@@ -348,31 +351,32 @@ public class NcPlotImageCreator {
         COURIER_NORMAL_FONT = target.initializeFont(COURIER_NORMAL_FONT_FILE,
                 IFont.FontType.TYPE1, initialFontSize, null);
 
-        SERIF_BOLD_FONT = target.initializeFont(SERIF_BOLD_FONT_FILE,
+        TIMES_LIKE_BOLD_FONT = target.initializeFont(TIMES_LIKE_BOLD_FONT_FILE,
                 IFont.FontType.TYPE1, initialFontSize,
                 new IFont.Style[] { IFont.Style.BOLD });
-        SERIF_BOLD_ITALIC_FONT = target.initializeFont(
-                SERIF_BOLD_ITALIC_FONT_FILE, IFont.FontType.TYPE1,
+        TIMES_LIKE_BOLD_ITALIC_FONT = target.initializeFont(
+                TIMES_LIKE_BOLD_ITALIC_FONT_FILE, IFont.FontType.TYPE1,
                 initialFontSize, new IFont.Style[] { IFont.Style.BOLD,
                         IFont.Style.ITALIC });
-        SERIF_ITALIC_FONT = target.initializeFont(SERIF_ITALIC_FONT_FILE,
-                IFont.FontType.TYPE1, initialFontSize,
-                new IFont.Style[] { IFont.Style.ITALIC });
-        SERIF_NORMAL_FONT = target.initializeFont(SERIF_NORMAL_FONT_FILE,
-                IFont.FontType.TRUETYPE, initialFontSize, null);
-
-        SANS_SERIF_BOLD_FONT = target.initializeFont(SANS_SERIF_BOLD_FONT_FILE,
-                IFont.FontType.TRUETYPE, initialFontSize,
-                new IFont.Style[] { IFont.Style.BOLD });
-        SANS_SERIF_BOLD_ITALIC_FONT = target.initializeFont(
-                SANS_SERIF_BOLD_ITALIC_FONT_FILE, IFont.FontType.TRUETYPE,
-                initialFontSize, new IFont.Style[] { IFont.Style.BOLD,
-                        IFont.Style.ITALIC });
-        SANS_SERIF_ITALIC_FONT = target.initializeFont(
-                SANS_SERIF_ITALIC_FONT_FILE, IFont.FontType.TRUETYPE,
+        TIMES_LIKE_ITALIC_FONT = target.initializeFont(
+                TIMES_LIKE_ITALIC_FONT_FILE, IFont.FontType.TYPE1,
                 initialFontSize, new IFont.Style[] { IFont.Style.ITALIC });
-        SANS_SERIF_NORMAL_FONT = target.initializeFont(
-                SANS_SERIF_NORMAL_FONT_FILE, IFont.FontType.TRUETYPE,
+        TIMES_LIKE_NORMAL_FONT = target.initializeFont(
+                TIMES_LIKE_NORMAL_FONT_FILE, IFont.FontType.TRUETYPE,
+                initialFontSize, null);
+
+        HELVETICA_LIKE_BOLD_FONT = target.initializeFont(
+                HELVETICA_LIKE_BOLD_FONT_FILE, IFont.FontType.TRUETYPE,
+                initialFontSize, new IFont.Style[] { IFont.Style.BOLD });
+        HELVETICA_LIKE_BOLD_ITALIC_FONT = target.initializeFont(
+                HELVETICA_LIKE_BOLD_ITALIC_FONT_FILE, IFont.FontType.TRUETYPE,
+                initialFontSize, new IFont.Style[] { IFont.Style.BOLD,
+                        IFont.Style.ITALIC });
+        HELVETICA_LIKE_ITALIC_FONT = target.initializeFont(
+                HELVETICA_LIKE_ITALIC_FONT_FILE, IFont.FontType.TRUETYPE,
+                initialFontSize, new IFont.Style[] { IFont.Style.ITALIC });
+        HELVETICA_LIKE_NORMAL_FONT = target.initializeFont(
+                HELVETICA_LIKE_NORMAL_FONT_FILE, IFont.FontType.TRUETYPE,
                 initialFontSize, null);
         Tracer.print("< Exit");
     }
@@ -513,7 +517,6 @@ public class NcPlotImageCreator {
                         pme.setPosition("WD");
                     }
 
-
                     // Redmine 4230
                     // NcPlotImageCreator will not process BRBK unless it has
                     // the abstract ( not on thcae grid of plot model buttons )
@@ -641,12 +644,15 @@ public class NcPlotImageCreator {
 
         if (COURIER_BOLD_FONT == null || COURIER_ITALIC_FONT == null
                 || COURIER_NORMAL_FONT == null
-                || COURIER_BOLD_ITALIC_FONT == null || SERIF_BOLD_FONT == null
-                || SERIF_ITALIC_FONT == null || SERIF_BOLD_ITALIC_FONT == null
-                || SERIF_NORMAL_FONT == null || SANS_SERIF_ITALIC_FONT == null
-                || SANS_SERIF_BOLD_ITALIC_FONT == null
-                || SANS_SERIF_NORMAL_FONT == null
-                || SANS_SERIF_BOLD_FONT == null) {
+                || COURIER_BOLD_ITALIC_FONT == null
+                || TIMES_LIKE_BOLD_FONT == null
+                || TIMES_LIKE_ITALIC_FONT == null
+                || TIMES_LIKE_BOLD_ITALIC_FONT == null
+                || TIMES_LIKE_NORMAL_FONT == null
+                || HELVETICA_LIKE_ITALIC_FONT == null
+                || HELVETICA_LIKE_BOLD_ITALIC_FONT == null
+                || HELVETICA_LIKE_NORMAL_FONT == null
+                || HELVETICA_LIKE_BOLD_FONT == null) {
             initializeFonts();
         }
 
@@ -664,24 +670,43 @@ public class NcPlotImageCreator {
 
         else if (fontName.compareTo("Times") == 0) {
             if (fontStyle.compareTo("Bold") == 0) {
-                font = SERIF_BOLD_FONT;
+                font = TIMES_LIKE_BOLD_FONT;
             } else if (fontStyle.compareTo("Italic") == 0) {
-                font = SERIF_ITALIC_FONT;
+                font = TIMES_LIKE_ITALIC_FONT;
             } else if (fontStyle.compareTo("Bold-Italic") == 0) {
-                font = SERIF_BOLD_ITALIC_FONT;
+                font = TIMES_LIKE_BOLD_ITALIC_FONT;
             } else {
-                font = SERIF_NORMAL_FONT;
+                font = TIMES_LIKE_NORMAL_FONT;
             }
-        } else {
+        }
+
+        else if (fontName.compareTo("Helvetica") == 0) {
             if (fontStyle.compareTo("Bold") == 0) {
-                font = SANS_SERIF_BOLD_FONT;
+                font = HELVETICA_LIKE_BOLD_FONT;
             } else if (fontStyle.compareTo("Italic") == 0) {
-                font = SANS_SERIF_ITALIC_FONT;
+                font = HELVETICA_LIKE_ITALIC_FONT;
             } else if (fontStyle.compareTo("Bold-Italic") == 0) {
-                font = SANS_SERIF_BOLD_ITALIC_FONT;
+                font = HELVETICA_LIKE_BOLD_ITALIC_FONT;
             } else {
-                font = SANS_SERIF_NORMAL_FONT;
+                font = HELVETICA_LIKE_NORMAL_FONT;
             }
+        }
+
+        else { // use a system (name-based) font, instead of a file-based one
+            Style[] styles = null;
+            if (fontStyle.equals("Bold")) {
+                styles = new Style[] { Style.BOLD };
+            } else if (fontStyle.equals("Italic")) {
+                styles = new Style[] { Style.ITALIC };
+            } else if (fontStyle.equals("Bold-Italic")) {
+                styles = new Style[] { Style.BOLD, Style.ITALIC };
+            }
+            IDisplayPane displayPane = NcDisplayMngr.getActiveNatlCntrsEditor()
+                    .getActiveDisplayPane();
+            IGraphicsTarget target = displayPane.getTarget();
+            font = target.initializeFont(fontName, fontSize, styles);
+            // TODO in this case, need to worry about disposal of the font
+            // later?
         }
 
         if (font != null && fontSize != initialFontSize) {
@@ -690,7 +715,13 @@ public class NcPlotImageCreator {
 
         if (font != null) {
             font.setMagnification(1);
+
+            /*
+             * set smoothing and scaleFont to false to disable anti-aliasing
+             * (which cause the fuzziness of the text).
+             */
             font.setScaleFont(false);
+            font.setSmoothing(false);
         }
         Tracer.print("< Exit");
 
@@ -3111,44 +3142,44 @@ public class NcPlotImageCreator {
             COURIER_NORMAL_FONT = null;
         }
 
-        if (SERIF_BOLD_FONT != null) {
-            SERIF_BOLD_FONT.dispose();
-            SERIF_BOLD_FONT = null;
+        if (TIMES_LIKE_BOLD_FONT != null) {
+            TIMES_LIKE_BOLD_FONT.dispose();
+            TIMES_LIKE_BOLD_FONT = null;
         }
 
-        if (SERIF_BOLD_ITALIC_FONT != null) {
-            SERIF_BOLD_ITALIC_FONT.dispose();
-            SERIF_BOLD_ITALIC_FONT = null;
+        if (TIMES_LIKE_BOLD_ITALIC_FONT != null) {
+            TIMES_LIKE_BOLD_ITALIC_FONT.dispose();
+            TIMES_LIKE_BOLD_ITALIC_FONT = null;
         }
 
-        if (SERIF_ITALIC_FONT != null) {
-            SERIF_ITALIC_FONT.dispose();
-            SERIF_ITALIC_FONT = null;
+        if (TIMES_LIKE_ITALIC_FONT != null) {
+            TIMES_LIKE_ITALIC_FONT.dispose();
+            TIMES_LIKE_ITALIC_FONT = null;
         }
 
-        if (SERIF_NORMAL_FONT != null) {
-            SERIF_NORMAL_FONT.dispose();
-            SERIF_NORMAL_FONT = null;
+        if (TIMES_LIKE_NORMAL_FONT != null) {
+            TIMES_LIKE_NORMAL_FONT.dispose();
+            TIMES_LIKE_NORMAL_FONT = null;
         }
 
-        if (SANS_SERIF_BOLD_FONT != null) {
-            SANS_SERIF_BOLD_FONT.dispose();
-            SANS_SERIF_BOLD_FONT = null;
+        if (HELVETICA_LIKE_BOLD_FONT != null) {
+            HELVETICA_LIKE_BOLD_FONT.dispose();
+            HELVETICA_LIKE_BOLD_FONT = null;
         }
 
-        if (SANS_SERIF_BOLD_ITALIC_FONT != null) {
-            SANS_SERIF_BOLD_ITALIC_FONT.dispose();
-            SANS_SERIF_BOLD_ITALIC_FONT = null;
+        if (HELVETICA_LIKE_BOLD_ITALIC_FONT != null) {
+            HELVETICA_LIKE_BOLD_ITALIC_FONT.dispose();
+            HELVETICA_LIKE_BOLD_ITALIC_FONT = null;
         }
 
-        if (SANS_SERIF_ITALIC_FONT != null) {
-            SANS_SERIF_ITALIC_FONT.dispose();
-            SANS_SERIF_ITALIC_FONT = null;
+        if (HELVETICA_LIKE_ITALIC_FONT != null) {
+            HELVETICA_LIKE_ITALIC_FONT.dispose();
+            HELVETICA_LIKE_ITALIC_FONT = null;
         }
 
-        if (SANS_SERIF_NORMAL_FONT != null) {
-            SANS_SERIF_NORMAL_FONT.dispose();
-            SANS_SERIF_NORMAL_FONT = null;
+        if (HELVETICA_LIKE_NORMAL_FONT != null) {
+            HELVETICA_LIKE_NORMAL_FONT.dispose();
+            HELVETICA_LIKE_NORMAL_FONT = null;
         }
         Tracer.print("< Exit");
 
