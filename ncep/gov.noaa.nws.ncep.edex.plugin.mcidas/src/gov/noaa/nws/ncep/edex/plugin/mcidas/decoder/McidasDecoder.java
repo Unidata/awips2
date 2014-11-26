@@ -52,9 +52,7 @@ public class McidasDecoder extends AbstractDecoder {
 
     final int SIZE_OF_AREA = 256;
     
-    final int GOES_WEST_AREANUM = 1104;
-    
-    final int GOES_EAST_AREANUM = 1103;
+    final int UNIWISC_COMP_SATID = 401;
 
     final double PI = 3.14159265;
 
@@ -104,11 +102,42 @@ public class McidasDecoder extends AbstractDecoder {
             }
 
             /*
+             * String memo = byteArrayToString(area,96,endian) +
+             * byteArrayToString(area,100,endian) +
+             * byteArrayToString(area,104,endian) +
+             * byteArrayToString(area,108,endian) +
+             * byteArrayToString(area,112,endian) +
+             * byteArrayToString(area,116,endian) +
+             * byteArrayToString(area,120,endian) +
+             * byteArrayToString(area,124,endian) +
+             * byteArrayToString(area,128,endian);
+             * 
+             * Get area file number (AFN)
+             */
+            int areaId = byteArrayToInt(area, 128, endian);
+            
+            /*
              * Satellite identification number (SID)
              */
             int sid = byteArrayToInt(area, 8, endian);
-            record.setSatelliteId(sid);
 
+			/*
+			 * Here we need to account for the ranges of areaIds
+			 * in UNIWISC McIDAS files for composites
+			 * solution is to redefine satellite ID before querying dao 
+			 */
+            // May not need this since we can re-set satellitename using pipe-delimited string in areaName.sql
+            /* 
+            switch (areaId) {
+            	case 3100: case 3101: case 601: case 701: // GLOBAL, MOLLWEIDE
+            	case 9050: case 9053: case 9056: case 9059: case 9062: // GEWCOMP
+            	case 7101: case 1000: case 2000: case 3000: // Arctic and Antarctic Composites
+            		sid = UNIWISC_COMP_SATID;
+            		break;
+            }
+            */
+            
+            record.setSatelliteId(sid);
             /*
              * Get and set the satellite name from SID
              */
@@ -214,33 +243,7 @@ public class McidasDecoder extends AbstractDecoder {
                             Integer.toString(imageTypeNumber)).get(0)
                     .getImageType();
 
-            /*
-             * String memo = byteArrayToString(area,96,endian) +
-             * byteArrayToString(area,100,endian) +
-             * byteArrayToString(area,104,endian) +
-             * byteArrayToString(area,108,endian) +
-             * byteArrayToString(area,112,endian) +
-             * byteArrayToString(area,116,endian) +
-             * byteArrayToString(area,120,endian) +
-             * byteArrayToString(area,124,endian) +
-             * byteArrayToString(area,128,endian);
-             * 
-             * Get area file number (AFN)
-             */
-            int areaId = byteArrayToInt(area, 128, endian);
-			/*
-			 * Here we need to account for the ranges of areaIds
-			 * in UNIWISC McIDAS files for GVAR GOES-13/15
-			 * solution is to redefine before querying dao 
-			 */
-            switch (sid) {
-            	case 184:
-            		areaId = GOES_WEST_AREANUM;
-            		break;
-            	case 180:
-            		areaId = GOES_EAST_AREANUM; 
-            		break;
-            }
+
             /*
              * Get and set the area name from AFN. If area name has a "|", parse
              * the file and the 1st part is the group name for the satellite.
