@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 /**
@@ -38,8 +37,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 5, 2009            snaples     Initial creation
- * Aug 20, 2014  17094    snaples     Fixed issue when reading snow data file, did not parse properly.
- *  
+ * Nov 26, 2014  16889     snaples     Updated to fix SNOTEL display
+ * 
  * </pre>
  * 
  * @author snaples
@@ -47,8 +46,10 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  */
 
 public class ReadSnowData {
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-    int j, k, ier, m, qual;
+    int ier, qual;
 
     String cbuf = "";
 
@@ -57,6 +58,8 @@ public class ReadSnowData {
     String buf = "";
 
     String hb5 = "";
+    
+    String rec = "";
 
     char pc;
 
@@ -70,27 +73,30 @@ public class ReadSnowData {
 
     public int read_snow(String prece, ArrayList<Station> precip_stations,
             int numPstations, int i) {
-        Pdata pdata[] = DailyQcUtils.pdata;
+//        Pdata pdata[] = DailyQcUtils.pdata;
 
         try {
+            int j = 0;
 
-            in = new BufferedReader(new FileReader(prece));
-            
-            for (k = 0; k < numPstations; k++) {
+            for (int k = 0; k < numPstations; k++) {
                 for (int m = 0; m < 5; m++) {
-                    pdata[i].stn[k].srain[m].data = -99;
-                    pdata[i].stn[k].srain[m].qual = -99;
-                    pdata[i].stn[k].sflag[m] = -1;
+                    dqc.pdata[i].stn[k].srain[m].data = -99;
+                    dqc.pdata[i].stn[k].srain[m].qual = -99;
+                    dqc.pdata[i].stn[k].sflag[m] = -1;
                 }
             }
+            in = new BufferedReader(new FileReader(prece));
+
+//            int p = 1;
+//            String sn = cbuf;
             bad: while (in.ready()) {
 
                 cbuf = in.readLine().trim();
-                if (cbuf.length() < 1) {
-                    break;
-                }
                 Scanner s = new Scanner(cbuf);
 
+                if (cbuf.length() < 2){
+                    continue;
+                }
                 if (cbuf.charAt(0) == ':') {
                     continue;
                 }
@@ -99,12 +105,12 @@ public class ReadSnowData {
                 if (s.hasNext() == false) {
                     continue;
                 }
-                s.next();
+                rec = s.next();
                 hb5 = s.next();
                 datbuf = s.next();
                 parmbuf = s.next();
 
-                int q = parmbuf.toString().indexOf('/');
+                int q = parmbuf.indexOf('/');
                 char c = ' ';
                 if (q >= 0) {
                     c = parmbuf.charAt(q);
@@ -134,35 +140,39 @@ public class ReadSnowData {
                 }
                 maxk = 5;
                 startk = 4;
-                for (k = startk; k < maxk; k++) {
+                for (int kk = startk; kk < maxk; kk++) {
 
-                    pdata[i].stn[j].srain[k].qual = 0;
+                    dqc.pdata[i].stn[j].srain[kk].qual = 0;
 
-                    if ((cbuf.indexOf('/', q)) < 0
-                            && (cbuf.indexOf('\n', q)) < 0) {
+                    int slsh = cbuf.indexOf('/', q);
+                    int nln = cbuf.indexOf('\n', q);
+                    
+                    System.out.println("index of slsh : "+ slsh);
+                    System.out.println("index of nln : "+ nln);
+                    if ((cbuf.indexOf('/', q) < 0) && (cbuf.isEmpty())){
                         continue bad;
                     }
 
                     u = 0;
 
-                    buf = cbuf.substring(q);
+                    buf = cbuf.substring(q).trim();
 
                     if ((buf.indexOf('.')) < 0) {
 
                         if ((buf.indexOf('m')) < 0
                                 && (buf.indexOf('M')) < 0) {
 
-                            pdata[i].stn[j].srain[k].data = -1;
-                            pdata[i].stn[j].srain[k].qual = -1;
+                            dqc.pdata[i].stn[j].srain[kk].data = -1;
+                            dqc.pdata[i].stn[j].srain[kk].qual = -1;
                         }
                     }
 
                     else {
+                        String qbuf = buf.substring(0, buf.indexOf('.')+3);
 
-                        pdata[i].stn[j].srain[k].data = Float.parseFloat(buf
-                                .toString());
+                        dqc.pdata[i].stn[j].srain[kk].data = Float.parseFloat(qbuf);
 
-                        qual = 8;
+                        dqc.pdata[i].stn[j].srain[kk].qual = 8;
 
                         break;
 
@@ -171,6 +181,7 @@ public class ReadSnowData {
                 }
                 s.close();
             }
+            
             in.close();
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
