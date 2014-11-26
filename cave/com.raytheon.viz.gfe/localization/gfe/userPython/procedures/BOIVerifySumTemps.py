@@ -21,6 +21,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    11/21/13        16770         ryu            Change name of temporary files
 #                                                 for dual domain.
+#    11/26/2014      #649          zhao           changed "dbName" to "dbid"  
 #=====================================================================
 #
 #  S T A R T   C O N F I G U R A T I O N   S E C T I O N
@@ -594,11 +595,11 @@ class Procedure (SmartScript.SmartScript):
       #  Read the climo grids on either side
       #
       if prevClimoStart!=self.prevClimoSave:
-         temp=self.getGrids(dbName,parmName,"SFC",prevClimoTR)
+         temp=self.getGrids(dbid,parmName,"SFC",prevClimoTR)
          self.prevClimo=self.convertKtoF(temp)
          self.prevClimoSave=prevClimoStart
       if nextClimoStart!=self.nextClimoSave:
-         temp=self.getGrids(dbName,parmName,"SFC",nextClimoTR)
+         temp=self.getGrids(dbid,parmName,"SFC",nextClimoTR)
          self.nextClimo=self.convertKtoF(temp)
          self.nextClimoSave=nextClimoStart
       #
