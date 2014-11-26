@@ -81,6 +81,10 @@ public class PlotMeanAreaFreezeResource extends
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotMeanAreaFreezeResource.class);
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    private DrawDQCStations ddq = DrawDQCStations.getInstance();
+    
     MPEDisplayManager displayMgr = null;
 
     private ColorMapParameters parameters = new ColorMapParameters();
@@ -117,16 +121,16 @@ public class PlotMeanAreaFreezeResource extends
 
     GeometryFactory jtsGeometryFactory;
 
-    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+    Hrap_Grid hrap_grid = dqc.getHrap_grid();
 
     public void plot_mean_areal_freeze(int num) {
 
-        double[][] dqc_freezing_delim = DrawDQCStations.dqc_freezing_delim;
+        double[][] dqc_freezing_delim = ddq.dqc_freezing_delim;
         int dqc_freezing_numcol = 0;
-        Maps mean_areal_precip_global[] = DailyQcUtils.mean_areal_precip_global;
-        int pcp_in_use[] = DailyQcUtils.pcp_in_use;
-        boolean wfo_all = DailyQcUtils.wfo_all;
-        int[] wfo_in_use = DailyQcUtils.wfo_in_use;
+        Maps mean_areal_precip_global[] = dqc.mean_areal_precip_global;
+        int pcp_in_use[] = dqc.pcp_in_use;
+        boolean wfo_all = dqc.wfo_all;
+        int[] wfo_in_use = dqc.wfo_in_use;
 
         double mapvalue;
         int hh = 0;
@@ -138,7 +142,7 @@ public class PlotMeanAreaFreezeResource extends
         int ypos;
         float uz, mz, lz, gz;
         int i;
-        int zscale = DrawDQCStations.zscale;
+        int zscale = ddq.zscale;
         Coordinate[] points = new Coordinate[1];
         Coordinate[] PolyPoints = new Coordinate[5];
 
@@ -425,7 +429,7 @@ public class PlotMeanAreaFreezeResource extends
         float alpha = paintProps.getAlpha();
         boolean isShaded = true;
 
-        if (DailyQcUtils.map_flag != 1 || displayMgr.isZflag() != true) {
+        if (dqc.map_flag != 1 || displayMgr.isZflag() != true) {
             return;
         }
 
@@ -504,8 +508,8 @@ public class PlotMeanAreaFreezeResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        display_flag = DrawDQCStations.display_flag;
-        time_pos = DrawDQCStations.time_pos;
+        display_flag = ddq.display_flag;
+        time_pos = ddq.time_pos;
         this.target = target;
         plot_mean_areal_freeze(time_pos);
     }
@@ -517,11 +521,11 @@ public class PlotMeanAreaFreezeResource extends
      */
     @Override
     public String getName() {
-        if (DrawDQCStations.qcmode == "") {
+        if (ddq.qcmode == "") {
             return "No Data Available";
         }
 
-        return DrawDQCStations.qcmode;
+        return ddq.qcmode;
     }
 
 }

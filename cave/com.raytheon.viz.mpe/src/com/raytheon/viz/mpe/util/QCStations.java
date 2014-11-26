@@ -41,6 +41,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 public class QCStations {
     int good, ogood;
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     public void quality_control_stations(int j,
             ArrayList<Station> precip_stations, int numPstations) {
@@ -50,7 +52,7 @@ public class QCStations {
         for (k = 4; k >= 0; k--) {
             ogood = 0;
 
-            if (DailyQcUtils.pdata[j].used[k] == 0) {
+            if (dqc.pdata[j].used[k] == 0) {
                 continue;
             }
 
@@ -88,10 +90,10 @@ public class QCStations {
         int maxl;
         float valdif;
         double fvalu, fstd, fdif;
-        int dqc_neig = DailyQcUtils.mpe_dqc_max_precip_neighbors;
-        int isom = DailyQcUtils.isom;
-        int isohyets_used = DailyQcUtils.isohyets_used;
-        int method = DailyQcUtils.method;
+        int dqc_neig = dqc.mpe_dqc_max_precip_neighbors;
+        int isom = dqc.isom;
+        int isohyets_used = dqc.isohyets_used;
+        int method = dqc.method;
         double testdist[] = new double[3000];
         int max_stations = numPstations;
 
@@ -108,7 +110,7 @@ public class QCStations {
 
             /* if data is missing dont quality control */
 
-            if (DailyQcUtils.pdata[j].stn[m].frain[k].data < 0) {
+            if (dqc.pdata[j].stn[m].frain[k].data < 0) {
                 continue;
             }
 
@@ -119,15 +121,15 @@ public class QCStations {
 
                 /* only use good or forced good gages to estimate others */
 
-                if (DailyQcUtils.pdata[j].stn[i].frain[k].qual != 0
-                        && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 8
-                        && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 6
-                        && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 3
-                        && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 4) {
+                if (dqc.pdata[j].stn[i].frain[k].qual != 0
+                        && dqc.pdata[j].stn[i].frain[k].qual != 8
+                        && dqc.pdata[j].stn[i].frain[k].qual != 6
+                        && dqc.pdata[j].stn[i].frain[k].qual != 3
+                        && dqc.pdata[j].stn[i].frain[k].qual != 4) {
                     continue;
                 }
 
-                if (DailyQcUtils.pdata[j].stn[i].frain[k].data < 0) {
+                if (dqc.pdata[j].stn[i].frain[k].data < 0) {
                     continue;
                 }
 
@@ -150,10 +152,10 @@ public class QCStations {
                 }
 
                 if (method == 2 && isoh > 0 && isoh1 > 0) {
-                    padj[l] = DailyQcUtils.pdata[j].stn[i].frain[k].data
+                    padj[l] = dqc.pdata[j].stn[i].frain[k].data
                             * (isoh1 / isoh);
                 } else {
-                    padj[l] = DailyQcUtils.pdata[j].stn[i].frain[k].data;
+                    padj[l] = dqc.pdata[j].stn[i].frain[k].data;
                 }
 
                 l++;
@@ -170,15 +172,15 @@ public class QCStations {
 
                     /* only use good or forced good gages to estimate others */
 
-                    if (DailyQcUtils.pdata[j].stn[i].frain[k].qual != 0
-                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 8
-                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 6
-                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 3
-                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 4) {
+                    if (dqc.pdata[j].stn[i].frain[k].qual != 0
+                            && dqc.pdata[j].stn[i].frain[k].qual != 8
+                            && dqc.pdata[j].stn[i].frain[k].qual != 6
+                            && dqc.pdata[j].stn[i].frain[k].qual != 3
+                            && dqc.pdata[j].stn[i].frain[k].qual != 4) {
                         continue;
                     }
 
-                    if (DailyQcUtils.pdata[j].stn[i].frain[k].data < 0) {
+                    if (dqc.pdata[j].stn[i].frain[k].data < 0) {
                         continue;
                     }
 
@@ -199,10 +201,10 @@ public class QCStations {
                     }
 
                     if (method == 2 && isoh > 0 && isoh1 > 0) {
-                        padj[l] = DailyQcUtils.pdata[j].stn[i].frain[k].data
+                        padj[l] = dqc.pdata[j].stn[i].frain[k].data
                                 * isoh1 / isoh;
                     } else {
-                        padj[l] = DailyQcUtils.pdata[j].stn[i].frain[k].data;
+                        padj[l] = dqc.pdata[j].stn[i].frain[k].data;
                     }
 
                     l++;
@@ -232,7 +234,7 @@ public class QCStations {
 
             fvalu = fdata / fdist;
 
-            DailyQcUtils.pdata[j].stn[m].frain[k].estimate = (float) fvalu;
+            dqc.pdata[j].stn[m].frain[k].estimate = (float) fvalu;
 
             fstd = 0.0;
 
@@ -247,22 +249,22 @@ public class QCStations {
             /* if estimated data 0 */
 
             if (fstd == 0.0
-                    && (DailyQcUtils.pdata[j].stn[m].frain[k].qual == 0
-                            || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 1
-                            || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 5
-                            || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 6
-                            || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 4 || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 2)) {
+                    && (dqc.pdata[j].stn[m].frain[k].qual == 0
+                            || dqc.pdata[j].stn[m].frain[k].qual == 1
+                            || dqc.pdata[j].stn[m].frain[k].qual == 5
+                            || dqc.pdata[j].stn[m].frain[k].qual == 6
+                            || dqc.pdata[j].stn[m].frain[k].qual == 4 || dqc.pdata[j].stn[m].frain[k].qual == 2)) {
 
-                DailyQcUtils.pdata[j].stn[m].frain[k].stddev = -9999;
+                dqc.pdata[j].stn[m].frain[k].stddev = -9999;
                 continue;
 
             }
 
             else if (fstd == 0.0
-                    && DailyQcUtils.pdata[j].stn[m].frain[k].data <= .1) {
+                    && dqc.pdata[j].stn[m].frain[k].data <= .1) {
 
-                DailyQcUtils.pdata[j].stn[m].frain[k].stddev = 0;
-                DailyQcUtils.pdata[j].stn[m].frain[k].qual = 8;
+                dqc.pdata[j].stn[m].frain[k].stddev = 0;
+                dqc.pdata[j].stn[m].frain[k].qual = 8;
 
                 good++;
 
@@ -272,15 +274,15 @@ public class QCStations {
 
             else if (fstd == 0.0) {
 
-                DailyQcUtils.pdata[j].stn[m].frain[k].stddev = -9999;
+                dqc.pdata[j].stn[m].frain[k].stddev = -9999;
 
-                DailyQcUtils.pdata[j].stn[m].frain[k].qual = 3;
+                dqc.pdata[j].stn[m].frain[k].qual = 3;
 
                 if (k == 4) {
 
                     for (h = 0; h < 4; h++) {
-                        if (DailyQcUtils.pdata[j].stn[m].frain[h].qual != 6) {
-                            DailyQcUtils.pdata[j].stn[m].frain[h].qual = 3;
+                        if (dqc.pdata[j].stn[m].frain[h].qual != 6) {
+                            dqc.pdata[j].stn[m].frain[h].qual = 3;
                         }
                     }
 
@@ -298,30 +300,30 @@ public class QCStations {
                 fstd = .20;
             }
 
-            fdif = Math.abs(DailyQcUtils.pdata[j].stn[m].frain[k].data - fvalu);
+            fdif = Math.abs(dqc.pdata[j].stn[m].frain[k].data - fvalu);
             fdif = fdif / fstd;
 
             valdif = (float) Math
-                    .abs(DailyQcUtils.pdata[j].stn[m].frain[k].data - fvalu);
+                    .abs(dqc.pdata[j].stn[m].frain[k].data - fvalu);
 
             /* standard deviation check */
             /* check only if difference between actual and estimated > .1 */
 
-            DailyQcUtils.pdata[j].stn[m].frain[k].estimate = (float) fvalu;
-            DailyQcUtils.pdata[j].stn[m].frain[k].stddev = (float) fdif;
+            dqc.pdata[j].stn[m].frain[k].estimate = (float) fvalu;
+            dqc.pdata[j].stn[m].frain[k].stddev = (float) fdif;
 
-            if (DailyQcUtils.pdata[j].stn[m].frain[k].qual == 0
-                    || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 1
-                    || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 5
-                    || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 6
-                    || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 4
-                    || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 2) {
+            if (dqc.pdata[j].stn[m].frain[k].qual == 0
+                    || dqc.pdata[j].stn[m].frain[k].qual == 1
+                    || dqc.pdata[j].stn[m].frain[k].qual == 5
+                    || dqc.pdata[j].stn[m].frain[k].qual == 6
+                    || dqc.pdata[j].stn[m].frain[k].qual == 4
+                    || dqc.pdata[j].stn[m].frain[k].qual == 2) {
                 continue;
             }
 
-            if (fdif > DailyQcUtils.pdata[j].stddev && valdif > .10) {
+            if (fdif > dqc.pdata[j].stddev && valdif > .10) {
 
-                DailyQcUtils.pdata[j].stn[m].frain[k].qual = 3;
+                dqc.pdata[j].stn[m].frain[k].qual = 3;
                 /*
                  * if(k==4) {
                  * 
@@ -334,8 +336,8 @@ public class QCStations {
             else {
 
                 good++;
-                if (DailyQcUtils.pdata[j].stn[m].frain[k].qual == 3) {
-                    DailyQcUtils.pdata[j].stn[m].frain[k].qual = 8;
+                if (dqc.pdata[j].stn[m].frain[k].qual == 3) {
+                    dqc.pdata[j].stn[m].frain[k].qual = 8;
                 }
 
             }
