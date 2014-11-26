@@ -19,9 +19,6 @@
  **/
 package com.raytheon.viz.mpe.util;
 
-import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Maps;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 
 /**
  * TODO Add Description
@@ -40,42 +37,44 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
  */
 
 public class MakeMat {
+    
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
-
-    Pcp pcp = DailyQcUtils.pcp;
+//    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+//
+//    Pcp pcp = DailyQcUtils.pcp;
 
     CreateMap cm = new CreateMap();
 
     public void make_mat(int num, int mnum) {
 
-        boolean render_all = DailyQcUtils.render_all;
-        int wfo_orig = DailyQcUtils.wfo_orig;
-        int pcp_in_use[] = DailyQcUtils.pcp_in_use;
-        Maps[] mean_areal_precip_global = DailyQcUtils.mean_areal_precip_global;
+        boolean render_all = dqc.render_all;
+        int wfo_orig = dqc.wfo_orig;
+//        int pcp_in_use[] = dqc.pcp_in_use;
+//        Maps[] mean_areal_precip_global = DailyQcUtils.mean_areal_precip_global;
         String fbuf = "pcp";
         int x, y, ix, iy, l;
         int minx, miny, totx, toty, uzpts, lzpts, mzpts, gzpts;
         float lz, uz, mz, gz;
         int ib;
 
-        if (pcp_in_use[num] == -1) {
+        if (dqc.pcp_in_use[num] == -1) {
             return;
         }
 
-        minx = hrap_grid.hrap_minx;
-        miny = hrap_grid.hrap_miny;
-        totx = hrap_grid.maxi;
-        toty = hrap_grid.maxj;
+        minx = dqc.getHrap_grid().hrap_minx;
+        miny = dqc.getHrap_grid().hrap_miny;
+        totx = dqc.getHrap_grid().maxi;
+        toty = dqc.getHrap_grid().maxj;
 
         // for (int j = 0; j < toty; j++) {
         // for (int i = 0; i < totx; i++) {
         // DailyQcUtils.pcp.value[j][i] = 0;
         // }
         // }
-        cm.read_file(fbuf, num, pcp);
+        cm.read_file(fbuf, num, dqc.pcp);
 
-        for (ib = 0; ib < DailyQcUtils.getMax_basins(); ib++) {
+        for (ib = 0; ib < dqc.getMax_basins(); ib++) {
 
             if (render_all == false) {
 
@@ -85,11 +84,11 @@ public class MakeMat {
                 /* should fix specify */
                 /* auto_specify ??? */
 
-                if (mean_areal_precip_global[ib].owner != wfo_orig
-                        && mean_areal_precip_global[ib].tuz[num] < 0
-                        && mean_areal_precip_global[ib].tlz[num] < 0
-                        && mean_areal_precip_global[ib].tmz[num] < 0
-                        && mean_areal_precip_global[ib].tgz[num] < 0) {
+                if (dqc.mean_areal_precip_global[ib].owner != wfo_orig
+                        && dqc.mean_areal_precip_global[ib].tuz[num] < 0
+                        && dqc.mean_areal_precip_global[ib].tlz[num] < 0
+                        && dqc.mean_areal_precip_global[ib].tmz[num] < 0
+                        && dqc.mean_areal_precip_global[ib].tgz[num] < 0) {
                     continue;
                 }
 
@@ -104,45 +103,45 @@ public class MakeMat {
             mzpts = 0;
             gzpts = 0;
 
-            for (l = 0; l < mean_areal_precip_global[ib].hrap_points; l++) {
+            for (l = 0; l < dqc.mean_areal_precip_global[ib].hrap_points; l++) {
 
-                x = mean_areal_precip_global[ib].hrap_data[l].x;
-                y = mean_areal_precip_global[ib].hrap_data[l].y;
+                x = dqc.mean_areal_precip_global[ib].hrap_data[l].x;
+                y = dqc.mean_areal_precip_global[ib].hrap_data[l].y;
 
                 ix = x - minx;
                 iy = y - miny;
 
                 if (ix < 0 || iy < 0 || ix >= totx || iy >= toty
-                        || pcp.value[ix][iy] < -500) {
+                        || dqc.pcp.value[ix][iy] < -500) {
 
                     continue;
 
                 }
 
-                if (mean_areal_precip_global[ib].hrap_data[l].zone[3] == 1) {
+                if (dqc.mean_areal_precip_global[ib].hrap_data[l].zone[3] == 1) {
 
-                    gz = gz + pcp.value[ix][iy] / 100.0f;
+                    gz = gz + dqc.pcp.value[ix][iy] / 100.0f;
                     gzpts++;
 
                 }
 
-                if (mean_areal_precip_global[ib].hrap_data[l].zone[2] == 1) {
+                if (dqc.mean_areal_precip_global[ib].hrap_data[l].zone[2] == 1) {
 
-                    uz = uz + pcp.value[ix][iy] / 100.0f;
+                    uz = uz + dqc.pcp.value[ix][iy] / 100.0f;
                     uzpts++;
 
                 }
 
-                if (mean_areal_precip_global[ib].hrap_data[l].zone[1] == 1) {
+                if (dqc.mean_areal_precip_global[ib].hrap_data[l].zone[1] == 1) {
 
-                    mz = mz + pcp.value[ix][iy] / 100.0f;
+                    mz = mz + dqc.pcp.value[ix][iy] / 100.0f;
                     mzpts++;
 
                 }
 
-                if (mean_areal_precip_global[ib].hrap_data[l].zone[0] == 1) {
+                if (dqc.mean_areal_precip_global[ib].hrap_data[l].zone[0] == 1) {
 
-                    lz = lz + pcp.value[ix][iy] / 100.0f;
+                    lz = lz + dqc.pcp.value[ix][iy] / 100.0f;
                     lzpts++;
 
                 }
@@ -173,12 +172,12 @@ public class MakeMat {
                 lz = lz / lzpts;
             }
 
-            mean_areal_precip_global[ib].tuz[mnum] = uz;
-            mean_areal_precip_global[ib].tlz[mnum] = lz;
-            mean_areal_precip_global[ib].tmz[mnum] = mz;
-            mean_areal_precip_global[ib].tgz[mnum] = gz;
+            dqc.mean_areal_precip_global[ib].tuz[mnum] = uz;
+            dqc.mean_areal_precip_global[ib].tlz[mnum] = lz;
+            dqc.mean_areal_precip_global[ib].tmz[mnum] = mz;
+            dqc.mean_areal_precip_global[ib].tgz[mnum] = gz;
 
-            mean_areal_precip_global[ib].tmaps_done[mnum] = 1;
+            dqc.mean_areal_precip_global[ib].tmaps_done[mnum] = 1;
 
         }
         return;
