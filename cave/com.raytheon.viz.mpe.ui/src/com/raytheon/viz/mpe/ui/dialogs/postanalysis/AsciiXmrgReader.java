@@ -41,6 +41,8 @@ public class AsciiXmrgReader
 	
 	Hrap_Grid hrap_grid = null;
 	
+	private DailyQcUtils dqc = DailyQcUtils.getInstance();
+	
 	private int[][] gridValueArray;	
 	private int[] data; //single dimension array
 	
@@ -53,7 +55,7 @@ public class AsciiXmrgReader
 	
     public int read()
     {
-   	    hrap_grid = DailyQcUtils.getHrap_grid();
+   	    hrap_grid = dqc.getHrap_grid();
             
         String line = null;
  
@@ -159,6 +161,7 @@ public class AsciiXmrgReader
 
             }
             in.close();
+            s.close();
 
             return 1;
 
