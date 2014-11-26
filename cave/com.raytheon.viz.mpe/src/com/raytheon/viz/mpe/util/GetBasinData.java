@@ -69,6 +69,8 @@ public class GetBasinData {
             .getHandler(GetBasinData.class);
 
     private int maxib;
+    
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     public boolean get_basin_data(String basin_file, String hrap_file,
             Maps[] mean_areal_precip_global, String[] tag) {
@@ -85,7 +87,6 @@ public class GetBasinData {
         String ibuf = "";
         ArrayList<Linesegs> pLineSegs = new ArrayList<Linesegs>();
         Linesegs pLineSegNode = new Linesegs();
-        DailyQcUtils dc = new DailyQcUtils();
 
         if (basin_file == null) {
             /* A basin file must be specified. */
@@ -122,14 +123,14 @@ public class GetBasinData {
                 if (!mt.find()) {
                     continue;
                 }
-                mean_areal_precip_global[ib] = dc.new Maps();
+                mean_areal_precip_global[ib] = dqc.new Maps();
                 mean_areal_precip_global[ib].hb5 = mt.group(1);
                 numpts = Integer.parseInt(mt.group(3).trim());
                 mean_areal_precip_global[ib].basin_points = numpts;
 
                 Lcoord[] ppp = new Lcoord[numpts];
                 for (int ij = 0; ij < ppp.length; ij++) {
-                    ppp[ij] = dc.new Lcoord();
+                    ppp[ij] = dqc.new Lcoord();
                 }
 
                 mean_areal_precip_global[ib].basin = ppp;
@@ -235,7 +236,7 @@ public class GetBasinData {
                     }
 
                     for (l = 0; l < numpts; l++) {
-                    	Hrap_Data d = dc.new Hrap_Data();
+                    	Hrap_Data d = dqc.new Hrap_Data();
                         mean_areal_precip_global[ib].hrap_data[l] = d;
                         
                         for (mm = 0; mm < 4; mm++) {
@@ -383,7 +384,7 @@ public class GetBasinData {
 
                         for (i = pLineSegNode.getId().getHrapBegCol(); i <= pLineSegNode
                                 .getHrapEndCol(); ++i) {
-                            Hrap_Data d = dc.new Hrap_Data();
+                            Hrap_Data d = dqc.new Hrap_Data();
                             mean_areal_precip_global[ib].hrap_data[l] = d;
                             mean_areal_precip_global[ib].hrap_data[l].x = i;
                             mean_areal_precip_global[ib].hrap_data[l].y = pLineSegNode
@@ -421,7 +422,7 @@ public class GetBasinData {
         }
         System.out.println("Finished getting Basin Data, elapsed time: "
                 + (System.currentTimeMillis() - start) + " ms");
-        DailyQcUtils.setMax_basins(maxib);
+        dqc.setMax_basins(maxib);
         return true;
     }
 
