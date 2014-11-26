@@ -76,7 +76,6 @@ public class ShowDisplay7x7 extends AbstractHandler implements IElementUpdater {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void updateElement(UIElement element, Map parameters) {
         IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
