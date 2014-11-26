@@ -50,7 +50,7 @@ nopts=${options[@]}
 # OS X
 #IP=`ifconfig  | grep -E 'inet.[0-9]' | grep -v '127.0.0.1' | awk '{ print $2}'`
 # Linux
-IP=`/sbin/ifconfig | grep "inet addr" | grep -v 127.0.0 | grep -v 192.168 | awk '{ print $2 }' | cut -d: -f2`
+IP=`/sbin/ifconfig | grep "inet addr" | grep -v 127.0.0 |  awk '{ print $2 }' | cut -d: -f2`
 
 # truncate
 IP_CIDR="${IP%.*}"
@@ -59,7 +59,7 @@ editFiles=($PG_FILE $EDEX_ENV_FILE $LDMD_CONF)
 boolFiles=(true true true)
 editFuncs=(edit_pg edit_edex edit_ldm)
 
-YMD=`date '+%Y%m%d'`
+YMD=`date '+%Y%m%d%H%M%S'`
 
 args=("$@")
 
@@ -184,7 +184,7 @@ edit_ldm() { # edex pg_hba.conf
 
 edit_edex() { # setup.env automatic edit
 	sed -i.setup_$YMD 's/localhost/'$HOSTNAME'/g' $EDEX_ENV_FILE
-	#echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
+	echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
 	echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
 }
 
@@ -257,15 +257,15 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
 
 	# EDEX env
 
-	#envGrep=`grep $HOSTNAME $EDEX_ENV_FILE | head -1`
-	#echo -n ' Checking '$EDEX_ENV_FILE
-	#if [[ ! -z ${envGrep} ]]; then
-	#	echo ' [OK]'
-	#	boolFiles[1]=false
-	#else 
-	#	echo '      ** Missing '$HOSTNAME
-	#	continue=true
-	#fi
+	envGrep=`grep $HOSTNAME $EDEX_ENV_FILE | head -1`
+	echo -n ' Checking '$EDEX_ENV_FILE
+	if [[ ! -z ${envGrep} ]]; then
+		echo ' [OK]'
+		boolFiles[1]=false
+	else 
+		echo '      ** Missing '$HOSTNAME
+		continue=true
+	fi
 
 	# LDM
 	ldmGrep=`grep EDEX_HOSTNAME $LDMD_CONF | head -1`
