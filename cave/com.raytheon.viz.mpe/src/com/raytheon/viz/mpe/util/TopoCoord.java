@@ -50,6 +50,8 @@ import com.raytheon.viz.mpe.util.MapPrecipGagesGrid.Topo;
  */
 
 public class TopoCoord {
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     static int file_found = 0;
 
@@ -64,19 +66,19 @@ public class TopoCoord {
 
     AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
-    Topo topo = DailyQcUtils.topo;
+//    Topo topo = DailyQcUtils.topo;
 
     char[] kbuf;
 
     public Topo get_topo_coord() {
 
-        if (DailyQcUtils.topo == null) {
-            DailyQcUtils.topo = new Topo();
+        if (dqc.topo == null) {
+            dqc.topo = new Topo();
         }
         if (first == 1) {
             // first = 0;
 
-            topo = DailyQcUtils.topo;
+//            topo = DailyQcUtils.topo;
 
             max_value = 0;
 
@@ -131,14 +133,14 @@ public class TopoCoord {
                      * Assign the latitude and longitude information read from
                      * the topography file into the topography structure.
                      */
-                    topo.maxi = maxi;
-                    topo.maxj = maxj;
-                    topo.max_lat = max_lat;
-                    topo.max_lon = max_lon;
-                    topo.total_lat = total_lat;
-                    topo.total_lon = total_lon;
-                    topo.delta_lat = delta_lat;
-                    topo.delta_lon = delta_lon;
+                    dqc.topo.maxi = maxi;
+                    dqc.topo.maxj = maxj;
+                    dqc.topo.max_lat = max_lat;
+                    dqc.topo.max_lon = max_lon;
+                    dqc.topo.total_lat = total_lat;
+                    dqc.topo.total_lon = total_lon;
+                    dqc.topo.delta_lat = delta_lat;
+                    dqc.topo.delta_lon = delta_lon;
                 }
                 in.close();
 
@@ -157,9 +159,9 @@ public class TopoCoord {
             }
             /* Dynamically create the two dimensional array. */
             /* Maxi corresponds to longitude. */
-            topo.coord = new Lcoord[maxi][maxj];
-            topo.value = new int[maxi][maxj];
-            topo.color = new char[maxi][maxj];
+            dqc.topo.coord = new Lcoord[maxi][maxj];
+            dqc.topo.value = new int[maxi][maxj];
+            dqc.topo.color = new char[maxi][maxj];
 
             BufferedInputStream bin = null;
             try {
@@ -172,19 +174,19 @@ public class TopoCoord {
                     k = 0;
                     for (i = 0; i < maxi; i++) {
                         tp = s.nextInt();
-                        topo.value[i][j] = (tp);
+                        dqc.topo.value[i][j] = (tp);
                         // s.nextInt();
                         // s.nextInt();
                         // s.nextInt();
-                        topo.coord[i][j] = new MapPrecipGagesGrid.Lcoord();
-                        lat = lon = topo.coord[i][j].lat = max_lat - j
+                        dqc.topo.coord[i][j] = new MapPrecipGagesGrid.Lcoord();
+                        lat = lon = dqc.topo.coord[i][j].lat = max_lat - j
                                 * delta_lat;
 
                         /*
                          * Be sure to negate the longitude. Map library expects
                          * Western Hemisphere longitudes to be negative.
                          */
-                        topo.coord[i][j].lon = (max_lon - i * delta_lon);
+                        dqc.topo.coord[i][j].lon = (max_lon - i * delta_lon);
                     }
                 }
                 bin.close();
@@ -193,15 +195,15 @@ public class TopoCoord {
                 for (j = 0; j < maxj - 1; j++) {
                     for (i = 0; i < maxi - 1; i++) {
                         /* Determine the color index of this topo cell. */
-                        if (topo.value[i][j] > 0) {
+                        if (dqc.topo.value[i][j] > 0) {
 
-                            if (topo.value[i][j] < 80) {
+                            if (dqc.topo.value[i][j] < 80) {
                                 color = 3;
-                            } else if (topo.value[i][j] < 160) {
+                            } else if (dqc.topo.value[i][j] < 160) {
                                 color = 10;
-                            } else if (topo.value[i][j] < 240) {
+                            } else if (dqc.topo.value[i][j] < 240) {
                                 color = 17;
-                            } else if (topo.value[i][j] < 320) {
+                            } else if (dqc.topo.value[i][j] < 320) {
                                 color = 24;
                             } else {
                                 color = 31;
@@ -213,8 +215,8 @@ public class TopoCoord {
                              * gradient. Tdi will be positive for an uphill
                              * gradient.
                              */
-                            tdi = -topo.value[i][j + 1] / 3
-                                    + topo.value[i + 1][j] / 3;
+                            tdi = -dqc.topo.value[i][j + 1] / 3
+                                    + dqc.topo.value[i + 1][j] / 3;
                             if (tdi > 3) {
                                 tdi = 3;
                             }
@@ -229,9 +231,9 @@ public class TopoCoord {
                              */
                             color = color + tdi;
 
-                            topo.color[i][j] = (char) color;
+                            dqc.topo.color[i][j] = (char) color;
                         } else {
-                            topo.color[i][j] = (char) 0;
+                            dqc.topo.color[i][j] = (char) 0;
                         }
 
                     }
@@ -257,7 +259,7 @@ public class TopoCoord {
 
         }
         if (file_found == 1) {
-            return topo;
+            return dqc.topo;
         } else {
             return null;
         }
