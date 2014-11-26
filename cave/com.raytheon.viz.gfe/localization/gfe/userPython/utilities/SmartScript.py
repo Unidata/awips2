@@ -56,7 +56,7 @@
 #                                                 Wx/Discrete in First mode.
 #    Dec 23, 2013    16893         ryu            Added unloadWEs() method (created by njensen)
 #    Apr 29, 2014    3097          randerso       Fixed getGrids() to return non-scalar grids as tuples in all cases
-#
+#    Nov 26, 2014    #633          zhao           Corrected a type error in loadParm() 
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -213,7 +213,7 @@ class SmartScript(BaseTool.BaseTool):
         else:
             raise TypeError("SmartScript loadParm: " + \
               "couldn't load " + `model` + ' ' + `element` + ' ' + `level` + \
-              ' ' + mostRecent)
+              ' ' + str(mostRecent) + " (None is returned from getParm())" )
     ##
     # Get the list of timeranges locked by me in this weather element.
     #
