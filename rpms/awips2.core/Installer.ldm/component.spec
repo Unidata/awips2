@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 14
+Release: 15
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -170,7 +170,7 @@ if [ $? -ne 0 ]; then
 fi
 chown -R ldm:fxalpha ${_ldm_dir}
 sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
-
+sed -i 's/EDEX_HOSTNAME/'$HOSTNAME'/g' ${_ldm_dir}/etc/ldmd.conf
 # create .bash_profile
 if [ ! -f /usr/local/ldm/.bash_profile ]; then
    echo 'umask 002' > \
