@@ -59,11 +59,11 @@ public class ReadTempB {
 
     BufferedReader in = null;
 
-    DailyQcUtils qc = new DailyQcUtils();
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-    boolean auto_dailyqc_flag = qc.isAuto_dailyqc_flag();
+    boolean auto_dailyqc_flag = dqc.isAuto_dailyqc_flag();
 
-    Tdata tdata[] = DailyQcUtils.tdata;
+//    Tdata tdata[] = DailyQcUtils.tdata;
 
     int retval = 1;
 
@@ -466,11 +466,11 @@ public class ReadTempB {
 
             for (int m = 0; m < 6; m++) {
 
-                tdata[i].tstn[k].tlevel2[m].data = tdata[i].tstn[k].tlevel1[m].data;
+                dqc.tdata[i].tstn[k].tlevel2[m].data = dqc.tdata[i].tstn[k].tlevel1[m].data;
 
-                tdata[i].tstn[k].tlevel2[m].qual = tdata[i].tstn[k].tlevel1[m].qual;
+                dqc.tdata[i].tstn[k].tlevel2[m].qual = dqc.tdata[i].tstn[k].tlevel1[m].qual;
 
-                if (tdata[i].tstn[k].tlevel2[m].data >= 0) {
+                if (dqc.tdata[i].tstn[k].tlevel2[m].data >= 0) {
                     number_found[m]++;
                 }
 
@@ -481,8 +481,8 @@ public class ReadTempB {
         for (int m = 0; m < 6; m++) {
 
             if (number_found[m] == 0) {
-                tdata[i].used[m] = 0;
-                tdata[i].level[m] = 1;
+                dqc.tdata[i].used[m] = 0;
+                dqc.tdata[i].level[m] = 1;
             }
 
         }

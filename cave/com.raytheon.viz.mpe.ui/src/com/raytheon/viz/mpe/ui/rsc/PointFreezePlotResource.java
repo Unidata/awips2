@@ -86,7 +86,6 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul  8, 2009	 2589		snaples 	Initial creation
- * Mar  3, 2014  2804       mschenke    Set back up clipping pane
  * 
  * </pre>
  * 
@@ -150,8 +149,10 @@ public class PointFreezePlotResource extends
 
     int pcpn_day = 0;
 
-    private final DailyQcUtils dc = new DailyQcUtils();
-
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    private DrawDQCStations ddq = DrawDQCStations.getInstance();
+    
     static int prevPcpnDay;
 
     /**
@@ -169,8 +170,8 @@ public class PointFreezePlotResource extends
     public PointFreezePlotResource(PointFreezeResourceData resourceData,
             LoadProperties props) {
         super(resourceData, props);
-        pcpn_day = DailyQcUtils.pcpn_day;
-        station = DailyQcUtils.freezing_stations;
+        pcpn_day = dqc.pcpn_day;
+//        station = dqc.freezing_stations;
         prevPcpnDay = 0;
 
         df.setMaximumFractionDigits(2);
@@ -194,7 +195,7 @@ public class PointFreezePlotResource extends
         dataMap = new Hashtable<String, Station>();
         zdataMap = new Hashtable<String, Ztn>();
         strTree = new STRtree();
-        gageData = dc.new Station();
+        gageData = dqc.new Station();
 
         if (!station.isEmpty()) {
             int i = 0;
@@ -212,7 +213,7 @@ public class PointFreezePlotResource extends
                 kv.append(pm);
                 dataMap.put(kv.toString(), gageData);
                 zdataMap.put(kv.toString(),
-                        DailyQcUtils.zdata[pcpn_day].zstn[i]);
+                        dqc.zdata[pcpn_day].zstn[i]);
 
                 /* Create a small envelope around the point */
                 Coordinate p1 = new Coordinate(xy.x + .02, xy.y + .02);
@@ -223,11 +224,11 @@ public class PointFreezePlotResource extends
                 data.add("STATION: "
                         + gageData.hb5
                         + " VALUE: "
-                        + DailyQcUtils.zdata[DailyQcUtils.pcpn_day].zstn[i].zlevel2[DailyQcUtils.pcpn_time].data);
+                        + dqc.zdata[dqc.pcpn_day].zstn[i].zlevel2[dqc.pcpn_time].data);
                 strTree.insert(env, data);
                 i++;
             }
-            prevPcpnDay = DailyQcUtils.pcpn_day;
+            prevPcpnDay = dqc.pcpn_day;
         }
     }
 
@@ -291,13 +292,13 @@ public class PointFreezePlotResource extends
             throws VizException {
 
         if (MPEDisplayManager.getCurrent().isZflag() == true
-                && (DailyQcUtils.points_flag == 1)) {
-            int type = DailyQcUtils.plot_view;
+                && (dqc.points_flag == 1)) {
+            int type = dqc.plot_view;
             int i = 0;
             int m = 0;
             float freezing_reverse_filter_value = 0;
             float freezing_filter_value = 0;
-            int find_station_flag = DailyQcUtils.find_station_flag;
+            int find_station_flag = dqc.find_station_flag;
             String mbuf = "";
             String tbuf = "";
 
@@ -310,7 +311,7 @@ public class PointFreezePlotResource extends
             // sets current color to White
             color = RGBColors.getRGBColor(color_map_a[8]);
 
-            if (DailyQcUtils.points_flag == 1
+            if (dqc.points_flag == 1
                     && QcFreezeOptionsDialog.isOpen == true
                     && MPEDisplayManager.getCurrent().isZflag() == true) {
 
@@ -322,24 +323,24 @@ public class PointFreezePlotResource extends
             } else {
                 return;
             }
-            if ((zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data < freezing_filter_value)
-                    && (zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data >= 0.0)) {
+            if ((zdataMap.get(key).zlevel2[dqc.pcpn_time].data < freezing_filter_value)
+                    && (zdataMap.get(key).zlevel2[dqc.pcpn_time].data >= 0.0)) {
                 return;
             }
 
-            if ((zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data > freezing_reverse_filter_value)
-                    && (zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data < 20.0)) {
+            if ((zdataMap.get(key).zlevel2[dqc.pcpn_time].data > freezing_reverse_filter_value)
+                    && (zdataMap.get(key).zlevel2[dqc.pcpn_time].data < 20.0)) {
                 return;
             }
 
             /* locate station in data stream */
             if ((type == 4)
-                    && (zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data == -1)) {
+                    && (zdataMap.get(key).zlevel2[dqc.pcpn_time].data == -1)) {
                 return;
 
             }
             if ((type == 4)
-                    && DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] == 0) {
+                    && dqc.zdata[dqc.pcpn_day].used[dqc.pcpn_time] == 0) {
                 return;
             }
             IImage image = target.initializeRaster(new IODataPreparer(
@@ -360,13 +361,13 @@ public class PointFreezePlotResource extends
                 tbuf = station.name;
 
             } else if (type == 4) {
-                if (DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] == 0) {
+                if (dqc.zdata[dqc.pcpn_day].used[dqc.pcpn_time] == 0) {
                     return;
                 }
 
                 mbuf = "";
                 mbuf = String.format("%5.2f",
-                        zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data);
+                        zdataMap.get(key).zlevel2[dqc.pcpn_time].data);
 
                 mbuf = mbuf.trim();
                 tbuf = "";
@@ -374,7 +375,7 @@ public class PointFreezePlotResource extends
 
             }
 
-            m = zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].qual;
+            m = zdataMap.get(key).zlevel2[dqc.pcpn_time].qual;
 
             if (m <= 9 && m >= 0) {
                 color = RGBColors.getRGBColor(color_map_a[m]);
@@ -484,7 +485,7 @@ public class PointFreezePlotResource extends
         // Fonts are shared and cached, get from factory
         font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
-        if (DailyQcUtils.points_flag == 1 && displayMgr.isZflag() == true) {
+        if (dqc.points_flag == 1 && displayMgr.isZflag() == true) {
             Iterator<String> iter = dataMap.keySet().iterator();
 
             while (iter.hasNext()) {
@@ -529,7 +530,6 @@ public class PointFreezePlotResource extends
             }
             target.clearClippingPlane();
             drawQCLegend();
-            target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
 
@@ -551,7 +551,7 @@ public class PointFreezePlotResource extends
         double x1 = screenExtent.getMinX() + padding;
         RGB color = null;
         String label = "";
-        int[] funct = DailyQcUtils.funct;
+//        int[] funct = dqc.funct;
         int temp = 0;
 
         for (int i = 0; i < typename.length; i++) {
@@ -559,7 +559,7 @@ public class PointFreezePlotResource extends
                 continue;
             }
             try {
-                color = RGBColors.getRGBColor(color_map_a[funct[i]]);
+                color = RGBColors.getRGBColor(color_map_a[dqc.funct[i]]);
                 target.drawLine(x1, y1 + temp * textSpace, 0.0, x1
                         + (2.5 * padding), y1 + temp * textSpace, 0.0, color,
                         35);
@@ -746,11 +746,11 @@ public class PointFreezePlotResource extends
      */
     @Override
     public String getName() {
-        if (DrawDQCStations.qcmode == "") {
+        if (ddq.qcmode == "") {
             return "No Data Available";
         }
 
-        return DrawDQCStations.qcmode;
+        return ddq.qcmode;
     }
 
     /**
