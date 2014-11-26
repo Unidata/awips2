@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="http://www.example.org/productType">
-    <resourceDefnName>Polar Composites</resourceDefnName>
+    <resourceDefnName>UNIWISC Composites</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
     <rscImplementation>McidasSatellite</rscImplementation>
     <subTypeGenerator>areaName,resolution</subTypeGenerator>
