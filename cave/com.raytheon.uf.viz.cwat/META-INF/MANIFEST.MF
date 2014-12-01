@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name:  Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.cwat;singleton:=true
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.cwat.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -15,4 +14,3 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.cwat
-
