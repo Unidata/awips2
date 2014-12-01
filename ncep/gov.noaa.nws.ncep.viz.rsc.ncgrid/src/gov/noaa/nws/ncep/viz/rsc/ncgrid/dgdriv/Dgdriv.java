@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.measure.converter.ConversionException;
 
@@ -119,6 +121,7 @@ import com.sun.jna.ptr.IntByReference;
  * 11/2013       845        T. Lee          Implemented parameter scaling
  * 04/11/2014    981        D.Sushon        Code cleanup, enforce explicit use of curly-brackets {}
  * 04/14/2014               S. Gilbert      Remove dataUri from query - cleanup old unused methods.
+ * 07/2014                  T. Lee          Fixed specific humidity scaling for NAM
  * </pre>
  * 
  * @author tlee
@@ -1334,7 +1337,7 @@ public class Dgdriv {
                     outGridFlipped[kk] = -9999.0f;
                     kk++;
                 } else {
-                    outGridFlipped[kk] = inGrid[ii] / scale_parm;
+                    outGridFlipped[kk] = inGrid[ii];
                     kk++;
                 }
             }
@@ -1354,7 +1357,7 @@ public class Dgdriv {
             if (inGrid[ii] < -900000.0) {
                 outGridFlipped[ii] = -9999.0f;
             } else {
-                outGridFlipped[ii] = inGrid[ii] / scale_parm;
+                outGridFlipped[ii] = inGrid[ii];
             }
         }
 
@@ -1405,8 +1408,6 @@ public class Dgdriv {
         return outGridFlopped;
     }
 
-    int scale_parm = 1;
-
     private float[] retrieveDataFromRetriever(String dataURI)
             throws VizException {
 
@@ -1425,8 +1426,6 @@ public class Dgdriv {
         try {
             String gempakParm = cacheData.getGempakParam(dataURI);
             if (gempakParm != null) {
-                scale_parm = (int) Math.pow(10,
-                        gempakParmInfo.getParmScale(gempakParm));
                 dataRetriever.setUnit(UnitConv.deserializer(gempakParmInfo
                         .getParmUnit(gempakParm)));
             }
@@ -1750,8 +1749,8 @@ public class Dgdriv {
         String modelName = parms[0];
         String dbTag = parms[1];
         String eventName = parms[2];
-        // String tmStr = constructTimeStr(parms[3]);
-        DataTime dtime = constructDataTime(parms[3]);
+        String tmStr = constructTimeStr(parms[3]);
+        Pattern p = Pattern.compile(tmStr);
 
         // logger.info("executeScript:modelname=" + modelName + " dbTag=" +dbTag
         // + " eventName="+eventName + " time=" + tmStr);
@@ -1765,9 +1764,15 @@ public class Dgdriv {
                     eventName, ConstraintType.EQUALS));
         }
 
-        rcMap.put(GridDBConstants.DATA_TIME_QUERY,
-                new RequestConstraint(dtime.getURIString(),
-                        ConstraintType.EQUALS));
+        try {
+            String gempakTimeStrFFF = parms[3].split("f")[1];
+            int fhr = Integer.parseInt(gempakTimeStrFFF) * 3600;
+            rcMap.put(GridDBConstants.FORECAST_TIME_QUERY,
+                    new RequestConstraint(Integer.toString(fhr),
+                            ConstraintType.EQUALS));
+        } catch (NumberFormatException e1) {
+            // Don't worry if fcsthr not specified. we'll get em all
+        }
 
         DbQueryRequest request = new DbQueryRequest();
         request.addRequestField(GridDBConstants.REF_TIME_QUERY);
@@ -1775,6 +1780,8 @@ public class Dgdriv {
         request.setDistinct(true);
         request.setConstraints(rcMap);
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String retFileNames = "";
         try {
             DbQueryResponse response = (DbQueryResponse) ThriftClient
@@ -1796,6 +1803,14 @@ public class Dgdriv {
                         GridDBConstants.REF_TIME_QUERY);
                 if (fSecValue != null && fSecValue instanceof Integer
                         && refValue != null && refValue instanceof Date) {
+
+                    String refString = sdf.format((Date) refValue);
+                    logger.debug("executeScript: match " + refString);
+                    logger.debug("executeScript:  with " + tmStr);
+                    Matcher m = p.matcher(refString);
+                    if (!m.matches())
+                        continue;
+
                     int fcstTimeInSec = ((Integer) fSecValue).intValue();
                     DataTime refTime = new DataTime((Date) refValue);
                     String[] dts = refTime.toString().split(" ");
@@ -1822,56 +1837,19 @@ public class Dgdriv {
         return retFileNames;
     }
 
-    /*
-     * Convert Gempak time string YYMMDD/HHMMfHHH to DataTime
-     */
-    private DataTime constructDataTime(String gempakTimeStr) {
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd/HH");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        String[] times = gempakTimeStr.split("f");
-
-        DataTime dt;
-
-        try {
-            Date date = sdf.parse(times[0]);
-            int fcstTimeInSec = CommonDateFormatUtil
-                    .getForecastTimeInSec(gempakTimeStr);
-            dt = new DataTime(date, fcstTimeInSec);
-        } catch (Exception e) {
-            dt = null;
+    private String constructTimeStr(String gempakTimeStr) {
+        String gempakTimeStrCycle = gempakTimeStr.split("f")[0];
+        gempakTimeStrCycle = gempakTimeStrCycle.replace("[0-9]", ".");
+        if (gempakTimeStrCycle.length() < 10) {
+            return null;
         }
 
-        return dt;
+        String timeStr = gempakTimeStrCycle.substring(0, 4)
+                + gempakTimeStrCycle.substring(4, 6)
+                + gempakTimeStrCycle.substring(6, 8)
+                + gempakTimeStrCycle.substring(8, 10);
+        return timeStr;
     }
-
-    // private String constructTimeStr(String gempakTimeStr) {
-    // String gempakTimeStrCycle = gempakTimeStr.split("f")[0];
-    // gempakTimeStrCycle = gempakTimeStrCycle.replace("[0-9]", "%");
-    // if (gempakTimeStrCycle.length() < 10) {
-    // return null;
-    // }
-    //
-    // String gempakTimeStrFFF = gempakTimeStr.split("f")[1];
-    // gempakTimeStrFFF = gempakTimeStrFFF.replace("[0-9]", "%");
-    //
-    // String timeStr;
-    // try {
-    // int fhr = Integer.parseInt(gempakTimeStrFFF) / 3600;
-    //
-    // timeStr = gempakTimeStrCycle.substring(0, 4) + "-"
-    // + gempakTimeStrCycle.substring(4, 6) + "-"
-    // + gempakTimeStrCycle.substring(6, 8) + "_"
-    // + gempakTimeStrCycle.substring(8, 10) + "%_(" + fhr + ")%";
-    // } catch (NumberFormatException e) {
-    // timeStr = gempakTimeStrCycle.substring(0, 4) + "-"
-    // + gempakTimeStrCycle.substring(4, 6) + "-"
-    // + gempakTimeStrCycle.substring(6, 8) + "_"
-    // + gempakTimeStrCycle.substring(8, 10) + "%_("
-    // + gempakTimeStrFFF;
-    // }
-    // return timeStr;
-    // }
 
     private String getDataURIFromAssembler(String parameters)
             throws VizException {
