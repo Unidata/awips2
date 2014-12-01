@@ -13,6 +13,7 @@
  * 09/2011                          Chin Chen   add batch parsing methods for better performance
  * 09/2011       457                S. Gurung   Renamed H5 to Nc and h5 to nc
  * 12/2013                          T. Lee      Fixed TTCC Wmax pressure off by factor of 10
+ * 10/2014                          T. Lee      Fixed XXCC/XXDD indices to use TTCC/TTDD processing
  * 
  * </pre>
  * 
@@ -67,9 +68,9 @@ public class NcUairParser {
 
     public static final int XXBB = 2;
 
-    public static final int XXCC = 9;
+    public static final int XXCC = 3;
 
-    public static final int XXDD = 10;
+    public static final int XXDD = 4;
 
     /**
      * Constructor
