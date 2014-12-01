@@ -3,3 +3,4 @@
 plotModel=@PlotModels/bufrmosMRF/dewpoint_hpc.xml
 plotDensity=10
 conditionalFilter=
+legendString=GFSXMOS Dewpoint Forecast (F)
