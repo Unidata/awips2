@@ -143,7 +143,9 @@ import com.vividsolutions.jts.geom.Point;
  * 03/13		#927		B. Yin		Implemented IContextMenuProvider interface
  * 04/13		#874		B. Yin		Added a method replaceElements with parameter parent.
  * 04/13        #977        S. Gilbert  PGEN Database support
- * 11/13        TTR 752     J. Wu       Add methods for CCFP text auto placement.
+ * 09/14        TTR972      J. Wu       "Filled" object on the active layer should be 
+ *                                      drawn as "filled" even if the "filled" flag for
+ *                                      the layer is "false".
  * </pre>
  * 
  * @author B. Yin
@@ -1841,6 +1843,12 @@ public class PgenResource extends
                 dprops.setLayerMonoColor(layer.isMonoColor());
                 dprops.setLayerColor(layer.getColor());
                 dprops.setLayerFilled(layer.isFilled());
+            } else {
+                /*
+                 * "Filled" should always be set to "true" for displaying the
+                 * active layer.
+                 */
+                dprops.setLayerFilled(true);
             }
 
             Iterator<DrawableElement> iterator = layer.createDEIterator();
@@ -1991,7 +1999,6 @@ public class PgenResource extends
             PaintProperties paintProps, DisplayProperties dispProps) {
 
         if (filters.acceptOnce(de)) {
-
             if (!displayMap.containsKey(de)) {
                 AbstractElementContainer container = ElementContainerFactory
                         .createContainer(de, descriptor, target);
