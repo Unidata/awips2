@@ -115,12 +115,6 @@
           <scale>0</scale>
      </parmeterinfo>
      <parmeterinfo>
-          <name>Specific Humidity</name>
-          <units>kg kg**-1</units>
-          <gnam>SPFH</gnam>
-          <scale>2</scale>
-     </parmeterinfo>
-     <parmeterinfo>
           <name>Relative Humidity</name>
           <units>%</units>
           <gnam>RELH</gnam>
@@ -2000,10 +1994,16 @@
           <scale>0</scale>
      </parmeterinfo>
      <parmeterinfo>
+          <name>Specific Humidity</name>
+          <units>kg/kg</units>
+          <gnam>SPFH</gnam>
+          <scale>0</scale>
+     </parmeterinfo>
+     <parmeterinfo>
           <name>Specific humidity</name>
-          <units>kg kg**-1</units>
+          <units>kg/kg</units>
           <gnam>SPCH</gnam>
-          <scale>2</scale>
+          <scale>0</scale>
      </parmeterinfo>
      <parmeterinfo>
           <name>Total column water</name>
