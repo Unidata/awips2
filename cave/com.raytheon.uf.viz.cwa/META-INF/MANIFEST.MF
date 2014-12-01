@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Cwa Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.cwa
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.cwa.Activator
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -29,8 +28,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.eclipse.ui.plugin,
  org.opengis.referencing.crs,
  org.osgi.framework
-Export-Package: com.raytheon.uf.viz.cwa,
- com.raytheon.uf.viz.cwa.rsc
+Export-Package: com.raytheon.uf.viz.cwa.rsc
 Require-Bundle: com.raytheon.uf.viz.core,
  org.apache.batik,
  com.raytheon.uf.viz.core,
