@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 09/15/2014                B. Hebbard  At CPC request, persist model selected across dialog close/open 
  *                                       even if resource not preselected (from existing RBD contents).
  *                                       (This now differs from non-NTRANS behavior.)
+ * 09/15/2014                B. Hebbard  Remove bogus "km" from product group name if it appears (per CPC)
  * 
  * </pre>
  * 
@@ -768,6 +769,23 @@ public class NtransSelectionControl extends ResourceSelectionControl {
             @Override
             public int compare(Viewer viewer, Object e1, Object e2) {
                 return super.compare(viewer, e1, e2);
+            }
+        });
+
+        productLViewer.setLabelProvider(new LabelProvider() {
+            public String getText(Object element) {
+                String productName = (String) element;
+                // TODO investigate following -- already fixed separately?
+                // This happens intermittently; band-aid until cause located...
+                final String removeMe = "km";
+                if (productName.endsWith(removeMe)) {
+                    System.out
+                            .println("[WARNING:  Caught a productName ending in '"
+                                    + removeMe + "']");
+                    return productName.substring(0, productName.length() - 2);
+                } else {
+                    return productName;
+                }
             }
         });
 
