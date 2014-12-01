@@ -68,9 +68,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 public class GfaFormatAttrDlg extends AttrDlg {
 
-    // private final static Logger logger =
-    // Logger.getLogger(GfaFormatAttrDlg.class);
-
     private static final String ZULU = "ZULU";
 
     private static final String TANGO = "TANGO";
@@ -151,7 +148,6 @@ public class GfaFormatAttrDlg extends AttrDlg {
                 instance = new GfaFormatAttrDlg(parShell);
 
             } catch (VizException e) {
-                // logger.error(e);
                 e.printStackTrace();
             }
         }
@@ -306,12 +302,14 @@ public class GfaFormatAttrDlg extends AttrDlg {
     @Override
     public void createButtonsForButtonBar(Composite parent) {
 
-    	super.createButtonsForButtonBar(parent);
-  		this.getButton( OK_ID ).setText( SAVE_LABEL );
-  		this.getButton( CANCEL_ID).setText( CANCEL_LABEL );
+        super.createButtonsForButtonBar(parent);
+        this.getButton(OK_ID).setText(SAVE_LABEL);
+        this.getButton(CANCEL_ID).setText(CANCEL_LABEL);
+    }
 
- //   	createButton(parent, OK_ID, SAVE_LABEL, true);
- //       createButton(parent, CANCEL_ID, CANCEL_LABEL, false);
+    @Override
+    public void setDefaultControlButtonSize() {
+        setButtonSize(ctrlBtnWidth + 50, ctrlBtnHeight);
     }
 
     @Override
