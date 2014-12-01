@@ -18,6 +18,7 @@
         E. Safford/SAIC        06/07    rm "...UPDT TO CANCEL..."        
 		B. Yin/SAIC	       	   02/08    add tag number after cancellation 
 		B. Yin				   12/11	added new line for 'New' or 'Cor'
+		J. Wu				   09/14	added new line for 'CAN'
     -->
     <xsl:template name="GetAttentionLine">
         <xsl:param name="status"></xsl:param>
@@ -25,14 +26,16 @@
         
         <xsl:choose>
             
-                    <xsl:when test="contains( $status, 'CAN')">    <!--  Cancel lines -->
+                    <xsl:when test="contains( $status, 'CAN')">    <!--  Cancel lines -->                        
                         <xsl:element name="line"><xsl:attribute name="indent">0</xsl:attribute>
                             
                             <xsl:choose>
                                 <xsl:when test="contains( $airmet_outlook, 'AIRMET')">
+                                	<xsl:value-of select="$newline"/>
                                     <xsl:text>CANCEL AIRMET. CONDS HV ENDED.</xsl:text>
                                 </xsl:when>
                                 <xsl:otherwise>
+                                	<xsl:value-of select="$newline"/>
                                     <xsl:text>CANCEL OUTLOOK.</xsl:text>
                                 </xsl:otherwise>
                             </xsl:choose>
