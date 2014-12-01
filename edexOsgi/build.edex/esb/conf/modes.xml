@@ -89,17 +89,16 @@
 		<exclude>ncgrib-file-endpoint.xml</exclude>
 		<exclude>grid-staticdata-process.xml</exclude>
 		<exclude>.*bandwidth.*</exclude>
-		<exclude>aww-ingest.xml</exclude>
 		<exclude>bufrquikscat.*</exclude>
-		<exclude>datadelivery.*</exclude>
+		<exclude>.*datadelivery.*</exclude>
 		<exclude>ldad.*</exclude>
-		<exclude>satellite.mcidas.*</exclude>
 		<exclude>q2.*</exclude>
 		<exclude>DPADecoder.*</exclude>
 		<exclude>hpeDHRDecoder.*</exclude>
 		<includeMode>excludeDpaAndOgc</includeMode>
 		<exclude>obs-ingest-metarshef.xml</exclude>
 		<!-- ncep excludes until tested -->
+		<exclude>aww-ingest.xml</exclude>
 		<exclude>ncep-util-on-edex-ingest</exclude>
 		<exclude>ncep-util-on-edex-ingestGrib</exclude>
 		<exclude>ncscd-ingest.xml</exclude>
@@ -110,14 +109,14 @@
         <exclude>ntrans-ingest.xml</exclude>
 		<!-- end of ncep excludes -->
 	 	<!-- exclude DAT -->
-		<exclude>ffmp-ingest.xml</exclude>
-		<exclude>modelsounding-ingest.xml</exclude>
-		<exclude>regionalsat.*</exclude>
-		<exclude>scan-ingest.xml</exclude>
 		<exclude>gpd.*</exclude>
-		<exclude>preciprate.*</exclude>
-		<exclude>qc.*</exclude>
-		<exclude>ssha.*</exclude>
+		<exclude>cwat-ingest.xml</exclude>
+		<exclude>fog-ingest.xml</exclude>
+		<exclude>vil-ingest.xml</exclude>
+		<exclude>preciprate-ingest.xml</exclude>
+		<exclude>qpf-ingest.xml</exclude>
+		<exclude>fssobs-ingest.xml</exclude>
+		<exclude>cpgsrv-spring.xml</exclude>
         <exclude>.*sbn-simulator.*</exclude>
 	</mode>
     <mode name="ingestHydro">

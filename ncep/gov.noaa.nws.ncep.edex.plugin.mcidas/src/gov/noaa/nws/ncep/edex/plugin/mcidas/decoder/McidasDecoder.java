@@ -52,8 +52,6 @@ public class McidasDecoder extends AbstractDecoder {
 
     final int SIZE_OF_AREA = 256;
     
-    final int UNIWISC_COMP_SATID = 401;
-
     final double PI = 3.14159265;
 
     final double HALFPI = PI / 2.;
