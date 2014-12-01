@@ -78,6 +78,7 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
     public static int ctrlBtnHeight = 28;
 
     // public static int ctrlBtnWidth = 90;
+
     // public static int ctrlBtnHeight = 30;
 
     /**
@@ -128,11 +129,24 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
         this.getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
         this.getButton(IDialogConstants.OK_ID).setEnabled(false);
 
-        this.getButton(IDialogConstants.CANCEL_ID).setLayoutData(
-                new GridData(ctrlBtnWidth, ctrlBtnHeight));
-        this.getButton(IDialogConstants.OK_ID).setLayoutData(
-                new GridData(ctrlBtnWidth, ctrlBtnHeight));
+        setDefaultControlButtonSize();
+    }
 
+    /**
+     * Set default size for control buttons.
+     */
+    public void setDefaultControlButtonSize() {
+        setButtonSize(ctrlBtnWidth, ctrlBtnHeight);
+    }
+
+    /**
+     * Set size for control buttons.
+     */
+    public void setButtonSize(int width, int height) {
+        this.getButton(IDialogConstants.CANCEL_ID).setLayoutData(
+                new GridData(width, height));
+        this.getButton(IDialogConstants.OK_ID).setLayoutData(
+                new GridData(width, height));
     }
 
     @Override
