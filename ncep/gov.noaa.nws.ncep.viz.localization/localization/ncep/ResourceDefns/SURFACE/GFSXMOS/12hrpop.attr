@@ -3,3 +3,4 @@
 plotModel=@PlotModels/bufrmosMRF/12hrpop.xml
 plotDensity=10
 conditionalFilter=
+legendString=GFSXMOS 12hr POP

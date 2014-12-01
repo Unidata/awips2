@@ -149,12 +149,13 @@ wtop              top of wx in ft
  <PlotParameterDefn  plotParamName="BRBK" metParamName="WindDirection,WindSpeed"
                      plotMode="barb" symbolFont="WindSymbolFont" plotUnit="kts" />
 
- <!-- WEATHER
+ <!-- WEATHER -->
+ <!-- Redmine 4230 -->
  <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
-                     dbParamName="presWeather"
+                     dbParamName="weatherGroup"
                      plotMode="table" symbolFont="WxSymbolFont" 
-                     plotLookupTable="wx_symbol_trans.txt"/>
-    -->
+                     plotLookupTable="pgen_wsym.txt"/>
+   
  	
 </PlotParameterDefns>
 
