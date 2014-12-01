@@ -72,7 +72,7 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * 04/01/2014    1040        B. Hebbard   In requestUpperAirData, (1) clear displayStationPlotBoolList for each new station, (2) call cond filter check with newInstance vs. metPrm
  * 04/08/2014    1127        B. Hebbard   In requestSurfaceData, exclude only those obs returned from HDF5 that don't match desired time; fix dataTime association;
  *                                        removed redundant datatimes from constraint.
- * 06/17/2014     932        S. Russell   TTR 923, altered methods addToDerivedParamsList(), requestSurfaceData(), and newInstance()
+ * 06/17/2014     923        S. Russell   TTR 923, altered methods addToDerivedParamsList(), requestSurfaceData(), and newInstance()
  * 07/08/2014 TTR1028        B. Hebbard   In requestSurfaceData() and requestUpperAirData(), prune out stations that already have all met params they need, to avoid unnecessary querying
  * 09/04/2014    1127        B. Hebbard   Exempt forecast (e.g., MOS) datatimes from check in requestSurfaceData that sees if retrieved value matches desired time.  This is because we retrieve only the refTime from HDF5 for comparison, which is sufficient for obs times, but not those with forecast component.
  * 

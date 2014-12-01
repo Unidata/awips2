@@ -20,15 +20,19 @@
 		B. Yin/SAIC	       	   08/06	distinguish smear and outlook
 		B. Yin/Chugach		   12/11	changed 'Status' to 'issueType'
 										changed for-each condition for smears
-           
+		J. Wu/SGT			   10/14	TTR 714 - go through all smears (airmets & outlooks) in 
+		                                one loop since the input XML format is different from 
+		                                those in NMAP2
+										           
     -->
     <xsl:template name="GetStatus">
         <xsl:param name="haz1">NO HAZARD1</xsl:param>
         <xsl:param name="haz2">NO HAZARD2</xsl:param>
         <xsl:param name="haz3">NO HAZARD3</xsl:param>
         
-        <xsl:for-each select="//Gfa[(@hazard = $haz1 or @hazard = $haz2 or @hazard = $haz3) and contains(@fcstHr,'-') and @isOutlook='false']">
-        
+<!--        <xsl:for-each select="//Gfa[(@hazard = $haz1 or @hazard = $haz2 or @hazard = $haz3) and contains(@fcstHr,'-') and @isOutlook='false']">
+-->        
+        <xsl:for-each select="//Gfa[(@hazard = $haz1 or @hazard = $haz2 or @hazard = $haz3) and contains(@fcstHr,'-') ]">
             <xsl:if test="contains( @hazard, $haz1 ) or contains( @hazard, $haz2 ) or contains( @hazard, $haz3 )">
                 <xsl:choose>
                     <xsl:when test="@issueType = 'CAN'">
@@ -46,8 +50,9 @@
                 </xsl:choose>
             </xsl:if>
         </xsl:for-each>
-        
-        <xsl:for-each select="//outlook">
+
+<!--        
+         <xsl:for-each select="//outlook">
             <xsl:if test="contains( hazard, $haz1 ) or contains( hazard, $haz2 ) or contains( hazard, $haz3 )">
                 <xsl:choose>
                     <xsl:when test="issueType = 'CAN'">
@@ -65,7 +70,7 @@
                 </xsl:choose>
             </xsl:if>
         </xsl:for-each>
-        
+ -->        
     </xsl:template>
     
     <!--  
