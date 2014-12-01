@@ -739,7 +739,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES 15 - McIDAS">
 <filters>UNIWISC</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Polar Composites">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Composites">
 <filters>UNIWISC</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES Sounder">
