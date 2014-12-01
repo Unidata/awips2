@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <resourceDefnName>AMDAR</resourceDefnName>
+    <resourceCategory>UPPER_AIR</resourceCategory>
+    <resourceParameters>
+pluginName=airep
+reportType=AMDAR
+legendString=Aircraft Meteorological Data Reports
+spiFile=MTR.spi
+legendColor=RGB {0, 255, 0}
+    </resourceParameters>
+    <rscImplementation>SurfacePlot</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
+    <dfltFrameCount>4</dfltFrameCount>
+    <dfltTimeRange>48</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>
