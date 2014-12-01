@@ -143,6 +143,9 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 05/14        TTR 995     J. Wu       Make contour label auto-placement an option.
  * 07/14        ?           B. Yin      Added support for dashed-line circle for TCM 12 feet sea.
  * 08/14		?			B. Yin		Fixed world wrap for TCM track and zero circle issues.
+ * 08/14        TTR972      J. Wu       Draw filled object as filled only if either its layer's "filled" flag
+ *                                      "true" or they are on the active layer,  .
+ * 09/14        TTR750      J. Wu       Draw track label with specified font styles.
  * </pre>
  * 
  * @author sgilbert
@@ -524,6 +527,7 @@ public class DisplayElementFactory {
         if (isFilled) {
             list.add(createFill(pts));
         }
+
         /*
          * Compile each IWireframeShape, create its LineDisplayElement, and add
          * to IDisplayable return list
@@ -1814,7 +1818,8 @@ public class DisplayElementFactory {
         double major = Math.sqrt((diff[0] * diff[0]) + (diff[1] * diff[1]));
         double minor = major * arc.getAxisRatio();
 
-        if (major / this.screenToExtent < 0.000001) { // ignore circles with major = 0
+        if (major / this.screenToExtent < 0.000001) { // ignore circles with
+                                                      // major = 0
             return slist;
         }
 
@@ -2035,8 +2040,9 @@ public class DisplayElementFactory {
                 Text txt = new Text(null, track.getFontName(),
                         track.getFontSize(), TextJustification.LEFT_JUSTIFY,
                         pt.getLocation(), 0.0, TextRotation.SCREEN_RELATIVE,
-                        new String[] { dtime }, FontStyle.BOLD, iniDspClr, 0,
-                        3, false, DisplayType.NORMAL, "Text", "General Text");
+                        new String[] { dtime }, track.getFontStyle(),
+                        iniDspClr, 0, 3, false, DisplayType.NORMAL, "Text",
+                        "General Text");
                 temps = createDisplayElements((IText) txt, paintProps);
                 slist.addAll(temps);
             }
@@ -2093,8 +2099,9 @@ public class DisplayElementFactory {
                 Text txt = new Text(null, track.getFontName(),
                         track.getFontSize(), TextJustification.LEFT_JUSTIFY,
                         pt.getLocation(), 0.0, TextRotation.SCREEN_RELATIVE,
-                        new String[] { dtime }, FontStyle.BOLD, expDspClr, 0,
-                        3, false, DisplayType.NORMAL, "Text", "General Text");
+                        new String[] { dtime }, track.getFontStyle(),
+                        expDspClr, 0, 3, false, DisplayType.NORMAL, "Text",
+                        "General Text");
                 temps = createDisplayElements((IText) txt, paintProps);
                 slist.addAll(temps);
             }
@@ -4814,10 +4821,22 @@ public class DisplayElementFactory {
      */
     private boolean getDisplayFillMode(Boolean filled) {
 
-        if (layerFilled) {
-            return layerFilled;
+        /*
+         * if (layerFilled) { return layerFilled; } else { return filled; }
+         */
+
+        /*
+         * TTR 972 - to match NMAP2 behavior, non-filled elements will always be
+         * drawn as non-filled. Filled objects should be drawn as filled only
+         * when the "filled" flag for its layer is set to "true" or they are on
+         * the active layer, so it is necessary to set the "layerFilled" flag to
+         * true before generating displayables for such objects (see
+         * PgenResource.drawFilledElement()).
+         */
+        if (filled && layerFilled) {
+            return true;
         } else {
-            return filled;
+            return false;
         }
 
     }

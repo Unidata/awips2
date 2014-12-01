@@ -3169,6 +3169,10 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
         private PgenContoursTool tool = null;
 
+        private Contours prevCont = null;
+
+        private Contours nowCont = null;
+
         private ContourMinmaxAttrDlg(Shell parShell) throws VizException {
 
             super(parShell);
@@ -3238,11 +3242,54 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             if (apt instanceof PgenContoursTool) {
                 tool = (PgenContoursTool) apt;
             }
+
             if (tool != null) {
                 tool.resetUndoRedoCount();
                 PgenSession.getInstance().getCommandManager()
                         .addStackListener(tool);
             }
+
+            // set the lat/lon from the current symbol.
+            DrawableElement de = drawingLayer.getSelectedDE();
+            if (de != null && de.getParent() instanceof ContourMinmax
+                    && de instanceof Symbol) {
+                super.setLatitude(((Symbol) de).getLocation().y);
+                super.setLongitude(((Symbol) de).getLocation().x);
+            }
+
+            /*
+             * Reset the listenser.
+             */
+            for (Listener ls : undoBtn.getListeners(SWT.MouseDown)) {
+                undoBtn.removeListener(SWT.MouseDown, ls);
+            }
+
+            undoBtn.addListener(SWT.MouseDown, new Listener() {
+
+                @Override
+                public void handleEvent(Event event) {
+
+                    if (undoBtn.getText().equalsIgnoreCase(UNDO_SYMBOL)) {
+                        undoBtn.setText(REDO_SYMBOL);
+                        drawingLayer.getCommandMgr().undo();
+
+                    } else if (undoBtn.getText().equalsIgnoreCase(REDO_SYMBOL)) {
+                        undoBtn.setText(UNDO_SYMBOL);
+                        drawingLayer.getCommandMgr().redo();
+                    }
+
+                    /*
+                     * Reset the currentContours for the ContoursAttrDlg.
+                     */
+                    currentContours = prevCont;
+                    prevCont = nowCont;
+                    nowCont = currentContours;
+
+                    mapEditor.refresh();
+
+                }
+
+            });
         }
 
         @Override
@@ -3252,6 +3299,10 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                 PgenSession.getInstance().getCommandManager()
                         .removeStackListener(tool);
             }
+
+            prevCont = null;
+            nowCont = null;
+
             return super.close();
         }
 
@@ -3262,15 +3313,34 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         protected void placeSymbol() {
 
             if (tool != null) {
+                if (tool.getMouseHandler() instanceof PgenContoursHandler) {
+                    /*
+                     * Keep a copy of currentConoturs for "Undo". It chnages
+                     * after call the "tool".
+                     */
+                    prevCont = currentContours;
+                    ((PgenContoursHandler) tool.getMouseHandler())
+                            .drawContourMinmax(new Coordinate(Double
+                                    .parseDouble(longitudeText.getText()),
+                                    Double.parseDouble(latitudeText.getText())));
+                    placeBtn.setEnabled(false);
+                    nowCont = currentContours; // Keep a copy for "Redo"
+                    undoBtn.setEnabled(true);
+                    undoBtn.setText("Undo Symbol");
 
-                ((PgenContoursHandler) tool.getMouseHandler())
-                        .drawContourMinmax(new Coordinate(Double
-                                .parseDouble(longitudeText.getText()), Double
-                                .parseDouble(latitudeText.getText())));
-                placeBtn.setEnabled(false);
-                undoBtn.setEnabled(true);
-                undoBtn.setText("Undo Symbol");
+                } else if (tool.getMouseHandler() instanceof PgenSelectHandler) {
+                    minmaxTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Symbol) new DrawableElementFactory()
+                            .create(DrawableType.SYMBOL, (IAttribute) this,
+                                    "Symbol", getActiveSymbolObjType(),
+                                    (Coordinate) null, null);
+                    contoursAttrSettings.put(getActiveSymbolObjType(),
+                            minmaxTemplate);
 
+                    updateMinmaxAttributes();
+
+                    placeBtn.setEnabled(false);
+
+                }
             }
         }
     }
@@ -3330,7 +3400,34 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
                     if (newEl != null && oldAdc.equals(de.getParent())) {
                         newEl.setParent(newAdc);
+
                         if (newEl instanceof Symbol) {
+
+                            if (minmaxAttrDlg != null
+                                    && minmaxAttrDlg.getShell() != null) {
+                                if (minmaxAttrDlg.latitudeText.isEnabled()
+                                        && minmaxAttrDlg.longitudeText
+                                                .isEnabled()) {
+                                    ArrayList<Coordinate> loc = new ArrayList<Coordinate>();
+                                    double lat = ((Symbol) newEl).getLocation().y;
+                                    double lon = ((Symbol) newEl).getLocation().x;
+                                    try {
+                                        lon = Double
+                                                .valueOf(minmaxAttrDlg.longitudeText
+                                                        .getText());
+                                        lat = Double
+                                                .valueOf(minmaxAttrDlg.latitudeText
+                                                        .getText());
+                                    } catch (Exception e) {
+                                        lon = ((Symbol) newEl).getLocation().x;
+                                        lat = ((Symbol) newEl).getLocation().y;
+                                    }
+
+                                    loc.add(new Coordinate(lon, lat));
+                                    newEl.setPoints(loc);
+                                }
+                            }
+
                             ((DECollection) newAdc)
                                     .replace(((ContourMinmax) newAdc)
                                             .getSymbol(), newEl);
@@ -3338,6 +3435,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
                         ((ContourMinmax) newAdc).getSymbol().update(
                                 minmaxTemplate);
+
+                        ((ContourMinmax) newAdc).getLabel().setAuto(true);
                     }
                 }
 
@@ -3924,6 +4023,17 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         }
 
         return typeChanged;
+    }
+
+    /**
+     * Update lat/lon and Undo button on SymbolAttrDlg.
+     */
+    public void updateSymbolAttrOnGUI(Coordinate loc) {
+        if (minmaxAttrDlg != null && minmaxAttrDlg.getShell() != null) {
+            minmaxAttrDlg.setLatitude(loc.y);
+            minmaxAttrDlg.setLongitude(loc.x);
+            minmaxAttrDlg.enableUndoBtn(true);
+        }
     }
 
 }

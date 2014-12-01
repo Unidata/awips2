@@ -5,11 +5,11 @@
 // Generated on: 2009.05.28 at 02:35:15 PM EDT 
 //
 
-
 package gov.noaa.nws.ncep.ui.pgen.file;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -17,11 +17,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
+ * <p>
+ * Java class for anonymous complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType>
@@ -38,6 +40,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;attribute name="extrapLinePattern" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="extrapMarker" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="fontName" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="fontStyle" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="fontNameComboSelectedIndex" type="{http://www.w3.org/2001/XMLSchema}int" />
  *       &lt;attribute name="fontSize" type="{http://www.w3.org/2001/XMLSchema}float" />
  *       &lt;attribute name="fontSizeComboSelectedIndex" type="{http://www.w3.org/2001/XMLSchema}int" />
@@ -60,68 +63,85 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "initialColor",
-    "extrapColor",
-    "initialPoints",
-    "extrapPoints",
-    "extraPointTimeTextDisplayIndicator"
-})
+@XmlType(name = "", propOrder = { "initialColor", "extrapColor",
+        "initialPoints", "extrapPoints", "extraPointTimeTextDisplayIndicator" })
 @XmlRootElement(name = "Track")
 public class Track {
 
     @XmlElement(required = true)
     protected ColorType initialColor;
+
     @XmlElement(required = true)
     protected ColorType extrapColor;
+
     @XmlElement(required = true)
     protected List<TrackPoint> initialPoints;
+
     @XmlElement(required = true)
     protected List<TrackPoint> extrapPoints;
+
     @XmlElement(type = Boolean.class)
     protected List<Boolean> extraPointTimeTextDisplayIndicator;
+
     @XmlAttribute
     protected String extraPointTimeDisplayOptionName;
+
     @XmlAttribute
     protected String extrapLinePattern;
+
     @XmlAttribute
     protected String extrapMarker;
+
     @XmlAttribute
     protected String fontName;
+
+    @XmlAttribute
+    protected String fontStyle;
+
     @XmlAttribute
     protected Integer fontNameComboSelectedIndex;
+
     @XmlAttribute
     protected Float fontSize;
+
     @XmlAttribute
     protected Integer fontSizeComboSelectedIndex;
+
     @XmlAttribute
     protected Integer fontStyleComboSelectedIndex;
+
     @XmlAttribute
     protected String initialLinePattern;
+
     @XmlAttribute
     protected String initialMarker;
+
     @XmlAttribute
     protected Integer intervalComboSelectedIndex;
+
     @XmlAttribute
     protected String intervalTimeTextString;
+
     @XmlAttribute
     protected Float lineWidth;
+
     @XmlAttribute
     protected String pgenCategory;
+
     @XmlAttribute
     protected String pgenType;
+
     @XmlAttribute
     protected Boolean setTimeButtonSelected;
+
     @XmlAttribute
     protected String skipFactorTextString;
 
     /**
      * Gets the value of the initialColor property.
      * 
-     * @return
-     *     possible object is
-     *     {@link ColorType }
-     *     
+     * @return possible object is {@link ColorType }
+     * 
      */
     public ColorType getInitialColor() {
         return initialColor;
@@ -131,9 +151,8 @@ public class Track {
      * Sets the value of the initialColor property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link ColorType }
-     *     
+     *            allowed object is {@link ColorType }
+     * 
      */
     public void setInitialColor(ColorType value) {
         this.initialColor = value;
@@ -142,10 +161,8 @@ public class Track {
     /**
      * Gets the value of the extrapColor property.
      * 
-     * @return
-     *     possible object is
-     *     {@link ColorType }
-     *     
+     * @return possible object is {@link ColorType }
+     * 
      */
     public ColorType getExtrapColor() {
         return extrapColor;
@@ -155,9 +172,8 @@ public class Track {
      * Sets the value of the extrapColor property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link ColorType }
-     *     
+     *            allowed object is {@link ColorType }
+     * 
      */
     public void setExtrapColor(ColorType value) {
         this.extrapColor = value;
@@ -167,15 +183,16 @@ public class Track {
      * Gets the value of the initialPoints property.
      * 
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the initialPoints property.
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the initialPoints property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
+     * 
      * <pre>
-     *    getInitialPoints().add(newItem);
+     * getInitialPoints().add(newItem);
      * </pre>
      * 
      * 
@@ -196,15 +213,16 @@ public class Track {
      * Gets the value of the extrapPoints property.
      * 
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the extrapPoints property.
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the extrapPoints property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
+     * 
      * <pre>
-     *    getExtrapPoints().add(newItem);
+     * getExtrapPoints().add(newItem);
      * </pre>
      * 
      * 
@@ -225,21 +243,22 @@ public class Track {
      * Gets the value of the extraPointTimeTextDisplayIndicator property.
      * 
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the extraPointTimeTextDisplayIndicator property.
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the extraPointTimeTextDisplayIndicator
+     * property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
+     * 
      * <pre>
-     *    getExtraPointTimeTextDisplayIndicator().add(newItem);
+     * getExtraPointTimeTextDisplayIndicator().add(newItem);
      * </pre>
      * 
      * 
      * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Boolean }
+     * Objects of the following type(s) are allowed in the list {@link Boolean }
      * 
      * 
      */
@@ -253,10 +272,8 @@ public class Track {
     /**
      * Gets the value of the extraPointTimeDisplayOptionName property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getExtraPointTimeDisplayOptionName() {
         return extraPointTimeDisplayOptionName;
@@ -266,9 +283,8 @@ public class Track {
      * Sets the value of the extraPointTimeDisplayOptionName property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setExtraPointTimeDisplayOptionName(String value) {
         this.extraPointTimeDisplayOptionName = value;
@@ -277,10 +293,8 @@ public class Track {
     /**
      * Gets the value of the extrapLinePattern property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getExtrapLinePattern() {
         return extrapLinePattern;
@@ -290,9 +304,8 @@ public class Track {
      * Sets the value of the extrapLinePattern property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setExtrapLinePattern(String value) {
         this.extrapLinePattern = value;
@@ -301,10 +314,8 @@ public class Track {
     /**
      * Gets the value of the extrapMarker property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getExtrapMarker() {
         return extrapMarker;
@@ -314,9 +325,8 @@ public class Track {
      * Sets the value of the extrapMarker property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setExtrapMarker(String value) {
         this.extrapMarker = value;
@@ -325,10 +335,8 @@ public class Track {
     /**
      * Gets the value of the fontName property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getFontName() {
         return fontName;
@@ -338,21 +346,39 @@ public class Track {
      * Sets the value of the fontName property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setFontName(String value) {
         this.fontName = value;
     }
 
     /**
+     * Gets the value of the fontStyle property.
+     * 
+     * @return possible object is {@link String }
+     * 
+     */
+    public String getFontStyle() {
+        return fontStyle;
+    }
+
+    /**
+     * Sets the value of the fontStyle property.
+     * 
+     * @param value
+     *            allowed object is {@link String }
+     * 
+     */
+    public void setFontStyle(String value) {
+        this.fontStyle = value;
+    }
+
+    /**
      * Gets the value of the fontNameComboSelectedIndex property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getFontNameComboSelectedIndex() {
         return fontNameComboSelectedIndex;
@@ -362,9 +388,8 @@ public class Track {
      * Sets the value of the fontNameComboSelectedIndex property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setFontNameComboSelectedIndex(Integer value) {
         this.fontNameComboSelectedIndex = value;
@@ -373,10 +398,8 @@ public class Track {
     /**
      * Gets the value of the fontSize property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getFontSize() {
         return fontSize;
@@ -386,9 +409,8 @@ public class Track {
      * Sets the value of the fontSize property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setFontSize(Float value) {
         this.fontSize = value;
@@ -397,10 +419,8 @@ public class Track {
     /**
      * Gets the value of the fontSizeComboSelectedIndex property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getFontSizeComboSelectedIndex() {
         return fontSizeComboSelectedIndex;
@@ -410,9 +430,8 @@ public class Track {
      * Sets the value of the fontSizeComboSelectedIndex property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setFontSizeComboSelectedIndex(Integer value) {
         this.fontSizeComboSelectedIndex = value;
@@ -421,10 +440,8 @@ public class Track {
     /**
      * Gets the value of the fontStyleComboSelectedIndex property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getFontStyleComboSelectedIndex() {
         return fontStyleComboSelectedIndex;
@@ -434,9 +451,8 @@ public class Track {
      * Sets the value of the fontStyleComboSelectedIndex property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setFontStyleComboSelectedIndex(Integer value) {
         this.fontStyleComboSelectedIndex = value;
@@ -445,10 +461,8 @@ public class Track {
     /**
      * Gets the value of the initialLinePattern property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getInitialLinePattern() {
         return initialLinePattern;
@@ -458,9 +472,8 @@ public class Track {
      * Sets the value of the initialLinePattern property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setInitialLinePattern(String value) {
         this.initialLinePattern = value;
@@ -469,10 +482,8 @@ public class Track {
     /**
      * Gets the value of the initialMarker property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getInitialMarker() {
         return initialMarker;
@@ -482,9 +493,8 @@ public class Track {
      * Sets the value of the initialMarker property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setInitialMarker(String value) {
         this.initialMarker = value;
@@ -493,10 +503,8 @@ public class Track {
     /**
      * Gets the value of the intervalComboSelectedIndex property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getIntervalComboSelectedIndex() {
         return intervalComboSelectedIndex;
@@ -506,9 +514,8 @@ public class Track {
      * Sets the value of the intervalComboSelectedIndex property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setIntervalComboSelectedIndex(Integer value) {
         this.intervalComboSelectedIndex = value;
@@ -517,10 +524,8 @@ public class Track {
     /**
      * Gets the value of the intervalTimeTextString property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getIntervalTimeTextString() {
         return intervalTimeTextString;
@@ -530,9 +535,8 @@ public class Track {
      * Sets the value of the intervalTimeTextString property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setIntervalTimeTextString(String value) {
         this.intervalTimeTextString = value;
@@ -541,10 +545,8 @@ public class Track {
     /**
      * Gets the value of the lineWidth property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getLineWidth() {
         return lineWidth;
@@ -554,9 +556,8 @@ public class Track {
      * Sets the value of the lineWidth property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setLineWidth(Float value) {
         this.lineWidth = value;
@@ -565,10 +566,8 @@ public class Track {
     /**
      * Gets the value of the pgenCategory property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getPgenCategory() {
         return pgenCategory;
@@ -578,9 +577,8 @@ public class Track {
      * Sets the value of the pgenCategory property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setPgenCategory(String value) {
         this.pgenCategory = value;
@@ -589,10 +587,8 @@ public class Track {
     /**
      * Gets the value of the pgenType property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getPgenType() {
         return pgenType;
@@ -602,9 +598,8 @@ public class Track {
      * Sets the value of the pgenType property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setPgenType(String value) {
         this.pgenType = value;
@@ -613,10 +608,8 @@ public class Track {
     /**
      * Gets the value of the setTimeButtonSelected property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
+     * @return possible object is {@link Boolean }
+     * 
      */
     public Boolean isSetTimeButtonSelected() {
         return setTimeButtonSelected;
@@ -626,9 +619,8 @@ public class Track {
      * Sets the value of the setTimeButtonSelected property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
+     *            allowed object is {@link Boolean }
+     * 
      */
     public void setSetTimeButtonSelected(Boolean value) {
         this.setTimeButtonSelected = value;
@@ -637,10 +629,8 @@ public class Track {
     /**
      * Gets the value of the skipFactorTextString property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getSkipFactorTextString() {
         return skipFactorTextString;
@@ -650,9 +640,8 @@ public class Track {
      * Sets the value of the skipFactorTextString property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setSkipFactorTextString(String value) {
         this.skipFactorTextString = value;
