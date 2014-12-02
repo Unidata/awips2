@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.eclipse.swt.graphics.RGB;
 
 /**
- * Contains foreground and background chat colors for a list of users
+ * Contains foreground and background chat colors for a list of users or sites
  * 
  * <pre>
  * 
@@ -40,6 +40,7 @@ import org.eclipse.swt.graphics.RGB;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2014 3709       mapeters    Initial creation.
+ * Nov 26, 2014 3709       mapeters    Renamed from UserColorInformation, added fgSet getter.
  * 
  * </pre>
  * 
@@ -48,15 +49,15 @@ import org.eclipse.swt.graphics.RGB;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class UserColorInformation {
+public class ColorInfoMap {
 
     @XmlElement
-    private Map<String, UserColor> colors;
+    private Map<String, ColorInfo> colors;
 
     /**
      * @return the colors
      */
-    public Map<String, UserColor> getColors() {
+    public Map<String, ColorInfo> getColors() {
         return colors;
     }
 
@@ -64,12 +65,12 @@ public class UserColorInformation {
      * @param colors
      *            the colors to set
      */
-    public void setColors(Map<String, UserColor> colors) {
+    public void setColors(Map<String, ColorInfo> colors) {
         this.colors = colors;
     }
 
     @XmlAccessorType(XmlAccessType.NONE)
-    public static class UserColor {
+    public static class ColorInfo {
 
         /**
          * tells {@link #setColor()} when to use defaultForeground
@@ -98,7 +99,7 @@ public class UserColorInformation {
         @XmlAttribute
         private int bgBlue = 255;
 
-        public UserColor() {
+        public ColorInfo() {
         }
 
         /**
@@ -199,8 +200,16 @@ public class UserColorInformation {
                      * foreground color, otherwise it defaults to black
                      */
                     setColor(ColorType.FOREGROUND, defaultForeground, null);
+                    fgSet = false;
                 }
             }
+        }
+
+        /**
+         * @return whether the foreground has been set
+         */
+        public boolean isForegroundSet() {
+            return fgSet;
         }
     }
 }
