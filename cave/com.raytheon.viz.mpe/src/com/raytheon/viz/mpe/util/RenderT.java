@@ -22,7 +22,6 @@ package com.raytheon.viz.mpe.util;
 import java.util.ArrayList;
 
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
 
@@ -52,15 +51,17 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
 public class RenderT {
 
     ReadQPFGrids rqg = new ReadQPFGrids();
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-    Pcp pcp = DailyQcUtils.pcp;
+//    Pcp pcp = DailyQcUtils.pcp;
 
     public void render_t(int pcpn_day, int pcpn_time, int pcpn_time_step,
             int numTstations, ArrayList<Station> temperature_stations,
             Hrap_Grid hrap_grid, Tdata[] tdata, int[] pcp_in_use) {
 
-        int isom = DailyQcUtils.isom;
-        int mpe_dqc_max_temp_neighbors = DailyQcUtils.mpe_dqc_max_temp_neighbors;
+        int isom = dqc.isom;
+        int mpe_dqc_max_temp_neighbors = dqc.mpe_dqc_max_temp_neighbors;
         int i, j, h, hh;
         int time_pos = 0;
         int htotal = 0;
@@ -69,8 +70,8 @@ public class RenderT {
         double temp;
         float conv = .0174f;
         float df;
-        int total1 = 0;
-        int total2 = 0;
+//        int total1 = 0;
+//        int total2 = 0;
 
         if (pcpn_time_step == 0) {
             time_pos = pcpn_time;
@@ -87,7 +88,7 @@ public class RenderT {
 
                 if (hrap_grid.owner[i][j] == -1) {
 
-                    pcp.value[i][j] = -9999;
+                    dqc.pcp.value[i][j] = -9999;
                     continue;
 
                 }
@@ -95,7 +96,7 @@ public class RenderT {
                 if ((pcpn_time_step == 1 && hrap_grid.max[isom][i][j] <= -999)
                         || (pcpn_time_step == 2 && hrap_grid.min[isom][i][j] <= -999)) {
 
-                    pcp.value[i][j] = -9999;
+                    dqc.pcp.value[i][j] = -9999;
                     continue;
 
                 }
@@ -181,7 +182,7 @@ public class RenderT {
 
                     if (htotal == 5) {
 
-                        total1++;
+//                        total1++;
                         break;
 
                     }
@@ -190,7 +191,7 @@ public class RenderT {
 
                 if (htotal < 5) {
 
-                    total2++;
+//                    total2++;
                     value = 0.0;
                     distance = 0.0;
                     htotal = 0;
@@ -271,9 +272,9 @@ public class RenderT {
                 }
 
                 if (htotal == 0) {
-                    pcp.value[i][j] = -9999;
+                    dqc.pcp.value[i][j] = -9999;
                 } else {
-                    pcp.value[i][j] = (int) ((value / distance) * 100.0);
+                    dqc.pcp.value[i][j] = (int) ((value / distance) * 100.0);
                 }
 
             }
@@ -292,7 +293,7 @@ public class RenderT {
 
         pcp_in_use[time_pos] = 1;
 
-        rqg.write_file("pcp", time_pos, pcp);
+        rqg.write_file("pcp", time_pos, dqc.pcp);
 
         // logMessage("totals are %d %d\n",total1,total2);
 
