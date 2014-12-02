@@ -174,7 +174,6 @@ WaveHeight = ("WaveHeight", SCALAR, "ft", "Total Wave Height",
 Swell = ("Swell", VECTOR, "ft", "Primary Swell", 100.0, 0.0, 0, NO)
 Swell2 = ("Swell2", VECTOR, "ft", "Secondary Swell", 100.0, 0.0, 0, NO)
 Period = ("Period", SCALAR, "sec", "Primary Period", 20.0, 0.0, 0, NO)
-Period2 = ("Period2", SCALAR, "sec", "Secondary Period", 20.0, 0.0, 0, NO)
 WindGust = ("WindGust", SCALAR, "kts", "Wind Gust", 125.0, 0.0, 0, NO)
 IceCoverage = ("IceCoverage", SCALAR, "%", "Ice Coverage Amount",
   100.0, 0.0, 0, NO)
@@ -188,6 +187,53 @@ WindWaveHgt = ("WindWaveHgt", SCALAR, "ft", "Significant wave height of wind wav
   30.0, 0.0, 0, NO)
 WindWavePeriod = ("WindWavePeriod", SCALAR, "sec.", "Wind wave peak period", 20.0, 0.0, 0, NO)
 WindWaveDir = ("WindWaveDir", VECTOR, "degree", "Direction of wind waves", 100.0, 0.0, 0, NO)
+
+NWPSwind = ("NWPSwind", VECTOR, "kts", "NWPSwind", 150.0, 0.0, 0, NO)
+SwanSwell = ("SwanSwell", SCALAR, "ft", "Total Significant Swell Height", 40.0, 0.0, 2, NO)
+
+#Smart Init Grids - for partitioned wave groups
+Wave_1 = ("Wave_1", VECTOR, "ft", "Wave_1", 50.0, 0.0, 2, NO)
+Wave_2 = ("Wave_2", VECTOR, "ft", "Wave_2", 50.0, 0.0, 2, NO)
+Wave_3 = ("Wave_3", VECTOR, "ft", "Wave_3", 50.0, 0.0, 2, NO)
+Wave_4 = ("Wave_4", VECTOR, "ft", "Wave_4", 50.0, 0.0, 2, NO)
+Wave_5 = ("Wave_5", VECTOR, "ft", "Wave_5", 50.0, 0.0, 2, NO)
+Wave_6 = ("Wave_6", VECTOR, "ft", "Wave_6", 50.0, 0.0, 2, NO)
+Wave_7 = ("Wave_7", VECTOR, "ft", "Wave_7", 50.0, 0.0, 2, NO)
+Wave_8 = ("Wave_8", VECTOR, "ft", "Wave_8", 50.0, 0.0, 2, NO)
+Wave_9 = ("Wave_9", VECTOR, "ft", "Wave_9", 50.0, 0.0, 2, NO)
+
+#Fcst Grids - for partitioned wave groups
+Wave1 = ("Wave1", VECTOR, "ft", "WAVE1", 50.0, 0.0, 1, NO)
+Wave2 = ("Wave2", VECTOR, "ft", "WAVE2", 50.0, 0.0, 1, NO)
+Wave3 = ("Wave3", VECTOR, "ft", "WAVE3", 50.0, 0.0, 1, NO)
+Wave4 = ("Wave4", VECTOR, "ft", "WAVE4", 50.0, 0.0, 1, NO)
+Wave5 = ("Wave5", VECTOR, "ft", "WAVE5", 50.0, 0.0, 1, NO)
+Wave6 = ("Wave6", VECTOR, "ft", "WAVE6", 50.0, 0.0, 1, NO)
+Wave7 = ("Wave7", VECTOR, "ft", "Wave7", 50.0, 0.0, 0, NO)
+Wave8 = ("Wave8", VECTOR, "ft", "Wave8", 35.0, 0.0, 0, NO)
+Wave9 = ("Wave9", VECTOR, "ft", "Wave9", 35.0, 0.0, 0, NO)
+
+#Smart Init Grids - for partitioned wave groups
+Period_1 = ("Period_1", SCALAR, "sec", "Period_1", 30.0, 1.0, 0, NO)
+Period_2 = ("Period_2", SCALAR, "sec", "Period_2", 30.0, 1.0, 0, NO)
+Period_3 = ("Period_3", SCALAR, "sec", "Period_3", 30.0, 1.0, 0, NO)
+Period_4 = ("Period_4", SCALAR, "sec", "Period_4", 30.0, 1.0, 0, NO)
+Period_5 = ("Period_5", SCALAR, "sec", "Period_5", 30.0, 0.0, 0, NO)
+Period_6 = ("Period_6", SCALAR, "sec", "Period_6", 30.0, 0.0, 0, NO)
+Period_7 = ("Period_7", SCALAR, "sec", "Period_7", 30.0, 0.0, 0, NO)
+Period_8 = ("Period_8", SCALAR, "sec", "Period_8", 30.0, 0.0, 0, NO)
+Period_9 = ("Period_9", SCALAR, "sec", "Period_9", 30.0, 0.0, 0, NO)
+
+#Fcst Grids - for partitioned wave groups
+Period1 = ("Period1", SCALAR, "sec", "Period1", 25.0, 0.0, 1, NO)
+Period2 = ("Period2", SCALAR, "sec", "Period2", 25.0, 0.0, 1, NO)
+Period3 = ("Period3", SCALAR, "sec", "Period3", 25.0, 0.0, 1, NO)
+Period4 = ("Period4", SCALAR, "sec", "Period4", 25.0, 0.0, 1, NO)
+Period5 = ("Period5", SCALAR, "sec", "Period5", 25.0, 0.0, 1, NO)
+Period6 = ("Period6", SCALAR, "sec", "Period6", 25.0, 0.0, 1, NO)
+Period7 = ("Period7", SCALAR, "sec", "Period7", 25.0, 0.0, 0, NO)
+Period8 = ("Period8", SCALAR, "sec", "Period8", 25.0, 0.0, 0, NO)
+Period9 = ("Period9", SCALAR, "sec", "Period9", 25.0, 0.0, 0, NO)
 
 # Fire Weather Weather Elements
 LAL = ("LAL", SCALAR, "cat", "Lightning Activity Level", 6.0, 1.0, 0, NO)
@@ -974,6 +1020,8 @@ ISC         = ('ISC',          GRID,   '', YES, NO,  1, 12)
 LAPS        = ('LAPS',         GRID,   '', YES, NO,  1, 30)
 SAT         = ('SAT',          GRID,   '', YES, NO,  1, 12)
 ESTOFS      = ('ESTOFS',       GRID,   '', NO,  NO,  2, 0)
+nwpsTrkngCG0 = ('nwpsTrkngCG0',GRID,   '', NO,  NO,  2, 0)
+nwpsCG1     = ('nwpsCG1',      GRID,   '', NO,  NO,  2, 0)
 HPCGuide    = ('HPCGuide',     GRID,   '', NO,  NO,  2, 0)
 NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
 NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
@@ -1065,6 +1113,8 @@ if SID in ALASKA_SITES:
                  'AKwave10',
                  'AKwave4',
                  'GlobalWave',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
 #                 ('AK-RTMA','RTMA'),
                  ('AK-RTMA3','RTMA'),  # Only have one RTMA
                  ('AK-NamDNG5','NamDNG5'),
@@ -1104,6 +1154,8 @@ elif SID == "HFO":
                  'WPHwave10',
                  'NPHwave4',
                  'GLOBHwave',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                ]
 
 # San Juan OCONUS
@@ -1131,6 +1183,8 @@ elif SID == "SJU":
                  'NAHwave15',
                  'NAHwave10',
                  'NAHwave4',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'GLOBHwave',
                ]
 
@@ -1144,6 +1198,8 @@ elif SID == "GUM":
                  'RTOFS-Guam',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                ]
 
 #CONUS sites
@@ -1183,6 +1239,8 @@ elif SID in CONUS_EAST_SITES:
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
                  ('OPCWave182', 'OPCTAFBSW'),
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'MOSGuide',
                  'RTMA',
                  'NamDNG5',
@@ -1243,6 +1301,8 @@ else:   #######DCS3501 WEST_CONUS
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
                  ('OPCWave182', 'OPCTAFBSW'),
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'MOSGuide',
                  'RTMA',
                  'NamDNG5',
@@ -1405,6 +1465,8 @@ elif SID in ALASKA_SITES:
         "DGEX" : ['DGEX'],
 #        "GWW" : ["GWW"],
 #        "OPCTAFBNW" : ['OPCTAFBNW'],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "AKMOSGuide" : ['MOSGuide'],
@@ -1424,6 +1486,8 @@ elif SID == "HFO":
 #        "gfsLR" : ["gfsLR"],
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
 
 # San Juan OCONUS
@@ -1456,6 +1520,8 @@ elif SID == "SJU":
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "ESTOFS" : ["ESTOFS"],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
 
 # Guam OCONUS
@@ -1466,6 +1532,8 @@ elif SID == "GUM":
 #        "gfsLR" : ["gfsLR"],
 #        "GlobalWave" : ["GlobalWave"],
         "RTMA": ['RTMA'],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
 
 #CONUS sites
@@ -1502,6 +1570,8 @@ else:
 #        "WNAwave4" : ["WNAwave4"],
 #        "ENPwave": ["ENPwave"],
         "ESTOFS" : ["ESTOFS"],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
 
 #initialization skip certain model runs
@@ -1643,7 +1713,10 @@ localRTMAParms = []
 localNamDNG5Parms = []
 localSREFParms = []
 localTPCProbParms = []
-localHRRRParms = localESTOFSParms = localISCExtraParms = []
+localHRRRParms = localESTOFSParms = []
+localnwpsCG1Parms = []
+localnwpsTrkngCG0Parms = [] 
+localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
@@ -1657,6 +1730,8 @@ if not BASELINE and siteImport('localConfig'):
         myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
 
     localESTOFSParms = getattr(localConfig, 'parmsESTOFS', localESTOFSParms)
+    localnwpsCG1Parms = getattr(localConfig, 'parmsnwpsCG1', localnwpsCG1Parms)
+    localnwpsTrkngCG0Parms = getattr(localConfig, 'parmsnwpsTrkngCG0', localnwpsTrkngCG0Parms)
     localParms = getattr(localConfig, 'parms', localParms)
     localNAM12Parms = getattr(localConfig, 'parmsNAM12', localNAM12Parms)
     localOPCWavEParms = getattr(localConfig, 'parmsOPCWavE', localOPCWavEParms)
@@ -1782,14 +1857,15 @@ MOS_MODEL = [([Temp, Td, Wind, Weather, Sky], TC1),
              ([SnowAmt, PoP], LTMOS), ([QPF], TC6NG)]
 
 # Fcst and official database parameter groupings
-OFFICIALDBS = [([Temp, Td, Wind, Weather, Sky, FzLevel, SnowLevel], TC1),
+OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC1),
           ([HeatIndex, WindChill, RH, SnowAmt, CWR, QPF], TC1),
           ([PoP, Ttrend, RHtrend, Wind20ft], TC1),
           ([MinT], MinTTC), ([MaxT], MaxTTC),
           ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
-          ([WaveHeight, SurfHeight, WindGust, Swell, Swell2, Period, Period2], TC1),
+          ([WaveHeight, SurfHeight, WindGust, Swell, Swell2, Period], TC3NG),
+          ([WindWaveHeight, SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Period1, Period2, Period3, Period4, Period5, Period6, Period7, Period8, Period9], TC3NG),
           ([VentRate, LAL, Haines, MixHgt, FreeWind, TransWind], TC1),
-          ([WindWaveHeight, DSI, Stability, MarineLayer], TC1),
+          ([DSI, Stability, MarineLayer], TC1),
           ([HrsOfSun, InvBurnOffTemp], LT24),
           ([IceAcc, IceCoverage, Hazards], TC1),
           ([Wetflag], FireWx1300TC),
@@ -1806,6 +1882,11 @@ OFFICIALDBS = [([Temp, Td, Wind, Weather, Sky, FzLevel, SnowLevel], TC1),
           ([cape], LT6NG),
           ([ApparentT, HeatIndex, WindChill, UWaveDir, VWaveDir, LkSfcT, SnowMap, WaveDir, SnowRatio, StormTotalQPF], TC1),
           ]
+
+# NWPS
+nwpsCG1_MODEL = [([SwanSwell, Period, WaveHeight, WindWaveHeight, Wind], TC3NG)]
+
+nwpsTrkngCG0_MODEL = [([Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Period1, Period2, Period3, Period4, Period5, Period6,Period7, Period8, Period9 ], TC3NG)]
 
 # Global Wave Watch III, WNAWAVE, AKWAVE Model database parameter groupings
 WAVEPARMS = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
@@ -1925,6 +2006,8 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (AKwave4, WAVEPARMS + localAKwave4Parms),
              (EPwave10, WAVEPARMS + localEPwave10Parms),
              (ESTOFS, ESTOFSPARMS + localESTOFSParms),
+             (nwpsCG1, nwpsCG1_MODEL + localnwpsCG1Parms),
+             (nwpsTrkngCG0, nwpsTrkngCG0_MODEL + localnwpsTrkngCG0Parms),
              (GlobalWave, WAVEPARMS + localGlobalWaveParms),
              (GLWM, GLWMPARMS + localGLWMParms),            #####DCS3499
              (HIRESWarw, STD3_MODEL + localHIRESWarwParms), #####DCS3501
