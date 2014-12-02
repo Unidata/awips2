@@ -22,6 +22,9 @@ import calendar
 from java.util import Date 
 import JUtil
 
+import dateutil.tz
+GMT_ZONE = dateutil.tz.gettz('GMT')
+
 #
 # Provides a AWIPS I GFE partially-compatible wrapper to AbsTime
 # 
@@ -34,7 +37,7 @@ import JUtil
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    04/10/08                      chammack       Initial Creation.
-#    
+#    12/01/2014       #3875        randerso       Set time zone on underlying datetime object to GMT
 # 
 #
 class AbsTime(datetime, JUtil.JavaWrapperClass):
@@ -47,8 +50,9 @@ class AbsTime(datetime, JUtil.JavaWrapperClass):
            tmp = datetime.utcfromtimestamp(arg)
        else:
            tmp = datetime.utcfromtimestamp(arg.getTime() / 1000)
+           
        return datetime.__new__(self, tmp.year,tmp.month,
-              tmp.day, tmp.hour, tmp.minute, tmp.second)
+              tmp.day, tmp.hour, tmp.minute, tmp.second, tzinfo=GMT_ZONE)
        
     def unixTime(self):
         tuple = self.utctimetuple()        
