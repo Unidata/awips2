@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
@@ -49,28 +48,30 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 public class RenderPcpBlocking {
 
 	private static boolean first = true;
+	
+	private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-	Pcp pcp = DailyQcUtils.pcp;
+//	Pcp pcp = DailyQcUtils.pcp;
 
 	/*
 	 * QC codes
 	 */
-	private static final int MISSING = -1;
-	private static final int STANDARD = 0;
+//	private static final int MISSING = -1;
+//	private static final int STANDARD = 0;
 	private static final int SCREENED = 0;
-	private static final int FAILED = 1;
+//	private static final int FAILED = 1;
 	private static final int MANUAL = 2;
 	private static final int QUESTIONABLE = 3;
 	private static final int PARTIAL = 4;
-	private static final int ESTIMATED = 5;
+//	private static final int ESTIMATED = 5;
 	private static final int TIMEDISTRIBUTED = 6;
 	private static final int VERIFIED = 8;
 
 	// private static final String MPE_DQC_GRID_RENDERING_METHOD_TOKEN =
 	// "mpe_dqc_grid_render_method";
 
-	private static final int maxDistSquared = DailyQcUtils.mpe_dqc_grid_max_dist
-			* DailyQcUtils.mpe_dqc_grid_max_dist;
+	private final int maxDistSquared = dqc.mpe_dqc_grid_max_dist
+			* dqc.mpe_dqc_grid_max_dist;
 
 	// private static final int maxDistSquared = 400;
 
@@ -121,7 +122,7 @@ public class RenderPcpBlocking {
 	// grid variables
 	private int binStationCount[][];
 
-	private int usableStationCount = 0;
+//	private int usableStationCount = 0;
 
 	private double valueGrid[][];
 	private double prismStationGrid[][];
@@ -157,8 +158,8 @@ public class RenderPcpBlocking {
 			if (isOpen()) {
 				incrementLevel();
 
-				if (getLevel() > DailyQcUtils.mpe_dqc_grid_max_dist) {
-					setLevel(DailyQcUtils.mpe_dqc_grid_max_dist);
+				if (getLevel() > dqc.mpe_dqc_grid_max_dist) {
+					setLevel(dqc.mpe_dqc_grid_max_dist);
 					close();
 				}
 
@@ -215,12 +216,12 @@ public class RenderPcpBlocking {
 			int numPstations, ArrayList<Station> stationList,
 			Hrap_Grid hrap_grid, Pdata[] pdata, int[] pcp_in_use) {
 
-		isom = DailyQcUtils.isom;
+		isom = dqc.isom;
 
-		int time_pos;
+//		int time_pos;
 
 		if (pcpn_time_step == 0) {
-			time_pos = pcpn_time; // for 6 hour data: 0,1,2,3.
+//			time_pos = pcpn_time; // for 6 hour data: 0,1,2,3.
 
 			boolean save_grids = true;
 			boolean accumulate_grids = false;
@@ -229,7 +230,7 @@ public class RenderPcpBlocking {
 					numPstations, stationList, hrap_grid, pdata, pcp_in_use,
 					save_grids, accumulate_grids);
 		} else {
-			time_pos = 4; // for 24 hour data
+//			time_pos = 4; // for 24 hour data
 
 			/*
 			 * in case the 24hr grid rendering is required, we check
@@ -265,7 +266,7 @@ public class RenderPcpBlocking {
 			int[] pcp_in_use, boolean save_grids, boolean should_accumulate) {
 		// String header = "RenderPcpBlocking.render_pcp_internal(): ";
 
-		int isom = DailyQcUtils.isom;
+		int isom = dqc.isom;
 
 		double resultingPrecipValue = 0.0;
 
@@ -287,7 +288,7 @@ public class RenderPcpBlocking {
 				 * not estimate precipitation for it.
 				 */
 				if (hrap_grid.owner[col][row] == -1) {
-					pcp.value[col][row] = 0;
+					dqc.pcp.value[col][row] = 0;
 					continue;
 				}
 
@@ -326,9 +327,9 @@ public class RenderPcpBlocking {
 					if (should_accumulate) { // for case where we want to make
 												// 24 = 4 6hr periods added
 												// together
-						pcp.value[col][row] += precipInHundredthsOfMm;
+						dqc.pcp.value[col][row] += precipInHundredthsOfMm;
 					} else {
-						pcp.value[col][row] = precipInHundredthsOfMm;
+						dqc.pcp.value[col][row] = precipInHundredthsOfMm;
 					}
 				}
 
@@ -369,7 +370,7 @@ public class RenderPcpBlocking {
 			 */
 
 			ReadQPFGrids rqp = new ReadQPFGrids();
-			rqp.write_file("pcp", time_pos, pcp);
+			rqp.write_file("pcp", time_pos, dqc.pcp);
 		}
 
 	} // end render_pcp_internal()
@@ -723,9 +724,9 @@ public class RenderPcpBlocking {
 		for (i = 0; i < hrap_grid.maxi; i++) {
 			for (j = 0; j < hrap_grid.maxj; j++) {
 				binStationCount[i][j] = 0;
-				valueGrid[i][j] = DailyQcUtils.MOSAIC_DEFAULT; // precip in
+				valueGrid[i][j] = dqc.MOSAIC_DEFAULT; // precip in
 																// inches
-				prismStationGrid[i][j] = DailyQcUtils.MOSAIC_DEFAULT; // prism
+				prismStationGrid[i][j] = dqc.MOSAIC_DEFAULT; // prism
 																		// station
 																		// value
 																		// mapped
@@ -739,7 +740,7 @@ public class RenderPcpBlocking {
 					// in special 24hr = sum of 4 6hr periods mode,
 					// we accumulate in this grid, so we don't reinit every time
 
-					pcp.value[i][j] = (int) DailyQcUtils.MOSAIC_DEFAULT; // final
+					dqc.pcp.value[i][j] = (int) dqc.MOSAIC_DEFAULT; // final
 																			// precip
 																			// in
 																			// hundredths
@@ -756,7 +757,7 @@ public class RenderPcpBlocking {
 			int max_stations, ArrayList<Station> stationList,
 			Hrap_Grid hrap_grid, Pdata pdata[]) {
 
-		int method = DailyQcUtils.method;
+		int method = dqc.method;
 		String header = "RenderPcpBlocking.placeStationsInGrid(): ";
 
 		int time_pos;
@@ -770,7 +771,7 @@ public class RenderPcpBlocking {
 		int hx, hy;
 		int h = 0;
 
-		int noPrismCount = 0;
+//		int noPrismCount = 0;
 
 		// System.out.println("max_stations = " + max_stations);
 
@@ -808,7 +809,7 @@ public class RenderPcpBlocking {
 			if ((method == 2) && (station.isoh[isom] <= 0)) // no prism data for
 															// the station
 			{
-				noPrismCount++;
+//				noPrismCount++;
 				continue;
 			}
 
@@ -828,7 +829,7 @@ public class RenderPcpBlocking {
 					valueGrid[hx][hy] = precipValue;
 					prismStationGrid[hx][hy] = station.isoh[isom];
 
-					usableStationCount++;
+//					usableStationCount++;
 				}
 
 				else if (stationCount > 0) // we have at least 1 value for this
@@ -849,7 +850,7 @@ public class RenderPcpBlocking {
 					valueGrid[hx][hy] = newGridAvgValue;
 					prismStationGrid[hx][hy] = newPrismAvgValue;
 
-					usableStationCount++;
+//					usableStationCount++;
 
 				} // end else
 			} // end if
@@ -881,7 +882,7 @@ public class RenderPcpBlocking {
 		/* initialization of the pcp.value */
 		for (int i = 0; i < hrap_grid.maxi; i++) {
 			for (int j = 0; j < hrap_grid.maxj; j++) {
-				pcp.value[i][j] = 0;
+				dqc.pcp.value[i][j] = 0;
 			}
 		}
 
