@@ -61,6 +61,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 16, 2009            snaples     Initial creation
  * Dec 04, 2012 15544      wkwock      fix missing 12z-18z after 12
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leaks and Scanner resource leak.
+ * Nov 24, 2014 16911      xwei        The day of Hydrologic Date is set to the next day 
+ *                                     if hour is greater than 18Z. 
  * 
  * </pre>
  * 
@@ -1043,10 +1045,7 @@ public class DailyQcUtils {
          */
         Calendar currentTime = Calendar
                 .getInstance(TimeZone.getTimeZone("GMT"));
-        if (currentTime.get(Calendar.HOUR_OF_DAY) >= 18) {
-            btime.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
+        
         emonth = btime.get(Calendar.MONTH);
         Calendar otime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         otime.setTime(btime.getTime());
