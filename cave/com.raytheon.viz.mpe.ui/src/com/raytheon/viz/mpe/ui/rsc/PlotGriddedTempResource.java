@@ -73,8 +73,6 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager.DisplayMode;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.util.CreateMap;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
@@ -101,6 +99,10 @@ public class PlotGriddedTempResource extends
         AbstractVizResource<AbstractResourceData, MapDescriptor> implements
         IMpeResource {
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    private DrawDQCStations ddq = DrawDQCStations.getInstance();
+    
     MPEDisplayManager displayMgr = null;
 
     private GriddedImageDisplay2 gridDisplay;
@@ -131,9 +133,9 @@ public class PlotGriddedTempResource extends
 
     private final List<Colorvalue> colorSet;
 
-    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+//    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
 
-    Pcp pcp = DailyQcUtils.pcp;
+//    Pcp pcp = DailyQcUtils.pcp;
 
     public PlotGriddedTempResource(MPEDisplayManager displayMgr,
             LoadProperties loadProperties, List<Colorvalue> colorSet) {
@@ -142,7 +144,7 @@ public class PlotGriddedTempResource extends
         this.colorSet = colorSet;
     }
 
-    ColorMap precip_colormap = DrawDQCStations.colorMap;
+    ColorMap precip_colormap = ddq.colorMap;
 
     RGB color = null;
 
@@ -152,8 +154,8 @@ public class PlotGriddedTempResource extends
 
     public void plot_gridded_temp(String prefix, int num) {
         int pcpn_time_step = MPEDisplayManager.pcpn_time_step;
-        boolean wfo_all = DailyQcUtils.wfo_all;
-        int[] wfo_in_use = DailyQcUtils.wfo_in_use;
+        boolean wfo_all = dqc.wfo_all;
+        int[] wfo_in_use = dqc.wfo_in_use;
         CreateMap cm = new CreateMap();
         float value = 0;
 
@@ -215,19 +217,19 @@ public class PlotGriddedTempResource extends
 
         UnitConverter cvt = parameters.getDataToImageConverter();
 
-        if (DailyQcUtils.pcp_in_use[num] == -1) {
+        if (dqc.pcp_in_use[num] == -1) {
             return;
         }
 
-        cm.read_file(file, num, pcp);
+        cm.read_file(file, num, dqc.pcp);
 
-        buf = FloatBuffer.allocate(hrap_grid.maxi * hrap_grid.maxj);
+        buf = FloatBuffer.allocate(dqc.getHrap_grid().maxi * dqc.getHrap_grid().maxj);
 
         /* Get value in the HRAP grid bins. */
-        for (j = hrap_grid.maxj - 1; j >= 0; j--) {
-            for (i = 0; i < hrap_grid.maxi; i++) {
+        for (j = dqc.getHrap_grid().maxj - 1; j >= 0; j--) {
+            for (i = 0; i < dqc.getHrap_grid().maxi; i++) {
 
-                if (hrap_grid.owner[i][j] == -1) {
+                if (dqc.getHrap_grid().owner[i][j] == -1) {
                     continue;
                 }
 
@@ -238,13 +240,13 @@ public class PlotGriddedTempResource extends
                             break;
                         }
 
-                        if (hrap_grid.owner[i][j] == wfo_in_use[m]) {
+                        if (dqc.getHrap_grid().owner[i][j] == wfo_in_use[m]) {
                             break;
                         }
                     }
                 }
                 Float fg = 0f;
-                value = pcp.value[i][j];
+                value = dqc.pcp.value[i][j];
                 if (fg.isNaN()) {
                     fg = -9999f;
                 } else {
@@ -273,8 +275,8 @@ public class PlotGriddedTempResource extends
         }
         buf.rewind();
 
-        Rectangle extent = new Rectangle(hrap_grid.hrap_minx,
-                hrap_grid.hrap_miny, hrap_grid.maxi, hrap_grid.maxj);
+        Rectangle extent = new Rectangle(dqc.getHrap_grid().hrap_minx,
+                dqc.getHrap_grid().hrap_miny, dqc.getHrap_grid().maxi, dqc.getHrap_grid().maxj);
 
         if (extent.x == 0 && extent.y == 0) {
             Rectangle coord = null;
@@ -359,7 +361,7 @@ public class PlotGriddedTempResource extends
                 int x = p.x - extent.x;
                 int y = p.y - extent.y;
 
-                short s = (short) pcp.value[x][y];
+                short s = (short) dqc.pcp.value[x][y];
 
                 double d = parameters.getDataToDisplayConverter().convert(s);
 
@@ -435,8 +437,8 @@ public class PlotGriddedTempResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         this.target = target;
-        time_pos = DrawDQCStations.time_pos;
-        plot_gridded_temp(DrawDQCStations.prefix, time_pos);
+        time_pos = ddq.time_pos;
+        plot_gridded_temp(ddq.prefix, time_pos);
 
     }
 
@@ -444,7 +446,7 @@ public class PlotGriddedTempResource extends
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
 
-        if (buf == null || DailyQcUtils.grids_flag != 1
+        if (buf == null || dqc.grids_flag != 1
                 || displayMgr.isMaxmin() != true) {
             return;
         }
@@ -486,11 +488,11 @@ public class PlotGriddedTempResource extends
      */
     @Override
     public String getName() {
-        if (DrawDQCStations.qcmode == "") {
+        if (ddq.qcmode == "") {
             return "No Data Available";
         }
 
-        return DrawDQCStations.qcmode;
+        return ddq.qcmode;
     }
 
     @Override
