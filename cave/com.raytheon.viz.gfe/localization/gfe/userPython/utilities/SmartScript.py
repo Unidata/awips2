@@ -56,6 +56,12 @@
 #                                                 Wx/Discrete in First mode.
 #    Dec 23, 2013    16893         ryu            Added unloadWEs() method (created by njensen)
 #    Apr 29, 2014    3097          randerso       Fixed getGrids() to return non-scalar grids as tuples in all cases
+#    Dec 01, 2014    3875          randerso       Added gmTime() and localTime() functions which are exact equivalents
+#                                                 to those in the python time module.
+#                                                 Added getTimeZoneStr and getTzInfo which return the site's local time
+#                                                 zone as a string or as an object respectively
+#                                                 Fixed createTimeRange to correctly return time ranges relative to local
+#                                                 time regardless of setting of os.environ['TZ']
 #
 ########################################################################
 import types, string, time, sys
@@ -100,7 +106,7 @@ class SmartScript(BaseTool.BaseTool):
         # A cache of grids accessed by the derived class
         #self.__pythonGrids = []
         self.__accessTime = 0
-        self.__gridLoc = None
+        self.__gridLoc = self.__parmMgr.compositeGridLocation()
         self.__topoGrid = None
         self.__toolType = "numeric"
         self._empty = zeros(self.getGridShape(), float32)
@@ -125,12 +131,6 @@ class SmartScript(BaseTool.BaseTool):
         return self.__mutableID
 
     def getGridLoc(self):
-        if self.__gridLoc is None:
-            parmIDs = self.__parmMgr.getAvailableParms(self.__mutableID.toJavaObj())
-            if len(parmIDs) > 0:
-                tempParmID = parmIDs[0]
-                info = self.__dataMgr.getClient().getGridParmInfo(tempParmID)
-                self.__gridLoc = info.getGridLoc()
         return self.__gridLoc
 
     def setToolType(self, toolType):
@@ -1401,8 +1401,8 @@ class SmartScript(BaseTool.BaseTool):
                       "Must specify a database ID for mode=Database")
 
         if mode == "LT":
-            localTime = time.mktime(time.localtime())
-            gmTime = time.mktime(time.gmtime())
+            localTime = time.mktime(self.localtime())
+            gmTime = time.mktime(self.gmtime())
             localAbsTime = AbsTime.AbsTime(localTime)
             delta = localTime - gmTime
 
@@ -1416,7 +1416,7 @@ class SmartScript(BaseTool.BaseTool):
             end = dbID.modelTime() + (endHour * 3600)
             return TimeRange.TimeRange(start, end)
         else:
-            currentTime = time.gmtime()
+            currentTime = self.gmtime()
             today = AbsTime.absTimeYMD(currentTime.tm_year, currentTime.tm_mon,
                                        currentTime.tm_mday)
             start = today + (startHour * 3600)
@@ -1473,7 +1473,7 @@ class SmartScript(BaseTool.BaseTool):
             display = display + timeRange.endTime().stringFmt(endFmt)
         if LTorZulu == "LT":
             # Adjust time zone to local time
-            localTime = time.localtime(time.time())
+            localTime = self.localtime()
             zoneName = time.strftime("%Z", localTime)
             display = string.replace(display, "GMT", zoneName)
         return display
@@ -1497,28 +1497,49 @@ class SmartScript(BaseTool.BaseTool):
         ''' Assumes date (default is current Simulate Time) is a UTC time to convert
             to the time zone tz (default is Site Time Zone).
             returns datetime
-
-            This should be used instead of time.localtime()
         '''
-        import dateutil.tz
-
         if tz is None:
-            tzname = self.__dataMgr.getClient().getSiteTimeZone()
-            tz = dateutil.tz.gettz(tzname)
+            tz = self.getTzInfo()
 
-        utczone = dateutil.tz.gettz('UTC')
-        gmdt = self._gmtime(date).replace(tzinfo=utczone)
+        gmdt = self._gmtime(date)
         tzdt = gmdt.astimezone(tz)
         return tzdt
 
     def _gmtime(self, date=None):
         ''' This takes date (default current Simulated Time) and converts it to AbsTime
-
-            This should be used instead of time.gmtime()
         '''
         if date is None:
             date = SimulatedTime.getSystemTime().getTime()
         return AbsTime.AbsTime(date)
+    
+    def gmtime(self, date=None):
+        ''' This takes date (default current Simulated Time) and converts it to AbsTime
+
+            This should be used instead of time.gmtime()
+        '''
+        return self._gmtime(date).utctimetuple()
+
+    def localtime(self, date=None):
+        ''' Assumes date (default is current Simulated Time) is a UTC time to convert
+            to the time zone of the local site.
+
+            This should be used instead of time.localtime()
+        '''
+        return self._localtime(date).timetuple()
+    
+    def getTimeZoneStr(self):
+        ''' Returns local time zone of the current site as a string
+        '''
+        return self.__gridLoc.getTimeZone()
+    
+    def getTzInfo(self, tzname=None):
+        ''' Returns time zone object compatible with datetime for the desired time zone. 
+            Defaults to local site's time zone if tzname not specified.
+        '''
+        if tzname is None:
+            tzname = self.getTimeZoneStr()
+        import dateutil.tz
+        return dateutil.tz.gettz(tzname)
 
     def dayTime(self, timeRange, startHour=6, endHour=18):
         # Return 1 if start of timeRange is between the
