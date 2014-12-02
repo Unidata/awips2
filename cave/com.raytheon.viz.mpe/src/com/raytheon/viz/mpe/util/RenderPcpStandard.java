@@ -20,16 +20,9 @@
 package com.raytheon.viz.mpe.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
@@ -53,43 +46,45 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 public class RenderPcpStandard {
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
 	private static final int MINIMUM_NEAREST_NEIGHBOR_GAGES = 4;
 
 	private static final int SUFFICIENT_NEAREST_NEIGHBOR_GAGES = 10;
 
 	private static boolean first = true;
 
-	Pcp pcp = DailyQcUtils.pcp;
+//	Pcp pcp = DailyQcUtils.pcp;
 
 	/*
 	 * QC codes
 	 */
-	private static final int MISSING = -1;
+//	private static final int MISSING = -1;
+//
+//	private static final int STANDARD = 0;
+//
+//	private static final int SCREENED = 0;
+//
+//	private static final int FAILED = 1;
+//
+//	private static final int MANUAL = 2;
+//
+//	private static final int QUESTIONABLE = 3;
+//
+//	private static final int PARTIAL = 4;
+//
+//	private static final int ESTIMATED = 5;
+//
+//	private static final int TIMEDISTRIBUTED = 6;
+//
+//	private static final int VERIFIED = 8;
+//
+//	private static final String MPE_DQC_GRID_RENDERING_METHOD_TOKEN = "mpe_dqc_grid_render_method";
 
-	private static final int STANDARD = 0;
+	private final int maxDistSquared = dqc.mpe_dqc_grid_max_dist
+			* dqc.mpe_dqc_grid_max_dist;
 
-	private static final int SCREENED = 0;
-
-	private static final int FAILED = 1;
-
-	private static final int MANUAL = 2;
-
-	private static final int QUESTIONABLE = 3;
-
-	private static final int PARTIAL = 4;
-
-	private static final int ESTIMATED = 5;
-
-	private static final int TIMEDISTRIBUTED = 6;
-
-	private static final int VERIFIED = 8;
-
-	private static final String MPE_DQC_GRID_RENDERING_METHOD_TOKEN = "mpe_dqc_grid_render_method";
-
-	private static final int maxDistSquared = DailyQcUtils.mpe_dqc_grid_max_dist
-			* DailyQcUtils.mpe_dqc_grid_max_dist;
-
-	private static final double BOGUS_ESTIMATED_GRID_VALUE = -1.0;
+//	private static final double BOGUS_ESTIMATED_GRID_VALUE = -1.0;
 
 	// weighting variables
 
@@ -125,9 +120,9 @@ public class RenderPcpStandard {
 
 		// String header = "RenderPcpStandard.render_pcp_original(): ";
 
-		int isom = DailyQcUtils.isom;
-		int method = DailyQcUtils.method;
-		int mpe_dqc_max_precip_neighbors = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+		int isom = dqc.isom;
+		int method = dqc.method;
+		int mpe_dqc_max_precip_neighbors = dqc.mpe_dqc_max_precip_neighbors;
 		int i, j, h, hh, time_pos;
 
 		int usedStationCount = 0;
@@ -182,7 +177,7 @@ public class RenderPcpStandard {
 				 * not estimate precipitation for it.
 				 */
 				if (hrap_grid.owner[i][j] == -1) {
-					pcp.value[i][j] = 0;
+					dqc.pcp.value[i][j] = 0;
 					continue;
 				}
 
@@ -277,17 +272,17 @@ public class RenderPcpStandard {
 
 				// found no usable gages
 				if (usedStationCount == 0) {
-					pcp.value[i][j] = 0;
+					dqc.pcp.value[i][j] = 0;
 				}
 
 				else {
 
-					pcp.value[i][j] = (int) (totalWeightedValue
+					dqc.pcp.value[i][j] = (int) (totalWeightedValue
 							/ totalDistanceWeight * 100.0);
 				}
 
-				if (pcp.value[i][j] < .01) {
-					pcp.value[i][j] = 0;
+				if (dqc.pcp.value[i][j] < .01) {
+					dqc.pcp.value[i][j] = 0;
 				}
 
 			} // end for (j = 0; j < hrap_grid.maxj; j++) {
@@ -309,7 +304,7 @@ public class RenderPcpStandard {
 		pcp_in_use[time_pos] = 1;
 
 		ReadQPFGrids rqp = new ReadQPFGrids();
-		rqp.write_file("pcp", time_pos, pcp);
+		rqp.write_file("pcp", time_pos, dqc.pcp);
 	}
 
 	private boolean processStation(int gageIndex, int isom, int col, int row,
@@ -402,11 +397,11 @@ public class RenderPcpStandard {
 
 		int i, j, k, h, hh, time_pos;
 		boolean usedStation = false;
-		int isom = DailyQcUtils.isom;
-		int method = DailyQcUtils.method;
+		int isom = dqc.isom;
+		int method = dqc.method;
 		int totals[] = new int[5];
-		int all_total = 0;
-		int neighbor_total = 0;
+//		int all_total = 0;
+//		int neighbor_total = 0;
 
 		int usedStationCount;
 
@@ -433,7 +428,7 @@ public class RenderPcpStandard {
 		/* initialization of the pcp.value */
 		for (i = 0; i < hrap_grid.maxi; i++) {
 			for (j = 0; j < hrap_grid.maxj; j++) {
-				pcp.value[i][j] = 0;
+				dqc.pcp.value[i][j] = 0;
 			}
 		}
 
@@ -462,7 +457,7 @@ public class RenderPcpStandard {
 					 * do not estimate precipitation for it.
 					 */
 					if (hrap_grid.owner[i][j] == -1) {
-						pcp.value[i][j] = 0;
+						dqc.pcp.value[i][j] = 0;
 						continue;
 					}
 
@@ -474,7 +469,7 @@ public class RenderPcpStandard {
 					 * for each neighbor station of the grid bin, do the
 					 * following
 					 */
-					int mpe_dqc_max_precip_neighbors = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+					int mpe_dqc_max_precip_neighbors = dqc.mpe_dqc_max_precip_neighbors;
 
 					for (h = 0; h < mpe_dqc_max_precip_neighbors; h++) {
 						hh = hrap_grid.gage[i][j].index[h];/*
@@ -519,17 +514,17 @@ public class RenderPcpStandard {
 							}
 
 						}
-						neighbor_total++;
+//						neighbor_total++;
 					}
 
 					if (usedStationCount != 0) {
-						pcp.value[i][j] += (int) ((totalWeightedValue / totalDistanceWeight) * 100);
+						dqc.pcp.value[i][j] += (int) ((totalWeightedValue / totalDistanceWeight) * 100);
 					}
 
 					/*
 					 * if (pcp.value[i][j] < .01) { pcp.value[i][j] = 0; }
 					 */
-					all_total++;
+//					all_total++;
 
 				} /* end of for loop (j = 0; j < hrap_grid.maxj; j++) */
 			} /* end of for loop (i = 0; i < hrap_grid.maxi; i++) */
@@ -544,9 +539,9 @@ public class RenderPcpStandard {
 		for (i = 0; i < hrap_grid.maxi; i++) {
 			for (j = 0; j < hrap_grid.maxj; j++) {
 
-				if (pcp.value[i][j] < .01) { // this doesn't really make sense,
+				if (dqc.pcp.value[i][j] < .01) { // this doesn't really make sense,
 												// since this is an integer
-					pcp.value[i][j] = 0;
+					dqc.pcp.value[i][j] = 0;
 				}
 			}
 		}
@@ -567,7 +562,7 @@ public class RenderPcpStandard {
 		 * scratch file is stored in the scratch directory.
 		 */
 		ReadQPFGrids rqp = new ReadQPFGrids();
-		rqp.write_file("pcp", time_pos, pcp);
+		rqp.write_file("pcp", time_pos, dqc.pcp);
 
 	} // end render24hrPcpUsingFour6hr()
 
