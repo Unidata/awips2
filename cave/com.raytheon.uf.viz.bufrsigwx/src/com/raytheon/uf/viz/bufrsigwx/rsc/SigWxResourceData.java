@@ -28,12 +28,10 @@ import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.bufrsigwx.Activator;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 
 /**
  * Generic resourceData for SigWx data
@@ -52,8 +50,9 @@ import com.raytheon.uf.viz.core.status.StatusConstants;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class SigWxResourceData extends AbstractRequestableResourceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(SigWxResourceData.class);
-    
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SigWxResourceData.class);
+
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
@@ -63,9 +62,9 @@ public class SigWxResourceData extends AbstractRequestableResourceData {
         if (obj instanceof SigWxResourceData == false) {
             return false;
         }
-        
+
         // SigWxCloudsResourceData other = (SigWxCloudsResourceData) obj;
-        
+
         return true;
     }
 
@@ -87,8 +86,7 @@ public class SigWxResourceData extends AbstractRequestableResourceData {
         } else if (SigWxType.JETS == type) {
             nr = new SigWxJetStreamResource(this, loadProperties);
         } else {
-            throw new VizException("No Resource for SigWx Type: "
-                    + typeString);
+            throw new VizException("No Resource for SigWx Type: " + typeString);
         }
         for (PluginDataObject o : objects) {
             if (o instanceof SigWxData) {
@@ -101,6 +99,6 @@ public class SigWxResourceData extends AbstractRequestableResourceData {
             }
         }
         return nr;
-    } 
+    }
 
 }
