@@ -57,9 +57,9 @@ public class ReadPrecipB {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ReadPrecipB.class);
 
-    DailyQcUtils qc = new DailyQcUtils();
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-    boolean auto_dailyqc_flag = qc.isAuto_dailyqc_flag();
+    boolean auto_dailyqc_flag = dqc.isAuto_dailyqc_flag();
 
     BufferedReader in = null;
 
@@ -88,9 +88,9 @@ public class ReadPrecipB {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String dt = sdf.format(time);
         /* Store the time in ticks of the data. */
-        DailyQcUtils.pdata[i].data_time.setTime(time.getTime());
+        dqc.pdata[i].data_time.setTime(time.getTime());
         /* Store the GMT time as a string of format YYYYMMDD. */
-        DailyQcUtils.pdata[i].ztime = dt;
+        dqc.pdata[i].ztime = dt;
         int reset_flag = 0;
         int fe = 1;
         File pb = new File(precb);
@@ -99,8 +99,8 @@ public class ReadPrecipB {
         }
         for (k = 0; k < numPstations; k++) {
             for (m = 0; m < 5; m++) {
-                DailyQcUtils.pdata[i].stn[k].frain[m].data = -1;
-                DailyQcUtils.pdata[i].stn[k].frain[m].qual = -1;
+                dqc.pdata[i].stn[k].frain[m].data = -1;
+                dqc.pdata[i].stn[k].frain[m].qual = -1;
             }
         }
 
@@ -122,8 +122,8 @@ public class ReadPrecipB {
                 /* Otherwise, the level 2 file was found. */
                 for (k = 0; k < 5; k++) {
                     number_found[k] = 0;
-                    DailyQcUtils.pdata[i].used[k] = 1;
-                    DailyQcUtils.pdata[i].level = 2;
+                    dqc.pdata[i].used[k] = 1;
+                    dqc.pdata[i].level = 2;
                 }
 
                 /* initialize structure */
@@ -231,7 +231,7 @@ public class ReadPrecipB {
                     for (k = startk; k < maxk; k++) {
 
                         // Set the quality flag to 0
-                        DailyQcUtils.pdata[i].stn[j].frain[k].qual = 0;
+                        dqc.pdata[i].stn[j].frain[k].qual = 0;
 
                         /*
                          * Check if this record is completely unparsable. If it
@@ -256,16 +256,16 @@ public class ReadPrecipB {
                                 || (buf.indexOf('.') > c && c != -1)) {
                             if (a.hasNext("m") || a.hasNext("M")) {
                                 if (auto_dailyqc_flag == false) {
-                                    if (DailyQcUtils.pdata[i].stn[j].rrain[k].data >= 0) {
+                                    if (dqc.pdata[i].stn[j].rrain[k].data >= 0) {
                                         reset_flag = 1;
                                     } else {
                                         /*
                                          * Set the data and quality flags to
                                          * missing.
                                          */
-                                        DailyQcUtils.pdata[i].stn[j].frain[k].data = -1;
+                                        dqc.pdata[i].stn[j].frain[k].data = -1;
 
-                                        DailyQcUtils.pdata[i].stn[j].frain[k].qual = -1;
+                                        dqc.pdata[i].stn[j].frain[k].qual = -1;
 
                                     }
                                 } else {
@@ -273,9 +273,9 @@ public class ReadPrecipB {
                                      * Set the data and quality flags to
                                      * missing.
                                      */
-                                    DailyQcUtils.pdata[i].stn[j].frain[k].data = -1;
+                                    dqc.pdata[i].stn[j].frain[k].data = -1;
 
-                                    DailyQcUtils.pdata[i].stn[j].frain[k].qual = -1;
+                                    dqc.pdata[i].stn[j].frain[k].qual = -1;
 
                                 }
                             }
@@ -302,7 +302,7 @@ public class ReadPrecipB {
                             val = val.substring(0, val.length());
 
                             /* Assign the value to the pdata structure. */
-                            DailyQcUtils.pdata[i].stn[j].frain[k].data = Float
+                            dqc.pdata[i].stn[j].frain[k].data = Float
                                     .parseFloat(val.trim());
 
                             /* Process the quality flag. */
@@ -334,22 +334,22 @@ public class ReadPrecipB {
                                     } else if (r == 'L') {
                                         qual = 6;
                                     } else if (r == 'A') {
-                                        DailyQcUtils.pdata[i].stn[j].sflag[k] = 1;
+                                        dqc.pdata[i].stn[j].sflag[k] = 1;
                                         qual = 8;
                                     } else if (r == 'B') {
-                                        DailyQcUtils.pdata[i].stn[j].sflag[k] = 1;
+                                        dqc.pdata[i].stn[j].sflag[k] = 1;
                                         qual = 0;
                                     } else if (r == 'C') {
-                                        DailyQcUtils.pdata[i].stn[j].sflag[k] = 1;
+                                        dqc.pdata[i].stn[j].sflag[k] = 1;
                                         qual = 3;
                                     }
 
                                     /* Assign qual code to level 2 data array */
-                                    DailyQcUtils.pdata[i].stn[j].frain[k].qual = (short) qual;
+                                    dqc.pdata[i].stn[j].frain[k].qual = (short) qual;
 
                                     if (auto_dailyqc_flag == false) {
                                         if ((qual == 5 || qual == 4)
-                                                && DailyQcUtils.pdata[i].stn[j].rrain[k].data >= 0) {
+                                                && dqc.pdata[i].stn[j].rrain[k].data >= 0) {
 
                                             int ier = bv
                                                     .is_bad(i,
@@ -369,17 +369,17 @@ public class ReadPrecipB {
                                                                 + precip_stations
                                                                         .get(j).parm
                                                                 + ", "
-                                                                + DailyQcUtils.pdata[i].stn[j].rrain[k].data);
+                                                                + dqc.pdata[i].stn[j].rrain[k].data);
                                                 rier = -2;
                                                 reset_flag = 1;
                                             }
 
                                         }
-                                        if (DailyQcUtils.pdata[i].stn[j].sflag[k] != 1) {
+                                        if (dqc.pdata[i].stn[j].sflag[k] != 1) {
 
                                             if ((qual != 5 && qual != 4 && qual != 2)
-                                                    && DailyQcUtils.pdata[i].stn[j].rrain[k].data >= 0
-                                                    && DailyQcUtils.pdata[i].stn[j].rrain[k].data != DailyQcUtils.pdata[i].stn[j].frain[k].data) {
+                                                    && dqc.pdata[i].stn[j].rrain[k].data >= 0
+                                                    && dqc.pdata[i].stn[j].rrain[k].data != dqc.pdata[i].stn[j].frain[k].data) {
 
                                                 System.out
                                                         .println("New data overwriting old "
@@ -389,7 +389,7 @@ public class ReadPrecipB {
                                                                 + precip_stations
                                                                         .get(j).parm
                                                                 + ", "
-                                                                + DailyQcUtils.pdata[i].stn[j].rrain[k].data);
+                                                                + dqc.pdata[i].stn[j].rrain[k].data);
                                                 rier = -2;
                                                 reset_flag = 1;
                                             }
@@ -397,8 +397,8 @@ public class ReadPrecipB {
                                                     && qual != 6
                                                     && qual != 4
                                                     && qual != 2
-                                                    && DailyQcUtils.pdata[i].stn[j].rrain[k].data < 0
-                                                    && DailyQcUtils.pdata[i].stn[j].frain[k].data >= 0) {
+                                                    && dqc.pdata[i].stn[j].rrain[k].data < 0
+                                                    && dqc.pdata[i].stn[j].frain[k].data >= 0) {
 
                                                 System.out
                                                         .println("Data set bad level 1 overwriting level 2 "
@@ -408,7 +408,7 @@ public class ReadPrecipB {
                                                                 + precip_stations
                                                                         .get(j).parm
                                                                 + ", "
-                                                                + DailyQcUtils.pdata[i].stn[j].rrain[k].data);
+                                                                + dqc.pdata[i].stn[j].rrain[k].data);
 
                                                 rier = -2;
                                                 reset_flag = 1;
@@ -417,8 +417,8 @@ public class ReadPrecipB {
                                         } else {
 
                                             if (qual != 5
-                                                    && DailyQcUtils.pdata[i].stn[j].srain[k].data >= 0
-                                                    && DailyQcUtils.pdata[i].stn[j].srain[k].data != DailyQcUtils.pdata[i].stn[j].frain[k].data) {
+                                                    && dqc.pdata[i].stn[j].srain[k].data >= 0
+                                                    && dqc.pdata[i].stn[j].srain[k].data != dqc.pdata[i].stn[j].frain[k].data) {
 
                                                 System.out
                                                         .println("New data overwriting old "
@@ -428,7 +428,7 @@ public class ReadPrecipB {
                                                                 + precip_stations
                                                                         .get(j).parm
                                                                 + ", "
-                                                                + DailyQcUtils.pdata[i].stn[j].rrain[k].data);
+                                                                + dqc.pdata[i].stn[j].rrain[k].data);
 
                                                 rier = -2;
                                                 reset_flag = 1;
@@ -437,8 +437,8 @@ public class ReadPrecipB {
 
                                             if (qual != 5
                                                     && qual != 6
-                                                    && DailyQcUtils.pdata[i].stn[j].srain[k].data < 0
-                                                    && DailyQcUtils.pdata[i].stn[j].frain[k].data >= 0) {
+                                                    && dqc.pdata[i].stn[j].srain[k].data < 0
+                                                    && dqc.pdata[i].stn[j].frain[k].data >= 0) {
 
                                                 System.out
                                                         .println("Data set bad level 1 overwriting level 2 "
@@ -448,7 +448,7 @@ public class ReadPrecipB {
                                                                 + precip_stations
                                                                         .get(j).parm
                                                                 + ", "
-                                                                + DailyQcUtils.pdata[i].stn[j].rrain[k].data);
+                                                                + dqc.pdata[i].stn[j].rrain[k].data);
 
                                                 rier = -2;
                                                 reset_flag = 1;
@@ -490,8 +490,8 @@ public class ReadPrecipB {
 
                         for (j = 0; j < numPstations; j++) {
 
-                            if (DailyQcUtils.pdata[i].stn[j].rrain[k].data >= 0
-                                    && DailyQcUtils.pdata[i].stn[j].frain[k].data < 0) {
+                            if (dqc.pdata[i].stn[j].rrain[k].data >= 0
+                                    && dqc.pdata[i].stn[j].frain[k].data < 0) {
 
                                 System.out.println("New level 1 data "
                                         + precip_stations.get(j).hb5);
@@ -508,7 +508,7 @@ public class ReadPrecipB {
                     for (m = 0; m < 5; m++) {
 
                         if (number_found[m] == 0) {
-                            DailyQcUtils.pdata[i].used[m] = 0;
+                            dqc.pdata[i].used[m] = 0;
                         }
 
                         int ier = bv.get_bad_values(i, m);
@@ -526,7 +526,7 @@ public class ReadPrecipB {
                     for (m = 0; m < 5; m++) {
 
                         if (number_found[m] == 0) {
-                            DailyQcUtils.pdata[i].used[m] = 0;
+                            dqc.pdata[i].used[m] = 0;
                         }
                     }
                     return 1;
@@ -535,8 +535,8 @@ public class ReadPrecipB {
                 // TODO Auto-generated catch block
                 System.out.println("File not found " + precb);
                 for (k = 0; k < 5; k++) {
-                    DailyQcUtils.pdata[i].used[k] = 0;
-                    DailyQcUtils.pdata[i].level = 1;
+                    dqc.pdata[i].used[k] = 0;
+                    dqc.pdata[i].level = 1;
                 }
                 return -1;
             } catch (IOException e) {
@@ -562,7 +562,7 @@ public class ReadPrecipB {
 
     private int reset_p(int day, int numPstations) {
         int i = day;
-        DailyQcUtils.pdata[i].level = 1;
+        dqc.pdata[i].level = 1;
 
         /*----------------------------------------------*/
         /* make qual code = Screened sticky */
@@ -572,21 +572,21 @@ public class ReadPrecipB {
 
             for (int m = 0; m < 5; m++) {
 
-                if (DailyQcUtils.pdata[i].stn[k].sflag[m] != 1) {
+                if (dqc.pdata[i].stn[k].sflag[m] != 1) {
 
                     // added by zhan for DR # 8960
-                    if (DailyQcUtils.pdata[i].stn[k].frain[m].qual == 0
-                            && DailyQcUtils.pdata[i].stn[k].frain[m].data == DailyQcUtils.pdata[i].stn[k].rrain[m].data) {
-                        DailyQcUtils.pdata[i].stn[k].frain[m].qual = 0;
+                    if (dqc.pdata[i].stn[k].frain[m].qual == 0
+                            && dqc.pdata[i].stn[k].frain[m].data == dqc.pdata[i].stn[k].rrain[m].data) {
+                        dqc.pdata[i].stn[k].frain[m].qual = 0;
                     }
                     // changed by zhan for DR # 8960
                     // "if" is changed to "else if"
-                    else if (DailyQcUtils.pdata[i].stn[k].frain[m].qual != 2) {
-                        DailyQcUtils.pdata[i].stn[k].frain[m].data = DailyQcUtils.pdata[i].stn[k].rrain[m].data;
-                        DailyQcUtils.pdata[i].stn[k].frain[m].qual = DailyQcUtils.pdata[i].stn[k].rrain[m].qual;
+                    else if (dqc.pdata[i].stn[k].frain[m].qual != 2) {
+                        dqc.pdata[i].stn[k].frain[m].data = dqc.pdata[i].stn[k].rrain[m].data;
+                        dqc.pdata[i].stn[k].frain[m].qual = dqc.pdata[i].stn[k].rrain[m].qual;
                     }
 
-                    if (DailyQcUtils.pdata[i].stn[k].frain[m].data >= 0) {
+                    if (dqc.pdata[i].stn[k].frain[m].data >= 0) {
                         number_found[m]++;
                     }
 
@@ -594,10 +594,10 @@ public class ReadPrecipB {
 
                 else {
 
-                    DailyQcUtils.pdata[i].stn[k].frain[m].data = DailyQcUtils.pdata[i].stn[k].srain[m].data;
-                    DailyQcUtils.pdata[i].stn[k].frain[m].qual = 8;
+                    dqc.pdata[i].stn[k].frain[m].data = dqc.pdata[i].stn[k].srain[m].data;
+                    dqc.pdata[i].stn[k].frain[m].qual = 8;
 
-                    if (DailyQcUtils.pdata[i].stn[k].frain[m].data >= 0) {
+                    if (dqc.pdata[i].stn[k].frain[m].data >= 0) {
                         number_found[m]++;
                     }
 
@@ -610,7 +610,7 @@ public class ReadPrecipB {
         for (int j = 0; j < 5; j++) {
 
             if (number_found[j] == 0) {
-                DailyQcUtils.pdata[i].used[j] = 0;
+                dqc.pdata[i].used[j] = 0;
                 // DailyQcUtils.pdata[i].level = 1;
             }
 
