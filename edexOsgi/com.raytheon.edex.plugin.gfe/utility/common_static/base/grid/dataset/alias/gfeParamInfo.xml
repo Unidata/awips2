@@ -210,4 +210,6 @@
     <alias base="NAHwave15">NAHwave15</alias>
     <alias base="NAHwave10">NAHwave10</alias>
     <alias base="NAHwave4">NAHwave4</alias>
+    <alias base="nwpsCG1">nwpsCG1</alias>
+    <alias base="nwpsTrkngCG0">nwpsTrkngCG0</alias>
 </aliasList>
