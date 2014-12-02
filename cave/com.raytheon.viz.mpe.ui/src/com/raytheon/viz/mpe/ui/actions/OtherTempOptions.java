@@ -47,13 +47,15 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
 public class OtherTempOptions {
 
     private static final int MAX_GAGEQC_DAYS = 10;
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     int time_pos = 0;
 
     public void set_temp_arrow_sensitivity() {
 
-        int num_qc_days = DailyQcUtils.qcDays;
-        int pcp_flag = DailyQcUtils.pcp_flag;
+        int num_qc_days = dqc.qcDays;
+        int pcp_flag = dqc.pcp_flag;
         Button up_arrow = QcTempOptionsDialog.upTimeBtn;
         Button down_arrow = QcTempOptionsDialog.dnTimeBtn;
 
@@ -68,7 +70,7 @@ public class OtherTempOptions {
             }
 
             /* determine the up arrow status */
-            if (DailyQcUtils.curHr18_00 == 1) {
+            if (dqc.curHr18_00 == 1) {
                 if (pcp_flag - 3 <= 0) {
                     /* Grey out the up arrow. */
                     up_arrow.setEnabled(false);
@@ -78,7 +80,7 @@ public class OtherTempOptions {
                 }
             }
 
-            else if (DailyQcUtils.curHr00_06 == 1) {
+            else if (dqc.curHr00_06 == 1) {
                 if (pcp_flag - 2 <= 0) {
                     /* Grey out the up arrow. */
                     up_arrow.setEnabled(false);
@@ -86,7 +88,7 @@ public class OtherTempOptions {
                     /* Make sure the up arrow is available. */
                     up_arrow.setEnabled(true);
                 }
-            } else if (DailyQcUtils.curHr06_12 == 1) {
+            } else if (dqc.curHr06_12 == 1) {
                 if (pcp_flag - 1 <= 0) {
                     /* Grey out the up arrow. */
                     up_arrow.setEnabled(false);
@@ -131,7 +133,7 @@ public class OtherTempOptions {
         /* 24 hour or 6 hour time step */
 
         if (MPEDisplayManager.pcpn_time_step == 0) {
-            time_pos = DailyQcUtils.pcpn_time;
+            time_pos = dqc.pcpn_time;
         } else {
             time_pos = 4;
         }
@@ -140,7 +142,7 @@ public class OtherTempOptions {
             return;
         } else if (data == 2 && MPEDisplayManager.pcpn_time_step != 0) {
             MPEDisplayManager.pcpn_time_step = 0;
-            DailyQcUtils.pcp_flag = 3;
+            dqc.pcp_flag = 3;
         } else if (data == 3 && MPEDisplayManager.pcpn_time_step == 1) {
             return;
         } else if (data == 3 && MPEDisplayManager.pcpn_time_step != 1) {
@@ -155,40 +157,40 @@ public class OtherTempOptions {
         if (data == 0) {
             /* 6 hour precip time step mode. */
             if (MPEDisplayManager.pcpn_time_step == 0) {
-                DailyQcUtils.pcp_flag--;
+                dqc.pcp_flag--;
             } else {
                 /* 24 hour precip time step mode. */
-                DailyQcUtils.pcp_flag = DailyQcUtils.pcp_flag - 4;
+                dqc.pcp_flag = dqc.pcp_flag - 4;
             }
 
         } else if (data == 1) {
             /* 6 hour precip time step mode. */
             if (MPEDisplayManager.pcpn_time_step == 0) {
-                DailyQcUtils.pcp_flag++;
+                dqc.pcp_flag++;
             } else {
                 /* 24 hour precip time step mode. */
-                DailyQcUtils.pcp_flag = DailyQcUtils.pcp_flag + 4;
+                dqc.pcp_flag = dqc.pcp_flag + 4;
             }
         }
 
-        if (DailyQcUtils.pcp_flag < 0) {
-            DailyQcUtils.pcp_flag = 0;
+        if (dqc.pcp_flag < 0) {
+            dqc.pcp_flag = 0;
         }
 
-        if (DailyQcUtils.pcp_flag >= MAX_GAGEQC_DAYS * 4) {
-            DailyQcUtils.pcp_flag = (MAX_GAGEQC_DAYS * 4) - 1;
+        if (dqc.pcp_flag >= MAX_GAGEQC_DAYS * 4) {
+            dqc.pcp_flag = (MAX_GAGEQC_DAYS * 4) - 1;
         }
 
-        DailyQcUtils.pcpn_day = DailyQcUtils.pcp_flag / 4;
+        dqc.pcpn_day = dqc.pcp_flag / 4;
 
-        DailyQcUtils.pcpn_time = 3 - (DailyQcUtils.pcp_flag - DailyQcUtils.pcpn_day * 4);
+        dqc.pcpn_time = 3 - (dqc.pcp_flag - dqc.pcpn_day * 4);
 
         if (MPEDisplayManager.pcpn_time_step == 0) {
-            time_pos = 150 + DailyQcUtils.pcp_flag;
+            time_pos = 150 + dqc.pcp_flag;
         } else if (MPEDisplayManager.pcpn_time_step == 1) {
-            time_pos = 190 + DailyQcUtils.pcpn_day;
+            time_pos = 190 + dqc.pcpn_day;
         } else if (MPEDisplayManager.pcpn_time_step == 2) {
-            time_pos = 200 + DailyQcUtils.pcpn_day;
+            time_pos = 200 + dqc.pcpn_day;
         }
 
         QcTempOptionsDialog.dataSet.clear();
@@ -197,7 +199,7 @@ public class OtherTempOptions {
         QcTempOptionsDialog.dataDispCbo.setItems(QcTempOptionsDialog.dataSet
                 .toArray(a));
 
-        if (DailyQcUtils.pcp_in_use[time_pos] == -1) {
+        if (dqc.pcp_in_use[time_pos] == -1) {
             QcTempOptionsDialog.dataSet.clear();
             QcTempOptionsDialog.dataSet.add(0, QcTempOptionsDialog.dataType
                     .get(0));
@@ -208,41 +210,41 @@ public class OtherTempOptions {
                     .setItems(QcTempOptionsDialog.dataSet.toArray(a));
         }
 
-        if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.pcp_in_use[time_pos] == -1) {
+        if (dqc.points_flag == 1
+                && dqc.pcp_in_use[time_pos] == -1) {
             i = 0;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1
-                && DailyQcUtils.contour_flag == -1) {
+        } else if (dqc.points_flag == 1
+                && dqc.grids_flag == -1 && dqc.map_flag == -1
+                && dqc.contour_flag == -1) {
             i = 0;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+        } else if (dqc.points_flag == -1
+                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
             i = 1;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+        } else if (dqc.points_flag == -1
+                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
             i = 2;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+        } else if (dqc.points_flag == 1
+                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
             i = 3;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+        } else if (dqc.points_flag == 1
+                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
             i = 4;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.contour_flag == 1) {
+        } else if (dqc.points_flag == -1
+                && dqc.contour_flag == 1) {
             i = 5;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.contour_flag == 1) {
+        } else if (dqc.points_flag == 1
+                && dqc.contour_flag == 1) {
             i = 6;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1) {
+        } else if (dqc.points_flag == -1
+                && dqc.grids_flag == -1 && dqc.map_flag == -1) {
             i = 7;
         }
 
         QcTempOptionsDialog.dataDispCbo.select(i);
 
-        if (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].stddev == 15.0) {
+        if (dqc.tdata[dqc.pcpn_day].stddev == 15.0) {
             i = 0;
-        } else if (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].stddev == 10.0) {
+        } else if (dqc.tdata[dqc.pcpn_day].stddev == 10.0) {
             i = 1;
         } else {
             i = 2;
@@ -250,19 +252,20 @@ public class OtherTempOptions {
 
         QcTempOptionsDialog.pntScnCbo.select(i);
 
-        if ((DailyQcUtils.pcp_in_use[time_pos] == -1)
-                && (((MPEDisplayManager.pcpn_time_step == 1) && (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[4] != 0))
-                        || ((MPEDisplayManager.pcpn_time_step == 2) && (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[5] != 0)) || ((MPEDisplayManager.pcpn_time_step == 0) && (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] != 0)))) {
+        if ((dqc.pcp_in_use[time_pos] == -1)
+                && (((MPEDisplayManager.pcpn_time_step == 1) && (dqc.tdata[dqc.pcpn_day].used[4] != 0))
+                        || ((MPEDisplayManager.pcpn_time_step == 2) && (dqc.tdata[dqc.pcpn_day].used[5] != 0)) 
+                        || ((MPEDisplayManager.pcpn_time_step == 0) && (dqc.tdata[dqc.pcpn_day].used[dqc.pcpn_time] != 0)))) {
             QcTempOptionsDialog.renderGridsBtn.setEnabled(true);
         } else {
             QcTempOptionsDialog.renderGridsBtn.setEnabled(false);
         }
 
         Calendar tget = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        long offset = (DailyQcUtils.pcpn_day * 86400);
-        tget.setTime(DailyQcUtils.btime.getTime());
+        long offset = (dqc.pcpn_day * 86400);
+        tget.setTime(dqc.btime.getTime());
         tget.add(Calendar.SECOND, (int) -offset);
-        DailyQcUtils.isom = tget.get(Calendar.MONTH);
+        dqc.isom = tget.get(Calendar.MONTH);
 
         /*
          * Set the sensitivity of the temp time step arrows based on the current
