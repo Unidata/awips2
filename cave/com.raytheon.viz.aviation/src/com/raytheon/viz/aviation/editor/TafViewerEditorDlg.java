@@ -240,6 +240,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 07/23/2014   15645       zhao        modified checkBasicSyntaxError()
  * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 08/13/2014   3497        njensen     Refactored syntax checking to prevent potential infinite loop
+ * 12/02/2014   #15007      zhao        Added restoreFrom() for the "Restore From..." menu option
  * 
  * </pre>
  * 
@@ -1163,7 +1164,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         restoreFromMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                restoreFile(null);
+                restoreFrom();
             }
         });
 
@@ -2499,6 +2500,92 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             } finally {
                 setWaitCursor(false);
             }
+        }
+    }
+    
+    /**
+     * restore from a file a user selects
+     */
+    private void restoreFrom() {
+        
+        if ( tabFolder.getSelectionIndex() == VIEWER_TAB_SELECTED ) {
+            tabFolder.setSelection(editorTab);
+        }
+        
+        String tempTafPath = "aviation/tmp/";
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+        String path = pm.getFile(context, tempTafPath).getAbsolutePath();
+        FileDialog dlg = new FileDialog(shell, SWT.OPEN);
+        dlg.setFilterPath(path);
+        String filepath = dlg.open();
+
+        String errorMsg = null;
+
+        try {
+            setWaitCursor(true);
+            File file = new File(filepath);
+            FileReader reader = new FileReader(file);
+            BufferedReader input = new BufferedReader(reader);
+            StringBuilder contents = new StringBuilder();
+            String line = null;
+            line = input.readLine();
+
+            if (line == null) {
+                errorMsg = "empty file";
+            } else {
+                String[] values = line.split("\t");
+                // Assume first line contains wmo, wmo site and issue time.
+                if (values.length != 3) {
+                    errorMsg = "parse error";
+                    contents.append(line);
+                    contents.append(System.getProperty("line.separator"));
+                } else {
+                    editorTafTabComp.setWmoIdLbl(values[0].trim());
+                    editorTafTabComp.setWmoSiteLbl(values[1].trim());
+                    editorTafTabComp.setLargeTF(values[2].trim());
+                }
+            }
+
+            while ((line = input.readLine()) != null) {
+                contents.append(line);
+                contents.append(System.getProperty("line.separator"));
+            }
+
+            input.close();
+
+            String tafText = contents.toString();
+            List<String> sitesInTaf = getSitesInTaf(tafText);
+            String icao = "----";
+            String bbb = "---";
+
+            if (errorMsg == null) {
+                bbb = editorTafTabComp.getBBB();
+            }
+
+            if (sitesInTaf.size() > 0) {
+                icao = sitesInTaf.get(0);
+            } else if (errorMsg == null) {
+                errorMsg = "uable to determine station";
+            }
+
+            ti.setText(icao + " " + bbb);
+            editorTafTabComp.getTextEditorControl().setText(tafText);
+
+            if (editorTafTabComp.isTafSent()) {
+                editorTafTabComp.updateTafSent(false);
+            }
+        } catch (FileNotFoundException e) {
+            setMessageStatusError("File " + filepath + " not found.");
+        } catch (IOException e) {
+            setMessageStatusError("An IOException occured while opening file " + filepath);
+        } finally {
+            if (errorMsg != null) {
+                setMessageStatusError("File " + filepath + ": " + errorMsg);
+            } else {
+                setMessageStatusOK("File " + filepath + " opened successfully.");
+            }
+            setWaitCursor(false);
         }
     }
 
