@@ -46,6 +46,8 @@ import com.raytheon.viz.mpe.util.Disagg6Hr.Values_6hr;
  */
 
 public class Write1hrVals6HrGages {
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     public void write1hrValuesFor6hrGages() {
 
@@ -54,7 +56,7 @@ public class Write1hrVals6HrGages {
         String[] obsdate = Disagg6Hr.obsdate;
         Date[] obsdate_date_t = Disagg6Hr.obsdate_date_t;
         Values_6hr[] values6hr = Disagg6Hr.values6hr;
-        int num_days_to_qc = DailyQcUtils.qcDays;
+        int num_days_to_qc = dqc.qcDays;
         int num_disagg_stations = Disagg6Hr.num_disagg_stations;
 
         String ts = "";
