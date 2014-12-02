@@ -19,9 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.swing.plaf.synth.ColorType;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
@@ -31,12 +32,12 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.jivesoftware.smack.packet.Presence;
-import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
@@ -44,9 +45,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformatio
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.SiteColorConfigManager;
-import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation;
-import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation.SiteColor;
+import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.ui.FeedColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Apr 01, 2014 2938       mpduff      Update logic for site and role changes.
  * Apr 22, 2014 3038       bclement    added initialized flag to differentiate between roster population and new joins
  * Oct 10, 2014 3708       bclement    SiteConfigurationManager refactor
+ * Nov 26, 2014 3709       mapeters    support foreground/background color preferences for each site
  * 
  * </pre>
  * 
@@ -88,15 +89,17 @@ public class SessionFeedView extends SessionView {
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.SessionFeedView";
 
-    private Action colorChangeAction;
-
     private Action autoJoinAction;
 
     private Action userAddSiteAction;
 
     private Action userRemoveSiteAction;
 
-    private List<SiteColor> colors;
+    private Action bgColorChangeAction;
+
+    private Action fgColorChangeAction;
+
+    private static FeedColorConfigManager colorConfigManager;
 
     private String actingSite;
 
@@ -127,14 +130,8 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void initComponents(Composite parent) {
         super.initComponents(parent);
-        colors = SiteColorConfigManager.getSiteColors();
-        if (colors != null) {
-            for (VenueParticipant user : session.getVenue().getParticipants()) {
-                setColorForSite(user);
-            }
-        } else {
-            colors = new ArrayList<SiteColor>();
-        }
+
+        colorConfigManager = new FeedColorConfigManager();
         usersTable.refresh();
     }
 
@@ -152,37 +149,10 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void createActions() {
         super.createActions();
-        Bundle bundle = Activator.getDefault().getBundle();
-        colorChangeAction = new Action("Change Site Color...",
-                IconUtil.getImageDescriptor(bundle, "change_color.gif")) {
-            @Override
-            public void run() {
-                ColorDialog dlg = new ColorDialog(Display.getCurrent()
-                        .getActiveShell());
-                RGB rgb = dlg.open();
-                if (rgb != null) {
-                    /*
-                     * get the selected entry so we know what site to change the
-                     * color for
-                     */
-                    String site = getSelectedSite();
 
-                    replaceSiteColor(site.toString(), rgb);
-                    /*
-                     * loop through all the entries in the list so we can set
-                     * the color for all sites corresponding to "selectedSite"
-                     */
-                    if (site != null) {
-                        for (VenueParticipant user : session.getVenue()
-                                .getParticipants()) {
-                            setColorForSite(user);
-                        }
-                    }
+        bgColorChangeAction = new ChangeSiteColorAction(ColorType.BACKGROUND);
 
-                    usersTable.refresh();
-                }
-            }
-        };
+        fgColorChangeAction = new ChangeSiteColorAction(ColorType.FOREGROUND);
 
         autoJoinAction = new Action(CollabPrefConstants.AUTO_JOIN, SWT.TOGGLE) {
             @Override
@@ -238,7 +208,8 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void fillContextMenu(IMenuManager manager) {
         super.fillContextMenu(manager);
-        manager.add(colorChangeAction);
+        manager.add(bgColorChangeAction);
+        manager.add(fgColorChangeAction);
         String site = getSelectedSite();
         if (!SiteConfigurationManager.isVisible(actingSite, site)) {
             userAddSiteAction
@@ -299,14 +270,57 @@ public class SessionFeedView extends SessionView {
         }
     }
 
+    /**
+     * Get site's foreground/background colors from colorConfigManager to pass
+     * to parent method.
+     * 
+     * @param sb
+     * @param offset
+     * @param name
+     * @param userId
+     * @param ranges
+     * @param fgColor
+     * @param bgColor
+     * @param subject
+     */
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, VenueParticipant userId, String subject,
-            List<StyleRange> ranges) {
+            String name, VenueParticipant userId, List<StyleRange> ranges,
+            Color fgColor, Color bgColor, String subject) {
+        String site = null;
         if (subject != null) {
-            setColorForSite(userId, subject);
+            site = subject;
+        } else if (userId != null) {
+            Presence presence = session.getVenue().getPresence(userId);
+            if (presence != null) {
+                site = String.valueOf(presence
+                        .getProperty(SiteConfigInformation.SITE_NAME));
+            }
         }
-        super.styleAndAppendText(sb, offset, name, userId, subject, ranges);
+        if (site != null) {
+            ColorInfo siteColor = colorConfigManager.getColor(site);
+            if (siteColor != null) {
+                if (siteColor.isForegroundSet()) {
+                    fgColor = getColorFromRGB(siteColor
+                            .getColor(ColorType.FOREGROUND));
+                }
+                bgColor = getColorFromRGB(siteColor
+                        .getColor(ColorType.BACKGROUND));
+            }
+        }
+        super.styleAndAppendText(sb, offset, name, userId, ranges, fgColor,
+                bgColor, subject);
+    }
+
+    /**
+     * Get the selected user
+     * 
+     * @return
+     */
+    private VenueParticipant getSelectedParticipant() {
+        IStructuredSelection selection = (IStructuredSelection) usersTable
+                .getSelection();
+        return (VenueParticipant) selection.getFirstElement();
     }
 
     /**
@@ -316,75 +330,10 @@ public class SessionFeedView extends SessionView {
      * @return
      */
     private String getSelectedSite() {
-        IStructuredSelection selection = (IStructuredSelection) usersTable
-                .getSelection();
-        VenueParticipant selectedEntry = (VenueParticipant) selection
-                .getFirstElement();
+        VenueParticipant selectedEntry = getSelectedParticipant();
         Presence pres = session.getVenue().getPresence(selectedEntry);
         Object selectedSite = pres.getProperty(SiteConfigInformation.SITE_NAME);
         return selectedSite == null ? "" : selectedSite.toString();
-    }
-
-    /**
-     * Takes an IRosterEntry and sets their color in the SessionColorManager for
-     * the site that they belong to, calls into
-     * setColorForSite(UserId,IPresence)
-     * 
-     * @param user
-     */
-    private void setColorForSite(VenueParticipant user) {
-        Presence presence = session.getVenue().getPresence(user);
-        setColorForSite(user, presence);
-    }
-
-    /**
-     * Does the work for setting the color for each user that belongs to a site
-     * 
-     * @param id
-     * @param presence
-     */
-    private void setColorForSite(VenueParticipant id, Presence presence) {
-        if (presence == null) {
-            return;
-        }
-        Object site = presence.getProperty(SiteConfigInformation.SITE_NAME);
-        if (site != null) {
-            setColorForSite(id, site.toString());
-        }
-    }
-
-    private void setColorForSite(VenueParticipant id, String site) {
-        SiteColor siteColor = new SiteColor();
-        siteColor.setSite(site.toString());
-        int index = colors.indexOf(siteColor);
-        if (index >= 0) {
-            SiteColor actualColor = colors.get(index);
-            colorManager.setColorForUser(id, actualColor.getColor());
-        }
-    }
-
-    /**
-     * Removes the color from the map if the site exists in the list
-     * 
-     * @param site
-     * @param rgb
-     */
-    private void replaceSiteColor(String site, RGB rgb) {
-        // now that the users have their color set, we need to add
-        // to the list that has the site color information
-        SiteColor color = new SiteColor();
-        color.setSite(site);
-        color.setColor(rgb);
-        boolean exists = false;
-        for (SiteColor col : SessionFeedView.this.colors) {
-            if (col.getSite().equals(site)) {
-                exists = true;
-            }
-        }
-        if (exists) {
-            SessionFeedView.this.colors.remove(color);
-        }
-        SessionFeedView.this.colors.add(color);
     }
 
     /*
@@ -450,11 +399,6 @@ public class SessionFeedView extends SessionView {
             }
         }
 
-        /*
-         * Presence changed is triggered for participant's site being changed.
-         * Need to set the color to handle this situation.
-         */
-        setColorForSite(participant, presence);
         refreshParticipantList();
     }
 
@@ -541,16 +485,44 @@ public class SessionFeedView extends SessionView {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.collaboration.ui.session.SessionView#dispose()
+     * action for changing foreground/background color for a selected site
      */
-    @Override
-    public void dispose() {
-        super.dispose();
-        SiteColorInformation information = new SiteColorInformation();
-        information.setColors(this.colors);
-        // TODO should color config be written more often?
-        SiteColorConfigManager.writeSiteColorInformation(information);
+    private class ChangeSiteColorAction extends Action {
+
+        private ColorType type;
+
+        private ChangeSiteColorAction(ColorType type) {
+            super("Change Site " + type.toString() + " Color...", IconUtil
+                    .getImageDescriptor(Activator.getDefault().getBundle(),
+                            "change_color.gif"));
+            this.type = type;
+        }
+
+        @Override
+        public void run() {
+            ColorDialog dialog = new ColorDialog(Display.getCurrent()
+                    .getActiveShell());
+            RGB defaultForeground = colorManager
+                    .getColorForUser(getSelectedParticipant());
+            String site = getSelectedSite();
+            ColorInfo colorInfo = colorConfigManager.getColor(site);
+            if (colorInfo != null
+                    && (type != ColorType.FOREGROUND || colorInfo.isForegroundSet())) {
+                /*
+                 * don't set dialog from colorInfo if null or type is foreground
+                 * and foreground hasn't been set (use default)
+                 */
+                dialog.setRGB(colorInfo.getColor(type));
+            } else if (type == ColorType.FOREGROUND) {
+                dialog.setRGB(defaultForeground);
+            }
+            RGB rgb = dialog.open();
+            if (rgb != null) {
+                colorConfigManager.setColor(site, type, rgb,
+                        defaultForeground);
+            }
+
+            usersTable.refresh();
+        }
     }
 }

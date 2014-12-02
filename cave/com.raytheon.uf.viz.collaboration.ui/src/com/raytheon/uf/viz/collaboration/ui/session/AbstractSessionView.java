@@ -97,6 +97,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Oct 14, 2014 3709       mapeters    Support changing foreground/background color.
  * Nov 14, 2014 3709       mapeters    Changing foreground/background colors no longer 
  *                                     implemented here, added messagesTextMenuMgr.
+ * Nov 26, 2014 3709       mapeters    Added {@link #getColorFromRGB()}.
  * </pre>
  * 
  * @author rferrel
@@ -151,9 +152,9 @@ public abstract class AbstractSessionView<T extends IUser> extends
     protected abstract void setMessageLabel(Composite comp);
 
     public AbstractSessionView() {
-        imageMap = new HashMap<String, Image>();
-        fonts = new HashMap<String, Font>();
-        colors = new HashMap<RGB, Color>();
+        imageMap = new HashMap<>();
+        fonts = new HashMap<>();
+        colors = new HashMap<>();
     }
 
     protected void initComponents(Composite parent) {
@@ -402,15 +403,10 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
                                     RGB rgb = new RGB(keyword.getRed(), keyword
                                             .getGreen(), keyword.getBlue());
-                                    Color color = null;
+
                                     // using the stored colors so we don't leak
-                                    if (colors.containsKey(rgb)) {
-                                        color = colors.get(rgb);
-                                    } else {
-                                        color = new Color(Display.getCurrent(),
-                                                rgb);
-                                        colors.put(rgb, color);
-                                    }
+                                    Color color = getColorFromRGB(rgb);
+
                                     TextStyle style = new TextStyle(font,
                                             color, null);
                                     StyleRange keywordRange = new StyleRange(
@@ -664,4 +660,18 @@ public abstract class AbstractSessionView<T extends IUser> extends
         });
     }
 
+    /**
+     * Get corresponding Color from map using RGB
+     * 
+     * @param rgb
+     * @return
+     */
+    protected Color getColorFromRGB(RGB rgb) {
+        Color color = colors.get(rgb);
+        if (color == null) {
+            color = new Color(Display.getCurrent(), rgb);
+            colors.put(rgb, color);
+        }
+        return color;
+    }
 }
