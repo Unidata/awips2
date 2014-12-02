@@ -27,7 +27,8 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
 
 /**
- * User coloring configuration manager
+ * Configuration manager for reading/writing colors for each site to/from a
+ * user-localized file
  * 
  * <pre>
  * 
@@ -35,44 +36,45 @@ import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 13, 2014 3709       mapeters    Initial creation.
- * Nov 26, 2014 3709       mapeters    Abstracted out code to {@link AbstractColorConfigManager}.
+ * Oct 10, 2014 3708       bclement    Moved color methods from SiteConfigurationManager
+ * Nov 26, 2014 3709       mapeters    Abstracted out code to {@link AbstractColorConfigManager}, 
+ *                                     renamed from SiteColorConfigManager.
  * 
  * </pre>
  * 
- * @author mapeters
+ * @author bclement
  * @version 1.0
  */
-public class UserColorConfigManager extends AbstractColorConfigManager {
+public class FeedColorConfigManager extends AbstractColorConfigManager {
 
     private static final String FILE_PATH = "collaboration"
-            + IPathManager.SEPARATOR + "userColorInfo.xml";
+            + IPathManager.SEPARATOR + "siteColorInfo.xml";
 
     private static ColorInfoMap colorInfoMap;
 
     /**
-     * Set and store the color type of the given user to be the given rgb.
+     * Set and store the color type of the given site to be the given rgb.
      * 
-     * @param user
+     * @param site
      * @param type
      * @param rgb
      * @param defaultForeground
      */
     @Override
-    public synchronized void setColor(String user,
+    public synchronized void setColor(String site,
             ColorType type, RGB rgb, RGB defaultForeground) {
-        super.setColor(user, type, rgb, defaultForeground, FILE_PATH);
+        super.setColor(site, type, rgb, defaultForeground, FILE_PATH);
     }
 
     /**
-     * Get the {@link ColorInfo} for the given user from memory.
+     * Get the {@link ColorInfo} for the given site from memory.
      * 
-     * @param user
+     * @param site
      * @return
      */
     @Override
-    public synchronized ColorInfo getColor(String user) {
-        return super.getColor(user, FILE_PATH);
+    public synchronized ColorInfo getColor(String site) {
+        return super.getColor(site, FILE_PATH);
     }
 
     @Override
@@ -82,6 +84,6 @@ public class UserColorConfigManager extends AbstractColorConfigManager {
 
     @Override
     protected void setColorInfoMap(ColorInfoMap colorInfoMap) {
-        UserColorConfigManager.colorInfoMap = colorInfoMap;
+        FeedColorConfigManager.colorInfoMap = colorInfoMap;
     }
 }
