@@ -22,9 +22,7 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.plaf.synth.ColorType;
 
@@ -55,8 +53,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
 import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
-import com.raytheon.uf.viz.collaboration.ui.UserColorInformation.UserColor;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
@@ -79,6 +77,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Jun 17, 2014 3078       bclement    changed peer type to IUser
  * Nov 14, 2014 3709       mapeters    support foregound/background color 
  *                                     settings for each user
+ * Nov 26, 2014 3709       mapeters    add colorConfigManager, use parent's colors map
  * 
  * </pre>
  * 
@@ -103,11 +102,11 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
     private static final Color BLACK = Display.getCurrent().getSystemColor(
             SWT.COLOR_BLACK);
 
-    private Map<RGB, Color> rgbToColor = new HashMap<>();
-
     private IUser peer;
 
     private boolean online = true;
+
+    private static UserColorConfigManager colorConfigManager;
 
     public PeerToPeerView() {
         super();
@@ -128,10 +127,6 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
             conn.unregisterEventHandler(this);
         }
         super.dispose();
-
-        for (Color color : rgbToColor.values()) {
-            color.dispose();
-        }
     }
 
     /*
@@ -238,7 +233,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
 
         if (userId != null) {
             // get user colors from config manager
-            UserColor userColor = UserColorConfigManager.getColorForUser(userId
+            ColorInfo userColor = colorConfigManager.getColor(userId
                     .getName());
             if (userColor != null) {
                 fgColor = getColorFromRGB(userColor
@@ -264,21 +259,6 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         int lineNumber = messagesText.getLineCount() - 1;
         messagesText.setLineBackground(lineNumber, 1, bgColor);
         messagesText.setTopIndex(lineNumber);
-    }
-
-    /**
-     * Get corresponding Color from map using RGB
-     * 
-     * @param rgb
-     * @return
-     */
-    private Color getColorFromRGB(RGB rgb) {
-        Color color = rgbToColor.get(rgb);
-        if (color == null) {
-            color = new Color(Display.getCurrent(), rgb);
-            rgbToColor.put(rgb, color);
-        }
-        return color;
     }
 
     @Override
@@ -344,6 +324,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
     @Override
     protected void initComponents(Composite parent) {
         super.initComponents(parent);
+        colorConfigManager = new UserColorConfigManager();
 
         // unfortunately this code cannot be a part of createToolbarButton
         // because I cannot instantiate the ACI until after the messagesText
@@ -424,16 +405,18 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
      */
     private class ChangeUserColorAction extends Action {
 
-        ColorType type;
+        private ColorType type;
 
-        String user;
+        private String user;
 
-        boolean me;
+        private boolean me;
 
-        public ChangeUserColorAction(ColorType type, String user, boolean me) {
-            super("Change " + (me ? "Your " : (user + "'s ")) + type.toString()
-                    + " Color...", IconUtil.getImageDescriptor(Activator
-                    .getDefault().getBundle(), "change_color.gif"));
+        private ChangeUserColorAction(ColorType type, String user,
+                boolean me) {
+            super("Change " + (me ? "Your " : (user + "'s "))
+                    + type.toString() + " Color...", IconUtil
+                    .getImageDescriptor(Activator.getDefault().getBundle(),
+                            "change_color.gif"));
             this.type = type;
             this.user = user;
             this.me = me;
@@ -443,24 +426,21 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         public void run() {
             ColorDialog dialog = new ColorDialog(Display.getCurrent()
                     .getActiveShell());
-            RGB defaultForeground = null;
-            UserColor userColor = UserColorConfigManager.getColorForUser(user);
-            if (userColor != null) {
-                dialog.setRGB(userColor.getColor(type));
-            } else {
-                defaultForeground = me ? DEFAULT_USER_FOREGROUND_COLOR.getRGB()
-                        : DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
-                if (type == ColorType.FOREGROUND) {
-                    /*
-                     * set the dialog to display default foreground color as
-                     * currently selected
-                     */
-                    dialog.setRGB(defaultForeground);
-                }
+            RGB defaultForeground = me ? DEFAULT_USER_FOREGROUND_COLOR.getRGB()
+                    : DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
+            ColorInfo colorInfo = colorConfigManager.getColor(user);
+            if (colorInfo != null) {
+                dialog.setRGB(colorInfo.getColor(type));
+            } else if (type == ColorType.FOREGROUND) {
+                /*
+                 * set the dialog to display default foreground color as
+                 * currently selected
+                 */
+                dialog.setRGB(defaultForeground);
             }
             RGB rgb = dialog.open();
             if (rgb != null) {
-                UserColorConfigManager.setColorForUser(user, type, rgb,
+                colorConfigManager.setColor(user, type, rgb,
                         defaultForeground);
             }
         }
