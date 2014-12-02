@@ -64,7 +64,6 @@ public class ToggleDisplayMode extends AbstractHandler implements
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void updateElement(UIElement element, Map parameters) {
         MPEDisplayManager dm = MPEDisplayManager.getCurrent();

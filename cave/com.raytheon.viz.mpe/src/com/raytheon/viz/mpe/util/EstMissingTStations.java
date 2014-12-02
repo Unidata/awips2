@@ -42,14 +42,16 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
 
 public class EstMissingTStations {
 
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     public void estimate_missing_tstations(int j,
             ArrayList<Station> temperature_stations, int num_tstations,
             Tdata[] tdata) {
 
-        int isom = DailyQcUtils.isom;
-        int maxmin_used = DailyQcUtils.maxmin_used;
-        int mpe_dqc_max_temp_neighbors = DailyQcUtils.mpe_dqc_max_temp_neighbors;
-        int mpe_dqc_min_good_stations = DailyQcUtils.mpe_dqc_min_good_stations;
+        int isom = dqc.isom;
+        int maxmin_used = dqc.maxmin_used;
+        int mpe_dqc_max_temp_neighbors = dqc.mpe_dqc_max_temp_neighbors;
+        int mpe_dqc_min_good_stations = dqc.mpe_dqc_min_good_stations;
 
         int m, i, h, l, ii;
         double lat1 = 0., lon1 = 0., fdist, fdata, fval, lat, lon, distlon;
