@@ -64,6 +64,7 @@ import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
  *                                      dependency
  * 05/28/2010   2187        cjeanbap    Added StdTextProductFactory functionality.
  * 03/18/2014   DR 17174    D. Friedman Return correct 3-letter site IDs in getNnnXxx.
+ * 12/02/2014   DR 643   mgamazaychikov Change nnnxxxPattern to allow for numbers in nnnxxx.
  * </pre>
  * 
  * @author grichard
@@ -83,7 +84,7 @@ public final class TextDisplayModel {
             .compile("/[A-Z]\\.([A-Z]{3})\\.(\\p{Alnum}{4})\\.([A-Z]{2}\\.[A-Z]{1})");
 
     private static final Pattern nnnxxxPattern = Pattern
-            .compile("[\\r\\n]+([A-Z]{3})([A-Z]{3})(| WRKWG[0-9])[\\r\\n]+");
+            .compile("[\\r\\n]+([A-Z0-9]{3})([A-Z0-9]{3})(| WRKWG[0-9])[\\r\\n]+");
 
     /**
      * The static singleton instance.
