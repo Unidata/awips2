@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bufrsigwx Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.bufrsigwx;singleton:=true
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.bufrsigwx.Activator
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -30,8 +29,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.eclipse.ui.plugin,
  org.opengis.referencing.crs,
  org.osgi.framework
-Export-Package: com.raytheon.uf.viz.bufrsigwx,
- com.raytheon.uf.viz.bufrsigwx.common,
+Export-Package: com.raytheon.uf.viz.bufrsigwx.common,
  com.raytheon.uf.viz.bufrsigwx.rsc,
  com.raytheon.uf.viz.bufrsigwx.util
 Require-Bundle: com.raytheon.uf.viz.core,
