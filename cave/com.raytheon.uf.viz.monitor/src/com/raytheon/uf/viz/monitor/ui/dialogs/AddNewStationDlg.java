@@ -56,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Added MESONET handling.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
+ * Nov 21, 2014 3841      skorolev     Corrected handleAddNewStation method.
  * 
  * </pre>
  * 
@@ -261,8 +262,8 @@ public class AddNewStationDlg extends CaveSWTDialog {
             return;
         }
         macDlg.addNewStationAction(stn);
-        macDlg.getInstance().addStation(area, stn, type, false);
-        macDlg.getInstance().getStations().add(stn);
+        macDlg.configMgr.addStation(area, stn, type, false);
+        macDlg.configMgr.getStations().add(stn);
     }
 
     /**
