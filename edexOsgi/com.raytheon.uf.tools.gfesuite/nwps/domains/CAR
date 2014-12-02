@@ -1,0 +1,208 @@
+#------------------------------------------------------------------------ 
+# Domain File
+# Original Author(s): Roberto Padilla-Hernandez,Douglas Gaer
+# Alex Gibbs, Pablo Santos,Tony Freeman  
+# File Creation Date: 06/01/2012
+# Date Last Modified: 11/12/14
+#
+# Version control: 1.33
+#
+# Support Team:
+#
+# Contributors: 
+#
+# ----------------------------------------------------------------------- 
+# ---------------------- Description and Details ------------------------ 
+# ----------------------------------------------------------------------- 
+#
+# File used to setup a geographical domain for SWAN and WW3
+#
+# ----------------------------------------------------------- 
+#========================================================================
+#                                    CAR                                =
+#  GEOGRAPHICAL DOMAIN, GEOGRAFICAL RESOLUTION AND OUTPUT TIME STEP     =
+#========================================================================
+export SITEID="CAR"
+export REGIONID="ER"
+export NELAT="45.05"
+export NELON="-66.30"
+export SWLAT="43.30"
+export SWLON="-69.2"
+export RES="1.8"
+export TSTEP="1"
+#
+#========================================================================
+#                  NESTED GRID CONFIGURATION                            =
+# These nested grids are non-telescopic grids i.e all of them are       =
+# nested in the main grid, and get the boundary conditions only from it =
+#                                                                       =
+#========================================================================
+# NESTGRIDS: Number of nested grids, if = 0, nested grids and 
+# location numbers below will be ignore regardless of input specifications
+#
+# STATN=STA for STATIONARY RUNS, STAT=NON for NON-STATIONARY RUNS
+# The default values is NONstationary for CG1 and STAtionary for the
+# nested grids. Change this only if you know what you are doing.
+# You can choose STA or NON for a particular nested grid.
+#  
+export NESTGRIDS="2"
+export NELATN1="44.42"
+export NELONN1="-67.96"
+export SWLATN1="44.27"
+export SWLONN1="-68.17"
+export RESN1=".1"
+export TSTEPN1="1"
+export STATN1="STA"
+#
+export NELATN2="44.30"
+export NELONN2="-68.22"
+export SWLATN2="44.16"
+export SWLONN2="-68.42"
+export RESN2=".1"
+export TSTEPN2="1"
+export STATN2="STA"
+#
+#export NELATN3="26.37"
+#export NELONN3="-80.00"
+#export SWLATN3="26.25"
+#export SWLONN3="-80.09"
+#export RESN3=".5"
+#export TSTEPN3="3"
+#export STATN3="STA"
+#
+#export NELATN4="25.87"
+#export NELONN4="-80.04"
+#export SWLATN4="25.75"
+#export SWLONN4="-80.13"
+#export RESN4=".5"
+#export TSTEPN4="3"
+#export STATN4="STA"
+#
+#========================================================================
+#                    SPECTRA OUTPUT LOCATIONS                           =
+#========================================================================
+# Specta points defined as space delimited list of:
+#   "name1:lat1:lon1 name2:lat2:lon2 name3:lat3:lon3 name4:lat4:lon4 name5:lat5:lon5 ...."
+#
+export SPECPOINTS="44034:44.100:-68.100 44027:44.300:-67.300 Schood:44.328894:-68.055397 Seawall:44.224294:-68.281458"
+#
+#========================================================================
+#                    WAVE TRACKING (and WAVE PARTITION) ON/OFF          =
+#   SET: SUBDOMIAN, GEOGRAPH RESOL and TOLERANCE WAVETRACK PARAMETERS   =
+#========================================================================
+# IF WAVE TRACKING IS REQUIRED THEN WVTRCK="ON", OTHER WISE SET IT AS "OFF"
+# IF WVTRCK IS "ON", ADDTIONAL INFORMATION IS REQUIRED, SEE BELOW
+#
+export WVTRCK="ON"
+#
+#IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL 
+# RESOLUTION: SET WVTONCG="1"  
+# IF USER WANTS TO CHANGE ANYONE OF THE PARAMETERS THEN WVTONCG="0" AND USER MUST GIVE 
+# ALL INFORMATION FOR THE DOMAIN OR SUBDOMAIN AND GEOGRAPHICAL RESOLUTION.
+# BE CAREFULL, IF THERE IS ANY SPECTRAL OUTPUT LOCATIONS OUT OF THE NEW (REDUCED) DOMAIN
+# FOR WAVE TRACKING NWPS WILL ABORT. 
+# (This will be change in a new version, the user can get 1d-spectra but not g-h plots).
+export WVTONCG="0"
+export NELATWT="45.05"
+export NELONWT="-66.30"
+export SWLATWT="43.30"
+export SWLONWT="-69.2"
+export GEORESWT="4.00"
+#
+# PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ 
+# *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
+# RECOMENDED VALUES WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#               dirKnob, perKnob, hsKnob, wetPts, dirTimeKnob, tpTimeKnob
+export WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#
+#========================================================================
+#                   CURRENTS DEFINITION (SEE SWAN MANUAL)               =
+#========================================================================
+#export CURRL1="INPGRID CUR ............................."
+#export CURRL2="READINP CUR ............................."
+#
+#========================================================================
+#                    BOUNDARY CONDITIONS (SEE SWAN MANUAL)              =
+#========================================================================
+# IF BOUNDARY CONDITIONS WILL BE USED then BOUNDCOND=1, Otherwise =0; 
+# Setting up BOUNDCOND here to zero will permanently disable BCs. 
+# If you leave it as 1 the user will still have the option to disable 
+# them from the interactive Run_NWPS GUI.
+#
+export BOUNCOND="1"
+export FTPPAT1="multi_1"
+export FTPPAT1B="multi_1"
+export FTPPAT2="MIA"
+export NFTPATTEMPTS="3"
+export WAVECPS="multi_1.NW-CAR57.spec.swan,multi_1.NW-CAR64.spec.swan"
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD BOUNDARY COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE BOUNARY
+# CONDITIONS (BOUNCOND="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL 
+# INPUT FILES WITH NOT COMMENT CHARACTER
+#
+#$BOUNDARY COMMAND LINES
+#BOUN SEG XY 290.80 43.30 293.70 43.30 VAR FILE 0.00 'multi_1.NW-CAR57.spec.swan'    1 &
+#                         0.50 'multi_1.NW-CAR56.spec.swan'    1 &
+#                         1.00 'multi_1.NW-CAR55.spec.swan'    1 &
+#                         1.50 'multi_1.NW-CAR54.spec.swan'    1 &
+#                         2.00 'multi_1.NW-CAR53.spec.swan'    1 &
+#                         2.50 'multi_1.NW-CAR52.spec.swan'    1 &
+#                         3.00 'multi_1.NW-CAR51.spec.swan'    1
+#$
+#BOUN SEG XY 293.70 45.05 293.70 43.30 VAR FILE 0.00 'multi_1.NW-CAR64.spec.swan'    1 &
+#                         0.25 'multi_1.NW-CAR63.spec.swan'    1 &
+#                         0.50 'multi_1.NW-CAR62.spec.swan'    1 &
+#                         0.75 'multi_1.NW-CAR61.spec.swan'    1 &
+#                         1.00 'multi_1.NW-CAR60.spec.swan'    1 &
+#                         1.25 'multi_1.NW-CAR59.spec.swan'    1 &
+#                         1.50 'multi_1.NW-CAR58.spec.swan'    1 &
+#                         1.75 'multi_1.NW-CAR57.spec.swan.cp' 1
+#$
+#BOUN SEG XY 290.80 45.05 290.80 43.30 VAR FILE 0.00 'multi_1.NW-CAR67.spec.swan'    1 &
+#                         0.25 'multi_1.NW-CAR66.spec.swan'    1 &
+#                         0.50 'multi_1.NW-CAR65.spec.swan'    1 &
+#                         0.75 'multi_1.NW-CAR64.spec.swan.cp' 1
+#$END BOUNSEG
+#
+#========================================================================
+#                    RIP CURRENT PROGRAM (SEE NWPS MANUAL)              =
+#========================================================================
+# IF RIP CURRENT PROGRAM WILL BE RUN, then RIPCONT=1, Otherwise =0;
+# Setting up RIPCONT here to zero will permanently disable RIP program.
+#
+export RIPPROG="0"
+export RIPDOMAIN="CG2"
+export RIPCONT="5m"
+#
+#___________________________________________________________________________
+# RAY Section: Define a pair of rays to drop data out along critical contours
+#              for rip current program.
+#
+# Example: for data output every 2km along a 5m bathy contour
+#
+# RAY 'rayname' xp yp xq yq int xp yp xq yq
+#
+# RAY 'ray1' 282.85 34.628 282.85 34.62 2000 283.00 34.655 283.00 34.62
+#
+# ISOLINE '5mcont' 'ray1' BOTtom 10
+# TABLE '5mcont' HEAD '5mtable' HSIGN TPS PDIR OUTPUT 20110825.1200 3.0 HR
+#_____________________________________________________________________________
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD RIP COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE RIP
+# CURRENTS (RIPCONT="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
+# INPUT FILES WITH NOT COMMENT CHARACTER
+# POIN '5mcont' 279.887  25.8725 
+#
+#$RIP LINES
+#$ Ray for 5m contour data.
+#$
+#RAY 'ray1' 279.88 25.85 279.91 25.85 8 279.88 25.895 279.91 25.895
+#ISOLINE '5mcont' 'ray1' BOTtom 5
+#TABLE '5mcont' HEAD '5m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL WATL WIND OUTPUT YYYYMMDD.HHMM H.M HR
+#$
+#$END RIP
+#
