@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Crimss
 Bundle-SymbolicName: com.raytheon.uf.viz.npp.crimss;singleton:=true
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.npp.crimss.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui;bundle-version="3.6.1",
