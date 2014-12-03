@@ -45,6 +45,7 @@
 #
 #    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS 
 #    07/09/2014          #3146     randerso       Removed unused import
+#    12/03/2014          #3866     rferrel        Added GFS20
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1082,6 +1083,7 @@ if SID in ALASKA_SITES:
                  'AKHwave10',
                  'AKHwave4',
                  'GLOBHwave',
+                 ('GFS217', 'GFS20'),
                ]
 
 # Hawaii OCONUS
@@ -1104,6 +1106,7 @@ elif SID == "HFO":
                  'WPHwave10',
                  'NPHwave4',
                  'GLOBHwave',
+                 ('GFS20-PAC', 'GFS20'),
                ]
 
 # San Juan OCONUS
@@ -1132,6 +1135,7 @@ elif SID == "SJU":
                  'NAHwave10',
                  'NAHwave4',
                  'GLOBHwave',
+                 ('GFS20-PRICO', 'GFS20'),
                ]
 
 # Guam OCONUS
@@ -1144,6 +1148,7 @@ elif SID == "GUM":
                  'RTOFS-Guam',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('GFS20-PAC', 'GFS20'),
                ]
 
 #CONUS sites
@@ -1204,6 +1209,7 @@ elif SID in CONUS_EAST_SITES:
                  'WPHwave10',
                  'GLOBHwave',
                  'URMA25',
+                 ('GFS215', 'GFS20'),
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1264,6 +1270,7 @@ else:   #######DCS3501 WEST_CONUS
                  'WPHwave10',
                  'GLOBHwave',
                  'URMA25',
+                 ('GFS215', 'GFS20'),
                ]
 
 if SID in GreatLake_SITES:
