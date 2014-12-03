@@ -74,6 +74,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     from magically appearing, removed dead code,
  *                                     and other code clean up.
  * 03 Jul 2014 #3348       rferrel     Handle Enter event.
+ * 03 Dec 2014  3549       njensen     Fix spacing/sizing of buttonComp
  * 
  * </pre>
  * 
@@ -135,14 +136,14 @@ public class ProcedureListDlg extends CaveSWTDialog {
      */
     public static enum Mode {
         SAVE, OPEN, DELETE
-    };
+    }
 
     /**
      * Enumeration to determine what procedures should be shown.
      */
     public static enum ShowType {
         MINE, ALL_USERS, ALL
-    };
+    }
 
     protected ShowType selectedShowType = ShowType.MINE;
 
@@ -389,6 +390,7 @@ public class ProcedureListDlg extends CaveSWTDialog {
         enableControls(false);
 
         Job job = new Job("Populating procedures...") {
+            @Override
             protected org.eclipse.core.runtime.IStatus run(
                     org.eclipse.core.runtime.IProgressMonitor monitor) {
                 fileTree = populateDataList();
@@ -500,12 +502,11 @@ public class ProcedureListDlg extends CaveSWTDialog {
     private void createButtonComp(Composite mainComp) {
         // Add buttom comp
         Composite buttonComp = new Composite(mainComp, SWT.NONE);
-        buttonComp.setLayout(new RowLayout(SWT.VERTICAL));
+        buttonComp.setLayout(new GridLayout(1, false));
         GridData gd = new GridData(SWT.CENTER, SWT.FILL, false, false);
-        gd.widthHint = 100;
         buttonComp.setLayoutData(gd);
 
-        RowData rd = new RowData(80, SWT.DEFAULT);
+        GridData rd = new GridData(80, SWT.DEFAULT);
         okBtn = new Button(buttonComp, SWT.PUSH);
         okBtn.setText("Ok");
         okBtn.setLayoutData(rd);
@@ -517,7 +518,7 @@ public class ProcedureListDlg extends CaveSWTDialog {
             }
         });
 
-        rd = new RowData(80, SWT.DEFAULT);
+        rd = new GridData(80, SWT.DEFAULT);
         cancelBtn = new Button(buttonComp, SWT.PUSH);
         cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(rd);
@@ -529,10 +530,8 @@ public class ProcedureListDlg extends CaveSWTDialog {
         });
 
         if (mode == Mode.SAVE) {
-            rd = new RowData(100, SWT.DEFAULT);
             frozenChk = new Button(buttonComp, SWT.CHECK);
             frozenChk.setText("Freeze time");
-            frozenChk.setLayoutData(rd);
             frozenChk.setSelection(frozen);
             frozenChk.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -645,7 +644,7 @@ public class ProcedureListDlg extends CaveSWTDialog {
             if (tmp != null) {
                 // it must be a procedure tree, that is what the content
                 // provider uses internally
-                LocalizationFile selectedFile = ((ProcedureTree) tmp).getFile();
+                LocalizationFile selectedFile = tmp.getFile();
 
                 if (selectedFile == null) {
                     displayOpenErrorDialog();
@@ -672,8 +671,7 @@ public class ProcedureListDlg extends CaveSWTDialog {
                     if (tmp != null) {
                         // it must be a procedure tree, that is what the content
                         // provider uses internally
-                        LocalizationFile selectedFile = ((ProcedureTree) tmp)
-                                .getFile();
+                        LocalizationFile selectedFile = tmp.getFile();
                         setReturnValue(selectedFile);
                     }
                     close();
