@@ -116,9 +116,9 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
 
     private int dqc_good = 0;
 
-    public static DrawDQCStations ddq = DrawDQCStations.getInstance();
+    public static DrawDQCStations ddq;
     
-    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    private DailyQcUtils dqc;
 
     public static ArrayList<String> dataType = new ArrayList<String>();
 
@@ -150,6 +150,8 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
      */
     public QcTempOptionsDialog(Shell parent) {
         super(parent);
+        MPEDisplayManager.getCurrent().setMaxmin(true);
+        dqc = DailyQcUtils.getInstance();
     }
 
     private int getOpts() {
@@ -209,7 +211,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         }
         int qcDays = displayMgr.getDqcDays();
         // checks to see if area or date has changed since last data load
-//        DailyQcUtils dqcu = new DailyQcUtils();
         // reloads data if changed
         // returns 0 for failed, 1 for new area, 2 for Ok
         dqc_good = dqc.qcDataHasChanged(prevDate, currDate, QcArea, qcDays,
@@ -242,9 +243,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             QcFreezeOptionsDialog.destroy(false);
         }
 
-        displayMgr.setMaxmin(true);
-//        ddqc = DrawDQCStations.getInstance();
-
         shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MODELESS);
 
         shell.setText("QC Temperature Options");
@@ -268,6 +266,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         displayMgr.setMaxmin(true);
         isOpen = true;
         isfinished = false;
+        ddq = DrawDQCStations.getInstance();
         oto.chg_maxmin_time(maxminTimeCbo.getSelectionIndex() + 2);
         opo.send_expose();
         while (!shell.isDisposed()) {
@@ -327,7 +326,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             String QcArea = ChooseDataPeriodDialog.prevArea;
             int qcDays = MPEDisplayManager.getCurrent().getDqcDays();
             // checks to see if area or date has changed since last data load
-//            DailyQcUtils dqcu = new DailyQcUtils();
             dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
 //            tdata = DailyQcUtils.tdata;
 
