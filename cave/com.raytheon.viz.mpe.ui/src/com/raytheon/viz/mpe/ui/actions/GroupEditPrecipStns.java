@@ -36,7 +36,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Jun 17, 2009            snaples     Initial creation
  * May 06, 2011   #8994    jpiatt      Added set precipitation value as zero
- * Sep 04, 2014    283     cgobs       Fixed possible selection of filtered-out gages
+ * 
  * </pre>
  * 
  * @author snaples
@@ -45,13 +45,15 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class GroupEditPrecipStns {
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     public void group_edit_precip_stations(ReferencedCoordinate rcoord) {
         int time_pos;
         int i, m, k;
         float lat, lon;
         double testdist, maxdist;
         int isave;
-        int max_stations = DailyQcUtils.precip_stations.size();
+        int max_stations = dqc.precip_stations.size();
         Coordinate coord = new Coordinate();
 
         try {
@@ -62,7 +64,7 @@ public class GroupEditPrecipStns {
         }
 
         if (MPEDisplayManager.pcpn_time_step == 0) {
-            time_pos = DailyQcUtils.pcpn_time;
+            time_pos = dqc.pcpn_time;
         } else {
             time_pos = 4;
 
@@ -76,61 +78,47 @@ public class GroupEditPrecipStns {
          * mouse click point.
          */
         for (i = 0; i < max_stations; i++) {
-            if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data < 0) {
+            if (dqc.pdata[dqc.pcpn_day].stn[i].frain[time_pos].data < 0) {
                 continue;
             }
 
-            //precip filter
-            if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data < QcPrecipOptionsDialog
+            if (dqc.pdata[dqc.pcpn_day].stn[i].frain[time_pos].data < QcPrecipOptionsDialog
                     .getPointFilterValue()) {
                 continue;
             }
 
-            //reverse precip filter
-            if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data > QcPrecipOptionsDialog
-                    .getPointFilterReverseValue()) {
-                continue;
-            }
-            
-            //elevation filter
-            if (DailyQcUtils.precip_stations.get(i).elev <  DailyQcUtils.elevation_filter_value)
-            {
-                continue;
-            }
-            
-            
             /* Retrieve the latitude and longitude of this station. */
-            lat = DailyQcUtils.precip_stations.get(i).lat;
-            lon = DailyQcUtils.precip_stations.get(i).lon;
+            lat = dqc.precip_stations.get(i).lat;
+            lon = dqc.precip_stations.get(i).lon;
 
-            if (DailyQcUtils.precip_stations.get(i).tip == 0
-                    && DailyQcUtils.gage_char[0] == -1) {
+            if (dqc.precip_stations.get(i).tip == 0
+                    && dqc.gage_char[0] == -1) {
                 continue;
             }
 
-            if (DailyQcUtils.precip_stations.get(i).tip == 1
-                    && DailyQcUtils.gage_char[1] == -1) {
+            if (dqc.precip_stations.get(i).tip == 1
+                    && dqc.gage_char[1] == -1) {
                 continue;
             }
 
-            for (m = 0; m < DailyQcUtils.tsmax; m++) {
+            for (m = 0; m < dqc.tsmax; m++) {
 
-                if ((DailyQcUtils.precip_stations.get(i).parm.substring(3, 5)
-                        .equalsIgnoreCase(DailyQcUtils.ts[m].abr))
-                        && DailyQcUtils.dflag[m + 1] == 1) {
+                if ((dqc.precip_stations.get(i).parm.substring(3, 5)
+                        .equalsIgnoreCase(dqc.ts[m].abr))
+                        && dqc.dflag[m + 1] == 1) {
                     break;
                 }
 
             }
 
-            if (m == DailyQcUtils.tsmax) {
+            if (m == dqc.tsmax) {
                 continue;
             }
 
             for (m = 0; m < 9; m++) {
 
-                if (m == DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].qual
-                        && DailyQcUtils.qflag[m] == 1) {
+                if (m == dqc.pdata[dqc.pcpn_day].stn[i].frain[time_pos].qual
+                        && dqc.qflag[m] == 1) {
                     break;
                 }
 
@@ -155,19 +143,19 @@ public class GroupEditPrecipStns {
             return;
         }
 
-        if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[time_pos].qual != GroupEditStationsDialog.group_qual) {
+        if (dqc.pdata[dqc.pcpn_day].stn[isave].frain[time_pos].qual != GroupEditStationsDialog.group_qual) {
             QcPrecipOptionsDialog.renderGridsBtn.setEnabled(true);
         }
 
-        DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[time_pos].qual = (short) GroupEditStationsDialog.group_qual;
+        dqc.pdata[dqc.pcpn_day].stn[isave].frain[time_pos].qual = (short) GroupEditStationsDialog.group_qual;
 
         if (GroupEditStationsDialog.group_qual == 1
                 && time_pos == 4
-                && DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].sflag[time_pos] == 1) {
+                && dqc.pdata[dqc.pcpn_day].stn[isave].sflag[time_pos] == 1) {
 
-            DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[time_pos].data = DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].rrain[time_pos].data;
+            dqc.pdata[dqc.pcpn_day].stn[isave].frain[time_pos].data = dqc.pdata[dqc.pcpn_day].stn[isave].rrain[time_pos].data;
 
-            DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].sflag[time_pos] = -1;
+            dqc.pdata[dqc.pcpn_day].stn[isave].sflag[time_pos] = -1;
 
         }
 
@@ -176,7 +164,7 @@ public class GroupEditPrecipStns {
                         || GroupEditStationsDialog.group_qual == 0 || GroupEditStationsDialog.group_qual == 8)) {
 
             for (k = 0; k < 4; k++) {
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[k].qual = (short) GroupEditStationsDialog.group_qual;
+                dqc.pdata[dqc.pcpn_day].stn[isave].frain[k].qual = (short) GroupEditStationsDialog.group_qual;
             }
 
         }
@@ -188,12 +176,12 @@ public class GroupEditPrecipStns {
          * and QC codes to "Manual"
          */
         if (GroupEditStationsDialog.group_qual == 2) {
-            DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[time_pos].data = 0.0f;
-            DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[time_pos].qual = 2;
-            if ((DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].data - 0.0) < 0.0001) {
+            dqc.pdata[dqc.pcpn_day].stn[isave].frain[time_pos].data = 0.0f;
+            dqc.pdata[dqc.pcpn_day].stn[isave].frain[time_pos].qual = 2;
+            if ((dqc.pdata[dqc.pcpn_day].stn[isave].frain[4].data - 0.0) < 0.0001) {
                 for (k = 0; k < 4; k++) {
-                    DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[k].data = 0.0f;
-                    DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[k].qual = 2;
+                    dqc.pdata[dqc.pcpn_day].stn[isave].frain[k].data = 0.0f;
+                    dqc.pdata[dqc.pcpn_day].stn[isave].frain[k].qual = 2;
                 }
             }
         }
@@ -202,23 +190,23 @@ public class GroupEditPrecipStns {
 
         if (time_pos != 4
                 && GroupEditStationsDialog.group_qual == 1
-                && DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].qual != 5
-                && DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].qual != 4) {
-            DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].qual = (short) GroupEditStationsDialog.group_qual;
+                && dqc.pdata[dqc.pcpn_day].stn[isave].frain[4].qual != 5
+                && dqc.pdata[dqc.pcpn_day].stn[isave].frain[4].qual != 4) {
+            dqc.pdata[dqc.pcpn_day].stn[isave].frain[4].qual = (short) GroupEditStationsDialog.group_qual;
         }
 
         for (k = 0; k < 5; k++) {
 
             if (k < 4) {
-                time_pos = DailyQcUtils.pcpn_day * 4 + k;
+                time_pos = dqc.pcpn_day * 4 + k;
             } else {
-                time_pos = 40 + DailyQcUtils.pcpn_day;
+                time_pos = 40 + dqc.pcpn_day;
             }
 
-            DailyQcUtils.pcp_in_use[time_pos] = -1;
+            dqc.pcp_in_use[time_pos] = -1;
 
-            if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[k] != 0) {
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[k] = 2;
+            if (dqc.pdata[dqc.pcpn_day].used[k] != 0) {
+                dqc.pdata[dqc.pcpn_day].used[k] = 2;
             }
         }
         return;
