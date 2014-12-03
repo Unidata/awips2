@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: NUCAPS Viz Plugin
 Bundle-SymbolicName: com.raytheon.uf.viz.npp.nucaps;singleton:=true
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.npp.nucaps.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
