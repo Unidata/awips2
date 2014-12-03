@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name:  Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.preciprate;singleton:=true
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.preciprate.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
