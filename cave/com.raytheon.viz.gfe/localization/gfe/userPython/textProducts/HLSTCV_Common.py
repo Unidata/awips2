@@ -1,9 +1,9 @@
+# Version 2014.11.21-0
 import GenericHazards
 import JsonSupport
 import string, time, os, errno, re, types, copy, collections
 import LogStream, ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
-
 
 try:  # See if this is the AWIPS I environment
     import AFPS
@@ -156,15 +156,15 @@ class TextProduct(GenericHazards.TextProduct):
             for area in hazard['id']:
                 hazDict.setdefault((hdln, phen, sig), []).append(area)
 
-        #print "hazDict", hazDict
+        #self.debug_print("hazDict", hazDict
         hazardHdlns=[]
         huAreas = []
-#        print "\nAdditional Hazard Headlines"
+#        self.debug_print("\nAdditional Hazard Headlines"
         for key in hazDict.keys():
             hdln, phen, sig = key
             huAreas = huAreas + hazDict[key]
             hazardHdln = ((hdln, "NEW", phen,sig), hazDict[key], [],[],[])
-            #print "   ", hazardHdln, hazDict[key]
+            #self.debug_print("   ", hazardHdln, hazDict[key]
             hazardHdlns.append(hazardHdln)
         return hazardHdlns, huAreas
     
@@ -187,32 +187,32 @@ class TextProduct(GenericHazards.TextProduct):
         #     Otherwise, they are ignored.
         #
         # E.g. hdlnList = self._checkHazard(hazardHdlns, [("FA","W")], returnList=True)
-        print "_checkHazard hazardHdlns is ", hazardHdlns
-        print "_checkHazard phenSigList is ", phenSigList
+        self.debug_print("_checkHazard hazardHdlns is %s" % (hazardHdlns), 1)
+        self.debug_print("_checkHazard phenSigList is %s" % (phenSigList), 1)
         chosen = []
         for key, landList, marineList, coastalList, inlandList in hazardHdlns:
-#            print "what is mode?", mode
+#            self.debug_print("what is mode?", mode
 
             #  SARAH - we do not want to consider marine hazards in this product
 #             hazAreas = landList+marineList
             hazAreas = landList
             hazValue = (key, hazAreas)
-            print "hazValue is ", hazValue
+            self.debug_print("hazValue is %s" % (repr(hazValue)), 1)
             hdln, act, phen, sig = key
             if not includeCAN and act == "CAN":
                 continue
             for checkPhen, checkSig in phenSigList:
-                print "checkPhen is ", checkPhen
-                print "checkSig is ", checkSig
+                self.debug_print("checkPhen is %s" % (checkPhen), 1)
+                self.debug_print("checkSig is %s" % (checkSig), 1)
                 if phen == checkPhen and sig == checkSig:
                     if checkAreaTypes is not None:
                         # Check for land, marine, etc.
                         for checkAreaType in checkAreaTypes:
                             exec "testList = " + checkAreaType + "List"
-#                            print "testList is", testList
+#                            self.debug_print("testList is", testList
                             if testList != []:
                                 chosen.append(hazValue)
-#                                print "chosen is ", chosen
+#                                self.debug_print("chosen is ", chosen
                     elif checkAreas is not None:
                         acceptedAreas=[]
                         for hazArea in hazAreas:
@@ -224,7 +224,7 @@ class TextProduct(GenericHazards.TextProduct):
                         chosen.append(hazValue)
                     if not returnList and chosen!=[]: break
         
-        print "MATT _checkHazard chosen = %s" % (repr(chosen))
+        self.debug_print("MATT _checkHazard chosen = %s" % (repr(chosen)), 1)
         if not returnList:
             return chosen!=[]
         return chosen
@@ -270,7 +270,7 @@ class TextProduct(GenericHazards.TextProduct):
     def _initializeTimeVariables(self, argDict):
         argDict['creationTime'] = int(time.time()/60)*60
         self._issueTime_secs = argDict['creationTime']
-        self._issueTime = self._issueTime_secs * 1000 # in milliseconds
+        self._issueTime_ms = self._issueTime_secs * 1000 # in milliseconds
         
         self._ddhhmmTime = self.getCurrentTime(
             argDict, "%d%H%M", shiftToLocal=0, stripLeading=0)
@@ -285,14 +285,43 @@ class TextProduct(GenericHazards.TextProduct):
         # Create a time range from the issuanceHour out 120 hours
         startTime = self._calculateStartTime(time.gmtime(self._issueTime_secs))
         self._timeRange = self.makeTimeRange(startTime, startTime+120*3600)
+        
+        #  Create a time range to look from the current time back 12 hours
+        #  We will use this are to determine if we need to use "additional"
+        #  wording with rainfall
+        self._extraSampleTimeRange = self.makeTimeRange(startTime-12*3600, 
+                                                        startTime)
 
         # Determine the time range list, making sure they are on hour boundaries
         #   w.r.t. midnight today according to the resolution
         subRanges = self.divideRange(self._timeRange, self._resolution())
         trList = []
-        for tr in subRanges:
-            # print tr
+        self._periodList = []
+        for index, tr in enumerate(subRanges):
+            # self.debug_print(tr)
             trList.append((tr, "Label"))
+            
+            if index == 0:
+                startTime = tr.startTime()
+                localtime = time.localtime(startTime.unixTime())
+                if localtime.tm_hour < 6:
+                    periodLength = 6 - localtime.tm_hour
+                elif localtime.tm_hour >= 6 and localtime.tm_hour < 18:
+                    periodLength = 18 - localtime.tm_hour
+                else:
+                    periodLength = 30 - localtime.tm_hour
+                
+                if periodLength < 3:
+                    periodStart = startTime + periodLength*3600
+                    period = self.makeTimeRange(periodStart, periodStart+12*3600)
+                else:
+                    period = self.makeTimeRange(startTime, startTime+periodLength*3600)
+                
+                self._periodList.append(period)
+                for i in range(1,10):
+                    startTime = period.endTime() # Start where the last period leaves off
+                    period = self.makeTimeRange(startTime, startTime+12*3600)
+                    self._periodList.append(period)
         self._timeRangeList = trList
     
     def _calculateStartTime(self, localCreationTime):
@@ -301,15 +330,21 @@ class TextProduct(GenericHazards.TextProduct):
         day = localCreationTime[2]
         hour = localCreationTime[3]
         
-        #  If we are more than halfway though a 6 hr period
-        if hour % 6 > 3:
-            adjust = 6      #  move on to the next 6 hr block
+        #  If we are more than halfway though a 3 hr period
+        if hour % 3 > 1:
+            adjust = 3      #  move on to the next 3 hr block
         else:
             adjust = 0
-#         print "MATT: _calculateStartTime %d   adjust = %d" % (hour % 6, adjust)
+
+#         if hour % 6 > 3:
+#             adjust = 6      #  move on to the next 6 hr block
+#         else:
+#             adjust = 0
+#         self.debug_print("MATT: _calculateStartTime %d   adjust = %d" % (hour % 6, adjust)
         
         #  Now "truncate" to a 6-hourly boundary and compute startTime in local Time.
-        hour =  int( (hour/6) * 6) + adjust
+#         hour =  int( (hour/6) * 6) + adjust
+        hour =  int( (hour/3) * 3) + adjust
         if hour > 23:
             hour -= 24
         elif hour < 0:
@@ -328,17 +363,19 @@ class TextProduct(GenericHazards.TextProduct):
         #     DAY + MORNING / AFTERNOON / EVENING / OVERNIGHT.
         # If wholePeriod, format FROM ... TO...
 
-        print "\nMATT Format period wholePeriod = %s, period = %s, useEndTime =%s" % (str(wholePeriod), str(period), str(useEndTime))
-        if period is None:  return ""
+        self.debug_print("MATT Format period wholePeriod = %s, period = %s, useEndTime =%s" %
+                         (str(wholePeriod), str(period), str(useEndTime)), 1)
+        if period is None:
+            return ""
         if useEndTime:
             startTime = period.endTime()
         else:
             startTime = period.startTime()
         result = self._getTimeDesc(startTime, resolution, shiftToLocal)
-        print "MATT result = '%s'" % (result)
+        self.debug_print("MATT result = '%s'" % (result), 1)
         if wholePeriod:
             endResult = self._getTimeDesc(period.endTime(), resolution, shiftToLocal)
-            print "MATT endResult = '%s'" % (endResult)
+            self.debug_print("MATT endResult = '%s'" % (endResult), 1)
             if result != endResult:
                 result=result + " TO "+ endResult 
         return result
@@ -347,15 +384,17 @@ class TextProduct(GenericHazards.TextProduct):
         # Create phrase such as Tuesday morning
         # Handle today/tonight and "this" morning/afternoon/etc..
         #
-        print "\n\n**************Formatting Period for GMT starttime ", startTime
+        self.debug_print("\n\n**************Formatting Period for GMT startTime %s" % 
+                         (repr(startTime)), 1)
         labels = self.Labels()["SimpleWorded"]
         currentTime = self._timeRange.startTime()
-        print "   currentTime = %s" % (repr(currentTime))  
+        self.debug_print("   currentTime = %s" % (repr(currentTime)), 1)
         if shiftToLocal:
             currentLocalTime, shift = self.determineTimeShift()
             startTime = startTime + shift
             currentTime = currentTime + shift
-            print "  shift, shifted start, current", shift/3600, startTime, currentTime
+            self.debug_print("shift = %s   shifted start = %s   current = %s" % 
+                             (shift/3600, startTime, currentTime), 1)
         hour = startTime.hour
         prevDay = False
         prevDay, partOfDay = self._getPartOfDay(hour, resolution)
@@ -372,7 +411,7 @@ class TextProduct(GenericHazards.TextProduct):
             result = partOfDay.replace('<weekday>', weekday)
         else:
             result =  weekday + " " + partOfDay
-        print "Result = '%s'" % (result)
+        self.debug_print("Result = '%s'" % (result), 1)
         return result
 
     def _getPartOfDay(self, hour, resolution):
@@ -749,11 +788,33 @@ FORECASTER STEWART"""
         filenames = os.listdir(advisoryDirectoryPath)
         allAdvisories = filter(lambda filename: filename[-5:] == ".json", filenames)
         
+        self.debug_print("allAdvisories = %s" % (repr(allAdvisories)))
+        
         stormAdvisories = filter(lambda filename: self._getStormNameFromTCP() in filename,
                                  allAdvisories)
         stormAdvisories = map(lambda filename: filename[:-5], stormAdvisories)
-        lastTwoAdvisories = sorted(stormAdvisories)[:2]
+        self.debug_print("stormAdvisories = %s" % (repr(stormAdvisories)))
         
+        #  We need to reverse the order of the advisories so the latest 
+        #  advisories come first in this list
+        stormAdvisories.reverse()
+        
+        lastTwoAdvisories = []
+        
+        if self._awipsWANPil.find("TCV") != -1:
+            #  Get the current storm number string from the TCP
+            curAdvisoryString = self._getAdvisoryNumberStringFromTCP()
+         
+            for advisory in stormAdvisories:
+                if advisory.find(curAdvisoryString) == -1:
+                    #  Different advisory - keep it
+                    lastTwoAdvisories.append(advisory)
+         
+        else:   #  Must be the HLS
+            lastTwoAdvisories = stormAdvisories[:2]
+        
+        self.debug_print("MATT DEBUG: last two advisories = %s" % 
+                         (repr(lastTwoAdvisories)), 1)
         self._previousAdvisory = None
         if len(lastTwoAdvisories) >= 1:
             self._previousAdvisory = self._loadAdvisory(lastTwoAdvisories[0])
@@ -771,8 +832,8 @@ FORECASTER STEWART"""
                                              self._site,
                                              fileName)
             
-            print "SARAH: File contents for", fileName, ":"
-            print pythonDict
+            self.debug_print("SARAH: File contents for %s:" % (fileName), 1)
+            self.debug_print(repr(pythonDict), 1)
              
             # Only use transmitted advisories
             if pythonDict["Transmitted"] == False and advisoryName != "pending":
@@ -780,7 +841,8 @@ FORECASTER STEWART"""
             else:
                 return pythonDict
         except Exception, e:
-            print "SARAH Load Exception for %s : %s" % (fileName, e)
+            self.debug_print("SARAH Load Exception for %s : %s" % 
+                             (fileName, e), 1)
             return None
         
     def _getAdvisoryPath(self):
@@ -879,104 +941,6 @@ FORECASTER STEWART"""
             "FloodingRainForecast":  None,
             "TornadoThreat":         None,
         }
-    
-    def _makeSegmentEditAreas(self, argDict):
-        areasList = self._segmentList
-        #print "areaList", areasList
-        editAreas = []
-        self._editAreaDict = {}
-        for area in areasList:
-            self._editAreaDict[area] = area
-            editAreas.append((area, area))
-        return editAreas
-    
-    def _determineSegments(self):
-        # Get the segments based on hazards "overlaid" with combinations file
-
-        # Get the segments resulting from Hazards
-        #print "\nRaw Analyzed", self._hazardsTable.rawAnalyzedTable()
-        hazSegments = self.organizeHazards(self._hazardsTable.rawAnalyzedTable())
-        #print "\nSegments from HazardsTable organizeHazards", hazSegments
-
-        # Get the forecaster entered combinations
-        accessor = ModuleAccessor.ModuleAccessor()
-#        print "self._defaultEditAreas", self._defaultEditAreas
-        combos = accessor.variable(self._defaultEditAreas, "Combinations")
-        if combos is None:
-            LogStream.logVerbose("COMBINATION FILE NOT FOUND: " + self._defaultEditAreas)
-            return [], None
-        #print "\nSegments from Zone Combiner", combos
-        # "Overlay" the forecaster-entered combinations onto the segments
-        segmentList = self._refineSegments(hazSegments, combos)
-        #print "\nNew segments", segmentList
-        
-        # Instead of a segment being a group of zones, it will be just a single zone.
-        # So collapse this list of lists down to a list of zones (aka. segments)
-        segments = []
-        for segment in segmentList:
-            segments += segment
-
-        return segments
-    
-    def _refineSegments(self, hazSegments, combos):
-        """Break down each segment further according to combos given.
-        Make sure the resulting segments follow the ordering of the combos.
-        """
-        if combos == []:
-            return hazSegments
-        newSegments = []  # list of lists
-        newAreas = []
-        for combo, label in combos:
-            # Each combination will be tested to see if it can stay intact
-            # i.e. if all areas in the combo are in the same segment
-            # else split it into like segments
-            #
-            # segmentMapping is a list where each entry is
-            #   the hazSegment in which the corresponding combo area appears.
-            # (We need to define self._segmentList for the mapping function
-            #   to use)
-            self._segmentList = hazSegments
-            #print "self._segmentList = %s" % (repr(self._segmentList))
-            segmentMapping = map(self._findSegment, combo)
-            #print "   segmentMapping", segmentMapping
-
-            # segmentDict keys will be the hazSegments and
-            #   we will gather all the areas of the combos that appear
-            #   in each of these hazSegments
-            segmentDict = {}
-            keyList = []
-            for areaName in combo:
-                #print "       Adding", areaName
-                key = tuple(segmentMapping[combo.index(areaName)])
-                if key == ():  # If no hazard for area, do not include
-                    continue
-                if key not in keyList:
-                    keyList.append(key)
-                segmentDict.setdefault(key,[]).append(areaName)
-            #print "   segmentDict", segmentDict
-
-            # Keep track of the areas that we are including
-            for key in keyList:
-                segAreas = segmentDict[key]
-                newAreas = newAreas + segAreas
-                newSegments.append(segAreas)
-        #print "   newSegments", newSegments
-        # Now add in the hazAreas that have not been accounted for
-        #   in the combinations
-        for hazSegment in hazSegments:
-            newSeg = []
-            for hazArea in hazSegment:
-                if hazArea not in newAreas:
-                    newSeg.append(hazArea)
-            if newSeg != []:
-                newSegments.append(newSeg)
-        return newSegments
-    
-    def _findSegment(self, areaName):
-        for segment in self._segmentList:
-            if areaName in segment:
-                return segment
-        return []
 
 import Tkinter
 class Common_Dialog(Dialog):
@@ -1422,5 +1386,6 @@ class TextProductCommon(DiscretePhrases.DiscretePhrases):
             if arrowIndex >= 0:
                 ugcStr = ugcStr[:arrowIndex] + '-' + ugcStr[arrowIndex+1:]
         return ugcStr
+
 
 
