@@ -74,6 +74,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class EditFreezeStationsDialog extends AbstractMPEDialog {
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     private Font font;
 
@@ -87,7 +89,7 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
 
     private int pcpn_time_step = MPEDisplayManager.pcpn_time_step;
 
-    private int pcpn_time = DailyQcUtils.pcpn_time;
+    private int pcpn_time = dqc.pcpn_time;
 
     private StringBuilder zstnData = new StringBuilder();
 
@@ -126,33 +128,33 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
 
     String tClimateSource = null;
 
-    float reverse_filter_value = DailyQcUtils.freezing_reverse_filter_value;
+    float reverse_filter_value = dqc.freezing_reverse_filter_value;
 
-    float filter_value = DailyQcUtils.freezing_filter_value;
+    float filter_value = dqc.freezing_filter_value;
 
-    Ts ts[] = DailyQcUtils.ts;
+    Ts ts[] = dqc.ts;
 
-    int tsmax = DailyQcUtils.tsmax;
+    int tsmax = dqc.tsmax;
 
-    int isom = DailyQcUtils.isom;
+    int isom = dqc.isom;
 
     int win_x;
 
     int win_y;
 
-    int gage_char[] = DailyQcUtils.gage_char;
+    int gage_char[] = dqc.gage_char;
 
-    int method = DailyQcUtils.method;
+    int method = dqc.method;
 
-    int qflag[] = DailyQcUtils.qflag;
+    int qflag[] = dqc.qflag;
 
-    int dflag[] = DailyQcUtils.dflag;
+    int dflag[] = dqc.dflag;
 
     String mbuf;
 
     int naflag;
 
-    ArrayList<Station> station = DailyQcUtils.freezing_stations;
+    ArrayList<Station> station = dqc.freezing_stations;
 
     ReadFreezingStationList rz = new ReadFreezingStationList();
 
@@ -164,9 +166,9 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
 
     int initial_pos;
 
-    int[] func = DailyQcUtils.func;
+    int[] func = dqc.func;
 
-    int pcpn_day = DailyQcUtils.pcpn_day;
+    int pcpn_day = dqc.pcpn_day;
 
     static int hmflag = 0;
 
@@ -261,7 +263,7 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
 
         for (i = 0; i < max_stations; i++) {
 
-            if (DailyQcUtils.zdata[pcpn_day].zstn[i].zlevel2[time_pos].data < 0) {
+            if (dqc.zdata[pcpn_day].zstn[i].zlevel2[time_pos].data < 0) {
                 continue;
             }
 
@@ -272,7 +274,7 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
             ll.x = lon;
             ll.y = lat;
 
-            time_pos = DailyQcUtils.pcpn_time;
+            time_pos = dqc.pcpn_time;
             ReferencedCoordinate rc = new ReferencedCoordinate(ll);
             Coordinate gridCell = null;
             try {
@@ -316,7 +318,7 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
         }
 
         reset_value = 0;
-        initial_qual = DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].qual;
+        initial_qual = dqc.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].qual;
         new_qual = initial_qual;
 
         /*
@@ -354,13 +356,13 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
 
         mbuf = "";
         editVal = new Text(dataComp, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
-        if (DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data < 0) {
+        if (dqc.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data < 0) {
             mbuf = "M";
             editVal.setText(mbuf);
         } else {
             mbuf = String
                     .format("%5.2f",
-                            DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data);
+                            dqc.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data);
             editVal.setText(mbuf.trim());
 
         }
@@ -395,7 +397,7 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
         stnQualComp.setLayoutData(gd);
 
         if (initial_qual < 0
-                || DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data < 0) {
+                || dqc.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data < 0) {
             naflag = 1;
         } else {
             naflag = 0;
@@ -582,14 +584,14 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
 
             for (k = 0; k < 5; k++) {
 
-                DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[k].qual = DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel1[k].qual;
+                dqc.zdata[pcpn_day].zstn[isave].zlevel2[k].qual = dqc.zdata[pcpn_day].zstn[isave].zlevel1[k].qual;
 
-                DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[k].data = DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel1[k].data;
+                dqc.zdata[pcpn_day].zstn[isave].zlevel2[k].data = dqc.zdata[pcpn_day].zstn[isave].zlevel1[k].data;
 
             }
 
             reset_value = 1;
-            new_qual = DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel1[time_pos].qual;
+            new_qual = dqc.zdata[pcpn_day].zstn[isave].zlevel1[time_pos].qual;
 
         } else {
             reset_value = 0;
@@ -641,7 +643,7 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
 
     protected void changeCustomFile(int data) {
 
-        String pathName = getStationListPath(DailyQcUtils.currentQcArea);
+        String pathName = getStationListPath(dqc.currentQcArea);
         String zstation_list_custom_file = pathName + "_label_position";
         int i;
         int time_pos = 0;
@@ -649,13 +651,13 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
         int idif;
         String cstr;
         int k, p;
-        int[] pcp_in_use = DailyQcUtils.pcp_in_use;
+        int[] pcp_in_use = dqc.pcp_in_use;
         Button rpbutton = QcFreezeOptionsDialog.renderGridsBtn;
         BufferedWriter out = null;
-        int pcp_flag = DailyQcUtils.pcp_flag;
-        int grids_flag = DailyQcUtils.grids_flag;
-        int points_flag = DailyQcUtils.points_flag;
-        int map_flag = DailyQcUtils.map_flag;
+        int pcp_flag = dqc.pcp_flag;
+        int grids_flag = dqc.grids_flag;
+        int points_flag = dqc.points_flag;
+        int map_flag = dqc.map_flag;
 
         if (pcpn_time_step == 0) {
             time_pos = pcpn_time;
@@ -701,18 +703,18 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
 
         idif = (int) Math
                 .abs(val
-                        - DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data);
+                        - dqc.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data);
 
         if (idif > .01 && p == -1 && reset_value == 0) {
 
-            DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data = val;
-            DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].qual = 2;
+            dqc.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].data = val;
+            dqc.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].qual = 2;
 
         }
 
         else {
 
-            DailyQcUtils.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].qual = (short) new_qual;
+            dqc.zdata[pcpn_day].zstn[isave].zlevel2[time_pos].qual = (short) new_qual;
 
         }
 
@@ -726,8 +728,8 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
         }
 
         for (k = 0; k < 5; k++) {
-            if (DailyQcUtils.zdata[pcpn_day].used[k] != 0) {
-                DailyQcUtils.zdata[pcpn_day].used[k] = 2;
+            if (dqc.zdata[pcpn_day].used[k] != 0) {
+                dqc.zdata[pcpn_day].used[k] = 2;
             }
         }
 
@@ -769,7 +771,7 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
     }
 
     private String getStationListPath(String qcArea) {
-        String station_dir = DailyQcUtils.mpe_station_list_dir;
+        String station_dir = dqc.mpe_station_list_dir;
         String dir;
 
         if (qcArea != null) {
