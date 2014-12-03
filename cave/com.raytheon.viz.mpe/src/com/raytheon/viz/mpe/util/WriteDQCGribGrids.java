@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.mpe.util;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,11 +27,7 @@ import java.util.TimeZone;
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.hydro.spatial.HRAP;
-import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -54,12 +49,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class WriteDQCGribGrids {
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     AppsDefaults apps_defaults = AppsDefaults.getInstance();
 
-    CommonGridAttributes ga = GridAttributes.commonGridAttributes;
+    CommonGridAttributes cga;
 
-    Pdata[] pdata = DailyQcUtils.pdata;
+//    Pdata[] pdata = DailyQcUtils.pdata;
 
     private double dxdy;
 
@@ -214,23 +211,23 @@ public class WriteDQCGribGrids {
         Calendar hydroday = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         float xmissing = -9999.f;
         int hourspast = 0;
-        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
-        Pcp pcp = DailyQcUtils.pcp;
+//        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+//        Pcp pcp = DailyQcUtils.pcp;
         int[] grib_lbl = new int[43];
-        String data_level;
+//        String data_level;
         int length = 0;
         int odim = COPYSIZE;
         Byte[] output_buffer = new Byte[odim];
         Maparams map_params = null;
-        int m, firstLon, status, yr = 0, mon = 0, day = 0, hrmin = 0, sec = 0, esth = 0;
+        int yr = 0, mon = 0, day = 0, hrmin = 0, esth = 0;
         double lonOrigin = 0;
-        Rectangle extent = new Rectangle((int) ga.domainOrigin.x,
-                (int) ga.domainOrigin.y, (int) ga.domainExtent.x,
-                (int) ga.domainExtent.y);
-        HRAPSubGrid subGrid = null;
+//        Rectangle extent = new Rectangle((int) cga.domainOrigin.x,
+//                (int) cga.domainOrigin.y, (int) cga.domainExtent.x,
+//                (int) cga.domainExtent.y);
+//        HRAPSubGrid subGrid = null;
         HRAP hrap = null;
         try {
-            subGrid = new HRAPSubGrid(extent);
+//            subGrid = new HRAPSubGrid(extent);
             hrap = HRAP.getInstance();
             // Rectangle hcoord = HRAPCoordinates.getHRAPCoordinates();
         } catch (Exception e1) {
@@ -238,36 +235,37 @@ public class WriteDQCGribGrids {
                     .println("ERROR: problem getting HRAP coordinates writeDQCGribGrids ");
         }
         /* need WMO header for precip file to go to NPVU */
-        String wmohdr1 = ""; /*
-                              * first part of WMO header 6 chars
-                              */
-        String wmohdr2 = ""; /*
+//        String wmohdr1 = ""; /*
+//                              * first part of WMO header 6 chars
+//                              */
+//        String wmohdr2 = ""; 
+        /*
                               * second part of WMO header 4 chars
                               */
-        String crcrlf = "'\r', '\r', '\n'"; /*
-                                             * needed to separate WMO header
-                                             * from first part of GRIB message
-                                             */
-        String aspace = " "; /* contains a space character for the header */
-        String header = ""; /* full WMO header string 17 chars */
+//        String crcrlf = "'\r', '\r', '\n'"; /*
+//                                             * needed to separate WMO header
+//                                             * from first part of GRIB message
+//                                             */
+//        String aspace = " "; /* contains a space character for the header */
+//        String header = ""; /* full WMO header string 17 chars */
         // struct tm *curgmtime; /* for containing the current time GMT, used in
         // WMO header */
         Calendar curgmtime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         curgmtime.setTime(new Date());
         Calendar reftime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-        String adayhrmin = ""; /*
-                                * day, hour, minute info attached to WMO header
-                                * - 6 chars
-                                */
-        String printhdr = ""; /* for log purposes 17 char */
+//        String adayhrmin = ""; /*
+//                                * day, hour, minute info attached to WMO header
+//                                * - 6 chars
+//                                */
+//        String printhdr = ""; /* for log purposes 17 char */
 
         /*---------------------------------------------*/
         /* first time in this routine for new Hyd Day */
         /*---------------------------------------------*/
 
-        mxx = hrap_grid.maxi;
-        mxy = hrap_grid.maxj;
+        mxx = dqc.getHrap_grid().maxi;
+        mxy = dqc.getHrap_grid().maxj;
         int idim = Integer.SIZE * mxx;
 
         grid_data = new float[mxy * mxx];
@@ -315,50 +313,51 @@ public class WriteDQCGribGrids {
 
         /* sub-center id */
 
-        if (ga.siteID.contains("TUA")) {
+        String wmohdr2 = "";
+        if (cga.siteID.contains("TUA")) {
             grib_lbl[21] = 150;
             wmohdr2 = "KTUA";
-        } else if (ga.siteID.contains("ACR")) {
+        } else if (cga.siteID.contains("ACR")) {
             grib_lbl[21] = 151;
             wmohdr2 = "PACR";
-        } else if (ga.siteID.contains("STR")) {
+        } else if (cga.siteID.contains("STR")) {
             grib_lbl[21] = 152;
             wmohdr2 = "KSTR";
-        } else if (ga.siteID.contains("RSA")) {
+        } else if (cga.siteID.contains("RSA")) {
             grib_lbl[21] = 153;
             wmohdr2 = "KRSA";
-        } else if (ga.siteID.contains("ORN")) {
+        } else if (cga.siteID.contains("ORN")) {
             grib_lbl[21] = 154;
             wmohdr2 = "KORN";
-        } else if (ga.siteID.contains("RHA")) {
+        } else if (cga.siteID.contains("RHA")) {
             grib_lbl[21] = 155;
             wmohdr2 = "KRHA";
-        } else if (ga.siteID.contains("KRF")) {
+        } else if (cga.siteID.contains("KRF")) {
             grib_lbl[21] = 156;
             wmohdr2 = "KKRF";
-        } else if (ga.siteID.contains("MSR")) {
+        } else if (cga.siteID.contains("MSR")) {
             grib_lbl[21] = 157;
             wmohdr2 = "KMSR";
-        } else if (ga.siteID.contains("TAR")) {
+        } else if (cga.siteID.contains("TAR")) {
             grib_lbl[21] = 158;
             wmohdr2 = "KTAR";
-        } else if (ga.siteID.contains("PTR")) {
+        } else if (cga.siteID.contains("PTR")) {
             grib_lbl[21] = 159;
             wmohdr2 = "KPTR";
-        } else if (ga.siteID.contains("TIR")) {
+        } else if (cga.siteID.contains("TIR")) {
             grib_lbl[21] = 160;
             wmohdr2 = "KTIR";
-        } else if (ga.siteID.contains("ALR")) {
+        } else if (cga.siteID.contains("ALR")) {
             grib_lbl[21] = 161;
             wmohdr2 = "KALR";
-        } else if (ga.siteID.contains("FWR")) {
+        } else if (cga.siteID.contains("FWR")) {
             grib_lbl[21] = 162;
             wmohdr2 = "KFWR";
         } else {
             System.out
                     .println(String
                             .format(" site ID %s is not an RFC, sor for this application setting WMO ID to KXXX\n",
-                                    ga.siteID));
+                                    cga.siteID));
             grib_lbl[21] = 0;
             wmohdr2 = "KXXX";
         }
@@ -374,7 +373,7 @@ public class WriteDQCGribGrids {
         grib_lbl[27] = 0;
 
         /* length of GDS */
-        if (ga.projectionType.contains("POLAR")) {
+        if (cga.projectionType.contains("POLAR")) {
             grib_lbl[25] = 32; // polar stereographic and lan/lon, 42 for
                                // Lambert
 
@@ -393,7 +392,7 @@ public class WriteDQCGribGrids {
                                                        * longitude of grid point
                                                        * orientation
                                                        */
-        } else if (ga.projectionType.contains("LAMBERT")) {
+        } else if (cga.projectionType.contains("LAMBERT")) {
             /*
              * This isn't supported by MPE/DailyQC just yet, so we will just
              * exit
@@ -419,17 +418,17 @@ public class WriteDQCGribGrids {
 
         /* Lower left corner of the main projected grid */
 
-        x1 = ga.gridPointLL[0];
-        y1 = ga.gridPointLL[1];
-        lon1 = ga.latLonLL.x;
-        lat1 = ga.latLonLL.y;
+        x1 = cga.gridPointLL[0];
+        y1 = cga.gridPointLL[1];
+        lon1 = cga.latLonLL.x;
+        lat1 = cga.latLonLL.y;
 
         /* upper right corner of the main projected grid */
 
-        x2 = ga.gridPointUR[0];
-        y2 = ga.gridPointUR[1];
-        lon2 = ga.latLonUR.x;
-        lat2 = ga.latLonUR.y;
+        x2 = cga.gridPointUR[0];
+        y2 = cga.gridPointUR[1];
+        lon2 = cga.latLonUR.x;
+        lat2 = cga.latLonUR.y;
         /*
          * check if polar stereographic or lambert conformal to set map
          * parameters correctly
@@ -487,7 +486,7 @@ public class WriteDQCGribGrids {
          * must be determined
          */
 
-        if (mxy != (int) ga.domainExtent.y || mxx != (int) ga.domainExtent.x) {
+        if (mxy != (int) cga.domainExtent.y || mxx != (int) cga.domainExtent.x) {
             /* first calculate x */
 
             /*
@@ -495,9 +494,9 @@ public class WriteDQCGribGrids {
              * Resolution in localConfig.py
              */
 
-            dx = (int) (dxdy * ga.domainExtent.x / (mxx - 1));
+            dx = (int) (dxdy * cga.domainExtent.x / (mxx - 1));
 
-            dy = (int) (dxdy * ga.domainExtent.y / (mxy - 1));
+            dy = (int) (dxdy * cga.domainExtent.y / (mxy - 1));
 
         }
 
@@ -516,11 +515,11 @@ public class WriteDQCGribGrids {
          * domain with origin values of x and y
          */
 
-        x = (int) ga.domainOrigin.x;
-        y = (int) ga.domainOrigin.y;
+        x = (int) cga.domainOrigin.x;
+        y = (int) cga.domainOrigin.y;
         Coordinate ll1 = new Coordinate();
         try {
-            ll1 = hrap.gridCoordinateToLatLon(ga.domainOrigin,
+            ll1 = hrap.gridCoordinateToLatLon(cga.domainOrigin,
                     PixelOrientation.CENTER);
         } catch (Exception e) {
             System.out
@@ -530,7 +529,7 @@ public class WriteDQCGribGrids {
 
         grib_lbl[31] = (int) (ll1.y * 1000);
         grib_lbl[32] = (int) (ll1.x * 1000);
-        firstLon = grib_lbl[32];
+//        firstLon = grib_lbl[32];
 
         /***************** debug *********************/
 
@@ -538,8 +537,8 @@ public class WriteDQCGribGrids {
             System.out
                     .println(String
                             .format(" DEBUG: dx = %d dy = %d x = %d extent x = %f y = %d extent y = %f \n",
-                                    dx, dy, x, ga.domainExtent.x, y,
-                                    ga.domainExtent.y));
+                                    dx, dy, x, cga.domainExtent.x, y,
+                                    cga.domainExtent.y));
             System.out
                     .println(String
                             .format(" DEBUG: for local domain x = %d and y = %d, the corresponding lat = %f lon = %f\n",
@@ -576,9 +575,9 @@ public class WriteDQCGribGrids {
         }
         /************************************************************************/
         if (dtype > 1) {
-            reftime.setTimeInMillis(ga.validTimes[pnum][0] * 1000);
+            reftime.setTimeInMillis(cga.validTimes[pnum][0] * 1000);
         } else {
-            hydroday.setTime(pdata[hyday].data_time);
+            hydroday.setTime(dqc.pdata[hyday].data_time);
             hydroday.add(Calendar.SECOND, -86400); /* start of hydro day */
             reftime.setTimeInMillis(hydroday.getTimeInMillis());
         }
@@ -595,15 +594,15 @@ public class WriteDQCGribGrids {
         }
         String hmin = String.format("%d%d", hour, minute);
         grib_lbl[14] = Integer.parseInt(hmin);
-        esth = (int) ((ga.validTimes[pnum][1] - ga.validTimes[pnum][0]) / SECINHR);
+        esth = (int) ((cga.validTimes[pnum][1] - cga.validTimes[pnum][0]) / SECINHR);
 
         /*************************************************************/
         if (debugflag > 0) {
             System.out
                     .println(String
                             .format(" DEBUG: esth = %d valid time = %ld initial time = %ld reftime=%s\n",
-                                    esth, ga.validTimes[pnum][1],
-                                    ga.validTimes[pnum][0], reftime.getTime()));
+                                    esth, cga.validTimes[pnum][1],
+                                    cga.validTimes[pnum][0], reftime.getTime()));
         }
         /*************************************************************/
 
@@ -640,7 +639,7 @@ public class WriteDQCGribGrids {
             System.out.println(String.format(
                     " DEBUG: valid time = %d %d %d %d reftime=%s\n"
                             + " DEBUG: validTimes = %ld\n", yr, mon, day,
-                    hrmin, reftime, ga.validTimes[pnum][0]));
+                    hrmin, reftime, cga.validTimes[pnum][0]));
             /*************************************************************/
         }
 
@@ -655,8 +654,8 @@ public class WriteDQCGribGrids {
         {
             for (int j = 0; j < mxy; j++) {
                 for (int i = 0; i < mxx; i++) {
-                    if (pcp.value[i][j] > xmissing) {
-                        grid_data[kk] = (float) (pcp.value[i][j] / 100. * 25.4); /*
+                    if (dqc.pcp.value[i][j] > xmissing) {
+                        grid_data[kk] = (float) (dqc.pcp.value[i][j] / 100. * 25.4); /*
                                                                                   * convert
                                                                                   * to
                                                                                   * mm
@@ -693,7 +692,7 @@ public class WriteDQCGribGrids {
 
             /* grib_lbl[17]=esth; /* P2 */
 
-            hourspast = (int) ((ga.validTimes[pnum][1] - (hydroday
+            hourspast = (int) ((cga.validTimes[pnum][1] - (hydroday
                     .getTimeInMillis() / 1000)) / SECINHR);
 
             grib_lbl[16] = hourspast - esth; /* P1 */
@@ -709,9 +708,9 @@ public class WriteDQCGribGrids {
         {
             for (int j = 0; j < mxy; j++) {
                 for (int i = 0; i < mxx; i++) {
-                    if (pcp.value[i][j] > xmissing) {
+                    if (dqc.pcp.value[i][j] > xmissing) {
 
-                        grid_data[kk] = (float) ((((pcp.value[i][j] / 100.) - 32) * 5 / 9) + 273.16); /*
+                        grid_data[kk] = (float) ((((dqc.pcp.value[i][j] / 100.) - 32) * 5 / 9) + 273.16); /*
                                                                                                        * convert
                                                                                                        * F
                                                                                                        * to
@@ -764,9 +763,9 @@ public class WriteDQCGribGrids {
         {
             for (int j = 0; j < mxy; j++) {
                 for (int i = 0; i < mxx; i++) {
-                    if (pcp.value[i][j] > xmissing) {
+                    if (dqc.pcp.value[i][j] > xmissing) {
 
-                        grid_data[kk] = (float) (pcp.value[i][j] / 100. * 304.8); /*
+                        grid_data[kk] = (float) (dqc.pcp.value[i][j] / 100. * 304.8); /*
                                                                                    * convert
                                                                                    * kilofeet
                                                                                    * into
@@ -792,7 +791,7 @@ public class WriteDQCGribGrids {
 
         }
         PackGrib pg = new PackGrib();
-        status = pg.packgrib(grib_lbl, pds_ext, iplen, grid_data, idim,
+        pg.packgrib(grib_lbl, pds_ext, iplen, grid_data, idim,
                 xmissing, output_buffer, odim, length);
         return 0;
     }
