@@ -19,10 +19,12 @@
  **/
 package com.raytheon.uf.edex.plugin.text.impl.separator;
 
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -48,6 +50,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * Jul 10, 2009 2191        rjpeter     Reimplemented.
  * Mar 04, 2014 2652        skorolev    Corrected NNNXXX pattern.
  * Mar 14, 2014 2652        skorolev    Changed logging for skipped headers.
+ * Dec 03, 2014 ASM #16859  D. Friedman Use CharBuffer instead of StringBuilder.
  * </pre>
  * 
  * @author
@@ -317,7 +320,7 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
      * @param charSet
      * @return
      */
-    static boolean safeStrpbrk(StringBuilder src, Pattern charSet) {
+    static boolean safeStrpbrk(CharBuffer src, Pattern charSet) {
         return getTextSegment(src, null, charSet);
     }
 
@@ -333,24 +336,17 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
      * @param charSet
      * @return
      */
-    static boolean getTextSegment(StringBuilder src, StringBuilder out,
+    static boolean getTextSegment(CharBuffer src, StringBuilder out,
             Pattern charSet) {
-        String s = src.toString();
-        String[] sArr = charSet.split(s, 2);
-
+        Matcher m = charSet.matcher(src);
+        boolean found = m.find();
+        int pos = found ? m.start() : src.length();
         if (out != null) {
             out.setLength(0);
-            out.append(sArr[0]);
+            out.append(src, 0, pos);
         }
-
-        if (sArr.length != 2) {
-            // no pattern found
-            src.setLength(0);
-            return false;
-        }
-
-        src.delete(0, sArr[0].length());
-        return true;
+        src.position(src.position() + pos);
+        return found;
     }
 
     /**
@@ -361,10 +357,9 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
      * @param charSet
      * @return
      */
-    static String assignTextSegment(String src, Pattern charSet) {
-        String[] sArr = charSet.split(src, 2);
-
-        return sArr[0];
+    static CharSequence assignTextSegment(CharSequence src, Pattern charSet) {
+        Matcher m = charSet.matcher(src);
+        return src.subSequence(0, m.find() ? m.start() : src.length());
     }
 
     // -- fileScope
@@ -409,10 +404,10 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
 
     public static final void main(String[] args) {
 
-        StringBuilder sb = new StringBuilder(
+        CharBuffer cb = CharBuffer.wrap(
                 "\r\r\nKOFF 1912/20/15\n\n\r     BECMG");
 
-        safeStrpbrk(sb, nl);
+        safeStrpbrk(cb, nl);
 
         // Pattern NNNXXX = Pattern.compile("\\w{4,6}(?:\\s{1,2})?[\\r\\n]+(?:"
         // + (char) 0x1e + ")?");
