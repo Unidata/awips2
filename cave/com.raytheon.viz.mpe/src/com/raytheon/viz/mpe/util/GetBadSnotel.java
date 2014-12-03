@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.Scanner;
 import java.util.TimeZone;
 
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 /**
@@ -52,6 +51,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 public class GetBadSnotel {
 
     BufferedReader in = null;
+    
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     public void get_bad_snotel(String bad_snow_file,
             ArrayList<Station> precip_stations) {
@@ -65,18 +66,18 @@ public class GetBadSnotel {
         int num_qc_days;
 
         /* Retrieve the number of days to QC data for. */
-        num_qc_days = DailyQcUtils.qcDays;
+        num_qc_days = dqc.qcDays;
 
         ReadPrecipStationList pl = new ReadPrecipStationList();
         int max_stations = pl.getNumPstations();
-        Pdata[] pdata = DailyQcUtils.pdata;
+//        Pdata[] pdata = DailyQcUtils.pdata;
 
         for (j = 0; j < num_qc_days; j++) {
 
             for (i = 0; i < max_stations; i++) {
 
                 for (k = 0; k < 5; k++) {
-                    pdata[j].stn[i].snoflag[k] = 0;
+                    dqc.pdata[j].stn[i].snoflag[k] = 0;
                 }
 
             }
@@ -125,7 +126,7 @@ public class GetBadSnotel {
 
                                 Date zt = null;
                                 try {
-                                    zt = sdf.parse(pdata[j].ztime);
+                                    zt = sdf.parse(dqc.pdata[j].ztime);
                                 } catch (ParseException e) {
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();
@@ -134,7 +135,7 @@ public class GetBadSnotel {
 
                                     for (k = 0; k < 5; k++) {
 
-                                        pdata[j].stn[i].snoflag[k] = reason;
+                                        dqc.pdata[j].stn[i].snoflag[k] = reason;
 
                                     }
 
