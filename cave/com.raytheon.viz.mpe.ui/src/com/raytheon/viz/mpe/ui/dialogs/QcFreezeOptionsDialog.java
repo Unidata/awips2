@@ -111,9 +111,9 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
     private int dqc_good = 0;
 
-    public static DrawDQCStations ddq = DrawDQCStations.getInstance();
+    public static DrawDQCStations ddq;
     
-    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    private DailyQcUtils dqc;
 
     public static ArrayList<String> dataType = new ArrayList<String>();
 
@@ -149,6 +149,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
      */
     public QcFreezeOptionsDialog(Shell parent) {
         super(parent);
+        MPEDisplayManager.getCurrent().setZflag(true);
+        dqc = DailyQcUtils.getInstance();
     }
 
     private int getOpts() {
@@ -208,7 +210,6 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         }
         int qcDays = displayMgr.getDqcDays();
         // checks to see if area or date has changed since last data load
-//        DailyQcUtils dqcu = new DailyQcUtils();
         // reloads data if changed
         // returns 0 for failed, 1 for new area, 2 for Ok
         dqc_good = dqc.qcDataHasChanged(prevDate, currDate, QcArea, qcDays,
@@ -241,9 +242,6 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
             QcTempOptionsDialog.destroy(false);
             displayMgr.setMaxmin(false);
         }
-
-        displayMgr.setZflag(true);
-        ddq = DrawDQCStations.getInstance();
 
         shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MODELESS);
 
@@ -281,6 +279,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         displayMgr.setZflag(true);
         isOpen = true;
         isfinished = false;
+        ddq = DrawDQCStations.getInstance();
         ozo.chg_freeze_time(2);
         opo.send_expose();
         while (!shell.isDisposed()) {
@@ -306,7 +305,6 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         font.dispose();
         SaveLevel2Data s2 = new SaveLevel2Data();
         s2.send_dbase_new_area();
-//        DailyQcUtils dc = new DailyQcUtils();
         dqc.clearData();
         displayMgr.displayFieldData(df);
         removePerspectiveListener();
