@@ -69,6 +69,8 @@ public class Disagg6Hr {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Disagg6Hr.class);
+    
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     public static class Values_1hr {
         int dqc_day;
@@ -141,9 +143,9 @@ public class Disagg6Hr {
 
     public static Date end_time_temp;
 
-    int num_days_to_qc;
+//    int num_days_to_qc;
 
-    Date btim = DailyQcUtils.btime.getTime();
+    Date btim = dqc.btime.getTime();
 
     Values_1hr valuesReadIn;
 
@@ -153,7 +155,7 @@ public class Disagg6Hr {
 
     static int first = 0;
 
-    int mpe_dqc_max_precip_neighbors = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+    int mpe_dqc_max_precip_neighbors = dqc.mpe_dqc_max_precip_neighbors;
 
     DisaggGridMethod dgm = new DisaggGridMethod();
 
@@ -227,12 +229,11 @@ public class Disagg6Hr {
     }
 
     public void disagg6hr() {
-        DailyQcUtils dc = new DailyQcUtils();
         long start_time, end_time;
         String logdir;
-        String station_list_dir = DailyQcUtils.mpe_station_list_dir;
+        String station_list_dir = dqc.mpe_station_list_dir;
         String disagg_log_file;
-        String gridmask_dir = DailyQcUtils.mpe_gridmasks;
+        String gridmask_dir = dqc.mpe_gridmasks;
         String station_list_file;
         String mpe_disagg_execute;
         // char buf[] = new char[10];
@@ -245,16 +246,16 @@ public class Disagg6Hr {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         final SimpleDateFormat ddf = new SimpleDateFormat("yyyyMMddHHMM");
         ddf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        int max_stations = DailyQcUtils.precip_stations.size();
+        int max_stations = dqc.precip_stations.size();
         ArrayList<Station> station = new ArrayList<Station>();
 
         int ier, k = 0, j, i, ii;
-        int emonth = DailyQcUtils.emonth;
-        int smonth = DailyQcUtils.smonth;
+        int emonth = dqc.emonth;
+        int smonth = dqc.smonth;
         MeanMonthlyPrecip mmp = new MeanMonthlyPrecip();
         Isoh isoh = mmp.getIsoh();
-        String area_val_local = DailyQcUtils.currentQcArea;
-        Pdata pdata[] = DailyQcUtils.pdata;
+        String area_val_local = dqc.currentQcArea;
+        Pdata pdata[] = dqc.pdata;
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
         QCHRAP hrap_point = new QCHRAP();
@@ -264,9 +265,9 @@ public class Disagg6Hr {
 
         start_time = tt.getTime();
 
-        num_days_to_qc = DailyQcUtils.qcDays;
+//        num_days_to_qc = DailyQcUtils.qcDays;
 
-        station = DailyQcUtils.precip_stations;
+//        station = DailyQcUtils.precip_stations;
 
         currentTime.getTime();
         datestring = ddf.format(currentTime);
@@ -344,7 +345,7 @@ public class Disagg6Hr {
                 endtime_disagg = btim;
                 Calendar nt = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 nt.setTime(endtime_disagg);
-                nt.add(Calendar.SECOND, -(num_days_to_qc * 86400));
+                nt.add(Calendar.SECOND, -(dqc.qcDays * 86400));
                 starttime_disagg = nt.getTime();
                 end_time_temp = endtime_disagg;
 
@@ -362,12 +363,12 @@ public class Disagg6Hr {
                     return;
                 }
 
-                disagg_station_6hr = new Station[(num_days_to_qc * num_disagg_stations)];
-                disaggValues = new Values_1hr[(num_days_to_qc * num_disagg_stations)];
-                values6hr = new Values_6hr[(num_days_to_qc * num_disagg_stations)];
+                disagg_station_6hr = new Station[(dqc.qcDays * num_disagg_stations)];
+                disaggValues = new Values_1hr[(dqc.qcDays * num_disagg_stations)];
+                values6hr = new Values_6hr[(dqc.qcDays * num_disagg_stations)];
 
-                for (int z = 0; z < num_days_to_qc * num_disagg_stations; z++) {
-                    disagg_station_6hr[z] = dc.new Station();
+                for (int z = 0; z < dqc.qcDays * num_disagg_stations; z++) {
+                    disagg_station_6hr[z] = dqc.new Station();
                     disaggValues[z] = new Values_1hr();
                     values6hr[z] = new Values_6hr();
                 }
@@ -377,12 +378,12 @@ public class Disagg6Hr {
                     dist_6hr_to_1hr[z] = new Dist();
                 }
 
-                obsdate = new String[(num_days_to_qc + 1)];
-                obsdate_date_t = new Date[num_days_to_qc + 1];
+                obsdate = new String[(dqc.qcDays + 1)];
+                obsdate_date_t = new Date[dqc.qcDays + 1];
 
                 disagg_log_fd.write(" 6hr Disagg Station List\n");
 
-                for (j = 0; j < num_days_to_qc; j++) {
+                for (j = 0; j < dqc.qcDays; j++) {
                     for (i = 0; i < num_disagg_stations; i++) {
                         index = j * num_disagg_stations + i;
 
@@ -557,16 +558,16 @@ public class Disagg6Hr {
 
                 }
 
-                obsdate[num_days_to_qc] = "";
+                obsdate[dqc.qcDays] = "";
 
                 // note that end_time_temp is not being decremented
                 // as in the above loop because it will be decremented
                 // one extra time in the loop already.
-                obsdate[num_days_to_qc] = sdf.format(end_time_temp);
+                obsdate[dqc.qcDays] = sdf.format(end_time_temp);
                 disagg_log_fd.write(String.format(
-                        "datestring for disagg day %d = %s\n", num_days_to_qc,
-                        obsdate[num_days_to_qc]));
-                obsdate_date_t[num_days_to_qc] = end_time_temp;
+                        "datestring for disagg day %d = %s\n", dqc.qcDays,
+                        obsdate[dqc.qcDays]));
+                obsdate_date_t[dqc.qcDays] = end_time_temp;
 
                 /* print 6hr values to log */
                 disagg_log_fd.write("\n");
@@ -576,7 +577,7 @@ public class Disagg6Hr {
                 index = -1;
 
                 for (i = 0; i < num_disagg_stations; i++) {
-                    for (j = 0; j < num_days_to_qc; j++) {
+                    for (j = 0; j < dqc.qcDays; j++) {
                         index = j * num_disagg_stations + i;
 
                         if (values6hr[index].ID
@@ -725,6 +726,7 @@ public class Disagg6Hr {
                 disagg_cleanup();
 
                 disagg_log_fd.close();
+                in.close();
                 // return;
             } catch (IOException e) {
                 statusHandler
@@ -739,6 +741,9 @@ public class Disagg6Hr {
                 try {
                     if (disagg_log_fd != null) {
                         disagg_log_fd.close();
+                    }
+                    if (in != null){
+                        in.close();
                     }
 
                 } catch (IOException e) {
