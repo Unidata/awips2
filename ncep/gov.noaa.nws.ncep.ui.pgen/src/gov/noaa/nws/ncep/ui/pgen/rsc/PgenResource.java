@@ -51,6 +51,7 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tools.AbstractPgenTool;
+import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
 
 import java.awt.Color;
@@ -76,14 +77,18 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.ui.cmenu.IContextMenuProvider;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.input.EditableManager;
+import com.raytheon.viz.ui.panes.PaneManager;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
@@ -144,6 +149,7 @@ import com.vividsolutions.jts.geom.Point;
  * 04/13		#874		B. Yin		Added a method replaceElements with parameter parent.
  * 04/13        #977        S. Gilbert  PGEN Database support
  * 11/13        TTR 752     J. Wu       Add methods for CCFP text auto placement.
+ * 11/14		R5413		B. Yin		Display PGEN in side view in D2D
  * </pre>
  * 
  * @author B. Yin
@@ -359,9 +365,9 @@ public class PgenResource extends
     public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         IDisplayPaneContainer editor = getResourceContainer();
-        if (editor instanceof AbstractEditor) {// && ((NCMapEditor)
-                                               // editor).getApplicationName().equals("NA")
-                                               // ) {
+    
+    	//Draw in main editor and side view (IMultiPaneEditor)
+        if (editor instanceof AbstractEditor || editor instanceof  IMultiPaneEditor) {
             DisplayElementFactory df = new DisplayElementFactory(target,
                     descriptor);
 
@@ -677,7 +683,7 @@ public class PgenResource extends
 
     private void drawSelected(IGraphicsTarget target, PaintProperties paintProps) {
 
-        if (!elSelected.isEmpty()) {
+        if ( !elSelected.isEmpty() && PgenSession.getInstance().getPgenPalette() != null ) {
             DisplayElementFactory df = new DisplayElementFactory(target,
                     descriptor);
             List<IDisplayable> displayEls = new ArrayList<IDisplayable>();
