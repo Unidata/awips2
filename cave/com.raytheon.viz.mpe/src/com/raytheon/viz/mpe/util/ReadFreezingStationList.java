@@ -65,27 +65,28 @@ public class ReadFreezingStationList {
 
     private String pathName = "";
 
-    private DailyQcUtils dc = new DailyQcUtils();
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    private StationListManager stationListManager = StationListManager.getInstance();
 
     public ArrayList<Station> read_freezing_station_list(String qcArea,
             boolean master_file_flag) {
 
-        StationListManager stationListManager = new StationListManager();
 
         try {
             stationListManager.getStationInfo(qcArea, master_file_flag,
-                    DailyQcUtils.freezing_stations,
-                    DailyQcUtils.temperature_stations,
-                    DailyQcUtils.precip_stations);
+                    dqc.freezing_stations,
+                    dqc.temperature_stations,
+                    dqc.precip_stations);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        ReadFreezingStationList.max_zstations = DailyQcUtils.freezing_stations
+        ReadFreezingStationList.max_zstations = dqc.freezing_stations
                 .size();
 
-        return DailyQcUtils.freezing_stations;
+        return dqc.freezing_stations;
     }
 
     public ArrayList<Station> old_read_freezing_station_list(String qcArea,
@@ -144,7 +145,7 @@ public class ReadFreezingStationList {
                         tokens = null;
                     }
                     if ((tokens != null) && tokens.length == 7) {
-                        Station astation = dc.new Station();
+                        Station astation = dqc.new Station();
                         astation.hb5 = tokens[0].toString().trim();
                         astation.parm = tokens[1].toString().trim();
                         double lat = Double.parseDouble(tokens[2].trim());
@@ -233,7 +234,7 @@ public class ReadFreezingStationList {
                                         .substring(0, 2)))
                                 && (record[1]
                                         .equalsIgnoreCase(stations.get(i).parm))) {
-                            Station statn = dc.new Station();
+                            Station statn = dqc.new Station();
                             statn = stations.get(i);
                             statn.xadd = Integer.parseInt(record[2].trim());
                             statn.yadd = Integer.parseInt(record[3].trim());

@@ -67,6 +67,7 @@ import com.vividsolutions.jts.operation.polygonize.Polygonizer;
  *                                     favor of new GridLocation constructor
  * 06/24/13     #2044      randerso    Changed format of hdf5 group to include 
  *                                     minutes for satellite data
+ * 10/08/14     #3684      randerso    Removed NOTIFY
  * 
  * </pre>
  * 
@@ -104,8 +105,6 @@ public class GfeUtil {
     public static final String KEY_SEPARATOR = "|";
 
     public static final String HAZARDS_KEY = "Hazards";
-
-    public static final String NOTIFY = "gfeNotify";
 
     private static Pattern DISCRETE_PATTERN = Pattern
             .compile("'[\\w<>+/^\\[\\]\\.,:-]*'");

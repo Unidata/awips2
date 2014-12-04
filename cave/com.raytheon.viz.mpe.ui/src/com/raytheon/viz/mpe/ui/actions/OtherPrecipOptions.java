@@ -35,7 +35,6 @@ import com.raytheon.viz.mpe.util.BadValues;
 import com.raytheon.viz.mpe.util.CheckConsistency;
 import com.raytheon.viz.mpe.util.CreateMap;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
 import com.raytheon.viz.mpe.util.EstDailyStations;
 import com.raytheon.viz.mpe.util.EstDailyTStations;
 import com.raytheon.viz.mpe.util.EstMissingStations;
@@ -71,6 +70,8 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  */
 
 public class OtherPrecipOptions {
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     private static final int DEFAULT_ENDING_6HOUR_OBS_TIME = 6;
 
@@ -125,14 +126,14 @@ public class OtherPrecipOptions {
     public void chg_precip_time(int data) {
 
         int i = 0;
-        int points_flag = DailyQcUtils.points_flag;
-        int grids_flag = DailyQcUtils.grids_flag;
-        int map_flag = DailyQcUtils.map_flag;
+        int points_flag = dqc.points_flag;
+        int grids_flag = dqc.grids_flag;
+        int map_flag = dqc.map_flag;
 
         /* 24 hour or 6 hour time step */
 
         if (MPEDisplayManager.pcpn_time_step == 0) {
-            time_pos = DailyQcUtils.pcpn_time;
+            time_pos = dqc.pcpn_time;
         } else {
             time_pos = 4;
         }
@@ -141,15 +142,15 @@ public class OtherPrecipOptions {
             return;
         } else if (data == 2 && MPEDisplayManager.pcpn_time_step == 1) {
             MPEDisplayManager.pcpn_time_step = 0;
-            DailyQcUtils.pcp_flag = 3;
+            dqc.pcp_flag = 3;
         } else if (data == 3 && MPEDisplayManager.pcpn_time_step == 1) {
             return;
         } else if (data == 3 && MPEDisplayManager.pcpn_time_step == 0) {
             MPEDisplayManager.pcpn_time_step = 1;
 
-            if (DailyQcUtils.curHr18_00 == 1 || DailyQcUtils.curHr00_06 == 1
-                    || DailyQcUtils.curHr06_12 == 1) {
-                DailyQcUtils.pcp_flag = 0;
+            if (dqc.curHr18_00 == 1 || dqc.curHr00_06 == 1
+                    || dqc.curHr06_12 == 1) {
+                dqc.pcp_flag = 0;
             }
 
             if (rsmode == 0) {
@@ -167,38 +168,38 @@ public class OtherPrecipOptions {
         if (data == 0) {
             /* 6 hour precip time step mode. */
             if (MPEDisplayManager.pcpn_time_step == 0) {
-                DailyQcUtils.pcp_flag--;
+                dqc.pcp_flag--;
             } else {
                 /* 24 hour precip time step mode. */
-                DailyQcUtils.pcp_flag = DailyQcUtils.pcp_flag - 4;
+                dqc.pcp_flag = dqc.pcp_flag - 4;
             }
 
         } else if (data == 1) {
             /* 6 hour precip time step mode. */
             if (MPEDisplayManager.pcpn_time_step == 0) {
-                DailyQcUtils.pcp_flag++;
+                dqc.pcp_flag++;
             } else {
                 /* 24 hour precip time step mode. */
-                DailyQcUtils.pcp_flag = DailyQcUtils.pcp_flag + 4;
+                dqc.pcp_flag = dqc.pcp_flag + 4;
             }
         }
 
-        if (DailyQcUtils.pcp_flag < 0) {
-            DailyQcUtils.pcp_flag = 0;
+        if (dqc.pcp_flag < 0) {
+            dqc.pcp_flag = 0;
         }
 
-        if (DailyQcUtils.pcp_flag >= (MAX_GAGEQC_DAYS * 4)) {
-            DailyQcUtils.pcp_flag = ((MAX_GAGEQC_DAYS * 4) - 1);
+        if (dqc.pcp_flag >= (MAX_GAGEQC_DAYS * 4)) {
+            dqc.pcp_flag = ((MAX_GAGEQC_DAYS * 4) - 1);
         }
 
-        DailyQcUtils.pcpn_day = DailyQcUtils.pcp_flag / 4;
+        dqc.pcpn_day = dqc.pcp_flag / 4;
 
-        DailyQcUtils.pcpn_time = 3 - (DailyQcUtils.pcp_flag - DailyQcUtils.pcpn_day * 4);
+        dqc.pcpn_time = 3 - (dqc.pcp_flag - dqc.pcpn_day * 4);
 
         if (MPEDisplayManager.pcpn_time_step == 0) {
-            time_pos = DailyQcUtils.pcp_flag;
+            time_pos = dqc.pcp_flag;
         } else {
-            time_pos = 40 + DailyQcUtils.pcpn_day;
+            time_pos = 40 + dqc.pcpn_day;
         }
 
         QcPrecipOptionsDialog.dataSet.clear();
@@ -207,7 +208,7 @@ public class OtherPrecipOptions {
         QcPrecipOptionsDialog.setDataSetCombo(QcPrecipOptionsDialog.dataSet
                 .toArray(a));
 
-        if (DailyQcUtils.pcp_in_use[time_pos] == -1) {
+        if (dqc.pcp_in_use[time_pos] == -1) {
             QcPrecipOptionsDialog.dataSet.clear();
             QcPrecipOptionsDialog.dataSet.add(0,
                     QcPrecipOptionsDialog.dataType.get(0));
@@ -218,7 +219,7 @@ public class OtherPrecipOptions {
                     .toArray(a));
         }
 
-        if (points_flag == 1 && DailyQcUtils.pcp_in_use[time_pos] == -1) {
+        if (points_flag == 1 && dqc.pcp_in_use[time_pos] == -1) {
             i = 0;
         } else if (points_flag == 1 && grids_flag == -1 && map_flag == -1) {
             i = 0;
@@ -236,9 +237,9 @@ public class OtherPrecipOptions {
 
         QcPrecipOptionsDialog.selectDataSetVal(i);
 
-        if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stddev == 5.0) {
+        if (dqc.pdata[dqc.pcpn_day].stddev == 5.0) {
             i = 0;
-        } else if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stddev == 3.0) {
+        } else if (dqc.pdata[dqc.pcpn_day].stddev == 3.0) {
             i = 1;
         } else {
             i = 2;
@@ -246,14 +247,14 @@ public class OtherPrecipOptions {
 
         QcPrecipOptionsDialog.pntScnCbo.select(i);
 
-        if ((DailyQcUtils.pcp_in_use[time_pos] == -1)
-                && ((((MPEDisplayManager.pcpn_time_step == 1) && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] != 0))) || ((MPEDisplayManager.pcpn_time_step == 0) && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] != 0)))) {
+        if ((dqc.pcp_in_use[time_pos] == -1)
+                && ((((MPEDisplayManager.pcpn_time_step == 1) && (dqc.pdata[dqc.pcpn_day].used[4] != 0))) || ((MPEDisplayManager.pcpn_time_step == 0) && (dqc.pdata[dqc.pcpn_day].used[dqc.pcpn_time] != 0)))) {
             QcPrecipOptionsDialog.renderGridsBtn.setEnabled(true);
         } else {
             QcPrecipOptionsDialog.renderGridsBtn.setEnabled(false);
         }
 
-        time_pos = 100 + DailyQcUtils.pcp_flag;
+        time_pos = 100 + dqc.pcp_flag;
 
         if (MPEDisplayManager.pcpn_time_step == 1) {
 
@@ -263,8 +264,8 @@ public class OtherPrecipOptions {
             QcPrecipOptionsDialog.pcpTypeCbo.select(1);
         } else {
 
-            if ((DailyQcUtils.pcp_flag != 0 && (DailyQcUtils.pcp_in_use[time_pos] == 1 || DailyQcUtils.pcp_in_use[time_pos - 1] == 1))
-                    || (DailyQcUtils.pcp_flag == 0 && DailyQcUtils.pcp_in_use[time_pos] != -1)) {
+            if ((dqc.pcp_flag != 0 && (dqc.pcp_in_use[time_pos] == 1 || dqc.pcp_in_use[time_pos - 1] == 1))
+                    || (dqc.pcp_flag == 0 && dqc.pcp_in_use[time_pos] != -1)) {
 
                 for (i = 0; i < 1; i++) {
                     QcPrecipOptionsDialog.pcpTypeCbo.setEnabled(true);
@@ -286,10 +287,10 @@ public class OtherPrecipOptions {
         }
 
         Calendar tget = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        long offset = (DailyQcUtils.pcpn_day * 86400);
-        tget.setTime(DailyQcUtils.btime.getTime());
+        long offset = (dqc.pcpn_day * 86400);
+        tget.setTime(dqc.btime.getTime());
         tget.add(Calendar.SECOND, (int) -offset);
-        DailyQcUtils.isom = tget.get(Calendar.MONTH);
+        dqc.isom = tget.get(Calendar.MONTH);
 
         /*
          * Set the sensitivity of the precipitation time step arrows based on
@@ -301,8 +302,8 @@ public class OtherPrecipOptions {
 
     public void set_precip_arrow_sensitivity() {
 
-        int num_qc_days = DailyQcUtils.qcDays;
-        int pcp_flag = DailyQcUtils.pcp_flag;
+        int num_qc_days = dqc.qcDays;
+        int pcp_flag = dqc.pcp_flag;
         Button up_arrow = QcPrecipOptionsDialog.upTimeBtn;
         Button down_arrow = QcPrecipOptionsDialog.dnTimeBtn;
 
@@ -316,7 +317,7 @@ public class OtherPrecipOptions {
                 /* Make sure that the down arrow is available. */
                 down_arrow.setEnabled(true);
             }
-            if (DailyQcUtils.curHr18_00 == 1) {
+            if (dqc.curHr18_00 == 1) {
 
                 if (pcp_flag - 3 < 0) {
                     /* Grey out the up arrow. */
@@ -325,7 +326,7 @@ public class OtherPrecipOptions {
                     /* Make sure the up arrow is available. */
                     up_arrow.setEnabled(true);
                 }
-            } else if (DailyQcUtils.curHr00_06 == 1) {
+            } else if (dqc.curHr00_06 == 1) {
                 if (pcp_flag - 2 <= 0) {
                     /* Grey out the up arrow. */
                     up_arrow.setEnabled(false);
@@ -333,7 +334,7 @@ public class OtherPrecipOptions {
                     /* Make sure the up arrow is available. */
                     up_arrow.setEnabled(true);
                 }
-            } else if (DailyQcUtils.curHr06_12 == 1) {
+            } else if (dqc.curHr06_12 == 1) {
                 if (pcp_flag - 1 <= 0) {
                     /* Grey out the up arrow. */
                     up_arrow.setEnabled(false);
@@ -352,8 +353,8 @@ public class OtherPrecipOptions {
             }
             Calendar currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             Calendar tmpDate = (Calendar) currentTime.clone();
-            tmpDate.setTime(DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time);
-            tmpDate.add(Calendar.HOUR_OF_DAY, (DailyQcUtils.pcpn_time-3)*6);
+            tmpDate.setTime(dqc.pdata[dqc.pcpn_day].data_time);
+            tmpDate.add(Calendar.HOUR_OF_DAY, (dqc.pcpn_time-3)*6);
 
             if (currentTime.before(tmpDate)){
             	up_arrow.setEnabled(false);
@@ -369,8 +370,8 @@ public class OtherPrecipOptions {
             }
             /* determine the up arrow status */
 
-            if (DailyQcUtils.curHr18_00 == 1 || DailyQcUtils.curHr00_06 == 1
-                    || DailyQcUtils.curHr06_12 == 1) {
+            if (dqc.curHr18_00 == 1 || dqc.curHr00_06 == 1
+                    || dqc.curHr06_12 == 1) {
                 if (pcp_flag - 7 <= 0) {
                     up_arrow.setEnabled(false);
                 } else {
@@ -390,36 +391,36 @@ public class OtherPrecipOptions {
 
     public void display_pcpn_options(int data) {
         /* Initialize the display flags. */
-        DailyQcUtils.points_flag = -1;
-        DailyQcUtils.grids_flag = -1;
-        DailyQcUtils.map_flag = -1;
-        DailyQcUtils.contour_flag = -1;
+        dqc.points_flag = -1;
+        dqc.grids_flag = -1;
+        dqc.map_flag = -1;
+        dqc.contour_flag = -1;
 
         if (data == 0) {
-            DailyQcUtils.points_flag = 1;
+            dqc.points_flag = 1;
         }
 
         else if (data == 1) {
-            DailyQcUtils.grids_flag = 1;
+            dqc.grids_flag = 1;
         } else if (data == 2) {
-            DailyQcUtils.map_flag = 1;
+            dqc.map_flag = 1;
         } else if (data == 3) {
-            DailyQcUtils.points_flag = 1;
-            DailyQcUtils.grids_flag = 1;
+            dqc.points_flag = 1;
+            dqc.grids_flag = 1;
         } else if (data == 4) {
-            DailyQcUtils.points_flag = 1;
-            DailyQcUtils.map_flag = 1;
+            dqc.points_flag = 1;
+            dqc.map_flag = 1;
         } else if (data == 5) {
-            DailyQcUtils.points_flag = -1;
-            DailyQcUtils.contour_flag = 1;
+            dqc.points_flag = -1;
+            dqc.contour_flag = 1;
         } else if (data == 6) {
-            DailyQcUtils.points_flag = 1;
-            DailyQcUtils.contour_flag = 1;
+            dqc.points_flag = 1;
+            dqc.contour_flag = 1;
         } else if (data == 7) {
-            DailyQcUtils.contour_flag = -1;
-            DailyQcUtils.points_flag = -1;
-            DailyQcUtils.grids_flag = -1;
-            DailyQcUtils.map_flag = -1;
+            dqc.contour_flag = -1;
+            dqc.points_flag = -1;
+            dqc.grids_flag = -1;
+            dqc.map_flag = -1;
         }
         send_expose();
     }
@@ -432,14 +433,14 @@ public class OtherPrecipOptions {
         int clientdata = i;
         Date old_time = null;
         String dbuf = "";
-        String[][] timefile = DailyQcUtils.timefile;
-        String[][] ztimefile = DailyQcUtils.ztimefile;
-        String[][] ttimefile = DailyQcUtils.ttimefile;
+//        String[][] timefile = dqc.timefile;
+//        String[][] ztimefile = dqc.ztimefile;
+//        String[][] ttimefile = dqc.ttimefile;
         WriteQPFGrids wq = new WriteQPFGrids();
         RenderPcp rpc = new RenderPcp();
         CreateMap cm = new CreateMap();
         MakeRsel mr = new MakeRsel();
-        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+//        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
         Calendar tmtime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         ReadPrecipStationList rp = new ReadPrecipStationList();
         int num_stations = rp.getNumPstations();
@@ -455,41 +456,42 @@ public class OtherPrecipOptions {
         // // do nothing
         // }
 
-        
+        if (clientdata == 1) {
+            // do nothing
+        }
+
         /* Rendering the grids and MAPs. */
-        if (clientdata == 0) {
+        else if (clientdata == 0) {
 
             BadValues bv = new BadValues();
-            bv.update_bad_values(DailyQcUtils.pcpn_day);
+            bv.update_bad_values(dqc.pcpn_day);
 
             /*
              * do not estimate daily and partial point precipitation from each
              * other if run DQC on partial time frame and pcpn_day=0
              */
-            if (DailyQcUtils.pcpn_day == 0
-                    && (DailyQcUtils.curHr00_06 == 1
-                            || DailyQcUtils.curHr06_12 == 1 || DailyQcUtils.curHr18_00 == 1)) {
-                System.out.println("Not estimating partial point or daily stations.");
+            if (dqc.pcpn_day == 0
+                    && (dqc.curHr00_06 == 1
+                            || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
                 // don't estimate
             } else {
 
                 EstDailyStations ed = new EstDailyStations();
-                ed.estimate_daily_stations(DailyQcUtils.pcpn_day,
-                        DailyQcUtils.precip_stations, num_stations);
-                System.out.println("Estimating daily stations.");
+                ed.estimate_daily_stations(dqc.pcpn_day,
+                        dqc.precip_stations, num_stations);
+
                 EstPartStations ep = new EstPartStations();
-                ep.estimate_partial_stations(DailyQcUtils.pcpn_day,
-                        DailyQcUtils.precip_stations, num_stations);
-                System.out.println("Estimating partial stations.");
+                ep.estimate_partial_stations(dqc.pcpn_day,
+                        dqc.precip_stations, num_stations);
             }
 
             QCStations qs = new QCStations();
-            qs.quality_control_stations(DailyQcUtils.pcpn_day,
-                    DailyQcUtils.precip_stations, num_stations);
+            qs.quality_control_stations(dqc.pcpn_day,
+                    dqc.precip_stations, num_stations);
 
             CheckConsistency cc = new CheckConsistency();
-            cc.check_consistency(DailyQcUtils.pcpn_day,
-                    DailyQcUtils.precip_stations, num_stations);
+            cc.check_consistency(dqc.pcpn_day,
+                    dqc.precip_stations, num_stations);
 
             /* render Grids and MAP for 24 hr precipitation */
 
@@ -498,23 +500,23 @@ public class OtherPrecipOptions {
              * curHr06_12, for precipitation, do not display the 24 hr
              * precipiation if the pcpn_day=0
              */
-            if ((DailyQcUtils.pcpn_day == 0)
-                    && (DailyQcUtils.curHr18_00 == 1
-                            || DailyQcUtils.curHr00_06 == 1 || DailyQcUtils.curHr06_12 == 1)) {
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] = 0;
+            if ((dqc.pcpn_day == 0)
+                    && (dqc.curHr18_00 == 1
+                            || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
+                dqc.pdata[dqc.pcpn_day].used[4] = 0;
             }
 
-            if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] != 0) {
+            if (dqc.pdata[dqc.pcpn_day].used[4] != 0) {
 
-                rpc.render_pcp(DailyQcUtils.pcpn_day, DailyQcUtils.pcpn_time,
-                        1, num_stations, DailyQcUtils.precip_stations,
-                        hrap_grid, DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+                rpc.render_pcp(dqc.pcpn_day, dqc.pcpn_time,
+                        1, num_stations, dqc.precip_stations,
+                        dqc.getHrap_grid(), dqc.pdata, dqc.pcp_in_use);
 
-                old_time = DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time;
+                old_time = dqc.pdata[dqc.pcpn_day].data_time;
                 tmtime.setTime(old_time);
 
                 dbuf = String.format("%s%s_%04d%02d%02d",
-                        DailyQcUtils.grid_file, timefile[2][4],
+                        dqc.grid_file, dqc.timefile[2][4],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
                         tmtime.get(Calendar.DAY_OF_MONTH));
@@ -534,7 +536,7 @@ public class OtherPrecipOptions {
                 // write_dqc_netcdf_grids(dbuf, pdata[pcpn_day].data_time,
                 // &begin_time, 1);
                 // }
-                cm.create_map(40 + DailyQcUtils.pcpn_day);
+                cm.create_map(40 + dqc.pcpn_day);
             }
 
             /* render Grids and MAP for four 6hr precipitation */
@@ -543,40 +545,40 @@ public class OtherPrecipOptions {
              * 18-00, m=2 represents time frame 00-06Z
              */
 
-            if (DailyQcUtils.pcpn_day == 0 && DailyQcUtils.curHr18_00 == 1) {
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[1] = 0;
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[2] = 0;
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[3] = 0;
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && DailyQcUtils.curHr00_06 == 1) {
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[2] = 0;
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[3] = 0;
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && DailyQcUtils.curHr06_12 == 1) {
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[3] = 0;
+            if (dqc.pcpn_day == 0 && dqc.curHr18_00 == 1) {
+                dqc.pdata[dqc.pcpn_day].used[1] = 0;
+                dqc.pdata[dqc.pcpn_day].used[2] = 0;
+                dqc.pdata[dqc.pcpn_day].used[3] = 0;
+            } else if (dqc.pcpn_day == 0
+                    && dqc.curHr00_06 == 1) {
+                dqc.pdata[dqc.pcpn_day].used[2] = 0;
+                dqc.pdata[dqc.pcpn_day].used[3] = 0;
+            } else if (dqc.pcpn_day == 0
+                    && dqc.curHr06_12 == 1) {
+                dqc.pdata[dqc.pcpn_day].used[3] = 0;
             }
 
             for (int m = 0; m < 4; m++) {
 
-                if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[m] == 0) {
+                if (dqc.pdata[dqc.pcpn_day].used[m] == 0) {
                     continue;
                 }
 
-                rpc.render_pcp(DailyQcUtils.pcpn_day, m, 0, num_stations,
-                        DailyQcUtils.precip_stations, hrap_grid,
-                        DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+                rpc.render_pcp(dqc.pcpn_day, m, 0, num_stations,
+                        dqc.precip_stations, dqc.getHrap_grid(),
+                        dqc.pdata, dqc.pcp_in_use);
 
                 if (m < 2) {
-                    old_time = DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time;
+                    old_time = dqc.pdata[dqc.pcpn_day].data_time;
                     tmtime.setTime(old_time);
                     tmtime.add(Calendar.SECOND, -86400);
                 } else {
-                    old_time = DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time;
+                    old_time = dqc.pdata[dqc.pcpn_day].data_time;
                     tmtime.setTime(old_time);
                 }
 
                 dbuf = String.format("%s%s_%04d%02d%02d",
-                        DailyQcUtils.grid_file, timefile[2][m],
+                        dqc.grid_file, dqc.timefile[2][m],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
                         tmtime.get(Calendar.DAY_OF_MONTH));
@@ -595,28 +597,28 @@ public class OtherPrecipOptions {
                 // write_dqc_netcdf_grids(dbuf, pdata[pcpn_day].data_time,
                 // &begin_time, 1);
                 // }
-                int num = 4 * DailyQcUtils.pcpn_day + 3 - m;
+                int num = 4 * dqc.pcpn_day + 3 - m;
 
                 cm.create_map(num);
 
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[m] = 3;
+                dqc.pdata[dqc.pcpn_day].used[m] = 3;
 
             }
 
             EstMissingStations ems = new EstMissingStations();
-            ems.estimate_missing_stations(DailyQcUtils.pcpn_day,
-                    DailyQcUtils.precip_stations, num_stations,
-                    DailyQcUtils.pdata);
+            ems.estimate_missing_stations(dqc.pcpn_day,
+                    dqc.precip_stations, num_stations,
+                    dqc.pdata);
 
-            bv.restore_bad_values(DailyQcUtils.pcpn_day,
-                    DailyQcUtils.precip_stations, num_stations);
+            bv.restore_bad_values(dqc.pcpn_day,
+                    dqc.precip_stations, num_stations);
 
-            if ((DailyQcUtils.pcpn_day == 0)
-                    && (DailyQcUtils.curHr18_00 == 1
-                            || DailyQcUtils.curHr00_06 == 1 || DailyQcUtils.curHr06_12 == 1)) {
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] = 0;
+            if ((dqc.pcpn_day == 0)
+                    && (dqc.curHr18_00 == 1
+                            || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
+                dqc.pdata[dqc.pcpn_day].used[4] = 0;
             } else {
-                DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] = 3;
+                dqc.pdata[dqc.pcpn_day].used[4] = 3;
             }
 
             QcPrecipOptionsDialog.dataSet.clear();
@@ -627,55 +629,55 @@ public class OtherPrecipOptions {
                     .toArray(a));
 
             if (MPEDisplayManager.pcpn_time_step == 0) {
-                time_pos = DailyQcUtils.pcp_flag;
+                time_pos = dqc.pcp_flag;
             } else {
-                time_pos = 40 + DailyQcUtils.pcpn_day;
+                time_pos = 40 + dqc.pcpn_day;
             }
 
-            if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.pcp_in_use[time_pos] == -1) {
+            if (dqc.points_flag == 1
+                    && dqc.pcp_in_use[time_pos] == -1) {
                 k = 0;
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == -1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == -1) {
                 // Points
                 k = 0;
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == 1
-                    && DailyQcUtils.map_flag == -1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == 1
+                    && dqc.map_flag == -1) {
                 // Grids
                 k = 1;
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == 1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == 1) {
                 // MATs
                 k = 2;
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == 1
-                    && DailyQcUtils.map_flag == -1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == 1
+                    && dqc.map_flag == -1) {
                 // Points & Grids
                 k = 3;
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == 1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == 1) {
                 // Points & MATs
                 k = 4;
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1) {
                 // Contours
                 k = 5;
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == 1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == 1) {
                 // Points & Contours
                 k = 6;
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == -1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == -1) {
                 // None
                 k = 7;
             }
@@ -697,25 +699,25 @@ public class OtherPrecipOptions {
              * 18-00, m=2 represents time frame 00-06Z
              */
 
-            if (DailyQcUtils.pcpn_day == 0 && DailyQcUtils.curHr18_00 == 1) {
-                DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[1] = 0;
-                DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[2] = 0;
-                DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[3] = 0;
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && DailyQcUtils.curHr00_06 == 1) {
-                DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[2] = 0;
-                DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[3] = 0;
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && DailyQcUtils.curHr06_12 == 1) {
-                DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[3] = 0;
+            if (dqc.pcpn_day == 0 && dqc.curHr18_00 == 1) {
+                dqc.zdata[dqc.pcpn_day].used[1] = 0;
+                dqc.zdata[dqc.pcpn_day].used[2] = 0;
+                dqc.zdata[dqc.pcpn_day].used[3] = 0;
+            } else if (dqc.pcpn_day == 0
+                    && dqc.curHr00_06 == 1) {
+                dqc.zdata[dqc.pcpn_day].used[2] = 0;
+                dqc.zdata[dqc.pcpn_day].used[3] = 0;
+            } else if (dqc.pcpn_day == 0
+                    && dqc.curHr06_12 == 1) {
+                dqc.zdata[dqc.pcpn_day].used[3] = 0;
             }
 
             for (m = 0; m < 4; m++) {
 
-                if (DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] == 0
-                        || DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] == 3
-                        || (DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] == 1 && DailyQcUtils.zdata[DailyQcUtils.pcpn_day].level[m] == 2)
-                        || DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] == 4) {
+                if (dqc.zdata[dqc.pcpn_day].used[m] == 0
+                        || dqc.zdata[dqc.pcpn_day].used[m] == 3
+                        || (dqc.zdata[dqc.pcpn_day].used[m] == 1 && dqc.zdata[dqc.pcpn_day].level[m] == 2)
+                        || dqc.zdata[dqc.pcpn_day].used[m] == 4) {
                     /*
                      * logMessage(
                      * "\n in other pcpn zdata used = %d pcpn_dauy=%d m=%d\n"
@@ -724,47 +726,47 @@ public class OtherPrecipOptions {
                     continue;
                 }
 
-                rz.render_z(DailyQcUtils.pcpn_day, m, 0, num_zstations,
-                        DailyQcUtils.freezing_stations, hrap_grid,
-                        DailyQcUtils.zdata, DailyQcUtils.pcp_in_use);
+                rz.render_z(dqc.pcpn_day, m, 0, num_zstations,
+                        dqc.freezing_stations, dqc.getHrap_grid(),
+                        dqc.zdata, dqc.pcp_in_use);
                 /*
                  * dqcEndingObsTime is controlled by the
                  * dqc_ending_6hour_obstime token. It should only be 06 or 12
                  * and the default is 06. However, have to account for it being
                  * set to 12 and original code didn't account for this.
                  */
-                if (DailyQcUtils.dqc_ending_6hour_obstime == 12) {
+                if (dqc.dqc_ending_6hour_obstime == 12) {
 
                     if (m < 1) {
-                        old_time = DailyQcUtils.zdata[DailyQcUtils.pcpn_day].data_time;
+                        old_time = dqc.zdata[dqc.pcpn_day].data_time;
                         tmtime.setTime(old_time);
                         tmtime.add(Calendar.SECOND, -86400);
                     } else {
-                        old_time = DailyQcUtils.zdata[DailyQcUtils.pcpn_day].data_time;
+                        old_time = dqc.zdata[dqc.pcpn_day].data_time;
                         tmtime.setTime(old_time);
                     }
                 } else {
                     if (m < 2) {
-                        old_time = DailyQcUtils.zdata[DailyQcUtils.pcpn_day].data_time;
+                        old_time = dqc.zdata[dqc.pcpn_day].data_time;
                         tmtime.setTime(old_time);
                         tmtime.add(Calendar.SECOND, -86400);
                     } else {
-                        old_time = DailyQcUtils.zdata[DailyQcUtils.pcpn_day].data_time;
+                        old_time = dqc.zdata[dqc.pcpn_day].data_time;
                         tmtime.setTime(old_time);
                     }
                 }
                 dbuf = String.format("%s%s_%04d%02d%02d",
-                        DailyQcUtils.zgrid_file,
-                        ztimefile[dqcTimeStringIndex][m],
+                        dqc.zgrid_file,
+                        dqc.ztimefile[dqcTimeStringIndex][m],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
                         tmtime.get(Calendar.DAY_OF_MONTH));
 
                 wq.write_qpf_grids(dbuf);
 
-                int num = 100 + 4 * DailyQcUtils.pcpn_day + 3 - m;
+                int num = 100 + 4 * dqc.pcpn_day + 3 - m;
 
-                DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] = 3;
+                dqc.zdata[dqc.pcpn_day].used[m] = 3;
 
                 mr.make_rsel(num, num - 100);
                 /*
@@ -781,52 +783,52 @@ public class OtherPrecipOptions {
             QcFreezeOptionsDialog.dataDispCbo
                     .setItems(QcFreezeOptionsDialog.dataSet.toArray(a));
 
-            time_pos = 100 + DailyQcUtils.pcp_flag;
+            time_pos = 100 + dqc.pcp_flag;
 
-            if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.pcp_in_use[time_pos] == -1) {
+            if (dqc.points_flag == 1
+                    && dqc.pcp_in_use[time_pos] == -1) {
                 k = 0;
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == -1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == -1) {
                 // Points
                 k = 0;
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == 1
-                    && DailyQcUtils.map_flag == -1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == 1
+                    && dqc.map_flag == -1) {
                 // Grids
                 k = 1;
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == 1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == 1) {
                 // MATs
                 k = 2;
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == 1
-                    && DailyQcUtils.map_flag == -1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == 1
+                    && dqc.map_flag == -1) {
                 // Points & Grids
                 k = 3;
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == 1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == 1) {
                 // Points & MATs
                 k = 4;
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == 1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == 1) {
                 // Contours
                 k = 5;
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == 1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == 1) {
                 // Points & Contours
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == -1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == -1) {
                 // None
                 k = 7;
             }
@@ -839,101 +841,101 @@ public class OtherPrecipOptions {
             ReadTemperatureStationList rt = new ReadTemperatureStationList();
             int num_tstations = rt.getNumTstations();
             BadTValues bt = new BadTValues();
-            bt.update_bad_tvalues(DailyQcUtils.pcpn_day);
+            bt.update_bad_tvalues(dqc.pcpn_day);
 
             /*
              * do not estimate daily and partial point precipitation from each
              * other if run DQC on partial time frame and pcpn_day=0
              */
 
-            if (DailyQcUtils.pcpn_day == 0
-                    && (DailyQcUtils.curHr00_06 == 1
-                            || DailyQcUtils.curHr06_12 == 1 || DailyQcUtils.curHr18_00 == 1)) {
+            if (dqc.pcpn_day == 0
+                    && (dqc.curHr00_06 == 1
+                            || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
                 // do not run estimate on stations
             } else {
                 EstDailyTStations edt = new EstDailyTStations();
-                edt.estimate_daily_tstations(DailyQcUtils.pcpn_day,
-                        DailyQcUtils.temperature_stations, num_tstations);
+                edt.estimate_daily_tstations(dqc.pcpn_day,
+                        dqc.temperature_stations, num_tstations);
             }
             QCTStations qct = new QCTStations();
-            qct.quality_control_tstations(DailyQcUtils.pcpn_day,
-                    DailyQcUtils.temperature_stations, num_tstations);
+            qct.quality_control_tstations(dqc.pcpn_day,
+                    dqc.temperature_stations, num_tstations);
 
-            if (DailyQcUtils.pcpn_day == 0 && DailyQcUtils.curHr18_00 == 1) {
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[1] = 0;
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[2] = 0;
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[3] = 0;
+            if (dqc.pcpn_day == 0 && dqc.curHr18_00 == 1) {
+                dqc.tdata[dqc.pcpn_day].used[1] = 0;
+                dqc.tdata[dqc.pcpn_day].used[2] = 0;
+                dqc.tdata[dqc.pcpn_day].used[3] = 0;
 
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && DailyQcUtils.curHr00_06 == 1) {
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[2] = 0;
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[3] = 0;
+            } else if (dqc.pcpn_day == 0
+                    && dqc.curHr00_06 == 1) {
+                dqc.tdata[dqc.pcpn_day].used[2] = 0;
+                dqc.tdata[dqc.pcpn_day].used[3] = 0;
 
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && DailyQcUtils.curHr06_12 == 1) {
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[3] = 0;
+            } else if (dqc.pcpn_day == 0
+                    && dqc.curHr06_12 == 1) {
+                dqc.tdata[dqc.pcpn_day].used[3] = 0;
 
             }
 
             RenderT rent = new RenderT();
-            if (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[4] != 0) {
+            if (dqc.tdata[dqc.pcpn_day].used[4] != 0) {
 
-                rent.render_t(DailyQcUtils.pcpn_day, DailyQcUtils.pcpn_time, 1,
-                        num_tstations, DailyQcUtils.temperature_stations,
-                        hrap_grid, DailyQcUtils.tdata, DailyQcUtils.pcp_in_use);
+                rent.render_t(dqc.pcpn_day, dqc.pcpn_time, 1,
+                        num_tstations, dqc.temperature_stations,
+                        dqc.getHrap_grid(), dqc.tdata, dqc.pcp_in_use);
 
-                old_time = DailyQcUtils.tdata[DailyQcUtils.pcpn_day].data_time;
+                old_time = dqc.tdata[dqc.pcpn_day].data_time;
                 tmtime.setTime(old_time);
 
                 dbuf = String.format("%s%s_%04d%02d%02d",
-                        DailyQcUtils.tgrid_file,
-                        ttimefile[dqcTimeStringIndex][4],
+                        dqc.tgrid_file,
+                        dqc.ttimefile[dqcTimeStringIndex][4],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
                         tmtime.get(Calendar.DAY_OF_MONTH));
 
                 wq.write_qpf_grids(dbuf);
 
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[4] = 3;
+                dqc.tdata[dqc.pcpn_day].used[4] = 3;
 
             }
 
-            if (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[5] != 0) {
+            if (dqc.tdata[dqc.pcpn_day].used[5] != 0) {
 
-                rent.render_t(DailyQcUtils.pcpn_day, DailyQcUtils.pcpn_time, 2,
-                        num_tstations, DailyQcUtils.temperature_stations,
-                        hrap_grid, DailyQcUtils.tdata, DailyQcUtils.pcp_in_use);
+                rent.render_t(dqc.pcpn_day, dqc.pcpn_time, 2,
+                        num_tstations, dqc.temperature_stations,
+                        dqc.getHrap_grid(), dqc.tdata, dqc.pcp_in_use);
 
-                old_time = DailyQcUtils.tdata[DailyQcUtils.pcpn_day].data_time;
+                old_time = dqc.tdata[dqc.pcpn_day].data_time;
 
                 tmtime.setTime(old_time);
 
                 dbuf = String.format("%s%s_%04d%02d%02d",
-                        DailyQcUtils.tgrid_file,
-                        ttimefile[dqcTimeStringIndex][5],
+                        dqc.tgrid_file,
+                        dqc.ttimefile[dqcTimeStringIndex][5],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
                         tmtime.get(Calendar.DAY_OF_MONTH));
 
                 wq.write_qpf_grids(dbuf);
 
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[5] = 3;
+                dqc.tdata[dqc.pcpn_day].used[5] = 3;
 
             }
 
             for (int m = 0; m < 4; m++) {
 
-                if (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] == 0
-                        || DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] == 3
-                        || (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] == 1 && DailyQcUtils.tdata[DailyQcUtils.pcpn_day].level[m] == 2)
-                        || DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] == 4) {
+                if (dqc.tdata[dqc.pcpn_day].used[m] == 0
+                        || dqc.tdata[dqc.pcpn_day].used[m] == 3
+                        || (dqc.tdata[dqc.pcpn_day].used[m] == 1 && dqc.tdata[dqc.pcpn_day].level[m] == 2)
+                        || dqc.tdata[dqc.pcpn_day].used[m] == 4) {
                     continue;
                 }
 
                 RenderT6 rt6 = new RenderT6();
-                rt6.render_t6(DailyQcUtils.pcpn_day, m, 0, num_tstations,
-                        DailyQcUtils.temperature_stations, hrap_grid,
-                        DailyQcUtils.tdata, DailyQcUtils.pcp_in_use);
+                rt6.render_t6(dqc.pcpn_day, m, 0, num_tstations,
+                        dqc.temperature_stations, dqc.getHrap_grid(),
+                        dqc.tdata, dqc.pcp_in_use);
 
                 /*
                  * dqcEndingObsTime is controlled by the
@@ -945,52 +947,52 @@ public class OtherPrecipOptions {
                 if (dqc_ending_6hour_obstime == 12) {
 
                     if (m < 1) {
-                        old_time = DailyQcUtils.tdata[DailyQcUtils.pcpn_day].data_time;
+                        old_time = dqc.tdata[dqc.pcpn_day].data_time;
                         tmtime.setTime(old_time);
                         tmtime.add(Calendar.SECOND, -86400);
                     } else {
-                        old_time = DailyQcUtils.tdata[DailyQcUtils.pcpn_day].data_time;
+                        old_time = dqc.tdata[dqc.pcpn_day].data_time;
                         tmtime.setTime(old_time);
                     }
                 } else {
                     if (m < 2) {
-                        old_time = DailyQcUtils.tdata[DailyQcUtils.pcpn_day].data_time;
+                        old_time = dqc.tdata[dqc.pcpn_day].data_time;
                         tmtime.setTime(old_time);
                         tmtime.add(Calendar.SECOND, -86400);
                     } else {
-                        old_time = DailyQcUtils.tdata[DailyQcUtils.pcpn_day].data_time;
+                        old_time = dqc.tdata[dqc.pcpn_day].data_time;
                         tmtime.setTime(old_time);
                     }
                 }
 
                 dbuf = String.format("%s%s_%04d%02d%02d",
-                        DailyQcUtils.tgrid_file,
-                        ttimefile[dqcTimeStringIndex][m],
+                        dqc.tgrid_file,
+                        dqc.ttimefile[dqcTimeStringIndex][m],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
                         tmtime.get(Calendar.DAY_OF_MONTH));
 
                 wq.write_qpf_grids(dbuf);
 
-                int num = 150 + 4 * DailyQcUtils.pcpn_day + 3 - m;
+                int num = 150 + 4 * dqc.pcpn_day + 3 - m;
 
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] = 3;
+                dqc.tdata[dqc.pcpn_day].used[m] = 3;
 
                 MakeMat mmat = new MakeMat();
                 mmat.make_mat(num, num - 150);
 
-                DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] = 3;
+                dqc.tdata[dqc.pcpn_day].used[m] = 3;
 
             }
 
             EstMissingTStations emt = new EstMissingTStations();
-            emt.estimate_missing_tstations(DailyQcUtils.pcpn_day,
-                    DailyQcUtils.temperature_stations, num_tstations,
-                    DailyQcUtils.tdata);
+            emt.estimate_missing_tstations(dqc.pcpn_day,
+                    dqc.temperature_stations, num_tstations,
+                    dqc.tdata);
 
             BadTValues btv = new BadTValues();
-            btv.restore_bad_tvalues(DailyQcUtils.pcpn_day,
-                    DailyQcUtils.temperature_stations, num_tstations);
+            btv.restore_bad_tvalues(dqc.pcpn_day,
+                    dqc.temperature_stations, num_tstations);
 
             QcTempOptionsDialog.dataSet.clear();
             QcTempOptionsDialog.dataSet.addAll(QcTempOptionsDialog.dataType);
@@ -998,46 +1000,46 @@ public class OtherPrecipOptions {
             QcTempOptionsDialog.dataDispCbo
                     .setItems(QcTempOptionsDialog.dataSet.toArray(a));
 
-            time_pos = 150 + DailyQcUtils.pcp_flag;
+            time_pos = 150 + dqc.pcp_flag;
 
-            if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.pcp_in_use[time_pos] == -1) {
+            if (dqc.points_flag == 1
+                    && dqc.pcp_in_use[time_pos] == -1) {
                 k = 0; // Points
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == -1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == -1) {
                 k = 0; // Points
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == 1
-                    && DailyQcUtils.map_flag == -1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == 1
+                    && dqc.map_flag == -1) {
                 k = 1; // Grids
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == 1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == 1) {
                 k = 2; // MATs
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == 1
-                    && DailyQcUtils.map_flag == -1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == 1
+                    && dqc.map_flag == -1) {
                 k = 3; // Points + Grids
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == 1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == 1) {
                 k = 4; // Points + MATs
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == 1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == 1) {
                 k = 5; // Contours
-            } else if (DailyQcUtils.points_flag == 1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == 1) {
+            } else if (dqc.points_flag == 1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == 1) {
                 k = 6; // Points + Contours
-            } else if (DailyQcUtils.points_flag == -1
-                    && DailyQcUtils.grids_flag == -1
-                    && DailyQcUtils.map_flag == -1
-                    && DailyQcUtils.contour_flag == -1) {
+            } else if (dqc.points_flag == -1
+                    && dqc.grids_flag == -1
+                    && dqc.map_flag == -1
+                    && dqc.contour_flag == -1) {
                 k = 7; // None
             }
 
@@ -1057,21 +1059,21 @@ public class OtherPrecipOptions {
 
     public void send_expose() {
         if (QcPrecipOptionsDialog.isOpen == true) {
-            QcPrecipOptionsDialog.ddqc.reloadDQC();
+            QcPrecipOptionsDialog.ddq.reloadDQC();
         } else if (QcTempOptionsDialog.isOpen == true) {
-            QcTempOptionsDialog.ddqc.reloadDQC();
+            QcTempOptionsDialog.ddq.reloadDQC();
         } else if (QcFreezeOptionsDialog.isOpen == true) {
-            QcFreezeOptionsDialog.ddqc.reloadDQC();
+            QcFreezeOptionsDialog.ddq.reloadDQC();
         }
     }
 
     public void refresh_exposure() {
         if (QcPrecipOptionsDialog.isOpen == true) {
-            QcPrecipOptionsDialog.ddqc.reexposeDQC();
+            QcPrecipOptionsDialog.ddq.reexposeDQC();
         } else if (QcTempOptionsDialog.isOpen == true) {
-            QcTempOptionsDialog.ddqc.reexposeDQC();
+            QcTempOptionsDialog.ddq.reexposeDQC();
         } else if (QcFreezeOptionsDialog.isOpen == true) {
-            QcFreezeOptionsDialog.ddqc.reexposeDQC();
+            QcFreezeOptionsDialog.ddq.reexposeDQC();
         }
     }
 }
