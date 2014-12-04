@@ -85,6 +85,7 @@ public class DisaggGridMethod {
 
     public void disaggGridMethod() {
 
+        DailyQcUtils dqc = DailyQcUtils.getInstance();
         int i, j, k, l, index, nn, mm;
         int hour, hrapx, hrapy, num_miss;
         int hxmm, hynn, nbox;
@@ -93,7 +94,7 @@ public class DisaggGridMethod {
         Date end_time_temp;
         Date endtime_disagg = Disagg6Hr.endtime_disagg;
         int num_disagg_stations = Disagg6Hr.num_disagg_stations;
-        int num_days_to_qc = DailyQcUtils.qcDays;
+        int num_days_to_qc = dqc.qcDays;
         BufferedWriter out = disagg_log_fd;
 
         /*--------------------------------------*/
@@ -492,6 +493,7 @@ public class DisaggGridMethod {
                 }
             }
 
+            in.close();
             return num_miss;
         } catch (IOException e) {
             return 0;

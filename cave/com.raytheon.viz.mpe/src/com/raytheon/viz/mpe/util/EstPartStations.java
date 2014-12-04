@@ -21,7 +21,6 @@ package com.raytheon.viz.mpe.util;
 
 import java.util.ArrayList;
 
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 /**
@@ -42,16 +41,18 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 public class EstPartStations {
 
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     public void estimate_partial_stations(int j,
             ArrayList<Station> precip_stations, int numPstations) {
 
-        int dqc_neig = DailyQcUtils.mpe_dqc_max_precip_neighbors;
-        int isom = DailyQcUtils.isom;
-        int isohyets_used = DailyQcUtils.isohyets_used;
-        Pdata pdata[] = DailyQcUtils.pdata;
-        int method = DailyQcUtils.method;
+        int dqc_neig = dqc.mpe_dqc_max_precip_neighbors;
+        int isom = dqc.isom;
+        int isohyets_used = dqc.isohyets_used;
+//        Pdata pdata[] = DailyQcUtils.pdata;
+        int method = dqc.method;
         int m, k, i, l, ii;
-        int dqc_min_good = DailyQcUtils.mpe_dqc_min_good_stations;
+        int dqc_min_good = dqc.mpe_dqc_min_good_stations;
         double lat1;
         double lon1;
         double fdist;
@@ -66,7 +67,7 @@ public class EstPartStations {
         double padj;
         int max_stations = numPstations;
 
-        if (pdata[j].data_time == null) {
+        if (dqc.pdata[j].data_time == null) {
             return;
         }
 
@@ -78,10 +79,10 @@ public class EstPartStations {
 
             for (k = 0; k < 4; k++) {
 
-                if (pdata[j].stn[m].rrain[k].data >= 0
-                        && (pdata[j].stn[m].frain[k].qual == 0
-                                || pdata[j].stn[m].frain[k].qual == 8
-                                || pdata[j].stn[m].frain[k].qual == 3 || pdata[j].stn[m].frain[k].qual == 2)) {
+                if (dqc.pdata[j].stn[m].rrain[k].data >= 0
+                        && (dqc.pdata[j].stn[m].frain[k].qual == 0
+                                || dqc.pdata[j].stn[m].frain[k].qual == 8
+                                || dqc.pdata[j].stn[m].frain[k].qual == 3 || dqc.pdata[j].stn[m].frain[k].qual == 2)) {
                     break;
                 }
 
@@ -92,11 +93,11 @@ public class EstPartStations {
                 /* all 6 hourly periods missing or set bad */
                 /* need to re-estimate 24 hour data */
 
-                if (pdata[j].stn[m].frain[4].data >= 0
-                        && pdata[j].stn[m].frain[4].qual == 4) {
+                if (dqc.pdata[j].stn[m].frain[4].data >= 0
+                        && dqc.pdata[j].stn[m].frain[4].qual == 4) {
 
-                    DailyQcUtils.pdata[j].stn[m].frain[4].qual = 0;
-                    DailyQcUtils.pdata[j].stn[m].frain[4].data = -1;
+                    dqc.pdata[j].stn[m].frain[4].qual = 0;
+                    dqc.pdata[j].stn[m].frain[4].data = -1;
                 }
 
                 continue;
@@ -105,9 +106,9 @@ public class EstPartStations {
 
             /* dont estimate if 24 hour station available */
 
-            if (pdata[j].stn[m].frain[4].data >= 0
-                    && pdata[j].stn[m].frain[4].qual != 4
-                    && pdata[j].stn[m].frain[4].qual != 5) {
+            if (dqc.pdata[j].stn[m].frain[4].data >= 0
+                    && dqc.pdata[j].stn[m].frain[4].qual != 4
+                    && dqc.pdata[j].stn[m].frain[4].qual != 5) {
                 continue;
             }
 
@@ -137,17 +138,17 @@ public class EstPartStations {
 
                     /* dont estimate unless good or forced good */
 
-                    if (pdata[j].stn[i].frain[k].qual != 0
-                            && pdata[j].stn[i].frain[k].qual != 8
-                            && pdata[j].stn[i].frain[k].qual != 3
-                            && pdata[j].stn[i].frain[k].qual != 6
-                            && pdata[j].stn[i].frain[k].qual != 2) {
+                    if (dqc.pdata[j].stn[i].frain[k].qual != 0
+                            && dqc.pdata[j].stn[i].frain[k].qual != 8
+                            && dqc.pdata[j].stn[i].frain[k].qual != 3
+                            && dqc.pdata[j].stn[i].frain[k].qual != 6
+                            && dqc.pdata[j].stn[i].frain[k].qual != 2) {
                         continue;
                     }
 
                     /* dont use missing stations */
 
-                    if (pdata[j].stn[i].frain[k].data < 0) {
+                    if (dqc.pdata[j].stn[i].frain[k].data < 0) {
                         continue;
                     }
 
@@ -166,9 +167,9 @@ public class EstPartStations {
                     }
 
                     if (method == 2 && isoh > 0 && isoh1 > 0) {
-                        padj = pdata[j].stn[i].frain[k].data * (isoh1 / isoh);
+                        padj = dqc.pdata[j].stn[i].frain[k].data * (isoh1 / isoh);
                     } else {
-                        padj = pdata[j].stn[i].frain[k].data;
+                        padj = dqc.pdata[j].stn[i].frain[k].data;
                     }
 
                     fdist = 1 / testdist + fdist;
@@ -190,15 +191,15 @@ public class EstPartStations {
                             continue;
                         }
 
-                        if (pdata[j].stn[i].frain[k].qual != 0
-                                && pdata[j].stn[i].frain[k].qual != 8
-                                && pdata[j].stn[i].frain[k].qual != 3
-                                && pdata[j].stn[i].frain[k].qual != 6
-                                && pdata[j].stn[i].frain[k].qual != 2) {
+                        if (dqc.pdata[j].stn[i].frain[k].qual != 0
+                                && dqc.pdata[j].stn[i].frain[k].qual != 8
+                                && dqc.pdata[j].stn[i].frain[k].qual != 3
+                                && dqc.pdata[j].stn[i].frain[k].qual != 6
+                                && dqc.pdata[j].stn[i].frain[k].qual != 2) {
                             continue;
                         }
 
-                        if (pdata[j].stn[i].frain[k].data < 0) {
+                        if (dqc.pdata[j].stn[i].frain[k].data < 0) {
                             continue;
                         }
 
@@ -217,9 +218,9 @@ public class EstPartStations {
                         }
 
                         if (method == 2 && isoh > 0 && isoh1 > 0) {
-                            padj = pdata[j].stn[i].frain[k].data * isoh1 / isoh;
+                            padj = dqc.pdata[j].stn[i].frain[k].data * isoh1 / isoh;
                         } else {
-                            padj = pdata[j].stn[i].frain[k].data;
+                            padj = dqc.pdata[j].stn[i].frain[k].data;
                         }
 
                         fdist = 1 / testdist + fdist;
@@ -248,19 +249,19 @@ public class EstPartStations {
 
             for (k = 0; k < 4; k++) {
 
-                if (pdata[j].stn[m].rrain[k].data >= 0
-                        && (pdata[j].stn[m].frain[k].qual == 0
-                                || pdata[j].stn[m].frain[k].qual == 8
-                                || pdata[j].stn[m].frain[k].qual == 3 || pdata[j].stn[m].frain[k].qual == 2)) {
-                    ftotal = ftotal + pdata[j].stn[m].rrain[k].data;
+                if (dqc.pdata[j].stn[m].rrain[k].data >= 0
+                        && (dqc.pdata[j].stn[m].frain[k].qual == 0
+                                || dqc.pdata[j].stn[m].frain[k].qual == 8
+                                || dqc.pdata[j].stn[m].frain[k].qual == 3 || dqc.pdata[j].stn[m].frain[k].qual == 2)) {
+                    ftotal = ftotal + dqc.pdata[j].stn[m].rrain[k].data;
                 } else {
 
                     ftotal = ftotal + fvalue[k];
 
-                    /* if(pdata[j].stn[m].frain[k].qual != 1) { */
+                    /* if(dqc.pdata[j].stn[m].frain[k].qual != 1) { */
 
-                    DailyQcUtils.pdata[j].stn[m].frain[k].data = (float) fvalue[k];
-                    DailyQcUtils.pdata[j].stn[m].frain[k].qual = 5;
+                    dqc.pdata[j].stn[m].frain[k].data = (float) fvalue[k];
+                    dqc.pdata[j].stn[m].frain[k].qual = 5;
 
                     /* } */
 
@@ -268,8 +269,8 @@ public class EstPartStations {
 
             }
 
-            DailyQcUtils.pdata[j].stn[m].frain[k].data = (float) ftotal;
-            DailyQcUtils.pdata[j].stn[m].frain[k].qual = 4;
+            dqc.pdata[j].stn[m].frain[k].data = (float) ftotal;
+            dqc.pdata[j].stn[m].frain[k].qual = 4;
 
         }
 

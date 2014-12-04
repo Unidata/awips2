@@ -69,17 +69,32 @@ public class StationListManager {
     private static final int MONTHS_PER_YEAR = 12;
 
     private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    
+    private static StationListManager instance;
 
     private String station_dir = appsDefaults.getToken("mpe_station_list_dir");
 
     private String sitename = appsDefaults.getToken("mpe_site_id");
 
-    private DailyQcUtils dc = new DailyQcUtils();
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     private static long previousStationsModifiedTime = -99L;
 
     private static long previousLabelModifiedTime = -99L;
 
+    /**
+     * Retrieve singleton instance
+     * 
+     * @return singleton instance of StationListManager
+     */
+    public static synchronized StationListManager getInstance() {
+        if (instance == null) {
+            instance = new StationListManager();
+        }
+
+        return instance;
+    }
+    
     public void getStationInfo(String qcArea, boolean masterFileFlag,
             ArrayList<Station> freezingStationList,
             ArrayList<Station> temperatureStationList,
@@ -181,7 +196,7 @@ public class StationListManager {
                             (stationTokens.length == 7) && // input is valid and
                             (inputLine.charAt(0) != '#')) // not a comment
                     {
-                        Station aStation = dc.new Station();
+                        Station aStation = dqc.new Station();
                         aStation.hb5 = stationTokens[0].toString().trim(); // Location
                                                                            // ID
                         aStation.parm = stationTokens[1].toString().trim();
@@ -205,7 +220,7 @@ public class StationListManager {
 
                         latlon.x = lon;
                         latlon.y = lat;
-                        hrap_point = DailyQcUtils.getLatLontoHrap(latlon);
+                        hrap_point = dqc.getLatLontoHrap(latlon);
                         aStation.hrap_x = (float) hrap_point.x;
                         aStation.hrap_y = (float) hrap_point.y;
                         aStation.name = stationTokens[6].toString().trim();
@@ -321,7 +336,7 @@ public class StationListManager {
     public void computeClosestNeighbors(ArrayList<Station> stationList) {
         // String header = "StationListManager.computeClosestNeighbors(): ";
 
-        final int maxNeighborListSize = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+        final int maxNeighborListSize = dqc.mpe_dqc_max_precip_neighbors;
         // System.out.println(header + "max_neighbor_list_size = " +
         // maxNeighborListSize);
 
