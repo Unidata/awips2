@@ -64,6 +64,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 03/13		#928		B. Yin		Make the button bar smaller.
  * 04/13 		#874		B. Yin		Handle collection when OK is pressed for multi-selection.
  * 04/13        TTR399      J. Wu  		Make the dialog compact
+ * 12/14		R5413		B. Yin		Refresh editor after dialog close
  * 
  * </pre>
  * 
@@ -156,6 +157,7 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
     public void handleShellCloseEvent() {
         drawingLayer.removeSelected();
         drawingLayer.removeGhostLine();
+        mapEditor.refresh();
         super.handleShellCloseEvent();
         PgenUtil.setSelectingMode();
     }
