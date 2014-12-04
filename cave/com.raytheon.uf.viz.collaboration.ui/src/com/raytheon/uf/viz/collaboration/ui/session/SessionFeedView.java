@@ -22,8 +22,6 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.plaf.synth.ColorType;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -129,6 +127,7 @@ public class SessionFeedView extends SessionView {
      */
     @Override
     protected void initComponents(Composite parent) {
+        enableUserColors = false;
         super.initComponents(parent);
 
         colorConfigManager = new FeedColorConfigManager();
@@ -150,9 +149,9 @@ public class SessionFeedView extends SessionView {
     protected void createActions() {
         super.createActions();
 
-        bgColorChangeAction = new ChangeSiteColorAction(ColorType.BACKGROUND);
+        bgColorChangeAction = new ChangeSiteColorAction(SWT.BACKGROUND);
 
-        fgColorChangeAction = new ChangeSiteColorAction(ColorType.FOREGROUND);
+        fgColorChangeAction = new ChangeSiteColorAction(SWT.FOREGROUND);
 
         autoJoinAction = new Action(CollabPrefConstants.AUTO_JOIN, SWT.TOGGLE) {
             @Override
@@ -302,10 +301,9 @@ public class SessionFeedView extends SessionView {
             if (siteColor != null) {
                 if (siteColor.isForegroundSet()) {
                     fgColor = getColorFromRGB(siteColor
-                            .getColor(ColorType.FOREGROUND));
+                            .getColor(SWT.FOREGROUND));
                 }
-                bgColor = getColorFromRGB(siteColor
-                        .getColor(ColorType.BACKGROUND));
+                bgColor = getColorFromRGB(siteColor.getColor(SWT.BACKGROUND));
             }
         }
         super.styleAndAppendText(sb, offset, name, userId, ranges, fgColor,
@@ -489,12 +487,13 @@ public class SessionFeedView extends SessionView {
      */
     private class ChangeSiteColorAction extends Action {
 
-        private ColorType type;
+        private int type;
 
-        private ChangeSiteColorAction(ColorType type) {
-            super("Change Site " + type.toString() + " Color...", IconUtil
-                    .getImageDescriptor(Activator.getDefault().getBundle(),
-                            "change_color.gif"));
+        private ChangeSiteColorAction(int type) {
+            super("Change Site "
+                    + (type == SWT.FOREGROUND ? "Foreground" : "Background")
+                    + " Color...", IconUtil.getImageDescriptor(Activator
+                    .getDefault().getBundle(), "change_color.gif"));
             this.type = type;
         }
 
@@ -507,13 +506,13 @@ public class SessionFeedView extends SessionView {
             String site = getSelectedSite();
             ColorInfo colorInfo = colorConfigManager.getColor(site);
             if (colorInfo != null
-                    && (type != ColorType.FOREGROUND || colorInfo.isForegroundSet())) {
+                    && (type != SWT.FOREGROUND || colorInfo.isForegroundSet())) {
                 /*
                  * don't set dialog from colorInfo if null or type is foreground
                  * and foreground hasn't been set (use default)
                  */
                 dialog.setRGB(colorInfo.getColor(type));
-            } else if (type == ColorType.FOREGROUND) {
+            } else if (type == SWT.FOREGROUND) {
                 dialog.setRGB(defaultForeground);
             }
             RGB rgb = dialog.open();
