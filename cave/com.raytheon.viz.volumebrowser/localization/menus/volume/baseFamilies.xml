@@ -44,7 +44,7 @@
 		<substitute key="frameCount" value="41"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-		menuText="GFS" id="gfs90" useReferenceTime="true">
+		menuText="GFS" id="gfs" useReferenceTime="true">
 		<substitute key="modelName" value="${GFSmodel}"/>
 		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="41"/>

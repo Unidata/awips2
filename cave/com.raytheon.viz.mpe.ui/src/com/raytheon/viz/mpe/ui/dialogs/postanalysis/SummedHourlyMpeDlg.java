@@ -63,6 +63,7 @@ public class SummedHourlyMpeDlg extends BasePostAnalysisDlg
 
 	private static final int SECONDS_PER_HOUR = 3600;
 	private static final int SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR;	
+	private DailyQcUtils dqc = DailyQcUtils.getInstance();
 	
 	   /** Bundle file location */
     //private static final String BUNDLE_LOC = "bundles/MPE/postAnalysisBundle.xml";
@@ -79,10 +80,11 @@ public class SummedHourlyMpeDlg extends BasePostAnalysisDlg
       
         setResourceType1(PAResourceType.XMRG);
         setResourceType2(PAResourceType.ASCII_XMRG);
+        PostAnalysisManager paMgr = new PostAnalysisManager();
         
         // 24 accumulated  1-hour precip grids
       	
-        Hrap_Grid grid = DailyQcUtils.getHrap_grid(); 
+        Hrap_Grid grid = dqc.getHrap_grid(); 
         int wfoMinX = grid.hrap_minx;
         int wfoMinY = grid.hrap_miny;
         int width = grid.maxi;
@@ -95,7 +97,7 @@ public class SummedHourlyMpeDlg extends BasePostAnalysisDlg
 
         
         float scaleFactor = 25.4f * 100.0f;
-        double[][] totalPrecipGrid = PostAnalysisManager.get24HourTotalPrecip(height, width, scaleFactor);
+        double[][] totalPrecipGrid = paMgr.get24HourTotalPrecip(height, width, scaleFactor);
        
         
         //floatArray units are hundredths of MM
@@ -104,7 +106,7 @@ public class SummedHourlyMpeDlg extends BasePostAnalysisDlg
         setDataArray1(floatArray);
 
         //24 hour gage only
-        String dataFilePath2 = PostAnalysisManager.get24HourGageOnlyFilePath();
+        String dataFilePath2 = paMgr.get24HourGageOnlyFilePath();
         setDataFileName2(dataFilePath2);
 
         return;
@@ -114,12 +116,12 @@ public class SummedHourlyMpeDlg extends BasePostAnalysisDlg
     private float[] convertToFloatArray(double[][] totalPrecipGrid, float unitConversionFactor)
     {
     	String header = "SummedHourlyMpeDlg.convertToFloatArray(qpeAccum24hr): ";
-    	Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+    	Hrap_Grid hrap_grid = dqc.getHrap_grid();
         int maxCols = hrap_grid.maxi;
         int maxRows = hrap_grid.maxj;
-        int precipDay = DailyQcUtils.pcpn_day;
+        int precipDay = dqc.pcpn_day;
         
-        System.out.println(header + "DailyQcUtils.pcpn_day = " + DailyQcUtils.pcpn_day);
+        System.out.println(header + "DailyQcUtils.pcpn_day = " + dqc.pcpn_day);
         System.out.println(header + "precipDay = " + precipDay);
         float[] valueArray = new float[maxRows*maxCols];
         
