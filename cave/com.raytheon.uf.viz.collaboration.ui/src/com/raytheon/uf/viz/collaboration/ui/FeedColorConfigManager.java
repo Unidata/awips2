@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
-import javax.swing.plaf.synth.ColorType;
-
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -61,8 +59,8 @@ public class FeedColorConfigManager extends AbstractColorConfigManager {
      * @param defaultForeground
      */
     @Override
-    public synchronized void setColor(String site,
-            ColorType type, RGB rgb, RGB defaultForeground) {
+    public synchronized void setColor(String site, int type, RGB rgb,
+            RGB defaultForeground) {
         super.setColor(site, type, rgb, defaultForeground, FILE_PATH);
     }
 
