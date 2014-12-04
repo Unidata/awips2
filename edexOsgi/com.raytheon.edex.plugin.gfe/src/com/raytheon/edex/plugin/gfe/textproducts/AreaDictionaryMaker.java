@@ -127,11 +127,8 @@ public class AreaDictionaryMaker {
                     FileUtil.join("gfe", "userPython", "textProducts",
                             "Hazard_TCV.py"));
             if (lf.exists()) {
-                // TODO: Sarah add your TCVAreaDictionary creation code here
-                // if you add your code as a new method in
-                // createAreaDictionary.py which is probably the easiest way to
-                // do it, you can run it with the following line:
-                // pyScript.execute("createTCVAreaDictionary", argMap);
+            	argMap.put("siteID", siteID);
+                pyScript.execute("createTCVAreaDictionary", argMap);
             }
 
         } catch (JepException e) {
