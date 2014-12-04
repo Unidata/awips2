@@ -24,10 +24,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -50,19 +46,21 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class GridAttributes {
 
-    static boolean first = true;
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    boolean first = true;
 
-    static int dqcEndingObsTime;
+    int dqcEndingObsTime;
 
-    static CommonGridAttributes commonGridAttributes;
+    CommonGridAttributes commonGridAttributes;
 
-    static Hrap_Grid hrap_grid;
+//    static Hrap_Grid hrap_grid;
 
-    static int XOR;
+    int XOR;
 
-    static int YOR;
+    int YOR;
 
-    static int num_period_qc;
+    int num_period_qc;
 
     static AppsDefaults apps_defaults = AppsDefaults.getInstance();
 
@@ -79,9 +77,9 @@ public class GridAttributes {
         int num;
         commonGridAttributes = new CommonGridAttributes();
         num_period_qc = numperiod_qc;
-        Pdata[] pdata = DailyQcUtils.pdata;
-        Tdata[] tdata = DailyQcUtils.tdata;
-        Zdata[] zdata = DailyQcUtils.zdata;
+//        Pdata[] pdata = DailyQcUtils.pdata;
+//        Tdata[] tdata = DailyQcUtils.tdata;
+//        Zdata[] zdata = DailyQcUtils.zdata;
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.setTime(new Date());
         final int SIXHRSEC = 21600;
@@ -94,25 +92,25 @@ public class GridAttributes {
             String rfcid = "";
             String gridType = "";
             String projectionType = "";
-            hrap_grid = DailyQcUtils.getHrap_grid();
-            dqcEndingObsTime = DailyQcUtils.getEnding6HourObsTime();
-            XOR = hrap_grid.hrap_minx;
-            YOR = hrap_grid.hrap_miny;
-            commonGridAttributes.gridSize[0] = hrap_grid.maxi;
-            commonGridAttributes.gridSize[1] = hrap_grid.maxj;
+//            hrap_grid = DailyQcUtils.getHrap_grid();
+            dqcEndingObsTime = dqc.getEnding6HourObsTime();
+            XOR = dqc.getHrap_grid().hrap_minx;
+            YOR = dqc.getHrap_grid().hrap_miny;
+            commonGridAttributes.gridSize[0] = dqc.getHrap_grid().maxi;
+            commonGridAttributes.gridSize[1] = dqc.getHrap_grid().maxj;
 
             commonGridAttributes.domainOrigin = new Coordinate(XOR, YOR);
 
-            commonGridAttributes.domainExtent = new Coordinate(hrap_grid.maxi,
-                    hrap_grid.maxj);
+            commonGridAttributes.domainExtent = new Coordinate(dqc.getHrap_grid().maxi,
+                    dqc.getHrap_grid().maxj);
             Coordinate irap = new Coordinate(XOR, YOR);
-            latlonhrap = DailyQcUtils.getHraptoLatLon(irap);
+            latlonhrap = dqc.getHraptoLatLon(irap);
             commonGridAttributes.latLonLL = new Coordinate((latlonhrap.x),
                     latlonhrap.y);
 
-            irap.x += hrap_grid.maxi;
-            irap.y += hrap_grid.maxj;
-            latlonhrap = DailyQcUtils.getHraptoLatLon(irap);
+            irap.x += dqc.getHrap_grid().maxi;
+            irap.y += dqc.getHrap_grid().maxj;
+            latlonhrap = dqc.getHraptoLatLon(irap);
             commonGridAttributes.latLonUR = new Coordinate((latlonhrap.x),
                     latlonhrap.y);
 
@@ -122,8 +120,8 @@ public class GridAttributes {
             }
             commonGridAttributes.gridPointLL[0] = XOR;
             commonGridAttributes.gridPointLL[1] = YOR;
-            commonGridAttributes.gridPointUR[0] = XOR + hrap_grid.maxi;
-            commonGridAttributes.gridPointUR[1] = YOR + hrap_grid.maxj;
+            commonGridAttributes.gridPointUR[0] = XOR + dqc.getHrap_grid().maxi;
+            commonGridAttributes.gridPointUR[1] = YOR + dqc.getHrap_grid().maxj;
 
             gridType = apps_defaults.getToken("mpe_dqc_gridtype");
             if (gridType.length() != 0) {
@@ -157,11 +155,11 @@ public class GridAttributes {
 
             num = 0;
             for (int l = 0; l < 5; l++) {
-                if (pdata[j].used[l] == 0) {
+                if (dqc.pdata[j].used[l] == 0) {
                     continue;
                 }
                 if (l < 4) {
-                    cal.setTime(pdata[j].data_time);
+                    cal.setTime(dqc.pdata[j].data_time);
                     cal.add(Calendar.SECOND, -(4 - l) * SIXHRSEC);
                     commonGridAttributes.validTimes[l][0] = cal
                             .getTimeInMillis() / 1000;
@@ -169,10 +167,10 @@ public class GridAttributes {
                     commonGridAttributes.validTimes[l][1] = commonGridAttributes.validTimes[l][0]
                             + SIXHRSEC;
                 } else {
-                    cal.setTime(pdata[j].data_time);
+                    cal.setTime(dqc.pdata[j].data_time);
                     commonGridAttributes.validTimes[l][0] = (cal
                             .getTimeInMillis() / 1000) - DAYINSEC;
-                    cal.setTime(pdata[j].data_time);
+                    cal.setTime(dqc.pdata[j].data_time);
                     commonGridAttributes.validTimes[l][1] = cal
                             .getTimeInMillis() / 1000;
                 }
@@ -189,11 +187,11 @@ public class GridAttributes {
             num = 0;
 
             for (int l = 5; l >= 0; l--) {
-                if (tdata[j].used[l] == 0) {
+                if (dqc.tdata[j].used[l] == 0) {
                     continue;
                 }
                 if (l >= 4) {
-                    cal.setTime(pdata[j].data_time);
+                    cal.setTime(dqc.pdata[j].data_time);
                     commonGridAttributes.validTimes[l][1] = cal
                             .getTimeInMillis() / 1000;
                     cal.add(Calendar.SECOND, -DAYINSEC);
@@ -201,13 +199,13 @@ public class GridAttributes {
                             .getTimeInMillis() / 1000;
                 } else {
                     if (dqcEndingObsTime == 12) {
-                        cal.setTime(pdata[j].data_time);
+                        cal.setTime(dqc.pdata[j].data_time);
                         cal.add(Calendar.SECOND, -(4 - l) * SIXHRSEC);
                         cal.add(Calendar.SECOND, SIXHRSEC);
                         commonGridAttributes.validTimes[l][0] = cal
                                 .getTimeInMillis() / 1000;
                     } else {
-                        cal.setTime(pdata[j].data_time);
+                        cal.setTime(dqc.pdata[j].data_time);
                         cal.add(Calendar.SECOND, -(4 - l) * SIXHRSEC);
                         commonGridAttributes.validTimes[l][0] = cal
                                 .getTimeInMillis() / 1000;
@@ -228,18 +226,18 @@ public class GridAttributes {
             num = 0;
 
             for (int l = 0; l < 4; l++) {
-                if (zdata[j].used[l] == 0) {
+                if (dqc.zdata[j].used[l] == 0) {
                     continue;
                 }
 
                 if (dqcEndingObsTime == 12) {
-                    cal.setTime(pdata[j].data_time);
+                    cal.setTime(dqc.pdata[j].data_time);
                     cal.add(Calendar.SECOND, -(4 - l) * SIXHRSEC);
                     cal.add(Calendar.SECOND, SIXHRSEC);
                     commonGridAttributes.validTimes[l][0] = cal
                             .getTimeInMillis() / 1000;
                 } else {
-                    cal.setTime(pdata[j].data_time);
+                    cal.setTime(dqc.pdata[j].data_time);
                     cal.add(Calendar.SECOND, -(4 - l) * SIXHRSEC);
                     commonGridAttributes.validTimes[l][0] = cal
                             .getTimeInMillis() / 1000;
@@ -263,7 +261,7 @@ public class GridAttributes {
      * @param commonGridAttributes
      *            the commonGridAttributes to set
      */
-    public static void setCommonGridAttributes(
+    public void setCommonGridAttributes(
             CommonGridAttributes commonAttributes) {
         commonGridAttributes = commonAttributes;
     }
