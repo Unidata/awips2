@@ -34,7 +34,6 @@ import jep.JepException;
 import org.apache.log4j.Logger;
 
 import com.raytheon.edex.site.SiteUtil;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.MergeResult;
@@ -94,6 +93,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Jun 17, 2014    3296    randerso    Cached PythonScript. Moved active table 
  *                                     backup and purging to a separate thread.
  *                                     Added performance logging
+ * Nov 14, 2014    4953    randerso    Moved dumpProductToTempFile into PracticeVtecDecoder
+ *                                     since it had no reason to be in this class
  * 
  * </pre>
  * 
@@ -624,19 +625,6 @@ public class ActiveTable {
                 + GetNextEtnUtil.getEtnClusterLockName(requestedSiteId,
                         ActiveTableMode.PRACTICE) + "';";
         dao.executeNativeSql(sql);
-    }
-
-    /**
-     * Dump product text to temp file
-     * 
-     * @param productText
-     *            product text
-     * @return the temp file
-     */
-    public static File dumpProductToTempFile(String productText) {
-        File file = Util.createTempFile(productText.getBytes(), "vtec");
-        file.deleteOnExit();
-        return file;
     }
 
     /**
