@@ -19,6 +19,7 @@ provides: awips2-base
 requires: awips2-python
 requires: awips2-java
 requires: awips2-psql
+requires: awips2-yajsw
 
 %description
 AWIPS II Edex Installation - Installs and configures AWIPS II Edex.
