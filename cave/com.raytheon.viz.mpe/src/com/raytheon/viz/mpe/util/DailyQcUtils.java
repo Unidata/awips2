@@ -61,6 +61,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 16, 2009            snaples     Initial creation
  * Dec 04, 2012 15544      wkwock      fix missing 12z-18z after 12
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leaks and Scanner resource leak.
+ * Nov 24, 2014 16911      xwei        The day of Hydrologic Date is set to the next day 
+ *                                     if hour is greater than 18Z. 
  * 
  * </pre>
  * 
@@ -73,254 +75,255 @@ public class DailyQcUtils {
             .getHandler(DailyQcUtils.class);
 
     // private static final int MAX_QC_DAYS = 10;
+    private static DailyQcUtils instance;
 
-    public static double[][][] QPEaccum24hr;
+    public double[][][] QPEaccum24hr;
 
-    public static short[][] QPEgrid1hr;
+    public short[][] QPEgrid1hr;
 
-    public static final double MOSAIC_DEFAULT = -9.0;
+    public final double MOSAIC_DEFAULT = -9.0;
 
-    private static String lastQcArea = "";
+    private String lastQcArea = "";
 
-    public static String currentQcArea;
+    public String currentQcArea;
 
-    private static Date currDate;
+    private Date currDate;
 
-    private static Date selDate;
+    private Date selDate;
 
-    public static int qcDays;
+    public int qcDays;
 
-    public static int firstTok = 1;
+    public int firstTok = 1;
 
-    public static int isohyets_used = -1;
+    public int isohyets_used = -1;
 
-    public static int maxmin_used = -1;
+    public int maxmin_used = -1;
 
-    public static int init_maxmin = -1;
+    public int init_maxmin = -1;
 
-    public static int pcp_in_use[] = new int[500];
+    public int pcp_in_use[] = new int[500];
 
     boolean newarea = false;
 
     private static AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
-    private static String loc_area;
+    private String loc_area;
 
-    private static String station_climo_file;
+    private String station_climo_file;
 
-    private static String hrap_gage_file;
+    private String hrap_gage_file;
 
-    private static String hrap_zgage_file;
+    private String hrap_zgage_file;
 
-    private static String hrap_tgage_file;
+    private String hrap_tgage_file;
 
-    private static String hrap_grid_mask_file;
+    private String hrap_grid_mask_file;
 
-    private static String basin_file;
+    private String basin_file;
+    
+    private String hrap_file;
 
-    private static String hrap_file;
+    private String pcpn_file;
 
-    private static String pcpn_file;
+    public String proc_pcpn_file;
 
-    public static String proc_pcpn_file;
+    public String pcpn_qc_file;
 
-    public static String pcpn_qc_file;
+    public String pcpn_dev_file;
 
-    public static String pcpn_dev_file;
+    public String pcpn_bad_file;
 
-    public static String pcpn_bad_file;
+    private String snow_file;
 
-    private static String snow_file;
+    private String zpoint1_file;
 
-    private static String zpoint1_file;
+    public String zpoint2_file;
 
-    public static String zpoint2_file;
+    private String tpoint1_file;
 
-    private static String tpoint1_file;
+    public String tpoint2_file;
 
-    public static String tpoint2_file;
+    public String temp_bad_file;
 
-    public static String temp_bad_file;
+    public String temp_dev_file;
 
-    public static String temp_dev_file;
+    private String ngrid_file;
 
-    private static String ngrid_file;
+    public String grid_file;
 
-    public static String grid_file;
+    public String zgrid_file;
 
-    public static String zgrid_file;
+    public String tgrid_file;
 
-    public static String tgrid_file;
+    private String bad_snow_file;
 
-    private static String bad_snow_file;
+    public String rsel_file;
 
-    public static String rsel_file;
+    public String mat_file;
 
-    public static String mat_file;
+    public String map_file;
 
-    public static String map_file;
+    public int prev_smonth;
 
-    public static int prev_smonth;
+    public int prev_emonth;
 
-    public static int prev_emonth;
+    public boolean gageqc_performed = false;
 
-    public static boolean gageqc_performed = false;
+    public int method = 2;
 
-    public static int method = 2;
+    public boolean wfo_all = false;
 
-    public static boolean wfo_all = false;
+    public boolean render_all = true;
 
-    public static boolean render_all = true;
+    public int wfo_orig;
 
-    public static int wfo_orig;
+    public int[] wfo_in_use = new int[20];
 
-    public static int[] wfo_in_use = new int[20];
+    public String[] tag = new String[20];
 
-    public static String[] tag = new String[20];
+    public String mpe_basin_file;
 
-    public static String mpe_basin_file;
+    private String mpe_dqc_warningpopup_val = "";
 
-    private static String mpe_dqc_warningpopup_val = "";
+    public String mpe_gridmasks;
 
-    public static String mpe_gridmasks;
+    public String mpe_rfc_name;
 
-    public static String mpe_rfc_name;
+    public String mpe_archive_dir;
 
-    public static String mpe_archive_dir;
+    public String mpe_gif_dir;
 
-    public static String mpe_gif_dir;
+    public String mpe_gif_location;
 
-    public static String mpe_gif_location;
+    public int mpe_td_new_algorithm_set;
 
-    public static int mpe_td_new_algorithm_set;
+    public int mpe_td_details_set;
 
-    public static int mpe_td_details_set;
+    public String mpe_point_precip_dir;
 
-    public static String mpe_point_precip_dir;
+    public String mpe_grid_precip_dir;
 
-    public static String mpe_grid_precip_dir;
+    public String mpe_map_precip_dir;
 
-    public static String mpe_map_precip_dir;
+    public String mpe_dev_precip_dir;
 
-    public static String mpe_dev_precip_dir;
+    public String mpe_bad_precip_dir;
 
-    public static String mpe_bad_precip_dir;
+    public String mpe_point_freezing_dir;
 
-    public static String mpe_point_freezing_dir;
+    public String mpe_grid_freezing_dir;
 
-    public static String mpe_grid_freezing_dir;
+    public String mpe_maz_freezing_dir;
 
-    public static String mpe_maz_freezing_dir;
+    public String mpe_point_temperature_dir;
 
-    public static String mpe_point_temperature_dir;
+    public String mpe_grid_temperature_dir;
 
-    public static String mpe_grid_temperature_dir;
+    public String mpe_mat_temperature_dir;
 
-    public static String mpe_mat_temperature_dir;
+    public String mpe_bad_temperature_dir;
 
-    public static String mpe_bad_temperature_dir;
+    public String mpe_dev_temperature_dir;
 
-    public static String mpe_dev_temperature_dir;
+    public String mpe_station_list_dir;
 
-    public static String mpe_station_list_dir;
+    public String mpe_climo_list_dir;
 
-    public static String mpe_climo_list_dir;
+    public String mpe_prism_dir;
 
-    public static String mpe_prism_dir;
+    public int mpe_dqc_max_precip_neighbors;
 
-    public static int mpe_dqc_max_precip_neighbors;
+    public int mpe_dqc_max_temp_neighbors;
 
-    public static int mpe_dqc_max_temp_neighbors;
+    public float mpe_dqc_precip_deviation;
 
-    public static float mpe_dqc_precip_deviation;
+    public float mpe_dqc_temperature_deviation;
 
-    public static float mpe_dqc_temperature_deviation;
+    public int mpe_dqc_min_good_stations;
 
-    public static int mpe_dqc_min_good_stations;
+    public boolean mpe_dqc_warningpopup_flag;
 
-    public static boolean mpe_dqc_warningpopup_flag;
+    public int mpe_dqc_grid_max_dist;
 
-    public static int mpe_dqc_grid_max_dist;
+    public boolean mpe_copy_level2_dqc_to_ihfs_shef;
 
-    public static boolean mpe_copy_level2_dqc_to_ihfs_shef;
+    public boolean mpe_copy_level2_dqc_to_archive_shef;
 
-    public static boolean mpe_copy_level2_dqc_to_archive_shef;
+    public boolean mpe_dqc_save_netcdf;
 
-    public static boolean mpe_dqc_save_netcdf;
+    public boolean mpe_dqc_save_grib;
 
-    public static boolean mpe_dqc_save_grib;
+    public int dqc_ending_6hour_obstime = -1;
 
-    public static int dqc_ending_6hour_obstime = -1;
+    public int dqcTimeStringIndex;
 
-    public static int dqcTimeStringIndex;
+    public int load_gage_data_once = 0;
 
-    public static int load_gage_data_once = 0;
+    public String mpe_show_missing_gage;
 
-    public static String mpe_show_missing_gage;
+    public int isom = -1;
 
-    public static int isom = -1;
+    public int old_isom = -1;
 
-    public static int old_isom = -1;
+    public ArrayList<Station> precip_stations = new ArrayList<Station>();
 
-    public static ArrayList<Station> precip_stations = new ArrayList<Station>();
+    public ArrayList<Station> temperature_stations = new ArrayList<Station>();
 
-    public static ArrayList<Station> temperature_stations = new ArrayList<Station>();
+    public ArrayList<Station> freezing_stations = new ArrayList<Station>();
 
-    public static ArrayList<Station> freezing_stations = new ArrayList<Station>();
+    public Pdata pdata[];
 
-    public static Pdata pdata[];
+    public Tdata tdata[];
 
-    public static Tdata tdata[];
+    public Zdata zdata[];
 
-    public static Zdata zdata[];
-
-    private static Hrap_Grid hrap_grid = new Hrap_Grid();
+    private Hrap_Grid hrap_grid = new Hrap_Grid();
 
     // public static Hrap_Grid hrap_tgrid = new Hrap_Grid();
 
     public static String type = "QME  ";
 
-    public static Ts[] ts;
+    public Ts[] ts;
 
-    public static int tsmax = 0;
+    public int tsmax = 0;
 
-    public static Maps mean_areal_precip_global[];
+    public Maps mean_areal_precip_global[];
 
-    public static Pcp pcp = new Pcp();
+    public Pcp pcp = new Pcp();
 
-    public static Pcp spf = new Pcp();
+    public Pcp spf = new Pcp();
 
-    public static Pcp tpf = new Pcp();
+    public Pcp tpf = new Pcp();
 
-    public static Bad_Daily_Values bad_values[];
+    public Bad_Daily_Values bad_values[];
 
-    public static Bad_Daily_Values bad_tvalues[];
+    public Bad_Daily_Values bad_tvalues[];
 
-    public static int pid = newPid();
+    public int pid = newPid();
 
-    public static int emonth;
+    public int emonth;
 
-    public static int smonth;
+    public int smonth;
 
-    private static int max_basins;
+    private int max_basins;
 
-    public static Calendar btime = Calendar.getInstance(TimeZone
+    public Calendar btime = Calendar.getInstance(TimeZone
             .getTimeZone("GMT"));
 
     /* Define timefile file extensions. */
-    public static String timefile[][] = {
+    public String timefile[][] = {
             { "00_06", "06_12", "12_18", "18_00", "00_00" },
             { "06_12", "12_18", "18_00", "00_06", "06_06" },
             { "12_18", "18_00", "00_06", "06_12", "12_12" },
             { "18_00", "00_06", "06_12", "12_18", "18_18" } };
 
-    public static String ttimefile[][] = {
+    public String ttimefile[][] = {
             { "00", "06", "12", "18", "max", "min" },
             { "06", "12", "18", "00", "max", "min" },
             { "12", "18", "00", "06", "max", "min" },
             { "18", "00", "06", "12", "max", "min" } };
 
-    public static String ztimefile[][] = { { "00", "06", "12", "18" },
+    public String ztimefile[][] = { { "00", "06", "12", "18" },
             { "06", "12", "18", "00" }, { "12", "18", "00", "06" },
             { "18", "00", "06", "12" } };
 
@@ -436,62 +439,62 @@ public class DailyQcUtils {
 
     public static int new_area_flag = 0;
 
-    public static int func[] = { 8, 0, 3, 1, 2 };
+    public int func[] = { 8, 0, 3, 1, 2 };
 
     public static int hrgt12z = -1;
 
-    public static int[] dflag = new int[10];
+    public int[] dflag = new int[10];
 
-    public static int[] qflag = new int[10];
+    public int[] qflag = new int[10];
 
-    public static float pxtemp = 1.0f;
+    public float pxtemp = 1.0f;
 
-    public static int dmvalue = (int) (1.0 * 100 * 3.28 / .55);
+    public int dmvalue = (int) (1.0 * 100 * 3.28 / .55);
 
-    public static int elevation_filter_value = 0;
+    public int elevation_filter_value = 0;
 
-    public static int temperature_filter_value = -50;
+    public int temperature_filter_value = -50;
 
-    public static int temperature_reverse_filter_value = 110;
+    public int temperature_reverse_filter_value = 110;
 
-    public static float freezing_filter_value = 0.00f;
+    public float freezing_filter_value = 0.00f;
 
-    public static float freezing_reverse_filter_value = 20.00f;
+    public float freezing_reverse_filter_value = 20.00f;
 
     public static final String dqc_ending_6hour_obstime_tok = "dqc_ending_6hour_obstime";
 
-    public static int curHr12_18 = -1;
+    public int curHr12_18 = -1;
 
-    public static int curHr18_00 = -1;
+    public int curHr18_00 = -1;
 
-    public static int curHr00_06 = -1;
+    public int curHr00_06 = -1;
 
-    public static int curHr06_12 = -1;
+    public int curHr06_12 = -1;
 
     /* Function which associates the Gage QC edit levels with a value. */
-    public static int funct[] = { 8, 0, 6, 2, 3, 4, 5, 1, 7, 9 };
+    public int funct[] = { 8, 0, 6, 2, 3, 4, 5, 1, 7, 9 };
 
-    public static int gage_char[] = new int[2];
+    public int gage_char[] = new int[2];
 
-    public static int plot_view = 0;
+    public int plot_view = 0;
 
-    public static boolean frzlvl_flag = true;
+    public boolean frzlvl_flag = true;
 
-    public static int find_station_flag = -1;
+    public int find_station_flag = -1;
 
-    public static int pcpn_time = 0;
+    public int pcpn_time = 0;
 
-    public static int pcp_flag = -1;
+    public int pcp_flag = -1;
 
-    public static int pcpn_day = 0;
+    public int pcpn_day = 0;
 
-    public static int contour_flag = -1;
+    public int contour_flag = -1;
 
-    public static int points_flag = 1;
+    public int points_flag = 1;
 
-    public static int grids_flag = -1;
+    public int grids_flag = -1;
 
-    public static int map_flag = -1;
+    public int map_flag = -1;
 
     static int curHrMinSec = -1;
 
@@ -509,15 +512,15 @@ public class DailyQcUtils {
 
     private boolean auto_dailyqc_flag;
 
-    public static String mpe_td_details_file;
+    public String mpe_td_details_file;
 
-    public static String mpe_editor_logs_dir;
+    public String mpe_editor_logs_dir;
 
-    public static File td_fp;
+    public File td_fp;
 
-    public static BufferedWriter td_fpwr;
+    public BufferedWriter td_fpwr;
 
-    public static Topo topo;
+    public Topo topo;
 
     // public static BufferedWriter td_fpwr;
 
@@ -537,7 +540,7 @@ public class DailyQcUtils {
 
     }
 
-    public static class Ts {
+    public class Ts {
         public String abr;
 
         public String name;
@@ -857,12 +860,25 @@ public class DailyQcUtils {
 
         public float hrap_y;
     }
+    
+    /**
+     * Retrieve singleton instance
+     * 
+     * @return singleton instance of DailyQcUtils
+     */
+    public static synchronized DailyQcUtils getInstance() {
+        if (instance == null) {
+            instance = new DailyQcUtils();
+        }
 
-    public static int newPid() {
+        return instance;
+    }
+
+    public int newPid() {
         Random r = new Random();
 
         // Let's create a hand-made pid for default
-        pid = r.nextInt() & 0x7fffffff;
+        this.pid = r.nextInt() & 0x7fffffff;
         return pid;
     }
 
@@ -887,7 +903,7 @@ public class DailyQcUtils {
         return retval;
     }
 
-    public static int getEnding6HourObsTime() {
+    public int getEnding6HourObsTime() {
         String s = appsDefaults.getToken(dqc_ending_6hour_obstime_tok);
         int value = ((!(null == s)) ? Integer.parseInt(s) : -1);
 
@@ -1029,10 +1045,7 @@ public class DailyQcUtils {
          */
         Calendar currentTime = Calendar
                 .getInstance(TimeZone.getTimeZone("GMT"));
-        if (currentTime.get(Calendar.HOUR_OF_DAY) >= 18) {
-            btime.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
+        
         emonth = btime.get(Calendar.MONTH);
         Calendar otime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         otime.setTime(btime.getTime());
@@ -1342,14 +1355,21 @@ public class DailyQcUtils {
             master_file = true;
         }
 
-        ReadFreezingStationList zl = new ReadFreezingStationList();
-        ReadPrecipStationList pl = new ReadPrecipStationList();
-        ReadTemperatureStationList tl = new ReadTemperatureStationList();
+//        ReadFreezingStationList zl = new ReadFreezingStationList();
+//        ReadPrecipStationList pl = new ReadPrecipStationList();
+//        ReadTemperatureStationList tl = new ReadTemperatureStationList();
 
         if (newarea == true) {
+            StationListManager slm = StationListManager.getInstance();
             System.out.println("DQC: Reading Freezing Stations List. ");
-            freezing_stations = zl.read_freezing_station_list(currentQcArea,
-                    master_file);
+//            zl.read_freezing_station_list(currentQcArea,
+//                    master_file);
+            try {
+                slm.getStationInfo(currentQcArea, master_file, freezing_stations, temperature_stations, precip_stations);
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             if (freezing_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -1357,8 +1377,8 @@ public class DailyQcUtils {
                 return DAILYQC_FAILED;
             }
             System.out.println("DQC: Reading Temperature Stations List. ");
-            temperature_stations = tl.read_temperature_station_list(
-                    currentQcArea, master_file);
+//            tl.read_temperature_station_list(
+//                    currentQcArea, master_file);
             if (temperature_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -1366,8 +1386,8 @@ public class DailyQcUtils {
                 return DAILYQC_FAILED;
             }
             System.out.println("DQC: Reading Precip Stations List. ");
-            precip_stations = pl.read_precip_station_list(currentQcArea,
-                    master_file);
+//            pl.read_precip_station_list(currentQcArea,
+//                    master_file);
             if (precip_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -1377,7 +1397,7 @@ public class DailyQcUtils {
 
             InitPrecipClimo ipc = new InitPrecipClimo();
             boolean status = ipc.initPrecip_climo(station_climo_file,
-                    precip_stations, pl.getNumPstations());
+                    precip_stations, precip_stations.size());
             if (status == false) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -1387,7 +1407,7 @@ public class DailyQcUtils {
 
             InitTempClimo itc = new InitTempClimo();
             status = itc.initTemp_climo(station_climo_file,
-                    temperature_stations, tl.getNumTstations());
+                    temperature_stations, temperature_stations.size());
             if (status == false) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -1425,7 +1445,7 @@ public class DailyQcUtils {
         System.out.println("Starting to map gages to grid.");
         hrap_grid = mpg.map_precip_gages_to_grid(smonth, emonth,
                 hrap_gage_file, currentQcArea, precip_stations,
-                pl.getNumPstations());
+                precip_stations.size());
         if (hrap_grid == null) {
             statusHandler
                     .handle(Priority.PROBLEM,
@@ -1436,7 +1456,7 @@ public class DailyQcUtils {
         MapFreezingGagesGrid mfg = new MapFreezingGagesGrid();
         status = mfg.map_freeze_gages_to_grid(smonth, emonth, hrap_grid,
                 hrap_zgage_file, currentQcArea, freezing_stations,
-                precip_stations, zl.getNumZstations(), pl.getNumPstations());
+                precip_stations, freezing_stations.size(), precip_stations.size());
         if (status == false) {
             statusHandler
                     .handle(Priority.PROBLEM,
@@ -1447,7 +1467,7 @@ public class DailyQcUtils {
         MapTempGagesGrid mtg = new MapTempGagesGrid();
         status = mtg.map_temp_gages_to_grid(smonth, emonth, hrap_grid,
                 hrap_tgage_file, currentQcArea, temperature_stations,
-                tl.getNumTstations());
+                temperature_stations.size());
         if (status == false) {
             statusHandler
                     .handle(Priority.PROBLEM,
@@ -1488,9 +1508,9 @@ public class DailyQcUtils {
             pdata[zz] = new Pdata();
         }
         for (int l = 0; l < MAX_GAGEQC_DAYS; ++l) {
-            pdata[l].stn = new Stn[pl.getNumPstations()];
+            pdata[l].stn = new Stn[precip_stations.size()];
 
-            for (int m = 0; m < pl.getNumPstations(); ++m) {
+            for (int m = 0; m < precip_stations.size(); ++m) {
                 pdata[l].stn[m] = new Stn();
                 pdata[l].stn[m].scons = new short[5];
                 pdata[l].stn[m].rrain = new Rain[5];
@@ -1513,9 +1533,9 @@ public class DailyQcUtils {
             tdata[zz] = new Tdata();
         }
         for (int l = 0; l < MAX_GAGEQC_DAYS; ++l) {
-            tdata[l].tstn = new Ttn[tl.getNumTstations()];
+            tdata[l].tstn = new Ttn[temperature_stations.size()];
 
-            for (int m = 0; m < tl.getNumTstations(); ++m) {
+            for (int m = 0; m < temperature_stations.size(); ++m) {
                 tdata[l].tstn[m] = new Ttn();
                 tdata[l].tstn[m].tlevel1 = new Tlevel[6];
                 tdata[l].tstn[m].tlevel2 = new Tlevel[6];
@@ -1530,9 +1550,9 @@ public class DailyQcUtils {
             zdata[zz] = new Zdata();
         }
         for (int l = 0; l < MAX_GAGEQC_DAYS; l++) {
-            zdata[l].zstn = new Ztn[zl.getNumZstations()];
+            zdata[l].zstn = new Ztn[freezing_stations.size()];
 
-            for (int m = 0; m < zl.getNumZstations(); m++) {
+            for (int m = 0; m < freezing_stations.size(); m++) {
                 zdata[l].zstn[m] = new Ztn();
                 zdata[l].zstn[m].zlevel1 = new Zlevel[5];
                 zdata[l].zstn[m].zlevel2 = new Zlevel[5];
@@ -1595,22 +1615,22 @@ public class DailyQcUtils {
 
             /* Read the snow reports. */
             ReadSnowData rs = new ReadSnowData();
-            rs.read_snow(prece, precip_stations, pl.getNumPstations(), m);
+            rs.read_snow(prece, precip_stations, precip_stations.size(), m);
 
             // read level 1 precip data
             ReadPrecipA ra = new ReadPrecipA();
             int mer = ra.read_precip_a(preca, otime.getTime(), m, pdata,
-                    precip_stations, pl.getNumPstations());
+                    precip_stations, precip_stations.size());
 
             ReadZlevelA rza = new ReadZlevelA();
             // Read the level 1 freezing level data.
             rza.read_zlevel_a(zpointa, otime.getTime(), m, zdata,
-                    freezing_stations, zl.getNumZstations());
+                    freezing_stations, freezing_stations.size());
 
             ReadTempA rta = new ReadTempA();
             // Read the level 1 temp level data.
             rta.read_t_a(tpointa, otime.getTime(), m, tdata,
-                    temperature_stations, tl.getNumTstations());
+                    temperature_stations, temperature_stations.size());
 
             // Read the list of bad precipitation values.
             BadValues bv = new BadValues();
@@ -1626,29 +1646,29 @@ public class DailyQcUtils {
                 ReadPrecipB rb = new ReadPrecipB();
                 // read level 2 precip data for auto_dailyqc
                 ier = rb.read_precip_b(precb, otime.getTime(), m, pdata,
-                        precip_stations, pl.getNumPstations());
+                        precip_stations, precip_stations.size());
 
                 ReadZlevelB rzb = new ReadZlevelB();
                 zer = rzb.read_zlevel_b(zpointb, otime.getTime(), m, zdata,
-                        freezing_stations, zl.getNumZstations());
+                        freezing_stations, freezing_stations.size());
 
                 ReadTempB rtb = new ReadTempB();
                 ter = rtb.read_t_b(tpointb, otime.getTime(), m, tdata,
-                        temperature_stations, tl.getNumTstations());
+                        temperature_stations, temperature_stations.size());
                 continue;
             } else {
                 ReadPrecipB rb = new ReadPrecipB();
                 // read level 2 precip data
                 ier = rb.read_precip_b(precb, otime.getTime(), m, pdata,
-                        precip_stations, pl.getNumPstations());
+                        precip_stations, precip_stations.size());
 
                 ReadZlevelB rzb = new ReadZlevelB();
                 zer = rzb.read_zlevel_b(zpointb, otime.getTime(), m, zdata,
-                        freezing_stations, zl.getNumZstations());
+                        freezing_stations, freezing_stations.size());
 
                 ReadTempB rtb = new ReadTempB();
                 ter = rtb.read_t_b(tpointb, otime.getTime(), m, tdata,
-                        temperature_stations, tl.getNumTstations());
+                        temperature_stations, temperature_stations.size());
             }
 
             // --------------------------------------------------------------
@@ -1745,30 +1765,30 @@ public class DailyQcUtils {
             } else {
                 EstDailyStations ed = new EstDailyStations();
                 ed.estimate_daily_stations(m, precip_stations,
-                        pl.getNumPstations());
+                        precip_stations.size());
 
                 EstPartStations ep = new EstPartStations();
                 ep.estimate_partial_stations(m, precip_stations,
-                        pl.getNumPstations());
+                        precip_stations.size());
             }
 
             // Quality control the stations.
             QCStations qcs = new QCStations();
             qcs.quality_control_stations(m, precip_stations,
-                    pl.getNumPstations());
+                    precip_stations.size());
             CheckConsistency cc = new CheckConsistency();
-            cc.check_consistency(m, precip_stations, pl.getNumPstations());
-            bv.restore_bad_values(m, precip_stations, pl.getNumPstations());
+            cc.check_consistency(m, precip_stations, precip_stations.size());
+            bv.restore_bad_values(m, precip_stations, precip_stations.size());
 
             // Estimate and QC the daily temperature stations.
             EstDailyTStations et = new EstDailyTStations();
             et.estimate_daily_tstations(m, temperature_stations,
-                    tl.getNumTstations());
+                    temperature_stations.size());
             QCTStations qct = new QCTStations();
             qct.quality_control_tstations(m, temperature_stations,
-                    tl.getNumTstations());
+                    temperature_stations.size());
             bt.restore_bad_tvalues(m, temperature_stations,
-                    tl.getNumTstations());
+                    temperature_stations.size());
 
             if (ier == 1) {
                 for (int k = 0; k < 5; k++) {
@@ -1818,7 +1838,7 @@ public class DailyQcUtils {
 
                         if (pdata[m].used[k] != 0) {
                             RenderPcp rpc = new RenderPcp();
-                            rpc.render_pcp(m, k, mk, pl.getNumPstations(),
+                            rpc.render_pcp(m, k, mk, precip_stations.size(),
                                     precip_stations, hrap_grid, pdata,
                                     pcp_in_use);
                             wqg.write_qpf_grids(dbuf);
@@ -1892,7 +1912,7 @@ public class DailyQcUtils {
 
                     if (mer == -1) {
                         RenderZ rz = new RenderZ();
-                        rz.render_z(m, k, 0, zl.getNumZstations(),
+                        rz.render_z(m, k, 0, freezing_stations.size(),
                                 freezing_stations, hrap_grid, zdata, pcp_in_use);
                     }
 
@@ -1943,7 +1963,7 @@ public class DailyQcUtils {
                         // hrap_tgrid = hrap_grid;
                         if (mer == -1) {
                             RenderT6 rt6 = new RenderT6();
-                            rt6.render_t6(m, k, 0, tl.getNumTstations(),
+                            rt6.render_t6(m, k, 0, temperature_stations.size(),
                                     temperature_stations, hrap_grid, tdata,
                                     pcp_in_use);
                         }
@@ -1957,7 +1977,7 @@ public class DailyQcUtils {
 
                         if (mer == -1) {
                             RenderT rt = new RenderT();
-                            rt.render_t(m, k, 1, tl.getNumTstations(),
+                            rt.render_t(m, k, 1, temperature_stations.size(),
                                     temperature_stations, hrap_grid, tdata,
                                     pcp_in_use);
                         }
@@ -1968,7 +1988,7 @@ public class DailyQcUtils {
 
                         if (mer == -1) {
                             RenderT rt = new RenderT();
-                            rt.render_t(m, k, 2, tl.getNumTstations(),
+                            rt.render_t(m, k, 2, temperature_stations.size(),
                                     temperature_stations, hrap_grid, tdata,
                                     pcp_in_use);
                         }
@@ -1981,12 +2001,12 @@ public class DailyQcUtils {
             GetBadSnotel gbs = new GetBadSnotel();
             gbs.get_bad_snotel(bad_snow_file, precip_stations);
             CalculateZLevel cz = new CalculateZLevel();
-            cz.calculate_zlevel(zl.getNumZstations(), zdata);
+            cz.calculate_zlevel(freezing_stations.size(), zdata);
 
             GetZLevel gl = new GetZLevel();
             for (int m = 0; m < qcDays; ++m) {
                 gl.get_zlevel(m, precip_stations, freezing_stations,
-                        pl.getNumPstations(), zl.getNumZstations());
+                        precip_stations.size(), freezing_stations.size());
             }
         }
         dbuf = "Done!!\n";
@@ -2014,7 +2034,7 @@ public class DailyQcUtils {
         return 2;
     }
 
-    public static Coordinate getHraptoLatLon(Coordinate hrap_coord) {
+    public Coordinate getHraptoLatLon(Coordinate hrap_coord) {
         /* calculate HRAP coordinates to lat,lon */
         Coordinate latlon_point = new Coordinate(0, 0);
 
@@ -2029,7 +2049,7 @@ public class DailyQcUtils {
         return latlon_point;
     }
 
-    public static Coordinate getLatLontoHrap(Coordinate latlon_coord) {
+    public Coordinate getLatLontoHrap(Coordinate latlon_coord) {
         /* calculate HRAP coordinates to lat,lon */
         Coordinate hrap_point = new Coordinate(0, 0);
         try {
@@ -2107,7 +2127,7 @@ public class DailyQcUtils {
     /**
      * @return the hrap_grid
      */
-    public static Hrap_Grid getHrap_grid() {
+    public Hrap_Grid getHrap_grid() {
         return hrap_grid;
     }
 
@@ -2115,8 +2135,8 @@ public class DailyQcUtils {
      * @param hrap_grid
      *            the hrap_grid to set
      */
-    public static void setHrap_grid(Hrap_Grid hrap_grid) {
-        DailyQcUtils.hrap_grid = hrap_grid;
+    public void setHrap_grid(Hrap_Grid hrap_grid) {
+        this.hrap_grid = hrap_grid;
     }
 
     /**
@@ -2129,7 +2149,7 @@ public class DailyQcUtils {
     /**
      * @return the max_basins
      */
-    public static int getMax_basins() {
+    public int getMax_basins() {
         return max_basins;
     }
 
@@ -2137,7 +2157,7 @@ public class DailyQcUtils {
      * @param max_basins
      *            the max_basins to set
      */
-    public static void setMax_basins(int max_basins) {
-        DailyQcUtils.max_basins = max_basins;
+    public void setMax_basins(int max_basins) {
+        this.max_basins = max_basins;
     }
 }
