@@ -45,11 +45,8 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -64,9 +61,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
-import org.eclipse.ui.IPropertyListener;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -76,15 +70,14 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
-import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -92,7 +85,6 @@ import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
-import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 
 /**
  * The PGEN View is used for all interaction with the objects in the PGEN
@@ -242,7 +234,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 
         page = site.getPage();
         page.addPartListener(this);
-       
+
         /*
          * Get a list from registry of all elements that registered with the
          * gov.noaa.nws.ncep.ui.pgen.palette extension point
@@ -584,10 +576,10 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         /*
          * Force a resize
          */
-        Rectangle r = scroll.getClientArea();       
+        Rectangle r = scroll.getClientArea();
         paletteComp.setSize(paletteComp.computeSize(r.width, SWT.DEFAULT));
         paletteComp.layout();
-       
+
         // wait for buttons to be created
         disableUndoRedo();
     }
@@ -884,8 +876,9 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         if (PgenUtil.isNatlCntrsEditor(part) || part instanceof VizMapEditor) {
             PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor) part);
 
-          //  if ( PgenSession.getInstance().getPgenResource().getDescriptor() != )
-            
+            // if ( PgenSession.getInstance().getPgenResource().getDescriptor()
+            // != )
+
             if ((rsc == null) && (PgenUtil.getPgenMode() == PgenMode.SINGLE)) {
                 rsc = PgenUtil.createNewResource();
             }
@@ -905,16 +898,9 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
                 PgenUtil.addSelectedPaneChangedListener(editor, this);
             }
             activatePGENContext();
-        } else if (part instanceof VizMapEditor) {
-            PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor) part);
-            if ((rsc == null) && (PgenUtil.getPgenMode() == PgenMode.SINGLE)) {
-                rsc = PgenUtil.createNewResource();
-            }
-        }
-
-        else if (part instanceof PgenPaletteWindow) {
+        } else if (part instanceof PgenPaletteWindow) {
             activatePGENContext();
-          
+
             // found NCMapEditor
             // AbstractEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
             AbstractEditor editor = PgenUtil.getActiveEditor();
@@ -951,7 +937,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         // );
         partActivated(partRef);
 
-        if (PgenUtil.isNatlCntrsEditor(part) || part instanceof VizMapEditor ) {
+        if (PgenUtil.isNatlCntrsEditor(part) || part instanceof VizMapEditor) {
             AbstractEditor editor = (AbstractEditor) part;
             PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor) part);
 
@@ -1000,11 +986,12 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
                  * list in reverse so that active editor is processed last.
                  */
                 for (int i = editors.length - 1; i >= 0; i--) {
-             //       unloadPgenResource(editors[i]);
+                    // unloadPgenResource(editors[i]);
                 }
-                
-                for (AbstractEditor editor : PgenSession.getInstance().getEditors() ){
-                      unloadPgenResource(editor);
+
+                for (AbstractEditor editor : PgenSession.getInstance()
+                        .getEditors()) {
+                    unloadPgenResource(editor);
                 }
             }
 
@@ -1083,8 +1070,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         IWorkbenchPart part = partRef.getPart(false);
         // System.out.println("Something Hidden: "+part.getClass().getCanonicalName()
         // );
-        
-        if (PgenUtil.isNatlCntrsEditor(part) ||  part instanceof VizMapEditor) {
+
+        if (PgenUtil.isNatlCntrsEditor(part) || part instanceof VizMapEditor) {
             PgenResource pgen = PgenUtil
                     .findPgenResource((AbstractEditor) part);
             if (pgen != null) {
@@ -1432,5 +1419,14 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
      */
     public String getCurrentObject() {
         return currentObject;
+    }
+
+    /*
+     * Sets the category and its icon.
+     */
+    public void setCurrentCategory(String currentCategory) {
+        this.resetIcon(this.currentCategory);
+        this.currentCategory = currentCategory;
+        this.setActiveIcon(currentCategory);
     }
 }
