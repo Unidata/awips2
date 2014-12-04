@@ -3,8 +3,6 @@ package com.raytheon.uf.viz.collaboration.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.plaf.synth.ColorType;
-
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -51,7 +49,7 @@ public abstract class AbstractColorConfigManager {
      * @param defaultForeground
      * @param filePath
      */
-    protected void setColor(String key, ColorType type, RGB rgb,
+    protected void setColor(String key, int type, RGB rgb,
             RGB defaultForeground, String filePath) {
         ColorInfoMap colorInfoMap = this.getColorInfoMap();
         if (colorInfoMap == null) {
@@ -124,7 +122,7 @@ public abstract class AbstractColorConfigManager {
         return null;
     }
 
-    public abstract void setColor(String key, ColorType type, RGB rgb,
+    public abstract void setColor(String key, int type, RGB rgb,
             RGB defaultForeground);
 
     public abstract ColorInfo getColor(String key);
