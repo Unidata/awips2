@@ -21,13 +21,13 @@ package com.raytheon.uf.viz.collaboration.ui;
 
 import java.util.Map;
 
-import javax.swing.plaf.synth.ColorType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 
 /**
@@ -106,8 +106,8 @@ public class ColorInfoMap {
          * @param type
          * @return the red
          */
-        public int getRed(ColorType type) {
-            return type == ColorType.FOREGROUND ? fgRed : bgRed;
+        public int getRed(int type) {
+            return type == SWT.FOREGROUND ? fgRed : bgRed;
         }
 
         /**
@@ -115,8 +115,8 @@ public class ColorInfoMap {
          * @param red
          *            the red to set
          */
-        public void setRed(ColorType type, int red) {
-            if (type == ColorType.FOREGROUND) {
+        public void setRed(int type, int red) {
+            if (type == SWT.FOREGROUND) {
                 this.fgRed = red;
             } else {
                 this.bgRed = red;
@@ -127,8 +127,8 @@ public class ColorInfoMap {
          * @param type
          * @return the green
          */
-        public int getGreen(ColorType type) {
-            return type == ColorType.FOREGROUND ? fgGreen : bgGreen;
+        public int getGreen(int type) {
+            return type == SWT.FOREGROUND ? fgGreen : bgGreen;
         }
 
         /**
@@ -136,8 +136,8 @@ public class ColorInfoMap {
          * @param green
          *            the green to set
          */
-        public void setGreen(ColorType type, int green) {
-            if (type == ColorType.FOREGROUND) {
+        public void setGreen(int type, int green) {
+            if (type == SWT.FOREGROUND) {
                 this.fgGreen = green;
             } else {
                 this.bgGreen = green;
@@ -148,8 +148,8 @@ public class ColorInfoMap {
          * @param type
          * @return the blue
          */
-        public int getBlue(ColorType type) {
-            return type == ColorType.FOREGROUND ? fgBlue : bgBlue;
+        public int getBlue(int type) {
+            return type == SWT.FOREGROUND ? fgBlue : bgBlue;
         }
 
         /**
@@ -157,8 +157,8 @@ public class ColorInfoMap {
          * @param blue
          *            the blue to set
          */
-        public void setBlue(ColorType type, int blue) {
-            if (type == ColorType.FOREGROUND) {
+        public void setBlue(int type, int blue) {
+            if (type == SWT.FOREGROUND) {
                 this.fgBlue = blue;
             } else {
                 this.bgBlue = blue;
@@ -169,8 +169,8 @@ public class ColorInfoMap {
          * @param type
          * @return the RGB color of the given type
          */
-        public RGB getColor(ColorType type) {
-            if (type == ColorType.FOREGROUND) {
+        public RGB getColor(int type) {
+            if (type == SWT.FOREGROUND) {
                 return new RGB(fgRed, fgGreen, fgBlue);
             } else {
                 return new RGB(bgRed, bgGreen, bgBlue);
@@ -184,8 +184,8 @@ public class ColorInfoMap {
          * @param rgb
          * @param defaultForeground
          */
-        public void setColor(ColorType type, RGB rgb, RGB defaultForeground) {
-            if (type == ColorType.FOREGROUND) {
+        public void setColor(int type, RGB rgb, RGB defaultForeground) {
+            if (type == SWT.FOREGROUND) {
                 fgRed = rgb.red;
                 fgGreen = rgb.green;
                 fgBlue = rgb.blue;
@@ -199,7 +199,7 @@ public class ColorInfoMap {
                      * if creating new UserColor, set fgColor to default
                      * foreground color, otherwise it defaults to black
                      */
-                    setColor(ColorType.FOREGROUND, defaultForeground, null);
+                    setColor(SWT.FOREGROUND, defaultForeground, null);
                     fgSet = false;
                 }
             }
