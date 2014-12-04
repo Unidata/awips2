@@ -19,16 +19,16 @@
     further_licensing_information.
 -->
 <latLonGridCoverage>
-    <name>gridHFR-EAST2_6KM</name>
-    <description>High Frequency Radar (EAST_6KM) total vector velocity (TVV)
+    <name>gridHFR-WEST_6KM</name>
+    <description>High Frequency Radar (WEST_6KM) total vector velocity (TVV)
         Lon/Lat Resolution
     </description>
-    <la1>14.5</la1>
-    <lo1>289.5</lo1>
+    <la1>30.25</la1>
+    <lo1>229.639999</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-    <nx>171</nx>
-    <ny>140</ny>
-    <dx>0.05574</dx>
+    <nx>234</nx>
+    <ny>367</ny>
+    <dx>0.06247</dx>
     <dy>0.05394</dy>
     <spacingUnit>degree</spacingUnit>
 </latLonGridCoverage>

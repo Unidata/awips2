@@ -73,6 +73,7 @@
 	<alias base="GFS199">Guam-GFSDNG</alias>
 	<alias base="GFS201">GFS360</alias>
 	<alias base="GFS212">GFS40</alias>
+    <alias base="GFS229">GFS1degGbl</alias>
 	<alias base="GFS213">GFS90</alias>
 	<alias base="GFS254">PR-GFS</alias>
 	<alias base="GfsBufr">GFSBufr</alias>
