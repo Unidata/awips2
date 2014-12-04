@@ -145,6 +145,7 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * 05/14         TTR998     J. Wu         Added pixelToLatlon().
  * 07/14                    Chin Chen     In latlonToPixel(), make sure not to add null pixel to its return pixel array
  * 08/14          TTR962      J. Wu       Add replaceWithDate to format output file with DD, MM, YYYY, HH.
+ * 12/14		R5413		B. Yin		  Add a listener for D2D swapping pane 
  * </pre>
  * 
  * @author
@@ -685,9 +686,15 @@ public class PgenUtil {
         AbstractEditor editor = getActiveEditor();
         if (editor != null) {
             try {
-                if ( editor instanceof VizMapEditor || PgenUtil.isNatlCntrsEditor(editor)){
+                if (PgenUtil.isNatlCntrsEditor(editor)){
                     PgenSession.getInstance().addEditor(editor);
                 }
+                else if (editor instanceof VizMapEditor  ){ 
+                	//Add a listener for D2d to make the swap work.
+                    PgenSession.getInstance().addEditor(editor);
+                    editor.addRenderableDisplayChangedListener(PgenSession.getInstance());
+                }
+                
                 switch (getPgenMode()) {
                 case SINGLE:
                     /*
