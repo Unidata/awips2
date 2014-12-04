@@ -19,16 +19,16 @@
     further_licensing_information.
 -->
 <latLonGridCoverage>
-    <name>gridHFR-EAST1_6KM</name>
-    <description>High Frequency Radar (EAST_6KM) total vector velocity (TVV)
+    <name>gridHFR-US_HAWAII_6KM</name>
+    <description>High Frequency Radar (US_WEST_HAWAII_6KM) total vector velocity (TVV)
         Lon/Lat Resolution
     </description>
-    <la1>21.73596</la1>
-    <lo1>262.11615</lo1>
+    <la1>16.2204</la1>
+    <lo1>196.855606</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-    <nx>701</nx>
-    <ny>460</ny>
-    <dx>0.058075</dx>
-    <dy>0.05394</dy>
+    <nx>201</nx>
+    <ny>161</ny>
+    <dx>0.055801</dx>
+    <dy>0.054239</dy>
     <spacingUnit>degree</spacingUnit>
 </latLonGridCoverage>

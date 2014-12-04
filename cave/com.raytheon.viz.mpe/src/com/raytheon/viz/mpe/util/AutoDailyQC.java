@@ -55,27 +55,27 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
 public class AutoDailyQC {
 
     // initialize variables
-    static final int sixHrInSec = 6 * 3600;
+    final int sixHrInSec = 6 * 3600;
 
-    static final int twelveHrInSec = 12 * 3600;
+    final int twelveHrInSec = 12 * 3600;
 
-    static final int eighteenHrInSec = 18 * 3600;
+    final int eighteenHrInSec = 18 * 3600;
 
-    private static Calendar current_hydrologic_time;
+    private Calendar current_hydrologic_time;
 
-    private static Calendar end_hydrologic_time;
+    private Calendar end_hydrologic_time;
 
-    static boolean precip_flag = true;
+    boolean precip_flag = true;
 
-    static boolean temperature_flag = false;
+    boolean temperature_flag = false;
 
-    static boolean freezingl_flag = false;
+    boolean freezingl_flag = false;
 
-    static boolean PP_flag = true;
+    boolean PP_flag = true;
 
-    static int numDays = 1;
+    int numDays = 1;
 
-    static int curHrMinSec = -1;
+    int curHrMinSec = -1;
 
     private static final String GMT = "GMT";
 
@@ -83,21 +83,21 @@ public class AutoDailyQC {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
-    private static String db_name;
+    private String db_name;
 
-    private static String mpe_site_id;
+    private String mpe_site_id;
 
-    static int[] precip_level2_flag;
+    int[] precip_level2_flag;
 
-    static int[] temperature_level2_flag;
+    int[] temperature_level2_flag;
 
-    static int[] freezingl_level2_flag;
+    int[] freezingl_level2_flag;
 
-    private static DailyQcUtils dqcu = new DailyQcUtils();
+    private DailyQcUtils dqcu = DailyQcUtils.getInstance();
 
-    private static String dbuf;
+    private String dbuf;
 
-    private static GridAttributes ga;
+    private GridAttributes ga;
 
     static {
         sdf.setTimeZone(TimeZone.getTimeZone(GMT));
@@ -129,20 +129,20 @@ public class AutoDailyQC {
 
         if (curHrMinSec != -1) {
             if (curHrMinSec >= 0 && curHrMinSec < sixHrInSec) {
-                DailyQcUtils.curHr00_06 = 1;
+                dqcu.curHr00_06 = 1;
             } else if (curHrMinSec >= sixHrInSec && curHrMinSec < twelveHrInSec) {
-                DailyQcUtils.curHr06_12 = 1;
+                dqcu.curHr06_12 = 1;
             } else if (curHrMinSec >= twelveHrInSec
                     && curHrMinSec < eighteenHrInSec) {
-                DailyQcUtils.curHr12_18 = 1;
+                dqcu.curHr12_18 = 1;
             } else {
-                DailyQcUtils.curHr18_00 = 1;
+                dqcu.curHr18_00 = 1;
             }
         } else {
-            DailyQcUtils.curHr00_06 = -1;
-            DailyQcUtils.curHr06_12 = -1;
-            DailyQcUtils.curHr12_18 = -1;
-            DailyQcUtils.curHr18_00 = -1;
+            dqcu.curHr00_06 = -1;
+            dqcu.curHr06_12 = -1;
+            dqcu.curHr12_18 = -1;
+            dqcu.curHr18_00 = -1;
         }
 
         loadAutoQcTokens();
@@ -202,30 +202,30 @@ public class AutoDailyQC {
                 DailyQcUtils.pdata[0].used[4] = 0;
             }
         } else*/ if (freezingl_flag == true) {
-            if (DailyQcUtils.curHr18_00 == 1) {
-                DailyQcUtils.zdata[0].used[1] = 0;
-                DailyQcUtils.zdata[0].used[2] = 0;
-                DailyQcUtils.zdata[0].used[3] = 0;
-            } else if (DailyQcUtils.curHr00_06 == 1) {
-                DailyQcUtils.zdata[0].used[2] = 0;
-                DailyQcUtils.zdata[0].used[3] = 0;
-            } else if (DailyQcUtils.curHr06_12 == 1) {
-                DailyQcUtils.zdata[0].used[3] = 0;
+            if (dqcu.curHr18_00 == 1) {
+                dqcu.zdata[0].used[1] = 0;
+                dqcu.zdata[0].used[2] = 0;
+                dqcu.zdata[0].used[3] = 0;
+            } else if (dqcu.curHr00_06 == 1) {
+                dqcu.zdata[0].used[2] = 0;
+                dqcu.zdata[0].used[3] = 0;
+            } else if (dqcu.curHr06_12 == 1) {
+                dqcu.zdata[0].used[3] = 0;
             }
 
         } else if (temperature_flag == true) {
 
-            if (DailyQcUtils.curHr18_00 == 1) {
-                DailyQcUtils.tdata[0].used[1] = 0;
-                DailyQcUtils.tdata[0].used[2] = 0;
-                DailyQcUtils.tdata[0].used[3] = 0;
+            if (dqcu.curHr18_00 == 1) {
+                dqcu.tdata[0].used[1] = 0;
+                dqcu.tdata[0].used[2] = 0;
+                dqcu.tdata[0].used[3] = 0;
 
-            } else if (DailyQcUtils.curHr00_06 == 1) {
-                DailyQcUtils.tdata[0].used[2] = 0;
-                DailyQcUtils.tdata[0].used[3] = 0;
+            } else if (dqcu.curHr00_06 == 1) {
+                dqcu.tdata[0].used[2] = 0;
+                dqcu.tdata[0].used[3] = 0;
 
-            } else if (DailyQcUtils.curHr06_12 == 1) {
-                DailyQcUtils.tdata[0].used[3] = 0;
+            } else if (dqcu.curHr06_12 == 1) {
+                dqcu.tdata[0].used[3] = 0;
 
             }
 
@@ -244,8 +244,8 @@ public class AutoDailyQC {
      * Generate grids for precipitation, temperature and freezing level used in
      * auto_dailyqc, output the grids.
      */
-    private static void autoDailyQCRenderGrids() {
-        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+    private void autoDailyQCRenderGrids() {
+        Hrap_Grid hrap_grid = dqcu.getHrap_grid();
         precip_level2_flag = new int[numDays];
         temperature_level2_flag = new int[numDays];
         freezingl_level2_flag = new int[numDays];
@@ -253,11 +253,11 @@ public class AutoDailyQC {
         String fname_nc = "";
         int num_period_qc = 0;
         float[][] datavals = new float[hrap_grid.maxi][hrap_grid.maxj];
-        if (DailyQcUtils.mpe_dqc_save_grib == true
-                || DailyQcUtils.mpe_dqc_save_netcdf == true) {
+        if (dqcu.mpe_dqc_save_grib == true
+                || dqcu.mpe_dqc_save_netcdf == true) {
             for (int y = 0; y < hrap_grid.maxj; y++) {
                 for (int x = 0; x < hrap_grid.maxi; x++) {
-                    datavals[x][y] = (DailyQcUtils.pcp.value[x][y] / 100.f);
+                    datavals[x][y] = (dqcu.pcp.value[x][y] / 100.f);
                 }
             }
         }
@@ -267,10 +267,10 @@ public class AutoDailyQC {
         for (int i = 0; i < numDays; i++) {
             if (precip_flag == true) {
                 /* check if the level2 point file exist */
-                otime.setTime(DailyQcUtils.pdata[i].data_time);
+                otime.setTime(dqcu.pdata[i].data_time);
 
                 String precip_level2_file = String.format("%s%04d%02d%02d",
-                        DailyQcUtils.proc_pcpn_file, otime.get(Calendar.YEAR),
+                        dqcu.proc_pcpn_file, otime.get(Calendar.YEAR),
                         otime.get(Calendar.MONTH) + 1,
                         otime.get(Calendar.DAY_OF_MONTH));
                 File pl2 = new File(precip_level2_file);
@@ -287,11 +287,11 @@ public class AutoDailyQC {
 
                 } else {
                     precip_level2_flag[i] = 1;
-                    if (DailyQcUtils.mpe_dqc_save_netcdf == true
-                            || DailyQcUtils.mpe_dqc_save_grib == true) {
+                    if (dqcu.mpe_dqc_save_netcdf == true
+                            || dqcu.mpe_dqc_save_grib == true) {
                         /* create name of netCDF file */
                         fname_nc = String.format("%s%04d%02d%02d.nc",
-                                DailyQcUtils.grid_file,
+                                dqcu.grid_file,
                                 otime.get(Calendar.YEAR),
                                 otime.get(Calendar.MONTH) + 1,
                                 otime.get(Calendar.DAY_OF_MONTH));
@@ -301,9 +301,9 @@ public class AutoDailyQC {
                                 num_period_qc);
                     }
 
-                    if (DailyQcUtils.mpe_dqc_save_grib == true) {
+                    if (dqcu.mpe_dqc_save_grib == true) {
 
-                        if (DailyQcUtils.mpe_dqc_save_netcdf == false) {
+                        if (dqcu.mpe_dqc_save_netcdf == false) {
                             num_period_qc = ga.define_grid_attributes(1, i,
                                     num_period_qc);
                         }
@@ -312,15 +312,15 @@ public class AutoDailyQC {
                     num_period_qc=5;
                     //for the 6 hours periods
                     for (int l = 0; l < 5; l++) {
-                        if (DailyQcUtils.pdata[i].used[l] == 0) {
+                        if (dqcu.pdata[i].used[l] == 0) {
                             continue;
                         }
 
                         if (l < 2) {
-                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                            otime.setTime(dqcu.pdata[i].data_time);
                             otime.add(Calendar.SECOND, -86400);
                         } else {
-                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                            otime.setTime(dqcu.pdata[i].data_time);
                         }
 
                         int ll;
@@ -331,15 +331,15 @@ public class AutoDailyQC {
                         }
                         RenderPcp rp = new RenderPcp();
                         rp.render_pcp(i, l, ll,
-                                DailyQcUtils.precip_stations.size(),
-                                DailyQcUtils.precip_stations,
-                                DailyQcUtils.getHrap_grid(),
-                                DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+                                dqcu.precip_stations.size(),
+                                dqcu.precip_stations,
+                                dqcu.getHrap_grid(),
+                                dqcu.pdata, dqcu.pcp_in_use);
 
                         /* output grid to file in Ascii format */
                         dbuf = String.format("%s%s_%04d%02d%02d",
-                                DailyQcUtils.grid_file,
-                                DailyQcUtils.timefile[2][l],
+                                dqcu.grid_file,
+                                dqcu.timefile[2][l],
                                 otime.get(Calendar.YEAR),
                                 otime.get(Calendar.MONTH) + 1,
                                 otime.get(Calendar.DAY_OF_MONTH));
@@ -349,7 +349,7 @@ public class AutoDailyQC {
                         //copy data from DailyQcUtils.pcp.value to datavals
                         for (int y = 0; y < hrap_grid.maxj; y++) {
                             for (int x = 0; x < hrap_grid.maxi; x++) {
-                                datavals[x][y] = (DailyQcUtils.pcp.value[x][y] / 100.f);
+                                datavals[x][y] = (dqcu.pcp.value[x][y] / 100.f);
                             }
                         }
                         
@@ -358,7 +358,7 @@ public class AutoDailyQC {
                         // create netCDF file from data, write it out then call
                         // nc2grib against it making a grib file, when done
                         // remove the unneeded netCDF file.
-                        if (DailyQcUtils.mpe_dqc_save_grib == true) {
+                        if (dqcu.mpe_dqc_save_grib == true) {
                             WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
                             String ncfile = String.format("%s.nc", dbuf);
                             wng.write_dqc_netcdf_grids(ncfile, 0, 1, 1,
@@ -394,15 +394,15 @@ public class AutoDailyQC {
                     //Here's the 12 to 12 whole day nc file
                     //for (int l = 0; l < 5; l++) {
                     for (int l = 0; l < num_period_qc; l++) {
-                        if (DailyQcUtils.pdata[i].used[l] == 0) {
+                        if (dqcu.pdata[i].used[l] == 0) {
                             continue;
                         }
 
                         if (l < 2) {
-                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                            otime.setTime(dqcu.pdata[i].data_time);
                             otime.add(Calendar.SECOND, -86400);
                         } else {
-                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                            otime.setTime(dqcu.pdata[i].data_time);
                         }
 
                         int ll;
@@ -413,22 +413,22 @@ public class AutoDailyQC {
                         }
                         RenderPcp rp = new RenderPcp();
                         rp.render_pcp(i, l, ll,
-                                DailyQcUtils.precip_stations.size(),
-                                DailyQcUtils.precip_stations,
-                                DailyQcUtils.getHrap_grid(),
-                                DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+                                dqcu.precip_stations.size(),
+                                dqcu.precip_stations,
+                                dqcu.getHrap_grid(),
+                                dqcu.pdata, dqcu.pcp_in_use);
 
                         //copy data from DailyQcUtils.pcp.value to datavals
                         for (int y = 0; y < hrap_grid.maxj; y++) {
                             for (int x = 0; x < hrap_grid.maxi; x++) {
-                                datavals[x][y] = (DailyQcUtils.pcp.value[x][y] / 100.f);
+                                datavals[x][y] = (dqcu.pcp.value[x][y] / 100.f);
                             }
                         }
 
                         /* output grid to file in Ascii format */
                         dbuf = String.format("%s%s_%04d%02d%02d",
-                                DailyQcUtils.grid_file,
-                                DailyQcUtils.timefile[2][l],
+                                dqcu.grid_file,
+                                dqcu.timefile[2][l],
                                 otime.get(Calendar.YEAR),
                                 otime.get(Calendar.MONTH) + 1,
                                 otime.get(Calendar.DAY_OF_MONTH));
@@ -436,7 +436,7 @@ public class AutoDailyQC {
                         wq.write_qpf_grids(dbuf);
 
                         /* output grid to file in NetCDF format */
-                        if (DailyQcUtils.mpe_dqc_save_netcdf == true) {
+                        if (dqcu.mpe_dqc_save_netcdf == true) {
                             WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
                             wng.write_dqc_netcdf_grids(fname_nc, l,
                                     num_period_qc, 1,
@@ -449,10 +449,10 @@ public class AutoDailyQC {
             }
             if (temperature_flag == true) {
                 /* check if the level2 point file exist */
-                otime.setTime(DailyQcUtils.tdata[i].data_time);
+                otime.setTime(dqcu.tdata[i].data_time);
 
                 String temperature_level2_file = String.format(
-                        "%s%04d%02d%02d", DailyQcUtils.tpoint2_file,
+                        "%s%04d%02d%02d", dqcu.tpoint2_file,
                         otime.get(Calendar.YEAR),
                         otime.get(Calendar.MONTH) + 1,
                         otime.get(Calendar.DAY_OF_MONTH));
@@ -471,10 +471,10 @@ public class AutoDailyQC {
                 } else {
                     temperature_level2_flag[i] = 1;
 
-                    if (DailyQcUtils.mpe_dqc_save_netcdf == true) {
+                    if (dqcu.mpe_dqc_save_netcdf == true) {
                         /* create name of netCDF file */
                         fname_nc = String.format("%s%04d%02d%02d.nc",
-                                DailyQcUtils.tgrid_file,
+                                dqcu.tgrid_file,
                                 otime.get(Calendar.YEAR),
                                 otime.get(Calendar.MONTH) + 1,
                                 otime.get(Calendar.DAY_OF_MONTH));
@@ -488,7 +488,7 @@ public class AutoDailyQC {
 
                     // if (DailyQcUtils.mpe_dqc_save_grib == true) {
                     if (true) {
-                        if (DailyQcUtils.mpe_dqc_save_netcdf == false) {
+                        if (dqcu.mpe_dqc_save_netcdf == false) {
                             ga.define_grid_attributes(2, i, num_period_qc);
                         }
                     }
@@ -501,21 +501,21 @@ public class AutoDailyQC {
 
                     EstDailyTStations edt = new EstDailyTStations();
                     edt.estimate_daily_tstations(i,
-                            DailyQcUtils.temperature_stations,
-                            DailyQcUtils.temperature_stations.size());
+                            dqcu.temperature_stations,
+                            dqcu.temperature_stations.size());
 
                     /* loop on 6 time periods (max, min, four 6hr time periods) */
 
                     for (int l = 5; l >= 0; l--) {
-                        if (DailyQcUtils.tdata[i].used[l] == 0) {
+                        if (dqcu.tdata[i].used[l] == 0) {
                             continue;
                         }
 
                         if (l < 1) {
-                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                            otime.setTime(dqcu.pdata[i].data_time);
                             otime.add(Calendar.SECOND, -86400);
                         } else {
-                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                            otime.setTime(dqcu.pdata[i].data_time);
                         }
 
                         System.out.println(String.format(
@@ -528,35 +528,35 @@ public class AutoDailyQC {
                             RenderT rt = new RenderT();
 
                             rt.render_t(i, l, 2,
-                                    DailyQcUtils.temperature_stations.size(),
-                                    DailyQcUtils.temperature_stations,
-                                    DailyQcUtils.getHrap_grid(),
-                                    DailyQcUtils.tdata, DailyQcUtils.pcp_in_use);
+                                    dqcu.temperature_stations.size(),
+                                    dqcu.temperature_stations,
+                                    dqcu.getHrap_grid(),
+                                    dqcu.tdata, dqcu.pcp_in_use);
                         } else if (l == 4) {
                             RenderT rt = new RenderT();
                             rt.render_t(i, l, 1,
-                                    DailyQcUtils.temperature_stations.size(),
-                                    DailyQcUtils.temperature_stations,
-                                    DailyQcUtils.getHrap_grid(),
-                                    DailyQcUtils.tdata, DailyQcUtils.pcp_in_use);
+                                    dqcu.temperature_stations.size(),
+                                    dqcu.temperature_stations,
+                                    dqcu.getHrap_grid(),
+                                    dqcu.tdata, dqcu.pcp_in_use);
                         } else {
                             System.out.println(String.format(
                                     "i = %d l = %d max_tstations = %d\n", i, l,
-                                    DailyQcUtils.temperature_stations.size()));
+                                    dqcu.temperature_stations.size()));
                             RenderT6 rt6 = new RenderT6();
                             rt6.render_t6(i, l, 0,
-                                    DailyQcUtils.temperature_stations.size(),
-                                    DailyQcUtils.temperature_stations,
-                                    DailyQcUtils.getHrap_grid(),
-                                    DailyQcUtils.tdata, DailyQcUtils.pcp_in_use);
+                                    dqcu.temperature_stations.size(),
+                                    dqcu.temperature_stations,
+                                    dqcu.getHrap_grid(),
+                                    dqcu.tdata, dqcu.pcp_in_use);
                         }
 
                         /* output grid to file in Ascii format */
 
                         dbuf = String
                                 .format("%s%s_%04d%02d%02d",
-                                        DailyQcUtils.tgrid_file,
-                                        DailyQcUtils.ttimefile[DailyQcUtils.dqcTimeStringIndex][l],
+                                        dqcu.tgrid_file,
+                                        dqcu.ttimefile[dqcu.dqcTimeStringIndex][l],
                                         otime.get(Calendar.YEAR),
                                         otime.get(Calendar.MONTH) + 1,
                                         otime.get(Calendar.DAY_OF_MONTH));
@@ -565,7 +565,7 @@ public class AutoDailyQC {
                         wq.write_qpf_grids(dbuf);
 
                         /* output grid to file in netCDF format */
-                        if (DailyQcUtils.mpe_dqc_save_netcdf == true)
+                        if (dqcu.mpe_dqc_save_netcdf == true)
 
                         {
                             WriteDQCNetCDFGrids wcg = new WriteDQCNetCDFGrids();
@@ -575,7 +575,7 @@ public class AutoDailyQC {
                         }
 
                         /* output grid to file in grib format */
-                        if (DailyQcUtils.mpe_dqc_save_grib == true) {
+                        if (dqcu.mpe_dqc_save_grib == true) {
                             WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
                             String ncfile = String.format("%s.nc", dbuf);
                             wng.write_dqc_netcdf_grids(ncfile, 0, 1, 2,
@@ -609,10 +609,10 @@ public class AutoDailyQC {
 
             if (freezingl_flag == true) {
                 /* check if the level2 point file exist */
-                otime.setTime(DailyQcUtils.tdata[i].data_time);
+                otime.setTime(dqcu.tdata[i].data_time);
 
                 String freezingl_level2_file = String.format("%s%04d%02d%02d",
-                        DailyQcUtils.zpoint2_file, otime.get(Calendar.YEAR),
+                        dqcu.zpoint2_file, otime.get(Calendar.YEAR),
                         otime.get(Calendar.MONTH) + 1,
                         otime.get(Calendar.DAY_OF_MONTH));
                 File pl2 = new File(freezingl_level2_file);
@@ -630,10 +630,10 @@ public class AutoDailyQC {
                 } else {
                     freezingl_level2_flag[i] = 1;
 
-                    if (DailyQcUtils.mpe_dqc_save_netcdf == true) {
+                    if (dqcu.mpe_dqc_save_netcdf == true) {
                         /* create name of netCDF file */
                         fname_nc = String.format("%s%04d%02d%02d.nc",
-                                DailyQcUtils.zgrid_file,
+                                dqcu.zgrid_file,
                                 otime.get(Calendar.YEAR),
                                 otime.get(Calendar.MONTH) + 1,
                                 otime.get(Calendar.DAY_OF_MONTH));
@@ -646,22 +646,22 @@ public class AutoDailyQC {
                                 num_period_qc);
 
                     }
-                    if (DailyQcUtils.mpe_dqc_save_grib == true) {
-                        if (DailyQcUtils.mpe_dqc_save_netcdf == false) {
+                    if (dqcu.mpe_dqc_save_grib == true) {
+                        if (dqcu.mpe_dqc_save_netcdf == false) {
                             ga.define_grid_attributes(3, i, num_period_qc);
                         }
                     }
 
                     for (int l = 0; l < 4; l++) {
-                        if (DailyQcUtils.zdata[i].used[l] == 0) {
+                        if (dqcu.zdata[i].used[l] == 0) {
                             continue;
                         }
 
                         if (l < 2) {
-                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                            otime.setTime(dqcu.pdata[i].data_time);
                             otime.add(Calendar.SECOND, -86400);
                         } else {
-                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                            otime.setTime(dqcu.pdata[i].data_time);
                         }
 
                         System.out.println(String.format(
@@ -672,17 +672,17 @@ public class AutoDailyQC {
 
                         RenderZ rz = new RenderZ();
                         rz.render_z(i, l, 0,
-                                DailyQcUtils.freezing_stations.size(),
-                                DailyQcUtils.freezing_stations,
-                                DailyQcUtils.getHrap_grid(),
-                                DailyQcUtils.zdata, DailyQcUtils.pcp_in_use);
+                                dqcu.freezing_stations.size(),
+                                dqcu.freezing_stations,
+                                dqcu.getHrap_grid(),
+                                dqcu.zdata, dqcu.pcp_in_use);
 
                         /* output grid to file in Ascii format */
 
                         dbuf = String
                                 .format("%s%s_%04d%02d%02d",
-                                        DailyQcUtils.zgrid_file,
-                                        DailyQcUtils.ztimefile[DailyQcUtils.dqcTimeStringIndex][l],
+                                        dqcu.zgrid_file,
+                                        dqcu.ztimefile[dqcu.dqcTimeStringIndex][l],
                                         otime.get(Calendar.YEAR),
                                         otime.get(Calendar.MONTH) + 1,
                                         otime.get(Calendar.DAY_OF_MONTH));
@@ -692,7 +692,7 @@ public class AutoDailyQC {
 
                         /* output grid to file in netCDF format */
                         if (l + 1 <= num_period_qc) {
-                            if (DailyQcUtils.mpe_dqc_save_netcdf == true) {
+                            if (dqcu.mpe_dqc_save_netcdf == true) {
                                 WriteDQCNetCDFGrids wc = new WriteDQCNetCDFGrids();
                                 wc.write_dqc_netcdf_grids(fname_nc, l,
                                         num_period_qc, 3,
@@ -702,7 +702,7 @@ public class AutoDailyQC {
 
                         /* output grid to file in grib format */
 
-                        if (DailyQcUtils.mpe_dqc_save_grib == true) {
+                        if (dqcu.mpe_dqc_save_grib == true) {
                             WriteDQCGribGrids wg = new WriteDQCGribGrids();
                             WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
                             String ncfile = String.format("%s.nc", dbuf);
@@ -820,7 +820,7 @@ public class AutoDailyQC {
     /**
      * 
      */
-    private static void loadAutoQcTokens() {
+    private void loadAutoQcTokens() {
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         db_name = appsDefaults.getToken("db_name");
         mpe_site_id = appsDefaults.getToken("mpe_site_id");

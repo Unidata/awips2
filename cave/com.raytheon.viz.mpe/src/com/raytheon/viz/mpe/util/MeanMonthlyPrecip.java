@@ -64,6 +64,8 @@ public class MeanMonthlyPrecip {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MeanMonthlyPrecip.class);
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     private static Isoh isoh;
 
     ColorMapParameters cmc = new ColorMapParameters();
@@ -114,8 +116,8 @@ public class MeanMonthlyPrecip {
             String mon = mon_name[k];
 
             /* Create the PRISM filename. */
-            String pfile = DailyQcUtils.mpe_prism_dir + "/prism_mean_precip_"
-                    + DailyQcUtils.mpe_rfc_name + "_" + mon;
+            String pfile = dqc.mpe_prism_dir + "/prism_mean_precip_"
+                    + dqc.mpe_rfc_name + "_" + mon;
 
             /* read in data file */
             /* i is longitude j is latitude */
@@ -157,7 +159,7 @@ public class MeanMonthlyPrecip {
 
         }
 
-        DailyQcUtils.isohyets_used = 1;
+        dqc.isohyets_used = 1;
         return true;
     }
 
@@ -227,7 +229,7 @@ public class MeanMonthlyPrecip {
      *            the isoh to set
      */
     public void setIsoh(Isoh isoh) {
-        MeanMonthlyPrecip.isoh = isoh;
+        this.isoh = isoh;
     }
 
     public int is_good(int k, int smonth, int emonth) {
