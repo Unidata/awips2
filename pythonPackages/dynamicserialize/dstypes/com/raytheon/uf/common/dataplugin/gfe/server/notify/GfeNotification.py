@@ -22,6 +22,7 @@ class GfeNotification:
 
     def __init__(self):
         self.siteID = None
+        self.sourceID = None
 
     def getSiteID(self):
         return self.siteID
@@ -29,3 +30,9 @@ class GfeNotification:
     def setSiteID(self, siteID):
         self.siteID = siteID
 
+
+    def getSourceID(self):
+        return self.sourceID
+
+    def setSourceID(self, sourceID):
+        self.sourceID = sourceID
