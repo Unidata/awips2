@@ -1257,6 +1257,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
+                 ('HRRR', 'HRRR'),
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
