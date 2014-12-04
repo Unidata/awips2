@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <aliasList caseSensitive="true" namespace="gfeParamInfo">
+    <alias base="GFS217">gfs20km</alias>
+    <alias base="GFS215">gfs20km</alias>
+    <alias base="GFS20-PAC">gfs20km</alias>
+    <alias base="GFS20-PRICO">gfs20km</alias>
     <alias base="estofsUS">ESTOFS</alias>
     <alias base="estofsPR">ESTOFS</alias>
     <alias base="GLERL">glerl</alias>
