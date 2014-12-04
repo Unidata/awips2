@@ -261,6 +261,7 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
                         PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                                 .getShell()).setWatchBox((WatchBox) elSelected);
                 PgenUtil.loadWatchBoxModifyTool(elSelected);
+                return false; 
             } else if (elSelected instanceof Tcm) {
                 PgenUtil.loadTcmTool(elSelected);
             }
