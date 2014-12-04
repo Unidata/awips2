@@ -144,6 +144,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 05/14        TTR 995     J. Wu       Make contour label auto-placement an option.
  * 07/14        ?           B. Yin      Added support for dashed-line circle for TCM 12 feet sea.
  * 08/14		?			B. Yin		Fixed world wrap for TCM track and zero circle issues.
+ * 12/14		R5413		B. Yin		Dispose image and font in find*Ranges methods
  * </pre>
  * 
  * @author sgilbert
@@ -5910,6 +5911,10 @@ public class DisplayElementFactory {
         List<Coordinate> textPos = new ArrayList<Coordinate>();
         textPos.add(new Coordinate(loc[0], loc[1]));
 
+        if ( font != null ){
+        	font.dispose();
+        }
+        
         return new PgenRangeRecord(rngBox, textPos, false);
     }
 
@@ -5983,6 +5988,10 @@ public class DisplayElementFactory {
         List<Coordinate> symPos = new ArrayList<Coordinate>();
         symPos.add(sym.getLocation());
 
+        if ( pic != null ){
+        	pic.dispose();
+        }
+        
         return new PgenRangeRecord(rngBox, symPos, false);
 
     }
