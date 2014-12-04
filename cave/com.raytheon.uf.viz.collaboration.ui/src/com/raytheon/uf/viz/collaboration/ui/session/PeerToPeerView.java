@@ -24,9 +24,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import javax.swing.plaf.synth.ColorType;
-
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
@@ -35,7 +32,6 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.jivesoftware.smack.packet.Presence.Type;
@@ -52,13 +48,12 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
-import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
 import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeUserColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
-import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.core.sounds.SoundUtil;
 
 /**
@@ -236,10 +231,8 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
             ColorInfo userColor = colorConfigManager.getColor(userId
                     .getName());
             if (userColor != null) {
-                fgColor = getColorFromRGB(userColor
-                        .getColor(ColorType.FOREGROUND));
-                bgColor = getColorFromRGB(userColor
-                        .getColor(ColorType.BACKGROUND));
+                fgColor = getColorFromRGB(userColor.getColor(SWT.FOREGROUND));
+                bgColor = getColorFromRGB(userColor.getColor(SWT.BACKGROUND));
             }
         }
 
@@ -390,59 +383,15 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         String myName = CollaborationConnection.getConnection().getUser()
                 .getName();
         String peerName = peer.getName();
-        messagesTextMenuMgr.add(new ChangeUserColorAction(ColorType.BACKGROUND,
-                myName, true));
-        messagesTextMenuMgr.add(new ChangeUserColorAction(ColorType.FOREGROUND,
-                myName, true));
-        messagesTextMenuMgr.add(new ChangeUserColorAction(ColorType.BACKGROUND,
-                peerName, false));
-        messagesTextMenuMgr.add(new ChangeUserColorAction(ColorType.FOREGROUND,
-                peerName, false));
-    }
-
-    /*
-     * action for changing foreground/background color for a given user
-     */
-    private class ChangeUserColorAction extends Action {
-
-        private ColorType type;
-
-        private String user;
-
-        private boolean me;
-
-        private ChangeUserColorAction(ColorType type, String user,
-                boolean me) {
-            super("Change " + (me ? "Your " : (user + "'s "))
-                    + type.toString() + " Color...", IconUtil
-                    .getImageDescriptor(Activator.getDefault().getBundle(),
-                            "change_color.gif"));
-            this.type = type;
-            this.user = user;
-            this.me = me;
-        }
-
-        @Override
-        public void run() {
-            ColorDialog dialog = new ColorDialog(Display.getCurrent()
-                    .getActiveShell());
-            RGB defaultForeground = me ? DEFAULT_USER_FOREGROUND_COLOR.getRGB()
-                    : DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
-            ColorInfo colorInfo = colorConfigManager.getColor(user);
-            if (colorInfo != null) {
-                dialog.setRGB(colorInfo.getColor(type));
-            } else if (type == ColorType.FOREGROUND) {
-                /*
-                 * set the dialog to display default foreground color as
-                 * currently selected
-                 */
-                dialog.setRGB(defaultForeground);
-            }
-            RGB rgb = dialog.open();
-            if (rgb != null) {
-                colorConfigManager.setColor(user, type, rgb,
-                        defaultForeground);
-            }
-        }
+        RGB defaultUserForeground = DEFAULT_USER_FOREGROUND_COLOR.getRGB();
+        RGB defaultPeerForeground = DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
+        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.BACKGROUND,
+                myName, true, defaultUserForeground, colorConfigManager));
+        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.FOREGROUND,
+                myName, true, defaultUserForeground, colorConfigManager));
+        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.BACKGROUND,
+                peerName, false, defaultPeerForeground, colorConfigManager));
+        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.FOREGROUND,
+                peerName, false, defaultPeerForeground, colorConfigManager));
     }
 }
