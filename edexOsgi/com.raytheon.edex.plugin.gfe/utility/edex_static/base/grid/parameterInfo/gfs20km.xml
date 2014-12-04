@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
+    <!-- Every 3 hours 000-084 -->
     <fcst>0</fcst>
+    <fcst>10800</fcst>
     <fcst>21600</fcst>
+    <fcst>32400</fcst>
     <fcst>43200</fcst>
+    <fcst>54000</fcst>
     <fcst>64800</fcst>
+    <fcst>75600</fcst>
     <fcst>86400</fcst>
+    <fcst>97200</fcst>
     <fcst>108000</fcst>
+    <fcst>118800</fcst>
     <fcst>129600</fcst>
+    <fcst>140400</fcst>
     <fcst>151200</fcst>
+    <fcst>162000</fcst>
     <fcst>172800</fcst>
+    <fcst>183600</fcst>
     <fcst>194400</fcst>
+    <fcst>205200</fcst>
     <fcst>216000</fcst>
+    <fcst>226800</fcst>
     <fcst>237600</fcst>
+    <fcst>248400</fcst>
     <fcst>259200</fcst>
+    <fcst>270000</fcst>
     <fcst>280800</fcst>
+    <fcst>291600</fcst>
     <fcst>302400</fcst>
+    <!-- Every 6 hours 090 - 240 -->
     <fcst>324000</fcst>
     <fcst>345600</fcst>
     <fcst>367200</fcst>
