@@ -1,9 +1,0 @@
-yajsw/src/main/java/org/rzo/yajsw/WrapperExe.java
-yajsw/src/main/java/org/rzo/yajsw/app/WrapperManagerImpl.java
-yajsw/src/main/java/org/rzo/yajsw/os/posix/PosixProcess.java
-yajsw/src/main/java/org/rzo/yajsw/os/posix/bsd/AppStarter.java
-yajsw/src/main/java/org/rzo/yajsw/os/posix/bsd/BSDProcess.java
-yajsw/src/main/java/org/rzo/yajsw/wrapper/AbstractWrappedProcess.java
-yajsw/src/main/java/org/rzo/yajsw/wrapper/WrappedJavaProcess.java
-yajsw/src/main/java/org/rzo/yajsw/script/AbstractScript.java
-yajsw/src/main/java/org/rzo/yajsw/script/ShellScript.java
