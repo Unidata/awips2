@@ -76,8 +76,8 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>vss</short_name>
     <long_name>vertical speed shear</long_name>
-    <units>l/s</units>
-    <udunits>l/second</udunits>
+    <units>/s</units>
+    <udunits>1/second</udunits>
     <uiname>vertSpeedShear</uiname>
     <valid_range>-0.10000000149</valid_range>
     <valid_range>0.10000000149</valid_range>
