@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -38,7 +39,6 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.activetable.PracticeProductOfftimeRequest;
 import com.raytheon.uf.common.activetable.SendPracticeProductRequest;
 import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
 import com.raytheon.uf.common.dissemination.OUPRequest;
@@ -84,6 +84,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 18, 2013  2641      dgilling    Support changes to GFEVtecUtil.getVtecLinesThatNeedEtn().
  * Jan 06, 2014  2649      dgilling    Make ETN assignment process optional.
  * Feb 17, 2014  2774      dgilling    Merge changes from 14.1 baseline to 14.2.
+ * Nov 14, 2014  4953      randerso    Cleaned up practice product requests
  * 
  * </pre>
  * 
@@ -541,26 +542,27 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
 
     /**
      * Method to transmit the product.
+     * 
+     * @param practice
+     *            true if we are transmitting a practice product
      */
-    private void transmitProduct(boolean decode) {
+    private void transmitProduct(boolean practice) {
         IServerRequest req = null;
-        if (decode) {
-            if (SimulatedTime.getSystemTime().isRealTime()) {
-                req = new SendPracticeProductRequest();
-                ((SendPracticeProductRequest) req).setProductText(productText);
-            } else {
-                req = new PracticeProductOfftimeRequest();
-                ((PracticeProductOfftimeRequest) req)
-                        .setProductText(productText);
-                ((PracticeProductOfftimeRequest) req).setNotifyGFE(true);
+        if (practice) {
+            SendPracticeProductRequest practiceReq = new SendPracticeProductRequest();
+            practiceReq.setNotifyGFE(true);
+            practiceReq.setProductText(productText);
+
+            if (!SimulatedTime.getSystemTime().isRealTime()) {
                 SimpleDateFormat dateFormatter = new SimpleDateFormat(
                         "yyyyMMdd_HHmm");
-                ((PracticeProductOfftimeRequest) req)
-                        .setDrtString(dateFormatter.format(SimulatedTime
-                                .getSystemTime().getTime()));
+                dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+                practiceReq.setDrtString(dateFormatter.format(SimulatedTime
+                        .getSystemTime().getTime()));
             }
+            req = practiceReq;
         } else {
-            req = new OUPRequest();
+            OUPRequest oupReq = new OUPRequest();
             OfficialUserProduct oup = new OfficialUserProduct();
             // make sure the awipsWanPil is exactly 10 characters space-padded
             // long
@@ -580,8 +582,10 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
             // oup.setAddress(parentEditor.getAutoSendAddress());
             oup.setNeedsWmoHeader(false);
             oup.setSource("GFE");
-            ((OUPRequest) req).setProduct(oup);
-            ((OUPRequest) req).setUser(UserController.getUserObject());
+            oupReq.setProduct(oup);
+            oupReq.setUser(UserController.getUserObject());
+
+            req = oupReq;
         }
 
         try {
