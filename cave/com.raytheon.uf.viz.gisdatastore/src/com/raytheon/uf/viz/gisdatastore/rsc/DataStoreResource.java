@@ -124,9 +124,9 @@ import com.vividsolutions.jts.geom.Point;
  * Mar 25, 2014      #2664 randerso    Added support for non-WGS84 shape files
  * Apr 14, 2014      #2664 randerso    Fix NullPointerException when no .prj file present
  * Apr 21, 2014      #2998 randerso    Stored types of attributes to be used in the AttributeViewer
- * Aug 14, 2014      #3523 mapeters    Updated deprecated {@link DrawableString#textStyle} 
- *                                     assignments.
+ * Aug 14, 2014      #3523 mapeters    Updated deprecated DrawableString.textStyle assignments.
  * Aug 21, 2014      #3459 randerso    Restructured Map resource class hierarchy
+ * Nov 18, 2014      #3549 njensen     Improved performance of processRequest()
  * 
  * </pre>
  * 
@@ -137,6 +137,7 @@ import com.vividsolutions.jts.geom.Point;
 public class DataStoreResource extends
         AbstractMapResource<DataStoreResourceData, MapDescriptor> implements
         IPropertyChangeListener {
+
     private static final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GIS:");
 
@@ -256,7 +257,7 @@ public class DataStoreResource extends
                 return;
             }
 
-            List<String> fields = new ArrayList<String>();
+            List<String> fields = new ArrayList<>();
             fields.add(req.geomField);
             if ((req.labelField != null)
                     && !fields.contains(req.labelField)
@@ -279,7 +280,7 @@ public class DataStoreResource extends
                     .createWireframeShape(false,
                             req.getResource().getDescriptor());
 
-            List<LabelNode> newLabels = new ArrayList<LabelNode>();
+            List<LabelNode> newLabels = new ArrayList<>();
 
             IShadedShape newShadedShape = null;
             if (req.isProduct || (req.shadingField != null)) {
@@ -311,10 +312,10 @@ public class DataStoreResource extends
                 FilterFactory2 ff = CommonFactoryFinder
                         .getFilterFactory2(GeoTools.getDefaultHints());
 
-                List<Geometry> geomList = new ArrayList<Geometry>();
+                List<Geometry> geomList = new ArrayList<>();
                 flattenGeometry(req.getBoundingGeom(), geomList);
 
-                List<Filter> filterList = new ArrayList<Filter>(geomList.size());
+                List<Filter> filterList = new ArrayList<>(geomList.size());
                 for (Geometry g : geomList) {
                     Filter filter = ff.intersects(ff.property(shapeField),
                             ff.literal(g));
@@ -325,120 +326,124 @@ public class DataStoreResource extends
 
             SimpleFeatureSource featureSource = req.getResource()
                     .getDataStore().getFeatureSource(typeName);
-
             SimpleFeatureCollection featureCollection = featureSource
                     .getFeatures(query);
-            SimpleFeatureIterator featureIterator = featureCollection
-                    .features();
 
             if (req.getResource().displayAttributes == null) {
-                req.getResource().displayAttributes = new HashMap<String, DataStoreResource.DisplayAttributes>(
-                        (int) Math.ceil(featureCollection.size() / 0.75f),
-                        0.75f);
+                /*
+                 * just default the map size as featureCollection.size() is slow
+                 * since it iterates over the entire collection
+                 */
+                req.getResource().displayAttributes = new HashMap<>();
             }
 
             // TODO: do we need to implement the GeometryCache/gidMap
             // stuff like in DbMapResource?
 
-            List<Geometry> resultingGeoms = new ArrayList<Geometry>();
-            List<Geometry> highlightGeoms = new ArrayList<Geometry>();
+            List<Geometry> resultingGeoms = new ArrayList<>();
+            List<Geometry> highlightGeoms = new ArrayList<>();
             int numPoints = 0;
-            while (featureIterator.hasNext()) {
-                if (checkCanceled(result)) {
-                    return;
-                }
-
-                SimpleFeature f = featureIterator.next();
-                String id = f.getID();
-                DisplayAttributes da = req.getResource().getDisplayAttributes(
-                        id);
-                if (!da.isVisible()) {
-                    continue;
-                }
-
-                Geometry g = JTS.transform((Geometry) f
-                        .getAttribute(req.geomField), req.getResource()
-                        .getIncomingToLatLon());
-                if (da.isHighlighted()) {
-                    highlightGeoms.add(g);
-                }
-
-                if (req.highlightsOnly) {
-                    continue;
-                }
-
-                Object labelAttr = null;
-                Object shadingAttr = null;
-                for (String name : fields) {
-                    if (name.equals(req.labelField)) {
-                        labelAttr = f.getAttribute(name);
+            try (SimpleFeatureIterator featureIterator = featureCollection
+                    .features()) {
+                while (featureIterator.hasNext()) {
+                    if (checkCanceled(result)) {
+                        return;
                     }
-                    if (name.equals(req.shadingField)) {
-                        shadingAttr = f.getAttribute(name);
-                    }
-                }
 
-                if (DataStoreResource.ID_ATTRIBUTE_NAME.equals(req.labelField)) {
-                    labelAttr = id;
-                }
-
-                if (DataStoreResource.ID_ATTRIBUTE_NAME
-                        .equals(req.shadingField)) {
-                    shadingAttr = id;
-                }
-
-                if ((labelAttr != null) && (g != null)) {
-                    String label;
-                    if (labelAttr instanceof BigDecimal) {
-                        label = Double.toString(((Number) labelAttr)
-                                .doubleValue());
-                    } else {
-                        label = labelAttr.toString();
+                    SimpleFeature f = featureIterator.next();
+                    String id = f.getID();
+                    DisplayAttributes da = req.getResource()
+                            .getDisplayAttributes(id);
+                    if (!da.isVisible()) {
+                        continue;
                     }
-                    int numGeometries = g.getNumGeometries();
-                    List<Geometry> gList = new ArrayList<Geometry>(
-                            numGeometries);
-                    for (int polyNum = 0; polyNum < numGeometries; polyNum++) {
-                        Geometry poly = g.getGeometryN(polyNum);
-                        gList.add(poly);
+
+                    Geometry g = JTS.transform((Geometry) f
+                            .getAttribute(req.geomField), req.getResource()
+                            .getIncomingToLatLon());
+                    if (da.isHighlighted()) {
+                        highlightGeoms.add(g);
                     }
-                    // Sort polygons in g so biggest comes first.
-                    Collections.sort(gList, new Comparator<Geometry>() {
-                        @Override
-                        public int compare(Geometry g1, Geometry g2) {
-                            return (int) Math.signum(g2.getEnvelope().getArea()
-                                    - g1.getEnvelope().getArea());
+
+                    if (req.highlightsOnly) {
+                        continue;
+                    }
+
+                    Object labelAttr = null;
+                    Object shadingAttr = null;
+                    for (String name : fields) {
+                        if (name.equals(req.labelField)) {
+                            labelAttr = f.getAttribute(name);
                         }
-                    });
-
-                    for (Geometry poly : gList) {
-                        Point point = poly.getInteriorPoint();
-                        if (point.getCoordinate() != null) {
-                            double[] location = req
-                                    .getResource()
-                                    .getDescriptor()
-                                    .worldToPixel(
-                                            new double[] {
-                                                    point.getCoordinate().x,
-                                                    point.getCoordinate().y });
-
-                            DrawableString ds = new DrawableString(label, null);
-                            ds.font = req.getResource().font;
-                            Rectangle2D rect = req.getTarget()
-                                    .getStringsBounds(ds);
-
-                            LabelNode node = new LabelNode(label, location,
-                                    rect);
-                            newLabels.add(node);
+                        if (name.equals(req.shadingField)) {
+                            shadingAttr = f.getAttribute(name);
                         }
                     }
-                }
 
-                if (g != null) {
-                    numPoints += g.getNumPoints();
-                    resultingGeoms.add(g);
-                    if (req.shadingField != null) {
-                        g.setUserData(shadingAttr);
+                    if (DataStoreResource.ID_ATTRIBUTE_NAME
+                            .equals(req.labelField)) {
+                        labelAttr = id;
+                    }
+
+                    if (DataStoreResource.ID_ATTRIBUTE_NAME
+                            .equals(req.shadingField)) {
+                        shadingAttr = id;
+                    }
+
+                    if ((labelAttr != null) && (g != null)) {
+                        String label;
+                        if (labelAttr instanceof BigDecimal) {
+                            label = Double.toString(((Number) labelAttr)
+                                    .doubleValue());
+                        } else {
+                            label = labelAttr.toString();
+                        }
+                        int numGeometries = g.getNumGeometries();
+                        List<Geometry> gList = new ArrayList<>(numGeometries);
+                        for (int polyNum = 0; polyNum < numGeometries; polyNum++) {
+                            Geometry poly = g.getGeometryN(polyNum);
+                            gList.add(poly);
+                        }
+                        // Sort polygons in g so biggest comes first.
+                        Collections.sort(gList, new Comparator<Geometry>() {
+                            @Override
+                            public int compare(Geometry g1, Geometry g2) {
+                                return (int) Math
+                                        .signum(g2.getEnvelope().getArea()
+                                                - g1.getEnvelope().getArea());
+                            }
+                        });
+
+                        for (Geometry poly : gList) {
+                            Point point = poly.getInteriorPoint();
+                            if (point.getCoordinate() != null) {
+                                double[] location = req
+                                        .getResource()
+                                        .getDescriptor()
+                                        .worldToPixel(
+                                                new double[] {
+                                                        point.getCoordinate().x,
+                                                        point.getCoordinate().y });
+
+                                DrawableString ds = new DrawableString(label,
+                                        null);
+                                ds.font = req.getResource().font;
+                                Rectangle2D rect = req.getTarget()
+                                        .getStringsBounds(ds);
+
+                                LabelNode node = new LabelNode(label, location,
+                                        rect);
+                                newLabels.add(node);
+                            }
+                        }
+                    }
+
+                    if (g != null) {
+                        numPoints += g.getNumPoints();
+                        resultingGeoms.add(g);
+                        if (req.shadingField != null) {
+                            g.setUserData(shadingAttr);
+                        }
                     }
                 }
             }
@@ -533,7 +538,7 @@ public class DataStoreResource extends
 
         RGB getColor(Object key) {
             if (colorMap == null) {
-                colorMap = new HashMap<Object, RGB>();
+                colorMap = new HashMap<>();
             }
             RGB color = colorMap.get(key);
             if (color == null) {
@@ -757,8 +762,7 @@ public class DataStoreResource extends
                 try {
                     List<SimpleFeature> features = findFeatures(new ReferencedCoordinate(
                             c));
-                    List<String> featureIds = new ArrayList<String>(
-                            features.size());
+                    List<String> featureIds = new ArrayList<>(features.size());
                     for (SimpleFeature feature : features) {
                         featureIds.add(feature.getID());
                     }
@@ -1032,14 +1036,14 @@ public class DataStoreResource extends
         int displayWidth = (descriptor.getMapWidth());
         double kmPerPixel = (displayWidth / screenWidth) / 1000.0;
 
-        List<Geometry> geomList = new ArrayList<Geometry>();
+        List<Geometry> geomList = new ArrayList<>();
         PixelExtent extent = clipToProjExtent(projExtent);
         Geometry boundingGeom = JTS.transform(
                 buildBoundingGeometry(extent, worldToScreenRatio, kmPerPixel),
                 latLonToIncoming);
         flattenGeometry(boundingGeom, geomList);
 
-        List<Filter> filterList = new ArrayList<Filter>(geomList.size());
+        List<Filter> filterList = new ArrayList<>(geomList.size());
         for (Geometry g : geomList) {
             Filter filter = ff
                     .intersects(ff.property(geomField), ff.literal(g));
@@ -1055,6 +1059,10 @@ public class DataStoreResource extends
 
             featureCollection = featureSource.getFeatures(query);
 
+            /*
+             * TODO get the size some other way, as featureCollection.size() may
+             * iterate over everything and potentially be slow
+             */
             int size = featureCollection.size();
             Set<String> attributeNames = attrTypeMap.keySet();
             attributes = new Object[size][attributeNames.size()];
@@ -1280,10 +1288,9 @@ public class DataStoreResource extends
                 * worldToScreenRatio;
         RGB color = getCapability(ColorableCapability.class).getColor();
         IExtent extent = paintProps.getView().getExtent();
-        List<DrawableString> strings = new ArrayList<DrawableString>(
-                labels.size());
-        List<LabelNode> selectedNodes = new ArrayList<LabelNode>(labels.size());
-        List<IExtent> extents = new ArrayList<IExtent>();
+        List<DrawableString> strings = new ArrayList<>(labels.size());
+        List<LabelNode> selectedNodes = new ArrayList<>(labels.size());
+        List<IExtent> extents = new ArrayList<>();
         String lastLabel = null;
         // get min distance
         double density = this.getCapability(DensityCapability.class)
@@ -1642,9 +1649,9 @@ public class DataStoreResource extends
                 Geometry clickBox = JTS.transform(
                         buildBoundingGeometry(bboxExtent, worldToScreenRatio,
                                 kmPerPixel), latLonToIncoming);
-                List<Geometry> clickGeomList = new ArrayList<Geometry>();
+                List<Geometry> clickGeomList = new ArrayList<>();
                 flattenGeometry(clickBox, clickGeomList);
-                List<Filter> clickFilterList = new ArrayList<Filter>(
+                List<Filter> clickFilterList = new ArrayList<>(
                         clickGeomList.size());
                 for (Geometry g : clickGeomList) {
                     Filter filter = ff.intersects(ff.property(geomField),
@@ -1668,7 +1675,7 @@ public class DataStoreResource extends
                     .getFeatureSource(typeName);
 
             featureCollection = featureSource.getFeatures(query);
-            features = new ArrayList<SimpleFeature>(featureCollection.size());
+            features = new ArrayList<>(featureCollection.size());
             featureIterator = featureCollection.features();
 
             while (featureIterator.hasNext()) {
