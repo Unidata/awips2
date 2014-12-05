@@ -54,20 +54,25 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Main User Administration Dialog.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2012            mpduff      Initial creation.
  * Nov 26, 2012   1347     mpduff      Make resizable.
  * Jan 09, 2013   1412     djohnson    Listen for user authentication data changes.
  * Aug 12, 2013   2247     mpduff      Dialog cleanup and consistency.
- * 
+ * Dec 05, 2014   3801     nabowle     Check if widgets are disposed in populate
+ *                                     lists. Hide Description menu when nothing
+ *                                     is selected. Better enable/disable edit
+ *                                     and delete buttons. Give delete dialogs
+ *                                     a title.
+ *
  * </pre>
- * 
+ *
  * @author mpduff
  * @version 1.0
  */
@@ -104,7 +109,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            The parent shell
      */
@@ -227,7 +232,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
      */
     @Override
@@ -473,6 +478,11 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
 
     private void populateLists() {
         NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+        if (appCombo.isDisposed() || userList.isDisposed()
+                || userTab.isDisposed() || roleTab.isDisposed()
+                || roleList.isDisposed()) {
+            return;
+        }
         String app = appCombo.getItem(appCombo.getSelectionIndex());
 
         userTab.setText(app + " Users");
@@ -486,6 +496,11 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         userList.setItems(man.getRoleData(app).getUsers());
         if (selection < userList.getItemCount()) {
             userList.select(selection);
+            editUserBtn.setEnabled(true);
+            deleteUserBtn.setEnabled(true);
+        } else {
+            editUserBtn.setEnabled(false);
+            deleteUserBtn.setEnabled(false);
         }
         populateUserRoleList();
 
@@ -498,12 +513,21 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         roleList.setItems(man.getRoleData(app).getRoles());
         if (selection < roleList.getItemCount()) {
             roleList.select(selection);
+            editRoleBtn.setEnabled(true);
+            deleteRoleBtn.setEnabled(true);
+        } else {
+            editRoleBtn.setEnabled(false);
+            deleteRoleBtn.setEnabled(false);
         }
         populatePermissionList();
     }
 
     private void populateUserRoleList() {
         NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+        if (appCombo.isDisposed() || userList.isDisposed()
+                || userPermList.isDisposed()) {
+            return;
+        }
         String app = appCombo.getItem(appCombo.getSelectionIndex());
 
         if (userList.getSelectionIndex() != -1) {
@@ -547,7 +571,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         String user = userList.getItem(userList.getSelectionIndex());
 
         MessageBox messageDialog = new MessageBox(this.shell, SWT.YES | SWT.NO);
-        messageDialog.setText("Title");
+        messageDialog.setText("Delete user - " + user);
         messageDialog
                 .setMessage("Are you sure you wish to delete user " + user);
         int response = messageDialog.open();
@@ -576,7 +600,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         String role = roleList.getItem(roleList.getSelectionIndex());
 
         MessageBox messageDialog = new MessageBox(this.shell, SWT.YES | SWT.NO);
-        messageDialog.setText("Title");
+        messageDialog.setText("Delete role - " + role);
         messageDialog
                 .setMessage("Are you sure you wish to delete role " + role);
         int response = messageDialog.open();
@@ -615,51 +639,53 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
     }
 
     private void showPermissionMenu(final List list) {
-        Menu menu = new Menu(shell, SWT.POP_UP);
-        MenuItem item1 = new MenuItem(menu, SWT.PUSH);
-        item1.setText("Description...");
-        item1.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent arg0) {
-                String selection = list.getItem(list.getSelectionIndex());
-                StringBuilder messageText = new StringBuilder();
-                boolean roleFlag = false;
-                NwsRoleDataManager man = NwsRoleDataManager.getInstance();
-                for (RoleXML role : man.getRoleData(selectedApplication)
-                        .getRoleList()) {
-                    if (selection.equals(role.getRoleId())) {
-                        messageText.append(getRoleDetails(role));
-                        roleFlag = true;
-                        break;
-                    }
-                }
-
-                if (!roleFlag) {
-                    for (PermissionXML perm : man.getRoleData(
-                            selectedApplication).getPermissionList()) {
-                        if (perm.getId().equals(selection)) {
-                            messageText.append(getPermissionDetails(perm));
+        if (list.getSelectionCount() > 0) {
+            Menu menu = new Menu(shell, SWT.POP_UP);
+            MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+            item1.setText("Description...");
+            item1.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent arg0) {
+                    String selection = list.getItem(list.getSelectionIndex());
+                    StringBuilder messageText = new StringBuilder();
+                    boolean roleFlag = false;
+                    NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+                    for (RoleXML role : man.getRoleData(selectedApplication)
+                            .getRoleList()) {
+                        if (selection.equals(role.getRoleId())) {
+                            messageText.append(getRoleDetails(role));
+                            roleFlag = true;
                             break;
                         }
                     }
-                }
-                if (messageText.length() == 0) {
-                    messageText.append("No Description");
-                }
-                MessageBox messageDialog = new MessageBox(shell,
-                        SWT.ICON_INFORMATION);
-                if (roleFlag) {
-                    messageDialog.setText("Role Description");
-                } else {
-                    messageDialog.setText("Permission Description");
-                }
-                messageDialog.setMessage(messageText.toString());
-                messageDialog.open();
-            }
-        });
 
-        shell.setMenu(menu);
-        menu.setVisible(true);
+                    if (!roleFlag) {
+                        for (PermissionXML perm : man.getRoleData(
+                                selectedApplication).getPermissionList()) {
+                            if (perm.getId().equals(selection)) {
+                                messageText.append(getPermissionDetails(perm));
+                                break;
+                            }
+                        }
+                    }
+                    if (messageText.length() == 0) {
+                        messageText.append("No Description");
+                    }
+                    MessageBox messageDialog = new MessageBox(shell,
+                            SWT.ICON_INFORMATION);
+                    if (roleFlag) {
+                        messageDialog.setText("Role Description");
+                    } else {
+                        messageDialog.setText("Permission Description");
+                    }
+                    messageDialog.setMessage(messageText.toString());
+                    messageDialog.open();
+                }
+            });
+
+            shell.setMenu(menu);
+            menu.setVisible(true);
+        }
     }
 
     private String getRoleDetails(RoleXML role) {
