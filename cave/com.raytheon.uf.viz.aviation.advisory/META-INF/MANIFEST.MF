@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Aviation Advisory Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.aviation.advisory;singleton:=true
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.aviation.advisory.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.viz.core
 Import-Package: com.raytheon.uf.common.dataplugin,
