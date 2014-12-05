@@ -53,12 +53,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date              Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 06, 2011       5951      jnjanga     Initial creation
- * Jan 10, 2013      1448       bgonzale    Added app context check in runOnSchedule().
+ * Jan 10, 2013       1448      bgonzale    Added app context check in runOnSchedule().
  * Jan 18, 2013       1469      bkowal      Removed the hdf5 data directory.
  * Mar 28, 2014       2952      mpduff      Changed to use UFStatus for logging.
  * Jun 05, 2014       3226      bclement    BinLightning refactor
  * Aug 20, 2014       3549      njensen     Fixed spelling in exceptions
  * Sep 17, 2014       3015      bclement    improved exception handling
+ * Dec 04, 2014       3015      njensen     Corrected usage of Coordinate(x, y)
  * 
  * </pre>
  * 
@@ -152,8 +153,8 @@ public class MpeLightningSrv {
             for (int i = 0; i < latitudes.length; i++) {
                 float lat = latitudes[i];
                 float lon = longitudes[i];
-                Coordinate latLon = new Coordinate(lat, lon);
-                gridCell = hrap.latLonToGridCoordinate(latLon, po);
+                Coordinate c = new Coordinate(lon, lat);
+                gridCell = hrap.latLonToGridCoordinate(c, po);
                 x_hgrids[i] = (short) gridCell.x;
                 y_hgrids[i] = (short) gridCell.y;
             }
