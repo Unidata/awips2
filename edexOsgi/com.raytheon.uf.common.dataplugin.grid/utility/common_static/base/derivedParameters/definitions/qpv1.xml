@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    COMMENT:
+    //
+    // Winter Ingredients-based Fields (Wetzel and Martin)
+    //
+    
+    
+    AWIPS 1 format
+    QPV1 |9| |QVec Conv      | |CONTOUR,IMAGE,OTHER|MB|   *Test|qDiv|1.|-1.e37|0.|qDiv|1.|1.e-37|1.e37|0.  
+    
+    
+    abbreviation: |QPV1| 
+    Notused1: |9| 
+    Notused2: | | 
+    name: |QVec Conv      | 
+    FIELD: || 
+    FIELD: |CONTOUR,IMAGE,OTHER| 
+    FIELD: |MB| 
+    FIELD: |qDiv| 
+    FIELD: |1.| 
+    FIELD: |-1.e37| 
+    FIELD: |0.| 
+    FIELD: |qDiv| 
+    FIELD: |1.| 
+    FIELD: |1.e-37| 
+    FIELD: |1.e37| 
+    FIELD: |0.| 
+    
+    
+    NEW FILE - QPV1.xml
+    -->
+<DerivedParameter name="QVec Conv" abbreviation="QPV1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field abbreviation="qDiv"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="0.0"/>
+        <Field abbreviation="qDiv"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1.0E-37"/>
+        <ConstantField value="1e37"/>
+        <ConstantField value="0.0"/>
+    </Method>
+</DerivedParameter>
