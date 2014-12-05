@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
  * Oct 16, 2014 3220       skorolev    Corrected getInstance() method.
  * Oct 27, 2014 3667       skorolev    Cleaned code.
+ * Nov 21, 2014 3841       skorolev    Corrected handleOkBtnSelection.
  * 
  * 
  * </pre>
@@ -80,12 +81,11 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     "SAFESEAS Monitor Confirm Changes", "Save changes?");
             if (choice == SWT.YES) {
                 // Save the config xml file.
-                resetAndSave();
+                saveConfigs();
                 SSThresholdMgr.reInitialize();
-                fireConfigUpdateEvent();
-                // Open Threshold Dialog if zones/stations are added.
                 if ((!configMgr.getAddedZones().isEmpty())
                         || (!configMgr.getAddedStations().isEmpty())) {
+                    // Open Threshold Dialog if zones/stations are added.
                     if (editDialog() == SWT.YES) {
                         ssMonitorDlg = new SSDispMonThreshDlg(shell,
                                 CommonConfig.AppName.SAFESEAS,
@@ -93,19 +93,15 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                         ssMonitorDlg.setCloseCallback(new ICloseCallback() {
                             @Override
                             public void dialogClosed(Object returnValue) {
-                                // Clean added zones and stations. Close dialog.
-                                configMgr.getAddedZones().clear();
-                                configMgr.getAddedStations().clear();
                                 setReturnValue(true);
                                 close();
                             }
                         });
                         ssMonitorDlg.open();
                     }
-                    // Clean added zones and stations.
-                    configMgr.getAddedZones().clear();
-                    configMgr.getAddedStations().clear();
                 }
+                fireConfigUpdateEvent();
+                resetParams();
             } else { // Return back to continue edit.
                 return;
             }
