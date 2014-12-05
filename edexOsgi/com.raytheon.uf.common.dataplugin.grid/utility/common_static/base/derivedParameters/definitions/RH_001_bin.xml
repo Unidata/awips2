@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 	
+	AWIPS I format
+	RH_001_bin| ||Binary Prob of RH Grtn 70 percent||||   *Test|RH|1.0|-999999.0|69.0|0.0|1.0|70.0|999999.0|100.0
+	
+	
+	varId: |RH_001_bin| 
+	Cross Section (CS): | | 				//according to implemented IoCape.xml, CS = 0 is not in the derivedParameter definition
+	isAttachToSource: || 
+	varName: |Binary Prob of RH Grtn 70 percent| 
+	units: | |
+	displayTypes: | |						//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: | |							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+
+	functionName: |Test|
+	varId:  |RH|
+	const: |1.0|
+	const: |-999999.0| 
+	const: |69.0| 
+	const: |0.0|
+	const: |1.0|
+	const: |70.0| 
+	const: |999999.0| 
+	const: |100.0|
+	
+
+	AWIPS II NEW FILE - RH_001_bin.xml
+ -->
+<DerivedParameter name="Binary Prob of RH Grtn 70 percent" abbreviation="RH_001_bin" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field abbreviation="RH"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-999999.0"/>
+        <ConstantField value="69.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="70.0"/>
+        <ConstantField value="999999.0"/>
+        <ConstantField value="100.0"/>
+    </Method>
+</DerivedParameter>

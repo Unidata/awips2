@@ -2,8 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Stats
 Bundle-SymbolicName: com.raytheon.uf.viz.stats;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.stats.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -16,9 +15,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.units;bundle-version="1.0.0",
  com.raytheon.uf.common.event;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.3.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Export-Package: com.raytheon.uf.viz.stats,
- com.raytheon.uf.viz.stats.collector,
+Export-Package: com.raytheon.uf.viz.stats.collector,
  com.raytheon.uf.viz.stats.ui,
  com.raytheon.uf.viz.stats.utils

@@ -26,6 +26,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    2014-10-22      3599          nabowle        Initial modification. Convert to DAF.
+#    2014-11-17      3599          nabowle        Fix call to get_args().
 #
 
 import argparse
@@ -54,7 +55,7 @@ def get_args():
     return parser.parse_args()
 
 def main():
-    user_args = get_args()()
+    user_args = get_args()
 
     if user_args.host:
         DataAccessLayer.changeEDEXHost(user_args.host)
