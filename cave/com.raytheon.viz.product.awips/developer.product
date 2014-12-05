@@ -26,6 +26,7 @@
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=99
+-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -XX:MaxDirectMemorySize=1G
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M
@@ -51,11 +52,9 @@
       </win>
    </launcher>
 
-
    <vm>
       <windows include="true">jdk1.6.0</windows>
    </vm>
-
 
    <plugins>
    </plugins>
@@ -63,52 +62,6 @@
    <features>
       <feature id="com.raytheon.viz.feature.awips" version="1.9.0.qualifier"/>
       <feature id="com.raytheon.viz.feature.awips.developer" version="1.9.0.qualifier"/>
-      <feature id="com.raytheon.uf.viz.ncep.nsharp.feature"/>
-      <feature id="com.raytheon.viz.avnfps.feature"/>
-      <feature id="com.raytheon.uf.viz.localization.perspective.feature"/>
-      <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature"/>
-      <feature id="com.raytheon.viz.gfe.feature"/>
-      <feature id="com.raytheon.viz.hydro.feature"/>
-      <feature id="com.raytheon.viz.text.feature"/>
-      <feature id="com.raytheon.uf.viz.displays.feature"/>
-      <feature id="com.raytheon.viz.volumebrowser.feature"/>
-      <feature id="com.raytheon.viz.radar.feature"/>
-      <feature id="com.raytheon.uf.viz.gisdatastore.feature"/>
-      <feature id="com.raytheon.uf.viz.dataplugin.obs.feature"/>
-      <feature id="com.raytheon.uf.viz.kml.export.feature"/>
-      <feature id="com.raytheon.uf.viz.ncep.perspective.feature"/>
-      <feature id="com.raytheon.uf.viz.base.feature"/>
-      <feature id="com.raytheon.uf.viz.sounding.feature"/>
-      <feature id="com.raytheon.uf.viz.useradmin.feature"/>
-      <feature id="com.raytheon.uf.viz.dataplugins.feature"/>
-      <feature id="com.raytheon.uf.viz.archive.feature"/>
-      <feature id="com.raytheon.uf.viz.d2d.core.feature"/>
-      <feature id="com.raytheon.uf.viz.dat.feature"/>
-      <feature id="com.raytheon.uf.viz.d2d.xy.feature"/>
-      <feature id="com.raytheon.uf.viz.aviation.advisory.feature"/>
-      <feature id="com.raytheon.uf.viz.collaboration.feature"/>
-      <feature id="com.raytheon.uf.viz.nwsauth.feature"/>
-      <feature id="com.raytheon.viz.grib.feature"/>
-      <feature id="com.raytheon.uf.viz.ncep.displays.feature"/>
-      <feature id="com.raytheon.uf.viz.core.feature"/>
-      <feature id="com.raytheon.uf.common.base.feature"/>
-      <feature id="com.raytheon.uf.viz.thinclient.feature"/>
-      <feature id="com.raytheon.uf.viz.core.maps.feature"/>
-      <feature id="com.raytheon.uf.viz.d2d.nsharp.feature"/>
-      <feature id="com.raytheon.uf.viz.common.core.feature"/>
-      <feature id="com.raytheon.viz.warngen.feature"/>
-      <feature id="com.raytheon.uf.viz.acarssounding.feature"/>
-      <feature id="com.raytheon.uf.viz.registry.feature"/>
-      <feature id="org.eclipse.rcp"/>
-      <feature id="com.raytheon.uf.viz.cots.feature"/>
-      <feature id="com.raytheon.uf.viz.application.feature"/>
-      <feature id="com.raytheon.uf.viz.datadelivery.feature"/>
-      <feature id="com.raytheon.uf.viz.d2d.gfe.feature"/>
-      <feature id="com.raytheon.viz.satellite.feature"/>
-      <feature id="com.raytheon.uf.viz.npp.feature"/>
-      <feature id="com.raytheon.uf.viz.d2d.skewt.feature"/>
-      <feature id="com.raytheon.uf.viz.ncep.core.feature"/>
-      <feature id="com.raytheon.uf.viz.ncep.dataplugins.feature"/>
    </features>
 
    <configurations>
