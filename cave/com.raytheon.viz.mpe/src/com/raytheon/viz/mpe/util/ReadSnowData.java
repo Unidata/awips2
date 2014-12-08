@@ -144,11 +144,6 @@ public class ReadSnowData {
 
                     dqc.pdata[i].stn[j].srain[kk].qual = 0;
 
-                    int slsh = cbuf.indexOf('/', q);
-                    int nln = cbuf.indexOf('\n', q);
-                    
-                    System.out.println("index of slsh : "+ slsh);
-                    System.out.println("index of nln : "+ nln);
                     if ((cbuf.indexOf('/', q) < 0) && (cbuf.isEmpty())){
                         continue bad;
                     }
