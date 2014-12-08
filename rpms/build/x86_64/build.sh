@@ -228,6 +228,7 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-rcm"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2"
+   buildRPM "awips2-yajsw"
    buildOpenfire
 
    exit 0
