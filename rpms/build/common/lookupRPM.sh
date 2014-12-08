@@ -251,6 +251,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.collab-dataserver"
       return 0
    fi
+   if [ "${1}" = "awips2-yajsw" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.yajsw"
+      return 0
+   fi
 
    # awips2 rpms -> viz rpms.
    if [ "${1}" = "awips2-alertviz" ]; then
