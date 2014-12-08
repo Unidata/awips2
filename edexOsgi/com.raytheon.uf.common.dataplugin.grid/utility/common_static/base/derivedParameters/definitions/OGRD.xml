@@ -20,7 +20,7 @@
     -->
 <DerivedParameter  abbreviation="OGRD" name="Current Vectors" unit="m/s">
     <Method name="Vector">
-    	<Field abbreviation="UOGRD"/>
-    	<Field abbreviation="VOGRD"/>
+    	<Field abbreviation="UOGRD" unit="m/sec"/>
+    	<Field abbreviation="VOGRD" unit="m/sec"/>
     </Method>
 </DerivedParameter>
