@@ -101,7 +101,7 @@ public class DrawDQCStations {
 
     int points_flag;
 
-    boolean qpf_on = false;
+    boolean qpf_on = MPEDisplayManager.getCurrent().isQpf();
 
     boolean flf_on = false;
 

@@ -141,7 +141,7 @@ public class PointFreezePlotResource extends
 
     Zdata zdata[];
 
-    ArrayList<Station> station;
+//    ArrayList<Station> station;
 
     Hashtable<String, Ztn> zdataMap;
 
@@ -197,9 +197,9 @@ public class PointFreezePlotResource extends
         strTree = new STRtree();
         gageData = dqc.new Station();
 
-        if (!station.isEmpty()) {
+        if (!dqc.freezing_stations.isEmpty()) {
             int i = 0;
-            for (ListIterator<Station> it = station.listIterator(); it
+            for (ListIterator<Station> it = dqc.freezing_stations.listIterator(); it
                     .hasNext();) {
                 gageData = it.next();
                 Coordinate xy = new Coordinate();
