@@ -142,7 +142,7 @@ public class PointTempPlotResource extends
 
 //    Tdata tdata[];
 
-    ArrayList<Station> station;
+//    ArrayList<Station> station;
 
     Hashtable<String, Ttn> tdataMap;
 
@@ -196,9 +196,9 @@ public class PointTempPlotResource extends
         strTree = new STRtree();
         gageData = dqc.new Station();
 
-        if (!station.isEmpty()) {
+        if (!dqc.temperature_stations.isEmpty()) {
             int i = 0;
-            for (ListIterator<Station> it = station.listIterator(); it
+            for (ListIterator<Station> it = dqc.temperature_stations.listIterator(); it
                     .hasNext();) {
                 gageData = it.next();
                 Coordinate xy = new Coordinate();
