@@ -127,10 +127,10 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
     private static boolean isfinished = true;
 
     private static int dqc_good = 0;
-
-    public static DrawDQCStations ddq = DrawDQCStations.getInstance();
     
-    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    public static DrawDQCStations ddq;
+    
+    private DailyQcUtils dqc;
 
     public static ArrayList<String> dataType = new ArrayList<String>();
 
@@ -162,6 +162,9 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
      */
     public QcPrecipOptionsDialog(Shell parent) {
         super(parent);
+        MPEDisplayManager.getCurrent().setQpf(true);
+        dqc = DailyQcUtils.getInstance();
+        
     }
 
     private int getOpts() {
@@ -212,6 +215,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         String QcArea = ChooseDataPeriodDialog.prevArea;
         AppsDefaults appDefaults = AppsDefaults.getInstance();
         DisplayFieldData df = displayMgr.getDisplayFieldType();
+        
         if (currDate == null) {
             currDate = prevDate;
         }
@@ -254,9 +258,6 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             displayMgr.setZflag(false);
         }
 
-        displayMgr.setQpf(true);
-        ddq = DrawDQCStations.getInstance();
-
         shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MODELESS);
 
         shell.setText("QC Precipitation Options");
@@ -278,6 +279,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         displayMgr.setQpf(true);
         isOpen = true;
         isfinished = false;
+        ddq = DrawDQCStations.getInstance();
         opo.chg_precip_time(selsix24Cbo.getSelectionIndex() + 2);
         opo.send_expose();
         while (!shell.isDisposed()) {
