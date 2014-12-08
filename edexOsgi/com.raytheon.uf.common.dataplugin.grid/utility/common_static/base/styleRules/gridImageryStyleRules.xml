@@ -5514,4 +5514,16 @@
 		</dataMapping>
 	</imageStyle>
  </styleRule>
+ <styleRule>
+
+    <paramLevelMatches>
+      <parameter>SPC</parameter>
+      <parameter>OGRD</parameter>
+      <parameter>BARO</parameter>
+      <parameter>SPBARO</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>cm/sec</displayUnits>
+    </imageStyle>
+  </styleRule>
 </styleRuleset>
