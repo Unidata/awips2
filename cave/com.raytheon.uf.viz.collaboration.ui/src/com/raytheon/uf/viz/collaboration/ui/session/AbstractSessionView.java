@@ -98,6 +98,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Nov 14, 2014 3709       mapeters    Changing foreground/background colors no longer 
  *                                     implemented here, added messagesTextMenuMgr.
  * Nov 26, 2014 3709       mapeters    Added {@link #getColorFromRGB()}.
+ * Dec 08, 2014 3709       mapeters    Removed messagesTextMenuMgr.
  * </pre>
  * 
  * @author rferrel
@@ -126,8 +127,6 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
     /** Font used with the messagesText control. */
     private Font messagesTextFont;
-
-    protected MenuManager messagesTextMenuMgr;
 
     private StyledText composeText;
 
@@ -230,9 +229,9 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
         // adding a menu item so that Paste can be found when clicking on the
         // composeText styledtext
-        messagesTextMenuMgr = new MenuManager();
-        messagesTextMenuMgr.add(new CopyTextAction(messagesText));
-        Menu menu = messagesTextMenuMgr.createContextMenu(messagesText);
+        MenuManager menuMgr = new MenuManager();
+        menuMgr.add(new CopyTextAction(messagesText));
+        Menu menu = menuMgr.createContextMenu(messagesText);
         messagesText.setMenu(menu);
     }
 
