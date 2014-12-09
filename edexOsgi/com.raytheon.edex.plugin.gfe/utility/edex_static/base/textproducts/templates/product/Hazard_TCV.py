@@ -21,7 +21,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["database"]      =  "Official"  # Source database
     Definition["debug"]         =  1
     Definition["mapNameForCombinations"] = "Zones_<site>"
-    Definition["defaultEditAreas"] = "EditAreas_PublicZones_<site>"
+    Definition["defaultEditAreas"] = "Combinations_TCV_<site>"
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
 
     Definition["productName"]       = "LOCAL WATCH/WARNING STATEMENT"
@@ -1115,9 +1115,30 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 if hazard['act'] == 'COR':
                     return self._previousAdvisory["HazardsForHLS"]
                 else:
+                    if hazard['act'] == "UPG":
+                        upgPhenSig = hazard['phen'] + "." + hazard['sig']
+                        newRecord = self._findNEWAssociatedWithUPG(upgPhenSig, hazardsList)
+                        hazard['new_record'] = newRecord
+                    
                     allHazards.append(hazard)
         
         return allHazards
+    
+    def _findNEWAssociatedWithUPG(self, upgPhenSig, vtecRecords):
+        import VTECTable
+        
+        possibleUpgrades = []
+        for upgradedTo, upgradedFrom in VTECTable.upgradeHazardsDict:
+            if upgPhenSig in upgradedFrom:
+                possibleUpgrades.append(upgradedTo)
+        
+        for record in vtecRecords:
+            if record['act'] == "NEW":
+                newPhenSig = record['phen'] + "." + record['sig']
+                if newPhenSig in possibleUpgrades:
+                    return record
+        
+        return None
 
 import Tkinter
 class Overview_Dialog(HLSTCV_Common.Common_Dialog):
