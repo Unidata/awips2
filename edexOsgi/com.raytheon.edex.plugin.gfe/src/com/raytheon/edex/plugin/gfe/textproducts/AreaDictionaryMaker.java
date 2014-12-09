@@ -51,6 +51,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------ ---------- ----------- --------------------------
  * May 4, 2011             wldougher   Moved from MapManager
  * Oct 8, 2014   #4953     randerso    Added hooks for TCVAreaDictionary creation
+ * Dec 08, 2014  #4953     randerso    Updated Jep include path to allow use of
+ *                                     LocalizationSupport
  * 
  * </pre>
  * 
@@ -98,6 +100,7 @@ public class AreaDictionaryMaker {
                 FileUtil.join("gfe", "createAreaDictionary.py")).getFile();
         String includePath = PyUtil.buildJepIncludePath(true,
                 GfePyIncludeUtil.getCommonPythonIncludePath(),
+                GfePyIncludeUtil.getCommonGfeIncludePath(),
                 scriptFile.getParent());
         Map<String, Object> argMap = new HashMap<String, Object>();
 
@@ -127,7 +130,7 @@ public class AreaDictionaryMaker {
                     FileUtil.join("gfe", "userPython", "textProducts",
                             "Hazard_TCV.py"));
             if (lf.exists()) {
-            	argMap.put("siteID", siteID);
+                argMap.put("siteID", siteID);
                 pyScript.execute("createTCVAreaDictionary", argMap);
             }
 

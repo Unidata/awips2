@@ -24,33 +24,50 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    11/10/14                      randerso       Initial Creation.
+#    11/10/2014                    randerso       Initial Creation.
+#    12/08/2014      #4953         randerso       Made for generic allowing specification of LocalizationLevel
+#                                                 Re-exported Java enums for easier use.
 ##
 from LockingFile import File
 from com.raytheon.uf.common.localization import PathManagerFactory
+from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
+from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
 
-def __getLocalizationFile(loctype, site, filename):
+EDEX_STATIC = LocalizationType.EDEX_STATIC
+CAVE_STATIC = LocalizationType.CAVE_STATIC
+CAVE_CONFIG = LocalizationType.CAVE_CONFIG
+COMMON_STATIC = LocalizationType.COMMON_STATIC
+
+BASE = LocalizationLevel.BASE
+REGION = LocalizationLevel.REGION
+CONFIGURED = LocalizationLevel.CONFIGURED
+SITE = LocalizationLevel.SITE
+WORKSTATION = LocalizationLevel.WORKSTATION
+USER = LocalizationLevel.USER
+
+def getLocalizationFile(loctype, loclevel, contextname, filename):
     pathManager = PathManagerFactory.getPathManager()
-    context = pathManager.getContextForSite(loctype, site)
+    context = pathManager.getContext(loctype, loclevel)
+    context.setContextName(contextname)
     localizationFile = pathManager.getLocalizationFile(context, filename)
     return localizationFile
 
-def readFile(loctype, site, filename):
-    localizationFile = __getLocalizationFile(loctype, site, filename)
+def readFile(loctype, loclevel, contextname, filename):
+    localizationFile = getLocalizationFile(loctype, loclevel, contextname, filename)
 
     with File(localizationFile.getFile(), filename, 'r') as pythonFile:
         fileContents = pythonFile.read()
     
     return fileContents
     
-def writeFile(loctype, site, filename, contents):
-    localizationFile = __getLocalizationFile(loctype, site, filename)
+def writeFile(loctype, loclevel, contextname, filename, contents):
+    localizationFile = getLocalizationFile(loctype, loclevel, contextname, filename)
     
     with File(localizationFile.getFile(), filename, 'w') as pythonFile:
         pythonFile.write(contents)
     
     localizationFile.save()
 
-def deleteFile(loctype, site, filename):
-    localizationFile = __getLocalizationFile(loctype, site, filename)
+def deleteFile(loctype, loclevel, contextname, filename):
+    localizationFile = getLocalizationFile(loctype, loclevel, contextname, filename)
     localizationFile.delete()

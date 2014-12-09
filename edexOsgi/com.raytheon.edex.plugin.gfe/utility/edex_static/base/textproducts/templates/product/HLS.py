@@ -12,7 +12,6 @@ from AbsTime import *
 from StartupDialog import IFPDialog as Dialog
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit as JavaGrid2DBit
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
 AWIPS_ENVIRON = "AWIPS2"
 
 import HLSTCV_Common
@@ -910,11 +909,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
         productDict = self._createProductDictionary()
         productOutput = self._formatProductDictionary(productDict)
         
-        # This is the end of the event so clean up all the advisories
-        if self._ImpactsAnticipated and \
-           self._GeneralOnsetTime == "recovery":
-            self._deleteAllAdvisories()
-
         return productOutput
     
     
@@ -2307,19 +2301,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
     def _frame(self, text):
         return "|* " + text + " *|"
     
-    def _deleteAllAdvisories(self):
-        stormAdvisories = self._getStormAdvisoryNames()
-        for advisory in stormAdvisories:
-            fileName = self._getAdvisoryFilename(advisory)
-            LocalizationSupport.deleteFile(LocalizationType.CAVE_STATIC,
-                                           self._site,
-                                           fileName)
-        
-        pendingfileName = self._getAdvisoryFilename("pending")
-        LocalizationSupport.deleteFile(LocalizationType.CAVE_STATIC,
-                                       self._site,
-                                       pendingfileName)
-
 
 class Overview_Dialog(HLSTCV_Common.Common_Dialog):
     def __init__(self, parent, title, infoDict=None):
