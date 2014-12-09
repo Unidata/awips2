@@ -6,11 +6,13 @@ import ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
 import Tkinter
 import numpy
+import LocalizationSupport
 
 from AbsTime import *
 from StartupDialog import IFPDialog as Dialog
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit as JavaGrid2DBit
+from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
 AWIPS_ENVIRON = "AWIPS2"
 
 import HLSTCV_Common
@@ -467,13 +469,15 @@ class TextProduct(HLSTCV_Common.TextProduct):
         productDict['summaryHeadlines'] = self._headlines
     
     def _changesHazards(self, productDict, productSegmentGroup, productSegment):
-        if not self._ImpactsAnticipated:
+        if (not self._ImpactsAnticipated) or \
+           (self._ImpactsAnticipated and self._GeneralOnsetTime == "recovery"):
             productDict['changesHazards'] = []
         else:
             productDict['changesHazards'] = self._changesHazardsList
     
     def _currentHazards(self, productDict, productSegmentGroup, productSegment):
-        if not self._ImpactsAnticipated:
+        if (not self._ImpactsAnticipated) or \
+           (self._ImpactsAnticipated and self._GeneralOnsetTime == "recovery"):
             productDict['currentHazards'] = []
         else:
             productDict['currentHazards'] = self._currentHazardsList
@@ -905,6 +909,11 @@ class TextProduct(HLSTCV_Common.TextProduct):
         # Create the product dictionary and format it to create the output
         productDict = self._createProductDictionary()
         productOutput = self._formatProductDictionary(productDict)
+        
+        # This is the end of the event so clean up all the advisories
+        if self._ImpactsAnticipated and \
+           self._GeneralOnsetTime == "recovery":
+            self._deleteAllAdvisories()
 
         return productOutput
     
@@ -2112,12 +2121,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         segment_vtecRecords_tuples = []
         for segment in segments:
             vtecRecords = self.getVtecRecords(segment)
-            for record in vtecRecords:
-                if record['act'] == "UPG":
-                    upgPhenSig = record['phen'] + "." + record['sig']
-                    newRecord = self._findNEWAssociatedWithUPG(upgPhenSig, vtecRecords)
-                    record['new_record'] = newRecord
-                self.debug_print("SARAH: vtecRecord = %s" % (repr(record)))
+            self.debug_print("SARAH: vtecRecords = %s" % (repr(vtecRecords)))
             segment_vtecRecords_tuples.append((segment, vtecRecords))
         
         productSegmentGroup = { 
@@ -2131,22 +2135,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
                        }
 
         return productSegmentGroup
-    
-    def _findNEWAssociatedWithUPG(self, upgPhenSig, vtecRecords):
-        import VTECTable
-        
-        possibleUpgrades = []
-        for upgradedTo, upgradedFrom in VTECTable.upgradeHazardsDict:
-            if upgPhenSig in upgradedFrom:
-                possibleUpgrades.append(upgradedTo)
-        
-        for record in vtecRecords:
-            if record['act'] == "NEW":
-                newPhenSig = record['phen'] + "." + record['sig']
-                if newPhenSig in possibleUpgrades:
-                    return record
-        
-        return None
     
     ######################################################
     #  Product Dictionary -- General product information        
@@ -2237,10 +2225,12 @@ class TextProduct(HLSTCV_Common.TextProduct):
             "name": "ImpactsAnticipated",
             "label": "Step 1. Potential Impacts Anticipated?",
             "options": [
-                ("Yes", True),
+                ("Yes (NOTE: Any case other than dispel rumors must\n"
+                 "have current TCP for storm in question)", True),
                 ("No (Dispel Rumors)", False),
                 ],
-            "default": "Yes",
+            "default": "Yes (NOTE: Any case other than dispel rumors must\n"
+                       "have current TCP for storm in question)",
             },
             {
             "name": "StormInfo",
@@ -2279,7 +2269,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                         ("Watch", 'check plans'),
                         ("Warning", 'complete preparations'),
                         ("Conditions/Ongoing", 'hunker down'),
-                        ("Recovery", 'recovery'),
+                        ("Recovery (After last TCV)", 'recovery'),
                         ],
             },
             {
@@ -2316,6 +2306,19 @@ class TextProduct(HLSTCV_Common.TextProduct):
     
     def _frame(self, text):
         return "|* " + text + " *|"
+    
+    def _deleteAllAdvisories(self):
+        stormAdvisories = self._getStormAdvisoryNames()
+        for advisory in stormAdvisories:
+            fileName = self._getAdvisoryFilename(advisory)
+            LocalizationSupport.deleteFile(LocalizationType.CAVE_STATIC,
+                                           self._site,
+                                           fileName)
+        
+        pendingfileName = self._getAdvisoryFilename("pending")
+        LocalizationSupport.deleteFile(LocalizationType.CAVE_STATIC,
+                                       self._site,
+                                       pendingfileName)
 
 
 class Overview_Dialog(HLSTCV_Common.Common_Dialog):
@@ -2552,9 +2555,11 @@ class LegacyFormatter():
                 header = "New Information"
                 text += header + "\n" + "-"*len(header) + "\n\n"
             elif name == "changesHazards":
-                text += "* Changes to Watches and Warnings:\n" + self.processHazards(productDict['changesHazards'])
+                text += "* Changes to Watches and Warnings:\n" + \
+                        self.processHazards(productDict['changesHazards'], isChangesHazards=True)
             elif name == "currentHazards":
-                text += "* Current Watches and Warnings:\n" + self.processHazards(productDict['currentHazards'])
+                text += "* Current Watches and Warnings:\n" + \
+                        self.processHazards(productDict['currentHazards'], isChangesHazards=False)
             elif name == "stormInformation":
                 text += self.processStormInformation(productDict['stormInformation'])
             elif name == "situationOverview":
@@ -2675,11 +2680,16 @@ class LegacyFormatter():
         
         return text
     
-    def processHazards(self, hazardsList):
+    def processHazards(self, hazardsList, isChangesHazards):
         text = ""
         
         if len(hazardsList) == 0:
-            text = self.TAB + "- None\n"
+            if isChangesHazards and \
+               self._textProduct._ImpactsAnticipated and \
+               self._textProduct._GeneralOnsetTime == "recovery":
+                text = self.TAB + "- All watches and warnings have been canceled\n"
+            else:
+                text = self.TAB + "- None\n"
         for hazard in hazardsList:
             hazardText = ""
             if hazard['act'] == "CON":
