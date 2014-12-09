@@ -1,6 +1,7 @@
 # Version 2014.11.21-0
 import GenericHazards
 import JsonSupport
+import LocalizationSupport
 import string, time, os, errno, re, types, copy, collections
 import LogStream, ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
@@ -14,8 +15,6 @@ except:  # Must be the AWIPS II environment
     from AbsTime import *
     from StartupDialog import IFPDialog as Dialog
     from LockingFile import File
-    from com.raytheon.uf.common.localization import PathManagerFactory
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
     AWIPS_ENVIRON = "AWIPS2"
 
 class TextProduct(GenericHazards.TextProduct):
@@ -767,11 +766,11 @@ FORECASTER STEWART"""
     ### Advisory related methods
 
     def _synchronizeAdvisories(self):
-        pathManager = PathManagerFactory.getPathManager()
-        context = pathManager.getContextForSite(LocalizationType.CAVE_STATIC, self._site)
-        
+       
         # Retrieving a directory causes synching to occur
-        file = pathManager.getLocalizationFile(context, self._getAdvisoryPath()).getFile()
+        file = LocalizationSupport.getLocalizationFile(LocalizationSupport.CAVE_STATIC, 
+                                                       LocalizationSupport.SITE, 
+                                                       self._getAdvisoryPath()).getFile()
         
         return file
     
@@ -837,7 +836,7 @@ FORECASTER STEWART"""
         fileName = self._getAdvisoryFilename(advisoryName)
          
         try:
-            pythonDict = JsonSupport.loadFromJson(LocalizationType.CAVE_STATIC,
+            pythonDict = JsonSupport.loadFromJson(LocalizationSupport.CAVE_STATIC,
                                              self._site,
                                              fileName)
             
