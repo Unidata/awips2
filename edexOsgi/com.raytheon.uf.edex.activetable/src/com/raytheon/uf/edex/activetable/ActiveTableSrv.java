@@ -19,7 +19,13 @@
  **/
 package com.raytheon.uf.edex.activetable;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
@@ -45,6 +51,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jul 14, 2009   #2950    njensen     Multiple site support
  * Dec 21, 2009   #4055    njensen     No site filtering
  * Jun 17, 2014    3296    randerso    Added performance logging
+ * Dec 09, 2014    3885    dgilling    Handle offset time from camel route 
+ *                                     headers.
  * 
  * </pre>
  * 
@@ -102,19 +110,12 @@ public class ActiveTableSrv {
      */
     public void practiceVtecArrived(List<AbstractWarningRecord> records,
             Headers headers) {
-        Integer offsetSeconds = null;
-        if (headers != null) {
-            offsetSeconds = (Integer) headers.get("offsetseconds");
-        }
-        if (offsetSeconds == null) {
-            offsetSeconds = Integer.valueOf(0);
-        }
+        int offsetSeconds = getOffsetTime((String) headers.get("drtstring"));
         if (records != null && records.size() > 0) {
             ActiveTable activeTable = threadLocalActiveTable.get();
             try {
                 activeTable.merge(ActiveTableRecord.transformFromWarnings(
-                        records, ActiveTableMode.PRACTICE), offsetSeconds
-                        .intValue());
+                        records, ActiveTableMode.PRACTICE), offsetSeconds);
             } catch (Throwable t) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -122,5 +123,26 @@ public class ActiveTableSrv {
                                 t);
             }
         }
+    }
+
+    private int getOffsetTime(String drtTimeString) {
+        if (drtTimeString != null) {
+            DateFormat drtParse = new SimpleDateFormat("yyyyMMdd_HHmm");
+            drtParse.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+            try {
+                Date drtTime = drtParse.parse(drtTimeString);
+                Date currentTime = new Date();
+                long diffInMillis = drtTime.getTime() - currentTime.getTime();
+
+                return (int) TimeUnit.SECONDS.convert(diffInMillis,
+                        TimeUnit.MILLISECONDS);
+            } catch (ParseException e) {
+                statusHandler.error("Could not parse DRT time string: "
+                        + drtTimeString, e);
+            }
+        }
+
+        return 0;
     }
 }
