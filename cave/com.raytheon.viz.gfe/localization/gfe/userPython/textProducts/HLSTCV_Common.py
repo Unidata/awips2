@@ -191,7 +191,7 @@ class TextProduct(GenericHazards.TextProduct):
         self.debug_print("_checkHazard phenSigList is %s" % (phenSigList), 1)
         chosen = []
         for key, landList, marineList, coastalList, inlandList in hazardHdlns:
-#            self.debug_print("what is mode?", mode
+#            self.debug_print("what is mode? %s" % mode, 1)
 
             #  SARAH - we do not want to consider marine hazards in this product
 #             hazAreas = landList+marineList
@@ -209,10 +209,10 @@ class TextProduct(GenericHazards.TextProduct):
                         # Check for land, marine, etc.
                         for checkAreaType in checkAreaTypes:
                             exec "testList = " + checkAreaType + "List"
-#                            self.debug_print("testList is", testList
+#                            self.debug_print("testList is %s" % testList, 1)
                             if testList != []:
                                 chosen.append(hazValue)
-#                                self.debug_print("chosen is ", chosen
+#                                self.debug_print("chosen is %s" % chosen, 1)
                     elif checkAreas is not None:
                         acceptedAreas=[]
                         for hazArea in hazAreas:
@@ -304,6 +304,8 @@ class TextProduct(GenericHazards.TextProduct):
             if index == 0:
                 startTime = tr.startTime()
                 localtime = time.localtime(startTime.unixTime())
+                
+                # Determine the number of hours to the next 6AM or 6PM period
                 if localtime.tm_hour < 6:
                     periodLength = 6 - localtime.tm_hour
                 elif localtime.tm_hour >= 6 and localtime.tm_hour < 18:
@@ -311,6 +313,8 @@ class TextProduct(GenericHazards.TextProduct):
                 else:
                     periodLength = 30 - localtime.tm_hour
                 
+                # Don't allow the first period to be less than 3 hours long;
+                # instead just start with the next period
                 if periodLength < 3:
                     periodStart = startTime + periodLength*3600
                     period = self.makeTimeRange(periodStart, periodStart+12*3600)
@@ -342,7 +346,7 @@ class TextProduct(GenericHazards.TextProduct):
 #             adjust = 0
 #         self.debug_print("MATT: _calculateStartTime %d   adjust = %d" % (hour % 6, adjust)
         
-        #  Now "truncate" to a 6-hourly boundary and compute startTime in local Time.
+        #  Now "truncate" to a 3-hourly boundary and compute startTime in local Time.
 #         hour =  int( (hour/6) * 6) + adjust
         hour =  int( (hour/3) * 3) + adjust
         if hour > 23:
@@ -783,7 +787,7 @@ FORECASTER STEWART"""
         
         return path
     
-    def _loadLastTwoAdvisories(self):
+    def _getStormAdvisoryNames(self):
         advisoryDirectoryPath = self._getLocalAdvisoryDirectoryPath()
         filenames = os.listdir(advisoryDirectoryPath)
         allAdvisories = filter(lambda filename: filename[-5:] == ".json", filenames)
@@ -794,6 +798,11 @@ FORECASTER STEWART"""
                                  allAdvisories)
         stormAdvisories = map(lambda filename: filename[:-5], stormAdvisories)
         self.debug_print("stormAdvisories = %s" % (repr(stormAdvisories)))
+        
+        return stormAdvisories
+    
+    def _loadLastTwoAdvisories(self):
+        stormAdvisories = self._getStormAdvisoryNames()
         
         #  We need to reverse the order of the advisories so the latest 
         #  advisories come first in this list
