@@ -83,7 +83,7 @@ import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
 import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
-import com.raytheon.uf.viz.collaboration.ui.actions.ChangeUserColorAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
@@ -237,10 +237,8 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
             // add color actions if in group chat room without shared display
             String user = entry.getName();
             RGB defaultForeground = colorManager.getColorForUser(entry);
-            manager.add(new ChangeUserColorAction(SWT.BACKGROUND, user,
-                    me, defaultForeground, colorConfigManager));
-            manager.add(new ChangeUserColorAction(SWT.FOREGROUND, user,
-                    me, defaultForeground, colorConfigManager));
+            manager.add(new ChangeTextColorAction(user, me, me,
+                    defaultForeground, colorConfigManager));
         }
     }
 
