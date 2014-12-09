@@ -142,10 +142,9 @@ public class PeerToPeerChatAction extends Action {
             if (p2pView.getPeer() == null) {
                 p2pView.setPeer(user);
                 /*
-                 * add color change actions to P2P right click menu upon first
-                 * creation of P2P chat.
+                 * once peer is set, add action to change peer text colors
                  */
-                p2pView.addChangeUserColorActions();
+                p2pView.addChangePeerColorAction();
             }
             return p2pView;
         } catch (PartInitException e) {
