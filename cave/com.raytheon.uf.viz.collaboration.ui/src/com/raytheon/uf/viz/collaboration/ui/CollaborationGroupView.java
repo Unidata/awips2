@@ -104,6 +104,7 @@ import com.raytheon.uf.viz.collaboration.ui.actions.ChangeRoleAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeSiteAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeStatusAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeStatusMessageAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.CreateSessionAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.DeleteGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.DisplayFeedAction;
@@ -162,6 +163,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Oct 08, 2014 3705       bclement    added room search and bookmarking
  * Oct 14, 2014 3709       mapeters    Added change background/foreground color actions to menu.
  * Nov 14, 2014 3709       mapeters    Removed change background/foreground color actions from menu.
+ * Dec 08, 2014 3709       mapeters    Added MB3 change user text color actions to contacts list.
  * 
  * </pre>
  * 
@@ -363,7 +365,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         mgr.add(roomSearchAction);
         mgr.add(new Separator());
         mgr.add(new ChangeFontAction());
-        mgr.add(new Separator());
+        mgr.add(new Separator("afterFont"));
         mgr.add(new ChangeStatusAction());
         mgr.add(new ChangeStatusMessageAction());
         mgr.add(new ChangePasswordAction());
@@ -461,6 +463,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 manager.add(new SendSubReqAction(entry));
             }
             manager.add(new AddNotifierAction(this));
+            manager.add(new Separator());
+            manager.add(new ChangeTextColorAction(user.getName(), false, false,
+                    null, new UserColorConfigManager()));
         } else if (o instanceof UserId) {
             // the user
             UserId user = (UserId) o;
@@ -469,6 +474,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
             UserId me = connection.getUser();
             if (me.isSameUser(user)) {
                 createMenu(manager);
+                manager.insertBefore("afterFont", new ChangeTextColorAction(
+                        user.getName(), true, true, null,
+                        new UserColorConfigManager()));
             }
         } else if (o instanceof RosterGroup || o instanceof SharedGroup) {
             Action inviteAction = new InviteAction(getSelectedUsers());
