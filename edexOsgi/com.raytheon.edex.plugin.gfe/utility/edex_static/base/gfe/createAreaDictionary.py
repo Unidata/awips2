@@ -17,6 +17,17 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+# Create Area Dictionary 
+#
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    12/05/14        4953          randerso       Changed to use LocalizationSupport
+# 
+##
 
 import os, string, copy
 import tempfile, stat
@@ -26,8 +37,7 @@ from fips2cities import *
 from zones2cities import *
 
 from LockingFile import File
-from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
+import LocalizationSupport
 
 #
 #  Creates area dictionary specific to a site.  Somewhat ported from AWIPS-I.
@@ -433,25 +443,17 @@ def _getZones(siteID):
                         siteID + ".py"
     zonesKey = "Zones_" + siteID
     
-    editAreasFileContents = _getFileContents(LocalizationType.CAVE_STATIC,
-                                             LocalizationLevel.CONFIGURED,
-                                             siteID,
-                                             editAreasFilename)
+    editAreasFileContents = LocalizationSupport.readFile(LocalizationSupport.CAVE_STATIC,
+                                                         LocalizationSupport.CONFIGURED,
+                                                         siteID,
+                                                         editAreasFilename)
+    
+    
     exec(editAreasFileContents)
     
     # EASourceMap comes from the EditAreas file
     return EASourceMap[zonesKey]
     
-def _getFileContents(loctype, loclevel, locname, filename):
-    pathManager = PathManagerFactory.getPathManager()
-    context = pathManager.getContext(loctype, loclevel)
-    context.setContextName(locname)
-    localizationFile = pathManager.getLocalizationFile(context, filename)
-    with  File(localizationFile.getFile(), filename, 'r') as pythonFile:
-        fileContents = pythonFile.read()
-    
-    return fileContents
-
 def _formatDictionary(dictionary, tabLevel, output=""):
     TAB = " " * 4
     
