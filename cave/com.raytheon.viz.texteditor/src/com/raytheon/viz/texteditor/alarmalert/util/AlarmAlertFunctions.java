@@ -81,6 +81,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 											the implementation of proximity alarm
  * 07/24/2014   3423       randerso    Ensure ringBell is called on UI thread
  * 09/09/2014   3580       mapeters    Removed IQueryTransport usage (no longer exists).
+ * 12/03/2014   ASM #16829 D. Friedman Lazy initialization of alarmAlertBell
  * 
  * </pre>
  * 
@@ -110,8 +111,7 @@ public class AlarmAlertFunctions {
 
     private static final String SITE_FILE = "DefaultSiteAlarms.xml";
 
-    private static final AlarmAlertBell alarmAlertBell = new AlarmAlertBell(
-            new Shell());
+    private static AlarmAlertBell alarmAlertBell;
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AlarmAlertFunctions.class);
@@ -174,7 +174,7 @@ public class AlarmAlertFunctions {
     }
 
     protected static void ringBell(boolean sound) {
-        alarmAlertBell.open(sound);
+        getAlarmalertbell().open(sound);
     }
 
     /**
@@ -867,6 +867,10 @@ public class AlarmAlertFunctions {
      * @return the alarmalertbell
      */
     public static AlarmAlertBell getAlarmalertbell() {
+        if (alarmAlertBell == null) {
+            // No synchronize because this must be called on the UI thread anyway.
+            alarmAlertBell = new AlarmAlertBell(new Shell());
+        }
         return alarmAlertBell;
     }
 }
