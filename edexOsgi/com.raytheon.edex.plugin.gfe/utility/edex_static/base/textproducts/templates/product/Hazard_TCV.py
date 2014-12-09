@@ -1,6 +1,7 @@
 # Version 2014.12.03-0
 import GenericHazards
 import JsonSupport
+import LocalizationSupport
 import time, types, copy, LogStream, collections
 import ModuleAccessor
 import math
@@ -8,7 +9,6 @@ import math
 
 from AbsTime import *
 from StartupDialog import IFPDialog as Dialog
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
 AWIPS_ENVIRON = "AWIPS2"
 
 import HLSTCV_Common
@@ -1081,7 +1081,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         advisoryDict["HazardsForHLS"] = newList
          
         try:
-            JsonSupport.saveToJson(LocalizationType.CAVE_STATIC,
+            JsonSupport.saveToJson(LocalizationSupport.CAVE_STATIC,
                                    self._site,
                                    fileName,
                                    advisoryDict)

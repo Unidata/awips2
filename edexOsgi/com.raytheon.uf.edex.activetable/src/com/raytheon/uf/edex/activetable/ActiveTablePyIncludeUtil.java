@@ -34,7 +34,9 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 27, 2013            dgilling     Initial creation
+ * Feb 27, 2013            dgilling    Initial creation
+ * Dec 12, 2014  4953      randerso    Added getCommonGfeIncludePath to allow use of
+ *                                     LocalizationSupport in activetable python code
  * 
  * </pre>
  * 
@@ -45,6 +47,8 @@ import com.raytheon.uf.common.util.FileUtil;
 public class ActiveTablePyIncludeUtil extends PythonIncludePathUtil {
 
     public static final String GFE = "gfe";
+
+    public static final String COMMON_GFE = FileUtil.join(PYTHON, GFE);
 
     public static final String GFE_CONFIG = FileUtil.join("config", GFE);
 
@@ -74,4 +78,11 @@ public class ActiveTablePyIncludeUtil extends PythonIncludePathUtil {
         return PyUtil.buildJepIncludePath(siteDir, baseDir);
     }
 
+    public static String getCommonGfeIncludePath() {
+        String pythonDir = getCommonPythonIncludePath();
+        String gfeDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
+                COMMON_GFE);
+        return PyUtil.buildJepIncludePath(pythonDir, gfeDir);
+    }
 }
