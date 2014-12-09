@@ -30,6 +30,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import jep.JepException;
+
 import com.google.common.util.concurrent.MoreExecutors;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.exception.GfeMissingConfigurationException;
@@ -38,12 +40,21 @@ import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONSTATUS;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONTYPE;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.activetable.ActiveTablePyIncludeUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -78,7 +89,9 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * Mar 21, 2014  #2726    rjpeter      Updated wait for running loop.
  * Jul 09, 2014  #3146    randerso     Eliminated redundant evaluation of serverConfig
  *                                     Sent activation failure message to alertViz
- * Oct 07, 2014  #3684    randerso    Restructured IFPServer start up
+ * Oct 07, 2014  #3684    randerso     Restructured IFPServer start up
+ * Dec 10, 2014  #4953    randerso     Added requestTCVFiles call at site activation
+ * 
  * </pre>
  * 
  * @author njensen
@@ -324,6 +337,21 @@ public class GFESiteActivation implements ISiteActivationListener {
                 try {
                     IRTManager.getInstance().enableISC(siteID, config);
                     isIscActivated = true;
+
+                    // wait until EDEX is up and running to request TCV files
+                    final IFPServerConfig configRef = config;
+                    Runnable requestTCV = new Runnable() {
+
+                        @Override
+                        public void run() {
+                            EDEXUtil.waitForRunning();
+
+                            requestTCVFiles(siteID, configRef);
+                        }
+                    };
+
+                    postActivationTaskExecutor.submit(requestTCV);
+
                 } catch (Exception e) {
                     statusHandler
                             .error("Error starting GFE ISC. ISC functionality will be unavailable!!",
@@ -470,6 +498,47 @@ public class GFESiteActivation implements ISiteActivationListener {
             }
         }
         return retVal;
+    }
+
+    private void requestTCVFiles(String siteId, IFPServerConfig config) {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext commonBaseCx = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+        String scriptPath = pathMgr.getFile(commonBaseCx,
+                FileUtil.join(ActiveTablePyIncludeUtil.VTEC, "requestTCV.py"))
+                .getPath();
+
+        String pythonIncludePath = PyUtil.buildJepIncludePath(
+                ActiveTablePyIncludeUtil.getCommonPythonIncludePath(),
+                ActiveTablePyIncludeUtil.getCommonGfeIncludePath(),
+                ActiveTablePyIncludeUtil.getVtecIncludePath(siteId),
+                ActiveTablePyIncludeUtil.getGfeConfigIncludePath(siteId),
+                ActiveTablePyIncludeUtil.getIscScriptsIncludePath());
+
+        PythonScript script = null;
+        try {
+            script = new PythonScript(scriptPath, pythonIncludePath, this
+                    .getClass().getClassLoader());
+
+            try {
+                Map<String, Object> argMap = new HashMap<String, Object>();
+                argMap.put("siteID", siteId);
+                argMap.put("config", config);
+                script.execute("runFromJava", argMap);
+            } catch (JepException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error executing requestTCV.", e);
+            }
+        } catch (JepException e) {
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Unable to instantiate requestTCV python script object.",
+                            e);
+        } finally {
+            if (script != null) {
+                script.dispose();
+            }
+        }
     }
 
 }
