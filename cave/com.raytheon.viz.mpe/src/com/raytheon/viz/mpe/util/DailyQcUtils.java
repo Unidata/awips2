@@ -1045,7 +1045,7 @@ public class DailyQcUtils {
          */
         Calendar currentTime = Calendar
                 .getInstance(TimeZone.getTimeZone("GMT"));
-        
+        btime.set(Calendar.DAY_OF_MONTH, hydro_curDay);
         emonth = btime.get(Calendar.MONTH);
         Calendar otime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         otime.setTime(btime.getTime());
