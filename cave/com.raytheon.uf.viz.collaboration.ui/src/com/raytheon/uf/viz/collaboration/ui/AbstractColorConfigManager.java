@@ -17,7 +17,7 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
 
 /**
- * Abstract class collaboration chat coloring configuration managers
+ * Abstract class for collaboration chat coloring configuration managers
  * 
  * <pre>
  * 
@@ -26,6 +26,7 @@ import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2014 3709       mapeters    Initial creation.
+ * Dec 09, 2014 3709       mapeters    setColors() sets foreground and background together.
  * 
  * </pre>
  * 
@@ -38,19 +39,16 @@ public abstract class AbstractColorConfigManager {
             .createWithoutException(ColorInfoMap.class);
 
     /**
-     * Set and store the color type of the given user/site to be the given rgb
-     * at the given file location. If creating new {@link ColorInfo} and setting
-     * background, set foreground to defaultForeground to prevent it from
-     * incorrectly defaulting.
+     * Set and store the given foreground and background colors for the given
+     * user/site at the given file location.
      * 
      * @param key
-     * @param type
-     * @param rgb
-     * @param defaultForeground
+     * @param foreground
+     * @param background
      * @param filePath
      */
-    protected void setColor(String key, int type, RGB rgb,
-            RGB defaultForeground, String filePath) {
+    protected void setColors(String key, RGB foreground, RGB background,
+            String filePath) {
         ColorInfoMap colorInfoMap = this.getColorInfoMap();
         if (colorInfoMap == null) {
             colorInfoMap = new ColorInfoMap();
@@ -64,11 +62,11 @@ public abstract class AbstractColorConfigManager {
 
         ColorInfo colorInfo = colors.get(key);
         if (colorInfo != null) {
-            colorInfo.setColor(type, rgb, defaultForeground);
+            colorInfo.setColors(foreground, background);
         } else {
-            ColorInfo color = new ColorInfo();
-            color.setColor(type, rgb, defaultForeground);
-            colors.put(key, color);
+            ColorInfo newColorInfo = new ColorInfo();
+            newColorInfo.setColors(foreground, background);
+            colors.put(key, newColorInfo);
         }
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
@@ -122,8 +120,7 @@ public abstract class AbstractColorConfigManager {
         return null;
     }
 
-    public abstract void setColor(String key, int type, RGB rgb,
-            RGB defaultForeground);
+    public abstract void setColors(String key, RGB foreground, RGB background);
 
     public abstract ColorInfo getColor(String key);
 
