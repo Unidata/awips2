@@ -20,6 +20,11 @@
 package com.raytheon.edex.plugin.gfe.watch;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,9 +32,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jep.JepException;
 
+import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.activetable.VTECPartners;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
@@ -44,8 +53,10 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.common.util.file.FilenameFilters;
+import com.raytheon.uf.common.util.RunProcess;
+import com.raytheon.uf.edex.activetable.ActiveTablePyIncludeUtil;
 
 /**
  * Watches ingested warnings for WOU products from the SPC (Storm Prediction
@@ -65,7 +76,9 @@ import com.raytheon.uf.common.util.file.FilenameFilters;
  *                                     Changed to use Python to store TCVAdvisory files
  *                                     Added code to keep practice and operational 
  *                                     advisory files separated
- * 
+ *                                     Added call to nwrwavestcv.csh
+ *                                     Added support for sending TCVAdvisory files to 
+ *                                     VTEC partners
  * </pre>
  * 
  * @author njensen
@@ -73,6 +86,8 @@ import com.raytheon.uf.common.util.file.FilenameFilters;
  */
 
 public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
+    private static final String NWRWAVES_SCRIPT = "/awips/adapt/NWRWAVES/nwrwavestcv.csh ";
+
     private static final String TCV_ADVISORY_PATH = FileUtil.join("gfe",
             "tcvAdvisories");
 
@@ -110,7 +125,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         actMap = Collections.unmodifiableMap(actMapTemp);
     }
 
-    private ThreadLocal<PythonScript> pythonScript = new ThreadLocal<PythonScript>() {
+    private static final ThreadLocal<PythonScript> pythonScript = new ThreadLocal<PythonScript>() {
 
         /*
          * (non-Javadoc)
@@ -141,6 +156,13 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
 
     };
 
+    // regex to parse storm name and advisory number from HLS MND header
+    private static final Pattern mndPattern = Pattern.compile(
+            "^.*\\s(?<stormName>\\w+)\\sLOCAL STATEMENT "
+                    + "(?<advisoryType>SPECIAL |INTERMEDIATE )?"
+                    + "(ADVISORY NUMBER\\s(?<advisoryNumber>\\w+))?.*$",
+            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
     /**
      * Constructor
      */
@@ -157,29 +179,87 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
      */
     @Override
     public void handleWatch(List<AbstractWarningRecord> warningRecs) {
-        super.handleWatch(warningRecs);
-
         /*
          * Since all records originate from a single TCV product the issuing
          * office and record type will be the same we only need to look at the
          * first record.
          */
         AbstractWarningRecord record = warningRecs.get(0);
+        String pil = record.getPil();
         boolean practiceMode = (record instanceof PracticeWarningRecord);
         String issuingOffice = record.getOfficeid();
 
+        // if it's a TCV
+        if ("TCV".equals(pil)) {
+            super.handleWatch(warningRecs);
+
+            // if we are not in practice mode
+            if (!practiceMode) {
+
+                // if xxxId ends with a digit (i.e. its a national TCV)
+                String xxxId = record.getXxxid();
+                if (Character.isDigit(xxxId.charAt(xxxId.length() - 1))) {
+
+                    // build the full 9-letter PIL
+                    String fullPil = SiteMap.getInstance().mapICAOToCCC(
+                            issuingOffice)
+                            + pil + xxxId;
+
+                    // build the command line for the NWRWAVES script
+                    final String command = NWRWAVES_SCRIPT + fullPil;
+
+                    // Create a separate thread to run the script
+                    Thread thread = new Thread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            RunProcess proc;
+                            try {
+                                proc = RunProcess.getRunProcess().exec(command);
+                            } catch (IOException e) {
+                                statusHandler.error("Error executing "
+                                        + command, e);
+                                return;
+                            }
+
+                            int exitCode = proc.waitFor();
+                            if (exitCode != 0) {
+                                statusHandler
+                                        .error(command
+                                                + " terminated abnormally with exit code: "
+                                                + exitCode);
+                            }
+                        }
+                    });
+
+                    thread.start();
+                }
+            }
+        }
+
+        // update TCV Advisories
         for (String siteId : getActiveSites()) {
             String site4 = SiteMap.getInstance().getSite4LetterId(siteId);
             if (issuingOffice.equals(site4)) {
-                this.saveTCVAdvisories(siteId, practiceMode);
+                // if TCV save the pending.json files
+                if ("TCV".equals(pil)) {
+                    this.saveTCVAdvisories(siteId, pil, practiceMode);
+
+                }
+                // if HLS then delete the advisory files if the watch is
+                // canceled
+                else if ("HLS".equals(pil)) {
+                    this.deleteTCVAdvisoriesIfCanceled(siteId, pil,
+                            practiceMode, record.getRawmessage());
+                }
                 break; // found matching officeId so we're done
             }
         }
     }
 
-    private void saveTCVAdvisories(String siteId, boolean practiceMode) {
-        File advisoriesDirectory = this.synchronizeTCVAdvisories(siteId,
-                practiceMode);
+    private void saveTCVAdvisories(String siteId, String pil,
+            boolean practiceMode) {
+        this.synchronizeTCVAdvisories(siteId, practiceMode);
 
         String pendingFilename = "pending.json";
         LocalizationFile pendingFile = this.getLocalizationFile(siteId,
@@ -210,12 +290,60 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         }
 
         if (transmittedFileSaved) {
-            boolean allCAN = (Boolean) pendingDict.get("AllCAN");
-            if (allCAN) {
-                for (File advisory : advisoriesDirectory
-                        .listFiles(FilenameFilters.byFileExtension(".json"))) {
-                    String advisoryName = advisory.getName();
-                    if (advisoryName.startsWith(stormName)) {
+            try {
+                pendingFile.delete();
+            } catch (LocalizationOpFailedException e) {
+                statusHandler.error("Unable to delete " + pendingFile, e);
+            }
+
+            sendTCVFiles(siteId);
+        }
+    }
+
+    private void deleteTCVAdvisoriesIfCanceled(String siteId, String pil,
+            boolean practiceMode, String productText) {
+        File advisoriesDirectory = this.synchronizeTCVAdvisories(siteId,
+                practiceMode);
+
+        Matcher matcher = mndPattern.matcher(productText);
+        if (matcher.find()) {
+            String stormName = matcher.group("stormName");
+
+            // get the list of json files for this storm
+            List<String> jsonFiles = new ArrayList<String>();
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(
+                    advisoriesDirectory.toPath(), stormName + "*.json")) {
+                for (Path path : stream) {
+                    jsonFiles.add(path.getFileName().toString());
+                }
+            } catch (IOException e) {
+                statusHandler.error(
+                        "Unable to get list of json files for storm: "
+                                + stormName, e);
+            }
+
+            if (!jsonFiles.isEmpty()) {
+                // load the highest numbered file for this storm
+                Collections.sort(jsonFiles, Collections.reverseOrder());
+                LocalizationFile advFile = this.getLocalizationFile(siteId,
+                        jsonFiles.get(0), practiceMode);
+
+                Map<String, Object> advDict = loadJSONDictionary(advFile);
+
+                boolean allCAN = (Boolean) advDict.get("AllCAN");
+                if (allCAN) {
+                    // create a flag file to indicate AllCAN has occurred
+                    File tcvDir = advFile.getFile().getParentFile();
+                    File allCanFile = new File(FileUtil.join(
+                            tcvDir.getAbsolutePath(), stormName + ".allCAN"));
+                    try {
+                        allCanFile.createNewFile();
+                    } catch (IOException e) {
+                        statusHandler.error("Unable to create file: "
+                                + allCanFile.getAbsolutePath(), e);
+                    }
+
+                    for (String advisoryName : jsonFiles) {
                         LocalizationFile advisoryFile = this
                                 .getLocalizationFile(siteId, advisoryName,
                                         practiceMode);
@@ -226,13 +354,54 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
                                     + advisoryFile, e);
                         }
                     }
+
+                    sendTCVFiles(siteId);
                 }
             }
+        }
+    }
+
+    private void sendTCVFiles(String siteId) {
+        IFPServer ifpServer = IFPServer.getActiveServer(siteId);
+        if (ifpServer == null) {
+            return;
+        }
+        IFPServerConfig config = ifpServer.getConfig();
+
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext commonBaseCx = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+        String scriptPath = pathMgr.getFile(commonBaseCx,
+                FileUtil.join(ActiveTablePyIncludeUtil.VTEC, "sendTCV.py"))
+                .getPath();
+
+        String pythonIncludePath = PyUtil.buildJepIncludePath(
+                ActiveTablePyIncludeUtil.getCommonPythonIncludePath(),
+                ActiveTablePyIncludeUtil.getCommonGfeIncludePath(),
+                ActiveTablePyIncludeUtil.getVtecIncludePath(siteId),
+                ActiveTablePyIncludeUtil.getGfeConfigIncludePath(siteId),
+                ActiveTablePyIncludeUtil.getIscScriptsIncludePath());
+
+        PythonScript script = null;
+        try {
+            script = new PythonScript(scriptPath, pythonIncludePath, this
+                    .getClass().getClassLoader());
 
             try {
-                pendingFile.delete();
-            } catch (LocalizationOpFailedException e) {
+                Map<String, Object> argMap = new HashMap<String, Object>();
+                argMap.put("siteID", siteId);
+                argMap.put("config", config);
+                script.execute("runFromJava", argMap);
+            } catch (JepException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error executing sendTCV.", e);
             }
+
+            script.dispose();
+
+        } catch (JepException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to instantiate sendTCV python script object.", e);
         }
     }
 
