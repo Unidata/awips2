@@ -52,6 +52,7 @@
     <vbSource key="Guam-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GWW233" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HurWind250" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HI-MOSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HI-NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HI-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HPCqpfNDFD" category="SfcGrid" views="PLANVIEW TIMESERIES" />

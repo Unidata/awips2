@@ -892,6 +892,11 @@
         <dt>3</dt>
     </info>
     <info>
+        <title>HI-GriddedMOS</title>
+        <datasetId>MOSGuide-HI</datasetId>
+        <dt>3</dt>
+    </info>
+    <info>
         <title>GFSLAMP-Grid</title>
         <datasetId>GFSLAMPTstorm</datasetId>
         <dt>1</dt>
