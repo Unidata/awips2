@@ -56,7 +56,6 @@ import com.raytheon.viz.mpe.util.CreateMap;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Maps;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -85,6 +84,10 @@ public class PlotMeanAreaPrecipResource extends
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotMeanAreaPrecipResource.class);
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    private DrawDQCStations ddq = DrawDQCStations.getInstance();
+    
     MPEDisplayManager displayMgr = null;
 
     int first = 1;
@@ -120,24 +123,24 @@ public class PlotMeanAreaPrecipResource extends
 
     GeometryFactory jtsGeometryFactory;
 
-    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+    Hrap_Grid hrap_grid = dqc.getHrap_grid();
 
-    Pcp pcp = DailyQcUtils.pcp;
+//    Pcp pcp = DailyQcUtils.pcp;
 
-    Pcp spf = DailyQcUtils.spf;
+//    Pcp spf = DailyQcUtils.spf;
 
-    Pcp tpf = DailyQcUtils.tpf;
+//    Pcp tpf = DailyQcUtils.tpf;
 
     public void plot_mean_areal_precip(int num) {
 
-        double[][] dqc_precip_delim = DrawDQCStations.dqc_precip_delim;
+        double[][] dqc_precip_delim = ddq.dqc_precip_delim;
         int dqc_precip_numcol = 0;
-        Maps mean_areal_precip_global[] = DailyQcUtils.mean_areal_precip_global;
-        int pcp_in_use[] = DailyQcUtils.pcp_in_use;
+        Maps mean_areal_precip_global[] = dqc.mean_areal_precip_global;
+//        int pcp_in_use[] = DailyQcUtils.pcp_in_use;
         int pcpn_time_step = MPEDisplayManager.pcpn_time_step;
         int rsmode = OtherPrecipOptions.rsmode;
-        boolean wfo_all = DailyQcUtils.wfo_all;
-        int[] wfo_in_use = DailyQcUtils.wfo_in_use;
+        boolean wfo_all = dqc.wfo_all;
+//        int[] wfo_in_use = DailyQcUtils.wfo_in_use;
         CreateMap cm = new CreateMap();
 
         double mapvalue;
@@ -151,7 +154,7 @@ public class PlotMeanAreaPrecipResource extends
         float uz, mz, lz, gz;
         int i1 = 0;
         int i, j;
-        int kscale = DrawDQCStations.kscale;
+        int kscale = ddq.kscale;
         String file = "pcp";
         Coordinate[] points = new Coordinate[1];
         Coordinate[] PolyPoints = new Coordinate[5];
@@ -214,7 +217,7 @@ public class PlotMeanAreaPrecipResource extends
         cmc.setColorMapParameters(parameters);
 
         /* check pcp_in_use flag before plot */
-        if (pcp_in_use[num] == -1) {
+        if (dqc.pcp_in_use[num] == -1) {
             return;
         }
         IMapDescriptor descriptor = (IMapDescriptor) displayMgr
@@ -236,19 +239,19 @@ public class PlotMeanAreaPrecipResource extends
                 i1 = 0;
             }
 
-            if (pcp_in_use[num + 100] != -1 && pcp_in_use[num + 100 - i1] != -1) {
-                cm.read_file(file, num + 100, spf);
-                cm.read_file(file, num + 100 - i1, pcp);
+            if (dqc.pcp_in_use[num + 100] != -1 && dqc.pcp_in_use[num + 100 - i1] != -1) {
+                cm.read_file(file, num + 100, dqc.spf);
+                cm.read_file(file, num + 100 - i1, dqc.pcp);
 
                 for (i = 0; i < hrap_grid.maxi - hrap_grid.hrap_minx; i++) {
                     for (j = 0; j < hrap_grid.maxj - hrap_grid.hrap_miny; j++) {
-                        spf.value[i][j] = (spf.value[i][j] + pcp.value[i][j]) / 2;
+                        dqc.spf.value[i][j] = (dqc.spf.value[i][j] + dqc.pcp.value[i][j]) / 2;
                     }
                 }
-            } else if (pcp_in_use[num + 100] == 1) {
-                cm.read_file(file, num + 100, spf);
-            } else if (pcp_in_use[num + 100 - i1] == 1) {
-                cm.read_file(file, num + 100 - i1, spf);
+            } else if (dqc.pcp_in_use[num + 100] == 1) {
+                cm.read_file(file, num + 100, dqc.spf);
+            } else if (dqc.pcp_in_use[num + 100 - i1] == 1) {
+                cm.read_file(file, num + 100 - i1, dqc.spf);
             }
         }
 
@@ -257,7 +260,7 @@ public class PlotMeanAreaPrecipResource extends
         maxx = hrap_grid.maxi;
         maxy = hrap_grid.maxj;
 
-        for (ib = 0; ib < DailyQcUtils.getMax_basins(); ib++) {
+        for (ib = 0; ib < dqc.getMax_basins(); ib++) {
             if (mean_areal_precip_global[ib].maps_done[num] <= 0) {
                 continue;
             }
@@ -265,15 +268,15 @@ public class PlotMeanAreaPrecipResource extends
             if (wfo_all != true) {
 
                 for (@SuppressWarnings("unused")
-                int eh : wfo_in_use) {
+                int eh : dqc.wfo_in_use) {
                     if (hh == 20) {
                         break;
                     }
-                    if (wfo_in_use[hh] == -1) {
+                    if (dqc.wfo_in_use[hh] == -1) {
                         break;
                     }
 
-                    if (mean_areal_precip_global[ib].owner == wfo_in_use[hh]) {
+                    if (mean_areal_precip_global[ib].owner == dqc.wfo_in_use[hh]) {
                         break;
                     }
 
@@ -284,7 +287,7 @@ public class PlotMeanAreaPrecipResource extends
                     hh = 19;
                 }
 
-                if (wfo_in_use[hh] == -1) {
+                if (dqc.wfo_in_use[hh] == -1) {
                     continue;
                 }
 
@@ -443,11 +446,11 @@ public class PlotMeanAreaPrecipResource extends
                 }
 
                 if (rsmode != 1
-                        && (pcp_in_use[100 + num] == 1 || pcp_in_use[100 + num
+                        && (dqc.pcp_in_use[100 + num] == 1 || dqc.pcp_in_use[100 + num
                                 - i1] == 1)) {
 
-                    if ((spf.value[ix][iy] * 10 - DrawDQCStations.dmvalue < hrap_grid.elev[ix][iy])
-                            && spf.value[ix][iy] >= 0) {
+                    if ((dqc.spf.value[ix][iy] * 10 - dqc.dmvalue < hrap_grid.elev[ix][iy])
+                            && dqc.spf.value[ix][iy] >= 0) {
                         color = convertC(colorMap.getColors().get(k + 5));
                     }
 
@@ -510,7 +513,7 @@ public class PlotMeanAreaPrecipResource extends
         float alpha = paintProps.getAlpha();
         boolean isShaded = true;
 
-        if (DailyQcUtils.map_flag != 1 || displayMgr.isQpf() != true) {
+        if (dqc.map_flag != 1 || displayMgr.isQpf() != true) {
             return;
         }
 
@@ -598,8 +601,8 @@ public class PlotMeanAreaPrecipResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        display_flag = DrawDQCStations.display_flag;
-        time_pos = DrawDQCStations.time_pos;
+        display_flag = ddq.display_flag;
+        time_pos = ddq.time_pos;
         this.target = target;
         plot_mean_areal_precip(time_pos);
     }
@@ -611,11 +614,11 @@ public class PlotMeanAreaPrecipResource extends
      */
     @Override
     public String getName() {
-        if (DrawDQCStations.qcmode == "") {
+        if (ddq.qcmode == "") {
             return "No Data Available";
         }
 
-        return DrawDQCStations.qcmode;
+        return ddq.qcmode;
     }
 
 }
