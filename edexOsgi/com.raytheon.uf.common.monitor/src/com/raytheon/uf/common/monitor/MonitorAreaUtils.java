@@ -15,7 +15,7 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 /**
- * TODO Add Description
+ * Monitor Area Utils
  * 
  * <pre>
  *
@@ -26,6 +26,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * (previous history missing)
  * Apr 29, 2011 DR#8986   zhao       Read in "counties", not "forecast zones", 
  * Feb 22, 2012 14413     zhao       modified getAdjacentZones to add "C" or "Z"
+ * Oct 17, 2014 2757      skorolev   Corrected SQL in the getAdjacentZones to avoid duplicates. 
  * 
  * </pre>
  *
@@ -374,11 +375,11 @@ public class MonitorAreaUtils {
 	public static ArrayList<String> getAdjacentZones(String[] cwaList) {
 		ArrayList<String> zones = new ArrayList<String>();
 
-		String sqlCounty = "select state, fips from "
+		String sqlCounty = "select distinct state, fips from "
 				+ MonitorConfigurationManager.COUNTY_TABLE + " where cwa in (''";
-		String sqlForecastZone = "select state, zone from "
+		String sqlForecastZone = "select distinct state, zone from "
 			+ MonitorConfigurationManager.FORECAST_ZONE_TABLE + " where cwa in (''";
-		String sqlMaritimeZone = "select id from "
+		String sqlMaritimeZone = "select distinct id from "
 				+ MonitorConfigurationManager.MARINE_ZONE_TABLE
 				+ " where wfo in (''";
 		for (int i = 0; i < cwaList.length; i++) {

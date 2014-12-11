@@ -29,6 +29,7 @@ package com.raytheon.uf.edex.plugin.hpe.util;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2014    3026    mpduff      Initial creation
+ * Nov 12, 2014    3026    mpduff      Corrected entry
  * 
  * </pre>
  * 
@@ -53,7 +54,7 @@ public class HpeEnums {
      * HPE Bias Source.
      */
     public enum HpeBiasSource {
-        RFC_MEAN_BIAS("RCF MEAN BIAS"), SITE_MEAN_BIAS("SITE MEAN BIAS"), SITE_LOCAL_BIAS(
+        RFC_MEAN_BIAS("RFC MEAN BIAS"), SITE_MEAN_BIAS("SITE MEAN BIAS"), SITE_LOCAL_BIAS(
                 "SITE LOCAL BIAS"), NO_BIAS("NO BIAS");
 
         private final String biasSource;

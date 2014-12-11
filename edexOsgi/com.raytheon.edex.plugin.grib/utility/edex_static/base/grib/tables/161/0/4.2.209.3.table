@@ -7,12 +7,12 @@
 5:5:Low-Level Rotation Tracks 0-2km AGL (240 min. accum.):1/s:RotationTrackLL240min
 6:6:Low-Level Rotation Tracks 0-2km AGL (360 min. accum.):1/s:RotationTrackLL360min
 7:7:Low-Level Rotation Tracks 0-2km AGL (1440 min. accum.):1/s:RotationTrackLL1440min
-14:14:Mid-Level Rotation Tracks 0-3km AGL (30 min. accum.):1/s:RotationTrackML30min
-15:15:Mid-Level Rotation Tracks 0-3km AGL (60 min. accum.):1/s:RotationTrackML60min
-16:16:Mid-Level Rotation Tracks 0-3km AGL (120 min. accum.):1/s:RotationTrackML120min
-17:17:Mid-Level Rotation Tracks 0-3km AGL (240 min. accum.):1/s:RotationTrackML240min
-18:18:Mid-Level Rotation Tracks 0-3km AGL (360 min. accum.):1/s:RotationTrackML360min
-19:19:Mid-Level Rotation Tracks 0-3km AGL (1440 min. accum.):1/s:RotationTrackML1440min
+14:14:Mid-Level Rotation Tracks 3-6km AGL (30 min. accum.):1/s:RotationTrackML30min
+15:15:Mid-Level Rotation Tracks 3-6km AGL (60 min. accum.):1/s:RotationTrackML60min
+16:16:Mid-Level Rotation Tracks 3-6km AGL (120 min. accum.):1/s:RotationTrackML120min
+17:17:Mid-Level Rotation Tracks 3-6km AGL (240 min. accum.):1/s:RotationTrackML240min
+18:18:Mid-Level Rotation Tracks 3-6km AGL (360 min. accum.):1/s:RotationTrackML360min
+19:19:Mid-Level Rotation Tracks 3-6km AGL (1440 min. accum.):1/s:RotationTrackML1440min
 26:26:Severe Hail Index (SHI)::SHI
 27:27:Probability of Severe Hail (POSH):%:POSH
 28:28:Maximum Estimated Size of Hail (MESH):mm:MESH

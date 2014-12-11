@@ -54,16 +54,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class MapTempGagesGrid {
+    
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     public boolean map_temp_gages_to_grid(int smonth, int emonth,
             Hrap_Grid hrap_grid, String hrap_tgage_file, String currentQcArea,
             ArrayList<Station> temperature_stations, int numTstations) {
 
         int newflag = 0;
-        DailyQcUtils du = new DailyQcUtils();
         File gagefile = new File(hrap_tgage_file);
-        File stationfile = new File(du.getStationListPath(currentQcArea));
-        float sorted[] = new float[DailyQcUtils.mpe_dqc_max_temp_neighbors];
+        File stationfile = new File(dqc.getStationListPath(currentQcArea));
+        float sorted[] = new float[dqc.mpe_dqc_max_temp_neighbors];
         final float conv = .0174f;
         float dist, dist1, dist2;
         int i, k, l, m, h;
@@ -158,7 +159,7 @@ public class MapTempGagesGrid {
                         irap.x = hrap_grid.hrap_minx + i;
                         irap.y = hrap_grid.hrap_miny + k;
 
-                        ci = DailyQcUtils.getHraptoLatLon(irap);
+                        ci = dqc.getHraptoLatLon(irap);
                         hrap.x = (float) ci.x;
                         hrap.y = (float) ci.y;
                         Arrays.fill(sorted, 9999999f);
@@ -173,11 +174,11 @@ public class MapTempGagesGrid {
                             dist = (float) (Math.pow(dist1, 2) + Math.pow(
                                     dist2, 2));
 
-                            for (l = 0; l < DailyQcUtils.mpe_dqc_max_temp_neighbors; l++) {
+                            for (l = 0; l < dqc.mpe_dqc_max_temp_neighbors; l++) {
 
                                 if (dist < sorted[l]) {
 
-                                    for (h = (DailyQcUtils.mpe_dqc_max_temp_neighbors - 1); h > l; h--) {
+                                    for (h = (dqc.mpe_dqc_max_temp_neighbors - 1); h > l; h--) {
                                         sorted[h] = sorted[h - 1];
                                         hrap_grid.gage[i][k].tindex[h] = hrap_grid.gage[i][k].tindex[h - 1];
                                     }
@@ -194,7 +195,7 @@ public class MapTempGagesGrid {
                         }
                         StringBuilder sbrec = new StringBuilder();
                         String rec = "";
-                        for (l = 0; l < DailyQcUtils.mpe_dqc_max_temp_neighbors; l++) {
+                        for (l = 0; l < dqc.mpe_dqc_max_temp_neighbors; l++) {
                             rec = hrap_grid.gage[i][k].tindex[l] + " ";
                             sbrec.append(rec);
                         }
@@ -238,7 +239,7 @@ public class MapTempGagesGrid {
                     for (k = 0; k < hrap_grid.maxj; k++) {
                         cbuf = in.readLine();
                         s = new Scanner(cbuf);
-                        for (int mm = 0; mm < DailyQcUtils.mpe_dqc_max_temp_neighbors; mm++) {
+                        for (int mm = 0; mm < dqc.mpe_dqc_max_temp_neighbors; mm++) {
                             hrap_grid.gage[i][k].tindex[mm] = s.nextInt();
                         }
                     }
