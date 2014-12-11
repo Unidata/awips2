@@ -126,7 +126,7 @@ public class InitPrecipClimo {
                 {
                     tokens = line.split("\\s+", 14);
                 }
-                if ((tokens == null)) {
+                if ((tokens[0] == null)) {
                     // invalid record
                     ++record_count;
                     line = in.readLine();
@@ -184,8 +184,8 @@ public class InitPrecipClimo {
                         precip_stations.set(index, nstation);
                         nstation = null;
                     }
+                    ++index;
                 }
-                ++index;
             }
 
             in.close();

@@ -72,8 +72,6 @@ import com.raytheon.viz.mpe.ui.dialogs.EditTempStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.QcTempOptionsDialog;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Ttn;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -87,7 +85,6 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jun 24, 2009	 2524		snaples 	Initial creation
- * Mar  3, 2014  2804       mschenke    Set back up clipping pane
  * 
  * </pre>
  * 
@@ -143,15 +140,17 @@ public class PointTempPlotResource extends
 
     int time_pos = 0;
 
-    Tdata tdata[];
+//    Tdata tdata[];
 
-    ArrayList<Station> station;
+//    ArrayList<Station> station;
 
     Hashtable<String, Ttn> tdataMap;
 
     private ColorMapParameters parameters;
 
-    private final DailyQcUtils dc = new DailyQcUtils();
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    private DrawDQCStations ddq = DrawDQCStations.getInstance();
 
     static int prevPcpnDay;
 
@@ -170,8 +169,8 @@ public class PointTempPlotResource extends
     public PointTempPlotResource(PointTempResourceData resourceData,
             LoadProperties props) {
         super(resourceData, props);
-        tdata = DailyQcUtils.tdata;
-        station = DailyQcUtils.temperature_stations;
+//        tdata = DailyQcUtils.tdata;
+//        station = DailyQcUtils.temperature_stations;
         prevPcpnDay = 0;
 
         df.setMaximumFractionDigits(2);
@@ -195,11 +194,11 @@ public class PointTempPlotResource extends
         dataMap = new Hashtable<String, Station>();
         tdataMap = new Hashtable<String, Ttn>();
         strTree = new STRtree();
-        gageData = dc.new Station();
+        gageData = dqc.new Station();
 
-        if (!station.isEmpty()) {
+        if (!dqc.temperature_stations.isEmpty()) {
             int i = 0;
-            for (ListIterator<Station> it = station.listIterator(); it
+            for (ListIterator<Station> it = dqc.temperature_stations.listIterator(); it
                     .hasNext();) {
                 gageData = it.next();
                 Coordinate xy = new Coordinate();
@@ -213,7 +212,7 @@ public class PointTempPlotResource extends
                 kv.append(pm);
                 dataMap.put(kv.toString(), gageData);
                 tdataMap.put(kv.toString(),
-                        tdata[DailyQcUtils.pcpn_day].tstn[i]);
+                        dqc.tdata[dqc.pcpn_day].tstn[i]);
 
                 /* Create a small envelope around the point */
                 Coordinate p1 = new Coordinate(xy.x + .02, xy.y + .02);
@@ -224,11 +223,11 @@ public class PointTempPlotResource extends
                 data.add("STATION: "
                         + gageData.hb5
                         + " VALUE: "
-                        + tdata[DailyQcUtils.pcpn_day].tstn[i].tlevel2[time_pos].data);
+                        + dqc.tdata[dqc.pcpn_day].tstn[i].tlevel2[time_pos].data);
                 strTree.insert(env, data);
                 i++;
             }
-            prevPcpnDay = DailyQcUtils.pcpn_day;
+            prevPcpnDay = dqc.pcpn_day;
         }
     }
 
@@ -292,18 +291,18 @@ public class PointTempPlotResource extends
             throws VizException {
 
         if (MPEDisplayManager.getCurrent().isMaxmin() == true
-                && (DailyQcUtils.points_flag == 1)) {
-            int type = DailyQcUtils.plot_view;
+                && (dqc.points_flag == 1)) {
+            int type = dqc.plot_view;
             int i = 0;
             int m = 0;
             float reverse_filter_value = 0;
             int elevation_filter_value = 0;
-            Ts ts[] = DailyQcUtils.ts;
-            int tsmax = DailyQcUtils.tsmax;
+//            Ts ts[] = DailyQcUtils.ts;
+            int tsmax = dqc.tsmax;
             float temp_filter_value = 0;
-            int find_station_flag = DailyQcUtils.find_station_flag;
-            int dflag[] = DailyQcUtils.dflag;
-            int qflag[] = DailyQcUtils.qflag;
+            int find_station_flag = dqc.find_station_flag;
+//            int dflag[] = DailyQcUtils.dflag;
+//            int qflag[] = DailyQcUtils.qflag;
             String mbuf = "";
             String tbuf = "";
 
@@ -312,7 +311,7 @@ public class PointTempPlotResource extends
             } else if (MPEDisplayManager.pcpn_time_step == 2) {
                 time_pos = 5;
             } else {
-                time_pos = DailyQcUtils.pcpn_time;
+                time_pos = dqc.pcpn_time;
             }
 
             if (type == 0) {
@@ -323,13 +322,13 @@ public class PointTempPlotResource extends
                     c.y });
             color = RGBColors.getRGBColor(color_map_a[8]);
 
-            if (DailyQcUtils.points_flag == 1
+            if (dqc.points_flag == 1
                     && QcTempOptionsDialog.isOpen == true
                     && MPEDisplayManager.getCurrent().isMaxmin() == true) {
 
                 reverse_filter_value = QcTempOptionsDialog
                         .getPointFilterReverseValue();
-                elevation_filter_value = DailyQcUtils.elevation_filter_value;
+                elevation_filter_value = dqc.elevation_filter_value;
                 temp_filter_value = QcTempOptionsDialog.getPointFilterValue();
 
             } else {
@@ -341,8 +340,8 @@ public class PointTempPlotResource extends
 
             for (m = 0; m < tsmax; m++) {
 
-                if (station.parm.substring(3, 5).equalsIgnoreCase(ts[m].abr)
-                        && dflag[m + 1] == 1) {
+                if (station.parm.substring(3, 5).equalsIgnoreCase(dqc.ts[m].abr)
+                        && dqc.dflag[m + 1] == 1) {
                     break;
                 }
 
@@ -354,10 +353,10 @@ public class PointTempPlotResource extends
 
             for (m = 0; m < 9; m++) {
                 if (m == tdataMap.get(key).tlevel2[time_pos].qual
-                        && qflag[m] == 1) {
+                        && dqc.qflag[m] == 1) {
                     break;
                 } else if (m == 7
-                        && qflag[7] == 1
+                        && dqc.qflag[7] == 1
                         && (tdataMap.get(key).tlevel2[time_pos].data == -99 && tdataMap
                                 .get(key).tlevel2[time_pos].qual == -99)
                         || (tdataMap.get(key).tlevel2[time_pos].data == -99 && tdataMap
@@ -372,8 +371,8 @@ public class PointTempPlotResource extends
 
             /* locate station in data stream */
             if ((type == 4 || type == 5)
-                    && (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
-                    && (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].level[0] == 0)) {
+                    && (dqc.tdata[dqc.pcpn_day].used[time_pos] == 0)
+                    && (dqc.tdata[dqc.pcpn_day].level[0] == 0)) {
                 return;
             }
             if ((type == 4 || type == 5)
@@ -390,7 +389,7 @@ public class PointTempPlotResource extends
 
             if ((type == 4)
                     && (tdataMap.get(key).tlevel2[time_pos].data == -99)
-                    && qflag[7] != 1) {
+                    && dqc.qflag[7] != 1) {
                 return;
             }
             IImage image = target.initializeRaster(new IODataPreparer(
@@ -411,8 +410,8 @@ public class PointTempPlotResource extends
                 tbuf = station.name;
 
             } else if (type == 4) {
-                if ((DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
-                        && (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].level[0] == 0)) {
+                if ((dqc.tdata[dqc.pcpn_day].used[time_pos] == 0)
+                        && (dqc.tdata[dqc.pcpn_day].level[0] == 0)) {
                     return;
 
                 }
@@ -424,7 +423,7 @@ public class PointTempPlotResource extends
                         .get(key).tlevel2[time_pos].qual == -99)
                         || (tdataMap.get(key).tlevel2[time_pos].data == -99 && tdataMap
                                 .get(key).tlevel2[time_pos].qual == 0)) {
-                    if (qflag[7] == 1) {
+                    if (dqc.qflag[7] == 1) {
                         mbuf = "m";
                     } else {
                         return;
@@ -458,7 +457,7 @@ public class PointTempPlotResource extends
             }
             /* set font color for missing data */
 
-            if (qflag[7] == 1
+            if (dqc.qflag[7] == 1
                     && tdataMap.get(key).tlevel2[time_pos].data == -99
                     && tdataMap.get(key).tlevel2[time_pos].qual == -99) {
 
@@ -476,7 +475,7 @@ public class PointTempPlotResource extends
             string.font = font;
             double textHeight = target.getStringsBounds(string).getHeight()
                     * scale;
-            int temp = 0;
+//            int temp = 0;
             Coordinate valCoor = new Coordinate(centerpixels[0]
                     + this.getScaleWidth() / 3, centerpixels[1]
                     - this.getScaleHeight());
@@ -558,7 +557,7 @@ public class PointTempPlotResource extends
         // Fonts are shared and cached, no need to init or dispose
         font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
-        if (DailyQcUtils.points_flag == 1 && displayMgr.isMaxmin() == true) {
+        if (dqc.points_flag == 1 && displayMgr.isMaxmin() == true) {
             Iterator<String> iter = dataMap.keySet().iterator();
 
             while (iter.hasNext()) {
@@ -603,7 +602,6 @@ public class PointTempPlotResource extends
             }
             target.clearClippingPlane();
             drawQCLegend();
-            target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
 
@@ -625,7 +623,7 @@ public class PointTempPlotResource extends
         double x1 = screenExtent.getMinX() + padding;
         RGB color = null;
         String label = "";
-        int[] funct = DailyQcUtils.funct;
+        int[] funct = dqc.funct;
         int temp = 0;
 
         for (int i = 0; i < typename.length; i++) {
@@ -845,11 +843,11 @@ public class PointTempPlotResource extends
      */
     @Override
     public String getName() {
-        if (DrawDQCStations.qcmode == "") {
+        if (ddq.qcmode == "") {
             return "No Data Available";
         }
 
-        return DrawDQCStations.qcmode;
+        return ddq.qcmode;
     }
 
     /**
