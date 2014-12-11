@@ -1,4 +1,4 @@
-/data/ldm/logs/ldmd.log /data/ldm/logs/nwstg.log /data/ldm/logs/goes.log /data/ldm/logs/nwstg2.log /data/ldm/logs/oconus.log /data/ldm/logs/polarsat.log {
+/data/ldm/logs/ldmd.log /data/ldm/logs/nwstg.log /data/ldm/logs/goes_add.log /data/ldm/logs/nwstg2.log /data/ldm/logs/oconus.log /data/ldm/logs/polarsat.log {
         missingok
         compress
         notifempty

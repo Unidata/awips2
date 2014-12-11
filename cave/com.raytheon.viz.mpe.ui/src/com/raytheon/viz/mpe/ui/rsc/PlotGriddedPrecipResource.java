@@ -73,8 +73,6 @@ import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
 import com.raytheon.viz.mpe.util.CreateMap;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
@@ -99,6 +97,10 @@ public class PlotGriddedPrecipResource extends
         IMpeResource {
 
     MPEDisplayManager displayMgr = null;
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    private DrawDQCStations ddq = DrawDQCStations.getInstance();
 
     private GriddedImageDisplay2 gridDisplay;
 
@@ -122,11 +124,11 @@ public class PlotGriddedPrecipResource extends
 
     int display_flag;
 
-    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+//    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
 
-    Pcp pcp = DailyQcUtils.pcp;
+//    Pcp pcp = DailyQcUtils.pcp;
 
-    Pcp spf = DailyQcUtils.spf;
+//    Pcp spf = DailyQcUtils.spf;
 
     private ColorMapParameters parameters = new ColorMapParameters();
 
@@ -141,7 +143,7 @@ public class PlotGriddedPrecipResource extends
         this.colorSet = colorSet;
     }
 
-    ColorMap precip_colormap = DrawDQCStations.colorMap;
+    ColorMap precip_colormap = ddq.colorMap;
 
     RGB color = null;
 
@@ -152,8 +154,8 @@ public class PlotGriddedPrecipResource extends
     public void plot_gridded_precip(String prefix, int num, int mnum) {
         int pcpn_time_step = MPEDisplayManager.pcpn_time_step;
         int rsmode = OtherPrecipOptions.rsmode;
-        boolean wfo_all = DailyQcUtils.wfo_all;
-        int[] wfo_in_use = DailyQcUtils.wfo_in_use;
+        boolean wfo_all = dqc.wfo_all;
+        int[] wfo_in_use = dqc.wfo_in_use;
         CreateMap cm = new CreateMap();
         float value = 0;
 
@@ -223,37 +225,37 @@ public class PlotGriddedPrecipResource extends
             if (num == 0) {
                 i1 = 0;
             }
-            if (DailyQcUtils.pcp_in_use[num + mnum] != -1
-                    && DailyQcUtils.pcp_in_use[num + mnum - i1] != -1) {
-                cm.read_file(file, num + mnum, spf);
-                cm.read_file(file, num + mnum - i1, pcp);
+            if (dqc.pcp_in_use[num + mnum] != -1
+                    && dqc.pcp_in_use[num + mnum - i1] != -1) {
+                cm.read_file(file, num + mnum, dqc.spf);
+                cm.read_file(file, num + mnum - i1, dqc.pcp);
 
-                for (i = 0; i < (hrap_grid.maxi - hrap_grid.hrap_minx) - 1; i++) {
-                    for (j = 0; j < hrap_grid.maxj - hrap_grid.hrap_miny - 1; j++) {
-                        spf.value[i][j] = (spf.value[i][j] + pcp.value[i][j]) / 2;
+                for (i = 0; i < (dqc.getHrap_grid().maxi - dqc.getHrap_grid().hrap_minx) - 1; i++) {
+                    for (j = 0; j < dqc.getHrap_grid().maxj - dqc.getHrap_grid().hrap_miny - 1; j++) {
+                        dqc.spf.value[i][j] = (dqc.spf.value[i][j] + dqc.pcp.value[i][j]) / 2;
                     }
                 }
-            } else if (DailyQcUtils.pcp_in_use[num + mnum] == 1) {
-                cm.read_file(file, num + mnum, spf);
-            } else if (DailyQcUtils.pcp_in_use[num + mnum - i1] == 1) {
-                cm.read_file(file, num + mnum - i1, spf);
+            } else if (dqc.pcp_in_use[num + mnum] == 1) {
+                cm.read_file(file, num + mnum, dqc.spf);
+            } else if (dqc.pcp_in_use[num + mnum - i1] == 1) {
+                cm.read_file(file, num + mnum - i1, dqc.spf);
             }
         }
 
-        if (DailyQcUtils.pcp_in_use[num] == -1) {
+        if (dqc.pcp_in_use[num] == -1) {
             return;
         }
 
-        cm.read_file(file, num, pcp);
+        cm.read_file(file, num, dqc.pcp);
 
-        buf = FloatBuffer.allocate(hrap_grid.maxi * hrap_grid.maxj);
+        buf = FloatBuffer.allocate(dqc.getHrap_grid().maxi * dqc.getHrap_grid().maxj);
 
         /* Get value in the HRAP grid bins. */
         // for (i = 0; i < (hrap_grid.maxi); i++) {
         // for (j = 0; j < hrap_grid.maxj; j++) {
-        for (j = hrap_grid.maxj - 1; j >= 0; j--) {
-            for (i = 0; i < hrap_grid.maxi; i++) {
-                if (hrap_grid.owner[i][j] == -1) {
+        for (j = dqc.getHrap_grid().maxj - 1; j >= 0; j--) {
+            for (i = 0; i < dqc.getHrap_grid().maxi; i++) {
+                if (dqc.getHrap_grid().owner[i][j] == -1) {
                     continue;
                 }
 
@@ -264,14 +266,14 @@ public class PlotGriddedPrecipResource extends
                             break;
                         }
 
-                        if (hrap_grid.owner[i][j] == wfo_in_use[m]) {
+                        if (dqc.getHrap_grid().owner[i][j] == wfo_in_use[m]) {
                             break;
                         }
                     }
 
                 }
                 Float fg = 0f;
-                value = pcp.value[i][j];
+                value = dqc.pcp.value[i][j];
                 // fg = (float) (value / 100.0);
                 if (fg.isNaN() || value < 0) {
                     fg = -9999f;
@@ -300,8 +302,8 @@ public class PlotGriddedPrecipResource extends
         }
         buf.rewind();
 
-        Rectangle extent = new Rectangle(hrap_grid.hrap_minx,
-                hrap_grid.hrap_miny, hrap_grid.maxi, hrap_grid.maxj);
+        Rectangle extent = new Rectangle(dqc.getHrap_grid().hrap_minx,
+                dqc.getHrap_grid().hrap_miny, dqc.getHrap_grid().maxi, dqc.getHrap_grid().maxj);
 
         if (extent.x == 0 && extent.y == 0) {
             Rectangle coord = null;
@@ -386,7 +388,7 @@ public class PlotGriddedPrecipResource extends
                 int x = p.x - extent.x;
                 int y = p.y - extent.y;
 
-                short s = (short) pcp.value[x][y];
+                short s = (short) dqc.pcp.value[x][y];
 
                 double d = parameters.getDataToDisplayConverter().convert(s);
 
@@ -462,15 +464,15 @@ public class PlotGriddedPrecipResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         this.target = target;
-        time_pos = DrawDQCStations.time_pos;
-        plot_gridded_precip(DrawDQCStations.prefix, time_pos, 100);
+        time_pos = ddq.time_pos;
+        plot_gridded_precip(ddq.prefix, time_pos, 100);
 
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (buf == null || DailyQcUtils.grids_flag != 1
+        if (buf == null || dqc.grids_flag != 1
                 || displayMgr.isQpf() != true) {
             return;
         }
@@ -512,11 +514,11 @@ public class PlotGriddedPrecipResource extends
      */
     @Override
     public String getName() {
-        if (DrawDQCStations.qcmode == "") {
+        if (ddq.qcmode == "") {
             return "No Data Available";
         }
 
-        return DrawDQCStations.qcmode;
+        return ddq.qcmode;
     }
 
     @Override
