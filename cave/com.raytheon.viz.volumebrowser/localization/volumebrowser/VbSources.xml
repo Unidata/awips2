@@ -41,6 +41,8 @@
     <vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />
     <vbSource key="AVN-NorthernHemisphere" category="Volume" />
     <vbSource key="HFR-EAST_6KM" category="Volume" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-EAST_PR_6KM" category="Volume"
+        views="PLANVIEW TIMESERIES" />
     <vbSource key="HFR-US_EAST_DELAWARE_1KM" category="Volume"
         views="PLANVIEW TIMESERIES" />
     <vbSource key="HFR-US_EAST_FLORIDA_2KM" category="Volume"
@@ -51,8 +53,12 @@
         views="PLANVIEW TIMESERIES" />
     <vbSource key="HFR-US_EAST_VIRGINIA_1KM" category="Volume"
         views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_HAWAII_1KM" category="Volume" views="PLANVIEW TIMESERIES" />
-    <vbSource key="HFR-US_HAWAII_2KM" category="Volume" views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_HAWAII_1KM" category="Volume"
+        views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_HAWAII_2KM" category="Volume"
+        views="PLANVIEW TIMESERIES" />
+    <vbSource key="HFR-US_HAWAII_6KM" category="Volume"
+        views="PLANVIEW TIMESERIES" />
     <vbSource key="HFR-WEST_6KM" category="Volume" views="PLANVIEW TIMESERIES" />
     <vbSource key="HFR-US_WEST_CENCAL_2KM" category="Volume"
         views="PLANVIEW TIMESERIES" />
@@ -76,7 +82,7 @@
     <vbSource key="HiResW-NMM-PR" category="Volume" />
     <vbSource key="HiResW-NMM-SJU" category="Volume" />
     <vbSource key="HiResW-NMM-West" category="Volume" />
-	<vbSource key="HRRR" category="Volume" />
+    <vbSource key="HRRR" category="Volume" />
     <!-- Old version being replaced by GFS229
     <vbSource key="MRF204" category="Volume" />
     -->
@@ -112,12 +118,13 @@
 	<vbSource key="AKHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AKHwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="BHPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="CPCoutlook211" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="CPCoutlook211" category="SfcGrid"
+        views="PLANVIEW TIMESERIES" />
     <vbSource key="DHM" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="ENPWAVE253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="EPwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-	<vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-	<vbSource key="estofsPR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="estofsPR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="GFE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="GFS199" category="SfcGrid" views="PLANVIEW TIMESERIES" />	
     <vbSource key="GFSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -205,25 +212,34 @@
         views="TIMESERIES" />
     <vbSource key="Ldad" category="Point" views="TIMESERIES" />
     <vbSource key="obs" name="Metar" category="Point" views="TIMESERIES" />
-    <vbSource key="obsOA" name="MetarOA" category="Point" views="PLANVIEW TIMESERIES" />
-    <vbSource key="radar149" name="DMD" category="Point" subCategory="Column"
-        views="CROSSSECTION TIMEHEIGHT VARVSHGT TIMESERIES" />
+    <vbSource key="obsOA" name="MetarOA" category="Point"
+        views="PLANVIEW TIMESERIES" />
+    <vbSource key="radar149" name="DMD" category="Point"
+        subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT TIMESERIES" />
     <vbSource key="modelsoundingGFS" name="GFSBufr" category="Point"
-        subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+        subCategory="Column"
+        views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
     <vbSource key="goessounding" name="GoesBufr" category="Point"
-        subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+        subCategory="Column"
+        views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
     <vbSource key="acarssounding" name="MDCRS" category="Point"
-        subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+        subCategory="Column"
+        views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
     <vbSource key="modelsoundingETA" name="NAMBufr" category="Point"
-        subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+        subCategory="Column"
+        views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
     <vbSource key="poessounding" name="PoesBufr" category="Point"
-        subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+        subCategory="Column"
+        views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
     <vbSource key="profiler" name="Profiler" category="Point"
-        subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
-    <vbSource key="bufrua" name="Raob" category="Point" subCategory="Column"
+        subCategory="Column"
+        views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+    <vbSource key="bufrua" name="Raob" category="Point"
+        subCategory="Column"
         views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
     <vbSource key="bufruaOA" name="RaobOA" category="Point"
         subCategory="Column" />
-    <vbSource key="radarVWP" name="VWP" category="Point" subCategory="Column"
+    <vbSource key="radarVWP" name="VWP" category="Point"
+        subCategory="Column"
         views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
 </vbSourceList>

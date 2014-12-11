@@ -101,6 +101,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 09/16/2013    2033      dgilling    Remove unused IToolController.
  * 12/09/2013    2367      dgilling    Instantiate ProcedureJobPool here.
  * 09/09/2014    3592      randerso    Added call to SampleSetManager.dispose()
+ * 10/30/2014    3775      randerso    Added parmCacheInit to initStatus
  * 
  * </pre>
  * 
@@ -221,7 +222,7 @@ public class DataManager {
         this.router = new NotificationRouter(this.getSiteID());
 
         this.parmManager = new ParmManager(this);
-        GFEParmCacheInitJob cacheJob = new GFEParmCacheInitJob(this.parmManager);
+        GFEParmCacheInitJob cacheJob = new GFEParmCacheInitJob(this);
         cacheJob.setSystem(true);
         cacheJob.schedule();
         this.refManager = new ReferenceSetManager(this);
