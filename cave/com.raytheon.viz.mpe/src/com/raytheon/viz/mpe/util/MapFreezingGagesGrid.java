@@ -55,6 +55,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class MapFreezingGagesGrid {
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     public boolean map_freeze_gages_to_grid(int smonth, int emonth,
             Hrap_Grid hrap_grid, String hrap_zgage_file, String currentQcArea,
             ArrayList<Station> freezing_stations,
@@ -62,10 +64,9 @@ public class MapFreezingGagesGrid {
             int numPstations) {
 
         int newflag = 0;
-        DailyQcUtils du = new DailyQcUtils();
         File gagefile = new File(hrap_zgage_file);
-        File stationfile = new File(du.getStationListPath(currentQcArea));
-        float sorted[] = new float[DailyQcUtils.mpe_dqc_max_precip_neighbors];
+        File stationfile = new File(dqc.getStationListPath(currentQcArea));
+        float sorted[] = new float[dqc.mpe_dqc_max_precip_neighbors];
         final float conv = .0174f;
         float dist, dist1, dist2;
         int i, k, l, m, h;
@@ -79,9 +80,8 @@ public class MapFreezingGagesGrid {
         BufferedReader in = null;
         BufferedWriter out = null;
         Coordinate irap = new Coordinate();
-        DailyQcUtils.QCHRAP hrap = new QCHRAP();
+        QCHRAP hrap = new QCHRAP();
         Date sf = SimulatedTime.getSystemTime().getTime();
-        DailyQcUtils dc = new DailyQcUtils();
         // for (l = 0; l < 30; l++) {
         // sorted[l] = 9999999;
         // }
@@ -159,7 +159,7 @@ public class MapFreezingGagesGrid {
                         irap.x = hrap_grid.hrap_minx + i;
                         irap.y = hrap_grid.hrap_miny + k;
 
-                        ci = DailyQcUtils.getHraptoLatLon(irap);
+                        ci = dqc.getHraptoLatLon(irap);
                         hrap.x = (float) ci.x;
                         hrap.y = (float) ci.y;
 
@@ -261,7 +261,7 @@ public class MapFreezingGagesGrid {
          * Update the precip station list to contain the nearest freezing level
          * stations.
          */
-        Station station = dc.new Station();
+        Station station = dqc.new Station();
 
         for (i = 0; i < numPstations; i++) {
             station = precip_stations.get(i);

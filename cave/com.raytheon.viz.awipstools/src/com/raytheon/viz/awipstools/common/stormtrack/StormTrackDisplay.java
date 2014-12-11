@@ -109,8 +109,7 @@ import com.vividsolutions.jts.geom.LineString;
  *  08-21-2014  DR 15700   Qinglu Lin  handle the situation where frameTime is null in paintTrack().
  *  09-09-2014  RM #657    Qinglu Lin  handle StormTrackState.trackType is null.
  *  09-25-2014  ASM #16773 D. Friedman Fix NPE.
- *
->>>>>>> master_14.2.4
+ *  10-10-2014  ASM #16844 D. Friedman Prevent some errors when moving track.
  * </pre>
  * 
  * @author mschenke
@@ -842,7 +841,9 @@ public class StormTrackDisplay implements IRenderable {
             PaintProperties paintProps) throws ImpossibleTrackException {
         int moveIndex = this.trackUtil.getCurrentFrame(paintProps
                 .getFramesInfo());
+        moveIndex = Math.min(moveIndex, state.timePoints.length - 1);
         int pivotIndex = state.displayedPivotIndex;
+        pivotIndex = Math.min(pivotIndex, state.timePoints.length - 1);
 
         double angle;
         double oppositeAngle;
