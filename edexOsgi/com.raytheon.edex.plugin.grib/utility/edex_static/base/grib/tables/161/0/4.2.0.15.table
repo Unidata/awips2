@@ -24,26 +24,26 @@
 222:222:Reflectivity at -20C:dBZ:ReflectivityM20C
 223:223:Low-Level Rotation Tracks 0-2km AGL (60 min. accum.):1/s:RotationTrackLL60min
 224:224:Low-Level Rotation Tracks 0-2km AGL (1440 min. accum.):1/s:RotationTrackLL1440min
-225:225:Mid-Level Rotation Tracks 0-3km AGL (60 min. accum.):1/s:RotationTrackML60min
-226:226:Mid-Level Rotation Tracks 0-3km AGL (1440 min. accum.):1/s:RotationTrackML1440min
+225:225:Mid-Level Rotation Tracks 3-6km AGL (60 min. accum.):1/s:RotationTrackML60min
+226:226:Mid-Level Rotation Tracks 3-6km AGL (1440 min. accum.):1/s:RotationTrackML1440min
 227:227:Surface Precipitation Type (SPT)::PrecipType
 228:228:Radar Precipitation Rate (SPR):mm/hr:PrecipRate
 229:229:Seamless Hybrid Scan Reflectivity (SHSR):dBZ:SeamlessHSR
 230:230:Radar Quality Index (RQI)::RadarQualityIndex
-231:231:QPE - Radar Only (1 hr. accum):mm:RadarOnlyQPE01H
+231:231:QPE - Radar Only (1 hr. accum.):mm:RadarOnlyQPE01H
 232:232:QPE - Radar Only (3 hr. accum.):RadarOnlyQPE03H
 233:233:QPE - Radar Only (6 hr. accum.):mm:RadarOnlyQPE06H
 234:234:QPE - Radar Only (12 hr. accum.):mm:RadarOnlyQPE12H
 235:235:QPE - Radar Only (24 hr. accum.):mm:RadarOnlyQPE24H
 236:236:QPE - Radar Only (48 hr. accum.):mm:RadarOnlyQPE48H
 237:237:QPE - Radar Only (72 hr. accum.):mm:RadarOnlyQPE72H
-238:238:QPE - Radar w/ Gauge Bias Correction (1 hr. accum.):mm:GaugeCorrQPE01H
-239:239:QPE - Radar w/ Gauge Bias Correction (3 hr. accum.):mm:GaugeCorrQPE03H
-240:240:QPE - Radar w/ Gauge Bias Correction (6 hr. accum.):mm:GaugeCorrQPE06H
-241:241:QPE - Radar w/ Gauge Bias Correction (12 hr. accum.):mm:GaugeCorrQPE12H
-242:242:QPE - Radar w/ Gauge Bias Correction (24 hr. accum.):mm:GaugeCorrQPE24H
-243:243:QPE - Radar w/ Gauge Bias Correction (48 hr. accum.):mm:GaugeCorrQPE48H
-244:244:QPE - Radar w/ Gauge Bias Correction (72 hr. accum.):mm:GaugeCorrQPE72H
+238:238:QPE - Radar with Gauge Bias Correction (1 hr. accum.):mm:GaugeCorrQPE01H
+239:239:QPE - Radar with Gauge Bias Correction (3 hr. accum.):mm:GaugeCorrQPE03H
+240:240:QPE - Radar with Gauge Bias Correction (6 hr. accum.):mm:GaugeCorrQPE06H
+241:241:QPE - Radar with Gauge Bias Correction (12 hr. accum.):mm:GaugeCorrQPE12H
+242:242:QPE - Radar with Gauge Bias Correction (24 hr. accum.):mm:GaugeCorrQPE24H
+243:243:QPE - Radar with Gauge Bias Correction (48 hr. accum.):mm:GaugeCorrQPE48H
+244:244:QPE - Radar with Gauge Bias Correction (72 hr. accum.):mm:GaugeCorrQPE72H
 245:245:QPE - Mountain Mapper (1 hr. accum.):mm:MountainMapperQPE01H
 246:246:QPE - Mountain Mapper (3 hr. accum.):mm:MountainMapperQPE03H
 247:247:QPE - Mountain Mapper (6 hr. accum.):mm:MountainMapperQPE06H
