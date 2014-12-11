@@ -46,6 +46,7 @@ import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
@@ -90,6 +91,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 23, 2014 3356       njensen     Remove unnecessary import
  * Oct 16, 2014 3220       skorolev    Corrected fogConfig assignment.
+ * Dec 11, 2014 3220       skorolev    Moved refreshing of table in the UI thread.
  * 
  * 
  * </pre>
@@ -318,8 +320,15 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         fogConfig = (FSSObsMonitorConfigurationManager) me.getSource();
         updateMonitoringArea();
         if (zoneDialog != null && !zoneDialog.isDisposed()) {
-            zoneDialog.refreshZoneTableData(obData);
-            fireMonitorEvent(zoneDialog.getClass().getName());
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    zoneDialog.refreshZoneTableData(obData);
+                    fireMonitorEvent(zoneDialog.getClass().getName());
+                }
+            });
+
         }
     }
 
