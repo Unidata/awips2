@@ -53,7 +53,6 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Maps;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -81,6 +80,10 @@ public class PlotMeanAreaTempResource extends
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotMeanAreaTempResource.class);
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    private DrawDQCStations ddq = DrawDQCStations.getInstance();
+    
     MPEDisplayManager displayMgr = null;
 
     private ColorMapParameters parameters = new ColorMapParameters();
@@ -115,16 +118,16 @@ public class PlotMeanAreaTempResource extends
 
     GeometryFactory jtsGeometryFactory;
 
-    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+    Hrap_Grid hrap_grid = dqc.getHrap_grid();
 
     private void plot_mean_areal_temp(IGraphicsTarget target, int num) {
 
-        double[][] dqc_temp_delim = DrawDQCStations.dqc_temp_delim;
+        double[][] dqc_temp_delim = ddq.dqc_temp_delim;
         int dqc_temp_numcol = 0;
-        Maps mean_areal_precip_global[] = DailyQcUtils.mean_areal_precip_global;
-        int pcp_in_use[] = DailyQcUtils.pcp_in_use;
-        boolean wfo_all = DailyQcUtils.wfo_all;
-        int[] wfo_in_use = DailyQcUtils.wfo_in_use;
+//        Maps mean_areal_precip_global[] = DailyQcUtils.mean_areal_precip_global;
+        int pcp_in_use[] = dqc.pcp_in_use;
+        boolean wfo_all = dqc.wfo_all;
+        int[] wfo_in_use = dqc.wfo_in_use;
 
         double mapvalue;
         int hh = 0;
@@ -136,7 +139,7 @@ public class PlotMeanAreaTempResource extends
         int ypos;
         float uz, mz, lz, gz;
         int i;
-        int tscale = DrawDQCStations.tscale;
+        int tscale = ddq.tscale;
         Coordinate[] points = new Coordinate[1];
         Coordinate[] PolyPoints = new Coordinate[5];
 
@@ -213,8 +216,8 @@ public class PlotMeanAreaTempResource extends
         maxx = hrap_grid.maxi;
         maxy = hrap_grid.maxj;
 
-        for (ib = 0; !mean_areal_precip_global[ib].hb5.equals(""); ib++) {
-            if (mean_areal_precip_global[ib].tmaps_done[num - 150] <= 0) {
+        for (ib = 0; !dqc.mean_areal_precip_global[ib].hb5.equals(""); ib++) {
+            if (dqc.mean_areal_precip_global[ib].tmaps_done[num - 150] <= 0) {
                 continue;
             }
 
@@ -229,7 +232,7 @@ public class PlotMeanAreaTempResource extends
                         break;
                     }
 
-                    if (mean_areal_precip_global[ib].owner == wfo_in_use[hh]) {
+                    if (dqc.mean_areal_precip_global[ib].owner == wfo_in_use[hh]) {
                         break;
                     }
 
@@ -245,24 +248,24 @@ public class PlotMeanAreaTempResource extends
                 }
 
             }
-            points = new Coordinate[mean_areal_precip_global[ib].basin_points];
+            points = new Coordinate[dqc.mean_areal_precip_global[ib].basin_points];
 
-            for (l = 0; l < mean_areal_precip_global[ib].basin_points; l++) {
+            for (l = 0; l < dqc.mean_areal_precip_global[ib].basin_points; l++) {
                 Coordinate ll = new Coordinate();
-                ll.x = mean_areal_precip_global[ib].basin[l].lon;
-                ll.y = mean_areal_precip_global[ib].basin[l].lat;
+                ll.x = dqc.mean_areal_precip_global[ib].basin[l].lon;
+                ll.y = dqc.mean_areal_precip_global[ib].basin[l].lat;
                 points[l] = ll;
             }
 
-            lz = mean_areal_precip_global[ib].tlz[num - 150];
-            mz = mean_areal_precip_global[ib].tmz[num - 150];
-            uz = mean_areal_precip_global[ib].tuz[num - 150];
-            gz = mean_areal_precip_global[ib].tgz[num - 150];
+            lz = dqc.mean_areal_precip_global[ib].tlz[num - 150];
+            mz = dqc.mean_areal_precip_global[ib].tmz[num - 150];
+            uz = dqc.mean_areal_precip_global[ib].tuz[num - 150];
+            gz = dqc.mean_areal_precip_global[ib].tgz[num - 150];
 
             /* If there are no subareas and this is raster mode. */
-            if ((mean_areal_precip_global[ib].zones[1] != 1)
-                    && (mean_areal_precip_global[ib].zones[2] != 1)
-                    && (mean_areal_precip_global[ib].zones[3] != 1)) {
+            if ((dqc.mean_areal_precip_global[ib].zones[1] != 1)
+                    && (dqc.mean_areal_precip_global[ib].zones[2] != 1)
+                    && (dqc.mean_areal_precip_global[ib].zones[3] != 1)) {
                 mapvalue = lz;
 
                 if (MPELegendResource.dVal != 0) {
@@ -288,27 +291,27 @@ public class PlotMeanAreaTempResource extends
                 }
             }
 
-            for (l = 0; l < mean_areal_precip_global[ib].hrap_points; l++) {
+            for (l = 0; l < dqc.mean_areal_precip_global[ib].hrap_points; l++) {
 
                 /*
                  * Retrieve the HRAP Coordinates of the HRAP Cell being
                  * processed.
                  */
-                x = mean_areal_precip_global[ib].hrap_data[l].x;
-                y = mean_areal_precip_global[ib].hrap_data[l].y;
+                x = dqc.mean_areal_precip_global[ib].hrap_data[l].x;
+                y = dqc.mean_areal_precip_global[ib].hrap_data[l].y;
 
                 /* search for highest zone number is hrap block */
                 ip = 1;
 
-                if (mean_areal_precip_global[ib].hrap_data[l].zone[1] >= 0) {
+                if (dqc.mean_areal_precip_global[ib].hrap_data[l].zone[1] >= 0) {
                     ip = 2;
                 }
 
-                if (mean_areal_precip_global[ib].hrap_data[l].zone[2] >= 0) {
+                if (dqc.mean_areal_precip_global[ib].hrap_data[l].zone[2] >= 0) {
                     ip = 3;
                 }
 
-                if (mean_areal_precip_global[ib].hrap_data[l].zone[3] >= 0) {
+                if (dqc.mean_areal_precip_global[ib].hrap_data[l].zone[3] >= 0) {
                     ip = 4;
                 }
 
@@ -367,8 +370,8 @@ public class PlotMeanAreaTempResource extends
 
                 /* Using the MPE Lat/Lon Grid, draw the point. */
 
-                xpos = mean_areal_precip_global[ib].hrap_data[l].x;
-                ypos = mean_areal_precip_global[ib].hrap_data[l].y;
+                xpos = dqc.mean_areal_precip_global[ib].hrap_data[l].x;
+                ypos = dqc.mean_areal_precip_global[ib].hrap_data[l].y;
 
                 PolyPoints[0] = new Coordinate();
                 PolyPoints[0].x = (short) xpos;
@@ -422,7 +425,7 @@ public class PlotMeanAreaTempResource extends
         float alpha = paintProps.getAlpha();
         boolean isShaded = true;
 
-        if (DailyQcUtils.map_flag != 1 || displayMgr.isMaxmin() != true) {
+        if (dqc.map_flag != 1 || displayMgr.isMaxmin() != true) {
             return;
         }
 
@@ -501,8 +504,8 @@ public class PlotMeanAreaTempResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        display_flag = DrawDQCStations.display_flag;
-        time_pos = DrawDQCStations.time_pos;
+        display_flag = ddq.display_flag;
+        time_pos = ddq.time_pos;
         plot_mean_areal_temp(target, time_pos);
     }
 
@@ -513,11 +516,11 @@ public class PlotMeanAreaTempResource extends
      */
     @Override
     public String getName() {
-        if (DrawDQCStations.qcmode == "") {
+        if (ddq.qcmode == "") {
             return "No Data Available";
         }
 
-        return DrawDQCStations.qcmode;
+        return ddq.qcmode;
     }
 
 }
