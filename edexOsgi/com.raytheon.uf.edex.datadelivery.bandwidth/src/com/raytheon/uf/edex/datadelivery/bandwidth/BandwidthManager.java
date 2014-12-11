@@ -150,6 +150,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
  * Apr 02, 2014  2810      dhladky      Priority sorting of subscriptions.
  * Apr 09, 2014 3012       dhladky      Range the querries for metadata checks to subscriptions.
  * Apr 22, 2014 2992       dhladky      Ability to get list of all registry nodes containing data.
+ * Oct 08, 2014 3707       dhladky      Changed the way Gridded subscriptions are triggered.
  * 
  * </pre>
  * 
@@ -573,12 +574,13 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      */
     @Override
     public List<BandwidthAllocation> scheduleAdhoc(
-            AdhocSubscription<T, C> subscription, Calendar now) {
+            AdhocSubscription<T, C> subscription, Calendar baseReferenceTime) {
 
         List<BandwidthSubscription> subscriptions = new ArrayList<BandwidthSubscription>();
         // Store the AdhocSubscription with a base time of now..
         subscriptions.add(bandwidthDao.newBandwidthSubscription(subscription,
-                now));
+                baseReferenceTime));
+  
         /**
          * This check allows for retrieval of data older than current for grid.
          * This is not allowed for pointdata types, they must grab current URL
@@ -600,8 +602,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                         subscriptions));
 
         for (SubscriptionRetrieval retrieval : retrievals) {
-            retrieval.setStartTime(now);
-            Calendar endTime = TimeUtil.newCalendar(now);
+            retrieval.setStartTime(baseReferenceTime);
+            Calendar endTime = TimeUtil.newCalendar(baseReferenceTime);
             endTime.add(Calendar.MINUTE, retrieval.getSubscriptionLatency());
             retrieval.setEndTime(endTime);
             // Store the SubscriptionRetrieval - retrievalManager expects
@@ -798,9 +800,9 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         // Create an adhoc subscription based on the new subscription,
         // and set it to retrieve the most recent cycle (or most recent
         // url if a daily product)
-        if (subscription instanceof SiteSubscription && subscription.isActive()) {
+        if (subscription instanceof RecurringSubscription && subscription.isActive()) {
             AdhocSubscription<T, C> adhoc = new AdhocSubscription<T, C>(
-                    (SiteSubscription<T, C>) subscription);
+                    (RecurringSubscription<T, C>) subscription);
             adhoc = bandwidthDaoUtil.setAdhocMostRecentUrlAndTime(adhoc,
                     useMostRecentDataSetUpdate);
 
@@ -834,10 +836,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                     }
                 }
             }
-        } else {
-            statusHandler
-                    .warn("Unable to create adhoc queries for shared subscriptions at this point.  This functionality should be added in the future...");
-        }
+        } 
         return unscheduled;
     }
 
@@ -1744,28 +1743,5 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         }
 
         return dataSetMetaDataTime;
-    }
-    
-    /**
-     * Sets a range based on the baseReferenceTime hour.
-     * @param baseReferenceTime
-     * @return
-     */
-    public static Map<String, Date> getBaseReferenceTimeDateRange(Calendar baseReferenceTime) {
-        
-        Map<String, Date> dates = new HashMap<String, Date>(2);
-        // Set min range to baseReferenceTime hour "00" minutes, "00" seconds
-        // Set max range to baseReferenceTime hour "59" minutes, "59" seconds
-        Calendar min = TimeUtil.newGmtCalendar(baseReferenceTime.getTime());
-        min.set(Calendar.MINUTE, 0);
-        min.set(Calendar.SECOND, 0);
-        Calendar max = TimeUtil.newGmtCalendar(baseReferenceTime.getTime());
-        max.set(Calendar.MINUTE, 59);
-        max.set(Calendar.SECOND, 59);
-        
-        dates.put(MIN_RANGE_TIME, min.getTime());
-        dates.put(MAX_RANGE_TIME, max.getTime());
-        
-        return dates;
     }
 }
