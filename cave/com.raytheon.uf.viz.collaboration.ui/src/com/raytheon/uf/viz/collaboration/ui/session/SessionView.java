@@ -23,7 +23,9 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener;
@@ -119,6 +121,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Nov 26, 2014 3709       mapeters    added styleAndAppendText() taking fg and bg colors, 
  *                                     use parent's colors map.
  * Dec 02, 2014 3709       mapeters    added color actions for group chats without shared display.
+ * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
  * 
  * </pre>
  * 
@@ -154,6 +157,8 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
 
     private static UserColorConfigManager colorConfigManager;
 
+    private Map<String, ChangeTextColorAction> userColorActions;
+
     protected boolean enableUserColors = true;
 
     public SessionView() {
@@ -179,6 +184,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         super.initComponents(parent);
         if (enableUserColors) {
             colorConfigManager = new UserColorConfigManager();
+            userColorActions = new HashMap<>();
         }
 
         // unfortunately this code cannot be a part of createToolbarButton
@@ -237,8 +243,14 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
             // add color actions if in group chat room without shared display
             String user = entry.getName();
             RGB defaultForeground = colorManager.getColorForUser(entry);
-            manager.add(new ChangeTextColorAction(user, me, me,
-                    defaultForeground, colorConfigManager));
+            ChangeTextColorAction userColorAction = userColorActions.get(user);
+            if (userColorAction == null) {
+                userColorAction = ChangeTextColorAction
+                        .createChangeUserTextColorAction(user, me,
+                                defaultForeground, colorConfigManager);
+                userColorActions.put(user, userColorAction);
+            }
+            manager.add(userColorAction);
         }
     }
 
@@ -426,6 +438,13 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
 
         if (colorManager != null) {
             colorManager.clearColors();
+        }
+
+        if (userColorActions != null) {
+            for (ChangeTextColorAction userColorAction : userColorActions
+                    .values()) {
+                userColorAction.dispose();
+            }
         }
 
         // clean up event handlers
