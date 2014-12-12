@@ -24,9 +24,10 @@ import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
+import java.util.LinkedHashMap;
 
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -40,58 +41,68 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * SOFTWARE HISTORY
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Jul 26, 2006             chammack    Initial Creation.
+ * Unknown                  bsteffen    Initial creation
+ * Unknown                  cchen       Modifications
+ * Dec 8, 2014   DR16713    jgerth      Incorporate date and time
  * 
  * </pre>
  * 
- * @author chammack
+ * @author bsteffen
  * @version 1
  */
 public class NSharpSaveScreenAction extends ExportImageHandler {
 
     @Override
-    protected BufferedImage captureCurrentFrames(AbstractEditor editor) {
-        return editor.getActiveDisplayPane().getTarget().screenshot();
+    protected LinkedHashMap<DataTime, BufferedImage> captureCurrentFrames(AbstractEditor editor) {
+        NsharpResourceHandler handler = ((NsharpEditor) editor).getRscHandler();
+        LinkedHashMap<DataTime, BufferedImage> dtbiHash = new LinkedHashMap<DataTime, BufferedImage>();
+        DataTime[] dataTimes = handler.getSkewtPaneRsc().getDescriptor().getFramesInfo().getFrameTimes();
+        if (dataTimes == null || dataTimes.length == 0) {
+            dtbiHash.put(buildFakeTime(0), editor.getActiveDisplayPane().getTarget().screenshot());
+        } else {
+            dtbiHash.put(dataTimes[handler.getCurrentIndex()], editor.getActiveDisplayPane().getTarget().screenshot());
+        }
+        return dtbiHash;
     }
 
     @Override
-    protected List<BufferedImage> captureAllFrames(AbstractEditor editor)
+    protected LinkedHashMap<DataTime, BufferedImage> captureAllFrames(AbstractEditor editor)
             throws VizException {
         if(!(editor instanceof NsharpEditor)){
             return super.captureAllFrames(editor);
         }
         NsharpResourceHandler handler = ((NsharpEditor) editor).getRscHandler();
         int startIndex = 0;
-        int endIndex = handler .getFrameCount(); // Chin NsharpFrameIndexUtil.getFrameCount(handler);
+        int endIndex = handler.getFrameCount();
         return captureFrames(editor, startIndex, endIndex);
     }
 
     @Override
-    protected List<BufferedImage> captureFrames(AbstractEditor editor,
+    protected LinkedHashMap<DataTime, BufferedImage> captureFrames(AbstractEditor editor,
             int startIndex, int endIndex) throws VizException {
         if(!(editor instanceof NsharpEditor)){
             return super.captureFrames(editor, startIndex, endIndex);
         }
+        LinkedHashMap<DataTime, BufferedImage> dtbiHash = new LinkedHashMap<DataTime, BufferedImage>();
         IDisplayPane pane = editor.getActiveDisplayPane();
         NsharpResourceHandler handler = ((NsharpEditor) editor).getRscHandler();
         // save the frame we are on;
-        int startingIndex = handler.getCurrentIndex(); // Chin NsharpFrameIndexUtil.getCurrentIndex(handler);
-        List<BufferedImage> images = new ArrayList<BufferedImage>();
-        LoopProperties loopProperties = ((AbstractEditor) editor)
-                .getLoopProperties();
+        int startingIndex = handler.getCurrentIndex();
+        LoopProperties loopProperties = ((AbstractEditor) editor).getLoopProperties();
         renderPane(pane, loopProperties);
+        DataTime[] dataTimes = handler.getSkewtPaneRsc().getDescriptor().getFramesInfo().getFrameTimes();
         for (int i = startIndex; i < endIndex; i++) {
-        	//Chin NsharpFrameIndexUtil.setCurrentIndex(handler, i);
-        	if(handler.setCurrentIndex(i)== false)
-        		continue;
+            if (handler.setCurrentIndex(i) == false) {
+                continue;
+            }
             pane.refresh();
             renderPane(pane, loopProperties);
-            images.add(captureCurrentFrames(editor));
+            dtbiHash.put(dataTimes[i], editor.getActiveDisplayPane().getTarget().screenshot());
         }
-        handler.setCurrentIndex(startingIndex); // Chin NsharpFrameIndexUtil.setCurrentIndex(handler, startingIndex);
+        handler.setCurrentIndex(startingIndex);
         pane.refresh();
         renderPane(pane, loopProperties);
-        return images;
+        return dtbiHash;
     }
 
 }
