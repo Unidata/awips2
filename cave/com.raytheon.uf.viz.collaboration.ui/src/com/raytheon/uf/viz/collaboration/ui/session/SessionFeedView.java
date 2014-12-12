@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jface.action.Action;
@@ -75,6 +77,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Oct 10, 2014 3708       bclement    SiteConfigurationManager refactor
  * Nov 26, 2014 3709       mapeters    support foreground/background color preferences for each site
  * Dec 08, 2014 3709       mapeters    Removed ChangeSiteColorAction, uses {@link ChangeTextColorAction}.
+ * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
  * 
  * </pre>
  * 
@@ -103,6 +106,8 @@ public class SessionFeedView extends SessionView {
 
     private volatile boolean initialized = false;
 
+    private Map<String, ChangeTextColorAction> siteColorActions;
+
     /**
      * 
      */
@@ -127,6 +132,8 @@ public class SessionFeedView extends SessionView {
 
         colorConfigManager = new FeedColorConfigManager();
         usersTable.refresh();
+
+        siteColorActions = new HashMap<>();
     }
 
     @Subscribe
@@ -201,8 +208,14 @@ public class SessionFeedView extends SessionView {
         String site = getSelectedSite();
         RGB defaultForeground = colorManager
                 .getColorForUser(getSelectedParticipant());
-        manager.add(new ChangeTextColorAction(site, defaultForeground,
-                colorConfigManager));
+        ChangeTextColorAction siteColorAction = siteColorActions.get(site);
+        if(siteColorAction == null) {
+            siteColorAction = ChangeTextColorAction
+                    .createChangeSiteTextColorAction(site, defaultForeground,
+                            colorConfigManager);
+            siteColorActions.put(site, siteColorAction);
+        }
+        manager.add(siteColorAction);
         if (!SiteConfigurationManager.isVisible(actingSite, site)) {
             userAddSiteAction
                     .setText("Show Messages from " + getSelectedSite());
@@ -470,5 +483,14 @@ public class SessionFeedView extends SessionView {
         if (otherParticipants.remove(participant.getName()) != null) {
             super.participantDeparted(participant, description);
         }
+    }
+
+    @Override
+    public void dispose() {
+        for (ChangeTextColorAction siteColorAction : siteColorActions.values()) {
+            siteColorAction.dispose();
+        }
+
+        super.dispose();
     }
 }
