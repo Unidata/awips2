@@ -75,6 +75,8 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  *                                     settings for each user
  * Nov 26, 2014 3709       mapeters    add colorConfigManager, use parent's colors map
  * Dec 08, 2014 3709       mapeters    move color change actions to menu bar.
+ * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s as fields, 
+ *                                     dispose them.
  * 
  * </pre>
  * 
@@ -105,6 +107,10 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
 
     private static UserColorConfigManager colorConfigManager;
 
+    private ChangeTextColorAction userColorAction;
+
+    private ChangeTextColorAction peerColorAction;
+
     public PeerToPeerView() {
         super();
         CollaborationConnection.getConnection().registerEventHandler(this);
@@ -123,6 +129,10 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         if (conn != null) {
             conn.unregisterEventHandler(this);
         }
+
+        userColorAction.dispose();
+        peerColorAction.dispose();
+
         super.dispose();
     }
 
@@ -391,8 +401,10 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         String myName = CollaborationConnection.getConnection().getUser()
                 .getName();
         RGB defaultUserForeground = DEFAULT_USER_FOREGROUND_COLOR.getRGB();
-        mgr.add(new ChangeTextColorAction(myName, true, true,
-                defaultUserForeground, colorConfigManager));
+        userColorAction = ChangeTextColorAction
+                .createChangeUserTextColorAction(myName, true,
+                        defaultUserForeground, colorConfigManager);
+        mgr.add(userColorAction);
     }
 
     /**
@@ -402,7 +414,9 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
         String peerName = peer.getName();
         RGB defaultPeerForeground = DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
-        mgr.add(new ChangeTextColorAction(peerName, false, true,
-                defaultPeerForeground, colorConfigManager));
+        peerColorAction = ChangeTextColorAction
+                .createChangeUserTextColorAction(peerName, true,
+                        defaultPeerForeground, colorConfigManager);
+        mgr.add(peerColorAction);
     }
 }
