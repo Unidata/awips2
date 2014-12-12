@@ -382,9 +382,9 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
             AreaContainer ac = getTableData().getArea(zone);
             if (ac != null) {
                 ac.addReport(result.getObservationTime(), result);
+                fireMonitorEvent(this);
             }
         }
-        fireMonitorEvent(this);
     }
 
     /**
