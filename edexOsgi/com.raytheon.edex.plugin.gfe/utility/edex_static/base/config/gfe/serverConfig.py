@@ -1104,6 +1104,7 @@ elif SID == "HFO":
                  'WPHwave10',
                  'NPHwave4',
                  'GLOBHwave',
+		 ('MOSGuide-HI', 'MOSGuide'),
                ]
 
 # San Juan OCONUS
@@ -1424,6 +1425,7 @@ elif SID == "HFO":
 #        "gfsLR" : ["gfsLR"],
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
+	"MOSGuide" : ['MOSGuide'],
         }
 
 # San Juan OCONUS
