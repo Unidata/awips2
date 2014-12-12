@@ -38,7 +38,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
 
 /**
  * TODO Add Description
@@ -59,6 +58,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
 
 public class GenerateAccumGrids {
     AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     String qpe_files_dir = appsDefaults.getToken("rfcwide_xmrg_dir");
 
@@ -77,15 +78,15 @@ public class GenerateAccumGrids {
     private static final SimpleDateFormat yyyyMMddHH = new SimpleDateFormat(
             "yyyyMMddHH");
 
-    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+//    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
 
-    int grid_xor = hrap_grid.hrap_minx;
+    int grid_xor = dqc.getHrap_grid().hrap_minx;
 
-    int grid_yor = hrap_grid.hrap_miny;
+    int grid_yor = dqc.getHrap_grid().hrap_miny;
 
-    int grid_maxx = hrap_grid.maxi;
+    int grid_maxx = dqc.getHrap_grid().maxi;
 
-    int grid_maxy = hrap_grid.maxj;
+    int grid_maxy = dqc.getHrap_grid().maxj;
 
     // int maxx = grid_maxx - grid_xor;
 
@@ -105,12 +106,12 @@ public class GenerateAccumGrids {
         int hour = 0;
         int jj = 0;
         Calendar kal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        Date endTimeTemp = new Date(DailyQcUtils.btime.getTimeInMillis());
+        Date endTimeTemp = new Date(dqc.btime.getTimeInMillis());
         obsdate = new Date[qcDays + 1];
         ColorMapParameters cmc = new ColorMapParameters();
         // if not empty clear them
         // if (DailyQcUtils.QPEaccum24hr != null) {
-        DailyQcUtils.QPEaccum24hr = new double[qcDays][grid_maxy][grid_maxx];
+        dqc.QPEaccum24hr = new double[qcDays][grid_maxy][grid_maxx];
         // }
         Unit<?> displayUnit = Unit.ONE;
         Unit<?> dataUnit = Unit.ONE;
@@ -120,17 +121,17 @@ public class GenerateAccumGrids {
         cmc.setDataUnit(dataUnit);
         // if not initialized, clear and initialize array
         // if (DailyQcUtils.QPEgrid1hr != null) {
-        DailyQcUtils.QPEgrid1hr = new short[grid_maxy][grid_maxx];
+        dqc.QPEgrid1hr = new short[grid_maxy][grid_maxx];
         // }
         for (int i = 0; i < grid_maxy; i++) {
             for (int j = 0; j < grid_maxx; j++) {
-                DailyQcUtils.QPEgrid1hr[i][j] = (short) DailyQcUtils.MOSAIC_DEFAULT;
+                dqc.QPEgrid1hr[i][j] = (short) dqc.MOSAIC_DEFAULT;
             }
         }
         for (int k = 0; k < qcDays; k++) {
             for (int i = 0; i < grid_maxy; i++) {
                 for (int j = 0; j < grid_maxx; j++) {
-                    DailyQcUtils.QPEaccum24hr[k][i][j] = DailyQcUtils.MOSAIC_DEFAULT;
+                    dqc.QPEaccum24hr[k][i][j] = dqc.MOSAIC_DEFAULT;
                 }
             }
         }
@@ -162,16 +163,16 @@ public class GenerateAccumGrids {
                     for (int i = 0; i < grid_maxy; i++) {
 
                         for (int k = 0; k < grid_maxx; k++) {
-                            if (DailyQcUtils.QPEaccum24hr[j][i][k] == DailyQcUtils.MOSAIC_DEFAULT) {
-                                DailyQcUtils.QPEaccum24hr[j][i][k] = 0.0;
+                            if (dqc.QPEaccum24hr[j][i][k] == dqc.MOSAIC_DEFAULT) {
+                                dqc.QPEaccum24hr[j][i][k] = 0.0;
                             }
 
                             float f = 0;
-                            short s = DailyQcUtils.QPEgrid1hr[i][k];
+                            short s = dqc.QPEgrid1hr[i][k];
                             if (s < 0) {
                                 if (s == -9999 || s == -999 || s == -99
                                         || (s == -9)) {
-                                    f = (float) DailyQcUtils.MOSAIC_DEFAULT;
+                                    f = (float) dqc.MOSAIC_DEFAULT;
                                 } else if (s == -8888 || s == -899) {
                                     f = s;
                                 } else {
@@ -188,12 +189,12 @@ public class GenerateAccumGrids {
                                         .convert(s);
                             }
                             float aa = (float) ((Math.floor((int) (f * 100))) / 100.0);
-                            if (DailyQcUtils.QPEaccum24hr[j][i][k] < 0
+                            if (dqc.QPEaccum24hr[j][i][k] < 0
                                     && s >= 0) {
-                                DailyQcUtils.QPEaccum24hr[j][i][k] = aa;
-                            } else if (DailyQcUtils.QPEaccum24hr[j][i][k] >= 0
+                                dqc.QPEaccum24hr[j][i][k] = aa;
+                            } else if (dqc.QPEaccum24hr[j][i][k] >= 0
                                     && s > 0) {
-                                DailyQcUtils.QPEaccum24hr[j][i][k] += aa;
+                                dqc.QPEaccum24hr[j][i][k] += aa;
                             }
                             // DailyQcUtils.QPEaccum24hr[j][i][k] =
                             // DailyQcUtils.QPEaccum24hr[j][i][k]
@@ -252,17 +253,11 @@ public class GenerateAccumGrids {
                     yyyyMMddHH.format(ts));
         }
 
-        System.out.println("GenerateAccumGrids.Read1hrQPEGrid(): qpe_filename: " + qpe_filename);
-        
         XmrgFile xmrg = new XmrgFile(qpe_filename);
         try {
-            long fileLength = xmrg.getFile().length();
-            if (fileLength > 0)
-            {
-                xmrg.load();
-                Rectangle extent = xmrg.getHrapExtent();
-                DailyQcUtils.QPEgrid1hr = xmrg.getData(extent);
-            }
+            xmrg.load();
+            Rectangle extent = xmrg.getHrapExtent();
+            dqc.QPEgrid1hr = xmrg.getData(extent);
         } catch (FileNotFoundException e) {
             System.out.println("xmrg file not found: " + qpe_filename);
 
