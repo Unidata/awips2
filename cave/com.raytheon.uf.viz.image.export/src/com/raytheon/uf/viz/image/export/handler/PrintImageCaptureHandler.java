@@ -61,6 +61,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Aug 08, 2008  703      randerso    fixed bug, changed to scale to fit paper
  *                                    and rotate if necessary
  * Jan 20, 2014  2312     bsteffen    Move to image export plugin.
+ * Dec 4, 2014   DR16713  jgerth      Support for date and time in file name
  * 
  * </pre>
  * 
@@ -116,7 +117,7 @@ public class PrintImageCaptureHandler extends AbstractImageCaptureHandler {
             switch (pd.getScope()) {
             case PrinterData.ALL_PAGES: {
                 try {
-                    for (BufferedImage bi : captureAllFrames(editor)) {
+                    for (BufferedImage bi : captureAllFrames(editor).values()) {
                         printImage(printer, display, bi);
                     }
                 } catch (VizException e) {
@@ -128,7 +129,7 @@ public class PrintImageCaptureHandler extends AbstractImageCaptureHandler {
             case PrinterData.PAGE_RANGE: {
                 try {
                     for (BufferedImage bi : captureFrames(editor,
-                            pd.getStartPage() - 1, pd.getEndPage())) {
+                            pd.getStartPage() - 1, pd.getEndPage()).values()) {
                         printImage(printer, display, bi);
                     }
                 } catch (VizException e) {
