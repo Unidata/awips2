@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
 import com.raytheon.uf.viz.monitor.ObsMonitor;
+import com.raytheon.uf.viz.monitor.data.AreaContainer;
 import com.raytheon.uf.viz.monitor.data.MonitoringArea;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.data.ObReport;
@@ -376,13 +377,14 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     protected void process(ObReport result) throws Exception {
         obData.addReport(result);
-
         String zone = findZone(result.getPlatformId());
-        getTableData().getArea(zone).addReport(result.getObservationTime(),
-                result);
-
+        if (zone != null) {
+            AreaContainer ac = getTableData().getArea(zone);
+            if (ac != null) {
+                ac.addReport(result.getObservationTime(), result);
+            }
+        }
         fireMonitorEvent(this);
-
     }
 
     /**
