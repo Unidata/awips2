@@ -20,12 +20,13 @@
 package com.raytheon.uf.viz.image.export.handler;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
+import java.util.LinkedHashMap;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -53,6 +54,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 20, 2014  2312     bsteffen    Move to image export plugin.
+ * Dec 4, 2014   DR16713  jgerth      Incorporate date and time
  * 
  * </pre>
  * 
@@ -61,11 +63,18 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  */
 public abstract class AbstractImageCaptureHandler extends AbstractHandler {
 
-    protected BufferedImage captureCurrentFrames(AbstractEditor editor) {
-        return editor.screenshot();
+    protected LinkedHashMap<DataTime, BufferedImage> captureCurrentFrames(AbstractEditor editor) {
+        LinkedHashMap<DataTime, BufferedImage> dtbiHash = new LinkedHashMap<DataTime, BufferedImage>();
+        DataTime[] dataTimes = editor.getActiveDisplayPane().getDescriptor().getFramesInfo().getFrameTimes();
+        if (dataTimes == null || dataTimes.length == 0) {
+            dtbiHash.put(buildFakeTime(0), editor.screenshot());
+        } else {
+            dtbiHash.put(dataTimes[editor.getActiveDisplayPane().getDescriptor().getFramesInfo().getFrameIndex()], editor.screenshot());
+        }
+        return dtbiHash;
     }
 
-    protected List<BufferedImage> captureAllFrames(AbstractEditor editor)
+    protected LinkedHashMap<DataTime, BufferedImage> captureAllFrames(AbstractEditor editor)
             throws VizException {
         int startIndex = 0;
         int endIndex = editor.getActiveDisplayPane().getDescriptor()
@@ -76,28 +85,31 @@ public abstract class AbstractImageCaptureHandler extends AbstractHandler {
         return captureFrames(editor, startIndex, endIndex);
     }
 
-    protected List<BufferedImage> captureFrames(AbstractEditor editor,
+    protected LinkedHashMap<DataTime, BufferedImage> captureFrames(AbstractEditor editor,
             int startIndex, int endIndex) throws VizException {
+        LinkedHashMap<DataTime, BufferedImage> dtbiHash = new LinkedHashMap<DataTime, BufferedImage>();
         if (startIndex < 0) {
             startIndex = 0;
         }
-        List<BufferedImage> images = new ArrayList<BufferedImage>(endIndex
-                - startIndex);
-        int origIndex = editor.getActiveDisplayPane().getDescriptor()
-                .getFramesInfo().getFrameIndex();
+        int origIndex = editor.getActiveDisplayPane().getDescriptor().getFramesInfo().getFrameIndex();
+        DataTime[] dataTimes = editor.getActiveDisplayPane().getDescriptor().getFramesInfo().getFrameTimes();
         for (int i = startIndex; i < endIndex; i++) {
             for (IDisplayPane pane : editor.getDisplayPanes()) {
                 setFrameIndex(pane.getDescriptor(), i);
                 pane.refresh();
                 renderPane(pane, editor.getLoopProperties());
             }
-            images.add(editor.screenshot());
+            if (dataTimes != null && dataTimes.length > 0) {
+                dtbiHash.put(dataTimes[i], editor.screenshot());
+            } else {
+                dtbiHash.put(buildFakeTime(i), editor.screenshot());
+            }
         }
         for (IDisplayPane pane : editor.getDisplayPanes()) {
             setFrameIndex(pane.getDescriptor(), origIndex);
             pane.refresh();
         }
-        return images;
+        return dtbiHash;
     }
 
     private void setFrameIndex(IDescriptor desc, int index) {
@@ -134,6 +146,20 @@ public abstract class AbstractImageCaptureHandler extends AbstractHandler {
             display.paint(target, paintProps);
             target.endFrame();
         }
+    }
+
+    /**
+     * Build a fake time when a time is not associated with a frame. The fake
+     * time is the number of milliseconds since the Epoch based on the integer
+     * frame number.
+     *
+     * @param the frame number
+     * @return the fake DataTime based on the frame number
+     */
+    protected DataTime buildFakeTime(int i) {
+        Calendar c = TimeUtil.newGmtCalendar();
+        c.setTimeInMillis(i);
+        return new DataTime(c);
     }
 
     @Override
