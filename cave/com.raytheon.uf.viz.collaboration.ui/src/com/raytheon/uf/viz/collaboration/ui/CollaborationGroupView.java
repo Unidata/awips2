@@ -22,7 +22,9 @@ package com.raytheon.uf.viz.collaboration.ui;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.action.Action;
@@ -57,6 +59,7 @@ import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -164,6 +167,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Oct 14, 2014 3709       mapeters    Added change background/foreground color actions to menu.
  * Nov 14, 2014 3709       mapeters    Removed change background/foreground color actions from menu.
  * Dec 08, 2014 3709       mapeters    Added MB3 change user text color actions to contacts list.
+ * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
  * 
  * </pre>
  * 
@@ -203,6 +207,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private LogoutAction logOut;
 
     private Action roomSearchAction;
+
+    private Map<String, ChangeTextColorAction> userColorActions;
 
     /**
      * @param parent
@@ -278,6 +284,10 @@ public class CollaborationGroupView extends CaveFloatingView implements
         inactiveImage.dispose();
         activeImage.dispose();
         pressedImage.dispose();
+
+        for (ChangeTextColorAction userColorAction : userColorActions.values()) {
+            userColorAction.dispose();
+        }
     }
 
     /**
@@ -286,6 +296,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private void createActions() {
         Bundle bundle = Activator.getDefault().getBundle();
         final IUserSelector userSelector = this;
+
+        userColorActions = new HashMap<>();
 
         createSessionAction = new CreateSessionAction(userSelector);
 
@@ -464,8 +476,15 @@ public class CollaborationGroupView extends CaveFloatingView implements
             }
             manager.add(new AddNotifierAction(this));
             manager.add(new Separator());
-            manager.add(new ChangeTextColorAction(user.getName(), false, false,
-                    null, new UserColorConfigManager()));
+            String name = user.getName();
+            ChangeTextColorAction userColorAction = userColorActions.get(name);
+            if (userColorAction == null) {
+                userColorAction = ChangeTextColorAction
+                        .createChangeUserTextColorAction(name, false, new RGB(
+                                0, 0, 255), new UserColorConfigManager());
+                userColorActions.put(name, userColorAction);
+            }
+            manager.add(userColorAction);
         } else if (o instanceof UserId) {
             // the user
             UserId user = (UserId) o;
@@ -474,9 +493,17 @@ public class CollaborationGroupView extends CaveFloatingView implements
             UserId me = connection.getUser();
             if (me.isSameUser(user)) {
                 createMenu(manager);
-                manager.insertBefore("afterFont", new ChangeTextColorAction(
-                        user.getName(), true, true, null,
-                        new UserColorConfigManager()));
+                String name = user.getName();
+                ChangeTextColorAction userColorAction = userColorActions
+                        .get(name);
+                if (userColorAction == null) {
+                    userColorAction = ChangeTextColorAction
+                            .createChangeUserTextColorAction(name, true,
+                                new RGB(0, 0, 255),
+                                new UserColorConfigManager());
+                    userColorActions.put(name, userColorAction);
+                }
+                manager.insertBefore("afterFont", userColorAction);
             }
         } else if (o instanceof RosterGroup || o instanceof SharedGroup) {
             Action inviteAction = new InviteAction(getSelectedUsers());
