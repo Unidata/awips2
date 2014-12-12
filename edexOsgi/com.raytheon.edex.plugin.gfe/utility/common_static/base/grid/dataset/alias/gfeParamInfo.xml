@@ -214,4 +214,16 @@
     <alias base="NAHwave15">NAHwave15</alias>
     <alias base="NAHwave10">NAHwave10</alias>
     <alias base="NAHwave4">NAHwave4</alias>
+    <alias base="FFG-ALR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-FWR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-KRF">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-MSR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-ORN">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-PTR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-RHA">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-RSA">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-STR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-TAR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-TIR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-TUA">RFCFFG_ParameterInfo</alias>
 </aliasList>
