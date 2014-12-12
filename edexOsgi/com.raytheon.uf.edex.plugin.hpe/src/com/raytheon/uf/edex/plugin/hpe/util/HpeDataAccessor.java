@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.plugin.hpe.util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
@@ -44,7 +45,7 @@ import com.raytheon.uf.edex.plugin.hpe.util.HpeEnums.HpeDataSource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2014    3026    mpduff      Initial creation
- * Nov 12, 2014    3026    mpduff      Fix handling of query results
+ * Nov 12, 2014    3026    mpduff      Fix handling of query results and query by current hour
  * 
  * </pre>
  * 
@@ -94,6 +95,16 @@ public class HpeDataAccessor {
             Date recdate, String productName) throws Exception {
         SortedMap<String, List<BiasDynRecord>> dataMap = new TreeMap<String, List<BiasDynRecord>>();
 
+        /*
+         * Bias data are by the hour. Get the current hour to query on
+         */
+        long ms = recdate.getTime();
+        Calendar currentHour = TimeUtil.newGmtCalendar();
+        currentHour.setTimeInMillis(ms);
+        currentHour.set(Calendar.MINUTE, 0);
+        currentHour.set(Calendar.SECOND, 0);
+        currentHour.set(Calendar.MILLISECOND, 0);
+
         HpeRadarResult hpeResult = getHpeRadarResult(recdate, productName);
 
         HpeDataSource source = hpeResult.getRadarDataSource();
@@ -115,7 +126,8 @@ public class HpeDataAccessor {
         query.append(" from ").append(table);
         query.append(" where office_id ").append(" = '").append(office)
                 .append("'");
-        query.append(" and obstime = '").append(sdf.get().format(recdate));
+        query.append(" and obstime = '").append(
+                sdf.get().format(currentHour.getTime()));
         query.append("'").append(" order by radid asc, memspan_ind asc");
 
         Object[] results = dao.executeSQLQuery(query.toString());
@@ -126,14 +138,14 @@ public class HpeDataAccessor {
                 rec.setRadarId((String) oa[0]);
                 rec.setOfficeId((String) oa[1]);
                 rec.setObsTime((Date) oa[2]);
-                rec.setMemspanIndex((Integer) oa[3]);
-                rec.setNumPairs((Float) oa[4]);
+                rec.setMemspanIndex((Short) oa[3]);
+                rec.setNumPairs((Double) oa[4]);
                 rec.setSumGages((Float) oa[5]);
                 rec.setSumRadars((Float) oa[6]);
                 rec.setBias((Float) oa[7]);
 
-                if (!dataMap.containsKey(rec.getOfficeId())) {
-                    dataMap.put(rec.getOfficeId(),
+                if (!dataMap.containsKey(rec.getRadarId())) {
+                    dataMap.put(rec.getRadarId(),
                             new ArrayList<BiasDynRecord>());
                 }
 
