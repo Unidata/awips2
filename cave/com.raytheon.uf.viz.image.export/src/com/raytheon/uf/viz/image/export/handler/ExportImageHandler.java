@@ -23,9 +23,15 @@ package com.raytheon.uf.viz.image.export.handler;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -53,9 +59,11 @@ import org.w3c.dom.Node;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.image.export.dialog.ImageExportDialog;
 import com.raytheon.uf.viz.image.export.options.ImageExportOptions;
+import com.raytheon.uf.viz.image.export.options.ImageExportOptions.DateTimeSelection;
 import com.raytheon.uf.viz.image.export.options.ImageExportOptions.FrameSelection;
 import com.raytheon.uf.viz.image.export.options.ImageExportOptions.ImageFormat;
 import com.raytheon.viz.ui.EditorUtil;
@@ -70,6 +78,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * ------------- -------- ----------- --------------------------
  * Jul 26, 2006           chammack    Initial Creation.
  * Jan 20, 2014  2312     bsteffen    Move to image export plugin, animation.
+ * Dec 4, 2014   DR16713  jgerth      Support for date and time in file name
  * 
  * </pre>
  * 
@@ -79,6 +88,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 public class ExportImageHandler extends AbstractImageCaptureHandler {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ExportImageHandler.class);
+
+    private static final String DATE_TIME_FORMAT = "yyyyMMdd_HHmmss";
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -138,17 +149,17 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
             }
         }
 
-        List<BufferedImage> images = null;
+        LinkedHashMap<DataTime, BufferedImage> dtbiHash = new LinkedHashMap<DataTime, BufferedImage>();
         try {
             switch (options.getFrameSelection()) {
             case CURRENT:
-                images = Arrays.asList(captureCurrentFrames(editor));
+                dtbiHash = captureCurrentFrames(editor);
                 break;
             case ALL:
-                images = captureAllFrames(editor);
+                dtbiHash = captureAllFrames(editor);
                 break;
             case USER:
-                images = captureFrames(editor, options.getFirstFrameIndex(),
+                dtbiHash = captureFrames(editor, options.getFirstFrameIndex(),
                         options.getLastFrameIndex());
                 break;
             }
@@ -158,8 +169,8 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
             return null;
         }
 
-        if (!images.isEmpty()) {
-            new SaveImageJob(options, images);
+        if (!dtbiHash.isEmpty()) {
+            new SaveImageJob(options, dtbiHash);
         }
         return null;
     }
@@ -175,10 +186,14 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
     }
 
     public void saveImages(IProgressMonitor monitor,
-            ImageExportOptions options, List<BufferedImage> images) {
-        monitor.beginTask("Saving Images", images.size());
+            ImageExportOptions options, Map<DataTime, BufferedImage> dtbiHash) {
+        monitor.beginTask("Saving Images", dtbiHash.size());
 
         String path = options.getFileLocation().getAbsolutePath();
+        String ppath = path;
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT);
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        NumberFormat twoDigit = new DecimalFormat("00");
 
         String suffix = path.substring(path.lastIndexOf('.') + 1);
         String basePath = path.substring(0, path.lastIndexOf('.'));
@@ -192,33 +207,47 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
 
         FileImageOutputStream stream = null;
         try {
-            if (images.size() == 1) {
-                stream = new FileImageOutputStream(options.getFileLocation());
-                writer.setOutput(stream);
-                writer.write(images.get(0));
-                stream.close();
-                stream = null;
-                monitor.worked(1);
-            } else if (options.getImageFormat() == ImageFormat.SEQUENCE) {
-                for (int i = 0; i < images.size(); i++) {
-                    BufferedImage bi = images.get(i);
-                    /* Allow GC to collect image after write. */
-                    images.set(i, null);
-                    path = basePath + "-" + (i + 1) + "." + suffix;
+            if (options.getImageFormat() == ImageFormat.SEQUENCE) {
+                int i = 0;
+                for (Map.Entry<DataTime, BufferedImage> entry : dtbiHash.entrySet()) {
+                    i++;
+                    BufferedImage bi = entry.getValue();
+                    if (options.getDateTimeSelection() == DateTimeSelection.DATETIME) {
+                        DataTime key = entry.getKey();
+                        Date validTime = key.getValidTimeAsDate();
+                        if (validTime != null && !isFakeTime(key)) {
+                            path = basePath + "-" + sdf.format(validTime) + "." + suffix;
+                            if (path.equals(ppath)) {
+                                path = basePath + "-" + sdf.format(validTime) + "-" + twoDigit.format(i).toString() + "." + suffix;
+                            }
+                        } else {
+                            path = basePath + "-" + twoDigit.format(i).toString() + "." + suffix;
+                        }
+                    } else if (dtbiHash.size() > 1) {
+                        path = basePath + "-" + twoDigit.format(i).toString() + "." + suffix;
+                    } else {
+                        path = basePath + "." + suffix;
+                    }
+                    ppath = path;
                     stream = new FileImageOutputStream(new File(path));
                     writer.setOutput(stream);
                     writer.write(bi);
                     stream.close();
                     stream = null;
                     if (monitor.isCanceled()) {
+                        dtbiHash.clear();
                         break;
                     }
                     monitor.worked(1);
                 }
+                dtbiHash.clear();
             } else if (options.getImageFormat() == ImageFormat.ANIMATION) {
                 stream = new FileImageOutputStream(options.getFileLocation());
                 writer.setOutput(stream);
                 writer.prepareWriteSequence(null);
+                List<BufferedImage> images = new ArrayList<BufferedImage>();
+                images.addAll(dtbiHash.values());
+                dtbiHash.clear();
                 for (int i = 0; i < images.size(); i++) {
                     BufferedImage bi = images.get(i);
                     /* Allow GC to collect image after write. */
@@ -229,14 +258,12 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
                     if (i == 0) {
                         configureAnimation(metadata,
                                 options.getFirstFrameDwell(), true);
-
                     } else if (i == images.size() - 1) {
                         configureAnimation(metadata,
                                 options.getLastFrameDwell(), false);
                     } else {
                         configureAnimation(metadata, options.getFrameDelay(),
                                 false);
-
                     }
                     IIOImage ii = new IIOImage(bi, null, metadata);
                     writer.writeToSequence(ii, null);
@@ -313,23 +340,36 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
 
     }
 
+    /**
+     * There may be cases in which a valid time is not associated with a frame.
+     * In such cases, a valid time is set to a number of milliseconds from the
+     * Epoch time based on the frame number.  Here we check if that is one of
+     * those such cases.
+     *
+     * @param a DataTime
+     * @return true if the DataTime is close to the Epoch time
+     */
+    public boolean isFakeTime(DataTime dt) {
+        return dt.getValidTime().getTimeInMillis() < 1000;
+    }
+
     protected class SaveImageJob extends Job {
 
         protected final ImageExportOptions options;
 
-        protected final List<BufferedImage> images;
+        protected final LinkedHashMap<DataTime, BufferedImage> dtbiHash;
 
         protected SaveImageJob(ImageExportOptions options,
-                List<BufferedImage> images) {
+                LinkedHashMap<DataTime, BufferedImage> dtbiHash) {
             super("Saving image");
             this.options = options;
-            this.images = images;
+            this.dtbiHash = dtbiHash;
             this.schedule();
         }
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            saveImages(monitor, options, images);
+            saveImages(monitor, options, dtbiHash);
             return Status.OK_STATUS;
         }
 
