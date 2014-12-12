@@ -61,13 +61,11 @@ public abstract class AbstractColorConfigManager {
         }
 
         ColorInfo colorInfo = colors.get(key);
-        if (colorInfo != null) {
-            colorInfo.setColors(foreground, background);
-        } else {
-            ColorInfo newColorInfo = new ColorInfo();
-            newColorInfo.setColors(foreground, background);
-            colors.put(key, newColorInfo);
+        if (colorInfo == null) {
+            colorInfo = new ColorInfo();
+            colors.put(key, colorInfo);
         }
+        colorInfo.setColors(foreground, background);
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext lContext = pathMgr.getContext(
