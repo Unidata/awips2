@@ -45,6 +45,8 @@ import com.raytheon.viz.mpe.util.Disagg6Hr.Values_6hr;
 
 public class DisaggPointMethod {
 
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     Station[] disagg_station_6hr = Disagg6Hr.disagg_station_6hr;
 
     Values_1hr[] disaggValues = Disagg6Hr.disaggValues;
@@ -69,7 +71,7 @@ public class DisaggPointMethod {
 
     double[][] totals_1hr;
 
-    int mpe_dqc_max_precip_neighbors = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+    int mpe_dqc_max_precip_neighbors = dqc.mpe_dqc_max_precip_neighbors;
 
     Dist[] dist_6hr_to_1hr = Disagg6Hr.dist_6hr_to_1hr;
 
@@ -97,8 +99,8 @@ public class DisaggPointMethod {
         float stotal = 0.f;
         int num_missing_periods = 0;
         int num_disagg_stations = Disagg6Hr.num_disagg_stations;
-        int num_days_to_qc = DailyQcUtils.qcDays;
-        int num_1hrs_reported = 0;
+        int num_days_to_qc = dqc.qcDays;
+//        int num_1hrs_reported = 0;
         boolean go_to_next_neighbor = false;
         boolean next_6hr_station = false;
         int index = -1;
@@ -198,7 +200,7 @@ public class DisaggPointMethod {
                                     go_to_next_neighbor = false;
                                     continue;
                                 }
-                                num_1hrs_reported++;
+//                                num_1hrs_reported++;
                                 padj = val_1hr * (prism_6hr / prism_1hr);
                                 fdist = (float) (fdist + (1 / Math.pow(dist, 2)));
                                 fdata = (float) (fdata + (padj / Math.pow(dist,
