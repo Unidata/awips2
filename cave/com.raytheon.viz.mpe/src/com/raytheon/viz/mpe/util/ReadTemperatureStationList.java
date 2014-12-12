@@ -57,42 +57,36 @@ public class ReadTemperatureStationList {
 
     private static int max_tstations = 0;
 
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
-    private String station_dir = appsDefaults.getToken("mpe_station_list_dir");
+    private final String station_dir = appsDefaults
+            .getToken("mpe_station_list_dir");
 
-    private String sitename = appsDefaults.getToken("mpe_site_id");
+    private final String sitename = appsDefaults.getToken("mpe_site_id");
 
     private String pathName = "";
 
-    private DailyQcUtils dc = new DailyQcUtils();
+    private final DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-
-    
     public ArrayList<Station> read_temperature_station_list(String qcArea,
-            boolean master_file_flag)
-    {
+            boolean master_file_flag) {
 
+        StationListManager stationListManager = StationListManager
+                .getInstance();
 
-        StationListManager stationListManager = new StationListManager();
+        try {
+            stationListManager.getStationInfo(qcArea, master_file_flag,
+                    dqc.freezing_stations, dqc.temperature_stations,
+                    dqc.precip_stations);
 
-        try
-        {
-            stationListManager.getStationInfo (qcArea, master_file_flag, 
-                    DailyQcUtils.freezing_stations, 
-                    DailyQcUtils.temperature_stations,
-                    DailyQcUtils.precip_stations); 
-
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        ReadTemperatureStationList.max_tstations = DailyQcUtils.temperature_stations.size();
-        
-     
-        return DailyQcUtils.temperature_stations;
+
+        ReadTemperatureStationList.max_tstations = dqc.temperature_stations
+                .size();
+
+        return dqc.temperature_stations;
     }
 
     public ArrayList<Station> old_read_temperature_station_list(String qcArea,
@@ -141,8 +135,8 @@ public class ReadTemperatureStationList {
                     } else {
                         tokens = null;
                     }
-                    if (tokens != null && tokens.length == 7) {
-                        Station astation = dc.new Station();
+                    if ((tokens != null) && (tokens.length == 7)) {
+                        Station astation = new Station();
                         astation.hb5 = tokens[0].toString().trim();
                         astation.parm = tokens[1].toString().trim();
                         double lat = Double.parseDouble(tokens[2].trim());
@@ -215,7 +209,7 @@ public class ReadTemperatureStationList {
             if (in != null) {
                 int i = 0;
                 line = in.readLine().trim();
-                while (in.ready() && i < stationCount) {
+                while (in.ready() && (i < stationCount)) {
                     ++rec_num;
                     record = line.split("\\s+", 4);
                     if (record.length != 4) {
@@ -237,7 +231,7 @@ public class ReadTemperatureStationList {
                                         .substring(0, 2)))
                                 && (record[1]
                                         .equalsIgnoreCase(stations.get(i).parm))) {
-                            Station statn = dc.new Station();
+                            Station statn = new Station();
                             statn = stations.get(i);
                             statn.xadd = Integer.parseInt(record[2].trim());
                             statn.yadd = Integer.parseInt(record[3].trim());
@@ -271,11 +265,11 @@ public class ReadTemperatureStationList {
          * will include a list of the indexes of the closest gages.
          */
         int i = 0;
-        int qcn = DailyQcUtils.mpe_dqc_max_temp_neighbors;
+        int qcn = dqc.mpe_dqc_max_temp_neighbors;
         double sorted[] = new double[qcn];
         double dist;
-        Station stati = dc.new Station();
-        Station statm = dc.new Station();
+        Station stati = new Station();
+        Station statm = new Station();
 
         for (i = 0; i < max_tstations; i++) {
             stati = stations.get(i);
@@ -297,8 +291,8 @@ public class ReadTemperatureStationList {
                 }
                 float conv = .0174f;
                 double dist1 = stati.lat - statm.lat;
-                double dist2 = ((stati.lon - statm.lon)
-                        * Math.cos(stati.lat + statm.lat) / 2 * conv);
+                double dist2 = ((((stati.lon - statm.lon) * Math.cos(stati.lat
+                        + statm.lat)) / 2) * conv);
                 dist = Math.pow(dist1, 2) + Math.pow(dist2, 2);
 
                 for (int l = 0; l < qcn; l++) {
