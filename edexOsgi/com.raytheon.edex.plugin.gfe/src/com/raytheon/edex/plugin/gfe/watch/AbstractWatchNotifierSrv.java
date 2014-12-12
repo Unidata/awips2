@@ -19,14 +19,13 @@
  **/
 package com.raytheon.edex.plugin.gfe.watch;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.activetable.VTECPartners;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.UserMessageNotification;
@@ -47,7 +46,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 12, 2014  #3157     dgilling     Initial creation
- * Jun 10, 2014  #3268     dgilling     Initial creation
+ * Jun 10, 2014  #3268     dgilling    Initial creation
+ * Oct 08, 2014  #4953     randerso    Refactored AbstractWatchNotifierSrv to allow 
+ *                                     subclasses to handle all watches if desired.
  * 
  * </pre>
  * 
@@ -62,31 +63,19 @@ public abstract class AbstractWatchNotifierSrv {
 
     protected final String watchType;
 
-    protected final String supportedPIL;
-
-    protected AbstractWatchNotifierSrv(String watchType, String supportedPIL) {
+    protected AbstractWatchNotifierSrv(String watchType) {
         this.watchType = watchType;
-        this.supportedPIL = supportedPIL;
     }
 
     /**
      * Processes the warning records and generates a notification for each
      * currently activated GFE site if the storm affects the site.
      * 
-     * @param pdos
-     *            A list of {@code PluginDataObject}s that are assumed to be
-     *            {@code AbstractWarningRecord}s all decoded from a common
-     *            warning product.
+     * @param warningRecs
+     *            A list of {@code AbstractWarningRecord}s all decoded from a
+     *            common warning product.
      */
-    public final void handleWatch(List<PluginDataObject> pdos) {
-        List<AbstractWarningRecord> warningRecs = filterIncomingRecordsByPIL(pdos);
-        if (warningRecs.isEmpty()) {
-            String logMsg = String.format("%s notification:  not %s product",
-                    watchType, supportedPIL);
-            statusHandler.debug(logMsg);
-            return;
-        }
-
+    public void handleWatch(List<AbstractWarningRecord> warningRecs) {
         /*
          * We are making an assumption that all PDOs came from the same source
          * product. This is a safe assumption because WarningDecoder processes
@@ -99,7 +88,7 @@ public abstract class AbstractWatchNotifierSrv {
         String productText = warningRecs.get(0).getRawmessage();
         Collection<String> wfos = WatchProductUtil.findAttnWFOs(productText);
 
-        for (String siteid : IFPServer.getActiveSites()) {
+        for (String siteid : getActiveSites()) {
             if (!wfos.contains(siteid)) {
                 String logMsg = String.format(
                         "%s notification:  my site %s not in ATTN list",
@@ -117,28 +106,8 @@ public abstract class AbstractWatchNotifierSrv {
         }
     }
 
-    /**
-     * Given a list of {@code PluginDataObject}s that are actually
-     * {@code AbstractWarningRecord}s, filters the list for only those records
-     * which have the right PIL code.
-     * 
-     * @param pdos
-     *            List of {@code AbstractWarningRecord}s to filter.
-     * @return The list of supported {@code AbstractWarningRecord}s as defined
-     *         by {@code getSupportedPIL}.
-     */
-    protected List<AbstractWarningRecord> filterIncomingRecordsByPIL(
-            List<PluginDataObject> pdos) {
-        List<AbstractWarningRecord> warningRecords = new ArrayList<AbstractWarningRecord>();
-        for (PluginDataObject pdo : pdos) {
-            AbstractWarningRecord warning = (AbstractWarningRecord) pdo;
-
-            if (warning.getPil().startsWith(supportedPIL)) {
-                warningRecords.add(warning);
-            }
-        }
-
-        return warningRecords;
+    protected Set<String> getActiveSites() {
+        return IFPServer.getActiveSites();
     }
 
     /**
