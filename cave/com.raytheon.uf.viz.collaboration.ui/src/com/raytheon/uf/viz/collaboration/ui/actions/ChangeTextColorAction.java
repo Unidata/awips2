@@ -19,18 +19,25 @@ package com.raytheon.uf.viz.collaboration.ui.actions;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
+import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.AbstractColorConfigManager;
-import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
 import com.raytheon.uf.viz.collaboration.ui.FeedColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.ForegroundBackgroundColorDlg;
 import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
-import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
@@ -46,6 +53,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 12/02/14     3709        mapeters    Initial creation.
  * 12/09/14     3709        mapeters    Uses {@link ForegroundBackgroundColorDlg}, renamed from 
  *                                      ChangeUserColorAction, support both user and site colors.
+ * 12/12/14     3709        mapeters    Use static methods to call constructor, icon displays 
+ *                                      current foreground and background colors.
  * 
  * </pre>
  * 
@@ -60,59 +69,85 @@ public class ChangeTextColorAction extends Action {
 
     private AbstractColorConfigManager colorConfigManager;
 
+    private Image icon;
+
     /**
-     * Constructor for changing user colors.
+     * Create and return new action for changing user colors.
      * 
      * @param user
-     * @param me
      * @param displayName
      * @param defaultForeground
      * @param colorConfigManager
+     * @return
      */
-    public ChangeTextColorAction(String user, boolean me, boolean displayName,
-            RGB defaultForeground, UserColorConfigManager colorConfigManager) {
-        this("Change " + (displayName ? (me ? "Your" : (user + "'s")) : "User")
-                + " Text Colors...", user, defaultForeground,
+    public static ChangeTextColorAction createChangeUserTextColorAction(
+            String user, boolean displayName, RGB defaultForeground,
+            UserColorConfigManager colorConfigManager) {
+        String text = "Change ";
+        if (displayName) {
+            boolean me = CollaborationConnection.getConnection().getUser()
+                    .getName().equals(user);
+            text += me ? "Your" : (user + "'s");
+        } else {
+            text += "User";
+        }
+        text += " Text Colors...";
+
+        return new ChangeTextColorAction(text, user, defaultForeground,
                 colorConfigManager);
     }
-
+    
     /**
-     * Constructor for changing site colors.
+     * Create and return new action for changing site colors.
      * 
      * @param site
      * @param defaultForeground
      * @param colorConfigManager
+     * @return
      */
-    public ChangeTextColorAction(String site, RGB defaultForeground,
+    public static ChangeTextColorAction createChangeSiteTextColorAction(
+            String site, RGB defaultForeground,
             FeedColorConfigManager colorConfigManager) {
-        this("Change Site Text Colors...", site, defaultForeground,
-                colorConfigManager);
+        return new ChangeTextColorAction("Change Site Text Colors...", site,
+                defaultForeground, colorConfigManager);
     }
 
     private ChangeTextColorAction(String text, String key,
             RGB defaultForeground, AbstractColorConfigManager colorConfigManager) {
-        super(text, IconUtil.getImageDescriptor(Activator.getDefault()
-                .getBundle(), "change_color.gif"));
+        super(text);
         this.key = key;
         this.defaultForeground = defaultForeground;
         this.colorConfigManager = colorConfigManager;
+
+        ColorInfo colorInfo = colorConfigManager.getColor(key);
+        RGB foreground;
+        RGB background;
+        if (colorInfo != null) {
+            foreground = colorInfo.getColor(SWT.FOREGROUND);
+            background = colorInfo.getColor(SWT.BACKGROUND);
+        } else {
+            foreground = defaultForeground;
+            background = new RGB(255, 255, 255);
+        }
+        setIconColors(foreground, background);
+
+        CollaborationConnection.getConnection().registerEventHandler(this);
     }
 
     @Override
     public void run() {
         ColorInfo colorInfo = colorConfigManager.getColor(key);
-        RGB background;
         RGB foreground;
+        RGB background;
         if (colorInfo != null) {
-            background = colorInfo.getColor(SWT.BACKGROUND);
             foreground = colorInfo.getColor(SWT.FOREGROUND);
+            background = colorInfo.getColor(SWT.BACKGROUND);
         } else {
             /*
-             * Set dialog to display default colors (if defaultForeground is
-             * null, ForegroundBackgroundColorDlg uses blue)
+             * Set dialog to display default colors
              */
-            background = new RGB(255, 255, 255);
             foreground = defaultForeground;
+            background = new RGB(255, 255, 255);
         }
 
         ForegroundBackgroundColorDlg dialog = new ForegroundBackgroundColorDlg(
@@ -129,9 +164,72 @@ public class ChangeTextColorAction extends Action {
                 if (returnValue instanceof RGB[]) {
                     RGB[] colors = (RGB[]) returnValue;
                     colorConfigManager.setColors(key, colors[0], colors[1]);
+                    CollaborationConnection connection = CollaborationConnection
+                            .getConnection();
+                    connection.postEvent(new ChangeIconEvent(key, colors[0],
+                            colors[1]));
                 }
             }
         });
         dialog.open();
+    }
+
+    @Subscribe
+    public void changeIcon(ChangeIconEvent event) {
+        if (event.key.equals(this.key)) {
+            setIconColors(event.foreground, event.background);
+        }
+    }
+
+    private void setIconColors(RGB foreground, RGB background) {
+        Device device = Display.getCurrent();
+        Color fg = new Color(device, foreground);
+        Color bg = new Color(device, background);
+
+        Image oldIcon = icon;
+        icon = new Image(device, 15, 15);
+        Rectangle bounds = icon.getBounds();
+
+        GC gc = new GC(icon);
+        gc.setForeground(fg);
+        gc.setBackground(bg);
+        gc.fillRectangle(bounds);
+        gc.drawText("A", 4, 0);
+
+        setImageDescriptor(ImageDescriptor.createFromImage(icon));
+
+        gc.dispose();
+        fg.dispose();
+        bg.dispose();
+        if (oldIcon != null) {
+            oldIcon.dispose();
+        }
+    }
+
+    private class ChangeIconEvent {
+
+        private String key;
+
+        private RGB foreground;
+
+        private RGB background;
+
+        private ChangeIconEvent(String key, RGB foreground, RGB background) {
+            this.key = key;
+            this.foreground = foreground;
+            this.background = background;
+        }
+    }
+
+    public void dispose() {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        if (connection != null) {
+            connection.unregisterEventHandler(this);
+        }
+
+        if (icon != null) {
+            icon.dispose();
+        }
     }
 }
