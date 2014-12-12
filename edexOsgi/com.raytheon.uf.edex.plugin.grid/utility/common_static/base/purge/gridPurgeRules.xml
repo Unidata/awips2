@@ -642,6 +642,12 @@
 		<keyValue>HI_RTMA</keyValue>
 		<versionsToKeep>24</versionsToKeep>
 	</rule>
+        <!-- Purge rule for the Hawaii 2.5km MOSGuide model -->
+        <rule>
+                <keyValue>MOSGuide-HI</keyValue>
+                <versionsToKeep>2</versionsToKeep>
+		<modTimeToWait>00-00:15:00</modTimeToWait>
+        </rule>
 	<!-- Purge rule for the HiResW-ARW-East (HiResW-ARW-East) model -->
 	<rule>
 		<keyValue>HiRes-ARW-East</keyValue>
