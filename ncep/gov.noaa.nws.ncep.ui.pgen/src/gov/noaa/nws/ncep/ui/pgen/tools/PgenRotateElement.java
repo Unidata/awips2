@@ -288,9 +288,31 @@ public class PgenRotateElement extends AbstractPgenDrawingTool {
 
                     mapEditor.refresh();
                 }
+                return true;
             }
+            else if (button == 3) {
 
-            return false;
+                if (trackExtrapPointInfoDlg != null) {
+                    trackExtrapPointInfoDlg.close();
+                    trackExtrapPointInfoDlg = null;
+                }
+
+                if (drawingLayer.getSelectedDE() != null) {
+                    drawingLayer.removeGhostLine();
+                    ptSelected = false;
+                    drawingLayer.removeSelected();
+                    mapEditor.refresh();
+
+                } else {
+                    // set selecting mode
+                    PgenUtil.setSelectingMode();
+                }
+
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
         /**

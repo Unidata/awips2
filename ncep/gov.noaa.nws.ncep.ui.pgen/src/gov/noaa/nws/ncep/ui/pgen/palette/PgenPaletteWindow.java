@@ -111,6 +111,7 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
  * 01/10		?		    S. Gilbert  Initial Creation.
  * 08/13		TTR696/774	J. Wu		Reset title/Close product manage dialog.
  * 11/13		#1081		B. Yin		Get selected DE to change front/line type.
+ * 12/14        R5413       B. Yin      Removed unused variables, loops.
  * 
  * </pre>
  * 
@@ -204,8 +205,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
     private IContextActivation pgenContextActivation;
 
     private AbstractEditor currentIsMultiPane = null;
-
-    private boolean isDetached;
+    
+    public static final String CATEGORY_ANY = "Any";
 
     /**
      * Constructor
@@ -393,17 +394,6 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         if (current != null)
             PgenSession.getInstance().setResource(current);
 
-        comp.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(ControlEvent e) {
-                updateDetached();
-            }
-        });
-
-    }
-
-    private void updateDetached() {
-        isDetached = mainComp.getShell().getText().length() == 0;
     }
 
     /**
@@ -609,6 +599,16 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 
         IEditorPart editor = VizWorkbenchManager.getInstance()
                 .getActiveEditor();
+        
+        //Set perspective ID in session
+        if ( PgenSession.getInstance().getPerspectiveId() == null ||
+                PgenSession.getInstance().getPerspectiveId().isEmpty()){
+            AbstractVizPerspectiveManager pMngr = VizPerspectiveListener.getCurrentPerspectiveManager();
+            if ( pMngr != null ){
+                PgenSession.getInstance().setPerspectiveId(pMngr.getPerspectiveId());
+            }
+        }
+        
         if (editor instanceof AbstractEditor) {// && ((NCMapEditor)
                                                // editor).getApplicationName().equals("NA")
                                                // ) {
@@ -874,6 +874,13 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         // part).getApplicationName().equals("NA")) {
 
         if (PgenUtil.isNatlCntrsEditor(part) || part instanceof VizMapEditor) {
+
+            //Prevent PGEN going to another perspective
+            AbstractVizPerspectiveManager pMngr = VizPerspectiveListener.getCurrentPerspectiveManager();
+            if ( pMngr != null && pMngr.getPerspectiveId() != PgenSession.getInstance().getPerspectiveId() ){
+                return;
+            }
+            
             PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor) part);
 
             // if ( PgenSession.getInstance().getPgenResource().getDescriptor()
@@ -885,7 +892,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 
             if (rsc != null) {
                 rsc.setCatFilter(new CategoryFilter(
-                        (currentCategory == null) ? "Any" : currentCategory));
+                        (currentCategory == null) ? CATEGORY_ANY : currentCategory));
             }
 
             PgenSession.getInstance().setResource(rsc);
@@ -977,22 +984,12 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
                 if (VizPerspectiveListener.getCurrentPerspectiveManager() == null)
                     return; // workbench probably closing
 
-                AbstractEditor[] editors = UiUtil.getEditors(PlatformUI
-                        .getWorkbench().getActiveWorkbenchWindow(),
-                        VizPerspectiveListener.getCurrentPerspectiveManager()
-                                .getPerspectiveId());
-                /*
-                 * UiUtil.getEditors returns active editor first. Run through
-                 * list in reverse so that active editor is processed last.
-                 */
-                for (int i = editors.length - 1; i >= 0; i--) {
-                    // unloadPgenResource(editors[i]);
-                }
-
                 for (AbstractEditor editor : PgenSession.getInstance()
                         .getEditors()) {
                     unloadPgenResource(editor);
                 }
+                
+                PgenSession.getInstance().endSession();
             }
 
             // if ( currentIsMultiPane != null )
