@@ -27,12 +27,20 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchPage;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * This singleton is intended to couple a PGEN Palette with a PGgenResource, so
@@ -50,10 +58,12 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 12/14		R5413		B. Yin   	Added IPartListener2 and IRenderableDisplayChangedListener
- * to make the swapping in D2D work
+ * 										to make the swapping in D2D work
+ * 12/14		R5413		B. Yin		Added exception handling, perspective id, and endSession. 
  * 
  */
 
+@SuppressWarnings("restriction")
 public class PgenSession implements IPartListener2,
         IRenderableDisplayChangedListener {
 
@@ -79,11 +89,19 @@ public class PgenSession implements IPartListener2,
      */
     private AbstractPgenTool pgenTool = null;
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PgenSession.class);
+    
+    private String perspectiveId = "";
+    
     /*
      * Hide default constructor
      */
     private PgenSession() {
-
+        AbstractVizPerspectiveManager pMngr = VizPerspectiveListener.getCurrentPerspectiveManager();
+        if ( pMngr != null ){
+            setPerspectiveId(pMngr.getPerspectiveId());
+        }
     }
 
     /**
@@ -254,7 +272,6 @@ public class PgenSession implements IPartListener2,
      * com.raytheon.uf.viz
      * .core.IRenderableDisplayChangedListener.DisplayChangeType)
      */
-    @SuppressWarnings("restriction")
     @Override
     public void renderableDisplayChanged(IDisplayPane pane,
             IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
@@ -265,12 +282,17 @@ public class PgenSession implements IPartListener2,
             VizMapEditor editorChanged = (VizMapEditor) newRenderableDisplay
                     .getContainer();
 
-            if (PgenUtil.getPgenMode() == PgenMode.SINGLE) { // for D2d
-                                                             // swapping, single
-                                                             // pane mode
+            if (PgenUtil.getPgenMode() == PgenMode.SINGLE) { 
+                // for D2d swapping, single pane mode
                 if (pgenResource != null) {
                     pgenResource.removeGhostLine();
                     pgenResource.removeSelected();
+          
+                    // Make sure PGEN resource repaint in the new editor. 
+                    PgenResource rsc = PgenUtil.findPgenResource(editorChanged );
+                    if ( rsc != null ){
+                        rsc.resetAllElements();
+                    }
                 }
 
                 PgenUtil.setSelectingMode();
@@ -295,8 +317,8 @@ public class PgenSession implements IPartListener2,
                     } else {
                         // editor has PGEN resource, reset to selecting mode
                         pgenResource = PgenUtil.findPgenResource(editorChanged);
-                        pgenResource.setCatFilter(new CategoryFilter("Any"));
-                        palette.setCurrentCategory("Any");
+                        pgenResource.setCatFilter(new CategoryFilter());
+                        palette.setCurrentCategory(PgenPaletteWindow.CATEGORY_ANY);
                         PgenUtil.setSelectingMode();
                     }
                 } else {
@@ -335,13 +357,13 @@ public class PgenSession implements IPartListener2,
                             }
                             this.pgenResource = PgenUtil
                                     .findPgenResource(editorChanged);
-                            this.pgenResource.setCatFilter(new CategoryFilter(
-                                    "Any"));
-                            this.palette.setCurrentCategory("Any");
+                            this.pgenResource.setCatFilter(new CategoryFilter());
+                            this.palette.setCurrentCategory(PgenPaletteWindow.CATEGORY_ANY);
                             PgenUtil.setSelectingMode();
                         } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Cannot open PGEN palette view", e);           
+                            }
 
                     }
                 }
@@ -357,6 +379,18 @@ public class PgenSession implements IPartListener2,
                 if (this.getPgenTool() != null) {
                     sideView.unregisterMouseHandler(this.getPgenTool()
                             .getMouseHandler());
+                }
+
+                // Make sure PGEN resource repaint in the new editor. 
+                if (PgenUtil.getPgenMode() == PgenMode.SINGLE) { 
+                    ResourceList rscList = sideView.getActiveDisplayPane().getDescriptor().getResourceList();
+
+                    for (ResourcePair rp : rscList) {
+                        AbstractVizResource<?, ?> rsc = rp.getResource();
+                        if ( rsc instanceof PgenResource) {
+                            ((PgenResource)rsc).resetAllElements();
+                        }
+                    }
                 }
             }
         }
@@ -421,6 +455,18 @@ public class PgenSession implements IPartListener2,
 
     public void setPgenTool(AbstractPgenTool pgenTool) {
         this.pgenTool = pgenTool;
+    }
+
+    public String getPerspectiveId() {
+        return perspectiveId;
+    }
+
+    public void setPerspectiveId(String perspectiveId) {
+        this.perspectiveId = perspectiveId;
+    }
+    
+    public void endSession(){
+        instance = null;
     }
 
 }
