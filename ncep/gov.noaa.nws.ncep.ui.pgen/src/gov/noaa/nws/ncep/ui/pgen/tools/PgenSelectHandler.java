@@ -261,7 +261,7 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
                         PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                                 .getShell()).setWatchBox((WatchBox) elSelected);
                 PgenUtil.loadWatchBoxModifyTool(elSelected);
-                return false; 
+                return false;
             } else if (elSelected instanceof Tcm) {
                 PgenUtil.loadTcmTool(elSelected);
             }
@@ -475,7 +475,11 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
 
         }
 
-        else {
+        else if (button == 3 && pgenrsc.getSelectedDE() != null) {
+            // Right button click does not fall through to other handlers if
+            // there is pgen element is selected
+            return true;
+        } else {
 
             return false;
 
@@ -1047,12 +1051,16 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
             }
             trackExtrapPointInfoDlg = null;
 
+            if (pgenrsc.getSelectedDE() != null) {
+                preempt = true;
+            }
+
             pgenrsc.removeGhostLine();
             ptSelected = false;
             pgenrsc.removeSelected();
             mapEditor.refresh();
 
-            // return false;
+            return preempt;
 
         }
 
