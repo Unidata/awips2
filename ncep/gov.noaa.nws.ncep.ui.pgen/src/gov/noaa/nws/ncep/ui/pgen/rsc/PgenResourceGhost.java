@@ -23,7 +23,6 @@ import gov.noaa.nws.ncep.ui.pgen.display.AbstractElementContainer;
 import gov.noaa.nws.ncep.ui.pgen.display.DefaultElementContainer;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 
 import java.util.HashMap;
@@ -38,36 +37,38 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * Ghost drawing for the pgen resource.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 15, 2012            bgonzale     Initial creation
- *
+ * Dec 10, 2014	R5413		byin		Added dispose method.
+ * 
  * </pre>
- *
+ * 
  * @author bgonzale
- * @version 1.0	
+ * @version 1.0
  */
 
 public class PgenResourceGhost {
     public AbstractDrawableComponent component;
+
     Map<Object, AbstractElementContainer> componentMap = new HashMap<Object, AbstractElementContainer>();
-    
+
     /**
      * Draw the ghost
+     * 
      * @param target
      * @param paintProps
      * @param df
      * @param descriptor
      */
-    public void draw( IGraphicsTarget target, PaintProperties paintProps,
-            DisplayElementFactory df, IMapDescriptor descriptor){
-        df.setLayerDisplayAttr( false, null, false );
+    public void draw(IGraphicsTarget target, PaintProperties paintProps,
+            DisplayElementFactory df, IMapDescriptor descriptor) {
+        df.setLayerDisplayAttr(false, null, false);
         if (component != null) {
-            Iterator<DrawableElement> iterator = component
-                    .createDEIterator();
+            Iterator<DrawableElement> iterator = component.createDEIterator();
             int count = 0;
             while (iterator.hasNext()) {
                 DrawableElement element = iterator.next();
@@ -76,21 +77,27 @@ public class PgenResourceGhost {
             }
         }
     }
-    
+
     /**
-     * Creates displayables for an element using an ElementContainer and call the 
-     * displayables' draw() method to draw the element.
-     * @param target        Graphic target
-     * @param paintProps    Paint properties
-     * @param df            Display element factory
-     * @param el            Input drawable element
+     * Creates displayables for an element using an ElementContainer and call
+     * the displayables' draw() method to draw the element.
+     * 
+     * @param target
+     *            Graphic target
+     * @param paintProps
+     *            Paint properties
+     * @param df
+     *            Display element factory
+     * @param el
+     *            Input drawable element
      * @praram descriptor
      */
-    private void drawElement( IGraphicsTarget target, PaintProperties paintProps,
-            DisplayElementFactory df, DrawableElement el, IMapDescriptor descriptor){
+    private void drawElement(IGraphicsTarget target,
+            PaintProperties paintProps, DisplayElementFactory df,
+            DrawableElement el, IMapDescriptor descriptor) {
         Object key = createKey(el);
-        AbstractElementContainer graphic =  componentMap.get(key);
-        
+        AbstractElementContainer graphic = componentMap.get(key);
+
         if (graphic == null) {
             graphic = new DefaultElementContainer(el, descriptor, target);
             componentMap.put(key, graphic);
@@ -99,16 +106,26 @@ public class PgenResourceGhost {
         }
         graphic.draw(target, paintProps, null, true);
     }
-            
+
     private Object createKey(DrawableElement el) {
-        return el.getPgenCategory()+ ":"+el.getPgenType();
+        return el.getPgenCategory() + ":" + el.getPgenType();
     }
 
     /**
      * Sets the ghost line for the PGEN drawing layer.
-     * @param ghost 
+     * 
+     * @param ghost
      */
     public void setGhostLine(AbstractDrawableComponent ghost) {
-		this.component = ghost;
+        this.component = ghost;
+    }
+
+	/*
+	 * Release resources held by the ghost elements.
+	 */
+    public void dispose() {
+        for (AbstractElementContainer aec : componentMap.values()) {
+            aec.dispose();
+        }
     }
 }
