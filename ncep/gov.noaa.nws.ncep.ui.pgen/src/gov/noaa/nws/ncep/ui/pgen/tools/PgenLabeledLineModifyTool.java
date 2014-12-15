@@ -185,57 +185,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements
         		
         		return false;
         	}
-        	//clean up
         	else if ( button == 3 ) {
-            	
-        		if ( attrDlg.isAddLineMode()){
-            		if ( points.size() == 0 ) {
-            				attrDlg.resetLabeledLineBtns();
-            		}
-            		else if ( points.size() < 2 ){
-            			drawingLayer.removeGhostLine();
-            			points.clear();
-            			mapEditor.refresh();
-
-            		}
-            		else {
-            			//add line to labeled line collection
-            	//		LabeledLine newll = def.createLabeledLine( labeledLine.getPgenCategory(), labeledLine.getPgenType(), 
-            	//				(IAttribute)attrDlg, points, labeledLine.copy(), drawingLayer.getActiveLayer());
-            			
-            			LabeledLine newll = def.createLabeledLine( pgenCategory, PgenLabeledLineModifyTool.this.pgenType, (IAttribute)attrDlg,
-    							points, null, drawingLayer.getActiveLayer());
-    					
-            	//		drawingLayer.replaceElement(labeledLine, newll);
-            			drawingLayer.addElement( newll );
-            			labeledLine = newll;
-
-            			drawingLayer.removeGhostLine();
-            			points.clear();
-            			
-            			//re-set selected
-            	//		resetSelected();
-            			
-            			drawingLayer.setSelected(newll);
-
-            			mapEditor.refresh();
-
-            		}
-        		}
-        		else {
-        			// Close the attribute dialog and do the cleanup.
-        			if ( attrDlg != null ) {
-        				attrDlg.close();
-        			}
-
-        			attrDlg = null;
-
-        			drawingLayer.removeGhostLine();
-        			ptSelected2 = false;	ptSelected = false;
-        			drawingLayer.removeSelected();
-        			mapEditor.refresh();
-        			PgenUtil.setSelectingMode();
-        		}
             	return true;
             	
             }
@@ -509,6 +459,58 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements
 
     	       	}
 
+    		}
+    		else if ( button ==3 ) {
+                
+                if ( attrDlg.isAddLineMode()){
+                    if ( points.size() == 0 ) {
+                            attrDlg.resetLabeledLineBtns();
+                    }
+                    else if ( points.size() < 2 ){
+                        drawingLayer.removeGhostLine();
+                        points.clear();
+                        mapEditor.refresh();
+
+                    }
+                    else {
+                        //add line to labeled line collection
+                //      LabeledLine newll = def.createLabeledLine( labeledLine.getPgenCategory(), labeledLine.getPgenType(), 
+                //              (IAttribute)attrDlg, points, labeledLine.copy(), drawingLayer.getActiveLayer());
+                        
+                        LabeledLine newll = def.createLabeledLine( pgenCategory, PgenLabeledLineModifyTool.this.pgenType, (IAttribute)attrDlg,
+                                points, null, drawingLayer.getActiveLayer());
+                        
+                //      drawingLayer.replaceElement(labeledLine, newll);
+                        drawingLayer.addElement( newll );
+                        labeledLine = newll;
+
+                        drawingLayer.removeGhostLine();
+                        points.clear();
+                        
+                        //re-set selected
+                //      resetSelected();
+                        
+                        drawingLayer.setSelected(newll);
+
+                        mapEditor.refresh();
+
+                    }
+                }
+                else {
+                    // Close the attribute dialog and do the cleanup.
+                    if ( attrDlg != null ) {
+                        attrDlg.close();
+                    }
+
+                    attrDlg = null;
+
+                    drawingLayer.removeGhostLine();
+                    ptSelected2 = false;    ptSelected = false;
+                    drawingLayer.removeSelected();
+                    mapEditor.refresh();
+                    PgenUtil.setSelectingMode();
+                }
+    		    return true;
     		}
     		
     		//make sure the arrow line won't go through the text box.
