@@ -166,7 +166,6 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         public boolean handleMouseDown(int anX, int aY, int button) {
         	if ( !isResourceEditable() ) return false;
 
-        	DECollection dec = null;
         	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -180,77 +179,6 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
                 
             }
             else if ( button == 3 ) {
-            	
-            	if ( points.size() == 0 ) {
-            		
-            		attrDlg.close(); 
-            		attrDlg = null; 
-            		PgenUtil.setSelectingMode();
-
-            	}
-            	else if ( points.size() < 2 ){
-            		
-                    drawingLayer.removeGhostLine();
-                    points.clear();
-                    
-        	        mapEditor.refresh();
-        	        
-            	}
-            	else {
-            		String lineType = ((OutlookAttrDlg)attrDlg).getLineType();
-            		// create a new DrawableElement.    
-      //      		if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL")
-      //      				|| ((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("FLOOD"))
-      //      			elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
-      //      				"Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
-      //      		else 
-            			elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
-                				"Lines", lineType, points, drawingLayer.getActiveLayer());
-            		//if (((IMultiPoint)attrDlg).getFillFlag()) ((Line)elem).setFillPattern(attrDlg.getFillPattern());
-            		
-            		dec = new DECollection(Outlook.OUTLOOK_LABELED_LINE);
-            		dec.setPgenCategory("MET");
-
-            		otlk = getCurrentOtlk(((OutlookAttrDlg)attrDlg).getOutlookType());
-            	
-            		Outlook newOtlk = def.createOutlook( ((OutlookAttrDlg)attrDlg).getOutlookType(), 
-            						elem, dec, otlk );
-       				
-    				newOtlk.update( (OutlookAttrDlg)attrDlg );
-           		
-            		// create a new outlook
-            		if ( otlk == null || !otlk.getPgenType().equalsIgnoreCase(((OutlookAttrDlg)attrDlg).getOutlookType()) ){
-            			drawingLayer.addElement( newOtlk );
-            		}
-            		else {
-	    				drawingLayer.replaceElement(otlk, newOtlk);
-            		}
-            		
-            		otlk = newOtlk;
-            		
-    				attrDlg.setDrawableElement(elem);
-    				            		
-            		drawingLayer.removeGhostLine();
-            		points.clear();
-
-            		mapEditor.refresh();
-
-            		//set TextDrawingtool or SymbolDrawingTool 
-            		//bring up the text or the symbol dialog
-            		if ( ((OutlookAttrDlg)attrDlg).addLabel() ) {
-            			if  ( ((OutlookAttrDlg)attrDlg).addText() ) {
-            				lbl = ((OutlookAttrDlg)attrDlg).getLblTxt();
-            				PgenUtil.setDrawingTextMode( true, ((OutlookAttrDlg)attrDlg).useLineColor(), 
-            					lbl, dec );
-            			}
-            			else if ( ((OutlookAttrDlg)attrDlg).addSymbol() ) {
-            				
-            				PgenUtil.setDrawingSymbolMode( ((OutlookAttrDlg)attrDlg).getSymbolCat(), 
-            								((OutlookAttrDlg)attrDlg).getSymbolType(), 
-                        					((OutlookAttrDlg)attrDlg).useLineColor(), dec );
-                			}
-            		}
-            	}
             	
             	return true;
             	
@@ -267,7 +195,94 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
             }
         	
         }
-        
+        /*
+         * overrides the function in selecting tool
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button){
+            if ( !drawingLayer.isEditable() || shiftDown ) return false;
+
+            if (button == 3) {
+                DECollection dec = null;
+
+                if ( points.size() == 0 ) {
+                    
+                    attrDlg.close(); 
+                    attrDlg = null; 
+                    PgenUtil.setSelectingMode();
+
+                }
+                else if ( points.size() < 2 ){
+                    
+                    drawingLayer.removeGhostLine();
+                    points.clear();
+                    
+                    mapEditor.refresh();
+                    
+                }
+                else {
+                    String lineType = ((OutlookAttrDlg)attrDlg).getLineType();
+                    // create a new DrawableElement.    
+      //            if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL")
+      //                    || ((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("FLOOD"))
+      //                elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
+      //                    "Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
+      //            else 
+                        elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
+                                "Lines", lineType, points, drawingLayer.getActiveLayer());
+                    //if (((IMultiPoint)attrDlg).getFillFlag()) ((Line)elem).setFillPattern(attrDlg.getFillPattern());
+                    
+                    dec = new DECollection(Outlook.OUTLOOK_LABELED_LINE);
+                    dec.setPgenCategory("MET");
+
+                    otlk = getCurrentOtlk(((OutlookAttrDlg)attrDlg).getOutlookType());
+                
+                    Outlook newOtlk = def.createOutlook( ((OutlookAttrDlg)attrDlg).getOutlookType(), 
+                                    elem, dec, otlk );
+                    
+                    newOtlk.update( (OutlookAttrDlg)attrDlg );
+                
+                    // create a new outlook
+                    if ( otlk == null || !otlk.getPgenType().equalsIgnoreCase(((OutlookAttrDlg)attrDlg).getOutlookType()) ){
+                        drawingLayer.addElement( newOtlk );
+                    }
+                    else {
+                        drawingLayer.replaceElement(otlk, newOtlk);
+                    }
+                    
+                    otlk = newOtlk;
+                    
+                    attrDlg.setDrawableElement(elem);
+                                        
+                    drawingLayer.removeGhostLine();
+                    points.clear();
+
+                    mapEditor.refresh();
+
+                    //set TextDrawingtool or SymbolDrawingTool 
+                    //bring up the text or the symbol dialog
+                    if ( ((OutlookAttrDlg)attrDlg).addLabel() ) {
+                        if  ( ((OutlookAttrDlg)attrDlg).addText() ) {
+                            lbl = ((OutlookAttrDlg)attrDlg).getLblTxt();
+                            PgenUtil.setDrawingTextMode( true, ((OutlookAttrDlg)attrDlg).useLineColor(), 
+                                lbl, dec );
+                        }
+                        else if ( ((OutlookAttrDlg)attrDlg).addSymbol() ) {
+                            
+                            PgenUtil.setDrawingSymbolMode( ((OutlookAttrDlg)attrDlg).getSymbolCat(), 
+                                            ((OutlookAttrDlg)attrDlg).getSymbolType(), 
+                                            ((OutlookAttrDlg)attrDlg).useLineColor(), dec );
+                            }
+                    }
+                }
+                
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+               
         /*
          * (non-Javadoc)
          * 

@@ -193,23 +193,35 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
 
     	}
         else if ( button == 3 ) {
-        	
-        	wbTool.resetMouseHandler();
-        	((WatchBoxAttrDlg)wbTool.attrDlg).getWatchInfoDlg().enableAllButtons(true);
-        	((WatchBoxAttrDlg)wbTool.attrDlg).enableDspBtn(true);
-        	((WatchBoxAttrDlg)wbTool.attrDlg).buttonBar.setEnabled(true);
-
-        	return true;
-        	
+           	return true;
         }
         else{
-        	
            	return false;
-           	
         }
     
     }
     
+    /*
+     * overrides the function in selecting tool
+     */
+    @Override
+    public boolean handleMouseUp(int x, int y, int button){
+        if ( !drawingLayer.isEditable() || shiftDown ) return false;
+
+        if (button == 3) {
+            
+            wbTool.resetMouseHandler();
+            ((WatchBoxAttrDlg)wbTool.attrDlg).getWatchInfoDlg().enableAllButtons(true);
+            ((WatchBoxAttrDlg)wbTool.attrDlg).enableDspBtn(true);
+            ((WatchBoxAttrDlg)wbTool.attrDlg).buttonBar.setEnabled(true);
+
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+        
     @Override
 	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
 		if ( !drawingLayer.isEditable() || shiftDown ) return false;
