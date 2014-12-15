@@ -184,44 +184,6 @@ public class PgenSinglePointDrawingTool extends AbstractPgenDrawingTool {
             }
             else if ( button == 3 ) {
             	
-            	if ( elem != null && ((SymbolAttrDlg)attrDlg).labelEnabled()){
-            		drawingLayer.removeGhostLine();
-            		mapEditor.refresh();
-            		
-            		String defaultTxt = "";
-            		if ( attrDlg instanceof VolcanoAttrDlg ){
-            			defaultTxt = ((VolcanoAttrDlg)attrDlg).getVolText();
-            			dec.setCollectionName("Volcano");
-            		}
-            		
-            		//in case the label is enabled after symbol is placed.
-            		if (dec == null && ((SymbolAttrDlg)attrDlg).labelEnabled()){ 
-                 		dec = new DECollection("labeledSymbol");
-                 		dec.setPgenCategory(pgenCategory);
-                 		dec.setPgenType(pgenType);
-                 		dec.addElement(elem);
-                 		drawingLayer.replaceElement(elem, dec);
-            		 }
-            		 
-            		PgenUtil.setDrawingTextMode( true, ((LabeledSymbolAttrDlg)attrDlg).useSymbolColor(), defaultTxt, dec );
-            		dec = null;
-            		elem = null;
-            		
-            	}
-            	else {
-            		if ( prevElem != null){
-            			usePrevColor = false;
-            			if ( prevElem.getParent().getPgenCategory().equalsIgnoreCase("OUTLOOK")){
-            				PgenUtil.loadOutlookDrawingTool();
-            			}
-            			prevElem = null;
-            		}
-            		else {
-            			elem = null;
-            			PgenUtil.setSelectingMode();
-            		}
-            	}
-            	
             	return true;
             	
             }
@@ -273,6 +235,62 @@ public class PgenSinglePointDrawingTool extends AbstractPgenDrawingTool {
         	if (  !isResourceEditable() || shiftDown ) return false;
         	else return true;        
 
+        }
+        
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int, int)
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int mouseButton) {
+            if (  !isResourceEditable() || shiftDown ) return false;
+
+            if ( mouseButton == 3 ){
+                // prevent the click going through to other handlers
+                // in case adding labels to symbols or fronts.
+                if ( elem != null && ((SymbolAttrDlg)attrDlg).labelEnabled()){
+                    drawingLayer.removeGhostLine();
+                    mapEditor.refresh();
+
+                    String defaultTxt = "";
+                    if ( attrDlg instanceof VolcanoAttrDlg ){
+                        defaultTxt = ((VolcanoAttrDlg)attrDlg).getVolText();
+                        dec.setCollectionName("Volcano");
+                    }
+
+                    //in case the label is enabled after symbol is placed.
+                    if (dec == null && ((SymbolAttrDlg)attrDlg).labelEnabled()){ 
+                        dec = new DECollection("labeledSymbol");
+                        dec.setPgenCategory(pgenCategory);
+                        dec.setPgenType(pgenType);
+                        dec.addElement(elem);
+                        drawingLayer.replaceElement(elem, dec);
+                    }
+
+                    PgenUtil.setDrawingTextMode( true, ((LabeledSymbolAttrDlg)attrDlg).useSymbolColor(), defaultTxt, dec );
+                    dec = null;
+                    elem = null;
+
+                }
+                else {
+                    if ( prevElem != null){
+                        usePrevColor = false;
+                        if ( prevElem.getParent().getPgenCategory().equalsIgnoreCase("OUTLOOK")){
+                            PgenUtil.loadOutlookDrawingTool();
+                        }
+                        prevElem = null;
+                    }
+                    else {
+                        elem = null;
+                        PgenUtil.setSelectingMode();
+                    }
+                }
+                return true;
+            }
+            else {
+                return false;
+            }
         }
     }
     
