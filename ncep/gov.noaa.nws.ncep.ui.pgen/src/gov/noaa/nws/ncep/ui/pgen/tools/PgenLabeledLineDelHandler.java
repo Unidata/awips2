@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
@@ -153,8 +154,6 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
     	}
     	else if ( button == 3 ) {
 
-    		dlg.resetLabeledLineBtns();
-    		prevTool.resetMouseHandler();
     		return true;
 
     	}
@@ -165,7 +164,24 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
     	}
     	
     }
+    
+    /*
+     * overrides the function in selecting tool
+     */
+    @Override
+    public boolean handleMouseUp(int x, int y, int button){
+        if ( !drawingLayer.isEditable() || shiftDown ) return false;
 
+        if (button == 3) {
+            dlg.resetLabeledLineBtns();
+            prevTool.resetMouseHandler();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
     @Override
 	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
     	if ( !drawingLayer.isEditable() || shiftDown ) return false;

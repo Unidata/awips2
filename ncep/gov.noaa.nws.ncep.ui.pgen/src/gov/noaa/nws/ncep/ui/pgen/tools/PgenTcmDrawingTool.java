@@ -124,21 +124,7 @@ public class PgenTcmDrawingTool extends AbstractPgenDrawingTool {
                 
             }
             else if ( button == 3 ) {          
-            	
-            	drawingLayer.removeGhostLine();   
-    	        mapEditor.refresh();
-          		          	
-            	if ( points.size() == 0 ) {
-            		
-            		PgenUtil.setSelectingMode();
-           		
-            	}
-            	else {            		
-                    
-            		points.clear();
-       	        
-            	}
-            	
+       
             	return true;
             	
             }
@@ -154,7 +140,37 @@ public class PgenTcmDrawingTool extends AbstractPgenDrawingTool {
             }
         	
         }
+        
+        /*
+         * overrides the function in selecting tool
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button){
+            if ( !drawingLayer.isEditable() || shiftDown ) return false;
 
+            if (button == 3) {
+                
+                drawingLayer.removeGhostLine();   
+                mapEditor.refresh();
+                            
+                if ( points.size() == 0 ) {
+                    
+                    PgenUtil.setSelectingMode();
+                
+                }
+                else {                  
+                    
+                    points.clear();
+                
+                }
+                
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        
         /*
          * (non-Javadoc)
          * 
