@@ -190,59 +190,73 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
         	 * Right mouse button pressed
             */          	
             else if ( button == 3 ) {
-	            	            
-            	switch (status) {
-            	case START:
-            		/*
-            		 * return to Pgen Select mode
-            		 */
-            		PgenUtil.setSelectingMode();
-            		break;
-            	case SELECTED_1:
-            		/*
-            		 * Remove currently selected element from selected list
-            		 */
-            		drawingLayer.removeSelected();
-            		status = SELECT_STATUS.START;
-            		break;
-            	case VERIFIED_1:
-            		/*
-            		 * Remove currently verified element from selected list
-            		 */
-        			interpDlg.enableStartTime();
-        			interpDlg.enableEndTime();
-            		drawingLayer.removeSelected();
-            		status = SELECT_STATUS.START;
-            		break;
-            	case SELECTED_2:
-            		/*
-            		 * Remove second selected element from selected list
-            		 */
-            		drawingLayer.removeSelected( selectedEls.get(1) );
-            		status = SELECT_STATUS.VERIFIED_1;
-            		break;
-            	case VERIFIED_2:
-            		/*
-            		 * remove all elements from the selected list
-            		 */
-            		drawingLayer.removeSelected();
-        			interpDlg.enableStartTime();
-        			interpDlg.enableEndTime();
-            		interpDlg.disarm();              //  Disable Interpolation button
-            		status = SELECT_STATUS.START;
-            		break;
-            	}
-
-            	mapEditor.refresh();
-            	//System.out.println("Button 3333333 status = "+status);    		    
             	return true;          
-            
             } 
 
             else {            	
                	return false;               	          
             }
         	
+        }
+        
+        /*
+         * overrides the function in selecting tool
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button){
+            if (!isResourceEditable())
+                return false;
+
+            if (button == 3) {
+                    switch (status) {
+                    case START:
+                        /*
+                         * return to Pgen Select mode
+                         */
+                        PgenUtil.setSelectingMode();
+                        break;
+                    case SELECTED_1:
+                        /*
+                         * Remove currently selected element from selected list
+                         */
+                        drawingLayer.removeSelected();
+                        status = SELECT_STATUS.START;
+                        break;
+                    case VERIFIED_1:
+                        /*
+                         * Remove currently verified element from selected list
+                         */
+                        interpDlg.enableStartTime();
+                        interpDlg.enableEndTime();
+                        drawingLayer.removeSelected();
+                        status = SELECT_STATUS.START;
+                        break;
+                    case SELECTED_2:
+                        /*
+                         * Remove second selected element from selected list
+                         */
+                        drawingLayer.removeSelected( selectedEls.get(1) );
+                        status = SELECT_STATUS.VERIFIED_1;
+                        break;
+                    case VERIFIED_2:
+                        /*
+                         * remove all elements from the selected list
+                         */
+                        drawingLayer.removeSelected();
+                        interpDlg.enableStartTime();
+                        interpDlg.enableEndTime();
+                        interpDlg.disarm();              //  Disable Interpolation button
+                        status = SELECT_STATUS.START;
+                        break;
+                    }
+
+                    mapEditor.refresh();
+                    //System.out.println("Button 3333333 status = "+status);            
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
     }
