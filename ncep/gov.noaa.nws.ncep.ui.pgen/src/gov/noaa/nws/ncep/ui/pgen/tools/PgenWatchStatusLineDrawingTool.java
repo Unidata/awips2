@@ -139,73 +139,84 @@ public class PgenWatchStatusLineDrawingTool extends AbstractPgenDrawingTool{
 
 			}
 			else if ( button == 3 ) {
-
-				if ( points.size() == 0 ) {
-
-					//close the line attr dialog 
-					if ( attrDlg != null ) attrDlg.close(); 
-					attrDlg = null;
-					
-					//return to watch modifying tool
-					PgenUtil.loadWatchBoxModifyTool(wb);
-					
-					//set the watch element as selected
-					drawingLayer.setSelected(wb);
-					
-					//open and initialize watch box attr dialog
-					WatchBoxAttrDlg wbdlg = WatchBoxAttrDlg.getInstance(null);
-					wbdlg.openSpecDlg( false );
-					wbdlg.setDrawableElement(wb);
-					wbdlg.setMouseHandlerName("Pgen Select");
-					wbdlg.setAttrForDlg( (IAttribute)wb );
-					wbdlg.enableButtons();
-					wbdlg.setPgenCategory(wb.getPgenCategory());
-					wbdlg.setPgenType( wb.getPgenType() );
-					wbdlg.setDrawingLayer( drawingLayer );
-					wbdlg.setMapEditor( mapEditor );
-
-
-				}
-				else if ( points.size() < 2 ){
-
-					drawingLayer.removeGhostLine();
-					points.clear();
-
-					mapEditor.refresh();
-
-				}
-				else {
-
-
-					// create a status line    
-					Line statusLine =  new Line(null, attrDlg.getColors(), attrDlg.getLineWidth(),
-							1.0, false, false, points, ((ILine)attrDlg).getSmoothFactor(),FillPattern.SOLID,
-							"Lines","POINTED_ARROW");
-
-					// add the line to watch DECollection
-					((DECollection)wb.getParent()).add(statusLine);
-					
-					drawingLayer.removeGhostLine();
-					points.clear();
-					mapEditor.refresh();
-
-				}
-
-				return true;
-
+			    return true;
 			}
 			else if ( button == 2 ){
-
 				return true;
-
 			}
 			else{
-
 				return false;
-
 			}
 
 		}
+		
+	    
+	    /*
+	     * overrides the function in selecting tool
+	     */
+	    @Override
+	    public boolean handleMouseUp(int x, int y, int button){
+	        if ( !drawingLayer.isEditable() || shiftDown ) return false;
+
+	        if (button == 3) {
+
+                if ( points.size() == 0 ) {
+
+                    //close the line attr dialog 
+                    if ( attrDlg != null ) attrDlg.close(); 
+                    attrDlg = null;
+                    
+                    //return to watch modifying tool
+                    PgenUtil.loadWatchBoxModifyTool(wb);
+                    
+                    //set the watch element as selected
+                    drawingLayer.setSelected(wb);
+                    
+                    //open and initialize watch box attr dialog
+                    WatchBoxAttrDlg wbdlg = WatchBoxAttrDlg.getInstance(null);
+                    wbdlg.openSpecDlg( false );
+                    wbdlg.setDrawableElement(wb);
+                    wbdlg.setMouseHandlerName("Pgen Select");
+                    wbdlg.setAttrForDlg( (IAttribute)wb );
+                    wbdlg.enableButtons();
+                    wbdlg.setPgenCategory(wb.getPgenCategory());
+                    wbdlg.setPgenType( wb.getPgenType() );
+                    wbdlg.setDrawingLayer( drawingLayer );
+                    wbdlg.setMapEditor( mapEditor );
+
+
+                }
+                else if ( points.size() < 2 ){
+
+                    drawingLayer.removeGhostLine();
+                    points.clear();
+
+                    mapEditor.refresh();
+
+                }
+                else {
+
+                    // create a status line    
+                    Line statusLine =  new Line(null, attrDlg.getColors(), attrDlg.getLineWidth(),
+                            1.0, false, false, points, ((ILine)attrDlg).getSmoothFactor(),FillPattern.SOLID,
+                            "Lines","POINTED_ARROW");
+
+                    // add the line to watch DECollection
+                    ((DECollection)wb.getParent()).add(statusLine);
+                    
+                    drawingLayer.removeGhostLine();
+                    points.clear();
+                    mapEditor.refresh();
+
+                }
+	            return true;
+	        }
+	        else {
+	            return false;
+	        }
+	    }
+	    
+		
 		/*
 		 * (non-Javadoc)
 		 * 
