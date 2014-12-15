@@ -1,4 +1,5 @@
-# Version 2014.12.03-0
+# Version 2014.12.12-0
+
 import GenericHazards
 import JsonSupport
 import LocalizationSupport
@@ -49,56 +50,121 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["callToAction"] = 1
     
     Definition["debug"] = {
-                           # TextProduct class
+                          #TextProduct
                           "__init__": 0,
                           "_inlandAreas": 0,
                           "_coastalAreas": 0,
                           "_cwa": 0,
-                          "_analysisList": 0,
-                          "_intersectAnalysisList": 0,
                           "_productParts_TCV": 0,
                           "_segmentParts_TCV": 0,
+                          "_analysisList": 0,
+                          "_intersectAnalysisList": 0,
+                          "_extraRainfallAnalysisList": 0,
                           "generateForecast": 0,
                           "_initializeVariables": 0,
-                          "_createProductDictionary": 0,
-                          "_formatProductDictionary": 0,
+                          "_noOpParts": 0,
                           "_easMessage": 0,
                           "_setup_segment": 0,
-                          "_ugcHeader": 0,
                           "_vtecRecords": 0,
                           "_areaList": 0,
+                          "_issuanceTimeDate": 0,
+                          "_summaryHeadlines": 0,
                           "_locationsAffected": 0,
                           "_fcstConfidence": 0,
                           "_infoSection": 0,
                           "_endSection": 0,
-                          "_issuanceTimeDate": 0,
-                          "_summaryHeadlines": 0,
-                          "_processProductParts": 0,
-                          "_noOpParts": 0,
-                          "_initializeProductDict": 0,
-                          "_wrapUpProductDict": 0,
-                          "_groupSegments": 0,
-                          "_makeSegmentEditAreas": 0,
-                          "_determineSegments": 0,
-                          "_refineSegments": 0,
-                          "_findSegment": 0,
-                          "_formatUGC_entries": 0,
-                          "_getUgcInfo": 0,
                           "_hazardDefinition": 0,
+                          "_threatKeyOrder": 0,
                           "_sampleData": 0,
                           "_getStats": 0,
+                          "_determineSegments": 0,
+                          "_refineSegments": 0,
+                          "_groupSegments": 0,
+                          "_makeSegmentEditAreas": 0,
+                          "_findSegment": 0,
+                          "_getAllVTECRecords": 0,
+                          "_getHazardsForHLS": 0,
+                          "_convertToISO": 0,
+                          "_convertToDatetime": 0,
+                          "_initializeSegmentZoneData": 0,
+                          "_archiveCurrentAdvisory": 0,
+                          "_saveAdvisory": 0,
+                          "_overview_list": 0,
+                          "_displayGUI": 0,
+                          
+                          #HLSTCV_Common
+                          "allowedHazards": 0,
+                          "allowedHeadlines": 0,
+                          "_initializeVariables": 0,
+                          "moderated_dict": 0,
+                          "_wmoHeader": 0,
+                          "_productHeader": 0,
+                          "_ugcHeader": 0,
+                          "_processProductParts": 0,
+                          "_formatUGC_entries": 0,
+                          "_getUgcInfo": 0,
+                          "_createProductDictionary": 0,
+                          "_initializeProductDictionary": 0,
+                          "_formatProductDictionary": 0,
+                          "_getStatValue": 0,
+                          "_allAreas": 0,
+                          "_computeIntersectAreas": 0,
+                          "_initializeHazardsTable": 0,
+                          "_getHazardsTable": 0,
+                          "_ignoreActions": 0,
+                          "_setVTECActiveTable": 0,
+                          "_getVtecRecords": 0,
+                          "_getAllowedHazardList": 0,
+                          "_altFilterMethod": 0,
+                          "_filterHazards": 0,
+                          "_getAdditionalHazards": 0,
+                          "_checkHazard": 0,
+                          "_initializeTimeVariables": 0,
+                          "_determineTimeRanges": 0,
+                          "_calculateStartTime": 0,
+                          "_resolution": 0,
                           "_formatPeriod": 0,
                           "_getTimeDesc": 0,
                           "_getPartOfDay": 0,
-                          "_convertToISO": 0,
-                          "_convertToDatetime": 0,
-                          "_overview_list": 0,
-                          "_displayGUI": 0,
-                          "_archiveCurrentAdvisory": 0,
-                          "_saveAdvisory": 0,
-                          "_getHazardsForHLS": 0,
+                          "_initializeStormInformation": 0,
+                          "_parseTCP": 0,
+                          "_getStormTypeFromTCP": 0,
+                          "_getStormNameFromTCP": 0,
+                          "_getAdvisoryTypeFromTCP": 0,
+                          "_getAdvisoryNumberStringFromTCP": 0,
+                          "_getStormNumberStringFromTCP": 0,
+                          "_useTestTCP": 0,
+                          "_testTCP": 0,
+                          "_initializeAdvisories": 0,
+                          "_synchronizeAdvisories": 0,
+                          "_getLocalAdvisoryDirectoryPath": 0,
+                          "_getStormAdvisoryNames": 0,
+                          "_loadLastTwoAdvisories": 0,
+                          "_loadAdvisory": 0,
+                          "_getAdvisoryPath": 0,
+                          "_getAdvisoryFilename": 0,
+                          "_processVariableList": 0,
+                          "_GUI_sizing_dict": 0,
+                          "_GUI1_configDict": 0,
+                          "_font_GUI_dict": 0,
                           
-                          # SectionCommon
+                          #Overview_Dialog
+                          "body": 0,
+                          "_makeButtons": 0,
+                          "okCB": 0,
+                          
+                          #Common_Dialog
+                          "getVarDict": 0,
+                          "_makeRadioOrCheckList": 0,
+                          "_makeEntry": 0,
+                          "cancelCB": 0,
+                          "_entryName": 0,
+                          "_makeTuple": 0,
+                          "_setVarDict": 0,
+                          "status": 0,
+                          "buttonbox": 0,
+                          
+                          #SectionCommon
                           "_setProductPartValue": 0,
                           "_finalSectionParts": 0,
                           "_sectionHeader": 0,
@@ -118,17 +184,18 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_potentialImpactsStatements": 0,
                           "_getPotentialImpactsStatements": 0,
                           "_preparationStatement": 0,
-
-                          #  Unique to each section, but common method name
+                          
+                          #Unique to each section, but common method name
+                          "sectionParts": 0,
+                          "_forecastSubsection": 0,
+                          "_latestForecastSummary": 1,
                           "_threatSubsection": 0,
                           "_threatTrend": 0,
                           "_threatStatements": 0,
                           "_impactsSubsection": 0,
+                          "_setStats": 1,
                           
-                          # WindSection
-                          "sectionParts": 0,
-                          "_forecastSubsection": 0,
-                          "_latestForecastSummary": 0,
+                          #WindSection
                           "_peakWind": 0,
                           "_windowTS": 0,
                           "_windowHU": 0,
@@ -136,54 +203,38 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_ktToMph": 0,
                           "_increment": 0,
                           
-                          # StormSurgeSection
-                          "sectionParts": 0,
-                          "_forecastSubsection": 0,
-                          "_latestForecastSummary": 1,
+                          #StormSurgeSection
                           "_peakSurge": 0,
                           "_surgeWindow": 1,
-                           "_lifePropertyThreatSummary": 0,
-                          "_potentialImpactsSummary": 0,
                           
-                          # FloodingRainSection
-                          "sectionParts": 0,
-                          "_forecastSubsection": 0,
-                          "_latestForecastSummary": 0,
+                          #FloodingRainSection
                           "_peakRain": 0,
                           "_rainRange": 0,
-
-                          # TornadoSection
-                          "sectionParts": 0,
-                          "_forecastSubsection": 0,
-                          "_latestForecastSummary": 0,
-
-                          # SectionCommonStats
-                          "_initializeAdvisories": 0,
+                          
+                          #SectionCommonStats
+                          "_initializeSegmentAdvisories": 0,
                           "_updateThreatStats": 0,
                           "_calculateHourOffset": 0,
-
-                          #  Common to all SectionStats classes 
-                          "_setStats": 1,
                           
-                          # WindsSectionStats
+                          #WindSectionStats
                           "_updateStatsForPwsXXint": 0,
                           "_updateStatsForPwsTXX": 1,
-                          "windSpdProb_thresholds": 0,
                           "_updateWindTimeInfo": 0,
                           "_computeWindOnsetAndEnd": 1,
                           "_createWindow": 1,
-                      
-                          # XMLFormatter
+                          
+                          #Unique to each formatter, but common method name
                           "execute": 0,
+                          
+                          #XMLFormatter
                           "xmlKeys": 0,
                           "sectionKeys": 0,
                           "getSectionKey": 0,
                           "dictionary": 0,
                           "list": 0,
                           
-                          # LegacyFormatter
+                          #LegacyFormatter
                           "_processProductParts": 0,
-                          "_noOpParts": 0,
                           "processWmoHeader": 0,
                           "processProductHeader": 0,
                           "processLocationsAffected": 0,
@@ -192,9 +243,23 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "processImpactsStatements": 0,
                           "processInfoSection": 0,
                           "_buildInfoSection": 0,
-                          "formatIssueTime": 0,
                           "processSummaryHeadlines": 0,
                           "processSubParts": 0,
+                          
+                          #TextProductCommon
+                          "setUp": 0,
+                          "hazardTimeZones": 0,
+                          "getExpireTime": 0,
+                          "getHeadlinesAndSections": 0,
+                          "formatUGCs": 0,
+                          "getFormattedTime": 0,
+                          "formatUGC_names": 0,
+                          "formatNameString": 0,
+                          "getVal": 0,
+                          "formatDatetime": 0,
+                          "flush": 0,
+                          "makeUGCString": 0,
+                          "checkLastArrow": 0,
                           }
 #     Definition["debug"] = 1         #  turn on ALL debug messages
 #     Definition["debug"] = 0         #  turn off ALL debug messages
@@ -206,10 +271,14 @@ class TextProduct(HLSTCV_Common.TextProduct):
     #####################################################################
     #####################################################################
     ### Organization of Formatter Code
-
+    
     ###############################################################
     ###  MUST OVERRIDE DEFINITIONS !!!
     ###    _inlandAreas, _coastalAreas, _cwa
+    ###############################################################
+    
+    ###############################################################
+    ### TCV Product and Segment Parts Definition
     ###############################################################
     
     ###############################################################
@@ -218,30 +287,21 @@ class TextProduct(HLSTCV_Common.TextProduct):
     ###############################################################
     
     ###############################################################
-    ### TCV Product and Segment Parts Definition
-    ###############################################################
-    
-    ###############################################################
-    ###  Hazards and Additional Hazards
-    ###    allowedHazards is used for VTEC records and summary
-    ###      headlines
-    ###    allowedHeadlines are additional hazards reported in
-    ###      certain sections
-    ###############################################################
-
-    ###############################################################
     #  CODE
     ###############################################################
     ###  High level flow of formatter
-    ###    generateForecast, initializeVariables,
-    ###    determineSegments, determineTimeRanges, sampleData,
-    ###    createProductDictionary, formatProductDictionary,
-    ###    archiveCurrentAdvisory...
+    ###    generateForecast, _initializeVariables,
+    ###    _determineSegments, _determineTimeRanges, _sampleData,
+    ###    _createProductDictionary, _formatProductDictionary,
+    ###    _archiveCurrentAdvisory
     ###############################################################
     
     ###############################################################
-    ### Product Dictionary methods for creating the dictionary,
-    ###   formatting the dictionary and populating product parts
+    ### Product Parts Implementation
+    ###############################################################
+    
+    ###############################################################
+    ### Sampling and Statistics related methods
     ###############################################################
     
     ###############################################################
@@ -253,15 +313,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     ###############################################################
     
     ###############################################################
-    ### Sampling and Statistics related methods
-    ###############################################################
-    
-    ###############################################################
     ### Time related methods
-    ###############################################################
-    
-    ###############################################################
-    ### Storm Information and TCP related methods
     ###############################################################
     
     ###############################################################
@@ -271,8 +323,8 @@ class TextProduct(HLSTCV_Common.TextProduct):
     ###############################################################
     ### GUI related methods
     ###############################################################
-
-
+    
+    
     ###############################################################
     ###  MUST OVERRIDE DEFINITIONS !!!
     
@@ -289,56 +341,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
 
     def _cwa(self):
         return ""  #"MFL"
-    
-    ###############################################################
-    ### Analysis Lists, SampleAnalysis Overrides and other
-    ###   analysis related methods
-    
-    def _analysisList(self):
-        # Sample over 120 hours beginning at current time
-        analysisList = [
-            # Wind Section
-            ("Wind", self.vectorModeratedMax, [6]),
-            ("WindGust", self.moderatedMax, [6]),
-            ("WindThreat", self.mostSignificantDiscreteValue),
-            ("pws34int", self.moderatedMax, [6]),
-            ("pws64int", self.moderatedMax, [6]),
-            ("pwsD34", self.moderatedMax),
-            ("pwsN34", self.moderatedMax),
-            ("pwsD64", self.moderatedMax),
-            ("pwsN64", self.moderatedMax),
-#             ("pwsD34", self.moderatedMax, [0]),
-#             ("pwsN34", self.moderatedMax, [0]),
-#             ("pwsD64", self.moderatedMax, [0]),
-#             ("pwsN64", self.moderatedMax, [0]),
-            
-            # Flooding Rain Section
-            ("QPF", self.accumSum, [72]),
-            ("FloodingRainThreat", self.mostSignificantDiscreteValue),
-            
-            # Tornado Section
-            ("TornadoThreat", self.mostSignificantDiscreteValue),
-            ]
-
-        return analysisList
-    
-    def _intersectAnalysisList(self):
-        # The grids for the Surge Section will be intersected with a special edit area
-        analysisList = [
-            ("InundationMax", self.moderatedMax, [6]),
-            ("InundationTiming", self.moderatedMax, [6]),
-            ("StormSurgeThreat", self.mostSignificantDiscreteValue),
-            ]
-
-        return analysisList
-    
-    def _extraRainfallAnalysisList(self):
-        # The grids for the Surge Section will be intersected with a special edit area
-        analysisList = [
-            ("QPF", self.accumSum),
-            ]
-
-        return analysisList
     
     ###############################################################
     ### TCV Product and Segment Parts Definition
@@ -390,20 +392,69 @@ class TextProduct(HLSTCV_Common.TextProduct):
             'arguments': segment_vtecRecords_tuple,
             'partsList': partsList
             }
+    
+    ###############################################################
+    ### Analysis Lists, SampleAnalysis Overrides and other
+    ###   analysis related methods
+    
+    def _analysisList(self):
+        # Sample over 120 hours beginning at current time
+        analysisList = [
+            # Wind Section
+            ("Wind", self.vectorModeratedMax, [6]),
+            ("WindGust", self.moderatedMax, [6]),
+            ("WindThreat", self.mostSignificantDiscreteValue),
+            ("pws34int", self.moderatedMax, [6]),
+            ("pws64int", self.moderatedMax, [6]),
+            ("pwsD34", self.moderatedMax),
+            ("pwsN34", self.moderatedMax),
+            ("pwsD64", self.moderatedMax),
+            ("pwsN64", self.moderatedMax),
+            
+            # Flooding Rain Section
+            ("QPF", self.accumSum, [72]),
+            ("FloodingRainThreat", self.mostSignificantDiscreteValue),
+            
+            # Tornado Section
+            ("TornadoThreat", self.mostSignificantDiscreteValue),
+            ]
 
+        return analysisList
+    
+    def _intersectAnalysisList(self):
+        # The grids for the Surge Section will be intersected with a special edit area
+        analysisList = [
+            ("InundationMax", self.moderatedMax, [6]),
+            ("InundationTiming", self.moderatedMax, [6]),
+            ("StormSurgeThreat", self.mostSignificantDiscreteValue),
+            ]
+
+        return analysisList
+    
+    def _extraRainfallAnalysisList(self):
+        # The grids for the Surge Section will be intersected with a special edit area
+        analysisList = [
+            ("QPF", self.accumSum),
+            ]
+
+        return analysisList
+    
     ###############################################################
     ###  High level flow of formatter
 
     def generateForecast(self, argDict):
+        # Generate Text Phrases for a list of edit areas
+        
         import pprint 
         pp = pprint.PrettyPrinter()
         self.debug_print("argDict = %s" % (pp.pformat(argDict)), 1)
-        
-        # Generate Text Phrases for a list of edit areas
 
         error = self._initializeVariables(argDict)
         if error is not None:
             return error
+        
+        if self._stormName is None or self._stormName.strip() == "":
+            return "Could not determine the storm name"
         
         self._segmentList = self._determineSegments()
         self.debug_print("Segment Information: %s" % (repr(self._segmentList)), 1)
@@ -417,34 +468,17 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._sampleData(argDict)
 
         # Create the product dictionary and format it to create the output
-        productDict = self._createProductDictionary()
-        productOutput = self._formatProductDictionary(productDict)
+        productDict = self._createProductDictionary(self._segmentList)
+        productOutput = self._formatProductDictionary(LegacyFormatter, productDict)
 
         self._archiveCurrentAdvisory()
         
         return productOutput
     
     def _initializeVariables(self, argDict):
-        # Get variables
-        error = self._getVariables(argDict)
+        error = HLSTCV_Common.TextProduct._initializeVariables(self, argDict)
         if error is not None:
             return error
-    
-        self._backupFullStationID = self._fullStationID
-        self._argDict = argDict
-        
-        argDict["definition"] = self._definition
-        
-        self._initializeTimeVariables(argDict)
-        
-        self._initializeHazardsTable(argDict)
-        
-        error = self._initializeStormInformation()
-        if error is not None:
-            return error
-        
-        if self._stormName is None or self._stormName.strip() == "":
-            return "Could not determine the storm name"
         
         self._windSection = dict()
         self._stormSurgeSection = dict()
@@ -453,41 +487,18 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         self._initializeAdvisories()
         
-        # Set up the areaDictionary for all to use
-        accessor = ModuleAccessor.ModuleAccessor()
-        self._areaDict = accessor.variable(self._areaDictionary, "AreaDictionary")
-        self._tpc = HLSTCV_Common.TextProductCommon()
-        self._tpc.setUp(self._areaDict)
-        
         return None
     
     ###############################################################
-    ### Product Dictionary methods
+    ### Product Parts Implementation
     
-    def _createProductDictionary(self):
-        # Create the product dictionary
-        productSegmentGroup = self._groupSegments(self._segmentList)
-
-        productDict = self._initializeProductDict(productSegmentGroup)
-        productParts = productSegmentGroup.get('productParts') 
-        productDict['productParts'] = productParts
-        self._processProductParts(self, productDict, productSegmentGroup, productParts)
-        self._wrapUpProductDict(productDict)
-        
-        return productDict
+    def _noOpParts(self):
+        '''
+        These represent product parts that should be skipped when calling product part methods.
+        They will be handled automatically by the formatters.
+        '''
+        return ['CR', 'endProduct', 'endSegment', 'doubleAmpersand']
     
-    def _formatProductDictionary(self, productDict):
-        legacyFormatter = LegacyFormatter(self)
-        product = legacyFormatter.execute(productDict)
-#         xmlFormatter = XMLFormatter(self)
-#         product = xmlFormatter.execute(productDict)
-        
-        return product
-        
-    ######################################################
-    #  Populate Product Parts for HLS and TCV
-    ######################################################
-        
     ################# Product Level
 
     def _easMessage(self, productDict, productSegmentGroup, arguments=None):
@@ -498,8 +509,8 @@ class TextProduct(HLSTCV_Common.TextProduct):
     def _setup_segment(self, segmentDict, productSegmentGroup, productSegment):
         segment, vtecRecords = productSegment
         self.debug_print('setup_segment productSegment %s' % (repr(productSegment)), 1)
-        # NOTE -- using getVtecRecords to change to milliseconds
-        self._segmentVtecRecords = self.getVtecRecords(segment)
+        # NOTE -- using _getVtecRecords to change to milliseconds
+        self._segmentVtecRecords = self._getVtecRecords(segment)
             
         # UGCs and Expire Time
         # Assume that the geoType is the same for all hazard events in the segment i.e. area or point
@@ -525,11 +536,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 nonUPGrecords.append(record)
         self._summaryHeadlines_value, self._headlines = self._tpc.getHeadlinesAndSections(
                     nonUPGrecords, self._productID, self._issueTime_secs)
-    
-    def _ugcHeader(self, segmentDict, productSegmentGroup, productSegment):
-        segmentDict['ugcCodes'] = self._formatUGC_entries()
-        self._ugcHeader_value = self._tpc.formatUGCs(self._ugcs, self._expireTime)
-        segmentDict['ugcHeader'] = self._ugcHeader_value
        
     def _vtecRecords(self, segmentDict, productSegmentGroup, productSegment):
        segment, vtecRecords = productSegment
@@ -553,38 +559,10 @@ class TextProduct(HLSTCV_Common.TextProduct):
     def _areaList(self, segmentDict, productSegmentGroup, productSegment):
          # Area String        
         segmentDict['areaList'] = self._tpc.formatUGC_names(self._ugcs)
-
-    def _locationsAffected(self, segmentDict, productSegmentGroup, productSegment):
-        segment, vtecRecords = productSegment
-        import TCVAreaDictionary
-        tcv_AreaDictionary = TCVAreaDictionary.TCV_AreaDictionary
-        
-        segmentDict['locationsAffected'] = []
-        if segment in tcv_AreaDictionary:
-            segmentDict['locationsAffected'] += tcv_AreaDictionary[segment]["locationsAffected"]
-        
-    def _fcstConfidence(self, segmentDict, productSegmentGroup, productSegment):
-        # SARAH: TODO - Get this from the TCM product potentially? Not included until provided from NHC
-        return ""
     
-    def _infoSection(self, segmentDict, productSegmentGroup, productSegment):
-        segment, vtecRecords = productSegment
-        import TCVAreaDictionary
-        tcv_AreaDictionary = TCVAreaDictionary.TCV_AreaDictionary
-    
-        segment, vtecRecords = productSegment
-        infoSection = []
-        if segment in tcv_AreaDictionary:
-            infoSection = tcv_AreaDictionary[segment]["infoSection"]
-        
-        segmentDict['infoSection'] = infoSection
-        
-    def _endSection(self, segmentDict, productSegmentGroup, productSegment):
-        segmentDict['endSection'] = "\n$$"
-        
     def _issuanceTimeDate(self, segmentDict, productSegmentGroup, productSegment):
         segmentDict['issuanceTimeDate'] = self._timeLabel
-        
+    
     def _summaryHeadlines(self, segmentDict, productSegmentGroup, productSegment):
         segment, vtecRecords = productSegment
         numRecords = len(vtecRecords)
@@ -615,171 +593,129 @@ class TextProduct(HLSTCV_Common.TextProduct):
         summaryDict['headlinesInEffect'] = headlinesInEffect
         summaryDict['headlineDefinitions'] = definitions
         segmentDict['summaryHeadlines'] = summaryDict
-        
-    ######################################################
-    #  Product Part processing         
-    ######################################################
-   
-    def _processProductParts(self, productGenerator, productDict, productSegmentGroup, productParts):            
-        '''
-        @param productDict
-        @param productSegmentGroup
-        @param productParts
-        @return product dictionary created from the product parts
-        
-        Note that this method is called recursively such that a product part is allowed to be
-        a set of subParts specified as follows:
-          (subPartLabel, list of productParts for each subPart)
-        For example, we have
-          ('segments', [list of [segment product parts]])
-
-        # Product Dictionary
-        #   Contains information for all formats e.g.
-        #   partner XML, CAP, and Legacy text 
-        '''
-        
-        
-        if type(productParts) is types.DictType:
-            arguments = productParts.get('arguments')
-            partsList = productParts.get('partsList')
-        else:
-            partsList = productParts
-        
-        removedParts = []
-        for part in partsList:
-            if type(part) is types.TupleType:
-                # e.g. subPart == 'segments', subPartsLists == list of parts for each segment
-                subPart, subPartsLists = part
-                subParts = []
-                for subPartsList in subPartsLists:
-                    subDict = collections.OrderedDict()
-                    self._processProductParts(productGenerator, subDict, productSegmentGroup, subPartsList)
-                    subParts.append(subDict)
-                # e.g. productDict['segments'] = segment dictionaries
-                productDict[subPart] = subParts
-            else:
-                if part not in self._noOpParts():
-                    execString = 'productGenerator._'+part+'(productDict, productSegmentGroup, arguments)'
-                    exec execString
-                    if part not in productDict:
-                        removedParts.append(part)
-        
-        for part in removedParts:
-            partsList.remove(part)
-                    
-    def _noOpParts(self):
-        '''
-        These represent product parts that should be skipped when calling product part methods.
-        They will be handled automatically by the formatters.
-        '''
-        return ['CR', 'endProduct', 'endSegment', 'doubleAmpersand']
     
-    ######################################################
-    #  Product Dictionary -- General product information        
-    ######################################################
+    def _locationsAffected(self, segmentDict, productSegmentGroup, productSegment):
+        segment, vtecRecords = productSegment
+        import TCVAreaDictionary
+        tcv_AreaDictionary = TCVAreaDictionary.TCV_AreaDictionary
+        
+        segmentDict['locationsAffected'] = []
+        if segment in tcv_AreaDictionary:
+            segmentDict['locationsAffected'] += tcv_AreaDictionary[segment]["locationsAffected"]
+    
+    def _fcstConfidence(self, segmentDict, productSegmentGroup, productSegment):
+        # SARAH: TODO - Get this from the TCM product potentially? Not included until provided from NHC
+        return ""
+    
+    def _infoSection(self, segmentDict, productSegmentGroup, productSegment):
+        segment, vtecRecords = productSegment
+        import TCVAreaDictionary
+        tcv_AreaDictionary = TCVAreaDictionary.TCV_AreaDictionary
+    
+        segment, vtecRecords = productSegment
+        infoSection = []
+        if segment in tcv_AreaDictionary:
+            infoSection = tcv_AreaDictionary[segment]["infoSection"]
+        
+        segmentDict['infoSection'] = infoSection
+        
+    def _endSection(self, segmentDict, productSegmentGroup, productSegment):
+        segmentDict['endSection'] = "\n$$"
+    
+    ################# Product Parts Helper Methods
+    
+    def _hazardDefinition(self, phenSig):
+        if phenSig == "HU.W":
+            return "A HURRICANE WARNING MEANS HURRICANE WIND CONDITIONS ARE " + \
+                   "EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
+        elif phenSig == "HU.A":
+            return "A HURRICANE WATCH MEANS HURRICANE WIND CONDITIONS ARE " + \
+                   "POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
+        if phenSig == "TR.W":
+            return "A TROPICAL STORM WARNING MEANS TROPICAL STORM WIND CONDITIONS ARE " + \
+                   "EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
+        elif phenSig == "TR.A":
+            return "A TROPICAL STORM WATCH MEANS TROPICAL STORM WIND CONDITIONS ARE " + \
+                   "POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
+        elif phenSig == "SS.W":
+            return "A STORM SURGE WARNING MEANS LIFE THREATENING INUNDATION LEVELS ARE " + \
+                   "EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
+        elif phenSig == "SS.A":
+            return "A STORM SURGE WATCH MEANS LIFE THREATENING INUNDATION LEVELS ARE " + \
+                   "POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
+        else:
+            return ""
+    
+    ###############################################################
+    ### Sampling and Statistics related methods
+    
+    def _threatKeyOrder(self):
+        return [None, "None", "Elevated", "Mod", "High", "Extreme"]
+    
+    def _sampleData(self, argDict):
+        # Sample the data
+        editAreas = self._makeSegmentEditAreas(argDict)
+        cwa = self._cwa()
+        editAreas.append((cwa, cwa))
 
-    def _initializeProductDict(self, productSegmentGroup):
-        '''
-        Set up the Product Dictionary for the given Product consisting of a 
-        group of segments.
+        self._sampler = self.getSampler(argDict,
+          (self._analysisList(), self._timeRangeList, editAreas))
         
-        Fill in the dictionary information for the product header.
+        intersectAreas = self._computeIntersectAreas(editAreas, argDict)
         
-        @param productSegmentGroup: holds meta information about the product
-        @return initialized product dictionary
-      
-        ***********
-        Example segmented product:
-        
-           WGUS63 KBOU 080400
-           FFABOU
+        self._intersectSampler = self.getSampler(argDict,
+          (self._intersectAnalysisList(), self._timeRangeList, intersectAreas))
 
-           URGENT - IMMEDIATE BROADCAST REQUESTED
-           FLOOD WATCH
-           NATIONAL WEATHER SERVICE DENVER CO
-           400 AM GMT TUE FEB 8 2011
 
-           Overview Headline
-           Overview
+        #  Make a sample period for the previous rainfall
+        self._previousRainfallTR = [(self._extraSampleTimeRange, "PrevRainfall")]
+        self._extraRainfallSampler = self.getSampler(argDict,
+            (self._extraRainfallAnalysisList(),  self._previousRainfallTR, 
+             editAreas))
 
-        ***********
-        Example non-segmented product:
-           WGUS63 KBOU 080400
-           FFWBOU
+    def _getStats(self, argDict, segment, editAreaDict, timeRangeList):
+        # Get statistics for this segment
         
-        '''        
-        self._productID = productSegmentGroup.get('productID', 'NNN')
-        if self._areaName != '':
-            self._areaName = ' FOR ' + self._areaName + '\n'
-        self._geoType = productSegmentGroup.get('geoType')
-        self._mapType = productSegmentGroup.get('mapType')
-        self._productTimeZones = []
+        editArea = editAreaDict[segment]
+        statList = self.getStatList(self._sampler,
+                                    self._analysisList(),
+                                    timeRangeList,
+                                    editArea)
         
-        # Fill in product dictionary information
-        productDict = collections.OrderedDict()
-        productDict['productID'] = self._productID
-        return productDict
-        
-    def _wrapUpProductDict(self, productDict):    
-        productDict['sentTimeZ'] = self._convertToISO(self._issueTime_ms)
-        productDict['sentTimeZ_datetime'] = self._convertToDatetime(self._issueTime_ms)
-        productDict['sentTimeLocal'] = self._convertToISO(self._issueTime_ms, local=True)
-        productDict['timeZones'] = self._productTimeZones
-        return productDict
+        import pprint
+        pp = pprint.PrettyPrinter()
+        self.debug_print("*"*80)
+        for index in range(len(timeRangeList)):
+            self.debug_print("editArea =" + editArea, 1)
+            self.debug_print("timeRange = %s" % (pp.pformat(timeRangeList[index])), 1)
+            self.debug_print("statList = %s" % (pp.pformat(statList[index])), 1)
+            self.debug_print("-"*40, 1)
 
+        #  These stats are for handling the extra rainfall
+        extraRainfallStatList = self.getStatList(self._extraRainfallSampler,
+                                             self._extraRainfallAnalysisList(),
+                                             self._previousRainfallTR,
+                                             editArea)
+         
+        windStats = WindSectionStats(self, segment, statList, timeRangeList)
+        floodingRainStats = FloodingRainSectionStats(self, segment, 
+                               statList, timeRangeList, 
+                               extraRainfallStatList, self._previousRainfallTR)
+        tornadoStats = TornadoSectionStats(self, segment, statList, timeRangeList)
+        
+        # The surge section needs sampling done with an intersected edit area
+        intersectEditArea = "intersect_"+editArea
+        intersectStatList = self.getStatList(self._intersectSampler,
+                                             self._intersectAnalysisList(),
+                                             timeRangeList,
+                                             intersectEditArea)
+        
+        stormSurgeStats = StormSurgeSectionStats(self, segment, intersectStatList, timeRangeList)
+                
+        return (windStats, stormSurgeStats, floodingRainStats, tornadoStats)
+    
     ###############################################################
     ### Area, Zone and Segment related methods
-    
-    def _groupSegments(self, segmentsWithHazards):
-        '''
-         Group the segments into the products
-            return a list of productSegmentGroup dictionaries
-        '''
-        
-        segment_vtecRecords_tuples = []
-
-        # We need to preserve the ordering of the zones based off the zone combiner ordering
-        sortedAreas = sorted(self._allAreas(),
-                             key=lambda x: segmentsWithHazards.index(x) if x in segmentsWithHazards else 9999)
-        for segment in sortedAreas:
-            self._initializeSegmentZoneData(segment)
-
-            # We need stats for all zones to be saved in the advisory,
-            # regardless of whether or not it has a hazard in it
-            windStats, stormSurgeStats, floodingRainStats, tornadoStats = \
-                self._getStats(self._argDict, segment, self._editAreaDict, self._timeRangeList)
-            
-            # Only show zones with hazards in the output
-            if segment in segmentsWithHazards:
-                vtecRecords = self.getVtecRecords(segment)
-                segment_vtecRecords_tuples.append((segment, vtecRecords))
-                
-                self._windSection[segment] = WindSection(self, segment, windStats)
-                self._stormSurgeSection[segment] = StormSurgeSection(self, segment, stormSurgeStats)
-                self._floodingRainSection[segment] = FloodingRainSection(self, segment, floodingRainStats)
-                self._tornadoSection[segment] = TornadoSection(self, segment, tornadoStats)
-        
-        productSegmentGroup = { 
-                       'productID' : 'TCV',
-                       'productName': self._productName,
-                       'geoType': 'area',
-                       'vtecEngine': self._hazardsTable,
-                       'mapType': 'publicZones',
-                       'segmented': True,
-                       'productParts': self._productParts_TCV(segment_vtecRecords_tuples),
-                       }
-
-        return productSegmentGroup
-    
-    def _makeSegmentEditAreas(self, argDict):
-        areasList = self._allAreas()
-        #self.debug_print("areaList = %s" % (repr(areasList)), 1)
-        editAreas = []
-        self._editAreaDict = {}
-        for area in areasList:
-            self._editAreaDict[area] = area
-            editAreas.append((area, area))
-        return editAreas
     
     def _determineSegments(self):
         # Get the segments based on hazards "overlaid" with combinations file
@@ -863,129 +799,99 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 newSegments.append(newSeg)
         return newSegments
     
+    def _groupSegments(self, segmentsWithHazards):
+        '''
+         Group the segments into the products
+            return a list of productSegmentGroup dictionaries
+        '''
+        
+        segment_vtecRecords_tuples = []
+
+        # We need to preserve the ordering of the zones based off the zone combiner ordering
+        sortedAreas = sorted(self._allAreas(),
+                             key=lambda x: segmentsWithHazards.index(x) if x in segmentsWithHazards else 9999)
+        for segment in sortedAreas:
+            self._initializeSegmentZoneData(segment)
+
+            # We need stats for all zones to be saved in the advisory,
+            # regardless of whether or not it has a hazard in it
+            windStats, stormSurgeStats, floodingRainStats, tornadoStats = \
+                self._getStats(self._argDict, segment, self._editAreaDict, self._timeRangeList)
+            
+            # Only show zones with hazards in the output
+            if segment in segmentsWithHazards:
+                vtecRecords = self._getVtecRecords(segment)
+                segment_vtecRecords_tuples.append((segment, vtecRecords))
+                
+                self._windSection[segment] = WindSection(self, segment, windStats)
+                self._stormSurgeSection[segment] = StormSurgeSection(self, segment, stormSurgeStats)
+                self._floodingRainSection[segment] = FloodingRainSection(self, segment, floodingRainStats)
+                self._tornadoSection[segment] = TornadoSection(self, segment, tornadoStats)
+        
+        productSegmentGroup = { 
+                       'productID' : 'TCV',
+                       'productName': self._productName,
+                       'geoType': 'area',
+                       'vtecEngine': self._hazardsTable,
+                       'mapType': 'publicZones',
+                       'segmented': True,
+                       'productParts': self._productParts_TCV(segment_vtecRecords_tuples),
+                       }
+
+        return productSegmentGroup
+    
+    def _makeSegmentEditAreas(self, argDict):
+        areasList = self._allAreas()
+        #self.debug_print("areaList = %s" % (repr(areasList)), 1)
+        editAreas = []
+        self._editAreaDict = {}
+        for area in areasList:
+            self._editAreaDict[area] = area
+            editAreas.append((area, area))
+        return editAreas
+    
     def _findSegment(self, areaName):
         for segment in self._segmentList:
             if areaName in segment:
                 return segment
         return []
-
-    def _formatUGC_entries(self):
-        ugcCodeList = []
-        for ugc in self._ugcs:
-            areaDictEntry = self._areaDict.get(ugc)
-            if areaDictEntry is None:
-                # We are not localized correctly for the hazard
-                # So get the first dictionary entry
-                self.logger.info('Not Localized for the hazard area -- ugc' + ugc)
-                keys = self._areaDict.keys()
-                areaDictEntry = self._areaDict.get(keys[0])
-            ugcEntry = collections.OrderedDict()
-            ugcEntry['state'] = areaDictEntry.get('stateAbbr')
-            ugcEntry['type'] = self._getUgcInfo(ugc, 'type')
-            ugcEntry['number'] = self._getUgcInfo(ugc, 'number')
-            ugcEntry['text'] = ugc
-            ugcEntry['subArea'] = ''
-            ugcCodeList.append(ugcEntry)
-        return ugcCodeList
-
-    def _getUgcInfo(self, ugc, part='type'):
-        if part == 'type':
-            if ugc[2] == 'C': 
-                return 'County'
-            else: 
-                return 'Zone'
-        if part == 'number':
-            return ugc[3:]
-
+    
     ###############################################################
     ### Hazards related methods
-
-    def _hazardDefinition(self, phenSig):
-        if phenSig == "HU.W":
-            return "A HURRICANE WARNING MEANS HURRICANE WIND CONDITIONS ARE " + \
-                   "EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
-        elif phenSig == "HU.A":
-            return "A HURRICANE WATCH MEANS HURRICANE WIND CONDITIONS ARE " + \
-                   "POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
-        if phenSig == "TR.W":
-            return "A TROPICAL STORM WARNING MEANS TROPICAL STORM WIND CONDITIONS ARE " + \
-                   "EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
-        elif phenSig == "TR.A":
-            return "A TROPICAL STORM WATCH MEANS TROPICAL STORM WIND CONDITIONS ARE " + \
-                   "POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
-        elif phenSig == "SS.W":
-            return "A STORM SURGE WARNING MEANS LIFE THREATENING INUNDATION LEVELS ARE " + \
-                   "EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
-        elif phenSig == "SS.A":
-            return "A STORM SURGE WATCH MEANS LIFE THREATENING INUNDATION LEVELS ARE " + \
-                   "POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
-        else:
-            return ""
     
-    ###############################################################
-    ### Sampling and Statistics related methods
+    def _getAllVTECRecords(self):
+        allRecords = []
+        for segment in self._segmentList:
+            allRecords += self._getVtecRecords(segment)
+        
+        return allRecords
     
-    def _sampleData(self, argDict):
-        # Sample the data
-        editAreas = self._makeSegmentEditAreas(argDict)
-        cwa = self._cwa()
-        editAreas.append((cwa, cwa))
-
-        self._sampler = self.getSampler(argDict,
-          (self._analysisList(), self._timeRangeList, editAreas))
+    def _getHazardsForHLS(self):
+        hazardTable = self._argDict["hazards"]
         
-        intersectAreas = self._computeIntersectAreas(editAreas, argDict)
         
-        self._intersectSampler = self.getSampler(argDict,
-          (self._intersectAnalysisList(), self._timeRangeList, intersectAreas))
-
-
-        #  Make a sample period for the previous rainfall
-        self._previousRainfallTR = [(self._extraSampleTimeRange, "PrevRainfall")]
-        self._extraRainfallSampler = self.getSampler(argDict,
-            (self._extraRainfallAnalysisList(),  self._previousRainfallTR, 
-             editAreas))
-
-    def _getStats(self, argDict, segment, editAreaDict, timeRangeList):
-        # Get statistics for this segment
+        hazSegments = self.organizeHazards(hazardTable.rawAnalyzedTable())
+        self.debug_print("Segments from HazardsTable organizeHazards %s" % 
+                         (repr(hazSegments)), 1)
         
-        editArea = editAreaDict[segment]
-        statList = self.getStatList(self._sampler,
-                                    self._analysisList(),
-                                    timeRangeList,
-                                    editArea)
+        combos = [([self._allAreas()], "AllAreas")]
         
-        import pprint
-        pp = pprint.PrettyPrinter()
-        self.debug_print("*"*80)
-        for index in range(len(timeRangeList)):
-            self.debug_print("editArea =" + editArea, 1)
-            self.debug_print("timeRange = %s" % (pp.pformat(timeRangeList[index])), 1)
-            self.debug_print("statList = %s" % (pp.pformat(statList[index])), 1)
-            self.debug_print("-"*40, 1)
-
-        #  These stats are for handling the extra rainfall
-        extraRainfallStatList = self.getStatList(self._extraRainfallSampler,
-                                             self._extraRainfallAnalysisList(),
-                                             self._previousRainfallTR,
-                                             editArea)
-         
-        windStats = WindSectionStats(self, segment, statList, timeRangeList)
-        floodingRainStats = FloodingRainSectionStats(self, segment, 
-                               statList, timeRangeList, 
-                               extraRainfallStatList, self._previousRainfallTR)
-        tornadoStats = TornadoSectionStats(self, segment, statList, timeRangeList)
+        self.debug_print("Segments from Zone Combiner %s" % (repr(combos)), 1)
+        # "Overlay" the forecaster-entered combinations onto the segments
+        segmentList = self._refineSegments(hazSegments, combos)
+        self.debug_print("SegmentList from refineSegments = %s" % 
+                         (repr(segmentList)), 1)
         
-        # The surge section needs sampling done with an intersected edit area
-        intersectEditArea = "intersect_"+editArea
-        intersectStatList = self.getStatList(self._intersectSampler,
-                                             self._intersectAnalysisList(),
-                                             timeRangeList,
-                                             intersectEditArea)
+        allHazards = []
+        for segment in segmentList:
+            hazardsList = hazardTable.getHazardList(segment)
+            for hazard in hazardsList:
+                if hazard['act'] == 'COR':
+                    return self._previousAdvisory["HazardsForHLS"]
+                else:
+                    allHazards.append(hazard)
         
-        stormSurgeStats = StormSurgeSectionStats(self, segment, intersectStatList, timeRangeList)
-                
-        return (windStats, stormSurgeStats, floodingRainStats, tornadoStats)
+        return allHazards
     
     ###############################################################
     ### Time related methods
@@ -1004,41 +910,19 @@ class TextProduct(HLSTCV_Common.TextProduct):
         return datetime.datetime.fromtimestamp(time_ms / 1000)
     
     ###############################################################
-    ### GUI related methods
-    
-    def _overview_list(self):
-        return [
-            {
-            "name": "StormInfo",
-            "label": "Obtain Storm Type/Name/Info",
-            "options": [
-                "TCPAT1", "TCPAT2", "TCPAT3", "TCPAT4", "TCPAT5",
-                "Enter PIL below (e.g. TCPEP1):",
-                ],
-            "entryField": "     ",
-            },
-            {
-            "name": "PopulateSurge",
-            "label": "Populate Surge Section",
-            "options": [
-                ("Populate", True),
-                ("Do not populate", False),
-                ],
-            "default": "None",
-            },
-            ]
-        
-    def _displayGUI(self, infoDict=None):
-        dialog = Overview_Dialog(self, "TCV", infoDict)
-        status = dialog.status()
-        LogStream.logVerbose("status="+status)
-        if status == "Cancel":
-            return None
-        else:
-            return dialog.getVarDict()
-    
-    ###############################################################
     ### Advisory related methods
+    
+    def _initializeSegmentZoneData(self, segment):
+        # The current advisory will be populated when setting a section's stats
+        self._currentAdvisory['ZoneData'][segment] = {
+            "WindThreat":            None,
+            "WindForecast":          None,
+            "StormSurgeThreat":      None,
+            "StormSurgeForecast":    None,
+            "FloodingRainThreat":    None,
+            "FloodingRainForecast":  None,
+            "TornadoThreat":         None,
+        }
     
     def _archiveCurrentAdvisory(self):
         ### Determine if all actions are canceled
@@ -1092,53 +976,39 @@ class TextProduct(HLSTCV_Common.TextProduct):
         except Exception, e:
             self.debug_print("SARAH Save Exception for %s : %s" % (fileName, e), 1)
     
-    def _getHazardsForHLS(self):
-        hazardTable = self._argDict["hazards"]
-        
-        
-        hazSegments = self.organizeHazards(hazardTable.rawAnalyzedTable())
-        self.debug_print("Segments from HazardsTable organizeHazards %s" % 
-                         (repr(hazSegments)), 1)
-        
-        combos = [([self._allAreas()], "AllAreas")]
-        
-        self.debug_print("Segments from Zone Combiner %s" % (repr(combos)), 1)
-        # "Overlay" the forecaster-entered combinations onto the segments
-        segmentList = self._refineSegments(hazSegments, combos)
-        self.debug_print("SegmentList from refineSegments = %s" % 
-                         (repr(segmentList)), 1)
-        
-        allHazards = []
-        for segment in segmentList:
-            hazardsList = hazardTable.getHazardList(segment)
-            for hazard in hazardsList:
-                if hazard['act'] == 'COR':
-                    return self._previousAdvisory["HazardsForHLS"]
-                else:
-                    if hazard['act'] == "UPG":
-                        upgPhenSig = hazard['phen'] + "." + hazard['sig']
-                        newRecord = self._findNEWAssociatedWithUPG(upgPhenSig, hazardsList)
-                        hazard['new_record'] = newRecord
-                    
-                    allHazards.append(hazard)
-        
-        return allHazards
+    ###############################################################
+    ### GUI related methods
     
-    def _findNEWAssociatedWithUPG(self, upgPhenSig, vtecRecords):
-        import VTECTable
+    def _overview_list(self):
+        return [
+            {
+            "name": "StormInfo",
+            "label": "Obtain Storm Type/Name/Info",
+            "options": [
+                "TCPAT1", "TCPAT2", "TCPAT3", "TCPAT4", "TCPAT5",
+                "Enter PIL below (e.g. TCPEP1):",
+                ],
+            "entryField": "     ",
+            },
+            {
+            "name": "PopulateSurge",
+            "label": "Populate Surge Section",
+            "options": [
+                ("Populate", True),
+                ("Do not populate", False),
+                ],
+            "default": "None",
+            },
+            ]
         
-        possibleUpgrades = []
-        for upgradedTo, upgradedFrom in VTECTable.upgradeHazardsDict:
-            if upgPhenSig in upgradedFrom:
-                possibleUpgrades.append(upgradedTo)
-        
-        for record in vtecRecords:
-            if record['act'] == "NEW":
-                newPhenSig = record['phen'] + "." + record['sig']
-                if newPhenSig in possibleUpgrades:
-                    return record
-        
-        return None
+    def _displayGUI(self, infoDict=None):
+        dialog = Overview_Dialog(self, "TCV", infoDict)
+        status = dialog.status()
+        LogStream.logVerbose("status="+status)
+        if status == "Cancel":
+            return None
+        else:
+            return dialog.getVarDict()
 
 import Tkinter
 class Overview_Dialog(HLSTCV_Common.Common_Dialog):
@@ -1335,7 +1205,7 @@ class SectionCommon():
         return threatTrendValue
     
     def _threatDifference(self, threat1, threat2):
-        threatLevels = self._textProduct.threatKeyOrder()
+        threatLevels = self._textProduct._threatKeyOrder()
         self._textProduct.debug_print("SARAH: threat1 index = %s" % threatLevels.index(threat1), 1)
         self._textProduct.debug_print("SARAH: threat2 index = %s" % threatLevels.index(threat2), 1)
         return threatLevels.index(threat1) - threatLevels.index(threat2)
@@ -2070,11 +1940,11 @@ class SectionCommonStats():
         self._textProduct = textProduct
         self._segment = segment
         
-        self._initializeAdvisories()
+        self._initializeSegmentAdvisories()
         
         self._maxThreat = None
     
-    def _initializeAdvisories(self):
+    def _initializeSegmentAdvisories(self):
         self._currentAdvisory = self._textProduct._currentAdvisory['ZoneData'][self._segment]
         
         self._previousAdvisory = None
@@ -2093,7 +1963,7 @@ class SectionCommonStats():
         self._textProduct.debug_print("statDict = '%s'" % (repr(statDict)), 1)
         threatLevel = self._textProduct.getStats(statDict, threatGridName)
         if threatLevel is not None:
-            threatLevels = self._textProduct.threatKeyOrder()
+            threatLevels = self._textProduct._threatKeyOrder()
             self._textProduct.debug_print("SARAH: updateThreatStats for %s" % (threatGridName), 1)
             self._textProduct.debug_print("SARAH: threatLevel = %s" % (threatLevel), 1)
             self._textProduct.debug_print("SARAH: maxThreat = %s" % (self._maxThreat), 1)
@@ -3028,14 +2898,6 @@ class LegacyFormatter():
                 text += self.TAB*tabLevel + "- " + component + "\n"
             elif type(component) is list:
                 text += self._buildInfoSection(component, tabLevel+1)
-        return text
-
-    def formatIssueTime(self):  
-        text = ''  
-        sentTimeZ = self._tpc.getVal(self.productDict, 'sentTimeZ_datetime')
-        timeZones = self._tpc.getVal(self.productDict, 'timeZones')
-        for timeZone in timeZones:
-            text += self._tpc.formatDatetime(sentTimeZ, '%I%M %p %Z %a %e %b %Y', timeZone) + '\n'
         return text
 
     def processSummaryHeadlines(self, summaryDict):
