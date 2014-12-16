@@ -32,8 +32,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.vaa.Activator;
 
 /**
  * ResourceData for Volcanic Ash Advisories data
@@ -53,12 +51,13 @@ import com.raytheon.uf.viz.vaa.Activator;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "vaaResourceData")
 public class VAAResourceData extends AbstractRequestableResourceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(VAAResourceData.class);
-    
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VAAResourceData.class);
+
     public VAAResourceData() {
         // TODO Auto-generated constructor stub
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
@@ -68,7 +67,7 @@ public class VAAResourceData extends AbstractRequestableResourceData {
         if (obj instanceof VAAResourceData == false) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -90,6 +89,6 @@ public class VAAResourceData extends AbstractRequestableResourceData {
             }
         }
         return rsc;
-    } 
+    }
 
 }

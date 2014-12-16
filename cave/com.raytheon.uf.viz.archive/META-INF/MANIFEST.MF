@@ -2,8 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Archive
 Bundle-SymbolicName: com.raytheon.uf.viz.archive;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.archive.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
  org.eclipse.core.runtime,
@@ -18,7 +17,7 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.units;bundle-version="1.0.0",
  com.raytheon.uf.common.auth;bundle-version="1.12.1174"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.commons.compress.archivers,
  org.apache.commons.compress.archivers.tar

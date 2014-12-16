@@ -67,6 +67,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * 06/20/13     2127       rjpeter     Removed unused bidirectional relationship.
  * 06/13/13     2044       randerso    Code cleanup
  * 07/31/13     2057       randerso    Added removedDate
+ * 10/08/14     #3684      randerso    Added sameModel()
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -596,6 +598,23 @@ public class DatabaseID implements Comparable<DatabaseID> {
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
+    }
+
+    public boolean sameModel(DatabaseID other) {
+
+        if (!this.siteId.equals(other.getSiteId())) {
+            return false;
+        }
+
+        if (!this.format.equals(other.getFormat())) {
+            return false;
+        }
+
+        if (!this.dbType.equals(other.getDbType())) {
+            return false;
+        }
+
+        return this.modelName.equals(other.getModelName());
     }
 
     /*
