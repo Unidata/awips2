@@ -31,6 +31,7 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.jivesoftware.smack.packet.Presence.Type;
@@ -47,6 +48,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
+import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeUserColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
@@ -66,6 +70,9 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Feb 13, 2014 2751       bclement   made parent generic
  * Feb 28, 2014 2632       mpduff      Override appendMessage for notifiers
  * Jun 17, 2014 3078       bclement    changed peer type to IUser
+ * Nov 14, 2014 3709       mapeters    support foregound/background color 
+ *                                     settings for each user
+ * Nov 26, 2014 3709       mapeters    add colorConfigManager, use parent's colors map
  * 
  * </pre>
  * 
@@ -81,21 +88,23 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.PeerToPeerView";
 
-    private static Color userColor = null;
+    private static final Color DEFAULT_USER_FOREGROUND_COLOR = Display
+            .getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
 
-    private static Color chatterColor = null;
+    private static final Color DEFAULT_PEER_FOREGROUND_COLOR = Display
+            .getCurrent().getSystemColor(SWT.COLOR_RED);
 
-    private static Color black = null;
+    private static final Color BLACK = Display.getCurrent().getSystemColor(
+            SWT.COLOR_BLACK);
 
     private IUser peer;
 
     private boolean online = true;
 
+    private static UserColorConfigManager colorConfigManager;
+
     public PeerToPeerView() {
         super();
-        userColor = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
-        chatterColor = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-        black = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
         CollaborationConnection.getConnection().registerEventHandler(this);
     }
 
@@ -202,11 +211,11 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         }
         Color color = null;
         if (userId == null) {
-            color = black;
+            color = BLACK;
         } else if (!userId.equals(connection.getUser())) {
-            color = chatterColor;
+            color = DEFAULT_PEER_FOREGROUND_COLOR;
         } else {
-            color = userColor;
+            color = DEFAULT_USER_FOREGROUND_COLOR;
         }
         styleAndAppendText(sb, offset, name, userId, ranges, color);
     };
@@ -214,22 +223,35 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
     @Override
     public void styleAndAppendText(StringBuilder sb, int offset, String name,
             IUser userId, List<StyleRange> ranges, Color color) {
-        StyleRange range = new StyleRange(messagesText.getCharCount(), offset,
-                color, null, SWT.NORMAL);
-        ranges.add(range);
+        Color fgColor = color;
+        Color bgColor = null;
+
         if (userId != null) {
-            range = new StyleRange(messagesText.getCharCount() + offset,
-                    name.length() + 1, color, null, SWT.BOLD);
-        } else {
-            range = new StyleRange(messagesText.getCharCount() + offset,
-                    sb.length() - offset, color, null, SWT.BOLD);
+            // get user colors from config manager
+            ColorInfo userColor = colorConfigManager.getColor(userId
+                    .getName());
+            if (userColor != null) {
+                fgColor = getColorFromRGB(userColor.getColor(SWT.FOREGROUND));
+                bgColor = getColorFromRGB(userColor.getColor(SWT.BACKGROUND));
+            }
         }
+
+        StyleRange range = new StyleRange(messagesText.getCharCount(),
+                sb.length(), fgColor, null, SWT.NORMAL);
+        ranges.add(range);
+        range = new StyleRange(messagesText.getCharCount() + offset,
+                (userId != null ? name.length() + 1 : sb.length() - offset),
+                fgColor, null, SWT.BOLD);
         ranges.add(range);
         messagesText.append(sb.toString());
+        
         for (StyleRange newRange : ranges) {
             messagesText.setStyleRange(newRange);
         }
-        messagesText.setTopIndex(messagesText.getLineCount() - 1);
+        
+        int lineNumber = messagesText.getLineCount() - 1;
+        messagesText.setLineBackground(lineNumber, 1, bgColor);
+        messagesText.setTopIndex(lineNumber);
     }
 
     @Override
@@ -295,6 +317,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
     @Override
     protected void initComponents(Composite parent) {
         super.initComponents(parent);
+        colorConfigManager = new UserColorConfigManager();
 
         // unfortunately this code cannot be a part of createToolbarButton
         // because I cannot instantiate the ACI until after the messagesText
@@ -350,5 +373,25 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         } else {
             return peer.getFQName();
         }
+    }
+
+    /**
+     * add right-click menu options for changing foreground/background colors
+     * for each user
+     */
+    public void addChangeUserColorActions() {
+        String myName = CollaborationConnection.getConnection().getUser()
+                .getName();
+        String peerName = peer.getName();
+        RGB defaultUserForeground = DEFAULT_USER_FOREGROUND_COLOR.getRGB();
+        RGB defaultPeerForeground = DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
+        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.BACKGROUND,
+                myName, true, defaultUserForeground, colorConfigManager));
+        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.FOREGROUND,
+                myName, true, defaultUserForeground, colorConfigManager));
+        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.BACKGROUND,
+                peerName, false, defaultPeerForeground, colorConfigManager));
+        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.FOREGROUND,
+                peerName, false, defaultPeerForeground, colorConfigManager));
     }
 }

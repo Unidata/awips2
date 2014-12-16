@@ -27,7 +27,8 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    05/12/11                      njensen       Initial Creation.
+#    05/12/11                      njensen        Initial Creation.
+#    11/06/14        3549          njensen        Log receiveData
 #    
 # 
 #
@@ -36,6 +37,7 @@ import threading, time, logging
 STORE_DIR = '/awips2/edex/data/hdf5/'  # TODO this should be a config file
 STORE_DIR_LEN = len(STORE_DIR)
 SECTION_KEYS=['total',
+              '  receiveData',
               '  deserialize',
               '  getLock',
               '    approxLockSleepTime',
