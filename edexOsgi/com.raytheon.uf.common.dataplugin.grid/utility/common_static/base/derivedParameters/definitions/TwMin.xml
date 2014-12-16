@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	TwMin| | |Layer Min Wet-bulb Temperature |K     |CONTOUR,IMAGE,OTHER||     *Min|Twstk
+	
+	
+	varId: |TwMin| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Layer Min Wet-bulb Temperature | 
+	units: |K| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Min|	
+	varId: |Twstk|
+	
+	
+	AWIPS II NEW FILE - TwMin.xml
+-->
+<DerivedParameter unit="K" name="Layer Min Wet-bulb Temperature" abbreviation="TwMin" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Min">
+        <Field abbreviation="Twstk"/>
+    </Method>
+</DerivedParameter>
