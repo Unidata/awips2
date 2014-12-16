@@ -1,9 +1,9 @@
 package gov.noaa.nws.ncep.common.dataplugin.geomag.util;
 
-
 import gov.noaa.nws.ncep.common.dataplugin.geomag.exception.GeoMagException;
 import gov.noaa.nws.ncep.common.dataplugin.geomag.table.GeoMagStation;
-import gov.noaa.nws.ncep.common.dataplugin.geomag.table.GeoMagStationTableReader;
+import gov.noaa.nws.ncep.common.dataplugin.geomag.table.GeoMagStationList;
+import gov.noaa.nws.ncep.common.dataplugin.geomag.table.GeoMagStationTableReaderWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +28,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * ------------ ---------- ----------- --------------------------
  * 04/2013      975        sgurung     Initial creation
  * 07/2013      975        qzhou       Change Map<String, GeoMagStation> stnsByCode to
+ * 04/2014      R4078      sgurung     Modified methods initStationList() and saveGeoMagStationList()
  * </pre>
  * 
  * @author sgurung
@@ -72,20 +73,23 @@ public class GeoMagStationLookup {
     }
 
     public GeoMagStation getStationByCode(String stnCode, boolean hasHeader) {
-    	ArrayList<GeoMagStation> stationList = null;
-    	
-		stationList = stnsByCode.get(stnCode);
-		
-    	int i = 0;
-    	for (i = 0; i <stationList.size(); i++) {
-    		
-    		if (hasHeader == true && stationList.get(i).getRawDataFormat().getHeaderFormat() != null) 
-    			break;	  		
-    		else if (hasHeader == false && stationList.get(i).getRawDataFormat().getHeaderFormat() == null)
-    			break;
-    		else if (hasHeader == true && stationList.get(i).getRawDataFormat().getHeaderFormat() == null)
-    			break;
-    }
+        ArrayList<GeoMagStation> stationList = null;
+
+        stationList = stnsByCode.get(stnCode);
+
+        int i = 0;
+        for (i = 0; i < stationList.size(); i++) {
+
+            if (hasHeader == true
+                    && stationList.get(i).getRawDataFormat().getHeaderFormat() != null)
+                break;
+            else if (hasHeader == false
+                    && stationList.get(i).getRawDataFormat().getHeaderFormat() == null)
+                break;
+            else if (hasHeader == true
+                    && stationList.get(i).getRawDataFormat().getHeaderFormat() == null)
+                break;
+        }
 
         return stationList.get(i);
     }
@@ -95,62 +99,121 @@ public class GeoMagStationLookup {
     }
 
     private void initStationList() throws GeoMagException {
-    	IPathManager pathMgr = PathManagerFactory.getPathManager();
-		
-		LocalizationContext commonStaticBase = pathMgr.getContext(
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+
+        LocalizationContext commonStaticBase = pathMgr.getContext(
                 LocalizationContext.LocalizationType.COMMON_STATIC,
                 LocalizationContext.LocalizationLevel.BASE);
-		
-		/*LocalizationContext commonStaticSite = pathMgr.getContext(
-	            LocalizationContext.LocalizationType.COMMON_STATIC,
-	            LocalizationContext.LocalizationLevel.SITE);*/
 
-		String path = "";
-        //String sitePath = "";
+        LocalizationContext commonStaticSite = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
+                LocalizationContext.LocalizationLevel.SITE);
+
+        String path = "";
+        String sitePath = "";
         try {
-            path = pathMgr.getFile(commonStaticBase, 
-            		"ncep" + File.separator + "geomag" + File.separator + "geoMagStations.xml")
-            		.getCanonicalPath();
-            //sitePath = pathMgr.getFile(commonStaticSite, NcPathConstants.GEOMAG_STNS_TBL).getCanonicalPath();
+            path = pathMgr.getFile(
+                    commonStaticBase,
+                    "ncep" + File.separator + "geomag" + File.separator
+                            + "geoMagStations.xml").getCanonicalPath();
+            sitePath = pathMgr.getFile(
+                    commonStaticSite,
+                    "ncep" + File.separator + "geomag" + File.separator
+                            + "geoMagStations.xml").getCanonicalPath();
+
         } catch (IOException e) {
-        	logger.error("Error reading geomag stations table. ", e);
+            logger.error("Error reading geomag stations table. ", e);
         }
-		
 
         File stnsFile = new File(path);
-        //File siteStnsFile = new File(sitePath);
-        GeoMagStationTableReader geoMagStationsTbl = null;
+        File siteStnsFile = new File(sitePath);
+        GeoMagStationTableReaderWriter geoMagStationsTbl = null;
         try {
-            if (stnsFile.exists()) {
-            	geoMagStationsTbl = new GeoMagStationTableReader(stnsFile.getPath());
-            } 
-            
             // if site version exists, use it instead
-            /*if (siteStnsFile.exists()) {
-            	geoMagStationsTbl = new GeoMagStationTableReader(stnsFile.getPath());
-            }*/
-            
-            List<GeoMagStation> list = (geoMagStationsTbl!=null)?geoMagStationsTbl.getStationList():new ArrayList<GeoMagStation>();
-            //System.out.println("**list "+list.size());
-            for(GeoMagStation station : list){	
-            	ArrayList<GeoMagStation>  stationList = null;
-            	if (stnsByCode.containsKey(station.getStationCode())) {
-            		stationList = stnsByCode.get(station.getStationCode());
-            		if(stationList==null)
-            			stationList=new ArrayList<GeoMagStation>();
+            if (siteStnsFile.exists()) {
+                geoMagStationsTbl = new GeoMagStationTableReaderWriter(
+                        siteStnsFile.getPath());
+            } else if (stnsFile.exists()) {
+                geoMagStationsTbl = new GeoMagStationTableReaderWriter(
+                        stnsFile.getPath());
+            }
 
-            		stationList.add(station);  
+            List<GeoMagStation> list = (geoMagStationsTbl != null) ? geoMagStationsTbl
+                    .readGeoMagStationList() : new ArrayList<GeoMagStation>();
 
-        	    }else{
-        	    	stationList=new ArrayList<GeoMagStation>();
-        	    	stationList.add(station);                           	    
-            	}
-            	stnsByCode.put(station.getStationCode(), stationList);//station);
-            } 		        
+            for (GeoMagStation station : list) {
+                ArrayList<GeoMagStation> stationList = null;
+                if (stnsByCode.containsKey(station.getStationCode())) {
+                    stationList = stnsByCode.get(station.getStationCode());
+                    if (stationList == null)
+                        stationList = new ArrayList<GeoMagStation>();
+
+                    stationList.add(station);
+
+                } else {
+                    stationList = new ArrayList<GeoMagStation>();
+                    stationList.add(station);
+                }
+                stnsByCode.put(station.getStationCode(), stationList);// station);
+            }
         } catch (Exception e) {
-            throw new GeoMagException("Unable to unmarshal ncep geomag stations file");
+            throw new GeoMagException(
+                    "Unable to unmarshal ncep geomag stations file");
         }
-       
+
+    }
+
+    public void saveGeoMagStationList(GeoMagStationList sfstnlist)
+            throws GeoMagException {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+
+        LocalizationContext commonStaticBase = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
+                LocalizationContext.LocalizationLevel.BASE);
+
+        LocalizationContext commonStaticSite = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
+                LocalizationContext.LocalizationLevel.SITE);
+
+        String basePath = "";
+        String sitePath = "";
+        try {
+            basePath = pathMgr.getFile(
+                    commonStaticBase,
+                    "ncep" + File.separator + "geomag" + File.separator
+                            + "geoMagStations.xml").getCanonicalPath();
+            sitePath = pathMgr.getFile(
+                    commonStaticSite,
+                    "ncep" + File.separator + "geomag" + File.separator
+                            + "geoMagStations.xml").getCanonicalPath();
+
+        } catch (IOException e) {
+            logger.error("Error reading geomag stations table. ", e);
+            throw new GeoMagException("Error reading geoMagStations.xml file. "
+                    + e);
+        }
+
+        File stnsTableBase = new File(basePath);
+        File stnsTableSite = new File(sitePath);
+
+        GeoMagStationTableReaderWriter geoMagStationsTbl = null;
+        try {
+
+            if (stnsTableSite.exists()) {
+                geoMagStationsTbl = new GeoMagStationTableReaderWriter(
+                        stnsTableSite.getPath());
+                geoMagStationsTbl.writeGeoMagStationList(sfstnlist);
+            } else {
+                if (stnsTableBase.exists()) {
+                    geoMagStationsTbl = new GeoMagStationTableReaderWriter(
+                            stnsTableBase.getPath());
+                    geoMagStationsTbl.writeGeoMagStationList(sfstnlist);
+                }
+            }
+        } catch (Exception e) {
+            throw new GeoMagException(
+                    "Unable to marshal ncep geomag stations file");
+        }
     }
 
 }
