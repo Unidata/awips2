@@ -55,6 +55,8 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * Sep 24, 2013  2404     bclement    match criteria built using GridStyleUtil
  * Jan 14, 2014  2661     bsteffen    Switch vectors to u,v only.
  * May 05, 2014  3026     mpduff      Made getCurrentGribRecord() public
+ * Nov 19, 2014  5056     jing        changed access modifier on getAnyGridRecord
+ *                                    from private to public
  * 
  * </pre>
  * 
@@ -159,7 +161,7 @@ public class GridResource<T extends AbstractResourceData> extends
         return (GridRecord) pdos.get(0);
     }
 
-    protected GridRecord getAnyGridRecord() {
+    public GridRecord getAnyGridRecord() {
         GridRecord record = getCurrentGridRecord();
         if (record == null) {
             for (DataTime time : getDataTimes()) {
