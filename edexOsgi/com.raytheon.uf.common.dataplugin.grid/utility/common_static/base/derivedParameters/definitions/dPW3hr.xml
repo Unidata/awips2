@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	dPW3hr |0| |3hr Precipitable Water Change |in.|CONTOUR,IMAGE,OTHER|Layer|       *Difference,Layer,==_dt1,==_dt3,dTime|PW|0.|PW|-10800.
+	
+	
+	varId: |dPW3hr| 
+	Cross Section (CS): |0| 				//according to implemented IoCape.xml, CS = 0 is not in the derivedParameter definition
+	isAttachToSource: | | 
+	varName: |3hr Precipitable Water Change | 
+	units: |in.| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, planeList, ==dataVar, ==dataVar: |Difference, Layer, ==_dt1, ==_dt3|  //== means more data variable in the source will be tested if test fails
+	dTime: |dTime|
+	varId:  |PW|
+	offset: |0|
+	varId: |PW| 
+	offset: |-10800| 
+	
+	AWIPS II NEW FILE - dPW3hr.xml
+ -->
+<DerivedParameter unit="in" name="3hr Precipitable Water Change" abbreviation="dPW3hr" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method dtime="true" levels="Layer" name="Difference">
+        <Field timeShift="0" abbreviation="PW"/>
+        <Field timeShift="-10800" abbreviation="PW"/>
+    </Method>
+</DerivedParameter>

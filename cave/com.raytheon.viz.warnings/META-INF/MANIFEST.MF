@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Warnings Plug-in
 Bundle-SymbolicName: com.raytheon.viz.warnings;singleton:=true
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.viz.warnings.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
