@@ -1,0 +1,19 @@
+*** a/qpid/java/build.xml	2014-05-13 04:58:21.000000000 -0500
+--- b/qpid/java/build.xml	2014-10-27 14:53:46.434396511 -0500
+***************
+*** 179,185 ****
+      <touch file="${qpid.jar}"/>
+    </target>
+  
+!   <target name="build" depends="retrieve-dependencies" description="build the project">
+      <iterate target="build"/>
+      <antcall target="manifest"/>
+      <echo>
+--- 179,185 ----
+      <touch file="${qpid.jar}"/>
+    </target>
+  
+!   <target name="build" description="build the project">
+      <iterate target="build"/>
+      <antcall target="manifest"/>
+      <echo>

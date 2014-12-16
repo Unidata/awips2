@@ -8,7 +8,7 @@
 Name: awips2-tools
 Summary: AWIPS II Tools Distribution
 Version: 1.8.5
-Release: 2.el6
+Release: 3.el6
 Group: AWIPSII
 BuildRequires: awips2-python-h5py
 BuildRoot: /tmp

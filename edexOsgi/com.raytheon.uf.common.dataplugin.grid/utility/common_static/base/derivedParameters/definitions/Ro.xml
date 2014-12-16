@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  
+AWIPS 1 format
+Ro    |1| |Rossby Number Vag/Vg | |CONTOUR,IMAGE,OTHER||      *Divide|ageoWM|geoWM 
+
+abbreviation: |Ro| 
+Notused1: |1| 
+Notused2: | | 
+name: |Rossby Number Vag/Vg | 
+FIELD: || 
+FIELD: |CONTOUR,IMAGE,OTHER| 
+-->
+<DerivedParameter name="Rossby Number Vag/Vg " abbreviation="Ro" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Divide">
+        <Field abbreviation="ageoWM"/>
+        <Field abbreviation="geoWM"/>
+    </Method>
+</DerivedParameter>
