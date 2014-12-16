@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -59,6 +60,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * 27 May 2012  #647       dgilling    Implement getIdentifier/setIdentifier.
  * Nov 05, 2013 2499       rjpeter     Fix generics.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed ISerializableObject
+ * 10/29/2014   3454       bphillip    Fixed text archiver
  * </pre>
  * 
  * @author jkorman
@@ -108,6 +110,7 @@ public abstract class StdTextProduct extends
     /** persistent field */
     @Column(nullable = false)
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     @DynamicSerializeElement
     @XmlElement
     private String product;

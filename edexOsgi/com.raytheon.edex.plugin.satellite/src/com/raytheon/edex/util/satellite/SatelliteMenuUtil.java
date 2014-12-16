@@ -53,6 +53,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 									  Derived Products Imagery Display
  * Nov 01, 2012  15346    kshresth    Added Satellite Products for OCONUS
  * Jun 05, 2014  3243     bsteffen    Remove deprecated lambert conformal call.
+ * Nov 05, 2014  2714     bclement    made constants protected to remove warnings
  * 
  * 
  * </pre>
@@ -70,16 +71,16 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
                     MapUtil.AWIPS_EARTH_RADIUS, 25, 25, -95, 25);
 
     // The western edge of the west conus satellite image in conusCRS
-    private static final double westConusWestEdge = -4226066.525608903;
+    protected static final double westConusWestEdge = -4226066.525608903;
 
     // The eastern edge of the west conus satellite image in conusCRS
-    private static final double westConusEastEdge = 243783.47439109907;
+    protected static final double westConusEastEdge = 243783.47439109907;
 
     // The eastern edge of the east conus satellite image in conusCRS
-    private static final double eastConusEastEdge = 3250785.858985792;
+    protected static final double eastConusEastEdge = 3250785.858985792;
 
     // The western edge of the east conus satellite image in conusCRS
-    private static final double eastConusWestEdge = -1950494.1410142092;
+    protected static final double eastConusWestEdge = -1950494.1410142092;
 
     @Override
     public void createMenus() {

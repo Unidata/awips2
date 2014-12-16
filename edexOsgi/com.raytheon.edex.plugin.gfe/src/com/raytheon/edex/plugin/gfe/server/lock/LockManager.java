@@ -67,6 +67,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                     fixed inefficiencies in querying/merging
  * 06/13/13     #2044      randerso    Converted from singleton to instance per 
  *                                     site managed by IFPServer
+ * 10/07/2014   #3684      randerso    Restructured IFPServer start up
  * </pre>
  * 
  * @author bphillip
@@ -91,21 +92,12 @@ public class LockManager {
      * 
      * @param siteId
      * @param config
-     */
-    public LockManager(String siteId, IFPServerConfig config) {
-        this.siteId = siteId;
-        this.config = config;
-    }
-
-    /**
-     * Sets the GridParmManager instance to be used by this LockManager.
-     * 
-     * Done post construction since GridParmManager and LockManager have
-     * references to each other
-     * 
      * @param gridParmMgr
      */
-    public void setGridParmMgr(GridParmManager gridParmMgr) {
+    public LockManager(String siteId, IFPServerConfig config,
+            GridParmManager gridParmMgr) {
+        this.siteId = siteId;
+        this.config = config;
         this.gridParmMgr = gridParmMgr;
     }
 
