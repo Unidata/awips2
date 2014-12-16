@@ -46,6 +46,10 @@ import com.raytheon.uf.viz.core.drawables.IWireframeShape;
  * commands (e.g., LineWidth); this structure also provides a place to hold
  * these states.
  * 
+ * ImageBuilder is used to construct a PaintableImage, but is kept distinct so
+ * that the former can be discarded (along with any temporary "building
+ * materials" it contains) once the latter has been fully constructed.
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
@@ -121,11 +125,18 @@ public class ImageBuilder {
         private ImageBuilder getOuterType() {
             return ImageBuilder.this;
         }
+
+        public String toString() {
+            return (color.toString() + " Line Width " + width);
+        }
     }
 
     // Collection of all wireframes under construction, keyed by unique output
     // draw states
     public Map<WireframeKey, IWireframeShape> wireframes = new HashMap<WireframeKey, IWireframeShape>();
+
+    // Sequence in which to paint the wireframes
+    public List<WireframeKey> wireframePaintOrder = new ArrayList<WireframeKey>();
 
     // Line color set by the most recent CGM LineColour command. Default to
     // WHITE.
@@ -155,15 +166,6 @@ public class ImageBuilder {
     public IShadedShape shadedShape;
 
     public RGB currentFillColor = new RGB(0, 255, 0);
-
-    public boolean shadedShapeReady = false; // if true, shaded shape
-                                             // constructed on
-                                             // first paint of this frame
-                                             // are already saved
-                                             // (in PictureInfo), and so we
-                                             // can skip
-                                             // regeneration on subsequent
-                                             // paints
 
     public double scale = 1.0;
 
