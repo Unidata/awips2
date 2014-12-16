@@ -52,9 +52,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.IParmInventoryChangedListener;
 import com.raytheon.viz.gfe.core.parm.Parm;
@@ -78,6 +76,7 @@ import com.raytheon.viz.gfe.temporaleditor.mousehandler.TitleBarMouseHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 30, 2009 2159       rjpeter     Initial creation.
+ * Oct 29, 2014  #3776     randerso    Renamed static variables to match AWIPS standards
  * </pre>
  * 
  * @author rjpeter
@@ -85,7 +84,9 @@ import com.raytheon.viz.gfe.temporaleditor.mousehandler.TitleBarMouseHandler;
  */
 public abstract class AbstractTemporalEditorBar implements
         Comparable<AbstractTemporalEditorBar> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(AbstractTemporalEditorBar.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractTemporalEditorBar.class);
+
     protected static final Color DEFAULT_COLOR = Display.getDefault()
             .getSystemColor(SWT.COLOR_GRAY);
 
@@ -552,7 +553,7 @@ public abstract class AbstractTemporalEditorBar implements
         for (Parm parm : parmList) {
             LockTable lockTable = parm.getLockTable();
 
-            gc.setBackgroundPattern(GridBar.LockedByOther);
+            gc.setBackgroundPattern(GridBar.lockedByOther);
             for (TimeRange timeRange : lockTable.lockedByOther()) {
                 if (timeRange.overlaps(range)) {
                     Rectangle rect = teUtil.timeRangeToPixels(timeRange);
@@ -643,7 +644,7 @@ public abstract class AbstractTemporalEditorBar implements
             scaleCanvas.redraw();
             editorCanvas.redraw();
             bottomLabel.redraw();
-        }				
+        }
     }
 
     /**

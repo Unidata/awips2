@@ -79,6 +79,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * May 15, 2014  #3157    dgilling     Mark getActiveSites() as deprecated.
  * Jul 09, 2014  #3146    randerso     Eliminated redundant evaluation of serverConfig
  *                                     Sent activation failure message to alertViz
+ * Oct 07, 2014  #3684    randerso    Restructured IFPServer start up
  * </pre>
  * 
  * @author njensen
