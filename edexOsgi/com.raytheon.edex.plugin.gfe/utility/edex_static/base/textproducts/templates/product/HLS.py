@@ -371,6 +371,8 @@ class TextProduct(HLSTCV_Common.TextProduct):
         partsList.append('nextUpdate')
         partsList.append('endProduct')
         
+        self.debug_print("Product Parts partsList = %s" % partsList, 1)
+        
         return {
             'partsList': partsList
             }

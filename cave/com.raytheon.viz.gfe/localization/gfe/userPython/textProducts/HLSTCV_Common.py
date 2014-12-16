@@ -1020,10 +1020,9 @@ FORECASTER STEWART"""
         self._loadLastTwoAdvisories()
     
     def _synchronizeAdvisories(self):
-       
         # Retrieving a directory causes synching to occur
-        file = LocalizationSupport.getLocalizationFile(LocalizationSupport.CAVE_STATIC, 
-                                                       LocalizationSupport.SITE, 
+        file = LocalizationSupport.getLocalizationFile(LocalizationSupport.CAVE_STATIC,
+                                                       LocalizationSupport.SITE, self._site,
                                                        self._getAdvisoryPath()).getFile()
         
         return file
