@@ -1,0 +1,25 @@
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <resource>
+          <properties renderingOrderId="MAP_OUTLINE"></properties>
+          <resourceData xsi:type="NC-DayNightTerminatorOverlayResourceData">
+            <legendColor>${termLineColor}</legendColor>
+            <termLineColor>${termLineColor}</termLineColor>
+            <termLineWidth>${termLineWidth}</termLineWidth>
+            <termLineStyle>${termLineStyle}</termLineStyle>
+            <sunMarkerColor>${sunMarkerColor}</sunMarkerColor>
+            <sunMarkerType>${sunMarkerType}</sunMarkerType>
+            <sunMarkerSize>${sunMarkerSize}</sunMarkerSize>
+            <sunMarkerWidth>${sunMarkerWidth}</sunMarkerWidth>            
+            <midnightMeridianLineColor>${midnightMeridianLineColor}</midnightMeridianLineColor>
+            <midnightMeridianLineWidth>${midnightMeridianLineWidth}</midnightMeridianLineWidth>
+            <midnightMeridianLineStyle>${midnightMeridianLineStyle}</midnightMeridianLineStyle>
+            <dayShadeColor>${dayShadeColor}</dayShadeColor>
+            <nightShadeColor>${nightShadeColor}</nightShadeColor>
+            <shadeAlpha>${shadeAlpha}</shadeAlpha>
+            <shadePattern>${shadePattern}</shadePattern>
+            <displaySun>${displaySun}</displaySun>
+            <applyShading>${applyShading}</applyShading>
+            <displayMidnightMeridian>${displayMidnightMeridian}</displayMidnightMeridian>
+          </resourceData>
+        </resource>
+</resourceGroup>
