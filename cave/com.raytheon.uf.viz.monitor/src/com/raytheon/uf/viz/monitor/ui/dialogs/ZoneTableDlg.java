@@ -42,11 +42,16 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
+import com.raytheon.uf.common.monitor.xml.AreaIdXML;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -58,7 +63,6 @@ import com.raytheon.uf.viz.monitor.config.CommonTableConfig.GraphType;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.data.ObHourReports;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
-import com.raytheon.uf.viz.monitor.data.ObStnHourReports;
 import com.raytheon.uf.viz.monitor.data.ObTrendDataSet;
 import com.raytheon.uf.viz.monitor.data.TableData;
 import com.raytheon.uf.viz.monitor.data.TableUtil;
@@ -70,6 +74,8 @@ import com.raytheon.uf.viz.monitor.util.ObUtil;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.io.ParseException;
 
 /**
  * Abstract Zone table dialog that is the foundation for all Zone dialogs.
@@ -90,6 +96,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 15, 2014 3086      skorolev     Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager.
  * Sep 15, 2014 3220      skorolev     Added refreshZoneTableData method.
  * Oct 17, 2014 3220      skorolev     Added condition into launchTrendPlot to avoid NPE.
+ * Nov 03, 2014 3741      skorolev     Updated zoom procedures.
  * 
  * </pre>
  * 
@@ -99,6 +106,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 public abstract class ZoneTableDlg extends CaveSWTDialog implements
         IMonitorListener, IMonitorControlListener, IStationTableAction,
         IZoneTableAction {
+    private final static IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ZoneTableDlg.class);
 
     /** Array listening monitors **/
     protected List<IMonitor> controlListeners = new ArrayList<IMonitor>();
@@ -725,16 +734,6 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     public void launchObHistoryTable(int rowIndex) {
         String station = stnTblData.getTableRows().get(rowIndex)
                 .getTableCellData(0).getCellText();
-        ObStnHourReports report = obData.getObHourReports()
-                .getObZoneHourReports(selectedZone)
-                .getObStnHourReports(station);
-        if (report.getStationCenter() != null) {
-            lat = report.getStationCenter()[1];
-            lon = report.getStationCenter()[0];
-        } else {
-            lat = 0.0;
-            lon = 0.0;
-        }
         // Set dialog index
         String dialogID = appName.name() + station;
         ObsHistType histType = null;
@@ -792,10 +791,16 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * @throws Exception
      */
     private void zoomToZone(String zone) throws Exception {
-        double[] zoneCenter = MonitorAreaUtils.getZoneCenter(zone);
-        if (zoneCenter != null) {
-            zoomAndRecenter(zoneCenter, ZONE_ZOOM_LEVEL);
+        Coordinate zoneCenter = MonitorAreaUtils.getZoneCenter(zone);
+        if (zoneCenter == null) { // Test a newly added zone.
+            AreaIdXML zoneXML = configMgr.getAreaXml(zone);
+            if (zoneXML != null // Coordinates do not the null values.
+                    && (zoneXML.getCLon() != null || zoneXML.getCLat() != null)) {
+                zoneCenter = new Coordinate(zoneXML.getCLon(),
+                        zoneXML.getCLat());
+            }
         }
+        zoomAndRecenter(zoneCenter, ZONE_ZOOM_LEVEL);
     }
 
     /*
@@ -809,12 +814,14 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     public void zoomToStation(int rowIndex) {
         String selectedStation = stnTblData.getTableRows().get(rowIndex)
                 .getTableCellData(0).getCellText();
-        ObStnHourReports reports = obData.getObHourReports()
-                .getObZoneHourReports(selectedZone)
-                .getObStnHourReports(selectedStation);
-        double[] stnCenter = reports.getStationCenter();
-        if (stnCenter != null) {
-            zoomAndRecenter(stnCenter, STATION_ZOOM_LEVEL);
+        try {
+            Coordinate stnCenter = MonitorAreaUtils
+                    .getStationCenter(selectedStation);
+            if (stnCenter != null) {
+                zoomAndRecenter(stnCenter, STATION_ZOOM_LEVEL);
+            }
+        } catch (SpatialException | ParseException e) {
+            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
         }
     }
 
@@ -824,7 +831,10 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * @param center
      * @param zoom
      */
-    private void zoomAndRecenter(double[] center, float zoom) {
+    private void zoomAndRecenter(Coordinate center, float zoom) {
+        if (center == null) {// No zoom.
+            return;
+        }
         IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
         if (container != null) {
             IDescriptor descriptor = container.getActiveDisplayPane()
@@ -838,7 +848,8 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
             float zoomLevel = zoom / mapWidth;
             for (IDisplayPane pane : container.getDisplayPanes()) {
                 pane.getRenderableDisplay().getExtent().reset();
-                pane.getRenderableDisplay().recenter(center);
+                pane.getRenderableDisplay().recenter(
+                        new double[] { center.x, center.y });
                 pane.getRenderableDisplay().zoom(zoomLevel);
                 pane.refresh();
             }

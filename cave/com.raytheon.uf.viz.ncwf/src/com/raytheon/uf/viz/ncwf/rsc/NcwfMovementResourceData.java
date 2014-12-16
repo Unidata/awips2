@@ -31,8 +31,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.ncwf.Activator;
 
 /**
  * The ResourceData for Ncwf resources
@@ -51,8 +49,9 @@ import com.raytheon.uf.viz.ncwf.Activator;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class NcwfMovementResourceData extends AbstractRequestableResourceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(NcwfMovementResourceData.class);
-    
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(NcwfMovementResourceData.class);
+
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
@@ -61,7 +60,7 @@ public class NcwfMovementResourceData extends AbstractRequestableResourceData {
         if (obj instanceof NcwfMovementResourceData == false) {
             return false;
         }
-                
+
         return true;
     }
 

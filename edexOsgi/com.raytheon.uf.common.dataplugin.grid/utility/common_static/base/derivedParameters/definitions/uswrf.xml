@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	USWRF  |0| |Reflectivity     |dBZ           |CONTOUR,IMAGE,OTHER| |      *Alias,1kmAgl|USWRF,1000FHAG
+	
+	
+	varId: |USWRF| 
+	Cross Section (CS): |0| 
+	isAttachToSource: | | 
+	varName: |Reflectivity     | 
+	units: |dBZ| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 		//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: || 								//No longer used, planes are available and determined by levels attribute in the Method tag, 
+												//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+												//method levels
+	
+	functionName, planeList: |Alias,1kmAgl| 
+	varId, plane: |USWRF,1000FHAG| 
+	
+	
+	AWIPS II NEW FILE - USWRF.xml
+-->
+<DerivedParameter unit="dBZ" name="Reflectivity" abbreviation="USWRF" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="1kmAgl" name="Alias">
+        <Field level="1000FHAG" abbreviation="USWRF"/>
+    </Method>
+</DerivedParameter>

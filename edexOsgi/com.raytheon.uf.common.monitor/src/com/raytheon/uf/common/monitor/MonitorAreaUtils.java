@@ -10,7 +10,13 @@ import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.xml.StationIdXML;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
@@ -27,7 +33,9 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Apr 29, 2011 DR#8986   zhao       Read in "counties", not "forecast zones", 
  * Feb 22, 2012 14413     zhao       modified getAdjacentZones to add "C" or "Z"
  * Apr 30, 2014  3086     skorolev   Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager
- * Oct 17, 2014 2757      skorolev   Corrected SQL in the getAdjacentZones to avoid duplicates. 
+ * Oct 17, 2014 2757      skorolev   Corrected SQL in the getAdjacentZones to avoid duplicates.
+ * Nov 03, 2014 3741      skorolev   Updated getZoneCenter and added getStationCenter methods.
+ * Dec 02, 2014 3841      skorolev   Fixed possible duplicates in SQL expression.
  * 
  * </pre>
  * 
@@ -35,6 +43,9 @@ import com.vividsolutions.jts.io.WKTWriter;
  * @version 1.0
  */
 public class MonitorAreaUtils {
+
+    private final static IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MonitorAreaUtils.class);
 
     public static final String COUNTY_TABLE = "mapdata.county";
 
@@ -75,8 +86,9 @@ public class MonitorAreaUtils {
                     counties.add(state + "C" + fips.substring(2));
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SpatialException e) {
+            statusHandler.handle(Priority.ERROR, "Error to get the counties.",
+                    e);
         }
         return counties;
     }
@@ -108,8 +120,9 @@ public class MonitorAreaUtils {
                     zones.add(state + "Z" + zone);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SpatialException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Error to get forecast zones.", e);
         }
         return zones;
     }
@@ -148,8 +161,9 @@ public class MonitorAreaUtils {
                 }
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SpatialException e) {
+            statusHandler.handle(Priority.ERROR, "Error to get marine zones.",
+                    e);
         }
 
         return zones;
@@ -161,10 +175,10 @@ public class MonitorAreaUtils {
      *            : zone ID (either a county zone or a maritime zone)
      * @return a list of stations (with station ID and station type) associated
      *         with the zone
-     * @throws Exception
+     * @throws ParseException
      */
     public static List<StationIdXML> getZoneReportingStationXMLs(String zone)
-            throws Exception {
+            throws ParseException {
 
         List<StationIdXML> stations = new ArrayList<StationIdXML>();
 
@@ -178,7 +192,8 @@ public class MonitorAreaUtils {
                     + zoneEnvelope
                     + "', -1), the_geom) "
                     + "and (catalogtype = 1 or catalogtype = 33 or catalogtype = 32 or catalogtype = 1000) order by stationid asc";
-
+            // 1= CAT_TYPE_ICAO, 33=CAT_TYPE_CMAN ,
+            // 32=CAT_TYPE_BUOY_FXD 1000=CAT_TYPE_MESONET see ObStation.java
             ISpatialQuery sq = SpatialQueryFactory.create();
             Object[] results = sq.dbRequest(sql, META_DB);
             if (results.length != 0) {
@@ -200,11 +215,9 @@ public class MonitorAreaUtils {
                     }
                 }
             }
-        } catch (Exception e) {
-            System.err.println("============== zone = " + zone);
-            e.printStackTrace();
-            throw new Exception(
-                    "Unable to query for Zone envelope and stations list", e);
+        } catch (SpatialException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Error retrieving station XMLs for zone " + zone, e);
         }
         return stations;
     }
@@ -235,10 +248,10 @@ public class MonitorAreaUtils {
      * 
      * @param zone
      * @return
-     * @throws VizException
+     * @throws ParseException
      */
     public static List<String> getZoneReportingStations(String zone)
-            throws Exception {
+            throws ParseException {
         List<String> stations = new ArrayList<String>();
 
         try {
@@ -281,11 +294,9 @@ public class MonitorAreaUtils {
                 }
             }
 
-        } catch (Exception e) {
-            System.err.println("============== zone = " + zone);
-            e.printStackTrace();
-            throw new Exception(
-                    "Unable to query for Zone envelope and stations list", e);
+        } catch (SpatialException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Error retrieving stations for zone " + zone, e);
         }
         return stations;
     }
@@ -295,9 +306,11 @@ public class MonitorAreaUtils {
      * 
      * @param zone
      * @return the text string of the polygon describing the area coverage
-     * @throws Exception
+     * @throws SpatialException
+     * @throws ParseException
      */
-    private static String getZoneEnvelope(String zone) throws Exception {
+    private static String getZoneEnvelope(String zone) throws SpatialException,
+            ParseException {
 
         WKBReader wkbReader = new WKBReader();
         Geometry geo = null;
@@ -348,14 +361,18 @@ public class MonitorAreaUtils {
         ISpatialQuery sq = SpatialQueryFactory.create();
         Object[] results = sq.dbRequest(sql, MAPS_DB);
         if (results.length > 0) {
-            if (results[0] instanceof Object[]) {
-                Object obj[] = (Object[]) results[0];
-                geo = readGeometry(obj[0], wkbReader);
-            } else {
-                geo = readGeometry(results[0], wkbReader);
+            try {
+                if (results[0] instanceof Object[]) {
+                    Object obj[] = (Object[]) results[0];
+                    geo = readGeometry(obj[0], wkbReader);
+                } else {
+                    geo = readGeometry(results[0], wkbReader);
+                }
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error to read geometry for zone " + zone, e);
             }
         }
-
         return getPolygonText(geo);
     }
 
@@ -365,15 +382,12 @@ public class MonitorAreaUtils {
      * @param obj
      * @param wkbReader
      * @return
+     * @throws ParseException
      */
-    public static Geometry readGeometry(Object obj, WKBReader wkbReader) {
+    public static Geometry readGeometry(Object obj, WKBReader wkbReader)
+            throws ParseException {
         Geometry geometry = null;
-        try {
-            geometry = wkbReader.read((byte[]) obj);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        geometry = wkbReader.read((byte[]) obj);
         return geometry.buffer(0);
     }
 
@@ -384,7 +398,6 @@ public class MonitorAreaUtils {
      * @return
      */
     public static String getPolygonText(Geometry geometry) {
-
         WKTWriter wktWriter = new WKTWriter();
         return wktWriter.writeFormatted(geometry);
     }
@@ -394,17 +407,19 @@ public class MonitorAreaUtils {
      * 
      * @param cwaList
      * @return
+     * @throws SpatialException
      */
-    public static List<String> getAdjacentZones(String[] cwaList) {
+    public static List<String> getAdjacentZones(String[] cwaList)
+            throws SpatialException {
         List<String> zones = new ArrayList<String>();
 
-		String sqlCounty = "select distinct state, fips from "
+        String sqlCounty = "select distinct state, fips from "
                 + FSSObsMonitorConfigurationManager.COUNTY_TABLE
                 + " where cwa in (''";
-		String sqlForecastZone = "select distinct state, zone from "
+        String sqlForecastZone = "select distinct state, zone from "
                 + FSSObsMonitorConfigurationManager.FORECAST_ZONE_TABLE
                 + " where cwa in (''";
-		String sqlMaritimeZone = "select distinct id from "
+        String sqlMaritimeZone = "select distinct id from "
                 + FSSObsMonitorConfigurationManager.MARINE_ZONE_TABLE
                 + " where wfo in (''";
         for (int i = 0; i < cwaList.length; i++) {
@@ -423,65 +438,57 @@ public class MonitorAreaUtils {
 
         ISpatialQuery sq = null;
 
-        try {
-            sq = SpatialQueryFactory.create();
-            Object[] resultsCounty = sq.dbRequest(sqlCounty, "maps");
-            Object[] resultsForecastZone = sq
-                    .dbRequest(sqlForecastZone, "maps");
-            Object[] resultsMaritimeZone = sq
-                    .dbRequest(sqlMaritimeZone, "maps");
+        sq = SpatialQueryFactory.create();
+        Object[] resultsCounty = sq.dbRequest(sqlCounty, "maps");
+        Object[] resultsForecastZone = sq.dbRequest(sqlForecastZone, "maps");
+        Object[] resultsMaritimeZone = sq.dbRequest(sqlMaritimeZone, "maps");
 
-            if (SpatialQueryFactory.getType().equals("CAVE")) {
-                if (resultsCounty.length > 0) {
-                    for (int i = 0; i < resultsCounty.length; i++) {
-                        Object[] oa = (Object[]) resultsCounty[i];
-                        String state = (String) oa[0];
-                        String fips = (String) oa[1];
-                        zones.add(state + "C" + fips.substring(2));
-                    }
-                }
-                if (resultsForecastZone.length > 0) {
-                    for (int i = 0; i < resultsForecastZone.length; i++) {
-                        Object[] oa = (Object[]) resultsForecastZone[i];
-                        String state = (String) oa[0];
-                        String zone = (String) oa[1];
-                        zones.add(state + "Z" + zone);
-                    }
-                }
-                if (resultsMaritimeZone.length > 0) {
-                    for (int i = 0; i < resultsMaritimeZone.length; i++) {
-                        Object[] oa = (Object[]) resultsMaritimeZone[i];
-                        zones.add((String) oa[0]);
-                    }
-                }
-            } else {
-                if (resultsCounty.length > 0) {
-                    for (int i = 0; i < resultsCounty.length; i++) {
-                        Object[] oa = (Object[]) resultsCounty[i];
-                        String czn = oa[0].toString() + "C"
-                                + oa[1].toString().substring(2);
-                        zones.add(czn);
-                    }
-                }
-                if (resultsForecastZone.length > 0) {
-                    for (int i = 0; i < resultsForecastZone.length; i++) {
-                        Object[] oa = (Object[]) resultsForecastZone[i];
-                        String fcz = oa[0].toString() + "Z" + oa[1].toString();
-                        zones.add(fcz);
-                    }
-                }
-                if (resultsMaritimeZone.length > 0) {
-                    for (int i = 0; i < resultsMaritimeZone.length; i++) {
-                        String mzn = resultsMaritimeZone[i].toString();
-                        zones.add(mzn);
-                    }
+        if (SpatialQueryFactory.getType().equals("CAVE")) {
+            if (resultsCounty.length > 0) {
+                for (int i = 0; i < resultsCounty.length; i++) {
+                    Object[] oa = (Object[]) resultsCounty[i];
+                    String state = (String) oa[0];
+                    String fips = (String) oa[1];
+                    zones.add(state + "C" + fips.substring(2));
                 }
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            if (resultsForecastZone.length > 0) {
+                for (int i = 0; i < resultsForecastZone.length; i++) {
+                    Object[] oa = (Object[]) resultsForecastZone[i];
+                    String state = (String) oa[0];
+                    String zone = (String) oa[1];
+                    zones.add(state + "Z" + zone);
+                }
+            }
+            if (resultsMaritimeZone.length > 0) {
+                for (int i = 0; i < resultsMaritimeZone.length; i++) {
+                    Object[] oa = (Object[]) resultsMaritimeZone[i];
+                    zones.add((String) oa[0]);
+                }
+            }
+        } else {
+            if (resultsCounty.length > 0) {
+                for (int i = 0; i < resultsCounty.length; i++) {
+                    Object[] oa = (Object[]) resultsCounty[i];
+                    String czn = oa[0].toString() + "C"
+                            + oa[1].toString().substring(2);
+                    zones.add(czn);
+                }
+            }
+            if (resultsForecastZone.length > 0) {
+                for (int i = 0; i < resultsForecastZone.length; i++) {
+                    Object[] oa = (Object[]) resultsForecastZone[i];
+                    String fcz = oa[0].toString() + "Z" + oa[1].toString();
+                    zones.add(fcz);
+                }
+            }
+            if (resultsMaritimeZone.length > 0) {
+                for (int i = 0; i < resultsMaritimeZone.length; i++) {
+                    String mzn = resultsMaritimeZone[i].toString();
+                    zones.add(mzn);
+                }
+            }
         }
-
         return zones;
     }
 
@@ -490,9 +497,9 @@ public class MonitorAreaUtils {
      * 
      * @param zone
      * @return
-     * @throws Exception
+     * @throws SpatialException
      */
-    public static Geometry getZoneGeometry(String zone) throws Exception {
+    public static Geometry getZoneGeometry(String zone) throws SpatialException {
 
         WKBReader wkbReader = new WKBReader();
         Geometry geo = null;
@@ -504,7 +511,7 @@ public class MonitorAreaUtils {
         ISpatialQuery sq = null;
         if (isMarineZone(zone)) {
             sql = "select AsBinary("
-                    + ScanUtils.getStandardResolutionLevel("marineZones")
+                    + ScanUtils.getStandardResolutionLevel("marinezones")
                     + ") from " + MARINE_ZONE_TABLE + " where id = '" + zone
                     + "'";
         } else if (zone.charAt(2) == 'Z') { // "forecast zone"
@@ -525,14 +532,18 @@ public class MonitorAreaUtils {
         sq = SpatialQueryFactory.create();
         Object[] results = sq.dbRequest(sql, MAPS_DB);
         if (results.length > 0) {
-            if (results[0] instanceof Object[]) {
-                Object obj[] = (Object[]) results[0];
-                geo = readGeometry(obj[0], wkbReader);
-            } else {
-                geo = readGeometry(results[0], wkbReader);
+            try {
+                if (results[0] instanceof Object[]) {
+                    Object obj[] = (Object[]) results[0];
+                    geo = readGeometry(obj[0], wkbReader);
+                } else {
+                    geo = readGeometry(results[0], wkbReader);
+                }
+            } catch (ParseException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error to read geometry for zone " + zone, e);
             }
         }
-
         return geo;
     }
 
@@ -547,14 +558,11 @@ public class MonitorAreaUtils {
         String sql = "select distinct id from " + MARINE_ZONE_TABLE
                 + " where id = '" + zone + "'";
         ISpatialQuery sq = null;
-        // List<Object[]> results = DirectDbQuery.executeQuery(sql, MAPS_DB,
-        // QueryLanguage.SQL);
         sq = SpatialQueryFactory.create();
         Object[] results = sq.dbRequest(sql, MAPS_DB);
         if ((results.length > 0) && results[0].equals(zone)) {
             return true;
         }
-
         return false;
     }
 
@@ -563,48 +571,46 @@ public class MonitorAreaUtils {
      * 
      * @param zone
      * @return
-     * @throws Exception
+     * @throws SpatialException
      */
-    public static double[] getZoneCenter(String zone) throws Exception {
-        double[] zoneCenter = null;
-        /**
-         * DR#9905: "county" for a CONUS site; "forecast zone" for an OCONUS
-         * site
-         */
-        String sql = "";
-        ISpatialQuery sq = null;
-        if (isMarineZone(zone)) { // "marine zone"
-            sql = "select distinct lat, lon from " + MARINE_ZONE_TABLE
-                    + " where id = '" + zone + "'";
-        } else if (zone.charAt(2) == 'Z') { // "forecast zone"
-            String state_zone = zone.substring(0, 2) + zone.substring(3);
-            sql = "select lat, lon from " + FORECAST_ZONE_TABLE
-                    + " where state_zone = '" + state_zone + "'";
-        } else { // "county"
-            String state = zone.substring(0, 2);
-            String fipsLike = "%" + zone.substring(3);
-            sql = "select lat, lon from " + COUNTY_TABLE + " where state = '"
-                    + state + "' and fips like '" + fipsLike + "'";
-        }
-
-        sq = SpatialQueryFactory.create();
-        Object[] results = sq.dbRequest(sql, MAPS_DB);
-
-        Double lat = null;
-        Double lon = null;
-
-        if (results.length != 0) {
-            if (results[0] instanceof Object[]) {
-                Object[] res = (Object[]) results[0];
-                lat = ((Number) res[0]).doubleValue();
-                lon = ((Number) res[1]).doubleValue();
+    public static Coordinate getZoneCenter(String zone) throws SpatialException {
+        Coordinate zoneCenter = null;
+        Geometry geom = getZoneGeometry(zone);
+        if (geom != null) {
+            Point ctrd = geom.getCentroid();
+            if (ctrd != null) {
+                zoneCenter = ctrd.getCoordinate();
             } else {
-                lat = ((Number) results[0]).doubleValue();
-                lon = ((Number) results[1]).doubleValue();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Problem to get the coordinates for zone " + zone);
             }
-            zoneCenter = new double[] { lon, lat };
         }
         return zoneCenter;
     }
 
+    /**
+     * Get station coordinates.
+     * 
+     * @param stationid
+     * @return
+     * @throws SpatialException
+     * @throws ParseException
+     */
+    public static Coordinate getStationCenter(String stationid)
+            throws SpatialException, ParseException {
+        Coordinate stnCenter = null;
+        ISpatialQuery sq = null;
+        String sql = "select AsBinary(the_geom) from common_obs_spatial where stationid = '"
+                + stationid
+                + "'"
+                + "and (catalogtype = 1 or catalogtype = 33 or catalogtype = 32 or catalogtype = 1000)";
+        sq = SpatialQueryFactory.create();
+        Object results[] = sq.dbRequest(sql, "metadata");
+        if (results.length > 0) {
+            WKBReader wkbReader = new WKBReader();
+            Geometry stationGeo = wkbReader.read((byte[]) results[0]);
+            stnCenter = stationGeo.getCoordinate();
+        }
+        return stnCenter;
+    }
 }
