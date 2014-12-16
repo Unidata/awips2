@@ -23,7 +23,7 @@
 #
 # This script will add table dd_data_set_latency to the metadata.AWIPS schema.
 # This script will also create an Identifier Sequence (data_set_latency_seq sequence) for the new table.
-#
+# 
 PSQL="/awips2/psql/bin/psql"
 
 if [ ! -f ${PSQL} ];
@@ -79,13 +79,13 @@ function createDataSetLatencyTable
 function dropDataSetLatencyTable
 {
 	echo "INFO: Dropping data_set_latency_seq sequence"
-	${PSQL} -U awips -d metadata -a -c "DROP SEQUENCE data_set_latency_seq;"
+	${PSQL} -U awips -d metadata -a -c "DROP SEQUENCE IF EXISTS data_set_latency_seq;"
 	if [ $? -ne 0 ];
 	then
 		echo "FATAL: Drop Failed!"
 	fi
 	echo "INFO: Dropping dd_data_set_latency table"
-	${PSQL} -U awips -d metadata -a -c "DROP TABLE dd_data_set_latency;"
+	${PSQL} -U awips -d metadata -a -c "DROP TABLE IF EXISTS dd_data_set_latency;"
 	if [ $? -ne 0 ];
 	then
 		echo "FATAL: Drop Failed!"
