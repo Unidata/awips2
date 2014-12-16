@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/10/2014   1136       qzhou       Changed graphExtent for time series 1000*400
  *                                     Added getStationLocalTime. Added paintBorderRect, Added paintMidnightNoon, 
  *                                     Added paintXTitle. Modified paintTitles. Added ticks on yAxes.
+ * 07/28/2014   R4079      sgurung     Changed graphExtent, and x and y title coordinates.
  * </pre>
  * 
  * @author qzhou
@@ -100,7 +101,7 @@ public class GeoMagGraph extends NCTimeSeriesGraph {
          * Make the wide as 2.5 times of height. Make new extent graphExtent(0,
          * 1000, 300, 700).
          */
-        graphExtent = new PixelExtent(0, 1000, 300, 700);
+        graphExtent = new PixelExtent(0, 1000, 275, 700);
         double minX = graphExtent.getMinX();
         double maxX = graphExtent.getMaxX();
         double minY = graphExtent.getMinY();
@@ -446,7 +447,30 @@ public class GeoMagGraph extends NCTimeSeriesGraph {
         titleString.magnification = this.currentMagnification;
 
         double x = graphExtent.getMinX() + graphExtent.getWidth() / 2;
-        double y = graphExtent.getMaxY() + 100;
+        double y = graphExtent.getMaxY() + 50;
+        titleString.setCoordinates(x, y);
+
+        target.drawStrings(titleString);
+    }
+
+    @Override
+    protected void paintYTitle(IGraphicsTarget target,
+            PaintProperties paintProps, String title, RGB titleColor, int index)
+            throws VizException {
+        // Paint the titles
+        double ratio = paintProps.getCanvasBounds().height
+                / paintProps.getView().getExtent().getHeight();
+        DrawableString titleString = new DrawableString(title, titleColor);
+        titleString.textStyle = TextStyle.DROP_SHADOW;
+        titleString.horizontalAlignment = HorizontalAlignment.LEFT;
+        titleString.verticallAlignment = VerticalAlignment.BOTTOM;
+        titleString.rotation = 90;
+        titleString.magnification = this.currentMagnification;
+        int width = target.getStringsBounds(titleString).getBounds().width;
+        int height = target.getStringsBounds(titleString, "H").getBounds().height * 2;
+        double x = graphExtent.getMinX() - 50 - height * (index);
+        double y = graphExtent.getMaxY()
+                - ((graphExtent.getHeight() - (width / ratio)) / 2);
         titleString.setCoordinates(x, y);
 
         target.drawStrings(titleString);
