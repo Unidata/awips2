@@ -393,6 +393,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="AIREP">
 <filters>Observed</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="AMDAR">
+<filters>Observed</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UAIR">
 <filters>Observed</filters>
 </ResourceDefinitionFilter>
@@ -753,10 +756,10 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="OFSGMEX">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE4ENP">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE15ENP">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE4ENP_2">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR15ENP">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTGSST">
@@ -807,7 +810,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE10AK">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE10AK_2">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR10AK">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS_AK">
@@ -819,7 +822,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE10WC">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE10WC_2">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR10WC">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF_EU">
@@ -984,10 +987,10 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_AU">
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEP25WNA">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE15WNA">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEP25WNA_2">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR15WNA">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA_HI">
@@ -1065,7 +1068,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE4WC">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE4WC_2">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR4WC">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CCPA2P5">
@@ -1083,13 +1086,13 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE10EP">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE10EP_2">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR10EP">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE4WNA">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE4WNA_2">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR4WNA">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MRF160HI">
@@ -1230,7 +1233,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_CPAC">
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE30MGLOBAL">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR30GLOBAL">
 <filters>Forecast,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_AK">
@@ -1251,7 +1254,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE4AK">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE4AK_2">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR4AK">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MPE_LOCAL_ORN">
@@ -1269,7 +1272,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE10WNA">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE10WNA_2">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVEHURR10WNA">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="DGEX_AK">
@@ -1457,5 +1460,8 @@
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HRRR">
 <filters>Forecast,SBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="DayNightTerminator">
+<filters>Misc</filters>
 </ResourceDefinitionFilter>
 </ResourceDefinitionFilters>
