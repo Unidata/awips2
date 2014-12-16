@@ -30,6 +30,7 @@
  * ------------ ----------  ----------- --------------------------
  * 11/2/09       3375       brockwoo    Initial Creation
  * 08/13/13      2257       bkowal      Update for qpid 0.18.
+ * 11/04/14      2991       dlovely     Update for qpid 0.30.
  *
  * </pre>
  *
@@ -49,7 +50,6 @@ typedef void CEdexNotification;
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Duration.h>
 #include <qpid/messaging/Receiver.h>
-#include <qpid/sys/Time.h>
 #include <thrift/transport/TBufferTransports.h>
 #include <sys/timeb.h>
 #include "Notification_types.h"
