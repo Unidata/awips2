@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+//
+// Partial Thickness Precipitation Type Icons - Snow2
+// 
+
+AWIPS 1 format
+Snow2 | | |700-850 sn thk  | | | |   *Test,Surface|dZ,850MB-700MB| 1.|-1.e37|1541.|Snow1|1.|1542.|1.e37|0.  
+
+abbreviation: |Snow2| 
+Notused1: | | 
+Notused2: | | 
+name: |700-850 sn thk  | 
+FIELD: || 
+FIELD: || 
+FIELD: || 
+FIELD: |dZ,850MB-700MB| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |1541.| 
+FIELD: |Snow1| 
+FIELD: |1.| 
+FIELD: |1542.| 
+FIELD: |1.e37| 
+FIELD: |0.| 
+
+-->
+<DerivedParameter name="700-850 sn thk" abbreviation="Snow2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Test">
+        <Field level="850MB-700MB" abbreviation="dZ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="1541.0"/>
+        <Field abbreviation="Snow1"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1542.0"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="0.0"/>
+    </Method>
+</DerivedParameter>

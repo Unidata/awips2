@@ -26,19 +26,54 @@ import java.util.Map;
 import com.raytheon.uf.common.message.IMessage;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.util.SystemUtil;
 
+/**
+ * Base class for GFE Notifications
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 7, 2014   #3684     randerso    Added sourceId field
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 @DynamicSerialize
 public class GfeNotification implements IMessage {
+    private static final String localSourceID;
+    static {
+        String host = SystemUtil.getHostName();
+        int pid = SystemUtil.getPid();
+        localSourceID = host + ":" + pid;
+    }
 
     @DynamicSerializeElement
     protected String siteID;
 
-    public GfeNotification() {
+    @DynamicSerializeElement
+    protected String sourceID;
 
+    public GfeNotification() {
+        this.sourceID = localSourceID;
     }
 
     public GfeNotification(String siteId) {
+        this();
         this.siteID = siteId;
+    }
+
+    public String getSourceID() {
+        return sourceID;
+    }
+
+    public void setSourceID(String sourceId) {
+        this.sourceID = sourceId;
     }
 
     public String getSiteID() {
@@ -47,6 +82,15 @@ public class GfeNotification implements IMessage {
 
     public void setSiteID(String siteID) {
         this.siteID = siteID;
+    }
+
+    /**
+     * 
+     * 
+     * @return
+     */
+    public boolean isLocal() {
+        return localSourceID.equals(this.sourceID);
     }
 
     /*

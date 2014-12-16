@@ -7,7 +7,7 @@
 Summary: Pypies Apache HTTP Server
 Name: awips2-httpd-pypies
 Version: 2.2.15
-Release: 15.4.el6
+Release: 15.5.el6
 URL: http://httpd.apache.org/
 Source0: http://archive.apache.org/dist/httpd/httpd-%{version}.tar.gz
 Source1: index.html
@@ -399,7 +399,8 @@ rm -rf $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd/conf/{original,extra}
 chmod 755 $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sbindir}/suexec
 
 # build mod_wsgi.so
-/bin/cp %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/src/mod_wsgi-3.3.tar.gz \
+_MOD_WSGI_VERSION=3.5
+/bin/cp %{_baseline_workspace}/foss/mod_wsgi-${_MOD_WSGI_VERSION}/packaged/mod_wsgi-${_MOD_WSGI_VERSION}.tar.gz \
    %{_topdir}/BUILD
 if [ $? -ne 0 ]; then
    exit 1
@@ -407,17 +408,17 @@ fi
 
 pushd . > /dev/null
 cd %{_topdir}/BUILD
-if [ -d mod_wsgi-3.3 ]; then
-   /bin/rm -rf mod_wsgi-3.3
+if [ -d mod_wsgi-${_MOD_WSGI_VERSION} ]; then
+   /bin/rm -rf mod_wsgi-${_MOD_WSGI_VERSION}
    if [ $? -ne 0 ]; then
       exit 1
    fi
 fi
-/bin/tar -xvf mod_wsgi-3.3.tar.gz
+/bin/tar -xvf mod_wsgi-${_MOD_WSGI_VERSION}.tar.gz
 if [ $? -ne 0 ]; then
    exit 1
 fi
-cd mod_wsgi-3.3
+cd mod_wsgi-${_MOD_WSGI_VERSION}
 export CPPFLAGS="-I/awips2/python/include/python2.7"
 export LDFLAGS="-L/awips2/python/lib"
 ./configure --with-python=/awips2/python/bin/python
@@ -434,11 +435,11 @@ install -m755 .libs/mod_wsgi.so \
     ${RPM_BUILD_ROOT}/awips2/httpd_pypies/etc/httpd/modules
 
 cd ../
-/bin/rm -f mod_wsgi-3.3.tar.gz
+/bin/rm -f mod_wsgi-${_MOD_WSGI_VERSION}.tar.gz
 if [ $? -ne 0 ]; then
    exit 1
 fi
-/bin/rm -rf mod_wsgi-3.3
+/bin/rm -rf mod_wsgi-${_MOD_WSGI_VERSION}
 if [ $? -ne 0 ]; then
    exit 1
 fi
