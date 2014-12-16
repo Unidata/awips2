@@ -2,3 +2,4 @@
 plotModel=@PlotModels/bufrmosHPC/standard.xml
 plotDensity=10
 conditionalFilter=
+legendString=HPCMOS Standard View
