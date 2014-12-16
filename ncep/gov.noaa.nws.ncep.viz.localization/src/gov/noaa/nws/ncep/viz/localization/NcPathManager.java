@@ -51,6 +51,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 05/15/2013     #862      Greg Hull    AreaMenus tbl to xml
  * 11/15/2013     #1051     Greg Hull    createDeskLevel() called from NmapCommon and triggered by spring.
  * 06/18/2014     #1131     qzhou        Added DFLT_GRAPH_RBD
+ * 05/14/2014     R4078     S. Gurung    Added DFLT_RTKP_RBD (T1122)
+ * 09/15/2014     R4508     S. Gurung    Added TIME_SERIES_DIR
  * </pre>
  * 
  * @author ghull
@@ -140,6 +142,9 @@ public class NcPathManager {
 
         public static final String DFLT_GRAPH_RBD = NCEP_ROOT + "DefaultRBDs"
                 + File.separator + "defaultGraphRBD.xml";
+
+        public static final String DFLT_RTKP_RBD = NCEP_ROOT + "DefaultRBDs"
+                + File.separator + "defaultRTKpRBD.xml";
 
         public static final String LOCATOR_TBL = NCEP_ROOT + "Locator"
                 + File.separator + "locator_tbl.xml";
@@ -325,6 +330,8 @@ public class NcPathManager {
         // nsharp configuration
         public static final String NSHARP_CONFIG = NCEP_ROOT + "nsharp"
                 + File.separator + "nsharpConfig.xml";
+
+        public static final String TIME_SERIES_DIR = NCEP_ROOT + "TimeSeries";
 
     }
 
