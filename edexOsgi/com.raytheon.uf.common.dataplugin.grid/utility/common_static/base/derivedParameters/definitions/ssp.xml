@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- COMMENT:
+	//
+	// Sig Severe Parameter (Craven and Brooks)
+	//
+	
+	
+	AWIPS 1 format
+	SSP | | |Significant Severe Parameter| |CONTOUR,IMAGE,OTHER|Layer|      *Multiply,Layer|cCape,ML|BlkMag,0-6kmAgl
+	
+	
+	abbreviation: |SSP| 
+	Notused1: | | 
+	Notused2: | | 
+	name: |Significant Severe Parameter| 
+	FIELD: || 
+	FIELD: |CONTOUR,IMAGE,OTHER| 
+	FIELD: |Layer| 
+	FIELD: |cCape,ML| 
+	FIELD: |BlkMag,0-6kmAgl| 
+	
+	
+	NEW FILE - SSP.xml
+ -->
+<DerivedParameter name="Significant Severe Parameter" abbreviation="SSP" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Multiply">
+        <Field level="ML" abbreviation="cCape"/>
+        <Field level="0-6kmAgl" abbreviation="BlkMag"/>
+    </Method>
+</DerivedParameter>

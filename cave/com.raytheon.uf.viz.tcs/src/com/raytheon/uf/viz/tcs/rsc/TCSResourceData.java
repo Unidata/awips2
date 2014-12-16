@@ -34,8 +34,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.tcs.Activator;
 
 /**
  * 
@@ -55,7 +53,9 @@ import com.raytheon.uf.viz.tcs.Activator;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "tcsResourceData")
 public class TCSResourceData extends AbstractRequestableResourceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(TCSResourceData.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TCSResourceData.class);
+
     @XmlAttribute
     protected String plotSource = null;
 

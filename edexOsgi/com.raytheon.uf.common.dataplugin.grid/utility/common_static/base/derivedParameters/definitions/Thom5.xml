@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  
+AWIPS 1 format
+Thom5 | | |S-R Flow      | | ||       *Test|SRMrM,6kmAgl|1.|-1.e37|8.0|0.|1.|7.9|1.e37|1.    
+
+abbreviation: |Thom5| 
+Notused1: | | 
+Notused2: | | 
+name: |S-R Flow      | 
+FIELD: || 
+FIELD: || 
+-->
+<DerivedParameter name="S-R Flow" abbreviation="Thom5" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field level="6kmAgl" abbreviation="SRMrM"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="8.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="7.9"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="1.0"/>
+    </Method>
+</DerivedParameter>
