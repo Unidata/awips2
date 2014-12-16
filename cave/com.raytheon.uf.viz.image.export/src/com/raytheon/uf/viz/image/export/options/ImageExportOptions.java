@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.core.datastructure.LoopProperties;
  * ------------- -------- ----------- --------------------------
  * Jan 20, 2014  2312     bsteffen    Initial creation
  * Mar 10, 2014  2867     bsteffen    Better frame range validation.
+ * Oct 28, 2014  3767     bsteffen    Change default name to screenCapture.png
  * Dec 4, 2014   DR16713  jgerth      Support for date/time selection
  * 
  * </pre>
@@ -84,7 +85,7 @@ public class ImageExportOptions {
 
     }
 
-    private File fileLocation = new File("screenCapture.gif");
+    private File fileLocation = new File("screenCapture.png");
 
     private ImageFormat imageFormat = ImageFormat.SEQUENCE;
 

@@ -1150,6 +1150,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                 } else {
                     // Check for equality first
                     response = o1.compareTo(o2);
+                    response *= -1;
                     if (response != 0) {
                         if (o1.toString().trim().equalsIgnoreCase("M")) {
                             response = 1;

@@ -28,10 +28,11 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    08/17/10                      njensen       Initial Creation.
-#    01/11/13                      bkowal        Pypies will now read the hdf5 root from configuration
-#    01/17/13        1490      bkowal        Relocated the configuration of pypies
-#    06/12/13        2102      njensen       Raise uncaught exceptions to force http code 500
+#    08/17/10                      njensen        Initial Creation.
+#    01/11/13                      bkowal         Pypies will now read the hdf5 root from configuration
+#    01/17/13        1490          bkowal         Relocated the configuration of pypies
+#    06/12/13        2102          njensen        Raise uncaught exceptions to force http code 500
+#    11/06/14        3549          njensen        Log time to receive data
 # 
 #
 
@@ -69,7 +70,10 @@ def pypies_response(request):
     try: 
         startTime = time.time()
         try:
-            obj = dynamicserialize.deserialize(request.data)
+            data=request.data
+            timeMap['receiveData']=time.time()-startTime
+            startTime = time.time()
+            obj = dynamicserialize.deserialize(data)
         except:
             msg = 'Error deserializing request: ' + IDataStore._exc()
             logger.error(msg)
