@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+EHI01 ||N|0-1km EHI |m2/s2|CONTOUR,IMAGE,OTHER|| \
+      *Multiply|cCape,Surface|Heli,0-1kmAgl|0.00000625
+-->
+<DerivedParameter unit="m*m/s*s" name="Energy Helicity Index 0-1km" abbreviation="EHI01" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Multiply">
+        <Field level="Surface" abbreviation="cCape"/>
+        <Field level="0-1kmAgl" abbreviation="Heli"/>
+        <ConstantField value="6.25E-6"/>
+    </Method>
+</DerivedParameter>
