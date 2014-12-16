@@ -100,6 +100,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * Jun 18, 2014 3242       njensen     Added ensembleId to legend
  * Aug 15, 2014 3535       njensen     Bigger inset map point
+ * Nov 19, 2014 5056       jing        added getAdapter method, and
+ *                                     changed getName to add level
  * 
  * </pre>
  * 
@@ -134,7 +136,7 @@ public class TimeSeriesResource extends
 
     protected CombineOperation combineOperation;
 
-    private Set<DataTime> dataTimes = new TreeSet<DataTime>();
+    protected Set<DataTime> dataTimes = new TreeSet<DataTime>();
 
     private Job dataRequestJob = new Job("Requesting Time Series Data") {
 
@@ -253,6 +255,10 @@ public class TimeSeriesResource extends
             }
 
         });
+    }
+
+    public AbstractTimeSeriesAdapter<?> getAdapter() {
+        return adapter;
     }
 
     @Override
@@ -485,22 +491,26 @@ public class TimeSeriesResource extends
         }
 
         String levelKey = resourceData.getLevelKey();
-        String levelUnit = levelKey.replaceAll("[^a-zA-Z]", "");
-        boolean isHeight = levelUnit.equalsIgnoreCase("mb")
-                || levelUnit.equalsIgnoreCase("agl")
-                || levelUnit.contains("Agl");
+        // String levelUnit = levelKey.replaceAll("[^a-zA-Z]", "");
+        // boolean isHeight = levelUnit.equalsIgnoreCase("mb")
+        // || levelUnit.equalsIgnoreCase("agl")
+        // || levelUnit.contains("Agl");
 
         // Make legend for point data
-        StringBuilder sb = new StringBuilder(String.format("%s pt%s %s%s %s%s",
-                source, resourceData.getPointLetter(), lat, y >= 0 ? "N" : "S",
-                lon, x >= 0 ? "E" : "W"));
+        // add level in x legend only if levelKey is not empty
+        StringBuilder sb = new StringBuilder(String.format(
+                "%s %s pt%s %s%s %s%s", source, levelKey != null ? levelKey
+                        : "", resourceData.getPointLetter(), lat, y >= 0 ? "N"
+                        : "S", lon, x >= 0 ? "E" : "W"));
 
         if (stnID != null) {
             sb.append(" ").append(stnID);
         }
-        if (!isHeight) {
-            sb.append(" ").append(resourceData.getLevelKey());
-        }
+
+        // if (!isHeight) {
+        // sb.append(" ").append(resourceData.getLevelKey());
+        // }
+
         sb.append(String.format(" %s %s %s", adapter.getParameterName(),
                 "TSer", units != null && units.equals("") == false ? "("
                         + units + ")" : ""));
