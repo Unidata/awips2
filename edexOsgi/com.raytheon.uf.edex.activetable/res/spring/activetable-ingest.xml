@@ -36,8 +36,13 @@
                     <setHeader headerName="notifygfe">
                             <simple>${body?.notifyGFE}</simple>
                     </setHeader>
+                    <setHeader headerName="drtstring">
+                            <simple>${body?.drtString}</simple>
+                    </setHeader>
+                    
                     <bean ref="practiceVtecDecoder" method="decode"/>
                     <bean ref="index" method="index"/>
+                    <bean ref="processUtil" method="log"/>
                     <multicast parallelProcessing="false">
                         <filter>
                             <simple>${header?.notifygfe.booleanValue}</simple>
