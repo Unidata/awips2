@@ -36,7 +36,7 @@
 						plotModelFile="${svg}"
 						retrieveData="false" isUpdatingOnMetadataOnly="false"
 						isRequeryNecessaryOnTimeMatch="true"
-						lowerLimit="0" upperLimit="34" plotMissingData="true">
+						lowerLimit="0" upperLimit="34">
 						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
 						<metadataMap>
 							<mapping key="pluginName">
@@ -102,7 +102,7 @@
 						plotModelFile="${svg}"
 						retrieveData="false" isUpdatingOnMetadataOnly="false"
 						isRequeryNecessaryOnTimeMatch="true" 
-						lowerLimit="-1.1" upperLimit="-0.9">
+						lowerLimit="-1.1" upperLimit="-0.9" plotMissingData="true">
 						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
 						<metadataMap>
 							<mapping key="pluginName">
