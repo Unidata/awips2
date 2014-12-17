@@ -3192,10 +3192,20 @@
 	</model>
 
 	<model>
-		<name>GFSLAMPTstorm</name>
+		<name>GFSLAMP5km</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
-		<grid>197</grid>
+                <grid>197</grid>
+                <process>
+                        <id>108</id>
+                </process>
+        </model>
+
+	<model>
+		<name>GFSLAMPGrid</name>
+		<center>7</center>
+		<subcenter>14</subcenter>
+		<grid>184</grid>
 		<process>
 			<id>108</id>
 		</process>
