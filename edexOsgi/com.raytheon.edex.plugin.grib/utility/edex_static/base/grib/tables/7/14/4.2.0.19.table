@@ -11,7 +11,7 @@
 200:200:Significant Tornado probability:%:SIGTRNDPROB
 201:201:Significant Hail probability:%:SIGHAILPROB
 202:202:Significant Wind probability:%:SIGWINDPROB
-203:203:Categorical Thunderstorm (1-yes, 0-no):categorical:CTSTM
+203:203:Categorical Lightning:categorical:CLGHT
 204:204:Number of mixed layers next to surface:integer:MIXLY
 205:205:Flight Category::FLGHT
 206:206:Confidence - Ceiling::CICEL
@@ -25,12 +25,12 @@
 214:214:Near IR, White Sky Albedo:%:NWSALB
 215:215:Total Probability of Severe Thunderstorms (Days 2,3):%:PRSVR
 216:216:Total Probability of Extreme Severe Thunderstorms (Days 2,3):%:PRSIGSV
-217:217:Mean Icing Potential:mm:MEI
-218:218:Maximum Icing Potential:mm:MAIP
-219:219:Mean in-Cloud Turbulence Potential:mm:MECTP
-220:220:Max in-Cloud Turbulence Potential:mm:MACTP
-221:221:Mean Cloud Air Turbulence Potential:mm:MECAT
-222:222:Maximum Cloud Air Turbulence Potential:mm:MACAT
+217:217:Supercooled Large Droplet Icing:mm:SIPD
+218:218:Radiative emissivity:mm:EPSR
+219:219:Turbulence Potential Forecast Index::TPFI
+220:220:Categorical Servre Thunderstorm::SVRTS
+221:221:Probability of Convection:%:PROCON
+222:222:Categorical Convection :categorical:CONVP
 223:223:Cumulonimbus Horizontal Exten:%:CBHE
 224:224:Pressure at Cumulonimbus Bas:Pa:PCBB
 225:225:Pressure at Cumulonimbus To:Pa:PCBT

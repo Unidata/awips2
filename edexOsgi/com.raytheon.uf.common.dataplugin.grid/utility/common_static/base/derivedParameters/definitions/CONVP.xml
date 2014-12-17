@@ -18,13 +18,4 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<subGridDef>
-   <modelNames>GFSLAMPGrid</modelNames>
-   <referenceGrid>184</referenceGrid>
-   <nx>700</nx>
-   <ny>700</ny>
-   <!-- 
-   <centerLatitude>46.0</centerLatitude>
-   <centerLongitude>-95.5</centerLongitude>
-    -->
-</subGridDef>
+<DerivedParameter abbreviation="CONVP" name="Categorical Convection Potential" unit=""/>

@@ -535,9 +535,9 @@
 		<versionsToKeep>2</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the GFSLAMP-Grid (GFSLAMPTstorm) model -->
+	<!-- Purge rule for the GFSLAMPGrid model -->
 	<rule>
-		<keyValue>GFSLAMPTstorm</keyValue>
+		<keyValue>GFSLAMPGrid</keyValue>
 		<versionsToKeep>24</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>

@@ -321,6 +321,9 @@ ExtraWEPrecision = []
 AstroTide = ("AstroTide", SCALAR, "ft", "Astro Tide", 20.0, -8.0, 1, NO)
 StormSurge = ("StormSurge", SCALAR, "ft", "Storm Surge", 30.0, -5.0, 1, NO)
 
+# Parm for Aviation/GFSLAMPGrid
+ClgHgt=("ClgHgt",SCALAR,"ft","Ceiling Height",25000.0,-100.0,0,NO)
+
 #---------------------------------------------------------------------------
 #
 #  Weather configuration section
@@ -1022,6 +1025,7 @@ NamDNG5     = ('NamDNG5',      GRID,   '', NO,   NO,  2, 0)
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
 SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
 ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
+GFSLAMPGrid = ('GFSLAMPGrid',  GRID,   '', NO,   NO,  3, 0)
 #---------------------------------------------------------------------------
 #
 #  D2D Model Database Version Specification
@@ -1211,6 +1215,7 @@ elif SID in CONUS_EAST_SITES:
                  'GLOBHwave',
                  'URMA25',
                  ('GFS215', 'GFS20'),
+                 'GFSLAMPGrid',
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1272,6 +1277,7 @@ else:   #######DCS3501 WEST_CONUS
                  'GLOBHwave',
                  'URMA25',
                  ('GFS215', 'GFS20'),
+                 'GFSLAMPGrid',
                ]
 
 if SID in GreatLake_SITES:
@@ -1512,6 +1518,7 @@ else:
 #        "WNAwave4" : ["WNAwave4"],
 #        "ENPwave": ["ENPwave"],
         "ESTOFS" : ["ESTOFS"],
+        "GFSLAMPGrid" : ["GFSLAMPGrid"],
         }
 
 #initialization skip certain model runs
@@ -1535,7 +1542,7 @@ D2DAccumulativeElements= {
     "GFS80": ["tp", "cp"],
     "GFS75": ["tp", "cp"],
     "GFS190": ["tp", "cp"],
-    "HRRR": ["tp1hr", "crain", "csnow", "cfrzr", "cicep"],
+    "HRRR": ["tp", "crain", "csnow", "cfrzr", "cicep"],
     "NAM95": ["tp", "cp"],
     "NAM80": ["tp", "cp"],
     "NAM40": ["tp", "cp"],
@@ -1653,7 +1660,7 @@ localRTMAParms = []
 localNamDNG5Parms = []
 localSREFParms = []
 localTPCProbParms = []
-localHRRRParms = localESTOFSParms = localISCExtraParms = []
+localGFSLAMPGridParms = localHRRRParms = localESTOFSParms = localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
@@ -1724,6 +1731,7 @@ if not BASELINE and siteImport('localConfig'):
     localWNAwave10Parms = getattr(localConfig, 'parmsWNAwave10', localWNAwave10Parms)
     localWNAwave4Parms = getattr(localConfig, 'parmsWNAwave4', localWNAwave4Parms)
     localENPwaveParms = getattr(localConfig, 'parmsENPwave', localENPwaveParms)
+    localGFSLAMPGridParms = getattr(localConfig, 'parmsGFSLAMPGrid', localGFSLAMPGridParms)
     #note that extraISCparms are not in the standard format. These
     #are a list of ([p, p, p, p], officeType)
     localISCExtraParms = getattr(localConfig, 'extraISCparms', localISCExtraParms)
@@ -1907,6 +1915,10 @@ parmsGFS40 = [([SnowRatio], TC1)]
 
 ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
+
+# GFSLAMPGrid
+parmsGFSLAMPGrid=[([Temp, Td, serverConfig.Vis, ClgHgt],TC1)]
+
 #---------------------------------------------------------------------------
 # Databases for a site.
 # list of (Database, [parms])
@@ -1965,6 +1977,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (NamDNG5, NamDNG5PARMS + localNamDNG5Parms),
              (TPCProb, TPCProbPARMS + localTPCProbParms),
              (ENPwave, ENPwave_parms + localENPwaveParms),
+             (GFSLAMPGrid, GFSLAMPGridPARMS + localGFSLAMPGridParms), 
              (Test, OFFICIALDBS + localParms)] + localDBs
 
 # Intersite coordination database parameter groupings, based on
