@@ -167,7 +167,7 @@
     <alias base="OPCWave182">opcWave182</alias>
     <alias base="MOSGuide">mosGuideNDFD</alias>
     <alias base="MOSGuide-AK">mosGuideNDFD_AK</alias>
-    <alias base="GFSLAMPTstorm">lampNDFD</alias>
+    <alias base="GFSLAMPGrid">lampNDFD</alias>
     <alias base="TPCSurgeProb">TPCSurgeProb</alias>
     <alias base="TPCSurgeProb197">TPCSurgeProb</alias>
     <alias base="TPCSurgeProb-AK">TPCSurgeProb</alias>
