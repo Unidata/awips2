@@ -19,8 +19,32 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="menuItem" menuText="Tstorm Prob"
-        key="ThP" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Tstorm Occr"
-        key="CTSTM" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Temperature" key="T"
+        indentText="false" />
+    contribute xsi:type="menuItem" menuText="Temp Anl Uncertainty"
+        key="Terranl"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Dewpoint" key="DpT"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="DpT Anl Uncertainty"
+        key="DpTerranl"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wind" key="Wind"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Wind Speed" key="wSp"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="WSp Anl Uncertainty"
+        key="wSpea"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Visibility" key="Vis"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sky Cover" key="TCC"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Ceiling Height" key="CC"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Convection Prob"
+        key="PROCON2hr"  indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Convection Occr"
+        key="CONVP2hr"  indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Lightning Prob"
+        key="PROLGHT2hr"  indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Lightning Occr"
+        key="CLGTN2hr"  indentText="false" />
 </menuTemplate>
