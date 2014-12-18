@@ -28,5 +28,6 @@ Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.11.1",
  com.raytheon.uf.edex.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm,
  org.apache.commons.io;bundle-version="2.4.0",
- com.raytheon.uf.edex.requestsrv;bundle-version="1.14.0"
+ com.raytheon.uf.edex.requestsrv;bundle-version="1.14.0",
+ com.raytheon.uf.edex.python.decoder
 Export-Package: com.raytheon.uf.edex.activetable
