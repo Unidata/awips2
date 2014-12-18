@@ -20,7 +20,7 @@
     -->
 <DerivedParameter  abbreviation="BARO" name="Barometric Velocity Vectors" unit="m/s">
     <Method name="Vector">
-    	<Field abbreviation="UBARO"/>
-    	<Field abbreviation="VBARO"/>
+    	<Field abbreviation="UBARO" unit="m/sec"/>
+    	<Field abbreviation="VBARO" unit="m/sec"/>
     </Method>
 </DerivedParameter>
