@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
-import javax.swing.plaf.synth.ColorType;
-
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -39,6 +37,7 @@ import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
  * Oct 10, 2014 3708       bclement    Moved color methods from SiteConfigurationManager
  * Nov 26, 2014 3709       mapeters    Abstracted out code to {@link AbstractColorConfigManager}, 
  *                                     renamed from SiteColorConfigManager.
+ * Dec 08, 2014 3709       mapeters    Set foreground and background colors together.
  * 
  * </pre>
  * 
@@ -53,17 +52,16 @@ public class FeedColorConfigManager extends AbstractColorConfigManager {
     private static ColorInfoMap colorInfoMap;
 
     /**
-     * Set and store the color type of the given site to be the given rgb.
+     * Set and store the given colors for the given site.
      * 
      * @param site
-     * @param type
-     * @param rgb
-     * @param defaultForeground
+     * @param foreground
+     * @param background
      */
     @Override
-    public synchronized void setColor(String site,
-            ColorType type, RGB rgb, RGB defaultForeground) {
-        super.setColor(site, type, rgb, defaultForeground, FILE_PATH);
+    public synchronized void setColors(String site, RGB foreground,
+            RGB background) {
+        super.setColors(site, foreground, background, FILE_PATH);
     }
 
     /**
