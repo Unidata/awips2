@@ -20,10 +20,10 @@
     -->
 <DerivedParameter  abbreviation="SPC" name="Current Speed" unit="m/s">
     <Method name="Magnitude">
-    	<Field abbreviation="UOGRD"/>
-    	<Field abbreviation="VOGRD"/>
+    	<Field abbreviation="UOGRD" unit="m/sec"/>
+    	<Field abbreviation="VOGRD" unit="m/sec"/>
     </Method>
     <Method name="Magnitude">
-    	<Field abbreviation="OGRD"/>
+    	<Field abbreviation="OGRD" unit="m/sec"/>
     </Method>
 </DerivedParameter>
