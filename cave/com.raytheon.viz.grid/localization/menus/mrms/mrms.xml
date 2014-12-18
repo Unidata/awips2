@@ -5,8 +5,6 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<!-- Set the initial top level menu -->
-	<contribute xsi:type="subMenu" menuText="MRMS">
-  		<contribute xsi:type="titleItem" titleText="---Multiple-Radar/Multiple-Sensor---" id="MRMS-SVR"/>
-  		<contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProducts.xml"/>
- 	</contribute>
+	<contribute xsi:type="titleItem" titleText="---Multiple-Radar/Multiple-Sensor---" id="MRMS-SVR"/>
+	<contribute xsi:type="subinclude" fileName="menus/mrms/mrmsProducts.xml"/>
 </menuTemplate>
