@@ -106,6 +106,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Apr 15, 2014 2822       bclement    only allow transfer leader if participant is using shared display
  * May 05, 2014 3076       bclement    added clear all action
  * Jun 30, 2014 1798       bclement    added disableCurrentLayer()
+ * Dev 02, 2014 3709       mapeters    added {@link #initComponents()} override
  * 
  * </pre>
  * 
@@ -232,6 +233,19 @@ public class CollaborationSessionView extends SessionView implements
                 }
             }
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#initComponents
+     * (org.eclipse.swt.widgets.Composite)
+     */
+    @Override
+    protected void initComponents(Composite parent) {
+        enableUserColors = false;
+        super.initComponents(parent);
     }
 
     @Override

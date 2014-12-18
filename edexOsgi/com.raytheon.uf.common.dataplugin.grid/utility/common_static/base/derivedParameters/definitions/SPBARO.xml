@@ -20,11 +20,11 @@
     -->
 <DerivedParameter  abbreviation="SPBARO" name="Barotropic Velocity" unit="m/s">
     <Method name="Magnitude">
-    	<Field abbreviation="UBARO"/>
-    	<Field abbreviation="VOGRD"/>
+    	<Field abbreviation="UBARO" unit="m/sec"/>
+    	<Field abbreviation="VOGRD" unit="m/sec"/>
     </Method>
     <Method name="Magnitude">
-    	<Field abbreviation="BARO"/>
+    	<Field abbreviation="BARO" unit="m/sec"/>
     </Method>
 </DerivedParameter>
 
