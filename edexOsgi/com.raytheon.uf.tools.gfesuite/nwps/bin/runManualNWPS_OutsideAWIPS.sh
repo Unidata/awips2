@@ -1,6 +1,7 @@
 #!/bin/bash
 
 NWPSLOCAL="/awips2/GFESuite/nwps"
+
 if [ ! -e ${NWPSLOCAL}/input ]
 then
     mkdir ${NWPSLOCAL}/input
@@ -16,14 +17,14 @@ then
     mkdir ${NWPSLOCAL}/var
     chmod 777 ${NWPSLOCAL}/var
 fi
-source /awips2/GFESuite/bin/run/site.sh
+
 logfile=${NWPSLOCAL}/logs/nwps_runManual_Outside_AWIPS.log
 rm -f ${NWPSLOCAL}/logs/*
 rm -f ${NWPSLOCAL}/wcoss/*
 
 PATH="/awips2/GFESuite/bin:/bin:/usr/bin:/usr/local/bin"
-SITEID=${GFESUITE_SITEID}
-siteid=$(echo ${SITEID} | tr [:upper:] [:lower:])
+siteid=$(hostname|cut -c5-7)
+SITEID=$(echo ${siteid} | tr [:lower:] [:upper:])
 
 SSHARGS="-x -o stricthostkeychecking=no"
 SCPARGS="-o stricthostkeychecking=no"
@@ -64,6 +65,7 @@ function logit () {
 ### RUN OPTIONS:
 
 if [ -e ${NWPSLOCAL}/var/inp_args ]
+
 then
 
     inp_args=`cat ${NWPSLOCAL}/var/inp_args`
@@ -86,6 +88,8 @@ then
     logit " "
     logit "Arguments are: $RUNLEN $WNA $NEST $GS $WINDS $WEB $PLOT $DELTAC $HOTSTART $WATERLEVELS $CORE $EXCD $WHERETORUN"
     logit " "
+
+    rm -f ${NWPSLOCAL}/var/inp_args
 
 else
 
