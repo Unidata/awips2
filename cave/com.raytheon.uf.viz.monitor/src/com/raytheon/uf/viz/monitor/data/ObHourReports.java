@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
@@ -47,6 +46,7 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Oct.29, 2012  1297       skorolev   Changed HashMap to Map
  * Oct.31  2012  1297       skorolev   Cleaned code.
  * Sep 04  2014  3220       skorolev   Added updateZones method.
+ * Dec 18  2014  3841       skorolev   Corrected updateZones method.
  * 
  * </pre>
  * 
@@ -219,28 +219,23 @@ public class ObHourReports {
     public void updateZones() {
         Map<String, List<String>> zoneStationMap = MonitoringArea
                 .getPlatformMap();
-        // remove zones or stations
-        List<String> hourZones = new CopyOnWriteArrayList<String>(
-                hourReports.keySet());
-        for (String zone : hourZones) {
-            if (hourReports.keySet().contains(zone)) {
-                List<String> stations = new CopyOnWriteArrayList<String>(
-                        hourReports.get(zone).getZoneHourReports().keySet());
-                for (String stn : stations) {
-                    if (!zoneStationMap.get(zone).contains(stn)) {
-                        hourReports.get(zone).getZoneHourReports().remove(stn);
-                    }
-                }
-                if (!zoneStationMap.keySet().contains(zone)) {
-                    hourReports.remove(zone);
-                }
+        // Updated list of zones
+        Set<String> updtZones = zoneStationMap.keySet();
+        // add zones
+        for (String zone : updtZones) {
+            if (!hourReports.keySet().contains(zone)) {
+                hourReports.put(zone, new ObZoneHourReports(nominalTime, zone,
+                        appName, thresholdMgr));
             }
         }
-        // add zones
-        for (String zone : zoneStationMap.keySet()) {
-            List<String> stations = new CopyOnWriteArrayList<String>(
-                    zoneStationMap.get(zone));
-            for (String stn : stations) {
+        // remove zones
+        hourReports.keySet().retainAll(updtZones);
+        // add and(or) remove stations
+        for (String zone : updtZones) {
+            // Updated list of stations in this zone
+            List<String> updtStns = zoneStationMap.get(zone);
+            // add stations
+            for (String stn : updtStns) {
                 if (!hourReports.get(zone).getZoneHourReports()
                         .containsKey(stn)) {
                     hourReports
@@ -251,10 +246,9 @@ public class ObHourReports {
                                             stn, appName, thresholdMgr));
                 }
             }
-            if (!hourReports.containsKey(zone)) {
-                hourReports.put(zone, new ObZoneHourReports(nominalTime, zone,
-                        appName, thresholdMgr));
-            }
+            // remove stations
+            hourReports.get(zone).getZoneHourReports().keySet()
+                    .retainAll(updtStns);
         }
     }
 }
