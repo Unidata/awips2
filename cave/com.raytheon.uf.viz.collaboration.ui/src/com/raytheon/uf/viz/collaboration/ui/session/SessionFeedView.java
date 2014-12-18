@@ -22,8 +22,6 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.plaf.synth.ColorType;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -34,9 +32,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.jivesoftware.smack.packet.Presence;
 
 import com.google.common.eventbus.Subscribe;
@@ -48,8 +44,8 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
 import com.raytheon.uf.viz.collaboration.ui.FeedColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
-import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
  * Built for the session in which everyone joins
@@ -78,6 +74,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Apr 22, 2014 3038       bclement    added initialized flag to differentiate between roster population and new joins
  * Oct 10, 2014 3708       bclement    SiteConfigurationManager refactor
  * Nov 26, 2014 3709       mapeters    support foreground/background color preferences for each site
+ * Dec 08, 2014 3709       mapeters    Removed ChangeSiteColorAction, uses {@link ChangeTextColorAction}.
  * 
  * </pre>
  * 
@@ -94,10 +91,6 @@ public class SessionFeedView extends SessionView {
     private Action userAddSiteAction;
 
     private Action userRemoveSiteAction;
-
-    private Action bgColorChangeAction;
-
-    private Action fgColorChangeAction;
 
     private static FeedColorConfigManager colorConfigManager;
 
@@ -129,6 +122,7 @@ public class SessionFeedView extends SessionView {
      */
     @Override
     protected void initComponents(Composite parent) {
+        enableUserColors = false;
         super.initComponents(parent);
 
         colorConfigManager = new FeedColorConfigManager();
@@ -149,10 +143,6 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void createActions() {
         super.createActions();
-
-        bgColorChangeAction = new ChangeSiteColorAction(ColorType.BACKGROUND);
-
-        fgColorChangeAction = new ChangeSiteColorAction(ColorType.FOREGROUND);
 
         autoJoinAction = new Action(CollabPrefConstants.AUTO_JOIN, SWT.TOGGLE) {
             @Override
@@ -208,9 +198,11 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void fillContextMenu(IMenuManager manager) {
         super.fillContextMenu(manager);
-        manager.add(bgColorChangeAction);
-        manager.add(fgColorChangeAction);
         String site = getSelectedSite();
+        RGB defaultForeground = colorManager
+                .getColorForUser(getSelectedParticipant());
+        manager.add(new ChangeTextColorAction(site, defaultForeground,
+                colorConfigManager));
         if (!SiteConfigurationManager.isVisible(actingSite, site)) {
             userAddSiteAction
                     .setText("Show Messages from " + getSelectedSite());
@@ -300,12 +292,8 @@ public class SessionFeedView extends SessionView {
         if (site != null) {
             ColorInfo siteColor = colorConfigManager.getColor(site);
             if (siteColor != null) {
-                if (siteColor.isForegroundSet()) {
-                    fgColor = getColorFromRGB(siteColor
-                            .getColor(ColorType.FOREGROUND));
-                }
-                bgColor = getColorFromRGB(siteColor
-                        .getColor(ColorType.BACKGROUND));
+                fgColor = getColorFromRGB(siteColor.getColor(SWT.FOREGROUND));
+                bgColor = getColorFromRGB(siteColor.getColor(SWT.BACKGROUND));
             }
         }
         super.styleAndAppendText(sb, offset, name, userId, ranges, fgColor,
@@ -481,48 +469,6 @@ public class SessionFeedView extends SessionView {
             String description) {
         if (otherParticipants.remove(participant.getName()) != null) {
             super.participantDeparted(participant, description);
-        }
-    }
-
-    /*
-     * action for changing foreground/background color for a selected site
-     */
-    private class ChangeSiteColorAction extends Action {
-
-        private ColorType type;
-
-        private ChangeSiteColorAction(ColorType type) {
-            super("Change Site " + type.toString() + " Color...", IconUtil
-                    .getImageDescriptor(Activator.getDefault().getBundle(),
-                            "change_color.gif"));
-            this.type = type;
-        }
-
-        @Override
-        public void run() {
-            ColorDialog dialog = new ColorDialog(Display.getCurrent()
-                    .getActiveShell());
-            RGB defaultForeground = colorManager
-                    .getColorForUser(getSelectedParticipant());
-            String site = getSelectedSite();
-            ColorInfo colorInfo = colorConfigManager.getColor(site);
-            if (colorInfo != null
-                    && (type != ColorType.FOREGROUND || colorInfo.isForegroundSet())) {
-                /*
-                 * don't set dialog from colorInfo if null or type is foreground
-                 * and foreground hasn't been set (use default)
-                 */
-                dialog.setRGB(colorInfo.getColor(type));
-            } else if (type == ColorType.FOREGROUND) {
-                dialog.setRGB(defaultForeground);
-            }
-            RGB rgb = dialog.open();
-            if (rgb != null) {
-                colorConfigManager.setColor(site, type, rgb,
-                        defaultForeground);
-            }
-
-            usersTable.refresh();
         }
     }
 }

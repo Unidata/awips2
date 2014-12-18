@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
-import javax.swing.plaf.synth.ColorType;
-
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -37,6 +35,7 @@ import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2014 3709       mapeters    Initial creation.
  * Nov 26, 2014 3709       mapeters    Abstracted out code to {@link AbstractColorConfigManager}.
+ * Dec 08, 2014 3709       mapeters    Set foreground and background colors together.
  * 
  * </pre>
  * 
@@ -51,17 +50,16 @@ public class UserColorConfigManager extends AbstractColorConfigManager {
     private static ColorInfoMap colorInfoMap;
 
     /**
-     * Set and store the color type of the given user to be the given rgb.
+     * Set and store the given colors for the given user.
      * 
      * @param user
-     * @param type
-     * @param rgb
-     * @param defaultForeground
+     * @param foreground
+     * @param background
      */
     @Override
-    public synchronized void setColor(String user,
-            ColorType type, RGB rgb, RGB defaultForeground) {
-        super.setColor(user, type, rgb, defaultForeground, FILE_PATH);
+    public synchronized void setColors(String user, RGB foreground,
+            RGB background) {
+        super.setColors(user, foreground, background, FILE_PATH);
     }
 
     /**
