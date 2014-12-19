@@ -2627,7 +2627,10 @@ public class NsharpResourceHandler {
 
                 break;
             }
-
+            if (compareSndIsOn) {
+                handleUserPickNewTimeLine(currentTimeElementListIndex)  ;
+                return;
+            }
             curTimeLinePage = currentTimeElementListIndex / numTimeLinePerPage
                     + 1;
             setCurSndProfileProp();
@@ -2764,6 +2767,9 @@ public class NsharpResourceHandler {
                         // we should get out of here
                         break;
                     } else if (compareSndIsOn) {
+                        handleUserPickNewTimeLine(targetIndex)  ;
+                        return;
+                        /* Chin TBD 12112014
                         boolean found = false;
                         if (currentStnElementListIndex >= 0
                                 && currentSndElementListIndex >= 0
@@ -2789,6 +2795,7 @@ public class NsharpResourceHandler {
                         if (!found) {
                             currentSndElementListIndex = -1;
                         } else {
+                            
                             int colorIndex = NsharpConstants.LINE_COMP1;
                             for (NsharpOperationElement elm : sndElementList) {
                                 if (elm.getActionState() == NsharpConstants.ActState.INACTIVE)
@@ -2804,11 +2811,13 @@ public class NsharpResourceHandler {
                                 if (colorIndex > NsharpConstants.LINE_COMP10)
                                     colorIndex = NsharpConstants.LINE_COMP1;
                             }
+                            
                         }
                         // no matter we find current snd type for this stn or
                         // not
                         // we should get out of here
                         break;
+                        */
                     } else {
                         break;
                     }
