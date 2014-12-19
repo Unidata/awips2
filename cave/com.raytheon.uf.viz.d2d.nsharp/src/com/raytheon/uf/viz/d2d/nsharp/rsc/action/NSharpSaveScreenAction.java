@@ -24,7 +24,6 @@ import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 
 import java.awt.image.BufferedImage;
-import java.util.Calendar;
 import java.util.LinkedHashMap;
 
 import com.raytheon.uf.common.time.DataTime;
