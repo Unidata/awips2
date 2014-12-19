@@ -157,7 +157,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
 
         displayMgr = MPEDisplayManager.getInstance(pane);
         dataMgr = MPEDataManager.getInstance();
-        dateMap = dataMgr.getDateMap(true);
+        dateMap = dataMgr.getDateMap(false);
         qcEnable = MPEDisplayManager.isMpeQcOptionEnabled();
         cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         hydroCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -168,15 +168,13 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
             prevHydDate = displayMgr.getCurrentEditDate();
             
             hydroCal.setTime(prevHydDate);
-            hydroCal.set(Calendar.MINUTE, 0);
+            
             if ( cal.get(Calendar.HOUR_OF_DAY) >= 18 ){
                 hydroCal.add(Calendar.DATE, 1);
             }
         }else{
-            if ( cal.get(Calendar.HOUR_OF_DAY) >= 18 ){
-                hydroCal.set(Calendar.MINUTE, 0);
-                hydroCal.add(Calendar.DATE, 1);
-            }  
+             
+            hydroCal.setTime(prevHydDate);
         }
         
     }
