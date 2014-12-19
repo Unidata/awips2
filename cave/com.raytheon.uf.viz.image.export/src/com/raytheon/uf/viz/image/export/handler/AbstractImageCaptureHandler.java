@@ -27,6 +27,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
