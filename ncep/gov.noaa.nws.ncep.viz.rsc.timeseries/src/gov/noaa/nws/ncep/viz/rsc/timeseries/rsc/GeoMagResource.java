@@ -47,6 +47,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -61,7 +62,9 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -74,11 +77,10 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
@@ -117,6 +119,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/03/2014   R4079      qzhou       Added k-index view.
  * 07/10/2014   R4079      qzhou       Added SamplingView and Sampling related classes.
  * 07/28/2014   R4078      sgurung     Added code changes to support loading GeoMagResource in a new window.
+ * 12/19/2014       ?      B. Yin       Remove ScriptCreator, use Thrift Client.
  * </pre>
  * 
  * @author qzhou
@@ -446,26 +449,21 @@ public class GeoMagResource extends
 
         queryList.put("dataTime.refTime", reqConstr);
 
-        LayerProperty prop = new LayerProperty();
-        prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-        prop.setEntryQueryParameters(queryList, false);
-        prop.setNumberOfImages(100000);
-
-        String script = null;
-        script = ScriptCreator.createScript(prop);
-
-        if (script == null)
-            return;
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(queryList);
+      
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
 
         magRecords = new ArrayList<GeoMagRecord>();
-        Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
 
-        for (Object pdo : pdoList) {
-            for (IRscDataObject dataObject : processRecord(pdo)) {
-                newRscDataObjsQueue.add(dataObject);
-                magRecords
-                        .add((GeoMagRecord) ((DfltRecordRscDataObj) dataObject)
-                                .getPDO());
+        for (Map<String, Object> result : response.getResults()) {
+            for (Object pdo : result.values()) {
+                for (IRscDataObject dataObject : processRecord(pdo)) {
+                    newRscDataObjsQueue.add(dataObject);
+                    magRecords
+                    .add((GeoMagRecord) ((DfltRecordRscDataObj) dataObject)
+                            .getPDO());
+                }
             }
         }
 
