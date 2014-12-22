@@ -16,12 +16,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -29,13 +32,10 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 /**
  * NtransResource - Resource for Display of NTRANS Metafiles.
@@ -57,7 +57,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  *                                      (1) user sees "Initializing..." and (2) GUI doesn't lock up
  * 29 Aug 2014              B. Hebbard  Remove time string and "/" separator from legend
  * 12 Sep 2014              B. Hebbard  Refactor to avoid regenerating paintables from CGM on each paint.
- * 
+ * 19 Dec 2014       ?      B. Yin      Remove ScriptCreator, use Thrift Client.
  * </pre>
  * 
  * @author bhebbard
@@ -307,28 +307,21 @@ public class NtransResource extends
         RequestConstraint timeConstraint = new RequestConstraint(cycleTimeStr);
         reqConstraintsMap.put("dataTime.refTime", timeConstraint);
 
-        LayerProperty prop = new LayerProperty();
-        prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-        prop.setEntryQueryParameters(reqConstraintsMap, false);
-        prop.setNumberOfImages(15000); // TODO: max # records ??
-                                       // Should we cap this ?
-        String script = null;
-        script = ScriptCreator.createScript(prop);
-
-        if (script == null) {
-            return;
-        }
-
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(reqConstraintsMap);
+      
         long t0 = System.currentTimeMillis();
-        Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
         long t1 = System.currentTimeMillis();
 
         logger.info("Metadata records for " + this.newRscDataObjsQueue.size()
                 + " images retrieved from DB in " + (t1 - t0) + " ms");
 
-        for (Object pdo : pdoList) {
-            for (IRscDataObject dataObject : processRecord(pdo)) {
-                newRscDataObjsQueue.add(dataObject);
+        for (Map<String, Object> result : response.getResults()) {
+            for (Object pdo : result.values()) {
+                for (IRscDataObject dataObject : processRecord(pdo)) {
+                    newRscDataObjsQueue.add(dataObject);
+                }
             }
         }
 
