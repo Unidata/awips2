@@ -43,7 +43,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 08/12		#770		Q. Zhou   	Initial Creation.
  * 09/12		#770		Q. Zhou   	Clean up and change selectedWatch to a collection
  * 08/13        #1028       G. Hull     rm dependency on viz.rsc.wtch project
- * 12/14        ?           B. Yin      Remove ScriptCreator, use Thrift Client.
+ * 12/14        R5749       B. Yin      Remove ScriptCreator, use Thrift Client.
+ * 12/14        R5749       B. Yin      Removed try/catch block when querying.
  * </pre>
  * 
  * @author	Q. Zhou
@@ -51,9 +52,6 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 public class ContinuingWatch {
 	
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ContinuingWatch.class);
-    
 	/*
 	 * WtchRscDataObj class
 	 */
@@ -156,25 +154,19 @@ public class ContinuingWatch {
 		
         DbQueryRequest request = new DbQueryRequest();
         request.setConstraints(metadataMap);
-        
-        try {
-            DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
 
-            for (Map<String, Object> result : response.getResults()) {
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
 
-                for (Object pdo : result.values()) {
-                    awwRecord = (AwwRecord) pdo;
-                    Collection<String> num = getAwwRecord( awwRecord );
-                    if (num != null && !num.isEmpty())
-                        contWatch.addAll( num );
-                }
+        for (Map<String, Object> result : response.getResults()) {
+
+            for (Object pdo : result.values()) {
+                awwRecord = (AwwRecord) pdo;
+                Collection<String> num = getAwwRecord( awwRecord );
+                if (num != null && !num.isEmpty())
+                    contWatch.addAll( num );
             }
         }
-        catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                    e);
-        }
-        
+
 	    //Retrieving unique items from the list
 	    Set<String> set = new HashSet<String>(contWatch);	    
 	    contWatch = new ArrayList<String>(set);
