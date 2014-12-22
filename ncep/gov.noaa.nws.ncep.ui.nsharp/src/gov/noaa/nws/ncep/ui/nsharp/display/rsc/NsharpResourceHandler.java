@@ -14,6 +14,7 @@
  * 01/13/2014               Chin Chen   TTR829- when interpolation, edit graph is allowed
  * 02/03/2014   1106        Chin Chen   Need to be able to use clicking on the Src,Time, or StnId to select display 
  * 08/12/2014               Chin Chen   fixed issue that "load archive file with wrong time line displayed"
+ * 12/04/2014   DR16888     Chin Chen   fixed issue that "Comp(Src) button not functioning properly in NSHARP display"
  * </pre>
  * 
  * @author Chin Chen
@@ -575,11 +576,12 @@ public class NsharpResourceHandler {
              * The following code is to create a list of stns within the range
              * of user defined radius (minimum distance) to "current" station
              * and also has data loaded with same time line as "current" time
-             * line. Note that we have two time line formats, yymmdd/hh(day)Vxxx
-             * and yymmdd/hh(day). A same time line is compared by yymmdd/hh
+             * line. Note that we have two time line formats, MM.DDVxxx(day)
+             * and MM.DD(day). A same time line is compared by MM.DD
              * only. All qualified stations, including current station, found
              * will be listed and used for SND comparison.
              */
+            String TIME_COMPARE_STRING = "MM.DD";
             compSndSelectedElemList.clear();
             // CompSndSelectedElem curStnTimeIndexCouple = new
             // CompSndSelectedElem(currentStnElementListIndex,currentTimeElementListIndex,currentSndElementListIndex);
@@ -593,7 +595,12 @@ public class NsharpResourceHandler {
                     .get(currentSndElementListIndex).getStnInfo();
             gc.setStartingGeographicPoint(currentStnInfo.getLongitude(),
                     currentStnInfo.getLatitude());
-            int timeLineLengthToComp = "yymmdd/hh".length();
+            
+           // String curTimeString = timeElementList.get(currentTimeElementListIndex).getElementDescription();
+            
+            int timeLineLengthToComp = TIME_COMPARE_STRING.length();
+                    
+                    
             String currentTimeLineToComp = timeElementList
                     .get(currentTimeElementListIndex).getElementDescription()
                     .substring(0, timeLineLengthToComp);
@@ -1862,15 +1869,15 @@ public class NsharpResourceHandler {
             NsharpStationInfo stnInfo, boolean fromArchive) {
 
         // // testing code // stnInfo.setStnId("KUKI");
-        // Set<String> keysettest = new HashSet<String>(soundMap.keySet());
-        // for (String key : keysettest) {
-        // List<NcSoundingLayer> sndLy = soundMap.remove(key); // String
+//         Set<String> keysettest = new HashSet<String>(soundMap.keySet());
+//         for (String key : keysettest) {
+//         List<NcSoundingLayer> sndLy = soundMap.remove(key); // String
         // // newkey=
-        // // key.replace("NCUAIR", "gpduair"); // String newkey =
-        // // key.replace("NAMS", "SSS");
-        // String newkey = key.replace("140303/12", "120109/12");
-        // soundMap.put(newkey, sndLy);
-        // } //
+//         String newkey =key.replace("NCUAIR", "gpduair"); // String newkey =
+        // String newkey= key.replace("NAMS", "SSS");
+         //String newkey = key.replace("130925/00(Wed)V000", "130925/00(Thu)V000");
+//         soundMap.put(newkey, sndLy);
+//         } 
         // // stnInfo.setSndType(stnInfo.getSndType().replace("NCUAIR", //
         // // "gpduair")); // stnInfo.setSndType(stnInfo.getSndType().replace(
         // // "NAMS","SSS"));
@@ -2620,7 +2627,10 @@ public class NsharpResourceHandler {
 
                 break;
             }
-
+            if (compareSndIsOn) {
+                handleUserPickNewTimeLine(currentTimeElementListIndex)  ;
+                return;
+            }
             curTimeLinePage = currentTimeElementListIndex / numTimeLinePerPage
                     + 1;
             setCurSndProfileProp();
@@ -2757,6 +2767,9 @@ public class NsharpResourceHandler {
                         // we should get out of here
                         break;
                     } else if (compareSndIsOn) {
+                        handleUserPickNewTimeLine(targetIndex)  ;
+                        return;
+                        /* Chin TBD 12112014
                         boolean found = false;
                         if (currentStnElementListIndex >= 0
                                 && currentSndElementListIndex >= 0
@@ -2782,6 +2795,7 @@ public class NsharpResourceHandler {
                         if (!found) {
                             currentSndElementListIndex = -1;
                         } else {
+                            
                             int colorIndex = NsharpConstants.LINE_COMP1;
                             for (NsharpOperationElement elm : sndElementList) {
                                 if (elm.getActionState() == NsharpConstants.ActState.INACTIVE)
@@ -2797,11 +2811,13 @@ public class NsharpResourceHandler {
                                 if (colorIndex > NsharpConstants.LINE_COMP10)
                                     colorIndex = NsharpConstants.LINE_COMP1;
                             }
+                            
                         }
                         // no matter we find current snd type for this stn or
                         // not
                         // we should get out of here
                         break;
+                        */
                     } else {
                         break;
                     }

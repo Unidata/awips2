@@ -165,7 +165,6 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         cal.setTime(prevDate);
         
         if( prevHydDate == null ){
-            // prevHydDate = prevDate;
             prevHydDate = displayMgr.getCurrentEditDate();
             
             hydroCal.setTime(prevHydDate);
