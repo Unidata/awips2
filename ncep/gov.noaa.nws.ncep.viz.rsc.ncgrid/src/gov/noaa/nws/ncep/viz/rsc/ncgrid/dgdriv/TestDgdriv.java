@@ -15,7 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -27,10 +29,9 @@ import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.gridcoverage.MercatorGridCoverage;
 import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.FloatByReference;
@@ -79,6 +80,8 @@ import com.sun.jna.ptr.IntByReference;
  * 											made changes for ensemble functionality.
  * 10/2011		168			mgamazaychikov	added methods to removed dependency on datatype.tbl
  * 10/2011                  X. Guo          Added grib inventory
+ * 12/14         ?          B. Yin          Remove ScriptCreator, use Thrift Client.
+ * 
  * </pre>
  * 
  * @author tlee
@@ -1313,26 +1316,15 @@ public class TestDgdriv {
         String fcstTime = Integer
                 .toString(((Integer.parseInt(fcstTimeg)) * 3600));
 
-        if (queryList == null)
-            return null;
-
         queryList.put("dataTime.refTime", new RequestConstraint(refTime));
         queryList.put("dataTime.fcstTime", new RequestConstraint(fcstTime));
 
-        LayerProperty prop = new LayerProperty();
-        prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-        prop.setEntryQueryParameters(queryList, false);
-        prop.setNumberOfImages(1);
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(queryList);
+      
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
 
-        String script = null;
-        script = ScriptCreator.createScript(prop);
-
-        if (script == null)
-            return null;
-
-        Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
-
-        GridRecord rec = (GridRecord) pdoList[0];
+        GridRecord rec = (GridRecord) ((Map<String, Object>)response.getResults().get(0)).values().iterator().next();
         long t1 = System.currentTimeMillis();
         System.out.println("\tgetDataURI took: " + (t1 - t0));
         // logger.info("getDataURI took: " + (t1-t0));
