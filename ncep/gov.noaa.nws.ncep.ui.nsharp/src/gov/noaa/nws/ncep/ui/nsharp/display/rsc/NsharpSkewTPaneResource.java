@@ -14,6 +14,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * May 08, 2013 1847        bsteffen	Allow painting with no Wind Data.
  * 02/03/2014   1106        Chin Chen   Need to be able to use clicking on the Src,Time, or StnId to select display 
  * 08/04/2014               Chin Chen   fixed effective level line drawing, height marker drawing
+ * 12/11/2014   DR16888     Chin Chen   fixed issue that "Comp(Src) button not functioning properly in NSHARP display"
  *
  * </pre>
  * 
@@ -1860,7 +1861,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                 boolean overlayIsOn = rscHandler.isOverlayIsOn();
                 if (graphConfigProperty != null) {
                     if (graphConfigProperty.isTemp() == true && !compareStnIsOn
-                            && !compareTmIsOn) {
+                            && !compareTmIsOn && !compareSndIsOn) {
                         if (editGraphOn)
                             plotPressureTempEditPoints(target, world,
                                     NsharpConstants.color_red, TEMP_TYPE,
@@ -1868,7 +1869,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                     }
                     // dew point curve
                     if (graphConfigProperty.isDewp() == true && !compareStnIsOn
-                            && !compareTmIsOn) {
+                            && !compareTmIsOn && !compareSndIsOn) {
                         if (editGraphOn)
                             plotPressureTempEditPoints(target, world,
                                     NsharpConstants.color_green, DEWPOINT_TYPE,
@@ -1876,7 +1877,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                     }
                     // plot wet bulb trace
                     if (graphConfigProperty.isWetBulb() == true
-                            && !compareStnIsOn && !compareTmIsOn) {
+                            && !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
                         NsharpLineProperty lp = linePropertyMap
                                 .get(NsharpConstants.lineNameArray[NsharpConstants.LINE_WETBULB]);
                         target.drawWireframeShape(wetBulbTraceRscShape,
@@ -1885,7 +1886,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                     }
                     // plot virtual temperature trace
                     if (graphConfigProperty.isVTemp() == true
-                            && !compareStnIsOn && !compareTmIsOn) {
+                            && !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
                         NsharpLineProperty lp = linePropertyMap
                                 .get(NsharpConstants.lineNameArray[NsharpConstants.LINE_VIRTUAL_TEMP]);
                         target.drawWireframeShape(vtempTraceCurveRscShape,
@@ -1894,7 +1895,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                     }
                     // virtual temperature parcel trace curve
                     if (graphConfigProperty.isParcelTv() == true
-                            && !compareStnIsOn && !compareTmIsOn
+                            && !compareStnIsOn && !compareTmIsOn && !compareSndIsOn
                             && !overlayIsOn) {
                         if (soundingLys.size() > 0) {
                             NsharpLineProperty lp = linePropertyMap
@@ -1906,7 +1907,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                     }
 
                     if (graphConfigProperty.isDcape() == true
-                            && dacpeTraceRscShape != null && !compareStnIsOn
+                            && dacpeTraceRscShape != null && !compareStnIsOn && !compareSndIsOn
                             && !compareTmIsOn && !overlayIsOn) {
                         if (soundingLys.size() > 0) {
                             NsharpLineProperty lp = linePropertyMap
@@ -1918,7 +1919,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                         }
                     }
                     if (graphConfigProperty.isEffLayer() == true
-                            && !compareStnIsOn && !compareTmIsOn) {
+                            && !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
                         // draw effective layer lines
                         // drawEffectiveLayerLines(target);
                         target.drawWireframeShape(effectiveLayerLineShape,
@@ -1927,7 +1928,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                     }
                     // cloud
                     if (graphConfigProperty.isCloud() == true
-                            && !compareStnIsOn && !compareTmIsOn) {
+                            && !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
                         if (cloudFMShape != null)
                             target.drawShadedShape(cloudFMShape, 1f);
                         if (cloudFMLabelShape != null)
@@ -1938,7 +1939,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                             target.drawShadedShape(cloudCEShape, 1f);
                     }
                     if (graphConfigProperty.isOmega() == true
-                            && !compareStnIsOn && !compareTmIsOn) {
+                            && !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
                         if (NsharpLoadDialog.getAccess() != null
                                 && (NsharpLoadDialog.getAccess()
                                         .getActiveLoadSoundingType() == NsharpLoadDialog.MODEL_SND || NsharpLoadDialog
@@ -1950,7 +1951,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
                     }
                 } else {
                     // by default, draw everything
-                    if (!compareStnIsOn && !compareTmIsOn) {
+                    if (!compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
                         if (editGraphOn)
                             plotPressureTempEditPoints(target, world,
                                     NsharpConstants.color_red, TEMP_TYPE,

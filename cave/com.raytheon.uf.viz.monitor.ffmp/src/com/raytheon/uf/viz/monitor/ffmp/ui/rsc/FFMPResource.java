@@ -185,6 +185,7 @@ import com.vividsolutions.jts.geom.Point;
  * May 05, 2014 3026        mpduff      Display Hpe bias source.
  * May 19, 2014  DR 16096   gzhang      Make getBasin() protected for FFMPDataGenerator.
  * Nov 10, 2014 3026        dhladky     HPE BIAS displays.
+ * Dec 16, 2014   3026      mpduff      Change location of text
  * </pre>
  * 
  * @author dhladky
@@ -1466,7 +1467,7 @@ public class FFMPResource extends
     private void paintProductString(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         double[] pixel = paintProps.getView().getDisplayCoords(
-                new double[] { 110, 50 }, target);
+                new double[] { 110, 100 }, target);
         StringBuilder sb = new StringBuilder();
         if (isAutoRefresh || isQuery) {
             sb.append("FFMP ").append(df.format(getTime())).append(" hour ")
@@ -3152,7 +3153,7 @@ public class FFMPResource extends
         boolean guid = false;
         Date oldestRefTime = getOldestTime();
         Date mostRecentRefTime = getPaintTime().getRefTime();
-        
+
         Date barrierTime = getTableTime();// DR 16148
         Date minUriTime = getTimeOrderedKeys().get(0);// DR 16148
 
@@ -3167,10 +3168,11 @@ public class FFMPResource extends
 
             if (rateBasin != null) {
                 for (Date date : rateBasin.getValues().keySet()) {
-                    
-                    if (date.before(minUriTime) || date.before(barrierTime) || date.after(mostRecentRefTime))   
+
+                    if (date.before(minUriTime) || date.before(barrierTime)
+                            || date.after(mostRecentRefTime))
                         continue;// DR 16148
-                    
+
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
                     fgd.setRate(dtime, (double) rateBasin.getValue(date));
@@ -3195,8 +3197,9 @@ public class FFMPResource extends
             if (qpeBasin != null) {
 
                 for (Date date : qpeBasin.getValues().keySet()) {
-                    
-                    if (date.before(minUriTime) || date.before(barrierTime) || date.after(mostRecentRefTime))   
+
+                    if (date.before(minUriTime) || date.before(barrierTime)
+                            || date.after(mostRecentRefTime))
                         continue;// DR 16148
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
@@ -4141,8 +4144,9 @@ public class FFMPResource extends
     }
 
     /**
-     * This method creates the upper left legend text for HPE derived QPE sources.
-     * It is only used for HPE QPE sources.
+     * This method creates the upper left legend text for HPE derived QPE
+     * sources. It is only used for HPE QPE sources.
+     * 
      * @param date
      * @return
      */
@@ -4160,18 +4164,18 @@ public class FFMPResource extends
     }
 
     /**
-     * HPE source lookup job 
+     * HPE source lookup job
      * 
      * <pre>
-     *
+     * 
      * SOFTWARE HISTORY
-     *
+     * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Nov 11, 2014  3026       dhladky     Initial creation
-     *
+     * 
      * </pre>
-     *
+     * 
      * @author dhladky
      * @version 1.0
      */
