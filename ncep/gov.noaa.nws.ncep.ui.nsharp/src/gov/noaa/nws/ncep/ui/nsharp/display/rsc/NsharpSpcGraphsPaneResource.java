@@ -15,6 +15,8 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * 05/23/2014               Chin Chen   update SHIP, STP Stats based on bigsharp version 2013Jun12
  * 08/18/2014               Chin Chen   implemented SARS, FIRE, HAIL, WINTER SPC graphs based on 
  *                                      bigsharp version 2013Jun12
+ * 12/03/2014   DR#16884    Chin Chen   fixed issue, NSHARP crashes if user loops a product and 
+ *                                      then clicks WINTER/FIRE buttons in Toolbar
  *
  * </pre>
  * 
@@ -109,21 +111,11 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
     private float nonSupercell[] = { 8.2f, 12.2f, 14.4f, 15.8f, 17.0f, 20.0f,
             23.2f, 27.0f, 30.4f, 32.0f };
 
-    private String hailSize[][] = {
-            { "", "<1", "1-1.5", "1.75", "2", "2.5", "2.75", "3-4", ">4" },
-            { "+1 STD", "1.9", "2.0", "2.3", "2.8", "2.9", "3.0", "3.0", "3.0" },
-            { "AVG", "1.5", "1.5", "1.8", "2.3", "2.5", "2.5", "2.6", "2.7" },
-            { "-1 STD", "1.1", "1.1", "1.3", "1.7", "2.1", "2.1", "2.2", "2.4" } };
 
     private RGB white = NsharpConstants.color_white;
 
     private RGB cyan = NsharpConstants.color_cyan_md;
 
-    private RGB hailSizeColor[][] = {
-            { white, white, white, white, white, white, white, white, white },
-            { white, cyan, cyan, cyan, cyan, cyan, cyan, cyan, cyan },
-            { white, cyan, cyan, cyan, cyan, cyan, cyan, cyan, cyan },
-            { white, cyan, cyan, cyan, cyan, cyan, cyan, cyan, cyan } };
 
     private NsharpNative.NsharpLibrary.HailInfoStr hailInfo = new NsharpNative.NsharpLibrary.HailInfoStr();
 
@@ -133,6 +125,18 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
 
     private NsharpNative.NsharpLibrary.WinterInfoStr winterInfo = new NsharpNative.NsharpLibrary.WinterInfoStr();
 
+    private String hailSize[][] = {
+            { "", "<1", "1-1.5", "1.75", "2", "2.5", "2.75", "3-4", ">4" },
+            { "+1 STD", "1.9", "2.0", "2.3", "2.8", "2.9", "3.0", "3.0", "3.0" },
+            { "AVG", "1.5", "1.5", "1.8", "2.3", "2.5", "2.5", "2.6", "2.7" },
+            { "-1 STD", "1.1", "1.1", "1.3", "1.7", "2.1", "2.1", "2.2", "2.4" } };
+    
+    private RGB hailSizeColor[][] = {
+            { white, white, white, white, white, white, white, white, white },
+            { white, cyan, cyan, cyan, cyan, cyan, cyan, cyan, cyan },
+            { white, cyan, cyan, cyan, cyan, cyan, cyan, cyan, cyan },
+            { white, cyan, cyan, cyan, cyan, cyan, cyan, cyan, cyan } };
+
     public NsharpSpcGraphsPaneResource(AbstractResourceData resourceData,
             LoadProperties loadProperties, NsharpAbstractPaneDescriptor desc) {
         super(resourceData, loadProperties, desc);
@@ -140,21 +144,6 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
         rightGraph = NsharpPaletteWindow.getRightGraph();
     }
 
-    private void underDevelopment(int side) throws VizException {
-        double xpos;
-        if (side == left)
-            xpos = spcLeftXOrig + spcFrameWidth / 2;
-        else
-            xpos = spcRightXOrig + spcFrameWidth / 2;
-        DrawableString str = new DrawableString("under development",
-                NsharpConstants.color_green);
-        str.font = font12;
-        str.horizontalAlignment = HorizontalAlignment.LEFT;
-        str.verticallAlignment = VerticalAlignment.TOP;
-        ypos = spcYOrig + spcHeight / 2;
-        str.setCoordinates(xpos, ypos);
-        target.drawStrings(str);
-    }
 
     private void setXyStartingPosition(int side) {
         ystart = spcYOrig;
@@ -298,35 +287,6 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
             // System.out.println("java hail str #"+ (i+1)+ " "+ hailStr);
 
         }
-        /*
-         * ypos = spcYEnd - 4 * charHeight; for(int i=0; i < 2; i++){ String
-         * supStr = new String(sarsInfo.getTorStr(), (i*60), 60);
-         * //System.out.println("tor str #"+ (1+ i)+ " "+ supStr); RGB strColor
-         * = NsharpConstants.gempakColorToRGB.get(sarsInfo.getTorStrColor());
-         * supStr = supStr.substring(0, supStr.indexOf('\0'));// get rid of
-         * tailing null char(s), as DrawableString will print them out
-         * DrawableString supercellMatchStr = new DrawableString(supStr,
-         * strColor); supercellMatchStr.font = font10;
-         * supercellMatchStr.horizontalAlignment = HorizontalAlignment.LEFT;
-         * supercellMatchStr.verticallAlignment = VerticalAlignment.TOP; xpos =
-         * xstart ; ypos = ypos + charHeight;
-         * supercellMatchStr.setCoordinates(xpos, ypos);
-         * strList.add(supercellMatchStr);
-         * 
-         * String sighailStr = new String(sarsInfo.getSighailStr(), (i*60), 60);
-         * //System.out.println("sighail str #"+ (1+ i)+ " "+ sighailStr); RGB
-         * strColor1 =
-         * NsharpConstants.gempakColorToRGB.get(sarsInfo.getSighailStrColor());
-         * sighailStr = sighailStr.substring(0, sighailStr.indexOf('\0'));// get
-         * rid of tailing null char(s), as DrawableString will print them out
-         * DrawableString sighailMatchStr = new DrawableString(sighailStr,
-         * strColor1); sighailMatchStr.font = font10;
-         * sighailMatchStr.horizontalAlignment = HorizontalAlignment.LEFT;
-         * sighailMatchStr.verticallAlignment = VerticalAlignment.TOP; xpos =
-         * xstart + 0.51 *spcFrameWidth; sighailMatchStr.setCoordinates(xpos,
-         * ypos); strList.add(sighailMatchStr); }
-         */
-
         target.drawStrings(strList.toArray(new DrawableString[strList.size()]));
         target.drawLine(lineList.toArray(new DrawableLine[lineList.size()]));
     }
@@ -1621,13 +1581,15 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
         // logic statements for Thompson et al. (2012) WAF sample
         // 39 sigtor, 28 non-sigtor supercells
         if (cin >= 10) {
+         // setcolor(7)
             psigt_stpcin = "0.58";
-            stpcColor = NsharpConstants.color_magenta;// setcolor(7);
+            stpcColor = NsharpConstants.color_magenta;;
         }
         // 39 sigtor, 32 non-sigtor supercells
         else if (cin >= 8) {
+         // setcolor(7)
             psigt_stpcin = "0.55";
-            stpcColor = NsharpConstants.color_magenta;// setcolor(7);
+            stpcColor = NsharpConstants.color_magenta;
         }
         // 54 sigtor, 104 non-sigtor supercells
         else if (cin >= 6) {
@@ -1745,17 +1707,6 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
         valueStp.verticallAlignment = VerticalAlignment.TOP;
         valueStp.setCoordinates(tboxValueStart, ypos);
         strList.add(valueStp);
-
-        // reset parcel to previous "oldlplchoice" , TBD
-        /*
-         * float pres; if(oldlplchoice ==
-         * NsharpNativeConstants.PARCELTYPE_USER_DEFINED){
-         * if(NsharpParcelDialog.getAccess() != null){ pres =
-         * NsharpParcelDialog.getAccess().getUserDefdParcelMb(); } else pres =
-         * NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice); } else pres
-         * = NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice);
-         * nsharpNative.nsharpLib.define_parcel(oldlplchoice,pres);
-         */
         target.drawStrings(strList.toArray(new DrawableString[strList.size()]));
         target.drawLine(lineList.toArray(new DrawableLine[lineList.size()]));
 
@@ -1876,7 +1827,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
 
         short oldlplchoice;
         _parcel pcl = new _parcel();
-        ;
+       
         _lplvalues lpvls = new _lplvalues();
         nsharpNative.nsharpLib.get_lpvaluesData(lpvls);
         // oldlplchoice = lpvls.flag;
@@ -1931,12 +1882,6 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
             lineList.add(ebsline);
         }
         float pres;
-        /*
-         * if(oldlplchoice == NsharpNativeConstants.PARCELTYPE_USER_DEFINED){
-         * if(NsharpParcelDialog.getAccess() != null){ pres =
-         * NsharpParcelDialog.getAccess().getUserDefdParcelMb(); } else pres =
-         * NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice); } else
-         */
         oldlplchoice = rscHandler.getCurrentParcel();
         pres = NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice);
         nsharpNative.nsharpLib.define_parcel(oldlplchoice, pres);
@@ -1958,20 +1903,17 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
         hRatio = paintProps.getView().getExtent().getWidth()
                 / paintProps.getCanvasBounds().width;
         DrawableLine line = new DrawableLine();
+        line.setCoordinates(spcRightXOrig, spcYOrig);
+        line.addPoint(spcRightXOrig, spcYOrig + spcHeight);
         line.lineStyle = LineStyle.SOLID;
         line.basics.color = NsharpConstants.color_white;
         line.width = 1;
-        line.setCoordinates(spcRightXOrig, spcYOrig);
-        line.addPoint(spcRightXOrig, spcYOrig + spcHeight);
         target.drawLine(line);
         PixelExtent spcExt = new PixelExtent(new Rectangle((int) spcLeftXOrig,
                 (int) spcYOrig, (int) spcWidth, (int) spcHeight));
         target.drawRect(spcExt, NsharpConstants.color_white, 1f, 1f); // box
                                                                       // border
                                                                       // line
-        PixelExtent extent = new PixelExtent(new Rectangle((int) spcLeftXOrig,
-                (int) spcYOrig, (int) spcFrameWidth, (int) spcHeight));
-        // target.setupClippingPlane(extent);
         switch (leftGraph) {
         case EBS:
             plotEBS(left);
@@ -1995,10 +1937,6 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
             plotSars(left);
             break;
         }
-        // target.clearClippingPlane();
-        extent = new PixelExtent(new Rectangle((int) spcRightXOrig,
-                (int) spcYOrig, (int) spcFrameWidth, (int) spcHeight));
-        // target.setupClippingPlane(extent);
         switch (rightGraph) {
         case EBS:
             plotEBS(right);
@@ -2022,7 +1960,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
             plotSars(right);
             break;
         }
-        // target.clearClippingPlane();
+        
     }
 
     @Override
@@ -2030,19 +1968,46 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
         super.initInternal(target);
     }
 
-    /*
-     * private void disposeEbsShape(){ if(ebsBkgLblShape != null)
-     * ebsBkgLblShape.dispose(); if(ebsBkgLineShape != null)
-     * ebsBkgLineShape.dispose(); if(ebsSupercellShape != null)
-     * ebsSupercellShape.dispose(); if(ebsMrglSupShape != null)
-     * ebsMrglSupShape.dispose(); if(ebsNonSupSgape != null)
-     * ebsNonSupSgape.dispose(); }
-     */
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
     }
 
+ 
+    public NsharpConstants.SPCGraph getLeftGraph() {
+        return leftGraph;
+    }
+
+    public void setGraphs(NsharpConstants.SPCGraph leftGraph,
+            NsharpConstants.SPCGraph rightGraph) {
+        this.leftGraph = leftGraph;
+        this.rightGraph = rightGraph;
+        getSpcGraphsInfo();
+        rscHandler.refreshPane();
+    }
+
+    public NsharpConstants.SPCGraph getRightGraph() {
+        return rightGraph;
+    }
+
+    public synchronized void getSpcGraphsInfo() {
+        if (rightGraph == NsharpConstants.SPCGraph.SARS
+                || leftGraph == NsharpConstants.SPCGraph.SARS) {
+            nsharpNative.nsharpLib.getSarsInfo(sarsInfo);
+        }
+        if (leftGraph == NsharpConstants.SPCGraph.WINTER
+                || rightGraph == NsharpConstants.SPCGraph.WINTER) {
+            nsharpNative.nsharpLib.getWinterInfo(winterInfo);
+        }
+        if (rightGraph == NsharpConstants.SPCGraph.FIRE
+                || leftGraph == NsharpConstants.SPCGraph.FIRE) {
+            nsharpNative.nsharpLib.getFireInfo(fireInfo);
+        }
+        if (leftGraph == NsharpConstants.SPCGraph.HAIL
+                || rightGraph == NsharpConstants.SPCGraph.HAIL) {
+            nsharpNative.nsharpLib.getHailInfo(hailInfo);
+        }
+    }
     @Override
     public void handleResize() {
 
@@ -2064,38 +2029,4 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
         spcYEnd = ext.getMaxY();
     }
 
-    public NsharpConstants.SPCGraph getLeftGraph() {
-        return leftGraph;
-    }
-
-    public void setGraphs(NsharpConstants.SPCGraph leftGraph,
-            NsharpConstants.SPCGraph rightGraph) {
-        this.leftGraph = leftGraph;
-        this.rightGraph = rightGraph;
-        getSpcGraphsInfo();
-        rscHandler.refreshPane();
-    }
-
-    public NsharpConstants.SPCGraph getRightGraph() {
-        return rightGraph;
-    }
-
-    public void getSpcGraphsInfo() {
-        if (leftGraph == NsharpConstants.SPCGraph.WINTER
-                || rightGraph == NsharpConstants.SPCGraph.WINTER) {
-            nsharpNative.nsharpLib.getWinterInfo(winterInfo);
-        }
-        if (leftGraph == NsharpConstants.SPCGraph.FIRE
-                || rightGraph == NsharpConstants.SPCGraph.FIRE) {
-            nsharpNative.nsharpLib.getFireInfo(fireInfo);
-        }
-        if (leftGraph == NsharpConstants.SPCGraph.HAIL
-                || rightGraph == NsharpConstants.SPCGraph.HAIL) {
-            nsharpNative.nsharpLib.getHailInfo(hailInfo);
-        }
-        if (leftGraph == NsharpConstants.SPCGraph.SARS
-                || rightGraph == NsharpConstants.SPCGraph.SARS) {
-            nsharpNative.nsharpLib.getSarsInfo(sarsInfo);
-        }
-    }
 }
