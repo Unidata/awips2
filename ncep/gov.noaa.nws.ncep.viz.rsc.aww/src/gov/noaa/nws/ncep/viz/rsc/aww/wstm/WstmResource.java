@@ -7,47 +7,6 @@
  */
 package gov.noaa.nws.ncep.viz.rsc.aww.wstm;
 
-import java.awt.geom.Rectangle2D;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Calendar;
-import java.util.TimeZone;
-import java.awt.Color;
-
-import org.eclipse.swt.graphics.RGB;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.raytheon.uf.viz.core.DrawableString;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.comm.Connector;
-import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.IShadedShape;
-import com.raytheon.uf.viz.core.drawables.IWireframeShape;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.geom.PixelCoordinate;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
-
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwFips;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
@@ -62,17 +21,56 @@ import gov.noaa.nws.ncep.viz.rsc.aww.query.WstmQueryResult;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
+import java.awt.Color;
+import java.awt.geom.Rectangle2D;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+
+import org.eclipse.swt.graphics.RGB;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
+import com.raytheon.uf.viz.core.DrawableString;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
+import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
+import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
+import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
+import com.raytheon.uf.viz.core.comm.Connector;
+import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.geom.PixelCoordinate;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
 
 
 /**
@@ -89,7 +87,9 @@ import com.vividsolutions.jts.io.ParseException;
  * 05/23/2012     785      Q. Zhou     Added getName for legend.
  * 17 Aug 2012    655      B. Hebbard  Added paintProps as parameter to IDisplayable draw
  * 31-Jan-2013    976      Archana         Updated paintFrame() to not render any null strings
- *                                                                Replaced the depreciated target.drawString() method with target.drawStrings().
+ *                                                                Replaced the depreciated target.drawString() method with target.drawStrings().                              
+ * 12/14              ?      B. Yin       Remove ScriptCreator, use Thrift Client.
+ *                                  
  * </pre>
  * 
  * @author archana
@@ -1206,24 +1206,18 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
 		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(
 				resourceData.getMetadataMap());
 
-		LayerProperty prop = new LayerProperty();
-		prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-		prop.setEntryQueryParameters(queryList, false);
-		prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap
-										// this ?
-		String script = null;
-		script = ScriptCreator.createScript(prop);
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(queryList);
+      
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
 
-		if (script == null)
-			return;
-
-		Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
-
-		for (Object pdo : pdoList) {
-			for( IRscDataObject dataObject : processRecord( pdo ) )	{	
-				newRscDataObjsQueue.add(dataObject);
-			}
-		}
+        for (Map<String, Object> result : response.getResults()) {
+            for (Object pdo : result.values()) {
+                for( IRscDataObject dataObject : processRecord( pdo ) )	{	
+                    newRscDataObjsQueue.add(dataObject);
+                }
+            }
+        }
 		
 		wqr.populateFipsMap();
 		setAllFramesAsPopulated();
