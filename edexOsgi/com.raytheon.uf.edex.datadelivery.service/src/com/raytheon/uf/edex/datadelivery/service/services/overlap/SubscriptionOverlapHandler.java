@@ -28,6 +28,8 @@ import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
@@ -48,6 +50,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
  * Oct 24, 2013    2292    mpduff      Initial creation
  * Nov 01, 2013    2292    dhladky     Don't check against yourself for duplication
  * Feb 11, 2014    2771    bgonzale    Use Data Delivery ID instead of Site.
+ * Dec 08, 2014    3891    dhladky     Allow for promotion of site subscriptions to shared.
  * 
  * </pre>
  * 
@@ -80,9 +83,21 @@ public class SubscriptionOverlapHandler implements
                 DataType dataType = subscription.getDataSetType();
                 Set<String> overlappingSubscriptions = new HashSet<String>();
                 for (Subscription potentialDuplicate : potentialDuplicates) {
-                    // don't check against yourself
-                    if (potentialDuplicate.getId().equals(subscription.getId())) {
-                        continue;
+                    // Check for special promotion case
+                    if (subscription instanceof SharedSubscription
+                            && potentialDuplicate instanceof SiteSubscription) {
+                        // Not as stringent a check as the ID's won't be equal
+                        // but the names still will
+                        if (potentialDuplicate.getName().equals(
+                                subscription.getName())) {
+                            continue;
+                        }
+                    } else {
+                        // Normal sequence, don't check self
+                        if (potentialDuplicate.getId().equals(
+                                subscription.getId())) {
+                            continue;
+                        }
                     }
                     OverlapData od = OverlapDataFactory.getOverlapData(
                             subscription, potentialDuplicate);
