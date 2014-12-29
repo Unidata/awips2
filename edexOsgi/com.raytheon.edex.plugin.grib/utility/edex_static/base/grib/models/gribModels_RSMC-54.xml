@@ -89,6 +89,7 @@
 		<subcenter>0</subcenter>
 		<grid>493399</grid>
 		<process>
+			<id>0</id>
 			<id>36</id>
 			<id>47</id>
 		</process>
