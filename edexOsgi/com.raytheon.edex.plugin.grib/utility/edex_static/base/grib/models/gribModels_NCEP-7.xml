@@ -831,7 +831,7 @@
 	</model>
 
 	<model>
-		<name>NAM227</name>
+		<name>NAM-5km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>227</grid>
@@ -1849,7 +1849,7 @@
 	</model>
 
 	<model>
-		<name>nam32</name>
+		<name>NAM-32km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>221</grid>
@@ -1859,7 +1859,7 @@
 	</model>
 
 	<model>
-		<name>namP5ENP</name>
+		<name>NAM243</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>243</grid>
