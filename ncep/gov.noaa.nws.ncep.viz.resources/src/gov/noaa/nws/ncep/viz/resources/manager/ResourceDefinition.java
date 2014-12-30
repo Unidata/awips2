@@ -1,13 +1,8 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
 import static java.lang.System.out;
-import gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagRecord;
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
-import gov.noaa.nws.ncep.common.dataplugin.ntrans.NtransRecord;
-import gov.noaa.nws.ncep.common.dataplugin.pgen.PgenRecord;
 import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryDefinition;
 import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
-import gov.noaa.nws.ncep.edex.plugin.mosaic.common.MosaicRecord;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
@@ -35,17 +30,16 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -88,6 +82,9 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  *  06/2014                   B. Hebbard  Force getInventoryEnabled() to return false except for GRID & ENSEMBLE
  *                                        resources, and make all internal read accesses via getter
  *  07/2014       TTR1034+    J. Wu       Always query data time from DB, not from cache.
+ *  07/2014       R4644       Y. Song     Added VIIRS as implementation
+ *  11/2004       R4644       S. Gilbert  Removed dependency on specific PDOs and
+ *                                        changed uEngine request to ThriftClinet
  * </pre>
  * 
  * @author ghull
@@ -244,7 +241,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
         dfltHourSnap = DEFAULT_HOUR_SNAP;
         dfltGeogArea = "";
         timeMatchMethod = TimeMatchMethod.CLOSEST_BEFORE_OR_AFTER;
-        timelineGenMethod = timelineGenMethod.USE_DATA_TIMES;
+        timelineGenMethod = TimelineGenMethod.USE_DATA_TIMES;
         inventoryAlias = null;
         availTimesCache = new HashMap<Map<String, RequestConstraint>, DataTimesCacheEntry>();
 
@@ -894,7 +891,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
                     // if the needed param is not set in the resource defn or is
                     // set to empty
                     String paramValue = paramValues.get(implPrm);
-                    
+
                     if (paramValue == null || paramValue.isEmpty()) {
 
                         // paramValue = dfltParamValues.get( implPrm );
@@ -1180,8 +1177,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
 
         Object rslts;
 
-        long t01 = System.currentTimeMillis();
-
         rslts = ThriftClient.sendRequest(reqMsg);
 
         if (!(rslts instanceof String[])) {
@@ -1190,8 +1185,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
             throw new VizException("Inventory Request Error:"
                     + rslts.toString() + "\nDisabling Inventory use.");
         }
-
-        long t02 = System.currentTimeMillis();
 
         String[] rsltsArray = (String[]) rslts;
 
@@ -1279,8 +1272,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
 
         Object rslts;
 
-        long t01 = System.currentTimeMillis();
-
         rslts = ThriftClient.sendRequest(reqMsg);
 
         if (!(rslts instanceof String[])) {
@@ -1291,14 +1282,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
                             + rslts.toString());
         }
 
-        long t02 = System.currentTimeMillis();
-
         String[] rsltsArray = (String[]) rslts;
-
-        // out.println("Inventory Query for Rsc Sub-Types for "+
-        // resourceDefnName+
-        // " took "+ (t02-t01)+ "msecs for "+ rsltsArray.length + " results." );
-        // out.println("    RscSubTypes = "+ (rsltsArray.toString() ) );
 
         for (Object queryRslt : rsltsArray) {
             String rsltStr = (String) queryRslt;
@@ -1385,8 +1369,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
 
         Object rslts;
 
-        long t01 = System.currentTimeMillis();
-
         rslts = ThriftClient.sendRequest(reqMsg);
 
         if (!(rslts instanceof String[])) {
@@ -1397,12 +1379,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
                             + rslts.toString());
         }
 
-        long t02 = System.currentTimeMillis();
-
         List<String> rsltsArray = Arrays.asList((String[]) rslts);
-
-        // out.println("Inventory Query for "+ resourceDefnName+" for "+ invPrm+
-        // " took "+ (t02-t01)+ "msecs for "+ rsltsArray.size() + " results." );
 
         return rsltsArray;
     }
@@ -1587,8 +1564,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
 
                 Object rslts;
 
-                long t01 = System.currentTimeMillis();
-
                 rslts = ThriftClient.sendRequest(reqMsg);
 
                 if (!(rslts instanceof String[])) {
@@ -1599,8 +1574,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
                     throw new VizException("Inventory Request Failed: "
                             + rslts.toString() + " Disabling inventory use.");
                 }
-
-                long t02 = System.currentTimeMillis();
 
                 String[] rsltsList = (String[]) rslts;
                 dataTimeArr = new DataTime[rsltsList.length];
@@ -1739,104 +1712,51 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
                 }
             } else if (getSubTypeGenParamsList().length > 0) {
 
-                LayerProperty prop = new LayerProperty();
-                prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-                prop.setEntryQueryParameters(requestConstraints, false);
-                prop.setNumberOfImages(15000);
+                String[] subParams = getSubTypeGenParamsList();
 
-                String script = ScriptCreator.createScript(prop);
-                if (script == null) {
-                    throw new VizException("Error creating query script???");
-                }
+                DbQueryRequest request = new DbQueryRequest(requestConstraints);
+                request.addFields(subParams);
+                request.setDistinct(true);
 
-                Object[] pdoList;
-                pdoList = Connector.getInstance().connect(script, null, 60000);
+                DbQueryResponse response = (DbQueryResponse) ThriftClient
+                        .sendRequest(request);
 
-                for (Object pdo : pdoList) {
+                for (Map<String, Object> result : response.getResults()) {
+
                     String subType = null;
+                    StringBuilder sb = new StringBuilder();
 
-                    if ( // getResourceCategory() ==
-                         // ResourceCategory.NtransRscCategory
-                    getResourceCategory().getCategoryName().equals("NTRANS")) {
-                        if (getRscImplementation().equals("NTRANS")) {
-                            NtransRecord ntransRec = (NtransRecord) pdo;
-                            subType = ntransRec.getMetafileName() + "_"
-                                    + ntransRec.getProductName();
+                    if (getRscImplementation().equals("McidasSatellite")) {
+                        String area = (String) result.get("areaName");
+                        Integer res = (Integer) result.get("resolution");
+                        if (res == 0) {
+                            sb.append(area);
+                            sb.append("_native");
+                        } else {
+                            sb.append(area);
+                            sb.append('_');
+                            sb.append(res.toString());
+                            sb.append("km");
                         }
-                    } else if (getResourceCategory() == ResourceCategory.SatelliteRscCategory) {
-                        if (getRscImplementation().equals("GiniSatellite")) {
-                            SatelliteRecord satRec = (SatelliteRecord) pdo;
-                            subType = satRec.getSectorID();
-                        } else if (getRscImplementation().equals(
-                                "McidasSatellite")) {
-                            McidasRecord satRec = (McidasRecord) pdo;
-                            if (satRec.getResolution() == 0
-                                    && getSubTypeGenParamsList()[1]
-                                            .equals("resolution")) {
-                                subType = satRec.getAreaName() + "_native";
+                    } else {
+                        for (String param : subParams) {
+                            if (sb.length() == 0) {
+                                sb.append(result.get(param));
                             } else {
-                                subType = satRec.getAreaName() + "_"
-                                        + satRec.getResolution().toString()
-                                        + "km";
+                                sb.append('_');
+                                sb.append(result.get(param));
                             }
                         }
                     }
-                    // ??? OBE, this shouldn't get called?
-                    else if (getResourceCategory() == ResourceCategory.RadarRscCategory) {
-                        // if Mosaic there is no subType so just use 'mosaic'
-                        MosaicRecord rdrRec = (MosaicRecord) pdo;
-                        subType = "mosaic";
-                        // attrSetKey = rdrRec.getProdName();
-                        // if Radar then use the name of the radar as the
-                        // subType
-                    } else if (getResourceCategory() == ResourceCategory.PGENRscCategory) {
-                        PgenRecord pgenRec = (PgenRecord) pdo;
-                        if (subTypeGenerator.indexOf("dataTime") > -1) {
-                            subType = pgenRec.getDataTime().toString();
-                        } else if (subTypeGenerator.indexOf("activitySubtype") > -1) {
-                            subType = pgenRec.getActivitySubtype();
-                        } else if (subTypeGenerator.indexOf("activityLabel") > -1) {
-                            subType = pgenRec.getActivityLabel();
-                        } else if (subTypeGenerator.indexOf("activityName") > -1) {
-                            subType = pgenRec.getActivityName();
-                        } else if (subTypeGenerator.indexOf("activityType") > -1) {
-                            subType = pgenRec.getActivityType();
-                        } else if (subTypeGenerator.indexOf("site") > -1) {
-                            subType = pgenRec.getSite();
-                        } else if (subTypeGenerator.indexOf("desk") > -1) {
-                            subType = pgenRec.getDesk();
-                        } else if (subTypeGenerator.indexOf("forecaster") > -1) {
-                            subType = pgenRec.getForecaster();
-                        } else {
-                            System.out
-                                    .println("Unrecognized PGEN rsc generating subType"
-                                            + subTypeGenerator);
-                        }
-                    } else if (getResourceCategory() == ResourceCategory.GraphRscCategory) {
 
-                        if (pdo instanceof GeoMagRecord) {
-                            GeoMagRecord magRec = (GeoMagRecord) pdo;
-                            subType = magRec.getStationCode();
-                        }
-                    }
-
-                    // doing this will cause the dataTime query to fail because
-                    // the
-                    // subType is taken as a constraint when doing the time
-                    // queries.
-                    // subType = subType.replaceAll(" ", "_");
+                    subType = sb.toString();
                     if (subType != null && !subType.trim().isEmpty()) {
                         if (!generatedSubTypesList.contains(subType)) {
                             generatedSubTypesList.add(subType);
                         }
-                        // if( !subTypesMap.containsKey( subType ) ) {
-                        //
-                        // subTypesMap.put( subType, new ArrayList<String>() );
-                        // }
-                        //
-                        // subTypesMap.get( subType ).add( attrSetKey );
                     }
                 }
+
             }
         } catch (VizException e) {
             // if this is a stack trace we don't need to display the whole stack
@@ -1868,7 +1788,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
                 if (attribsObj instanceof String
                         && !attrName.equals("dataTime")) {
 
-                    String attrStr = ((String) attribsObj);
+                    // String attrStr = ((String) attribsObj);
                     // if( attrStr.indexOf(' ') != -1 ) {
                     // uriAttrValues.put(attrName, attrStr.replace(' ', '_') );
                     // out.println( "WARNING: URI update message for "+
