@@ -94,6 +94,11 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Jun 17, 2014    3296    randerso    Cached PythonScript. Moved active table 
  *                                     backup and purging to a separate thread.
  *                                     Added performance logging
+ * Dec 30, 2014    16942   ryu         Fix update of records for sites other than
+ *                                     the home site and its neighbors. 
+ *                                     Pass issuance site id to getActiveTable() 
+ *                                     in updateActiveTable() so records will
+ *                                     be updated correctly.
  * 
  * </pre>
  * 
@@ -288,11 +293,13 @@ public class ActiveTable {
                 mode = ActiveTableMode.OPERATIONAL;
             }
 
+            String issueSiteId = newRecords.get(0).getOfficeid();
+
             IPerformanceStatusHandler perfStat = PerformanceStatus
                     .getHandler("ActiveTable");
             ITimer timer = TimeUtil.getTimer();
             timer.start();
-            List<ActiveTableRecord> activeTable = getActiveTable(siteId, mode);
+            List<ActiveTableRecord> activeTable = getActiveTable(issueSiteId, mode);
             timer.stop();
             perfStat.logDuration("getActiveTable", timer.getElapsedTime());
 
