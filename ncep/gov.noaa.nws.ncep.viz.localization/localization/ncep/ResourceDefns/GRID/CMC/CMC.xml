@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <inventoryEnabled>true</inventoryEnabled>
-    <resourceDefnName>CMC-REG</resourceDefnName>
+    <resourceDefnName>CMC</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
 GDFILE=CMC-REG
