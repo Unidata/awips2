@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 20
+Release: 22
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -155,6 +155,7 @@ done
 _ldm_dir=/usr/local/ldm
 _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
 _myHost=`hostname`
+_myHost=`echo ${_myHost} | cut -f1 -d'-'`
 pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
 # unpack the ldm source
@@ -321,9 +322,8 @@ rm -rf /tmp/ldm
 if [ $? -ne 0 ]; then
    exit 1
 fi
-chown -R ldm:fxalpha ${_ldm_dir}
-sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 sed -i 's/EDEX_HOSTNAME/'${_myHost}'/' ${_ldm_dir}/etc/ldmd.conf
+sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 
 %preun
 %postun
