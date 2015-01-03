@@ -135,6 +135,24 @@ public class McidasDecoder extends AbstractDecoder {
             }
             */
             
+            // TODO: figure out the McIDAS area file number during product generation
+            // GOES-15 / WEST
+            if ( (1161 <= areaId && areaId <= 1184) || // GOES-15/4km/IR/
+            	 (1231 <= areaId && areaId <= 1254) || // GOES-15/4km/WV/
+            	 (1201 <= areaId && areaId <= 1224) || // GOES-15/4km/VIS/
+            	 (1831 <= areaId && areaId <= 1854) || // GOES-15/4km/13.3/
+            	 (1801 <= areaId && areaId <= 1824) ) { // GOES-15/4km/3.9/
+            	areaId = 1104;
+            }
+            // GOES-13 / EAST
+            if ( (1261 <= areaId && areaId <= 1284) || // GOES-13/4km/IR/
+               	 (1331 <= areaId && areaId <= 1354) || // GOES-13/4km/WV/
+               	 (1301 <= areaId && areaId <= 1324) || // GOES-13/4km/VIS/
+               	 (1461 <= areaId && areaId <= 1484) || // GOES-13/4km/13.3/
+               	 (1431 <= areaId && areaId <= 1454) ) { // GOES-13/4km/3.9/
+               	areaId = 1103;
+            }
+            
             record.setSatelliteId(sid);
             /*
              * Get and set the satellite name from SID
