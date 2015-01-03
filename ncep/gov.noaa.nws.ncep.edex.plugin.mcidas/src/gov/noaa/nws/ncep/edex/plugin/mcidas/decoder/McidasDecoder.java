@@ -414,7 +414,6 @@ public class McidasDecoder extends AbstractDecoder {
              * For map coverage compliance: 1: Mercator (MERC), 3: Lambert
              * Conformal (LAMB), 5: Polar Stereographic (PS)
              */
-            // TODO add MSAT and GVAR ??
             int resolution = 0;
             Integer iproj = 0;
             if (navtyp.trim().equals("PS") || navtyp.equals("MERC")
@@ -435,7 +434,7 @@ public class McidasDecoder extends AbstractDecoder {
             } else {
                 // native satellite projections ( not remapped )
             	// Unidata UNIWISC feed includes navigation types GVAR, MSAT, RECT, MOLL
-            	resolution = byteArrayToInt(navigation, 16, endian) / 1000;
+            	//resolution = byteArrayToInt(navigation, 16, endian) / 1000;
                 iproj = 7585;
             }
             record.setResolution(resolution);
