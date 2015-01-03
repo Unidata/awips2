@@ -1,0 +1,24 @@
+!
+! Restore File : Aerosol Optical Depth
+!
+! Log:
+!
+GLEVEL=0
+GVCORD=NONE
+SKIP=
+FILTER=y
+SCALE=0
+GDPFUN=aero-optdep
+TYPE=c
+CINT=0.1/0/1
+LINE=5/1/1
+FINT=0.1/0/1
+FLINE=0;29;28;27;26;0
+HILO=
+HLSYM=
+CLRBAR=1
+WIND=
+TITLE=1/-1/~ Aerosol Optical Depth !0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

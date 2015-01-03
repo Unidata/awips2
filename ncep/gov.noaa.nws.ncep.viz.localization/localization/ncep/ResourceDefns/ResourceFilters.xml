@@ -682,10 +682,10 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAVGEM">
 <filters>Global,Ocean,FNMOC</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FAROP">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="FNMOC-FAROP">
 <filters>Global,Ocean,FNMOC</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NCODA">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="FNMOC-NCODA">
 <filters>Global,Ocean,FNMOC</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NDFD">
