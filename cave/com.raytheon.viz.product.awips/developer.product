@@ -15,7 +15,7 @@
 
    <launcherArgs>
       <programArgs>-perspective NCP -data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz</programArgs>
-      <vmArgs>-Xincgc -Xmx1024M -Dosgi.instance.area.readOnly=true
+      <vmArgs>-Xincgc -Xmx2048M -Dosgi.instance.area.readOnly=true
 -Declipse.log.enabled=false
 -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass 
 -Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=256m 
