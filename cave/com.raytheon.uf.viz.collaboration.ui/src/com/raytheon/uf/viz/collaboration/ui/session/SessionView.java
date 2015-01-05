@@ -246,7 +246,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
             ChangeTextColorAction userColorAction = userColorActions.get(user);
             if (userColorAction == null) {
                 userColorAction = ChangeTextColorAction
-                        .createChangeUserTextColorAction(user, me,
+                        .createChangeUserTextColorAction(user, me, me,
                                 defaultForeground, colorConfigManager);
                 userColorActions.put(user, userColorAction);
             }
