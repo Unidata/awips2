@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      ChangeUserColorAction, support both user and site colors.
  * 12/12/14     3709        mapeters    Use static methods to call constructor, icon displays 
  *                                      current foreground and background colors.
+ * 01/05/15     3709        mapeters    Added getTextColors(), added me param to createChangeUserTextColorAction().
  * 
  * </pre>
  * 
@@ -75,18 +76,22 @@ public class ChangeTextColorAction extends Action {
      * Create and return new action for changing user colors.
      * 
      * @param user
+     *            the user whose colors may be changed by this action
+     * @param me
+     *            whether the selected user is the current user
      * @param displayName
+     *            whether to display the user's name or simply "User"
      * @param defaultForeground
+     *            the foreground color to use if none is stored
      * @param colorConfigManager
+     *            manager to store/retrieve user colors
      * @return
      */
     public static ChangeTextColorAction createChangeUserTextColorAction(
-            String user, boolean displayName, RGB defaultForeground,
-            UserColorConfigManager colorConfigManager) {
+            String user, boolean me, boolean displayName,
+            RGB defaultForeground, UserColorConfigManager colorConfigManager) {
         String text = "Change ";
         if (displayName) {
-            boolean me = CollaborationConnection.getConnection().getUser()
-                    .getName().equals(user);
             text += me ? "Your" : (user + "'s");
         } else {
             text += "User";
@@ -101,8 +106,11 @@ public class ChangeTextColorAction extends Action {
      * Create and return new action for changing site colors.
      * 
      * @param site
+     *            the site whose colors may be changed by this action
      * @param defaultForeground
+     *            the foreground color to use if none is stored
      * @param colorConfigManager
+     *            manager to store/retrieve site colors
      * @return
      */
     public static ChangeTextColorAction createChangeSiteTextColorAction(
@@ -119,39 +127,17 @@ public class ChangeTextColorAction extends Action {
         this.defaultForeground = defaultForeground;
         this.colorConfigManager = colorConfigManager;
 
-        ColorInfo colorInfo = colorConfigManager.getColor(key);
-        RGB foreground;
-        RGB background;
-        if (colorInfo != null) {
-            foreground = colorInfo.getColor(SWT.FOREGROUND);
-            background = colorInfo.getColor(SWT.BACKGROUND);
-        } else {
-            foreground = defaultForeground;
-            background = new RGB(255, 255, 255);
-        }
-        setIconColors(foreground, background);
+        RGB[] colors = getTextColors();
+        setIconColors(colors[0], colors[1]);
 
         CollaborationConnection.getConnection().registerEventHandler(this);
     }
 
     @Override
     public void run() {
-        ColorInfo colorInfo = colorConfigManager.getColor(key);
-        RGB foreground;
-        RGB background;
-        if (colorInfo != null) {
-            foreground = colorInfo.getColor(SWT.FOREGROUND);
-            background = colorInfo.getColor(SWT.BACKGROUND);
-        } else {
-            /*
-             * Set dialog to display default colors
-             */
-            foreground = defaultForeground;
-            background = new RGB(255, 255, 255);
-        }
-
+        RGB[] colors = getTextColors();
         ForegroundBackgroundColorDlg dialog = new ForegroundBackgroundColorDlg(
-                Display.getCurrent().getActiveShell(), foreground, background);
+                Display.getCurrent().getActiveShell(), colors[0], colors[1]);
 
         dialog.setCloseCallback(new ICloseCallback() {
 
@@ -172,6 +158,26 @@ public class ChangeTextColorAction extends Action {
             }
         });
         dialog.open();
+    }
+
+    /**
+     * Get the stored colors (or default colors) of this action's user/site
+     * 
+     * @return RGB array of length 2 with foreground color in index 0 and
+     *         background color in index 1
+     */
+    private RGB[] getTextColors() {
+        ColorInfo colorInfo = colorConfigManager.getColor(key);
+        RGB foreground;
+        RGB background;
+        if (colorInfo != null) {
+            foreground = colorInfo.getColor(SWT.FOREGROUND);
+            background = colorInfo.getColor(SWT.BACKGROUND);
+        } else {
+            foreground = defaultForeground;
+            background = new RGB(255, 255, 255);
+        }
+        return new RGB[] { foreground, background };
     }
 
     @Subscribe
