@@ -480,8 +480,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
             ChangeTextColorAction userColorAction = userColorActions.get(name);
             if (userColorAction == null) {
                 userColorAction = ChangeTextColorAction
-                        .createChangeUserTextColorAction(name, false, new RGB(
-                                0, 0, 255), new UserColorConfigManager());
+                        .createChangeUserTextColorAction(name, false, false,
+                                new RGB(0, 0, 255),
+                                new UserColorConfigManager());
                 userColorActions.put(name, userColorAction);
             }
             manager.add(userColorAction);
@@ -498,9 +499,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
                         .get(name);
                 if (userColorAction == null) {
                     userColorAction = ChangeTextColorAction
-                            .createChangeUserTextColorAction(name, true,
-                                new RGB(0, 0, 255),
-                                new UserColorConfigManager());
+                            .createChangeUserTextColorAction(name, true, true,
+                                    new RGB(0, 0, 255),
+                                    new UserColorConfigManager());
                     userColorActions.put(name, userColorAction);
                 }
                 manager.insertBefore("afterFont", userColorAction);

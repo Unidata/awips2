@@ -78,6 +78,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Nov 26, 2014 3709       mapeters    support foreground/background color preferences for each site
  * Dec 08, 2014 3709       mapeters    Removed ChangeSiteColorAction, uses {@link ChangeTextColorAction}.
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
+ * Jan 05, 2015 3709       mapeters    Use both site and user name as key in siteColorActions map.
  * 
  * </pre>
  * 
@@ -206,14 +207,15 @@ public class SessionFeedView extends SessionView {
     protected void fillContextMenu(IMenuManager manager) {
         super.fillContextMenu(manager);
         String site = getSelectedSite();
-        RGB defaultForeground = colorManager
-                .getColorForUser(getSelectedParticipant());
-        ChangeTextColorAction siteColorAction = siteColorActions.get(site);
-        if(siteColorAction == null) {
+        VenueParticipant user = getSelectedParticipant();
+        String mapKey = site + " " + user.getName();
+        RGB defaultForeground = colorManager.getColorForUser(user);
+        ChangeTextColorAction siteColorAction = siteColorActions.get(mapKey);
+        if (siteColorAction == null) {
             siteColorAction = ChangeTextColorAction
                     .createChangeSiteTextColorAction(site, defaultForeground,
                             colorConfigManager);
-            siteColorActions.put(site, siteColorAction);
+            siteColorActions.put(mapKey, siteColorAction);
         }
         manager.add(siteColorAction);
         if (!SiteConfigurationManager.isVisible(actingSite, site)) {
