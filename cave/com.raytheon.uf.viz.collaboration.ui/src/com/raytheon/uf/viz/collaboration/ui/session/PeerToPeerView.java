@@ -402,7 +402,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
                 .getName();
         RGB defaultUserForeground = DEFAULT_USER_FOREGROUND_COLOR.getRGB();
         userColorAction = ChangeTextColorAction
-                .createChangeUserTextColorAction(myName, true,
+                .createChangeUserTextColorAction(myName, true, true,
                         defaultUserForeground, colorConfigManager);
         mgr.add(userColorAction);
     }
@@ -415,7 +415,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         String peerName = peer.getName();
         RGB defaultPeerForeground = DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
         peerColorAction = ChangeTextColorAction
-                .createChangeUserTextColorAction(peerName, true,
+                .createChangeUserTextColorAction(peerName, false, true,
                         defaultPeerForeground, colorConfigManager);
         mgr.add(peerColorAction);
     }
