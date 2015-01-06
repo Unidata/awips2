@@ -56,6 +56,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 13, 2014 2751       njensen     Renamed container to displayContainer
  * Mar 06, 2014 2848       bclement    removed check for self from participantChanged
+ * Jan 06, 2014 3933       bclement    added check for ability to share editor on startup
  * 
  * </pre>
  * 
@@ -125,7 +126,7 @@ public class DataProviderEventController extends
         super.startup();
         AbstractEditor active = EditorUtil
                 .getActiveEditorAs(AbstractEditor.class);
-        if (active != null
+        if (active != null && SharedEditorsManager.canBeShared(active)
                 && SharedEditorsManager.isBeingShared(active) == false) {
             try {
                 displayContainer.shareEditor(active);

@@ -68,14 +68,9 @@ import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditor
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
-import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
  * Collaboration creation dialog for sessions.
@@ -97,6 +92,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Apr 16, 2014 3021       bclement    increased width of dialog
  * Apr 22, 2014 3056       bclement    made room name lowercase to match xmpp server
  * Jun 16, 2014 3288       bclement    added call to get full venue ID for chosen name
+ * Jan 06, 2014 3933       bclement    moved logic to check for editor shareability to SharedEditorsmanager
  * 
  * </pre>
  * 
@@ -287,17 +283,11 @@ public class CreateSessionDialog extends CaveSWTDialog {
     }
 
     private static boolean isShareable(IWorkbenchPart part) {
+        boolean rval = false;
         if (part instanceof AbstractEditor) {
-            AbstractEditor ed = (AbstractEditor) part;
-            IDisplayPane pane = ed.getActiveDisplayPane();
-            IRenderableDisplay display = pane.getRenderableDisplay();
-            IDisplayPaneContainer container = display.getContainer();
-            boolean isMapDisplay = display instanceof MapRenderableDisplay;
-            boolean hasMultiplePanes = container instanceof IMultiPaneEditor
-                    && ((IMultiPaneEditor) container).getNumberofPanes() > 1;
-            return (isMapDisplay && !hasMultiplePanes);
+            rval = SharedEditorsManager.canBeShared((AbstractEditor) part);
         }
-        return false;
+        return rval;
     }
 
     private void updateSharedSessionDisplay() {
