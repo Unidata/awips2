@@ -31,6 +31,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    08/11/2014      3393          nabowle        Initial modification. Replaces UEngine 
 #                                                 with a custom Request/Response.
+#    12/16/2014      3393          nabowle        Fix negative k values.
 #
 #
 
@@ -137,7 +138,7 @@ def encode_data(yLen, xLen, array, encoding):
         i += 1
         while i<xLen :
             k = array[i+j]
-            if k<0 : kk += 256
+            if k<0 : k += 256
             if encoding == 0 :
                 msg += " "+str(k)
             elif encoding == 1 :
