@@ -33,7 +33,6 @@ import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 import com.raytheon.viz.mpe.ui.rsc.AbstractMPEGriddedResourceData.Frame;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 
 /**
  * TODO Add Description
@@ -55,9 +54,11 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 public class MPEPlotGriddedResource extends
         AbstractGriddedMPEResource<AbstractMPEGriddedResourceData, Frame> {
 
-    private Pcp pcp = DailyQcUtils.pcp;
+//    private Pcp pcp = DailyQcUtils.pcp;
 
-    private Pcp spf = DailyQcUtils.spf;
+//    private Pcp spf = DailyQcUtils.spf;
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     /**
      * @param resourceData
@@ -115,7 +116,7 @@ public class MPEPlotGriddedResource extends
      */
     @Override
     protected Rectangle getHrapSubGridExtent() {
-        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+        Hrap_Grid hrap_grid = dqc.getHrap_grid();
         return new Rectangle(hrap_grid.hrap_minx, hrap_grid.hrap_miny,
                 hrap_grid.maxi, hrap_grid.maxj);
     }

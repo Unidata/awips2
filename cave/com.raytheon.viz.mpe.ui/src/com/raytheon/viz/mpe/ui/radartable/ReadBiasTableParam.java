@@ -43,7 +43,6 @@ import com.raytheon.viz.mpe.ui.dialogs.RadarBiasTableDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 15, 2009            snaples     Initial creation
- * Apr 04, 2014  17223     snaples     Updated get_rfc_bias to properly update and return values to calling procedure.    
  * 
  * </pre>
  * 
@@ -163,7 +162,7 @@ public class ReadBiasTableParam {
     }
 
     public static int get_rfc_bias_value(String rid, String[] oid,
-            Float[] pBias) {
+        Float[] pBias) {
         String pFxaLocalSite = appsDefaults.getToken("fxa_local_site");
         String where = "";
         int bias_found = 0;
@@ -175,6 +174,7 @@ public class ReadBiasTableParam {
         String pRadarLoc = "";
         Rwbiasstat pRWBiasStat = new Rwbiasstat();
         Rwbiasdyn pRWBiasDynNode = new Rwbiasdyn();
+
         length = pFxaLocalSite.length();
 
         if (length > 0) {
