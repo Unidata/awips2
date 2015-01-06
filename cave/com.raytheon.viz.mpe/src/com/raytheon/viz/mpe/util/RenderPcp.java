@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
@@ -48,37 +47,39 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 public class RenderPcp {
 
-	private static boolean first = true;
+//	private static boolean first = true;
+	
+	private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-	Pcp pcp = DailyQcUtils.pcp;
+//	Pcp pcp = DailyQcUtils.pcp;
 
 	/*
 	 * QC codes
 	 */
-	private static final int MISSING = -1;
-
-	private static final int STANDARD = 0;
-
-	private static final int SCREENED = 0;
-
-	private static final int FAILED = 1;
-
-	private static final int MANUAL = 2;
-
-	private static final int QUESTIONABLE = 3;
-
-	private static final int PARTIAL = 4;
-
-	private static final int ESTIMATED = 5;
-
-	private static final int TIMEDISTRIBUTED = 6;
-
-	private static final int VERIFIED = 8;
+//	private static final int MISSING = -1;
+//
+//	private static final int STANDARD = 0;
+//
+//	private static final int SCREENED = 0;
+//
+//	private static final int FAILED = 1;
+//
+//	private static final int MANUAL = 2;
+//
+//	private static final int QUESTIONABLE = 3;
+//
+//	private static final int PARTIAL = 4;
+//
+//	private static final int ESTIMATED = 5;
+//
+//	private static final int TIMEDISTRIBUTED = 6;
+//
+//	private static final int VERIFIED = 8;
 
 	private static final String MPE_DQC_GRID_RENDERING_METHOD_TOKEN = "mpe_dqc_grid_render_method";
 
-	private static final int maxDistSquared = DailyQcUtils.mpe_dqc_grid_max_dist
-			* DailyQcUtils.mpe_dqc_grid_max_dist;
+//	private final int maxDistSquared = dqc.mpe_dqc_grid_max_dist
+//			* dqc.mpe_dqc_grid_max_dist;
 
 	/**
 	 * Converts point precipitation data in struct pdata to hrap grid. The 20
@@ -141,7 +142,6 @@ public class RenderPcp {
 	}
 
 	private int determineMaxPrecip(Hrap_Grid hrap_grid) {
-		// TODO Auto-generated method stub
 
 		String header = "RenderPcp.determineMaxPrecip(): ";
 
@@ -150,7 +150,7 @@ public class RenderPcp {
 
 		for (int col = 0; col < hrap_grid.maxi; col++) {
 			for (int row = 0; row < hrap_grid.maxj; row++) {
-				value = pcp.value[col][row];
+				value = dqc.pcp.value[col][row];
 
 				if (value > maxValue) {
 					maxValue = value;

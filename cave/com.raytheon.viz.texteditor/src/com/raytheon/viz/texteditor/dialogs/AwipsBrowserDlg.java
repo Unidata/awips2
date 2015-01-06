@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -62,8 +62,9 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/04/2009   2191        rjpeter     Initial implementation.
- * 04/14/2010   4734        mhuang      Corrected StdTextProduct import 
+ * 04/14/2010   4734        mhuang      Corrected StdTextProduct import
  * 09/11/2014   3580        mapeters    Removed IQueryTransport usage (no longer exists).
+ * 12/08/2014   1231        nabowle     Fix selecting an AWIPS ID.
  * </pre>
  * 
  * @author rjpeter
@@ -71,7 +72,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 public class AwipsBrowserDlg extends CaveJFACEDialog {
     private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(AwipsBrowserDlg.class);
     /**
-     * 
+     *
      */
     private Composite top;
 
@@ -122,7 +123,7 @@ public class AwipsBrowserDlg extends CaveJFACEDialog {
     private StdTextProduct currentProduct = null;
 
     /**
-     * 
+     *
      * @param parent
      * @param browserHdr
      * @param cbClient
@@ -215,7 +216,7 @@ public class AwipsBrowserDlg extends CaveJFACEDialog {
     }
 
     /**
-     * 
+     *
      */
     @Override
     protected Control createDialogArea(Composite parent) {
@@ -239,7 +240,7 @@ public class AwipsBrowserDlg extends CaveJFACEDialog {
     }
 
     /**
-     * 
+     *
      */
     @Override
     protected void configureShell(Shell shell) {
@@ -248,7 +249,7 @@ public class AwipsBrowserDlg extends CaveJFACEDialog {
     }
 
     /**
-     * 
+     *
      */
     @Override
     protected void buttonPressed(int buttonId) {
@@ -282,7 +283,7 @@ public class AwipsBrowserDlg extends CaveJFACEDialog {
     }
 
     /**
-     * 
+     *
      */
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
@@ -334,7 +335,7 @@ public class AwipsBrowserDlg extends CaveJFACEDialog {
         awipsIdList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                loadInitialLists();
+                loadSelectedAwipsId();
             }
         });
 
@@ -406,11 +407,24 @@ public class AwipsBrowserDlg extends CaveJFACEDialog {
             awipsIdList.add(id);
         }
 
-        Map<String, String> timesToLoad = new HashMap<String, String>();
         awipsIdList.select(0);
 
-        for (Entry<String, TreeMap<String, TreeMap<String, StdTextProduct>>> ttaaiiCCCCEntry : availableProducts
-                .firstEntry().getValue().entrySet()) {
+        loadSelectedAwipsId();
+    }
+
+    private void loadSelectedAwipsId() {
+        ttaaiiCcccList.removeAll();
+        ddhhmmList.removeAll();
+        bbbList.removeAll();
+        setLoadBtnEnabled(false);
+
+        Map<String, String> timesToLoad = new HashMap<String, String>();
+        String awipsId = awipsIdList.getItem(awipsIdList.getSelectionIndex());
+        Map<String, TreeMap<String, TreeMap<String, StdTextProduct>>> selectedMap = availableProducts
+                .get(awipsId);
+
+        for (Entry<String, TreeMap<String, TreeMap<String, StdTextProduct>>> ttaaiiCCCCEntry : selectedMap
+                .entrySet()) {
             String ttaaiiCccc = ttaaiiCCCCEntry.getKey();
             ttaaiiCcccList.add(ttaaiiCccc);
 
