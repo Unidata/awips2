@@ -34,6 +34,7 @@ import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
@@ -74,6 +75,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Oct 16, 2014 3220       skorolev    Corrected snowConfig assignment.
+ * Dec 11, 2014 3220       skorolev    Moved refreshing of table in the UI thread.
  * 
  * </pre>
  * 
@@ -306,8 +308,15 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
         snowConfig = (FSSObsMonitorConfigurationManager) me.getSource();
         updateMonitoringArea();
         if (zoneDialog != null && !zoneDialog.isDisposed()) {
-            zoneDialog.refreshZoneTableData(obData);
-            fireMonitorEvent(zoneDialog.getClass().getName());
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    zoneDialog.refreshZoneTableData(obData);
+                    fireMonitorEvent(zoneDialog.getClass().getName());
+                }
+            });
+
         }
     }
 
