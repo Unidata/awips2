@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -85,26 +85,27 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
- * 
+ *
  * Dialog for loading or modifying procedures.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                                     Initial Creation
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
  * Oct 16, 2012 1229       rferrel     Changes to have displayDialog method.
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking ProcedureListDlg.
- * Jan 15, 2013  DR 15699  D. Friedman Prompt for save when close button clicked. 
- * Jan 16, 2013  DR 15367  D. Friedman Enable save button for Up/Down changes. 
+ * Jan 15, 2013  DR 15699  D. Friedman Prompt for save when close button clicked.
+ * Jan 16, 2013  DR 15367  D. Friedman Enable save button for Up/Down changes.
  * Feb 25, 2013 1640       bsteffen    Dispose old display in BundleLoader
  * Jun 7, 2013  2074       mnash       Remove resource if doesn't instantiate correctly
  * Aug 11, 2014 3480       bclement    added info logging when procedure is loaded
+ * Jan 06, 2015 3879       nabowle     Disallow copy-in when the view is empty.
  * </pre>
- * 
+ *
  * @author unknown
  * @version 1.0
  */
@@ -337,7 +338,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
             /*
              * (non-Javadoc)
-             * 
+             *
              * @see
              * com.raytheon.viz.ui.dialogs.procedure.ProcedureComm.ICopyOutListener
              * #copyOut(com.raytheon.viz.ui.dialogs.procedure.ProcedureComm.
@@ -686,10 +687,17 @@ public class ProcedureDlg extends CaveSWTDialog {
                     // the history list ensures that a fresh serialized copy
                     // of the bundle is made rather than a shallow copy of
                     // the display.
-                    saved = false;
-                    saveBtn.setEnabled(true);
                     Bundle b = SaveBundle.extractCurrentBundle();
                     HistoryList.getInstance().refreshLatestBundle(b);
+                    if (b.getName() == null || "".equals(b.getName())) {
+                        MessageDialog
+                                .openWarning(shell, "Error Copying Resources",
+                                        "You must have at least one resource displayed to copy in.");
+                        return;
+                    }
+
+                    saved = false;
+                    saveBtn.setEnabled(true);
 
                     // TODO: copy latest time in, potential threading issue if
                     // update
@@ -734,7 +742,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                     }
 
                     BundlePair bp = new BundlePair();
-                    bp.name = (HistoryList.getInstance().getLabels()[0]);
+                    bp.name = HistoryList.getInstance().getLabels()[0];
                     bp.xml = sb;
                     bundles.add(bp);
                     resyncProcedureAndList();
@@ -1075,7 +1083,7 @@ public class ProcedureDlg extends CaveSWTDialog {
     /**
      * If there is a procedure dialog open for the given filename, return it,
      * otherwise null.
-     * 
+     *
      * @param fileName
      * @return
      */
@@ -1088,7 +1096,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     /**
      * Get the ProcedureDlg for the given fileName and display it.
-     * 
+     *
      * @param fileName
      * @param p
      * @param parent
