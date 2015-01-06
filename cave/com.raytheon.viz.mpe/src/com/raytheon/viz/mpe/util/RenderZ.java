@@ -22,7 +22,6 @@ package com.raytheon.viz.mpe.util;
 import java.util.ArrayList;
 
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
 
@@ -50,7 +49,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
 
 public class RenderZ {
 
-    Pcp pcp = DailyQcUtils.pcp;
+//    Pcp pcp = DailyQcUtils.pcp;
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     public void render_z(int pcpn_day, int pcpn_time, int pcpn_time_step,
             int numZstations, ArrayList<Station> freezing_stations,
@@ -74,7 +74,7 @@ public class RenderZ {
 
                 if (hrap_grid.owner[j][i] == -1) {
 
-                    pcp.value[j][i] = -9999;
+                    dqc.pcp.value[j][i] = -9999;
                     continue;
 
                 }
@@ -166,11 +166,11 @@ public class RenderZ {
                 }
 
                 if (htotal == 0) {
-                    pcp.value[j][i] = -9999;
+                    dqc.pcp.value[j][i] = -9999;
                 }
 
                 else {
-                    pcp.value[j][i] = (int) ((value / distance) * 100);
+                    dqc.pcp.value[j][i] = (int) ((value / distance) * 100);
                 }
 
             }
@@ -181,6 +181,6 @@ public class RenderZ {
         pcp_in_use[time_pos] = 1;
 
         ReadQPFGrids rqg = new ReadQPFGrids();
-        rqg.write_file("pcp", time_pos, pcp);
+        rqg.write_file("pcp", time_pos, dqc.pcp);
     }
 }

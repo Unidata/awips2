@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -50,7 +51,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
 import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
-import com.raytheon.uf.viz.collaboration.ui.actions.ChangeUserColorAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
@@ -73,6 +74,9 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Nov 14, 2014 3709       mapeters    support foregound/background color 
  *                                     settings for each user
  * Nov 26, 2014 3709       mapeters    add colorConfigManager, use parent's colors map
+ * Dec 08, 2014 3709       mapeters    move color change actions to menu bar.
+ * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s as fields, 
+ *                                     dispose them.
  * 
  * </pre>
  * 
@@ -103,6 +107,10 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
 
     private static UserColorConfigManager colorConfigManager;
 
+    private ChangeTextColorAction userColorAction;
+
+    private ChangeTextColorAction peerColorAction;
+
     public PeerToPeerView() {
         super();
         CollaborationConnection.getConnection().registerEventHandler(this);
@@ -121,6 +129,10 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         if (conn != null) {
             conn.unregisterEventHandler(this);
         }
+
+        userColorAction.dispose();
+        peerColorAction.dispose();
+
         super.dispose();
     }
 
@@ -375,23 +387,36 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         }
     }
 
+    @Override
+    public void createPartControl(Composite parent) {
+        super.createPartControl(parent);
+        createDropDownMenu();
+    }
+
     /**
-     * add right-click menu options for changing foreground/background colors
-     * for each user
+     * Initialize drop-down menu with action to change user text colors.
      */
-    public void addChangeUserColorActions() {
+    private void createDropDownMenu() {
+        IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
         String myName = CollaborationConnection.getConnection().getUser()
                 .getName();
-        String peerName = peer.getName();
         RGB defaultUserForeground = DEFAULT_USER_FOREGROUND_COLOR.getRGB();
+        userColorAction = ChangeTextColorAction
+                .createChangeUserTextColorAction(myName, true, true,
+                        defaultUserForeground, colorConfigManager);
+        mgr.add(userColorAction);
+    }
+
+    /**
+     * Add action to change peer text colors to drop-down menu once peer is set.
+     */
+    public void addChangePeerColorAction() {
+        IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
+        String peerName = peer.getName();
         RGB defaultPeerForeground = DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
-        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.BACKGROUND,
-                myName, true, defaultUserForeground, colorConfigManager));
-        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.FOREGROUND,
-                myName, true, defaultUserForeground, colorConfigManager));
-        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.BACKGROUND,
-                peerName, false, defaultPeerForeground, colorConfigManager));
-        messagesTextMenuMgr.add(new ChangeUserColorAction(SWT.FOREGROUND,
-                peerName, false, defaultPeerForeground, colorConfigManager));
+        peerColorAction = ChangeTextColorAction
+                .createChangeUserTextColorAction(peerName, false, true,
+                        defaultPeerForeground, colorConfigManager);
+        mgr.add(peerColorAction);
     }
 }
