@@ -79,6 +79,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 27, 2014 3667          skorolev     Corrected functionality of dialog. Cleaned code.
  * Nov 12, 2014 3650          skorolev     Added confirmation box for unsaved changes in the dialog.
  * Nov 21, 2014 3841          skorolev     Added formIsValid method.
+ * Dec 18, 2014 3841          skorolev     Corrected addZoneStn method.
  * 
  * </pre>
  * 
@@ -1091,13 +1092,13 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             monitorAreaList
                     .setItems(maZones.toArray(new String[maZones.size()]));
             monitorAreaList.setSelection(maZones.indexOf(zone));
-            handleMonitorAreaListSelection();
             additionalZones.remove(zone);
             configMgr.addArea(zoneXML);
             if (!configMgr.getAddedZones().contains(zone)) {
                 configMgr.getAddedZones().add(zone);
             }
             configMgr.removeAdjArea(zone);
+            handleMonitorAreaListSelection();
         } else { // Station mode
             if (associatedList.getSelectionCount() == 0) {
                 showMessage(shell, SWT.ERROR, "Selection Needed",

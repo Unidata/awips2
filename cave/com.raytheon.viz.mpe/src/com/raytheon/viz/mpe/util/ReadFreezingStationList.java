@@ -57,35 +57,35 @@ public class ReadFreezingStationList {
 
     public static int max_zstations = 0;
 
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
-    private String station_dir = appsDefaults.getToken("mpe_station_list_dir");
+    private final String station_dir = appsDefaults
+            .getToken("mpe_station_list_dir");
 
-    private String sitename = appsDefaults.getToken("mpe_site_id");
+    private final String sitename = appsDefaults.getToken("mpe_site_id");
 
     private String pathName = "";
 
-    private DailyQcUtils dc = new DailyQcUtils();
+    private final DailyQcUtils dqc = DailyQcUtils.getInstance();
+
+    private final StationListManager stationListManager = StationListManager
+            .getInstance();
 
     public ArrayList<Station> read_freezing_station_list(String qcArea,
             boolean master_file_flag) {
 
-        StationListManager stationListManager = new StationListManager();
-
         try {
             stationListManager.getStationInfo(qcArea, master_file_flag,
-                    DailyQcUtils.freezing_stations,
-                    DailyQcUtils.temperature_stations,
-                    DailyQcUtils.precip_stations);
+                    dqc.freezing_stations, dqc.temperature_stations,
+                    dqc.precip_stations);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        ReadFreezingStationList.max_zstations = DailyQcUtils.freezing_stations
-                .size();
+        ReadFreezingStationList.max_zstations = dqc.freezing_stations.size();
 
-        return DailyQcUtils.freezing_stations;
+        return dqc.freezing_stations;
     }
 
     public ArrayList<Station> old_read_freezing_station_list(String qcArea,
@@ -143,8 +143,8 @@ public class ReadFreezingStationList {
                     } else {
                         tokens = null;
                     }
-                    if ((tokens != null) && tokens.length == 7) {
-                        Station astation = dc.new Station();
+                    if ((tokens != null) && (tokens.length == 7)) {
+                        Station astation = new Station();
                         astation.hb5 = tokens[0].toString().trim();
                         astation.parm = tokens[1].toString().trim();
                         double lat = Double.parseDouble(tokens[2].trim());
@@ -211,7 +211,7 @@ public class ReadFreezingStationList {
             if (in != null) {
                 int i = 0;
                 line = in.readLine().trim();
-                while (line != null && i < stationCount) {
+                while ((line != null) && (i < stationCount)) {
                     ++rec_num;
                     record = line.split("\\s+", 4);
                     if (record.length != 4) {
@@ -233,7 +233,7 @@ public class ReadFreezingStationList {
                                         .substring(0, 2)))
                                 && (record[1]
                                         .equalsIgnoreCase(stations.get(i).parm))) {
-                            Station statn = dc.new Station();
+                            Station statn = new Station();
                             statn = stations.get(i);
                             statn.xadd = Integer.parseInt(record[2].trim());
                             statn.yadd = Integer.parseInt(record[3].trim());
