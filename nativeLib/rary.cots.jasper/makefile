@@ -1,13 +1,20 @@
+# Only build from command line, configure breaks when running from Eclipse
+# Export CFLAGS=-m32 before building
+configure_options =--enable-shared --disable-libjpeg --disable-static
 
-configure_options = --enable-shared --disable-libjpeg --disable-static
+-include ../build.native/makefile.cots
 
--include ../build.native/makefile.arch
-all: jasper copyJasper
+all: configure jasper copyJasper
 
-jasper:	
+clean: cleanJasper
+
+configure:	
 	cd ./jasper-1.900.1; \
-	./configure $(configure_options); \
-	make
+	./configure $(configure_options)
+	
+jasper:
+	cd ./jasper-1.900.1;	\
+	make all
 	
 copyJasper:
 	/bin/mkdir -p ../build.native/i386-pc-linux-gnu/lib
