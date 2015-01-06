@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Jan 28, 2014 2698       bclement    removed venue info
  * Feb 11, 2014 2751       njensen     Fixed scary ==
  * Mar 06, 2014 2848       bclement    get venueName directly from session
+ * Jan 06, 2014 3933       bclement    added check for ability to share editor
  * 
  * </pre>
  * 
@@ -167,7 +168,7 @@ public class ShareEditorAction extends ContributedEditorMenuAction implements
     private AbstractEditor getActiveSharableEditor() {
         AbstractEditor editor = EditorUtil
                 .getActiveEditorAs(AbstractEditor.class);
-        if (editor != null
+        if (editor != null && SharedEditorsManager.canBeShared(editor)
                 && SharedEditorsManager.isBeingShared(editor) == false) {
             return editor;
         }
