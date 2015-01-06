@@ -50,7 +50,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
  * Oct 16, 2014 3220       skorolev    Corrected getInstance() method.
  * Oct 27, 2014 3667       skorolev    Cleaned code.
- * Nov 21, 2014 3841       skorolev     Corrected handleOkBtnSelection.
+ * Nov 21, 2014 3841       skorolev    Corrected handleOkBtnSelection.
+ * Dec 11, 2014 3220       skorolev    Removed unnecessary code.
  * 
  * </pre>
  * 
@@ -150,7 +151,6 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     private void fireConfigUpdateEvent() {
         final IMonitorConfigurationEvent me = new IMonitorConfigurationEvent(
                 configMgr);
-        shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         Display.getDefault().asyncExec(new Runnable() {
             @Override
             public void run() {
