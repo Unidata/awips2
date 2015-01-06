@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject>
+<?fileVersion 4.0.0?><cproject>
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<buildSystem id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780">
 			<storageModule id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780" moduleId="org.eclipse.cdt.core.settings"/>
@@ -12,7 +10,7 @@
 					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710." name="/" resourcePath="">
 						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1876339733" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
 							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.1876339733.302219468" name=""/>
-							<builder cleanBuildTarget="cleanJasper" id="org.eclipse.cdt.build.core.settings.default.builder.1318518731" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<builder cleanBuildTarget="cleanJasper" enableAutoBuild="false" enabledIncrementalBuild="true" id="org.eclipse.cdt.build.core.settings.default.builder.1318518731" incrementalBuildTarget="copyJasper" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1381183454" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.1283896387" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.2047332090" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
@@ -46,7 +44,11 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="rary.cots.jasper.null.597761625" name="rary.cots.jasper"/>
 	</storageModule>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="i386-pc-linux-gnu.release">
+			<resource resourceType="PROJECT" workspacePath="/rary.cots.jasper"/>
+		</configuration>
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
@@ -132,5 +134,10 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets/>
 	</storageModule>
 </cproject>
