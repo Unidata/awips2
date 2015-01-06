@@ -18,6 +18,13 @@
 # further licensing information.
 ##
 # configureTextProducts.py preferences
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    11/10/14        #4953         randerso       Added Hazard_TCV to templateProds
+##
 
 # ---- NWS Products --------------------------------------------------------
 # contains a list of pil category values to automatically
@@ -51,8 +58,9 @@ DirectFileToProductMapping = {
   'PublicMarine_EA_Site_MultiPil_Definition': 'AFD',
   'PublicMarineFireWx_EA_Site_MultiPil_Definition': 'AFD',
   'FireWxZones_EA_Site_MultiPil_Definition': 'RFW',
-  'MarineZones_EA_Site_MultiPil_Definition': ['CFW', 'MWW'],
+  'MarineZones_EA_Site_MultiPil_Definition': 'MWW',
   'PublicZones_EA_Site_MultiPil_Definition': ['NPW','WSW','CFW','FFA','AQA'],
+  'Hazard_TCV': 'TCV',
   'Hazard_HLS': 'HLS',
   }
 
@@ -62,20 +70,19 @@ NWSProducts = ['ADR', 'AFD', 'AFM', 'AQA', 'AVA', 'AVW', 'CAE', 'CCF', 'CDW', 'C
                'CFW', 'CWF', 'EQR', 'EQW', 'ESF', 'EVI', 'FFA', 'FRW', 'FWF',
                'FWM', 'FWS', 'GLF', 'HLS', 'HMW', 'HWO', 'LAE', 'LEW', 'MWS',
                'MVF', 'NOW', 'NPW', 'NSH', 'NUW', 'OFF', 'PFM', 'PNS', 'RFD',
-               'RFW', 'RHW', 'SAF', 'SFT', 'SPS', 'SPW', 'SRF', 'TOE', 'VOW',
-               'WCN', 'WSW', 'ZFP', 'MWW']
+               'RFW', 'RHW', 'SAF', 'SFT', 'SPS', 'SPW', 'SRF', 'TCV', 'TOE', 
+               'VOW', 'WCN', 'WSW', 'ZFP', 'MWW']
 
 
 #Templated files. Named with "Product" in them, will be replaced with the
 #actual product name. Dictionary contains the template filename, list
 #contains the products to be generated (e.g., AFM). These products
 #follow the Baseline, Region, Site technique.
-templateProds= ['AFM', 'ZFP', 'CCF', 'CWF', 'CWF_Pacific', 'FWF',
-                'FWFTable', 'FWM', 'GLF', 'MVF', 'NSH', 'PFM', 'SFT', 'SRF', 'OFF', 'AFD',
-                'Hazard_HLS']
-templateProdsWsaf= ['AFM', 'ZFP', 'CCF', 'CWF', 'CWF_Pacific', 'FWF',
+templateProds= ['AFM', 'ZFP', 'CCF', 'CWF', 'CWF_Pacific', 'FWF', 'HLS',
+                'FWFTable', 'FWM', 'GLF', 'MVF', 'NSH', 'PFM', 'SFT', 'SRF', 'OFF', 'AFD', 'Hazard_TCV']
+templateProdsWsaf= ['AFM', 'ZFP', 'CCF', 'CWF', 'CWF_Pacific', 'FWF', 'HLS',
   'FWFTable', 'FWM', 'GLF', 'MVF', 'NSH', 'PFM', 'SFT', 'SRF', 'OFF', 'AFD', 'SAF',
-  'FWS', 'Hazard_HLS']
+  'FWS', 'Hazard_TCV', 'Hazard_HLS']
 templateProds_minus_HLS = ['AFM', 'ZFP', 'CCF', 'CWF', 'CWF_Pacific', 'FWF',
                 'FWFTable', 'FWM', 'GLF', 'MVF', 'NSH', 'PFM', 'SFT', 'SRF', 'OFF', 'AFD']
 TemplatedProducts = {
@@ -85,3 +92,4 @@ TemplatedProducts = {
   'Product_Region_Overrides': templateProdsWsaf,
   'Product_Site_Overrides': templateProdsWsaf,
   }
+
