@@ -16,6 +16,14 @@
  * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jan 7, 2015  16954      cgobs      Fix for cv_use issue - using getFieldName() in certain parts.
+ * </pre>
  **/
 package com.raytheon.viz.mpe.ui.rsc;
 
@@ -580,7 +588,7 @@ public class DisplayMeanArealPrecipResource extends
         // this will accumulate all hours requested and display it
         // this holds current xmrg values
         short[] tempdata = null;
-        String cv_use = displayMgr.getDisplayFieldType().getCv_use();
+        String cv_use = displayMgr.getDisplayFieldType().getFieldName();
         String dirname = appsDefaults.getToken(displayMgr.getDisplayFieldType()
                 .getDirToken());
         String fname = "";
