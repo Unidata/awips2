@@ -1301,6 +1301,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
      * Handles the monitor area list selection.
      */
     private void handleMonitorAreaListSelection() {
+        if (monitorAreaList.getSelectionIndex() == -1) {
+            return;
+        }
         if (mode == Mode.Zone) {
             String zone = monitorAreaList.getItem(monitorAreaList
                     .getSelectionIndex());
