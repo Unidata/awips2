@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import com.raytheon.uf.common.dataplugin.shef.tables.Alertalarmval;
 import com.raytheon.uf.common.dataplugin.shef.tables.AlertalarmvalId;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
@@ -42,7 +41,8 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * June 15, 2011    9377     jnjanga     Initial creation
+ * Jun 15, 2011 9377       jnjanga     Initial creation
+ * Jan 07, 2015 3692       bclement    no longer a singleton
  * 
  * 
  * </pre>
@@ -53,21 +53,9 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 
 class AlertalarmRecord {
 
-    private static AlertalarmRecord instance = null;
-
-    private Map<String, List<Alertalarmval>> groups;
+    private final Map<String, List<Alertalarmval>> groups = new HashMap<String, List<Alertalarmval>>();
 
     private static final String tokenizer = ShefConstants.SLASH;
-
-    private AlertalarmRecord() {
-        groups = new HashMap<String, List<Alertalarmval>>();
-    }
-
-    public static AlertalarmRecord newInstance() {
-        if (instance == null)
-            instance = new AlertalarmRecord();
-        return instance;
-    }
 
     /**
      * Inserts this row data into the record. First, determine the row data's

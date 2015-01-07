@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Sep 05, 2013  16549     wkwock       Fix the query
  * Feb 13, 2014  #2783     dgilling     Refactored to support running as part
  *                                      of an EDEX service.
+ * Jan 07, 2015 3692       bclement     AlertalarmRecord is no longer a singleton
  * 
  * 
  * </pre>
@@ -108,7 +109,7 @@ class RecordMgr {
         CoreDao dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
         Object[] aaData = dao.executeSQLQuery(query.toString());
         if (aaData != null && aaData.length > 0) {
-            aaRecord = AlertalarmRecord.newInstance();
+            aaRecord = new AlertalarmRecord();
             for (int i = 0; i < aaData.length; i++) {
                 Object[] aaRow = (Object[]) aaData[i];
                 aaRecord.put(aaRow);
