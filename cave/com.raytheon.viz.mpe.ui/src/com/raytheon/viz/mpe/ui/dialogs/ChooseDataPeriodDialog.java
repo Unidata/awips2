@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEDateInfo;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.TransmitBestEstimateQPEProvider;
 import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -65,6 +66,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Apr 30, 2013            lbousaidi    made seconds in the date/Time 
  *                                      fields visible.
  * Aug 26, 2014  14578     snaples      Added Ending Hydrologic Date selection.
+ * Jan 05, 2015   14246   lbousaidi    enable Transmit Best Estimate QPE.
  * </pre>
  * 
  * @author randerso
@@ -319,6 +321,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                     restore();
                 }
                 TransmitRFCBiasProvider.setEnabled(true);
+                TransmitBestEstimateQPEProvider.setEnabled(true);
             }
         });
 
