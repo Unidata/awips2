@@ -1,25 +1,28 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.buoy;
 
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
@@ -39,8 +42,11 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
  * Jul 23, 2014 3410       bclement    location changed to floats
- * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()}
  *                                     calls, added Pattern constants.
+ * Jan 08, 2015 3897       nabowle     Quietly discard reports with invalid
+ *                                     Section 2 data due to receiving a lot of
+ *                                     bad files with duplicate valid files.
  * 
  * </pre>
  * 
@@ -49,7 +55,8 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
  */
 public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
     /** The logger */
-    // private Log logger = LogFactory.getLog(getClass());
+    private static final Logger logger = LoggerFactory
+            .getLogger(DRIBUSynopticDecoder.class);
     // private Integer dateMM = null; // Month
     // private Integer dateJ = null; // Units digit of year
     // private Integer dategg = null; // Minutes
@@ -93,10 +100,35 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
     }
 
     /**
+     * Decode the observation sections with in the current report. Due to seeing
+     * a large volume of invalid files that duplicate the data from valid files,
+     * Section 2 decoding errors are logged at a lower level and null is
+     * returned.
+     *
+     * @returns The decoded PluginDataObject or null.
+     */
+    @Override
+    public PluginDataObject decode() throws DecoderException {
+        decodeSection0();
+        decodeSection1();
+        try {
+            decodeSection2();
+        } catch (DecoderException de) {
+            logger.info("Discarding buoy report. "
+                    + de.getLocalizedMessage());
+            return null;
+        }
+        decodeSection3();
+        decodeSection4();
+        decodeSection5();
+        return consolidateReport();
+    }
+
+    /**
      * Perform the section 0 decode for Drifting Buoy reports.
-     * 
+     *
      * ZZYY A1bwnbnbnb YYMMJ GGggiw QcLaLaLaLaLa LoLoLoLoLoLo (6QlQtQA/)
-     * 
+     *
      * @throws DecoderException
      */
     protected void decodeSection0() throws DecoderException {
@@ -135,7 +167,7 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
      * Consolidate report gathers together all of the data decoded in the
      * decoder and any sub-decoders used. Any subclass overriding this method
      * must be sure to call back to this method first.
-     * 
+     *
      * @return The decoded data.
      */
     protected PluginDataObject consolidateReport() {
@@ -194,9 +226,9 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
 
     /**
      * Decode the buoy latitude information and quadrant.
-     * 
+     *
      * <pre>
-     * ddddd   Latitude to 1/1000 degree  
+     * ddddd   Latitude to 1/1000 degree
      * dddd/   Latitude to  1/100 degree
      * ddd//   Latitude to   1/10 degree
      * </pre>
@@ -229,9 +261,9 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
 
     /**
      * Decode the ship longitude element.
-     * 
+     *
      * <pre>
-     * dddddd   Longitude to 1/1000 degree  
+     * dddddd   Longitude to 1/1000 degree
      * ddddd/   Longitude to  1/100 degree
      * dddd//   Longitude to   1/10 degree
      * </pre>
