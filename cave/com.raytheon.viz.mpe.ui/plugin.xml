@@ -125,7 +125,7 @@
                   visible="true">
             </separator>
             <command
-                  commandId="com.raytheon.viz.ui.actions.notImplemented1"
+                  commandId="com.raytheon.viz.mpe.ui.actions.transmitBestEstimateQPE"
                   label="Transmit Best Estimate QPE"
                   mnemonic="T">
             </command>
@@ -984,8 +984,8 @@
             name="Clear MPE Data">
       </command>
       <command
-            id="com.raytheon.viz.ui.actions.notImplemented1"
-            name="NOT Implemented">
+            id="com.raytheon.viz.mpe.ui.actions.transmitBestEstimateQPE"
+            name="Transmit Best Estimate QPE">
       </command>
 	  <command
 	        id="com.raytheon.viz.mpe.ui.actions.transmitRFCBias"
@@ -1222,6 +1222,23 @@
                      definitionId="com.raytheon.viz.inMPEActionSet">
                </reference>
             </activeWhen>
+      </handler>
+      <handler
+            class="com.raytheon.viz.mpe.ui.actions.TransmitBestEstimateQPE"
+            commandId="com.raytheon.viz.mpe.ui.actions.transmitBestEstimateQPE">
+            <enabledWhen>
+                 <with 
+                       variable="com.raytheon.viz.mpe.ui.transmitBestEstimateQPE">
+                       <equals value="true">
+                       </equals>
+                 </with>
+            </enabledWhen>
+            <activeWhen>
+               <reference
+                     definitionId="com.raytheon.viz.inMPEActionSet">
+               </reference>
+            </activeWhen>
+
       </handler>
        <handler
             class="com.raytheon.viz.mpe.ui.actions.TransmitRFCBias"
@@ -1803,9 +1820,9 @@
 	</extension>
 	<extension point="org.eclipse.ui.services">
 		<sourceProvider
-       		provider="com.raytheon.viz.mpe.ui.NotImplementedSourceProvider">
+       		provider="com.raytheon.viz.mpe.ui.TransmitBestEstimateQPEProvider">
 	     <variable
-	           name="com.raytheon.viz.mpe.ui.notImplemented"
+	           name="com.raytheon.viz.mpe.ui.transmitBestEstimateQPE"
 	           priorityLevel="activeWorkbenchWindow">
 	     </variable>
 		</sourceProvider>
