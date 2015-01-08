@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <requestPatterns xmlns:ns2="group">
     <!--   regex>^FOUS5[1-5] ([A-Z]{4}) ([0-9]{6}).*\\x0d\\x0d\\x0a[AP]FM.*</regex -->
-    <regex>^FOUS5[1-5] ([A-Z]{4}) ([0-9]{6}).*</regex>
+    <regex>^FOUS5[1-6] ([A-Z]{4}) ([0-9]{6}).*</regex>
 </requestPatterns>
