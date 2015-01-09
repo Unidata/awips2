@@ -101,12 +101,14 @@
 		<exclude>aww-ingest.xml</exclude>
 		<exclude>ncep-util-on-edex-ingest</exclude>
 		<exclude>ncep-util-on-edex-ingestGrib</exclude>
+		<!--
 		<exclude>ncscd-ingest.xml</exclude>
 		<exclude>ncpafm-ingest.xml</exclude>
 		<exclude>nctaf-ingest.xml</exclude>
 		<exclude>nctext-ingest.xml</exclude>
 		<exclude>ncuair-ingest.xml</exclude>
-        <exclude>ntrans-ingest.xml</exclude>
+        	<exclude>ntrans-ingest.xml</exclude>
+        	-->
 		<!-- end of ncep excludes -->
 	 	<!-- exclude DAT -->
 		<exclude>gpd.*</exclude>
