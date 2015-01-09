@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui;
+package com.raytheon.uf.viz.collaboration.ui.colors;
 
 import java.util.Map;
 
