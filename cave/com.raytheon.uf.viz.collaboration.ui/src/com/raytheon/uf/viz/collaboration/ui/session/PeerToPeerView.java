@@ -49,10 +49,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
-import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
-import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
+import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.ui.colors.UserColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
 import com.raytheon.uf.viz.core.sounds.SoundUtil;
@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Dec 08, 2014 3709       mapeters    move color change actions to menu bar.
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s as fields, 
  *                                     dispose them.
+ * Jan 09, 2015 3709       bclement    color config manager API changes
  * 
  * </pre>
  * 
@@ -241,7 +242,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         if (userId != null) {
             // get user colors from config manager
             ColorInfo userColor = colorConfigManager.getColor(userId
-                    .getName());
+                    .getFQName());
             if (userColor != null) {
                 fgColor = getColorFromRGB(userColor.getColor(SWT.FOREGROUND));
                 bgColor = getColorFromRGB(userColor.getColor(SWT.BACKGROUND));
@@ -329,7 +330,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
     @Override
     protected void initComponents(Composite parent) {
         super.initComponents(parent);
-        colorConfigManager = new UserColorConfigManager();
+        colorConfigManager = UserColorConfigManager.getInstance();
 
         // unfortunately this code cannot be a part of createToolbarButton
         // because I cannot instantiate the ACI until after the messagesText
@@ -398,11 +399,10 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
      */
     private void createDropDownMenu() {
         IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
-        String myName = CollaborationConnection.getConnection().getUser()
-                .getName();
+        UserId myUser = CollaborationConnection.getConnection().getUser();
         RGB defaultUserForeground = DEFAULT_USER_FOREGROUND_COLOR.getRGB();
         userColorAction = ChangeTextColorAction
-                .createChangeUserTextColorAction(myName, true, true,
+                .createChangeUserTextColorAction(myUser, true, true,
                         defaultUserForeground, colorConfigManager);
         mgr.add(userColorAction);
     }
@@ -412,10 +412,9 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
      */
     public void addChangePeerColorAction() {
         IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
-        String peerName = peer.getName();
         RGB defaultPeerForeground = DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
         peerColorAction = ChangeTextColorAction
-                .createChangeUserTextColorAction(peerName, false, true,
+                .createChangeUserTextColorAction(peer, false, true,
                         defaultPeerForeground, colorConfigManager);
         mgr.add(peerColorAction);
     }
