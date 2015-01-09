@@ -11,6 +11,7 @@ function usage()
    echo "   -ade      build all rpms that are packaged in the ade."
    echo "   -viz      only build the Viz rpms (CAVE & AlertViz)."
    echo "   -edex     only build the EDEX rpms."
+   echo "   -shp      only build the EDEX shapefile rpm."
    echo "   -qpid     build only the QPID rpms."
    echo "   -ldm      build the awips2-ldm rpm; requires root privileges."
    echo "   -upc      build the awips2-edex-upc rpm."
