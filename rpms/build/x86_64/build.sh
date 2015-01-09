@@ -458,6 +458,11 @@ if [ "${1}" = "-viz" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-shp" ]; then
+   buildShapefiles
+   exit 0
+fi
+
 if [ "${1}" = "-edex" ]; then
    ##buildRPM "awips2-common-base"
    buildRPM "awips2"
