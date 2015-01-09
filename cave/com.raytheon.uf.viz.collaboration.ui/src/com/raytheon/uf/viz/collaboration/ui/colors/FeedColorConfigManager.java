@@ -17,12 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui;
+package com.raytheon.uf.viz.collaboration.ui.colors;
 
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
 
 /**
  * Configuration manager for reading/writing colors for each site to/from a
@@ -35,21 +35,32 @@ import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2014 3708       bclement    Moved color methods from SiteConfigurationManager
- * Nov 26, 2014 3709       mapeters    Abstracted out code to {@link AbstractColorConfigManager}, 
+ * Nov 26, 2014 3709       mapeters    Abstracted out code to {@link PersistentColorConfigManager}, 
  *                                     renamed from SiteColorConfigManager.
  * Dec 08, 2014 3709       mapeters    Set foreground and background colors together.
+ * Jan 09, 2015 3709       bclement    made into a true singleton, moved colorInfoMap to super
  * 
  * </pre>
  * 
  * @author bclement
  * @version 1.0
  */
-public class FeedColorConfigManager extends AbstractColorConfigManager {
+public class FeedColorConfigManager extends PersistentColorConfigManager {
 
-    private static final String FILE_PATH = "collaboration"
+    private static final String FILE_PATH = CONFIG_DIR_NAME
             + IPathManager.SEPARATOR + "siteColorInfo.xml";
 
-    private static ColorInfoMap colorInfoMap;
+    private static FeedColorConfigManager instance;
+
+    public static synchronized FeedColorConfigManager getInstance() {
+        if (instance == null) {
+            instance = new FeedColorConfigManager();
+        }
+        return instance;
+    }
+
+    protected FeedColorConfigManager() {
+    }
 
     /**
      * Set and store the given colors for the given site.
@@ -75,13 +86,16 @@ public class FeedColorConfigManager extends AbstractColorConfigManager {
         return super.getColor(site, FILE_PATH);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.colors.IColorConfigManager#
+     * getDescription()
+     */
     @Override
-    protected ColorInfoMap getColorInfoMap() {
-        return colorInfoMap;
+    public String getDescription(String key) {
+        return "Color changes will apply to all users from site " + key
+                + " in the feed room.";
     }
 
-    @Override
-    protected void setColorInfoMap(ColorInfoMap colorInfoMap) {
-        FeedColorConfigManager.colorInfoMap = colorInfoMap;
-    }
 }
