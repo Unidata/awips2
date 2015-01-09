@@ -29,9 +29,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -40,20 +37,17 @@ import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
 import com.raytheon.uf.viz.monitor.ObsMonitor;
 import com.raytheon.uf.viz.monitor.data.AreaContainer;
-import com.raytheon.uf.viz.monitor.data.MonitoringArea;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.uf.viz.monitor.data.ObsData;
@@ -65,7 +59,6 @@ import com.raytheon.uf.viz.monitor.fog.threshold.FogThresholdMgr;
 import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
 import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogZoneTableDlg;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
-import com.raytheon.uf.viz.monitor.util.MonitorThresholdConfiguration;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.vividsolutions.jts.geom.Geometry;
@@ -93,6 +86,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 23, 2014 3356       njensen     Remove unnecessary import
  * Oct 16, 2014 3220       skorolev    Corrected fogConfig assignment.
  * Dec 11, 2014 3220       skorolev    Moved refreshing of table in the UI thread.
+ * Jan 08, 2015 3220       skorolev    Replaced MonitoringArea with fogConfig.
  * 
  * 
  * </pre>
@@ -165,12 +159,10 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     private FogMonitor() {
         pluginPatterns.add(fogPattern);
         fogConfig = FSSObsMonitorConfigurationManager.getFogObsManager();
-        updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.FOG);
         obData.setThresholdMgr(FogThresholdMgr.getInstance());
         obData.getZoneTableData();
-        readTableConfig(MonitorThresholdConfiguration.FOG_THRESHOLD_CONFIG);
     }
 
     /**
@@ -184,7 +176,8 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
             // Pre-populate dialog with an observations from DB
             monitor.createDataStructures();
             monitor.getAdjAreas();
-            monitor.processProductAtStartup(MonName.fog.name());
+            List<String> zones = monitor.fogConfig.getAreaList();
+            monitor.processProductAtStartup(zones);
             monitor.fireMonitorEvent(monitor);
         }
 
@@ -215,8 +208,8 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         obsData = new ObsData();
         algorithmData = new TreeMap<Date, Map<String, FOG_THREAT>>();
 
-        for (String zone : MonitoringArea.getPlatformMap().keySet()) {
-            obsData.addArea(zone, MonitoringArea.getPlatformMap().get(zone));
+        for (String zone : fogConfig.getAreaList()) {
+            obsData.addArea(zone, fogConfig.getAreaStations(zone));
         }
     }
 
@@ -254,36 +247,9 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     public void processProductMessage(final AlertMessage filtered) {
         if (fogPattern.matcher(filtered.dataURI).matches()) {
-            processURI(filtered.dataURI, filtered);
+            List<String> zones = fogConfig.getAreaList();
+            processURI(filtered.dataURI, filtered, zones);
         }
-    }
-
-    /**
-     * Method that reads the table configuration and updates the zone monitor
-     * threshold map
-     * 
-     * @param file
-     *            -- the xml configuration filename
-     */
-    public void readTableConfig(String file) {
-        // TODO update for Maritime
-        Map<String, List<String>> zones = new HashMap<String, List<String>>();
-        // create zones and stations list
-        try {
-            for (String zone : fogConfig.getAreaList()) {
-                // add the unique
-                List<String> stations = fogConfig.getAreaStations(zone);
-                zones.put(zone, stations);
-            }
-        } catch (Exception ve) {
-            String msg = "FOG Monitor failed to load configuration..."
-                    + this.getClass().getName();
-            ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-                    "FOG Monitor failed to load configuration", msg,
-                    new Status(IStatus.ERROR, Activator.PLUGIN_ID, msg, ve));
-
-        }
-        MonitoringArea.setPlatformMap(zones);
     }
 
     /*
@@ -319,17 +285,9 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     public void configUpdate(IMonitorConfigurationEvent me) {
         fogConfig = (FSSObsMonitorConfigurationManager) me.getSource();
-        updateMonitoringArea();
         if (zoneDialog != null && !zoneDialog.isDisposed()) {
-            VizApp.runAsync(new Runnable() {
-
-                @Override
-                public void run() {
-                    zoneDialog.refreshZoneTableData(obData);
-                    fireMonitorEvent(zoneDialog.getClass().getName());
-                }
-            });
-
+            zoneDialog.refreshZoneTableData(obData);
+            fireMonitorEvent(zoneDialog.getClass().getName());
         }
     }
 
@@ -341,21 +299,6 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         monitor.removeMonitorListener(zoneDialog);
         ProductAlertObserver.removeObserver(OBS, this);
         monitor = null;
-    }
-
-    /**
-     * Finds the zone based on the icao passed into it
-     * 
-     * @param icao
-     * @return zone
-     */
-    public String findZone(String icao) {
-        for (String zone : MonitoringArea.getPlatformMap().keySet()) {
-            if (MonitoringArea.getPlatformMap().get(zone).contains(icao)) {
-                return zone;
-            }
-        }
-        return null;
     }
 
     /**
@@ -377,12 +320,16 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     protected void process(ObReport result) throws Exception {
         obData.addReport(result);
-        String zone = findZone(result.getPlatformId());
-        if (zone != null) {
-            AreaContainer ac = getTableData().getArea(zone);
-            if (ac != null) {
-                ac.addReport(result.getObservationTime(), result);
-                fireMonitorEvent(this);
+        // Get zones containing station
+        List<String> zones = fogConfig.getAreaByStationId(result
+                .getPlatformId());
+        if (!zones.isEmpty() || zones != null) {
+            for (String zn : zones) {
+                AreaContainer ac = getTableData().getArea(zn);
+                if (ac != null) {
+                    ac.addReport(result.getObservationTime(), result);
+                    fireMonitorEvent(this);
+                }
             }
         }
     }
@@ -455,7 +402,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
             algData = algorithmData.get(time);
         } else {
             // by default is nothing in the ALG column
-            for (String zone : MonitoringArea.getPlatformMap().keySet()) {
+            for (String zone : fogConfig.getAreaList()) {
                 algData.put(zone, FOG_THREAT.GRAY);
             }
         }
@@ -632,9 +579,14 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     protected void processAtStartup(ObReport report) {
         obData.addReport(report);
-        String zone = findZone(report.getPlatformId());
-        getTableData().getArea(zone).addReport(report.getObservationTime(),
-                report);
+        List<String> zones = fogConfig.getAreaByStationId(report
+                .getPlatformId());
+        if (!zones.isEmpty() || zones != null) {
+            for (String zn : zones) {
+                getTableData().getArea(zn).addReport(
+                        report.getObservationTime(), report);
+            }
+        }
     }
 
     /**
@@ -647,19 +599,11 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     }
 
     /**
-     * Reads Table Configuration.
+     * Gets Fog Area configuration dialog
      * 
-     * Method that reads the table configuration and updates the zone monitor
-     * threshold map
-     * 
+     * @return
      */
-    private void updateMonitoringArea() {
-        Map<String, List<String>> zones = new HashMap<String, List<String>>();
-        // create zones and station list
-        for (String zone : fogConfig.getAreaList()) {
-            List<String> stations = fogConfig.getAreaStations(zone);
-            zones.put(zone, stations);
-        }
-        MonitoringArea.setPlatformMap(zones);
+    public MonitoringAreaConfigDlg getAreaDialog() {
+        return areaDialog;
     }
 }
