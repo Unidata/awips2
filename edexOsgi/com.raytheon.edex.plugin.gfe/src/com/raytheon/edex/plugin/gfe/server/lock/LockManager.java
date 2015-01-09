@@ -67,6 +67,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                     fixed inefficiencies in querying/merging
  * 06/13/13     #2044      randerso    Converted from singleton to instance per 
  *                                     site managed by IFPServer
+ * 01/07/15      629    mgamazaychikov Add getAllLocks method.
  * </pre>
  * 
  * @author bphillip
@@ -914,5 +915,21 @@ public class LockManager {
             }
             return 0;
         }
+    }
+
+    public ServerResponse <?> getAllLocks() {
+        ServerResponse<List<LockTable>> sr = new ServerResponse<List<LockTable>>();
+        try {
+            List<LockTable> payLoad = null;
+            Map<ParmID, LockTable> lockMap = dao.getAllLocks();
+            payLoad = new ArrayList<LockTable>(lockMap.size());
+            payLoad.addAll(lockMap.values());
+            sr.setPayload(payLoad);
+        } catch (Exception e) {
+            sr.addMessage("Error getting lock tables for");
+            sr.setPayload(new ArrayList<LockTable>(0));
+        }
+
+        return sr;
     }
 }
