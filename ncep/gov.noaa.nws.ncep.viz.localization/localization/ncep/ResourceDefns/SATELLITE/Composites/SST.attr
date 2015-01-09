@@ -1,7 +1,0 @@
-colorMapName=Sounder - SST
-colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
-imageType=SST
-displayUnitStr=K
-alpha=1.0
-brightness=1.0
-contrast=1.0
