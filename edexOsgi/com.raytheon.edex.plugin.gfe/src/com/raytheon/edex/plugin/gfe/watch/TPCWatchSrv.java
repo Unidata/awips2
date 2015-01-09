@@ -192,48 +192,47 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         // if it's a TCV
         if ("TCV".equals(pil)) {
             super.handleWatch(warningRecs);
+        }
 
-            // if we are not in practice mode
-            if (!practiceMode) {
+        // if we are not in practice mode
+        if (!practiceMode) {
 
-                // if xxxId ends with a digit (i.e. its a national TCV)
-                String xxxId = record.getXxxid();
-                if (Character.isDigit(xxxId.charAt(xxxId.length() - 1))) {
+            // if xxxId ends with a digit (i.e. its a national TCV)
+            String xxxId = record.getXxxid();
+            if (Character.isDigit(xxxId.charAt(xxxId.length() - 1))) {
 
-                    // build the full 9-letter PIL
-                    String fullPil = SiteMap.getInstance().mapICAOToCCC(
-                            issuingOffice)
-                            + pil + xxxId;
+                // build the full 9-letter PIL
+                String fullPil = SiteMap.getInstance().mapICAOToCCC(
+                        issuingOffice)
+                        + pil + xxxId;
 
-                    // build the command line for the NWRWAVES script
-                    final String command = NWRWAVES_SCRIPT + fullPil;
+                // build the command line for the NWRWAVES script
+                final String command = NWRWAVES_SCRIPT + fullPil;
 
-                    // Create a separate thread to run the script
-                    Thread thread = new Thread(new Runnable() {
+                // Create a separate thread to run the script
+                Thread thread = new Thread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            RunProcess proc;
-                            try {
-                                proc = RunProcess.getRunProcess().exec(command);
-                            } catch (IOException e) {
-                                statusHandler.error("Error executing "
-                                        + command, e);
-                                return;
-                            }
-
-                            int exitCode = proc.waitFor();
-                            if (exitCode != 0) {
-                                statusHandler
-                                        .error(command
-                                                + " terminated abnormally with exit code: "
-                                                + exitCode);
-                            }
+                    @Override
+                    public void run() {
+                        RunProcess proc;
+                        try {
+                            proc = RunProcess.getRunProcess().exec(command);
+                        } catch (IOException e) {
+                            statusHandler
+                                    .error("Error executing " + command, e);
+                            return;
                         }
-                    });
 
-                    thread.start();
-                }
+                        int exitCode = proc.waitFor();
+                        if (exitCode != 0) {
+                            statusHandler.error(command
+                                    + " terminated abnormally with exit code: "
+                                    + exitCode);
+                        }
+                    }
+                });
+
+                thread.start();
             }
         }
 
@@ -296,7 +295,11 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
                 statusHandler.error("Unable to delete " + pendingFile, e);
             }
 
-            sendTCVFiles(siteId);
+            // if not practice mode
+            if (!practiceMode) {
+                // send TCV files to VTEC partner sites
+                sendTCVFiles(siteId);
+            }
         }
     }
 
