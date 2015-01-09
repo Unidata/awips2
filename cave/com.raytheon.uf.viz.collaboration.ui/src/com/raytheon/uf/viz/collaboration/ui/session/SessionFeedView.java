@@ -43,10 +43,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformatio
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
-import com.raytheon.uf.viz.collaboration.ui.FeedColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
+import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.ui.colors.FeedColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 
 /**
@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Dec 08, 2014 3709       mapeters    Removed ChangeSiteColorAction, uses {@link ChangeTextColorAction}.
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
  * Jan 05, 2015 3709       mapeters    Use both site and user name as key in siteColorActions map.
+ * Jan 09, 2015 3709       bclement    color config manager API changes
  * 
  * </pre>
  * 
@@ -131,7 +132,7 @@ public class SessionFeedView extends SessionView {
         enableUserColors = false;
         super.initComponents(parent);
 
-        colorConfigManager = new FeedColorConfigManager();
+        colorConfigManager = FeedColorConfigManager.getInstance();
         usersTable.refresh();
 
         siteColorActions = new HashMap<>();
