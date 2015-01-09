@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui;
+package com.raytheon.uf.viz.collaboration.ui.colors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -39,8 +39,8 @@ import com.raytheon.viz.ui.dialogs.colordialog.ColorWheelComp;
 import com.raytheon.viz.ui.dialogs.colordialog.IColorWheelChange;
 
 /**
- * A dialog that displays a label with settable foreground and background colors
- * using a color control.
+ * A dialog that displays a label with settable foreground color using a color
+ * control.
  * 
  * <pre>
  * 
@@ -48,32 +48,31 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorWheelChange;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 4, 2014  3709       lvenable    Initial creation
+ * Jan 09, 2015 3709       bclement     Initial creation, logic from ForegroundBackgroundColorDlg
  * 
  * </pre>
  * 
- * @author lvenable
+ * @author bclement
  * @version 1.0
  */
-public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
+public class ForegroundColorDlg extends CaveSWTDialog implements
         IColorWheelChange {
 
     /** Color wheel composite. */
-    private ColorWheelComp colorWheelComp;
+    protected ColorWheelComp colorWheelComp;
 
     /** Foreground color. */
-    private Color foregroundClr = null;
+    protected Color foregroundClr = null;
 
-    /** Background color. */
-    private Color backgroundClr = null;
+    /** preview label control. */
+    protected Label previewLabel = null;
 
-    /** Foreground/Background label control. */
-    private Label fgbgLabel = null;
+    /** Font for the preview label. */
+    protected Font labelFont = null;
 
-    /** Fond for the foreground/background label. */
-    private Font labelFont = null;
+    protected final String description;
 
-    private Button foregroundRdo;
+    protected Label descriptionLabel = null;
 
     /**
      * Constructor.
@@ -81,8 +80,8 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
      * @param parentShell
      *            Parent shell.
      */
-    public ForegroundBackgroundColorDlg(Shell parentShell) {
-        this(parentShell, null, null);
+    public ForegroundColorDlg(Shell parentShell, String description) {
+        this(parentShell, description, null);
     }
 
     /**
@@ -92,14 +91,12 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
      *            Parent shell.
      * @param fgRGB
      *            Foreground RGB.
-     * @param bgRGB
-     *            Background RGB.
      */
-    public ForegroundBackgroundColorDlg(Shell parentShell, RGB fgRGB, RGB bgRGB) {
+    public ForegroundColorDlg(Shell parentShell, String description, RGB fgRGB) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
                 | CAVE.PERSPECTIVE_INDEPENDENT);
-        setText("Foreground/Background Color Chooser");
-
+        setText("Foreground Color Chooser");
+        this.description = description;
         /*
          * If the foreground RGB is null then set it to a blue color.
          */
@@ -108,16 +105,6 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
                     255));
         } else {
             foregroundClr = new Color(parentShell.getDisplay(), fgRGB);
-        }
-
-        /*
-         * If the background RGB is null then set it to a white color.
-         */
-        if (bgRGB == null) {
-            backgroundClr = new Color(parentShell.getDisplay(), new RGB(255,
-                    255, 255));
-        } else {
-            backgroundClr = new Color(parentShell.getDisplay(), bgRGB);
         }
     }
 
@@ -140,12 +127,11 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
             foregroundClr.dispose();
         }
 
-        if (backgroundClr != null) {
-            backgroundClr.dispose();
-        }
-
         if (labelFont != null) {
             labelFont.dispose();
+        }
+        if (descriptionLabel != null) {
+            descriptionLabel.dispose();
         }
     }
 
@@ -153,6 +139,9 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
     protected void initializeComponents(Shell shell) {
         createColorWheelControl();
         createColorControls();
+        if (description != null && !description.isEmpty()) {
+            createDescriptionLabel();
+        }
         addSeparator();
         createBottomButtons();
 
@@ -162,7 +151,7 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
     /**
      * Create the color wheel controls.
      */
-    private void createColorWheelControl() {
+    protected void createColorWheelControl() {
         colorWheelComp = new ColorWheelComp(shell, this, " Color Chooser: ",
                 true);
     }
@@ -170,59 +159,33 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
     /**
      * Create the color controls.
      */
-    private void createColorControls() {
-        Composite colorControlComp = new Composite(shell, SWT.NONE);
-        colorControlComp.setLayout(new GridLayout(3, false));
-        colorControlComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT,
-                true, false));
-
-        /*
-         * Foreground/background radio buttons.
-         */
-        foregroundRdo = new Button(colorControlComp, SWT.RADIO);
-        foregroundRdo.setText("Foreground Color");
-        foregroundRdo.setSelection(true);
-        foregroundRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                colorWheelComp.setColor(foregroundClr.getRGB());
-            }
-        });
-
-        GridData gd = new GridData();
-        gd.horizontalIndent = 13;
-        Button backgroundRdo = new Button(colorControlComp, SWT.RADIO);
-        backgroundRdo.setText("Background Color");
-        backgroundRdo.setLayoutData(gd);
-        backgroundRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                colorWheelComp.setColor(backgroundClr.getRGB());
-            }
-        });
-
-        /*
-         * Label displaying the foreground/background colors.
-         */
-        gd = new GridData();
-        gd.horizontalIndent = 13;
-        fgbgLabel = new Label(colorControlComp, SWT.BORDER);
-        FontData fd = fgbgLabel.getFont().getFontData()[0];
+    protected void createColorControls() {
+        previewLabel = new Label(shell, SWT.BORDER);
+        FontData fd = previewLabel.getFont().getFontData()[0];
         fd.setHeight(16);
         fd.setStyle(SWT.BOLD);
         labelFont = new Font(getDisplay(), fd);
-        fgbgLabel.setFont(labelFont);
-        fgbgLabel.setText("    Sample Text    ");
-        fgbgLabel.setLayoutData(gd);
+        previewLabel.setFont(labelFont);
+        previewLabel.setText("    Sample Text    ");
+        previewLabel.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true,
+                true));
+        previewLabel.setForeground(foregroundClr);
+    }
 
-        fgbgLabel.setForeground(foregroundClr);
-        fgbgLabel.setBackground(backgroundClr);
+    /**
+     * Create a label that describes the scope of the color change.
+     */
+    protected void createDescriptionLabel() {
+        descriptionLabel = new Label(shell, SWT.CENTER);
+        descriptionLabel.setText(description);
+        descriptionLabel.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true,
+                true));
     }
 
     /**
      * Create the bottom OK/Cancel buttons.
      */
-    private void createBottomButtons() {
+    protected void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, false));
         buttonComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
@@ -238,9 +201,7 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                RGB[] rgbArray = new RGB[] { foregroundClr.getRGB(),
-                        backgroundClr.getRGB() };
-                setReturnValue(rgbArray);
+                collectReturnValue();
                 close();
             }
         });
@@ -260,9 +221,17 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
     }
 
     /**
+     * Collect the return value from fields. Called when user clicks the ok
+     * button.
+     */
+    protected void collectReturnValue() {
+        setReturnValue(foregroundClr.getRGB());
+    }
+
+    /**
      * Add a separator line to the dialog.
      */
-    private void addSeparator() {
+    protected void addSeparator() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
         sepLbl.setLayoutData(gd);
@@ -277,15 +246,9 @@ public class ForegroundBackgroundColorDlg extends CaveSWTDialog implements
      */
     @Override
     public void colorChange(RGB rgb, String colorWheelTitle) {
-        if (foregroundRdo.getSelection()) {
-            foregroundClr.dispose();
-            foregroundClr = new Color(getDisplay(), rgb);
-            fgbgLabel.setForeground(foregroundClr);
-        } else {
-            backgroundClr.dispose();
-            backgroundClr = new Color(getDisplay(), rgb);
-            fgbgLabel.setBackground(backgroundClr);
-        }
-
+        foregroundClr.dispose();
+        foregroundClr = new Color(getDisplay(), rgb);
+        previewLabel.setForeground(foregroundClr);
     }
+
 }

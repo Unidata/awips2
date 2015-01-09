@@ -83,11 +83,13 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
-import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
+import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.ui.colors.IColorConfigManager;
+import com.raytheon.uf.viz.collaboration.ui.colors.RoomSpecificColorConfigManager;
+import com.raytheon.uf.viz.collaboration.ui.colors.TemporaryColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.sounds.SoundUtil;
@@ -122,6 +124,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  *                                     use parent's colors map.
  * Dec 02, 2014 3709       mapeters    added color actions for group chats without shared display.
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
+ * Jan 09, 2015 3709       bclement    color config manager API changes
  * 
  * </pre>
  * 
@@ -155,7 +158,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
 
     protected SessionColorManager colorManager;
 
-    private static UserColorConfigManager colorConfigManager;
+    private IColorConfigManager colorConfigManager;
 
     private Map<String, ChangeTextColorAction> userColorActions;
 
@@ -183,7 +186,14 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         initColorManager();
         super.initComponents(parent);
         if (enableUserColors) {
-            colorConfigManager = new UserColorConfigManager();
+            IVenue venue = session.getVenue();
+            if (venue.isPersistent()) {
+                colorConfigManager = RoomSpecificColorConfigManager
+                        .getManagerForRoom(venue.getId());
+            } else {
+                colorConfigManager = new TemporaryColorConfigManager(
+                        venue.getId());
+            }
             userColorActions = new HashMap<>();
         }
 
@@ -241,14 +251,15 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         }
         if (enableUserColors) {
             // add color actions if in group chat room without shared display
-            String user = entry.getName();
+            String colorActionKey = entry.getFQName();
             RGB defaultForeground = colorManager.getColorForUser(entry);
-            ChangeTextColorAction userColorAction = userColorActions.get(user);
+            ChangeTextColorAction userColorAction = userColorActions
+                    .get(colorActionKey);
             if (userColorAction == null) {
                 userColorAction = ChangeTextColorAction
-                        .createChangeUserTextColorAction(user, me, me,
+                        .createChangeUserTextColorAction(entry, me, me,
                                 defaultForeground, colorConfigManager);
-                userColorActions.put(user, userColorAction);
+                userColorActions.put(colorActionKey, userColorAction);
             }
             manager.add(userColorAction);
         }
@@ -522,9 +533,10 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, VenueParticipant userId, List<StyleRange> ranges,
             Color fgColor, Color bgColor, String subject) {
-        if (enableUserColors && name != null) {
+        if (enableUserColors && userId != null) {
             // Color text by user if in group chat room without shared display
-            ColorInfo userColor = colorConfigManager.getColor(name);
+            ColorInfo userColor = colorConfigManager.getColor(userId
+                    .getFQName());
             if (userColor != null) {
                 fgColor = getColorFromRGB(userColor.getColor(SWT.FOREGROUND));
                 bgColor = getColorFromRGB(userColor.getColor(SWT.BACKGROUND));
