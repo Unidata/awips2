@@ -1,4 +1,4 @@
-# Version 2014.12.12-0
+# Version 2014.12.17-0
 
 import GenericHazards
 import JsonSupport
@@ -6,6 +6,7 @@ import LocalizationSupport
 import string, time, os, errno, re, types, copy, collections
 import LogStream, ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
+import pprint 
 
 from AbsTime import *
 from StartupDialog import IFPDialog as Dialog
@@ -17,6 +18,8 @@ class TextProduct(GenericHazards.TextProduct):
 
     def __init__(self):
         GenericHazards.TextProduct.__init__(self)
+        self._pp = pprint.PrettyPrinter()
+
     
     ###############################################################
     ###  Hazards and Additional Hazards
@@ -242,7 +245,8 @@ class TextProduct(GenericHazards.TextProduct):
                         removedParts.append(part)
         
         for part in removedParts:
-            self.debug_print("SARAH: Removing part = %s" % (part), 1)
+            self.debug_print("in _processProductParts - " + 
+                             "Removing product part = %s" % (part), 1)
             partsList.remove(part)
     
     ################# Product Parts Helper Methods
@@ -502,15 +506,16 @@ class TextProduct(GenericHazards.TextProduct):
             for area in hazard['id']:
                 hazDict.setdefault((hdln, phen, sig), []).append(area)
 
-        #self.debug_print("hazDict", hazDict
+        self.debug_print("hazDict = %s" % (self._pp.pformat(hazDict)), 1)
         hazardHdlns=[]
         huAreas = []
-#        self.debug_print("\nAdditional Hazard Headlines"
+        self.debug_print("Additional Hazard Headlines", 1)
         for key in hazDict.keys():
             hdln, phen, sig = key
             huAreas = huAreas + hazDict[key]
             hazardHdln = ((hdln, "NEW", phen,sig), hazDict[key], [],[],[])
-            #self.debug_print("   ", hazardHdln, hazDict[key]
+            self.debug_print("   %s" % (self._pp.pformat(hazardHdln)), 1)
+            self.debug_print("       %s" % (self._pp.pformat(hazDict[key])), 1)
             hazardHdlns.append(hazardHdln)
         return hazardHdlns, huAreas
     
@@ -533,14 +538,12 @@ class TextProduct(GenericHazards.TextProduct):
         #     Otherwise, they are ignored.
         #
         # E.g. hdlnList = self._checkHazard(hazardHdlns, [("FA","W")], returnList=True)
-        self.debug_print("_checkHazard hazardHdlns is %s" % (hazardHdlns), 1)
-        self.debug_print("_checkHazard phenSigList is %s" % (phenSigList), 1)
+        self.debug_print("_checkHazard hazardHdlns is %s" % (self._pp.pformat(hazardHdlns)), 1)
+        self.debug_print("_checkHazard phenSigList is %s" % (self._pp.pformat(phenSigList)), 1)
         chosen = []
         for key, landList, marineList, coastalList, inlandList in hazardHdlns:
-#            self.debug_print("what is mode? %s" % mode, 1)
 
-            #  SARAH - we do not want to consider marine hazards in this product
-#             hazAreas = landList+marineList
+            #  We do not want to consider marine hazards in this product
             hazAreas = landList
             hazValue = (key, hazAreas)
             self.debug_print("hazValue is %s" % (repr(hazValue)), 1)
@@ -555,10 +558,9 @@ class TextProduct(GenericHazards.TextProduct):
                         # Check for land, marine, etc.
                         for checkAreaType in checkAreaTypes:
                             exec "testList = " + checkAreaType + "List"
-#                            self.debug_print("testList is %s" % testList, 1)
+                            self.debug_print("testList is %s" % (testList), 1)
                             if testList != []:
                                 chosen.append(hazValue)
-#                                self.debug_print("chosen is %s" % chosen, 1)
                     elif checkAreas is not None:
                         acceptedAreas=[]
                         for hazArea in hazAreas:
@@ -570,7 +572,8 @@ class TextProduct(GenericHazards.TextProduct):
                         chosen.append(hazValue)
                     if not returnList and chosen!=[]: break
         
-        self.debug_print("MATT _checkHazard chosen = %s" % (repr(chosen)), 1)
+        self.debug_print("In _checkHazard chosen = %s" % 
+                         (self._pp.pformat(chosen)), 1)
         if not returnList:
             return chosen!=[]
         return chosen
@@ -609,7 +612,8 @@ class TextProduct(GenericHazards.TextProduct):
         trList = []
         self._periodList = []
         for index, tr in enumerate(subRanges):
-            # self.debug_print(tr)
+            self.debug_print("In _determineTimeRanges -> tr = %s" % 
+                             (self._pp.pformat(tr)), 1)
             trList.append((tr, "Label"))
             
             if index == 0:
@@ -633,10 +637,13 @@ class TextProduct(GenericHazards.TextProduct):
                     period = self.makeTimeRange(startTime, startTime+periodLength*3600)
                 
                 self._periodList.append(period)
+                
                 for i in range(1,10):
                     startTime = period.endTime() # Start where the last period leaves off
                     period = self.makeTimeRange(startTime, startTime+12*3600)
                     self._periodList.append(period)
+        self.debug_print("final periodList =\n\n%s\n" % 
+                         (self._pp.pformat(self._periodList)), 1)
         self._timeRangeList = trList
     
     def _calculateStartTime(self, localCreationTime):
@@ -645,21 +652,21 @@ class TextProduct(GenericHazards.TextProduct):
         day = localCreationTime[2]
         hour = localCreationTime[3]
         
-        #  If we are more than halfway though a 3 hr period
-        if hour % 3 > 1:
-            adjust = 3      #  move on to the next 3 hr block
+        #  Define a variable to control which resolution we want
+        resolution = self._resolution()          #  6 is also a valid option
+        
+        #  If we are more than halfway though a block we would want
+        if hour % resolution > resolution / 2:
+            adjust = resolution      #  move on to the next block
         else:
             adjust = 0
 
-#         if hour % 6 > 3:
-#             adjust = 6      #  move on to the next 6 hr block
-#         else:
-#             adjust = 0
-#         self.debug_print("MATT: _calculateStartTime %d   adjust = %d" % (hour % 6, adjust)
+        self.debug_print("In _calculateStartTime %d   adjust = %d" % 
+                         (hour % resolution, adjust), 1)
         
-        #  Now "truncate" to a 3-hourly boundary and compute startTime in local Time.
-#         hour =  int( (hour/6) * 6) + adjust
-        hour =  int( (hour/3) * 3) + adjust
+        #  Now "truncate" to a block boundary and compute startTime in local time.
+#         hour =  int( (hour/3) * 3) + adjust
+        hour =  int( (hour/resolution) * resolution) + adjust
         if hour > 23:
             hour -= 24
         elif hour < 0:
@@ -678,7 +685,7 @@ class TextProduct(GenericHazards.TextProduct):
         #     DAY + MORNING / AFTERNOON / EVENING / OVERNIGHT.
         # If wholePeriod, format FROM ... TO...
 
-        self.debug_print("MATT Format period wholePeriod = %s, period = %s, useEndTime =%s" %
+        self.debug_print("Format period wholePeriod = %s, period = %s, useEndTime =%s" %
                          (str(wholePeriod), str(period), str(useEndTime)), 1)
         if period is None:
             return ""
@@ -687,10 +694,10 @@ class TextProduct(GenericHazards.TextProduct):
         else:
             startTime = period.startTime()
         result = self._getTimeDesc(startTime, resolution, shiftToLocal)
-        self.debug_print("MATT result = '%s'" % (result), 1)
+        self.debug_print("_getTimeDesc result = '%s'" % (result), 1)
         if wholePeriod:
             endResult = self._getTimeDesc(period.endTime(), resolution, shiftToLocal)
-            self.debug_print("MATT endResult = '%s'" % (endResult), 1)
+            self.debug_print("_getTimeDesc endResult = '%s'" % (endResult), 1)
             if result != endResult:
                 result=result + " TO "+ endResult 
         return result
@@ -1020,8 +1027,9 @@ FORECASTER STEWART"""
         self._loadLastTwoAdvisories()
     
     def _synchronizeAdvisories(self):
+       
         # Retrieving a directory causes synching to occur
-        file = LocalizationSupport.getLocalizationFile(LocalizationSupport.CAVE_STATIC,
+        file = LocalizationSupport.getLocalizationFile(LocalizationSupport.CAVE_STATIC, 
                                                        LocalizationSupport.SITE, self._site,
                                                        self._getAdvisoryPath()).getFile()
         
@@ -1044,12 +1052,12 @@ FORECASTER STEWART"""
         filenames = os.listdir(advisoryDirectoryPath)
         allAdvisories = filter(lambda filename: filename[-5:] == ".json", filenames)
         
-        self.debug_print("allAdvisories = %s" % (repr(allAdvisories)))
+        self.debug_print("allAdvisories = %s" % (self._pp.pformat(allAdvisories)))
         
         stormAdvisories = filter(lambda filename: self._getStormNameFromTCP() in filename,
                                  allAdvisories)
         stormAdvisories = map(lambda filename: filename[:-5], stormAdvisories)
-        self.debug_print("stormAdvisories = %s" % (repr(stormAdvisories)))
+        self.debug_print("stormAdvisories = %s" % (self._pp.pformat(stormAdvisories)))
         
         return stormAdvisories
     
@@ -1074,8 +1082,8 @@ FORECASTER STEWART"""
         else:   #  Must be the HLS
             lastTwoAdvisories = stormAdvisories[:2]
         
-        self.debug_print("MATT DEBUG: last two advisories = %s" % 
-                         (repr(lastTwoAdvisories)), 1)
+        self.debug_print("DEBUG: last two advisories = %s" % 
+                         (self._pp.pformat(lastTwoAdvisories)), 1)
         self._previousAdvisory = None
         if len(lastTwoAdvisories) >= 1:
             self._previousAdvisory = self._loadAdvisory(lastTwoAdvisories[0])
@@ -1093,8 +1101,8 @@ FORECASTER STEWART"""
                                              self._site,
                                              fileName)
             
-            self.debug_print("SARAH: File contents for %s:" % (fileName), 1)
-            self.debug_print(repr(pythonDict), 1)
+            self.debug_print("File contents for %s:" % (fileName), 1)
+            self.debug_print(self._pp.pformat(pythonDict), 1)
              
             # Only use transmitted advisories
             if pythonDict["Transmitted"] == False and advisoryName != "pending":
@@ -1102,8 +1110,7 @@ FORECASTER STEWART"""
             else:
                 return pythonDict
         except Exception, e:
-            self.debug_print("SARAH Load Exception for %s : %s" % 
-                             (fileName, e), 1)
+            self.debug_print("Load Exception for %s : %s" % (fileName, e), 1)
             return None
         
     def _getAdvisoryPath(self):
@@ -1170,6 +1177,7 @@ class Common_Dialog(Dialog):
         self._varDict = {}         # all end results must be saved here
         self._infoDict = infoDict
         self._parent = parent
+        self._pp = pprint.PrettyPrinter()
         Dialog.__init__(self, parent=None, title=title)
             
     def getVarDict(self):
