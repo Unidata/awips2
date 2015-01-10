@@ -177,3 +177,10 @@ INSERT INTO awips.nctext_inputfile_type VALUES (177,'warwatch','W');
 INSERT INTO awips.nctext_inputfile_type VALUES (178,'warnsumm','W');
 INSERT INTO awips.nctext_inputfile_type VALUES (179,'coutlook','W');
 INSERT INTO awips.nctext_inputfile_type VALUES (180,'fwddy38','W');
+INSERT INTO awips.nctext_inputfile_type VALUES (181,'sdmdhm','W');
+INSERT INTO awips.nctext_inputfile_type VALUES (182,'cmcam','W');
+INSERT INTO awips.nctext_inputfile_type VALUES (183,'nwstgam','W');
+INSERT INTO awips.nctext_inputfile_type VALUES (184,'ncfam','W');
+INSERT INTO awips.nctext_inputfile_type VALUES (185,'nesdispm','W');
+INSERT INTO awips.nctext_inputfile_type VALUES (186,'nesdisam','W');
+
