@@ -1,11 +1,11 @@
 INSERT INTO awips.mcidas_area_names VALUES (7,'IND|INDOEX');
 INSERT INTO awips.mcidas_area_names VALUES (9,'VAAC|NHem-GOES-E');
-INSERT INTO awips.mcidas_area_names VALUES (10,'COMP|Sounder');
-INSERT INTO awips.mcidas_area_names VALUES (11,'COMP|Sounder');
-INSERT INTO awips.mcidas_area_names VALUES (12,'COMP|Sounder');
-INSERT INTO awips.mcidas_area_names VALUES (13,'COMP|Sounder');
-INSERT INTO awips.mcidas_area_names VALUES (14,'COMP|Sounder');
-INSERT INTO awips.mcidas_area_names VALUES (15,'COMP|Sounder');
+INSERT INTO awips.mcidas_area_names VALUES (10,'GOES-Sounder');
+INSERT INTO awips.mcidas_area_names VALUES (11,'GOES-Sounder');
+INSERT INTO awips.mcidas_area_names VALUES (12,'GOES-Sounder');
+INSERT INTO awips.mcidas_area_names VALUES (13,'GOES-Sounder');
+INSERT INTO awips.mcidas_area_names VALUES (14,'GOES-Sounder');
+INSERT INTO awips.mcidas_area_names VALUES (15,'GOES-Sounder');
 INSERT INTO awips.mcidas_area_names VALUES (19,'VAAC|NHem-GOES-W');
 INSERT INTO awips.mcidas_area_names VALUES (20,'VAAC|NHem-GOES-E');
 INSERT INTO awips.mcidas_area_names VALUES (21,'VAAC|NHem-GOES-W');
