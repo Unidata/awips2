@@ -15,7 +15,7 @@
     <resourceParameters>
 legendColor=RGB {200, 200, 200}
 pluginName=mcidas
-satelliteName=SOUNDER
+satelliteName=GOES-Sounder
 </resourceParameters>
     <inventoryEnabled>true</inventoryEnabled>
     <addToURICatalog>false</addToURICatalog>
