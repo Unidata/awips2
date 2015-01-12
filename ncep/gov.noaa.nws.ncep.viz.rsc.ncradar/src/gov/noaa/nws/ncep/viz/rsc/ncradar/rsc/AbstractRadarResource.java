@@ -15,31 +15,33 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
+import javax.measure.Measure;
+import javax.measure.quantity.Length;
 import javax.measure.unit.NonSI;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
 import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
 import com.raytheon.viz.radar.DefaultVizRadarRecord;
 import com.raytheon.viz.radar.VizRadarRecord;
@@ -63,6 +65,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/10/13      #999      G. Hull     rm interrogate and inspect. (add back when supported by NCP.)
  * 06/10/13      #999      G. Hull     rm IRadarTextGeneratingResource and IRadarConfigListener since not supported by NCP.
  * 06/10/2013    #999      G. Hull     rm IDataScaleResource
+ * 06/16/2014    #2061     bsteffen    update IRangeableResource
+ * 06/18/2014    TTR1026   J. Wu (/bh) Fixed potential exceptions for loading local radar data.
+ * 12/14            ?      B. Yin       Remove ScriptCreator, use Thrift Client.
  * 
  * </pre>
  * 
@@ -70,8 +75,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public abstract class AbstractRadarResource<D extends IDescriptor> extends AbstractNatlCntrsResource<RadarResourceData, NCMapDescriptor> 
-implements IResourceDataChanged, IRangeableResource {
+public abstract class AbstractRadarResource<D extends IDescriptor> extends
+        AbstractNatlCntrsResource<RadarResourceData, NCMapDescriptor> implements
+        IResourceDataChanged, IRangeableResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractRadarResource.class);
 
@@ -93,7 +99,6 @@ implements IResourceDataChanged, IRangeableResource {
         }
     }
 
-
     /**
      * @param resourceData
      * @param loadProperties
@@ -109,7 +114,7 @@ implements IResourceDataChanged, IRangeableResource {
         getCapability(ImagingCapability.class).setSuppressingMenuItems(true);
         getCapability(ColorableCapability.class).setSuppressingMenuItems(true);
     }
-   
+
     /*
      * (non-Javadoc)
      * 
@@ -120,167 +125,171 @@ implements IResourceDataChanged, IRangeableResource {
     }
 
     // override base version to constrain on the selected timeline
-	@Override
-	public void queryRecords() throws VizException {
+    @Override
+    public void queryRecords() throws VizException {
 
-		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>( resourceData.getMetadataMap());
+        HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(
+                resourceData.getMetadataMap());
 
-		Long stl = Long.MAX_VALUE;
-		Long etl = Long.MIN_VALUE;
+        Long stl = Long.MAX_VALUE;
+        Long etl = Long.MIN_VALUE;
 
-		for( AbstractFrameData afd : frameDataMap.values() ) {
-			if( stl > afd.getFrameStartTime().getRefTime().getTime() ) {
-				stl = afd.getFrameStartTime().getRefTime().getTime();
+        for (AbstractFrameData afd : frameDataMap.values()) {
+            if (stl > afd.getFrameStartTime().getRefTime().getTime()) {
+                stl = afd.getFrameStartTime().getRefTime().getTime();
+            }
+            if (etl < afd.getFrameEndTime().getRefTime().getTime()) {
+                etl = afd.getFrameEndTime().getRefTime().getTime();
+            }
         }
-			if( etl < afd.getFrameEndTime().getRefTime().getTime() ) {
-				etl = afd.getFrameEndTime().getRefTime().getTime();
+
+        DataTime timelineStart = new DataTime(new Date(stl));
+        DataTime timelineEnd = new DataTime(new Date(etl));
+        RequestConstraint reqConstr = new RequestConstraint();
+
+        // only query records that
+        String[] dts = timelineStart.toString().split(" ");
+        String startTimeStr = dts[0] + " "
+                + dts[1].substring(0, dts[1].length() - 2);
+        dts = timelineEnd.toString().split(" ");
+        String endTimeStr = dts[0] + " "
+                + dts[1].substring(0, dts[1].length() - 2);
+        String[] constraintList = { startTimeStr, endTimeStr };
+        reqConstr.setBetweenValueList(constraintList);
+        reqConstr.setConstraintType(RequestConstraint.ConstraintType.BETWEEN);
+
+        queryList.put("dataTime.refTime", reqConstr);
+
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(queryList);
+
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
+
+        for (Map<String, Object> result : response.getResults()) {
+            for (Object pdo : result.values()) {
+                for (IRscDataObject dataObject : processRecord(pdo)) {
+                    newRscDataObjsQueue.add(dataObject);
+                }
+            }
+        }
+        // preProcess
     }
-    }
 
-		DataTime timelineStart = new DataTime( new Date(stl) );
-		DataTime timelineEnd = new DataTime( new Date(etl) );
-		RequestConstraint reqConstr = new RequestConstraint();
-
-		// only query records that 
-    	String[] dts = timelineStart.toString().split(" ");
-    	String startTimeStr = dts[0] + " " + dts[1].substring(0, dts[1].length()-2);
-    	dts = timelineEnd.toString().split(" ");
-    	String endTimeStr = dts[0] + " " + dts[1].substring(0, dts[1].length()-2);
-		String[] constraintList = { startTimeStr, endTimeStr };
-		reqConstr.setBetweenValueList(constraintList);
-		reqConstr.setConstraintType( RequestConstraint.ConstraintType.BETWEEN );
-
-		queryList.put("dataTime.refTime", reqConstr);
-
-		LayerProperty prop = new LayerProperty();
-		prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-		prop.setEntryQueryParameters(queryList, false);
-		prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap
-										// this ?
-		String script = null;
-		script = ScriptCreator.createScript(prop);
-
-		if (script == null)
-			return;
-
-		Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
-
-		for (Object pdo : pdoList) {
-			for( IRscDataObject dataObject : processRecord( pdo ) )	{	
-				newRscDataObjsQueue.add(dataObject);
-        }
-        }
-		//  preProcess
-        }
-
-	// TODO : extend this for derived classes to hold DrawableImage, RadarGraphicsDisplay, 
-	// Wireframes ....
-	//
+    // TODO : extend this for derived classes to hold DrawableImage,
+    // RadarGraphicsDisplay,
+    // Wireframes ....
+    //
     public class RadarFrameData extends AbstractFrameData {
 
-		public RadarFrameData(DataTime ftime, int frameInterval) {
-			super(ftime, frameInterval);
-    }
-
-		// one record per frame but can be changed if appropriate.
-    	private VizRadarRecord radarRecord = null;
-
-    	public VizRadarRecord getRadarRecord() {
-    		return radarRecord;
+        public RadarFrameData(DataTime ftime, int frameInterval) {
+            super(ftime, frameInterval);
         }
 
-		public boolean updateFrameData( IRscDataObject rscDataObj ) {
+        // one record per frame but can be changed if appropriate.
+        private VizRadarRecord radarRecord = null;
 
-			if( !(rscDataObj instanceof DfltRecordRscDataObj) ) {
-				System.out.println("Unrecognized Radar Image");
-				return false;
+        public VizRadarRecord getRadarRecord() {
+            return radarRecord;
         }
-        	PluginDataObject pdo = ((DfltRecordRscDataObj)rscDataObj).getPDO();
 
-        	if (!(pdo instanceof RadarRecord)) {
-	            statusHandler.handle(Priority.PROBLEM, ""
-	                    + this.getClass().getName() + " expected : "
-	                    + RadarRecord.class.getName() + " Got: " + pdo);
-	            return false;
-    }
+        public boolean updateFrameData(IRscDataObject rscDataObj) {
 
-        	RadarRecord newRdrRec = (RadarRecord) pdo;
-			
-        	newRdrRec.setAddSpatial(false);//!((RadarResourceData)resourceData).latest);
-        	icao = newRdrRec.getIcao();
-        	
-        	if (newRdrRec.getLatitude() != null
-		                && newRdrRec.getLongitude() != null) {
-		            centerLocation = new Coordinate(newRdrRec.getLongitude(),
-		            		newRdrRec.getLatitude());
-        	}
-        	
-        	// if there is already a record for this frame then determine if the new
-        	// one is a better time match.
-        	//    Do we need to worry about adding unused records to the cache if we 
-        	// end up replacing alot of the records??
-		        
-		    if( radarRecord != null ) {
-		    	long timeDiff = timeMatch( radarRecord.getDataTime() );
-		    	
-		    	if( timeMatch( newRdrRec.getDataTime() ) < timeDiff ) {
-		    	    radarRecord = null; // ? can we or do we need to dispose/uncache this?
-// Raytheon's logic for when to update a radarRecord (same time though)
-//		            if (existing.getNumLevels() != null
-//		                    && !existing.getNumLevels().equals(
-//		                            radarRecord.getNumLevels())) {
-//		                // Use the one with the most levels
-//		                if (existing.getNumLevels().intValue() < radarRecord
-//		                        .getNumLevels().intValue()) {
-//		                    remove(d);
-//		                    existing = null;
-//		                }
-//		            } else if (existing.getGateResolution() != null
-//		                    && !existing.getGateResolution().equals(
-//		                            radarRecord.getGateResolution())) {
-//		                // use the one with the smallest resolution
-//		                if (existing.getGateResolution().intValue() > radarRecord
-//		                        .getGateResolution().intValue()) {
-//		                    remove(d);
-//		                    existing = null;
-//		                }
-//		            } else if (existing.getNumBins() * existing.getNumRadials() != radarRecord
-//		                    .getNumBins() * radarRecord.getNumRadials()) {
-//		                // use the one with the most pixels
-//		                if (existing.getNumBins() * existing.getNumRadials() < radarRecord
-//		                        .getNumBins() * radarRecord.getNumRadials()) {
-//		                    remove(d);
-//		                    existing = null;
-//		                }
-//		            } else if (existing.getInsertTime().getTimeInMillis() < radarRecord
-//		                    .getInsertTime().getTimeInMillis()) {
-//		                // Use the newest one
-//		                remove(d);
-//		                existing = null;
-//		            }
-		        }
-		    }
+            if (!(rscDataObj instanceof DfltRecordRscDataObj)) {
+                System.out.println("Unrecognized Radar Image");
+                return false;
+            }
+            PluginDataObject pdo = ((DfltRecordRscDataObj) rscDataObj).getPDO();
 
-		   	if( radarRecord == null ) {
-		   		radarRecord = createVizRadarRecord( newRdrRec );
-//		            radarRecords.put(d, existing);
-//		            synchronized (dataTimes) {
-//		                dataTimes.add(d);
-//		                Collections.sort(dataTimes);
-//		            }
-		   	}
-			
-//		   	VizRadarRecord rtr = radarRecords.get(pdo.getDataTime());
+            if (!(pdo instanceof RadarRecord)) {
+                statusHandler.handle(Priority.PROBLEM, ""
+                        + this.getClass().getName() + " expected : "
+                        + RadarRecord.class.getName() + " Got: " + pdo);
+                return false;
+            }
 
-			return true;
-		}
-	       		
-		
-		public void dispose() {
-//			if( tileSet != baseTile && tileSet != null ) {
-//				tileSet.dispose();
-//				tileSet = null;
-//			}
+            RadarRecord newRdrRec = (RadarRecord) pdo;
+
+            newRdrRec.setAddSpatial(false);// !((RadarResourceData)resourceData).latest);
+            icao = newRdrRec.getIcao();
+
+            if (newRdrRec.getLatitude() != null
+                    && newRdrRec.getLongitude() != null) {
+                centerLocation = new Coordinate(newRdrRec.getLongitude(),
+                        newRdrRec.getLatitude());
+            }
+
+            // if there is already a record for this frame then determine if the
+            // new
+            // one is a better time match.
+            // Do we need to worry about adding unused records to the cache if
+            // we
+            // end up replacing alot of the records??
+
+            if (radarRecord != null) {
+                long timeDiff = timeMatch(radarRecord.getDataTime());
+
+                if (timeMatch(newRdrRec.getDataTime()) < timeDiff) {
+                    radarRecord = null; // ? can we or do we need to
+                                        // dispose/uncache this?
+                    // Raytheon's logic for when to update a radarRecord (same
+                    // time though)
+                    // if (existing.getNumLevels() != null
+                    // && !existing.getNumLevels().equals(
+                    // radarRecord.getNumLevels())) {
+                    // // Use the one with the most levels
+                    // if (existing.getNumLevels().intValue() < radarRecord
+                    // .getNumLevels().intValue()) {
+                    // remove(d);
+                    // existing = null;
+                    // }
+                    // } else if (existing.getGateResolution() != null
+                    // && !existing.getGateResolution().equals(
+                    // radarRecord.getGateResolution())) {
+                    // // use the one with the smallest resolution
+                    // if (existing.getGateResolution().intValue() > radarRecord
+                    // .getGateResolution().intValue()) {
+                    // remove(d);
+                    // existing = null;
+                    // }
+                    // } else if (existing.getNumBins() *
+                    // existing.getNumRadials() != radarRecord
+                    // .getNumBins() * radarRecord.getNumRadials()) {
+                    // // use the one with the most pixels
+                    // if (existing.getNumBins() * existing.getNumRadials() <
+                    // radarRecord
+                    // .getNumBins() * radarRecord.getNumRadials()) {
+                    // remove(d);
+                    // existing = null;
+                    // }
+                    // } else if (existing.getInsertTime().getTimeInMillis() <
+                    // radarRecord
+                    // .getInsertTime().getTimeInMillis()) {
+                    // // Use the newest one
+                    // remove(d);
+                    // existing = null;
+                    // }
+                }
+            }
+
+            if (radarRecord == null) {
+                radarRecord = createVizRadarRecord(newRdrRec);
+                // radarRecords.put(d, existing);
+                // synchronized (dataTimes) {
+                // dataTimes.add(d);
+                // Collections.sort(dataTimes);
+                // }
+            }
+
+            // VizRadarRecord rtr = radarRecords.get(pdo.getDataTime());
+
+            return true;
+        }
+
+        public void dispose() {
+            // if( tileSet != baseTile && tileSet != null ) {
+            // tileSet.dispose();
+            // tileSet = null;
+            // }
         }
     }
 
@@ -289,7 +298,13 @@ implements IResourceDataChanged, IRangeableResource {
     }
 
     public VizRadarRecord getCurrentRadarRecord() {
-        return ((RadarFrameData)getCurrentFrame()).getRadarRecord();
+
+        // Guard against NUll pointer.
+        if (getCurrentFrame() == null) {
+            return null;
+        }
+
+        return ((RadarFrameData) getCurrentFrame()).getRadarRecord();
     }
 
     /*
@@ -301,8 +316,8 @@ implements IResourceDataChanged, IRangeableResource {
      */
     @Override
     public Coordinate getCenter() {
-        RadarRecord record = ((RadarFrameData)getCurrentFrame()).radarRecord;
-        
+        RadarRecord record = ((RadarFrameData) getCurrentFrame()).radarRecord;
+
         if (record != null) {
             return new Coordinate(record.getLongitude(), record.getLatitude());
         }
@@ -316,8 +331,8 @@ implements IResourceDataChanged, IRangeableResource {
      * getElevation()
      */
     @Override
-    public Amount getElevation() {
-        return new Amount(0.0, NonSI.FOOT);
+    public Measure<?, Length> getElevation() {
+        return Measure.valueOf(0.0, NonSI.FOOT);
     }
 
     /*
@@ -329,15 +344,16 @@ implements IResourceDataChanged, IRangeableResource {
      */
     @Override
     public double getTilt() {
-        // NOT Tested (Not implemented for NCP) : 
-        // changed to get primaryElevationAngle from the record instead of the DataTime
-//        DataTime displayedDate = currFrameTime;
-//        if (displayedDate != null) {
-//            tilt = displayedDate.getLevelValue();
-//        }
+        // NOT Tested (Not implemented for NCP) :
+        // changed to get primaryElevationAngle from the record instead of the
+        // DataTime
+        // DataTime displayedDate = currFrameTime;
+        // if (displayedDate != null) {
+        // tilt = displayedDate.getLevelValue();
+        // }
         RadarRecord rdrec = getCurrentRadarRecord();
-        if( rdrec != null ) {
-        	return rdrec.getPrimaryElevationAngle();
+        if (rdrec != null) {
+            return rdrec.getPrimaryElevationAngle();
         }
         return 0.0;
     }

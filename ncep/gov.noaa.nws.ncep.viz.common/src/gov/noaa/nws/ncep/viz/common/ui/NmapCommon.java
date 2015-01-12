@@ -21,7 +21,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.application.ProgramArguments;
+import com.raytheon.uf.viz.core.ProgramArguments;
 
 /**
  * Common class for constants, utility methods ...

@@ -19,7 +19,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -41,6 +40,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 12, 2013  1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 bsteffen    Remove dataURI column from PluginDataObject.
  * Feb 11, 2014 2784   rferrel     Remove override of setIdentifier.
+ * Jun 11, 2014 2061   bsteffen    Remove IDecoderGettable
+ * 
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -136,12 +137,6 @@ public class NcscatRecord extends PersistablePluginDataObject {
 
     public void setConvertedMessage(byte[] convertedMessage) {
         this.convertedMessage = convertedMessage;
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public static long getSerialVersionUID() {

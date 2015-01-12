@@ -334,7 +334,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		// make sure the spf doesn't exist.
 		if( rbdsList.isEmpty() || grpName == null || grpName.isEmpty() ||
 			spfName == null || spfName.isEmpty() ) {
-			throw new VizException("Error creating group. Empty group name or no bundles selected." );
+			throw new VizException("Error creating SPF. Null spf name or no rbds are selected." );
 		}
  
 		Map<String,Map<String,AbstractRBD<?>>> grpMap = spfsMap.get( grpName );
@@ -343,7 +343,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 			Map<String,AbstractRBD<?>> sMap = grpMap.get( spfName );
 			
 			if( sMap != null ) {
-				throw new VizException("The group "+spfName+" already exists." );
+				throw new VizException("The SPF "+grpName+File.separator+spfName+" already exists." );
 			}
 		}
 
@@ -363,7 +363,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		if( rbdsList.isEmpty() || 
 			grpName == null || grpName.isEmpty() ||
 			spfName == null || spfName.isEmpty() ) {
-				throw new VizException("Error saving group. Empty group name or no bundles selected." );
+				throw new VizException("Error saving SPF. Null spf name or no rbds are selected." );
 		}
 		
 		// get the current Rbds so we can delete those that have been removed.
@@ -414,7 +414,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 				usrCntxt,  rbdLclName );
 		
 		if( lFile == null ||  lFile.getFile() == null ) {
-			throw new VizException("Error creating localization file for bundle: "+rbdLclName 	);
+			throw new VizException("Error creating localization file for rbd: "+rbdLclName 	);
 		}
 		File rbdFile = lFile.getFile();
 
@@ -459,7 +459,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 			
 			lFile.save();
 			
-			addRbd( "default", spfName, rbd );
+			addRbd( grpName, spfName, rbd );
 			
 			lFile.addFileUpdatedObserver(this);
 			
@@ -502,13 +502,13 @@ public class SpfsManager implements ILocalizationFileObserver  {
 					NcPathConstants.SPFS_DIR + File.separator + delGroup);
 		}
 		else if( groupLocDir.getContext().getLocalizationLevel() != LocalizationContext.LocalizationLevel.USER ) {
-			throw new VizException( "Can not delete a non-user defined group." );
+			throw new VizException( "Can not delete a non-user defined SPF." );
 		}
 		else if( getSpfNamesForGroup( delGroup ).length > 0 ) {
-			throw new VizException( "Can't delete non-empty group:\n"+delGroup);
+			throw new VizException( "Can't delete non-empty SPF:\n"+delGroup);
 		}
 		else if( !groupLocDir.isDirectory() ) { // sanity check
-			throw new VizException( "Localization File for group is not a directory:\n"+ delGroup );
+			throw new VizException( "Localization File for SPF is not a directory:\n"+ delGroup );
 		}
 
 		// Note that this will trigger the fileUpdated which will remove the group from the map
@@ -549,7 +549,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 				}
 			}
 		} catch (VizException e) {
-			System.out.println("error getting group Localization Dir.???");
+			System.out.println("error getting Spf Localization Dir.???");
 			// assume it hasn't been created yet			
 		}
 		
@@ -572,11 +572,11 @@ public class SpfsManager implements ILocalizationFileObserver  {
 					NcPathConstants.SPFS_DIR + File.separator + spfGroup + File.separator + delSpfName );
 		}
 		else if( !isUserLevelSpf(spfGroup, delSpfName ) ) {
-			throw new VizException("Either the group Localization Dir or one of the bundle " +
+			throw new VizException("Either the SPF Localization Dir or one of the RBD " +
 									"Localization Files is not in the User-Level Context.");
 		}
 		else if( !spfLocDir.isDirectory() ) { // sanity check
-			throw new VizException( "Localization File for group is not a directory:\n"+
+			throw new VizException( "Localization File for SPF is not a directory:\n"+
 					spfGroup + File.separator + delSpfName );
 		}
 
@@ -613,7 +613,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		}
 		else if( lFile.getContext().getLocalizationLevel() != 
 			 			LocalizationLevel.USER ) {
-			throw new VizException("Can not delete a non-USER level Bundle: "+rbd.getRbdName() );
+			throw new VizException("Can not delete a non-USER level RBD: "+rbd.getRbdName() );
 		}
 		
 		// this will trigger the fileUpdated method which will
@@ -649,7 +649,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		Map<String,Map<String,AbstractRBD<?>>> grpMap = spfsMap.get( spfGroup );
 
 		if( grpMap == null ) {
-			System.out.println("Could not find \""+spfGroup+"\" for Bundle "+
+			System.out.println("Could not find Group "+spfGroup+" for RBD "+
 					lFile.getName() );
 			return;
 		}
@@ -660,7 +660,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 			// 
 			if( spfsMap.containsKey( spfGroup ) ) {
 				if( !spfsMap.get( spfGroup ).isEmpty() ) {
-					System.out.println("???deleting non-empty Group: "+ spfGroup );
+					System.out.println("???deleting non-empty SPF Group: "+ spfGroup );
 				}
 			}
 
@@ -674,8 +674,8 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		Map<String,AbstractRBD<?>> sMap = grpMap.get( spfName );
 
 		if( sMap == null ) {
-			System.out.println("Could not find group \""+spfName+"\" for bundle \""+
-					lFile.getName() + "\"" );
+			System.out.println("Could not find SPF "+spfName+" for RBD "+
+					lFile.getName() );
 			return;
 		}
 		
@@ -683,7 +683,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		if( pathCount == 2 ) {
 			if( grpMap.containsKey( spfName ) ) {
 				if( !grpMap.get( spfName ).isEmpty() ) {
-					System.out.println("???deleting non-empty group : "+ spfName );
+					System.out.println("???deleting non-empty SPF : "+ spfName );
 				}
 			}
 
@@ -732,16 +732,16 @@ public class SpfsManager implements ILocalizationFileObserver  {
 			if( chgType == FileChangeType.ADDED ) {
 				// 
 				if( !chgFile.endsWith(".xml" ) ) {
-					System.out.println("Non-xmlfile found under groups dir???:"+ chgFile );
+					System.out.println("Non-xmlfile found under SPFs dir???:"+ chgFile );
 				}
 				else if( dirsf.length != 5 ) {
-					System.out.println("xml file found in non-group directory? "+ chgFile );
+					System.out.println("xml file found in non-SPF directory? "+ chgFile );
 				} 
 				else {
 					AbstractRBD<?> rbd = NcMapRBD.getRbd( lFile.getFile() );
 					//System.out.println("Add Rbd name is " + rbd.rbdName );
 					rbd.setLocalizationFile( lFile );
-					addRbd( "default", dirsf[3], rbd );
+					addRbd( dirsf[2], dirsf[3], rbd );
 				}
 			}
 			else if( chgType == FileChangeType.DELETED ) {
@@ -755,7 +755,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		}
 		catch (VizException e ) {
 			// log error
-			System.out.println("Error unmarshalling bundle: "+ chgFile
+			System.out.println("Error unmarshalling rbd: "+ chgFile
 					+ "\n"+e.getMessage() );
 		}
 	}	

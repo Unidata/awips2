@@ -46,7 +46,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.application.ProgramArguments;
+import com.raytheon.uf.viz.core.ProgramArguments;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IVizEditorChangedListener;
@@ -208,9 +208,7 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
                 NcGridInventory.getInstance().initialize(5); // try 5 times
             } catch (final VizException e) {
                 // NcGridInventory.getInstance().dumpNcGribInventory();
-               /*
-                  MessageDialog errDlg = new MessageDialog(
-                
+                MessageDialog errDlg = new MessageDialog(
                         perspectiveWindow.getShell(),
                         "Error",
                         null,
@@ -218,12 +216,11 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
                                 + "Please click OK and wait while a new inventory is created",
                         MessageDialog.ERROR, new String[] { "OK" }, 0);
                 errDlg.open();
-                */
 
                 try {
                     NcGridInventory.getInstance().createInventory();
                 } catch (VizException e1) {
-                	MessageDialog errDlg = new MessageDialog(perspectiveWindow.getShell(),
+                    errDlg = new MessageDialog(perspectiveWindow.getShell(),
                             "Error", null, "Error creating NcGridInventory\n",
                             MessageDialog.ERROR, new String[] { "OK" }, 0);
                     errDlg.open();
@@ -407,8 +404,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
             } else {
 
                 try {
-                    rbdsToLoad = SpfsManager.getInstance().getRbdsFromSpf("default", 
-                            grpAndSpf[1], true); // resolve Latest
+                    rbdsToLoad = SpfsManager.getInstance().getRbdsFromSpf(
+                            grpAndSpf[0], grpAndSpf[1], true); // resolve Latest
                                                                // Cycle times
                 } catch (VizException e) {
                     MessageDialog errDlg = new MessageDialog(

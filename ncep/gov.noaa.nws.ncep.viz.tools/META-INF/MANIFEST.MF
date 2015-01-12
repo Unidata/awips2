@@ -46,7 +46,6 @@ Export-Package: gov.noaa.nws.ncep.viz.tools,
  gov.noaa.nws.ncep.viz.tools.newEditors,
  gov.noaa.nws.ncep.viz.tools.panZoom,
  gov.noaa.nws.ncep.viz.tools.predefinedArea
-Bundle-ClassPath: .
 Import-Package: gov.noaa.nws.ncep.common.log.logger,
  gov.noaa.nws.ncep.edex.common.ncinventory,
  gov.noaa.nws.ncep.viz.gempak.grid.inv,

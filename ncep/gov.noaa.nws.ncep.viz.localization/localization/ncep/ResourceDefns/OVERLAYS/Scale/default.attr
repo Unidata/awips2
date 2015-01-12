@@ -1,6 +1,6 @@
-color= RGB {200, 200, 200}
+color= RGB {0, 255, 0}
 scaleModel=0
-scalePosition=2
+scalePosition=0
 scaleUnit=0
 scaleIntervalMode=0
 scaleIntervalValue=100

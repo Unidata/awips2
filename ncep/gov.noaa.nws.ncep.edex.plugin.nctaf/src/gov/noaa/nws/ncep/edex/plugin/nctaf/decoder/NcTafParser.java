@@ -13,11 +13,13 @@ import static gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafConstants.CG_PROB_T
 import static gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafConstants.CG_TEMPO;
 import static gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafConstants.CHANGE_GROUP_EXP;
 import static gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafConstants.COR_IND;
-import static gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafConstants.REPORT_HEADER;
 import static gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafConstants.REPORT_HEADER30;
 import static gov.noaa.nws.ncep.edex.plugin.nctaf.decoder.NcTafSeparator.ISSUE_TIME;
 import static gov.noaa.nws.ncep.edex.plugin.nctaf.decoder.NcTafSeparator.STATION_ID;
 import static gov.noaa.nws.ncep.edex.plugin.nctaf.decoder.NcTafSeparator.VALID_TIME;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafBulletinRecord;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafChangeGroup;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafPeriod;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,16 +33,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.exception.DecoderException;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafChangeGroup;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafPeriod;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafBulletinRecord;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * The TAF parser accepts a potential TAF report and attempts to parse and
@@ -56,6 +55,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 09/29/2011               sgurung     Set reportType as "TAF"
  * 10/19/2011               sgurung     Modified parseHeader() to use REPORT_HEADER30
  * 10/26/2011               sgurung     Set tafValidPeriod for each record
+ * May 14, 2014 2536        bclement    removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -156,9 +157,9 @@ public class NcTafParser {
                     int currGroup = 0;
                     for (String grp : tafGroups) {
 
-                        Calendar cStart = TimeTools.copy(validPeriod
+                        Calendar cStart = TimeUtil.newCalendar(validPeriod
                                 .getStartDate());
-                        Calendar cStop = TimeTools.copy(validPeriod
+                        Calendar cStop = TimeUtil.newCalendar(validPeriod
                                 .getEndDate());
 
                         NcTafPeriod tPeriod = new NcTafPeriod(cStart, cStop);
@@ -198,11 +199,11 @@ public class NcTafParser {
                             period1 = group1.getTafChangePeriod();
                             period2 = group2.getTafChangePeriod();
 
-                            period1.setEndDate(TimeTools.copy(period2
+                            period1.setEndDate(TimeUtil.newCalendar(period2
                                     .getStartDate()));
 
                         }
-                        period2.setEndDate(TimeTools.copy(validPeriod
+                        period2.setEndDate(TimeUtil.newCalendar(validPeriod
                                 .getEndDate()));
                     }
                     record.setChangeGroups(groupSet);
@@ -232,8 +233,8 @@ public class NcTafParser {
             ObStation station = getStationInfo(record.getStationId());            	
             if (station != null) {
                 SurfaceObsLocation obsLoc = new SurfaceObsLocation(record.getStationId());
-                Double lat = station.getGeometry().getY();
-                Double lon = station.getGeometry().getX();
+                float lat = (float) station.getGeometry().getY();
+                float lon = (float) station.getGeometry().getX();
                 obsLoc.assignLocation(lat, lon);
                 obsLoc.setElevation(station.getElevation());
                 record.setLocation(obsLoc);                
@@ -319,7 +320,7 @@ public class NcTafParser {
      */
     private Calendar transformDate(String issueDateString, WMOHeader header) {
 
-        Calendar tDate = TimeTools.getSystemCalendar(header.getYear(),
+        Calendar tDate = TimeUtil.newGmtCalendar(header.getYear(),
                 header.getMonth(), header.getDay());
 
         int maxDay = tDate.getActualMaximum(Calendar.DAY_OF_MONTH);

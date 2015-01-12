@@ -72,11 +72,11 @@
       </nc-resourceParameter>
 
 <!-- Change this to a REQUEST_CONSTRAINT when our baseline is updated to get 
-     the latest binlightning decoder implementing the lightSource column -->
+     the latest binlightning decoder implementing the source column -->
       <nc-resourceParameter
             ncResourceName="Lightning"
             paramClass="String"
-            paramName="lightSource"
+            paramName="source"
             defaultValue="NLDN"
             paramType="IMPLEMENTATION_PARAM">
       </nc-resourceParameter>

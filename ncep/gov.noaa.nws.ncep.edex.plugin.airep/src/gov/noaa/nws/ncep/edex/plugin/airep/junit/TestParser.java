@@ -1,8 +1,9 @@
 package gov.noaa.nws.ncep.edex.plugin.airep.junit;
 
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 import gov.noaa.nws.ncep.edex.plugin.airep.decoder.AirepParser;
+
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 public class TestParser {
 	WMOHeader wmoHeader;

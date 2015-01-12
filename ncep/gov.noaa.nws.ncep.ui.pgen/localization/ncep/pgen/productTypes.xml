@@ -4254,6 +4254,7 @@
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenSave outputFile="Surface_Analysis.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
+        <ns3:PgenSettingsFile>settings_tbl_Surface_Analysis.xml</ns3:PgenSettingsFile>    
     </ns3:ProductType>
     <ns3:ProductType Name="" Type="Atlantic 500mb" Subtype="None">
         <ns3:PgenControls>

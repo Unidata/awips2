@@ -1,9 +1,30 @@
+/**
+ * This code has unlimited rights, and is provided "as is" by the National Centers 
+ * for Environmental Prediction, without warranty of any kind, either expressed or implied, 
+ * including but not limited to the implied warranties of merchantability and/or fitness 
+ * for a particular purpose.
+ * 
+ * 
+ * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    	Engineer    Description
+ * -------		------- 	-------- 	-----------
+ * 05/30/2013				Chin J. Chen	Initial coding
+ * Jun 11, 2014 2061        bsteffen    Remove IDecoderGettable
+ *
+ * </pre>
+ * 
+ * @author Chin J. Chen
+ * @version 1.0
+ */
 package gov.noaa.nws.ncep.common.dataplugin.gpd;
 
 import gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataProductInfo;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -20,7 +41,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -31,23 +51,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
 
-/**
- * 
- * 
- * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
- * 
- * <pre>
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#     Engineer    Description
- * -------      -------     --------    -----------
- * 05/30/2013               Chin J. Chen    Initial coding
- * 
- * </pre>
- * 
- * @author Chin J. Chen
- * @version 1.0
- */
 @Entity
 // @Table(name = "gpd", uniqueConstraints = { @UniqueConstraint(columnNames = {
 // "dataURI" }) })
@@ -58,7 +61,7 @@ import com.raytheon.uf.common.time.DataTime;
 @XmlRootElement
 public class GenericPointDataRecord extends PersistablePluginDataObject
         implements
-        /* ISpatialEnabled, */IDecoderGettable, IPointData, IPersistable {
+        /* ISpatialEnabled, */IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -144,6 +147,7 @@ public class GenericPointDataRecord extends PersistablePluginDataObject
         this.slat = slat;
         this.slon = slon;
         this.pointDataView = pointDataView;
+        // this.pluginName = "gpd";
         // System.out.println("GenericPointDataRecord(3) entered");
     }
 
@@ -157,6 +161,7 @@ public class GenericPointDataRecord extends PersistablePluginDataObject
         this.pointDataView = pointDataView;
         this.dataTime = dataTime;
         this.productVersion = productVersion;
+        // this.pluginName = "gpd";
         // System.out.println("GenericPointDataRecord(4) entered");
     }
 
@@ -197,12 +202,6 @@ public class GenericPointDataRecord extends PersistablePluginDataObject
     }
 
     @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public PointDataView getPointDataView() {
         return this.pointDataView;
     }
@@ -210,30 +209,6 @@ public class GenericPointDataRecord extends PersistablePluginDataObject
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /*
@@ -300,13 +275,10 @@ public class GenericPointDataRecord extends PersistablePluginDataObject
         this.productVersion = productVersion;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.dataplugin.PluginDataObject#getPluginName()
-     */
     @Override
     public String getPluginName() {
-        return "gpd";
+        // TODO Auto-generated method stub
+        return null;
     }
+
 }

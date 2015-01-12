@@ -301,7 +301,7 @@ public class ManageSpfControl extends Composite {
         // this will become visible (on top of the Delete SPF button) 
         // only when deleteSpf is selected and when there are no spfs to delete.
         deleteSpfGroupBtn = new Button( selSpfComp, SWT.PUSH );        
-        deleteSpfGroupBtn.setText( " Delete Bundle Group " );
+        deleteSpfGroupBtn.setText( " Delete Group " );
        	fd = new FormData(140, 30);
         fd.top = new FormAttachment( spfActionBtn, 0, SWT.TOP );
         fd.left  = new FormAttachment( spfActionBtn, -20, SWT.LEFT );
@@ -415,12 +415,12 @@ public class ManageSpfControl extends Composite {
 				setSeldSpfGroup( createSpfGroupCombo.getText() );
 			}
     	});
-		
+
 		modifySpfGroupCombo.addSelectionListener( new SelectionAdapter() {		
    			public void widgetSelected(SelectionEvent e) {
    				setSeldSpfGroup( modifySpfGroupCombo.getText() );
    			}
-   		}); 
+   		});  
    		*/ 
 		
 		createSpfNameTxt.addModifyListener(new ModifyListener() {
@@ -706,7 +706,7 @@ public class ManageSpfControl extends Composite {
     		seldRbdsLviewer.refresh();
 	    	rscLviewer.viewRbd( null );
 	    	rscLviewer.refresh();
-        }
+        		}
         setSeldSpfGroup( "default" );      
     }
     

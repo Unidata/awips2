@@ -6,6 +6,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import org.apache.commons.lang.SystemUtils;
+
 /**
  * The activator class controls the plug-in life cycle
  */
@@ -35,6 +37,9 @@ public class Activator extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
+        if (SystemUtils.IS_OS_WINDOWS) {
+            return;
+        }
         LibraryLoader.load("cnflib");
         // LibraryLoader.load("xml2");
         LibraryLoader.load("gempak");

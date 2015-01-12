@@ -14,9 +14,9 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  org.geotools
 Export-Package: gov.noaa.nws.ncep.edex.plugin.nctaf.decoder
 Import-Package: com.raytheon.edex.exception,
+ com.raytheon.uf.common.wmo,
  com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.decodertools.time,
- com.raytheon.uf.edex.wmo.message,
  gov.noaa.nws.ncep.common.dataplugin.nctaf,
  gov.noaa.nws.ncep.common.dataplugin.tcm,
  gov.noaa.nws.ncep.common.tools,

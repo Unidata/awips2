@@ -118,11 +118,11 @@ here we are using turbInten from ncairep instead of flightHazard. Is this correc
  <PlotParameterDefn  plotParamName="BRBK" metParamName="WindDirection,WindSpeed"
                      plotMode="barb" symbolFont="WindSymbolFont" plotUnit="kts"/>
 
- <!-- WEATHER
- <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
+ <!-- WEATHER -->
+ <!-- PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
                      dbParamName="presWeather"
                      plotMode="table" symbolFont="WxSymbolFont" 
-                     plotLookupTable="wx_symbol_trans.txt"/>
-    -->
+                     plotLookupTable="wx_symbol_trans.txt"/-->
+    
  	
 </PlotParameterDefns>

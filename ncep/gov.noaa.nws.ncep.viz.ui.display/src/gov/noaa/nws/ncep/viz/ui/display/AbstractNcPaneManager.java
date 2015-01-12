@@ -69,6 +69,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/13/12			?		B. Yin		 Refresh only for multiple panes
  * 01/28/12      #972       Greg Hull    created from NCPaneManager minus remove PaneLayout code.
  * 12/16/13      #958       sgurung      Do not set virtual cursor for NcNonMapRenderableDisplay
+ * 05/16/2014    #1136      qzhou        Add NCTimeseries for Graph.
+ * 09/09/2014    R4078      sgurung      Added "contextualMenusEnabled" to specify whether to 
+ *                                       enable/disable contextual menus in panes.
  * 
  * </pre>
  * 
@@ -103,6 +106,8 @@ public abstract class AbstractNcPaneManager extends PaneManager implements
     protected boolean geoSyncPanesEnabled;
 
     protected boolean timeSyncPanesEnabled = true;
+
+    protected boolean contextualMenusEnabled = true;
 
     protected boolean isHide = false; // means loop rsc on, and Hide btn
                                       // displayed
@@ -236,6 +241,9 @@ public abstract class AbstractNcPaneManager extends PaneManager implements
             return "gov.noaa.nws.ncep.viz.ui.display.NTransDisplay";
         } else if (displayType == NcDisplayType.SOLAR_DISPLAY) {
             return "gov.noaa.nws.ncep.viz.ui.display.SolarDisplay";
+        } else if (displayType == NcDisplayType.GRAPH_DISPLAY) {
+            return "gov.noaa.nws.ncep.viz.ui.display.GraphDisplay";
+
         }
         return "Unsupported displayType: " + displayType.toString();
     }
@@ -248,6 +256,9 @@ public abstract class AbstractNcPaneManager extends PaneManager implements
             return "gov.noaa.nws.ncep.viz.ui.display.NCNonMapRenderableDisplay";
         } else if (displayType == NcDisplayType.SOLAR_DISPLAY) {
             return "gov.noaa.nws.ncep.viz.ui.display.NCNonMapRenderableDisplay";
+        } else if (displayType == NcDisplayType.GRAPH_DISPLAY) {
+            return "gov.noaa.nws.ncep.viz.ui.display.NCTimeSeriesRenderableDisplay";
+
         }
         return "Unsupported displayTyep: " + displayType.toString();
     }
@@ -259,6 +270,8 @@ public abstract class AbstractNcPaneManager extends PaneManager implements
             return "gov.noaa.nws.ncep.viz.ui.display.NCNonMapDescriptor";
         } else if (displayType == NcDisplayType.SOLAR_DISPLAY) {
             return "gov.noaa.nws.ncep.viz.ui.display.NCNonMapDescriptor";
+        } else if (displayType == NcDisplayType.GRAPH_DISPLAY) {
+            return "gov.noaa.nws.ncep.viz.ui.display.NCTimeSeriesDescriptor";
         }
         return "Unsupported displayTyep: " + displayType.toString();
     }
@@ -485,7 +498,7 @@ public abstract class AbstractNcPaneManager extends PaneManager implements
         VizDisplayPane pane = null;
         try {
             pane = new VizDisplayPane(paneContainer, canvasComp,
-                    renderableDisplay, true);
+                    renderableDisplay, contextualMenusEnabled);
             // register the inputManager and the mouse listener for pane
             // selection
             registerHandlers(pane);
@@ -757,5 +770,13 @@ public abstract class AbstractNcPaneManager extends PaneManager implements
 
     public boolean arePanesTimeSynced() {
         return timeSyncPanesEnabled;
+    }
+
+    public boolean areContextualMenusEnabled() {
+        return contextualMenusEnabled;
+    }
+
+    public void setContextualMenusEnabled(boolean val) {
+        this.contextualMenusEnabled = val;
     }
 }

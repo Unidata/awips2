@@ -57,7 +57,7 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
+import com.raytheon.uf.common.geospatial.adapter.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -198,7 +198,7 @@ public class McidasMapCoverage extends PersistableDataObject implements
 
     /** The map coverage */
     @Column(name = "the_geom")
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Type(type = "org.hibernate.spatial.GeometryType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Polygon location;

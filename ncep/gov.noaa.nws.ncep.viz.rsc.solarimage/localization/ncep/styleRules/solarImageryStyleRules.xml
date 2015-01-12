@@ -768,12 +768,12 @@
   </solarImageMatches>
   <imageStyle>
      <range scale="LINEAR">
-        <minValue>400</minValue>
-        <maxValue>16000</maxValue>
+        <minValue>-300</minValue>
+        <maxValue>300</maxValue>
      </range>
      <defaultColormap>SolarImage/Gray</defaultColormap>
 	<colorbarLabeling>
-		<values>2000 6000 10000 14000</values>
+		<values>-200 -100 0 100 200</values>
 	</colorbarLabeling>
   </imageStyle>
 </styleRule>
@@ -784,16 +784,15 @@
   </solarImageMatches>
   <imageStyle>
      <range scale="LINEAR">
-        <minValue>400</minValue>
-        <maxValue>16000</maxValue>
+        <minValue>-600</minValue>
+        <maxValue>600</maxValue>
      </range>
      <defaultColormap>SolarImage/Gray</defaultColormap>
 	<colorbarLabeling>
-		<values>2000 6000 10000 14000</values>
+		<values>-400 -200 0 200 400</values>
 	</colorbarLabeling>
-  </imageStyle>
+  </imageStyle> 
 </styleRule>
-
 <styleRule>
   <solarImageMatches>
      <instrument>SECCHI</instrument>

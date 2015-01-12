@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -29,7 +28,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * (IDFT) Decoder Plug-In.
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
- *
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
@@ -44,8 +43,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Mar 07, 2013 982       Archana     Updated getPointNum() to return an Integer
  * Jul 22, 2013 1977      rjpeter     Added getDataURI and annotations.
  * Aug 30, 2013 2298      rjpeter     Make getPluginName abstract
+ * Jun 11, 2014 2061      bsteffen    Remove IDecoderGettable
+ * 
  * </pre>
- *
+ * 
  * 
  * @author F. J. Yen, SIB
  * @version 1.0
@@ -127,12 +128,6 @@ public class IdftRecord extends PluginDataObject {
      */
     public IdftRecord(String uri) {
         super(uri);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public String getReportType() {

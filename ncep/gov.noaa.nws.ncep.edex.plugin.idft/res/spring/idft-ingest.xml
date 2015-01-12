@@ -16,14 +16,8 @@
 		<constructor-arg value="jms-durable:queue:Ingest.idft" />
 	</bean>
 
-	<bean id="idftCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="idft-camel"/>
-  	</bean> 
-
 	<camelContext id="idft-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="idftFileEndpoint"
 			uri="file:${edex.home}/data/sbn/idft?noop=true&amp;idempotent=false" />
 

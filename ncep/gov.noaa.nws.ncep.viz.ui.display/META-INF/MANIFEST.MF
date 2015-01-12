@@ -9,19 +9,17 @@ Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.edex.common, com.raythe
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.ui,
- org.geotools,
  com.raytheon.viz.core,
  gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  com.raytheon.uf.common.style;bundle-version="1.0.0",
  com.raytheon.viz.core.graphing;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174"
+ com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.xy;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.ui.display
-Import-Package: com.raytheon.uf.common.topo,
- com.raytheon.uf.viz.core.rsc.legend,
+Import-Package: com.raytheon.uf.viz.core.rsc.legend,
  gov.noaa.nws.ncep.gempak.parameters.colorbar,
- javax.measure.unit,
- javax.vecmath
+ javax.measure.unit
+

@@ -24,16 +24,16 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.common.style.image.ImagePreferences;
 
 /**
  * Name generator for radar products.
@@ -101,7 +101,12 @@ public class RadarNameGenerator extends AbstractNameGenerator {
                 rsc = (AbstractRadarResource<AbstractDescriptor>) vizRsc;
             }
 
-            RadarRecord record = rsc.getCurrentRadarRecord();//rsc.getDescriptor().getTimeForResource(rsc));
+            // Guard against NUll pointer.
+            if (rsc == null || rsc.getCurrentRadarRecord() == null) {
+                return "Radar-No Data";
+            }
+
+            RadarRecord record = rsc.getCurrentRadarRecord();// rsc.getDescriptor().getTimeForResource(rsc));
             if (record == null) {
                 return "Radar-No Data";
             }
@@ -139,21 +144,19 @@ public class RadarNameGenerator extends AbstractNameGenerator {
             int page = 1;
             int pageCount = 1;
 
-            /*if (rsc instanceof RadarGraphicsResource) {
-                RadarGraphicsResource rgRsc = (RadarGraphicsResource) rsc;
-                DataTime displayedDate = rgRsc.getDescriptor()
-                        .getTimeForResource(rgRsc);
-                if (displayedDate == null) {
-                    return "Radar";
-                }
-                if (rgRsc.getRadarGraphicsDisplay().get(displayedDate) != null) {
-                    page = rgRsc.getRadarGraphicsDisplay().get(displayedDate)
-                            .getCurrentPage() + 1;
-                    pageCount = rgRsc.getRadarGraphicsDisplay()
-                            .get(displayedDate).getNumPages();
-                }
-            }*/
-            String point = ((RadarResourceData)rsc.getResourceData()).getPointID();
+            /*
+             * if (rsc instanceof RadarGraphicsResource) { RadarGraphicsResource
+             * rgRsc = (RadarGraphicsResource) rsc; DataTime displayedDate =
+             * rgRsc.getDescriptor() .getTimeForResource(rgRsc); if
+             * (displayedDate == null) { return "Radar"; } if
+             * (rgRsc.getRadarGraphicsDisplay().get(displayedDate) != null) {
+             * page = rgRsc.getRadarGraphicsDisplay().get(displayedDate)
+             * .getCurrentPage() + 1; pageCount =
+             * rgRsc.getRadarGraphicsDisplay()
+             * .get(displayedDate).getNumPages(); } }
+             */
+            String point = ((RadarResourceData) rsc.getResourceData())
+                    .getPointID();
 
             outputString = getResourceLabel(rsc, info);
 
@@ -161,17 +164,18 @@ public class RadarNameGenerator extends AbstractNameGenerator {
             if (unit == null) {
                 unit = getUnit(rsc, record);
             }
-            
+
             // This is also in the data. we could get it from there.
-			String resKmStr; // in km from meters.
-			
-			if( record.getGateResolution() % 1000 == 0 ) {
-				resKmStr = " "+ new Integer( record.getGateResolution()/1000)+"km ";
-			}
-			else {
-				resKmStr = " " + new Float( record.getGateResolution()/1000.0)+"km ";
-			}
-			outputString = outputString + resKmStr;			
+            String resKmStr; // in km from meters.
+
+            if (record.getGateResolution() % 1000 == 0) {
+                resKmStr = " " + new Integer(record.getGateResolution() / 1000)
+                        + "km ";
+            } else {
+                resKmStr = " " + new Float(record.getGateResolution() / 1000.0)
+                        + "km ";
+            }
+            outputString = outputString + resKmStr;
             outputString = UNIT.matcher(outputString).replaceFirst(unit);
             outputString = BIT.matcher(outputString).replaceFirst(bit);
             outputString = SEGMENT.matcher(outputString).replaceFirst(
@@ -185,16 +189,19 @@ public class RadarNameGenerator extends AbstractNameGenerator {
             outputString = TILT.matcher(outputString).replaceFirst(
                     getTilt(rsc, record));
             outputString = HOUR.matcher(outputString).replaceFirst(hours);
-            
-//            if( rsc.displayedDate == null ) {
-//        		String retLegStr = "No Data " + outputString; 
-//        		outputString = null; // no data so tilt is not set so recompute next time.
-//        		return retLegStr;
-//        	}
-//        	else {        		
-        		outputString = outputString + " " + NmapCommon.getTimeStringFromDataTime(
-        				record.getDataTime()/*rsc.displayedDate*/, "/") ;                
-//        	}
+
+            // if( rsc.displayedDate == null ) {
+            // String retLegStr = "No Data " + outputString;
+            // outputString = null; // no data so tilt is not set so recompute
+            // next time.
+            // return retLegStr;
+            // }
+            // else {
+            outputString = outputString
+                    + " "
+                    + NmapCommon.getTimeStringFromDataTime(
+                            record.getDataTime()/* rsc.displayedDate */, "/");
+            // }
         }
         return outputString;
 
@@ -206,13 +213,14 @@ public class RadarNameGenerator extends AbstractNameGenerator {
         if (record != null && record.getTrueElevationAngle() != 0) {
             tilt = String.format("%1.1f ", record.getTrueElevationAngle());
         } else {
-        	// changed to get straight from record instead of dataTime.
-        	Float displayedLevel = record.getPrimaryElevationAngle().floatValue();
-        	
+            // changed to get straight from record instead of dataTime.
+            Float displayedLevel = record.getPrimaryElevationAngle()
+                    .floatValue();
+
             if (rsc.actualLevel.equals("") || rsc.actualLevel.equals("0")
                     || rsc.actualLevel.equals("0.0")) {
-                if (/*rsc.*/displayedLevel > 0.0) {
-                    tilt = String.format("%1.1f ", /*rsc.*/displayedLevel);
+                if (/* rsc. */displayedLevel > 0.0) {
+                    tilt = String.format("%1.1f ", /* rsc. */displayedLevel);
                 }
             } else {
                 tilt = rsc.actualLevel;
@@ -229,7 +237,7 @@ public class RadarNameGenerator extends AbstractNameGenerator {
 
         // check for mode specific labeling.
         if (outputString.startsWith(MODE)) {
-            String rscMode = ((RadarResourceData)rsc.getResourceData()).mode;
+            String rscMode = ((RadarResourceData) rsc.getResourceData()).mode;
             boolean useFirstModeAsDefault = (rscMode == null || rscMode
                     .isEmpty());
             String[] modeLabels = outputString.split(MODE_SEPARATOR);

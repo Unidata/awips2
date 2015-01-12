@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -70,6 +69,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 04/13        #977        S. Gilbert  PGEN Database support
  * 12/13		TTR904		B. Yin		Increased county name column to 17 characters
  * 12/13   		TTR800		B. Yin		Added original county list
+ * 04/14        TRAC 1112   S. Russell  Added updateActiveCountiesInWatchBox()
  * </pre>
  * 
  * @author B. Yin
@@ -77,9 +77,7 @@ import com.vividsolutions.jts.geom.Polygon;
 @ElementOperations({ Operation.COPY_MOVE, Operation.EXTRAPOLATE })
 public class WatchBox extends MultiPointElement implements IWatchBox {
 
-    /*
-     * default half width for watch box in statute miles.
-     */
+    /* default half width for watch box in statute miles. */
     public final static float HALF_WIDTH = 60f;
 
     // State names
@@ -89,8 +87,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         NS, EW, ESOL
     };
 
-    public static String dirs[] = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE",
-            "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N" };
+    public static String dirs[] = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N" };
 
     private WatchShape boxShape;
 
@@ -107,6 +104,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
     private Station anchors[];
 
     private List<SPCCounty> countyList;
+
     private List<SPCCounty> originalCountyList;
 
     // Watch Issue Information
@@ -193,42 +191,31 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      * County list is NOT copied
      */
     public AbstractDrawableComponent copy() {
-        /*
-         * create a new Line object and initially set its attributes to this
-         * one's
-         */
+        /* create a new Line object and initially set its attributes to this
+         * one's */
         WatchBox newWatchBox = new WatchBox();
 
         newWatchBox.setAnchors(anchors[0], anchors[1]);
         newWatchBox.update(this);
 
-        /*
-         * new Coordinates points are created and set, so we don't just set
-         * references
-         */
+        /* new Coordinates points are created and set, so we don't just set
+         * references */
         ArrayList<Coordinate> ptsCopy = new ArrayList<Coordinate>();
         for (int i = 0; i < this.getPoints().size(); i++) {
             ptsCopy.add(new Coordinate(this.getPoints().get(i)));
         }
         newWatchBox.setPoints(ptsCopy);
 
-        /*
-         * new colors are created and set, so we don't just set references
-         */
+        /* new colors are created and set, so we don't just set references */
         Color[] colorCopy = new Color[this.getColors().length];
         for (int i = 0; i < this.getColors().length; i++) {
-            colorCopy[i] = new Color(this.getColors()[i].getRed(),
-                    this.getColors()[i].getGreen(),
-                    this.getColors()[i].getBlue());
+            colorCopy[i] = new Color(this.getColors()[i].getRed(), this.getColors()[i].getGreen(), this.getColors()[i].getBlue());
         }
         newWatchBox.setColors(colorCopy);
         if (fillColor != null) {
-            newWatchBox.setFillColor(new Color(fillColor.getRed(), fillColor
-                    .getGreen(), fillColor.getBlue()));
+            newWatchBox.setFillColor(new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue()));
         }
-        /*
-         * new Strings are created for Type and LinePattern
-         */
+        /* new Strings are created for Type and LinePattern */
         newWatchBox.setPgenCategory(new String(this.getPgenCategory()));
         newWatchBox.setPgenType(new String(this.getPgenType()));
         newWatchBox.setParent(this.getParent());
@@ -236,39 +223,39 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         newWatchBox.setWatchSymbolType(symbolType);
         newWatchBox.setWatchSymbolSize(symbolSize);
         newWatchBox.setWatchSymbolWidth(symbolWidth);
-        
-    	newWatchBox.setIssueStatus(getIssueStatus());
+
+        newWatchBox.setIssueStatus(getIssueStatus());
         newWatchBox.setWatchNumber(watchNumber);
         newWatchBox.setIssueFlag(getIssueFlag());
         newWatchBox.setForecaster(forecaster);
-		newWatchBox.setIssueTime(getIssueTime());
+        newWatchBox.setIssueTime(getIssueTime());
         newWatchBox.setExpTime(this.getExpTime());
-		newWatchBox.setSeverity(this.getSeverity());
-		newWatchBox.setTimeZone(this.getTimeZone());
-		newWatchBox.setHailSize(this.getHailSize());
-		newWatchBox.setGust(this.getGust());
-		newWatchBox.setTop(this.getTop());
-		newWatchBox.setMoveDir(this.getMoveDir());
-		newWatchBox.setMoveSpeed(this.getMoveSpeed());
-		newWatchBox.setStatesIncl(this.getStatesIncl());
-		newWatchBox.setAdjAreas( this.getAdjAreas() );
-		newWatchBox.setWatchType(getWatchType());
-		
-		newWatchBox.setEndPointAnc(this.getEndPointAnc());
-		newWatchBox.setEndPointVor(this.getEndPointVor());
-		newWatchBox.setHalfWidthSm(this.getHalfWidthSm());
-		newWatchBox.setHalfWidthNm(this.getHalfWidthNm());
-		newWatchBox.setWathcAreaNm(this.getWathcAreaNm());
-		newWatchBox.setCntyInfo(this.getCntyInfo());
-		
-		newWatchBox.setContWatch( this.getContWatch());
-		newWatchBox.setReplWatch(this.getReplWatch());
-        
-		newWatchBox.setCountyList(new ArrayList<SPCCounty>( this.getCountyList()));
-		if ( this.getOriginalCountyList() != null ){
-			newWatchBox.setOriginalCountyList( this.getOriginalCountyList());
-		}
-		
+        newWatchBox.setSeverity(this.getSeverity());
+        newWatchBox.setTimeZone(this.getTimeZone());
+        newWatchBox.setHailSize(this.getHailSize());
+        newWatchBox.setGust(this.getGust());
+        newWatchBox.setTop(this.getTop());
+        newWatchBox.setMoveDir(this.getMoveDir());
+        newWatchBox.setMoveSpeed(this.getMoveSpeed());
+        newWatchBox.setStatesIncl(this.getStatesIncl());
+        newWatchBox.setAdjAreas(this.getAdjAreas());
+        newWatchBox.setWatchType(getWatchType());
+
+        newWatchBox.setEndPointAnc(this.getEndPointAnc());
+        newWatchBox.setEndPointVor(this.getEndPointVor());
+        newWatchBox.setHalfWidthSm(this.getHalfWidthSm());
+        newWatchBox.setHalfWidthNm(this.getHalfWidthNm());
+        newWatchBox.setWathcAreaNm(this.getWathcAreaNm());
+        newWatchBox.setCntyInfo(this.getCntyInfo());
+
+        newWatchBox.setContWatch(this.getContWatch());
+        newWatchBox.setReplWatch(this.getReplWatch());
+
+        newWatchBox.setCountyList(new ArrayList<SPCCounty>(this.getCountyList()));
+        if (this.getOriginalCountyList() != null) {
+            newWatchBox.setOriginalCountyList(this.getOriginalCountyList());
+        }
+
         return newWatchBox;
     }
 
@@ -341,8 +328,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
 
         gc.setStartingGeographicPoint(linePoints.get(0).x, linePoints.get(0).y);
-        gc.setDestinationGeographicPoint(linePoints.get(1).x,
-                linePoints.get(1).y);
+        gc.setDestinationGeographicPoint(linePoints.get(1).x, linePoints.get(1).y);
 
         return gc.getOrthodromicDistance();
     }
@@ -355,32 +341,11 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
     public String getSpec() {
         String spec;
 
-        spec = String.format("%1$5.2f%2$10.2f", linePoints.get(0).y,
-                linePoints.get(0).x)
-                + "   "
-                + getRelative(linePoints.get(0), anchors[0])
-                + "   "
-                + getRelative(linePoints.get(0),
-                        getNearestVor(linePoints.get(0)))
-                + "\n"
-                + String.format("%1$5.2f%2$10.2f", linePoints.get(4).y,
-                        linePoints.get(4).x)
-                + "   "
-                + getRelative(linePoints.get(4), anchors[1])
-                + "   "
-                + getRelative(linePoints.get(4),
-                        getNearestVor(linePoints.get(4)))
-                + "\n"
-                + "ORIENT: "
-                + boxShape.toString()
-                + "  - HALF WIDTH: "
-                + String.format("%1$4.0f", getHalfWidth() / PgenUtil.SM2M)
-                + "sm ("
-                + Math.round(getHalfWidth() / PgenUtil.NM2M / 5.0)
-                * 5
-                + " nm)\n"
-                + "AREA(sq nautical miles):  "
-                + String.format("%1$-8.0f", getWatchArea()) + "\n";
+        spec = String.format("%1$5.2f%2$10.2f", linePoints.get(0).y, linePoints.get(0).x) + "   " + getRelative(linePoints.get(0), anchors[0]) + "   "
+                + getRelative(linePoints.get(0), getNearestVor(linePoints.get(0))) + "\n" + String.format("%1$5.2f%2$10.2f", linePoints.get(4).y, linePoints.get(4).x) + "   "
+                + getRelative(linePoints.get(4), anchors[1]) + "   " + getRelative(linePoints.get(4), getNearestVor(linePoints.get(4))) + "\n" + "ORIENT: " + boxShape.toString()
+                + "  - HALF WIDTH: " + String.format("%1$4.0f", getHalfWidth() / PgenUtil.SM2M) + "sm (" + Math.round(getHalfWidth() / PgenUtil.NM2M / 5.0) * 5 + " nm)\n"
+                + "AREA(sq nautical miles):  " + String.format("%1$-8.0f", getWatchArea()) + "\n";
 
         return spec;
     }
@@ -404,8 +369,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         long dir = Math.round(gc.getAzimuth());
         if (dir < 0)
             dir += 360;
-        String str = String.format("%1$4d%2$5s%3$5s", dist,
-                dirs[(int) Math.round(dir / 22.5)], st.getStid());
+        String str = String.format("%1$4d%2$5s%3$5s", dist, dirs[(int) Math.round(dir / 22.5)], st.getStid());
         // String str = dist + " " + dirs[(int)Math.round(dir/22.5)]+ " " +
         // st.getStid() ;
         return str;
@@ -419,8 +383,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      */
     public Station getNearestVor(Coordinate loc) {
 
-        return PgenStaticDataProvider.getProvider().getVorTbl()
-                .getNearestStation(loc);
+        return PgenStaticDataProvider.getProvider().getVorTbl().getNearestStation(loc);
 
     }
 
@@ -433,14 +396,12 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
 
         gc.setStartingGeographicPoint(linePoints.get(0).x, linePoints.get(0).y);
-        gc.setDestinationGeographicPoint(linePoints.get(4).x,
-                linePoints.get(4).y);
+        gc.setDestinationGeographicPoint(linePoints.get(4).x, linePoints.get(4).y);
 
         double base = gc.getOrthodromicDistance();
 
         Coordinate intrPt = new Coordinate();
-        getDistanceFromLine(linePoints.get(1), linePoints.get(0),
-                linePoints.get(4), intrPt);
+        getDistanceFromLine(linePoints.get(1), linePoints.get(0), linePoints.get(4), intrPt);
 
         gc.setStartingGeographicPoint(linePoints.get(1).x, linePoints.get(1).y);
         gc.setDestinationGeographicPoint(intrPt.x, intrPt.y);
@@ -464,8 +425,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      *            - the nearest point on the line
      * @return - the distance from the input point to the input line
      */
-    private double getDistanceFromLine(Coordinate point, Coordinate lnPt1,
-            Coordinate lnPt2, Coordinate intrsctPt) {
+    private double getDistanceFromLine(Coordinate point, Coordinate lnPt1, Coordinate lnPt2, Coordinate intrsctPt) {
         if (lnPt1.x == lnPt2.x) {
             intrsctPt.x = lnPt1.x;
             intrsctPt.y = point.y;
@@ -481,8 +441,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
             double b = point.y - m * point.x;
             intrsctPt.x = (b - bi) / (mi - m);
             intrsctPt.y = m * (intrsctPt.x) + b;
-            double d = (intrsctPt.x - point.x) * (intrsctPt.x - point.x)
-                    + (intrsctPt.y - point.y) * (intrsctPt.y - point.y);
+            double d = (intrsctPt.x - point.x) * (intrsctPt.x - point.x) + (intrsctPt.y - point.y) * (intrsctPt.y - point.y);
             return Math.sqrt(d);
         }
     }
@@ -590,8 +549,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                 // wfo can be more than one
                 if (wfo != null) {
                     for (int ii = 0; ii < wfo.length(); ii += 3) {
-                        String wfoStr = wfo.substring(ii,
-                                wfo.length() > ii + 3 ? ii + 3 : wfo.length());
+                        String wfoStr = wfo.substring(ii, wfo.length() > ii + 3 ? ii + 3 : wfo.length());
                         if (!wfos.contains(wfoStr))
                             wfos.add(wfoStr);
                     }
@@ -613,8 +571,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         if (countyList != null && !countyList.isEmpty()) {
             for (SPCCounty cnty : countyList) {
 
-                if (cnty.getState() != null
-                        && !states.contains(cnty.getState())) {
+                if (cnty.getState() != null && !states.contains(cnty.getState())) {
                     states.add(cnty.getState());
                     // System.out.println(obj[2]+"...");
 
@@ -636,8 +593,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
             Iterator<SPCCounty> it = countyList.iterator();
             while (it.hasNext()) {
                 SPCCounty cnty = it.next();
-                if (cnty.getState() != null
-                        && cnty.getState().equalsIgnoreCase(state)) {
+                if (cnty.getState() != null && cnty.getState().equalsIgnoreCase(state)) {
                     it.remove();
                 }
             }
@@ -654,8 +610,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
             Iterator<SPCCounty> it = countyList.iterator();
             while (it.hasNext()) {
                 SPCCounty cnty = it.next();
-                if (cnty.getWfo() != null
-                        && cnty.getWfo().equalsIgnoreCase(cwa)) {
+                if (cnty.getWfo() != null && cnty.getWfo().equalsIgnoreCase(cwa)) {
                     it.remove();
                 }
             }
@@ -668,14 +623,11 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      * @param cwa
      */
     public void addCwa(String cwa) {
-        List<SPCCounty> allCounties = PgenStaticDataProvider.getProvider()
-                .getSPCCounties();
+        List<SPCCounty> allCounties = PgenStaticDataProvider.getProvider().getSPCCounties();
 
         if (allCounties != null) {
             for (SPCCounty cnty : allCounties) {
-                if (cnty.getWfo() != null
-                        && cnty.getWfo().equalsIgnoreCase(cwa)
-                        && !countyList.contains(cnty)) {
+                if (cnty.getWfo() != null && cnty.getWfo().equalsIgnoreCase(cwa) && !countyList.contains(cnty)) {
                     countyList.add(cnty);
                 }
             }
@@ -731,8 +683,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                     continue;
 
                 // Check any county centeriod inside the hole
-                for (SPCCounty cnty : PgenStaticDataProvider.getProvider()
-                        .getSPCCounties()) {
+                for (SPCCounty cnty : PgenStaticDataProvider.getProvider().getSPCCounties()) {
 
                     if (p.contains(gf.createPoint(cnty.getCentriod()))) {
                         rt.add(cnty);
@@ -809,8 +760,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
         GeometryFactory gf = new GeometryFactory();
 
-        GeometryCollection geometryCollection = (GeometryCollection) gf
-                .buildGeometry(gCollection);
+        GeometryCollection geometryCollection = (GeometryCollection) gf.buildGeometry(gCollection);
 
         return geometryCollection.union();
 
@@ -964,34 +914,20 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         msg += String.format("PDS/Normal:\t\t%1$s\n", getSeverity());
         msg += "ISSUE TIME:\t\tXX XX XXXX XXXX\n";
         msg += "VALID TIME:\t\tXX XX XXXX XXXX\n";
-        msg += String.format("EXPIRATION TIME:\t%1$tm %1$td %1$tY %1$tY\n",
-                getExpTime());
-        msg += String.format("ENDPOINT (ANC,sm):\t%1$s - %2$s\n",
-                getRelative(getPoints().get(0), getAnchors()[0]).trim(),
-                getRelative(getPoints().get(4), getAnchors()[1]).trim());
-        msg += String.format(
-                "ENDPOINT (VOR,nm):\t%1$s - %2$s\n",
-                getRelative(getPoints().get(0),
-                        getNearestVor(getPoints().get(0))).trim(),
-                getRelative(getPoints().get(4),
-                        getNearestVor(getPoints().get(4))).trim());
-        msg += String.format("ATTRIB (ANC,sm):\t%1$-4.0f\n", getHalfWidth()
-                / PgenUtil.SM2M);
-        msg += String.format("ATTRIB (VOR,nm):\t%1$-4d\n",
-                Math.round(getHalfWidth() / PgenUtil.NM2M / 5.0) * 5);
-        msg += String.format("WATCH CORNER POINT:\t%1$-6.2f %2$-6.2f\n",
-                getPoints().get(1).y, getPoints().get(1).x);
-        msg += String.format("WATCH CORNER POINT:\t%1$-6.2f %2$-6.2f\n",
-                getPoints().get(3).y, getPoints().get(3).x);
-        msg += String.format("WATCH CORNER POINT:\t%1$-6.2f %2$-6.2f\n",
-                getPoints().get(5).y, getPoints().get(5).x);
-        msg += String.format("WATCH CORNER POINT:\t%1$-6.2f %2$-6.2f\n",
-                getPoints().get(7).y, getPoints().get(7).x);
+        msg += String.format("EXPIRATION TIME:\t%1$tm %1$td %1$tY %1$tY\n", getExpTime());
+        msg += String.format("ENDPOINT (ANC,sm):\t%1$s - %2$s\n", getRelative(getPoints().get(0), getAnchors()[0]).trim(), getRelative(getPoints().get(4), getAnchors()[1]).trim());
+        msg += String.format("ENDPOINT (VOR,nm):\t%1$s - %2$s\n", getRelative(getPoints().get(0), getNearestVor(getPoints().get(0))).trim(),
+                getRelative(getPoints().get(4), getNearestVor(getPoints().get(4))).trim());
+        msg += String.format("ATTRIB (ANC,sm):\t%1$-4.0f\n", getHalfWidth() / PgenUtil.SM2M);
+        msg += String.format("ATTRIB (VOR,nm):\t%1$-4d\n", Math.round(getHalfWidth() / PgenUtil.NM2M / 5.0) * 5);
+        msg += String.format("WATCH CORNER POINT:\t%1$-6.2f %2$-6.2f\n", getPoints().get(1).y, getPoints().get(1).x);
+        msg += String.format("WATCH CORNER POINT:\t%1$-6.2f %2$-6.2f\n", getPoints().get(3).y, getPoints().get(3).x);
+        msg += String.format("WATCH CORNER POINT:\t%1$-6.2f %2$-6.2f\n", getPoints().get(5).y, getPoints().get(5).x);
+        msg += String.format("WATCH CORNER POINT:\t%1$-6.2f %2$-6.2f\n", getPoints().get(7).y, getPoints().get(7).x);
         msg += String.format("HAIL SIZE (in):\t\t%1$-4.2f\n", getHailSize());
         msg += String.format("MAX GUSTS (kts):\t%1$-4d\n", getGust());
         msg += String.format("MAX TOPS (100s ft):\t%1$-6d\n", getTop());
-        msg += String.format("MOTION (deg,kts):\t%1$-4d %2$-4d\n",
-                getMoveDir(), getMoveSpeed());
+        msg += String.format("MOTION (deg,kts):\t%1$-4d %2$-4d\n", getMoveDir(), getMoveSpeed());
         msg += String.format("TIME ZONE:\t\t%1$s\n", getTimeZone());
         msg += String.format("REPL WATCH NUMBER:\t%1$s\n", getReplWatch());
         msg += String.format("STATES INCLUDED:\t%1$s\n", getStatesIncl());
@@ -1010,37 +946,25 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         String wbFile = "ww0002.xml";
         String xsltFile = "wou.xlt";
 
-        /*
-         * Convert XML string into xmlSourse
-         */
+        /* Convert XML string into xmlSourse */
         Source xmlSource = new StreamSource(wbFile);
 
-        /*
-         * Construct xsltSource from xslfFile
-         */
+        /* Construct xsltSource from xslfFile */
         Source xsltSource = new StreamSource(xsltFile);
 
-        /*
-         * Use the factory for XSLT transformer
-         */
+        /* Use the factory for XSLT transformer */
         TransformerFactory transFact = TransformerFactory.newInstance();
         try {
             Transformer trans = transFact.newTransformer(xsltSource);
 
-            /*
-             * Create object for the transformation product
-             */
+            /* Create object for the transformation product */
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             trans.transform(xmlSource, new StreamResult(baos));
-            /*
-             * Convert transformation product to string
-             */
+            /* Convert transformation product to string */
             res = new String(baos.toByteArray());
         } catch (Exception e) {
-            /*
-             * Catch invalid control characters in the report
-             */
+            /* Catch invalid control characters in the report */
             e.printStackTrace();
 
         }
@@ -1056,14 +980,11 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
     public boolean hasStatusLine() {
 
         AbstractDrawableComponent adc = this.getParent();
-        if (adc instanceof DECollection
-                && adc.getName().equalsIgnoreCase("Watch")) {
-            Iterator<DrawableElement> it = ((DECollection) adc)
-                    .createDEIterator();
+        if (adc instanceof DECollection && adc.getName().equalsIgnoreCase("Watch")) {
+            Iterator<DrawableElement> it = ((DECollection) adc).createDEIterator();
             while (it.hasNext()) {
                 DrawableElement de = it.next();
-                if (de instanceof Line
-                        && de.getPgenType().equalsIgnoreCase("POINTED_ARROW")) {
+                if (de instanceof Line && de.getPgenType().equalsIgnoreCase("POINTED_ARROW")) {
                     return true;
                 }
             }
@@ -1102,21 +1023,19 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
         Layer defaultLayer = new Layer();
         //defaultLayer.addElement(this.getParent());
-        
-         DECollection dec = new DECollection("Watch");
-		 dec.setPgenType("WatchBox");
-		 dec.setPgenCategory("MET");
-		 dec.add( this.copy() );
-		 defaultLayer.addElement(dec);
-		 
-        
+
+        DECollection dec = new DECollection("Watch");
+        dec.setPgenType("WatchBox");
+        dec.setPgenCategory("MET");
+        dec.add(this.copy());
+        defaultLayer.addElement(dec);
+
         ArrayList<Layer> layerList = new ArrayList<Layer>();
         layerList.add(defaultLayer);
 
         ProductTime refTime = new ProductTime(getIssueTime());
 
-        Product defaultProduct = new Product("WatchBox", "WATCHBOX", forecaster, null,
-                refTime, layerList);
+        Product defaultProduct = new Product("WatchBox", "WATCHBOX", forecaster, null, refTime, layerList);
 
         defaultProduct.setOutputFile(label);
         defaultProduct.setCenter(PgenUtil.getCurrentOffice());
@@ -1260,12 +1179,10 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
     public static Coordinate snapOnAnchor(Station anchor, Coordinate point) {
 
         GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
-        gc.setStartingGeographicPoint(anchor.getLongitude(),
-                anchor.getLatitude());
+        gc.setStartingGeographicPoint(anchor.getLongitude(), anchor.getLatitude());
         gc.setDestinationGeographicPoint(point.x, point.y);
 
-        double dis = Math
-                .round((float) (gc.getOrthodromicDistance() / PgenUtil.SM2M) / 5) * 5.0;
+        double dis = Math.round((float) (gc.getOrthodromicDistance() / PgenUtil.SM2M) / 5) * 5.0;
         double angle = Math.round(gc.getAzimuth() / 22.5) * 22.5;
 
         gc.setDirection(angle, dis * PgenUtil.SM2M);
@@ -1284,8 +1201,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      *            - a list of anchor points
      * @return - the nearest acnhor point
      */
-    public static Station getNearestAnchorPt(Coordinate pt,
-            List<Station> anchorList) {
+    public static Station getNearestAnchorPt(Coordinate pt, List<Station> anchorList) {
 
         GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
         gc.setStartingGeographicPoint(pt.x, pt.y);
@@ -1296,8 +1212,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         ;
 
         for (Station stn : anchorList) {
-            gc.setDestinationGeographicPoint(stn.getLongitude(),
-                    stn.getLatitude());
+            gc.setDestinationGeographicPoint(stn.getLongitude(), stn.getLatitude());
 
             try {
                 dist = gc.getOrthodromicDistance();
@@ -1328,8 +1243,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      *            : second input location
      * @return
      */
-    public static ArrayList<Coordinate> generateWatchBoxPts(WatchShape ws,
-            double halfWidth, Coordinate point1, Coordinate point2) {
+    public static ArrayList<Coordinate> generateWatchBoxPts(WatchShape ws, double halfWidth, Coordinate point1, Coordinate point2) {
 
         ArrayList<Coordinate> watchBoxPts;
 
@@ -1343,9 +1257,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
             if (Math.abs(point1.x - point2.x) < 0.0001) {
                 dir = 90;
             } else {
-                dir = 180
-                        - Math.atan((point2.y - point1.y)
-                                / (point2.x - point1.x)) * 180 / Math.PI;
+                dir = 180 - Math.atan((point2.y - point1.y) / (point2.x - point1.x)) * 180 / Math.PI;
                 if (dir > 180)
                     dir -= 360;
 
@@ -1371,8 +1283,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      * @param point2
      * @return
      */
-    private static ArrayList<Coordinate> generateWatchBoxPts(double direction,
-            double halfWidth, Coordinate point1, Coordinate point2) {
+    private static ArrayList<Coordinate> generateWatchBoxPts(double direction, double halfWidth, Coordinate point1, Coordinate point2) {
 
         // get direction from point2 to point 1
         double dir1 = direction + 180;
@@ -1403,8 +1314,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         pt = gc.getDestinationGeographicPoint();
         Coordinate pt4 = new Coordinate(pt.getX(), pt.getY());
 
-        Coordinate pt3 = new Coordinate((pt2.x + pt4.x) / 2,
-                (pt2.y + pt4.y) / 2);
+        Coordinate pt3 = new Coordinate((pt2.x + pt4.x) / 2, (pt2.y + pt4.y) / 2);
 
         Coordinate pt5 = new Coordinate(point2.x, point2.y);
 
@@ -1412,8 +1322,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         pt = gc.getDestinationGeographicPoint();
         Coordinate pt6 = new Coordinate(pt.getX(), pt.getY());
 
-        Coordinate pt7 = new Coordinate((pt6.x + pt8.x) / 2,
-                (pt6.y + pt8.y) / 2);
+        Coordinate pt7 = new Coordinate((pt6.x + pt8.x) / 2, (pt6.y + pt8.y) / 2);
 
         watchBoxPts.add(pt1);
         watchBoxPts.add(pt2);
@@ -1437,8 +1346,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      *            - new location of the editing point.
      * @return - points of the new watch box
      */
-    public ArrayList<Coordinate> createNewWatchBox(int ptIdx, Coordinate loc,
-            WatchShape ws) {
+    public ArrayList<Coordinate> createNewWatchBox(int ptIdx, Coordinate loc, WatchShape ws) {
 
         Coordinate newPt0 = new Coordinate();
         Coordinate newPt4 = new Coordinate();
@@ -1464,8 +1372,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      *            - new location for point 4
      * @return - half width of the new watch box
      */
-    private double getNewHalfWidth(int ptIdx, Coordinate loc,
-            Coordinate newWbPt0, Coordinate newWbPt4) {
+    private double getNewHalfWidth(int ptIdx, Coordinate loc, Coordinate newWbPt0, Coordinate newWbPt4) {
 
         GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
         Coordinate newPt0 = new Coordinate();
@@ -1513,8 +1420,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                 if (pt0.x == pt4.x) {
                     newPt0.y = loc.y;
                 } else {
-                    newPt0.y = pt4.y + (loc.x - pt4.x) * (pt4.y - pt0.y)
-                            / (pt4.x - pt0.x);
+                    newPt0.y = pt4.y + (loc.x - pt4.x) * (pt4.y - pt0.y) / (pt4.x - pt0.x);
                 }
 
                 newPt0.x = loc.x;
@@ -1523,8 +1429,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                 if (pt0.y == pt4.y) {
                     newPt0.x = loc.x;
                 } else {
-                    newPt0.x = pt4.x + (loc.y - pt4.y) * (pt4.x - pt0.x)
-                            / (pt4.y - pt0.y);
+                    newPt0.x = pt4.x + (loc.y - pt4.y) * (pt4.x - pt0.x) / (pt4.y - pt0.y);
                 }
                 newPt0.y = loc.y;
             } else if (this.getWatchBoxShape() == WatchBox.WatchShape.ESOL) {
@@ -1547,8 +1452,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                 if (pt0.x == pt4.x) {
                     newPt4.y = loc.y;
                 } else {
-                    newPt4.y = pt0.y + (loc.x - pt0.x) * (pt4.y - pt0.y)
-                            / (pt4.x - pt0.x);
+                    newPt4.y = pt0.y + (loc.x - pt0.x) * (pt4.y - pt0.y) / (pt4.x - pt0.x);
                 }
 
                 newPt4.x = loc.x;
@@ -1557,8 +1461,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                 if (pt0.y == pt4.y) {
                     newPt4.x = loc.x;
                 } else {
-                    newPt4.x = pt0.x + (loc.y - pt0.y) * (pt4.x - pt0.x)
-                            / (pt4.y - pt0.y);
+                    newPt4.x = pt0.x + (loc.y - pt0.y) * (pt4.x - pt0.x) / (pt4.y - pt0.y);
                 }
                 newPt4.y = loc.y;
             } else if (this.getWatchBoxShape() == WatchBox.WatchShape.ESOL) {
@@ -1583,8 +1486,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                 if (pt5.x == pt7.x) {
                     newPtx.y = loc.y;
                 } else {
-                    newPtx.y = pt5.y + (loc.x - pt5.x) * (pt7.y - pt5.y)
-                            / (pt7.x - pt5.x);
+                    newPtx.y = pt5.y + (loc.x - pt5.x) * (pt7.y - pt5.y) / (pt7.x - pt5.x);
                 }
                 newPtx.x = loc.x;
 
@@ -1592,8 +1494,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                 if (pt5.y == pt7.y) {
                     newPtx.x = loc.x;
                 } else {
-                    newPtx.x = pt5.x + (loc.y - pt5.y) * (pt7.x - pt5.x)
-                            / (pt7.y - pt5.y);
+                    newPtx.x = pt5.x + (loc.y - pt5.y) * (pt7.x - pt5.x) / (pt7.y - pt5.y);
                 }
 
                 newPtx.y = loc.y;
@@ -1632,8 +1533,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                 if (pt1.x == pt3.x) {
                     newPtx.y = loc.y;
                 } else {
-                    newPtx.y = pt1.y + (loc.x - pt1.x) * (pt3.y - pt1.y)
-                            / (pt3.x - pt1.x);
+                    newPtx.y = pt1.y + (loc.x - pt1.x) * (pt3.y - pt1.y) / (pt3.x - pt1.x);
                 }
                 newPtx.x = loc.x;
 
@@ -1641,8 +1541,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
                 if (pt1.y == pt3.y) {
                     newPtx.x = loc.x;
                 } else {
-                    newPtx.x = pt1.x + (loc.y - pt1.y) * (pt3.x - pt1.x)
-                            / (pt3.y - pt1.y);
+                    newPtx.x = pt1.x + (loc.y - pt1.y) * (pt3.x - pt1.x) / (pt3.y - pt1.y);
                 }
 
                 newPtx.y = loc.y;
@@ -1691,8 +1590,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
         List<SPCCounty> counties = new ArrayList<SPCCounty>();
 
-        counties.addAll(PgenStaticDataProvider.getProvider()
-                .getCountiesInGeometry(bUnion));
+        counties.addAll(PgenStaticDataProvider.getProvider().getCountiesInGeometry(bUnion));
         ArrayList<String> nWFOs = new ArrayList<String>();
 
         List<String> wfos = this.getWFOs();
@@ -1701,8 +1599,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
             // wfo can be more than one
             if (wfo != null) {
                 for (int ii = 0; ii < wfo.length(); ii += 3) {
-                    String wfoStr = wfo.substring(ii,
-                            wfo.length() > ii + 3 ? ii + 3 : wfo.length());
+                    String wfoStr = wfo.substring(ii, wfo.length() > ii + 3 ? ii + 3 : wfo.length());
                     if (!wfos.contains(wfoStr) && !nWFOs.contains(wfoStr))
                         nWFOs.add(wfoStr);
                 }
@@ -1747,14 +1644,12 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         int iCnty = 0;
 
         for (SPCCounty county : countyList) {
-            if (county.getState() != null
-                    && state.equalsIgnoreCase(county.getState())) {
+            if (county.getState() != null && state.equalsIgnoreCase(county.getState())) {
                 if (ugcStr.isEmpty()) {
                     ugcStr = county.getUgcId();
                 } else {
                     if (ugcStr.contains("\n")) {
-                        oneLine = ugcStr
-                                .substring(ugcStr.lastIndexOf('\n') + 1);
+                        oneLine = ugcStr.substring(ugcStr.lastIndexOf('\n') + 1);
                     } else {
                         oneLine = ugcStr;
                     }
@@ -1768,9 +1663,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
                 if (ugcStr.charAt(2) == 'Z') {
                     // for coastal waters
-                    waters += "\n"
-                            + county.getZoneName().toUpperCase()
-                                    .replaceAll("_", " ") + "\n";
+                    waters += "\n" + county.getZoneName().toUpperCase().replaceAll("_", " ") + "\n";
                 } else if (Integer.valueOf(county.getFips().substring(2)) > 509) {
                     if (iCiti == 3) {
                         cities += "\n";
@@ -1779,11 +1672,9 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
                     String citi = county.getName().toUpperCase();
                     if (iCiti == 0) {
-                        cities += String.format("%1$-21s",
-                                citi.replaceAll("CITY OF ", ""));
+                        cities += String.format("%1$-21s", citi.replaceAll("CITY OF ", ""));
                     } else {
-                        cities += String.format("%1$-20s",
-                                citi.replaceAll("CITY OF ", ""));
+                        cities += String.format("%1$-20s", citi.replaceAll("CITY OF ", ""));
                     }
                     iCiti++;
 
@@ -1823,26 +1714,19 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
             if (ugcStr.charAt(2) == 'Z') {
                 // for coastal waters
-                cntyStr += "CW" + "\n\n" + ".    "
-                        + "ADJACENT COASTAL WATERS INCLUDED ARE:\n" + waters;
+                cntyStr += "CW" + "\n\n" + ".    " + "ADJACENT COASTAL WATERS INCLUDED ARE:\n" + waters;
             } else {
                 String stName = stateName.get(state).toUpperCase();
 
                 if (stName != null) {
                     if (state.equalsIgnoreCase("LA")) {
-                        cntyStr += state + "\n\n" + ".    " + stName
-                                + " PARISHES INCLUDED ARE:\n\n"
-                                + counties.toUpperCase();
+                        cntyStr += state + "\n\n" + ".    " + stName + " PARISHES INCLUDED ARE:\n\n" + counties.toUpperCase();
                     } else {
-                        cntyStr += state + "\n\n" + ".    " + stName
-                                + " COUNTIES INCLUDED ARE:\n\n"
-                                + counties.toUpperCase();
+                        cntyStr += state + "\n\n" + ".    " + stName + " COUNTIES INCLUDED ARE:\n\n" + counties.toUpperCase();
                     }
 
                     if (!cities.isEmpty()) {
-                        cntyStr += "\n\n" + stName
-                                + " INDEPENDENT CITIES INCLUDED ARE:\n\n"
-                                + cities.toUpperCase();
+                        cntyStr += "\n\n" + stName + " INDEPENDENT CITIES INCLUDED ARE:\n\n" + cities.toUpperCase();
                     }
                 }
             }
@@ -1859,8 +1743,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      */
     private Set<String> findCntyInClst(String fips) {
 
-        Set<String> rt = PgenStaticDataProvider.getProvider().getClstTbl()
-                .get(fips);
+        Set<String> rt = PgenStaticDataProvider.getProvider().getClstTbl().get(fips);
         return (rt == null) ? new HashSet<String>(Arrays.asList(fips)) : rt;
 
     }
@@ -1871,28 +1754,25 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      * @param county
      */
     public void rmClstCnty(SPCCounty county) {
-        if (county.getFips().isEmpty()
-                || county.getFips().equalsIgnoreCase("00000")) {
+        if (county.getFips().isEmpty() || county.getFips().equalsIgnoreCase("00000")) {
             removeCounty(county);
         }
         for (String fips : findCntyInClst(county.getFips())) {
             removeCounty(PgenStaticDataProvider.getProvider().findCounty(fips));
         }
     }
-        
+
     /**
      * Add clustering counties to the watch box
      * 
      * @param county
      */
     public void addClstCnty(SPCCounty county) {
-        if (county.getFips().isEmpty()
-                || county.getFips().equalsIgnoreCase("00000")) {
+        if (county.getFips().isEmpty() || county.getFips().equalsIgnoreCase("00000")) {
             addCounty(county);
         } else {
             for (String fips : findCntyInClst(county.getFips())) {
-                SPCCounty cnty = PgenStaticDataProvider.getProvider()
-                        .findCounty(fips);
+                SPCCounty cnty = PgenStaticDataProvider.getProvider().findCounty(fips);
                 if (cnty != null && !countyList.contains(cnty))
                     addCounty(cnty);
             }
@@ -1914,8 +1794,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
      *            - forecaster name
      */
 
-    public void addStatus(String fromLine, int dNum, Calendar vTime,
-            Calendar eTime, String name) {
+    public void addStatus(String fromLine, int dNum, Calendar vTime, Calendar eTime, String name) {
         if (statusHistory == null) {
             statusHistory = new ArrayList<WatchStatus>();
         }
@@ -1954,12 +1833,8 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         if (cntyList != null && !cntyList.isEmpty()) {
 
             for (SPCCounty cnty : cntyList) {
-                String cntyName = cnty.getName().replaceAll("City of ", "")
-                        .replaceAll(" City", "").replaceAll(" ", "_").replaceAll("'", "").replaceAll("\\.", "");
-                cntyInfo += String.format(
-                        "%1$-7s%2$-5s%3$-17s%4$5.2f%5$8.2f%6$7s %7$-5s",
-                        cnty.getUgcId(), cnty.getState(), cntyName,
-                        cnty.getCentriod().y, cnty.getCentriod().x,
+                String cntyName = cnty.getName().replaceAll("City of ", "").replaceAll(" City", "").replaceAll(" ", "_").replaceAll("'", "").replaceAll("\\.", "");
+                cntyInfo += String.format("%1$-7s%2$-5s%3$-17s%4$5.2f%5$8.2f%6$7s %7$-5s", cnty.getUgcId(), cnty.getState(), cntyName, cnty.getCentriod().y, cnty.getCentriod().x,
                         cnty.getFips(), cnty.getWfo());
                 cntyInfo += "\n";
             }
@@ -1970,19 +1845,19 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
         return cntyInfo;
 
     }
-    
+
     public List<SPCCounty> getOriginalCountyList() {
-		return originalCountyList;
-	}
-    
+        return originalCountyList;
+    }
+
     public void makeOriginalCountyList(List<SPCCounty> countyList) {
-		this.originalCountyList = new ArrayList<SPCCounty>(countyList);
-	}
-	
-	public void setOriginalCountyList(List<SPCCounty> originalCountyList) {
-		this.originalCountyList = originalCountyList;
-	}
-	
+        this.originalCountyList = new ArrayList<SPCCounty>(countyList);
+    }
+
+    public void setOriginalCountyList(List<SPCCounty> originalCountyList) {
+        this.originalCountyList = originalCountyList;
+    }
+
     /**
      * Class to hold watch status information
      * 
@@ -2001,8 +1876,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
         private String statusForecaster;
 
-        private WatchStatus(String fromLine, int dNum, Calendar vTime,
-                Calendar eTime, String name) {
+        private WatchStatus(String fromLine, int dNum, Calendar vTime, Calendar eTime, String name) {
             this.fromLine = fromLine;
             this.discussion = dNum;
             this.statusValidTime = vTime;
@@ -2052,6 +1926,25 @@ public class WatchBox extends MultiPointElement implements IWatchBox {
 
     }
 
-	
-    
+    //TRAC 1112
+    public void updateActiveCountiesInWatchBox(List<String> ugcList) {
+        List<SPCCounty> allCounties = null;
+
+        countyList.clear();
+        allCounties = PgenStaticDataProvider.getProvider().getSPCCounties();
+
+        //for each UGC retrieved from the database/WCN files
+        for (String ugc : ugcList) {
+            // for each existing county on record
+            for (SPCCounty county : allCounties) {
+
+                if (ugc.equalsIgnoreCase(county.getUgcId())) {
+                    countyList.add(county);
+                }
+
+            }
+        }
+
+    }
+
 }

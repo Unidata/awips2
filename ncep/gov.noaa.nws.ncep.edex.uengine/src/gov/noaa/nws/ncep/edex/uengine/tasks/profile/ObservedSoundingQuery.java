@@ -41,8 +41,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * gov.noaa.nws.ncep.edex.uengine.tasks.profile.ObservedSoundingQuery
  * 
- * This java class performs the observed sounding data query functions.
- * This code has been developed by the SIB for use in the AWIPS2 system.
+ * This java class performs the observed sounding data query functions. This
+ * code has been developed by the SIB for use in the AWIPS2 system.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -66,6 +66,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                 better performance
  * Jul 19, 2013 1992    bsteffen   Remove redundant time columns from bufrua.
  * Aug 30, 2013 2298    rjpeter    Make getPluginName abstract
+ * June, 2014           Chin Chen  Retrieved observed sounding with reftime
+ * Oct 03, 2014         B. Hebbard Performance improvement:  getObservedSndNcUairDataGeneric( )
+ *                                 limits DB param set to retrieve, in cases where possible
+ *                                 (mandatory level and no PW-for-full-sounding)
  * </pre>
  * 
  * @author Chin Chen
@@ -211,15 +215,15 @@ public class ObservedSoundingQuery {
         } else if (obType.equals(ObsSndType.NCUAIR.toString())) {
             currentDBTblName = NCUAIR_TBL_NAME;
             queryStr = new String(
-                    "Select Distinct latitude, longitude, id, stationId, elevation, synoptictime FROM "
+                    "Select Distinct latitude, longitude, id, stationId, elevation, reftime FROM "
                             + currentDBTblName
-                            + " where nil='FALSE' AND synoptictime='"
+                            + " where nil='FALSE' AND reftime='"
                             + selectedSndTime
                             + "' AND latitude BETWEEN -89.9 AND 89.9 AND longitude BETWEEN -179.9 AND 179.9");
             queryStr1 = new String(
                     "Select Distinct latitude, longitude FROM "
                             + currentDBTblName
-                            + " where nil='FALSE' AND synoptictime='"
+                            + " where nil='FALSE' AND reftime='"
                             + selectedSndTime
                             + "' AND latitude BETWEEN -89.9 AND 89.9 AND longitude BETWEEN -179.9 AND 179.9");
             dao = new CoreDao(DaoConfig.forClass(NcUairRecord.class));
@@ -320,9 +324,9 @@ public class ObservedSoundingQuery {
 
         } else if (obType.equals(ObsSndType.NCUAIR.toString())) {
             currentDBTblName = NCUAIR_TBL_NAME;
-            queryStr = new String("Select Distinct synoptictime FROM "
+            queryStr = new String("Select Distinct reftime FROM "
                     + currentDBTblName
-                    + " where nil='FALSE' ORDER BY synoptictime DESC");
+                    + " where nil='FALSE' ORDER BY reftime DESC");
             dao = new CoreDao(DaoConfig.forClass(NcUairRecord.class));
         } else {
             return tl;
@@ -356,10 +360,9 @@ public class ObservedSoundingQuery {
 
         } else if (obType.equals(ObsSndType.NCUAIR.toString())) {
             currentDBTblName = NCUAIR_TBL_NAME;
-            queryStr = new String("Select Distinct synoptictime FROM "
-                    + currentDBTblName
-                    + " where nil='FALSE' AND synoptictime >= '" + startTimeStr
-                    + "' AND synoptictime <= '" + endTimeStr
+            queryStr = new String("Select Distinct reftime FROM "
+                    + currentDBTblName + " where nil='FALSE' AND reftime >= '"
+                    + startTimeStr + "' AND reftime <= '" + endTimeStr
                     + "' ORDER BY synoptictime DESC");
             dao = new CoreDao(DaoConfig.forClass(NcUairRecord.class));
         } else {
@@ -949,7 +952,8 @@ public class ObservedSoundingQuery {
      */
     public static List<NcUairRecord[]> getObservedSndNcUairDataGeneric(
             Coordinate[] coordArray, String[] stnIdArray,
-            List<String> soundingTimeStrList, long[] soundTimeLongArr) {
+            List<String> soundingTimeStrList, long[] soundTimeLongArr,
+            String level, int pwRequired) {
         // List<NcSoundingProfile> soundingProfileList= new
         // ArrayList<NcSoundingProfile>();
         PointDataQuery request = null;
@@ -963,8 +967,31 @@ public class ObservedSoundingQuery {
         boolean queryByStn;
         try {
             request = new PointDataQuery("ncuair");
-            request.setParameters(NcUairToRecord.MAN_PARAMS_LIST);
+            // If a mandatory level is being requested, then we
+            // can speed things up significantly by getting only the
+            // TTAA/XXAA parameters from the datastore. Exceptions
+            // to this are made (a) if we need precipitable water for
+            // the entire sounding whose algorithm requires all data
+            // types, OR (b) we're only requesting data for a single
+            // station (as for Cloud Height) in which case performance
+            // isn't an issue.
+            boolean multipleStationsRequested = (coordArray != null && coordArray.length > 1)
+                    || (stnIdArray != null && stnIdArray.length > 1);
+            if (isMandatoryLevel(level) && pwRequired == 0
+                    && multipleStationsRequested) {
+                request.setParameters(NcUairToRecord.AA_ONLY_PARAMS_LIST);
+                // ...otherwise, we'd better grab the whole set
+            } else {
+                request.setParameters(NcUairToRecord.MAN_PARAMS_LIST);
+            }
             request.addParameter("nil", String.valueOf(false), "=");
+            // The following may look wasteful if we only need one level,
+            // but requesting a specific level (1) requires spelling out
+            // parameters to which it applies, and more importantly
+            // (2) saves NO time on the resulting IDataStore request,
+            // because all levels are retrieved there anyway(!). See note
+            // in PointDataPluginDao.getPointData( ): "...for now, we
+            // will retrieve all levels and then post-process the result"
             request.requestAllLevels();
             String d = "";
             for (String timeStr : soundingTimeStrList) {
@@ -1006,8 +1033,10 @@ public class ObservedSoundingQuery {
             long t001 = System.currentTimeMillis();
             result = request.execute();
             long t002 = System.currentTimeMillis();
-            // totalRqTime=totalRqTime+(t002-t001);
-            // System.out.println("getObservedSndNcUairDataGeneric data query alone took "+(t002-t001)+"ms");
+            // totalRqTime = totalRqTime + (t002 - t001);
+            System.out
+                    .println("getObservedSndNcUairDataGeneric data query alone took "
+                            + (t002 - t001) + "ms");
 
             if (result != null) {
                 long t003 = System.currentTimeMillis();
@@ -1181,7 +1210,8 @@ public class ObservedSoundingQuery {
                                         .add(pickedUairRecords
                                                 .toArray(new NcUairRecord[pickedUairRecords
                                                         .size()]));
-                                // System.out.println("getObservedSndNcUairDataGeneric Number of records in PF="
+                                // System.out
+                                // .println("getObservedSndNcUairDataGeneric Number of records in PF="
                                 // + pickedUairRecords.size());
                             }
                         }
@@ -1189,14 +1219,34 @@ public class ObservedSoundingQuery {
 
                 }
                 long t004 = System.currentTimeMillis();
-                // System.out.println(" sorting return records took "+(t004-t003)+"ms");
+                System.out.println(" sorting return records took "
+                        + (t004 - t003) + "ms");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // System.out.println("getObservedSndNcUairDataGeneric Number profiles (record[]s) in finalRecordArrayList="+finalRecordArrayList.size());
+        // System.out
+        // .println("getObservedSndNcUairDataGeneric Number profiles (record[]s) in finalRecordArrayList="
+        // + finalRecordArrayList.size());
         return finalRecordArrayList;
+    }
+
+    private static boolean isMandatoryLevel(String level) {
+        if (level == null) {
+            return false;
+        }
+        // alternate: final String mandatoryLevels =
+        // ".surface.1000.925.850.700.500.400.300.250.200.150.100.mb";
+        // return mandatoryLevels.contains/* IgnoreCase */("." + level + ".");
+        final String[] mandatoryLevels = { /* "surface", */"1000", "925",
+                "850", "700", "500", "400", "300", "250", "200", "150", "100" };
+        for (String s : mandatoryLevels) {
+            if (s.equals/* IgnoreCase */(level)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /*

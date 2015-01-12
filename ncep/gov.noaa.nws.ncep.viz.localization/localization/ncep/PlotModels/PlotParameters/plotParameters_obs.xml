@@ -18,11 +18,30 @@
  <PlotParameterDefn  plotParamName="PMSL" metParamName="MeanSeaLevelPres"  
                      dbParamName="seaLevelPress" plotUnit="mb" 
                      plotFormat="PMSL"/>
+          
+                
 
- <PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr"  
+                     
+ <!-- Originally P03C, TTR 923, Has no sign +/- -->              
+ <PlotParameterDefn  plotParamName="P03X" metParamName="PressChange3HrAbsVal"  
                      dbParamName="pressChange3Hour" plotUnit="Pa" 
-                     plotFormat="%+3.0f"/>
-
+                     plotFormat="%+3.0f"/>                        
+ 
+ <!-- Original, TTR 923 -->			                
+ <!--PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr"  
+                     dbParamName="pressChange3Hour" plotUnit="Pa" 
+                     plotFormat="%+3.0f"/-->
+                     
+  <!-- TTR 923 -->                    
+ <PlotParameterDefn  plotParamName="PTND" metParamName="PressureChange3HrAndTendency"  
+                     deriveParams="pressChange3Hour,pressChangeChar" plotUnit="Pa" 
+                     plotFormat="%+3.0f"/>                     
+  <!-- TTR 923 -->                    
+ <PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr"
+                     deriveParams="pressChange3Hour,pressChangeChar" 
+                     plotUnit="Pa" 
+                     plotFormat="%+3.0f"/>      
+ <!-- TTR 923 --> 
 <PlotParameterDefn  plotParamName="PTSY" metParamName="PressureTendencySymbol" dbParamName="pressChangeChar" 
                     plotMode="table" symbolFont="WxSymbolFont" plotLookupTable="pgen_pressure_tendency.txt"/>
 
@@ -57,10 +76,10 @@
  <PlotParameterDefn  plotParamName="RSLT" metParamName="SeaLevelPressure"  
                      dbParamName="altimeter" plotUnit="mb" 
                      plotFormat="RSLT"/>
-
+     
  <PlotParameterDefn  plotParamName="RELH" metParamName="RelativeHumidity"  
-                     deriveParams="all"    plotUnit="%" plotFormat="%3.0f"/>
-
+                     deriveParams="all"    plotUnit="%" plotFormat="%3.0f"/>                     
+                     
  <PlotParameterDefn  plotParamName="HEAT" metParamName="HeatIndex"  
                      deriveParams="all"    plotUnit="°F" plotFormat="%3.0f"/>
 
@@ -216,7 +235,8 @@ don't think this is needed here plotLookupTable="wx_symbol_trans.txt"
     There are 2 alternatives : 
  First we can add/implement the arrayIndex="0" attribute to display other values and
  Second we can use the prioritySelectTable="wx_sym_select.txt". This is currently 
- only configured to rank all values the same so to prioritize it would need the ranking set -->
+ only configured to rank all values the same so to prioritize it would need the ranking set 
+ RedMine 4230  -->
  <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
                      dbParamName="presWeather" 
                      plotMode="table"

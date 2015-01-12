@@ -133,6 +133,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11/13		#1049		B. Yin		Handle outlook type defined in layer.
  * 12/13		TTR904		B. Yin		Added back the water zone string for Watch county list
  * 11/13        #1065       J. Wu       Added Kink lines.
+ * 05/14        TTR995      J. Wu       Set Text's 'auto" flag to false.
+ * 09/14        TTR716      J. Wu       Use "-" for GFA Outlook's Vor text.
  * 
  * </pre>
  * 
@@ -367,10 +369,11 @@ public class ProductConverter {
                     text.setHide(fText.isHide());
                 }
 
-                if (fText.isAuto() != null) {
-                    text.setAuto(fText.isAuto());
-                }
-
+                /*
+                 * if (fText.isAuto() != null) { //
+                 * text.setAuto(fText.isAuto()); text.setAuto(false); }
+                 */
+                text.setAuto(false);
                 des.add(text);
             }
 
@@ -731,6 +734,12 @@ public class ProductConverter {
                 if ("ICE".equals(gfa.getGfaHazard())) {
                     gfa.setGfaType("");
                     gfa.setGfaValue("Type", fgfa.getType());
+                }
+
+                // textVOR
+                String vorStr = fgfa.getTextVor();
+                if (vorStr != null) {
+                    gfa.setGfaVorText(nvl(vorStr));
                 }
 
                 String cig = fgfa.getCig();
@@ -1096,7 +1105,11 @@ public class ProductConverter {
                         }
 
                         // textVOR
-                        fgfa.setTextVor(nvl(((Gfa) de).getGfaVorText()));
+                        String vorStr = ((Gfa) de).getGfaVorText();
+                        if (vorStr != null && ((Gfa) de).isOutlook()) {
+                            vorStr = vorStr.replaceAll(" TO ", "-");
+                        }
+                        fgfa.setTextVor(nvl(vorStr));
 
                         fgfa.setFillPattern(nvl(((Gfa) de).getFillPattern()
                                 .name()));

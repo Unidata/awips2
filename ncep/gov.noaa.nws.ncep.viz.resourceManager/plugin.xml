@@ -27,7 +27,7 @@
        <handler
             class="gov.noaa.nws.ncep.viz.resourceManager.ui.ResourceManagerAction"
             commandId="gov.noaa.nws.ncep.viz.actions.resourceManager">
-       </handler>
+       </handler>   
       <handler
             class="gov.noaa.nws.ncep.viz.resourceManager.ui.newResource.NewResourceAction"
             commandId="gov.noaa.nws.ncep.viz.ui.newResource">

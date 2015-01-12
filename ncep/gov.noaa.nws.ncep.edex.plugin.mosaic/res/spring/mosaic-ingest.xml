@@ -26,15 +26,9 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="mosaicCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="mosaic-camel"/>
-  	</bean> 
-
 	<camelContext id="mosaic-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="mosaicFileEndpoint" uri="file:${edex.home}/data/sbn/mosaic?noop=true&amp;idempotent=false" />
 
 		<!-- Begin Mosaic routes -->

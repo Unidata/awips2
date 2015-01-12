@@ -552,8 +552,8 @@ public class GeoMagDecoder extends AbstractDecoder {
             }
 
             try {
-               // obs_time, compx...//size 7
-               dataRec = dataStore.retrieve(newUri);
+                // obs_time, compx...//size 7
+                dataRec = dataStore.retrieve(newUri);
             } catch (FileNotFoundException e1) {
                 e1.printStackTrace();
             } catch (StorageException e1) {

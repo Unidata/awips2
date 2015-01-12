@@ -50,12 +50,12 @@
                     <resourceData xsi:type="NC-OverlayResourceGroupData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false" >
 
 	                    <!-- <color>RGB {255, 228, 220}</color> -->
-	                    
-	                    <resource>
+
+                        <resource>
                             <loadProperties loadWithoutData="false">
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
-                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
                                 <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
@@ -96,8 +96,8 @@
                             <loadProperties loadWithoutData="false">
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
-                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
-                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="1200000"/>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>State Boundaries</mapName>

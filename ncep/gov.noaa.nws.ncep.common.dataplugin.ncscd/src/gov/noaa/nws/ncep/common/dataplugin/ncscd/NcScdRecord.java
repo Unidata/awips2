@@ -3,7 +3,6 @@ package gov.noaa.nws.ncep.common.dataplugin.ncscd;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.util.Calendar;
-import java.util.Collection;
 
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
@@ -27,7 +26,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -63,6 +61,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869     bsteffen  Remove dataURI column from PluginDataObject.
  * Aug 30, 2013 2298     rjpeter   Make getPluginName abstract.
  * Dec 03, 2013 2551     rjpeter   Extend PersistablePluginDataObject.
+ * Jun 11, 2014 2061     bsteffen  Remove IDecoderGettable
+ * 
  * </pre>
  * 
  * @author T.Lee
@@ -82,7 +82,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class NcScdRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData {
+        ISpatialEnabled, IPointData {
 
     private static final long serialVersionUID = 1L;
 
@@ -274,11 +274,6 @@ public class NcScdRecord extends PersistablePluginDataObject implements
      */
     public NcScdRecord(String uri) {
         super(uri);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     public String getReportType() {
@@ -515,30 +510,6 @@ public class NcScdRecord extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override
