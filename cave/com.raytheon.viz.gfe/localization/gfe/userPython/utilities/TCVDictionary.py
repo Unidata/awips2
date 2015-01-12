@@ -630,7 +630,7 @@ PotentialImpactStatements = {
     },
 }
 
-EvacuationStatements = ["For those under evacuation orders, leave as soon as practical with a destination in mind. Gas up your vehicle well ahead of time. Be sure that you take essential materiasl from your Emergency Supplies Kit. Let others know where you are going and when you intend to arrive.",
+EvacuationStatements = ["For those under evacuation orders, leave as soon as practical with a destination in mind. Gas up your vehicle well ahead of time. Be sure that you take essential materials from your Emergency Supplies Kit. Let others know where you are going and when you intend to arrive.",
                         "If evacuating the area, stick to prescribed evacuation routes. Look for additional traffic information on roadway smart signs and listen to select radio channels for further travel instructions. Do not use your cell phone while driving."
                         "For those not under evacuation orders, understand that there are inherent risks to evacuation (such as traffic congestion, accidents, and driving in bad weather), so evacuate only if necessary. Help keep roadways open for those that are under evacuation orders."]
 
@@ -678,7 +678,6 @@ OtherPreparednessActions = {
                  "Problems with sewer backups can contaminate standing flood waters. Keep children away. Also, listen for boil water alerts relative to communities whose tap water may have become temporarily non-potable."],
 }
 
-AdditionalSources = ["- For information on appropriate preparations see ready.gov/louisiana",
-                     "- For information on local evacuation shelters see www.emergency.louisana.gov/disaster_evaluation_guide.html",
+AdditionalSources = ["- For information on appropriate preparations see ready.gov",
                      "- For information on creating an emergency plan see getagameplan.org",
                      "- For additional disaster preparedness information see redcross.org"]
