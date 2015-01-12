@@ -14,8 +14,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
+import com.raytheon.uf.common.geospatial.adapter.GridGeometryAdapter;
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 
 /**
  * This is used as the initial area for a MapRenderableDisplay and is 

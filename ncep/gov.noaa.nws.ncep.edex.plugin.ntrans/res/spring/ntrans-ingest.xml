@@ -16,15 +16,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.Ntrans" />
 	</bean>
 
-	<bean id="ntransCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ntrans-camel"/>
-  	</bean> 
-
 	<camelContext id="ntrans-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="ntransFileEndpoint" uri="file:${edex.home}/data/sbn/ntrans??noop=true&amp;idempotent=false" />
 
 		<!-- Begin Ntrans routes -->

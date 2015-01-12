@@ -17,14 +17,8 @@
 		<constructor-arg value="jms-durable:queue:Ingest.ncuair" />
 	</bean>
 
-	<bean id="ncuairCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ncuair-camel"/>
-  	</bean>
-  	
 	<camelContext id="ncuair-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="ncuairFileEndpoint" uri="file:${edex.home}/data/sbn/ncuair?noop=true&amp;idempotent=false"/>
 
 		<!-- Begin ncUair routes -->

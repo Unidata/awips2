@@ -20,7 +20,6 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -44,6 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 bsteffen    Remove dataURI column from PluginDataObject.
  * Feb 11, 2014 2784   rferrel    Remove override of setIdentifier.
+ * Jun 11, 2014 2061   bsteffen   Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -206,12 +206,6 @@ public class NonConvSigmetRecord extends PluginDataObject {
      */
     public NonConvSigmetRecord(String uri) {
         super(uri);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /**

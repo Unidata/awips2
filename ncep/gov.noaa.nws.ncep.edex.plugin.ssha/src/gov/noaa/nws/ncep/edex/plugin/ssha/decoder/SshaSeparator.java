@@ -26,12 +26,12 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.BUFRDocument;
+import com.raytheon.uf.edex.bufrtools.BUFRFile;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 
 public class SshaSeparator extends AbstractRecordSeparator implements
         IDescriptorFactorySelector {

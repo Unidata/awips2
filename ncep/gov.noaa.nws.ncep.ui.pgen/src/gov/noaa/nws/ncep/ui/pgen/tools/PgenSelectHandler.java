@@ -77,6 +77,14 @@ import com.vividsolutions.jts.geom.Point;
  * 09/13		?			J. Wu 		Call buildVortext for GFA when mouse is 
  *                                      down since GFA converted from VGF does not 
  *                                      have vorText set.
+ * 04/14        #1117       J. Wu       Set focus to label/update line type for Contours.
+ * 04/2014      TTR867      pswamy      Select-tool-on-center-vertex of circle does not 
+ *                                      move circle (as in NMAP)
+ * 04/21/2014   TTR992      D. Sushon   Contour tool's Label >> Edit option should not close
+ *                                      main Contour tool window on Cancel, changing a
+ *                                      symbol's label should not change the symbol;
+ *                                      Both issues fixed.
+ * 05/14        TTR1008     J. Wu       Set "adc" to current contour for PgenContoursTool..
  * 
  * </pre>
  * 
@@ -171,20 +179,27 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
     @Override
     public boolean handleMouseDown(int anX, int aY, int button) {
 
-        if (!tool.isResourceEditable())
+        if (!tool.isResourceEditable()) {
             return false;
+        }
         // Check if mouse is in geographic extent
         Coordinate loc = mapEditor.translateClick(anX, aY);
-        if (loc == null || shiftDown || simulate)
+        if (loc == null || shiftDown || simulate) {
             return false;
+        }
         preempt = false;
+
+        if (attrDlg != null && attrDlg instanceof ContoursAttrDlg) {
+            ((ContoursAttrDlg) attrDlg).setLabelFocus();
+        }
 
         if (button == 1) {
 
             // reset ptSelected flag in case the dialog is closed without
             // right-mouse click.
-            if (pgenrsc.getSelectedDE() == null)
+            if (pgenrsc.getSelectedDE() == null) {
                 ptSelected = false;
+            }
 
             // Return if an element or a point has been selected
             if (ptSelected || pgenrsc.getSelectedDE() != null) {
@@ -229,8 +244,9 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
             // AbstractDrawableComponent adc = drawingLayer.getNearestComponent(
             // loc, new AcceptFilter(), true );
 
-            if (elSelected == null)
+            if (elSelected == null) {
                 return false;
+            }
             preempt = true;
 
             /*
@@ -263,6 +279,8 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
                         // of the contour.
                         ptSelected = false;
                     }
+
+                    adc = dec;
                 }
 
                 pgCategory = "MET";
@@ -472,24 +490,34 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
      */
     @Override
     public boolean handleMouseDownMove(int x, int y, int button) {
-        if (!tool.isResourceEditable())
+        if (!tool.isResourceEditable()) {
             return false;
+        }
 
-        if (shiftDown)
+        if (shiftDown) {
             return false;
-        if (dontMove && pgenrsc.getSelectedDE() != null)
+        }
+        if (dontMove && pgenrsc.getSelectedDE() != null) {
             return true;
+        }
+
+        if (attrDlg != null && attrDlg instanceof ContoursAttrDlg) {
+            ((ContoursAttrDlg) attrDlg).setLabelFocus();
+        }
+
         // Check if mouse is in geographic extent
         Coordinate loc = mapEditor.translateClick(x, y);
-        // if ( loc == null ) return false;
+        // if ( loc == null ){ return false;}
 
         DrawableElement tmpEl = pgenrsc.getSelectedDE();
-        if (PgenUtil.isUnmovable(tmpEl))
+        if (PgenUtil.isUnmovable(tmpEl)) {
             return false;
+        }
 
         //
-        if (loc != null)
+        if (loc != null) {
             tempLoc = loc;
+        }
 
         if (loc != null && inOut == 1) {
             // make sure the click is close enough to the element
@@ -510,13 +538,14 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
         } else if (loc != null && inOut == 0) {
             inOut = 1;
         } else {
-            if (inOut != 0)
+            if (inOut != 0) {
                 inOut = 0;
+            }
 
-            if (tmpEl == null) // make sure if no DE is selected, no moving the
-                               // DE
-                return false; // for pan
-            else {
+            if (tmpEl == null) { // make sure if no DE is selected, no moving
+                                 // the DE for pan
+                return false;
+            } else {
                 simulate = true;
                 PgenUtil.simulateMouseDown(x, y, button, mapEditor);
                 simulate = false;
@@ -579,10 +608,12 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
                                 ((TextAttrDlg) attrDlg).getString()[0]);
 
                         if (lbl.length() > 0) {
-                            if (lbl.charAt(0) == '[')
+                            if (lbl.charAt(0) == '[') {
                                 lbl.deleteCharAt(0);
-                            if (lbl.charAt(lbl.length() - 1) == ']')
+                            }
+                            if (lbl.charAt(lbl.length() - 1) == ']') {
                                 lbl.deleteCharAt(lbl.length() - 1);
+                            }
                             try {
                                 Integer.parseInt(lbl.toString());
                                 // check if the text is right or left of the
@@ -623,9 +654,32 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
 
             } else {
                 if (ptSelected) {
-                    // Replace the selected point and repaint.
-                    ghostEl.removePoint(ptIndex);
-                    ghostEl.addPoint(ptIndex, loc);
+
+                    if ((ghostEl instanceof Arc) && (ptIndex == 0)) {
+
+                        double[] centerOldLoc = mapEditor
+                                .translateInverseClick(ghostEl.getPoints().get(
+                                        0));
+
+                        double deltaX = (x - centerOldLoc[0]);
+                        double deltaY = (y - centerOldLoc[1]);
+
+                        double[] circferOldLoc = mapEditor
+                                .translateInverseClick(ghostEl.getPoints().get(
+                                        1));
+
+                        Coordinate newLoc = mapEditor.translateClick(
+                                (circferOldLoc[0] + deltaX),
+                                (circferOldLoc[1] + deltaY));
+
+                        // Replace the selected point and repaint.
+                        ghostEl.getPoints().set(ptIndex, loc);
+                        ghostEl.getPoints().set(ptIndex + 1, newLoc);
+
+                    } else {
+                        ghostEl.getPoints().set(ptIndex, loc);
+                    }
+
                     if (ghostEl instanceof Gfa && !((Gfa) ghostEl).isSnapshot()) {
                         ((GfaAttrDlg) attrDlg).setEnableStatesButton(true);
                     }
@@ -651,7 +705,7 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
                         ghostEl.setPgenType(tmpEl.getPgenType());
 
                         ptIndex = getNearestPtIndex(ghostEl, loc);
-
+                        // mapEditor
                         double[] locScreen = mapEditor
                                 .translateInverseClick(loc);
                         double[] pt = mapEditor.translateInverseClick((ghostEl
@@ -698,8 +752,13 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
     @Override
     public boolean handleMouseUp(int x, int y, int button) {
         firstDown = null;
-        if (!tool.isResourceEditable())
+        if (!tool.isResourceEditable()) {
             return false;
+        }
+
+        if (attrDlg != null && attrDlg instanceof ContoursAttrDlg) {
+            ((ContoursAttrDlg) attrDlg).setLabelFocus();
+        }
 
         // Finish the editing
         if (button == 1 && pgenrsc != null) {
@@ -837,10 +896,11 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
                         }
 
                         Coordinate loc = mapEditor.translateClick(x, y);
-                        if (loc != null)
+                        if (loc != null) {
                             ((SinglePointElement) newEl).setLocation(loc);
-                        else
+                        } else {
                             ((SinglePointElement) newEl).setLocation(tempLoc);
+                        }
                         pgenrsc.setSelected(newEl);
                     }
 
@@ -922,8 +982,9 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
 
                             }
 
-                            if (attrDlg != null)
+                            if (attrDlg != null) {
                                 attrDlg.setDrawableElement(newEl);
+                            }
 
                             // Set this new element as the currently selected
                             // element
@@ -937,8 +998,9 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
 
                     if (newEl instanceof Track) {
                         if (isModifiedPointOneOfTheLastTwoInitPoint(newEl,
-                                ptIndex))
+                                ptIndex)) {
                             ((Track) newEl).calculateExtrapTrackPoints();
+                        }
                         displayTrackExtrapPointInfoDlg((TrackAttrDlg) attrDlg,
                                 (Track) newEl);
                     } else if (newEl instanceof Gfa) {
@@ -979,8 +1041,9 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
             // PgenUtil.setSelectingMode();
             // }
 
-            if (trackExtrapPointInfoDlg != null)
+            if (trackExtrapPointInfoDlg != null) {
                 trackExtrapPointInfoDlg.close();
+            }
             trackExtrapPointInfoDlg = null;
 
             pgenrsc.removeGhostLine();
@@ -1011,23 +1074,27 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
         /*
          * If multiPointElement is not a type of Track, do nothing
          */
-        if (multiPointElement == null || !(multiPointElement instanceof Track))
+        if (multiPointElement == null || !(multiPointElement instanceof Track)) {
             return;
+        }
 
         Track track = (Track) multiPointElement;
         int initialTrackPointSize = 0;
-        if (track.getInitialPoints() != null)
+        if (track.getInitialPoints() != null) {
             initialTrackPointSize = track.getInitialPoints().length;
-        if (isInitialPointSelected(initialTrackPointSize, nearestPointIndex))
+        }
+        if (isInitialPointSelected(initialTrackPointSize, nearestPointIndex)) {
             track.setInitialColor(new java.awt.Color(255, 255, 255));
-        else
+        } else {
             track.setExtrapColor(new java.awt.Color(255, 255, 255));
+        }
     }
 
     private boolean isInitialPointSelected(int initialPointSize,
             int nearestPointIndex) {
-        if (nearestPointIndex < initialPointSize)
+        if (nearestPointIndex < initialPointSize) {
             return true;
+        }
         return false;
     }
 
@@ -1037,16 +1104,19 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
         /*
          * If multiPointElement is not a type of Track, return false
          */
-        if (drawableElement == null || !(drawableElement instanceof Track))
+        if (drawableElement == null || !(drawableElement instanceof Track)) {
             return isOneOfTheLastTwoInitPoint;
+        }
 
         Track track = (Track) drawableElement;
         int initialTrackPointSize = 0;
-        if (track.getInitialPoints() != null)
+        if (track.getInitialPoints() != null) {
             initialTrackPointSize = track.getInitialPoints().length;
+        }
         if (nearestPointIndex == (initialTrackPointSize - 1)
-                || nearestPointIndex == (initialTrackPointSize - 2))
+                || nearestPointIndex == (initialTrackPointSize - 2)) {
             isOneOfTheLastTwoInitPoint = true;
+        }
 
         return isOneOfTheLastTwoInitPoint;
     }
@@ -1091,15 +1161,17 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
     }
 
     public void closeDlg() {
-        if (attrDlg != null)
+        if (attrDlg != null) {
             attrDlg.close();
+        }
     }
 
     private void displayTrackExtrapPointInfoDlg(TrackAttrDlg attrDlgObject,
             Track trackObject) {
 
-        if (attrDlgObject == null)
+        if (attrDlgObject == null) {
             return;
+        }
         TrackExtrapPointInfoDlg extrapPointInfoDlg = attrDlgObject
                 .getTrackExtrapPointInfoDlg();
         if (extrapPointInfoDlg != null) {
@@ -1130,20 +1202,23 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
     }
 
     private boolean isTrackElement(DrawableType drawableType) {
-        if (drawableType == DrawableType.TRACK)
+        if (drawableType == DrawableType.TRACK) {
             return true;
+        }
         return false;
     }
 
     private DrawableType getDrawableType(String pgenTypeString) {
-        if (Track.TRACK_PGEN_TYPE.equalsIgnoreCase(pgenTypeString))
+        if (Track.TRACK_PGEN_TYPE.equalsIgnoreCase(pgenTypeString)) {
             return DrawableType.TRACK;
+        }
         return DrawableType.LINE;
     }
 
     private boolean closeAttrDlg(AttrDlg attrDlgObject, String pgenTypeString) {
-        if (attrDlgObject == null)
+        if (attrDlgObject == null) {
             return false;
+        }
         if (isTrackElement(getDrawableType(pgenTypeString))) {
             TrackAttrDlg tempTrackAttrDlg = (TrackAttrDlg) attrDlgObject;
             TrackExtrapPointInfoDlg tempTrackExtrapPointInfoDlg = tempTrackAttrDlg
@@ -1156,8 +1231,9 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
     }
 
     private void closeTrackExtrapPointInfoDlg(TrackExtrapPointInfoDlg dlgObject) {
-        if (dlgObject != null)
+        if (dlgObject != null) {
             dlgObject.close();
+        }
     }
 
     /**
@@ -1214,8 +1290,9 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
                 newContours.update(oldContours);
                 pgenrsc.replaceElement(oldContours, newContours);
                 pgenrsc.setSelected(selElem);
-                if (attrDlg != null)
+                if (attrDlg != null) {
                     ((ContoursAttrDlg) attrDlg).setCurrentContours(newContours);
+                }
                 ((PgenContoursTool) tool).setCurrentContour(newContours);
             }
         }
@@ -1254,7 +1331,8 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
 
                 cdlg.setNumOfLabels(((ContourLine) pele).getNumOfLabels());
                 cdlg.setClosed(((Line) elSelected).isClosedLine());
-                cdlg.setContourLineType(elSelected.getPgenType());
+                cdlg.setActiveLine(elSelected);
+                // cdlg.setContourLineType(elSelected.getPgenType());
                 // cdlg.setDrawingLine();
             } else if (elSelected instanceof Symbol) {
                 Text lbl = ((ContourMinmax) pele).getLabel();
@@ -1262,7 +1340,7 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
                 if (lbl != null) {
                     cdlg.setLabel(lbl.getText()[0]);
                     cdlg.setNumOfLabels(1);
-                    // cdlg.setActiveSymbol( elSelected );
+                    cdlg.setActiveSymbol(elSelected);
                 }
             } else if (elSelected instanceof Text) {
                 cdlg.setLabel(((Text) elSelected).getText()[0]);
@@ -1272,13 +1350,13 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
                     cdlg.setNumOfLabels(((ContourLine) pele).getNumOfLabels());
                     cdlg.setClosed(((ContourLine) pele).getLine()
                             .isClosedLine());
-                    cdlg.setContourLineType(((ContourLine) pele).getLine()
-                            .getPgenType());
+                    cdlg.setActiveLine(((ContourLine) pele).getLine());
+                    // cdlg.setContourLineType(((ContourLine) pele).getLine()
+                    // .getPgenType());
                 } else if (pele instanceof ContourMinmax) {
                     // cdlg.setDrawingSymbol();
                     cdlg.setNumOfLabels(1);
-                    // cdlg.setActiveSymbol( ((ContourMinmax)pele).getSymbol()
-                    // );
+                    cdlg.setActiveSymbol(((ContourMinmax) pele).getSymbol());
                 } else if (pele instanceof ContourCircle) {
                     // cdlg.setDrawingCircle();
                     cdlg.setNumOfLabels(1);

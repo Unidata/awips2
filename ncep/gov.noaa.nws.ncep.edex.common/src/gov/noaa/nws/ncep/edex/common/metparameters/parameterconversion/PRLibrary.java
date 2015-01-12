@@ -19,6 +19,7 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
 import org.opengis.coverage.grid.InvalidRangeException;
+
 //import com.raytheon.uf.viz.core.exception.VizException;
 
 public final class PRLibrary {
@@ -866,9 +867,7 @@ public final class PRLibrary {
         double corr = (double) (1.001 + ((pressureValue - 100) / 900) * 0.0034);
         double e = corr * vaporPressureValue;
 
-        /*
-         * Test for unphysical case of large E at low PRES
-         */
+        /* Test for unphysical case of large E at low PRES */
         if (e <= (0.5 * pressureValue)) {
             /* Calculate mixing ratio */
             prmixr = new Amount(
@@ -908,6 +907,77 @@ public final class PRLibrary {
             prp03c = psign[itendc] * ptend;
 
         return (new Amount(prp03c, NcUnits.MILLIBAR));
+    }
+
+    /**
+     * TTR 923
+     * 
+     * Uses Pressure Tendency ( PTSY ) to change P03C (pressureChange3Hr ) to
+     * the appropriate sign ( +/- ) if needed.
+     * 
+     * @param p03cav
+     *            - Pressure Change 3 Hours, Absolute Value
+     * @param PTSY
+     *            - Pressure Tendency
+     * @return P03C - Pressure Change 3 Hours, Signed
+     * @throws NullPointerException
+     * 
+     */
+    public static final Amount prP03CAbsVal(Amount p03cav, Amount ptsy)
+            throws InvalidValueException, NullPointerException {
+        double p03c = 0.0d;
+
+        if (!checkNullOrInvalidValue(p03cav) || !checkNullOrInvalidValue(ptsy)) {
+            return new Amount(SI.PASCAL);
+        }
+
+        double p03cavValue = p03cav.doubleValue();
+        int ptsyValue = 0;
+
+        ptsyValue = ptsy.getValue().intValue();
+
+        // No sign
+        if (p03cavValue == 0.0) {
+            return new Amount(p03cavValue, SI.PASCAL);
+        }
+
+        // No sign
+        if (ptsyValue == 4) {
+            return new Amount(p03cavValue, SI.PASCAL);
+        }
+
+        // Make into positive value
+        if (ptsyValue >= 0 && ptsyValue <= 4) {
+            p03c = Math.abs(p03cavValue);
+
+        } // Make into a negative value
+        else if (ptsyValue > 4 && ptsyValue <= 8) {
+            p03c = Math.abs(p03cavValue) * -1;
+        }
+
+        return new Amount(p03c, SI.PASCAL);
+
+    }
+
+    /**
+     * Redmine 4318
+     * 
+     */
+    public static final Amount prSGHT(Amount howw, Amount hosw)
+            throws InvalidValueException, NullPointerException {
+
+        if (!checkNullOrInvalidValue(howw) || !checkNullOrInvalidValue(hosw)) {
+            return new Amount(SI.METER);
+        }
+
+        double w = howw.doubleValue();
+        double s = hosw.doubleValue();
+        double sght = 0.0d;
+
+        sght = Math.sqrt(((Math.pow(w, 2)) + (Math.pow(s, 2))));
+
+        return new Amount(sght, SI.METER);
+
     }
 
     /**
@@ -1296,6 +1366,7 @@ public final class PRLibrary {
         prrelh = (e.doubleValue() / es.doubleValue()) * 100;
 
         return new Amount(prrelh, NonSI.PERCENT);
+
     }
 
     /**
@@ -1933,9 +2004,7 @@ public final class PRLibrary {
         // System.out.println(" PRLibrary/prTmst. tguessVal 2 = " + tguessVal);
         // System.out.println(" PRLibrary/prTmst. tg 2 = " + tg);
 
-        /*
-         * If tguess is passed as 0. it is computed from an MIT scheme
-         */
+        /* If tguess is passed as 0. it is computed from an MIT scheme */
         if (tg == 0) {
             double diffVar = thte.doubleValue() - 270;
             double mathFormula1 = (double) (diffVar > 0 ? diffVar : 0.0);
@@ -2051,7 +2120,7 @@ public final class PRLibrary {
         double presVal = pres.doubleValue();
         if (presVal <= 0) {
             // System.out
-            //         .println("From prTmwb - pressure value must be greater than 0 ");
+            // .println("From prTmwb - pressure value must be greater than 0 ");
             return new Amount(SI.KELVIN);
             // throw new
             // InvalidRangeException("From prTmwb - pressure value must be greater than 0 ");
@@ -2508,9 +2577,7 @@ public final class PRLibrary {
                     .println("From prWnml - the wind direction 'dcmp'  mus be greater than or equal to 0 and less than or equal to 360");
             return new Amount(SI.METERS_PER_SECOND);
         }
-        /*
-         * Calculate wind speed 90 degrees to left of given direction.
-         */
+        /* Calculate wind speed 90 degrees to left of given direction. */
         double prwnml = (float) (sped.doubleValue() * (-Math.cos((drct
                 .doubleValue() - dcmp.doubleValue() - 90)
                 * GempakConstants.DTR)));
@@ -2854,7 +2921,7 @@ public final class PRLibrary {
 
         if (thte.getValue().doubleValue() <= 0) {
             // System.out
-            //        .println("From prPmst(): The equivalent potential temperature must be greater than 0");
+            // .println("From prPmst(): The equivalent potential temperature must be greater than 0");
             return new Amount(SI.KELVIN);
             // throw new
             // InvalidRangeException("The equivalent potential temperature must be greater than 0");

@@ -3,8 +3,8 @@ package gov.noaa.nws.ncep.viz.rsc.lightning.rsc;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
+import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
@@ -14,10 +14,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -31,26 +36,23 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 
 /**
- * LigntningResource - Display Lightning data.
- *  *
+ * LigntningResource - Display Lightning data. *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -65,10 +67,11 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  *  05/23/12      785      Q. Zhou      Added getName for legend.
  *  12/19/2012    #960     Greg Hull    override propertiesChanged() to update colorBar.
  *  05/07/2013    #993     Greg Hull	change key for strikeMap from URI to the HDF5 group
- *  
+ *  Jun 05, 2014  3226     bclement     reference datarecords by LightningConstants
+ *  12/19/2014      ?      B. Yin       Remove ScriptCreator, use Thrift Client.
  * </pre>
  * 
- * @author ghull 
+ * @author ghull
  * @version 1.0
  */
 public class LightningResource extends AbstractNatlCntrsResource<LightningResourceData, NCMapDescriptor> 
@@ -235,44 +238,28 @@ public class LightningResource extends AbstractNatlCntrsResource<LightningResour
         HashMap<String, RequestConstraint> requestConstraints = new HashMap<String, RequestConstraint>(
                 ltngRscData.getMetadataMap() );
 
-        if( queryTimes != null ) {
-        	// This doesn't work because the dataTimes in the DB are time Ranges 
-//        	RequestConstraint timeConstraint = new RequestConstraint();
-//        	String[] constraintList = { 
-//        			new DataTime( queryTimes.getStart() ).toString(), 
-//        			new DataTime( queryTimes.getEnd() ).toString() };
-//        	timeConstraint.setBetweenValueList(constraintList);
-//        	timeConstraint.setConstraintType(RequestConstraint.ConstraintType.BETWEEN);
-//        	requestConstraints.put("dataTime", timeConstraint);
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(requestConstraints);
+
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
+
+        ArrayList<Object> pdoArray = new ArrayList<Object>();
+
+        for (Map<String, Object> result : response.getResults()) {
+            for (Object pdo : result.values()) {
+                if( !(pdo instanceof PluginDataObject) ) { // ???
+                    continue;
+                }
+
+                DataTime pdoDataTime = ((PluginDataObject)pdo).getDataTime();
+
+                if( queryTimes == null ||
+                        queryTimes.contains( pdoDataTime.getValidPeriod().getStart() ) ||
+                        queryTimes.contains( pdoDataTime.getValidPeriod().getEnd()   ) ) {
+                    pdoArray.add( pdo );
+                }
+            }
         }
-        
-		LayerProperty prop = new LayerProperty();
-		prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-		prop.setEntryQueryParameters(requestConstraints, false);
-		prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap this
-
-		String script = null;
-		script = ScriptCreator.createScript(prop);
-
-		if (script == null)
-			return;
-
-		Object[] pdoList = Connector.getInstance().connect(script, null, 90000);
-		ArrayList<Object> pdoArray = new ArrayList<Object>();
-		
-		for( Object pdo : pdoList ) {
-			if( !(pdo instanceof PluginDataObject) ) { // ???
-				continue;
-			}
-			
-			DataTime pdoDataTime = ((PluginDataObject)pdo).getDataTime();
-			
-			if( queryTimes == null ||
-				queryTimes.contains( pdoDataTime.getValidPeriod().getStart() ) ||
-				queryTimes.contains( pdoDataTime.getValidPeriod().getEnd()   ) ) {
-				pdoArray.add( pdo );
-			}
-		}
 
 		List<LtngStrikeDataObj> strikeList = getStrikeDataFromHDF( pdoArray.toArray() );
 		
@@ -366,20 +353,17 @@ public class LightningResource extends AbstractNatlCntrsResource<LightningResour
 					
 					for( int s=0 ; s<hdf5Rec.getSizes()[0] ; s++ ) {
 						LtngStrikeDataObj strikeInfo = strikeList.get(s);
-						if( hdf5Rec.getName().equals("intensity") ) {
+                        String name = hdf5Rec.getName();
+                        if (name.equals(LightningConstants.INTENSITY_DATASET)) {
 						    strikeInfo.intensity = ((IntegerDataRecord) hdf5Rec).getIntData()[s];
-						} else if( hdf5Rec.getName().equals("latitude") ) {
+                        } else if (name.equals(LightningConstants.LAT_DATASET)) {
 						    strikeInfo.lat = ((FloatDataRecord) hdf5Rec).getFloatData()[s];
-						} else if( hdf5Rec.getName().equals("longitude") ) {
+                        } else if (name.equals(LightningConstants.LON_DATASET)) {
 							strikeInfo.lon = ((FloatDataRecord) hdf5Rec).getFloatData()[s];
-						} else if( hdf5Rec.getName().equals("obsTime") ) {
+                        } else if (name.equals(LightningConstants.TIME_DATASET)) {
 							strikeInfo.strikeTime = ((LongDataRecord) hdf5Rec).getLongData()[s];
-//        			                if( strikeInfo.obsTime > latestStrike ) {
-//        			                	latestStrike = strikeInfo.obsTime;
-//        			                }
-//        						} else if( hdf5Rec.getName().equals("strikeCount") ) {
-//        							strikeInfo.lon = ((FloatDataRecord) hdf5Rec).getFloatData()[s];      							
-						} else if( hdf5Rec.getName().equals("msgType") ) {
+                        } else if (name
+                                .equals(LightningConstants.MSG_TYPE_DATASET)) {
 							// ignore
 						}
 					}    				

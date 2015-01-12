@@ -18,14 +18,8 @@
 		<constructor-arg value="jms-durable:queue:Ingest.pirep" />
 	</bean>
     
-    <bean id="pirepCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="pirep-camel"/>
-  	</bean> 
-  	
     <camelContext id="pirep-camel" xmlns="http://camel.apache.org/schema/spring" 
-    	errorHandlerRef="errorHandler"
-    	autoStartup="false">
+        errorHandlerRef="errorHandler">
         <!-- Allow use of sbn -->
         <!--
 	    <endpoint id="pirepFileEndpoint" uri="file:${edex.home}/data/sbn/pirep?noop=true&amp;idempotent=false"/>

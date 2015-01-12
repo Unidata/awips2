@@ -85,6 +85,7 @@ public class Activator extends AbstractUIPlugin {
             myprefs.setDefault(PgenPreferences.P_COMP_COORD,
                     PgenPreferences.CED_COMP_COORD);
             myprefs.setDefault(PgenPreferences.P_AUTOPLACE_TEXT, false);
+            myprefs.setDefault(PgenPreferences.P_AUTOPLACE_CONTOUR_LABEL, false);
             myprefs.setDefault(PgenPreferences.P_LAYER_MERGE, 4);
         }
 

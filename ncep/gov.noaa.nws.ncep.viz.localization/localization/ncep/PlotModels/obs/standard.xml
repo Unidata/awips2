@@ -34,7 +34,7 @@
     </PlotModelElement>
 <!-- PTND is the standard for NMAP but right now we can't display both the symbol and the pressChange
      in the same spot but we can display them separately (PTSY and P03C) --> 
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="14" paramName="P03C">
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="14" paramName="PTND">
         <Position>MR</Position>
         <Color red="238" green="238" blue="0"/>
     </PlotModelElement>

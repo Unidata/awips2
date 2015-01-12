@@ -20,6 +20,7 @@ import javax.xml.bind.JAXBException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -32,7 +33,6 @@ import com.raytheon.uf.common.message.response.ResponseMessageError;
 import com.raytheon.uf.common.message.response.ResponseMessageGeneric;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -50,6 +50,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2013            sgilbert    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Jan 29, 2014 #1105      jwu         Create ActivityInfo from Product.
  * 
  * </pre>
  * 
@@ -89,6 +90,20 @@ public class StorageUtils {
         ActivityInfo info = new ActivityInfo();
         info.setActivityName(prod.getName());
         info.setActivityType(prod.getType());
+
+        String type = prod.getType();
+        info.setActivityType(type);
+
+        if (type != null) {
+            int loc1 = type.indexOf("(");
+            if (loc1 > 0) {
+                info.setActivityType(type.substring(0, loc1));
+                String subtype = type.substring(loc1 + 1).replace(")", "");
+                if (subtype.length() > 0 && !subtype.equalsIgnoreCase("NONE"))
+                    info.setActivitySubtype(subtype);
+            }
+        }
+
         info.setActivityLabel(prod.getOutputFile());
         info.setRefTime(prod.getTime().getStartTime());
         info.setSite(prod.getCenter());
@@ -141,6 +156,10 @@ public class StorageUtils {
         }
 
         try {
+            prod.setCenter(info.getSite());
+            prod.setForecaster(info.getForecaster());
+            prod.getTime().setStartTime(info.getRefTime());
+
             String activityXML = serializeProduct(prod);
 
             StoreActivityRequest request = new StoreActivityRequest(info,
@@ -159,9 +178,6 @@ public class StorageUtils {
         } else {
             return result.getDataURI();
         }
-        // throw new PgenStorageException(
-        // "testline1\nline2\netcetera\nline4\n55555555\n6666666"
-        // + "\n7777777");
     }
 
     /*
@@ -210,6 +226,7 @@ public class StorageUtils {
         record.setStatus(info.getStatus());
 
         record.setDataTime(new DataTime(info.getRefTime()));
+        // record.setPluginName("pgen");
         try {
             record.constructDataURI();
         } catch (PluginException e1) {

@@ -61,6 +61,9 @@
                      plotMode="text" dbParamName="longitude" plotUnit="°" plotFormat="%.3f"/>
  <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation" 
  					 plotMode="text" dbParamName="elevation" plotUnit="m" plotFormat="%5.0f" /> 
+
+ <PlotParameterDefn  plotParamName="PWAT" metParamName="PrecipitableWaterForEntireSounding" 
+ 					 plotMode="text" dbParamName="pw" plotUnit="in" plotFormat="%.2f" /> 
         
 <!-- These really aren't normally displayed by themselves but they need
   == to be here since they are used to derive the WindBarbs.

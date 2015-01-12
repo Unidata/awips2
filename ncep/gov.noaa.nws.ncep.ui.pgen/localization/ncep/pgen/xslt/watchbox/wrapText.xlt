@@ -24,7 +24,9 @@
 		<xsl:choose>
 			<!-- if the last char is sep, put a line break-->
 			<xsl:when test="substring($str,$charPerLine + 1, 1) = $sep">
-				<xsl:value-of select="substring($str,1,$charPerLine)"/>
+				<xsl:value-of select="substring($str,1,$charPerLine + 1)"/>
+				<xsl:value-of select="$newline"/>
+				
 				<xsl:call-template name="wrapText">
 					<xsl:with-param name="str" select="substring($str,$charPerLine + 1)"/>
 					<xsl:with-param name="charPerLine" select="$charPerLine"/>

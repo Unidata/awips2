@@ -15,6 +15,8 @@
  * 03/2010      210				L. Lin     	Initial coding
  * 09/2011      457             S. Gurung   Renamed H5 to Nc and h5 to nc
  * 10/2011                      S. Gurung   Use updated getElevation() method
+ * 6/2014                       T. Lee      Decoded mandatory levels even if stations 
+ *                                          do not report all man levels
  * 
  * </pre>
  * 
@@ -29,181 +31,206 @@ import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairRecord;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 public class NcUairPressureHeightGroup {
-	
-	private static float pressure;
-	
-	private static float height;
-	
-	public static float getPressure() {
-		return pressure;
-	}
 
-	public static void setPressure(float pressure) {
-		NcUairPressureHeightGroup.pressure = pressure;
-	}
+    private static float pressure;
 
-	public static float getHeight() {
-		return height;
-	}
+    private static float height;
 
-	public static void setHeight(float height) {
-		NcUairPressureHeightGroup.height = height;
-	}
+    public static float getPressure() {
+        return pressure;
+    }
 
-	/**
-	 * Decodes pressure and height data
-	 * 
-	 * @param presGroup The input pressure code group
-	 * @param above The input above is flag
-	 * @param level the input pressure level
-	 * @param stationNumber The input station number
-	 * @param dataType The input data type
-	 * @return 
-	 */
-	public static void PressureHeightField(String presGroup, Boolean above, 
-			int level, String stationNumber, String dataType, NcUairRecord record) {
-		
-		pressure = IDecoderConstantsN.UAIR_FLOAT_MISSING;
-		height = IDecoderConstantsN.UAIR_FLOAT_MISSING;
-		int iabove = 0;
-		int ipres = IDecoderConstantsN.UAIR_INTEGER_MISSING;
-		int ihhh = IDecoderConstantsN.UAIR_INTEGER_MISSING;
-		Boolean drop = false;
-		Boolean ship = false;
+    public static void setPressure(float pressure) {
+        NcUairPressureHeightGroup.pressure = pressure;
+    }
 
-		String pressValue[][] = { { "99", "00", "92", "85", "70", "50",  
-				              "40", "30", "25", "20", "15", "10" },
-				            { "70", "50", "30", "20", "10", "07",
-				              "05", "03", "02", "01", "xx" , "//"}
-		};
-			
-		if ( dataType.substring(0,2).equals("XX") ) {
-			// dropsonde data
-			drop = true;
-		} else if ( dataType.substring(0,2).equals("UU") ) {
-			// ship data
-			ship = true;
-		}
-		
-		if (above) {
-			iabove =1;
-		}
+    public static float getHeight() {
+        return height;
+    }
 
-		if ( presGroup.length() == 5 && ( level < 12 )) {
-			String pp = presGroup.substring(0,2);
-			String hhh = presGroup.substring(2,5);
-			
-			if (pp.equals(pressValue[iabove][level])) {
-				if ( ! pp.equals("//") ) {
-					ipres = Integer.parseInt(pp);
-				}
-				if ( ! hhh.equals("///") ) {
-					ihhh = Integer.parseInt(hhh);
-				}
-				
-				if (! above) {
-					/*
-					 * Encoded pressure was pressure / 10.  00 is 1000.
-					 * Above 100mb, encoded pressure is whole number.
-					 */
-					if ( ipres != IDecoderConstantsN.UAIR_INTEGER_MISSING ) {
-						ipres = ipres * 10;
-						if ( ipres == 0 ) {
-							ipres = 1000;
-						}
-						//Take care of the 925 mb level, which comes in as 920.
-						if ( ipres == 920 ) {
-							ipres = 925;
-						}
-						pressure = ipres;
-					}
+    public static void setHeight(float height) {
+        NcUairPressureHeightGroup.height = height;
+    }
 
-					/*
-					 * For data below 100 mb, use the pressure to decode the
-					 * height.  This algorithm is from the U. of Wisconsin and
-					 * differs slightly from the PROFS algorithm.
-					 */
-					if ( ihhh != IDecoderConstantsN.UAIR_INTEGER_MISSING ) {
-						height = ihhh;
-						
-						if ( (ipres == 1000) && (height > 500)) {
-							height = 500 - height;
-						} else if ( (ipres == 925) && (height < 200) && (! drop) ) {
-							height = height + 1000;
-						} else if ( (ipres == 850) && (height < 900) ) {
-							height = height + 1000;
-						} else if ( (ipres == 700) && (height < 500) ) {
-							height = height + 3000;
-						} else if ( ipres == 700 ) {
-							height = height + 2000;
-						} else if ( ipres <= 500 ) {
-							ihhh = ihhh * 10;
-							height = height * 10;
-							if ( (ipres == 300) && (ihhh < 3000) ) {
-								height = height + 10000;
-							} else if ( (ipres == 250) && (ihhh < 5000) ) {
-								height = height + 10000;
-							} else if ( (ipres == 200) && (ihhh < 7000) ) {
-								height = height + 10000;
-							} else if (ipres <= 150) {
-								height = height + 10000;
-							}
-						}
-					}
-				} else {
-					pressure = ipres;					
-					/*
-					 * Compute the height above 100 mb.  The ten thousands digit
-					 * is added here.  The value may need to be changed in the
-					 * future if it proves incorrect.
-					 */
-					if ( ihhh != IDecoderConstantsN.UAIR_INTEGER_MISSING ) {
-						ihhh = ihhh * 10;
-						height = ihhh;
-						if ( ipres == 70 ) {
-							height = height + 10000;
-						} else if ( (ipres == 50) && (ihhh >= 8000)) {
-							height = height + 10000;
-						} else if ( (ipres == 50) && (height < 8000) ) {
-							height = height + 20000;
-						} else if ( ipres >= 20 ) {
-							height = height + 20000;
-						} else if ( (ipres == 10) && (height > 8000) ) {
-							height = height + 20000;
-						} else if ( (ipres == 10) && (height < 8000) ) {
-							height = height + 30000;	
-						} else if ( ipres >= 3 ) {
-							height = height + 30000;
-						} else if ( (ipres == 2) && (height > 8000) ) {
-							height = height + 30000;
-						} else if ( (ipres == 2) && (height < 8000) ) {
-							height = height + 40000;	
-						} else {
-							height = height + 40000;	
-						}
-					}
-				}
-				/*
-				 * This subroutine decodes the surface data from a TTAA 
-				 */
-				if ( pp.equals("99") && ! above ) {
-					int ihhhSurface = Integer.parseInt(hhh);
-					pressure = ihhhSurface;
-					if ( ihhhSurface < 100 ) {
-						pressure = pressure + 1000;	
-					}
-					if ( ! drop && stationNumber != null ) {			
-						height = IDecoderConstantsN.UAIR_INTEGER_MISSING;
-						height = (float) record.getElevation();
-					} else if ( drop ){
-						// dropsonde data
-						height = IDecoderConstantsN.UAIR_INTEGER_MISSING;
-					} else {
-						// ship data
-						height = NcUairShipMobile.getSurfaceHeight();
-					}
-				}
-			}
-		} 
-	} 
+    /**
+     * Decodes pressure and height data
+     * 
+     * @param presGroup
+     *            The input pressure code group
+     * @param above
+     *            The input above is flag
+     * @param level
+     *            the input pressure level
+     * @param stationNumber
+     *            The input station number
+     * @param dataType
+     *            The input data type
+     * @return
+     */
+    public static void PressureHeightField(String presGroup, Boolean above,
+            int level, String stationNumber, String dataType,
+            NcUairRecord record) {
+
+        pressure = IDecoderConstantsN.UAIR_FLOAT_MISSING;
+        height = IDecoderConstantsN.UAIR_FLOAT_MISSING;
+        int iabove = 0;
+        int ipres = IDecoderConstantsN.UAIR_INTEGER_MISSING;
+        int ihhh = IDecoderConstantsN.UAIR_INTEGER_MISSING;
+        Boolean drop = false;
+        Boolean ship = false;
+        Boolean cont;
+
+        String pressValue[][] = {
+                { "99", "00", "92", "85", "70", "50", "40", "30", "25", "20",
+                        "15", "10" },
+                { "70", "50", "30", "20", "10", "07", "05", "03", "02", "01",
+                        "xx", "//" } };
+
+        // System.out.println(" line 80 of NcUairPressureHeight!!!!!!! "
+        // + presGroup);
+
+        if (dataType.substring(0, 2).equals("XX")) {
+            // dropsonde data
+            drop = true;
+        } else if (dataType.substring(0, 2).equals("UU")) {
+            // ship data
+            ship = true;
+        }
+
+        if (above) {
+            iabove = 1;
+        }
+
+        if (presGroup.length() == 5 && (level < 12)) {
+            String pp = presGroup.substring(0, 2);
+            String hhh = presGroup.substring(2, 5);
+            cont = true;
+
+            while (cont) {
+                // System.out.println(" line 108 of NcUairPressureHeight!!!!!!! "
+                // + pp + " " + hhh + " pressValue: "
+                // + pressValue[iabove][level]);
+
+                if (pp.equals(pressValue[iabove][level])) {
+                    // System.out
+                    // .println(" Line 111 of NcUairPressureHeight/Man Pressure level !!!!!!!!!!! "
+                    // + pp);
+                    cont = false;
+                    if (!pp.equals("//")) {
+                        ipres = Integer.parseInt(pp);
+                    }
+                    if (!hhh.equals("///")) {
+                        ihhh = Integer.parseInt(hhh);
+                    }
+
+                    if (!above) {
+                        /*
+                         * Encoded pressure was pressure / 10. 00 is 1000. Above
+                         * 100mb, encoded pressure is whole number.
+                         */
+                        if (ipres != IDecoderConstantsN.UAIR_INTEGER_MISSING) {
+                            ipres = ipres * 10;
+                            if (ipres == 0) {
+                                ipres = 1000;
+                            }
+                            // Take care of the 925 mb level, which comes in as
+                            // 920.
+                            if (ipres == 920) {
+                                ipres = 925;
+                            }
+                            pressure = ipres;
+                        }
+
+                        /*
+                         * For data below 100 mb, use the pressure to decode the
+                         * height. This algorithm is from the U. of Wisconsin
+                         * and differs slightly from the PROFS algorithm.
+                         */
+                        if (ihhh != IDecoderConstantsN.UAIR_INTEGER_MISSING) {
+                            height = ihhh;
+
+                            if ((ipres == 1000) && (height > 500)) {
+                                height = 500 - height;
+                            } else if ((ipres == 925) && (height < 200)
+                                    && (!drop)) {
+                                height = height + 1000;
+                            } else if ((ipres == 850) && (height < 900)) {
+                                height = height + 1000;
+                            } else if ((ipres == 700) && (height < 500)) {
+                                height = height + 3000;
+                            } else if (ipres == 700) {
+                                height = height + 2000;
+                            } else if (ipres <= 500) {
+                                ihhh = ihhh * 10;
+                                height = height * 10;
+                                if ((ipres == 300) && (ihhh < 3000)) {
+                                    height = height + 10000;
+                                } else if ((ipres == 250) && (ihhh < 5000)) {
+                                    height = height + 10000;
+                                } else if ((ipres == 200) && (ihhh < 7000)) {
+                                    height = height + 10000;
+                                } else if (ipres <= 150) {
+                                    height = height + 10000;
+                                }
+                            }
+                        }
+                    } else {
+                        pressure = ipres;
+                        /*
+                         * Compute the height above 100 mb. The ten thousands
+                         * digit is added here. The value may need to be changed
+                         * in the future if it proves incorrect.
+                         */
+                        if (ihhh != IDecoderConstantsN.UAIR_INTEGER_MISSING) {
+                            ihhh = ihhh * 10;
+                            height = ihhh;
+                            if (ipres == 70) {
+                                height = height + 10000;
+                            } else if ((ipres == 50) && (ihhh >= 8000)) {
+                                height = height + 10000;
+                            } else if ((ipres == 50) && (height < 8000)) {
+                                height = height + 20000;
+                            } else if (ipres >= 20) {
+                                height = height + 20000;
+                            } else if ((ipres == 10) && (height > 8000)) {
+                                height = height + 20000;
+                            } else if ((ipres == 10) && (height < 8000)) {
+                                height = height + 30000;
+                            } else if (ipres >= 3) {
+                                height = height + 30000;
+                            } else if ((ipres == 2) && (height > 8000)) {
+                                height = height + 30000;
+                            } else if ((ipres == 2) && (height < 8000)) {
+                                height = height + 40000;
+                            } else {
+                                height = height + 40000;
+                            }
+                        }
+                    }
+                    /*
+                     * This subroutine decodes the surface data from a TTAA
+                     */
+                    if (pp.equals("99") && !above) {
+                        int ihhhSurface = Integer.parseInt(hhh);
+                        pressure = ihhhSurface;
+                        if (ihhhSurface < 100) {
+                            pressure = pressure + 1000;
+                        }
+                        if (!drop && stationNumber != null) {
+                            height = IDecoderConstantsN.UAIR_INTEGER_MISSING;
+                            height = (float) record.getElevation();
+                        } else if (drop) {
+                            // dropsonde data
+                            height = IDecoderConstantsN.UAIR_INTEGER_MISSING;
+                        } else {
+                            // ship data
+                            height = NcUairShipMobile.getSurfaceHeight();
+                        }
+                    }
+                } else {
+                    level++;
+                }
+            }
+        }
+    }
 }

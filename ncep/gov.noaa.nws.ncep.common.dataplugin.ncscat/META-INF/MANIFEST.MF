@@ -11,6 +11,6 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.7",
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.ncscat,
  gov.noaa.nws.ncep.common.dataplugin.ncscat.dao
 Bundle-Vendor: AWIPS II migration
-Import-Package: com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.decodertools.time,
- com.raytheon.uf.edex.wmo.message
+Import-Package: com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.decodertools.core,
+ com.raytheon.uf.edex.decodertools.time

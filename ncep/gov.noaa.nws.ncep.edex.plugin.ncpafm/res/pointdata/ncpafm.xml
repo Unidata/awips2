@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <pointDataDescription>
   
-  <parameter name="dataURI" numDims="1" type="STRING" size="128" />
   <parameter name="wmoHeader" numDims="1" type="STRING" size="8" />
   <parameter name="stationId" numDims="1" type="STRING" size="16" />
   <parameter name="reportType" numDims="1" type="STRING" />

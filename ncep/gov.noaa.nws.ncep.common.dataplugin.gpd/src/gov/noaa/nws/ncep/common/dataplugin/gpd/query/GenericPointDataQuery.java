@@ -1,4 +1,8 @@
 /**
+ * This code has unlimited rights, and is provided "as is" by the National Centers 
+ * for Environmental Prediction, without warranty of any kind, either expressed or implied, 
+ * including but not limited to the implied warranties of merchantability and/or fitness 
+ * for a particular purpose.
  * 
  * 
  * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
@@ -7,8 +11,9 @@
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    	Engineer    Description
- * -------		------- 	-------- 	-----------
- * 05/30/2013				Chin J. Chen	Initial coding
+ * -------      -------         --------    -----------
+ * 05/30/2013                   Chin J. Chen Initial coding
+ * 04/14/2014      2984         njensen      Remove unused uengine dependency
  *
  * </pre>
  * 
@@ -25,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.edex.uengine.tasks.query.TableQuery;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -41,7 +45,6 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
 
 public class GenericPointDataQuery extends PointDataQuery {
 
-	protected TableQuery tq;
 	public GenericPointDataQuery(String plugin)
 			throws DataAccessLayerException, PluginException {
 		super(plugin);
@@ -156,7 +159,7 @@ public class GenericPointDataQuery extends PointDataQuery {
                 ids.get(listIndex).add(id);
                 indexes.get(listIndex).add(idx);
             }
-            long t0 = System.currentTimeMillis();
+            //long t0 = System.currentTimeMillis();
             for (int i = 0; i < files.size(); i++) {
                 File file = new File(files.get(i));
                 //for(String att: hdf5attribList){
@@ -180,10 +183,10 @@ public class GenericPointDataQuery extends PointDataQuery {
                     masterPDC.setCurrentSz(masterPDC.getAllocatedSz());
                 }
             }
-            long t1 = System.currentTimeMillis();
-            System.out
-                    .println("Total time (ms) spent on pointdata hdf5 retrieval (all files): "
-                            + (t1 - t0));
+            //long t1 = System.currentTimeMillis();
+            //System.out
+             //       .println("Total time (ms) spent on pointdata hdf5 retrieval (all files): "
+             //               + (t1 - t0));
         }
 
         if (!dbParamDesc.isEmpty()) {

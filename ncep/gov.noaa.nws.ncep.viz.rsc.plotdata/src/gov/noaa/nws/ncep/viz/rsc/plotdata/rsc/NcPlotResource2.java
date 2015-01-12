@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
@@ -129,6 +130,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  								   Added code to plot stations within 25% of the area outside of the current display area.
  *  05/20/2013     988     Archana.S   Refactored this class for performance improvement	
  *  11/07/2013             sgurung     Added fix for "no data for every other frame" issue (earlier fix was added to 13.5.2 on 10/24/2013)
+ *  03/18/2013    1064     B. Hebbard  Added handling of matrixType request constraint, for PAFM
+ *  06/24/2014    1009     kbugenhagen Reload framedata if no stations found
+ *  07/08/2014 TTR1028     B. Hebbard  Modified paintFrame() to return right away if prog disc in progress, instead of
+ *                                     allowing multiple PD/HDF5/image trains to run concurrently for the same frame
+ *                                     in case of pan/zoom continuing after PD launched.  Improves performance and
+ *                                     reduces 'trickling in' of stations after pan/zoom.  Also changed resourceAttrsModified()
+ *                                     to remove all stations' met parameter data if requeryDataAndReCreateAllStnImages true,
+ *                                     to force re-query (now that we're bypassing stations that already have data).
+ *  Aug 08, 2014  3477     bclement    changed plot info locations to floats
+ *  09/03/2014    1009     kbugenhagen Reload Framedata.stationMap if all stations' dist values are null
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -242,7 +254,7 @@ public class NcPlotResource2 extends
 
         @Override
         public void run() {
-            Tracer.print("> Entry  START TASK "
+            Tracer.print("> Entry  START FcstFrameLoaderTask TASK "
                     + Tracer.shortTimeString(frameTime));
             Semaphore sm = new Semaphore(1);
             sm.acquireUninterruptibly();
@@ -263,8 +275,8 @@ public class NcPlotResource2 extends
                         synchronized (stationList) {
                             for (Station station : stationList) {
                                 String stnKey = getStationMapKey(
-                                        station.info.latitude.doubleValue(),
-                                        station.info.longitude.doubleValue());
+                                        station.info.latitude,
+                                        station.info.longitude);
 
                                 if (trialKey == null)
                                     trialKey = new String(stnKey);
@@ -333,7 +345,7 @@ public class NcPlotResource2 extends
 
         @Override
         public void run() {
-            Tracer.print("> Entry  START TASK "
+            Tracer.print("> Entry  START FrameLoaderTask TASK "
                     + Tracer.shortTimeString(dataTime));
             Tracer.print("About to run postgres query for frame: "
                     + Tracer.shortTimeString(dataTime));
@@ -460,8 +472,11 @@ public class NcPlotResource2 extends
     }
 
     public class FrameData extends AbstractFrameData {
+
         // map from the station Id to the station info (plotInfo and image)
-        private Map<String, Station> stationMap = new HashMap<String, Station>();
+        // (using ConcurrentHashMap to take care of
+        // ConcurrentModificationException)
+        private Map<String, Station> stationMap = new ConcurrentHashMap<String, Station>();
 
         private List<PlotInfo> plotInfoObjs = new ArrayList<PlotInfo>();
 
@@ -518,17 +533,18 @@ public class NcPlotResource2 extends
              * stored in the database with missing/invalid lat/lon values
              */
 
-            if (plotInfo.latitude.doubleValue() < -90
-                    || plotInfo.latitude.doubleValue() > 90
-                    || plotInfo.longitude.doubleValue() < -180
-                    || plotInfo.longitude.doubleValue() > 180) {
+            if (plotInfo.latitude < -90 || plotInfo.latitude > 90
+                    || plotInfo.longitude < -180 || plotInfo.longitude > 180) {
                 return false;
             }
 
             String stnMapKey = getStationMapKey(plotInfo.latitude,
                     plotInfo.longitude);
 
-            Station stn = stationMap.get(stnMapKey);// plotInfo.stationId );
+            Station stn = new Station();
+            if (stnMapKey != null) {
+                stn = stationMap.get(stnMapKey);// plotInfo.stationId );
+            }
 
             // This can happen during an auto update or if there are multiple
             // reports for this frame.
@@ -546,9 +562,9 @@ public class NcPlotResource2 extends
                         out.println("2 stations " + stn.info.stationId
                                 + " and " + plotInfo.stationId
                                 + " have the same location?" + "\nLat = "
-                                + stn.info.latitude.doubleValue() + ",Lon = "
-                                + stn.info.longitude.doubleValue()
-                                + " for the time: " + stn.info.dataTime);
+                                + stn.info.latitude + ",Lon = "
+                                + stn.info.longitude + " for the time: "
+                                + stn.info.dataTime);
                     }
                     // if these are the same time, should we check which one
                     // should be used,
@@ -716,7 +732,7 @@ public class NcPlotResource2 extends
         }
 
         public boolean calcStaticStationInfo(Station station) {
-            Tracer.printX("> Entry");
+            Tracer.print("> Entry");
             SPIEntry obsStation = null;
             Coordinate thisLocation = null;
             Coordinate thisPixelLocation = null;
@@ -984,7 +1000,7 @@ public class NcPlotResource2 extends
 
     public void paintFrame(AbstractFrameData fd, final IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        Tracer.print("> Entry");
+        Tracer.printX("> Entry");
         currPaintProp = paintProps;
         if (fd == null)
             return;
@@ -993,6 +1009,13 @@ public class NcPlotResource2 extends
             return;
 
         FrameData frameData = (FrameData) fd;
+
+        if (frameData.progressiveDisclosureInProgress) {
+            Tracer.print("Progressive disclosure in progress...aborting paintFrame for "
+                    + frameData.getShortFrameTime());
+            return;
+        }
+
         Semaphore sem = new Semaphore(1);
         if (progressiveDisclosure == null) {
             progressiveDisclosure = new ProgressiveDisclosure(this, spi);// assumes
@@ -1030,9 +1053,6 @@ public class NcPlotResource2 extends
         }
 
         synchronized (frameData) {
-            // Tracer.print
-            // ("calling checkAndUpdateProgDisclosureProperties on frame - " +
-            // frameData.getShortFrameTime());
             frameData.screenExtentsChangedForCurrentFrame = progressiveDisclosure
                     .checkAndUpdateProgDisclosureProperties();
 
@@ -1057,6 +1077,22 @@ public class NcPlotResource2 extends
                     Tracer.print("Calling from paintFrame() - about to schedule progressive disclosure the frame: "
                             + frameData.getShortFrameTime());
 
+                    boolean mapPopulated = false;
+                    for (Station station : frameData.stationMap.values()) {
+                        if (station.distValue != null) {
+                            mapPopulated = true;
+                            break;
+                        }
+                    }
+
+                    // load frame data for new incoming (autoupdated) data
+                    if (!mapPopulated) {
+                        frameLoaderTask = new FrameLoaderTask(
+                                frameData.getFrameTime());
+                        frameRetrievalPool.schedule(frameLoaderTask);
+                        issueRefresh();
+                    }
+
                     frameData.progressiveDisclosureInProgress = true;
 
                     progressiveDisclosure.queueListOfStationsToBeDisclosed(
@@ -1064,7 +1100,10 @@ public class NcPlotResource2 extends
                             frameData.stationMap.values());
                 } else {
                     Tracer.print("Calling from paintFrame() - no stations in stationMap for frame: "
-                            + frameData.getShortFrameTime());
+                            + frameData.getShortFrameTime()
+                            + ".  Loading frame data again.");
+                    loadFrameData();
+                    issueRefresh();
                 }
 
                 // TODO??CHECK frameData.progressiveDisclosureInProgress = true;
@@ -1146,7 +1185,7 @@ public class NcPlotResource2 extends
                     + frameData.getShortFrameTime());
         }
         ss.release();
-        Tracer.print("< Exit");
+        Tracer.printX("< Exit");
     }
 
     public void initResource(IGraphicsTarget aTarget) throws VizException {
@@ -1185,13 +1224,13 @@ public class NcPlotResource2 extends
     }
 
     protected AbstractFrameData createNewFrame(DataTime frameTime, int timeInt) {
-        Tracer.print("> Entry");
+        Tracer.print("> Entry  " + Tracer.shortTimeString(frameTime));
         FrameData newFrame = new FrameData(frameTime, timeInt);
-        if (df == null)
+        if (df == null) // TODO why do this here??
             df = new DisplayElementFactory(NcDisplayMngr
                     .getActiveNatlCntrsEditor().getActiveDisplayPane()
                     .getTarget(), getDescriptor());
-        Tracer.print("< Exit");
+        Tracer.print("< Exit   " + Tracer.shortTimeString(frameTime));
         return newFrame;
     }
 
@@ -1415,6 +1454,19 @@ public class NcPlotResource2 extends
                 dataRequestor.imageCreator
                         .setUpPlotPositionToPlotModelElementMapping(editedPlotModel);
 
+                // Remove all met param data from all stations in all frames.
+                // (Since we need to requery all of it anyway, this will force
+                // that to occur.
+                // TODO: factor this out to something like clearImages() ?)
+
+                for (AbstractFrameData afd : frameDataMap.values()) {
+                    // TODO sanity check type?
+                    FrameData fd = (FrameData) afd;
+                    for (Station station : fd.stationMap.values()) {
+                        station.listOfParamsToPlot.clear();
+                    }
+                }
+
                 /* To remove the obsolete strings from the diff maps */
                 synchronized (newPMEList) {
                     for (PlotModelElement newPME : newPMEList) {
@@ -1572,6 +1624,12 @@ public class NcPlotResource2 extends
                     + Tracer.shortTimeString(time));
 
             dataRequestor.queueStationsForHdf5Query(time, disclosedStations);
+        } else {
+            Tracer.print("Prog disc returned " + "*NO*" + " stations"
+                    + " for frame: " + Tracer.shortTimeString(time)
+                    + " quitting with no HDF5 retrieval attempted");
+            FrameData fd = ((FrameData) getFrame(time));
+            fd.progressiveDisclosureInProgress = false;
         }
         sem.release();
         Tracer.print("< Exit");
@@ -1590,35 +1648,39 @@ public class NcPlotResource2 extends
         sm.acquireUninterruptibly(1);
         FrameData fd = ((FrameData) getFrame(time));
 
-        if (listOfStringsToDraw != null && !listOfStringsToDraw.isEmpty())
-            fd.drawableStrings = new ArrayList<DrawableString>(
-                    listOfStringsToDraw);
-        else
-            fd.drawableStrings = new ArrayList<DrawableString>(0);
+        if (fd != null) {
+            if (listOfStringsToDraw != null && !listOfStringsToDraw.isEmpty())
+                fd.drawableStrings = new ArrayList<DrawableString>(
+                        listOfStringsToDraw);
+            else
+                fd.drawableStrings = new ArrayList<DrawableString>(0);
 
-        if (listOfVectors != null && !listOfVectors.isEmpty())
-            fd.listOfWindVectors = new ArrayList<IVector>(listOfVectors);
-        else
-            fd.listOfWindVectors = new ArrayList<IVector>(0);
+            if (listOfVectors != null && !listOfVectors.isEmpty())
+                fd.listOfWindVectors = new ArrayList<IVector>(listOfVectors);
+            else
+                fd.listOfWindVectors = new ArrayList<IVector>(0);
 
-        if (listOfSymbolLocSet != null && !listOfSymbolLocSet.isEmpty()) {
-            fd.listOfSymbolLocSet = new ArrayList<SymbolLocationSet>(
-                    listOfSymbolLocSet);
-        } else
-            fd.listOfSymbolLocSet = new ArrayList<SymbolLocationSet>(0);
+            if (listOfSymbolLocSet != null && !listOfSymbolLocSet.isEmpty()) {
+                fd.listOfSymbolLocSet = new ArrayList<SymbolLocationSet>(
+                        listOfSymbolLocSet);
+            } else
+                fd.listOfSymbolLocSet = new ArrayList<SymbolLocationSet>(0);
 
-        fd.setOfStationsLastRendered = new HashSet<Station>();
-        fd.setOfStationsLastRendered.addAll(collectionOfStationsToBeRendered);
+            fd.setOfStationsLastRendered = new HashSet<Station>();
+            fd.setOfStationsLastRendered
+                    .addAll(collectionOfStationsToBeRendered);
 
-        for (Station stn : collectionOfStationsToBeRendered) {
-            String stnKey = getStationMapKey(stn.info.latitude.doubleValue(),
-                    stn.info.longitude.doubleValue());
-            synchronized (fd.stationMap) {
-                fd.stationMap.put(stnKey, stn);
+            for (Station stn : collectionOfStationsToBeRendered) {
+                String stnKey = getStationMapKey(stn.info.latitude,
+                        stn.info.longitude);
+                synchronized (fd.stationMap) {
+                    fd.stationMap.put(stnKey, stn);
+                }
             }
+
+            fd.progressiveDisclosureInProgress = false;
         }
 
-        fd.progressiveDisclosureInProgress = false;
         Tracer.print("renderingComplete() called for the frame "
                 + Tracer.shortTimeString(time) + " with "
                 + collectionOfStationsToBeRendered.size() + " stations");
@@ -1688,7 +1750,7 @@ public class NcPlotResource2 extends
 
     // generate a string used as the key for the StationMap
 
-    private String getStationMapKey(Double lat, Double lon) {
+    private String getStationMapKey(Float lat, Float lon) {
         return new String("" + Math.round(lat * 1000.0) + ","
                 + Math.round(lon * 1000.0));
     }
@@ -1761,9 +1823,22 @@ public class NcPlotResource2 extends
             FrameData firstFrame = (FrameData) getFrame(datatimeList.get(0));
             String tableName = this.metadataMap.get("pluginName")
                     .getConstraintValue();
-            String query = "select distinct(" + tableName + ".forecastTime), "
-                    + tableName + ".rangeEnd" + " from " + tableName
-                    + " where reftime = '" + cycleTimeStr + "';";
+            String matrixType = null;
+            RequestConstraint matrixTypeRC = this.metadataMap.get("matrixType");
+            if (matrixTypeRC != null) {
+                matrixType = matrixTypeRC.getConstraintValue();
+            }
+            String query = "";
+            if (matrixType == null || matrixType.isEmpty()) {
+                query = "select distinct(" + tableName + ".forecastTime), "
+                        + tableName + ".rangeEnd" + " from " + tableName
+                        + " where reftime = '" + cycleTimeStr + "';";
+            } else {
+                query = "select distinct(" + tableName + ".forecastTime), "
+                        + tableName + ".rangeEnd" + " from " + tableName
+                        + " where matrixtype = '" + matrixType + "'"
+                        + " AND reftime = '" + cycleTimeStr + "';";
+            }
             try {
                 List<Object[]> results = null;
                 results = DirectDbQuery.executeQuery(query, "metadata",
@@ -1845,6 +1920,14 @@ public class NcPlotResource2 extends
                                             frameRCMap.put("pluginName",
                                                     metadataMap
                                                             .get("pluginName"));
+
+                                            matrixTypeRC = this.metadataMap
+                                                    .get("matrixType"); // redundant?
+                                            if (matrixTypeRC != null) {
+                                                frameRCMap.put("matrixType",
+                                                        matrixTypeRC);
+                                            }
+
                                             frameRCMap
                                                     .put("dataTime.fcstTime",
                                                             new RequestConstraint(

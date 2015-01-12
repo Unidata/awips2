@@ -18,13 +18,13 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftCloudLayer;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftFlightCondition;
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder strategy for text PIREP observation data. Most common usage is as
@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Sep 26, 2011 286        qzhou       Changed reportType from int to string
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 05, 2013 2316       bsteffen    Unify pirep and ncpirep.
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author F. J. Yen
@@ -164,8 +165,8 @@ public class PirepDecoder extends AbstractDecoder {
                     record.setObsText(DecoderTools.normalizeObs(
                             parser.getReportData(), wmoHeader.getWmoHeader()));
 
-                    location.setLatitude(p.getLatitude());
-                    location.setLongitude(p.getLongitude());
+                    location.setLatitude((float) p.getLatitude());
+                    location.setLongitude((float) p.getLongitude());
                     location.setLocation(p.getLatitude(), p.getLongitude());
                     location.setStationId(parser.getReportingStationId());
 

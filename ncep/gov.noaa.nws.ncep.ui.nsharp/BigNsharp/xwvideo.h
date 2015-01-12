@@ -221,6 +221,7 @@
 	float sigtorn(float stdir, float stspd);
 	float sigtorn_cin(float stdir, float stspd);
 	float sigtorn_fixed(float stdir, float stspd);
+	float sigtorn_tc(float stdir, float stspd);
 	float sigtorn_test(float stdir, float stspd);	
 	float CB_sigtor(void);
 	void prob_sigt_esrh();

@@ -19,7 +19,6 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.viz.overlays;bundle-version="1.0.0",
  com.raytheon.viz.alerts,
  com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
- com.raytheon.uf.viz.application;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.resourceManager;bundle-version="1.0.0",
  gov.noaa.nws.ncep.staticdataprovider;bundle-version="1.0.0",
  com.raytheon.viz.ui.personalities.awips

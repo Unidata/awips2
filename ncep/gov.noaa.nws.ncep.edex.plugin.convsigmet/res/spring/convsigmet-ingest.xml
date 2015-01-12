@@ -16,15 +16,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.convsigmet" />
 	</bean>
     
-	<bean id="convsigmetCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="convsigmet-camel"/>
-  	</bean>  
-    
     <camelContext id="convsigmet-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler"
-                  autoStartup="false">
+                  errorHandlerRef="errorHandler">
         <!--
 	    <endpoint id="convsigmetFileEndpoint" uri="file:${edex.home}/data/sbn/convsigmet?noop=true&amp;idempotent=false"/>
         

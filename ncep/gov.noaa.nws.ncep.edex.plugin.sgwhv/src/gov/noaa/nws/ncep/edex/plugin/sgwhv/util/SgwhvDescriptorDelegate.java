@@ -16,9 +16,9 @@
  */
 package gov.noaa.nws.ncep.edex.plugin.sgwhv.util;
 
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.DescriptorFactory;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
+import com.raytheon.uf.edex.bufrtools.descriptors.DescriptorFactory;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactoryDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
 
 public class SgwhvDescriptorDelegate implements IDescriptorFactoryDelegate {
 

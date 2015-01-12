@@ -1,7 +1,6 @@
 package gov.noaa.nws.ncep.common.dataplugin.ncuair;
 
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +17,6 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -56,6 +54,8 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                          PluginDataObject.
  * Dec 03, 2013 2551            rjpeter     Remove get/setPersistenceTime
  * Feb 11, 2014 2784            rferrel     Remove override of setIdentifier.
+ * Jun 11, 2014 2061            bsteffen    Remove IDecoderGettable
+ * 
  * 
  * </pre>
  * 
@@ -75,7 +75,7 @@ import com.vividsolutions.jts.geom.Geometry;
         "refTime", "forecastTime" }) })
 @DynamicSerialize
 public class NcUairRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -380,12 +380,6 @@ public class NcUairRecord extends PersistablePluginDataObject implements
         this.nil = nil;
     }
 
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     /**
      * @return the set of uair observation levels
      */
@@ -518,30 +512,6 @@ public class NcUairRecord extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override

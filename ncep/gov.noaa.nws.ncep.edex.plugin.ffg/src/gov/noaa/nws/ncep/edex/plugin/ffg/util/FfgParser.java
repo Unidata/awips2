@@ -20,15 +20,17 @@
 
 package gov.noaa.nws.ncep.edex.plugin.ffg.util;
 
+import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgPrecip;
+import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgRecord;
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+import gov.noaa.nws.ncep.edex.util.UtilN;
+
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+
 import com.raytheon.uf.common.time.DataTime;
-import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgPrecip;
-import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgRecord;
-import gov.noaa.nws.ncep.edex.util.UtilN;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 public class FfgParser {
 	

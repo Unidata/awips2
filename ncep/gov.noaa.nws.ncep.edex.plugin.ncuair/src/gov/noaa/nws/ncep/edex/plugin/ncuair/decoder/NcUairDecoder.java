@@ -16,13 +16,12 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 //import gov.noaa.nws.ncep.edex.tools.decoder.SnsTnsLocTbl;
 
@@ -48,6 +47,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 11/2011              Q. Zhou     Handle multi-record for stationId, eliminate
  *                                  number-id if there is a non-number-id.
  * Aug 30, 2013 2298    rjpeter     Make getPluginName abstract
+ * Jul 23, 2014 3410    bclement    location changed to floats
+ * 09/02/2014           Chin Chen   fix surface height missing on some stations issue
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -75,12 +76,12 @@ public class NcUairDecoder extends AbstractDecoder {
      *            The wmo index
      * @return The obs station with the specified wmo index
      */
-    public ObStation getStationInfo(Integer wmoIndex) {
+    private ObStation getStationInfo(Integer wmoIndex) {
         ObStation station = null;
-
+        List<?> obs = null;
         ObStationDao dao = new ObStationDao();
         if (dao != null) {
-            List<?> obs = null;
+
             try {
                 obs = dao
                         .queryBySingleCriteria("wmoIndex", wmoIndex.toString());
@@ -108,6 +109,23 @@ public class NcUairDecoder extends AbstractDecoder {
             }
 
         }
+        // Chin: sfcElevSolution
+        if (station != null && station.getElevation() != null
+                && station.getElevation().intValue() < 0) {
+            boolean uElev = false;
+            for (int i = 0; i < obs.size(); i++) {
+                ObStation stationTemp = ((ObStation) obs.get(i));
+                if (stationTemp.getUpperAirElevation() != null
+                        && stationTemp.getUpperAirElevation() >= 0) {
+                    station.setElevation(stationTemp.getUpperAirElevation());
+                    uElev = true;
+                    break;
+                }
+            }
+            if (uElev == false)
+                station.setElevation(0);
+        }
+        // Chin: sfcElevSolution end
         return station;
     }
 
@@ -120,7 +138,7 @@ public class NcUairDecoder extends AbstractDecoder {
         Boolean ship = false;
         Boolean drop = false;
         System.out.println("Nc uair decode entered, data size= " + data.length);
-        long curTime = System.currentTimeMillis();
+        // long curTime = System.currentTimeMillis();
         if (headers != null) {
             /*
              * traceId equals to the file name
@@ -196,22 +214,23 @@ public class NcUairDecoder extends AbstractDecoder {
                 SurfaceObsLocation obsLoc = new SurfaceObsLocation(
                         station.getStationId());
                 if (station.getGeometry() != null) {
-                    Double lat = station.getGeometry().getY();
-                    Double lon = station.getGeometry().getX();
+                    float lat = (float) station.getGeometry().getY();
+                    float lon = (float) station.getGeometry().getX();
                     obsLoc.assignLocation(lat, lon);
                     Integer elev = station.getElevation();
-                    if (elev == null) {
-                        elev = -9999;
-                    }
+                    // Chin: sfcElevSolution
+                    // if (elev == null) {
+                    // elev = -9999;
+                    // }
                     obsLoc.setElevation(elev);
                     record.setLocation(obsLoc);
                 } else if (station.getUpperAirGeometry() != null) {
-                    Double lat = station.getUpperAirGeometry().getY();
-                    Double lon = station.getUpperAirGeometry().getX();
+                    float lat = (float) station.getUpperAirGeometry().getY();
+                    float lon = (float) station.getUpperAirGeometry().getX();
                     obsLoc.assignLocation(lat, lon);
                     Integer elev = station.getUpperAirElevation();
                     if (elev == null) {
-                        elev = -9999;
+                        elev = 0; // Chin: sfcElevSolution-9999;
                     }
                     obsLoc.setElevation(elev);
                     record.setLocation(obsLoc);
@@ -281,9 +300,10 @@ public class NcUairDecoder extends AbstractDecoder {
                     obsLoc.assignLocation(NcUairShipMobile.getXlat(),
                             NcUairShipMobile.getXlon());
                     Integer elev = NcUairShipMobile.getElevation();
-                    if (elev == null) {
-                        elev = -9999;
-                    }
+                    // Chin: sfcElevSolution
+                    // if (elev == null) {
+                    // elev = -9999;
+                    // }
                     obsLoc.setElevation(elev);
                     record.setLocation(obsLoc);
                     record.setStnum(NcUairShipMobile.getStationNumber());
@@ -316,15 +336,10 @@ public class NcUairDecoder extends AbstractDecoder {
          * Return the UairRecord record object.
          */
         if (record != null) {
-            try {
-                if (headers != null) {
-                    traceId = (String) headers.get("traceId");
-                }
-                record.setTraceId(traceId);
-                record.constructDataURI();
-            } catch (PluginException e) {
-                throw new DecoderException("Unable to construct dataURI", e);
+            if (headers != null) {
+                traceId = (String) headers.get("traceId");
             }
+            record.setTraceId(traceId);
         }
 
         /*
@@ -333,8 +348,8 @@ public class NcUairDecoder extends AbstractDecoder {
         if (record == null) {
             return new PluginDataObject[0];
         }
-        long enqueueTime = System.currentTimeMillis();
-        double latency = (enqueueTime - curTime);
+        // long enqueueTime = System.currentTimeMillis();
+        // double latency = (enqueueTime - curTime);
         // System.out.println("Nc uair decode spend "+ latency);
         return new PluginDataObject[] { record };
     }
@@ -362,10 +377,8 @@ public class NcUairDecoder extends AbstractDecoder {
          */
         NcUairSeparator sep = NcUairSeparator.separate(data, headers);
 
-        int i = 0;
         while (sep.hasNext()) {
             nil = false;
-            i++;
             messageData = sep.next();
             // System.out.println("New message # "+ i);
 
@@ -429,22 +442,25 @@ public class NcUairDecoder extends AbstractDecoder {
                     SurfaceObsLocation obsLoc = new SurfaceObsLocation(
                             station.getStationId());
                     if (station.getGeometry() != null) {
-                        Double lat = station.getGeometry().getY();
-                        Double lon = station.getGeometry().getX();
+                        float lat = (float) station.getGeometry().getY();
+                        float lon = (float) station.getGeometry().getX();
                         obsLoc.assignLocation(lat, lon);
                         Integer elev = station.getElevation();
-                        if (elev == null) {
-                            elev = -9999;
-                        }
+                        // Chin: sfcElevSolution
+                        // if (elev == null) {
+                        // elev = -9999;
+                        // }
                         obsLoc.setElevation(elev);
                         record.setLocation(obsLoc);
                     } else if (station.getUpperAirGeometry() != null) {
-                        Double lat = station.getUpperAirGeometry().getY();
-                        Double lon = station.getUpperAirGeometry().getX();
+                        float lat = (float) station.getUpperAirGeometry()
+                                .getY();
+                        float lon = (float) station.getUpperAirGeometry()
+                                .getX();
                         obsLoc.assignLocation(lat, lon);
                         Integer elev = station.getUpperAirElevation();
                         if (elev == null) {
-                            elev = -9999;
+                            elev = 0; // Chin: sfcElevSolution
                         }
                         obsLoc.setElevation(elev);
                         record.setLocation(obsLoc);
@@ -519,9 +535,10 @@ public class NcUairDecoder extends AbstractDecoder {
                         obsLoc.assignLocation(NcUairShipMobile.getXlat(),
                                 NcUairShipMobile.getXlon());
                         Integer elev = NcUairShipMobile.getElevation();
-                        if (elev == null) {
-                            elev = -9999;
-                        }
+                        // Chin: sfcElevSolution
+                        // if (elev == null) {
+                        // elev = -9999;
+                        // }
                         obsLoc.setElevation(elev);
                         record.setLocation(obsLoc);
                         record.setStnum(NcUairShipMobile.getStationNumber());
@@ -550,8 +567,8 @@ public class NcUairDecoder extends AbstractDecoder {
             // set dataTime
             if (record != null) {
                 if (obsTime != null) {
-                    if (Math.abs(obsTime.getTime().getDate()
-                            - issueTime.getTime().getDate()) >= 2) {
+                    if (Math.abs(obsTime.get(Calendar.DAY_OF_MONTH)
+                            - issueTime.get(Calendar.DAY_OF_MONTH)) >= 2) {
                         // Chin, not a good record, should just skip it
                         System.out.println("Nc uair record bad issue time "
                                 + issueTime.getTime().toString() + " obs Time "
@@ -571,16 +588,11 @@ public class NcUairDecoder extends AbstractDecoder {
              * Return the UairRecord record object.
              */
             if (record != null) {
-                try {
-                    if (headers != null) {
-                        traceId = (String) headers.get("traceId");
-                    }
-                    record.setTraceId(traceId);
-                    record.constructDataURI();
-                    recordList.add(record);
-                } catch (PluginException e) {
-                    throw new DecoderException("Unable to construct dataURI", e);
+                if (headers != null) {
+                    traceId = (String) headers.get("traceId");
                 }
+                record.setTraceId(traceId);
+                recordList.add(record);
             }
 
         }// end while loop

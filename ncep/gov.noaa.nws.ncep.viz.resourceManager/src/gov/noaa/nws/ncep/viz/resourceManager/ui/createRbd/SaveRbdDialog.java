@@ -61,7 +61,7 @@ public class SaveRbdDialog extends Dialog {
    
     private Shell shell;
     private String dlgTitle = "Save Bundle";
-
+    
     private Text  spf_name_txt = null;
     private Combo rbd_name_combo = null;
     
@@ -84,7 +84,6 @@ public class SaveRbdDialog extends Dialog {
 
     private boolean saveTimeAsConstant;
 	private boolean saveRefTime;
-    
 
     public String getSeldSpfGroup() {
 		return seldSpfGroup;
@@ -131,6 +130,7 @@ public class SaveRbdDialog extends Dialog {
     	shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS );
     	shell.setText(dlgTitle);
     	shell.setSize( 540, 500 ); // pack later
+
     	shell.setLayout( new FormLayout() );
 
         FormData fd = new FormData( );
@@ -523,8 +523,11 @@ public class SaveRbdDialog extends Dialog {
     
 	private void setSeldSpfGroup(String spfGroup) {
 		newRbd = false;
+
 		seldSpfGroup = spfGroup;
+
 		spf_name_lviewer.setInput( seldSpfGroup );    
+
     	spf_name_txt.clearSelection();
 //    	String spfNames[] = SpfsManager.getInstance().getSpfNamesForGroup( spf_group_combo.getText() );
 

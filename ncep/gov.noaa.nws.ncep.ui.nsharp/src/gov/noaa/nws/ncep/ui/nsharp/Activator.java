@@ -11,6 +11,9 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
+ * 05/08/2014   3108        bkowal      Disabled loading of native libraries that
+ *                                      are not available to Windows when the Windows
+ *                                      OS is detected.
  *
  * </pre>
  * 

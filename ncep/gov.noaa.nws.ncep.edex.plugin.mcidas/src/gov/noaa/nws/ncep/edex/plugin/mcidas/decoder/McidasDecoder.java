@@ -51,7 +51,7 @@ public class McidasDecoder extends AbstractDecoder {
     final int RADIUS = 6371200;
 
     final int SIZE_OF_AREA = 256;
-    
+
     final double PI = 3.14159265;
 
     final double HALFPI = PI / 2.;
@@ -161,6 +161,7 @@ public class McidasDecoder extends AbstractDecoder {
             
             
             record.setSatelliteId(sid);
+
             /*
              * Get and set the satellite name from SID
              */

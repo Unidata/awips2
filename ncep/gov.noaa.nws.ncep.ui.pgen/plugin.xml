@@ -304,6 +304,13 @@
                   id="action"
                   name="action"/>
       </command>
+      <command 
+            id="gov.noaa.nws.ncep.ui.pgen.tools.PgenContoursHotkeyCommand"
+            name="Contour level up/down">
+            <commandParameter 
+                  id="action"
+                  name="action"/>
+      </command>
       <command categoryId="gov.noaa.nws.ncep.viz.ui.modalTool" 
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenClip" 
           name="Pgen Clip"> 
@@ -552,6 +559,10 @@
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyHandler"
             commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyCommand">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenContoursHotkeyHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenContoursHotkeyCommand">
        </handler>
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenClippingTool"
@@ -2728,7 +2739,7 @@
              label="Solid Line"
              className="Lines"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
-             icon="icons/cntr.gif" />
+             icon="icons/solidln.gif" />
          <object
              name="POINTED_ARROW"
              label="Line with open arrow head"
@@ -3339,7 +3350,23 @@
                 schemeId="com.raytheon.viz.ui.awips.scheme"
                 sequence="M1+A">
                 <parameter  id="action" value="SELECTALL" />
+         </key> 
+         <!-- Hot keys to move contour level up/down -->       
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenContoursHotkeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="ARROW_UP">
+                <parameter  id="action" value="ARROW_UP" />
          </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenContoursHotkeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="ARROW_DOWN">
+                <parameter  id="action" value="ARROW_DOWN" />
+         </key>                       
+                 
 
     </extension>
 

@@ -31,7 +31,8 @@ import java.util.List;
  * 02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
  * 8/2012					T. Lee/NCEP	Removed missing wind interpolation
  * 8/2012					T. Lee/NCEP	Fixed max wind merging; May fix NSHARP EL calculation
- * 12/2013					T. Lee/NCEP	Fixed missing height at top level before sorting
+ * 12/2013	   1115		    T. Lee/NCEP	Fixed missing height at top level before sorting
+ * 3/2014	   1116			T. Lee/NCEP	Added dpdToDewpoint for cmcHR (15km) data
  * </pre>
  * 
  * @author T. Lee
@@ -93,8 +94,7 @@ public class MergeSounding {
 
         } else {
             if (ppaa.size() < 1 && ttbb.size() < 1) {
-                System.out
-                        .println(" Missing TTAA/TTBB and PPAA data.");
+                System.out.println(" Missing TTAA/TTBB and PPAA data.");
                 return missingSounding();
             } else {
                 man = missingSounding();
@@ -385,6 +385,33 @@ public class MergeSounding {
                     }
                 }
             }
+        }
+        return sndata;
+    }
+
+    /*
+     * computes DWPC from TMPC and RELH Note: If DWPC is less than -190 degrees
+     * C, it is treated as missing data Code is based on GEMPAK's prrhdp.f
+     */
+    public List<NcSoundingLayer> dpdToDewpoint(List<NcSoundingLayer> sndata) {
+        float temp, dpdk;
+        float dwpc = RMISSD;
+
+        for (NcSoundingLayer layer : sndata) {
+            if (layer.getDewpoint() == RMISSD) {
+                temp = layer.getTemperature();
+                dpdk = layer.getDpd();
+
+                if (temp == RMISSD || dpdk == RMISSD) {
+                    continue;
+                } else {
+
+                    dwpc = temp - dpdk;
+                    layer.setDewpoint(dwpc);
+                    // //System.out.println("rhToDewpoint dwpc: " + dwpc);
+                }
+            }
+
         }
         return sndata;
     }
