@@ -17,15 +17,18 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui;
+package com.raytheon.uf.viz.collaboration.ui.colors;
 
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
 
 /**
- * User coloring configuration manager
+ * Custom user coloring configuration manager for use where the user's true
+ * identity is known (eg one-to-one chat)
  * 
  * <pre>
  * 
@@ -34,20 +37,31 @@ import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2014 3709       mapeters    Initial creation.
- * Nov 26, 2014 3709       mapeters    Abstracted out code to {@link AbstractColorConfigManager}.
+ * Nov 26, 2014 3709       mapeters    Abstracted out code to {@link PersistentColorConfigManager}.
  * Dec 08, 2014 3709       mapeters    Set foreground and background colors together.
+ * Jan 09, 2015 3709       bclement    made into a true singleton, moved colorInfoMap to super
  * 
  * </pre>
  * 
  * @author mapeters
  * @version 1.0
  */
-public class UserColorConfigManager extends AbstractColorConfigManager {
+public class UserColorConfigManager extends PersistentColorConfigManager {
 
-    private static final String FILE_PATH = "collaboration"
+    private static final String FILE_PATH = CONFIG_DIR_NAME
             + IPathManager.SEPARATOR + "userColorInfo.xml";
 
-    private static ColorInfoMap colorInfoMap;
+    private static UserColorConfigManager instance;
+
+    public static synchronized UserColorConfigManager getInstance() {
+        if (instance == null) {
+            instance = new UserColorConfigManager();
+        }
+        return instance;
+    }
+
+    protected UserColorConfigManager() {
+    }
 
     /**
      * Set and store the given colors for the given user.
@@ -73,13 +87,17 @@ public class UserColorConfigManager extends AbstractColorConfigManager {
         return super.getColor(user, FILE_PATH);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.colors.IColorConfigManager#
+     * getDescription()
+     */
     @Override
-    protected ColorInfoMap getColorInfoMap() {
-        return colorInfoMap;
+    public String getDescription(String key) {
+        UserId id = IDConverter.convertFrom(key);
+        return "Color changes will apply to one-on-one chat sessions with user "
+                + id.getName() + ".";
     }
 
-    @Override
-    protected void setColorInfoMap(ColorInfoMap colorInfoMap) {
-        UserColorConfigManager.colorInfoMap = colorInfoMap;
-    }
 }
