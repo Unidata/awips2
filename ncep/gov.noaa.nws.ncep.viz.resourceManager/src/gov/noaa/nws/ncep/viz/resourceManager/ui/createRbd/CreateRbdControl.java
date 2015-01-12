@@ -516,7 +516,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         import_lbl.setLayoutData(form_data);
     	*/
 
-    	rbd_name_txt = "";
+        rbd_name_txt = new Text(rbd_grp, SWT.SINGLE | SWT.BORDER);
     	/*
         rbd_name_txt = new Text(rbd_grp, SWT.SINGLE | SWT.BORDER);
         form_data = new FormData(200, 20);
@@ -534,7 +534,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
     	*/
     	
     	// Import
-    	import_rbd_btn = new Button( rbd_grp, SWT.PUSH );
+    	Button import_rbd_btn = new Button( rbd_grp, SWT.PUSH );
     	import_rbd_btn.setText(ImportFromSPF);
     	FormData form_data = new FormData();
     	form_data.width = 120;
@@ -854,7 +854,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         sel_rsc_btn.setLayoutData(form_data);
 
     	// Edit
-    	edit_rsc_btn = new Button( seld_rscs_group, SWT.PUSH ); 
+    	edit_rsc_btn = new Button( seld_rscs_grp, SWT.PUSH ); 
    		edit_rsc_btn.setText("Edit");
         form_data = new FormData();
 		form_data.width = 75;
@@ -864,7 +864,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
     	edit_rsc_btn.setEnabled(false);
 
     	// Remove
-   		del_rsc_btn = new Button( seld_rscs_group, SWT.PUSH ); 
+   		del_rsc_btn = new Button( seld_rscs_grp, SWT.PUSH ); 
         del_rsc_btn.setText("Remove");
         form_data = new FormData();
         form_data.width = 75;
@@ -874,7 +874,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         del_rsc_btn.setEnabled(false);
 
     	// Turn Off
-    	disable_rsc_btn = new Button( seld_rscs_group, SWT.TOGGLE );
+    	disable_rsc_btn = new Button( seld_rscs_grp, SWT.TOGGLE );
         disable_rsc_btn.setText("Turn Off");
         form_data = new FormData();
         form_data.width = 75;
@@ -883,7 +883,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         disable_rsc_btn.setLayoutData(form_data);
 
     	// Move Down
-    	Button move_down_btn = new Button( seld_rscs_group, SWT.ARROW | SWT.DOWN );
+    	Button move_down_btn = new Button( seld_rscs_grp, SWT.ARROW | SWT.DOWN );
         move_down_btn.setToolTipText("Move Down");
         form_data = new FormData();
         form_data.width = 35;
@@ -893,7 +893,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         move_down_btn.setEnabled(false);
 
     	// Move Up
-    	Button move_up_btn = new Button( seld_rscs_group, SWT.ARROW | SWT.UP );
+    	Button move_up_btn = new Button( seld_rscs_grp, SWT.ARROW | SWT.UP );
         move_up_btn.setToolTipText("Move Up");
         form_data = new FormData();
         form_data.width = 35;
@@ -902,7 +902,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         move_up_btn.setLayoutData(form_data);
         move_up_btn.setEnabled(false);
 
-    	Button edit_span_btn = new Button( seld_rscs_group, SWT.PUSH );
+    	Button edit_span_btn = new Button( seld_rscs_grp, SWT.PUSH );
     	edit_span_btn.setText("Bin");
         form_data = new FormData();
         form_data.width = 75;
@@ -1947,6 +1947,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
             }
         });
+        */
 
         // only 1 should be selected or this button should be greyed out
         edit_rsc_btn.addSelectionListener(new SelectionAdapter() {
