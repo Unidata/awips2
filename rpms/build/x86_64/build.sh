@@ -10,6 +10,16 @@ function buildRPM()
       exit 1
    fi
 
+	buildRPMExec "${RPM_SPECIFICATION}"
+
+   return 0
+}
+
+function buildRPMExec()
+{
+	# Arguments:
+	# 1) specs file location
+
    /usr/bin/rpmbuild -ba \
       --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
       --define '_baseline_workspace %(echo ${WORKSPACE})' \
@@ -22,13 +32,11 @@ function buildRPM()
       --define '_component_build_time %(echo ${COMPONENT_BUILD_TIME})' \
       --define '_component_build_system %(echo ${COMPONENT_BUILD_SYSTEM})' \
       --buildroot ${AWIPSII_BUILD_ROOT} \
-      ${RPM_SPECIFICATION}/component.spec
+      ${1}/component.spec
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build RPM ${1}."
       exit 1
    fi
-
-   return 0
 }
 
 # This script will build all of the 64-bit rpms.
@@ -82,6 +90,26 @@ export LIGHTNING=true
 # Determine if the optional '-nobinlightning' argument has been specified.
 if [ "${2}" = "-nobinlightning" ]; then
    LIGHTNING=false
+fi
+
+if [ "${1}" = "-buildRPM" -a -n "${2}" ]; then
+   echo "Building RPM: ${2}"
+   # also allow buildJava, buildOpenfire... buildRPM args
+   buildName=`echo ${2} | cut -c1-5`
+   if [ ${#2} -gt 5 -a "$buildName" = "build" ]; then
+      ${2}
+   else
+      buildRPM ${2}
+   fi
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   exit 0
+fi
+
+if [ "${1}" = "-WA" ]; then
+	WA_rpm_build
+	exit 0
 fi
 
 if [ "${1}" = "-64bit" ]; then
@@ -162,7 +190,7 @@ if [ "${1}" = "-rh6" ]; then
       exit 1
    fi
    buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-httpd-collaboration"
+   buildRPM "awips2-collab-dataserver"
    buildQPID
    if [ $? -ne 0 ]; then
       exit 1
@@ -183,7 +211,6 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-cli"
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-data.gfe"
-   buildRPM "awips2-data.hdf5-gfe.climo"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-groovy"
@@ -195,6 +222,7 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-pypies"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2"
+   buildRPM "awips2-yajsw"
    buildOpenfire
 
    exit 0
@@ -205,14 +233,12 @@ if [ "${1}" = "-httpd" ]; then
    exit 0
 fi
 if [ "${1}" = "-postgres" ]; then
-#   buildRPM "awips2-postgres"
-#   buildRPM "awips2-python"
-#   buildRPM "awips2-notification"
-##   buildRPM "awips2-database-server-configuration"
-##   buildRPM "awips2-database-standalone-configuration"
-##   buildRPM "awips2-database"
-##   buildRPM "awips2-maps-database"
-##   buildRPM "awips2-ncep-database"
+   buildRPM "awips2-postgres"
+   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-database"
+   buildRPM "awips2-maps-database"
+   buildRPM "awips2-ncep-database"
    buildRPM "awips2-pgadmin3"
 
    exit 0
@@ -242,7 +268,6 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-database"
    buildRPM "awips2-database-server-configuration"
    buildRPM "awips2-database-standalone-configuration"
-   buildRPM "awips2-data.hdf5-gfe.climo"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
@@ -319,7 +344,6 @@ if [ "${1}" = "-full" ]; then
 #   buildRPM "awips2-python-pygtk"
 #   buildRPM "awips2-python-pycairo"
    buildRPM "awips2-cli"
-#   buildRPM "awips2-data.hdf5-gfe.climo"
 #   buildRPM "awips2-gfesuite-client"
 #   buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
@@ -347,17 +371,23 @@ if [ "${1}" = "-full" ]; then
    fi
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-notification"
+   buildRPM "awips2-python-shapely"
+   buildRPM "awips2-postgres"
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
-   buildRPM "awips2-python-shapely"
-#
-# pgadmin3 requires jasperlib from /awips2/python/lib
-#
-#   buildRPM "awips2-pgadmin3"
+   buildRPM "awips2-pgadmin3"
+   buildRPM "awips2-ldm"
    exit 0
 fi
 
+#if [ "${1}" = "-ade" ]; then
+#   echo "INFO: AWIPS II currently does not support a 64-bit version of the ADE."
+#   exit 0
+#   buildRPM "awips2-eclipse"
+#
+#   exit 0
+#fi
 
 if [ "${1}" = "-ade" ]; then
    buildRPM "awips2-eclipse"
@@ -446,10 +476,22 @@ fi
 if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-cli"
+   #buildRPM "awips2-python-numpy"
+   #buildRPM "awips2-ant"
+   #buildRPM "awips2-python-dynamicserialize"
+   #buildRPM "awips2-python"
+   #buildRPM "awips2-adapt-native"
+   #unpackHttpdPypies
+   #if [ $? -ne 0 ]; then
+   #   exit 1
+   #fi
+   #buildRPM "awips2-httpd-pypies"
+   #buildRPM "awips2-hydroapps-shared"
+   #buildRPM "awips2-rcm"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-tools"
+   #buildRPM "awips2-cli"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -465,7 +507,7 @@ fi
 
 if [ "${1}" = "-edex" ]; then
    ##buildRPM "awips2-common-base"
-   buildRPM "awips2"
+   #buildRPM "awips2"
    buildEDEX
    #buildRPM "awips2-data.hdf5-topo"
    if [ $? -ne 0 ]; then
@@ -483,10 +525,14 @@ if [ "${1}" = "-custom" ]; then
    #fi
    #buildRPM "awips2-adapt-native"
    #buildRPM "awips2-hydroapps-shared"
+   #buildRPM "awips2-common-base"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-python-dynamicserialize"
    #buildRPM "awips2-alertviz"
    #buildRPM "awips2-python"
    #buildRPM "awips2-alertviz"
-   buildRPM "awips2-ant"
+   #buildRPM "awips2-ant"
    #buildRPM "awips2-eclipse"
    #buildRPM "awips2-python"
 
@@ -552,6 +598,23 @@ if [ "${1}" = "-package" ]; then
 
    exit 0
 fi
+
+if [ "${1}" = "-dev" ]; then
+
+        if [ ! $#  -eq 2 ]; then
+        usage
+        exit 1;
+        fi
+
+        echo -e "\n*** Executing $2  ***"
+        $2
+        if [ $? -ne 0 ]; then
+           exit 1
+        fi
+        echo -e "*** $2 Complete ***\n"
+        exit 0
+fi
+
 
 usage
 exit 0

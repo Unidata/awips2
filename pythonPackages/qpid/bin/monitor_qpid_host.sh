@@ -118,28 +118,6 @@ function captureQpidStat() {
   numQpidConnections=$( qpid-stat -c | wc -l )
   (( numQpidConnections-=3 )) 
   echo -e "Total Number of QPID Connections: ${numQpidConnections}" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
-  if [[ ${numQpidConnections} -ge $(( qpidConnLimit - qpidConnMedAlarm )) && ${numQpidConnections} -lt $(( qpidConnLimit - qpidConnHighAlarm )) ]] ; then
-	echo -e "\tNOTE:  Sending Warning ITO to NCF because number of connections is between $(( qpidConnLimit - qpidConnMedAlarm )) and $(( qpidConnLimit - qpidConnHighAlarm ))" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
-	if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
-		/opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is between $(( qpidConnLimit - qpidConnMedAlarm )) and $(( qpidConnLimit - qpidConnHighAlarm )) : Please check for deadlock condition" severity=Warning msg_grp=AWIPS
-	else
-		echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
-	fi
-  elif [[ ${numQpidConnections} -ge $(( qpidConnLimit - qpidConnHighAlarm )) && ${numQpidConnections} -lt $(( qpidConnLimit - qpidConnCritAlarm )) ]] ; then
-    echo -e "\tNOTE:  Sending Major ITO to NCF because number of connections is between $(( qpidConnLimit - qpidConnHighAlarm )) and $(( qpidConnLimit - qpidConnCritAlarm ))" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out 
-    if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
-        /opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is between $(( qpidConnLimit - qpidConnMedAlarm )) and $(( qpidConnLimit - qpidConnHighAlarm )) : Please check for deadlock condition" severity=Major msg_grp=AWIPS
-    else
-        echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
-    fi
-  elif [[ ${numQpidConnections} -ge $(( qpidConnLimit - qpidConnCritAlarm )) ]] ; then
-	echo -e "\tNOTE:  Sending CRITIAL ITO to NCF because number of connections is >= $(( qpidConnLimit - qpidConnCritAlarm ))" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out	
-	if [[ -f /opt/OV/bin/OpC/opcmsg ]] ; then 
-		/opt/OV/bin/OpC/opcmsg application=QPIDD object=QPIDD msg_text="Number Of Connections To QPID is >= $(( qpidConnLimit - qpidConnCritAlarm )) -- Take IMMEDIATE action to prevent system failure" severity=Critical msg_grp=AWIPS
-	else
-		echo -e "\tERROR - can not find /opt/OV/bin/OpC/opcmsg on $( hostname )" >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
-	fi
-  fi
 	  
   echo >> ${logDirectory}/${nowTimeDate}-qpid-stat.out
 

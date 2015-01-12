@@ -49,7 +49,7 @@ if [ -d ${TOPDIR}/SRPMS ]; then
    fi
 fi
 mkdir ${TOPDIR}/SRPMS
-echo $LD_LIBRARY_PATH
+
 # build the rpm
 rpmbuild -ba \
    --define "_topdir ${TOPDIR}" \

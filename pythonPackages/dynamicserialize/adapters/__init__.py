@@ -30,6 +30,8 @@
 #    08/31/10                      njensen       Initial Creation.
 #    03/20/13           #1774      randerso      Added TimeConstraintsAdapter
 #    04/22/13           #1949      rjpeter       Added LockTableAdapter
+#    02/06/14           #2672      bsteffen      Added JTSEnvelopeAdapter
+
 # 
 #
 
@@ -53,7 +55,8 @@ __all__ = [
            'FloatBufferAdapter',
            'ByteBufferAdapter',
            'TimeConstraintsAdapter',
-           'LockTableAdapter'
+           'LockTableAdapter',
+           'JTSEnvelopeAdapter'
 #           'GridDataHistoryAdapter',
            ]
  

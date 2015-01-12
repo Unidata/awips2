@@ -19,4 +19,5 @@ thrift           = 20080411p1 [0.9.0]
 tpg              = 3.1.2      [3.2.1]
 ufpy             = RAYTHEON-OWNED (AWIPS II)
 werkzeug         = 0.6.2      [0.8.3]
-shapely			 = 1.2.16	  [1.2.16]
+shapely          = 1.2.16     [1.2.16]
+msaslaps         = RAYTHEON-OWNED (AWIPS II)

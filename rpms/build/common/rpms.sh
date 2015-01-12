@@ -49,18 +49,6 @@ function buildQPID()
 
    pushd . > /dev/null 2>&1
 
-   cd ${WORKSPACE}/rpms/awips2.qpid
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build the qpid rpms."
-      return 1
-   fi
-
-   /bin/bash build.sh 0.18
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build the qpid rpms."
-      return 1
-   fi
-
    # ensure that the destination rpm directories exist
    if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/noarch ]; then
       mkdir -p ${AWIPSII_TOP_DIR}/RPMS/noarch
@@ -69,10 +57,30 @@ function buildQPID()
       fi
    fi
 
-   # Copy the 0.18 qpid rpms
-   cd ${WORKSPACE}/rpms/awips2.qpid/0.18/RPMS/noarch
+   # ensure that the destination rpm directories exist
+   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/x86_64 ]; then
+      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/x86_64
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+   
+   cd ${WORKSPACE}/rpms/awips2.qpid/0.30/deploy.builder
    if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid v0.18."
+      echo "ERROR: Failed to build the qpid rpms."
+      return 1
+   fi
+
+   /bin/bash build.sh
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the qpid rpms."
+      return 1
+   fi
+
+   # Copy the 0.30 qpid rpms
+   cd ${WORKSPACE}/rpms/awips2.qpid/0.30/RPMS/noarch
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid v0.30."
       return 1
    fi
    /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/noarch
@@ -80,13 +88,26 @@ function buildQPID()
       return 1
    fi
 
-   cd ${WORKSPACE}/rpms/awips2.qpid/0.18/RPMS/x86_64
+   cd ${WORKSPACE}/rpms/awips2.qpid/0.30/RPMS/x86_64
    if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid v0.18."
+      echo "ERROR: Failed to build Qpid v0.30."
       return 1
    fi
    /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/x86_64
    if [ $? -ne 0 ]; then
+      return 1
+   fi
+
+   #build 0.30
+   export AWIPS_II_TOP_DIR
+   cd ${WORKSPACE}/installers/RPMs/qpid-java-broker-0.30
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid Broker v0.30."
+      return 1
+   fi
+   /bin/bash build.sh
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid Broker v0.30."
       return 1
    fi
 
@@ -116,32 +137,6 @@ function buildEDEX()
    /bin/bash build.sh
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the edex rpms."
-      return 1
-   fi
-
-   return 0
-}
-function buildShapefiles()
-{
-   cd ${WORKSPACE}/rpms/awips2.shapefiles/deploy.builder
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build the edex shapefile rpm."
-      return 1
-   fi
-
-   # Determine the build architecture.
-   export EDEX_BUILD_ARCH=`uname -i`
-   if [ "${EDEX_BUILD_ARCH}" = "i386" ]; then
-      export EDEX_BUILD_ARCH="x86"
-   fi
-
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to determine the architecture."
-      return 1
-   fi
-   /bin/bash build.sh
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build the edex shapefile rpm."
       return 1
    fi
 
@@ -263,6 +258,32 @@ function unpackHttpdPypies()
    fi
    cp -vf ${httpd_pypies_directory}/SOURCES/* ${AWIPSII_TOP_DIR}/SOURCES
    if [ $? -ne 0 ]; then
+      return 1
+   fi
+
+   return 0
+}
+function buildShapefiles()
+{
+   cd ${WORKSPACE}/rpms/awips2.shapefiles/deploy.builder
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the edex shapefile rpm."
+      return 1
+   fi
+
+   # Determine the build architecture.
+   export EDEX_BUILD_ARCH=`uname -i`
+   if [ "${EDEX_BUILD_ARCH}" = "i386" ]; then
+      export EDEX_BUILD_ARCH="x86"
+   fi
+
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to determine the architecture."
+      return 1
+   fi
+   /bin/bash build.sh
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the edex shapefile rpm."
       return 1
    fi
 

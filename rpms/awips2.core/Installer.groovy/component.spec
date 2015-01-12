@@ -65,25 +65,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# spring-enable groovy
-_spring_dependencies=\
-(\
-   'org.springframework.context-3.1.4.RELEASE.jar' \
-   'org.springframework.beans-3.1.4.RELEASE.jar' \
-   'org.springframework.core-3.1.4.RELEASE.jar' \
-   'org.springframework.asm-3.1.4.RELEASE.jar' \
-   'org.springframework.expression-3.1.4.RELEASE.jar' \
-)
-
-for spring_dependency in ${_spring_dependencies[*]};
-do
-   cp %{_baseline_workspace}/org.springframework/${spring_dependency} \
-      %{_build_root}/awips2/groovy/lib
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-done
-
 cp ${_profile_scripts}/* %{_build_root}/etc/profile.d
 if [ $? -ne 0 ]; then
    exit 1

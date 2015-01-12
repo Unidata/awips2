@@ -1,7 +1,7 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
 %define _java_major_version 1.7
-%define _java_revision 71
-%define _java_version %{_java_major_version}.0_%{_java_revision} 
+%define _java_revision 65
+%define _java_version %{_java_major_version}.0_%{_java_revision}
 %define _build_arch %(uname -i)
 %define _java_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -25,7 +25,7 @@ AutoReq: no
 provides: awips2-java
 
 %description
-AWIPS II Java Distribution - Contains Java SE Development Kit (JDK) 1.7.0_40 
+AWIPS II Java Distribution - Contains Java SE Development Kit (JDK) 1.7.0_65
 plus additional libraries used by AWIPS II.
 
 %prep
@@ -169,6 +169,10 @@ rm -fv changeit.txt
 if [ $? -ne 0 ]; then
    exit 1
 fi
+# Remove jrockit missioncontrol
+rm -rf %{_build_root}/awips2/java/lib/missioncontrol
+rm -f %{_build_root}/awips2/java/bin/jmc.ini
+rm -f %{_build_root}/awips2/java/bin/jmc
 
 # The licenses
 mkdir -p %{_build_root}/awips2/java/licenses

@@ -11,8 +11,10 @@
 baseline_workspace="${1}"
 RPM_BUILD_ROOT="${2}"
 
+AWIPS2_STATIC=${AWIPSCM_SHARE}/awips2-static
+
 srcdir="${baseline_workspace}/rpms/awips2.core/Installer.xmpp/dist"
-source_tar="${srcdir}/openfire_3_7_1.tar.gz"
+source_tar="${AWIPS2_STATIC}/foss/openfire/openfire_3_9_1.tar.gz"
 patch_file0="${srcdir}/openfire.patch0"
 patch_file1="${srcdir}/openfire.patch1"
 plugin_dir="${srcdir}/plugins"

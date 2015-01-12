@@ -3,6 +3,8 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
 %define _build_arch %(uname -i)
 
+%define _swt_version 3.8.1.v3836b
+
 #
 # AWIPS II AlertViz Spec File
 #
@@ -98,13 +100,8 @@ script_="%{_baseline_workspace}/build/static/linux/cave/awips2VisualizeUtility.s
 
 # add the license information.
 license_dir="%{_baseline_workspace}/rpms/legal"
-cp "${license_dir}/license.txt" \
-   %{_build_root}/awips2/alertviz
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
-cp "${license_dir}/Master Rights File.pdf" \
+cp "${license_dir}/Master_Rights_File.pdf" \
    %{_build_root}/awips2/alertviz
 if [ $? -ne 0 ]; then
    exit 1
@@ -115,6 +112,21 @@ fi
 %post
 echo -e "\nInstalling A2 gdm PostSession Default script"
 scp /etc/gdm/PostSession/awips2VisualizeUtility.sh /etc/gdm/PostSession/Default
+
+pushd . > /dev/null 2>&1
+cd /awips2/alertviz/plugins
+# Forcefully unzip: org.eclipse.swt.gtk.linux.x86_64_*.jar
+# : if x86_64
+if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
+   mkdir org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
+   unzip -qq org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar \
+      -d org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
+   rm -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
+   mv org.eclipse.swt.gtk.linux.x86_64_%{_swt_version} \
+      org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
+fi
+
+popd > /dev/null 2>&1
 
 %preun
 %postun
@@ -138,7 +150,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/alertviz/features
 /awips2/alertviz/features/*
 %doc /awips2/alertviz/*.pdf
-%doc /awips2/alertviz/license.txt
 %dir /awips2/alertviz/plugins
 /awips2/alertviz/plugins/*
 
