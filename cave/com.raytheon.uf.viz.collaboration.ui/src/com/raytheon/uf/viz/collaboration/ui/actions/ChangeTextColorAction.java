@@ -32,12 +32,12 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.ui.AbstractColorConfigManager;
-import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
-import com.raytheon.uf.viz.collaboration.ui.FeedColorConfigManager;
-import com.raytheon.uf.viz.collaboration.ui.ForegroundBackgroundColorDlg;
-import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
+import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.ui.colors.FeedColorConfigManager;
+import com.raytheon.uf.viz.collaboration.ui.colors.ForegroundBackgroundColorDlg;
+import com.raytheon.uf.viz.collaboration.ui.colors.IColorConfigManager;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
@@ -50,12 +50,13 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 12/02/14     3709        mapeters    Initial creation.
- * 12/09/14     3709        mapeters    Uses {@link ForegroundBackgroundColorDlg}, renamed from 
+ * Dec 02, 2014 3709        mapeters    Initial creation.
+ * Dec 09, 2014  3709       mapeters    Uses {@link ForegroundBackgroundColorDlg}, renamed from 
  *                                      ChangeUserColorAction, support both user and site colors.
- * 12/12/14     3709        mapeters    Use static methods to call constructor, icon displays 
+ * Dec 12, 2014 3709        mapeters    Use static methods to call constructor, icon displays 
  *                                      current foreground and background colors.
- * 01/05/15     3709        mapeters    Added getTextColors(), added me param to createChangeUserTextColorAction().
+ * Jan 05, 2015 3709        mapeters    Added getTextColors(), added me param to createChangeUserTextColorAction().
+ * Jan 09, 2015 3709        bclement    color change manager API changes
  * 
  * </pre>
  * 
@@ -68,7 +69,7 @@ public class ChangeTextColorAction extends Action {
 
     private RGB defaultForeground;
 
-    private AbstractColorConfigManager colorConfigManager;
+    private IColorConfigManager colorConfigManager;
 
     private Image icon;
 
@@ -88,20 +89,21 @@ public class ChangeTextColorAction extends Action {
      * @return
      */
     public static ChangeTextColorAction createChangeUserTextColorAction(
-            String user, boolean me, boolean displayName,
-            RGB defaultForeground, UserColorConfigManager colorConfigManager) {
+            IUser user, boolean me, boolean displayName,
+            RGB defaultForeground, IColorConfigManager colorConfigManager) {
+        String name = user.getName();
         String text = "Change ";
         if (displayName) {
-            text += me ? "Your" : (user + "'s");
+            text += me ? "Your" : (name + "'s");
         } else {
             text += "User";
         }
         text += " Text Colors...";
 
-        return new ChangeTextColorAction(text, user, defaultForeground,
-                colorConfigManager);
+        return new ChangeTextColorAction(text, user.getFQName(),
+                defaultForeground, colorConfigManager);
     }
-    
+
     /**
      * Create and return new action for changing site colors.
      * 
@@ -121,7 +123,7 @@ public class ChangeTextColorAction extends Action {
     }
 
     private ChangeTextColorAction(String text, String key,
-            RGB defaultForeground, AbstractColorConfigManager colorConfigManager) {
+            RGB defaultForeground, IColorConfigManager colorConfigManager) {
         super(text);
         this.key = key;
         this.defaultForeground = defaultForeground;
@@ -137,7 +139,8 @@ public class ChangeTextColorAction extends Action {
     public void run() {
         RGB[] colors = getTextColors();
         ForegroundBackgroundColorDlg dialog = new ForegroundBackgroundColorDlg(
-                Display.getCurrent().getActiveShell(), colors[0], colors[1]);
+                Display.getCurrent().getActiveShell(),
+                colorConfigManager.getDescription(key), colors[0], colors[1]);
 
         dialog.setCloseCallback(new ICloseCallback() {
 
@@ -238,4 +241,5 @@ public class ChangeTextColorAction extends Action {
             icon.dispose();
         }
     }
+
 }
