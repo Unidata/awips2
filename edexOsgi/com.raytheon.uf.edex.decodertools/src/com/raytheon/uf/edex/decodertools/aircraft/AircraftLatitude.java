@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.decodertools.aircraft;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
@@ -27,7 +26,7 @@ import com.raytheon.uf.edex.decodertools.core.BasePoint;
 
 /**
  * Parse various forms of Latitude data and decode these into numeric form.
- *  
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date           PTR#     Engineer      Description
@@ -35,6 +34,7 @@ import com.raytheon.uf.edex.decodertools.core.BasePoint;
  * Feb 28, 2005        753 jkorman       Initial creation.
  * May  4, 2005       1906 jkorman       Correct decode of longitude minutes
  * 20071227            384 jkorman       Ported to edex.
+ * Sep 18, 2014       3627 mapeters      Removed unused splitLatLon().
  * </pre>
  */
 public class AircraftLatitude
@@ -48,11 +48,6 @@ public class AircraftLatitude
     private static final Pattern LA_HDD     = Pattern.compile("^[NS]{1}\\d{2}");
     private static final Pattern LA_HDDDD   = Pattern.compile("^[NS]{1}\\d{2}\\d{2}");
     private static final Pattern LA_HDDdDD  = Pattern.compile("^[NS]{1}\\d{2}\\.\\d{2}");
-
-    private static final Pattern [] theLatPatterns =
-    {
-        LA_DDH, LA_DDDDH, LA_HDDdDD, LA_HDD, LA_HDDDD, LA_DDdDDH,
-    };
 
     // This isn't legal, but some folks like to use it!
     private static final String EQUATOR = "EQ";
@@ -80,7 +75,7 @@ public class AircraftLatitude
     public Double getLatitude()
     {
         return latitude;
-    } // getLongitude()
+    } // getLatitude()
     
     /**
      * Convert latitude in various formats to a numeric value. Any pattern of
@@ -121,41 +116,6 @@ public class AircraftLatitude
         }
         return retValue;
     } // aircraftLatitudeFactory()
-    
-    /**
-     * Attempt to discover if the data is a run-together latitude longitude pair
-     * by comparing the various patterns against the data and attempting a
-     * decode on the match, if any. If the match succeeds, the data is split
-     * into a two element array containing the latitude and the remaining data
-     * which may be a longitude. If no run-together was found, a null reference
-     * is returned.
-     * @param anElement A data element to check for run-together.
-     * @return
-     */
-    public static String [] splitLatLon(String anElement)
-    {
-        String [] retValue = null;
-        Matcher m = null;
-        for(int i = 0;i < theLatPatterns.length;i++)
-        {
-            m = theLatPatterns[i].matcher((anElement));
-            if(m.lookingAt())
-            {
-                int patternEnd = m.end();
-                if(patternEnd < anElement.length())
-                {
-                    if(AircraftLongitude.aircraftLongitudeFactory(anElement.substring(patternEnd)) != null)
-                    {
-                        retValue = new String [2];
-                        retValue[0] = anElement.substring(0,patternEnd);
-                        retValue[1] = anElement.substring(patternEnd);
-                        break;
-                    }
-                }
-            }
-        } // for
-        return retValue;
-    } // splitLatLon()
 
     /**
      * Convert latitude in various formats to a numeric value. Any pattern of

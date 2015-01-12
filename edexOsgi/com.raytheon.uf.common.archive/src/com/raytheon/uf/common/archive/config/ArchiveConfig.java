@@ -57,6 +57,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * ------------ ---------- ----------- --------------------------
  * May  1, 2013 1966       rferrel     Initial creation
  * May 31, 2013 1965       bgonzale    Added getCategory(categoryName)
+ * Apr 17, 2014 3045       rferrel     Code cleanup to prevent null pointer.
  * 
  * </pre>
  * 
@@ -91,7 +92,7 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * for the archiver.
      */
     @XmlElement(name = "category")
-    List<CategoryConfig> categoryList;
+    List<CategoryConfig> categoryList = new ArrayList<CategoryConfig>();
 
     /**
      * Constructor.
@@ -157,7 +158,11 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * @param retentionHours
      */
     public void setRetentionHours(int retentionHours) {
-        this.retentionHours = retentionHours;
+        if (retentionHours > 0) {
+            this.retentionHours = retentionHours;
+        } else {
+            this.retentionHours = 1;
+        }
     }
 
     /**
@@ -166,7 +171,10 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * @return
      */
     public List<CategoryConfig> getCategoryList() {
-        return new ArrayList<CategoryConfig>(categoryList);
+        List<CategoryConfig> list = new ArrayList<CategoryConfig>(
+                categoryList.size());
+        list.addAll(categoryList);
+        return list;
     }
 
     /**
@@ -188,15 +196,17 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * @param categoryList
      */
     public void setCategoryList(List<CategoryConfig> categoryList) {
-        this.categoryList = categoryList;
+        this.categoryList.clear();
+        if (categoryList != null) {
+            this.categoryList.addAll(categoryList);
+        }
     }
 
     /**
      * Check for required entries.
      */
     public boolean isValid() {
-        return (name != null) && (rootDir != null) && (categoryList != null)
-                && (categoryList.size() > 0);
+        return (name != null) && (rootDir != null) && (categoryList.size() > 0);
     }
 
     /*

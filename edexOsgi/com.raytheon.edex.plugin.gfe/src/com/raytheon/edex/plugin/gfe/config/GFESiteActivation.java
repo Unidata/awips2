@@ -19,6 +19,8 @@
  **/
 package com.raytheon.edex.plugin.gfe.config;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -59,20 +61,25 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 9, 2009            njensen     Initial creation
- * Oct 26, 2010  #6811    jclark      changed listener type
- * Apr 06, 2012  #457     dgilling    Clear site's ISCSendRecords on
- *                                    site deactivation.
- * Jul 12, 2012  15162    ryu         added check for invalid db at activation
- * Dec 11, 2012  14360    ryu         log a clean message in case of
- *                                    missing configuration (no stack trace).
- * Feb 15, 2013  1638      mschenke   Moved sending of site notification messages to edex plugin
- * Feb 28, 2013  #1447    dgilling    Enable active table fetching on site
- *                                    activation.
- * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao
- * May 02, 2013  #1969    randerso    Moved updateDbs method into IFPGridDatabase
- * Jun 13, 2013  #2044    randerso    Refactored to use IFPServer
- * Oct 16, 2013  #2475    dgilling    Better error handling for IRT activation.
+ * Jul 9, 2009            njensen      Initial creation
+ * Oct 26, 2010  #6811    jclark       changed listener type
+ * Apr 06, 2012  #457     dgilling     Clear site's ISCSendRecords on
+ *                                     site deactivation.
+ * Jul 12, 2012  15162    ryu          added check for invalid db at activation
+ * Dec 11, 2012  14360    ryu          log a clean message in case of
+ *                                     missing configuration (no stack trace).
+ * Feb 15, 2013  1638      mschenke    Moved sending of site notification messages to edex plugin
+ * Feb 28, 2013  #1447    dgilling     Enable active table fetching on site
+ *                                     activation.
+ * Mar 20, 2013  #1774    randerso     Changed to use GFED2DDao
+ * May 02, 2013  #1969    randerso     Moved updateDbs method into IFPGridDatabase
+ * Jun 13, 2013  #2044    randerso     Refactored to use IFPServer
+ * Oct 16, 2013  #2475    dgilling     Better error handling for IRT activation.
+ * Mar 21, 2014  #2726    rjpeter      Updated wait for running loop.
+ * May 15, 2014  #3157    dgilling     Mark getActiveSites() as deprecated.
+ * Jul 09, 2014  #3146    randerso     Eliminated redundant evaluation of serverConfig
+ *                                     Sent activation failure message to alertViz
+ * Oct 07, 2014  #3684    randerso    Restructured IFPServer start up
  * </pre>
  * 
  * @author njensen
@@ -87,13 +94,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     private static final String INIT_TASK_DETAILS = "Initialization:";
 
-    private static final String SMART_INIT_TASK_DETAILS = "SmartInit:";
-
     private static final int LOCK_TASK_TIMEOUT = 180000;
-
-    // don't rerun the smart init fire if they have been run in the last 30
-    // minutes
-    private static final int SMART_INIT_TIMEOUT = 1800000;
 
     private static GFESiteActivation instance = new GFESiteActivation();
 
@@ -236,13 +237,6 @@ public class GFESiteActivation implements ISiteActivationListener {
         }
 
         try {
-
-            IFPServerConfig config = IFPServerConfigManager
-                    .initializeConfig(siteID);
-            if (config == null) {
-                throw new GfeConfigurationException(
-                        "Error validating configuration for " + siteID);
-            }
             internalActivateSite(siteID);
         } catch (GfeMissingConfigurationException e) {
             sendActivationFailedNotification(siteID);
@@ -252,7 +246,15 @@ public class GFESiteActivation implements ISiteActivationListener {
             throw e;
         } catch (Exception e) {
             sendActivationFailedNotification(siteID);
-            statusHandler.error(siteID + " Error activating site " + siteID, e);
+            String message = "Error activating IFPServer for site " + siteID
+                    + ".  GFE will be unavailable for this site!";
+            statusHandler.error(message, e);
+
+            StringWriter stackTrace = new StringWriter();
+            e.printStackTrace(new PrintWriter(stackTrace));
+            EDEXUtil.sendMessageAlertViz(Priority.ERROR,
+                    "com.raytheon.edex.plugin.gfe", "GFE", "GFE", message,
+                    stackTrace.toString(), null);
             throw e;
         }
         sendActivationCompleteNotification(siteID);
@@ -297,7 +299,7 @@ public class GFESiteActivation implements ISiteActivationListener {
             statusHandler.info("IFPServerConfigManager initializing...");
             config = IFPServerConfigManager.initializeSite(siteID);
             statusHandler.info("Activating IFPServer...");
-            IFPServer ifpServer = IFPServer.activateServer(siteID, config);
+            IFPServer.activateServer(siteID, config);
         } finally {
             statusHandler
                     .handle(Priority.INFO,
@@ -345,16 +347,7 @@ public class GFESiteActivation implements ISiteActivationListener {
 
                 @Override
                 public void run() {
-                    long startTime = System.currentTimeMillis();
-                    // wait for system startup or at least 3 minutes
-                    while (!EDEXUtil.isRunning()
-                            || (System.currentTimeMillis() > (startTime + 180000))) {
-                        try {
-                            Thread.sleep(15000);
-                        } catch (InterruptedException e) {
-
-                        }
-                    }
+                    EDEXUtil.waitForRunning();
 
                     Map<String, Object> fetchATConfig = new HashMap<String, Object>();
                     fetchATConfig.put("siteId", configRef.getSiteID().get(0));
@@ -444,8 +437,13 @@ public class GFESiteActivation implements ISiteActivationListener {
      * Returns the currently active GFE sites the server is running
      * 
      * @return the active sites
+     * 
+     * @deprecated It is preferred that you use the method
+     *             {@link IFPServer#getActiveSites()} to retrieve the list of
+     *             GFE active sites.
      */
     @Override
+    @Deprecated
     public Set<String> getActiveSites() {
         return IFPServerConfigManager.getActiveSites();
     }

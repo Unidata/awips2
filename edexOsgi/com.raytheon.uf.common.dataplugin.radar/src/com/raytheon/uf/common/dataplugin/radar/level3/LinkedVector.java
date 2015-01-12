@@ -19,28 +19,28 @@
  **/
 package com.raytheon.uf.common.dataplugin.radar.level3;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * LinkedVectors are used within {@link SymbologyPacket}s to represent a single
+ * graphical line in a specific color.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 14, 2010            mnash     Initial creation
+ * Date         Ticket#  Engineer    Description
+ * ------------ -------- ----------- --------------------------
+ * Sep 14, 2010           mnash       Initial creation
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
  * @author mnash
  * @version 1.0
  */
-
 @DynamicSerialize
-public class LinkedVector implements ISerializableObject {
+public class LinkedVector {
     @DynamicSerializeElement
     protected int theColor;
 

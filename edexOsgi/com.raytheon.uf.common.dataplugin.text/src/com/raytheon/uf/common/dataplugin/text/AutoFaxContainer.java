@@ -23,12 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.text.db.AutoFaxRecord;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Serialization wrapper for a list of AutoFaxRecords
  * 
  * <pre>
  * 
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 2, 2010            bfarmer     Initial creation
+ * May 15, 2014 2536       bclement    removed ISerializableObject
  * 
  * </pre>
  * 
@@ -44,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class AutoFaxContainer implements ISerializableObject {
+public class AutoFaxContainer {
     @DynamicSerializeElement
     private List<AutoFaxRecord> autoFaxList = new ArrayList<AutoFaxRecord>();
 

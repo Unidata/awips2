@@ -21,7 +21,8 @@ package com.raytheon.uf.edex.decodertools.core;
 
 import java.io.Serializable;
 
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
+
 
 
 /**

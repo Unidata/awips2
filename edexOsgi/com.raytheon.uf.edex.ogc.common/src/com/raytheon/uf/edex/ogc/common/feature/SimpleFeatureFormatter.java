@@ -24,8 +24,8 @@ import java.util.List;
 
 import org.opengis.feature.simple.SimpleFeature;
 
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
  * Interface for converting simple features to different output formats

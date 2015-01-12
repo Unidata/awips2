@@ -68,6 +68,18 @@
     <elevation>155</elevation>
   </airport>
   <airport>
+    <id>ADK</id>
+    <latitude>51.88</latitude>
+    <longitude>-176.65</longitude>
+    <elevation>6</elevation>
+  </airport>  
+  <airport>
+    <id>ADQ</id>
+    <latitude>57.75</latitude>
+    <longitude>-152.50</longitude>
+    <elevation>22</elevation>
+  </airport>  
+  <airport>
     <id>AEX</id>
     <latitude>31.33</latitude>
     <longitude>-92.55</longitude>
@@ -97,6 +109,12 @@
     <longitude>24.77</longitude>
     <elevation>1192</elevation>
   </airport>
+  <airport>
+    <id>AKN</id>
+    <latitude>58.68</latitude>
+    <longitude>-156.65</longitude>
+    <elevation>17</elevation>
+  </airport>  
   <airport>
     <id>AKO</id>
     <latitude>40.17</latitude>
@@ -145,6 +163,12 @@
     <longitude>-150.02</longitude>
     <elevation>45</elevation>
   </airport>
+  <airport>
+    <id>ANI</id>
+    <latitude>61.58</latitude>
+    <longitude>-159.55</longitude>
+    <elevation>27</elevation>
+  </airport>  
   <airport>
     <id>APA</id>
     <latitude>39.57</latitude>
@@ -205,6 +229,12 @@
     <longitude>-73.13</longitude>
     <elevation>5</elevation>
   </airport>
+  <airport>
+    <id>BET</id>
+    <latitude>60.78</latitude>
+    <longitude>-161.83</longitude>
+    <elevation>40</elevation>
+  </airport>  
   <airport>
     <id>BFI</id>
     <latitude>47.53</latitude>
@@ -338,6 +368,12 @@
     <elevation>58</elevation>
   </airport>
   <airport>
+    <id>BRW</id>
+    <latitude>71.28</latitude>
+    <longitude>-156.77</longitude>
+    <elevation>16</elevation>
+  </airport>  
+  <airport>
     <id>BSM</id>
     <latitude>30.20</latitude>
     <longitude>-97.68</longitude>
@@ -415,6 +451,12 @@
     <longitude>2.55</longitude>
     <elevation>117</elevation>
   </airport>
+  <airport>
+    <id>CDV</id>
+    <latitude>60.50</latitude>
+    <longitude>-145.48</longitude>
+    <elevation>13</elevation>
+  </airport>  
   <airport>
     <id>CEF</id>
     <latitude>42.20</latitude>
@@ -548,6 +590,12 @@
     <elevation>239</elevation>
   </airport>
   <airport>
+    <id>CYXY</id>
+    <latitude>60.71</latitude>
+    <longitude>-135.07</longitude>
+    <elevation>706</elevation>
+  </airport>  
+  <airport>
     <id>CYYZ</id>
     <latitude>43.68</latitude>
     <longitude>-79.63</longitude>
@@ -620,6 +668,12 @@
     <elevation>12</elevation>
   </airport>
   <airport>
+    <id>DLG</id>
+    <latitude>59.05</latitude>
+    <longitude>-158.50</longitude>
+    <elevation>26</elevation> 
+  </airport>  
+  <airport>
     <id>DNMM</id>
     <latitude>6.50</latitude>
     <longitude>3.30</longitude>
@@ -661,6 +715,12 @@
     <longitude>6.78</longitude>
     <elevation>44</elevation>
   </airport>
+  <airport>
+    <id>DUT</id>
+    <latitude>53.90</latitude>
+    <longitude>-166.55</longitude>
+    <elevation>4</elevation>
+  </airport>  
   <airport>
     <id>DXR</id>
     <latitude>41.37</latitude>
@@ -895,6 +955,12 @@
     <longitude>-1.32</longitude>
     <elevation>94</elevation>
   </airport>
+  <airport>
+    <id>ENA</id>
+    <latitude>60.57</latitude>
+    <longitude>-151.25</longitude>
+    <elevation>28</elevation>
+  </airport>  
   <airport>
     <id>ENAL</id>
     <latitude>62.50</latitude>
@@ -1310,6 +1376,12 @@
     <elevation>296</elevation>
   </airport>
   <airport>
+    <id>GST</id>
+    <latitude>58.43</latitude>
+    <longitude>-135.71</longitude>
+    <elevation>11</elevation>
+  </airport>  
+  <airport>
     <id>GTF</id>
     <latitude>47.48</latitude>
     <longitude>-111.35</longitude>
@@ -1387,6 +1459,12 @@
     <longitude>-76.23</longitude>
     <elevation>9999</elevation>
   </airport>
+  <airport>
+    <id>HOM</id>
+    <latitude>59.65</latitude>
+    <longitude>-151.48</longitude>
+    <elevation>24</elevation>
+  </airport>  
   <airport>
     <id>HOU</id>
     <latitude>29.65</latitude>
@@ -1496,6 +1574,12 @@
     <elevation>7</elevation>
   </airport>
   <airport>
+    <id>JNU</id>
+    <latitude>58.36</latitude>
+    <longitude>-134.58</longitude>
+    <elevation>7</elevation>
+  </airport>  
+  <airport>
     <id>JSJ</id>
     <latitude>18.43</latitude>
     <longitude>-66.00</longitude>
@@ -1537,6 +1621,12 @@
     <longitude>-118.08</longitude>
     <elevation>774</elevation>
   </airport>
+  <airport>
+    <id>KTN</id>
+    <latitude>55.35</latitude>
+    <longitude>-131.71</longitude>
+    <elevation>29</elevation>
+  </airport>  
   <airport>
     <id>KUL</id>
     <latitude>3.12</latitude>
@@ -2474,6 +2564,12 @@
     <elevation>299</elevation>
   </airport>
   <airport>
+    <id>OME</id>
+    <latitude>64.51</latitude>
+    <longitude>-165.45</longitude>
+    <elevation>11</elevation>
+  </airport>  
+  <airport>
     <id>ONT</id>
     <latitude>34.05</latitude>
     <longitude>-117.62</longitude>
@@ -2509,6 +2605,12 @@
     <longitude>36.50</longitude>
     <elevation>615</elevation>
   </airport>
+  <airport>
+    <id>OTZ</id>
+    <latitude>66.88</latitude>
+    <longitude>-162.60</longitude>
+    <elevation>4</elevation>
+  </airport>  
   <airport>
     <id>PAE</id>
     <latitude>47.92</latitude>
@@ -2611,6 +2713,12 @@
     <longitude>-73.88</longitude>
     <elevation>50</elevation>
   </airport>
+  <airport>
+    <id>PSG</id>
+    <latitude>56.80</latitude>
+    <longitude>-132.95</longitude>
+    <elevation>35</elevation>
+  </airport>  
   <airport>
     <id>PSP</id>
     <latitude>33.83</latitude>
@@ -2828,6 +2936,12 @@
     <elevation>236</elevation>
   </airport>
   <airport>
+    <id>SCC</id>
+    <latitude>70.19</latitude>
+    <longitude>-148.47</longitude>
+    <elevation>20</elevation>
+  </airport>  
+  <airport>
     <id>SCEL</id>
     <latitude>-33.38</latitude>
     <longitude>-70.78</longitude>
@@ -2851,6 +2965,12 @@
     <longitude>-85.73</longitude>
     <elevation>151</elevation>
   </airport>
+  <airport>
+    <id>SDP</id>
+    <latitude>55.32</latitude>
+    <longitude>-160.52</longitude>
+    <elevation>7</elevation>
+  </airport>  
   <airport>
     <id>SDQ</id>
     <latitude>18.43</latitude>
@@ -2911,6 +3031,12 @@
     <longitude>103.85</longitude>
     <elevation>16</elevation>
   </airport>
+  <airport>
+    <id>SIT</id>
+    <latitude>57.05</latitude>
+    <longitude>-135.36</longitude>
+    <elevation>8</elevation>
+  </airport>  
   <airport>
     <id>SJC</id>
     <latitude>37.37</latitude>
@@ -2989,6 +3115,12 @@
     <longitude>-117.88</longitude>
     <elevation>16</elevation>
   </airport>
+  <airport>
+    <id>SNP</id>
+    <latitude>57.17</latitude>
+    <longitude>-170.22</longitude>
+    <elevation>13</elevation>
+  </airport>  
   <airport>
     <id>SPI</id>
     <latitude>39.85</latitude>
@@ -3248,6 +3380,12 @@
     <elevation>876</elevation>
   </airport>
   <airport>
+    <id>VDZ</id>
+    <latitude>61.13</latitude>
+    <longitude>-146.25</longitude>
+    <elevation>37</elevation> 
+  </airport>  
+  <airport>
     <id>VECC</id>
     <latitude>22.70</latitude>
     <longitude>88.40</longitude>
@@ -3344,6 +3482,12 @@
     <elevation>937</elevation>
   </airport>
   <airport>
+    <id>WRG</id>
+    <latitude>56.48</latitude>
+    <longitude>-132.37</longitude>
+    <elevation>15</elevation>
+  </airport>  
+  <airport>
     <id>WSSS</id>
     <latitude>1.37</latitude>
     <longitude>103.85</longitude>
@@ -3355,6 +3499,12 @@
     <longitude>-64.68</longitude>
     <elevation>6</elevation>
   </airport>
+  <airport>
+    <id>YAK</id>
+    <latitude>59.50</latitude>
+    <longitude>-139.66</longitude>
+    <elevation>10</elevation>
+  </airport>  
   <airport>
     <id>YARG</id>
     <latitude>-16.63</latitude>

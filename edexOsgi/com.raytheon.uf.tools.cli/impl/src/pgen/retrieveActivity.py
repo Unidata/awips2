@@ -2,9 +2,9 @@
 
 ##
 # This script is used to extract PGEN products from EDEX.
-# It can be run in batch mode by specifying the "-l" and "-t" options on the
-# command line.  Optionally, users can run it in interactive mode by invoking it
-# with no argument.
+# It can be run in batch mode by specifying the "-l", "-t", "-d", "-st", "-n", and
+# "-p" options on the command line.  Optionally, users can run it in interactive 
+# mode by invoking it with no argument.
 # 
 # Users can override the default EDEX server and port name by specifying them
 # in the $DEFAULT_HOST and $DEFAULT_PORT shell environment variables.
@@ -19,6 +19,7 @@ from Tkinter import *
 from ufpy import UsageArgumentParser
 import lib.CommHandler as CH
 import ProductRetriever
+import ActivityUtil
 
 logger = None
 def __initLogger():
@@ -33,68 +34,53 @@ def __initLogger():
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     
+#
+#  Parses command line input and store in "options".
+#
 def __parseCommandLine():
     parser = UsageArgumentParser.UsageArgumentParser(prog='retrieveActivity',description="Retrieve PGEN Activities from EDEX.  When invoked without any arguments, retrieveActivity is run in interactive mode.")
     bgroup = parser.add_argument_group(title='batch',description='For running in scripts and/or batch mode.')
 
-    bgroup.add_argument("-l", action="store", dest="label", 
+    bgroup.add_argument("-l*", action="store", dest="label", 
                       help="Activity Label being requested", 
                       required=False, metavar="label")
-    bgroup.add_argument("-t", action="store", dest="type", 
+    bgroup.add_argument("-t*", action="store", dest="type", 
                       help="Activity Type being requested",
                       required=False, metavar="type")
+    bgroup.add_argument("-st", action="store", dest="subtype", 
+                      help="Activity Subtype being requested",
+                      required=False, metavar="subtype")
+    bgroup.add_argument("-d*", action="store", dest="reftime", 
+                      help="Activity Ref Time being requested (YYYY-MM-DD_HH:MM)",
+                      required=False, metavar="reftime")
+    bgroup.add_argument("-n*", action="store", dest="name", 
+                      help="Activity Name being requested",
+                      required=False, metavar="name")
+    bgroup.add_argument("-f", action="store", dest="fullpath", 
+                      help="Write out XML with full path? (Yes/No)",
+                      required=False, metavar="fullpath")
+    
+    bgroup = parser.add_argument_group(title='Note',description='Pattern match with "*" is allowed for -l, -t, -d, and -n. E.g, -l "*CCFP*3*" will match any activities whose label contains CCFP and 3.')
+    
     options = parser.parse_args()
     
     options.interactive = False
-    if options.label == None and options.type == None :
-        options.interactive = True
-    elif options.label == None or options.type == None :
-        print "Must enter values for both arguments -l and -t"
-        exit(0)
-
+    if (options.label == None and options.type == None and 
+        options.reftime == None and options.subtype == None and 
+        options.fullpath == None and options.name == None):
+            options.interactive = True
+    else:
+        if (options.label == None and options.type == None and 
+            options.reftime == None and options.name == None):
+            print "Must enter values for at least one of -l, -t, -d, or -n"
+            exit(0)
+       
     logger.debug("Command-line arguments: " + str(options))
     return options
 
 #
-#  This method sends a CatalogQuery request to the EDEX uEngine
-#  for the dataURI associated with the given activity type and label
+#  Main program.
 #
-def __getDataURI( type, label):
-    script='''import CatalogQuery
-query = CatalogQuery.CatalogQuery("pgen")
-query.addConstraint("activityType","{0}","=")
-query.addConstraint("activityLabel","{1}","=")
-query.addReturnedField("dataURI")
-query.addReturnedField("dataTime.refTime")
-return query.execute()'''.format(type,label)
-
-    service = '/services/pyproductjaxb'
-    host = os.getenv("DEFAULT_HOST", "localhost")
-    port = os.getenv("DEFAULT_PORT", "9581")
-    connection=str(host+":"+port)
-    ch = CH.CommHandler(connection,service)
-    ch.process(script)
-
-    if not ch.isGoodStatus():
-        print ch.formatResponse()
-        exit(1)
-
-    logger.debug( ch.getContents() )
-    return __parseResponse( ch.getContents() )
-
-#
-#  Parses the XML response from the uEngine and extracts
-#  the value for the dataURI field.  If multiple are returned, the last
-#  one is used.
-#
-def __parseResponse(xml):
-    tree = ET.fromstring(xml)
-    for attr in tree.iter('attributes'):
-        if attr.attrib['field'] == 'dataURI':
-            duri = attr.attrib['value']
-
-    return duri
-
 def main():
     __initLogger()
     logger.info("Starting retrieveActivity.")
@@ -109,21 +95,51 @@ def main():
         app.mainloop()
         root.destroy()
     else:
-        # Retrieve products for given activity type and label
-        logger.info("looking for Product: " + options.type + " - " + options.label)
-        dataURI = __getDataURI(options.type, options.label)
-        logger.debug("Found dataURI = " + dataURI)
+        # Retrieve all activities abnd build a map of record using
+        # type(subtype) as key.
+        mu = ActivityUtil.ActivityUtil()
+        activityMap = mu.getActivityMap()
+    
+        reqtype = None
+        if ( options.type != None ):
+            reqtype = options.type;
+            if ( options.subtype != None ) :
+                reqtype = options.type + "(" + options.subtype + ")"
+                     
+        records = []
+        for key in activityMap.iterkeys():
+            recs = activityMap[key]
+            for rec in recs:
+                if ( mu.stringMatcher(options.label, rec["activityLabel"]) and
+                     mu.stringMatcher(reqtype, key ) and 
+                     mu.stringMatcher(options.name, rec["activityName"] ) ):
+                         #Remove sec.msec from record's refTime
+                         dbRefTime = rec["dataTime.refTime"]
+                         dotIndex = dbRefTime.rfind(":")
+                         if ( dotIndex > 0 ):
+                             shortTime = dbRefTime[:dotIndex]
+                         else:
+                             shortTime = dbRefTime
+                         
+                         #Replace the "_" with a whitespace in reftime.
+                         optionTime = options.reftime.replace("_", " ")
+                 
+                         if ( mu.stringMatcher( optionTime, shortTime ) ):
+                             records.append( rec )    
+                                               
+        for rec in records:
+            pr = ProductRetriever.ProductRetriever(rec["dataURI"], rec["activityLabel"])
+            if options.fullpath != None and options.fullpath.upper().startswith("Y"):
+                pr.setFullpath(True)
+            pr.getProducts()
 
-        pr = ProductRetriever.ProductRetriever(dataURI, options.label)
-        outdir = os.getcwd() + str(os.sep) + options.type + str(os.sep) + options.label + str(os.sep)
-        #pr.setOutputDir(outdir)
-        pr.getProducts()
-
-    #print "Products were written to directory: " + outdir
     logger.info("retrieveActivity is complete.")
 
+#
+#  Interactive GUI for PGEN activity retrieval 
+#
 class RetrieveGui(Frame):
-    """ Interactive GUI for PGEN product retrieval """
+    """ Interactive GUI for PGEN activity retrieval """
     
     def __init__(self, master=None):
         """ Initialize Frame and create widgets """
@@ -136,15 +152,16 @@ class RetrieveGui(Frame):
         # if an activity type and label have been selected, get products and write them out.
         if len(self.typeList.curselection()) != 0 and len(self.nameList.curselection()) != 0:
             type = self.typeList.get(self.typeList.curselection())
-            label = self.nameList.get(self.nameList.curselection())
-            labelindex = int(self.nameList.curselection()[0])
-            dataURI = self.activityMap[type][labelindex]['dataURI']
+            
+            items = self.nameList.curselection()
+            for i in items :
+                idx = int(i)
+                label = self.nameList.get(idx)
+                dataURI = self.activityMap[type][idx]['dataURI']
 
-            pr = ProductRetriever.ProductRetriever(dataURI, label)
-            #outdir = os.getcwd() + str(os.sep) + options.type + str(os.sep) + options.label + str(os.sep)
-            #pr.setOutputDir(outdir)
-            pr.getProducts()
-
+                pr = ProductRetriever.ProductRetriever(dataURI, label)
+                pr.getProducts()        
+        
     def createWidgets(self):
         activityType = Label(self)
         activityType["text"] = "Activity Type"
@@ -172,7 +189,7 @@ class RetrieveGui(Frame):
         frame2 = Frame(self)
         vscrollbar2 = Scrollbar(frame2, orient=VERTICAL)
         hscrollbar2 = Scrollbar(frame2, orient=HORIZONTAL)
-        self.nameList = Listbox(frame2,yscrollcommand=vscrollbar2.set,xscrollcommand=hscrollbar2.set,exportselection=0, width=50,height=15,bg="white")
+        self.nameList = Listbox(frame2,yscrollcommand=vscrollbar2.set,xscrollcommand=hscrollbar2.set,exportselection=0, width=50,height=15,bg="white", selectmode=EXTENDED)
         vscrollbar2.config(command=self.nameList.yview)
         hscrollbar2.config(command=self.nameList.xview)
         vscrollbar2.pack(side=RIGHT, fill=Y)
@@ -197,7 +214,7 @@ class RetrieveGui(Frame):
         #  Get all Activity Types and Labels from EDEX for use in selection ListBoxes.
         #  Insert list of Types in Type Listbox
         #
-        self.activityMap = self.__getActivityMap()
+        self.activityMap = ActivityUtil.ActivityUtil().getActivityMap()
         self.typeList.delete(0,END)
         for key in self.activityMap.iterkeys():
             self.typeList.insert(END,key)
@@ -225,61 +242,7 @@ class RetrieveGui(Frame):
     def typeList_has_changed(self, index):
         self.nameList.delete(0,END)
         for label in self.activityMap[ self.typeList.get(index) ]:
-            #print label
             self.nameList.insert(END, label['activityLabel'])
-
-    #
-    #  Sends a CatalogQuery to the EDEX uEngine to get a list of 
-    #  PGEN Activity TYpes, Labels, and associated dataURIs 
-    # in the pgen database tables.
-    #
-    def __getActivityMap(self):
-        script='''import CatalogQuery
-query = CatalogQuery.CatalogQuery("pgen")
-query.addReturnedField("activityType")
-query.addReturnedField("activityLabel")
-query.addReturnedField("dataURI")
-return query.execute()'''
-
-        service = '/services/pyproductjaxb'
-        host = os.getenv("DEFAULT_HOST", "localhost")
-        port = os.getenv("DEFAULT_PORT", "9581")
-        connection=str(host+":"+port)
-        ch = CH.CommHandler(connection,service)
-        ch.process(script)
-
-        if not ch.isGoodStatus():
-            print ch.formatResponse()
-            exit(1)
-
-        logger.debug( ch.getContents() )
-        return self.__generateMap( ch.getContents() )
-
-    #
-    #  Generates a map of activity types, label, and dataURIs from 
-    #  the XML returned from EDEX uEngine for use in the activity type and label
-    #  Listboxes.
-    #
-    #  The map is a dictionary (dict) of Activity Types whose values are a list of dicts
-    #  which have keys "activityType", "activityLabel", and "dataURI".
-    #
-    def __generateMap(self, xml):
-        aMap = dict()
-        tree = ET.fromstring(xml)
-        for item in tree.iter('items'):
-            #print item.attrib['key']
-            record = dict()
-            for attr in item.iter('attributes'):
-                record.update( {attr.attrib['field'] : attr.attrib['value'] } )
-                #print record
-
-            atype = record['activityType']
-            if aMap.has_key(atype):
-                aMap[atype].append(record)
-            else:
-                aMap.update( {atype: [record]} )
-
-        return aMap
 
 
 if __name__ == '__main__':

@@ -22,15 +22,15 @@ package com.raytheon.uf.edex.plugin.tcg;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.tcg.decoder.TCGDataAdapter;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder implementation for the tcg (Tropical Cyclone Guidance) plugin.
@@ -41,6 +41,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2009             jsanchez     Initial creation
+ * May 14, 2014 2536        bclement     moved WMO Header to common
+ * Jun 24, 2014 3235        nabowle      Switch to slf4j.
  * 
  * </pre>
  * 
@@ -48,7 +50,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * @version 1.0
  */
 public class TCGDecoder {
-    private Log logger = LogFactory.getLog(getClass());
+    private static final Logger logger = LoggerFactory
+            .getLogger(TCGDecoder.class);
 
     private final String pluginName;
 
@@ -108,7 +111,9 @@ public class TCGDecoder {
         if (data != null && data.length > 0) {
             List<TropicalCycloneGuidance> obsList = new ArrayList<TropicalCycloneGuidance>();
             try {
-                WMOHeader wmoHeader = new WMOHeader(data, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                WMOHeader wmoHeader = new WMOHeader(data, fileName);
                 TCGDataAdapter adapter = TCGDataAdapter.getAdapter(pdd, dao,
                         pluginName, wmoHeader);
                 adapter.setData(data, traceId, headers);

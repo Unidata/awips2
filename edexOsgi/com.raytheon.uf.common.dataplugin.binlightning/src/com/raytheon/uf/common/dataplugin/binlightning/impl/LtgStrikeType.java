@@ -23,34 +23,52 @@ package com.raytheon.uf.common.dataplugin.binlightning.impl;
  * Enums for the lightning strike type, cloud-to-cloud or cloud-to-ground.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070810            379 jkorman     Initial Coding from prototype.
  * 20130425        DCS 112 Wufeng Zhou Added STRIKE_TF (for Total Flash) in definition for Total Flash 
+ * Jun 3, 2014  3226       bclement    added id, changed to more descriptive names, added KEEP_ALIVE
  * 
  * </pre>
- *
+ * 
  * @author jkorman
  * @version 1.0
  */
 public enum LtgStrikeType
 {
-    STRIKE_CC("CC"),
-    STRIKE_CG("CG"),
-    STRIKE_TF("TF");
+    CLOUD_TO_CLOUD((byte)0, "CC"), CLOUD_TO_GROUND((byte)1, "CG"), TOTAL_FLASH((byte)2, "TF"), KEEP_ALIVE((byte)9,
+            "");
     
     private final String strikeType;
+
+    private final byte id;
     
     /**
      * Construct the type.
+     * @param id unique id for type
      * @param type Lightning strike type.
      */
-    private LtgStrikeType(String type)
+    private LtgStrikeType(byte id, String type)
     {
-        strikeType = type;
+        this.id = id;
+        this.strikeType = type;
+    }
+    
+    /**
+     * @param id
+     *            unique id for type
+     * @return null if no type is found for id
+     */
+    public static LtgStrikeType getById(byte id) {
+        for (LtgStrikeType type : LtgStrikeType.values()) {
+            if (type.id == id) {
+                return type;
+            }
+        }
+        return null;
     }
     
     /**
@@ -60,5 +78,12 @@ public enum LtgStrikeType
     public String getType()
     {
         return strikeType;
+    }
+
+    /**
+     * @return id
+     */
+    public int getId() {
+        return this.id;
     }
 }

@@ -19,22 +19,16 @@
  **/
 package com.raytheon.uf.edex.plugin.fssobs;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -55,6 +49,9 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * May 15, 2013 1869       bsteffen    Remove DataURI column from ldadmesonet.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * Jan 02, 2014 2580       skorolev    Fixed FSSObs error.
+ * Jan 06, 2014 2653       skorolev    Corrected decoding of snincrHourly and snincrTotal.
+ * Apr 28, 2014 3086       skorolev    Updated getStations method.
+ * Sep 04, 2014 3220       skorolev    Removed getStations method.
  * 
  * </pre>
  * 
@@ -65,6 +62,9 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
 public class FSSObsUtils {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FSSObsUtils.class);
+
+    /** Centigrade -> Kelvin */
+    public static final float TMCK = 273.15f;
 
     /**
      * Value of missed data.
@@ -81,13 +81,8 @@ public class FSSObsUtils {
      */
     private static final int CLR_SKY_CONDITION = 8888888;
 
-    /** Monitor ID **/
-    private enum monID {
-        ss, fog, snow
-    };
-
     /** Plug-in name **/
-    private enum plgn {
+    private enum Plgn {
         obs, sfcobs, ldadmesonet
     };
 
@@ -123,7 +118,7 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            request = new PointDataQuery(plgn.obs.toString());
+            request = new PointDataQuery(Plgn.obs.toString());
             request.requestAllLevels();
             request.addParameter(slct, uri, equ);
             request.setParameters(FSSObsDataTransform.OBS_PARAMS_LIST);
@@ -170,7 +165,7 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            request = new PointDataQuery(plgn.sfcobs.toString());
+            request = new PointDataQuery(Plgn.sfcobs.toString());
             request.addParameter(slct, uri, equ);
             request.setParameters(FSSObsDataTransform.SFCOBS_PARAMS_LIST);
             result = request.execute();
@@ -202,7 +197,7 @@ public class FSSObsUtils {
                     .toConstraintMapping(DataURIUtil.createDataURIMap(uri));
             // Not actually in db
             rcMap.remove("pluginName");
-            request = new PointDataQuery(plgn.ldadmesonet.toString());
+            request = new PointDataQuery(Plgn.ldadmesonet.toString());
             for (Entry<String, RequestConstraint> entry : rcMap.entrySet()) {
                 RequestConstraint rc = entry.getValue();
                 String value = rc.getConstraintValue();
@@ -358,6 +353,9 @@ public class FSSObsUtils {
         for (int i = 0; i < 5; i++) {
             retVal[i] = MISSING;
         }
+        float temp = tableRow.getTemperature();
+        float windspd = tableRow.getWindSpeed();
+
         Scanner sc = new Scanner(tableRow.getRawMessage());
         String whatMatched;
         whatMatched = sc.findWithinHorizon("RMK", 0);
@@ -365,11 +363,12 @@ public class FSSObsUtils {
             whatMatched = sc.findWithinHorizon("SNINCR", 0);
             if (whatMatched != null) {
                 sc.useDelimiter("/");
-                if (sc.hasNextInt()) {
+                if (sc.hasNext()) {
                     // last hour snow in inches
-                    retVal[0] = sc.nextInt();
+                    retVal[0] = Float.parseFloat(sc.next());
                 }
                 sc.reset();
+                sc.findWithinHorizon("/", 0);
                 if (sc.hasNextInt()) {
                     // total snow in inches
                     retVal[1] = sc.nextInt();
@@ -378,23 +377,19 @@ public class FSSObsUtils {
             whatMatched = sc.findWithinHorizon("4/", 0);
             if (whatMatched != null) {
                 // snow depth on ground in inches
-                if (retVal.length >= 5) {
-                    retVal[2] = sc.nextInt();
-                }
+                retVal[2] = sc.nextInt();
             }
         }
         sc.close();
-        if ((tableRow.getTemperature() != MISSING)
-                && (tableRow.getTemperature() < 4.4f)
+        if ((temp != MISSING) && (temp < 4.4f)
                 // 277.6 K = 40 F = 4.44444 C
-                && (tableRow.getWindSpeed() != MISSING)
-                && (tableRow.getWindSpeed() <= 43.0f && tableRow.getWindSpeed() >= 14.0f)) {
-            float speedKPH = tableRow.getWindSpeed() * 1.6f;
-            float t = tableRow.getTemperature();
+                && (windspd != MISSING)
+                && (windspd <= 43.0f && windspd >= 14.0f)) {
+            float speedKPH = windspd * 1.6f;
             // in Kelvin
-            retVal[3] = calcWindChill(t, speedKPH) + 273.15f;
+            retVal[3] = calcWindChill(temp, speedKPH) + TMCK;
             // in minutes
-            retVal[4] = calcFrostbiteTime(speedKPH, t);
+            retVal[4] = calcFrostbiteTime(speedKPH, temp);
         }
         return retVal;
     }
@@ -418,40 +413,5 @@ public class FSSObsUtils {
             retVal = (float) (TK - (b - Math.sqrt((b * b - 223.1986)) / 0.0182758048f));
         }
         return retVal;
-    }
-
-    /**
-     * Gets stations which FSS monitor is using.
-     * 
-     * @param monitor
-     * @return stations
-     */
-    public static List<String> getStations(String monitor) {
-        String currentSite = SiteUtil.getSite();
-
-        List<String> stations = new ArrayList<String>();
-        // Which monitor should use this station: fog, ss or snow
-        if (monitor.equals(monID.fog.name())) {
-            FogMonitorConfigurationManager fogConfigManager = FogMonitorConfigurationManager
-                    .getInstance();
-            fogConfigManager.readConfigXml(currentSite);
-            List<String> fogStations = fogConfigManager.getStations();
-            stations.addAll(fogStations);
-        }
-        if (monitor.equals(monID.ss.name())) {
-            SSMonitorConfigurationManager ssConfigManger = SSMonitorConfigurationManager
-                    .getInstance();
-            ssConfigManger.readConfigXml(currentSite);
-            List<String> ssStaitions = ssConfigManger.getStations();
-            stations.addAll(ssStaitions);
-        }
-        if (monitor.equals(monID.snow.name())) {
-            SnowMonitorConfigurationManager snowConfigManager = SnowMonitorConfigurationManager
-                    .getInstance();
-            snowConfigManager.readConfigXml(currentSite);
-            List<String> snowStations = snowConfigManager.getStations();
-            stations.addAll(snowStations);
-        }
-        return stations;
     }
 }

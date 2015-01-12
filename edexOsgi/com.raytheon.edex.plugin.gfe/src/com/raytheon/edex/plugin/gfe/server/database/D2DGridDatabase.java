@@ -45,7 +45,6 @@ import com.raytheon.edex.plugin.gfe.db.dao.GFED2DDao;
 import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfo;
 import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfoLookup;
 import com.raytheon.edex.plugin.gfe.paraminfo.ParameterInfo;
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
@@ -114,6 +113,10 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                      Added function to create a D2DGridDatabase object only if there is
  *                                      data in postgres for the desired model/reftime
  * 04/17/2014   #2934       dgilling    Change getGridParmInfo to use D2DParm's GridParmInfo.
+ * 05/22/2014   #3071       randerso    Improved error logging
+ * 06/24/2014   #3317       randerso    Don't allow database to be created if it exceeds D2DDBVERSIONS and 
+ *                                      should be purged.
+ * Sep 09, 2014  3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -176,8 +179,9 @@ public class D2DGridDatabase extends VGridDatabase {
             String d2dModelName, Date refTime) {
         try {
             GFED2DDao dao = new GFED2DDao();
-            // TODO create query for single refTime
-            List<Date> result = dao.getModelRunTimes(d2dModelName, -1);
+            int dbVersions = config.desiredDbVersions(getDbId(d2dModelName,
+                    refTime, config));
+            List<Date> result = dao.getModelRunTimes(d2dModelName, dbVersions);
 
             if (result.contains(refTime)) {
                 D2DGridDatabase db = new D2DGridDatabase(config, d2dModelName,
@@ -808,10 +812,13 @@ public class D2DGridDatabase extends VGridDatabase {
 
         long t0 = System.currentTimeMillis();
 
+        Integer fcstHr = null;
         try {
             // Gets the metadata from the grib metadata database
             D2DParm parm = this.gfeParms.get(parmId);
-            Integer fcstHr = null;
+            if (parm == null) {
+                throw new GfeException("Unknown parmId: " + parmId);
+            }
             if (!GridPathProvider.STATIC_PARAMETERS.contains(parmId
                     .getParmName())) {
                 fcstHr = parm.getTimeRangeToFcstHr().get(timeRange);
@@ -822,9 +829,10 @@ public class D2DGridDatabase extends VGridDatabase {
             }
             d2dRecord = d2dDao.getGrid(d2dModelName, refTime,
                     parm.getComponents()[0], parm.getLevel(), fcstHr, gpi);
-        } catch (DataAccessLayerException e) {
+        } catch (Exception e) {
             throw new GfeException(
-                    "Error retrieving D2D Grid record from database", e);
+                    "Error retrieving D2D Grid record from database for "
+                            + parmId + " fcstHr: " + fcstHr, e);
         }
         long t1 = System.currentTimeMillis();
 
@@ -964,9 +972,10 @@ public class D2DGridDatabase extends VGridDatabase {
                     throw new GfeException("Unable to remap UV wind grids", e);
                 }
                 return;
-            } catch (DataAccessLayerException e) {
+            } catch (Exception e) {
                 throw new GfeException(
-                        "Unable to retrieve wind grids from D2D database", e);
+                        "Unable to retrieve wind grids from D2D database for "
+                                + parmId + " fcstHr: " + fcstHr, e);
             }
 
         } else {
@@ -999,9 +1008,10 @@ public class D2DGridDatabase extends VGridDatabase {
                     throw new GfeException("Unable to remap wind grids", e);
                 }
                 return;
-            } catch (DataAccessLayerException e) {
+            } catch (Exception e) {
                 throw new GfeException(
-                        "Unable to retrieve wind grids from D2D database", e);
+                        "Unable to retrieve wind grids from D2D database for "
+                                + parmId + " fcstHr: " + fcstHr, e);
             }
         }
     }
@@ -1227,15 +1237,10 @@ public class D2DGridDatabase extends VGridDatabase {
 
     private Level getD2DLevel(String gfeLevel) {
         List<Level> levels = Collections.emptyList();
-        try {
-            LevelMapping lm = LevelMappingFactory.getInstance(
-                    GFE_LEVEL_MAPPING_FILE).getLevelMappingForKey(gfeLevel);
-
-            if (lm != null) {
-                levels = lm.getLevels();
-            }
-        } catch (CommunicationException e) {
-            // do nothing
+        LevelMapping lm = LevelMappingFactory.getInstance(
+                GFE_LEVEL_MAPPING_FILE).getLevelMappingForKey(gfeLevel);
+        if (lm != null) {
+            levels = lm.getLevels();
         }
 
         Level level = null;
@@ -1250,12 +1255,8 @@ public class D2DGridDatabase extends VGridDatabase {
 
     private String getGFELevel(Level d2dLevel) {
         LevelMapping levelMapping;
-        try {
-            levelMapping = LevelMappingFactory.getInstance(
-                    GFE_LEVEL_MAPPING_FILE).getLevelMappingForLevel(d2dLevel);
-        } catch (CommunicationException e) {
-            levelMapping = null;
-        }
+        levelMapping = LevelMappingFactory.getInstance(GFE_LEVEL_MAPPING_FILE)
+                .getLevelMappingForLevel(d2dLevel);
 
         String gfeLevel = null;
         if (levelMapping == null) {

@@ -45,10 +45,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
-import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/23/2013   1538       bphillip    Changed send time slot to be DateTimeValue instead of integer
  * 12/2/2013    1829       bphillip    Changed to use non generic getter of value type
  * 01/21/2014   2613       bphillip    Modified queries to better handle deletes
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -137,7 +138,7 @@ public class AuditableEventTypeDao extends
 
     @Override
     public void create(AuditableEventType event) {
-        template.save(event);
+        getCurrentSession().save(event);
     }
 
     /**

@@ -23,13 +23,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.regional.Sec5MaritimeDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  * Dec 17, 2007 600        bphillip    Added dao pool usage
  * 20080116            798 jkorman     Changed logging levels.
  * Feb 27, 2013 1638       mschenke    Moved ObStationDao to edex pointdata plugin
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * </pre>
  * 
  * @author jkorman
@@ -80,7 +81,8 @@ public class CMANSynopticDecoder extends LandSynopticDecoder {
         if (isValid) {
             reportParser.next();
             element = reportParser.getElement();
-            if (matchElement(element, ISynoptic.YYGGI_SUB_W)) {
+            if (element != null
+                    && ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
                 try {
 
                     Integer month = getHeader().getMonth();
@@ -167,7 +169,7 @@ public class CMANSynopticDecoder extends LandSynopticDecoder {
         if (report != null) {
             // If we didn't find this report in the catalog then don't store it.
             if ((stationInfo != null)) {
-                report.setReportType(IDecoderConstants.SYNOPTIC_CMAN);
+                report.setReportType(SYNOPTIC_CMAN);
                 // Land synoptic needs to add the Fixed Land report
                 SurfaceObsLocation loc = new SurfaceObsLocation(
                         getReportIdentifier());

@@ -20,12 +20,11 @@
 
 package com.raytheon.uf.edex.ohd.pproc;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.hydro.service.MpeGribProcessRequest;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.ohd.MainMethod;
 
@@ -37,7 +36,8 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 1, 2010              snaples    Initial creation
+ * Feb 01, 2010            snaples     Initial creation
+ * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * </pre>
  * 
  * @author snaples
@@ -46,9 +46,10 @@ import com.raytheon.uf.edex.ohd.MainMethod;
 public class MpeProcessGribSrv implements
         IRequestHandler<MpeGribProcessRequest> {
 
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(MpeProcessGribSrv.class);
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
     /**
      * The serialized incoming request contains the file names of the xmrg file
@@ -64,12 +65,11 @@ public class MpeProcessGribSrv implements
             throw new EdexException("Invalid argument sent to MpeProcessGrib");
         }
         int exitValue = 0;
-        logger
-                .info("Executing process_grib_files with arguments: xmrgfilename: "
-                        + xmrg + " gribfilename: " + grib);
-        exitValue = MainMethod.runProgram("ksh", appsDefaults
-                .getToken("pproc_bin")
-                + "/process_grib_files", xmrg, grib);
+        logger.info("Executing process_grib_files with arguments: xmrgfilename: "
+                + xmrg + " gribfilename: " + grib);
+        exitValue = MainMethod.runProgram("ksh",
+                appsDefaults.getToken("pproc_bin") + "/process_grib_files",
+                xmrg, grib);
         if (exitValue == 0) {
             logger.info("MpeProcessGrib execution successful");
         } else {

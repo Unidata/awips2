@@ -34,6 +34,7 @@ import com.raytheon.uf.common.localization.IPathManager;
  * ------------ ---------- ----------- --------------------------
  * Jul 23, 2013 #2221      rferrel     Initial creation
  * Aug 26, 2013 #2225      rferrel     Added tar extension.
+ * Apr 11, 2014 #2862      rferrel     Added cluster name.
  * 
  * </pre>
  * 
@@ -42,6 +43,8 @@ import com.raytheon.uf.common.localization.IPathManager;
  */
 
 public class ArchiveConstants {
+    /** The value for the cluster tasks' name column. */
+    public static final String CLUSTER_NAME = "Archive Shared Lock";
 
     /** Pattern to find slashes in a string. */
     private final static Pattern slashPattern = Pattern.compile("[/\\\\]+");

@@ -19,8 +19,6 @@
  **/
 package com.raytheon.edex.plugin.bufrua.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-
 import java.util.List;
 
 import com.raytheon.edex.plugin.bufrua.util.SigWindHeightConversionManager;
@@ -29,8 +27,9 @@ import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.pointdata.Dimension;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -45,6 +44,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * ------------- -------- ----------- --------------------------
  * Jul 21, 2009           jkorman     Initial creation
  * Dec 05, 2013  2612     bsteffen    Convert heights for sig wind layers.
+ * Sep 16, 2014  3628     mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -110,7 +110,8 @@ public class BUFRUASigLevelAdapter extends AbstractBUFRUAAdapter {
             IBUFRDataPacket dataPoint, PointDataView view) {
 
         if ((dataPoint instanceof BUFRSublistPacket)
-                && (RepSubList.getPacketType().equals(dataPoint.getUnits()))) {
+                && (DataPacketTypes.RepSubList.getPacketType().equals(dataPoint
+                        .getUnits()))) {
             List<IBUFRDataPacket> datList = (List<IBUFRDataPacket>) dataPoint
                     .getValue();
             int tempIdx = 0;
@@ -173,7 +174,8 @@ public class BUFRUASigLevelAdapter extends AbstractBUFRUAAdapter {
             PointDataView view) {
 
         if ((dataPoint instanceof BUFRSublistPacket)
-                && (RepSubList.getPacketType().equals(dataPoint.getUnits()))) {
+                && (DataPacketTypes.RepSubList.getPacketType().equals(dataPoint
+                        .getUnits()))) {
             List<IBUFRDataPacket> datList = (List<IBUFRDataPacket>) dataPoint
                     .getValue();
             int windIdx = 0;

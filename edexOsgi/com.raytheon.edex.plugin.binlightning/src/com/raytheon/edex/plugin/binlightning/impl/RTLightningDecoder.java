@@ -19,10 +19,10 @@
  **/
 package com.raytheon.edex.plugin.binlightning.impl;
 
+import java.util.Calendar;
+
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgMsgType;
-import com.raytheon.uf.edex.decodertools.core.BasePoint;
-import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
 
 /**
  * Decode one or more Real Time Flash lightning observations. Decode algorithm
@@ -37,6 +37,7 @@ import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
  * 20070810            379 jkorman     Initial Coding from prototype.
  * 20070821            379 jkorman     Added default strike type.
  * 20080823            379 jkorman     getRTLat was using 24 bits instead of 23.
+ * Jun 05, 2014 3226       bclement    LightningStikePoint refactor
  * </pre>
  * 
  * @author jkorman
@@ -66,7 +67,7 @@ public class RTLightningDecoder extends BaseLightningDecoder {
      */
     private void doDecode(IBinDataSource msgData, int count) {
         if (msgData.available(TIME_SIZE + (RT_MSG_SIZE * count))) {
-            BasePoint base = parseDate(msgData);
+            Calendar baseTime = parseDate(msgData);
             // for now just consume some data
             for (int i = 0; i < count; i++) {
                 long part = msgData.getU32();
@@ -79,11 +80,11 @@ public class RTLightningDecoder extends BaseLightningDecoder {
                 double lat = getRTLat(part);
                 int strikeCount = getMult(part);
 
-                LightningStrikePoint strikeData = new LightningStrikePoint(
-                        base, lat, lon, LtgMsgType.STRIKE_MSG_RT);
+                LightningStrikePoint strikeData = new LightningStrikePoint(lat,
+                        lon, baseTime, LtgMsgType.STRIKE_MSG_RT);
 
                 strikeData.setStrikeStrength(strength);
-                strikeData.setStrikeCount(strikeCount);
+                strikeData.setPulseCount(strikeCount);
                 // *****
                 // NCDC documents indicate that RT data can report both CC/CG
                 // but haven't seen any data nor is it in the D2D decoders. Set

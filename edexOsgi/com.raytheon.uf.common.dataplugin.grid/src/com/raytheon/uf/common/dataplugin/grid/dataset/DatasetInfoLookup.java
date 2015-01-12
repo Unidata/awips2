@@ -28,8 +28,8 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------- -------- ----------- --------------------------
  * Feb 27, 2012           bsteffen     Initial creation
  * Dec 16, 2013  2574     bsteffen     Update deprecated method call.
+ * Jul 21, 2014  3373     bclement     changed to use single type JAXB manager
  * 
  * </pre>
  * 
@@ -72,9 +73,10 @@ public class DatasetInfoLookup {
     }
 
     private void init() {
-        JAXBManager manager = null;
+        SingleTypeJAXBManager<DatasetInfoSet> manager = null;
         try {
-            manager = new JAXBManager(DatasetInfoSet.class);
+            manager = new SingleTypeJAXBManager<DatasetInfoSet>(true,
+                    DatasetInfoSet.class);
         } catch (JAXBException e) {
             statusHandler
                     .error("Error loading context for DatasetInfo, no datasetInfo will be loaded.",
@@ -98,8 +100,8 @@ public class DatasetInfoLookup {
                 return;
             }
             try {
-                DatasetInfoSet set = manager.unmarshalFromXmlFile(
-                        DatasetInfoSet.class, file.getFile());
+                DatasetInfoSet set = manager.unmarshalFromXmlFile(file
+                        .getFile());
                 for (DatasetInfo info : set.getInfos()) {
                     infoMap.put(info.getDatasetId(), info);
                 }

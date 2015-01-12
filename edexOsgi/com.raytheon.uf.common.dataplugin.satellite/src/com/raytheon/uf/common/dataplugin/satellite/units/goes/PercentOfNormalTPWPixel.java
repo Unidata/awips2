@@ -25,19 +25,19 @@ import javax.measure.unit.Unit;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.convert.PixelToPercentConverter;
 
 /**
- * TODO Add Description
+ * A unit for the percent of normal total precipitable water pixels.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 12, 2010            jsanchez     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 12, 2010           jsanchez    Initial creation
+ * Apr 15, 2014  2947     bsteffen    Fix equals.
  * 
  * </pre>
  * 
@@ -50,7 +50,7 @@ public class PercentOfNormalTPWPixel extends Unit<Dimensionless> {
 
     @Override
     public boolean equals(Object anObject) {
-        return (anObject instanceof GenericPixel);
+        return (anObject instanceof PercentOfNormalTPWPixel);
     }
 
     @Override

@@ -20,5 +20,5 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <regex>^SFUS41 KWBC.*</regex>
-    <regex>^SFPA41 KWBC.*</regex>
+    <regex>^SFPA4[12] KWBC.*</regex>
 </requestPatterns>

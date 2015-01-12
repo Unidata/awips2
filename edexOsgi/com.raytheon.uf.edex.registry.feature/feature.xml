@@ -17,8 +17,6 @@
       [Enter License Description here.]
    </license>
 
-   <import feature="com.raytheon.uf.edex.registry.client.feature" version="1.0.0.qualifier"/>
-
    <plugin
          id="com.raytheon.uf.common.registry.schemas.iso19115"
          download-size="0"

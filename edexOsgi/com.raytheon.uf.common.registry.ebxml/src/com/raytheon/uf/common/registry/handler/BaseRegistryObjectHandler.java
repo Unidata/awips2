@@ -55,6 +55,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Oct 05, 2012 1195       djohnson     Remove executeQuery method, add getById.
  * 3/18/2013    1802       bphillip     Implemented transaction boundaries
  * Jun 24, 2013 2106       djohnson     Composes the registryHandler.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * </pre>
  * 
  * @author djohnson
@@ -98,9 +99,9 @@ public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQu
      * {@inheritDoc}
      */
     @Override
-    public void store(T obj) throws RegistryHandlerException {
+    public void store(String username, T obj) throws RegistryHandlerException {
         RegistryResponse<T> response = registryHandler
-                .storeObject(obj);
+                .storeObject(username, obj);
 
         checkResponse(response, obj, "store");
     }
@@ -109,9 +110,9 @@ public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQu
      * {@inheritDoc}
      */
     @Override
-    public void update(T obj) throws RegistryHandlerException {
+    public void update(String username, T obj) throws RegistryHandlerException {
         RegistryResponse<?> response = registryHandler
-                .storeOrReplaceObject(obj);
+                .storeOrReplaceObject(username, obj);
 
         checkResponse(response, obj, "update");
     }

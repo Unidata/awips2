@@ -26,14 +26,13 @@ import java.util.HashMap;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 
+import com.raytheon.uf.common.dataplugin.shef.util.SHEFErrorCodes;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
-import com.raytheon.uf.common.dataplugin.shef.util.SHEFErrorCodes;
-
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
- * TODO Add Description
+ * Object to hold the Shef Date information.
  * 
  * <pre>
  * 
@@ -41,6 +40,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 17, 2009            jkorman     Initial creation
+ * May 13, 2014    3088    mpduff      Cleanup, remove unused code, optimized
  * 
  * </pre>
  * 
@@ -56,18 +56,9 @@ public class SHEFDate {
 
     private static final String DATE_INC_CODES = "SNHDMEY";
 
-    private static final int[] DATE_INC_VALS = new int[] { Calendar.SECOND, // S
-            Calendar.MINUTE, // N
-            Calendar.HOUR_OF_DAY, // H
-            Calendar.DAY_OF_MONTH, // D
-            Calendar.MONTH, // M
-            -1, // E, -1 signifies special handling
-            Calendar.YEAR, // Y
-    };
-
     private static final String DATE_REL_CODES = "SNHDMEY";
 
-    private static HashMap<String,TIME_DIVISIONS> DIVISIONS = new HashMap<String,TIME_DIVISIONS>();
+    private static HashMap<String, TIME_DIVISIONS> DIVISIONS = new HashMap<String, TIME_DIVISIONS>();
     static {
         DIVISIONS.put("S", TIME_DIVISIONS.SECONDS);
         DIVISIONS.put("N", TIME_DIVISIONS.MINUTES);
@@ -77,24 +68,23 @@ public class SHEFDate {
         DIVISIONS.put("E", TIME_DIVISIONS.ENDOFMONTH);
         DIVISIONS.put("Y", TIME_DIVISIONS.YEARS);
     }
-    
-    
-    public static final int [] DAYS_MONTH = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,};
-    
+
+    /**
+     * Number of days in each month.
+     */
+    public static final int[] DAYS_MONTH = { 0, 31, 29, 31, 30, 31, 30, 31, 31,
+            30, 31, 30, 31, };
+
     // C Y M D H N S
-    private String DT_FMT = "%02d%02d%02d%02d%02d%02d%02d";
+    private static final String DT_FMT = "%02d%02d%02d%02d%02d%02d%02d";
 
-    private String OUT_FMT = "%02d%02d%02d%02d%02d%02d%02d";
+    private static final String OUT_FMT = "%02d%02d%02d%02d%02d%02d%02d";
 
-    public static final int BAD_HOUR = -1;
+    private static final int[] NOD = { -1, 0, 31, 59, 90, 120, 151, 181, 212,
+            243, 273, 304, 334, };
 
-    private static final int[] NOD = { -1, 0, 31, 59, 90, 120, 151, 181, 212, 243,
-            273, 304, 334, };
-
-    private static final int[] MXD = { -1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31,
-            30, 31, };
-
-    private static TimeZone DEFAULT_TZ = TimeZone.getTimeZone("ZULU");
+    private static final int[] MXD = { -1, 31, 28, 31, 30, 31, 30, 31, 31, 30,
+            31, 30, 31, };
 
     private int error = 0;
 
@@ -117,35 +107,12 @@ public class SHEFDate {
     private int calLY;
 
     private TimeZone timeZone = null;
-    
-//    // 4 digit year
-//    private int year = 0;
-//
-//    // 2 digit century
-//    private int cc = 0;
-//
-//    // 2 digit year
-//    private int ly = 0;
-//
-//    private int month = 0;
-//
-//    private int day = 0;
-//
-//    private int hour = 0;
-//
-//    private int minute = 0;
-//
-//    private int second = 0;
-//
-//    private int julian = 0;
-    
 
-    
     /**
      * 
      */
     public SHEFDate() {
-        this(new GregorianCalendar(DEFAULT_TZ));
+        this(TimeUtil.newGmtCalendar());
     }
 
     /**
@@ -176,8 +143,8 @@ public class SHEFDate {
      * @param tz
      */
     public SHEFDate(Date date, TimeZone tz) {
-        Calendar c = Calendar.getInstance(tz);
         timeZone = tz;
+        Calendar c = TimeUtil.newCalendar(tz);
         c.setTime(date);
 
         calYear = c.get(Calendar.YEAR);
@@ -192,64 +159,23 @@ public class SHEFDate {
     }
 
     /**
-     * 
-     * @param date
-     * @param tz
+     * @param c
      */
-    public SHEFDate(long date, TimeZone tz) {
-        Calendar c = Calendar.getInstance(tz);
-        timeZone = tz;
-        c.setTimeInMillis(date);
-
+    public SHEFDate(Calendar c) {
         calYear = c.get(Calendar.YEAR);
         calCC = calYear / 100;
         calLY = calYear % 100;
-        calMonth = c.get(Calendar.MONTH) + 1;
-        calDay = c.get(Calendar.DAY_OF_MONTH);
-        calHour = c.get(Calendar.HOUR_OF_DAY);
-        calMin = c.get(Calendar.MINUTE);
-        calSec= c.get(Calendar.SECOND);
-        calJul = c.get(Calendar.DAY_OF_YEAR);
-    }
-
-    public SHEFDate(GregorianCalendar c) {
-        calYear = c.get(Calendar.YEAR);
-        calLY = calYear % 100;
-        calCC = calYear / 100;
-
         calMonth = c.get(Calendar.MONTH) + 1;
         calDay = c.get(Calendar.DAY_OF_MONTH);
         calHour = c.get(Calendar.HOUR_OF_DAY);
         calMin = c.get(Calendar.MINUTE);
         calSec = c.get(Calendar.SECOND);
-
         calJul = c.get(Calendar.DAY_OF_YEAR);
-        timeZone = c.getTimeZone();
-    }
-
-    public SHEFDate(int year, int month, int day, TimeZone timezone) {
-        calYear = year;
-        calLY = calYear % 100;
-        calCC = calYear / 100;
-        timeZone = timezone;
-
-        calMonth = month;
-        calDay = day;
-        calHour = 12;
-        calMin = 0;
-        calSec = 0;
-
-        doJulian1();
-    }
-
-    
-    
-    public SHEFDate(Calendar c) {
-        this(c.getTimeInMillis(), c.getTimeZone());
     }
 
     /**
      * Copy constructor for SHEFDate instances.
+     * 
      * @param date
      */
     public SHEFDate(SHEFDate date) {
@@ -300,37 +226,6 @@ public class SHEFDate {
         calJul = tJul;
     }
 
-    
-//    /**
-//     * 
-//     * @param inc
-//     */
-//    private void doJulian2(int inc) {
-//        int tJul = calJul + inc;
-//        int tYear = calYear;
-//
-//        int maxDay = getMaxDay(tYear);
-//        while ((tJul <= 0) || (tJul > maxDay)) {
-//            if (tJul > maxDay) {
-//                tJul -= maxDay;
-//                tYear++;
-//                if (tYear == 100) {
-//                    tYear = 0;
-//                }
-//                maxDay = getMaxDay(tYear);
-//            } else {
-//                tJul += maxDay;
-//                if (tYear == -1) {
-//                    tYear = 99;
-//                }
-//                maxDay = getMaxDay(tYear);
-//                tJul += maxDay;
-//            }
-//        }
-//        calYear = tYear;
-//        calJul = tJul;
-//    }
-
     /**
      * 
      * @param year
@@ -377,6 +272,7 @@ public class SHEFDate {
     public static boolean isLegalYear(int year) {
         return ((year >= 1753) && (year <= 2199));
     }
+
     /**
      * 
      * @return
@@ -384,14 +280,14 @@ public class SHEFDate {
     public int getError() {
         return error;
     }
-    
+
     /**
      * 
      */
     private void forceYear() {
         calYear = (calCC * 100) + calLY;
     }
-    
+
     /**
      * @return the year
      */
@@ -489,8 +385,6 @@ public class SHEFDate {
     /**
      * 
      * @param hour
-     * @param minute
-     * @param second
      */
     public void setHour(int hour) {
         calHour = hour;
@@ -504,9 +398,6 @@ public class SHEFDate {
     }
 
     /**
-     * Set minutes relative to the current hour. The seconds are set to zero by
-     * default.
-     * 
      * @param minute
      */
     public void setMinute(int minute) {
@@ -537,7 +428,8 @@ public class SHEFDate {
     }
 
     /**
-     * @param julian the julian to set
+     * @param julian
+     *            the julian to set
      */
     public void setJulian(int julian) {
         calJul = julian;
@@ -573,22 +465,22 @@ public class SHEFDate {
     }
 
     private void doYearAdjust() {
-        Calendar cDate = TimeTools.getSystemCalendar();
-        SHEFDate sDate = new SHEFDate(cDate.getTimeInMillis(), timeZone);
+        Calendar cDate = TimeUtil.newGmtCalendar();
+        SHEFDate sDate = new SHEFDate(cDate);
 
         int cyr = sDate.getYear();
         int ccc = sDate.getCentury();
         int cly = sDate.getLy();
-        
+
         if (calCC == -1) {
             if (calLY == -1) {
-                Calendar cSys = TimeTools.copy(cDate);
+                Calendar cSys = copy(cDate);
 
                 cSys.set(Calendar.HOUR_OF_DAY, 0);
                 cSys.set(Calendar.MINUTE, 0);
                 cSys.set(Calendar.SECOND, 0);
                 cSys.set(Calendar.MILLISECOND, 0);
-                Calendar cObs = TimeTools.copy(cSys);
+                Calendar cObs = copy(cSys);
                 cObs.set(Calendar.MONTH, calMonth - 1);
                 cObs.set(Calendar.DAY_OF_MONTH, calDay);
                 long diff = Math.abs(cObs.getTimeInMillis()
@@ -625,10 +517,7 @@ public class SHEFDate {
             calYear = (calCC * 100) + calLY;
         }
     }
-    
-    
-    
-    
+
     /**
      * 
      * @return
@@ -648,14 +537,14 @@ public class SHEFDate {
                 error = SHEFErrorCodes.LOG_016;
             }
         }
-        if((calMonth > 0) && (calMonth < 13)) {
+        if ((calMonth > 0) && (calMonth < 13)) {
             int daysPerMonth = DAYS_MONTH[calMonth];
-            if(calMonth == 2) {
-                if(!isLeapYear(calYear)) {
+            if (calMonth == 2) {
+                if (!isLeapYear(calYear)) {
                     daysPerMonth--;
                 }
             }
-            if(calDay > daysPerMonth) {
+            if (calDay > daysPerMonth) {
                 valid = false;
                 error = SHEFErrorCodes.LOG_016;
             } else if (calDay < 1) {
@@ -666,19 +555,15 @@ public class SHEFDate {
             valid = false;
             error = SHEFErrorCodes.LOG_016;
         }
-        
+
         return valid;
     }
 
-    // *******************************************
-    // * 
-    // *
-    // *******************************************
-    
     /**
-     *
-     * @param token A ParserToken instance that should be applied to this
-     * date instance.
+     * 
+     * @param token
+     *            A ParserToken instance that should be applied to this date
+     *            instance.
      * @return A new SHEFDate instance with the token's data applied.
      */
     public SHEFDate applyData(ParserToken token) {
@@ -704,25 +589,25 @@ public class SHEFDate {
                 // NN[SS]
                 int t = d.getSecond();
                 newDate.setSecond((t > -1) ? t : 0);
-                if(d.getMinute() > -1) {
+                if (d.getMinute() > -1) {
                     newDate.setMinute(d.getMinute());
                 }
                 break;
             }
             case DATE_SEC: {
                 // SS
-                if(d.getSecond() > -1) {
+                if (d.getSecond() > -1) {
                     newDate.setSecond(d.getSecond());
                 }
                 break;
             }
             case DATE_DATE: {
-                if(d.getCentury() > -1) {
+                if (d.getCentury() > -1) {
                     newDate.setCentury(d.getCentury());
                 }
             }
             case DATE_YEAR: {
-                if(d.getCentury() < 0) {
+                if (d.getCentury() < 0) {
                     newDate.setCentury(-1);
                 } else {
                     newDate.setCentury(d.getCentury());
@@ -732,22 +617,22 @@ public class SHEFDate {
                 // Fall through to pick up other fields.
             }
             case DATE_MON: {
-                if(d.getMonth() > -1) {
+                if (d.getMonth() > -1) {
                     newDate.setMonth(d.getMonth());
                 }
                 // Fall through to pick up other fields.
             }
             case DATE_DAY: {
-                if(d.getDay() > -1) {
+                if (d.getDay() > -1) {
                     newDate.setDay(d.getDay());
                 }
-                if(d.getHour() > -1) {
+                if (d.getHour() > -1) {
                     newDate.setHour(d.getHour());
                 }
-                if(d.getMinute() > -1) {
+                if (d.getMinute() > -1) {
                     newDate.setMinute(d.getMinute());
                 }
-                if(d.getSecond() > -1) {
+                if (d.getSecond() > -1) {
                     newDate.setSecond(d.getSecond());
                 }
                 break;
@@ -762,10 +647,10 @@ public class SHEFDate {
         } else if (TokenType.INT_CODE.equals(token.getType())) {
             newDate = relative(this, token.getToken());
         }
-        if(newDate != null) {
+        if (newDate != null) {
             newDate.validate();
         }
-        
+
         return newDate;
     }
 
@@ -779,19 +664,17 @@ public class SHEFDate {
         newDate.copyFrom(this);
 
         SHEFDate pDate = token.getDateData();
-        // newDate.setCentury(pDate.getCentury());
-        // newDate.setLy(pDate.getLy());
         Calendar c = newDate.toCalendar();
         c.set(Calendar.DAY_OF_YEAR, pDate.getJulian());
         newDate = new SHEFDate(c);
         return newDate;
     }
-    
+
     //
-    
+
     /**
-     * Check if this date/time is set to the last day
-     * of the current month.
+     * Check if this date/time is set to the last day of the current month.
+     * 
      * @return Is this instance at the last day of the month?
      */
     private boolean isLastDayOfMonth() {
@@ -799,113 +682,15 @@ public class SHEFDate {
         int lastDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
         return (lastDay == calDay);
     }
-    
-    // *******************************************
-    // * The setToXX methods are used to set values
-    // *
-    // *******************************************
-    // *******************************************
 
     /**
+     * Increment this object.
      * 
+     * @param value
+     *            amount to increment
+     * @param type
+     *            the field to incrment
      */
-    public int setToDay(int day) {
-        int retValue = -1;
-        // Gross error check for now!
-        if ((day >= 0) && (day <= 31)) {
-            calDay = day;
-            retValue = day;
-        }
-        return retValue;
-    }
-
-    /**
-     * 
-     * @param hour
-     * @return
-     */
-    public int setToHour(int hour) {
-        int retValue = -1;
-        if (validHour(hour)) {
-            calHour = hour;
-            calMin = 0;
-            calSec = 0;
-            retValue = hour;
-        }
-        return retValue;
-    }
-
-    /**
-     * 
-     * @param hour
-     * @param minute
-     * @param second
-     * @return
-     */
-    public int setToHMS(int hour, int minute, int second) {
-        int retValue = -1;
-        if (validHour(hour)) {
-            calHour = hour;
-            calMin = minute;
-            calSec = second;
-            retValue = hour;
-        }
-        return retValue;
-    }
-
-    /**
-     * Set the minutes value for this date. This method also returns the value
-     * that was set, or a value if -1 if the value is invalid given other
-     * settings. For example if the current hour is set to 24, then no minute
-     * value is other than 0 is correct.
-     * 
-     * @param min
-     *            The minutes value to set.
-     * @return The minute value that was set. Returns -1 if the value is invalid
-     *         given the current time.
-     */
-    public int setToMinute(int min) {
-        int retValue = -1;
-        if (validMinute(min) && validHour(calHour, min, calSec)) {
-            calMin = min;
-            retValue = min;
-        }
-        return retValue;
-    }
-
-    /**
-     * Set the seconds value for this date. This method also returns the value
-     * that was set, or a value if -1 if the value is invalid given other
-     * settings. For example if the current hour is set to 24, then no second
-     * value is other than 0 is correct.
-     * 
-     * @param sec
-     *            The seconds value to set.
-     * @return The second value that was set. Returns -1 if the value is invalid
-     *         given the current time.
-     */
-    public int setToSecond(int sec) {
-        int retValue = -1;
-        if (validSecond(sec) && validHour(calHour, calMin, sec)) {
-            calSec = sec;
-            retValue = sec;
-        }
-        return retValue;
-    }
-
-    /**
-     * 
-     * @param sDate
-     * @param incCode
-     * @return
-     */
-    public void increment(String incCode, int intervalId) {
-        SHEFDate newDate = increment(this, incCode, intervalId);
-        if (newDate != null) {
-            copyFrom(newDate);
-        }
-    }
-
     public void inc(int value, TIME_DIVISIONS type) {
         int seconds = 0;
         int minutes = 0;
@@ -1038,8 +823,8 @@ public class SHEFDate {
                 if ((month == 2) && isLeapYear(year)) {
                     day++;
                 }
-                if(year >= 100) {
-                    if(!isLegalYear(year)) {
+                if (year >= 100) {
+                    if (!isLegalYear(year)) {
                         error = SHEFErrorCodes.LOG_039;
                     }
                 }
@@ -1052,7 +837,7 @@ public class SHEFDate {
         calLY = calYear % 100;
         calCC = calYear / 100;
     }
-    
+
     /**
      * Copy the data from a given SHEF date instance into this instance.
      * 
@@ -1078,36 +863,35 @@ public class SHEFDate {
      */
     public void toZuluDate() {
         // Check if we are already a Zulu date!
-        if(calHour == 24) {
+        if (calHour == 24) {
             calHour = 0;
-            inc(1,TIME_DIVISIONS.DAYS);
+            inc(1, TIME_DIVISIONS.DAYS);
         }
-        if(!ShefConstants.Z.equals(timeZone.getID())) {
+        if (!ShefConstants.Z.equals(timeZone.getID())) {
             TimeZone tzz = SHEFTimezone.getSysTimeZone(ShefConstants.Z);
 
             boolean retard = false;
             if (calHour == 1) {
                 GregorianCalendar g = (GregorianCalendar) toCalendar().clone();
-                if(!timeZone.inDaylightTime(g.getTime())) {
+                if (!timeZone.inDaylightTime(g.getTime())) {
                     g.set(Calendar.HOUR_OF_DAY, 0);
-                    
+
                     retard = timeZone.inDaylightTime(g.getTime());
                 }
             }
-            
+
             // Actually if the following doesn't work we have a
             // real big problem!
-            if(tzz != null) {
+            if (tzz != null) {
                 Calendar c = toCalendar();
-                Calendar cz = TimeTools.getSystemCalendar();
-                cz.setTimeZone(tzz);
+                Calendar cz = TimeUtil.newCalendar(tzz);
                 cz.setTimeInMillis(c.getTimeInMillis());
-                
+
                 calYear = cz.get(Calendar.YEAR);
                 calMonth = cz.get(Calendar.MONTH) + 1;
                 calDay = cz.get(Calendar.DAY_OF_MONTH);
                 calHour = cz.get(Calendar.HOUR_OF_DAY);
-                if(retard) {
+                if (retard) {
                     calHour--;
                 }
                 calMin = cz.get(Calendar.MINUTE);
@@ -1116,16 +900,14 @@ public class SHEFDate {
             }
         }
     }
-    
+
     /**
      * Return a calendar representation of this SHEF date.
      * 
      * @return
      */
-    public GregorianCalendar toCalendar() {
-        GregorianCalendar c = new GregorianCalendar();
-        c.setTimeZone(timeZone);
-
+    public Calendar toCalendar() {
+        Calendar c = TimeUtil.newCalendar(timeZone);
         c.set(Calendar.YEAR, calYear);
         c.set(Calendar.MONTH, calMonth - 1);
         c.set(Calendar.DAY_OF_MONTH, calDay);
@@ -1133,19 +915,20 @@ public class SHEFDate {
         c.set(Calendar.MINUTE, calMin);
         c.set(Calendar.SECOND, calSec);
         c.set(Calendar.MILLISECOND, 0);
-        
+
         return c;
     }
 
     /**
-     * Check to see if the date/time is in the DST exclusion
-     * zone. 02:00:00.000 .. 02:59:59.000
+     * Check to see if the date/time is in the DST exclusion zone. 02:00:00.000
+     * .. 02:59:59.000
+     * 
      * @return
      */
     public boolean isDSTExclusion() {
         boolean isExcluded = false;
-        
-        GregorianCalendar c = new GregorianCalendar(timeZone);
+
+        Calendar c = TimeUtil.newCalendar(timeZone);
         c.set(Calendar.YEAR, calYear);
         c.set(Calendar.MONTH, calMonth - 1);
         c.set(Calendar.DAY_OF_MONTH, calDay);
@@ -1154,9 +937,9 @@ public class SHEFDate {
         c.set(Calendar.SECOND, calSec);
         c.set(Calendar.MILLISECOND, 0);
         // Are we in DST?
-        if(timeZone.inDaylightTime(c.getTime())) {
-            if((calHour == 2)) {
-                if((calMin >= 0) && (calMin < 60)) {
+        if (timeZone.inDaylightTime(c.getTime())) {
+            if ((calHour == 2)) {
+                if ((calMin >= 0) && (calMin < 60)) {
                     // We're in a possible exclusion zone
                     // Set the hour to 1.
                     // If that time is NOT in DST then we're
@@ -1168,7 +951,7 @@ public class SHEFDate {
         }
         return isExcluded;
     }
-    
+
     /**
      * Returns this date formatted to the local timezone.
      * 
@@ -1193,48 +976,20 @@ public class SHEFDate {
 
     /**
      * 
-     * @param hour
-     * @return
-     */
-    public static final boolean validHour(int hour) {
-        return ((hour >= 0) && (hour <= 24));
-    }
-
-    public static final boolean validHour(int hour, int minute, int second) {
-        boolean valid = false;
-        if (validHour(hour)) {
-            valid = true;
-        }
-        if (hour == 24) {
-            valid = ((minute == 0) && (second == 0));
-        }
-        return valid;
-    }
-
-    public static final boolean validMinute(int minute) {
-        return ((minute >= 0) && (minute < 60));
-    }
-
-    public static final boolean validSecond(int second) {
-        return ((second >= 0) && (second < 60));
-    }
-
-    /**
-     * 
      * @param mon
      * @param day
      * @param tz
      * @return
      */
     public static Calendar getDateMonDay(int mon, int day, TimeZone tz) {
-        Calendar cSys = TimeTools.getSystemCalendar();
+        Calendar cSys = TimeUtil.newGmtCalendar();
         cSys.setTimeZone(tz);
         cSys.set(Calendar.HOUR_OF_DAY, 0);
         cSys.set(Calendar.MINUTE, 0);
         cSys.set(Calendar.SECOND, 0);
         cSys.set(Calendar.MILLISECOND, 0);
 
-        Calendar cObs = TimeTools.copy(cSys);
+        Calendar cObs = copy(cSys);
         cObs.set(Calendar.MONTH, mon - 1);
         cObs.set(Calendar.DAY_OF_MONTH, day);
 
@@ -1260,7 +1015,7 @@ public class SHEFDate {
     public static Calendar getDateYearMon(int year, int mon, int day,
             TimeZone tz) {
         Calendar cObs = null;
-        Calendar cSys = TimeTools.getSystemCalendar();
+        Calendar cSys = TimeUtil.newGmtCalendar();
         cSys.setTimeZone(tz);
 
         cSys.set(Calendar.DAY_OF_MONTH, day);
@@ -1272,7 +1027,7 @@ public class SHEFDate {
             // Century of the current year.
             int cc = (cSys.get(Calendar.YEAR) / 100) * 100;
 
-            cObs = TimeTools.copy(cSys);
+            cObs = copy(cSys);
             cObs.set(Calendar.MONTH, mon - 1);
 
             // check for up to 10 years in the future.
@@ -1283,7 +1038,7 @@ public class SHEFDate {
                 cObs.set(Calendar.YEAR, ((cc - 100) + year));
             }
         } else {
-            cObs = TimeTools.copy(cSys);
+            cObs = copy(cSys);
             cObs.set(Calendar.YEAR, year);
             cObs.set(Calendar.MONTH, mon - 1);
             cObs.set(Calendar.DAY_OF_MONTH, day);
@@ -1297,17 +1052,16 @@ public class SHEFDate {
      * @param sDate
      * @return
      */
-    public static final SHEFDate relative(SHEFDate sDate, String incCode) {
+    private static final SHEFDate relative(SHEFDate sDate, String incCode) {
         SHEFDate newDate = new SHEFDate(sDate);
 
         Matcher m = TokenType.DATE_REL.getPattern().matcher(incCode);
         if (m.find()) {
             String code = m.group(2);
 
-            Calendar c = null;
             int pos = DATE_REL_CODES.indexOf(code);
             int incVal = -999;
-            if(pos >= 0) {
+            if (pos >= 0) {
                 incVal = Integer.parseInt(m.group(4));
                 incVal *= ("-".equals(m.group(3))) ? -1 : 1;
 
@@ -1316,19 +1070,20 @@ public class SHEFDate {
         }
         return newDate;
     }
-    
+
     /**
      * 
      * @param sDate
      * @param incCode
-     * @return
+     * @param seriesId
+     * @return the incremented SHEFDate
      */
     public static final SHEFDate increment(SHEFDate sDate, String incCode,
             int seriesId) {
-        SHEFDate newDate = new SHEFDate(sDate);
 
         Matcher m = TokenType.INT_CODE.getPattern().matcher(incCode);
         if (m.find()) {
+            SHEFDate newDate = new SHEFDate(sDate);
             String code = m.group(2);
             // If we are trying to increment "End-of-month" ensure that
             // the date "day" is at the end of the month.
@@ -1345,148 +1100,164 @@ public class SHEFDate {
                     newDate.inc(incVal, DIVISIONS.get(code));
                 }
             }
+            return newDate;
         }
-        return newDate;
+
+        return sDate;
     }
-    
-    public static final void main(String [] args) {
-        
-//        List<ParserToken> tokens = new ArrayList<ParserToken>();
-//        tokens.add(new ParserToken("DS30", TokenType.DATE_SEC));
-//        tokens.add(new ParserToken("DN21", TokenType.DATE_MIN));
-//        tokens.add(new ParserToken("DN2115", TokenType.DATE_MIN));
-//        tokens.add(new ParserToken("DH15", TokenType.DATE_HOUR));
-//        tokens.add(new ParserToken("DH1521", TokenType.DATE_HOUR));
-//        tokens.add(new ParserToken("DH152115", TokenType.DATE_HOUR));
-//
-//        tokens.add(new ParserToken("DM033115", TokenType.DATE_MON));
-//        tokens.add(new ParserToken("DRE-1", TokenType.DATE_REL));
-//        
-//        SHEFDate d = new SHEFDate(20,8,1,31,14,21,15);
-//        d.setTimeZone(SHEFTimezone.getSysTimeZone("C"));
-//        
-//        System.out.println(d);
-//        System.out.println("*****************************************************");
-//        for(ParserToken t : tokens) {
-//            System.out.print(String.format("%-10s%-20s",t.getType().name(),t.getToken()));
-//            System.out.println(d.applyData(t));
-//            System.out.println("-----------------------------------------------------");
-//        }
-        
-//        SHEFDate d = new SHEFDate(new Date(), TimeZone.getTimeZone("Z"));
-//
-//        SHEFDate date = new SHEFDate(20,11,2,6,12,0,0);
-//        TimeZone zone = SHEFTimezone.getSysTimeZone("Z");
-//        date.setTimeZone(zone);
-//        date.adjustToTimezone();
-//        System.out.println(date);
-//
-//        date = date.applyData(new ParserToken("DJ036",TokenType.DATE_JUL));
-//        System.out.println(date);
-//        
-//        date = date.applyData(new ParserToken("DH12",TokenType.DATE_HOUR));
-//        System.out.println(date);
-//        
-//        Calendar c = getDateYearMon(82, 8, 8, zone);
-//        date = new SHEFDate(c);
-//        System.out.println(date);
-//        
-//        zone = SHEFTimezone.getSysTimeZone("C");
-//        date = new SHEFDate();
-//        date.setCentury(-1);
-//        date.setLy(82);
-//        date.setMonth(4);
-//        date.setDay(25);
-//        date.setHour(1);
-//        date.setMinute(59);
-//        date.setSecond(59);
-//        
-//        date.setTimeZone(zone);
-//        System.out.println(date);
-//        date.adjustToTimezone();
-//        System.out.println(date);
-//        System.out.println("DST Exclusion " + date.isDSTExclusion());
-//        
-//        ParserToken t = new ParserToken("820229",TokenType.OBS_DATE_6);
-//        
-//        t.adjustToTimezone(zone);
-//        
-//        date = new SHEFDate();
-//        date.setYear(2010);
-//        date.setMonth(3);
-//        date.setDay(14);
-//        date.setHour(2);
-//        date.setMinute(0);
-//        date.setSecond(1);
-//        
-//        date.setTimeZone(zone);
-//        System.out.println(date);
-//        date.adjustToTimezone();
-//
-//        date = SHEFDate.increment(date, "DIH1", 2);
-//        System.out.println(date);
-//        date = SHEFDate.increment(date, "DIN20", 2);
-//        System.out.println(date);
-//        date = SHEFDate.increment(date, "DIS10", 2);
-//
-//        String s = date.toString();
-//        date = SHEFDate.increment(date,"DIM3", 2);
-//        date = SHEFDate.increment(date,"DIM-9", 2);
-//        date = SHEFDate.increment(date,"DIM6", 2);
-//        System.out.println("pass = " + (s.equals(date.toString())));
-        
-//        for(String s : new String[] { "ED", "CD", "MD", "PD", }) {
-//            SHEFDate date = new SHEFDate(20, 11, 5, 23, 3, 0, 0);
-//            TimeZone zone = SHEFTimezone.getSysTimeZone(s);
-//            date.setTimeZone(zone);
-//            date.toZuluDate();
-//            System.out.println(date); 
-//        }
-        
-//        zone = SHEFTimezone.getSysTimeZone("PS");
-//        date = new SHEFDate();
-//        date.setYear(1982);
-//        date.setMonth(2);
-//        date.setDay(8);
-//        date.setHour(4);
-//        date.setMinute(0);
-//        date.setSecond(0);
-//        
-//        date.setTimeZone(zone);
-//
-//        date.toZuluDate();
-//        System.out.println(date);
-//        
-//        zone = SHEFTimezone.getSysTimeZone("C");
-//        date = new SHEFDate();
-//        date.setYear(1930);
-//        date.setMonth(04);
-//        date.setDay(20);
-//        date.setHour(7);
-//        date.setMinute(0);
-//        date.setSecond(0);
-//        
-//        date.setTimeZone(zone);
-//
-//        date.toZuluDate();
-//        System.out.println(date);
-//
-//        zone = SHEFTimezone.getSysTimeZone("Z");
-//        date = new SHEFDate();
-//        date.setYear(2011);
-//        date.setMonth(8);
-//        date.setDay(13);
-//        date.setHour(0);
-//        date.setMinute(0);
-//        date.setSecond(0);
-//        date.setTimeZone(zone);
-//
-//        date = date.applyData(new ParserToken("DT2001",TokenType.DATE_DATE));
-//        System.out.println(date);
-        
-        
-        
-        
+
+    /**
+     * Return a copy of the calendar passed in.
+     * 
+     * @param cal
+     *            The Calendar to copy
+     * @return The new Calendar
+     */
+    private static Calendar copy(Calendar cal) {
+        if (cal == null) {
+            return cal;
+        }
+
+        Calendar copy = TimeUtil.newGmtCalendar();
+        copy.setTimeInMillis(cal.getTimeInMillis());
+        return copy;
+    }
+
+    public static final void main(String[] args) {
+
+        // List<ParserToken> tokens = new ArrayList<ParserToken>();
+        // tokens.add(new ParserToken("DS30", TokenType.DATE_SEC));
+        // tokens.add(new ParserToken("DN21", TokenType.DATE_MIN));
+        // tokens.add(new ParserToken("DN2115", TokenType.DATE_MIN));
+        // tokens.add(new ParserToken("DH15", TokenType.DATE_HOUR));
+        // tokens.add(new ParserToken("DH1521", TokenType.DATE_HOUR));
+        // tokens.add(new ParserToken("DH152115", TokenType.DATE_HOUR));
+        //
+        // tokens.add(new ParserToken("DM033115", TokenType.DATE_MON));
+        // tokens.add(new ParserToken("DRE-1", TokenType.DATE_REL));
+        //
+        // SHEFDate d = new SHEFDate(20,8,1,31,14,21,15);
+        // d.setTimeZone(SHEFTimezone.getSysTimeZone("C"));
+        //
+        // System.out.println(d);
+        // System.out.println("*****************************************************");
+        // for(ParserToken t : tokens) {
+        // System.out.print(String.format("%-10s%-20s",t.getType().name(),t.getToken()));
+        // System.out.println(d.applyData(t));
+        // System.out.println("-----------------------------------------------------");
+        // }
+
+        // SHEFDate d = new SHEFDate(new Date(), TimeZone.getTimeZone("Z"));
+        //
+        // SHEFDate date = new SHEFDate(20,11,2,6,12,0,0);
+        // TimeZone zone = SHEFTimezone.getSysTimeZone("Z");
+        // date.setTimeZone(zone);
+        // date.adjustToTimezone();
+        // System.out.println(date);
+        //
+        // date = date.applyData(new ParserToken("DJ036",TokenType.DATE_JUL));
+        // System.out.println(date);
+        //
+        // date = date.applyData(new ParserToken("DH12",TokenType.DATE_HOUR));
+        // System.out.println(date);
+        //
+        // Calendar c = getDateYearMon(82, 8, 8, zone);
+        // date = new SHEFDate(c);
+        // System.out.println(date);
+        //
+        // zone = SHEFTimezone.getSysTimeZone("C");
+        // date = new SHEFDate();
+        // date.setCentury(-1);
+        // date.setLy(82);
+        // date.setMonth(4);
+        // date.setDay(25);
+        // date.setHour(1);
+        // date.setMinute(59);
+        // date.setSecond(59);
+        //
+        // date.setTimeZone(zone);
+        // System.out.println(date);
+        // date.adjustToTimezone();
+        // System.out.println(date);
+        // System.out.println("DST Exclusion " + date.isDSTExclusion());
+        //
+        // ParserToken t = new ParserToken("820229",TokenType.OBS_DATE_6);
+        //
+        // t.adjustToTimezone(zone);
+        //
+        // date = new SHEFDate();
+        // date.setYear(2010);
+        // date.setMonth(3);
+        // date.setDay(14);
+        // date.setHour(2);
+        // date.setMinute(0);
+        // date.setSecond(1);
+        //
+        // date.setTimeZone(zone);
+        // System.out.println(date);
+        // date.adjustToTimezone();
+        //
+        // date = SHEFDate.increment(date, "DIH1", 2);
+        // System.out.println(date);
+        // date = SHEFDate.increment(date, "DIN20", 2);
+        // System.out.println(date);
+        // date = SHEFDate.increment(date, "DIS10", 2);
+        //
+        // String s = date.toString();
+        // date = SHEFDate.increment(date,"DIM3", 2);
+        // date = SHEFDate.increment(date,"DIM-9", 2);
+        // date = SHEFDate.increment(date,"DIM6", 2);
+        // System.out.println("pass = " + (s.equals(date.toString())));
+
+        // for(String s : new String[] { "ED", "CD", "MD", "PD", }) {
+        // SHEFDate date = new SHEFDate(20, 11, 5, 23, 3, 0, 0);
+        // TimeZone zone = SHEFTimezone.getSysTimeZone(s);
+        // date.setTimeZone(zone);
+        // date.toZuluDate();
+        // System.out.println(date);
+        // }
+
+        // zone = SHEFTimezone.getSysTimeZone("PS");
+        // date = new SHEFDate();
+        // date.setYear(1982);
+        // date.setMonth(2);
+        // date.setDay(8);
+        // date.setHour(4);
+        // date.setMinute(0);
+        // date.setSecond(0);
+        //
+        // date.setTimeZone(zone);
+        //
+        // date.toZuluDate();
+        // System.out.println(date);
+        //
+        // zone = SHEFTimezone.getSysTimeZone("C");
+        // date = new SHEFDate();
+        // date.setYear(1930);
+        // date.setMonth(04);
+        // date.setDay(20);
+        // date.setHour(7);
+        // date.setMinute(0);
+        // date.setSecond(0);
+        //
+        // date.setTimeZone(zone);
+        //
+        // date.toZuluDate();
+        // System.out.println(date);
+        //
+        // zone = SHEFTimezone.getSysTimeZone("Z");
+        // date = new SHEFDate();
+        // date.setYear(2011);
+        // date.setMonth(8);
+        // date.setDay(13);
+        // date.setHour(0);
+        // date.setMinute(0);
+        // date.setSecond(0);
+        // date.setTimeZone(zone);
+        //
+        // date = date.applyData(new ParserToken("DT2001",TokenType.DATE_DATE));
+        // System.out.println(date);
+
         TimeZone zone = SHEFTimezone.getSysTimeZone("Z");
         SHEFDate date = new SHEFDate();
         date.setYear(2011);
@@ -1495,21 +1266,19 @@ public class SHEFDate {
         date.setHour(0);
         date.setMinute(0);
         date.setSecond(29);
-        
+
         date.setTimeZone(zone);
 
         System.out.println(date);
 
-        date.inc(-30,TIME_DIVISIONS.SECONDS);
-        System.out.println(date);
-        
-        date.inc(1,TIME_DIVISIONS.MONTHS);
+        date.inc(-30, TIME_DIVISIONS.SECONDS);
         System.out.println(date);
 
-        date.inc(6,TIME_DIVISIONS.HOURS);
+        date.inc(1, TIME_DIVISIONS.MONTHS);
         System.out.println(date);
 
-        
+        date.inc(6, TIME_DIVISIONS.HOURS);
+        System.out.println(date);
 
     }
 }

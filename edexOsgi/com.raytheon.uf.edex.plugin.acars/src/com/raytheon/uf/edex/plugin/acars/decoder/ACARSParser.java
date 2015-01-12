@@ -23,30 +23,31 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.DefaultDescriptorDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.BUFRDocument;
+import com.raytheon.uf.edex.bufrtools.BUFRFile;
+import com.raytheon.uf.edex.bufrtools.descriptors.DefaultDescriptorDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactoryDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 
 /**
- * TODO Add Description
+ * ACARS Parser.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
+ * Date          Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
+ * Jan 21, 2009  1939       jkorman     Initial creation
+ * Mar 27, 2014  2811       skorolev    Updated logger.
+ * May 14, 2014 2536        bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 public class ACARSParser implements Iterator<BUFRDataDocument>,
         Iterable<BUFRDataDocument>, IDescriptorFactorySelector {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private IUFStatusHandler logger = UFStatus.getHandler(ACARSParser.class);
 
     // WMO header of the message containing the BUFR data.
     private WMOHeader wmoHeader = null;
@@ -96,7 +97,9 @@ public class ACARSParser implements Iterator<BUFRDataDocument>,
         try {
             if (rawMessage != null) {
 
-                wmoHeader = new WMOHeader(rawMessage, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                wmoHeader = new WMOHeader(rawMessage, fileName);
 
                 if ((wmoHeader != null) && (wmoHeader.isValid())) {
 

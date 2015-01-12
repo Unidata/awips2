@@ -22,9 +22,6 @@ package com.raytheon.uf.common.dataplugin.grid;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -44,6 +41,7 @@ import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.parameter.Parameter;
+import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -68,6 +66,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                    PluginDataObject.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Dec 16, 2013  2574     bsteffen    Remove getDecoderGettable.
+ * Apr 15, 2014  2060     njensen     Remove dataURI column
+ * May 07, 2014  2060     njensen     GridRecord(String) will do parameter lookup
  * 
  * </pre>
  * 
@@ -76,13 +76,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "gridseq")
-@Table(name = "grid", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
+ * No need for a separate refTime/forecastTime index since its included in grid
+ * unique constraint
  */
-@org.hibernate.annotations.Table(appliesTo = "grid", indexes = { @Index(name = "grid_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "grid", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "refTime", "forecastTime", "info_id", "rangestart", "rangeend" }) })
+@org.hibernate.annotations.Table(appliesTo = "grid", indexes = { @Index(name = "grid_info_id_index", columnNames = { "info_id" }) })
 @DynamicSerialize
 public class GridRecord extends PersistablePluginDataObject implements
         ISpatialEnabled {
@@ -118,6 +118,14 @@ public class GridRecord extends PersistablePluginDataObject implements
 
     public GridRecord(String uri) {
         super(uri);
+        String abbrev = this.getInfo().getParameter().getAbbreviation();
+        if (abbrev != null) {
+            Parameter paramWithUnits = ParameterLookup.getInstance()
+                    .getParameter(abbrev);
+            if (paramWithUnits != null) {
+                this.getInfo().setParameter(paramWithUnits);
+            }
+        }
     }
 
     public GridInfoRecord getInfo() {
@@ -252,13 +260,6 @@ public class GridRecord extends PersistablePluginDataObject implements
             return false;
         }
         return true;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

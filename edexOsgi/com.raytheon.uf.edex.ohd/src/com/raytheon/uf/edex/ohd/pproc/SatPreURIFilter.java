@@ -19,10 +19,13 @@
  **/
 package com.raytheon.uf.edex.ohd.pproc;
 
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 
 /**
- * TODO Add Description
+ * Filters URIs for Satellite Precip and generates an xmrg file if the filter
+ * matches.
  * 
  * <pre>
  * 
@@ -30,8 +33,9 @@ import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2009            snaples     Initial creation
- * Feb 12, 2010  4635      snaples     Updated to match more generically.
+ * Feb 12, 2010 4635       snaples     Updated to match more generically.
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
+ * May 05, 2014 2060       njensen     Cleanup
  * 
  * </pre>
  * 
@@ -41,22 +45,22 @@ import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 
 public class SatPreURIFilter {
 
-    DataURINotificationMessage message;
+    private static final String AUTOSPE = "AUTOSPE";
 
-    String outpath = "";
+    private String startFilter;
 
-    static final String AUTOSPE = "AUTOSPE";
+    private SatPrecipFileBuilder builder;
 
-    public SatPreURIFilter() {
+    public SatPreURIFilter() throws Exception {
+        startFilter = DataURI.SEPARATOR + GridConstants.GRID;
+        builder = new SatPrecipFileBuilder();
     }
 
-    public void matchURI(DataURINotificationMessage msg) {
-        message = msg;
-
-        if (message instanceof DataURINotificationMessage) {
+    public void matchURI(DataURINotificationMessage msg) throws Exception {
+        if (msg instanceof DataURINotificationMessage) {
             String uri = "";
-            for (String data : message.getDataURIs()) {
-                if (data.startsWith("/grid")) {
+            for (String data : msg.getDataURIs()) {
+                if (data.startsWith(startFilter)) {
                     if (data.contains(AUTOSPE)) {
                         uri = data;
                         break;
@@ -68,10 +72,7 @@ public class SatPreURIFilter {
                 }
             }
             if (uri.length() > 1) {
-                SatPrecipFileBuilder sb = new SatPrecipFileBuilder(uri);
-                sb.createSatPre();
-            } else {
-                return;
+                builder.createSatPre(uri);
             }
         }
     }

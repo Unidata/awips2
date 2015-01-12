@@ -20,11 +20,7 @@
 package com.raytheon.uf.edex.plugin.acarssounding.tools;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +28,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * TODO Add Description
@@ -44,6 +39,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2010            jkorman     Initial creation
+ * Aug 18, 2014 3530       bclement    removed dead code
  * 
  * </pre>
  * 
@@ -151,8 +147,6 @@ public class IntermediateData {
      */
     public final void reconcile(Log logger) {
         
-        long cTime = ACARSSoundingTools.getCutoffTime(ACARSSoundingTools.CUTOFF_HOURS);
-        
         if ((recordList != null) && (acarsDataURIs != null)) {
             List<Integer> deletions = new ArrayList<Integer>();
             for(int i = 0;i < recordList.size();i++) {
@@ -228,8 +222,6 @@ public class IntermediateData {
             if (acarsDataURIs != null) {
                 File out = new File(acftInfo.getFilePath());
 
-                String tNum = acftInfo.getTailNumber();
-                
                 boolean writeURIs = false;
                 for(String s : acarsDataURIs) {
                     if(s != null) {

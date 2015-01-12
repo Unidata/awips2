@@ -25,3 +25,4 @@ ${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadNwxReconCARCAHBulletinTable
 ${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadNwxSPCProductsBulletinTables.sql  >> ${5} 2>&1
 ${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadNwxTropicalPacificBulletinTables.sql  >> ${5} 2>&1
 ${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadNwxVolcanoProductsBulletinTables.sql  >> ${5} 2>&1
+${1}/bin/psql -d ncep -U ${3} -q -p ${2} -f ${4}/loadNwxAdminMessagesBulletinTables.sql  >> ${5} 2>&1

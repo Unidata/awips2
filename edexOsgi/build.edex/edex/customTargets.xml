@@ -153,6 +153,7 @@
         	<copy todir="${builder}/postBuild/${edex.root.directory}/conf">
         		<fileset dir="${build.output.directory}/conf">
         			<include name="resources/**" />
+        			<include name="modes/**" />
         		</fileset>
         	</copy>
         	

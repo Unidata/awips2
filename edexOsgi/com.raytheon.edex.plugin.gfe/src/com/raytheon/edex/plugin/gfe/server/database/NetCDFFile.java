@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ucar.ma2.ArrayChar;
 import ucar.ma2.ArrayFloat;
@@ -54,7 +56,9 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 14, 2012            randerso     Initial creation
+ * May 14, 2012            randerso    Initial creation
+ * Jun 04, 2014  #3130     randerso    Fix thread safety issues with NetcdfFile variable.
+ *                                     General code cleanup
  * 
  * </pre>
  * 
@@ -82,8 +86,6 @@ public class NetCDFFile {
         private Grid2DBit inventory;
 
         private List<String> levelNames;
-
-        // private long possibleInventoryBits;
 
         public ParmAtts() {
             maxVal = 0;
@@ -238,15 +240,13 @@ public class NetCDFFile {
 
     private String fname;
 
-    private NetcdfFile cdf;
-
     private Date modelTime;
 
     private String modelName;
 
     private List<TimeRange> availableTimes;
 
-    private List<ParmAtts> atts;
+    private Map<String, ParmAtts> atts;
 
     private ProjectionData projection;
 
@@ -268,24 +268,34 @@ public class NetCDFFile {
     public NetCDFFile(String fname, String overrideModelName) {
         this.valid = false;
         this.fname = fname;
-        this.cdf = null;
-
-        // NcError nce(NcError::silent_nonfatal);
 
         CHECK_STATE(setModelTime());
-        CHECK_STATE(openCDF());
-        if (overrideModelName == null || overrideModelName.length() > 0) {
-            this.modelName = overrideModelName;
-        } else {
-            CHECK_STATE(getModel());
+        NetcdfFile cdf = null;
+        try {
+            cdf = NetcdfFile.open(this.fname);
+            if ((overrideModelName == null) || (overrideModelName.length() > 0)) {
+                this.modelName = overrideModelName;
+            } else {
+                CHECK_STATE(getModel(cdf));
+            }
+            CHECK_STATE(getProj(cdf));
+            CHECK_STATE(getTimes(cdf));
+            getTPDurations(cdf);
+            CHECK_STATE(getNames(cdf));
+            this.valid = true;
+        } catch (IOException e) {
+            statusHandler.error("Error opening NetCDF file: " + fname, e);
+        } finally {
+            if (cdf != null) {
+                try {
+                    cdf.close();
+                } catch (IOException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error closing netCDF file " + this.fname + ": "
+                                    + e.getLocalizedMessage(), e);
+                }
+            }
         }
-        CHECK_STATE(getProj());
-        CHECK_STATE(getTimes());
-        getTPDurations();
-        CHECK_STATE(getNames());
-
-        closeCDF();
-        this.valid = true;
     }
 
     private void CHECK_STATE(ServerResponse<?> sr) {
@@ -315,10 +325,6 @@ public class NetCDFFile {
         return availableTimes;
     }
 
-    public List<ParmAtts> getAtts() {
-        return atts;
-    }
-
     public ProjectionData getProjection() {
         return projection;
     }
@@ -337,7 +343,7 @@ public class NetCDFFile {
     private ServerResponse<Float> getFloatVarAtt(Variable var, String name) {
         ServerResponse<Float> sr = new ServerResponse<Float>();
         Attribute att = var.findAttribute(name);
-        if (att == null || !att.getDataType().equals(DataType.FLOAT)) {
+        if ((att == null) || !att.getDataType().equals(DataType.FLOAT)) {
             sr.addMessage("Missing or invalid attribute: " + name);
             return sr;
         }
@@ -361,7 +367,7 @@ public class NetCDFFile {
     private ServerResponse<String> getStringVarAtt(Variable var, String name) {
         ServerResponse<String> sr = new ServerResponse<String>();
         Attribute att = var.findAttribute(name);
-        if (att == null || !att.getDataType().equals(DataType.STRING)) {
+        if ((att == null) || !att.getDataType().equals(DataType.STRING)) {
             sr.addMessage("Missing or invalid attribute: " + name);
             return sr;
         }
@@ -371,8 +377,8 @@ public class NetCDFFile {
         return sr;
     }
 
-    private ServerResponse<ProjectionData> getProj() {
-        ServerResponse<ProjectionData> sr = NetCDFUtils.getProj(this.cdf);
+    private ServerResponse<ProjectionData> getProj(NetcdfFile cdf) {
+        ServerResponse<ProjectionData> sr = NetCDFUtils.getProj(cdf);
         if (sr.isOkay()) {
             this.projection = sr.getPayload();
         }
@@ -383,10 +389,7 @@ public class NetCDFFile {
      * @return a list of parm names found in this netCDF file.
      */
     public List<String> getParmNames() {
-        List<String> rval = new ArrayList<String>(this.atts.size());
-        for (int i = 0; i < atts.size(); i++) {
-            rval.add(atts.get(i).getName());
-        }
+        List<String> rval = new ArrayList<String>(this.atts.keySet());
         return rval;
     }
 
@@ -421,7 +424,7 @@ public class NetCDFFile {
      * @param var
      * @return
      */
-    private ServerResponse<ParmAtts> getParmAtts(Variable var) {
+    private ServerResponse<ParmAtts> getParmAtts(NetcdfFile cdf, Variable var) {
         ServerResponse<ParmAtts> sr = new ServerResponse<ParmAtts>();
 
         String units, longname;
@@ -450,7 +453,7 @@ public class NetCDFFile {
 
         if (!tsrmin.isOkay() || !tsrmax.isOkay()) {
             Attribute att = var.findAttribute("valid_range");
-            if (att != null && att.getLength() == 2
+            if ((att != null) && (att.getLength() == 2)
                     && att.getDataType().equals(DataType.FLOAT)) {
                 min = att.getNumericValue(0).floatValue();
                 max = att.getNumericValue(1).floatValue();
@@ -528,7 +531,7 @@ public class NetCDFFile {
                     // Y coordinate = time, X coordinate = levels
                     for (int y = 0; y < dims[0]; y++) {
                         for (int x = 0; x < idims[1]; x++) {
-                            char c = (char) dta.getByte(y * idims[1] + x);
+                            char c = (char) dta.getByte((y * idims[1]) + x);
                             byte b = (byte) (c == '1' ? 1 : 0);
                             inventory.set(x, y, b);
                         }
@@ -582,11 +585,13 @@ public class NetCDFFile {
      * 
      * @return
      */
-    private ServerResponse<Object> getNames() {
+    private ServerResponse<Object> getNames(NetcdfFile cdf) {
         ServerResponse<Object> sr = new ServerResponse<Object>();
 
-        this.atts = new ArrayList<NetCDFFile.ParmAtts>();
-        for (Variable var : this.cdf.getVariables()) {
+        List<Variable> variables = cdf.getVariables();
+        this.atts = new HashMap<String, NetCDFFile.ParmAtts>(variables.size(),
+                1.0f);
+        for (Variable var : variables) {
             if (var != null) {
                 if (!var.getDataType().equals(DataType.FLOAT)) {
                     continue;
@@ -614,10 +619,11 @@ public class NetCDFFile {
                     }
                 }
                 if (foundx && foundy) {
-                    ServerResponse<ParmAtts> tsr = getParmAtts(var);
+                    ServerResponse<ParmAtts> tsr = getParmAtts(cdf, var);
                     sr.addMessages(tsr);
                     if (tsr.isOkay()) {
-                        this.atts.add(tsr.getPayload());
+                        ParmAtts parmAtts = tsr.getPayload();
+                        this.atts.put(parmAtts.getName(), parmAtts);
                     }
                 }
             }
@@ -631,7 +637,7 @@ public class NetCDFFile {
      * model files.
      * 
      */
-    private void getTPDurations() {
+    private void getTPDurations(NetcdfFile cdf) {
         this.tpSubPrev = new ArrayList<Boolean>(getAvailableTimes().size());
         for (int i = 0; i < getAvailableTimes().size(); i++) {
             this.tpSubPrev.add(false);
@@ -640,8 +646,8 @@ public class NetCDFFile {
             long duration = (getAvailableTimes().get(1).getStart().getTime() - getAvailableTimes()
                     .get(0).getStart().getTime()) / 1000;
             String s = String.format("_tp%d", (duration / 3600) * 2);
-            Variable tvar = this.cdf.findVariable(s);
-            if (tvar != null && tvar.getDataType().equals(DataType.FLOAT)) {
+            Variable tvar = cdf.findVariable(s);
+            if ((tvar != null) && tvar.getDataType().equals(DataType.FLOAT)) {
                 Dimension d1 = tvar.getDimension(0);
                 if (d1 != null) {
                     try {
@@ -665,10 +671,10 @@ public class NetCDFFile {
      * 
      * @return ServerResponse
      */
-    private ServerResponse<Object> getTimes() {
+    private ServerResponse<Object> getTimes(NetcdfFile cdf) {
         ServerResponse<Object> sr = new ServerResponse<Object>();
-        Variable tvar = this.cdf.findVariable("valtimeMINUSreftime");
-        if (tvar == null || !tvar.getDataType().equals(DataType.INT)) {
+        Variable tvar = cdf.findVariable("valtimeMINUSreftime");
+        if ((tvar == null) || !tvar.getDataType().equals(DataType.INT)) {
             sr.addMessage("Missing or invalid 'valtimeMINUSreftime' var.");
         } else {
             Dimension d1 = tvar.getDimension(0);
@@ -681,8 +687,9 @@ public class NetCDFFile {
                             d1.getLength());
                     for (int i = 0; i < d1.getLength(); i++) {
                         this.availableTimes.add(new TimeRange(new Date(
-                                this.modelTime.getTime() + times.getInt(i)
-                                        * 1000L), 3600 * 1000));
+                                this.modelTime.getTime()
+                                        + (times.getInt(i) * 1000L)),
+                                3600 * 1000));
                     }
                 } catch (IOException e) {
                     statusHandler.handle(
@@ -702,10 +709,10 @@ public class NetCDFFile {
      * 
      * @return ServerResponse
      */
-    private ServerResponse<Object> getModel() {
+    private ServerResponse<Object> getModel(NetcdfFile cdf) {
         ServerResponse<Object> sr = new ServerResponse<Object>();
-        Variable mvar = this.cdf.findVariable("model");
-        if (mvar == null || !mvar.getDataType().equals(DataType.CHAR)) {
+        Variable mvar = cdf.findVariable("model");
+        if ((mvar == null) || !mvar.getDataType().equals(DataType.CHAR)) {
             sr.addMessage("Missing or invalid 'model' var.");
         } else {
             try {
@@ -718,40 +725,6 @@ public class NetCDFFile {
             }
         }
         return sr;
-    }
-
-    /**
-     * Attempts to open the netcdf file. If it can not be opened (or is not a
-     * valid cdf file) then an invalid ServerResponse is returned.
-     * 
-     * @return ServerResponse
-     */
-    private ServerResponse<Object> openCDF() {
-        ServerResponse<Object> sr = new ServerResponse<Object>();
-        try {
-            this.cdf = NetcdfFile.open(this.fname);
-            if (this.cdf == null) {
-                sr.addMessage("Invalid NetCDF file: " + this.fname);
-            }
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error opening netCDF file "
-                    + this.fname + ": " + e.getLocalizedMessage(), e);
-        }
-        return sr;
-    }
-
-    /**
-     * Closes the netcdf file.
-     * 
-     */
-    private void closeCDF() {
-        try {
-            this.cdf.close();
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error closing netCDF file "
-                    + this.fname + ": " + e.getLocalizedMessage(), e);
-        }
-        this.cdf = null;
     }
 
     /**
@@ -774,51 +747,48 @@ public class NetCDFFile {
      * @return the ParmAtts
      */
     public ParmAtts getAtts(String parmName) {
-        for (ParmAtts a : this.atts) {
-            if (a.getName().equals(parmName)) {
-                return a;
-            }
-        }
-        return null;
+        return this.atts.get(parmName);
     }
 
     public Grid2DFloat getGrid(String parmName, int index, int level,
             Rectangle subdomain) {
-        ParmAtts atts = getAtts(parmName);
-        if (atts == null) {
+        if (!this.atts.containsKey(parmName)) {
             statusHandler.handle(Priority.PROBLEM, "Unknown parm name: "
                     + parmName);
             return null;
         }
 
-        if (!openCDF().isOkay()) {
-            statusHandler.handle(Priority.PROBLEM, "Error opening CDF File: "
-                    + this.fname);
-            this.valid = false;
-            return null;
-        }
+        NetcdfFile cdf = null;
+        try {
+            cdf = NetcdfFile.open(this.fname);
 
-        for (ParmAtts a : this.atts) {
-            if (parmName.equals(a.getName())) {
-                Grid2DFloat grid = null;
-                ServerResponse<Grid2DFloat> sr = NetCDFUtils.getFloatGrid(
-                        this.cdf, parmName, index, level, subdomain);
-                if (!sr.isOkay()) {
-                    closeCDF();
-                    statusHandler.handle(Priority.PROBLEM, sr.message());
-                    return null;
-                } else {
-                    grid = sr.getPayload();
+            Grid2DFloat grid = null;
+            ServerResponse<Grid2DFloat> sr = NetCDFUtils.getFloatGrid(cdf,
+                    parmName, index, level, subdomain);
+            if (!sr.isOkay()) {
+                statusHandler.handle(Priority.PROBLEM, sr.message());
+                return null;
+            } else {
+                grid = sr.getPayload();
+            }
+
+            return grid;
+        } catch (IOException e) {
+            statusHandler.error("Error opening NetCDF file: " + fname, e);
+        } finally {
+            if (cdf != null) {
+                try {
+                    cdf.close();
+                } catch (IOException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error closing netCDF file " + this.fname + ": "
+                                    + e.getLocalizedMessage(), e);
                 }
-
-                closeCDF();
-                return grid;
             }
         }
 
         statusHandler
                 .handle(Priority.PROBLEM, "unknown parm name: " + parmName);
-        closeCDF();
         return null;
     }
 

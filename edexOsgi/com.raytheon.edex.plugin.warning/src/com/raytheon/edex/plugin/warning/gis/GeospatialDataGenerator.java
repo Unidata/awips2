@@ -19,14 +19,25 @@
  **/
 package com.raytheon.edex.plugin.warning.gis;
 
+import java.io.File;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.xml.bind.JAXBException;
 
@@ -36,6 +47,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialDataResult;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialDataSet;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialFactory;
@@ -62,21 +74,18 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryCollectionIterator;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
@@ -96,6 +105,12 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                     AreaConfiguration to areaFields List.
  * May  7, 2013  15690     Qinglu Lin  Added convertToMultiPolygon() and updated queryGeospatialData().
  * Oct 22, 2013  2361      njensen     Use JAXBManager for XML
+ * Feb 07, 2014  16090  mgamazaychikov Changed visibility of some methods
+ * Mar 19, 2014  2726      rjpeter     Made singleton instance.
+ * Apr 29, 2014  3033      jsanchez    Properly handled site and back up site files.
+ * Jul 15, 2014  3352      rferrel     Better logging and threading added.
+ * Aug 21, 2014  3353      rferrel     Added getGeospatialTimeset and cluster locking of METADATA_FILE.
+ *                                      generateGeoSpatialList now sends GenerateGeospatialDataResult.
  * </pre>
  * 
  * @author rjpeter
@@ -103,14 +118,120 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  */
 
 public class GeospatialDataGenerator {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GeospatialDataGenerator.class);
 
-    private static final SingleTypeJAXBManager<GeospatialTimeSet> jaxb = SingleTypeJAXBManager
+    private final SingleTypeJAXBManager<GeospatialTimeSet> jaxb = SingleTypeJAXBManager
             .createWithoutException(GeospatialTimeSet.class);
 
-    public static void generateUniqueGeospatialMetadataGeometries() {
+    private final String updaterEndpoint;
+
+    /**
+     * Pool to service the callable Geometry.
+     */
+    private final ExecutorService pool;
+
+    /**
+     * Property in the warning.properties to determine the maximum number of
+     * geometry threads.
+     */
+    private final String THREAD_COUNT_PROPERTY = "geospatial.geometry.threads";
+
+    /** Default thread count must be a valid positive number string. */
+    private final String DEFAULT_THREAD_COUNT = "5";
+
+    /** Cluster task name. */
+    private final static String CLUSTER_NAME = "WarngenGeometryGenerator";
+
+    /** Time out lock after one minute. */
+    private final static long TIME_OUT = TimeUtil.MILLIS_PER_MINUTE;
+
+    /** Task to update the lock time for the locked plugin cluster task. */
+    private static final class LockUpdateTask extends TimerTask {
+        /** The locked cluster task's details. */
+        private final String details;
+
+        public LockUpdateTask(String details) {
+            this.details = details;
+        }
+
+        @Override
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            ClusterLockUtils.updateLockTime(CLUSTER_NAME, details, currentTime);
+        }
+    }
+
+    /**
+     * Common format for cluster tasks details entry.
+     * 
+     * @param site
+     * @param fileName
+     * @return details
+     */
+    private static String getDetails(String site, String fileName) {
+        return String.format("%s%s%s", site, File.separator, fileName);
+    }
+
+    /**
+     * Lock cluster task for the site's metadata file and obtain the file's
+     * geospatial time set.
+     * 
+     * @param site
+     * @return geospatialTimeSet
+     */
+    public static GeospatialTimeSet getGeospatialTimeset(String site) {
+        String metadataDetails = getDetails(site,
+                GeospatialFactory.METADATA_FILE
+                        .substring(GeospatialFactory.METADATA_FILE
+                                .lastIndexOf(File.separator) + 1));
+
+        ClusterTask ct = null;
+        try {
+            do {
+                ct = ClusterLockUtils.lock(CLUSTER_NAME, metadataDetails,
+                        TIME_OUT, true);
+            } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
+            return GeospatialFactory.getGeospatialTimeSet(site);
+        } finally {
+            if (ct != null) {
+                ClusterLockUtils.unlock(ct, false);
+            }
+        }
+    }
+
+    /**
+     * The constructor.
+     */
+    public GeospatialDataGenerator(String updaterEndpoint) {
+        this.updaterEndpoint = updaterEndpoint;
+        this.pool = initPool(THREAD_COUNT_PROPERTY, DEFAULT_THREAD_COUNT);
+    }
+
+    /**
+     * Parse property for thread count and return a fixed thread pool.
+     * 
+     * @param propKey
+     * @param defaultStr
+     * @return pool
+     */
+    private ExecutorService initPool(String propKey, String defaultStr) {
+        String maxThreadStr = System.getProperty(propKey, defaultStr);
+        int maxThreads = -1;
+        try {
+            maxThreads = Integer.parseInt(maxThreadStr);
+            if (maxThreads <= 0) {
+                maxThreads = Integer.parseInt(defaultStr);
+            }
+        } catch (NumberFormatException ex) {
+            maxThreads = Integer.parseInt(defaultStr);
+        }
+
+        return Executors.newFixedThreadPool(maxThreads);
+
+    }
+
+    public void generateUniqueGeospatialMetadataGeometries() {
         String mySite = SiteUtil.getSite();
         DialogConfiguration dialogConfig = null;
 
@@ -124,19 +245,47 @@ public class GeospatialDataGenerator {
         List<String> sites = getBackupSites(dialogConfig);
         sites.add(0, mySite);
         List<String> templates = getTemplates(dialogConfig);
+        Set<GeospatialMetadata> metaDataSet = getMetaDataSet(sites, templates);
+
+        for (final String site : sites) {
+            long start = System.currentTimeMillis();
+            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                statusHandler.handle(Priority.INFO,
+                        "Checking warngen geometries for site: " + site);
+            }
+
+            for (final GeospatialMetadata md : metaDataSet) {
+                try {
+                    generateGeoSpatialList(site, md);
+                } catch (SpatialException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+
+            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                long time = System.currentTimeMillis() - start;
+                statusHandler.handle(Priority.INFO, String.format(
+                        "Checking warngen geometries for site: %s, took: %s",
+                        site, TimeUtil.prettyDuration(time)));
+            }
+        }
+    }
+
+    public Set<GeospatialMetadata> getMetaDataSet(List<String> sites,
+            List<String> templates) {
+
         Set<GeospatialMetadata> metaDataSet = new HashSet<GeospatialMetadata>();
 
         for (String site : sites) {
             metaDataSet.clear();
-            statusHandler.handle(Priority.INFO,
-                    "Generating warngen geometries for site: " + site);
 
             // get the unique geospatialMetadata sets to generate
             for (String templateName : templates) {
                 WarngenConfiguration template = null;
                 try {
                     template = WarngenConfiguration.loadConfig(templateName,
-                            site);
+                            site, null);
                 } catch (Exception e) {
                     statusHandler
                             .handle(Priority.ERROR,
@@ -155,21 +304,11 @@ public class GeospatialDataGenerator {
                     metaDataSet.add(gmd);
                 }
             }
-
-            for (GeospatialMetadata md : metaDataSet) {
-                try {
-                    generateGeoSpatialList(site, md);
-                } catch (Exception e) {
-                    statusHandler
-                            .handle(Priority.ERROR,
-                                    "Failed to generate geospatial data for warngen",
-                                    e);
-                }
-            }
         }
+        return metaDataSet;
     }
 
-    private static List<String> getBackupSites(DialogConfiguration dialogConfig) {
+    public static List<String> getBackupSites(DialogConfiguration dialogConfig) {
         String[] CWAs = dialogConfig.getBackupCWAs().split(",");
         List<String> rval = new ArrayList<String>(CWAs.length + 1);
         for (String s : CWAs) {
@@ -180,7 +319,7 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    private static List<String> getTemplates(DialogConfiguration dialogConfig) {
+    public static List<String> getTemplates(DialogConfiguration dialogConfig) {
         String[] mainProducts = dialogConfig.getMainWarngenProducts()
                 .split(",");
         String[] otherProducts = dialogConfig.getOtherWarngenProducts().split(
@@ -200,16 +339,35 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    public static GeospatialDataSet generateGeoSpatialList(String site,
+    private String getClusterDetails(String site, GeospatialMetadata metaData) {
+        String fileName = generateGeoDataFilename(metaData);
+        return getDetails(site, fileName);
+    }
+
+    public GeospatialDataSet generateGeoSpatialList(String site,
             GeospatialMetadata metaData) throws SpatialException {
         GeospatialDataSet dataSet = null;
-        String file = generateGeoDataFilename(metaData);
+        String details = getClusterDetails(site, metaData);
         ClusterTask ct = null;
+        Timer lockUpdateTimer = null;
+        long start = 0L;
         try {
             do {
-                ct = ClusterLockUtils.lock("WarngenGeometryGenerator", file,
-                        60000, true);
+                ct = ClusterLockUtils.lock(CLUSTER_NAME, details, TIME_OUT,
+                        true);
             } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
+
+            start = System.currentTimeMillis();
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                String message = String
+                        .format("Start generate Geo Spatial data for site: %s, lock: %s.",
+                                site, ct.getId().getDetails());
+                statusHandler.handle(Priority.DEBUG, message);
+            }
+
+            lockUpdateTimer = new Timer(CLUSTER_NAME + " timer", true);
+            TimerTask tt = new LockUpdateTask(ct.getId().getDetails());
+            lockUpdateTimer.schedule(tt, TIME_OUT / 2L, TIME_OUT / 2L);
 
             GeospatialTime curTime = null;
 
@@ -224,7 +382,8 @@ public class GeospatialDataGenerator {
             // NOTE: changes to curTimeMap are not persisted back to the
             // GeospatialTimeSet
             Map<GeospatialMetadata, GeospatialTime> lastRunTimeMap = GeospatialFactory
-                    .loadLastRunGeoTimeSet(site);
+                    .loadLastRunGeoTimeSet(getGeospatialTimeset(site));
+
             GeospatialTime lastRunTime = lastRunTimeMap.get(metaData);
             boolean generate = true;
             if (curTime.equals(lastRunTime)) {
@@ -298,20 +457,49 @@ public class GeospatialDataGenerator {
                 // save to disk
                 try {
                     persistGeoData(site, lastRunTimeMap, curTime, dataSet);
+
+                    if (updaterEndpoint != null) {
+                        GenerateGeospatialDataResult result = new GenerateGeospatialDataResult();
+                        String updatedTimeStamp = getTimeStamp(curTime,
+                                lastRunTime);
+                        result.setTimestamp(updatedTimeStamp);
+                        result.setSite(site);
+                        result.setArea(metaData.getAreaSource());
+                        try {
+                            EDEXUtil.getMessageProducer().sendAsync(
+                                    updaterEndpoint, result);
+                        } catch (EdexException e) {
+                            statusHandler.error("Could not send message to "
+                                    + updaterEndpoint, e);
+                        }
+                    }
                 } catch (Exception e) {
                     statusHandler.handle(Priority.WARN,
                             "Error occurred persisting area geometry data", e);
                 }
             }
         } finally {
+            if (lockUpdateTimer != null) {
+                lockUpdateTimer.cancel();
+                lockUpdateTimer = null;
+            }
+
             if (ct != null) {
                 ClusterLockUtils.unlock(ct, false);
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    long time = System.currentTimeMillis() - start;
+                    String message = String
+                            .format("Generated Geo Spatial data for site: %s, lock: %s, total time: %s.",
+                                    site, ct.getId().getDetails(),
+                                    TimeUtil.prettyDuration(time));
+                    statusHandler.handle(Priority.DEBUG, message);
+                }
             }
         }
         return dataSet;
     }
 
-    public static GeospatialMetadata getMetaData(WarngenConfiguration template) {
+    public GeospatialMetadata getMetaData(WarngenConfiguration template) {
         GeospatialMetadata rval = new GeospatialMetadata();
         GeospatialConfiguration geoConfig = template.getGeospatialConfig();
         AreaSourceConfiguration areaConfig = template.getHatchedAreaSource();
@@ -337,7 +525,7 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    private static GeospatialTime queryForCurrentTimes(
+    public static GeospatialTime queryForCurrentTimes(
             GeospatialMetadata metaData) throws Exception {
         GeospatialTime rval = new GeospatialTime();
         String areaSource = metaData.getAreaSource().toLowerCase();
@@ -346,12 +534,12 @@ public class GeospatialDataGenerator {
         StringBuilder sql = new StringBuilder(200);
         sql.append("SELECT table_name, import_time FROM mapdata.map_version WHERE table_name in ('");
         sql.append(areaSource.toLowerCase());
-        if (tzSource != null && tzSource.length() > 0) {
+        if ((tzSource != null) && (tzSource.length() > 0)) {
             tzSource = tzSource.toLowerCase();
             sql.append("', '");
             sql.append(tzSource);
         }
-        if (pAreaSource != null && pAreaSource.length() > 0) {
+        if ((pAreaSource != null) && (pAreaSource.length() > 0)) {
             pAreaSource = pAreaSource.toLowerCase();
             sql.append("', '");
             sql.append(pAreaSource);
@@ -381,8 +569,9 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    private static GeospatialData[] queryGeospatialData(String site,
-            GeospatialMetadata metaData) throws SpatialException {
+    private GeospatialData[] queryGeospatialData(String site,
+            GeospatialMetadata metaData) throws SpatialException,
+            InterruptedException, ExecutionException {
         String areaSource = metaData.getAreaSource();
 
         HashMap<String, RequestConstraint> map = new HashMap<String, RequestConstraint>(
@@ -410,27 +599,7 @@ public class GeospatialDataGenerator {
                     .query(cwaSource,
                             cwaAreaFields.toArray(new String[cwaAreaFields
                                     .size()]), null, cwaMap, SearchMode.WITHIN);
-            Geometry multiPolygon = null;
-            Geometry clippedGeom = null;
-            for (int i = 0; i < features.length; i++) {
-                multiPolygon = null;
-                for (int j = 0; j < cwaFeatures.length; j++) {
-                    clippedGeom = features[i].geometry
-                            .intersection(cwaFeatures[j].geometry);
-                    if (clippedGeom instanceof GeometryCollection) {
-                        GeometryCollection gc = (GeometryCollection) clippedGeom;
-                        if (multiPolygon != null)
-                            multiPolygon = multiPolygon
-                                    .union(convertToMultiPolygon(gc));
-                        else
-                            multiPolygon = convertToMultiPolygon(gc);
-                    }
-                }
-                if (multiPolygon != null)
-                    features[i].geometry = multiPolygon;
-                else if (clippedGeom != null)
-                    features[i].geometry = clippedGeom;
-            }
+            updateFeatures(features, cwaFeatures);
         }
 
         topologySimplifyQueryResults(features);
@@ -450,66 +619,63 @@ public class GeospatialDataGenerator {
     }
 
     /**
-     * Convert a GeometryCollection to a MultiPolygon.
+     * Queue request for each feature and wait for the results.
      * 
-     * @param gc
+     * @param features
+     * @param cwaFeatures
+     * @throws InterruptedException
+     * @throws ExecutionException
      */
-    private static MultiPolygon convertToMultiPolygon(GeometryCollection gc) {
-        GeometryCollectionIterator iter = new GeometryCollectionIterator(gc);
-        Set<Polygon> polygons = new HashSet<Polygon>();
-        MultiPolygon mp = null;
-        iter.next();
-        while (iter.hasNext()) {
-            Object o = iter.next();
-            if (o instanceof MultiPolygon) {
-                if (mp == null)
-                    mp = (MultiPolygon) o;
-                else
-                    mp = (MultiPolygon) mp.union((MultiPolygon) o);
-            } else if (o instanceof Polygon) {
-                polygons.add((Polygon) o);
-            } else if (o instanceof LineString || o instanceof Point) {
-                LinearRing lr = null;
-                Coordinate[] coords = null;
-                if (o instanceof LineString) {
-                    Coordinate[] cs = ((LineString) o).getCoordinates();
-                    if (cs.length < 4) {
-                        coords = new Coordinate[4];
-                        for (int j = 0; j < cs.length; j++)
-                            coords[j] = new Coordinate(cs[j]);
-                        for (int j = cs.length; j < 4; j++)
-                            coords[j] = new Coordinate(cs[3 - j]);
-                    } else {
-                        coords = new Coordinate[cs.length + 1];
-                        for (int j = 0; j < cs.length; j++)
-                            coords[j] = new Coordinate(cs[j]);
-                        coords[cs.length] = new Coordinate(cs[0]);
-                    }
-                } else {
-                    coords = new Coordinate[4];
-                    for (int i = 0; i < 4; i++)
-                        coords[i] = ((Point) o).getCoordinate();
-                }
-                lr = (((Geometry) o).getFactory()).createLinearRing(coords);
-                Polygon poly = (new GeometryFactory()).createPolygon(lr, null);
-                polygons.add((Polygon) poly);
-            } else {
-                statusHandler.handle(Priority.WARN,
-                        "Unprocessed Geometry object: "
-                                + o.getClass().getName());
-            }
+    private void updateFeatures(SpatialQueryResult[] features,
+            SpatialQueryResult[] cwaFeatures) throws InterruptedException,
+            ExecutionException {
+        List<Future<Geometry>> featureFutures = new ArrayList<Future<Geometry>>(
+                features.length);
+        Geometry[] cwaFeturesGeoms = new Geometry[cwaFeatures.length];
+        for (int index = 0; index < cwaFeturesGeoms.length; ++index) {
+            cwaFeturesGeoms[index] = cwaFeatures[index].geometry;
         }
-        if (mp == null && polygons.size() == 0)
-            return null;
-        if (polygons.size() > 0) {
-            Polygon[] p = polygons.toArray(new Polygon[0]);
-            if (mp != null)
-                mp = (MultiPolygon) mp.union(new MultiPolygon(p, gc
-                        .getFactory()));
-            else
-                mp = new MultiPolygon(p, gc.getFactory());
+        List<Future<Geometry>> geomFutures = null;
+        List<Callable<Geometry>> featuresCallable = new ArrayList<Callable<Geometry>>(
+                featureFutures.size());
+
+        // Queue all intersections.
+        for (int index = 0; index < features.length; ++index) {
+
+            geomFutures = submitGeomIntersection(features[index].geometry,
+                    cwaFeturesGeoms);
+            Callable<Geometry> callable = new FeatureCallable(geomFutures,
+                    statusHandler);
+            featuresCallable.add(callable);
         }
-        return mp;
+
+        // Finally queue all features.
+        featureFutures = pool.invokeAll(featuresCallable);
+
+        for (int index = 0; index < features.length; ++index) {
+            Future<Geometry> future = featureFutures.get(index);
+            features[index].geometry = future.get();
+        }
+    }
+
+    /**
+     * Get future's list for a feature's geometry.
+     * 
+     * @param featureGeom
+     * @param cwaFeaturesGeoms
+     * @return geomFutures
+     */
+    private List<Future<Geometry>> submitGeomIntersection(Geometry featureGeom,
+            Geometry[] cwaFeaturesGeoms) {
+        List<Future<Geometry>> geomFutures = new ArrayList<Future<Geometry>>(
+                cwaFeaturesGeoms.length);
+        for (Geometry cwaGeom : cwaFeaturesGeoms) {
+            Callable<Geometry> callable = new GeomIntersectionCallable(
+                    featureGeom, cwaGeom);
+            geomFutures.add(pool.submit(callable));
+        }
+
+        return geomFutures;
     }
 
     /**
@@ -518,8 +684,7 @@ public class GeospatialDataGenerator {
      * 
      * @param results
      */
-    private static void topologySimplifyQueryResults(
-            SpatialQueryResult[] results) {
+    private void topologySimplifyQueryResults(SpatialQueryResult[] results) {
         GeometryFactory gf = new GeometryFactory();
         Geometry[] geoms = new Geometry[results.length];
         for (int i = 0; i < results.length; i++) {
@@ -562,7 +727,7 @@ public class GeospatialDataGenerator {
      * @param hull
      * @param geoData
      */
-    private static GeospatialData[] queryTimeZones(GeospatialMetadata metaData,
+    private GeospatialData[] queryTimeZones(GeospatialMetadata metaData,
             Geometry hull, GeospatialData[] geoData) throws SpatialException {
         GeospatialData[] rval = null;
         String timezonePathcastTable = metaData.getTimeZoneSource();
@@ -618,8 +783,8 @@ public class GeospatialDataGenerator {
      * @return
      * @throws SpatialException
      */
-    private static GeospatialData[] queryParentAreas(
-            GeospatialMetadata metaData, Geometry hull) throws SpatialException {
+    private GeospatialData[] queryParentAreas(GeospatialMetadata metaData,
+            Geometry hull) throws SpatialException {
         GeospatialData[] rval = null;
         String parentAreaSource = metaData.getParentAreaSource();
         if (parentAreaSource != null) {
@@ -644,35 +809,66 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    private static void persistGeoData(String site,
+    /**
+     * Save data in the desired file and update the meta data file. Assumes
+     * already have a cluster lock for the data file. A cluster lock is obtained
+     * on the metadata file prior to updating it.
+     * 
+     * @param site
+     * @param times
+     * @param curTime
+     * @param geoData
+     * @throws SerializationException
+     * @throws LocalizationException
+     * @throws JAXBException
+     */
+    private void persistGeoData(String site,
             Map<GeospatialMetadata, GeospatialTime> times,
             GeospatialTime curTime, GeospatialDataSet geoData)
             throws SerializationException, LocalizationException, JAXBException {
+
         String fileName = generateGeoDataFilename(curTime.getMetaData());
+        String metadataDetails = getDetails(site,
+                GeospatialFactory.METADATA_FILE
+                        .substring(GeospatialFactory.METADATA_FILE
+                                .lastIndexOf(File.separator) + 1));
 
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext context = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
-        context.setContextName(site);
+        ClusterTask ct = null;
+        try {
+            do {
+                ct = ClusterLockUtils.lock(CLUSTER_NAME, metadataDetails,
+                        TIME_OUT, true);
+            } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
 
-        byte[] data = SerializationUtil.transformToThrift(geoData);
-        LocalizationFile lf = pathMgr.getLocalizationFile(context,
-                GeospatialFactory.GEO_DIR + fileName);
-        lf.write(data);
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationContext context = pathMgr.getContext(
+                    LocalizationType.COMMON_STATIC,
+                    LocalizationLevel.CONFIGURED);
+            context.setContextName(site);
 
-        curTime.setFileName(fileName);
-        times.put(curTime.getMetaData(), curTime);
+            byte[] data = SerializationUtil.transformToThrift(geoData);
+            LocalizationFile lf = pathMgr.getLocalizationFile(context,
+                    GeospatialFactory.GEO_DIR + fileName);
+            lf.write(data);
 
-        GeospatialTimeSet set = new GeospatialTimeSet();
-        set.setData(new ArrayList<GeospatialTime>(times.values()));
-        String xml = jaxb.marshalToXml(set);
+            curTime.setFileName(fileName);
+            times.put(curTime.getMetaData(), curTime);
 
-        lf = pathMgr.getLocalizationFile(context,
-                GeospatialFactory.METADATA_FILE);
-        lf.write(xml.getBytes());
+            GeospatialTimeSet set = new GeospatialTimeSet();
+            set.setData(new ArrayList<GeospatialTime>(times.values()));
+            String xml = jaxb.marshalToXml(set);
+
+            lf = pathMgr.getLocalizationFile(context,
+                    GeospatialFactory.METADATA_FILE);
+            lf.write(xml.getBytes());
+        } finally {
+            if (ct != null) {
+                ClusterLockUtils.unlock(ct, false);
+            }
+        }
     }
 
-    private static void deleteGeomFiles(String site, GeospatialTime time) {
+    private void deleteGeomFiles(String site, GeospatialTime time) {
         String fileName = time.getFileName();
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
@@ -692,8 +888,32 @@ public class GeospatialDataGenerator {
         }
     }
 
-    private static final String generateGeoDataFilename(
-            GeospatialMetadata metaData) {
+    private String generateGeoDataFilename(GeospatialMetadata metaData) {
         return metaData.getAreaSource() + "_" + metaData.hashCode() + ".bin";
+    }
+
+    private String getTimeStamp(GeospatialTime curTime,
+            GeospatialTime lastRunTime) {
+        long tmStampMs = 0;
+        if (lastRunTime != null) {
+            if (curTime.getAreaSourceTime() != lastRunTime.getAreaSourceTime()) {
+                tmStampMs = curTime.getAreaSourceTime();
+            } else if (curTime.getParentSourceTime() != lastRunTime
+                    .getParentSourceTime()) {
+                tmStampMs = curTime.getParentSourceTime();
+            } else if (curTime.getTimeZoneSourceTime() != lastRunTime
+                    .getTimeZoneSourceTime()) {
+                tmStampMs = curTime.getTimeZoneSourceTime();
+            }
+        } else {
+            tmStampMs = curTime.getAreaSourceTime();
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        calendar.setTimeInMillis(tmStampMs);
+        return sdf.format(calendar.getTime());
     }
 }

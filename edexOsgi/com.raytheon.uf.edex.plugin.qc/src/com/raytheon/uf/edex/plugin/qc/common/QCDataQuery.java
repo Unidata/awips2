@@ -30,12 +30,12 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.qc.internal.QCPaths;
 import com.raytheon.uf.common.message.response.ResponseMessageCatalog;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.plugin.qc.dao.QCDao;
+import com.raytheon.uf.edex.plugin.qc.internal.QCPaths;
 import com.raytheon.uf.edex.pointdata.PointDataQuery;
 
 /**

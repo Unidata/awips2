@@ -21,20 +21,6 @@
 
 	<camelContext id="handleoupAckMgrContext" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
-		<route id="oupAckMGrRoute">
-			<from uri="jms-generic:topic:mhs.ackmgr" />
-			<doTry>
-				<bean ref="oupAckMgr" method="processAck" />
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:oup?level=INFO"/>
-				</doCatch>
-			</doTry>
-		</route>
-	</camelContext>
-	
-	<camelContext id="handleoupFilePushContext" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler">
 		<!-- Non clustered, specifically used by handleOUP.py to push published 
 			files directly into stream -->
 		<!-- This route does not delete the file passed! If delete is needed, create 
@@ -50,11 +36,21 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:manual?level=ERROR&amp;showBody=true" />
+						uri="log:oup?level=ERROR&amp;showBody=true" />
 				</doCatch>
 			</doTry>
 		</route>
 
+        <route id="oupAckMGrRoute">
+            <from uri="jms-generic:topic:mhs.ackmgr" />
+            <doTry>
+                <bean ref="oupAckMgr" method="processAck" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:oup?level=INFO"/>
+                </doCatch>
+            </doTry>
+        </route>
 	</camelContext>
 
 </beans>

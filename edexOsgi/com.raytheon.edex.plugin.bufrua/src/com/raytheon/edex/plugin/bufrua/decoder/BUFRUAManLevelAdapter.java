@@ -19,8 +19,6 @@
  **/
 package com.raytheon.edex.plugin.bufrua.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,8 +31,9 @@ import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.pointdata.Dimension;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -48,6 +47,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Mar 03, 2008  969      jkorman     Initial implementation.
  * Dec 05, 2013  2612     bsteffen    Fix max wind decoding.
  * Dec 17, 2013  2639     bsteffen    Validate mandatory level heights.
+ * Sep 16, 2014  3628     mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -131,7 +131,8 @@ public class BUFRUAManLevelAdapter extends AbstractBUFRUAAdapter {
         }
 
         if ((dataPoint instanceof BUFRSublistPacket)
-                && (RepSubList.getPacketType().equals(dataPoint.getUnits()))) {
+                && (DataPacketTypes.RepSubList.getPacketType().equals(dataPoint
+                        .getUnits()))) {
             List<IBUFRDataPacket> datList = (List<IBUFRDataPacket>) dataPoint
                     .getValue();
             int manIdx = 0;
@@ -221,7 +222,8 @@ public class BUFRUAManLevelAdapter extends AbstractBUFRUAAdapter {
         }
 
         if ((dataPoint instanceof BUFRSublistPacket)
-                && (RepSubList.getPacketType().equals(dataPoint.getUnits()))) {
+                && (DataPacketTypes.RepSubList.getPacketType().equals(dataPoint
+                        .getUnits()))) {
             List<IBUFRDataPacket> datList = (List<IBUFRDataPacket>) dataPoint
                     .getValue();
             int maxWindIdx = 0;

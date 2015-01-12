@@ -27,7 +27,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02/08/13        1447          dgilling       Initial Creation.
-#    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency 
+#    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency
+#    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
 # 
 #
 
@@ -47,6 +48,9 @@ import siteConfig
 import VTECPartners
 import VTECTableSqueeze
 import iscUtil
+
+from com.raytheon.uf.common.activetable import VTECPartners as JavaVTECPartners
+
 
 # Configuration Item for Test Purposes
 FORCE_SEND = False   #Set to True to always send even if no updates required.
@@ -88,10 +92,12 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
     filtTable = []
     # filter by sites listing
     if filterSites:
+        tpcSites = JUtil.javaObjToPyVal(JavaVTECPartners.getInstance(myServerSite).getTpcSites())
+        spcSites = JUtil.javaObjToPyVal(JavaVTECPartners.getInstance(myServerSite).getSpcSites())
+        
         for t in table:
             if t['oid'] in filterSites or t['oid'][1:4] in sites or \
-              t['oid'] == VTECPartners.VTEC_SPC_SITE or \
-              t['oid'] == VTECPartners.VTEC_TPC_SITE:
+              t['oid'] in tpcSites or t['oid'] in spcSites:
                 filtTable.append(t)
     else:
         filtTable = table   #no filtering

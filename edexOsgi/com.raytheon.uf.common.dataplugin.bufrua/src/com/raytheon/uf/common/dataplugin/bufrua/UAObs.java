@@ -20,21 +20,10 @@
 package com.raytheon.uf.common.dataplugin.bufrua;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Velocity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -52,7 +41,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -63,7 +51,6 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -77,24 +64,25 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 27, 2007 382        jkorman     Initial Coding.
- * Jan 04, 2008 712        jkorman     Lat/Lon were set incorrectly.
- * Jan 07, 2008 720        jkorman     remove default assignments from
- *                                     attributes.
- * Jan 08, 2008 382        jkorman     Added IVerticalSoundingCreator impl.
- * Jan 14, 2008 763        jkorman     Added &quot;below&quot; ground level
- *                                     exclusion to  getValue.
- * Apr 04, 2013 1846       bkowal      Added an index on refTime and
- *                                     forecastTime
- * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869       bsteffen    Remove dataURI column from
- *                                     PluginDataObject.
- * Jun 20, 2013 2128       bsteffen    Ensure setDataURI sets the dataURI.
- * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
- *                                     bufrua.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 27, 2007  382      jkorman     Initial Coding.
+ * Jan 04, 2008  712      jkorman     Lat/Lon were set incorrectly.
+ * Jan 07, 2008  720      jkorman     remove default assignments from
+ *                                    attributes.
+ * Jan 08, 2008  382      jkorman     Added IVerticalSoundingCreator impl.
+ * Jan 14, 2008  763      jkorman     Added &quot;below&quot; ground level
+ *                                    exclusion to  getValue.
+ * Apr 04, 2013  1846     bkowal      Added an index on refTime and
+ *                                    forecastTime
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from
+ *                                    PluginDataObject.
+ * Jun 20, 2013  2128     bsteffen    Ensure setDataURI sets the dataURI.
+ * Jul 19, 2013  1992     bsteffen    Remove redundant time columns from
+ *                                    bufrua.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -114,7 +102,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class UAObs extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -138,41 +126,6 @@ public class UAObs extends PersistablePluginDataObject implements
     };
 
     public static final String PLUGIN_NAME = "bufrua";
-
-    public static final Unit<Length> DISTANCE_UNIT = SI.METER;
-
-    public static final Unit<Temperature> TEMPERATURE_UNIT = SI.KELVIN;
-
-    public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
-
-    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put("GH", UA_GEOHGT);
-        PARM_MAP.put("Px", UA_PRESSURE);
-
-        PARM_MAP.put("T", SFC_TEMP);
-        PARM_MAP.put("DpT", SFC_DWPT);
-
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-    }
-
-    public static final String UA_PARAM_PTRN = ".*:PRESS=\\d{2,4}";
-
-    // Non persisted value. Hold the last requested parameter name.
-    @Transient
-    private String parameterName = null;
-
-    // Non persisted value. Hold the last requested level value.
-    @Transient
-    private Integer levelId;
 
     // The observation report type.
     @DataURI(position = 1)
@@ -533,28 +486,6 @@ public class UAObs extends PersistablePluginDataObject implements
     }
 
     /**
-     * Set the data uri for this observation.
-     * 
-     * @param A
-     *            data uri.
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
-    /**
      * 
      */
     @Override
@@ -568,203 +499,6 @@ public class UAObs extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public String getString(String paramName) {
-        if ("STA".matches(paramName)) {
-            return this.getStationId();
-        }
-        return null;
-    }
-
-    /**
-     * Get the value and units of a named parameter within this observation. The
-     * parameter name may include level information for these observation data.
-     * The format for parameter is:
-     * 
-     * <pre>
-     *    &quot;parameterName&quot; may be one of 
-     *        &quot;GH&quot;  geopotential height
-     *        &quot;Px&quot;  pressure
-     *        &quot;T&quot;   temperature
-     *        &quot;DpT&quot; dewpoint
-     *        &quot;WS&quot;  wind speed
-     *        &quot;WD&quot;  wind direction
-     *    followed by a level specification &quot;:PRESS=xxxx&quot; where xxxx is a level
-     *    in hPa (millibars). To retrieve the temperature from the 850hPa level
-     *    use the following getValue(&quot;T:PRESS=850&quot;);
-     *    
-     *    Some data is specific to the observation, latitude/longitude for
-     *    example. These data may be retrieved using the parameter minus any level
-     *    information as follows
-     *    &quot;NLAT&quot;  station latitude
-     *    &quot;NLON&quot;  station longitude
-     * </pre>
-     * 
-     * If the sounding data defines a surface level, and a request for a level
-     * below surface is requested, a null value is returned.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return An Amount with value and units. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-
-        if (parseParameter(paramName)) {
-            String pName = PARM_MAP.get(parameterName);
-            if ((pName != null) && (levels != null) && (levels.size() > 0)) {
-
-                UAObsLevel obsLevel = getLevel(levelId);
-                if (obsLevel != null) {
-                    Integer iValue = null;
-                    Double dValue = null;
-                    if (UA_GEOHGT.equals(pName)) {
-                        iValue = obsLevel.getGeoHeight();
-                        if (iValue != null) {
-                            a = new Amount(iValue, DISTANCE_UNIT);
-                        }
-                    } else if (SFC_TEMP.equals(pName)) {
-                        dValue = obsLevel.getTemp();
-                        if (dValue != null) {
-                            a = new Amount(dValue, TEMPERATURE_UNIT);
-                        }
-                    } else if (SFC_DWPT.equals(pName)) {
-                        dValue = obsLevel.getDwpt();
-                        if (dValue != null) {
-                            a = new Amount(dValue, TEMPERATURE_UNIT);
-                        }
-                    } else if (SFC_WNDSPD.equals(pName)) {
-                        dValue = obsLevel.getWindSpeed();
-                        if (dValue != null) {
-                            a = new Amount(dValue, WIND_SPEED_UNIT);
-                        }
-                    } else if (SFC_WNDDIR.equals(pName)) {
-                        iValue = obsLevel.getWindDirection();
-                        if (iValue != null) {
-                            a = new Amount(iValue, WIND_DIR_UNIT);
-                        }
-                    }
-                }
-            }
-        } else {
-            // Assume we are trying to get an observation attribute.
-            String pName = PARM_MAP.get(paramName);
-            if (STA_LAT.equals(pName)) {
-                a = new Amount(this.getLatitude(), LOCATION_UNIT);
-            } else if (STA_LON.equals(pName)) {
-                a = new Amount(this.getLongitude(), LOCATION_UNIT);
-            }
-        }
-        return a;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    /**
-     * Determine if the parameter is a level request, and parse out the pressure
-     * level and parameter name if so.
-     * 
-     * @param parameter
-     *            The parameter string to parse.
-     * @return This is a level parameter.
-     */
-    private boolean parseParameter(String parameter) {
-        boolean goodParse = false;
-        Pattern p = Pattern.compile(UA_PARAM_PTRN);
-        Matcher m = p.matcher(parameter);
-        if (m.find()) {
-            int start = parameter.indexOf(":PRESS=");
-            if (start > 0) {
-                parameterName = parameter.substring(0, start);
-                start += ":PRESS=".length();
-                levelId = Integer.parseInt(parameter.substring(start));
-            }
-            goodParse = true;
-        }
-        return goodParse;
-    }
-
-    /**
-     * Get a specified pressure level data if it exists. If the specified level
-     * is below the declared surface pressure a null reference is returned.
-     * 
-     * @param level
-     *            A pressure level to get.
-     * @return The requested level, if found, null reference if not.
-     */
-    private UAObsLevel getLevel(Integer level) {
-        UAObsLevel retValue = null;
-        if (level != null) {
-            level = level * 100;
-            for (UAObsLevel l : levels) {
-                if (IDecoderConstants.MANPRE_LEVEL.equals(l.getVertSig())
-                        || IDecoderConstants.SIGPRE_LEVEL
-                                .equals(l.getVertSig())) {
-
-                    if (level.equals(l.getPressure())) {
-                        retValue = l;
-                        break;
-                    }
-                }
-            }
-        }
-        if (retValue != null) {
-            UAObsLevel sfc = getSurfaceLevel();
-            if (sfc != null) {
-                if (LayerTools.isLowerThan(sfc, retValue)) {
-                    retValue = null;
-                }
-            }
-        }
-        return retValue;
-    }
-
-    /**
-     * Get the defined surface level. If a surface level cannot be found, then
-     * return null.
-     * 
-     * @return The surface level found, or null.
-     */
-    private UAObsLevel getSurfaceLevel() {
-        UAObsLevel retValue = null;
-        if (levels != null) {
-            for (UAObsLevel level : levels) {
-                if (IDecoderConstants.SFC_LEVEL.equals(level.getVertSig())) {
-                    retValue = level;
-                    break;
-                }
-            }
-        }
-        return retValue;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override

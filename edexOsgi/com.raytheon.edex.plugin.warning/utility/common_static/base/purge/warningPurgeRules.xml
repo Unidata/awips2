@@ -6,14 +6,14 @@
     </defaultRule>
     <rule>
         <keyValue>FA.Y</keyValue>
-        <period>05-00:00:00</period>
+        <period>20-00:00:00</period>
     </rule>
     <rule>
         <keyValue>FA.W</keyValue>
-        <period>05-00:00:00</period>
+        <period>20-00:00:00</period>
     </rule>
     <rule>
         <keyValue>FF.W</keyValue>
-        <period>05-00:00:00</period>
+        <period>20-00:00:00</period>
     </rule>
 </purgeRuleSet>

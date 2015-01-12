@@ -24,7 +24,6 @@ import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.ASCII_LF;
 import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.ASCII_SP;
 import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_ERROR;
 import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_MISSING;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.WMO_HEADER;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +48,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     encoding/decoding errors.                                      
  * 20070912            379 jkorman     Code review cleanup.
  * 20071003            391 jkorman     Factored out isEqual method from decoders.
+ * Sep 18, 2014       3627 mapeters    Removed unused methods/fields.
  * </pre>
  * 
  * @author jkorman
@@ -58,40 +58,7 @@ public class DecoderTools {
     //
     public static final double CEL_TO_KELVIN_OFFSET = 273.15;
 
-    public static final String NO_DATA_MSG = "NODATA:";
-
     public static final String INGEST_FILE_NAME = "ingestfilename";
-
-    /**
-     * Aligns input data to the starting position of the WMO header. In the
-     * event that the header could not be found, the original data is returned.
-     * All leading data up to the beginning of the WMO header is removed.
-     * 
-     * @param messageData
-     *            The input data to search.
-     * @return The message data with leading data removed.
-     */
-    public static byte[] isolateWMOHeader(byte[] messageData) {
-        byte[] retMessage = null;
-
-        String s = new String(messageData);
-
-        Pattern p = Pattern.compile(WMO_HEADER);
-
-        Matcher m = p.matcher(s);
-        if (m.find()) {
-            int dlen = s.length() - m.start();
-            if (dlen > 0) {
-                retMessage = new byte[dlen];
-                System.arraycopy(messageData, m.start(), retMessage, 0, dlen);
-            } else {
-                retMessage = messageData;
-            }
-        } else {
-            retMessage = messageData;
-        }
-        return retMessage;
-    }
 
     /**
      * Attempt to find the start of the data. If the pattern is found all data
@@ -170,204 +137,6 @@ public class DecoderTools {
             }
         }
         return retMessage;
-    }
-
-    /**
-     * Are two objects equal to each other.
-     * 
-     * @param first
-     *            First object to compare.
-     * @param second
-     *            Second object to compare.
-     * @return Are the objects equal.
-     */
-    public static boolean isEqual(Object first, Object second) {
-        // are both pointing to the same object or both null?
-        boolean retValue = (first == second);
-
-        if (!retValue) {
-            if (first == null) {
-                // we can do this because only one of the operands is null!
-                retValue = isEqual(second, first);
-            } else {
-                retValue = first.equals(second);
-            }
-        }
-        return retValue;
-    }
-
-    /**
-     * Convert decoded Celsius to Kelvin. For example a value of 102 with a sign
-     * of -1, and scale of 10 gives a value of 10.2 converted to Kelvin as
-     * 283.33.
-     * 
-     * @param value
-     *            The raw decoded value.
-     * @param sign
-     *            The sign of the data. 1 or -1.
-     * @param scale
-     *            A scale value that will be used when value must be scaled.
-     * @return Calculated Kelvin temperature.
-     */
-    public static double celsiusToKelvin(int value, int sign, double scale) {
-        return ((value * sign) / scale) + CEL_TO_KELVIN_OFFSET;
-    }
-
-    /**
-     * Convert decoded Celsius to Kelvin. For example a value of 102 with a sign
-     * of -1, and scale of 10 gives a value of 10.2 converted to Kelvin as
-     * 283.33.
-     * 
-     * @param value
-     *            The raw decoded value.
-     * @param sign
-     *            The sign of the data. 1 or -1.
-     * @param scale
-     *            A scale value that will be used when value must be scaled.
-     * @return Calculated Kelvin temperature.
-     */
-    public static double celsiusToKelvin(double value, int sign, double scale) {
-        return ((value * sign) / scale) + CEL_TO_KELVIN_OFFSET;
-    }
-
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    public static Double celsiusToFahrenheit(Double value) {
-        Double temp = null;
-        if (value != null) {
-            temp = (9.0 / 5.0 * value) + 32.0;
-        }
-        return temp;
-    }
-
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    public static Double fahrenheitToCelsius(Double value) {
-        Double temp = null;
-        if (value != null) {
-            temp = (value - 32.0) * 5.0 / 9.0;
-        }
-        return temp;
-    }
-
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    public static Double celsiusToKelvin(Double value) {
-        Double temp = null;
-        if (value != null) {
-            temp = value + CEL_TO_KELVIN_OFFSET;
-        }
-        return temp;
-    }
-
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    public static Double kelvinToCelsius(Double value) {
-        Double temp = null;
-        if (value != null) {
-            temp = value - CEL_TO_KELVIN_OFFSET;
-        }
-        return temp;
-    }
-
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    public static Double inToPa(Double value) {
-        Double temp = null;
-        if (value != null) {
-            temp = value * 3386.0;
-        }
-        return temp;
-    }
-
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    public static Double paToIn(Double value) {
-        Double temp = null;
-        if (value != null) {
-            temp = value / 3386.0;
-        }
-        return temp;
-    }
-
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    public static Double hPaToPa(Double value) {
-        Double temp = null;
-        if (value != null) {
-            temp = value * 100.0;
-        }
-        return temp;
-    }
-
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    public static Double paTohPa(Double value) {
-        Double temp = null;
-        if (value != null) {
-            temp = value / 100.0;
-        }
-        return temp;
-    }
-
-    /**
-     * Convert a wind speed in knots to meters per second.
-     * 
-     * @param value
-     *            A value in knots.
-     * @return Speed converted to meters per second.
-     */
-    public static Double ktsToMSec(Double value) {
-        Double speed = null;
-        if (value != null) {
-            speed = value * 0.514444D;
-        }
-        return speed;
-    }
-
-    /**
-     * Convert a wind speed in knots to meters per second.
-     * 
-     * @param value
-     *            A value in knots.
-     * @return Speed converted to meters per second.
-     */
-    public static double knotsToMSec(double value) {
-        return value * 0.514444D;
-    }
-
-    /**
-     * Convert a pressure in hectoPascals to Pascals.
-     * 
-     * @param value
-     * @return
-     */
-    public static double hPaToPascals(int value) {
-        return value * 10.0D;
     }
 
     /**

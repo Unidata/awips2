@@ -21,20 +21,20 @@ package com.raytheon.uf.common.dataplugin.radar.level3;
 
 import java.util.Date;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Object representation of the alert message radar product(productCode 9).
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            mnash     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 04, 2011           mnash       Initial creation
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -43,7 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class AlertMessage implements ISerializableObject {
+public class AlertMessage {
 
     public enum AlertCategory {
         Empty, GRID_Velocity, GRID_Composite_Reflectivity, GRID_Echo_Tops, GRID_Severe_Weather_Probability, GRID_Spare, GRID_Vertically_Integrated_Liquid, VOLUME_Velocity_Azimuth_Display, VOLUME_Minimum_Size_Hail, VOLUME_Spare, VOLUME_Tornado_Vortex_Signature, VOLUME_Maximum_Storm_Reflectivity, VOLUME_Probability_of_Hail, VOLUME_Storm_Top, VOLUME_Maximum_1_Hour_Rainfall_Accumulation, VOLUME_MDA_Strength_Rank, VOLUME_Spare1, FORECAST_Maximum_Hail_Size, FORECAST_Spare, FORECAST_Tornado_Vortex_Signature, FORECAST_Maximum_Storm_Reflectivity, FORECAST_Probability_of_Hail, FORECAST_Probability_of_Severe_Hail, FORECAST_Storm_Top, FORECAST_MDA_Strength_Rank, FORECAST_Spare1

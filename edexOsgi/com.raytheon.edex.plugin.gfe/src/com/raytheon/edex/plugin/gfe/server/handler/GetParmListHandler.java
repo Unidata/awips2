@@ -38,7 +38,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 04/08/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
  * 05/02/13     #1969      randerso    Fixed null pointer if getParmList fails
- * 06/13/13     2044       randerso     Refactored to use IFPServer
+ * 06/13/13     #2044      randerso    Refactored to use IFPServer
+ * 09/23/14     #3648      randerso    Changed to send results even if some DbIds fail
  * </pre>
  * 
  * @author bphillip
@@ -52,6 +53,8 @@ public class GetParmListHandler extends BaseGfeRequestHandler implements
 
         List<ParmID> retVal = new ArrayList<ParmID>();
         ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
+        sr.setPayload(retVal);
+
         for (DatabaseID id : request.getDbIds()) {
             ServerResponse<List<ParmID>> ssr = getIfpServer(request)
                     .getGridParmMgr().getParmList(id);
@@ -60,9 +63,6 @@ public class GetParmListHandler extends BaseGfeRequestHandler implements
             } else {
                 sr.addMessages(ssr);
             }
-        }
-        if (sr.isOkay()) {
-            sr.setPayload(retVal);
         }
         return sr;
     }

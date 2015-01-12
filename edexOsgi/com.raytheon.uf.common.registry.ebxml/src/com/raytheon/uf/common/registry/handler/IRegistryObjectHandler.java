@@ -37,6 +37,7 @@ import com.raytheon.uf.common.registry.annotations.RegistryObject;
  * Sep 17, 2012 1169       djohnson     Initial creation
  * Sep 21, 2012 1187       djohnson     Add bulk delete operations.
  * Oct 05, 2012 1195       djohnson     Remove executeQuery method, add getById.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -71,7 +72,7 @@ public interface IRegistryObjectHandler<T> {
      * @param obj
      *            the object to store
      */
-    void store(T obj) throws RegistryHandlerException;
+    void store(String username, T obj) throws RegistryHandlerException;
 
     /**
      * Delete a {@link RegistryObject}.
@@ -80,7 +81,7 @@ public interface IRegistryObjectHandler<T> {
      *            the object to store
      * @throws RegistryHandlerException
      */
-    void update(T obj) throws RegistryHandlerException;
+    void update(String username, T obj) throws RegistryHandlerException;
 
     /**
      * Delete a {@link RegistryObject}.

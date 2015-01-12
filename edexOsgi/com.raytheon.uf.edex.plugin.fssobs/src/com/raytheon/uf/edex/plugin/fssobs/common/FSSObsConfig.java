@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.plugin.fssobs.common;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -29,7 +30,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator;
 import com.raytheon.uf.edex.plugin.fssobs.FSSObsGenerator;
-import com.raytheon.uf.edex.plugin.fssobs.FSSObsURIGenrtMessage;
 import com.raytheon.uf.edex.plugin.fssobs.FSSObsUtils;
 
 /**
@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.plugin.fssobs.FSSObsUtils;
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2010            skorolev    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUse from data set.
  * 
  * </pre>
  * 
@@ -59,24 +60,26 @@ public class FSSObsConfig {
      */
     private FSSObsGenerator fssgen = null;
 
-    private String cwa = null;
-
+    /**
+     * FSSObs data
+     */
     private FSSObsRecord tableRow;
-
-    private String monitorUse;
 
     /** The logger */
     protected transient final Log logger = LogFactory.getLog(getClass());
 
-    public FSSObsConfig(FSSObsURIGenrtMessage genMessage,
-            FSSObsGenerator generator) throws Exception {
+    public FSSObsConfig(URIGenerateMessage genMessage, FSSObsGenerator generator)
+            throws Exception {
 
         this.fssgen = generator;
-        this.cwa = genMessage.getCwa();
-        this.monitorUse = genMessage.getMonitorUse();
-
     }
 
+    /**
+     * Gets FSSObs data table row.
+     * 
+     * @param uri
+     * @return tableRow
+     */
     public FSSObsRecord getTableRow(String uri) {
         String dt = uri.substring(1)
                 .substring(0, uri.substring(1).indexOf("/"));
@@ -122,9 +125,6 @@ public class FSSObsConfig {
         tableRow.setSnowDepth(snowData[2]);
         tableRow.setWindChill(snowData[3]);
         tableRow.setFrostbiteTime(snowData[4]);
-
-        tableRow.setCwa(cwa);
-        tableRow.setMonitorUse(monitorUse);
         tableRow.setPlatformId(tableRow.getLocation().getStationId());
 
         return tableRow;
@@ -132,25 +132,17 @@ public class FSSObsConfig {
     }
 
     /**
-     * @param monitorUse
-     *            the monitorUse to set
+     * Gets CPG generator
+     * 
+     * @return cpg generator
      */
-    public void setMonitorUse(String monitorUse) {
-        this.monitorUse = monitorUse;
-    }
-
-    /**
-     * @return the monitorUse
-     */
-    public String getMonitorUse() {
-        return monitorUse;
-    }
-
     public CompositeProductGenerator getGenerator() {
         return fssgen;
     }
 
     /**
+     * Sets FSSObs data table row.
+     * 
      * @param tableRow
      *            the tableRow to set
      */

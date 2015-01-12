@@ -26,7 +26,7 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.wmo.message.WMOHeaderFinder;
+import com.raytheon.uf.common.wmo.WMOHeaderFinder;
 
 /**
  * The ModelSoundingSeparator takes a potential weather message and attempts to

@@ -13,6 +13,16 @@
 	<!-- SUBCENTER 0 -->
 
 	<model>
+		<name>cmcHR</name>
+		<center>53</center>
+		<subcenter>0</subcenter>
+		<grid>493399001</grid>
+		<process>
+			<id>36</id>
+		</process>
+	</model>
+
+	<model>
 		<name>CanadianModel</name>
 		<center>54</center>
 		<subcenter>0</subcenter>

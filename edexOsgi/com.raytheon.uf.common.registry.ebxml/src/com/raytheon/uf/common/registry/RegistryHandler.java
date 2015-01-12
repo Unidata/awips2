@@ -18,6 +18,7 @@ import com.raytheon.uf.common.registry.ebxml.IdQuery;
  * Aug 02, 2012 955        djohnson     Type-safe registry query/responses.
  * Aug 20, 2012 0743       djohnson     Finish making registry type-safe.
  * Sep 14, 2012 1169       djohnson     Must call specific method to allow replace of an object.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -109,7 +110,7 @@ public interface RegistryHandler {
      * @see Object
      * 
      */
-    <T> RegistryResponse<T> storeObject(T object);
+    <T> RegistryResponse<T> storeObject(String username, T object);
 
     /**
      * Store an Object to the registry, replacing any existing Object with the
@@ -126,6 +127,6 @@ public interface RegistryHandler {
      * @see Object
      * 
      */
-    <T> RegistryResponse<T> storeOrReplaceObject(T object);
+    <T> RegistryResponse<T> storeOrReplaceObject(String username, T object);
 
 }

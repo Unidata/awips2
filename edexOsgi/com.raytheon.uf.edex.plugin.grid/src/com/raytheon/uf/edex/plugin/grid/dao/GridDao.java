@@ -242,7 +242,7 @@ public class GridDao extends PluginDao {
             record.setInfo(GridInfoCache.getInstance().getGridInfo(
                     record.getInfo()));
         } catch (DataAccessLayerException e) {
-            statusHandler.handle(Priority.PROBLEM,
+            logger.handle(Priority.PROBLEM,
                     "Cannot load GridInfoRecord from DB for: "
                             + record.getDataURI(), e);
             return false;
@@ -398,14 +398,14 @@ public class GridDao extends PluginDao {
                 } else {
                     GridInfoCache.getInstance().purgeCache(
                             new ArrayList<Integer>(orphanedIds));
-                    statusHandler
+                    logger
                             .warn("Unable to purge model cache of clustered edices");
                 }
             }
         } catch (DataAccessLayerException e1) {
-            statusHandler.error("Error purging orphaned grid info entries", e1);
+            logger.error("Error purging orphaned grid info entries", e1);
         } catch (EdexException e) {
-            statusHandler.error(
+            logger.error(
                     "Error sending message to purge grid info topic", e);
         }
     }

@@ -65,6 +65,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
  *                                     spatial
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -94,7 +95,7 @@ public class GOESSounding extends PersistablePluginDataObject implements
 
     // The bounding box that contains this observation.
     @Column
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Type(type = "org.hibernate.spatial.GeometryType")
     @DynamicSerializeElement
     private Geometry boxGeometry;
 

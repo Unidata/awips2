@@ -8,7 +8,7 @@
 # Authors:  Virgil Middendorf (BYZ), Steve Sigler (MSO)                        #
 # Contributers: Ahmad Garabi, Ken Sargeant, Dave Pike, Dave Rosenberg,         #
 #               Tim Barker, Maureen Ballard, Jay Smith, Dave Tomalak,          #
-#               Evelyn Bersack, Juliya Dynina, Jianning Zeng                   #
+#               Evelyn Bersack, Juliya Dynina, Jianning Zeng, John McPherson   #
 #                                                                              #
 # Date of last revision:  04/22/13                                             #
 #                                                                              #
@@ -142,7 +142,10 @@
 #            the hard-coded path to /awips2/fxa/bin with $FXA_BIN.  Removed    #
 #            awips1 code.                                                      #
 # 11/02/12:  Restored error checking for AWIPS2.                               #
-# 04/22/13:  Update the permission of the log directories.                               #
+# 04/22/13:  Update the permission of the log directories.                     #
+# 02/24/14:  Create the file if rsync_parms.${site} is not available,          #
+#            and mkdir the site directory on the local rsync server if it      #
+#            does not exist.                                                   #
 ################################################################################
 # check to see if site id was passed as argument
 # if not then exit from the script
@@ -161,14 +164,18 @@ fi
 ################################################################################
 
 IFPS_DATA="/awips2/GFESuite/ServiceBackup/data"
+IFPS_CREATE_FILE="/awips2/GFESuite/bin"
 
 if [ ! -f ${IFPS_DATA}/rsync_parms.${site} ] ;then
-    echo "${IFPS_DATA}/rsync_parms.${site} does not exist!"
-    echo "Please contact your ITO to create this file from /awips2/GFESuite/bin/rsync_parms.ccc"
-    exit
-else
-    . ${IFPS_DATA}/rsync_parms.${site}
+    cp ${IFPS_CREATE_FILE}/rsync_parms.ccc ${IFPS_DATA}/rsync_parms.${site}
+       # Added above line for DR 16464, just create file if it does not exist, do not error off    
+       # echo "${IFPS_DATA}/rsync_parms.${site} does not exist!"
+       # echo "Please contact your ITO to create this file from /awips2/GFESuite/bin/rsync_parms.ccc"
+       # exit
 fi
+# else
+    . ${IFPS_DATA}/rsync_parms.${site}
+# fi
 
 ################################################################################
 
@@ -324,6 +331,11 @@ echo " " >> $LOG_FILE
 echo "space used in netcdf:  $(cd ${WRKDIR}; du -m --max-depth=1) mb" >> $LOG_FILE
 echo ... finished >> $LOG_FILE
 echo " " >> $LOG_FILE
+
+# if directory to write to is not on local rysnc server, create it. DR 16464
+if [ ! ssh ${locServer} 'ls "${locDirectory}" >/dev/null' ] ;then
+    ssh ${locServer} mkdir ${locDirectory}
+fi
 
 # Clean up orphaned files on the local rsync server.
 echo cleaning up orphaned files on $locServer in the ${locDirectory}/${site} directory at $(date) >> $LOG_FILE

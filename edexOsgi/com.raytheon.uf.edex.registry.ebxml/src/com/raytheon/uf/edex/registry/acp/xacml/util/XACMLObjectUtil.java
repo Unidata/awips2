@@ -34,6 +34,7 @@ import org.opensaml.xacml.ctx.impl.StatusCodeTypeImplBuilder;
 import org.opensaml.xacml.ctx.impl.StatusDetailTypeImplBuilder;
 import org.opensaml.xacml.ctx.impl.StatusMessageTypeImplBuilder;
 import org.opensaml.xacml.ctx.impl.StatusTypeImplBuilder;
+import org.opensaml.xacml.policy.impl.ObligationsTypeImplBuilder;
 
 import com.raytheon.uf.edex.registry.acp.xacml.conformance.IdentifierPrefixes;
 import com.raytheon.uf.edex.registry.acp.xacml.conformance.SchemaPrefixes;
@@ -50,6 +51,7 @@ import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLSyntaxException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/17/2012    724          bphillip    Initial Coding
+ * 7/10/2014    1717         bphillip    Set obligations on response object
  * </pre>
  * 
  * @author bphillip
@@ -168,6 +170,7 @@ public class XACMLObjectUtil {
             statusObj.setStatusDetail(statusDetailObj);
         }
         resultObj.setStatus(statusObj);
+        resultObj.setObligations(new ObligationsTypeImplBuilder().buildObject());
 
         // Return the response
         return resultObj;

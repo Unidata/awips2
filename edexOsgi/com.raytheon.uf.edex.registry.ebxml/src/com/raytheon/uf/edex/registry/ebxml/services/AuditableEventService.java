@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  *                                     only be run on a quartz timer
  * 12/2/2013    1829       bphillip    Now uses event bus for triggering auditable event generation
  * 01/21/2014   2613       bphillip    Changed how auditable events are created for deletes
+ * 7/28/2014    3474       dhladky     Fixed bad ownership settings.
  * 
  * </pre>
  * 
@@ -170,7 +171,7 @@ public class AuditableEventService {
         String objectId = RegistryUtil.generateRegistryObjectId();
         event.setId(objectId);
         event.setLid(objectId);
-        event.setOwner(RegistryUtil.DEFAULT_OWNER);
+        event.setOwner(RegistryUtil.registryUser);
         event.setObjectType(RegistryObjectTypes.AUDITABLE_EVENT);
         event.setRequestId(request.getId());
         event.setTimestamp(EbxmlObjectUtil

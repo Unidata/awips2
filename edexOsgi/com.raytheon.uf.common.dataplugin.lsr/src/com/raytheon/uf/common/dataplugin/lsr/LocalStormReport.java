@@ -30,8 +30,6 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -73,6 +71,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Dec 10, 2013 2581       njensen     Removed dataURI column
  * Jan 15, 2014 2581       njensen     Changed constraint to use officeId instead of stationId
  * Jan 30, 2014 2581       njensen     Added dataURI column back in
+ * Sep 16, 2014 2707       bclement    removed dataURI column, event type now string, added event units
  * 
  * </pre>
  * 
@@ -82,8 +81,8 @@ import com.vividsolutions.jts.geom.Geometry;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "lsrseq")
 @Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(columnNames = {
-// "latitude", "longitude", "officeId", "refTime", "forecastTime", "eventType"
-"dataURI" }) })
+        "latitude", "longitude", "officeId", "refTime", "forecastTime",
+        "eventType" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -118,7 +117,11 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     @DataURI(position = 1)
     @Column
     @DynamicSerializeElement
-    private LSREventType eventType;
+    private String eventType;
+
+    @Transient
+    @DynamicSerializeElement
+    private String eventUnits;
 
     // Correction indicator from wmo header
     @Column
@@ -210,7 +213,7 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     /**
      * @return the eventType
      */
-    public LSREventType getEventType() {
+    public String getEventType() {
         return eventType;
     }
 
@@ -218,8 +221,23 @@ public class LocalStormReport extends PersistablePluginDataObject implements
      * @param eventType
      *            the eventType to set
      */
-    public void setEventType(LSREventType eventType) {
+    public void setEventType(String eventType) {
         this.eventType = eventType;
+    }
+
+    /**
+     * @return the eventUnits
+     */
+    public String getEventUnits() {
+        return eventUnits;
+    }
+
+    /**
+     * @param eventUnits
+     *            the eventUnits to set
+     */
+    public void setEventUnits(String eventUnits) {
+        this.eventUnits = eventUnits;
     }
 
     /**
@@ -407,6 +425,7 @@ public class LocalStormReport extends PersistablePluginDataObject implements
      * 
      * @param dataURI
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void setDataURI(String dataURI) {
         super.setDataURI(dataURI);
@@ -441,7 +460,11 @@ public class LocalStormReport extends PersistablePluginDataObject implements
      * @return The geometry latitude.
      */
     public double getLatitude() {
-        return location.getLatitude();
+        if (location == null) {
+            return Double.NaN;
+        } else {
+            return location.getLatitude();
+        }
     }
 
     /**
@@ -450,7 +473,11 @@ public class LocalStormReport extends PersistablePluginDataObject implements
      * @return The geometry longitude.
      */
     public double getLongitude() {
-        return location.getLongitude();
+        if (location == null) {
+            return Double.NaN;
+        } else {
+            return location.getLongitude();
+        }
     }
 
     /**
@@ -459,7 +486,11 @@ public class LocalStormReport extends PersistablePluginDataObject implements
      * @return the stationId
      */
     public String getStationId() {
-        return location.getStationId();
+        if (location == null) {
+            return null;
+        } else {
+            return location.getStationId();
+        }
     }
 
     /**
@@ -502,9 +533,8 @@ public class LocalStormReport extends PersistablePluginDataObject implements
         }
         sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
         sb.append(String.format("%s:", cityLoc));
-        sb.append(String.format("%s:", eventType.getEventName()));
-        sb.append(String.format("%5.2f:%s", getMagnitude(), getEventType()
-                .getEventUnits()));
+        sb.append(String.format("%s:", eventType));
+        sb.append(String.format("%5.2f:%s", getMagnitude(), eventUnits));
         return sb.toString();
     }
 
@@ -513,10 +543,4 @@ public class LocalStormReport extends PersistablePluginDataObject implements
         return "lsr";
     }
 
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
-    }
 }

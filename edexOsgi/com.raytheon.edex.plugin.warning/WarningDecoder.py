@@ -41,6 +41,9 @@
 # Sep 12, 2013  2249     rferrel        When incoming file from warngen adjust
 #                                       start time from file's timestamp.
 # Oct 03, 2013  2402     bsteffen       Make PythonDecoder more extendable.
+# May 15, 2014  2536     bclement       moved WMO time parsing to WMOTimeParser
+# May 15, 2014  3157     dgilling       Update location of WclInfo class.
+# Jun 10, 2014  3268     dgilling       Update location of WclInfo class.
 
 # </pre>
 #
@@ -53,6 +56,7 @@ import copy
 import LogStream
 from ufpy import TimeUtil
 from com.raytheon.uf.edex.decodertools.time import TimeTools
+from com.raytheon.uf.common.wmo import WMOTimeParser
 
 ACCURATE_CITIES_PILS = ['CFW', 'FFA', 'NPW', 'RFW', 'WSW']
 
@@ -123,9 +127,9 @@ class StdWarningDecoder():
         if warningTimestamp is None :
             # present time
             self._time = time.time() + self._timeOffset
-            if TimeTools.allowArchive():
+            if WMOTimeParser.allowArchive():
                 try:
-                    yyyymmddhh = TimeTools.getTimestamp(self._incomingFilename)
+                    yyyymmddhh = WMOTimeParser.getTimestamp(self._incomingFilename)
                     if len(yyyymmddhh) < 10:
                         timeTuple = time.strptime(yyyymmddhh, "%Y%m%d")
                     else :
@@ -174,7 +178,7 @@ class StdWarningDecoder():
         if self._productPil[0:3] == "WCL":
             endpoint = "WCLWatch"
             # build a Java object for the warning
-            from com.raytheon.edex.plugin.gfe.wcl import WclInfo
+            from com.raytheon.edex.plugin.gfe.watch import WclInfo
             import JUtil
             lines = JUtil.pyValToJavaObj(self._lines)
             warning = WclInfo(long(self._issueTime * 1000),

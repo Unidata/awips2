@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.text.alarms;
 
 import java.util.Date;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep 29, 2009            mnash     Initial creation
  * 07Jul2010    2187       cjeanbap    Added operational mode flag.
  * May 23, 2012 14952      rferrel     Added refTime.
+ * May 15, 2014 2536       bclement    removed ISerializableObject
  * 
  * </pre>
  * 
@@ -45,7 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class AlarmAlertProduct implements ISerializableObject {
+public class AlarmAlertProduct {
 
     public enum ProductType {
         Alarm_Alert, Proximity_Alarm

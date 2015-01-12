@@ -9,7 +9,7 @@
 
     <camelContext id="mpeLightSrv-context"
                 xmlns="http://camel.apache.org/schema/spring"
-                errorHandlerRef="errorHandler">  
+                errorHandlerRef="errorHandler">
 
 				<endpoint id="mpeLightSrvCron" uri="clusteredquartz://pproc/mpeLightSrvScheduled/?cron=${mpelightningsrv.cron}"/>
 

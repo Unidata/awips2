@@ -43,18 +43,16 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.registry.RegistryException;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
 
 /**
- *
+ * 
  * Site Aware Registry
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 30, 2010            rjpeter     Initial creation
@@ -63,9 +61,11 @@ import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
  * Nov 1, 2012   15417     ryu         Modified getActiveSites to include
  *                                     home site only if activated.
  * Dec 11, 2012  14360     ryu         No printing stack trace on activation exception
- *
+ * Mar 10, 2014  2721      randerso    Fix error when activeSites.txt contains blank lines.
+ * Jul 10, 2014  2914      garmendariz Remove EnvProperties
+ * 
  * </pre>
- *
+ * 
  * @author rjpeter
  * @version 1.0
  */
@@ -92,8 +92,7 @@ public class SiteAwareRegistry {
         loadActiveSites();
 
         // initialize default site
-        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
-        String defaultSite = env.getEnvValue("SITENAME");
+        String defaultSite = EDEXUtil.getEdexSite();
         if (!activeSites.contains(defaultSite)) {
             activeSites.add(defaultSite);
         }
@@ -101,7 +100,7 @@ public class SiteAwareRegistry {
 
     /**
      * registers/adds site activation listeners
-     *
+     * 
      * @param sa
      *            the listener to register / add to the list
      */
@@ -135,15 +134,14 @@ public class SiteAwareRegistry {
 
     /**
      * get the set of strings for the active sites
-     *
+     * 
      * @return the requested array of Strings this is a string array to make it
      *         work with dwr frontend, most of the other stuff is Set<String>
      */
     public String[] getActiveSites() {
         // make a set of the strings for each listener site
         Set<String> tmp = new LinkedHashSet<String>();
-        String mySite = PropertiesFactory.getInstance().getEnvProperties()
-                .getEnvValue("SITENAME");
+        String mySite = EDEXUtil.getEdexSite();
         for (ISiteActivationListener sa : activationListeners) {
             if (sa.getActiveSites().contains(mySite)) {
                 tmp.add(mySite);
@@ -157,7 +155,7 @@ public class SiteAwareRegistry {
 
     /**
      * Checks to see if the given site is active
-     *
+     * 
      * @param site
      *            The site to check
      * @return True if the site is active, else false
@@ -183,7 +181,7 @@ public class SiteAwareRegistry {
 
     /**
      * activate the site specified in each listener
-     *
+     * 
      * @param siteID
      */
     public void activateSite(String siteID) {
@@ -204,7 +202,7 @@ public class SiteAwareRegistry {
 
     /**
      * deactivate the site specified in each listener
-     *
+     * 
      * @param siteID
      */
     public void deactivateSite(String siteID) {
@@ -224,7 +222,7 @@ public class SiteAwareRegistry {
 
     /**
      * cycle the site specified in each listener
-     *
+     * 
      * @param siteID
      */
     public void cycleSite(String siteID) {
@@ -297,7 +295,10 @@ public class SiteAwareRegistry {
                 in = new BufferedReader(new FileReader(file));
                 String site;
                 while ((site = in.readLine()) != null) {
-                    activeSites.add(site);
+                    site = site.trim();
+                    if (!site.isEmpty()) {
+                        activeSites.add(site);
+                    }
                 }
             }
         } catch (IOException e) {

@@ -19,15 +19,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.bufrascat" />
 	</bean>
 
-	<bean id="bufrascatCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="bufrascat-camel"/>
-  	</bean>  
-
     <camelContext id="bufrascat-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         <!--
         <endpoint id="bufrascatFileEndpoint" uri="file:${edex.home}/data/sbn/bufrascat?noop=true&amp;idempotent=false" />
 

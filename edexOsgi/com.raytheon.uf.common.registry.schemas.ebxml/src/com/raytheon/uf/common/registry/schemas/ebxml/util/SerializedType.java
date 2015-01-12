@@ -29,6 +29,7 @@ import java.sql.Types;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -44,6 +45,7 @@ import org.hibernate.usertype.UserType;
  * Oct 31, 2013 2361      njensen      Use specific JAXBManager instead of SerializationUtil
  * Nov 14, 2013 2552      bkowal       EbxmlJaxbManager is now accessed via getInstance 
  * Dec 04, 2013 2584      dhladky      Version based EbxmlJaxbManager
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -89,9 +91,10 @@ public class SerializedType implements UserType {
     }
 
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
+    public Object nullSafeGet(ResultSet rs, String[] names,
+            SessionImplementor session, Object owner)
             throws HibernateException, SQLException {
-        String obj = resultSet.getString(names[0]);
+        String obj = rs.getString(names[0]);
 
         if (obj != null) {
             try { // We always marshall to current version for to XML conversions
@@ -106,18 +109,19 @@ public class SerializedType implements UserType {
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement statement, Object value, int index)
-            throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, Object value, int index,
+            SessionImplementor session) throws HibernateException, SQLException {
         if (value == null) {
-            statement.setString(index, null);
+            st.setString(index, null);
         } else {
             try { // We always marshall to current version for to XML conversions
-                statement.setString(index, EbxmlJaxbManager.getInstance()
+                st.setString(index, EbxmlJaxbManager.getInstance()
                         .getJaxbManager().marshalToXml(value));
             } catch (Exception e) {
                 throw new HibernateException("Error storing AnyType data", e);
             }
         }
+        
     }
 
     @Override
@@ -135,5 +139,4 @@ public class SerializedType implements UserType {
     public int[] sqlTypes() {
         return SerializedType.SQL_TYPES;
     }
-
 }

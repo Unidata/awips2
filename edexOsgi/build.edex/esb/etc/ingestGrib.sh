@@ -19,11 +19,8 @@
 # further licensing information.
 ##
 export INIT_MEM=128 # in Meg
-export MAX_MEM=2048 # in Meg
+export MAX_MEM=512 # in Meg
 
-export JMS_POOL_MIN=4
-export JMS_POOL_MAX=16
-export METADATA_POOL_MIN=4
 export METADATA_POOL_MAX=10
 export EDEX_DEBUG_PORT=5007
 export EDEX_JMX_PORT=1618

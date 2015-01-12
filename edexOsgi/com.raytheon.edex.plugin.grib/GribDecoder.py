@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+# SOFTWARE HISTORY
+# 
+# Date         Ticket#    Engineer    Description
+# ------------ ---------- ----------- --------------------------
+# ???                                 Initial creation
+# Jul 07, 2014 3344       rferrel     Change GRID_FILL_VALUE to new plugin location.
+# 
 
 import grib2
 import numpy
@@ -49,7 +57,7 @@ from com.raytheon.uf.common.dataplugin.level import LevelFactory
 
 from com.raytheon.edex.plugin.grib.spatial import GribSpatialCache 
 from com.raytheon.edex.util.grib import GribTableLookup
-from com.raytheon.edex.util import Util
+from com.raytheon.uf.common.util import GridUtil
 
 from com.raytheon.edex.util.grib import GribParamTranslator
 
@@ -59,7 +67,7 @@ from com.raytheon.uf.common.parameter.mapping import ParameterMapper;
 
 # Static values for accessing parameter lookup tables
 PARAMETER_TABLE = "4.2"
-GENPROCESS_TABLE = "A"
+PROCESS_TYPE_TABLE = "4.3"
 LEVELS_TABLE = "4.5"
 DOT = "."
 MISSING = "Missing"
@@ -122,6 +130,9 @@ logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "E
 # Sep 06, 2013  2402     bsteffen    Switch to use file extents for multipart
 #                                    grib files.
 # Feb 11, 2014  2765     bsteffen    Better handling of probability parameters.
+# Apr 28, 2014  3084     bsteffen    Use full grid for looking up parameter aliases.
+# Aug 15, 2014  15699    MPorricelli Import GridUtil and update reference 
+#                                    to GRID_FILL_VALUE 
 #
 class GribDecoder():
 
@@ -301,6 +312,17 @@ class GribDecoder():
         modelName = self._createModelName(gribDict, gridCoverage)
         #check if forecast used flag needs to be removed
         self._checkForecastFlag(gribDict, gridCoverage, dataTime) 
+        # check parameter abbreivation mapping
+        parameterAbbreviation = gribDict['parameterAbbreviation']
+        newAbbr = GribParamTranslator.getInstance().translateParameter(2, parameterAbbreviation, gribDict['center'], gribDict['subcenter'], gribDict['genprocess'], dataTime, gridCoverage)
+        
+        if newAbbr is None:
+            if gribDict['parameterName'] != MISSING and dataTime.getValidPeriod().getDuration() > 0:
+               parameterAbbreviation = parameterAbbreviation + str(dataTime.getValidPeriod().getDuration() / 3600000) + "hr"
+        else:
+            parameterAbbreviation = newAbbr
+        parameterAbbreviation = parameterAbbreviation.replace('_', '-')  
+        
         # check sub gridding
         spatialCache = GribSpatialCache.getInstance()
         subCoverage = spatialCache.getSubGridCoverage(modelName, gridCoverage)
@@ -321,7 +343,7 @@ class GribDecoder():
                 subGridDataArray = numpy.zeros((subny, subnx), numpy.float32)
                 midx = nx - startx
                 subGridDataArray[0:subny, 0:midx] = numpyDataArray[starty:endY, startx:nx]
-                subGridDataArray[0:subny, midx:subnx] = Util.GRID_FILL_VALUE
+                subGridDataArray[0:subny, midx:subnx] = GridUtil.GRID_FILL_VALUE
                 numpyDataArray = subGridDataArray
             else:
                 numpyDataArray = numpyDataArray[starty:endY, startx:endX]
@@ -335,16 +357,6 @@ class GribDecoder():
             gridCoverage = subCoverage
 
         numpyDataArray = numpy.reshape(numpyDataArray, (1, gribDict['ngrdpts']))        
-        
-        parameterAbbreviation = gribDict['parameterAbbreviation']
-        newAbbr = GribParamTranslator.getInstance().translateParameter(2, parameterAbbreviation, gribDict['center'], gribDict['subcenter'], gribDict['genprocess'], dataTime, gridCoverage)
-        
-        if newAbbr is None:
-            if gribDict['parameterName'] != MISSING and dataTime.getValidPeriod().getDuration() > 0:
-               parameterAbbreviation = parameterAbbreviation + str(dataTime.getValidPeriod().getDuration() / 3600000) + "hr"
-        else:
-            parameterAbbreviation = newAbbr
-        parameterAbbreviation = parameterAbbreviation.replace('_', '-')  
         
         # Construct the GribRecord
         record = GridRecord()
@@ -429,6 +441,9 @@ class GribDecoder():
                     gribDict['parameterName'] = MISSING
                     parameterAbbreviation = MISSING
                     gribDict['parameterUnit'] = MISSING
+
+            processType = int(pdsTemplate[2])
+            gribDict['processType'] = str(GribTableLookup.getInstance().getTableValue(centerID, subcenterID, PROCESS_TYPE_TABLE, processType))
                 
             levelName = None;
             levelUnit = None;
@@ -475,6 +490,7 @@ class GribDecoder():
                 levelTwoValue=float(Level.getInvalidLevelValue())
               
             durationSecs = None
+            typeOfTimeInterval = None
               
             # Special case handling for specific PDS Templates
             if pdsTemplateNumber == 1 or pdsTemplateNumber == 11:
@@ -528,7 +544,7 @@ class GribDecoder():
                     #numTimeRanges = pdsTemplate[28]
                     #numMissingValues = pdsTemplate[29]
                     #statisticalProcess = pdsTemplate[30]
-                    
+                    typeOfTimeInterval = pdsTemplate[31]
                     durationSecs = self._convertToSeconds(pdsTemplate[33], pdsTemplate[32])
                             
                 scaledValue = None 
@@ -558,8 +574,10 @@ class GribDecoder():
                 #numMissingValues = pdsTemplate[23]
                 #statisticalProcess = pdsTemplate[24]
                 
+                typeOfTimeInterval = pdsTemplate[25]
                 durationSecs =  self._convertToSeconds(pdsTemplate[27], pdsTemplate[26])
                 
+
             if durationSecs is not None:
                 # This only applies for templates 9 and 10 which are not
                 # commonly used templates. For all other data the duration is
@@ -574,6 +592,14 @@ class GribDecoder():
                 # duration is correctly calculated.
                 refToEndSecs = (gribDict['endTime'].getTimeInMillis() - gribDict['refTime'].getTimeInMillis())/ 1000
                 gribDict['forecastTime'] = refToEndSecs - durationSecs
+
+            
+            if typeOfTimeInterval == 192 and centerID == 7 and subcenterID == 14:
+                # For TPC Surge data the type of time interval is significant and they have indicated that 
+                # 192 means the data is cumulative. Since we don't ordinarily do table lookups on the
+                # type of time interval we must encode this information in the parameter abbreviation here.
+                parameterAbbreviation = parameterAbbreviation + "Cumul"
+                gribDict['parameterName'] = gribDict['parameterName'] + " - cumulative"
 
             if(pdsTemplate[2] == 6 or pdsTemplate[2] == 7):
                 parameterAbbreviation = parameterAbbreviation+"erranl"
@@ -1157,7 +1183,8 @@ class GribDecoder():
         subcenter = gribDict['subcenter']
 
         process = gribDict['genprocess']
-        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process)
+        processType = gribDict['processType']
+        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process, processType)
         return gridModel
     
     def _createModelName(self, gribDict, grid):
@@ -1165,7 +1192,8 @@ class GribDecoder():
         subcenter = gribDict['subcenter']
 
         process = gribDict['genprocess']
-        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process)
+        processType = gribDict['processType']
+        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process, processType)
         
     def _checkForecastFlag(self, gribDict, grid, dataTime):
         gridModel = self._getGridModel(gribDict, grid)

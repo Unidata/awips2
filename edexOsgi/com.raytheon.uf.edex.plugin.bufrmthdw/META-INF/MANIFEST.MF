@@ -14,5 +14,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.bufrmthdw,
  javax.persistence,
  javax.measure
 Import-Package: com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo,
  com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets,
  org.apache.commons.logging

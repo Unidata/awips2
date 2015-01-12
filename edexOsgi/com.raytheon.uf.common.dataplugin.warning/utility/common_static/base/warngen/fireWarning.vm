@@ -2,30 +2,39 @@
 ## FIRE WARNING TEMPLATE                                                     ##
 ## VERSION 1.1                                                               ##
 ## CREATED BOOKBINDER/DANGELO - 2-07-12 - Initial OB12 Write                 ##
-##           Mike Dangelo 9-13-2012 minor tweaks to ${variables}             ## 
+##           Mike Dangelo 9-13-2012 minor tweaks to ${variables}             ##
+##           Mike Dangelo 6-25-2014 turned off auto-lock in xml and added specific lock tags herein to facilitate editing the agency name in the MND header. ## 
 ###############################################################################
 #parse("config.vm")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FRW${siteId}
-${ugcline}
+<L>${ugcline}</L>
 
-BULLETIN - EAS ACTIVATION REQUESTED
+<L>BULLETIN - EAS ACTIVATION REQUESTED</L>
 #if(${productClass}=="T")
-TEST...FIRE WARNING...TEST
+<L>TEST...FIRE WARNING...TEST</L>
 #else
-FIRE WARNING
+<L>FIRE WARNING</L>
 #end
-!** ENTER AUTHORIZING AGENCY HERE **!
-RELAYED BY NATIONAL WEATHER SERVICE ${officeShort}
+#set($requestedBy = "!** ENTER REQUESTING AGENCY NAME HERE **!")
+#if(${list.contains(${bullets}, "agency1")})
+#set($requestedBy = "EXAMPLE AGENCY 1")
+#end
+#if(${list.contains(${bullets}, "agency2")})
+#set($requestedBy = "EXAMPLE AGENCY 2")
+#end
+REQUESTED BY ${requestedBy}
+<L>RELAYED BY NATIONAL WEATHER SERVICE ${officeShort}</L>
 #backupText(${backupSite})
-${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
-## end of addition
+<L>${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}</L>
 
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
-THE FOLLOWING MESSAGE IS BEING TRANSMITTED AT THE REQUEST OF !** ENTER AUTHORIZING AGENCY HERE **!.
+
+THE FOLLOWING MESSAGE IS BEING TRANSMITTED AT THE REQUEST OF 
+$requestedBy
 
 ############################
 ### FIRE WEATHER EMERGENCY #
@@ -74,7 +83,7 @@ A FIRE WAS RACING TOWARD !** LOCATIONS **! AND COULD REACH THERE BY !** TIME **!
 #end
 ##
 #if(${ctaSelected} == "YES") 
-PRECAUTIONARY/PREPAREDNESS ACTIONS...
+<L>PRECAUTIONARY/PREPAREDNESS ACTIONS...</L>
 
 #end
 #if(${productClass}=="T")
@@ -106,13 +115,16 @@ HEED ANY EVACUATION ORDERS AND FOLLOW ALL SAFETY PRECAUTIONS.
 
 #end
 #if(${ctaSelected} == "YES") 
-&&
+<L>&&</L>
 #end
 
-#### UN-REMARK BELOW FOR LAT/LON OUTPUT
-## #printcoords(${areaPoly}, ${list})
+#### UN-REMARK 3 LINES BELOW FOR LAT/LON OUTPUT 
+####    (leave double pound signs after the first lock tag and after the #printcoords call 
+####     to allow for text wrapping and locking to work properly)
+## <L>##
+## #printcoords(${areaPoly}, ${list}) ##
+## </L>
 
-
-$$
+<L>$$</L>
 
 #parse("forecasterName.vm")

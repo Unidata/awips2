@@ -26,8 +26,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * TODO Add Description
  * 
@@ -38,6 +36,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 22, 2010            jkorman     Initial creation
+ * Aug 18, 2014 3530       bclement    removed ISerializableObject
  * 
  * </pre>
  * 
@@ -46,7 +45,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class ACARSAircraftInfo implements Serializable, ISerializableObject {
+public class ACARSAircraftInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
  *                                     so times are set  correctly when
  *                                     processing archive  data.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -56,11 +57,11 @@ public class QLMData extends TCGDataAdapter {
     private class ForecastPosition {
         public int hour;
 
-        public double latitude;
+        public float latitude;
 
-        public double longitude;
+        public float longitude;
 
-        public ForecastPosition(int hour, double lat, double lon) {
+        public ForecastPosition(int hour, float lat, float lon) {
             this.hour = hour;
             this.latitude = lat;
             this.longitude = lon;
@@ -100,8 +101,8 @@ public class QLMData extends TCGDataAdapter {
                         TropicalCycloneGuidance rpt = new TropicalCycloneGuidance();
                         SurfaceObsLocation location = new SurfaceObsLocation(
                                 stationId);
-                        location.setLongitude(fp.longitude);
-                        location.setLatitude(fp.latitude);
+                        location.setLongitude((float) fp.longitude);
+                        location.setLatitude((float) fp.latitude);
 
                         rpt.setWmoHeader(wmoHeader.getWmoHeader());
                         rpt.setTraceId(traceId);
@@ -155,8 +156,8 @@ public class QLMData extends TCGDataAdapter {
         String data[] = getParts(positionInfo, 3);
 
         int hour = Integer.valueOf(data[0]);
-        double lat = Double.valueOf(data[1]);
-        double lon = Double.valueOf(data[2]) * -1;
+        float lat = Float.valueOf(data[1]);
+        float lon = Float.valueOf(data[2]) * -1;
         list.add(new ForecastPosition(hour, lat, lon));
     }
 

@@ -32,6 +32,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -47,6 +48,7 @@ import org.hibernate.usertype.UserType;
  * Feb 21, 2012 #184       bphillip     Initial creation
  * 4/9/2013     1802       bphillip    Added null check
  * 7/29/2013    2191       bphillip    Fixed equals method
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -99,10 +101,11 @@ public class XMLGregorianCalendarType implements UserType {
     }
 
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
+    public Object nullSafeGet(ResultSet rs, String[] names,
+            SessionImplementor session, Object owner)
             throws HibernateException, SQLException {
         GregorianCalendar cal = new GregorianCalendar();
-        Timestamp date = resultSet.getTimestamp(names[0]);
+        Timestamp date = rs.getTimestamp(names[0]);
         if (date == null) {
             return null;
         }
@@ -117,16 +120,16 @@ public class XMLGregorianCalendarType implements UserType {
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement statement, Object value, int index)
-            throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, Object value, int index,
+            SessionImplementor session) throws HibernateException, SQLException {
         if (value == null) {
-            statement.setDate(index, null);
+            st.setDate(index, null);
         } else {
             XMLGregorianCalendar cal = (XMLGregorianCalendar) value;
-            statement.setTimestamp(index, new Timestamp(cal
+            st.setTimestamp(index, new Timestamp(cal
                     .toGregorianCalendar().getTime().getTime()));
         }
-
+        
     }
 
     @Override
@@ -144,5 +147,4 @@ public class XMLGregorianCalendarType implements UserType {
     public int[] sqlTypes() {
         return XMLGregorianCalendarType.SQL_TYPES;
     }
-
 }

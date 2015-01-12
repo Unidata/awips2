@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
+import com.raytheon.uf.common.auth.user.User;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
-import com.raytheon.uf.common.plugin.nwsauth.user.User;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;

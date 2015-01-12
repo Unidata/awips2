@@ -17,18 +17,6 @@
       </encoder>
    </appender>
 
-   <!-- harvester log --> 
-   <appender name="HarvesterLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-harvester-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender>
-   
    <!-- BandwidthManager log --> 
    <appender name="BandwidthManagerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -90,10 +78,11 @@
    </appender>
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
-      <threadPatterns>HarvesterLog:harvester.*,crawlerThreadPool.*,Crawler.*</threadPatterns>
-      <defaultAppender>console</defaultAppender>
+      <maxHistory>30</maxHistory>
+      <patternLayout>%-5p %d [%t] %c{0}: %m%n</patternLayout>
+      <fileNameBase>${edex.home}/logs/edex-${edex.run.mode}-%s{name}-%d{yyyyMMdd}.log</fileNameBase>
+      <defaultAppenderName>console</defaultAppenderName>
       <appender-ref ref="console"/>
-      <appender-ref ref="HarvesterLog"/>
    </appender>
   
    <logger name="com.raytheon">
@@ -119,6 +108,9 @@
    <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
       <level value="ERROR"/>
    </logger>
+   <logger name="org.apache.camel.core.xml">
+      <level value="WARN"/>
+   </logger>
    <logger name="org.apache.qpid">
       <level value="INFO"/>
    </logger>
@@ -133,9 +125,6 @@
    </logger>
    <logger name="org.springframework">
       <level value="ERROR"/>
-   </logger>
-   <logger name="uk.ltd.getahead">
-      <level value="WARN"/>
    </logger>
    <logger name="org.hibernate" additivity="false">
       <level value="ERROR"/>

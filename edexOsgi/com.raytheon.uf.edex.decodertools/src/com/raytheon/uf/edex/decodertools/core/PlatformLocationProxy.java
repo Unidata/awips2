@@ -23,9 +23,9 @@ import java.util.HashMap;
 
 
 /**
- *
- *
- *
+ * 
+ * 
+ * 
  * 
  * <pre>
  * 
@@ -42,10 +42,10 @@ import java.util.HashMap;
 public class PlatformLocationProxy
 {
     private static HashMap<String,BasePoint> myLOCATIONS = new HashMap<String,BasePoint>();
-    
+
     /**
-     * 
-     * @param aType
+     * This constructor exists solely to ensure this class isn't instantiated.
+     * Only the static methods should be used.
      */
     private PlatformLocationProxy() {
         // nothing

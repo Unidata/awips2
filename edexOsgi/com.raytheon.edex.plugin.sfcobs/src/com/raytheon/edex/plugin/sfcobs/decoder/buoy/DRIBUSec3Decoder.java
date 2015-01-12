@@ -19,16 +19,13 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.buoy;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_3_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_4_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_LEAD;
-
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSectionDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
 
 /**
  * Decode the Drifting buoy section 3 data. The current decoders skip Buoy
@@ -42,6 +39,7 @@ import com.raytheon.uf.edex.decodertools.core.ReportParser;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
+ * Sep 30, 2014       3629 mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * 
  * </pre>
  * 
@@ -73,7 +71,7 @@ public class DRIBUSec3Decoder extends AbstractSectionDecoder {
             return;
         }
         String element = null;
-        if (reportParser.positionTo(SEC_3_LEAD)) {
+        if (reportParser.positionTo(ISynoptic.SEC_3_LEAD_STRING)) {
             while (true) {
                 // if we run out of data, exit.
                 if (reportParser.next()) {
@@ -84,9 +82,9 @@ public class DRIBUSec3Decoder extends AbstractSectionDecoder {
                     break;
                 }
 
-                if (matchElement(element, SEC_4_LEAD)) {
+                if (ISynoptic.SEC_4_LEAD_PATTERN.matcher(element).find()) {
                     break;
-                } else if (matchElement(element, SEC_5_LEAD)) {
+                } else if (ISynoptic.SEC_5_LEAD_PATTERN.matcher(element).find()) {
                     break;
                 }
 

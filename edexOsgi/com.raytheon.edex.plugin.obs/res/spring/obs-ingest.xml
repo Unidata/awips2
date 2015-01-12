@@ -1,8 +1,7 @@
 <beans
   xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
   
     <bean id="obsDecoder" class="com.raytheon.edex.plugin.obs.ObsDecoder" />
 
@@ -13,6 +12,22 @@
     <bean id="obsDistRegistry" factory-bean="distributionSrv" factory-method="register">
         <constructor-arg value="obs" />
         <constructor-arg value="jms-durable:queue:Ingest.obs" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
     </bean>
   
+    <bean id="mtrListener" class="com.raytheon.edex.plugin.obs.ingest.MTRSubscriber" />
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MTR.spi" />
+        <constructor-arg ref="mtrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MTR.goodness" />
+        <constructor-arg ref="mtrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MTR.primary" />
+        <constructor-arg ref="mtrListener" />
+    </bean>
+
 </beans>

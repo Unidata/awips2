@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * ------------ ---------- ----------- --------------------------
  * May 3,  2012  14715     rferrel     Initial creation
  * Jun 07, 2013   1981     mpduff      This is now an AbstractPrivilegedRequest
+ * May 08, 2014  3091      rferrel     Added CHECK_AUTHORIZED.
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ public class TafQueueRequest extends AbstractPrivilegedRequest implements
         IServerRequest {
 
     public enum Type {
-        UNKNOWN, CREATE, GET_LIST, GET_LOG, GET_TAFS, REMOVE_SELECTED, RETRANSMIT
+        UNKNOWN, CREATE, GET_LIST, GET_LOG, GET_TAFS, REMOVE_SELECTED, RETRANSMIT, CHECK_AUTHORIZED
     }
 
     @DynamicSerializeElement

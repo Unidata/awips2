@@ -20,17 +20,7 @@
 package com.raytheon.edex.plugin.ldadmanual.dao;
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Velocity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -47,7 +37,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -63,15 +52,18 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * SOFTWARE HISTORY
  *                     
- * Date          Ticket#     Engineer    Description
- * -----------  ----------  ----------- --------------------------
- * Sep 30, 2009             vkorolev    Initial creation
- * Apr 04, 2013 1846        bkowal      Added an index on refTime and
- *                                      forecastTime
- * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869        bsteffen    Remove dataURI column from
- *                                      PluginDataObject.
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 30, 2009           vkorolev    Initial creation
+ * Apr 04, 2013  1846     bkowal      Added an index on refTime and
+ *                                    forecastTime
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from
+ *                                    PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 23, 2014  3410     bclement    location changed to floats
+ * 
  * </pre>
  * 
  * @author vkorolev
@@ -91,40 +83,9 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ManualLdadRecord extends PluginDataObject implements
-        ISpatialEnabled, IDecoderGettable {
+        ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
-
-    public static final String OBS_TEXT = "text";
-
-    public static final Unit<Length> LENGTH_UNIT = SI.METER;
-
-    public static final Unit<Temperature> TEMPERATURE_UNIT = SI.KELVIN;
-
-    public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
-
-    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Pressure> PRESSURE_UNIT = SI.PASCAL;
-
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put("T", SFC_TEMP);
-        PARM_MAP.put("DpT", SFC_DWPT);
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-        PARM_MAP.put("WGS", SFC_WNDGST);
-        PARM_MAP.put("ASET", "SFC.PRESS.ALTIMETER");
-        PARM_MAP.put("PMSL", PRES_SLP);
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put("STA", "STA");
-        PARM_MAP.put("stationid", "STA");
-        PARM_MAP.put("message", OBS_TEXT);
-        PARM_MAP.put(OBS_TEXT, OBS_TEXT);
-    }
 
     // Time of the observation.
     @DataURI(position = 2)
@@ -2142,7 +2103,7 @@ public class ManualLdadRecord extends PluginDataObject implements
      * 
      * @return The geometry latitude.
      */
-    public Double getLatitude() {
+    public Float getLatitude() {
         return location.getLatitude();
     }
 
@@ -2151,7 +2112,7 @@ public class ManualLdadRecord extends PluginDataObject implements
      * 
      * @return The geometry longitude.
      */
-    public Double getLongitude() {
+    public Float getLongitude() {
         return location.getLongitude();
     }
 
@@ -2179,11 +2140,6 @@ public class ManualLdadRecord extends PluginDataObject implements
         this.location = location;
     }
 
-    @Override
-    public Amount getValue(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     /**
      * @return the timeObs
@@ -2213,45 +2169,6 @@ public class ManualLdadRecord extends PluginDataObject implements
     @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
-    }
-
-    /**
-     * This class implements IDecoderGettable so return this instance.
-     * 
-     * @return The reference to this instance.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
-    /**
-     * 
-     */
-    @Override
-    public String getString(String paramName) {
-        String retValue = null;
-        String pName = PARM_MAP.get(paramName);
-        if ("STA".matches(pName)) {
-            retValue = getStationId();
-        } else if (OBS_TEXT.equals(pName)) {
-            retValue = getStationId();
-        }
-
-        return retValue;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    /**
-     * 
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
     }
 
     /**

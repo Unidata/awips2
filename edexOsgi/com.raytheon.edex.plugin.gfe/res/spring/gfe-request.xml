@@ -27,12 +27,10 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.SaveASCIIGridsRequest"/>
         <constructor-arg ref="SaveASCIIGridsHandler"/>
     </bean>
-    <bean id="clearTableHandler" class="com.raytheon.edex.plugin.gfe.server.handler.ClearPracticeVTECTableHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.ClearPracticeVTECTableRequest"/>
-        <constructor-arg ref="clearTableHandler"/>
+    <bean id="brokerConnectionsProvider" class="com.raytheon.uf.edex.esb.camel.jms.QpidBrokerConnectionsImpl"/>
+    <bean id="clientsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetClientsHandler">
+        <constructor-arg ref="brokerConnectionsProvider"/>
     </bean>
-    <bean id="clientsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetClientsHandler"/>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetClientsRequest"/>
         <constructor-arg ref="clientsHandler"/>
@@ -54,15 +52,12 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetDiscreteDefinitionRequest"/>
         <constructor-arg ref="discreteDefinitionHandler"/>
     </bean>
-    <bean id="gridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridDataHandler"/>
+    <bean id="gridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridDataHandler">
+        <property name="byteLimitInMB" value="${edex.requestsrv.byteLimitInMB}" />
+    </bean>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetGridDataRequest"/>
         <constructor-arg ref="gridDataHandler"/>
-    </bean>
-    <bean id="pythonGridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetPythonGridDataHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetPythonGridDataRequest"/>
-        <constructor-arg ref="pythonGridDataHandler"/>
     </bean>
     <bean id="gridInventoryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridInventoryHandler"/>
     <bean id="getGridInventoryRequestRegister" factory-bean="handlerRegistry" factory-method="register">
@@ -282,6 +277,13 @@
         <constructor-arg ref="CheckPrimarySiteHandler"/>
     </bean>
 
+	<bean id="GetServiceBackupPrimarySitesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupPrimarySiteHandler"/>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+	         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetServiceBackupPrimarySiteRequest"/>
+	         <constructor-arg ref="GetServiceBackupPrimarySitesHandler"/>
+	 </bean>
+
+
     <bean id="CleanupSvcBuLogRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuLogRequestHandler"/>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.CleaunpSvcBuLogRequest"/>
@@ -346,19 +348,14 @@
     <!-- ISC Send Beans -->
 
     <bean id="iscSendQueue" class="com.raytheon.edex.plugin.gfe.isc.IscSendQueue" factory-method="getInstance"/>
-    <bean id="iscSendThreadPool" class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="1" />
-        <property name="maxPoolSize" value="1" />
-    </bean>
-    <bean id="iscSendSrvCfg" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrvConfig">
-        <property name="executor" ref="iscSendThreadPool"/>
-        <!-- Threads should be same size as the iscSendThreadPool -->
-        <property name="threads" value="1"/>
+    <bean id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv" depends-on="gfeDbRegistered, gfeSitesActiveRequest">
         <property name="runningTimeOutMillis" value="300000"/>
         <property name="threadSleepInterval" value="5000"/>
     </bean>
-    <bean depends-on="gfeDbRegistered, gfeSitesActiveRequest" id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv">
-        <constructor-arg ref="iscSendSrvCfg"/>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="gfe-request-camel"/>
+        <constructor-arg ref="sendIscSrv"/>
     </bean>
     <!-- End ISC Send Beans -->
 
@@ -420,8 +417,9 @@
     <camelContext id="gfe-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <endpoint id="exportDigitalDataCron" uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}"/>
-        <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.logs.cron}"/>
+        <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.gfe.logs.cron}"/>
         <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
+        <endpoint id="iscSendLauncher" uri="quartz://iscSendThread?trigger.repeatCount=0&amp;trigger.repeatInterval=1"/>
 
         <route id="exportDigitalData">
             <from uri="exportDigitalDataCron"/>
@@ -490,11 +488,16 @@
                 </doCatch>
             </doTry>
         </route>
+
+        <!-- Thread runs for life of context -->
+        <route id="iscSendThread">
+            <from ref="iscSendLauncher"/>
+            <bean ref="sendIscSrv" method="run"/>
+        </route>
     </camelContext>
 
     <!-- ISC Send Routes -->
-    <camelContext id="clusteredGfeIscRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler"
-        autoStartup="false">
+    <camelContext id="clusteredGfeIscRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <route id="iscSendJobQueueAggr">
             <from uri="jms-durable:queue:iscSendNotification" />
@@ -514,7 +517,7 @@
         </route>
     </camelContext>
 
-    <bean factory-bean="clusteredCamelContextMgr" factory-method="register">
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
         <constructor-arg ref="clusteredGfeIscRoutes"/>
     </bean>
 </beans>

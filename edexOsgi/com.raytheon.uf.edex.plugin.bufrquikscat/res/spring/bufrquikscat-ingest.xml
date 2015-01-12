@@ -19,15 +19,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.bufrquikscat"/>
 	</bean>
 
-	<bean id="bufrquikscatCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="bufrquikscat-camel"/>
-  	</bean> 
-
     <camelContext id="bufrquikscat-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         <!--
         <endpoint id="bufrquikscatFileEndpoint" uri="file:${edex.home}/data/sbn/bufrquikscat?noop=true&amp;idempotent=false" />
 

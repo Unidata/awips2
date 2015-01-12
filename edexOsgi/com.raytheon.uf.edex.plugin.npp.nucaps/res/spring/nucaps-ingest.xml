@@ -12,15 +12,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.nucaps" />
 	</bean>
 
-	<bean id="nucapsCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="nucaps-camel"/>
-  	</bean> 
-
     <camelContext id="nucaps-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <!-- Begin nucaps routes -->
         <route id="nucapsIngestRoute">

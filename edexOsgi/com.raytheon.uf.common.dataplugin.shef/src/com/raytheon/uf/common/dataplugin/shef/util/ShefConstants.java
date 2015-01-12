@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
  * 10/16/2008   1548        jelkins     Removed unneeded constants
  * 02/02/2009   1943        jsanchez    Added shef_load_maxfcst.
  * 06/03/2009   2410        jsanchez    Changed kk to HH.
+ * 04/29/2014   3088        mpduff      Added MILLLIS_PER_SECOND;
  * 
  * </pre>
  */
@@ -50,25 +51,27 @@ public class ShefConstants {
     public static final String TYPE_E = ".E";
 
     public static final int MILLIS_PER_SECOND = 1000;
-    
+
     public static final int MILLIS_PER_MINUTE = MILLIS_PER_SECOND * 60;
+
+    public static final int MILLIS_PER_HOUR = MILLIS_PER_SECOND * 60 * 60;
 
     public static final long MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
     public static final long HALF_YEAR = 365L * 24L * 3600L * 1000L / 2L;
 
     public static final String SHEF_SKIPPED = "-9998";
-    
+
     public static final String SHEF_MISSING = "-9999";
 
     public static final String SHEF_MISSING_DEC = "-9999.0";
-    
+
     public static final int SHEF_MISSING_INT = -9999;
 
     public static final String SHEF_TRACE = "0.001";
-    
+
     public static final int SHEF_NOT_SERIES = 0;
-    
+
     public static final Pattern SHEF_TYPE_PATTERN = Pattern.compile("\\.[ABE]");
 
     public static final String EMPTYSTRING = "";
@@ -82,10 +85,9 @@ public class ShefConstants {
     public static final String SLASH = "/";
 
     public static final int LOWER_LID_LIMIT = 2;
-    
+
     public static final int UPPER_LID_LIMIT = 9;
-    
-    
+
     /* Precipitation index constants */
     public static final int NOT_PRECIP = 0;
 
@@ -94,7 +96,7 @@ public class ShefConstants {
     public static final int RAWPP = 2;
 
     public static final int RAWPOTHER = 3;
-    
+
     /** Greenwich Mean Time */
     public static final String GMT = "GMT";
 
@@ -163,7 +165,7 @@ public class ShefConstants {
     public static final SimpleDateFormat YYMMJJJHHMM_FORMAT = new SimpleDateFormat(
             "yyMMDDHHmm");
 
-    public static final String POSTGRES_DATE_STRING = "yyyy-MM-dd HH:mm:ss"; 
+    public static final String POSTGRES_DATE_STRING = "yyyy-MM-dd HH:mm:ss";
 
     public static final SimpleDateFormat POSTGRES_DATE_FORMAT = new SimpleDateFormat(
             POSTGRES_DATE_STRING);
@@ -213,30 +215,31 @@ public class ShefConstants {
     public static final String DC = "DC";
 
     public static final String VALID_UNITS = "ES";
-    
+
     public static final String DATE_INC_CODES = "SNHDMEY";
-    public static final int [] DATE_INC_VALS = new int [] {
-        Calendar.SECOND,       // S
-        Calendar.MINUTE,       // N
-        Calendar.HOUR_OF_DAY,  // H
-        Calendar.DAY_OF_MONTH, // D        
-        Calendar.MONTH,        // M        
-        -1,                    // E, -1 signifies special handling
-        Calendar.YEAR,         // Y        
+
+    public static final int[] DATE_INC_VALS = new int[] { Calendar.SECOND, // S
+            Calendar.MINUTE, // N
+            Calendar.HOUR_OF_DAY, // H
+            Calendar.DAY_OF_MONTH, // D
+            Calendar.MONTH, // M
+            -1, // E, -1 signifies special handling
+            Calendar.YEAR, // Y
     };
-    
+
     public static final String DURATION_CODES = "SNHDMY";
-    public static final short [] DURATION_VALS = new short [] {
-    7000, // "S" Seconds
-    0,    // "N" Minutes 
-    1000, // "H" Hours
-    2000, // "D" Days
-    3000, // "M" Months
-    4000, // "Y" Years
+
+    public static final short[] DURATION_VALS = new short[] { 7000, // "S"
+                                                                    // Seconds
+            0, // "N" Minutes
+            1000, // "H" Hours
+            2000, // "D" Days
+            3000, // "M" Months
+            4000, // "Y" Years
     };
-    
+
     public static final String QUALIFER_CODES = "BDEFGLMNPQRSTVWZ";
-    
+
     /*
      * these requests are for checking a value. they are valid for building a
      * where clause or for checking the qc code
@@ -413,7 +416,7 @@ public class ShefConstants {
     public static final String ALARM_CATEGSTR = "alarm";
 
     public static final int NO_ALERTALARM = 200;
-    
+
     public static final int MAXFCST_INFO = 200;
 
     public static final int ALERT_UPPER_DETECTED = 201;
@@ -446,9 +449,9 @@ public class ShefConstants {
     public static final String SHEF_POST_LINK = "shef_post_link";
 
     public static final String SHEF_POST_LATEST = "shef_post_latest";
-    
+
     public static final String SHEF_LOAD_MAXFCST = "shef_load_maxfcst";
-    
+
     public static final String BASIS_HOURS_FILTER = "basis_hours_filter";
 
     public static final String SHEF_DUPLICATE = "shef_duplicate";
@@ -464,9 +467,9 @@ public class ShefConstants {
     public static final String SHEF_LOAD_INGEST = "shef_load_ingest";
 
     public static final String INGEST_MESS = "ingest_mess";
-    
+
     public static final String SHEF_DATA_LOG = "shef_data_log";
-    
+
     public static final String SHEF_PERFLOG = "shef_perflog";
 
     public static final String SHEF_EMIT_SKIPPED = "shef_emit_skipped";
@@ -489,5 +492,5 @@ public class ShefConstants {
     public static final String UNKNOWN_STATION = "unkstn";
 
     public static final String UNKNOWN_STATION_VALUE = "unkstnvalue";
-    
+
 }

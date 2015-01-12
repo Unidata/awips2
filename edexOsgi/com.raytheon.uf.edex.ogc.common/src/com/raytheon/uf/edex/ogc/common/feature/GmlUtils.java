@@ -14,9 +14,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.edex.ogc.common.InvalidVersionException;
 import com.raytheon.uf.edex.ogc.common.Version;
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
  * Utility methods and constants for GML version parsing and comparison

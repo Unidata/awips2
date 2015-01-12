@@ -9010,4 +9010,15 @@
 		<grib2Value>14</grib2Value>
 	</grib1Parameter>
 <!-- end ukmetHR -->
+
+<!-- cmc RELH -->
+	<grib1Parameter>
+		<center>54</center>
+		<grib1TableVersion>2</grib1TableVersion>
+		<grib1Value>52</grib1Value>
+		<grib2discipline>0</grib2discipline>
+		<grib2category>1</grib2category>
+		<grib2Value>1</grib2Value>
+	</grib1Parameter>
+<!-- end CMC -->
 </grib1ParameterSet>

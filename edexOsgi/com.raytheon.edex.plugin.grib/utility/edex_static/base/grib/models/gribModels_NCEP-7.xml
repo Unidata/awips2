@@ -262,6 +262,54 @@
 		</process>
 	</model>
 
+     <!-- conus 20KM-->
+    <model>
+        <name>GFS215</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>215</grid>
+        <process>
+            <id>81</id>
+            <id>96</id>
+        </process>
+    </model>
+    
+    <!-- ak 20KM -->
+    <model>
+        <name>GFS217</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>217</grid>
+        <process>
+            <id>81</id>
+            <id>96</id>
+        </process>
+    </model>
+
+    <!-- pac 20KM -->
+    <model>
+        <name>GFS20-PAC</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>GFS-PAC-20KM</grid>
+        <process>
+            <id>81</id>
+            <id>96</id>
+        </process>
+    </model>
+    
+    <!-- prico 20KM -->
+    <model>
+        <name>GFS20-PRICO</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>GFS-PRICO-20KM</grid>
+        <process>
+            <id>81</id>
+            <id>96</id>
+        </process>
+    </model>
+    
 	<model>
 		<name>WAFS</name>
 		<center>7</center>
@@ -368,26 +416,6 @@
 		<grid>207</grid>
 		<process>
 			<id>84</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ofsGmex</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>15058391</grid>
-		<process>
-			<id>45</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ofsWatl</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>-26535243</grid>
-		<process>
-			<id>45</id>
 		</process>
 	</model>
 
@@ -1313,6 +1341,17 @@
 	</model>
 
 	<model>
+		<name>Aviation</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>252</grid>
+		<process>
+			<id>191</id>
+			<id>105</id>
+		</process>
+	</model>
+
+	<model>
 		<name>AK-NamDNG5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1404,24 +1443,14 @@
 	</model>
 
 	<model>
-		<name>hireswArwGuam</name>
+        <name>HiResW-ARW-US</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
-		<grid>11731129</grid>
-		<process>
-			<id>116</id>
-		</process>
-	</model>
-
-	<model>
-		<name>hireswArwPR</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>13560489</grid>
-		<process>
-			<id>116</id>
-		</process>
-	</model>
+        <grid>14731025001</grid>
+        <process>
+            <id>116</id>
+        </process>
+    </model>
 
 	<model>
 		<name>HiResW-NMM-East</name>
@@ -1483,26 +1512,17 @@
 			<id>112</id>
 		</process>
 	</model>
-
+	
 	<model>
-		<name>hireswNmmGuam</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>11731129</grid>
-		<process>
-			<id>112</id>
-		</process>
-	</model>
-
-	<model>
-		<name>hireswNmmPR</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>13560489</grid>
-		<process>
-			<id>112</id>
-		</process>
-	</model>
+        <name>HiResW-NMM-US</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>14731025001</grid>
+        <process>
+            <id>112</id>
+        </process>
+    </model>
+	
 
 	<model>
 		<name>GRLKwave</name>
@@ -1714,7 +1734,7 @@
 	</model>
 
 	<model>
-		<name>GFS-1p0-3</name>
+		<name>GFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>361181001</grid>
@@ -1727,7 +1747,7 @@
 	</model>
 
 	<model>
-		<name>GFS-1p0-4</name>
+		<name>GFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>372</grid>
@@ -1748,7 +1768,17 @@
 	</model>
 
 	<model>
-		<name>gfs-5</name>
+		<name>gfs</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>372</grid>
+		<process>
+			<id>81</id>
+		</process>
+	</model>
+
+	<model>
+		<name>GFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>145073001</grid>
@@ -1760,7 +1790,7 @@
 	</model>
 
 	<model>
-		<name>gfs-6</name>
+		<name>GFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>375</grid>
@@ -1809,6 +1839,7 @@
 			<id>89</id>
 		</process>
 	</model>
+
         <model>
 		<name>NDFD</name>
 		<center>8</center>

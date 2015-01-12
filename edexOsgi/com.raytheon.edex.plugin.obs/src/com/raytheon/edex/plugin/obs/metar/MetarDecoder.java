@@ -37,11 +37,13 @@ import com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -79,6 +81,11 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * Nov 11, 2008 1684        chammack    Camel refactor.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Sep 17, 2013 2378        njensen     Improve 3/6 hr precip decoding
+ * May 12, 2014 DR 17151    D. Friedman Fix 6hr min/max temp decoding.
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014  3410       bclement    location changed to floats
+ * Oct 02, 2014 3693        mapeters    Added Pattern constants.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -187,6 +194,14 @@ public class MetarDecoder extends AbstractDecoder {
     public static final Pattern SUNSHINE = Pattern
             .compile("(\\b)98(\\d{3}|///)");
 
+    private static final Pattern AUTO = Pattern.compile(" AUTO");
+
+    private static final Pattern D4_NDV = Pattern.compile("\\d{4}NDV");
+
+    private static final Pattern D4_NSEW = Pattern.compile("\\d{4}[NSEW]");
+
+    private static final Pattern D4 = Pattern.compile("\\d{4}");
+
     private boolean useMockInfo = false;
 
     private ObStation mockInfo = null;
@@ -216,11 +231,14 @@ public class MetarDecoder extends AbstractDecoder {
 
         List<PluginDataObject> retVal = new ArrayList<PluginDataObject>();
 
-        Calendar baseTime = TimeTools.getSystemCalendar();
+        Calendar baseTime = TimeUtil.newGmtCalendar();
         WMOHeader wmoHdr = sep.getWMOHeader();
-        if (TimeTools.allowArchive()) {
+        if (WMOTimeParser.allowArchive()) {
             if ((wmoHdr != null) && (wmoHdr.isValid())) {
-                baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(), headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                baseTime = WMOTimeParser.findDataTime(wmoHdr.getYYGGgg(),
+                        fileName);
             } else {
                 logger.error("ARCHIVE MODE-No WMO Header found in file"
                         + headers.get(WMOHeader.INGEST_FILE_NAME));
@@ -229,7 +247,6 @@ public class MetarDecoder extends AbstractDecoder {
 
         while (sep.hasNext()) {
             byte[] messageData = sep.next();
-            Pattern thePattern;
 
             String message = new String(messageData);
             StringBuilder sbm = new StringBuilder(message);
@@ -254,16 +271,17 @@ public class MetarDecoder extends AbstractDecoder {
             record.setMessageData(message);
             message = cleanMessage(message);
 
-            String trailingData = null;
+            String remarks = null;
             int cutPos = message.indexOf(" RMK ");
             if (cutPos >= 0) {
-                trailingData = message.substring(cutPos);
+                remarks = message.substring(cutPos);
                 // Now truncate the message data.
                 message = message.substring(0, cutPos);
             } else {
-                trailingData = message;
+                remarks = "";
             }
-            trailingData = trailingData + " ";
+            StringBuilder trailingData = new StringBuilder(remarks);
+            trailingData.append(' ');
 
             StringBuilder obsMsg = new StringBuilder(message);
 
@@ -280,8 +298,8 @@ public class MetarDecoder extends AbstractDecoder {
                     ObStation station = getStationInfo(icao);
                     if (station != null) {
                         SurfaceObsLocation loc = new SurfaceObsLocation(icao);
-                        Double lat = station.getGeometry().getY();
-                        Double lon = station.getGeometry().getX();
+                        float lat = (float) station.getGeometry().getY();
+                        float lon = (float) station.getGeometry().getX();
                         loc.assignLocation(lat, lon);
                         loc.setElevation(station.getElevation());
 
@@ -299,7 +317,7 @@ public class MetarDecoder extends AbstractDecoder {
                     Integer hr = DecoderTools.getInt(timeGroup, 2, 4);
                     Integer mi = DecoderTools.getInt(timeGroup, 4, 6);
                     if ((da != null) && (hr != null) && (mi != null)) {
-                        obsTime = TimeTools.copy(baseTime);
+                        obsTime = (Calendar) baseTime.clone();
                         obsTime.set(Calendar.DAY_OF_MONTH, da);
                         obsTime.set(Calendar.HOUR_OF_DAY, hr);
                         obsTime.set(Calendar.MINUTE, mi);
@@ -326,7 +344,7 @@ public class MetarDecoder extends AbstractDecoder {
                 // into the future
                 Calendar obsTime = record.getTimeObs();
                 if (obsTime != null) {
-                    Calendar currTime = TimeTools.copy(baseTime);
+                    Calendar currTime = (Calendar) baseTime.clone();
 
                     // Do this only for archive mode!!! Otherwise valid data
                     // will not pass if the WMO header
@@ -335,7 +353,7 @@ public class MetarDecoder extends AbstractDecoder {
                     // Observed time = dd1235
                     // To solve this will require greater precision in the file
                     // timestamp.
-                    if (TimeTools.allowArchive()) {
+                    if (WMOTimeParser.allowArchive()) {
                         currTime.add(Calendar.HOUR, 1);
                     }
                     currTime.add(Calendar.MINUTE, METAR_FUTURE_LIMIT);
@@ -357,8 +375,7 @@ public class MetarDecoder extends AbstractDecoder {
                 obsMsg.delete(0, cutPos);
 
                 // Gets the correction notifier
-                thePattern = Pattern.compile(" AUTO");
-                matcher = thePattern.matcher(obsMsg);
+                matcher = AUTO.matcher(obsMsg);
                 if (matcher.find()) {
                     obsMsg.delete(0, matcher.end());
                 }
@@ -447,8 +464,7 @@ public class MetarDecoder extends AbstractDecoder {
                         }
                     }
                     if (!foundVis) {
-                        thePattern = Pattern.compile("\\d{4}NDV");
-                        matcher = thePattern.matcher(obsMsg);
+                        matcher = D4_NDV.matcher(obsMsg);
                         if (matcher.find()) {
                             int start = matcher.start();
                             int end = matcher.end();
@@ -462,8 +478,7 @@ public class MetarDecoder extends AbstractDecoder {
 
                         boolean sectorFound = true;
                         while (sectorFound) {
-                            thePattern = Pattern.compile("\\d{4}[NSEW]");
-                            matcher = thePattern.matcher(obsMsg);
+                            matcher = D4_NSEW.matcher(obsMsg);
                             if (matcher.find()) {
                                 int start = matcher.start();
                                 int end = matcher.end();
@@ -478,8 +493,7 @@ public class MetarDecoder extends AbstractDecoder {
                             }
                         }
 
-                        thePattern = Pattern.compile("\\d{4}");
-                        matcher = thePattern.matcher(obsMsg);
+                        matcher = D4.matcher(obsMsg);
                         if (matcher.find()) {
                             int start = matcher.start();
                             if (start > 0) {
@@ -712,7 +726,7 @@ public class MetarDecoder extends AbstractDecoder {
                         hh = pkHHmm / 100;
                     }
                     Calendar obsT = record.getTimeObs();
-                    Calendar pkTim = TimeTools.copy(obsT);
+                    Calendar pkTim = (Calendar) obsT.clone();
 
                     int obsMin = obsT.get(Calendar.MINUTE);
                     int obsHr = obsT.get(Calendar.HOUR_OF_DAY);
@@ -730,6 +744,7 @@ public class MetarDecoder extends AbstractDecoder {
                         pkTim.add(Calendar.DAY_OF_MONTH, -1);
                     }
                     record.setPkWndTime(pkTim);
+                    trailingData.delete(matcher.start(), matcher.end());
                 }
 
                 // Gets the temperature and dew point in tenths precision
@@ -923,8 +938,6 @@ public class MetarDecoder extends AbstractDecoder {
                     record.setSunshine(value);
                 }
 
-                record.constructDataURI();
-
                 record.setWmoHeader(sep.getWMOHeader().getWmoHeader());
 
                 retVal.add(record);
@@ -1055,7 +1068,7 @@ public class MetarDecoder extends AbstractDecoder {
         }
         String indent = "     ";
         ArrayList<String> parts = new ArrayList<String>();
-        int rmkPos = sb.indexOf("RMK");
+        // int rmkPos = sb.indexOf("RMK");
 
         parts.add(sb.toString());
         // if(rmkPos > 0) {

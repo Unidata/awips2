@@ -27,13 +27,11 @@ import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.recco.common.RECCORecord;
 import com.raytheon.edex.plugin.recco.decoder.ReccoParser;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder strategy for text aircraft RECCO observation data. Most common usage
@@ -57,14 +55,19 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jan 03, 2008 384        jkorman     Initial Coding.
  * Nov 25, 2008 1684       chammack    Camel Refactor
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed PLUGIN_NAME
+ * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 26, 2014 3629       mapeters    Added RECCO_MANOBS, RECCO_INTEROBS constants.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class RECCODecoder extends AbstractDecoder {
-    // Name of the plugin controlling this decoder.
-    private final String PLUGIN_NAME;
+
+    private static final int RECCO_MANOBS = 4500;
+
+    private static final int RECCO_INTEROBS = 4510;
 
     private boolean removeNILs = true;
 
@@ -73,8 +76,8 @@ public class RECCODecoder extends AbstractDecoder {
      *            Name that identifies this decoder.
      * @throws DecoderException
      */
+    @Deprecated
     public RECCODecoder(String pluginName) {
-        PLUGIN_NAME = pluginName;
     }
 
     /**
@@ -116,11 +119,6 @@ public class RECCODecoder extends AbstractDecoder {
                     input.getWmoHeader());
             if (report != null) {
                 report.setTraceId(traceId);
-                try {
-                    report.constructDataURI();
-                } catch (PluginException e) {
-                    throw new DecoderException("Unable to construct dataURI", e);
-                }
 
                 reports = new PluginDataObject[] { report };
             }
@@ -160,11 +158,11 @@ public class RECCODecoder extends AbstractDecoder {
                 record.setReportData(parser.getReportData());
 
                 if ("222".equals(parser.getObsType())) {
-                    record.setReportType(IDecoderConstants.RECCO_MANOBS);
+                    record.setReportType(RECCO_MANOBS);
                 } else if ("555".equals(parser.getObsType())) {
-                    record.setReportType(IDecoderConstants.RECCO_INTEROBS);
+                    record.setReportType(RECCO_INTEROBS);
                 } else if ("777".equals(parser.getObsType())) {
-                    record.setReportType(IDecoderConstants.RECCO_MANOBS);
+                    record.setReportType(RECCO_MANOBS);
                 }
 
                 location.setLatitude(parser.getLatitude());

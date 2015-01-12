@@ -39,6 +39,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Feb 27, 2013      #1447 dgilling    Re-factor based on PythonPathIncludeUtil.
  * Mar 11, 2013      #1759 dgilling    Add method getGfeConfigLF().
  * Sep 16, 2013      #1759 dgilling    Move tests and autotests to GfeCavePyIncludeUtil.
+ * Aug 22, 2014 3500       bclement    added python path in getConfigIncludePath()
  * </pre>
  * 
  * @author njensen
@@ -287,6 +288,7 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
     }
 
     public static String getConfigIncludePath(boolean includeUser) {
+        String pythonPath = GfePyIncludeUtil.getCommonPythonIncludePath();
         String baseDir = getPath(PATH_MANAGER.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.BASE), CONFIG);
         String siteDir = getPath(PATH_MANAGER.getContext(
@@ -295,9 +297,10 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
             String userDir = getPath(PATH_MANAGER.getContext(
                     LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
                     CONFIG);
-            return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir);
+            return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir,
+                    pythonPath);
         } else {
-            return PyUtil.buildJepIncludePath(siteDir, baseDir);
+            return PyUtil.buildJepIncludePath(siteDir, baseDir, pythonPath);
         }
     }
 

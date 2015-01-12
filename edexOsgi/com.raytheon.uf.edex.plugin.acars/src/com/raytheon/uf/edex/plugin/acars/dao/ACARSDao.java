@@ -27,11 +27,11 @@ import org.hibernate.Query;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
-import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
  * ACARDS dao.
@@ -39,12 +39,15 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009 1939       jkorman     Initial creation
- * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
- * Nov 02, 2012 1302       djohnson    Add Javadoc.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 21, 2009  1939     jkorman     Initial creation
+ * Oct 10, 2012  1261     djohnson    Add some generics wildcarding.
+ * Nov 02, 2012  1302     djohnson    Add Javadoc.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Mar 27, 2014  2811     skorolev    Updated logger.
+ * Jun 06, 2014  2061     bsteffen    Extend PointDataPluginDao
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * 
  * </pre>
  * 
@@ -52,7 +55,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * @version 1.0
  */
 
-public class ACARSDao extends DefaultPluginDao {
+public class ACARSDao extends PointDataPluginDao<ACARSRecord> {
 
     /**
      * Creates a new ReccoDao
@@ -120,13 +123,14 @@ public class ACARSDao extends DefaultPluginDao {
      *            The HQL query string
      * @return The list of objects returned by the query
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<?> executeACARSQuery(final String hqlQuery) {
 
         List<?> result = (List<?>) txTemplate
                 .execute(new TransactionCallback() {
                     @Override
                     public List<?> doInTransaction(TransactionStatus status) {
-                        Query hibQuery = getSession(false)
+                        Query hibQuery = getCurrentSession()
                                 .createQuery(hqlQuery);
                         // hibQuery.setCacheMode(CacheMode.NORMAL);
                         // hibQuery.setCacheRegion(QUERY_CACHE_REGION);
@@ -155,9 +159,9 @@ public class ACARSDao extends DefaultPluginDao {
 
         String query = String.format(queryTemplate, tailNumber, startTime);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(query);
-        }
+        // if (logger.isDebugEnabled()) {
+        // logger.debug(query);
+        // }
 
         List<?> result = executeACARSQuery(query);
 
@@ -177,6 +181,7 @@ public class ACARSDao extends DefaultPluginDao {
      * 
      * @param tailNumber
      * @param startTime
+     * @param stopTime
      * @return
      */
     public List<ACARSRecord> getReports(String tailNumber, Calendar startTime,
@@ -192,9 +197,9 @@ public class ACARSDao extends DefaultPluginDao {
         String query = String.format(queryTemplate, tailNumber, startTime,
                 stopTime);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(query);
-        }
+        // if (logger.isDebugEnabled()) {
+        // logger.debug(query);
+        // }
 
         List<?> result = executeACARSQuery(query);
 
@@ -207,6 +212,21 @@ public class ACARSDao extends DefaultPluginDao {
         }
 
         return retData;
+    }
+
+    @Override
+    public String[] getKeysRequiredForFileName() {
+        return new String[0];
+    }
+
+    @Override
+    public ACARSRecord newObject() {
+        return new ACARSRecord();
+    }
+
+    @Override
+    public String getPointDataFileName(ACARSRecord p) {
+        return null;
     }
 
 }

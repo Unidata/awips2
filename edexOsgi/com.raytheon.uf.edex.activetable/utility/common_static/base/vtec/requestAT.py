@@ -27,7 +27,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02/06/13        1447          dgilling       Initial Creation.
-#    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency 
+#    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency
+#    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
 # 
 #
 
@@ -42,10 +43,12 @@ import IrtAccess
 import siteConfig
 import VTECPartners
 import iscUtil
+import JUtil
 
 from com.raytheon.uf.common.activetable import ActiveTableMode
 from com.raytheon.uf.common.time.util import TimeUtil
 from com.raytheon.uf.edex.activetable import ActiveTable
+from com.raytheon.uf.common.activetable import VTECPartners as JavaVTECPartners
 
 
 
@@ -73,8 +76,11 @@ def execute_request_at(serverHost, serverPort, serverProtocol, mhsid, siteID, an
         mysite4 = "PAFC"
     else:
         mysite4 = "K" + siteID
-    otherSites = [mysite4, VTECPartners.VTEC_SPC_SITE,
-      VTECPartners.VTEC_TPC_SITE]
+    otherSites = [mysite4]
+    tpcSites = JUtil.javaObjToPyVal(JavaVTECPartners.getInstance(siteID).getTpcSites())
+    spcSites = JUtil.javaObjToPyVal(JavaVTECPartners.getInstance(siteID).getSpcSites())
+    otherSites.extend(tpcSites)
+    otherSites.extend(spcSites)
 
     # determine the MHS WMO id for this message
     wmoid = "TTAA00 " + mysite4

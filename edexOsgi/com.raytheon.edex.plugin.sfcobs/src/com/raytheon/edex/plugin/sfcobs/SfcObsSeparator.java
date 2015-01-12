@@ -19,10 +19,6 @@
  **/
 package com.raytheon.edex.plugin.sfcobs;
 
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.ETX;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.SOM;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.WMO_HEADER;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -36,8 +32,9 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.edex.plugin.sfcobs.common.SfcObsPart;
 import com.raytheon.edex.plugin.sfcobs.common.SfcObsSubMessage;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * The SfcObsSeparator takes a potential weather message and attempts to
@@ -57,6 +54,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070925            391 jkorman     Initial Coding.
+ * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Sep 26, 2014 3629       mapeters    Added SOM constant, replaced static imports.
  * </pre>
  * 
  * @author jkorman
@@ -66,7 +65,11 @@ public class SfcObsSeparator extends AbstractRecordSeparator {
     /** The logger */
     private Log logger = LogFactory.getLog(getClass());
 
-    private static final String SPLITCHARS = " \r=;$" + SOM + ETX;
+    private static final String SOM = String
+            .valueOf((char) IDecoderConstants.ASCII_SOM);
+
+    private static final String SPLITCHARS = " \r=;$" + SOM
+            + IDecoderConstants.ETX;
 
     // private static final String GGYYiW_GRP =
     // "((0[1-9])|([1-2]\\d)|3[0-1])(([0-1]\\d)|2[0-3])[1-4]";
@@ -135,10 +138,11 @@ public class SfcObsSeparator extends AbstractRecordSeparator {
         reports = null;
         rawMessage = DecoderTools.cleanData(rawMessage);
         if (rawMessage != null) {
-            wmoHeader = new WMOHeader(rawMessage, headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            wmoHeader = new WMOHeader(rawMessage, fileName);
             if (wmoHeader.isValid()) {
                 messageData = DecoderTools.stripWMOHeader(rawMessage,
-                        WMO_HEADER);
+                        IDecoderConstants.WMO_HEADER);
             }
         }
         cleanGarbage();
@@ -202,7 +206,7 @@ public class SfcObsSeparator extends AbstractRecordSeparator {
                     parts.add(SfcObsPart.RE_PART);
                 } else if (SOM.equals(s)) {
                     parts.add(SfcObsPart.MS_PART);
-                } else if (ETX.equals(s)) {
+                } else if (IDecoderConstants.ETX.equals(s)) {
                     parts.add(SfcObsPart.ME_PART);
                 } else {
                     SfcObsPart reportPart = SfcObsPart.partFactory(s);

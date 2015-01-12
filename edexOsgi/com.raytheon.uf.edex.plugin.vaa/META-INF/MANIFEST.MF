@@ -13,4 +13,5 @@ Require-Bundle: com.raytheon.uf.edex.decodertools,
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.uf.common.pointdata.spatial,
  com.raytheon.uf.common.status,
- com.raytheon.uf.common.time
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.wmo

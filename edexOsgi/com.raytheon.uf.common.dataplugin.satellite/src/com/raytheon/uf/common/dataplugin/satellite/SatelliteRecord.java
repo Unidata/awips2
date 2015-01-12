@@ -38,7 +38,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -56,24 +55,26 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Feb 14, 2007 139         bphillip    Initial Creation
- * Sep 14, 2007 379         jkorman     Added populateDataStore() and
- *                                      getPersistenceTime() from new
- *                                      IPersistable
- * Nov 29, 2007 472         jkorman     Added IDecoderGettable interface.
- * Nov 06, 2008 1515        jkorman     Changed units length from 16 to 26
- * Apr 04, 2013 1846        bkowal      Added an index on refTime and
- *                                      forecastTime
- * Jul 30, 2012 798         jkorman     Support for common satellite data.
- * Mar 25, 2013 1823        dgilling    Replace underscores with spaces in URI
- *                                      constructor.
- * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
- * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869        bsteffen    Remove dataURI column from
- *                                      PluginDataObject.
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 14, 2007  139      bphillip    Initial Creation
+ * Sep 14, 2007  379      jkorman     Added populateDataStore() and
+ *                                    getPersistenceTime() from new
+ *                                    IPersistable
+ * Nov 29, 2007  472      jkorman     Added IDecoderGettable interface.
+ * Nov 06, 2008  1515     jkorman     Changed units length from 16 to 26
+ * Apr 04, 2013  1846     bkowal      Added an index on refTime and
+ *                                    forecastTime
+ * Jul 30, 2012  798      jkorman     Support for common satellite data.
+ * Mar 25, 2013  1823     dgilling    Replace underscores with spaces in URI
+ *                                    constructor.
+ * Apr 08, 2013  1293     bkowal      Removed references to hdffileid.
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from
+ *                                    PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -94,7 +95,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class SatelliteRecord extends PersistablePluginDataObject implements
         IGridGeometryProvider {
 
-    public static final String PLUGIN_ID = "satellite";
+    public static final String PLUGIN_NAME = "satellite";
 
     private static final long serialVersionUID = 1L;
 
@@ -253,17 +254,6 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
         this.units = units;
     }
 
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
     public String getSource() {
         return source;
     }
@@ -354,6 +344,6 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
 
     @Override
     public String getPluginName() {
-        return "satellite";
+        return PLUGIN_NAME;
     }
 }

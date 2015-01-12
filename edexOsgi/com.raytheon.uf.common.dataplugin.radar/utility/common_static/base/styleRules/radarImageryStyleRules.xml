@@ -416,6 +416,7 @@
 				<entry displayValue='20' pixelValue='200' />
 				<entry displayValue='40' pixelValue='227' />
 				<entry displayValue='60' pixelValue='245' />
+				<entry displayValue='80' pixelValue='254' label="" />
 			</dataMapping>
 		</imageStyle>
 	</styleRule>
@@ -566,31 +567,6 @@
 				<entry displayValue='13' pixelValue='216' label='' sample='TBD' />
 				<entry displayValue='14' pixelValue='232' label='UK' sample='Unknown' />
 				<entry displayValue='16' pixelValue='248' label='RF' />
-			</dataMapping>
-		</imageStyle>
-	</styleRule>
-	
-	<styleRule>
-		<imageStyle>
-			<displayUnits>*1</displayUnits>
-			<defaultColormap>Radar/HHC NEXRCOMP</defaultColormap>
-			<dataMapping>
-				<entry displayValue='0' pixelValue='0' label='' />
-				<entry displayValue='1' pixelValue='10' label='BI' sample='Biological' />
-				<entry displayValue='2' pixelValue='20' label='GC' sample='Clutter' />
-				<entry displayValue='3' pixelValue='30' label='IC' sample='Ice Crystals' />
-				<entry displayValue='4' pixelValue='40' label='DS' sample='Dry Snow' />
-				<entry displayValue='5' pixelValue='50' label='WS' sample='Wet Snow' />
-				<entry displayValue='6' pixelValue='60' label='RA' sample='Rain' />
-				<entry displayValue='7' pixelValue='70' label='HR' sample='Heavy Rain' />
-				<entry displayValue='8' pixelValue='80' label='BD' sample='Big Drops' />
-				<entry displayValue='9' pixelValue='90' label='GR' sample='Graupel' />
-				<entry displayValue='10' pixelValue='100' label='HA' sample='Hail-Rain' />
-				<entry displayValue='11' pixelValue='110' label='' sample='TBD' />
-				<entry displayValue='12' pixelValue='120' label='' sample='TBD' />
-				<entry displayValue='13' pixelValue='130' label='' sample='TBD' />
-				<entry displayValue='14' pixelValue='140' label='UK' sample='Unknown' />
-				<entry displayValue='16' pixelValue='150' label='RF' />
 			</dataMapping>
 		</imageStyle>
 	</styleRule>

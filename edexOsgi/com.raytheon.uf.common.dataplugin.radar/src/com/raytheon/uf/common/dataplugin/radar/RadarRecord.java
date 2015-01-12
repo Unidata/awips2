@@ -52,7 +52,6 @@ import org.geotools.referencing.GeodeticCalculator;
 import org.hibernate.annotations.Index;
 import org.opengis.referencing.crs.ProjectedCRS;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
@@ -116,24 +115,27 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Feb 14, 2007 139         Phillippe   Initial creation
- * Sep 14, 2007 379         jkorman     Added populateDataStore() and
- *                                      getPersistenceTime() from new
- *                                      IPersistable
- * Oct 09, 2007 465         randerso    Updated to better represent level 3 data
- * Nov 29, 2007 472         jkorman     Added IDecoderGettable interface.
- * Mar 04, 2013 DCS51       zwang       Handle MIGFA product
- * Mar 18, 2013 1804        bsteffen    Remove AlphanumericValues from radar
- *                                      HDF5.
- * Apr 04, 2013 1846        bkowal      Added an index on refTime and
- *                                      forecastTime
- * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
- * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869        bsteffen    Remove dataURI column from
- *                                      PluginDataObject.
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 14, 2007  139      Phillippe   Initial creation
+ * Sep 14, 2007  379      jkorman     Added populateDataStore() and
+ *                                    getPersistenceTime() from new
+ *                                    IPersistable
+ * Oct 09, 2007  465      randerso    Updated to better represent level 3 data
+ * Nov 29, 2007  472      jkorman     Added IDecoderGettable interface.
+ * Mar 04, 2013  DCS51    zwang       Handle MIGFA product
+ * Mar 18, 2013  1804     bsteffen    Remove AlphanumericValues from radar HDF5
+ * Apr 04, 2013  1846     bkowal      Added an index on refTime and
+ *                                    forecastTime
+ * Apr 08, 2013  1293     bkowal      Removed references to hdffileid.
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from
+ *                                    PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Dec 18, 2013  16002    kshrestha   Added logic to match all dBZ values in
+ *                                    the DHR with AWIPS1
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * 
  * 
  * </pre>
  * 
@@ -890,6 +892,8 @@ public class RadarRecord extends PersistablePluginDataObject implements
             double[] pix = { 256 - nLevels, 255 };
             if (getProductCode() == 155) {
                 pix = new double[] { 129, 149 };
+            } else if(getProductCode() == 32) {
+                pix = new double[]{ 2, 256 };
             }
 
             double[] data = { offset, offset + ((nLevels - 1) * scale) };
@@ -960,17 +964,6 @@ public class RadarRecord extends PersistablePluginDataObject implements
 
     public void setElevation(Float elevation) {
         this.elevation = elevation;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     public RadarStation getLocation() {
@@ -1189,19 +1182,12 @@ public class RadarRecord extends PersistablePluginDataObject implements
 
     private <T> void addPacketData(double i, double j, int type, T currData,
             boolean needToConvert) {
-        addPacketData(i, j, "", type, RadarProductType.GENERAL, currData,
+        addPacketData(i, j, type, RadarProductType.GENERAL, currData,
                 needToConvert);
     }
 
     private <T> void addPacketData(double i, double j, int type,
             RadarProductType productType, T currData, boolean needToConvert) {
-        addPacketData(i, j, "", type, productType, currData, needToConvert);
-    }
-
-    private <T> void addPacketData(double i, double j, String stormID,
-            int type, RadarProductType productType, T currData,
-            boolean needToConvert) {
-
         // Convert x/y to lon/lat
         if (needToConvert) {
             Coordinate coor;

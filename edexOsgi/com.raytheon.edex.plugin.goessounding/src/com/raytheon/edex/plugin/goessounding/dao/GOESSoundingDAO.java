@@ -26,9 +26,9 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.goessounding.GOESSounding;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Provide data access services against the SoundingSite data object.

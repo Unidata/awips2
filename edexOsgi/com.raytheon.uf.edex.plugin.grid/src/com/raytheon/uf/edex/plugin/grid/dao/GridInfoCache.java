@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -51,6 +50,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * ------------ ---------- ----------- --------------------------
  * May 21, 2012            bsteffen     Initial creation
  * Mar 27, 2013 1821       bsteffen    Speed up GridInfoCache.
+ * Sep 09, 2014 3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -245,14 +245,8 @@ public class GridInfoCache {
                     record.getLocation().getId()));
             record.setParameter(ParameterLookup.getInstance().getParameter(
                     record.getParameter().getAbbreviation()));
-            try {
-                record.setLevel(LevelFactory.getInstance().getLevel(
-                        record.getLevel().getId()));
-            } catch (CommunicationException e) {
-                // This should never hit and if it does ignore it, the only side
-                // affect is thatthe level in the record will not be the same as
-                // the other records on the same level.
-            }
+            record.setLevel(LevelFactory.getInstance().getLevel(
+                    record.getLevel().getId()));
             primaryCache.put(record, record);
         }
 

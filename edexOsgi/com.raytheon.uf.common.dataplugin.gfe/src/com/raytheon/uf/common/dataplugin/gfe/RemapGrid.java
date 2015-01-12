@@ -20,22 +20,12 @@
 
 package com.raytheon.uf.common.dataplugin.gfe;
 
-import java.awt.RenderingHints;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
-import javax.media.jai.BorderExtender;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.ParameterBlockJAI;
-import javax.media.jai.PlanarImage;
-
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -44,12 +34,17 @@ import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
-import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
+import com.raytheon.uf.common.numeric.filter.FillValueFilter;
+import com.raytheon.uf.common.numeric.filter.InverseFillValueFilter;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -70,6 +65,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     in Maputil.rotation
  * 07/17/13     #2185      bsteffen    Cache computed grid reprojections.
  * 08/13/13     #1571      randerso    Passed fill values into interpolator.
+ * 03/07/14     #2791      bsteffen    Move Data Source/Destination to numeric plugin.
+ * 05/19/14     #2913      bsteffen    Remove rescale option.
+ * 
  * 
  * </pre>
  * 
@@ -83,8 +81,6 @@ public class RemapGrid {
     /** The output grid location describing the destination data */
     private GridLocation destinationGloc;
 
-    private boolean rescale = false;
-
     private SoftReference<Grid2DFloat> rotationRef;
 
     /**
@@ -96,24 +92,8 @@ public class RemapGrid {
      *            The destination grid location describing the destination data
      */
     public RemapGrid(GridLocation sourceGloc, GridLocation destinationGloc) {
-        this(sourceGloc, destinationGloc, false);
-    }
-
-    /**
-     * Constructs a new RemapGrid with the given input and output grid locations
-     * 
-     * @param sourceGloc
-     *            The source grid location describing the source data
-     * @param destinationGloc
-     *            The destination grid location describing the destination data
-     * @param rescale
-     *            true if data is to be rescaled
-     */
-    public RemapGrid(GridLocation sourceGloc, GridLocation destinationGloc,
-            boolean rescale) {
         this.sourceGloc = sourceGloc;
         this.destinationGloc = destinationGloc;
-        this.rescale = rescale;
         this.rotationRef = new SoftReference<Grid2DFloat>(null);
     }
 
@@ -490,22 +470,28 @@ public class RemapGrid {
             float outputFill) throws FactoryException, TransformException {
 
         GridGeometry2D sourceGeometry = MapUtil.getGridGeometry(sourceGloc);
+        GridEnvelope2D sourceRange = sourceGeometry.getGridRange2D();
 
         ByteBuffer data = input.getBuffer();
         ByteBuffer resampledData = null;
 
         GridGeometry2D destGeometry = MapUtil.getGridGeometry(destinationGloc);
+        GridEnvelope2D destRange = destGeometry.getGridRange2D();
         GridReprojection interp = PrecomputedGridReprojection.getReprojection(
                 sourceGeometry, destGeometry);
 
-        ByteBufferWrapper source = new ByteBufferWrapper(data, sourceGeometry);
-        source.setFillValue(inputFill);
+        DataSource source = new ByteBufferWrapper(data, sourceRange.width,
+                sourceRange.height);
+        source = FillValueFilter.apply(source, inputFill);
 
-        ByteBufferWrapper dest = new ByteBufferWrapper(destGeometry);
-        dest.setFillValue(outputFill);
+        ByteBufferWrapper bufferDest = new ByteBufferWrapper(destRange.width,
+                destRange.height);
+        DataDestination dest = InverseFillValueFilter.apply(
+                (DataDestination) bufferDest, outputFill);
 
-        resampledData = interp.reprojectedGrid(
-                new NearestNeighborInterpolation(), source, dest).getBuffer();
+        interp.reprojectedGrid(new NearestNeighborInterpolation(), source, dest);
+
+        resampledData = bufferDest.getBuffer();
 
         // Remap the the output data into a Grid2DFloat object
 
@@ -535,63 +521,25 @@ public class RemapGrid {
         GridGeometry2D sourceGeometry = MapUtil.getGridGeometry(sourceGloc);
 
         float[] data = input.getFloats();
-        float[] f1 = null;
 
-        /*
-         * Checks the CRSs to see if they are the same. If they are, then
-         * reprojection is not necessary, only resampling
-         */
-        if (rescale
-                && sourceGeometry.getCoordinateReferenceSystem().toWKT()
-                        .equals(destinationGloc.getCrsWKT())) {
+        GridGeometry2D destGeometry = MapUtil.getGridGeometry(destinationGloc);
 
-            GridCoverageFactory factory = new GridCoverageFactory();
+        GridReprojection interp = PrecomputedGridReprojection.getReprojection(
+                sourceGeometry, destGeometry);
 
-            Envelope inputEnvelope = sourceGeometry.getEnvelope();
+        DataSource source = new GeographicDataSource(FloatBuffer.wrap(data),
+                sourceGeometry);
+        source = FillValueFilter.apply(source, inputFill);
+        ;
 
-            // Map the data into an array
-            float[][] dataPoints = new float[input.getYdim()][input.getXdim()];
+        FloatBufferWrapper rawDest = new FloatBufferWrapper(
+                destGeometry.getGridRange2D());
+        DataDestination dest = InverseFillValueFilter.apply(
+                (DataDestination) rawDest, outputFill);
 
-            int i = 0;
-            for (int y = 0; y < input.getYdim(); y++) {
-                for (int x = 0; x < input.getXdim(); x++) {
-                    dataPoints[y][x] = data[i++];
-                }
-            }
+        interp.reprojectedGrid(new BilinearInterpolation(), source, dest);
 
-            // Construct the source grid coverage object
-            GridCoverage2D inputGC = factory.create("in", dataPoints,
-                    inputEnvelope);
-
-            float scaleX = ((float) destinationGloc.getNx() / (float) sourceGloc
-                    .getNx());
-            float scaleY = ((float) destinationGloc.getNy() / (float) sourceGloc
-                    .getNy());
-            PlanarImage image = scaleGrid(inputGC.getRenderedImage(), scaleX,
-                    scaleY);
-            Raster rasterData = image.getData();
-            f1 = rasterData.getPixels(rasterData.getMinX(),
-                    rasterData.getMinY(), rasterData.getWidth(),
-                    rasterData.getHeight(), f1);
-
-            JAI.getDefaultInstance().getTileCache().flush();
-        } else {
-            GridGeometry2D destGeometry = MapUtil
-                    .getGridGeometry(destinationGloc);
-
-            GridReprojection interp = PrecomputedGridReprojection
-                    .getReprojection(sourceGeometry, destGeometry);
-
-            FloatArrayWrapper source = new FloatArrayWrapper(data,
-                    sourceGeometry);
-            source.setFillValue(inputFill);
-
-            FloatArrayWrapper dest = new FloatArrayWrapper(destGeometry);
-            dest.setFillValue(outputFill);
-
-            f1 = interp.reprojectedGrid(new BilinearInterpolation(), source,
-                    dest).getArray();
-        }
+        float[] f1 = rawDest.getArray();
 
         // Remap the the output data into a Grid2DFloat object
 
@@ -601,37 +549,6 @@ public class RemapGrid {
         return retVal;
     }
 
-    /**
-     * Resamples the grid to a new resolution using scale values
-     * 
-     * @param img
-     *            The image to scale
-     * @param xScale
-     *            The new horizontal resolution
-     * @param yScale
-     *            The new vertical resolution
-     * @return The resampled image
-     */
-    private PlanarImage scaleGrid(RenderedImage img, float xScale, float yScale) {
-
-        PlanarImage scaledImg;
-
-        ParameterBlockJAI param = new ParameterBlockJAI("Scale");
-        param.addSource(img);
-        param.setParameter("xScale", xScale);
-        param.setParameter("yScale", yScale);
-        Interpolation interpol = Interpolation
-                .getInstance(Interpolation.INTERP_BICUBIC);
-        RenderingHints hint = new RenderingHints(JAI.KEY_BORDER_EXTENDER,
-                BorderExtender.createInstance(BorderExtender.BORDER_COPY));
-
-        param.setParameter("interpolation", interpol);
-
-        scaledImg = JAI.create("Scale", param, hint);
-
-        return scaledImg;
-
-    }
 
     private float getRot(int x, int y) {
         Grid2DFloat rotation;
@@ -645,7 +562,7 @@ public class RemapGrid {
                         Coordinate llc = destinationGloc
                                 .latLonCenter(new Coordinate(x1, y1));
                         rotation.set(x1, y1,
-                            (float) (-MapUtil.rotation(llc, sourceGloc)));
+                                (float) (-MapUtil.rotation(llc, sourceGloc)));
                     }
                 }
                 rotationRef = new SoftReference<Grid2DFloat>(rotation);

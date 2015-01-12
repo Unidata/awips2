@@ -32,7 +32,7 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsResponse;
 
 import org.apache.cxf.annotations.FastInfoset;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 
 /**
  * 

@@ -1,18 +1,33 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
-	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:http="http://cxf.apache.org/transports/http/configuration"
+	xmlns:httpj="http://cxf.apache.org/transports/http-jetty/configuration"
+	xmlns:sec="http://cxf.apache.org/configuration/security"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
   	http://cxf.apache.org/jaxws
     http://cxf.apache.org/schemas/jaxws.xsd
     http://cxf.apache.org/jaxrs
-    http://cxf.apache.org/schemas/jaxrs.xsd">
+    http://cxf.apache.org/schemas/jaxrs.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://cxf.apache.org/transports/http/configuration        
+    http://cxf.apache.org/schemas/configuration/http-conf.xsd
+    http://cxf.apache.org/transports/http-jetty/configuration   
+    http://cxf.apache.org/schemas/configuration/http-jetty.xsd
+    http://cxf.apache.org/configuration/security                
+    http://cxf.apache.org/schemas/configuration/security.xsd">
+
+	<context:property-placeholder/>
 
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
 	<import resource="file:///${edex.home}/conf/spring/edex-db.xml" />
+	<import resource="classpath:res/spring/edex-security.xml" />
 	<import resource="classpath:res/spring/eventbus-common.xml" />
+	<import resource="classpath:res/spring/request-service-common.xml" />
 	<import resource="classpath:res/spring/ebxml.xml" />
 	<import resource="classpath:res/spring/ebxml-validator-plugins.xml" />
 	<import resource="classpath:res/spring/ebxml-querytypes.xml" />
@@ -22,9 +37,9 @@
 	<import resource="classpath:res/spring/ebxml-thrift-client.xml" />
 	<import resource="classpath:res/spring/ebxml-xacml.xml" />
 	<import resource="classpath:res/spring/ebxml-impl.xml" />
-	<import resource="classpath*:res/spring/ebxml-customQueryPlugin.xml"/>
+	<import resource="classpath*:res/spring/ebxml-customQueryPlugin.xml" />
 	<import resource="classpath:res/spring/ebxml-webservices.xml" />
-	<import resource="classpath*:res/spring/webservices.xml"/>
+	<import resource="classpath*:res/spring/webservices.xml" />
 
 	<bean id="QueryServiceWrapper"
 		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImplWrapper">
@@ -51,6 +66,8 @@
 	<jaxws:server id="QueryService" address="/queryManager">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlQueryInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="QueryServiceWrapper" />
@@ -60,6 +77,8 @@
 	<jaxws:server id="NotificationListenerService" address="/notificationListener">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="NotificationListenerServiceWrapper" />
@@ -69,6 +88,8 @@
 	<jaxws:server id="LifecycleManagerService" address="/lifecycleManager">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="LifecycleManagerServiceWrapper" />
@@ -78,6 +99,8 @@
 	<jaxws:server id="ValidatorService" address="/validator">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="ValidatorServiceWrapper" />
@@ -87,6 +110,8 @@
 	<jaxws:server id="CatalogerService" address="/cataloger">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="catalogerServiceImpl" />
@@ -98,14 +123,14 @@
 	<jaxrs:server id="registryRestServices" address="/rest">
 		<jaxrs:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxrs:inInterceptors>
 		<jaxrs:serviceBeans>
 			<ref bean="registryObjectsRestService" />
 			<ref bean="repositoryObjectsRestService" />
 			<ref bean="queryProtocolRestService" />
-			<ref bean="AddRegistryParty" />
-			<ref bean="ModifyRegistryParty" />
-			<ref bean="DeleteRegistryParty" />
+			<ref bean="registryUsers" />
 		</jaxrs:serviceBeans>
 	</jaxrs:server>
 	<!-- End REST Endpoint definitions -->

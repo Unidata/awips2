@@ -13,7 +13,7 @@
 		<property name="record" value="com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon" />
 	</bean>
 	
-	<bean factory-bean="pluginRegistry" factory-method="register">
+	<bean id="sfcObsRegistered" factory-bean="pluginRegistry" factory-method="register">
 		<constructor-arg ref="sfcobsPluginName" />
 		<constructor-arg ref="sfcobsProperties"/>
 	</bean>

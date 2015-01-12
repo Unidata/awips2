@@ -18,6 +18,7 @@
 #    Date            Ticket#       Engineer             Description
 #    ------------    ----------    -----------          --------------------------
 #    12/22/09        173_partB     mgamazaychikov       Initial Creation
+#    05/20/14        2913          bsteffen             Remove unused imports
 #
 
 import BaseRequest
@@ -76,7 +77,6 @@ class GempakMosaicImgLinkRequest(BaseRequest.BaseRequest):
         from com.raytheon.edex.uengine.tasks.decode import FileIn
         from com.raytheon.edex.uengine.tasks.output import FileOut
         from gov.noaa.nws.ncep.edex.plugin.mosaic.uengine import DecodeMosaicImage
-        from com.raytheon.edex.uengine.tasks.process import ColorMapImage, ReprojectImage, ImageOut       
         response = ArrayList()
         size = self.queryResults.size() 
         for i in range(size):

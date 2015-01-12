@@ -19,22 +19,21 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic.regional;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_72_CMAXMIN;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_72_CTEMP;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_LEAD;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
+import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic;
+import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticGroups;
+import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticSec5Decoder;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncPrecip;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncTemp;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
-import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticGroups;
-import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticSec5Decoder;
-import com.raytheon.uf.edex.decodertools.core.DataItem;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
 
 /**
  * Decode synoptic section 5 regional data for WMO block 72 (United States)
@@ -46,6 +45,9 @@ import com.raytheon.uf.edex.decodertools.core.ReportParser;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
+ * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter}.
+ * Sep 26, 2014 #3629      mapeters    Replaced static imports.
+ * Sep 30, 2014 #3629      mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * 
  * </pre>
  * 
@@ -61,6 +63,9 @@ public class Sec5Block72Decoder extends SynopticSec5Decoder {
     private DataItem cityMinTemperature = null;
 
     private DataItem city24HrPrecip = null;
+
+    private static final UnitConverter fToK = NonSI.FAHRENHEIT
+            .getConverterTo(SI.KELVIN);
 
     /**
      * Construct this decoder using a specified decoder parent.
@@ -94,7 +99,7 @@ public class Sec5Block72Decoder extends SynopticSec5Decoder {
             // nothing to do.
             return;
         }
-        if (reportParser.positionTo(SEC_5_LEAD)) {
+        if (reportParser.positionTo(ISynoptic.SEC_5_LEAD_STRING)) {
             String element = null;
 
             while (true) {
@@ -107,27 +112,27 @@ public class Sec5Block72Decoder extends SynopticSec5Decoder {
                     break;
                 }
                 if (isBlock72Data) {
-                    if (matchElement(element, SEC_5_72_CTEMP)) {
+                    if (ISynoptic.SEC_5_72_CTEMP.matcher(element)
+                            .find()) {
                         // City temperature.
                         Double val = decodeFahrenheit(element.substring(1, 4));
                         if (val != null) {
-                            cityTemperature = new DataItem("K", "cityTemp", 5);
+                            cityTemperature = new DataItem("cityTemp");
                             cityTemperature.setDataValue(val);
                             cityTemperature.setDataPeriod(0);
                         }
-                    } else if (matchElement(element, SEC_5_72_CMAXMIN)) {
+                    } else if (ISynoptic.SEC_5_72_CMAXMIN.matcher(
+                            element).find()) {
                         // City maximum/minimum temperature.
                         Double val = decodeFahrenheit(element.substring(0, 3));
                         if (val != null) {
-                            cityMaxTemperature = new DataItem("K",
-                                    "cityMaxTemp", 5);
+                            cityMaxTemperature = new DataItem("cityMaxTemp");
                             cityMaxTemperature.setDataValue(val);
                             cityMaxTemperature.setDataPeriod(0);
                         }
                         val = decodeFahrenheit(element.substring(3, 6));
                         if (val != null) {
-                            cityMinTemperature = new DataItem("K",
-                                    "cityMinTemp", 5);
+                            cityMinTemperature = new DataItem("cityMinTemp");
                             cityMinTemperature.setDataValue(val);
                             cityMinTemperature.setDataPeriod(0);
                         }
@@ -220,10 +225,9 @@ public class Sec5Block72Decoder extends SynopticSec5Decoder {
     private static final Double decodeFahrenheit(String element) {
         Double decodedValue = null;
         int sign = SynopticGroups.getSign(element.charAt(0));
-        Integer val = getInt(element, 1, 3);
+        Integer val = AbstractSfcObsDecoder.getInt(element, 1, 3);
         if ((val != null) && (val >= 0)) {
-            double f = (((double) val * sign) - 32) * 5.0 / 9.0;
-            decodedValue = DecoderTools.celsiusToKelvin(f, 1, 1);
+            decodedValue = fToK.convert((double) val * sign);
         } else {
             decodedValue = null;
         }

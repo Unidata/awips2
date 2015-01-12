@@ -22,10 +22,14 @@ package com.raytheon.uf.edex.plugin.modelsounding.ingest;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -33,10 +37,10 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.vadriver.VA_Driver;
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.edex.plugin.modelsounding.decoder.ModelSoundingDataAdapter;
 
 /**
@@ -51,6 +55,7 @@ import com.raytheon.uf.edex.plugin.modelsounding.decoder.ModelSoundingDataAdapte
  * ------------- -------- ----------- --------------------------
  * Jan 29, 2011           bfarmer     Initial creation
  * Dec 02, 2013  2537     bsteffen    Ensure streams are closed.
+ * Mar 06, 2014  2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 
@@ -61,26 +66,26 @@ import com.raytheon.uf.edex.plugin.modelsounding.decoder.ModelSoundingDataAdapte
 public class ModelBufrSubscriber implements INationalDatasetSubscriber {
 
     private static final String MODEL_STATION_LIST = ModelSoundingDataAdapter.MODEL_STATION_LIST;
-    
+
     private static final String MODEL_STATION_INFO = "modelBufrStationInfo.txt";
-    
+
     private static final String MODEL_GOODNESS = "modelBufr.goodness";
-    
-    
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ModelBufrSubscriber.class);
 
     @Override
     public void notify(String fileName, File file) {
-        
+
         statusHandler.handle(Priority.EVENTA,
                 "modelBufr:Processing input file [" + fileName + "]");
-        
+
         if ("modelBufr.spi".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            File outFile = pathMgr.getFile(lc, ModelSoundingDataAdapter.SPI_FILE);
+            File outFile = pathMgr.getFile(lc,
+                    ModelSoundingDataAdapter.SPI_FILE);
             saveFile(file, outFile);
             ModelSoundingDataAdapter.updateSPIData();
         } else if (MODEL_STATION_LIST.equals(fileName)) {
@@ -92,13 +97,16 @@ public class ModelBufrSubscriber implements INationalDatasetSubscriber {
             saveFile(file, outFile);
             generateSPI(file, goodnessFile);
 
-            File spiFile = pathMgr.getFile(lc, ModelSoundingDataAdapter.SPI_FILE);
+            File spiFile = pathMgr.getFile(lc,
+                    ModelSoundingDataAdapter.SPI_FILE);
             if (!spiFile.exists()) {
                 try {
                     spiFile.createNewFile();
                 } catch (IOException e) {
-                    statusHandler.handle(Priority.SIGNIFICANT,
-                            "modelBufr:Could not create primary file. ", e);
+                    statusHandler.handle(
+                            Priority.SIGNIFICANT,
+                            "modelBufr:Could not create spi file: "
+                                    + spiFile.getName(), e);
                 }
             }
 
@@ -116,13 +124,15 @@ public class ModelBufrSubscriber implements INationalDatasetSubscriber {
             saveFile(file, outFile);
             generateSPI(file, goodnessFile);
 
-            File spiFile = pathMgr.getFile(lc, ModelSoundingDataAdapter.SPI_FILE);
+            File spiFile = pathMgr.getFile(lc,
+                    ModelSoundingDataAdapter.SPI_FILE);
             if (!spiFile.exists()) {
                 try {
                     spiFile.createNewFile();
                 } catch (IOException e) {
                     statusHandler.handle(Priority.SIGNIFICANT,
-                            "modelBufr:Could not create primary file. ", e);
+                            "modelBufr:Could not create spiFile file: "
+                                    + spiFile.getName(), e);
                 }
             }
 
@@ -131,7 +141,7 @@ public class ModelBufrSubscriber implements INationalDatasetSubscriber {
             driver.vaStationsFile(goodnessFile, null, spiFile);
             // updateStationList will reload spi files also
             ModelSoundingDataAdapter.update();
-            
+
         }
     }
 
@@ -145,17 +155,17 @@ public class ModelBufrSubscriber implements INationalDatasetSubscriber {
         String[] splitLine;
         try {
             BufferedReader fis = null;
-//            if (!goodnessFile.exists()) {
-//                goodnessFile.createNewFile();
-//            }
+            // if (!goodnessFile.exists()) {
+            // goodnessFile.createNewFile();
+            // }
             BufferedWriter fos = null;
             try {
                 fis = new BufferedReader(new FileReader(file));
                 fos = new BufferedWriter(new FileWriter(goodnessFile));
                 while ((line = fis.readLine()) != null) {
-                    if(line.length() > 0) {
+                    if (line.length() > 0) {
                         // check for commented lines
-                        if('#' != line.charAt(0)) {
+                        if ('#' != line.charAt(0)) {
                             try {
                                 splitLine = line.split("\\|");
                                 Integer elevation;
@@ -163,27 +173,34 @@ public class ModelBufrSubscriber implements INationalDatasetSubscriber {
                                 Double longitude;
                                 String cause = "elevation";
                                 try {
-                                    elevation = Integer.parseInt(splitLine[4].trim());
+                                    elevation = Integer.parseInt(splitLine[4]
+                                            .trim());
                                     cause = "latitude";
-                                    latitude = Double.parseDouble(splitLine[2].trim());
+                                    latitude = Double.parseDouble(splitLine[2]
+                                            .trim());
                                     cause = "longitude";
-                                    longitude = Double.parseDouble(splitLine[3].trim());
+                                    longitude = Double.parseDouble(splitLine[3]
+                                            .trim());
                                 } catch (NumberFormatException nfe) {
-                                    String err = String.format("modelBufr:Invalid %s in data line [%s]", cause, line);
-                                    statusHandler.handle(Priority.PROBLEM,err);
+                                    String err = String
+                                            .format("modelBufr:Invalid %s in data line [%s]",
+                                                    cause, line);
+                                    statusHandler.handle(Priority.PROBLEM, err);
                                     continue;
                                 }
                                 String stationName = splitLine[1].trim();
                                 fos.write("0 ");
                                 fos.write(stationName);
-                                fos.write(String.format(" %8.4f %9.4f %5d %9d", latitude,
-                                        longitude, elevation, 0));
+                                fos.write(String.format(" %8.4f %9.4f %5d %9d",
+                                        latitude, longitude, elevation, 0));
                                 fos.newLine();
                             } catch (Exception e) {
-                                String err = String.format("modelBufr:Error in data line [%s]", line);
-                                statusHandler.handle(Priority.PROBLEM,err,e);
+                                String err = String.format(
+                                        "modelBufr:Error in data line [%s]",
+                                        line);
+                                statusHandler.handle(Priority.PROBLEM, err, e);
                                 continue;
-                            } 
+                            }
                         }
                     }
                 }
@@ -198,21 +215,22 @@ public class ModelBufrSubscriber implements INationalDatasetSubscriber {
                                         + file.getName() + "]");
                     }
                 }
-                if(fos != null) {
+                if (fos != null) {
                     try {
                         fos.close();
                     } catch (IOException ioe) {
                         statusHandler.handle(Priority.SIGNIFICANT,
-                                "modelBufr:Error closing output file [" + goodnessFile.getName() + "]");
+                                "modelBufr:Error closing output file ["
+                                        + goodnessFile.getName() + "]");
                     }
                 }
             }
         } catch (IOException e) {
-            statusHandler.handle(Priority.SIGNIFICANT, "modelBufr:Could not read File ", e);
+            statusHandler.handle(Priority.SIGNIFICANT,
+                    "modelBufr:Could not read File ", e);
         }
     }
-    
-    
+
     /**
      * 
      * @param file
@@ -223,28 +241,37 @@ public class ModelBufrSubscriber implements INationalDatasetSubscriber {
             BufferedReader fis = null;
             BufferedWriter fos = null;
             try {
-                fis = new BufferedReader(new FileReader(file));
-                fos = new BufferedWriter(new FileWriter(outFile));
+                fis = new BufferedReader(new InputStreamReader(
+                        new FileInputStream(file)));
+                fos = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream(outFile)));
                 String line = null;
-                while ((line = fis.readLine()) != null) {
-                    fos.write(line);
-                    fos.newLine();
+                try {
+                    while ((line = fis.readLine()) != null) {
+                        fos.write(line);
+                        fos.newLine();
+                    }
+                } catch (IOException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Could not read file: " + file.getName(), e);
+
                 }
             } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.SIGNIFICANT, "modelBufr:Failed to find File ",
-                        e);
-            } catch (IOException e) {
-                statusHandler.handle(Priority.SIGNIFICANT, "modelBufr:Error reading File ",
-                        e);
+                statusHandler.handle(Priority.PROBLEM, "Failed to find file: "
+                        + file.getName(), e);
             } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
                 if (fos != null) {
                     try {
                         fos.close();
                     } catch (IOException e) {
-                        statusHandler.handle(
-                                Priority.SIGNIFICANT,
-                                "Error closing output file ["
-                                        + outFile.getName() + "]");
+                        // ignore
                     }
                 }
             }

@@ -19,17 +19,15 @@
  **/
 package com.raytheon.uf.edex.registry.acp.xacml;
 
-import java.util.List;
-
 import org.opensaml.xacml.XACMLObject;
 import org.opensaml.xacml.ctx.DecisionType.DECISION;
 import org.opensaml.xacml.ctx.RequestType;
 import org.opensaml.xacml.ctx.ResponseType;
 import org.opensaml.xacml.ctx.StatusCodeType;
-import org.opensaml.xacml.policy.ObligationType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.acp.xacml.engine.policy.Evaluator;
 import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLProcessingException;
 import com.raytheon.uf.edex.registry.acp.xacml.objects.Match;
@@ -52,6 +50,7 @@ import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLObjectUtil;
  * ------------ ----------  ----------- --------------------------
  * 8/17/2012    724          bphillip    Initial Coding
  * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
+ * 7/10/2014    1717         bphillip    Removed unneccessary methods
  * </pre>
  * 
  * @author bphillip
@@ -60,15 +59,6 @@ import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLObjectUtil;
 @Service
 @Transactional
 public class XACMLPolicyDecisionPoint {
-
-    /** The obligations to evaluate */
-    private List<ObligationType> obligations;
-
-    /** The Policy or Policy Set object being used to evaluate the request */
-    private XACMLObject policyObject;
-
-    /** The Request being evaluated */
-    private RequestType request;
 
     public XACMLPolicyDecisionPoint() {
 
@@ -82,10 +72,7 @@ public class XACMLPolicyDecisionPoint {
      * @param request
      *            The request being evaluated
      */
-    public XACMLPolicyDecisionPoint(XACMLObject policyObject,
-            RequestType request) {
-        this.policyObject = policyObject;
-        this.request = request;
+    public XACMLPolicyDecisionPoint(XACMLObject policyObject) {
     }
 
     /**
@@ -93,63 +80,25 @@ public class XACMLPolicyDecisionPoint {
      * 
      * @return The response
      */
-    public ResponseType evaluate() {
+    public ResponseType evaluate(XACMLObject policy, RequestType request) {
+        ResponseType response = null;
         Match match;
         try {
-            match = Evaluator.getInstance().evaluate(policyObject, request);
+            match = Evaluator.getInstance().evaluate(policy, request);
         } catch (XACMLProcessingException e) {
-            return XACMLObjectUtil.buildResponse(DECISION.Deny,
+            response = XACMLObjectUtil.buildResponse(DECISION.Deny,
                     StatusCodeType.SC_PROCESSING_ERROR,
                     e.getLocalizedMessage(), "");
+            return response;
         }
-        this.obligations = match.getObligations();
-        return XACMLObjectUtil.buildResponse(match.getMatch(),
+
+        response = XACMLObjectUtil.buildResponse(match.getMatch(),
                 match.getStatusCode(), match.getMessage(), "");
-    }
-
-    /**
-     * @return the obligations
-     */
-    public List<ObligationType> getObligations() {
-        return obligations;
-    }
-
-    /**
-     * @param obligations
-     *            the obligations to set
-     */
-    public void setObligations(List<ObligationType> obligations) {
-        this.obligations = obligations;
-    }
-
-    /**
-     * @return the policyObject
-     */
-    public XACMLObject getPolicyObject() {
-        return policyObject;
-    }
-
-    /**
-     * @param policyObject
-     *            the policyObject to set
-     */
-    public void setPolicyObject(XACMLObject policyObject) {
-        this.policyObject = policyObject;
-    }
-
-    /**
-     * @return the request
-     */
-    public RequestType getRequest() {
-        return request;
-    }
-
-    /**
-     * @param request
-     *            the request to set
-     */
-    public void setRequest(RequestType request) {
-        this.request = request;
+        if (!CollectionUtil.isNullOrEmpty(match.getObligations())) {
+            response.getResult().getObligations().getObligations()
+                    .addAll(match.getObligations());
+        }
+        return response;
     }
 
 }

@@ -25,12 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.edex.plugin.satellite.gini.SatelliteCreatingEntity;
-import com.raytheon.edex.plugin.satellite.gini.SatellitePhysicalElement;
-import com.raytheon.edex.plugin.satellite.gini.SatellitePosition;
-import com.raytheon.edex.plugin.satellite.gini.SatelliteSectorId;
-import com.raytheon.edex.plugin.satellite.gini.SatelliteSource;
-import com.raytheon.edex.plugin.satellite.gini.SatelliteUnit;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -43,12 +37,11 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
+import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.plugin.DataRecordWrapUtil;
 import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil;
 import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil.IDataRecordCreator;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -61,41 +54,25 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 11, 2009            bphillip     Initial creation
- * - AWIPS2 Baseline Repository --------
- * 07/09/2012    798        jkorman     Modified datastore population.
- * 03/25/2013    1823       dgilling    Modified getSatelliteData() and 
- *                                      getSatelliteInventory() to allow optional
- *                                      input arguments.
- * 06/24/2013    2044       randerso    Added methods to get data by TimeRange and 
- *                                      getInventory with maxRecord limit
- * Nov 14, 2013  2393       bclement    moved interpolation code to parent class
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 11, 2009           bphillip    Initial creation
+ * Jul 09, 2012  798      jkorman     Modified datastore population.
+ * Mar 25, 2013  1823     dgilling    Modified getSatelliteData() and 
+ *                                    getSatelliteInventory() to allow optional
+ *                                    input arguments.
+ * Jun 24, 2013  2044     randerso    Added methods to get data by TimeRange and 
+ *                                    getInventory with maxRecord limit
+ * Nov 14, 2013  2393     bclement    moved interpolation code to parent class
+ * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
+ *                                    plugin.
+ * Nov 04, 2014  2714     bclement    removed GINI specific DAOs
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class SatelliteDao extends PluginDao {
-
-    /** The creating entity data access object */
-    private SatelliteCreatingEntityDao creatingEntityDao = new SatelliteCreatingEntityDao();
-
-    /** The physical element data access object */
-    private SatellitePhysicalElementDao physicalElementDao = new SatellitePhysicalElementDao();
-
-    /** The sector ID data access object */
-    private SatelliteSectorIdDao sectorIdDao = new SatelliteSectorIdDao();
-
-    /** The source data access object */
-    private SatelliteSourceDao sourceDao = new SatelliteSourceDao();
-
-    /** The satellite unit data access object */
-    private SatelliteUnitDao unitDao = new SatelliteUnitDao();
-
-    /** The satellite position data access object */
-    private SatellitePositionDao positionDao = new SatellitePositionDao();
 
     /**
      * Creates a new satellite data access object
@@ -148,8 +125,8 @@ public class SatelliteDao extends PluginDao {
                     coverage.getGridGeometry());
 
             Rectangle fullScale = downScaler.getDownscaleSize(0);
-            DataWrapper1D dataSource = DataRecordWrapUtil.wrap(
-                    storageRecord, fullScale.width, fullScale.height, true);
+            BufferWrapper dataSource = BufferWrapper.wrapArray(
+                    storageRecord.getDataObject(), fullScale.width, fullScale.height);
 
             int levels = DownscaleStoreUtil.storeInterpolated(dataStore,
                     downScaler, dataSource,
@@ -173,6 +150,12 @@ public class SatelliteDao extends PluginDao {
                             // always the same fill value
                             return fillValue;
                         }
+
+                        @Override
+                        public boolean isSigned() {
+                            return false;
+                        }
+
                     });
             // set the number of levels in the 'parent' satellite data.
             satRecord.setInterpolationLevels(levels);
@@ -382,122 +365,6 @@ public class SatelliteDao extends PluginDao {
     }
 
     /**
-     * Gets a SatelliteCreatingEntity with the given id
-     * 
-     * @param entityId
-     *            The entity id
-     * @return The SatelliteCreatingEntity with the given id
-     */
-    public SatelliteCreatingEntity getCreatingEntity(int entityId) {
-        return creatingEntityDao.queryById(entityId);
-    }
-
-    /**
-     * Gets a SatellitePhysicalElement with the given id
-     * 
-     * @param elementId
-     *            The physical element id
-     * @return The SatellitePhysicalElement with the given id
-     */
-    public SatellitePhysicalElement getPhysicalElement(int elementId) {
-        return physicalElementDao.queryById(elementId);
-    }
-
-    /**
-     * Gets a SatelliteSectorId with the given id
-     * 
-     * @param sectorId
-     *            The sector id
-     * @return The SatelliteSectorId with the given id
-     */
-    public SatelliteSectorId getSectorId(int sectorId) {
-        return sectorIdDao.queryById(sectorId);
-    }
-
-    /**
-     * Gest a SatelliteSource with the given id
-     * 
-     * @param sourceId
-     *            The source id
-     * @return The SatelliteSource with the given id
-     */
-    public SatelliteSource getSource(int sourceId) {
-        return sourceDao.queryById(sourceId);
-    }
-
-    /**
-     * Gets a SatelliteUnit with the given id
-     * 
-     * @param unitId
-     *            The unit id
-     * @return The SatelliteUnit with the given id
-     */
-    public SatelliteUnit getUnit(int unitId) {
-        return unitDao.queryById(unitId);
-    }
-
-    /**
-     * Gets a SatellitePosition object for the given satellite name
-     * 
-     * @param satelliteName
-     *            The satellite name to get the SatellitePosition for
-     * @return The SatellitePosition for this given satellite name
-     */
-    public SatellitePosition getSatellitePosition(String satelliteName) {
-        return positionDao.queryById(satelliteName);
-    }
-
-    public SatelliteCreatingEntityDao getCreatingEntityDao() {
-        return creatingEntityDao;
-    }
-
-    public void setCreatingEntityDao(
-            SatelliteCreatingEntityDao creatingEntityDao) {
-        this.creatingEntityDao = creatingEntityDao;
-    }
-
-    public SatellitePhysicalElementDao getPhysicalElementDao() {
-        return physicalElementDao;
-    }
-
-    public void setPhysicalElementDao(
-            SatellitePhysicalElementDao physicalElementDao) {
-        this.physicalElementDao = physicalElementDao;
-    }
-
-    public SatelliteSectorIdDao getSectorIdDao() {
-        return sectorIdDao;
-    }
-
-    public void setSectorIdDao(SatelliteSectorIdDao sectorIdDao) {
-        this.sectorIdDao = sectorIdDao;
-    }
-
-    public SatelliteSourceDao getSourceDao() {
-        return sourceDao;
-    }
-
-    public void setSourceDao(SatelliteSourceDao sourceDao) {
-        this.sourceDao = sourceDao;
-    }
-
-    public SatelliteUnitDao getUnitDao() {
-        return unitDao;
-    }
-
-    public void setUnitDao(SatelliteUnitDao unitDao) {
-        this.unitDao = unitDao;
-    }
-
-    public SatellitePositionDao getPositionDao() {
-        return positionDao;
-    }
-
-    public void setPositionDao(SatellitePositionDao positionDao) {
-        this.positionDao = positionDao;
-    }
-
-    /**
      * Create the {@link IDataRecord} from the {@link DataDestination} using the
      * original satellite data, size and
      * 
@@ -513,7 +380,7 @@ public class SatelliteDao extends PluginDao {
      * @throws PluginException
      */
     private IDataRecord createDataRecord(SatelliteRecord satRec, Object data,
-            int downscaleLevel, Rectangle size) throws StorageException {
+            int downscaleLevel, Rectangle size) {
         SatelliteMessageData msgData = null;
         msgData = new SatelliteMessageData(data, size.width, size.height);
         IDataRecord rec = msgData.getStorageRecord(satRec,

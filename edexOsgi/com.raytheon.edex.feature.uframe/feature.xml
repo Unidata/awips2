@@ -71,6 +71,13 @@
    <includes
          id="com.raytheon.uf.edex.archive.feature"
          version="0.0.0"/>
+         
+   <!-- Comment out this include before checking in. This plugin only for debugging. -->
+   <!--
+   <includes
+         id="com.raytheon.uf.edex.archive.feeder.feature"
+         version="0.0.0"/>
+   -->
 
    <includes
          id="com.raytheon.uf.edex.text.feature"
@@ -100,15 +107,19 @@
          id="com.raytheon.uf.edex.ncep.feature"
          version="0.0.0"/>
 
-	<!--
+   <!--    Uncomment to deploy the National Central Operations EDEX plugins locally -->
+   <!-- includes
+         id="com.raytheon.uf.edex.ncep.nco.feature"
+         version="0.0.0"/-->
+
    <includes
          id="com.raytheon.uf.edex.binlightning.feature"
          version="0.0.0"/>
-	-->
+
    <includes
          id="com.raytheon.uf.edex.ost.feature"
          version="0.0.0"/>
-
+   
    <includes
          id="com.raytheon.uf.edex.npp.feature"
          version="0.0.0"/>
@@ -118,23 +129,11 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.datadelivery.client.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.edex.registry.feature"
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.datadelivery.core.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.edex.datadelivery.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.edex.dataprovideragent.feature"
+         id="com.raytheon.uf.edex.remote.script.feature"
          version="0.0.0"/>
 
 </feature>

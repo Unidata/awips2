@@ -20,7 +20,7 @@
     -->
 <latLonGridCoverage>
     <name>4</name>
-    <description>Global Lon/Lat grid</description>
+    <description>259920-point (720x361) global Lon/Lat grid</description>
     <la1>90.0</la1>
     <lo1>0.0</lo1>
     <firstGridPointCorner>UpperLeft</firstGridPointCorner>

@@ -23,9 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * Decode the MAROB (Marine Observation) data. This format is very similar to
@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
  * 20071217            453 jkorman     Added code to report MAROB report type.
+ * Sep 30, 2014       3629 mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} calls.
  * 
  * </pre>
  * 
@@ -78,7 +79,8 @@ public class MAROBSynopticDecoder extends SHIPSynopticDecoder {
             setReportIdentifier(reportParser.getElement());
             reportParser.next();
             element = reportParser.getElement();
-            if (matchElement(element, ISynoptic.YYGGI_SUB_W)) {
+            if (element != null
+                    && ISynoptic.YYGGI_SUB_W.matcher(element).find()) {
                 try {
                     Integer month = getHeader().getMonth();
                     if (month != -1) {
@@ -129,7 +131,7 @@ public class MAROBSynopticDecoder extends SHIPSynopticDecoder {
         ObsCommon report = (ObsCommon) super.consolidateReport();
         // Need to override the reportType.
         if (report != null) {
-            report.setReportType(IDecoderConstants.SYNOPTIC_MAROB);
+            report.setReportType(SYNOPTIC_MAROB);
         }
         return report;
     }

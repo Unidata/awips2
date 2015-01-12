@@ -12,15 +12,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.profiler"/>
 	</bean>
 
-    <bean id="profilerCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="profiler-camel"/>
-  	</bean>   
-    
     <camelContext id="profiler-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler"
-                  autoStartup="false">
+                  errorHandlerRef="errorHandler">
         <!--
 	    <endpoint id="profilerFileEndpoint" uri="file:${edex.home}/data/sbn/profiler?noop=true&amp;idempotent=false"/>
         

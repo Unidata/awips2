@@ -25,12 +25,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import jep.JepException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -39,10 +35,11 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.core.EdexTimerBasedThread;
 
 /**
  * Service that runs smart inits
@@ -58,168 +55,154 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Aug 24, 2013   #1949     rjpeter     Updated start up logic
  * Jun 13, 2013   #2044     randerso    Refactored to use IFPServer, 
  *                                      added support to run init for all valid times
+ * Mar 14, 2014   2726      rjpeter     Implement graceful shutdown.
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
 
-public class SmartInitSrv {
+public class SmartInitSrv extends EdexTimerBasedThread {
+    protected static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SmartInitSrv.class);
 
     private final Map<Long, SmartInitScript> cachedInterpreters = new HashMap<Long, SmartInitScript>();
 
-    private static boolean enabled = true;
+    protected int pendingInitMinTimeMillis = 120000;
 
-    protected final SmartInitSrvConfig cfg;
+    protected int runningInitTimeOutMillis = 600000;
 
-    protected final Executor executor;
-
-    static {
-        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
-        enabled = Boolean.parseBoolean(env.getEnvValue("GFESMARTINIT"));
+    public SmartInitSrv() {
     }
 
-    public SmartInitSrv(SmartInitSrvConfig config) {
-        cfg = config;
-        this.executor = config.getExecutor();
-        for (int i = 0; i < cfg.getThreads(); i++) {
-            SmartInitThread thread = new SmartInitThread();
-            thread.pendingInitMinTimeMillis = cfg.getPendingInitMinTimeMillis();
-            thread.runningInitTimeOutMillis = cfg.getRunningInitTimeOutMillis();
-            thread.threadSleepInterval = cfg.getThreadSleepInterval();
-            executor.execute(thread);
-        }
+    @Override
+    public String getThreadGroupName() {
+        return "smartInitThreadPool";
     }
 
-    protected class SmartInitThread implements Runnable {
-        // default of 2 minutes
-        private int pendingInitMinTimeMillis = 120000;
-
-        private int runningInitTimeOutMillis = 600000;
-
-        private int threadSleepInterval = 30000;
-
-        private final transient Log logger = LogFactory.getLog(getClass());
-
-        @Override
-        public void run() {
-            try {
-                // Wait for server to come fully up due to route dependencies
-                while (!EDEXUtil.isRunning()) {
-                    try {
-                        Thread.sleep(threadSleepInterval);
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                }
-
-                // run forever
-                while (true) {
-                    SmartInitRecord record = SmartInitTransactions
-                            .getSmartInitToRun(pendingInitMinTimeMillis,
-                                    runningInitTimeOutMillis);
-                    if (record != null) {
-                        runSmartInit(record);
-                    } else {
-                        try {
-                            Thread.sleep(threadSleepInterval);
-                        } catch (Exception e) {
-                            // ignore
-                        }
-                    }
-                }
-            } finally {
-                // Make sure OS resources are released at thread death
-                SmartInitScript script = cachedInterpreters.remove(Thread
-                        .currentThread().getId());
-                script.dispose();
+    @Override
+    public void process() throws Exception {
+        SmartInitRecord record = null;
+        do {
+            record = SmartInitTransactions.getSmartInitToRun(
+                    pendingInitMinTimeMillis, runningInitTimeOutMillis);
+            if (record != null) {
+                runSmartInit(record);
             }
-        }
+        } while ((record != null) && !EDEXUtil.isShuttingDown());
+    }
 
-        public void runSmartInit(SmartInitRecord record) {
-            if (enabled) {
+    @Override
+    public void dispose() {
+        super.dispose();
+
+        // Make sure OS resources are released at thread death
+        SmartInitScript script = cachedInterpreters.remove(Thread
+                .currentThread().getId());
+        if (script != null) {
+            script.dispose();
+        }
+    }
+
+    public void runSmartInit(SmartInitRecord record) {
+        try {
+            SmartInitScript initScript = null;
+            List<String> sitePathsAdded = new ArrayList<String>(2);
+
+            String init = record.getSmartInit();
+            String dbName = record.getDbName()
+                    + (record.isManual() ? ":1" : ":0");
+            Date validTime = record.getId().getValidTime();
+            if (SmartInitRecord.ALL_TIMES.equals(validTime)) {
+                validTime = null;
+            }
+
+            DatabaseID db = new DatabaseID(record.getDbName());
+            if (IFPServer.getActiveSites().contains(db.getSiteId())) {
                 try {
-                    SmartInitScript initScript = null;
-                    List<String> sitePathsAdded = new ArrayList<String>(2);
+                    long id = Thread.currentThread().getId();
+                    initScript = cachedInterpreters.get(id);
 
-                    String init = record.getSmartInit();
-                    String dbName = record.getDbName()
-                            + (record.isManual() ? ":1" : ":0");
-                    Date validTime = record.getId().getValidTime();
-                    if (SmartInitRecord.ALL_TIMES.equals(validTime)) {
-                        validTime = null;
+                    if (initScript == null) {
+                        initScript = SmartInitFactory.constructInit();
+                        cachedInterpreters.put(id, initScript);
                     }
 
-                    DatabaseID db = new DatabaseID(record.getDbName());
-                    if (IFPServer.getActiveSites().contains(db.getSiteId())) {
-                        try {
-                            long id = Thread.currentThread().getId();
-                            initScript = cachedInterpreters.get(id);
+                    IPathManager pathMgr = PathManagerFactory.getPathManager();
+                    LocalizationContext ctx = pathMgr.getContextForSite(
+                            LocalizationType.EDEX_STATIC, db.getSiteId());
+                    LocalizationContext baseCtx = pathMgr.getContext(
+                            LocalizationType.EDEX_STATIC,
+                            LocalizationLevel.BASE);
 
-                            if (initScript == null) {
-                                initScript = SmartInitFactory.constructInit();
-                                cachedInterpreters.put(id, initScript);
-                            }
-
-                            IPathManager pathMgr = PathManagerFactory
-                                    .getPathManager();
-                            LocalizationContext ctx = pathMgr
-                                    .getContextForSite(
-                                            LocalizationType.EDEX_STATIC,
-                                            db.getSiteId());
-                            LocalizationContext baseCtx = pathMgr.getContext(
-                                    LocalizationType.EDEX_STATIC,
-                                    LocalizationLevel.BASE);
-
-                            File file = pathMgr.getFile(ctx, "smartinit");
-                            if ((file != null) && file.exists()) {
-                                initScript.addSitePath(file.getPath(), pathMgr
-                                        .getFile(baseCtx, "smartinit")
-                                        .getPath());
-                                sitePathsAdded.add(file.getPath());
-                            }
-                            file = pathMgr.getFile(ctx,
-                                    FileUtil.join("config", "gfe"));
-                            if ((file != null) && file.exists()) {
-                                initScript.addSitePath(
-                                        file.getPath(),
-                                        pathMgr.getFile(baseCtx,
-                                                FileUtil.join("config", "gfe"))
+                    File file = pathMgr.getFile(ctx, "smartinit");
+                    if ((file != null) && file.exists()) {
+                        initScript
+                                .addSitePath(file.getPath(),
+                                        pathMgr.getFile(baseCtx, "smartinit")
                                                 .getPath());
-                                sitePathsAdded.add(file.getPath());
-                            }
-
-                            HashMap<String, Object> argMap = new HashMap<String, Object>();
-                            argMap.put("dbName", dbName);
-                            argMap.put("model", init);
-                            argMap.put("validTime", validTime);
-
-                            initScript.execute(argMap);
-                        } catch (Throwable e) {
-                            logger.error("Error running smart init for "
-                                    + record.getId(), e);
-                        } finally {
-                            try {
-                                for (String path : sitePathsAdded) {
-                                    initScript.removeSitePath(path);
-                                }
-                            } catch (JepException e) {
-                                this.logger
-                                        .error("Error cleaning up smart init interpreter's sys.path",
-                                                e);
-                            }
-                        }
-                    } else {
-                        this.logger.warn("Site " + db.getSiteId()
-                                + " has been disabled. Smart init for "
-                                + record.getDbName()
-                                + " will not be processed.");
+                        sitePathsAdded.add(file.getPath());
                     }
-                } catch (Throwable t) {
-                    this.logger.error("Error in SmartInitSrv", t);
+                    file = pathMgr.getFile(ctx, FileUtil.join("config", "gfe"));
+                    if ((file != null) && file.exists()) {
+                        initScript.addSitePath(
+                                file.getPath(),
+                                pathMgr.getFile(baseCtx,
+                                        FileUtil.join("config", "gfe"))
+                                        .getPath());
+                        sitePathsAdded.add(file.getPath());
+                    }
+
+                    HashMap<String, Object> argMap = new HashMap<String, Object>();
+                    argMap.put("dbName", dbName);
+                    argMap.put("model", init);
+                    argMap.put("validTime", validTime);
+
+                    initScript.execute(argMap);
+                } catch (Throwable e) {
+                    statusHandler.error("Error running smart init for "
+                            + record.getId(), e);
+                } finally {
+                    try {
+                        for (String path : sitePathsAdded) {
+                            initScript.removeSitePath(path);
+                        }
+                    } catch (JepException e) {
+                        statusHandler
+                                .error("Error cleaning up smart init interpreter's sys.path",
+                                        e);
+                    }
                 }
-                SmartInitTransactions.removeSmartInit(record);
+            } else {
+                statusHandler.warn("Site " + db.getSiteId()
+                        + " has been disabled. Smart init for "
+                        + record.getDbName() + " will not be processed.");
             }
+        } catch (Throwable t) {
+            statusHandler.error("Error in SmartInitSrv", t);
         }
+        SmartInitTransactions.removeSmartInit(record);
+    }
+
+    @Override
+    public void postStop() {
+        SmartInitQueue.getQueue().fireSmartInit();
+        super.postStop();
+    }
+
+    public int getPendingInitMinTimeMillis() {
+        return pendingInitMinTimeMillis;
+    }
+
+    public void setPendingInitMinTimeMillis(int pendingInitMinTimeMillis) {
+        this.pendingInitMinTimeMillis = pendingInitMinTimeMillis;
+    }
+
+    public int getRunningInitTimeOutMillis() {
+        return runningInitTimeOutMillis;
+    }
+
+    public void setRunningInitTimeOutMillis(int runningInitTimeOutMillis) {
+        this.runningInitTimeOutMillis = runningInitTimeOutMillis;
     }
 }

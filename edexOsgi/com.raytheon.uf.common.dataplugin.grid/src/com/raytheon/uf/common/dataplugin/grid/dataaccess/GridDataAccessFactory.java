@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -38,7 +38,6 @@ import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
-import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -46,27 +45,35 @@ import com.raytheon.uf.common.dataplugin.grid.dataquery.GridQueryAssembler;
 import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapper;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.util.mapping.Mapper;
 
 /**
  * Data access factory for accessing data from the Grid plugin as grid types.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 17, 2013            bsteffen     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
- * 
+ *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 17, 2013           bsteffen    Initial creation
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
+ * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
+ * Sep 09, 2014  3356     njensen     Remove CommunicationException
+ * Oct 16, 2014  3598     nabowle     Accept level identifiers.
+ * Oct 21, 2014  3755     nabowle     Add getAvailable levels and parameters.
+ *
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  * @version 1.0
  */
@@ -78,10 +85,12 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
 
     private static final String[] VALID_IDENTIFIERS = {
             GridConstants.DATASET_ID, GridConstants.SECONDARY_ID,
-            GridConstants.ENSEMBLE_ID, NAMESPACE };
+            GridConstants.ENSEMBLE_ID, NAMESPACE,
+            GridConstants.MASTER_LEVEL_NAME, GridConstants.LEVEL_ONE,
+            GridConstants.LEVEL_TWO };
 
     @Override
-    public String[] getValidIdentifiers() {
+    public String[] getOptionalIdentifiers() {
         return VALID_IDENTIFIERS;
     }
 
@@ -106,6 +115,9 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
             }
 
             if (request.getLevels() != null) {
+                checkForLevelConflict(request.getLevels(),
+                        request.getIdentifiers());
+
                 for (Level level : request.getLevels()) {
                     assembler.setMasterLevelName(level.getMasterLevel()
                             .getName());
@@ -149,6 +161,18 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
                     assembler.setSecondaryId(identifiers.get(
                             GridConstants.SECONDARY_ID).toString());
                 }
+                if (identifiers.containsKey(GridConstants.MASTER_LEVEL_NAME)) {
+                    assembler.setMasterLevelName(identifiers.get(
+                            GridConstants.MASTER_LEVEL_NAME).toString());
+                }
+                if (identifiers.containsKey(GridConstants.LEVEL_ONE)) {
+                    assembler.setLevelOneValue((Double) identifiers
+                            .get(GridConstants.LEVEL_ONE));
+                }
+                if (identifiers.containsKey(GridConstants.LEVEL_TWO)) {
+                    assembler.setLevelTwoValue((Double) identifiers
+                            .get(GridConstants.LEVEL_TWO));
+                }
             }
             mergeConstraintMaps(assembler.getConstraintMap(), result);
         } catch (CommunicationException e) {
@@ -158,9 +182,36 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
     }
 
     /**
+     * Check for possible level conflicts.
+     *
+     * @param levels
+     *            The request levels. Assumed to not be null.
+     * @param identifiers
+     *            The request identifiers.
+     * @throws DataRetrievalException
+     *             if levels is not empty and at least one of the
+     *             {@link GridConstants#MASTER_LEVEL_NAME},
+     *             {@link GridConstants#LEVEL_ONE}, or
+     *             {@link GridConstants#LEVEL_TWO} identifiers is specified.
+     */
+    private void checkForLevelConflict(Level[] levels,
+            Map<String, Object> identifiers) {
+        if (levels.length > 0
+                && identifiers != null
+                && (identifiers.containsKey(GridConstants.MASTER_LEVEL_NAME)
+                        || identifiers.containsKey(GridConstants.LEVEL_ONE) || identifiers
+                            .containsKey(GridConstants.LEVEL_TWO))) {
+            throw new DataRetrievalException(
+                    "Conflict between the request levels and request "
+                            + "identifiers. Please set the levels either as"
+                            + " identifiers or as levels, not both.");
+        }
+    }
+
+    /**
      * Copy all constraints from source to target. If target already contains a
      * constraint for a key then merge the values into target.
-     * 
+     *
      * @param target
      * @param source
      */
@@ -187,7 +238,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
     @Override
     protected IGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
-            IDataRecord dataRecord) {
+            DataSource dataSource) {
         if (pdo instanceof GridRecord == false) {
             throw new DataRetrievalException(this.getClass().getSimpleName()
                     + " cannot handle " + pdo.getClass().getSimpleName());
@@ -210,8 +261,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
                     parameter, namespace, requestParameters);
 
             if (identifiers.containsKey(GridConstants.DATASET_ID)) {
-                List<String> requestedDatasets = Arrays.asList(identifiers.get(GridConstants.DATASET_ID)
-                        .toString());
+                List<String> requestedDatasets = Arrays.asList(identifiers.get(
+                        GridConstants.DATASET_ID).toString());
                 datasetId = reverseResolveMapping(
                         DatasetIdMapper.getInstance(), datasetId, namespace,
                         requestedDatasets);
@@ -221,21 +272,19 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
                 double leveltwo = requestLevel.getLeveltwovalue();
                 String master = requestLevel.getMasterLevel().getName();
                 Unit<?> unit = requestLevel.getMasterLevel().getUnit();
-                try {
-                    // instead of doing reverse mapping just do a forward
-                    // mapping on everything they requested and compare to what
-                    // they got.
-                    Set<Level> levels = LevelMapper.getInstance().lookupLevels(
-                            master, namespace, levelone, leveltwo, unit);
-                    for (Level l : levels) {
-                        if (level.equals(l)) {
-                            level = requestLevel;
-                            break;
-                        }
+
+                // instead of doing reverse mapping just do a forward
+                // mapping on everything they requested and compare to what
+                // they got.
+                Set<Level> levels = LevelMapper.getInstance().lookupLevels(
+                        master, namespace, levelone, leveltwo, unit);
+                for (Level l : levels) {
+                    if (level.equals(l)) {
+                        level = requestLevel;
+                        break;
                     }
-                } catch (CommunicationException e) {
-                    throw new DataRetrievalException(e);
                 }
+
                 if (level == requestLevel) {
                     // we found one.
                     break;
@@ -243,8 +292,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
             }
         }
 
-        DefaultGridData defaultGridData = new DefaultGridData(
-                DataWrapperUtil.constructArrayWrapper(dataRecord), gridGeometry);
+        DefaultGridData defaultGridData = new DefaultGridData(dataSource,
+                gridGeometry);
         defaultGridData.setDataTime(pdo.getDataTime());
         defaultGridData.setParameter(parameter);
         defaultGridData.setLevel(level);
@@ -275,5 +324,33 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
         return getAvailableLocationNames(request, GridConstants.DATASET_ID);
     }
 
+    /**
+     * Get the available levels.
+     */
+    @Override
+    public Level[] getAvailableLevels(IDataRequest request) {
+        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
+        dbQueryRequest.setDistinct(Boolean.TRUE);
+        dbQueryRequest.addRequestField(GridConstants.LEVEL);
 
+        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                dbQueryRequest, request.toString());
+        return dbQueryResponse
+                .getFieldObjects(GridConstants.LEVEL, Level.class);
+    }
+
+    /**
+     * Get the available parameter abbreviations.
+     */
+    @Override
+    public String[] getAvailableParameters(IDataRequest request) {
+        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
+        dbQueryRequest.setDistinct(Boolean.TRUE);
+        dbQueryRequest.addRequestField(GridConstants.PARAMETER_ABBREVIATION);
+
+        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                dbQueryRequest, request.toString());
+        return dbQueryResponse.getFieldObjects(
+                GridConstants.PARAMETER_ABBREVIATION, String.class);
+    }
 }

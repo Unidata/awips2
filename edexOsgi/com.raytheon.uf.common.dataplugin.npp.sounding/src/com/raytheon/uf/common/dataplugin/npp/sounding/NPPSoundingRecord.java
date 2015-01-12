@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -45,12 +44,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 3, 2013            mschenke     Initial creation
- * Apr 12, 2013 1857       bgonzale    Changed to MappedSuperclass.
- * Mar 02, 2013 1970       bgonzale    Added SequenceGenerator and Inheritance Strategy
- *                                     annotations.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 03, 2013           mschenke    Initial creation
+ * Apr 12, 2013  1857     bgonzale    Changed to MappedSuperclass.
+ * Mar 02, 2013  1970     bgonzale    Added SequenceGenerator and Inheritance Strategy
+ *                                    annotations.
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -85,11 +85,6 @@ public abstract class NPPSoundingRecord extends PersistablePluginDataObject
     @XmlAttribute
     @DynamicSerializeElement
     private Double longitude;
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
 
     /**
      * @return the latitude

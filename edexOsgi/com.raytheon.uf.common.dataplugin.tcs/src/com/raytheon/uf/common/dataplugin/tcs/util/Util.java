@@ -39,6 +39,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2010            jsanchez     Initial creation
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ public class Util implements TCSConstants {
             DataTime dataTime) {
         TropicalCycloneSummary tcs = null;
 
-        double t1 = 0.0, t2 = 0.0, tf = 0.0, dt = 0.0, tc = 0.0;
+        float t1 = 0.0f, t2 = 0.0f, tf = 0.0f, dt = 0.0f, tc = 0.0f;
 
         Calendar calendar = dataTime.getRefTimeAsCalendar();
         int day = dataTime.getValidTime().get(Calendar.DAY_OF_MONTH);
@@ -68,8 +69,8 @@ public class Util implements TCSConstants {
 
         boolean tropical = true;
         int wind = 0;
-        double lat = 29.0; // This came from TCMplotter.C
-        double lon = -89.6; // This came from TCMplotter.C
+        float lat = 29.0f; // This came from TCMplotter.C
+        float lon = -89.6f; // This came from TCMplotter.C
         String dTime = "Dissipated";
 
         int size = pdv.getInt(SIZE);
@@ -83,8 +84,8 @@ public class Util implements TCSConstants {
         if (size < 2) {
             if (size > 0) {
                 // set location at last one
-                lat = latitude[size - 1].doubleValue();
-                lon = longitude[size - 1].doubleValue();
+                lat = latitude[size - 1].floatValue();
+                lon = longitude[size - 1].floatValue();
             }
             return new TropicalCycloneSummary(name, 0, lon, lat, dTime,
                     windSpeed[size - 1].intValue(),
@@ -105,7 +106,7 @@ public class Util implements TCSConstants {
         if (dataTime.getValidTime().getTimeInMillis() == dataTime.getRefTime()
                 .getTime()) {
             tcs = new TropicalCycloneSummary(name, pressure,
-                    longitude[0].doubleValue(), latitude[0].doubleValue(),
+                    longitude[0].floatValue(), latitude[0].floatValue(),
                     displayTime[0], windSpeed[0].intValue(),
                     isTropical[0].intValue() == 1 ? true : false);
             tcs.setRadiusList(loadRadiusList(pdv, 0));
@@ -129,7 +130,7 @@ public class Util implements TCSConstants {
 
             if (tc < 0.01) {
                 tcs = new TropicalCycloneSummary(name, 0,
-                        longitude[i].doubleValue(), latitude[i].doubleValue(),
+                        longitude[i].floatValue(), latitude[i].floatValue(),
                         displayTime[i], windSpeed[i].intValue(),
                         isTropical[i].intValue() == 1 ? true : false);
                 tcs.setRadiusList(loadRadiusList(pdv, i));
@@ -146,8 +147,8 @@ public class Util implements TCSConstants {
         if (i >= size) {
             if (size > 0) {
                 // set location at last one
-                lat = latitude[size - 1].doubleValue();
-                lon = longitude[size - 1].doubleValue();
+                lat = latitude[size - 1].floatValue();
+                lon = longitude[size - 1].floatValue();
             }
             return new TropicalCycloneSummary(name, 0, lon, lat, dTime,
                     windSpeed[size - 1].intValue(),

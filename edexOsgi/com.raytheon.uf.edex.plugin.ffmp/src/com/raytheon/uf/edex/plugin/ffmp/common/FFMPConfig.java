@@ -56,7 +56,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 06/30/2009   2521       dhladky    Initial Creation.
+ * 06/30/2009   2521       dhladky     Initial Creation.
+ * Apr 24, 2014  2060      njensen     Removed unnecessary catch
  * 
  * </pre>
  * 
@@ -244,13 +245,7 @@ public class FFMPConfig {
      * @return
      */
     private IMonitorProcessing getPDOFile(SourceXML xml, String uri) {
-        IMonitorProcessing obj = null;
-        try {
-            obj = (IMonitorProcessing) DATUtils.getPDORecord(uri, xml);
-        } catch (PluginException e) {
-            e.printStackTrace();
-        }
-        return obj;
+        return (IMonitorProcessing) DATUtils.getPDORecord(uri, xml);
     }
 
     /**
@@ -433,9 +428,10 @@ public class FFMPConfig {
             }
         } catch (Exception e) {
             sources = null;
-            statusHandler.handle(Priority.PROBLEM,
-                    "Couldn't create FFMP Config... Improper source configuration detected."
-                            + e);
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Couldn't create FFMP Config... Improper source configuration detected.",
+                            e);
         }
     }
 

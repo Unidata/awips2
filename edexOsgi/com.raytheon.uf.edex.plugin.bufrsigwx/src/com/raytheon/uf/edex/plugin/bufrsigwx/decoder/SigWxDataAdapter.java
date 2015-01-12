@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.bufrsigwx.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.SubSetList;
-
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
@@ -34,14 +31,15 @@ import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxType;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
 import com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * This class contains several utility methods that construct a ProfilerObs
@@ -54,6 +52,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 03, 2008 969        jkorman     Initial implementation.
  * Jul 06, 2009 2538       jsanchez    Added latitude,longitude to point data.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Sep 16, 2014 3628       mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -161,7 +161,7 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
 
                 int fcstSeconds = (int) (fcstTime.getTimeInMillis() - baseTime
                         .getTimeInMillis()) / 1000;
-                sigWx.setDataTime(new DataTime(TimeTools.copy(baseTime),
+                sigWx.setDataTime(new DataTime((Calendar) baseTime.clone(),
                         fcstSeconds));
                 sigWx.setBaseHeight(getInt(dataList.get(BASE_HGT_POS), MISSING));
                 sigWx.setTopHeight(getInt(dataList.get(TOP_HGT_POS), MISSING));
@@ -206,7 +206,7 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
         // date-time and datatime info.
         if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)
                 && (minute >= 0)) {
-            baseTime = TimeTools.getBaseCalendar(year, month, day);
+            baseTime = TimeUtil.newGmtCalendar(year, month, day);
             baseTime.set(Calendar.HOUR_OF_DAY, hour);
             baseTime.set(Calendar.MINUTE, minute);
             baseTime.set(Calendar.SECOND, 0);
@@ -240,9 +240,11 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
     static List<IBUFRDataPacket> getPacketSubList(IBUFRDataPacket packet) {
         List<IBUFRDataPacket> list = null;
         if (packet instanceof BUFRSublistPacket) {
-            if (RepSubList.getPacketType().equals(packet.getUnits())) {
+            if (DataPacketTypes.RepSubList.getPacketType().equals(
+                    packet.getUnits())) {
                 list = (List<IBUFRDataPacket>) packet.getValue();
-            } else if (SubSetList.getPacketType().equals(packet.getUnits())) {
+            } else if (DataPacketTypes.SubSetList.getPacketType().equals(
+                    packet.getUnits())) {
                 list = (List<IBUFRDataPacket>) packet.getValue();
             }
         }

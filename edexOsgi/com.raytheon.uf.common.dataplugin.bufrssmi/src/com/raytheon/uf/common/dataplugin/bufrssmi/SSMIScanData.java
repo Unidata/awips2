@@ -42,7 +42,7 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
  *                                     types.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * May 12, 2014 3133       njensen     Use TimeUtil instead of TimeTools
  * 
  * </pre>
  * 
@@ -315,7 +316,7 @@ public class SSMIScanData extends PersistablePluginDataObject implements
         SSMIScanData obs = new SSMIScanData();
 
         obs.dataTime = dataTime.clone();
-        obs.timeObs = TimeTools.copy(timeObs);
+        obs.timeObs = TimeUtil.newCalendar(timeObs);
         obs.orbitNumber = orbitNumber;
         obs.satId = satId;
         obs.scanNumber = scanNumber;

@@ -29,9 +29,13 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    12/10/12                      njensen       Initial Creation.
-#    Feb 14, 2013    1614          bsteffen       refactor data access framework
+#    12/10/12                      njensen        Initial Creation.
+#    02/14/13        1614          bsteffen       refactor data access framework
 #                                                 to use single request.
+#    03/03/14        2673          bsteffen       Add ability to query only ref times.
+#    07/22/14        3185          njensen        Added optional/default args to newDataRequest
+#                                                  and added new methods
+#    07/30/14        3185          njensen        Renamed valid identifiers to optional
 #    
 # 
 #
@@ -47,10 +51,11 @@ from com.raytheon.uf.common.python import PythonNumpyFloatArray
 import jep
 import DataTime
 import JGeometryData, JGridData, JDataRequest
+import JUtil
 
 
-def getAvailableTimes(request):
-    javaTimes = JavaDataAccessLayer.getAvailableTimes(request.toJavaObj())
+def getAvailableTimes(request, refTimeOnly):
+    javaTimes = JavaDataAccessLayer.getAvailableTimes(request.toJavaObj(), refTimeOnly)
     times = []
     for jt in javaTimes:
         times.append(DataTime.DataTime(jt))
@@ -88,8 +93,47 @@ def getGeometryData(request, times):
     return data
 
 def getAvailableLocationNames(request):
-    return JavaDataAccessLayer.getAvailableLocationNames(request.toJavaObj())
+    jlocs = JavaDataAccessLayer.getAvailableLocationNames(request.toJavaObj()) 
+    return JUtil.javaObjToPyVal(jlocs)
 
-def newDataRequest():
-    return JDataRequest.JDataRequest(DefaultDataRequest())
+def getAvailableParameters(request):
+    jparams = JavaDataAccessLayer.getAvailableParameters(request.toJavaObj())
+    return JUtil.javaObjToPyVal(jparams)
+
+def getAvailableLevels(request):
+    jlevels = JavaDataAccessLayer.getAvailableLevels(request.toJavaObj())
+    pylevs = []
+    for jlev in jlevels:
+        pylevs.append(str(jlev))
+    return pylevs
+
+def getRequiredIdentifiers(datatype):
+    jids = JavaDataAccessLayer.getRequiredIdentifiers(datatype)
+    return JUtil.javaObjToPyVal(jids)
+
+def getOptionalIdentifiers(datatype):
+    jids = JavaDataAccessLayer.getOptionalIdentifiers(datatype)
+    return JUtil.javaObjToPyVal(jids)
+
+def newDataRequest(datatype, parameters=[], levels=[], locationNames = [], envelope=None, **kwargs):
+    req = JDataRequest.JDataRequest(DefaultDataRequest())
+    if datatype:
+        req.setDatatype(datatype)
+    if parameters:            
+        req.setParameters(*parameters)
+    if levels:        
+        req.setLevels(*levels)
+    if locationNames:
+        req.setLocationNames(*locationNames)
+    if envelope:
+        req.setEnvelope(envelope)        
+    if kwargs:
+        # any args leftover are assumed to be identifiers
+        for key in kwargs:
+            req.addIdentifier(key, kwargs[key])
+    return req
+
+def getSupportedDatatypes():
+    jsupported = JavaDataAccessLayer.getSupportedDatatypes()
+    return JUtil.javaObjToPyVal(jsupported)
 

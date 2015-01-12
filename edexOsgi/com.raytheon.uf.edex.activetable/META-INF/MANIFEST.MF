@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Activetablesrv Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.activetable
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.dataplugin.warning,
  com.raytheon.uf.common.python,
@@ -26,6 +26,8 @@ Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.11.1",
  com.raytheon.uf.edex.site;bundle-version="1.0.0",
  com.google.guava;bundle-version="1.0.0",
  com.raytheon.uf.edex.auth;bundle-version="1.12.1174",
- com.raytheon.uf.common.serialization.comm
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+ com.raytheon.uf.common.serialization.comm,
+ org.apache.commons.io;bundle-version="2.4.0",
+ com.raytheon.uf.edex.requestsrv;bundle-version="1.14.0",
+ com.raytheon.uf.edex.python.decoder
 Export-Package: com.raytheon.uf.edex.activetable

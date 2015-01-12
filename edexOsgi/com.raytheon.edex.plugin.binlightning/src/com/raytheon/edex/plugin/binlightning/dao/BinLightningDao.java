@@ -20,11 +20,17 @@
 
 package com.raytheon.edex.plugin.binlightning.dao;
 
-import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
@@ -36,6 +42,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 1/08/09      1674       bphillip    Initial creation
+ * Jun 05, 2014 3226       bclement    record now contains maps for data arrays
  * </pre>
  * 
  * @author bphillip
@@ -61,15 +68,38 @@ public class BinLightningDao extends PluginDao {
     protected IDataStore populateDataStore(IDataStore dataStore,
             IPersistable obj) throws Exception {
         BinLightningRecord binLightningRec = (BinLightningRecord) obj;
+        Map<String, Object> strikeDataArrays = binLightningRec
+                .getStrikeDataArrays();
+        populateFromMap(dataStore, obj, binLightningRec.getDataURI(),
+                strikeDataArrays);
+        Map<String, Object> pulseDataArrays = binLightningRec
+                .getPulseDataArrays();
+        String pulseGroup = binLightningRec.getDataURI() + DataURI.SEPARATOR
+                + LightningConstants.PULSE_HDF5_GROUP_SUFFIX;
+        populateFromMap(dataStore, obj, pulseGroup, pulseDataArrays);
+        return dataStore;
+    }
 
-        for (int i = 0; i < binLightningRec.getDataArrays().length; i++) {
-            IDataRecord record = DataStoreFactory.createStorageRecord(
-                    binLightningRec.getDataNames()[i], binLightningRec
-                            .getDataURI(), binLightningRec.getDataArrays()[i]);
-            record.setCorrelationObject(binLightningRec);
+    /**
+     * Adds each primitive data array object in map to the datastore using the
+     * provided group and the key of the map entry as the name
+     * 
+     * @param dataStore
+     * @param obj
+     * @param group
+     * @param data
+     * @throws StorageException
+     */
+    private void populateFromMap(IDataStore dataStore, IPersistable obj,
+            String group, Map<String, Object> data)
+            throws StorageException {
+        for (Entry<String, Object> e : data.entrySet()) {
+            String name = e.getKey();
+            Object dataArray = e.getValue();
+            IDataRecord record = DataStoreFactory.createStorageRecord(name,
+                    group, dataArray);
+            record.setCorrelationObject(obj);
             dataStore.addDataRecord(record);
         }
-
-        return dataStore;
     }
 }

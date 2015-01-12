@@ -76,6 +76,10 @@ public class GridModel {
     @XmlElement(name = "id")
     private ArrayList<Integer> process;
 
+    /** The generating processes associated with this model */
+    @XmlElement
+    private String processType;
+    
     @XmlElement
     private String alias;
 
@@ -129,6 +133,14 @@ public class GridModel {
 
     public void setProcess(ArrayList<Integer> process) {
         this.process = process;
+    }
+    
+    public String getProcessType() {
+        return processType;
+    }
+
+    public void setProcessType(String processType) {
+        this.processType = processType;
     }
 
     public Integer getCenter() {

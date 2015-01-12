@@ -26,6 +26,7 @@
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 3, 2011            bclement     Initial creation
+ * Jun 11, 2011 2061      bsteffen     Remove units constants from metar
  *
  */
 package com.raytheon.uf.edex.plugin.obs.ogc.metar;
@@ -40,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.measure.quantity.Pressure;
+import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -224,7 +226,7 @@ public class MetarFeatureFactory implements FeatureFactory {
 	 * @return
 	 */
 	protected static String get3HrPress(float press) {
-		Unit<Pressure> unit = MetarRecord.PRESSURE_UNIT;
+        Unit<Pressure> unit = SI.HECTO(SI.PASCAL);
 		return String.format("%f %s", press, unit.toString());
 	}
 

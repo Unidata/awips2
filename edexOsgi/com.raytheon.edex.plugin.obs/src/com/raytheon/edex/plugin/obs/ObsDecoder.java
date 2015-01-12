@@ -32,7 +32,7 @@ import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * Decoder implementation for observation data types. This class provides a
@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                      status to decode.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Oct 23, 2013 2361        njensen     Removed dead mesowest code
+ * May 14, 2014 2536        bclement    moved WMO Header to common
  * </pre>
  * 
  * @author bphillip
@@ -122,12 +123,11 @@ public class ObsDecoder extends AbstractDecoder {
      */
     private MetarDecoder getDecoderStrategy(byte[] messageData, Headers headers)
             throws DecoderException {
-        String message = new String(messageData).trim();
-
         // We can never be sure when this method is called so make sure
         // to null out the decoder strategy.
         MetarDecoder decoder = null;
-        WMOHeader header = new WMOHeader(messageData, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        WMOHeader header = new WMOHeader(messageData, fileName);
         if (header.isValid()) {
             if ('S' == header.getT1()) {
                 switch (header.getT2()) {

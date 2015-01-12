@@ -38,6 +38,8 @@ import net.opengis.gml.v_3_1_1.ObjectFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.w3c.dom.Node;
 
+import com.raytheon.uf.common.serialization.MarshalOptions;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.registry.RegistryException;
@@ -47,6 +49,7 @@ import com.raytheon.uf.edex.ogc.common.jaxb.OgcJaxbManager;
 import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.WfsFeatureType;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
 /**
  * Wfs registry implementation. Handles wfs sources and the JAXB context
@@ -59,6 +62,7 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2011            bclement     Initial creation        
  * May 30, 2013   753      dhladky      reverted to original
+ * Jul 15, 2014 3373       bclement     jaxb manager api changes
  * 
  * </pre>
  * 
@@ -173,8 +177,14 @@ public class WfsRegistryImpl implements IWfsRegistry {
             write.lock();
             try {
                 jaxbContextVersion = currentVersion;
-                jaxbManager = new OgcJaxbManager(jaxbClasses);
-                jaxbManager.setPrefixMap(NS_MAP);
+                NamespacePrefixMapper mapper = new NamespacePrefixMapper() {
+                    @Override
+                    public String getPreferredPrefix(String uri,
+                            String suggestion, boolean requirePrefix) {
+                        return NS_MAP.get(uri);
+                    }
+                };
+                jaxbManager = new OgcJaxbManager(mapper, jaxbClasses);
             } finally {
                 write.unlock();
             }
@@ -188,7 +198,7 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * @throws JAXBException
      */
 	public Object unmarshal(String xml) throws JAXBException {
-		return getManager().unmarshal(xml);
+        return getManager().unmarshalFromXml(xml);
 	}
 
     public Object unmarshal(Node node) throws JAXBException {
@@ -199,9 +209,11 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * @param in
      * @return
      * @throws JAXBException
+     * @throws SerializationException
      */
-    public Object unmarshal(InputStream in) throws JAXBException {
-        return getManager().unmarshal(in);
+    public Object unmarshal(InputStream in) throws JAXBException,
+            SerializationException {
+        return getManager().unmarshalFromInputStream(in);
     }
 
     /**
@@ -210,30 +222,32 @@ public class WfsRegistryImpl implements IWfsRegistry {
      * @throws JAXBException
      */
 	public String marshal(Object obj) throws JAXBException {
-		return getManager().marshal(obj, false);
+        return getManager().marshalToXml(obj, MarshalOptions.UNFORMATTED);
 	}
+
+    public String marshal(Object obj, boolean fragment) throws JAXBException {
+        MarshalOptions options = new MarshalOptions(false, fragment);
+        return getManager().marshalToXml(obj, options);
+    }
 
     public Node marshalToNode(Object obj) throws JAXBException,
             ParserConfigurationException {
         return getManager().marshalToNode(obj);
     }
 
-    public String marshal(Object obj, boolean fragment) throws JAXBException {
-        return getManager().marshal(obj, false, fragment);
+    public String marshal(Object obj, MarshalOptions options) throws JAXBException {
+        return getManager().marshalToXml(obj, options);
     }
 
     /**
      * @param obj
      * @param out
      * @throws JAXBException
+     * @throws SerializationException
      */
-    public void marshal(Object obj, OutputStream out) throws JAXBException {
-        getManager().marshal(obj, out, null, false, false);
-    }
-
-    public void marshal(Object obj, OutputStream out, boolean fragment)
-            throws JAXBException {
-        getManager().marshal(obj, out, null, false, fragment);
+    public void marshal(Object obj, OutputStream out) throws JAXBException,
+            SerializationException {
+        getManager().marshalToStream(obj, out, MarshalOptions.UNFORMATTED);
     }
 
     /**

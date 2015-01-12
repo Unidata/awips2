@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.bufrncwf.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.SubSetList;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -34,19 +31,21 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
 import com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Point data view framework adapter for National Convective Weather Forecast
+ * Product
  * 
  * <pre>
  * 
@@ -56,6 +55,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2009            jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 16, 2014 3628       mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -80,21 +82,21 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
 
     private static final int FEATURES_POS = 6;
 
-    private static final int FEATURE_TIMSIG_POS = 0;
+    // private static final int FEATURE_TIMSIG_POS = 0;
 
-    private static final int FEATURE_TIMEPD_POS = 1;
+    // private static final int FEATURE_TIMEPD_POS = 1;
 
-    private static final int FEATURE_ATTSIG_POS = 2;
+    // private static final int FEATURE_ATTSIG_POS = 2;
 
-    private static final int FEATURE_DIMSIG_POS = 3;
+    // private static final int FEATURE_DIMSIG_POS = 3;
 
     private static final int FEATURE_LAT_POS = 4;
 
     private static final int FEATURE_LON_POS = 5;
 
-    private static final int BOUNDARY_ATTSIG_POS = 6;
+    // private static final int BOUNDARY_ATTSIG_POS = 6;
 
-    private static final int BOUNDARY_DIMSIG_POS = 7;
+    // private static final int BOUNDARY_DIMSIG_POS = 7;
 
     private static final int BOUNDARY_SUBLIST_POS = 8;
 
@@ -124,8 +126,8 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
     /**
      * Not used.
      * 
-     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createData(java.util.Iterator,
-     *      com.raytheon.uf.edex.wmo.message.WMOHeader)
+     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createData(Iterator,
+     *      WMOHeader)
      */
     @Override
     public BUFRncwf createData(Iterator<BUFRDataDocument> iterator,
@@ -138,8 +140,8 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
      * 
      * 
      * 
-     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createDataList(java.util.Iterator,
-     *      com.raytheon.uf.edex.wmo.message.WMOHeader)
+     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createDataList(Iterator,
+     *      WMOHeader)
      */
     @Override
     public List<BUFRncwf> createDataList(Iterator<BUFRDataDocument> iterator,
@@ -228,7 +230,7 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
             if (c != null) {
                 ncwfReport = new BUFRncwf();
 
-                ncwfReport.setDataTime(new DataTime(TimeTools.copy(c)));
+                ncwfReport.setDataTime(new DataTime((Calendar) c.clone()));
                 List<IBUFRDataPacket> features = getPacketSubList(sList
                         .get(FEATURES_POS));
 
@@ -251,9 +253,11 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
                     Coordinate centroid = ncwfReport.getDetection()
                             .getCentroidLocation();
                     SurfaceObsLocation loc = new SurfaceObsLocation();
-                    loc.assignLocation(
-                            DecoderTools.getCoordinateLatitude(centroid),
-                            DecoderTools.getCoordinateLongitude(centroid));
+                    float lat = (float) DecoderTools
+                            .getCoordinateLatitude(centroid);
+                    float lon = (float) DecoderTools
+                            .getCoordinateLongitude(centroid);
+                    loc.assignLocation(lat, lon);
                     ncwfReport.setLocation(loc);
                 }
             }
@@ -329,7 +333,7 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
         // date-time and datatime info.
         if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)
                 && (minute >= 0) && (second >= 0)) {
-            baseTime = TimeTools.getBaseCalendar(year, month, day);
+            baseTime = TimeUtil.newGmtCalendar(year, month, day);
             baseTime.set(Calendar.HOUR_OF_DAY, hour);
             baseTime.set(Calendar.MINUTE, minute);
             baseTime.set(Calendar.SECOND, second);
@@ -347,9 +351,11 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
     private static List<IBUFRDataPacket> getPacketSubList(IBUFRDataPacket packet) {
         List<IBUFRDataPacket> list = null;
         if (packet instanceof BUFRSublistPacket) {
-            if (RepSubList.getPacketType().equals(packet.getUnits())) {
+            if (DataPacketTypes.RepSubList.getPacketType().equals(
+                    packet.getUnits())) {
                 list = (List<IBUFRDataPacket>) packet.getValue();
-            } else if (SubSetList.getPacketType().equals(packet.getUnits())) {
+            } else if (DataPacketTypes.SubSetList.getPacketType().equals(
+                    packet.getUnits())) {
                 list = (List<IBUFRDataPacket>) packet.getValue();
             }
         }

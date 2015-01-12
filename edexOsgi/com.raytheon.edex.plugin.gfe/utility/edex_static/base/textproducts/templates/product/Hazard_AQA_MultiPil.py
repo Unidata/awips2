@@ -20,8 +20,13 @@
 ########################################################################
 # Hazard_AQA.py
 #
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# Oct 20, 2014    #3685          randerso    Changed to support mixed case
+#
 ##
-##########################################################################
+
 import GenericHazards
 import string, time, re, os, types, copy
 import ProcessVariableList
@@ -157,10 +162,10 @@ class TextProduct(GenericHazards.TextProduct):
 
         # Placeholder for Agency Names to be filled in in _postProcessProduct
         #fcst = fcst + "@AGENCYNAMES" + "\n"
-        fcst = fcst + "RELAYED BY NATIONAL WEATHER SERVICE " + self._wfoCityState + "\n" +\
+        s = "RELAYED BY NATIONAL WEATHER SERVICE " + self._wfoCityState + "\n" +\
                issuedByString + self._timeLabel + "\n\n"
 
-        fcst = string.upper(fcst)
+        fcst = fcst + s.upper()
         return fcst
 
     def headlinesTiming(self, tree, node, key, timeRange, areaLabel, issuanceTime):
@@ -301,8 +306,6 @@ class TextProduct(GenericHazards.TextProduct):
 
         fixMultiLF = re.compile(r'(\n\n)\n*', re.DOTALL)
         fcst = fixMultiLF.sub(r'\1', fcst)
-##        # Keep body in lower case, if desired
-##        fcst = string.upper(fcst)
         self.setProgressPercentage(100)
         self.progressMessage(0, 100, self._displayName + " Complete")
         return fcst

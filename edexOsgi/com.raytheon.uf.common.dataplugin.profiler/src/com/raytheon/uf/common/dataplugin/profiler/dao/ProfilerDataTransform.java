@@ -45,6 +45,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------- -------- ----------- --------------------------
  * Oct 28, 2009           jkorman     Initial creation
  * Dec 03, 2013  2537     bsteffen    Switch logger to ufstatus.
+ * Jul 23, 2014 3410      bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -112,8 +113,8 @@ public class ProfilerDataTransform {
 
             int elev = pdv.getNumber("elevation").intValue();
             location.setElevation(elev);
-            double lat = pdv.getNumber("latitude").doubleValue();
-            double lon = pdv.getNumber("longitude").doubleValue();
+            float lat = pdv.getNumber("latitude").floatValue();
+            float lon = pdv.getNumber("longitude").floatValue();
             location.assignLocation(lat, lon);
             location.setStationId(pdv.getString("stationId"));
             obs.setLocation(location);
