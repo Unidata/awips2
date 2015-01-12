@@ -1,0 +1,7 @@
+colorMapName=ir_grb
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=SWIR-3.9
+displayUnitStr=C
+alpha=1.0
+brightness=1.0
+contrast=1.0

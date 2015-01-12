@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>HYSPLIT</resource>
+    <attrSetGroupName>standard</attrSetGroupName>
+    <attrSetNames>volcash_comp,volcash_high_lvl,volcash_low_lvl,volcash_mid_lvl</attrSetNames>
+</AttributeSetGroup>

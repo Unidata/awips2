@@ -1,0 +1,5 @@
+<categories>
+    <category code="1" description="Surface data — sea">
+        <subcategory code="25" description="Buoy observation (BUOY)" reportType="1006"/>
+    </category>
+</categories>

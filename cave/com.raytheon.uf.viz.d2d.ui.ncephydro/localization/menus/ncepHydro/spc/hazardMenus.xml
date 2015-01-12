@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="SPC Convective Outlooks" id="ncepHydro.spc.convectiveOutlooks">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Day 1 Convective Outlook" timeQuery="true" id="day1ConvectiveOutlook">
+            <substitute value="PGWE46" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Day 2 Convective Outlook" timeQuery="true" id="day2ConvectiveOutlook">
+            <substitute value="PGWI47" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Day 3 Convective Outlook" timeQuery="true" id="day3ConvectiveOutlook">
+            <substitute value="PGWK48" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Thunderstorm Prob" timeQuery="true" id="thunderstormProb">
+            <substitute value="PGWB44" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Severe Thunderstorm Prob" timeQuery="true" id="severeThunderstormProb">
+            <substitute value="PGWB45" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Day 1 Hail outlook" timeQuery="true" id="day1Hailoutlook">
+            <substitute value="PENE00" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Day 1 Convective Wind Outlook" timeQuery="true" id="day1ConvectiveWindOutlook">
+            <substitute value="PWNE00" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Day 1 Tornado Outlook" timeQuery="true" id="day1TornadoOutlook">
+            <substitute value="PGNE00" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Day 2 Combined Severe Outlook" timeQuery="true" id="day2CombinedSevereOutlook">
+            <substitute value="PGNI00" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Day 3 Combined Severe Outlook" timeQuery="true" id="day3CombinedSevereOutlook">
+            <substitute value="PZNK00" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Day 4-8 Composite Severe Outlook" timeQuery="true" id="day4to8CompositeSevereOutlook">
+            <substitute value="PGNM98" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Active Mesoscale Disc Summary" timeQuery="true" id="activeMesoscaleDiscSummary">
+            <substitute value="PGNA00" key="wmo"/>
+            <substitute value="0" key="posOff"/>
+        </contribute>
+    </contribute>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Fire Weather" id="ncepHydro.spc.fireWeather">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Fire Wx Outlook - Day 1" timeQuery="true" id="fireWxOutlookDay1">
+            <substitute value="PMWE98" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Fire Wx Outlook - Day 2" timeQuery="true" id="fireWxOutlookDay2">
+            <substitute value="PMWI98" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Fire Wx Outlook - Day 3-8" timeQuery="true" id="fireWxOutlookDay3to82">
+            <substitute value="PGNO98" key="wmo"/>
+        </contribute>
+    </contribute>
+</menuTemplate>

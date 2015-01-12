@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="toolbarSubMenu" menuText="SPC">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/convective/SPC.xml" />
+    </contribute>
+    <contribute xsi:type="menuItem" menuText="Lifted Idx"
+        key="SLI" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Best LI" key="BLI"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Parcel LI" key="PLI"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Computed LI"
+        key="L-I" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Sfc to * LI"
+        key="LIsfc2x" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Showalter Idx"
+        key="shWlt" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Pos Buoy En"
+        key="PBE" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Neg Buoy En"
+        key="NBE" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Computed CAPE"
+        key="cCape" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Downdraft CAPE"
+        key="dCape" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="MU CAPE" key="muCape"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Low Lvl CAPE"
+        key="loCape" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Computed CIN"
+        key="cCin" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Total Totals"
+        key="tTOT" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="K Index" key="KI"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="SWEAT Index"
+        key="swtIdx" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="CO Svr Strm Idx"
+        key="CSSI" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Helicity" key="Heli"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Bulk Rich No"
+        key="BRN" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Bulk Rich No Shr"
+        key="BRNSHR" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Haines Index"
+        key="HI" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Corfidi Vectors"
+        key="Corf" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Corfidi Vector Mag"
+        key="CorfM" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Corfidi Vec Fwd"
+        key="CorfF" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Corfidi Vec Fwd Mag"
+        key="CorfFM" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Right Moving Supercell"
+        key="RM5" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Left Moving Supercell"
+        key="LM5" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Energy Helicity Idx"
+        key="EHI" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Vort Gen Parm"
+        key="VGP" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Conv Precip"
+        key="CP" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Max Updraft VV"
+        key="MXUVV" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Max Downdraft VV"
+        key="MXDVV" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Max Updraft Helicity"
+        key="MAXUPHL" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Most Unstable BL Parcel Level"
+        key="PLPL" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Max Lightning Threat"
+        key="LTNG" indentText="true" />
+</menuTemplate>

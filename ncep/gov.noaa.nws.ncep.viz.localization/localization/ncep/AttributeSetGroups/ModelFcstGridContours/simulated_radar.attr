@@ -1,0 +1,25 @@
+!
+! Restore File : simulated_radar
+!
+! Log:
+! T. Lee/NCO	 6/14	Initial creation
+!
+GLEVEL =  1000
+GVCORD =  hght
+SKIP   =  0
+FILTER =  y
+SCALE  =  0
+GDPFUN =  refd
+TYPE   =  f
+CINT   =    
+LINE   =   
+FINT   =  5;10;15;20;25;30;35;40;45;50;55;60;65;70  
+FLINE  =  0;27;26;4;21;22;23;5;20;17;16;15;14;7;29 
+HILO   =  
+HLSYM  = 
+CLRBAR =  1                                                                      
+WIND   =  18/1/1
+TITLE  =  1/-1/~ @ height simulated radar echo
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="synoptic_land">
+ <!-- time not included since it is processed before anything else -->
+ <alias base="stationId">WMO station number</alias>
+ <alias base="latitude">Latitude (high accuracy)</alias>
+ <alias base="longitude">Longitude (high accuracy)</alias>
+ <alias base="elevation">Height of station ground above mean sea level</alias>
+ <alias base="temperature">Temperature/dry-bulb temperature</alias>
+ <alias base="dewpoint">Dew-point temperature</alias>
+ <alias base="windSpeed">Wind speed</alias>
+ <alias base="windDir">Wind direction</alias>
+ <alias base="windGust">Maximum wind gust speed</alias>
+ <!-- land synoptic text decoder doesn't set peakWind*, only maritime does
+ <alias base="peakWindSpeedTime"></alias>
+ <alias base="peakWindSpeed"></alias>
+ <alias base="peakWindDir"></alias>
+ -->
+ <alias base="seaLevelPress">Pressure reduced to mean sea level</alias>
+ <!-- synoptic land does not contain altimeter data
+ <alias base="altimeter"></alias>
+ -->
+ <alias base="stationPress">Pressure</alias>
+ <!-- table lookup -->
+ <alias base="pressChangeChar">Characteristic of pressure tendency</alias>
+ <alias base="pressChange3Hour">3-hour pressure change</alias>
+ <!-- table lookup-->
+ <alias base="totCloudAmount">Cloud amount</alias>
+ <alias base="lowCloudHeight">Height of base of cloud</alias>
+ <!-- this is not persisted from the text decoder
+ <alias base="lowCloudAmount></alias>
+  -->
+ <!-- table lookup-->
+ <alias base="lowCloudType">Cloud type</alias>
+ <!-- table lookup-->
+ <alias base="midCloudType">Cloud type-1</alias>
+ <!-- table lookup-->
+ <alias base="hiCloudType">Cloud type-2</alias>
+ <alias base="visibility">Horizontal visibility</alias>
+ <!-- wx_present is the text lookup table index -->
+ <alias base="wx_present">Present weather</alias>
+ <!-- presWeather is the metar-ish weather abbreviation -->
+ <alias base="presWeather">Present weather</alias>
+ <alias base="wx_past_1">Past weather (1)</alias>
+ <alias base="wx_past_2">Past weather (2)</alias>
+ <!-- map all precip to same base, use associated time period in parser -->
+ <alias base="precip">Total precipitation/total water equivalent</alias>
+ <alias base="precip24Hour">Total precipitation past 24 hours</alias>
+ <!-- following not avaiable in land synop
+ <alias base="equivWindSpeed10m"></alias>
+ <alias base="equivWindSpeed20m"></alias>
+ <alias base="iceCode"></alias>
+ <alias base="wetBulb"></alias>
+ <alias base="seaSurfaceTemp"></alias>
+ <alias base="platformTrueDirection"></alias>
+ <alias base="platformTrueSpeed"></alias>
+ <alias base="windWaveHeight"></alias>
+ <alias base="windWavePeriod"></alias>
+ <alias base="waveHeight"></alias>
+ <alias base="wavePeriod"></alias>
+ <alias base="waveSteepness"></alias>
+ <alias base="highResWaveHeight"></alias>
+ <alias base="primarySwellWaveDir"></alias>
+ <alias base="primarySwellWavePeriod"></alias>
+ <alias base="primarySwellWaveHeight"></alias>
+ <alias base="secondarySwellWaveDir"></alias>
+ <alias base="secondarySwellWavePeriod"></alias>
+ <alias base="secondarySwellWaveHeight"></alias>
+ <alias base="numInterWinds"></alias>
+ <alias base="interWindTime"></alias>
+  -->
+</aliasList>

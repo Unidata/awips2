@@ -1,0 +1,7 @@
+colorMapName=ssmi_opc
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=SSMI
+displayUnitStr=BRIT
+alpha=1.0
+brightness=1.0
+contrast=1.0

@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+  <bean id="gaffService" class="com.raytheon.uf.edex.ohd.pproc.GAFF">
+  </bean>
+  
+  <camelContext id="clustered-gaff-context" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        
+        <endpoint id="gaffCron" uri="clusteredquartz://hydro/gaffScheduled/?cron=${gaff.cron}"/>
+        
+        <!-- Run GAFF on a scheduled timer -->
+        <route id="gaffScheduled">
+            <from uri="gaffCron" />
+            <to uri="jms-generic:queue:gaffScheduledWork" />
+        </route>
+        
+        <route id="gaffScheduledWork">
+            <from uri="jms-generic:queue:gaffScheduledWork" />
+            <doTry>
+                <bean ref="gaffService" method="process" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:GAFF?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+  </camelContext>
+
+  <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clustered-gaff-context" />
+  </bean>
+</beans>

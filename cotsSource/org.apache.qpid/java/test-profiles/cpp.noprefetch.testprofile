@@ -1,3 +1,0 @@
-include=cpp
-profile.excludes=CPPTransientExcludes
-max_prefetch=0

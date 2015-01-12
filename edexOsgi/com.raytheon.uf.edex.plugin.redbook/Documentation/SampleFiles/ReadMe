@@ -1,0 +1,4 @@
+This folder contains sample NDM files.
+
+Dropping RedbookHazardMenus.xml into the /awips2/edex/data/ndm directory will generate an override of the SPC hazards menu.
+RedbookHazardMenus.xml as written here will generate the base version of the SPC hazard menus.
