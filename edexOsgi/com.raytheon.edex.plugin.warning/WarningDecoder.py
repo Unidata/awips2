@@ -42,6 +42,7 @@
 #                                       start time from file's timestamp.
 # Oct 03, 2013  2402     bsteffen       Make PythonDecoder more extendable.
 # Jun 10, 2014  3268     dgilling       Update location of WclInfo class.
+# Dec 17, 2014  4953     randerso       Fixed decoding of non-VTEC from command line
 
 # </pre>
 #
@@ -111,10 +112,10 @@ class StdWarningDecoder():
         self._timeOffset = 0
         
         #decode the command line
-        if text is None and filePath is None:
+        if command is not None:
             self._decodeCommandLine()
             self._rawMessage = None
-            checkForWmo = False
+            checkForWmo = True
         else:                            
             self._rawMessage = text
             checkForWmo = True
