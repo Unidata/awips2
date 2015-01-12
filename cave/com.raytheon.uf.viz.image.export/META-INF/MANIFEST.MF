@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Image Export
+Bundle-SymbolicName: com.raytheon.uf.viz.image.export;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.viz.ui;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core;bundle-version="1.14.0",
+ org.eclipse.core.runtime;bundle-version="3.8.0",
+ com.raytheon.uf.common.time
+Export-Package: com.raytheon.uf.viz.image.export.dialog,
+ com.raytheon.uf.viz.image.export.handler,
+ com.raytheon.uf.viz.image.export.options

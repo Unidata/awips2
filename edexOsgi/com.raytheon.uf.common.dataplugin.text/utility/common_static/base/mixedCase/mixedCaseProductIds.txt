@@ -1,0 +1,5 @@
+# This file contains the product IDs (nnn) that should be sent in mixed case.
+# Product IDs should be 3 characters long and delimited by commas or white space.
+# Overrides to the base file will add to the list of mixed case products
+
+AFD PNS RWS PWO TCD TWD TWO WRK # Phase 1 Products

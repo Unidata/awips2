@@ -1,0 +1,1108 @@
+<translationTable bufrTable="0 20 003" description="Present weather">
+ <!-- mapped value for 'wx_present' comes from the Synoptic Code table 4677 -->
+ <!-- mapped value for 'presWeather' comes from the translation table in com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder.java -->
+ <entry description="Cloud development not observed or not observable" indexRange="00">
+  <mappedValue parameter="wx_present" value="00" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Clouds generally dissolving or becoming less developed" indexRange="01">
+  <mappedValue parameter="wx_present" value="01" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="State of sky on the whole unchanged" indexRange="02">
+  <mappedValue parameter="wx_present" value="02" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Clouds generally forming or developing" indexRange="03">
+  <mappedValue parameter="wx_present" value="03" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Visibility reduced by smoke, e.g. veldt or forest fires, industrial smoke or volcanic ashes" indexRange="04">
+  <mappedValue parameter="wx_present" value="04" />
+  <mappedValue parameter="presWeather" value="FU" />
+ </entry>
+ <entry description="Haze" indexRange="05">
+  <mappedValue parameter="wx_present" value="05" />
+  <mappedValue parameter="presWeather" value="HZ" />
+ </entry>
+ <entry description="Widespread dust in suspension in the air, not raised by wind at or near the station at the time of observation" indexRange="06">
+  <mappedValue parameter="wx_present" value="06" />
+  <mappedValue parameter="presWeather" value="DU" />
+ </entry>
+ <entry description="Dust or sand raised by wind at or near the station at the time of observation, but no well-developed dust whirl(s) or sand whirl(s), and no duststorm or sandstorm seen; or, in the case of sea stations and coastal stations, blowing spray at the station" indexRange="07">
+  <mappedValue parameter="wx_present" value="07" />
+  <mappedValue parameter="presWeather" value="BLSA" />
+ </entry>
+ <entry description="Well-developed dust whirl(s) or sand whirl(s) seen at or near the station during the preceding hour or at the same time of observation, but no duststorm or sandstorm" indexRange="08">
+  <mappedValue parameter="wx_present" value="08" />
+  <mappedValue parameter="presWeather" value="PO" />
+ </entry>
+ <entry description="Duststorm or sandstorm within sight at the time of observation, or at the station during the preceding hour" indexRange="09">
+  <mappedValue parameter="wx_present" value="09" />
+  <mappedValue parameter="presWeather" value="VCSS" />
+ </entry>
+ <entry description="Mist" indexRange="10">
+  <mappedValue parameter="wx_present" value="10" />
+  <mappedValue parameter="presWeather" value="BR" />
+ </entry>
+ <entry description="Patches" indexRange="11">
+  <mappedValue parameter="wx_present" value="11" />
+  <mappedValue parameter="presWeather" value="BCFG" />
+ </entry>
+ <entry description="More or less continuous" indexRange="12">
+  <mappedValue parameter="wx_present" value="12" />
+  <mappedValue parameter="presWeather" value="MIFG" />
+ </entry>
+ <entry description="Lightning visible, no thunder heard" indexRange="13">
+  <mappedValue parameter="wx_present" value="13" />
+  <mappedValue parameter="presWeather" value="VCTS" />
+ </entry>
+ <entry description="Precipitation within sight, not reaching the ground or the surface of the sea" indexRange="14">
+  <mappedValue parameter="wx_present" value="14" />
+  <mappedValue parameter="presWeather" value="VCSH" />
+ </entry>
+ <entry description="Precipitation within sight, reaching the ground or the surface of the sea, but distant, i.e. estimated to be more than 5 km from the station" indexRange="15">
+  <mappedValue parameter="wx_present" value="15" />
+  <mappedValue parameter="presWeather" value="VCSH" />
+ </entry>
+ <entry description="Precipitation within sight, reaching the ground or the surface of the sea, near to, but not at the station" indexRange="16">
+  <mappedValue parameter="wx_present" value="16" />
+  <mappedValue parameter="presWeather" value="VCSH" />
+ </entry>
+ <entry description="Thunderstorm, but no precipitation at the time of observation" indexRange="17">
+  <mappedValue parameter="wx_present" value="17" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Squalls" indexRange="18">
+  <mappedValue parameter="wx_present" value="18" />
+  <mappedValue parameter="presWeather" value="SQ" />
+ </entry>
+ <entry description="Funnel cloud(s)" indexRange="19">
+  <mappedValue parameter="wx_present" value="19" />
+  <mappedValue parameter="presWeather" value="+FC" />
+ </entry>
+ <entry description="Drizzle (not freezing) or snow grains" indexRange="20">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="DZ" />
+ </entry>
+ <entry description="Rain (not freezing)" indexRange="21">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Snow" indexRange="22">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Rain and snow or ice pellets" indexRange="23">
+  <mappedValue parameter="wx_present" value="23" />
+  <mappedValue parameter="presWeather" value="RA SN" />
+ </entry>
+ <entry description="Freezing drizzle or freezing rain" indexRange="24">
+  <mappedValue parameter="wx_present" value="24" />
+  <mappedValue parameter="presWeather" value="FZRA" />
+ </entry>
+ <entry description="Shower(s) of rain" indexRange="25">
+  <mappedValue parameter="wx_present" value="25" />
+  <mappedValue parameter="presWeather" value="SHRA" />
+ </entry>
+ <entry description="Shower(s) of snow, or of rain and snow" indexRange="26">
+  <mappedValue parameter="wx_present" value="26" />
+  <mappedValue parameter="presWeather" value="SHRA SHSN" />
+ </entry>
+ <entry description="Shower(s) of hail*, or of rain and hail*" indexRange="27">
+  <mappedValue parameter="wx_present" value="27" />
+  <mappedValue parameter="presWeather" value="SHGR" />
+ </entry>
+ <entry description="Fog or ice fog" indexRange="28">
+  <mappedValue parameter="wx_present" value="28" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Thunderstorm (with or without precipitation)" indexRange="29">
+  <mappedValue parameter="wx_present" value="29" />
+  <mappedValue parameter="presWeather" value="TS" />
+ </entry>
+ <entry description="Slight or moderate duststorm or sandstorm" indexRange="30">
+  <mappedValue parameter="wx_present" value="30" />
+  <mappedValue parameter="presWeather" value="SS" />
+ </entry>
+ <entry description="Slight or moderate duststorm or sandstorm" indexRange="31">
+  <mappedValue parameter="wx_present" value="31" />
+  <mappedValue parameter="presWeather" value="SS" />
+ </entry>
+ <entry description="Slight or moderate duststorm or sandstorm" indexRange="32">
+  <mappedValue parameter="wx_present" value="32" />
+  <mappedValue parameter="presWeather" value="SS" />
+ </entry>
+ <entry description="Severe duststorm or sandstorm" indexRange="33">
+  <mappedValue parameter="wx_present" value="33" />
+  <mappedValue parameter="presWeather" value="+SS" />
+ </entry>
+ <entry description="Severe duststorm or sandstorm" indexRange="34">
+  <mappedValue parameter="wx_present" value="34" />
+  <mappedValue parameter="presWeather" value="+SS" />
+ </entry>
+ <entry description="Severe duststorm or sandstorm" indexRange="35">
+  <mappedValue parameter="wx_present" value="35" />
+  <mappedValue parameter="presWeather" value="+SS" />
+ </entry>
+ <entry description="Slight or moderate drifting snow" indexRange="36">
+  <mappedValue parameter="wx_present" value="36" />
+  <mappedValue parameter="presWeather" value="DRSN" />
+ </entry>
+ <entry description="Heavy drifting snow" indexRange="37">
+  <mappedValue parameter="wx_present" value="37" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Slight or moderate blowing snow" indexRange="38">
+  <mappedValue parameter="wx_present" value="38" />
+  <mappedValue parameter="presWeather" value="BLSN" />
+ </entry>
+ <entry description="Heavy blowing snow" indexRange="39">
+  <mappedValue parameter="wx_present" value="39" />
+  <mappedValue parameter="presWeather" value="+BLSN" />
+ </entry>
+ <entry description="Fog or ice fog at a distance at the time of observation, but not at the station during the preceding hour, the fog or ice fog extending to a level above that of the observer" indexRange="40">
+  <mappedValue parameter="wx_present" value="40" />
+  <mappedValue parameter="presWeather" value="VCFG" />
+ </entry>
+ <entry description="Fog or ice fog in patches" indexRange="41">
+  <mappedValue parameter="wx_present" value="41" />
+  <mappedValue parameter="presWeather" value="BCFG" />
+ </entry>
+ <entry description="Fog or ice fog, sky visible" indexRange="42">
+  <mappedValue parameter="wx_present" value="42" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog or ice fog, sky invisible" indexRange="43">
+  <mappedValue parameter="wx_present" value="43" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog or ice fog, sky visible" indexRange="44">
+  <mappedValue parameter="wx_present" value="44" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog or ice fog, sky invisible" indexRange="45">
+  <mappedValue parameter="wx_present" value="45" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog or ice fog, sky visible" indexRange="46">
+  <mappedValue parameter="wx_present" value="46" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog or ice fog, sky invisible" indexRange="47">
+  <mappedValue parameter="wx_present" value="47" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog, depositing rime, sky visible" indexRange="48">
+  <mappedValue parameter="wx_present" value="48" />
+  <mappedValue parameter="presWeather" value="FZFG" />
+ </entry>
+ <entry description="Fog, depositing rime, sky invisible" indexRange="49">
+  <mappedValue parameter="wx_present" value="49" />
+  <mappedValue parameter="presWeather" value="FZFG" />
+ </entry>
+ <entry description="Drizzle, not freezing, intermittent" indexRange="50">
+  <mappedValue parameter="wx_present" value="50" />
+  <mappedValue parameter="presWeather" value="-DZ" />
+ </entry>
+ <entry description="Drizzle, not freezing, continuous" indexRange="51">
+  <mappedValue parameter="wx_present" value="51" />
+  <mappedValue parameter="presWeather" value="-DZ" />
+ </entry>
+ <entry description="Drizzle, not freezing, intermittent" indexRange="52">
+  <mappedValue parameter="wx_present" value="52" />
+  <mappedValue parameter="presWeather" value="DZ" />
+ </entry>
+ <entry description="Drizzle, not freezing, continuous" indexRange="53">
+  <mappedValue parameter="wx_present" value="53" />
+  <mappedValue parameter="presWeather" value="DZ" />
+ </entry>
+ <entry description="Drizzle, not freezing, intermittent" indexRange="54">
+  <mappedValue parameter="wx_present" value="54" />
+  <mappedValue parameter="presWeather" value="+DZ" />
+ </entry>
+ <entry description="Drizzle, not freezing, continuous" indexRange="55">
+  <mappedValue parameter="wx_present" value="55" />
+  <mappedValue parameter="presWeather" value="+DZ" />
+ </entry>
+ <entry description="Drizzle, freezing, slight" indexRange="56">
+  <mappedValue parameter="wx_present" value="56" />
+  <mappedValue parameter="presWeather" value="-FZDZ" />
+ </entry>
+ <entry description="Drizzle, freezing, moderate or heavy (dense)" indexRange="57">
+  <mappedValue parameter="wx_present" value="57" />
+  <mappedValue parameter="presWeather" value="FZDZ" />
+ </entry>
+ <entry description="Drizzle and rain, slight" indexRange="58">
+  <mappedValue parameter="wx_present" value="58" />
+  <mappedValue parameter="presWeather" value="-DZ -RA" />
+ </entry>
+ <entry description="Drizzle and rain, moderate or heavy" indexRange="59">
+  <mappedValue parameter="wx_present" value="59" />
+  <mappedValue parameter="presWeather" value="DZ RA" />
+ </entry>
+ <entry description="Rain, not freezing, intermittent" indexRange="60">
+  <mappedValue parameter="wx_present" value="60" />
+  <mappedValue parameter="presWeather" value="-RA" />
+ </entry>
+ <entry description="Rain, not freezing, continuous" indexRange="61">
+  <mappedValue parameter="wx_present" value="61" />
+  <mappedValue parameter="presWeather" value="-RA" />
+ </entry>
+ <entry description="Rain, not freezing, intermittent" indexRange="62">
+  <mappedValue parameter="wx_present" value="62" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Rain, not freezing, continuous" indexRange="63">
+  <mappedValue parameter="wx_present" value="63" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Rain, not freezing, intermittent" indexRange="64">
+  <mappedValue parameter="wx_present" value="64" />
+  <mappedValue parameter="presWeather" value="+RA" />
+ </entry>
+ <entry description="Rain, not freezing, continuous" indexRange="65">
+  <mappedValue parameter="wx_present" value="65" />
+  <mappedValue parameter="presWeather" value="+RA" />
+ </entry>
+ <entry description="Rain, freezing, slight" indexRange="66">
+  <mappedValue parameter="wx_present" value="66" />
+  <mappedValue parameter="presWeather" value="-FZRA" />
+ </entry>
+ <entry description="Rain, freezing, moderate or heavy" indexRange="67">
+  <mappedValue parameter="wx_present" value="67" />
+  <mappedValue parameter="presWeather" value="FZRA" />
+ </entry>
+ <entry description="Rain or drizzle and snow, slight" indexRange="68">
+  <mappedValue parameter="wx_present" value="68" />
+  <mappedValue parameter="presWeather" value="-RA -SN" />
+ </entry>
+ <entry description="Rain or drizzle and snow, moderate or heavy" indexRange="69">
+  <mappedValue parameter="wx_present" value="69" />
+  <mappedValue parameter="presWeather" value="RA SN" />
+ </entry>
+ <entry description="Intermittent fall of snowflakes" indexRange="70">
+  <mappedValue parameter="wx_present" value="70" />
+  <mappedValue parameter="presWeather" value="-SN" />
+ </entry>
+ <entry description="Continuous fall of snowflakes" indexRange="71">
+  <mappedValue parameter="wx_present" value="71" />
+  <mappedValue parameter="presWeather" value="-SN" />
+ </entry>
+ <entry description="Intermittent fall of snowflakes" indexRange="72">
+  <mappedValue parameter="wx_present" value="72" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Continuous fall of snowflakes" indexRange="73">
+  <mappedValue parameter="wx_present" value="73" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Intermittent fall of snowflakes" indexRange="74">
+  <mappedValue parameter="wx_present" value="74" />
+  <mappedValue parameter="presWeather" value="+SN" />
+ </entry>
+ <entry description="Continuous fall of snowflakes" indexRange="75">
+  <mappedValue parameter="wx_present" value="75" />
+  <mappedValue parameter="presWeather" value="+SN" />
+ </entry>
+ <entry description="Diamond dust (with or without fog)" indexRange="76">
+  <mappedValue parameter="wx_present" value="76" />
+  <mappedValue parameter="presWeather" value="IC" />
+ </entry>
+ <entry description="Snow grains (with or without fog)" indexRange="77">
+  <mappedValue parameter="wx_present" value="77" />
+  <mappedValue parameter="presWeather" value="SG" />
+ </entry>
+ <entry description="Isolated star-like snow crystals (with or without fog)" indexRange="78">
+  <mappedValue parameter="wx_present" value="78" />
+  <mappedValue parameter="presWeather" value="IC" />
+ </entry>
+ <entry description="Ice pellets" indexRange="79">
+  <mappedValue parameter="wx_present" value="79" />
+  <mappedValue parameter="presWeather" value="PE" />
+ </entry>
+ <entry description="Rain shower(s), slight" indexRange="80">
+  <mappedValue parameter="wx_present" value="80" />
+  <mappedValue parameter="presWeather" value="-SHRA" />
+ </entry>
+ <entry description="Rain shower(s), moderate or heavy" indexRange="81">
+  <mappedValue parameter="wx_present" value="81" />
+  <mappedValue parameter="presWeather" value="SHRA" />
+ </entry>
+ <entry description="Rain shower(s), violent" indexRange="82">
+  <mappedValue parameter="wx_present" value="82" />
+  <mappedValue parameter="presWeather" value="+SHRA" />
+ </entry>
+ <entry description="Shower(s) of rain and snow mixed, slight" indexRange="83">
+  <mappedValue parameter="wx_present" value="83" />
+  <mappedValue parameter="presWeather" value="-SHSN -SHRA" />
+ </entry>
+ <entry description="Shower(s) of rain and snow mixed, moderate or heavy" indexRange="84">
+  <mappedValue parameter="wx_present" value="84" />
+  <mappedValue parameter="presWeather" value="SHSN SHRA" />
+ </entry>
+ <entry description="Snow shower(s), slight" indexRange="85">
+  <mappedValue parameter="wx_present" value="85" />
+  <mappedValue parameter="presWeather" value="-SNSN" />
+ </entry>
+ <entry description="Snow shower(s), moderate or heavy" indexRange="86">
+  <mappedValue parameter="wx_present" value="86" />
+  <mappedValue parameter="presWeather" value="SHSN" />
+ </entry>
+ <entry description="Shower(s) of snow pellets or small hail, with or without rain or rain and snow mixed" indexRange="87">
+  <mappedValue parameter="wx_present" value="87" />
+  <mappedValue parameter="presWeather" value="-SHPE" />
+ </entry>
+ <entry description="Shower(s) of snow pellets or small hail, with or without rain or rain and snow mixed" indexRange="88">
+  <mappedValue parameter="wx_present" value="88" />
+  <mappedValue parameter="presWeather" value="SHPE" />
+ </entry>
+ <entry description="Shower(s) of hail, with or without rain or rain and snow mixed, not associated with thunder" indexRange="89">
+  <mappedValue parameter="wx_present" value="89" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Shower(s) of hail, with or without rain or rain and snow mixed, not associated with thunder" indexRange="90">
+  <mappedValue parameter="wx_present" value="90" />
+  <mappedValue parameter="presWeather" value="SHGR" />
+ </entry>
+ <entry description="Slight rain at time of observation" indexRange="91">
+  <mappedValue parameter="wx_present" value="91" />
+  <mappedValue parameter="presWeather" value="-RA" />
+ </entry>
+ <entry description="Moderate or heavy rain at time of observation" indexRange="92">
+  <mappedValue parameter="wx_present" value="92" />
+  <mappedValue parameter="presWeather" value="+RA" />
+ </entry>
+ <entry description="Slight snow, or rain and snow mixed or hail* at time of observation" indexRange="93">
+  <mappedValue parameter="wx_present" value="93" />
+  <mappedValue parameter="presWeather" value="-RA -SN -GR" />
+ </entry>
+ <entry description="Moderate or heavy snow, or rain and snow mixed or hail* at time of observation" indexRange="94">
+  <mappedValue parameter="wx_present" value="94" />
+  <mappedValue parameter="presWeather" value="+RA +SN +GR" />
+ </entry>
+ <entry description="Thunderstorm, slight or moderate, without hail*, but with rain and/or snow at time of observation" indexRange="95">
+  <mappedValue parameter="wx_present" value="95" />
+  <mappedValue parameter="presWeather" value="TSRA" />
+ </entry>
+ <entry description="Thunderstorm, slight or moderate, with hail* at time of observation" indexRange="96">
+  <mappedValue parameter="wx_present" value="96" />
+  <mappedValue parameter="presWeather" value="TSPE" />
+ </entry>
+ <entry description="Thunderstorm, heavy, without hail*, but with rain and/or snow at time of observation" indexRange="97">
+  <mappedValue parameter="wx_present" value="97" />
+  <mappedValue parameter="presWeather" value="+TSRA" />
+ </entry>
+ <entry description="Thunderstorm combined with duststorm or sandstorm at time of observation" indexRange="98">
+  <mappedValue parameter="wx_present" value="98" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Thunderstorm, heavy, with hail* at time of observation" indexRange="99">
+  <mappedValue parameter="wx_present" value="99" />
+  <mappedValue parameter="presWeather" value="+TSPE" />
+ </entry>
+ <entry description="No significant weather observed" indexRange="100">
+  <mappedValue parameter="wx_present" value="0" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Clouds generally dissolving or becoming less developed during the past hour" indexRange="101">
+  <mappedValue parameter="wx_present" value="1" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="State of sky on the whole unchanged during the past hour" indexRange="102">
+  <mappedValue parameter="wx_present" value="2" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Clouds generally forming or developing during the past hour" indexRange="103">
+  <mappedValue parameter="wx_present" value="3" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="Haze or smoke, or dust in suspension in the air, visibility equal to, or greater than, 1 km" indexRange="104">
+  <mappedValue parameter="wx_present" value="5" />
+  <mappedValue parameter="presWeather" value="HZ" />
+ </entry>
+ <entry description="Haze or smoke, or dust in suspension in the air, visibility less than 1 km" indexRange="105">
+  <mappedValue parameter="wx_present" value="4" />
+  <mappedValue parameter="presWeather" value="FU" />
+ </entry>
+ <entry description="Reserved" indexRange="106-109">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Mist" indexRange="110">
+  <mappedValue parameter="wx_present" value="10" />
+  <mappedValue parameter="presWeather" value="BR" />
+ </entry>
+ <entry description="Diamond dust" indexRange="111">
+  <mappedValue parameter="wx_present" value="76" />
+  <mappedValue parameter="presWeather" value="IC" />
+ </entry>
+ <entry description="Distant lightning" indexRange="112">
+  <mappedValue parameter="wx_present" value="13" />
+  <mappedValue parameter="presWeather" value="VCTS" />
+ </entry>
+ <entry description="Reserved" indexRange="113-117">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Squalls" indexRange="118">
+  <mappedValue parameter="wx_present" value="18" />
+  <mappedValue parameter="presWeather" value="SQ" />
+ </entry>
+ <entry description="Reserved" indexRange="119">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Fog" indexRange="120">
+  <mappedValue parameter="wx_present" value="28" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="PRECIPITATION" indexRange="121">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Drizzle (not freezing) or snow grains" indexRange="122">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="DZ" />
+ </entry>
+ <entry description="Rain (not freezing)" indexRange="123">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Snow" indexRange="124">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Freezing drizzle or freezing rain" indexRange="125">
+  <mappedValue parameter="wx_present" value="24" />
+  <mappedValue parameter="presWeather" value="FZRA" />
+ </entry>
+ <entry description="Thunderstorm (with or without precipitation)" indexRange="126">
+  <mappedValue parameter="wx_present" value="29" />
+  <mappedValue parameter="presWeather" value="TS" />
+ </entry>
+ <entry description="BLOWING OR DRIFTING SNOW OR SAND" indexRange="127">
+  <mappedValue parameter="wx_present" value="36" />
+  <mappedValue parameter="presWeather" value="DRSN" />
+ </entry>
+ <entry description="Blowing or drifting snow or sand, visibility equal to, or greater than, 1 km" indexRange="128">
+  <mappedValue parameter="wx_present" value="37" />
+  <mappedValue parameter="presWeather" value="DRSN" />
+ </entry>
+ <entry description="Blowing or drifting snow or sand, visibility less than 1 km" indexRange="129">
+  <mappedValue parameter="wx_present" value="38" />
+  <mappedValue parameter="presWeather" value="DRSN" />
+ </entry>
+ <entry description="FOG" indexRange="130">
+  <mappedValue parameter="wx_present" value="28" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog or ice fog in patches" indexRange="131">
+  <mappedValue parameter="wx_present" value="41" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog or ice fog, has become thinner during the past hour" indexRange="132">
+  <mappedValue parameter="wx_present" value="42" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog or ice fog, no appreciable change during the past hour" indexRange="133">
+  <mappedValue parameter="wx_present" value="44" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog or ice fog, has begun or become thicker during the past hour" indexRange="134">
+  <mappedValue parameter="wx_present" value="46" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Fog, depositing rime" indexRange="135">
+  <mappedValue parameter="wx_present" value="48" />
+  <mappedValue parameter="presWeather" value="FG" />
+ </entry>
+ <entry description="Reserved" indexRange="136-139">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="PRECIPITATION" indexRange="140">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Precipitation, slight or moderate" indexRange="141">
+  <mappedValue parameter="wx_present" value="61" />
+  <mappedValue parameter="presWeather" value="-RA" />
+ </entry>
+ <entry description="Precipitation, heavy" indexRange="142">
+  <mappedValue parameter="wx_present" value="65" />
+  <mappedValue parameter="presWeather" value="+RA" />
+ </entry>
+ <entry description="Liquid precipitation, slight or moderate" indexRange="143">
+  <mappedValue parameter="wx_present" value="61" />
+  <mappedValue parameter="presWeather" value="-RA" />
+ </entry>
+ <entry description="Liquid precipitation, heavy" indexRange="144">
+  <mappedValue parameter="wx_present" value="65" />
+  <mappedValue parameter="presWeather" value="+RA" />
+ </entry>
+ <entry description="Solid precipitation, slight or moderate" indexRange="145">
+  <mappedValue parameter="wx_present" value="71" />
+  <mappedValue parameter="presWeather" value="-SN" />
+ </entry>
+ <entry description="Solid precipitation, heavy" indexRange="146">
+  <mappedValue parameter="wx_present" value="75" />
+  <mappedValue parameter="presWeather" value="+SN" />
+ </entry>
+ <entry description="Freezing precipitation, slight or moderate" indexRange="147">
+  <mappedValue parameter="wx_present" value="66" />
+  <mappedValue parameter="presWeather" value="FZRA" />
+ </entry>
+ <entry description="Freezing precipitation, heavy" indexRange="148">
+  <mappedValue parameter="wx_present" value="67" />
+  <mappedValue parameter="presWeather" value="+FZRA" />
+ </entry>
+ <entry description="Reserved" indexRange="149">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="DRIZZLE" indexRange="150">
+  <mappedValue parameter="wx_present" value="53" />
+  <mappedValue parameter="presWeather" value="DZ" />
+ </entry>
+ <entry description="Drizzle, not freezing, slight" indexRange="151">
+  <mappedValue parameter="wx_present" value="51" />
+  <mappedValue parameter="presWeather" value="-DZ" />
+ </entry>
+ <entry description="Drizzle, not freezing, moderate" indexRange="152">
+  <mappedValue parameter="wx_present" value="53" />
+  <mappedValue parameter="presWeather" value="DZ" />
+ </entry>
+ <entry description="Drizzle, not freezing, heavy" indexRange="153">
+  <mappedValue parameter="wx_present" value="55" />
+  <mappedValue parameter="presWeather" value="+DZ" />
+ </entry>
+ <entry description="Drizzle, freezing, slight" indexRange="154">
+  <mappedValue parameter="wx_present" value="56" />
+  <mappedValue parameter="presWeather" value="-FZDZ" />
+ </entry>
+ <entry description="Drizzle, freezing, moderate" indexRange="155">
+  <mappedValue parameter="wx_present" value="57" />
+  <mappedValue parameter="presWeather" value="FZDZ" />
+ </entry>
+ <entry description="Drizzle, freezing, heavy" indexRange="156">
+  <mappedValue parameter="wx_present" value="57" />
+  <mappedValue parameter="presWeather" value="+FZDZ" />
+ </entry>
+ <entry description="Drizzle and rain, slight" indexRange="157">
+  <mappedValue parameter="wx_present" value="58" />
+  <mappedValue parameter="presWeather" value="-DZ -RA" />
+ </entry>
+ <entry description="Drizzle and rain, moderate or heavy" indexRange="158">
+  <mappedValue parameter="wx_present" value="59" />
+  <mappedValue parameter="presWeather" value="+DZ +RA" />
+ </entry>
+ <entry description="Reserved" indexRange="159">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="RAIN" indexRange="160">
+  <mappedValue parameter="wx_present" value="63" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Rain, not freezing, slight" indexRange="161">
+  <mappedValue parameter="wx_present" value="61" />
+  <mappedValue parameter="presWeather" value="-RA" />
+ </entry>
+ <entry description="Rain, not freezing, moderate" indexRange="162">
+  <mappedValue parameter="wx_present" value="63" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Rain, not freezing, heavy" indexRange="163">
+  <mappedValue parameter="wx_present" value="65" />
+  <mappedValue parameter="presWeather" value="+RA" />
+ </entry>
+ <entry description="Rain, freezing, slight" indexRange="164">
+  <mappedValue parameter="wx_present" value="66" />
+  <mappedValue parameter="presWeather" value="-FZRA" />
+ </entry>
+ <entry description="Rain, freezing, moderate" indexRange="165">
+  <mappedValue parameter="wx_present" value="67" />
+  <mappedValue parameter="presWeather" value="FZRA" />
+ </entry>
+ <entry description="Rain, freezing, heavy" indexRange="166">
+  <mappedValue parameter="wx_present" value="67" />
+  <mappedValue parameter="presWeather" value="+FZRA" />
+ </entry>
+ <entry description="Rain (or drizzle) and snow, slight" indexRange="167">
+  <mappedValue parameter="wx_present" value="68" />
+  <mappedValue parameter="presWeather" value="-RA -SN" />
+ </entry>
+ <entry description="Rain (or drizzle) and snow, moderate or heavy" indexRange="168">
+  <mappedValue parameter="wx_present" value="69" />
+  <mappedValue parameter="presWeather" value="+RA +SN" />
+ </entry>
+ <entry description="Reserved" indexRange="169">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="SNOW" indexRange="170">
+  <mappedValue parameter="wx_present" value="73" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Snow, slight" indexRange="171">
+  <mappedValue parameter="wx_present" value="71" />
+  <mappedValue parameter="presWeather" value="-SN" />
+ </entry>
+ <entry description="Snow, moderate" indexRange="172">
+  <mappedValue parameter="wx_present" value="73" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Snow, heavy" indexRange="173">
+  <mappedValue parameter="wx_present" value="75" />
+  <mappedValue parameter="presWeather" value="+SN" />
+ </entry>
+ <entry description="Ice pellets, slight" indexRange="174">
+  <mappedValue parameter="wx_present" value="79" />
+  <mappedValue parameter="presWeather" value="-PE" />
+ </entry>
+ <entry description="Ice pellets, moderate" indexRange="175">
+  <mappedValue parameter="wx_present" value="79" />
+  <mappedValue parameter="presWeather" value="PE" />
+ </entry>
+ <entry description="Ice pellets, heavy" indexRange="176">
+  <mappedValue parameter="wx_present" value="79" />
+  <mappedValue parameter="presWeather" value="+PE" />
+ </entry>
+ <entry description="Snow grains" indexRange="177">
+  <mappedValue parameter="wx_present" value="77" />
+  <mappedValue parameter="presWeather" value="SG" />
+ </entry>
+ <entry description="Ice crystals" indexRange="178">
+  <mappedValue parameter="wx_present" value="78" />
+  <mappedValue parameter="presWeather" value="IC" />
+ </entry>
+ <entry description="Reserved" indexRange="179">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="SHOWER(S) OR INTERMITTENT PRECIPITATION" indexRange="180">
+  <mappedValue parameter="wx_present" value="25" />
+  <mappedValue parameter="presWeather" value="SHRA" />
+ </entry>
+ <entry description="Rain shower(s) or intermittent rain, slight" indexRange="181">
+  <mappedValue parameter="wx_present" value="25" />
+  <mappedValue parameter="presWeather" value="-SHRA" />
+ </entry>
+ <entry description="Rain shower(s) or intermittent rain, moderate" indexRange="182">
+  <mappedValue parameter="wx_present" value="25" />
+  <mappedValue parameter="presWeather" value="SHRA" />
+ </entry>
+ <entry description="Rain shower(s) or intermittent rain, heavy" indexRange="183">
+  <mappedValue parameter="wx_present" value="25" />
+  <mappedValue parameter="presWeather" value="+SHRA" />
+ </entry>
+ <entry description="Rain shower(s) or intermittent rain, violent" indexRange="184">
+  <mappedValue parameter="wx_present" value="25" />
+  <mappedValue parameter="presWeather" value="+SHRA" />
+ </entry>
+ <entry description="Snow shower(s) or intermittent snow, slight" indexRange="185">
+  <mappedValue parameter="wx_present" value="85" />
+  <mappedValue parameter="presWeather" value="-SNSN" />
+ </entry>
+ <entry description="Snow shower(s) or intermittent snow, moderate" indexRange="186">
+  <mappedValue parameter="wx_present" value="86" />
+  <mappedValue parameter="presWeather" value="SHSN SHRA" />
+ </entry>
+ <entry description="Snow shower(s) or intermittent snow, heavy" indexRange="187">
+  <mappedValue parameter="wx_present" value="86" />
+  <mappedValue parameter="presWeather" value="+SHSN +SHRA" />
+ </entry>
+ <entry description="Reserved" indexRange="188">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Hail" indexRange="189">
+  <mappedValue parameter="wx_present" value="89" />
+  <mappedValue parameter="presWeather" value="" />
+ </entry>
+ <entry description="THUNDERSTORM" indexRange="190">
+  <mappedValue parameter="wx_present" value="29" />
+  <mappedValue parameter="presWeather" value="TS" />
+ </entry>
+ <entry description="Thunderstorm, slight or moderate, with no precipitation" indexRange="191">
+  <mappedValue parameter="wx_present" value="29" />
+  <mappedValue parameter="presWeather" value="TS" />
+ </entry>
+ <entry description="Thunderstorm, slight or moderate, with rain showers and/or snow showers" indexRange="192">
+  <mappedValue parameter="wx_present" value="95" />
+  <mappedValue parameter="presWeather" value="TSRA" />
+ </entry>
+ <entry description="Thunderstorm, slight or moderate, with hail" indexRange="193">
+  <mappedValue parameter="wx_present" value="96" />
+  <mappedValue parameter="presWeather" value="TSPE" />
+ </entry>
+ <entry description="Thunderstorm, heavy, with no precipitation" indexRange="194">
+  <mappedValue parameter="wx_present" value="29" />
+  <mappedValue parameter="presWeather" value="+TS" />
+ </entry>
+ <entry description="Thunderstorm, heavy, with rain showers and/or snow showers" indexRange="195">
+  <mappedValue parameter="wx_present" value="97" />
+  <mappedValue parameter="presWeather" value="+TSRA" />
+ </entry>
+ <entry description="Thunderstorm, heavy, with hail" indexRange="196">
+  <mappedValue parameter="wx_present" value="99" />
+  <mappedValue parameter="presWeather" value="+TSPE" />
+ </entry>
+ <entry description="Reserved" indexRange="197-198">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Tornado" indexRange="199">
+  <mappedValue parameter="wx_present" value="19" />
+  <mappedValue parameter="presWeather" value="+FC" />
+ </entry>
+ <entry description="Not used" indexRange="200-203">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Volcanic ash suspended in the air aloft" indexRange="204">
+  <mappedValue parameter="wx_present" value="4" />
+  <mappedValue parameter="presWeather" value="FU" />
+ </entry>
+ <entry description="Not used" indexRange="205">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Thick dust haze, visibility less than 1 km" indexRange="206">
+  <mappedValue parameter="wx_present" value="5" />
+  <mappedValue parameter="presWeather" value="HZ" />
+ </entry>
+ <entry description="Blowing spray at the station" indexRange="207">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Drifting dust (sand)" indexRange="208">
+  <mappedValue parameter="wx_present" value="7" />
+  <mappedValue parameter="presWeather" value="BLSA" />
+ </entry>
+ <entry description="Wall of dust or sand in distance (like haboob)" indexRange="209">
+  <mappedValue parameter="wx_present" value="9" />
+  <mappedValue parameter="presWeather" value="VCSS" />
+ </entry>
+ <entry description="Snow haze" indexRange="210">
+  <mappedValue parameter="wx_present" value="5" />
+  <mappedValue parameter="presWeather" value="HZ" />
+ </entry>
+ <entry description="Whiteout" indexRange="211">
+  <mappedValue parameter="wx_present" value="39" />
+  <mappedValue parameter="presWeather" value="+BLSN" />
+ </entry>
+ <entry description="Not used" indexRange="212">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Lightning, cloud to surface" indexRange="213">
+  <mappedValue parameter="wx_present" value="13" />
+  <mappedValue parameter="presWeather" value="VCTS" />
+ </entry>
+ <entry description="Not used" indexRange="214-216">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Dry thunderstorm" indexRange="217">
+  <mappedValue parameter="wx_present" value="17" />
+  <mappedValue parameter="presWeather" value="TS" />
+ </entry>
+ <entry description="Not used" indexRange="218">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Tornado cloud (destructive) at or within sight of the station during preceding hour or at the time of observation" indexRange="219">
+  <mappedValue parameter="wx_present" value="19" />
+  <mappedValue parameter="presWeather" value="+FC" />
+ </entry>
+ <entry description="Deposition of volcanic ash" indexRange="220">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Deposition of dust or sand" indexRange="221">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Deposition of dew" indexRange="222">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Deposition of wet snow" indexRange="223">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Deposition of soft rime" indexRange="224">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Deposition of hard rime" indexRange="225">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Deposition of hoar frost" indexRange="226">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Deposition of glaze" indexRange="227">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Deposition of ice crust (ice slick)" indexRange="228">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Not used" indexRange="229">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Duststorm or sandstorm with temperature below 0 &#176;C" indexRange="230">
+  <mappedValue parameter="wx_present" value="9" />
+  <mappedValue parameter="presWeather" value="VCSS" />
+ </entry>
+ <entry description="Not used" indexRange="231-238">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Blowing snow, impossible to determine whether snow is falling or not" indexRange="239">
+  <mappedValue parameter="wx_present" value="39" />
+  <mappedValue parameter="presWeather" value="+BLSN" />
+ </entry>
+ <entry description="Not used" indexRange="240">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Fog on sea" indexRange="241">
+  <mappedValue parameter="wx_present" value="12" />
+  <mappedValue parameter="presWeather" value="MIFG" />
+ </entry>
+ <entry description="Fog in valleys" indexRange="242">
+  <mappedValue parameter="wx_present" value="11" />
+  <mappedValue parameter="presWeather" value="BCFG" />
+ </entry>
+ <entry description="Arctic or Antarctic sea smoke" indexRange="243">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Steam fog (sea, lake or river)" indexRange="244">
+  <mappedValue parameter="wx_present" value="10" />
+  <mappedValue parameter="presWeather" value="BR" />
+ </entry>
+ <entry description="Steam log (land)" indexRange="245">
+  <mappedValue parameter="wx_present" value="10" />
+  <mappedValue parameter="presWeather" value="BR" />
+ </entry>
+ <entry description="Fog over ice or snow cover" indexRange="246">
+  <mappedValue parameter="wx_present" value="12" />
+  <mappedValue parameter="presWeather" value="MIFG" />
+ </entry>
+ <entry description="Dense fog, visibility 60-90 m" indexRange="247">
+  <mappedValue parameter="wx_present" value="12" />
+  <mappedValue parameter="presWeather" value="MIFG" />
+ </entry>
+ <entry description="Dense fog, visibility 30-60 m" indexRange="248">
+  <mappedValue parameter="wx_present" value="12" />
+  <mappedValue parameter="presWeather" value="MIFG" />
+ </entry>
+ <entry description="Dense fog, visibility less than 30 m" indexRange="249">
+  <mappedValue parameter="wx_present" value="12" />
+  <mappedValue parameter="presWeather" value="MIFG" />
+ </entry>
+ <entry description="Drizzle, rate of fall - less than 0.10 mm h-1" indexRange="250">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="-DZ" />
+ </entry>
+ <entry description="Drizzle, rate of fall - 0.10-0.19 mm h-1" indexRange="251">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="-DZ" />
+ </entry>
+ <entry description="Drizzle, rate of fall - 0.20-0.39 mm h-1" indexRange="252">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="-DZ" />
+ </entry>
+ <entry description="Drizzle, rate of fall - 0.40-0.79 mm h-1" indexRange="253">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="DZ" />
+ </entry>
+ <entry description="Drizzle, rate of fall - 0.80-1.59 mm h-1" indexRange="254">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="DZ" />
+ </entry>
+ <entry description="Drizzle, rate of fall - 1.60-3.19 mm h-1" indexRange="255">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="DZ" />
+ </entry>
+ <entry description="Drizzle, rate of fall - 3.20-6.39 mm h-1" indexRange="256">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="+DZ" />
+ </entry>
+ <entry description="Drizzle, rate of fall - 6.4 mm h-1 or more" indexRange="257">
+  <mappedValue parameter="wx_present" value="20" />
+  <mappedValue parameter="presWeather" value="+DZ" />
+ </entry>
+ <entry description="Not used" indexRange="258">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Drizzle and snow" indexRange="259">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Rain, rate of fall - less than 1.0 mm h-1" indexRange="260">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="-RA" />
+ </entry>
+ <entry description="Rain, rate of fall - 1.0-1.9 mm h-1" indexRange="261">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="-RA" />
+ </entry>
+ <entry description="Rain, rate of fall - 2.0-3.9 mm h-1" indexRange="262">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="-RA" />
+ </entry>
+ <entry description="Rain, rate of fall - 4.0-7.9 mm h-1" indexRange="263">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Rain, rate of fall - 8.0-15.9 mm h-1" indexRange="264">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Rain, rate of fall - 16.0-31.9 mm h-1" indexRange="265">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Rain, rate of fall - 32.0-63.9 mm h-1" indexRange="266">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="+RA" />
+ </entry>
+ <entry description="Rain, rate of fall - 64.0 mm h-1 or more" indexRange="267">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="+RA" />
+ </entry>
+ <entry description="Not used" indexRange="268-269">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Snow, rate of fall - less than 1.0 cm h-1" indexRange="270">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="-SN" />
+ </entry>
+ <entry description="Snow, rate of fall - 1.0-1.9 cm h-1" indexRange="271">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="-SN" />
+ </entry>
+ <entry description="Snow, rate of fall - 2.0-3.9 cm h-1" indexRange="272">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="-SN" />
+ </entry>
+ <entry description="Snow, rate of fall - 4.0-7.9 cm h-1" indexRange="273">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Snow, rate of fall - 8.0-15.9 cm h-1" indexRange="274">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Snow, rate of fall - 16.0-31.9 cm h-1" indexRange="275">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Snow, rate of fall - 32.0-63.9 cm h-1" indexRange="276">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="+SN" />
+ </entry>
+ <entry description="Snow, rate of fall - 64.0 cm h-1 or more" indexRange="277">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="+SN" />
+ </entry>
+ <entry description="Snow or ice crystal precipitation from a clear sky" indexRange="278">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Wet snow, freezing on contact" indexRange="279">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Precipitation of rain" indexRange="280">
+  <mappedValue parameter="wx_present" value="21" />
+  <mappedValue parameter="presWeather" value="RA" />
+ </entry>
+ <entry description="Precipitation of rain, freezing" indexRange="281">
+  <mappedValue parameter="wx_present" value="24" />
+  <mappedValue parameter="presWeather" value="FZRA" />
+ </entry>
+ <entry description="Precipitation of rain and snow mixed" indexRange="282">
+  <mappedValue parameter="wx_present" value="23" />
+  <mappedValue parameter="presWeather" value="RA SN" />
+ </entry>
+ <entry description="Precipitation of snow" indexRange="283">
+  <mappedValue parameter="wx_present" value="22" />
+  <mappedValue parameter="presWeather" value="SN" />
+ </entry>
+ <entry description="Precipitation of snow pellets or small hall" indexRange="284">
+  <mappedValue parameter="wx_present" value="87" />
+  <mappedValue parameter="presWeather" value="-SH PE" />
+ </entry>
+ <entry description="Precipitation of snow pellets or small hail, with rain" indexRange="285">
+  <mappedValue parameter="wx_present" value="87" />
+  <mappedValue parameter="presWeather" value="-RA -SN -GR" />
+ </entry>
+ <entry description="Precipitation of snow pellets or small hail, with rain and snow mixed" indexRange="286">
+  <mappedValue parameter="wx_present" value="87" />
+  <mappedValue parameter="presWeather" value="-RA -SN -GR" />
+ </entry>
+ <entry description="Precipitation of snow pellets or small hail, with snow" indexRange="287">
+  <mappedValue parameter="wx_present" value="93" />
+  <mappedValue parameter="presWeather" value="-RA -SN -GR" />
+ </entry>
+ <entry description="Precipitation of hail" indexRange="288">
+  <mappedValue parameter="wx_present" value="27" />
+  <mappedValue parameter="presWeather" value="SHGR" />
+ </entry>
+ <entry description="Precipitation of hail, with rain" indexRange="289">
+  <mappedValue parameter="wx_present" value="27" />
+  <mappedValue parameter="presWeather" value="SHGR RA" />
+ </entry>
+ <entry description="Precipitation of hall, with rain and snow mixed" indexRange="290">
+  <mappedValue parameter="wx_present" value="27" />
+  <mappedValue parameter="presWeather" value="SHGR RA SN" />
+ </entry>
+ <entry description="Precipitation of hail, with snow" indexRange="291">
+  <mappedValue parameter="wx_present" value="27" />
+  <mappedValue parameter="presWeather" value="SHGR SN" />
+ </entry>
+ <entry description="Shower(s) or thunderstorm over sea" indexRange="292">
+  <mappedValue parameter="wx_present" value="81" />
+  <mappedValue parameter="presWeather" value="SHRA" />
+ </entry>
+ <entry description="Shower(s) or thunderstorm over mountains" indexRange="293">
+  <mappedValue parameter="wx_present" value="81" />
+  <mappedValue parameter="presWeather" value="SHRA" />
+ </entry>
+ <entry description="Not used" indexRange="294-299">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Reserved" indexRange="300-507">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="No significant phenomenon to report, present and past weather omitted" indexRange="508">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="No observation, data not available, present and past weather omitted" indexRange="509">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Present and past weather missing, but expected" indexRange="510">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+ <entry description="Missing value" indexRange="511">
+  <mappedValue parameter="wx_present" />
+  <mappedValue parameter="presWeather" />
+ </entry>
+</translationTable>

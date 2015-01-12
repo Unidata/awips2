@@ -1,0 +1,9 @@
+colorMapName=SDO_AIA_193
+colorBar=@ColorBars/SolarImage/dfltSolarImageColorBar.xml
+wavelength=193
+intTime=2.273438
+displayUnitStr=DN/sec
+alpha=1.0
+brightness=1.0
+contrast=1.0
+imageFunction=runDiffTime(60)  

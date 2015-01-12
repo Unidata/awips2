@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>GFS0P5</resource>
+    <attrSetGroupName>marine</attrSetGroupName>
+    <attrSetNames>1000mb_hght_absv,500mb_hght_absv,850mb_hght_absv,bl_moisture_conv_thtae,pmsl_1000-850_thk_global,pmsl_bl_temp_wind,pmsl_and_bl_wind_global,pmsl_and_bl_wind_global,precip_water_pmsl,stability_850mb_wnd_global,stability_950mb_wnd</attrSetNames>
+</AttributeSetGroup>

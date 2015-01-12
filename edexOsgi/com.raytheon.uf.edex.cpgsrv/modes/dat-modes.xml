@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    
+<!-- 
+       Refer to edex/modes/README.txt for documentation
+--> 
+<edexModes>
+	<mode name="ingest">
+	 	<!-- exclude DAT -->
+		<exclude>ffmp-ingest.xml</exclude>
+		<exclude>scan-ingest.xml</exclude>
+		<exclude>cwat-ingest.xml</exclude>
+		<exclude>fog-ingest.xml</exclude>
+		<exclude>vil-ingest.xml</exclude>
+		<exclude>preciprate-ingest.xml</exclude>
+		<exclude>qpf-ingest.xml</exclude>
+		<exclude>fssobs-ingest.xml</exclude>
+		<exclude>cpgsrv-spring.xml</exclude>
+	</mode>
+	<!-- Runs separate now, not just high mem -->
+	<mode name="ingestDat">
+        <!-- utility-common needed for localization notifications -->
+        <include>utility-common.xml</include>
+        <!-- geo-common needed for thrift adapter registration -->
+        <include>geo-common.xml</include>
+	    <include>nwsauth-request.xml</include>
+		<include>time-common.xml</include>
+		<include>ffmp-ingest.xml</include>
+		<include>ffmp-common.xml</include>
+		<include>scan-ingest.xml</include>
+		<include>scan-common.xml</include>
+		<include>cwat-ingest.xml</include>
+		<include>cwat-common.xml</include>
+		<include>fog-ingest.xml</include>
+		<include>fog-common.xml</include>
+		<include>vil-ingest.xml</include>
+		<include>vil-common.xml</include>
+		<include>preciprate-ingest.xml</include>
+		<include>preciprate-common.xml</include>
+		<include>qpf-ingest.xml</include>
+		<include>qpf-common.xml</include>
+		<include>cpgsrv-spring.xml</include>
+		<include>persist-ingest.xml</include>
+		<include>binlightning-common.xml</include>
+		<include>parameter-common.xml</include>
+		<include>gridcoverage-common.xml</include>
+		<include>grid-common.xml</include>
+		<include>database-common.xml</include>
+		<include>radar-common.xml</include>
+		<include>text-common.xml</include>
+        <include>level-common.xml</include>
+        <include>levelhandler-common.xml</include>
+		<include>pointdata-common.xml</include>
+		<include>bufrua-common.xml</include>
+		<include>shef-common.xml</include>
+		<include>satellite-common.xml</include>
+		<include>satellite-dataplugin-common.xml</include>
+        <include>ohd-common-database.xml</include>
+		<include>ohd-common.xml</include>
+		<include>management-common.xml</include>
+		<include>auth-common.xml</include>
+		<include>obs-common.xml</include>
+		<include>fssobs-ingest.xml</include>
+		<include>fssobs-common.xml</include>
+		<include>ldadmesonet-common.xml</include>
+		<include>manualIngest-common.xml</include>
+		<include>dataaccess-common.xml</include>
+		<exclude>nctext-common.xml</exclude>
+        <includeMode>statsTemplate</includeMode>
+	</mode>
+</edexModes>

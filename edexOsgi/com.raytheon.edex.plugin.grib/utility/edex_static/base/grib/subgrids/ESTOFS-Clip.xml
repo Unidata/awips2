@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<subGridDef>
+  <modelNames>ESTOFS</modelNames>
+  <referenceGrid>184</referenceGrid>
+  <nx>800</nx>
+  <ny>1000</ny>
+  <!--
+  <centerLatitude>36.5</centerLatitude>
+  <centerLongitude>-81</centerLongitude>
+  --> 
+</subGridDef>

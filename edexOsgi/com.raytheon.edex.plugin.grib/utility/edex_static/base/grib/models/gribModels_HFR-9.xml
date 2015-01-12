@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+    pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+    U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+    This_software_product_contains_export-restricted_data_whose
+    export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+    to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+    an_export_license_or_other_authorization.
+
+    Contractor_Name:________Raytheon_Company
+    Contractor_Address:_____6825_Pine_Street,_Suite_340
+    ________________________Mail_Stop_B8
+    ________________________Omaha,_NE_68106
+    ________________________402.291.0100
+
+    See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+    further_licensing_information.
+-->
+
+
+<gribModelSet>
+
+    <!-- SUBCENTER 0 -->
+
+    <model>
+        <name>HFR-US_EAST_FLORIDA_2KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_EAST_FLORIDA_2KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_WEST_CENCAL_2KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_WEST_CENCAL_2KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_EAST_DELAWARE_1KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_EAST_DELAWARE_1KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_HAWAII_1KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_HAWAII_1KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_WEST_500M</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_WEST_500M</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_WEST_NORTH_2KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_WEST_NORTH_2KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_WEST_LOSANGELES_1KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_WEST_LOSANGELES_1KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_EAST_NORTH_2KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_EAST_NORTH_2KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_EAST_SOUTH_2KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_EAST_SOUTH_2KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_EAST_VIRGINIA_1KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_EAST_VIRGINIA_1KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_WEST_SANFRAN_1KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_WEST_SANFRAN_1KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-EAST_6KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-EAST_6KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-EAST_PR_6KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-EAST_PR_6KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_HAWAII_2KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_HAWAII_2KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-WEST_6KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-WEST_6KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_HAWAII_6KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_HAWAII_6KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_WEST_WASHINGTON_1KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_WEST_WASHINGTON_1KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_WEST_LOSOSOS_1KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_WEST_LOSOSOS_1KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+    <model>
+        <name>HFR-US_WEST_SOCAL_2KM</name>
+        <center>9</center>
+        <subcenter>0</subcenter>
+        <grid>gridHFR-US_WEST_SOCAL_2KM</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+
+</gribModelSet>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>FIREWX</resource>
+    <attrSetGroupName>standard</attrSetGroupName>
+    <attrSetNames>100mb_hght_wind,200mb_hght_wind,250mb_hght_wind,300mb_hght_wind</attrSetNames>
+</AttributeSetGroup>

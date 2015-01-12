@@ -1,0 +1,7 @@
+colorMapName=microrain
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=37V
+displayUnitStr=BRIT
+alpha=1.0
+brightness=1.0
+contrast=1.0

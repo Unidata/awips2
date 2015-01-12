@@ -1,3 +1,0 @@
-org.apache.qpid.test.unit.xa.QueueTest#*
-org.apache.qpid.test.unit.xa.TopicTest#*
-org.apache.qpid.test.unit.xa.FaultTest#*

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin> 
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.timeseries.rsc.GeoMagResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.timeseries.rsc.EditTimeSeriesAttrsDialog"
+            name="GeoMag">
+      </nc-resource>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rsc.timeseries.rsc.GeoMagResource"
+            recordClass="gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagRecord"
+            name="GeoMagResource"
+            renderingOrderId="PLOT" 
+            resourceType="PLAN_VIEW"/>      
+   </extension>
+   
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      
+      <!-- since this is given in the attribute sets it must have a default 
+           value given so that the code can 'validate' a rsc defn up front (ie w/o an attr set)-->
+      <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="String"
+            paramName="pluginName"
+            defaultValue=""
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="String"
+            paramName="reportType"
+            defaultValue=""
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>   
+      <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="String"
+            paramName="stationCode"
+            defaultValue="BOU"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="String"
+            paramName="sourceId"
+            defaultValue="101"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="String"
+            paramName="yAxesData"
+            defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="RGB"
+            paramName="dataColor"
+            defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+      		ncResourceName="GeoMag"
+            paramClass="String"
+            paramName="xAxesTitle"
+            defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter> 
+       <nc-resourceParameter
+      		ncResourceName="GeoMag"
+            paramClass="String"
+            paramName="yAxesTitle"
+            defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>
+       <nc-resourceParameter
+      		ncResourceName="GeoMag"
+            paramClass="String"
+            paramName="yDescription"
+            defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {200, 200, 200}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="Boolean"
+            paramName="showReadoutView"
+            defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>
+       <nc-resourceParameter
+            ncResourceName="GeoMag"
+            paramClass="Boolean"
+            paramName="showKTableView"
+            defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="gov.noaa.nws.ncep.viz.rsc.timeseries.view.KTableAction"
+            name="K-index and Gamma">
+      </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.rsc.timeseries.view"
+            name="GeoMag">
+      </command>
+   </extension>
+   
+   <extension 
+         point="org.eclipse.ui.handlers">
+        <handler
+             class="gov.noaa.nws.ncep.viz.rsc.timeseries.view.KTableAction"
+             commandId="gov.noaa.nws.ncep.viz.rsc.timeseries.view">
+       </handler>           
+   </extension>
+   
+   <extension 
+         point="org.eclipse.ui.views">
+           <category 
+            id="gov.noaa.nws.ncep.viz.ui.nmap"
+            name="GEOMAG"/>
+           <view 
+            category="gov.noaa.nws.ncep.viz.ui.nmap"
+            allowMultiple="false"
+            restorable="false"
+            class="gov.noaa.nws.ncep.viz.rsc.timeseries.view.KTableView"
+            id="gov.noaa.nws.ncep.viz.rsc.timeseries.view.KTableView"
+            name="K-Index and Gamma values in the synoptic periods"/>
+            <view 
+            category="gov.noaa.nws.ncep.viz.ui.nmap"
+            allowMultiple="false"
+            restorable="false"
+            class="gov.noaa.nws.ncep.viz.rsc.timeseries.view.SamplingView"
+            id="gov.noaa.nws.ncep.viz.rsc.timeseries.view.SamplingView"
+            name="Readout"/>
+           
+   </extension> 	
+   
+    <extension
+      point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="gov.noaa.nws.ncep.viz.rsc.timeseries.actions.EnableSamplingAction"
+            capabilityInterface="gov.noaa.nws.ncep.viz.rsc.timeseries.rsc.GeoMagResource"
+            name="SamplingView"
+            sortID="14">
+      </contextualMenu>
+   </extension> 
+   
+   <extension
+      point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="gov.noaa.nws.ncep.viz.rsc.timeseries.actions.EnableKTableViewAction"
+            capabilityInterface="gov.noaa.nws.ncep.viz.rsc.timeseries.rsc.GeoMagResource"
+            capabilityClass="gov.noaa.nws.ncep.viz.rsc.timeseries.rsc.GeoMagResource"
+            name="KTableView"            
+            sortID="15">
+      </contextualMenu>     
+   </extension>
+    
+ <!--extension
+      point="com.raytheon.uf.viz.core.descriptor">
+      <descriptor
+            class="gov.noaa.nws.ncep.viz.rsc.timeseries.GeoMagDescriptor"
+            editor="gov.noaa.nws.ncep.viz.ui.display.GraphDisplay"
+            name="GeoMagDescriptor">
+      </descriptor>
+   </extension-->
+</plugin>

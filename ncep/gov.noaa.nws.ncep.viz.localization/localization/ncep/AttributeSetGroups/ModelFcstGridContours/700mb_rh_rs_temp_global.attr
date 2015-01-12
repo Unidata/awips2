@@ -1,0 +1,30 @@
+!
+! Restore File : 700mb_rh_rs_temp
+!
+! Log:
+! D.W.Plummer/NCEP       2/97   Initial creation
+! J.Carr/NCEP            6/97   changed boundary layer labels to comply with EMC
+! D.W.Plummer/NCEP       8/97   Added FILTER parameter and changed TEXT value
+! J. Carr/HPC           12/00   Made fields smoother
+!
+GDATTIM = F00-F204
+GLEVEL = 700!700!700!850!850!9950!9950
+GVCORD = PRES!PRES!PRES!PRES!PRES!sgma!sgma
+SKIP   = 0/1
+SCALE  = 0
+GDPFUN = sm5s(relh)!sm5s(tmpc)!sm5s(tmpc)!sm5s(tmpc)!sm5s(tmpc)!sm5s(tmpc)!sm5s(tmpc)
+TYPE   = f         !c
+CINT   = 70;90;95   !2;-2 !200;0 !2;-2 !200;0 !2;-2 !-100;0;100
+LINE   = 32//1/0    !6/3/2!6/1/2 !2/3/2!2/1/2 !20/3/2!20/1/2
+FINT   = 70;90;95
+FLINE  = 0;24;23;22
+HILO   = 0
+HLSYM  = 0
+WIND   =
+TITLE  = 1/-1/~ ? 700 MB RH, TEMPERATURES (995 sigma level is yellow, 850 mb in red, 700 mb in cyan)!0
+TEXT   = l/3/hw
+COLORS = 2
+MARKER = 2
+GRDLBL = 5
+FILTER = yes
+IJSKIP =

@@ -1,0 +1,773 @@
+/*
+    File: HPERadarResult.pgc
+    Author  : CDBGEN
+    Created : Fri Oct 18 19:08:28 EDT 2013 using database hd_ob9eempty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "HPERadarResult.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct HPERadarResult_t
+{
+    char		hpe_productname[31];
+    dtime_t     producttime;
+    short		num_radar_avail;
+    char		bias_source[21];
+    char		radar_data_source[2];
+
+    int		ind_num_radar_avail;
+    int		ind_bias_source;
+    int		ind_radar_data_source;
+} HPERadarResult_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+HPERadarResult * GetHPERadarResult(const char * where)
+{
+
+    HPERadarResult * listPtr = NULL;
+    HPERadarResult * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM HPERadarResult ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HPERadarResult_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetHPERadarResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetHPERadarResult() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetHPERadarResult() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.hpe_productname, :dbs.producttime, :dbs.num_radar_avail:dbs.ind_num_radar_avail,
+    :dbs.bias_source:dbs.ind_bias_source, :dbs.radar_data_source:dbs.ind_radar_data_source    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetHPERadarResult() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (HPERadarResult *) malloc(sizeof(HPERadarResult))) != NULL)
+        {
+
+            strcpy(structPtr->hpe_productname, dbs.hpe_productname);
+
+            structPtr->producttime = dbs.producttime;
+
+            structPtr->num_radar_avail = dbs.num_radar_avail;
+            setNullIfIndicated(dbs.ind_num_radar_avail, SHORT, &structPtr->num_radar_avail);
+
+            strcpy(structPtr->bias_source, dbs.bias_source);
+            setNullIfIndicated(dbs.ind_bias_source, CHAR, structPtr->bias_source);
+
+            strcpy(structPtr->radar_data_source, dbs.radar_data_source);
+            setNullIfIndicated(dbs.ind_radar_data_source, CHAR, structPtr->radar_data_source);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.hpe_productname, :dbs.producttime, :dbs.num_radar_avail:dbs.ind_num_radar_avail,
+        :dbs.bias_source:dbs.ind_bias_source, :dbs.radar_data_source:dbs.ind_radar_data_source        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetHPERadarResult() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+HPERadarResult * SelectHPERadarResult(const char * where)
+{
+
+    HPERadarResult * listPtr = NULL;
+    HPERadarResult * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM HPERadarResult ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HPERadarResult_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectHPERadarResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectHPERadarResult() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectHPERadarResult() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.hpe_productname, :dbs.producttime, :dbs.num_radar_avail:dbs.ind_num_radar_avail,
+    :dbs.bias_source:dbs.ind_bias_source, :dbs.radar_data_source:dbs.ind_radar_data_source    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectHPERadarResult() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (HPERadarResult *) malloc(sizeof(HPERadarResult))) != NULL)
+        {
+
+            strcpy(structPtr->hpe_productname, dbs.hpe_productname);
+
+            structPtr->producttime = dbs.producttime;
+
+            structPtr->num_radar_avail = dbs.num_radar_avail;
+            setNullIfIndicated(dbs.ind_num_radar_avail, SHORT, &structPtr->num_radar_avail);
+
+            strcpy(structPtr->bias_source, dbs.bias_source);
+            setNullIfIndicated(dbs.ind_bias_source, CHAR, structPtr->bias_source);
+
+            strcpy(structPtr->radar_data_source, dbs.radar_data_source);
+            setNullIfIndicated(dbs.ind_radar_data_source, CHAR, structPtr->radar_data_source);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.hpe_productname, :dbs.producttime, :dbs.num_radar_avail:dbs.ind_num_radar_avail,
+        :dbs.bias_source:dbs.ind_bias_source, :dbs.radar_data_source:dbs.ind_radar_data_source        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectHPERadarResult() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectHPERadarResultCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM HPERadarResult ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountHPERadarResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountHPERadarResult() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountHPERadarResult() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountHPERadarResult() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutHPERadarResult(const HPERadarResult * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HPERadarResult_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.hpe_productname, structPtr->hpe_productname);
+
+    dbs.producttime = structPtr->producttime;
+
+    dbs.num_radar_avail = structPtr->num_radar_avail;
+    dbs.ind_num_radar_avail = getIndicator(SHORT, (void *)&structPtr->num_radar_avail);
+
+    strcpy(dbs.bias_source, structPtr->bias_source);
+    dbs.ind_bias_source = getIndicator(CHAR, (void *)structPtr->bias_source);
+
+    strcpy(dbs.radar_data_source, structPtr->radar_data_source);
+    dbs.ind_radar_data_source = getIndicator(CHAR, (void *)structPtr->radar_data_source);
+
+
+    EXEC SQL INSERT INTO HPERadarResult (hpe_productname,producttime,num_radar_avail,
+        bias_source,radar_data_source        )
+        VALUES (
+         :dbs.hpe_productname, dbs.producttime, :dbs.num_radar_avail:dbs.ind_num_radar_avail, :dbs.bias_source:dbs.ind_bias_source,
+         :dbs.radar_data_source:dbs.ind_radar_data_source);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutHPERadarResult() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertHPERadarResult(const HPERadarResult * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HPERadarResult_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.hpe_productname, structPtr->hpe_productname);
+
+    dbs.producttime = structPtr->producttime;
+
+    dbs.num_radar_avail = structPtr->num_radar_avail;
+    dbs.ind_num_radar_avail = getIndicator(SHORT, (void *)&structPtr->num_radar_avail);
+
+    strcpy(dbs.bias_source, structPtr->bias_source);
+    dbs.ind_bias_source = getIndicator(CHAR, (void *)structPtr->bias_source);
+
+    strcpy(dbs.radar_data_source, structPtr->radar_data_source);
+    dbs.ind_radar_data_source = getIndicator(CHAR, (void *)structPtr->radar_data_source);
+
+
+    EXEC SQL INSERT INTO HPERadarResult (hpe_productname,producttime,num_radar_avail,
+        bias_source,radar_data_source        )
+        VALUES (
+         :dbs.hpe_productname, :dbs.producttime, :dbs.num_radar_avail:dbs.ind_num_radar_avail, :dbs.bias_source:dbs.ind_bias_source,
+         :dbs.radar_data_source:dbs.ind_radar_data_source);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertHPERadarResult() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateHPERadarResult(const HPERadarResult *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HPERadarResult_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.hpe_productname, structPtr->hpe_productname);
+
+    dbs.producttime = structPtr->producttime;
+
+    dbs.num_radar_avail = structPtr->num_radar_avail;
+    dbs.ind_num_radar_avail = getIndicator(SHORT, (void *)&structPtr->num_radar_avail);
+
+    strcpy(dbs.bias_source, structPtr->bias_source);
+    dbs.ind_bias_source = getIndicator(CHAR, (void *)structPtr->bias_source);
+
+    strcpy(dbs.radar_data_source, structPtr->radar_data_source);
+    dbs.ind_radar_data_source = getIndicator(CHAR, (void *)structPtr->radar_data_source);
+
+
+    sprintf(queryBuffer, " UPDATE HPERadarResult SET " );
+    strcat(queryBuffer, "hpe_productname = ? , producttime = ? , num_radar_avail = ? , bias_source = ? , radar_data_source = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateHPERadarResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.hpe_productname, :dbs.producttime, :dbs.num_radar_avail:dbs.ind_num_radar_avail, :dbs.bias_source:dbs.ind_bias_source, :dbs.radar_data_source:dbs.ind_radar_data_source;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateHPERadarResult() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteHPERadarResult(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM HPERadarResult ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteHPERadarResult() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateHPERadarResultByRecord (const HPERadarResult * newStructPtr, const HPERadarResult * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetHPERadarResultPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateHPERadarResult(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateHPERadarResult(const HPERadarResult * structPtr)
+{
+    UpdateHPERadarResultByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertHPERadarResult(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueHPERadarResult(const HPERadarResult * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (HPERadarResultExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertHPERadarResult(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteHPERadarResultByRecord(const HPERadarResult * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetHPERadarResultPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteHPERadarResult(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool HPERadarResultExists(const HPERadarResult * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetHPERadarResultPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectHPERadarResultCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetHPERadarResultPrimaryKeyWhereString (const HPERadarResult * structPtr, char returnWhereString[] )
+{
+	char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE hpe_productname = '%s' AND producttime = '%s' ",
+            structPtr->hpe_productname, dtimet_to_ansi(structPtr->producttime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeHPERadarResult( HPERadarResult * structPtr)
+{
+    HPERadarResult* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( HPERadarResult * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetHPERadarResultDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetHPERadarResultErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

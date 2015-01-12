@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Hazard Charts" id="ncepHydro.cpc.hazardCharts">
+        <contribute xsi:type="titleItem" titleText="------ 3-7 Day Hazards Outlook ------" id="threeTo7DayHazardsOutlook"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="3-7 day Precipitation Fcst" timeQuery="true" id="threeTo7DayPrecipFcst">
+            <substitute value="PEIY97" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="3-7 Temperature/Wind Fcst" timeQuery="true" id="threeTo7DayTempWindFcst">
+            <substitute value="PTIY97" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="3-7 day Soil/Wildfire Fcst" timeQuery="true" id="threeTo7DaySoilWildfireFcst">
+            <substitute value="PYIY97" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="titleItem" titleText="------ 8-14 Day Hazards Outlook ------" id="eightTo14DayHazardOutlook"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 day Precipitation Fcst" timeQuery="true" id="eightTo14DayPrecipFcst">
+            <substitute value="PEIY96" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 Temperature/Wind Fcst" timeQuery="true" id="eightTo14DayTempWindFcst">
+            <substitute value="PTIY96" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 day Soil/Wildfire Fcst" timeQuery="true" id="eightTo14DaySoilWildfireFcst">
+            <substitute value="PYIY96" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="titleItem" titleText="------ 6-10 Day Heat Index Fcst ------" id="sixTo10DayHeatIndexFcstLine"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 85F for 3 days of 5" timeQuery="true" id="gt85For3daysOf5">
+            <substitute value="PTAS90" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 90F for 2 days of 5" timeQuery="true" id="gt90For2daysOf5">
+            <substitute value="PTAS95" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 95F for 1 day of 5" timeQuery="true" id="gt95For1dayOf5">
+            <substitute value="PTAS00" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="6-10 Day Max Heat Index Outlook" timeQuery="true" id="maxHeatIndexOutlook">
+            <substitute value="PTNR98" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="titleItem" titleText="------ 8-14 Day Heat Index Fcst ------" id="eightTo14DayHeatIndexFcstLine"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 85F for 3 days of 7" timeQuery="true" id="gt85For3daysOf7">
+            <substitute value="PTAT90" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 90F for 2 days of 7" timeQuery="true" id="gt90For2daysOf7">
+            <substitute value="PTAT95" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 95F for 1 day of 7" timeQuery="true" id="gt95For1dayOf7">
+            <substitute value="PTAT00" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 Day Max Heat Index Outlook" timeQuery="true" id="maxHeatIndexOutlook">
+            <substitute value="PTNT98" key="wmo"/>
+        </contribute>
+    </contribute>
+</menuTemplate>

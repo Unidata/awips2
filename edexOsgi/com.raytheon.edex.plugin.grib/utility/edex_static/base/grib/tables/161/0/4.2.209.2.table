@@ -1,0 +1,6 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 2: Lightning Products 
+0:0:CG Lightning Density (1 min.):Flashes/km^2/min:LightningDensity1min
+1:1:CG Lightning Density (5 min.):Flashes/km^2/min:LightningDensity5min
+2:2:CG Lightning Density (15 min.):Flashes/km^2/min:LightningDensity15min
+3:3:CG Lightning Density (30 min.):Flashes/km^2/min:LightningDensity30min
+4:4:CG Lightning Probability (0-30 min.):%:LightningProbabilityNext30min
