@@ -123,6 +123,7 @@ public class ResourceSelectionControl extends Composite {
 
     protected Button addResourceBtn = null;
 
+
     protected Button replaceResourceBtn = null;
 
     protected Boolean replaceBtnVisible;
@@ -361,13 +362,14 @@ public class ResourceSelectionControl extends Composite {
     	addResourceBtn.setText( "   Add   " ); // Add To RBD
     	
     	
+        /*
         can_btn = new Button( sel_rsc_comp, SWT.PUSH );
         can_btn.setText("  Cancel  ");
         fd = new FormData();    	
         fd.top  = new FormAttachment( seldRscNameTxt, 0, SWT.TOP );
         fd.right = new FormAttachment( addResourceBtn, -10, SWT.LEFT  );
     	can_btn.setLayoutData( fd );
-
+    	*/
     	/*
         replaceResourceBtn = new Button(sel_rsc_comp, SWT.None);
         fd = new FormData();
@@ -395,10 +397,10 @@ public class ResourceSelectionControl extends Composite {
         fd = new FormData();
         // fd.left = new FormAttachment( addResourceBtn, 30, SWT.RIGHT );
     	//fd.left = new FormAttachment( 55, 0 );
-        fd.right = new FormAttachment( can_btn, -10, SWT.LEFT  );
+        //fd.right = new FormAttachment( can_btn, -10, SWT.LEFT  );
         fd.width = 130;
         fd.top  = new FormAttachment( seldRscNameTxt, 0, SWT.TOP );
-    	//fd.right = new FormAttachment( 100, -20 );
+    	fd.right = new FormAttachment( 100, -20 );
         // fd.bottom = new FormAttachment( 100, -10 );
 
         cycleTimeCombo.setLayoutData(fd);
@@ -832,12 +834,6 @@ public class ResourceSelectionControl extends Composite {
         		selectResource( false, true );
         	}
        	});
-       	
-        can_btn.addSelectionListener(new SelectionAdapter() {
-       		public void widgetSelected( SelectionEvent ev ) {
-       			selShell.dispose();
-            }
-        });
 
         // TODO : do we want replace to pop down the dialog?
        	/*

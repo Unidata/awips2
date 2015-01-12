@@ -134,12 +134,8 @@ public class TPCSurgeProbPostProcessor implements IDecoderPostProcessor {
         Level level = record.getLevel();
         if (level.getMasterLevel().getName().equals("FHAG")) {
             record.getInfo().setDatasetId("PHISH");
-            try {
-                level = LevelFactory.getInstance().getLevel("SFC",
-                        level.getLevelonevalue(), level.getLeveltwovalue());
-            } catch (CommunicationException e) {
-                throw new GribException("Error retrieving level information", e);
-            }
+            level = LevelFactory.getInstance().getLevel("SFC",
+			        level.getLevelonevalue(), level.getLeveltwovalue());
             record.setLevel(level);
         }
 
