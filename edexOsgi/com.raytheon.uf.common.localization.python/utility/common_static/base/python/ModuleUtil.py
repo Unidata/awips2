@@ -29,6 +29,9 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    11/11/13                      bkowal         Initial Creation.
+#    01/20/14        2712          bkowal         Always add the directory path for
+#                                                 the desired module to the beginning
+#                                                 of the system path.
 #
 import os, sys, imp
     
@@ -39,19 +42,16 @@ def loadModule(filename):
     @summary: This function takes a filename and find the module,
     loads it and returns that module
     '''
-    addedToPath = False
     
     path = os.path.splitext(filename)[0]
     directory = os.path.dirname(filename)
     # ensure the module containing directory is on the python path.
-    if sys.path.count(directory) == 0:
-        sys.path.append(directory)
-        addedToPath = True
-    filename = os.path.split(path)[1]
-    fp, pathname, description = imp.find_module(filename)
-    module = imp.load_module(filename, fp, pathname, description)
-    
-    if addedToPath:
-        sys.path.remove(directory)
+    sys.path.insert(0, directory)
+    try:
+        filename = os.path.split(path)[1]
+        fp, pathname, description = imp.find_module(filename)
+        module = imp.load_module(filename, fp, pathname, description)
+    finally:
+        sys.path.pop(0)
     
     return module

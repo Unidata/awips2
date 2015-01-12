@@ -24,24 +24,25 @@ import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.useradmin.request.UserAdminAuthRequest;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
+import com.raytheon.uf.edex.auth.authorization.IAuthorizer;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
-import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 
 /**
  * Handler for User Admin Privileged Requests.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 12, 2012            mpduff      Initial creation.
  * Sep 24, 2012   1157     mpduff      Use the application member variable.
- *
+ * May 28, 2014 3211       njensen     Use IAuthorizer instead of IRoleStorage
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -57,7 +58,7 @@ public class UserAdminPrivilegedRequestHandler extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
      * (com.raytheon.uf.common.serialization.comm.IServerRequest)
@@ -73,7 +74,7 @@ public class UserAdminPrivilegedRequestHandler extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler#authorized
      * (com.raytheon.uf.common.auth.user.IUser,
@@ -84,10 +85,10 @@ public class UserAdminPrivilegedRequestHandler extends
             UserAdminAuthRequest request) throws AuthorizationException {
 
         AuthManager manager = AuthManagerFactory.getInstance().getManager();
-        IRoleStorage roleStorage = manager.getRoleStorage();
+        IAuthorizer auth = manager.getAuthorizer();
 
-        boolean authorized = roleStorage.isAuthorized((request).getRoleId(),
-                user.uniqueId().toString(), APPLICATION);
+        boolean authorized = auth.isAuthorized((request).getRoleId(), user
+                .uniqueId().toString(), APPLICATION);
 
         if (authorized) {
             return new AuthorizationResponse(authorized);

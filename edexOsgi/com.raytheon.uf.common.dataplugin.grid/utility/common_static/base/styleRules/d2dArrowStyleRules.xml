@@ -132,4 +132,14 @@
 			<displayUnits label="gm/kgs">g*m/(kg*s)</displayUnits>
 		</arrowStyle>
 	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>OGRD</parameter>
+			<parameter>BARO</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits>cm/sec</displayUnits>
+            <scale>0.20</scale>
+		</arrowStyle>
+	</styleRule>
 </styleRuleset>

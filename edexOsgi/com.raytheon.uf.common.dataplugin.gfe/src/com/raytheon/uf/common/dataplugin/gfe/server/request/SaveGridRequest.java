@@ -25,7 +25,6 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
@@ -39,6 +38,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
+ * 04/03/2014  #2737       randerso    Moved clientSendStatus from SaveGridRequest
  * 
  * </pre>
  * 
@@ -47,7 +47,7 @@ import com.raytheon.uf.common.time.TimeRange;
  */
 
 @DynamicSerialize
-public class SaveGridRequest implements ISerializableObject {
+public class SaveGridRequest {
 
     /** The grid slices */
 
@@ -65,14 +65,6 @@ public class SaveGridRequest implements ISerializableObject {
     private TimeRange replacementTimeRange;
 
     /**
-     * Denotes whether to send ISC grids on save based on the client's
-     * preferences
-     */
-
-    @DynamicSerializeElement
-    private boolean clientSendStatus = true;
-
-    /**
      * Creates a new VerifyGridRequest
      */
     public SaveGridRequest() {
@@ -84,12 +76,6 @@ public class SaveGridRequest implements ISerializableObject {
         this.parmId = parmId;
         this.replacementTimeRange = replacementTimeRange;
         this.gridSlices = gridSlices;
-    }
-
-    public SaveGridRequest(ParmID parmId, TimeRange replacementTimeRange,
-            List<GFERecord> gridSlices, boolean clientSendStatus) {
-        this(parmId, replacementTimeRange, gridSlices);
-        this.clientSendStatus = clientSendStatus;
     }
 
     public ParmID getParmId() {
@@ -127,20 +113,4 @@ public class SaveGridRequest implements ISerializableObject {
     public void addRecord(GFERecord rec) {
         this.gridSlices.add(rec);
     }
-
-    /**
-     * @return the clientSendStatus
-     */
-    public boolean isClientSendStatus() {
-        return clientSendStatus;
-    }
-
-    /**
-     * @param clientSendStatus
-     *            the clientSendStatus to set
-     */
-    public void setClientSendStatus(boolean clientSendStatus) {
-        this.clientSendStatus = clientSendStatus;
-    }
-
 }

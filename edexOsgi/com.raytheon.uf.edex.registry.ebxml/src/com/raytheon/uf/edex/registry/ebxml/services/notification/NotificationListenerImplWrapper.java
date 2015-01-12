@@ -32,7 +32,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**

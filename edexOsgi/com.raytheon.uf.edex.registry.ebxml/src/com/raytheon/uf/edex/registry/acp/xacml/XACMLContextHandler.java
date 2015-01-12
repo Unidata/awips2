@@ -51,7 +51,7 @@ import org.opensaml.xacml.ctx.impl.AttributeValueTypeImplBuilder;
 import org.opensaml.xacml.ctx.impl.RequestTypeImplBuilder;
 import org.opensaml.xacml.ctx.impl.ResourceTypeImplBuilder;
 import org.opensaml.xacml.ctx.impl.SubjectTypeImplBuilder;
-import org.opensaml.xacml.policy.ObligationType;
+import org.opensaml.xacml.policy.PolicyType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,8 +63,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.acp.xacml.conformance.DataTypes;
 import com.raytheon.uf.edex.registry.acp.xacml.conformance.Identifiers;
-import com.raytheon.uf.edex.registry.acp.xacml.engine.obligation.XACMLObligationEvaluator;
-import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLException;
 import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLNotApplicableException;
 import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLProcessingException;
 import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLObjectUtil;
@@ -91,6 +89,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * 4/9/2013     1802        bphillip     Added additional object checking
  * 10/23/2013   1538        bphillip     Changed constructor call for QueryRequest
+ * 7/10/2014    1717        bphillip     Removed obligation processing from authorize method
  * </pre>
  * 
  * @author bphillip
@@ -129,25 +128,10 @@ public class XACMLContextHandler {
             throws MsgRegistryException, EbxmlRegistryException {
 
         RequestType request = constructRequest(userName, object);
-
         XACMLObject policy = xacmlPolicyAdmin
                 .getPolicyObject("urn:oasis:names:tc:xacml:2.0:data-delivery:default-policySet");
-        XACMLPolicyDecisionPoint pdp = new XACMLPolicyDecisionPoint(policy,
-                request);
-
-        ResponseType response = pdp.evaluate();
-        List<ObligationType> obligations = pdp.getObligations();
-        if (obligations != null) {
-            for (ObligationType obligation : obligations) {
-                try {
-                    XACMLObligationEvaluator.getInstance().evaluate(obligation,
-                            request);
-                } catch (XACMLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
+        XACMLPolicyDecisionPoint pdp = new XACMLPolicyDecisionPoint(policy);
+        ResponseType response = pdp.evaluate((PolicyType)policy,request);
         return response;
     }
 
@@ -355,6 +339,9 @@ public class XACMLContextHandler {
             attrName = attrTokens[attrTokens.length - 1];
         }
 
+        if(attrName.equals("id")){
+            return objId.toString();
+        }
         Object repoItem = registryObjectDao.getById(objId.toString());
 
         if (repoItem == null) {

@@ -23,27 +23,26 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Radar packet for cell trend volume scan.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 29, 2009            mnash     Initial creation
- * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 29, 2009           mnash       Initial creation
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * </pre>
  * 
  * @author mnash
  * @version 1.0
  */
 @DynamicSerialize
-public class CellTrendVolumeScanPacket extends SymbologyPacket implements
-        ISerializableObject {
+public class CellTrendVolumeScanPacket extends SymbologyPacket {
 
     @DynamicSerializeElement
     private int numberOfVolumes;

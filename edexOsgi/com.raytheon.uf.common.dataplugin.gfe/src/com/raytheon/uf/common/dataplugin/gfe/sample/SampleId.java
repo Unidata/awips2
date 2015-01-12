@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.gfe.sample;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * Contains the identifier to uniquely identify a SampleData set.
@@ -29,7 +28,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Apr 14, 2008	879			rbell	Initial creation
+ * Apr 14, 2008	   879      rbell       Initial creation
+ * Sep 15, 2014  #3592      randerso    Code cleanup, JavaDoc improvement
  * 
  * </pre>
  * 
@@ -37,7 +37,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 
-public class SampleId implements Cloneable, ISerializableObject {
+public class SampleId implements Cloneable {
 
     private String name;
 
@@ -52,8 +52,13 @@ public class SampleId implements Cloneable, ISerializableObject {
         this((String) null);
     }
 
-    public SampleId(String aName) {
-        this(aName, false, LocalizationLevel.UNKNOWN);
+    /**
+     * Constructor taking the name to uniquely identify this sample data.
+     * 
+     * @param name
+     */
+    public SampleId(String name) {
+        this(name, false, LocalizationLevel.UNKNOWN);
     }
 
     /**
@@ -64,11 +69,10 @@ public class SampleId implements Cloneable, ISerializableObject {
      * @param protect
      * @param access
      */
-    public SampleId(final String aName, boolean aProtect,
-            LocalizationLevel anAccess) {
-        this.name = aName;
-        this.protect = aProtect;
-        this.access = anAccess;
+    public SampleId(final String name, boolean protect, LocalizationLevel access) {
+        this.name = name;
+        this.protect = protect;
+        this.access = access;
     }
 
     /**
@@ -118,11 +122,11 @@ public class SampleId implements Cloneable, ISerializableObject {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((this.access == null) ? 0 : this.access.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((this.name == null) ? 0 : this.name.hashCode());
-        result = prime * result + (this.protect ? 1231 : 1237);
+        result = (prime * result) + (this.protect ? 1231 : 1237);
         return result;
     }
 

@@ -94,6 +94,8 @@
    <permission id="com.raytheon.localization.site/common_static/archiver/purger"/>
    <permission id="com.raytheon.localization.site/common_static/archiver/purger/retention"/>
    <permission id="com.raytheon.localization.site/common_static/archiver/purger/case"/>
+   
+   <permission id="com.raytheon.localization.site/common_static/mixedCase"/>
 
    <user userId="ALL">
       <userPermission>com.raytheon.localization.site/common_static/purge</userPermission>

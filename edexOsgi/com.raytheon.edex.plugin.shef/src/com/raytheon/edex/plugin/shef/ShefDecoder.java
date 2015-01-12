@@ -21,17 +21,15 @@ package com.raytheon.edex.plugin.shef;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.shef.ShefSeparator.ShefDecoderInput;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
 import com.raytheon.edex.plugin.shef.database.PostShef;
 import com.raytheon.edex.plugin.shef.database.PurgeText;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 
 /**
@@ -56,11 +54,13 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * 01/15/2009   1892        J. Sanchez  Update parse method, set obsTimeFlag to false when done.
  * 12/--/2009               jkorman     Major refactor - split into ShefDecoder/SHEFParser
  * 03/07/2013   15071       W. Kwock    Skip empty data files.
+ * 04/28/2014   3088        mpduff      Use UFStatus logging, various cleanup.
  * </pre>
  */
 public class ShefDecoder {
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(ShefDecoder.class);
 
     // SHEF never returns real data to edex, so create an empty data array
     // here.
@@ -68,8 +68,6 @@ public class ShefDecoder {
 
     /**
      * Constructor
-     * 
-     * @throws DecoderException
      */
     public ShefDecoder() {
         this("shef");
@@ -78,63 +76,60 @@ public class ShefDecoder {
     /**
      * Constructor
      * 
-     * @throws DecoderException
+     * @param name
      */
     public ShefDecoder(String name) {
     }
 
     /**
+     * Decode.
      * 
      * @param data
+     *            Data to decode
      * @param headers
-     * @return
+     *            The headers for the data
+     * @return PluginDataObject[] of decoded data
      */
     public PluginDataObject[] decode(byte[] data, Headers headers) {
-        boolean archiveMode = AppsDefaults.getInstance().getBoolean("ALLOW_ARCHIVE_DATA",false);
-        
+        boolean archiveMode = AppsDefaults.getInstance().getBoolean(
+                "ALLOW_ARCHIVE_DATA", false);
+
         String traceId = null;
 
-        if (data == null || data.length == 0){
-        	return null;
+        if (data == null || data.length == 0) {
+            return null;
         }
-        
+
         if (headers != null) {
             traceId = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
         }
-        if (traceId != null) {
-            logger.info("Separating " + traceId);
-        }
+
         ShefSeparator separator = null;
         try {
             separator = ShefSeparator.separate(data, headers);
-            
-        } catch(Exception e) {
-            logger.error("Could not separate " + traceId);
-            if(logger.isDebugEnabled()) {
-                logger.error(e);
-            }
+        } catch (Exception e) {
+            logger.error("Could not separate " + traceId, e);
             separator = null;
         }
         if (separator != null) {
-            
+
             long startTime = System.currentTimeMillis();
 
             Date postDate = null;
-            if(archiveMode) {
-                postDate = getPostTime(separator.getWmoHeader().getHeaderDate().getTimeInMillis());
+            if (archiveMode) {
+                postDate = getPostTime(separator.getWmoHeader().getHeaderDate()
+                        .getTimeInMillis());
             } else {
                 postDate = getPostTime(startTime);
             }
 
             PostShef postShef = new PostShef(postDate);
-            if(separator.hasNext()) {
+            if (separator.hasNext()) {
                 PurgeText pText = new PurgeText(postDate);
                 pText.storeTextProduct(separator);
             }
-            
-            if(postShef != null) {
-                doDecode(separator, traceId, postShef);
-            }
+
+            doDecode(separator, traceId, postShef);
             logger.info(traceId + "- Decode complete in "
                     + (System.currentTimeMillis() - startTime)
                     + " milliSeconds");
@@ -142,7 +137,7 @@ public class ShefDecoder {
 
         return records;
     }
-    
+
     /**
      * 
      * @param data
@@ -162,14 +157,9 @@ public class ShefDecoder {
         ShefSeparator separator = null;
         try {
             separator = ShefSeparator.separate(data, headers);
-            
-        } catch(Exception e) {
-            if(logger.isDebugEnabled()) {
-                logger.error("Could not separate " + traceId, e);
-            } else {
-                logger.error("Could not separate " + traceId);
-            }
-            logger.error("Could not separate ",e);
+
+        } catch (Exception e) {
+            logger.error("Could not separate " + traceId, e);
             separator = null;
         }
 
@@ -181,79 +171,66 @@ public class ShefDecoder {
             try {
                 postShef = new PostShef(postDate);
             } catch (Exception e) {
-                if(logger.isDebugEnabled()) {
-                    logger.error("Could not create PostShef", e);
-                } else {
-                    logger.error("Could not create PostShef" + e.toString());
-                }
+                logger.error("Could not create PostShef", e);
             }
-            if(postShef != null) {
+            if (postShef != null) {
                 try {
                     doDecode(separator, traceId, postShef);
                     logger.info(traceId + "- Decode complete in "
                             + (System.currentTimeMillis() - startTime)
                             + " milliSeconds");
                 } catch (Exception e) {
-                    if(logger.isDebugEnabled()) {
-                        logger.error("ShefDecoder.decode failed", e);
-                    } else {
-                        logger.error("ShefDecoder.decode failed " + e.toString());
-                    }
-                } 
+                    logger.error("ShefDecoder.decode failed", e);
+                }
             }
         }
         return records;
     }
-    
-    
-    private void doDecode(ShefSeparator separator, String traceId, PostShef postShef) {
-        
+
+    private void doDecode(ShefSeparator separator, String traceId,
+            PostShef postShef) {
         long startTime = System.currentTimeMillis();
+        try {
+            AppsDefaults appDefaults = AppsDefaults.getInstance();
+            boolean logSHEFOut = appDefaults.getBoolean("shef_out", false);
 
-        AppsDefaults appDefaults = AppsDefaults.getInstance();
-        boolean logSHEFOut = appDefaults.getBoolean("shef_out", false);
-
-        // Check to see if the separator has data to be processed.
-        boolean dataProcessed = separator.hasNext();
-        while (separator.hasNext()) {
-            ShefDecoderInput sdi = separator.next();
-            try {
-                
-                SHEFParser parser = new SHEFParser(sdi);
-                ShefRecord shefRecord = parser.decode();
-                if (shefRecord != null) {
-                    if (shefRecord.getDataValues() != null) {
-                        try {
-                            if (logSHEFOut) {
-                                logger.info(traceId + " > " + shefRecord);
-                            } else if (logger.isDebugEnabled()) {
-                                logger.debug(traceId + " > " + shefRecord);
+            // Check to see if the separator has data to be processed.
+            boolean dataProcessed = separator.hasNext();
+            while (separator.hasNext()) {
+                ShefDecoderInput sdi = separator.next();
+                try {
+                    SHEFParser parser = new SHEFParser(sdi);
+                    ShefRecord shefRecord = parser.decode();
+                    if (shefRecord != null) {
+                        if (shefRecord.getDataValues() != null) {
+                            try {
+                                if (logSHEFOut) {
+                                    logger.info(traceId + " > " + shefRecord);
+                                }
+                                postShef.post(shefRecord);
+                            } catch (Throwable tt) {
+                                logger.error(traceId
+                                        + "- Could not post record.", tt);
                             }
-                            postShef.post(shefRecord);
-                        } catch (Throwable tt) {
-                            logger.error(traceId
-                                    + "- Could not post record.", tt);
+                        } else {
+                            logger.info(traceId + "- No data records in file.");
                         }
                     } else {
-                        logger.info(traceId + "- No data records in file.");
+                        logger.info(traceId + "- No records in file.");
                     }
-                } else {
-                    logger.info(traceId + "- No records in file.");
+                } catch (Exception ee) {
+                    logger.error(traceId + "- Could not parse SHEF report.", ee);
                 }
-            } catch (Exception ee) {
-                logger
-                        .error(traceId + "- Could not parse SHEF report.",
-                                ee);
-                if (logger.isDebugEnabled()) {
-                    logger.debug(traceId + " " + sdi.record);
-                }
+            } // while()
+            if (dataProcessed) {
+                postShef.logStats(traceId, System.currentTimeMillis()
+                        - startTime);
             }
-        } // while()
-        if(dataProcessed) {
-            postShef.logStats(traceId, System.currentTimeMillis() - startTime);
+        } finally {
+            postShef.close();
         }
     }
-    
+
     /**
      * 
      * @param startTime
@@ -263,13 +240,12 @@ public class ShefDecoder {
         // Force time to nearest second.
         return new Date(startTime - (startTime % 1000));
     }
-    
-    
+
     /*
      * 
      */
-    public static final void main(String [] args) {
-        
+    public static final void main(String[] args) {
+
         long t = System.currentTimeMillis();
         Date postDateA = new Date(t);
         t = t - (t % 1000);

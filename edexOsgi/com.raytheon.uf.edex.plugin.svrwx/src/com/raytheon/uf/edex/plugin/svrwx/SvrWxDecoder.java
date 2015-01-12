@@ -22,17 +22,16 @@ package com.raytheon.uf.edex.plugin.svrwx;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.svrwx.SvrWxRecord;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.plugin.svrwx.decoder.SvrWxParser;
 
 /**
- * 
+ * SvrWx Decoder.
  * 
  * <pre>
  * 
@@ -47,7 +46,8 @@ import com.raytheon.uf.edex.plugin.svrwx.decoder.SvrWxParser;
  * @version 1.0
  */
 public class SvrWxDecoder {
-    private Log logger = LogFactory.getLog(getClass());
+    private static IUFStatusHandler logger = UFStatus
+            .getHandler(SvrWxDecoder.class);
 
     private final String pluginName;
 
@@ -84,10 +84,11 @@ public class SvrWxDecoder {
     }
 
     /**
+     * Decoded input data.
      * 
      * @param data
      * @param headers
-     * @return
+     * @return decodedData
      */
     public PluginDataObject[] decode(byte[] data, Headers headers) {
 
@@ -131,7 +132,6 @@ public class SvrWxDecoder {
             logger.info(traceId + "- No data in file");
             decodedData = new PluginDataObject[0];
         }
-
         return decodedData;
     }
 

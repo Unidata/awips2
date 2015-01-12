@@ -40,7 +40,6 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
@@ -71,25 +70,27 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Jun 03, 2009 2521        D. Hladky   Initial release
- * Jan 27, 2013 1478        D. Hladky   OUN memory help
- * Feb 28, 2013 1729        dhladky     Supressed un-necessary debug loggers
- * Apr 04, 2013 1846        bkowal      Added an index on refTime and
- *                                      forecastTime
- * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
- * April, 9 2013 1890       dhladky     Moved dates to referenced map in record
- *                                          rather than multiple dates in
- *                                          FFMPBasin objs.
- * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
- * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
- * Apr 18, 2013 1919        dhladky     Added method for VGB loading
- * May 07, 2013 1869        bsteffen    Remove dataURI column from
- *                                      PluginDataObject.
- * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
- * Oct 14, 2013 2361        njensen     Removed XML annotations
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 03, 2009  2521     D. Hladky   Initial release
+ * Jan 27, 2013  1478     D. Hladky   OUN memory help
+ * Feb 28, 2013  1729     dhladky     Supressed un-necessary debug loggers
+ * Apr 04, 2013  1846     bkowal      Added an index on refTime and
+ *                                    forecastTime
+ * Apr 08, 2013  1293     bkowal      Removed references to hdffileid.
+ * Apr,09, 2013  1890     dhladky     Moved dates to referenced map in record
+ *                                    rather than multiple dates in FFMPBasin
+ *                                    objs.
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * Apr 16, 2013  1912     bsteffen    Initial bulk hdf5 access for ffmp
+ * Apr 18, 2013  1919     dhladky     Added method for VGB loading
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from
+ *                                    PluginDataObject.
+ * Jul 15, 2013  2184     dhladky     Remove all HUC's for storage except ALL
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 14, 2013  2361     njensen     Removed XML annotations
+ * May 01, 2014  3026     mpduff      Added metadata column.
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -130,6 +131,10 @@ public class FFMPRecord extends PersistablePluginDataObject implements
     @DataURI(position = 4)
     @DynamicSerializeElement
     private String siteKey;
+
+    @Column(length = 255)
+    @DynamicSerializeElement
+    private String metaData;
 
     @Transient
     private FFMPBasinData basins = new FFMPBasinData();;
@@ -331,17 +336,6 @@ public class FFMPRecord extends PersistablePluginDataObject implements
      */
     public String getSourceName() {
         return sourceName;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     /**
@@ -598,6 +592,21 @@ public class FFMPRecord extends PersistablePluginDataObject implements
 
     public boolean isRate() {
         return isRate;
+    }
+
+    /**
+     * @return the metaData
+     */
+    public String getMetaData() {
+        return metaData;
+    }
+
+    /**
+     * @param metaData
+     *            the metaData to set
+     */
+    public void setMetaData(String metaData) {
+        this.metaData = metaData;
     }
 
     /**

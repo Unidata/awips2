@@ -19,11 +19,13 @@
  **/
 package com.raytheon.uf.edex.plugin.vaa;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
 import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -39,6 +41,7 @@ import com.raytheon.uf.edex.plugin.vaa.decoder.VAAParser;
  * ------------ ---------- ----------- --------------------------
  * Nov 04, 2009       3267 jkorman     Initial creation
  * Nov 26, 2013       2582 njensen     Cleanup
+ * Mar 10, 2014       2807 skorolev    Added MalformedDataException for VAA decoding.
  * 
  * </pre>
  * 
@@ -63,7 +66,8 @@ public class VAADecoder {
      * @param headers
      * @return
      */
-    public PluginDataObject[] decode(byte[] data, Headers headers) {
+    public PluginDataObject[] decode(byte[] data, Headers headers)
+            throws MalformedDataException, IOException {
 
         String traceId = null;
 
@@ -77,25 +81,21 @@ public class VAADecoder {
 
         if (data != null && data.length > 0) {
             List<PluginDataObject> obsList = new ArrayList<PluginDataObject>();
-            try {
-                VAAParser parser = new VAAParser(data, traceId, headers);
-                for (VAARecord record : parser) {
-                    if (record != null) {
-                        // overwrite will only happen if a correction is issued
-                        // within the same minute as the original
-                        record.setOverwriteAllowed(true);
-                        obsList.add(record);
-                    }
+            VAAParser parser = new VAAParser(data, traceId, headers);
+            for (VAARecord record : parser) {
+                if (record != null) {
+                    // overwrite will only happen if a correction is issued
+                    // within the same minute as the original
+                    record.setOverwriteAllowed(true);
+                    obsList.add(record);
                 }
-            } catch (Exception e) {
-                logger.error(traceId + "-Error in decode", e);
-            } finally {
-                if ((obsList != null) && (obsList.size() > 0)) {
-                    decodedData = obsList.toArray(new PluginDataObject[obsList
-                            .size()]);
-                } else {
-                    decodedData = new PluginDataObject[0];
-                }
+            }
+
+            if ((obsList != null) && (obsList.size() > 0)) {
+                decodedData = obsList.toArray(new PluginDataObject[obsList
+                        .size()]);
+            } else {
+                decodedData = new PluginDataObject[0];
             }
         } else {
             logger.info(traceId + "- No data in file");

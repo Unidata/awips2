@@ -20,7 +20,7 @@
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
 
 /**
  * Database validation strategy.
@@ -32,6 +32,7 @@ import org.hibernate.cfg.AnnotationConfiguration;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2013 1693       djohnson     Initial creation
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -51,7 +52,7 @@ public interface IEbxmlDatabaseValidationStrategy {
      *            the session factory
      * @return true if valid
      */
-    boolean isDbValid(AnnotationConfiguration aConfig,
+    boolean isDbValid(Configuration aConfig,
             SessionFactory sessionFactory);
 
 }

@@ -22,22 +22,12 @@ package com.raytheon.uf.common.dataplugin.obs.metar;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Velocity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -54,7 +44,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
@@ -75,29 +64,31 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 
  *  SOFTWARE HISTORY
  * 
- *  Date         Ticket#    Engineer    Description
- *  ------------ ---------- ----------- ---------------------------------------
- *  Feb 14, 2007 139        bphillip    Initial creation
- *  Nov 15, 2007            njensen     Added static units info.
- *  Nov 29, 2007 472        jkorman     Added IDecoderGettable interface.
- *  Dec 04, 2007 472        jkorman     getValue was using wrong select value.
- *  Dec 07, 2007 452        bphillip    Added station lat/lon
- *  Dec 17, 2007 472        jkorman     Changed to use ALTIMETER_UNIT.
- *  Dec 21, 2007 666        jkorman     Modified to default all numerics to
- *                                      -9999.
- *  Apr 23, 2009 2338       jsanchez    Implemented precip plots, cloud/vis.
- *                                      Added @DynamicSerializeElement to
- *                                      location.
- *  May 28, 2009 2225       jsanchez    Implemented tempFromTenths and
- *                                      dewPointFromTenths.
- *  Jun 29, 2009 2538       jsanchez    Made the sort public.
- *  Apr 04, 2013 1846       bkowal      Added an index on refTime and
- *                                      forecastTime
- *  Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- *  May 07, 2013 1869       bsteffen    Remove dataURI column from
- *                                      PluginDataObject.
- *  Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- *  Feb 11, 2014 2784       rferrel     Remove override of setIdentifier.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- ---------------------------------------
+ * Feb 14, 2007  139      bphillip    Initial creation
+ * Nov 15, 2007           njensen     Added static units info.
+ * Nov 29, 2007  472      jkorman     Added IDecoderGettable interface.
+ * Dec 04, 2007  472      jkorman     getValue was using wrong select value.
+ * Dec 07, 2007  452      bphillip    Added station lat/lon
+ * Dec 17, 2007  472      jkorman     Changed to use ALTIMETER_UNIT.
+ * Dec 21, 2007  666      jkorman     Modified to default all numerics to -9999
+ * Apr 23, 2009  2338     jsanchez    Implemented precip plots, cloud/vis.
+ *                                    Added @DynamicSerializeElement to
+ *                                    location.
+ * May 28, 2009  2225     jsanchez    Implemented tempFromTenths and
+ *                                    dewPointFromTenths.
+ * Jun 29, 2009  2538     jsanchez    Made the sort public.
+ * Apr 04, 2013  1846     bkowal      Added an index on refTime and
+ *                                    forecastTime
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from
+ *                                    PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Feb 11, 2014  2784     rferrel     Remove override of setIdentifier.
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 23, 2014  3410     bclement    location changed to floats
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -116,146 +107,12 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class MetarRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData {
+        ISpatialEnabled, IPointData {
 
     public static final String PLUGIN_NAME = "obs";
 
-    public static final String STATION_ID = "stationId";
-
-    public static final Unit<Temperature> TEMPERATURE_UNIT = SI.CELSIUS;
-
-    public static final Unit<Velocity> WIND_SPEED_UNIT = NonSI.KNOT;
-
-    public static final Unit<Length> HEIGHT_UNIT = SI.METER;
-
-    public static final Unit<Length> VISIBILITY_UNIT = SI.KILO(NonSI.MILE);
-
-    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Pressure> PRESSURE_UNIT = SI.HECTO(SI.PASCAL);
-
-    public static final Unit<Pressure> ALTIMETER_UNIT = SI.PASCAL;
-
-    public static final Unit<Length> PRECIP_UNIT = NonSI.INCH;
-
-    /** Metar specific parameter keys */
-    public static final class ParameterKey {
-        public static final String SFC_ALTIMETER = "SFC.PRESS.ALTIMETER";
-
-        public static final String PRESSURE_CHANGE = "PCHNG";
-
-        public static final String VISIBILITY = "VIS";
-
-        public static final String PRECIPITATION_1HR = "PR1HR";
-
-        public static final String PRECIPITATION_3HR = "PR3HR";
-
-        public static final String PRECIPITATION_6HR = "PR6HR";
-
-        public static final String PRECIPITATION_24HR = "PR24HR";
-    }
-
-    /** Parameter keys used in the legacy system */
-    public static final class LegacyParameterKey {
-
-        public static final String TEMPERATURE = "T";
-
-        public static final String DEW_POINT = "DpT";
-
-        public static final String WIND_SPEED = "wSp";
-
-        public static final String WIND_DIRECTION = "WD";
-
-        public static final String WIND_GUST = "Gust";
-
-        public static final String ALTIMETER = "Alti";
-
-        public static final String SEA_LEVEL_PRESSURE = "msl-P";
-
-        public static final String PRESSURE_CHANGE_3HR = "PT3";
-
-        public static final String VISABILITY = "Vis";
-
-        public static final String PRECIPITATION_1HR = "TP";
-
-        public static final String PRECIPITATION_3HR = "TP3hr";
-
-        public static final String PRECIPITATION_6HR = "TP6hr";
-
-        public static final String PRECIPITATION_24HR = "TP24hr";
-
-        // public static final String SNOW_DEPTH = "snow";
-        //
-        // public static final String SNOW_WATER = "weqs";
-        //
-        // public static final String SNOWFALL6_HOUR = "TP24hr";
-        //
-        // public static final String SUNSHINE = "msun";
-        //
-        // public static final String TEMP_MAX_6HOUR = "t6xc";
-        //
-        // public static final String TEMP_MIN_6HOUR = "t6nc";
-
-        private String value;
-
-        /**
-         * 
-         * @param value
-         *            the value of this legacy parameter key
-         */
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        /**
-         * 
-         * @return the value of this legacy parameter key
-         */
-        public String getValue() {
-            return value;
-        }
-
-    }
-
     /** Serializable id * */
     private static final long serialVersionUID = 1L;
-
-    /**
-     * Maps common AWIPS I keys to IDecoderGettable and newer parameter key
-     * constants
-     */
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put(LegacyParameterKey.TEMPERATURE, SFC_TEMP);
-        PARM_MAP.put(LegacyParameterKey.DEW_POINT, SFC_DWPT);
-        PARM_MAP.put(LegacyParameterKey.WIND_SPEED, SFC_WNDSPD);
-        PARM_MAP.put(LegacyParameterKey.WIND_DIRECTION, SFC_WNDDIR);
-        PARM_MAP.put(LegacyParameterKey.WIND_GUST, SFC_WNDGST);
-        PARM_MAP.put(LegacyParameterKey.ALTIMETER, ParameterKey.SFC_ALTIMETER);
-        PARM_MAP.put(LegacyParameterKey.SEA_LEVEL_PRESSURE, PRES_SLP);
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put(LegacyParameterKey.PRESSURE_CHANGE_3HR,
-                ParameterKey.PRESSURE_CHANGE);
-        // PARM_MAP.put("T24", "T24"); // not used
-        // PARM_MAP.put("DpT24", "DpT24"); // not used
-        // PARM_MAP.put("WS24", "WS24"); // not used
-        // PARM_MAP.put("WD24", "WD24"); // not used
-        // PARM_MAP.put("WGS24", "WGS24"); // not used
-        // PARM_MAP.put("ASET24", "ASET24"); // not used
-        // PARM_MAP.put("HIWC", "HIWC"); // not used
-        PARM_MAP.put(LegacyParameterKey.VISABILITY, ParameterKey.VISIBILITY);
-        PARM_MAP.put(LegacyParameterKey.PRECIPITATION_1HR,
-                ParameterKey.PRECIPITATION_1HR);
-        PARM_MAP.put(LegacyParameterKey.PRECIPITATION_3HR,
-                ParameterKey.PRECIPITATION_3HR);
-        PARM_MAP.put(LegacyParameterKey.PRECIPITATION_6HR,
-                ParameterKey.PRECIPITATION_6HR);
-        PARM_MAP.put(LegacyParameterKey.PRECIPITATION_24HR,
-                ParameterKey.PRECIPITATION_24HR);
-    }
 
     @Transient
     private String sampleType = null;
@@ -1153,140 +1010,6 @@ public class MetarRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public String getString(String paramName) {
-        if ("STA".matches(paramName)) {
-            return getStationId();
-        }
-        if ("WX".matches(paramName)) {
-            return this.weatherKey;
-        }
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.IDecoderGettable#getValue(java.lang
-     * .String)
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-
-        String pName = paramName;
-        if (PARM_MAP.containsKey(paramName)) {
-            // we have recieved an AWIPS I parameter name
-            pName = PARM_MAP.get(paramName);
-        }
-
-        if (SFC_TEMP.equals(pName)) {
-            if (tempFromTenths != -9999) {
-                a = new Amount(tempFromTenths, TEMPERATURE_UNIT);
-            } else if (temperature != -9999) {
-                a = new Amount(temperature, TEMPERATURE_UNIT);
-            }
-        } else if (SFC_DWPT.equals(pName)) {
-            if (dewPointFromTenths != -9999) {
-                a = new Amount(dewPointFromTenths, TEMPERATURE_UNIT);
-            } else if (dewPoint != -9999) {
-                a = new Amount(dewPoint, TEMPERATURE_UNIT);
-            }
-        } else if (SFC_WNDSPD.equals(pName)) {
-            a = new Amount(windSpeed, WIND_SPEED_UNIT);
-        } else if (SFC_WNDGST.equals(pName)) {
-            a = new Amount(windGust, WIND_SPEED_UNIT);
-        } else if (ParameterKey.PRESSURE_CHANGE.equals(pName)
-                && (pressChange3Hour != -9999)) {
-            a = new Amount(pressChange3Hour, PRESSURE_UNIT);
-        } else if (SFC_WNDDIR.equals(pName)) {
-            String windDir = getWindDir();
-            if ((windDir != null) && !windDir.equalsIgnoreCase("VRB")) {
-                Double result = Double.parseDouble(windDir);
-                a = new Amount(result, WIND_DIR_UNIT);
-            }
-        } else if (PRES_ALTSG.equals(pName)) {
-            a = new Amount(altimeterInPa, ALTIMETER_UNIT);
-        } else if (STA_LAT.equals(pName)) {
-            a = new Amount(getLatitude(), LOCATION_UNIT);
-        } else if (STA_LON.equals(pName)) {
-            a = new Amount(getLongitude(), LOCATION_UNIT);
-        } else if (PRES_SLP.equals(pName)) {
-            a = new Amount(this.seaLevelPress, PRESSURE_UNIT);
-        } else if (pName.startsWith("HGT")) {
-            int start = "HGT".length();
-            int index = Integer.parseInt(pName.substring(start));
-            if ((index < skyCoverage.size())
-                    && (getSkyCover(index).getHeight() != null)) {
-                a = new Amount(getSkyCover(index).getHeight(), HEIGHT_UNIT);
-            }
-        } else if (pName.startsWith("HMSL")) {
-            int start = "HMSL".length();
-            int index = Integer.parseInt(pName.substring(start));
-            if ((index < skyCoverage.size())
-                    && (getSkyCover(index).getHeight() != null)
-                    && (getSpatialObject() != null)
-                    && (getSpatialObject().getElevation() != null)) {
-                a = new Amount(getSkyCover(index).getHeight()
-                        + getSpatialObject().getElevation(), HEIGHT_UNIT);
-            }
-        } else if (ParameterKey.PRECIPITATION_1HR.equals(pName)
-                || ParameterKey.PRECIPITATION_24HR.equals(pName)) {
-            sampleType = "PR";
-            if (precip1Hour != -9999) {
-                a = new Amount(precip1Hour, PRECIP_UNIT);
-            }
-        } else if (ParameterKey.PRECIPITATION_3HR.equals(pName)) {
-            sampleType = "PR";
-            if (precip3Hour != -9999) {
-                a = new Amount(precip3Hour, PRECIP_UNIT);
-            }
-        } else if (ParameterKey.PRECIPITATION_6HR.equals(pName)) {
-            sampleType = "PR";
-            if (precip6Hour != -9999) {
-                a = new Amount(precip6Hour, PRECIP_UNIT);
-            }
-        } else if (ParameterKey.VISIBILITY.equals(pName)) {
-            a = new Amount(visibility, VISIBILITY_UNIT);
-        }
-
-        return a;
-    }
-
-    /**
-     * Get the value and units of a named parameter within this observation that
-     * has a multiplicity greater than 1.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return An Amount with value and units. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    /**
      * Get the geometry latitude.
      * 
      * @return The geometry latitude.
@@ -1311,38 +1034,6 @@ public class MetarRecord extends PersistablePluginDataObject implements
      */
     public Integer getElevation() {
         return location.getElevation();
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        if ("SCV".matches(paramName)) {
-            ArrayList<String> skyCoverage = new ArrayList<String>();
-            for (SkyCover sky : this.skyCoverage) {
-                skyCoverage.add(sky.getType());
-            }
-            if (skyCoverage.size() > 0) {
-                return skyCoverage.toArray(new String[skyCoverage.size()]);
-            }
-        } else if ("WX".matches(paramName)) {
-            if (this.weatherKey != null) {
-                String[] presentWeather = { this.weatherKey };
-                return presentWeather;
-            }
-        } else if (paramName.startsWith("CLD")) {
-            int start = "CLD".length();
-            int index = Integer.parseInt(paramName.substring(start));
-            String[] retVal = { "BLNK" };
-            if (index < skyCoverage.size()) {
-                if (getSkyCover(index).getType() != null) {
-                    retVal[0] = getSkyCover(index).getType();
-                }
-            }
-            return retVal;
-        } else if (paramName.matches("CCHAR") && (pressChangeChar != null)) {
-            String[] changeChar = { pressChangeChar };
-            return changeChar;
-        }
-        return null;
     }
 
     @Override
@@ -1524,7 +1215,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
             return false;
         }
 
-        Double lat = location.getLatitude();
+        Float lat = location.getLatitude();
         if (lat == null) {
             if (other.location.getLatitude() != null) {
                 return false;
@@ -1534,7 +1225,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
                 return false;
             }
         }
-        Double lon = location.getLongitude();
+        Float lon = location.getLongitude();
         if (lon == null) {
             if (other.location.getLongitude() != null) {
                 return false;
@@ -1648,16 +1339,6 @@ public class MetarRecord extends PersistablePluginDataObject implements
         return report;
     }
 
-    private SkyCover getSkyCover(int index) {
-        if (!isSkyCoverageSorted) {
-            isSkyCoverageSorted = true;
-            sort(skyCoverage);
-        }
-        SkyCover[] sc = skyCoverage.toArray(new SkyCover[skyCoverage.size()]);
-        return sc[index];
-
-    }
-
     public void sort(Set<SkyCover> skySet) {
         SortedSet<SkyCover> skSet = new TreeSet<SkyCover>();
         for (SkyCover sc : skySet) {
@@ -1689,10 +1370,6 @@ public class MetarRecord extends PersistablePluginDataObject implements
         this.pointDataView = pointDataView;
     }
 
-    public static Set<String> getAvailableParameters() {
-        return PARM_MAP.keySet();
-    }
-
     @Override
     @Column
     @Access(AccessType.PROPERTY)
@@ -1702,6 +1379,6 @@ public class MetarRecord extends PersistablePluginDataObject implements
 
     @Override
     public String getPluginName() {
-        return "obs";
+        return PLUGIN_NAME;
     }
 }

@@ -231,12 +231,15 @@ public class TopoDatabase extends VGridDatabase {
                     TR);
             ServerResponse<ScalarGridSlice> srRetrieve = topoMgr
                     .getTopoData(gloc);
-            sr.addMessages(srRetrieve);
-            ScalarGridSlice tempgs = srRetrieve.getPayload();
-            IGridSlice gs = new ScalarGridSlice(TR, gpi,
-                    new GridDataHistory[] { gdh }, tempgs.getScalarGrid());
-            data.add(gs);
-            sr.setPayload(data);
+            if (srRetrieve.isOkay()) {
+                ScalarGridSlice tempgs = srRetrieve.getPayload();
+                IGridSlice gs = new ScalarGridSlice(TR, gpi,
+                        new GridDataHistory[] { gdh }, tempgs.getScalarGrid());
+                data.add(gs);
+                sr.setPayload(data);
+            } else {
+                sr.addMessages(srRetrieve);
+            }
         }
 
         return sr;

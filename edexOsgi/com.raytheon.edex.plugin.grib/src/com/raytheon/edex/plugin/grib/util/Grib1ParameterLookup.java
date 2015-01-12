@@ -46,6 +46,7 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
  * ------------- -------- ----------- --------------------------
  * Mar 09, 2010  4758     bphillip    Initial Creation
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
+ * Jul 21, 2014  3373     bclement    JAXB manager API changes
  * 
  * </pre>
  * 
@@ -127,7 +128,7 @@ public class Grib1ParameterLookup {
 
         try {
             JAXBManager jaxbManager = new SingleTypeJAXBManager<Grib1ParameterSet>(
-                    Grib1ParameterSet.class);
+                    true, Grib1ParameterSet.class);
             if (baseParameterFile.exists()) {
                 Grib1ParameterSet parameterSet = baseParameterFile
                         .jaxbUnmarshal(Grib1ParameterSet.class, jaxbManager);

@@ -24,9 +24,13 @@ import java.awt.geom.Rectangle2D;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -47,8 +51,8 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
+import com.raytheon.uf.common.geospatial.adapter.GeometryAdapter;
 import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -65,18 +69,24 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Jul 24, 2007 353         bphillip    Initial Checkin
- * Jul 12, 2012 798         jkorman     Changed projection "magic" numbers
- * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
- *                                      spatial
- * Sep 30, 2013 2333        mschenke    Refactored to store coordinates in CRS space
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 24, 2007  353      bphillip    Initial Checkin
+ * Jul 12, 2012  798      jkorman     Changed projection "magic" numbers
+ * Jul 16, 2013  2181     bsteffen    Convert geometry types to use hibernate-
+ *                                    spatial
+ * Sep 30, 2013  2333     mschenke    Refactored to store coordinates in CRS
+ *                                    space
+ * Apr 11, 2014  2947     bsteffen    Fix equals
+ * Oct 16, 2014  3454     bphillip    Upgrading to Hibernate 4
+ * Nov 05, 2014  3788     bsteffen    Make gid a sequence instead of a hash.
  * 
  * </pre>
  */
 @Entity
-@Table(name = "satellite_spatial")
+@Table(name = "satellite_spatial", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "minX", "minY", "dx", "dy", "nx", "ny", "crsWKT" }) })
+@SequenceGenerator(name = "SATELLITE_SPATIAL_GENERATOR", sequenceName = "satspatial_seq", allocationSize = 1)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class SatMapCoverage extends PersistableDataObject<Object> implements
@@ -85,6 +95,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SATELLITE_SPATIAL_GENERATOR")
     @DynamicSerializeElement
     @DataURI(position = 0)
     private int gid;
@@ -148,7 +159,7 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
 
     /** The map coverage */
     @Column(name = "the_geom")
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Type(type = "org.hibernate.spatial.GeometryType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Geometry location;
@@ -215,7 +226,6 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         this.dx = dx;
         this.dy = dy;
         this.crsObject = crs;
-        this.gid = hashCode();
         if (latLonGeometry == null) {
             try {
                 latLonGeometry = EnvelopeIntersection
@@ -417,9 +427,15 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         if (Double.doubleToLongBits(minY) != Double
                 .doubleToLongBits(other.minY))
             return false;
-        if (nx != other.nx)
+        if (nx == null) {
+            if (other.nx != null)
+                return false;
+        } else if (!nx.equals(other.nx))
             return false;
-        if (ny != other.ny)
+        if (ny == null) {
+            if (other.ny != null)
+                return false;
+        } else if (!ny.equals(other.ny))
             return false;
         return true;
     }

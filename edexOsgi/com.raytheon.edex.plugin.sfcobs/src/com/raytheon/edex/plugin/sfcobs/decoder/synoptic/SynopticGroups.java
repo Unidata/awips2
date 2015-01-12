@@ -19,13 +19,15 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
+import java.util.regex.Pattern;
 
-import com.raytheon.uf.edex.decodertools.core.DataItem;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.SI;
+
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * Various methods for decoding specific common data from the synoptic
@@ -52,12 +54,19 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * 20070925            391 jkorman     Initial Coding.
  * 20071109            391 jkorman     Factored out time constants.
+ * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter}.
+ * Sep 26, 2014 #3629      mapeters    Replaced static imports.
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()} 
+ *                                     calls, added HUMIDITY_PATTERN.
+ * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class SynopticGroups {
+
+    private static final Pattern HUMIDITY_PATTERN = Pattern.compile("2\\d{4}");
 
     private static final int PREFIX_START = 0;
 
@@ -66,6 +75,12 @@ public class SynopticGroups {
     // Precip observation period in hours indexed by tsubr in group 6.
     // TODO : This needs to be external.
     private static int[] precipHours = { -1, 6, 12, 18, 24, 1, 2, 3, 9, 15 };
+
+    private static final UnitConverter cToK = SI.CELSIUS
+            .getConverterTo(SI.KELVIN);
+
+    private static final UnitConverter hPaToPa = SI.HECTO(SI.PASCAL)
+            .getConverterTo(SI.PASCAL);
 
     /**
      * Decode the relative humidity group.
@@ -80,14 +95,13 @@ public class SynopticGroups {
             int lookingForSect) {
         DataItem decodedItem = null;
 
-        if (matchElement(groupData, "2\\d{4}")) {
+        if (groupData != null && HUMIDITY_PATTERN.matcher(groupData).find()) {
             Integer val = Integer.parseInt(groupData.substring(2, 5));
             if ((val != null) && (val >= 0)) {
                 if (lookingForSect == 1) {
                     if (RH_PREFIX.equals(groupData.substring(PREFIX_START,
                             RH_PREFIX.length()))) {
-                        decodedItem = new DataItem("Percent", "relHum",
-                                lookingForSect);
+                        decodedItem = new DataItem("relHum");
                         decodedItem.setDataValue(val.doubleValue());
                     }
                 }
@@ -118,7 +132,7 @@ public class SynopticGroups {
             if ("///".equals(s)) {
                 return decodedItem;
             }
-            Integer val = getInt(groupData, 2, 5);
+            Integer val = AbstractSfcObsDecoder.getInt(groupData, 2, 5);
             if ((val != null) && (val >= 0)) {
                 String dataItemName = null;
                 int sign = 0;
@@ -127,11 +141,9 @@ public class SynopticGroups {
                 case '0': {
                     if (lookingForSect == 2) {
                         if ((sign = getSign(sn)) != 0) {
-                            decodedItem = new DataItem("Kelvin", "seaSfcTemp",
-                                    lookingForSect);
-                            decodedItem.setDataValue(DecoderTools
-                                    .celsiusToKelvin(val, sign,
-                                            defaultTempScale));
+                            decodedItem = new DataItem("seaSfcTemp");
+                            decodedItem.setDataValue(cToK.convert(val * sign
+                                    / defaultTempScale));
                         }
                     }
                     break;
@@ -144,10 +156,9 @@ public class SynopticGroups {
                     }
 
                     if ((dataItemName != null) && ((sign = getSign(sn)) != 0)) {
-                        decodedItem = new DataItem("Kelvin", dataItemName,
-                                lookingForSect);
-                        decodedItem.setDataValue(DecoderTools.celsiusToKelvin(
-                                val, sign, defaultTempScale));
+                        decodedItem = new DataItem(dataItemName);
+                        decodedItem.setDataValue(cToK.convert(val * sign
+                                / defaultTempScale));
                     }
                     break;
                 }
@@ -161,21 +172,18 @@ public class SynopticGroups {
                     }
 
                     if ((dataItemName != null) && ((sign = getSign(sn)) != 0)) {
-                        decodedItem = new DataItem("Kelvin", dataItemName,
-                                lookingForSect);
-                        decodedItem.setDataValue(DecoderTools.celsiusToKelvin(
-                                val, sign, defaultTempScale));
+                        decodedItem = new DataItem(dataItemName);
+                        decodedItem.setDataValue(cToK.convert(val * sign
+                                / defaultTempScale));
                     }
                     break;
                 }
                 case '8': {
                     if (lookingForSect == 2) {
                         if ((sign = getSign(sn)) != 0) {
-                            decodedItem = new DataItem("Kelvin", "wetBulbTemp",
-                                    lookingForSect);
-                            decodedItem.setDataValue(DecoderTools
-                                    .celsiusToKelvin(val, sign,
-                                            defaultTempScale));
+                            decodedItem = new DataItem("wetBulbTemp");
+                            decodedItem.setDataValue(cToK.convert(val * sign
+                                    / defaultTempScale));
                         }
                     }
                     break;
@@ -203,19 +211,16 @@ public class SynopticGroups {
         if ((groupData != null) && (groupData.length() == 5)) {
             if ((groupData.charAt(0) == '3') && (lookingForSect == 1)) {
 
-                Integer val = getInt(groupData, 1, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
-                    decodedItem = new DataItem("Pascals", "stationPressure",
-                            lookingForSect);
+                    decodedItem = new DataItem("stationPressure");
                     // RULE : If the value is between 0 and 100, assume the
                     // value
                     // is above 1000 hPa i.e. 0132 --> 1013.2 hPa --> 101320 Pa
                     if (val < 1000) {
-                        decodedItem
-                                .setDataValue(DecoderTools.hPaToPascals(val) + 100000);
+                        decodedItem.setDataValue(hPaToPa.convert(val) + 100000);
                     } else {
-                        decodedItem
-                                .setDataValue(DecoderTools.hPaToPascals(val));
+                        decodedItem.setDataValue(hPaToPa.convert(val));
                     }
                 }
             }
@@ -240,19 +245,16 @@ public class SynopticGroups {
         if ((groupData != null) && (groupData.length() == 5)) {
             if ((groupData.charAt(0) == '4') && (lookingForSect == 1)) {
 
-                Integer val = getInt(groupData, 1, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
-                    decodedItem = new DataItem("Pascals", "seaLevelPressure",
-                            lookingForSect);
+                    decodedItem = new DataItem("seaLevelPressure");
                     // RULE : If the value is between 0 and 100, assume the
                     // value
                     // is above 1000 hPa i.e. 0132 --> 1013.2 hPa --> 101320 Pa
                     if (val < 1000) {
-                        decodedItem
-                                .setDataValue(DecoderTools.hPaToPascals(val) + 100000);
+                        decodedItem.setDataValue(hPaToPa.convert(val) + 100000);
                     } else {
-                        decodedItem
-                                .setDataValue(DecoderTools.hPaToPascals(val));
+                        decodedItem.setDataValue(hPaToPa.convert(val));
                     }
                 }
             }
@@ -277,12 +279,11 @@ public class SynopticGroups {
         if ((groupData != null) && (groupData.length() == 5)) {
             if ((groupData.charAt(0) == '5') && (lookingForSect == 1)) {
 
-                Integer val = getInt(groupData, 2, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 2, 5);
                 if ((val != null) && (val >= 0)) {
-                    decodedItem = new DataItem("Pascals", "3HRChange",
-                            lookingForSect);
-                    decodedItem.setDataValue(DecoderTools.hPaToPascals(val));
-                    decodedItem.setDataPeriod(3 * TimeTools.SECONDS_HOUR);
+                    decodedItem = new DataItem("3HRChange");
+                    decodedItem.setDataValue(hPaToPa.convert(val));
+                    decodedItem.setDataPeriod(3 * TimeUtil.SECONDS_PER_HOUR);
                 }
             }
         }
@@ -305,10 +306,9 @@ public class SynopticGroups {
         if ((groupData != null) && (groupData.length() == 5)) {
             if ((groupData.charAt(0) == '6')) {
                 if ((lookingForSect == 1) || (lookingForSect == 3)) {
-                    Integer val = getInt(groupData, 1, 4);
+                    Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 4);
                     if (val != null) {
-                        decodedItem = new DataItem("millimeters", "precip",
-                                lookingForSect);
+                        decodedItem = new DataItem("precip");
                         if ((val >= 0) && (val < 990)) {
                             decodedItem.setDataValue(val.doubleValue());
                         } else {
@@ -316,30 +316,28 @@ public class SynopticGroups {
                             decodedItem.setDataValue(value);
                         }
 
-                        val = getInt(groupData, 4, 5);
+                        val = AbstractSfcObsDecoder.getInt(groupData, 4, 5);
                         if ((val != null) && (val >= 0)) {
                             decodedItem.setDataPeriod(precipHours[val]
-                                    * TimeTools.SECONDS_HOUR);
+                                    * TimeUtil.SECONDS_PER_HOUR);
                         }
                     }
                 }
             } else if ((groupData.charAt(0) == '7') && (lookingForSect == 3)) {
 
-                Integer val = getInt(groupData, 1, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
-                    decodedItem = new DataItem("millimeters", "precip",
-                            lookingForSect);
+                    decodedItem = new DataItem("precip");
                     if (val > 9998) {
                         val = 0;
                     }
                     decodedItem.setDataValue(val.doubleValue() / 10.0);
-                    decodedItem.setDataPeriod(TimeTools.SECONDS_DAY);
+                    decodedItem.setDataPeriod(TimeUtil.SECONDS_PER_DAY);
                 }
             } else if ((groupData.charAt(0) == '2') && (lookingForSect == 5)) {
-                Integer val = getInt(groupData, 1, 5);
+                Integer val = AbstractSfcObsDecoder.getInt(groupData, 1, 5);
                 if ((val != null) && (val >= 0)) {
-                    decodedItem = new DataItem("millimeters", "cityPrecip",
-                            lookingForSect);
+                    decodedItem = new DataItem("cityPrecip");
                     if (!IDecoderConstants.VAL_MISSING.equals(val)) {
                         // convert 1/100ths of an inch to millimeters.
                         decodedItem
@@ -347,7 +345,7 @@ public class SynopticGroups {
                     } else {
                         decodedItem.setDataValue(val.doubleValue());
                     }
-                    decodedItem.setDataPeriod(TimeTools.SECONDS_DAY);
+                    decodedItem.setDataPeriod(TimeUtil.SECONDS_PER_DAY);
                 }
             }
         }
@@ -412,12 +410,12 @@ public class SynopticGroups {
                 if ("minTemp".equals(di.getDataName())) {
                     int p = minTbl[regionIdx][hourTbl[obsHour]];
                     if (p != 99) {
-                        period = new Integer(p * TimeTools.SECONDS_HOUR);
+                        period = new Integer(p * TimeUtil.SECONDS_PER_HOUR);
                     }
                 } else if ("maxTemp".equals(di.getDataName())) {
                     int p = maxTbl[regionIdx][hourTbl[obsHour]];
                     if (p != 99) {
-                        period = new Integer(p * TimeTools.SECONDS_HOUR);
+                        period = new Integer(p * TimeUtil.SECONDS_PER_HOUR);
                     }
                 }
             }

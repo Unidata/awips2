@@ -23,32 +23,51 @@ package com.raytheon.uf.common.dataplugin.binlightning.impl;
  * Enums for the lightning message type, Flash or RT Flash.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070810            379 jkorman     Initial Coding from prototype.
+ * Jun 3, 2014  3226      bclement     added id, added TOTAL_LIGHTNING
  * 
  * </pre>
- *
+ * 
  * @author jkorman
  * @version 1.0
  */
 public enum LtgMsgType
 {
-    STRIKE_MSG_FL("FL"),
-    STRIKE_MSG_RT("RT");
+    STRIKE_MSG_FL((byte) 0, "FL"), STRIKE_MSG_RT((byte) 1, "RT"), TOTAL_LIGHTNING(
+            (byte) 2, "TL");
 
-    private final String strikeType;
+    private final String msgType;
+
+    private final byte id;
 
     /**
      * Construct the type.
-     * @param type Lightning strike type.
+     * 
+     * @param type
+     *            Lightning message type.
      */
-    private LtgMsgType(String type)
+    private LtgMsgType(byte id, String type)
     {
-        strikeType = type;
+        this.msgType = type;
+        this.id = id;
+    }
+
+    /**
+     * @param id
+     * @return null if no type found for id
+     */
+    public static LtgMsgType getById(byte id) {
+        for (LtgMsgType type : LtgMsgType.values()) {
+            if (type.id == id) {
+                return type;
+            }
+        }
+        return null;
     }
 
     /**
@@ -57,6 +76,13 @@ public enum LtgMsgType
      */
     public String getType()
     {
-        return strikeType;
+        return msgType;
+    }
+
+    /**
+     * @return unique id for type
+     */
+    public byte getId() {
+        return this.id;
     }
 }

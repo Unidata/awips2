@@ -27,18 +27,16 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    12/10/12                      njensen       Initial Creation.
+#    12/10/12                      njensen        Initial Creation.
+#    05/01/14        3095          bsteffen       Move numeric data access to new plugin.
+#    08/06/14        3185          njensen        Only import Java classes when necessary
+#
 #    
 # 
 #
 
 from ufpy.dataaccess import IGridData
 import JData
-
-from com.raytheon.uf.common.geospatial.interpolation.data import FloatArrayWrapper, UnitConvertingDataDestination
-from com.raytheon.uf.common.python import PythonNumpyFloatArray
-from com.raytheon.uf.common.geospatial import LatLonReprojection
-from javax.measure.unit import UnitFormat
 
 class JGridData(IGridData, JData.JData):
     
@@ -64,21 +62,30 @@ class JGridData(IGridData, JData.JData):
         return str(self.jobj.getUnit())
     
     def getRawData(self, unit=None):
-        dest = FloatArrayWrapper(self.jobj.getGridGeometry())
+        # import only the modules that are needed
+        from com.raytheon.uf.common.numeric.buffer import FloatBufferWrapper        
+        from com.raytheon.uf.common.python import PythonNumpyFloatArray
+        
+        nx = self.jobj.getGridGeometry().getGridRange().getSpan(0)
+        ny = self.jobj.getGridGeometry().getGridRange().getSpan(1)
+        dest = FloatBufferWrapper(nx, ny)
         pnfa = None
         if unit:
+            from javax.measure.unit import UnitFormat
+            from com.raytheon.uf.common.geospatial.data import UnitConvertingDataFilter
+            from com.raytheon.uf.common.numeric.dest import FilteredDataDestination
+            from jep import jarray
+            
             unitObj = UnitFormat.getUCUMInstance().parseObject(unit)
             converter = self.jobj.getUnit().getConverterTo(unitObj)
-            unitDest = UnitConvertingDataDestination(converter, dest)
-            filledDest = self.jobj.populateData(unitDest)
-            nx = self.jobj.getGridGeometry().getGridRange().getSpan(0)
-            ny = self.jobj.getGridGeometry().getGridRange().getSpan(1)
-            pnfa = PythonNumpyFloatArray(filledDest.getWrappedDestination().getArray(), nx, ny)
+            filter = UnitConvertingDataFilter(converter)
+            filters = jarray(1, UnitConvertingDataFilter)
+            filters[0] = filter
+            unitDest = FilteredDataDestination.addFilters(dest, filters)
+            self.jobj.populateData(unitDest)
         else:
-            filledDest = self.jobj.populateData(dest)
-            nx = self.jobj.getGridGeometry().getGridRange().getSpan(0);
-            ny = self.jobj.getGridGeometry().getGridRange().getSpan(1);
-            pnfa = PythonNumpyFloatArray(dest.getArray(), nx, ny)
+            self.jobj.populateData(dest)
+        pnfa = PythonNumpyFloatArray(dest.getBuffer().array(), nx, ny)
         return pnfa.__numpy__[0]
     
     def getLatLonCoords(self):
@@ -92,6 +99,8 @@ class JGridData(IGridData, JData.JData):
         gridGeometry = self.jobj.getGridGeometry()
         if gridGeometry is None :
             return None
+        
+        from com.raytheon.uf.common.geospatial import LatLonReprojection
         latlons = LatLonReprojection.getLatLons(gridGeometry)
         nx = gridGeometry.getGridRange().getSpan(0)
         ny = gridGeometry.getGridRange().getSpan(1)

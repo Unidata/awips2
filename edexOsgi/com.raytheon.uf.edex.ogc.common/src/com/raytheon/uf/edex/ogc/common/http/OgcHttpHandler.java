@@ -38,6 +38,9 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 
+import com.raytheon.uf.common.http.AcceptHeaderParser;
+import com.raytheon.uf.common.http.AcceptHeaderValue;
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.OgcException;

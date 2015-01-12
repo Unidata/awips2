@@ -24,12 +24,12 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.plugin.text.db.TextDB;
 
 /**
  * Provides SHEF with the ability to generate alert/alarms report products and

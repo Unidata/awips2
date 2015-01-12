@@ -182,7 +182,7 @@
 	</model>
 	
 	<model>
-		<name>fnmocWave1</name>
+		<name>fnmocWave</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
 		<grid>401</grid>
@@ -192,7 +192,7 @@
 	</model>
 
 	<model>
-		<name>fnmocWave2</name>
+		<name>fnmocWave</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
 		<grid>362181001</grid>
@@ -202,7 +202,7 @@
 	</model>
 
 	<model>
-		<name>fnmocWave3</name>
+		<name>fnmocWave</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
 		<grid>362181002</grid>
@@ -222,7 +222,7 @@
 	</model>
 
 	<model>
-		<name>fnmocWave5</name>
+		<name>fnmocWave</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
 		<grid>361181002</grid>

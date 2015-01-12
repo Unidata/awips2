@@ -28,9 +28,9 @@ import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * TODO Add Description

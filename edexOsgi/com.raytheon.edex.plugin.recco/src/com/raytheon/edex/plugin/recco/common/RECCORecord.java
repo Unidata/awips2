@@ -20,16 +20,7 @@
 package com.raytheon.edex.plugin.recco.common;
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Velocity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -46,7 +37,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -74,6 +64,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Jun 20, 2013 2128       bsteffen    Ensure setDataURI sets the dataURI.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Jun 19, 2014 2061       bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -92,33 +83,9 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class RECCORecord extends PluginDataObject implements ISpatialEnabled,
-        IDecoderGettable {
+public class RECCORecord extends PluginDataObject implements ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
-
-    public static final Unit<Temperature> TEMPERATURE_UNIT = SI.KELVIN;
-
-    public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
-
-    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Pressure> PRESSURE_UNIT = SI.PASCAL;
-
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put("T", SFC_TEMP);
-        PARM_MAP.put("DpT", SFC_DWPT);
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-        PARM_MAP.put("Px", PRES_STATION);
-        PARM_MAP.put("PMSL", PRES_SLP);
-        PARM_MAP.put("ASET", PRES_ALTSG);
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-    }
 
     @Column
     @DynamicSerializeElement
@@ -622,84 +589,6 @@ public class RECCORecord extends PluginDataObject implements ISpatialEnabled,
     @Override
     public void setDataURI(String dataURI) {
         super.setDataURI(dataURI);
-        identifier = dataURI;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public String getString(String paramName) {
-        if ("STA".matches(paramName)) {
-            return this.getStationId();
-        }
-        if ("WX".matches(paramName)) {
-            return this.getWx_present().toString();
-        }
-        return null;
-    }
-
-    /**
-     * Get the value and units of a named parameter within this observation.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return An Amount with value and units. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-
-        String pName = PARM_MAP.get(paramName);
-
-        if (SFC_TEMP.equals(pName) && (temp != null)) {
-            a = new Amount(temp, TEMPERATURE_UNIT);
-        } else if (SFC_DWPT.equals(pName) && (dwpt != null)) {
-            a = new Amount(dwpt, TEMPERATURE_UNIT);
-        } else if (SFC_WNDSPD.equals(pName) && (windSpeed != null)) {
-            a = new Amount(windSpeed, WIND_SPEED_UNIT);
-        } else if (SFC_WNDDIR.equals(pName) && (windDirection != null)) {
-            a = new Amount(windDirection, WIND_DIR_UNIT);
-        } else if (STA_LAT.equals(pName)) {
-            a = new Amount(this.getLatitude(), LOCATION_UNIT);
-        } else if (STA_LON.equals(pName)) {
-            a = new Amount(this.getLongitude(), LOCATION_UNIT);
-        }
-        return a;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
     }
 
     public AircraftObsLocation getLocation() {

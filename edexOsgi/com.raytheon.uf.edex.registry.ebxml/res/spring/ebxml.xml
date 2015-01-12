@@ -5,21 +5,6 @@
 	<bean id="registrySubscriptionManagerInvoker"
 		class="com.raytheon.uf.edex.registry.ebxml.dao.EsbRouteRegistrySubscriptionManagerInvocation" />
 
-	<bean id="pwCallback"
-		class="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback" />
-
-	<bean id="WsSecurity" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
-		<constructor-arg>
-			<map>
-				<entry key="action" value="UsernameToken" />
-				<entry key="passwordType" value="PasswordText" />
-				<entry key="passwordCallbackRef">
-					<ref bean="pwCallback" />
-				</entry>
-			</map>
-		</constructor-arg>
-	</bean>
-
     <bean id="registryObjectReferenceValidator" class="com.raytheon.uf.edex.registry.ebxml.services.validator.LocalServerRegistryObjectReferenceValidator">
         <property name="registryObjectDao" ref="registryObjectDao" />
     </bean>

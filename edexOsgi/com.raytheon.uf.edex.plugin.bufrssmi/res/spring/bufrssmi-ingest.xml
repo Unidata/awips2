@@ -19,15 +19,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.bufrssmi"/>
 	</bean>
 
-	<bean id="bufrssmiCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="bufrssmi-camel"/>
-  	</bean> 
-
     <camelContext id="bufrssmi-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         <!--
         <endpoint id="bufrssmiFileEndpoint" uri="file:${edex.home}/data/sbn/bufrssmi?noop=true&amp;idempotent=false" />
 

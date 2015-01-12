@@ -2,9 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Vil Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.vil
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
 Require-Bundle: com.raytheon.uf.common.monitor,
  com.raytheon.uf.edex.cpgsrv;resolution:=optional,
  com.raytheon.uf.common.dataplugin.vil,
@@ -22,7 +21,7 @@ Import-Package: com.raytheon.edex.urifilter,
  com.raytheon.uf.common.util.registry,
  com.raytheon.uf.edex.plugin.scan.common,
  org.apache.commons.logging
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.vil,
  com.raytheon.uf.edex.plugin.vil.common

@@ -26,6 +26,7 @@ export EDEX_JMX_PORT=1620
 export LOG_CONF=logback-registry.xml
 export MGMT_PORT=9605
 
-export METADATA_POOL_MIN=5
 export METADATA_POOL_MAX=20
 export METADATA_POOL_TIMEOUT=60
+
+export SOFT_REF_LRU_POLICY_MS_PER_MB=50

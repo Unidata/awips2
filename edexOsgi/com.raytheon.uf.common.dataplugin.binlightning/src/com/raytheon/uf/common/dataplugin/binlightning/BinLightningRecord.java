@@ -19,7 +19,14 @@
  **/
 package com.raytheon.uf.common.dataplugin.binlightning;
 
+import java.io.FileNotFoundException;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -34,19 +41,18 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningPulsePoint;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
-import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Record implementation for Binary Lightning plugin.
@@ -79,6 +85,12 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                      PluginDataObject.
  *  Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  *  Oct 22, 2013 2361       njensen     Removed XML annotations
+ *  Jan 21, 2014 2667       bclement    renamed record's lightSource field to source
+ *  May 14, 2014 2536       bclement    removed TimeTools usage
+ *  Jun 05, 2014 3226       bclement    moved data arrays into map for easier management
+ *                                      replaced addStrike() with List constructor, added pulses
+ *  Jun 10, 2014 3226       bclement    collections instead of lists, made data source logic public
+ *  Jun 19, 2014 3214       bclement    populated pulse index array with -1 when missing pulse data
  * 
  * </pre>
  * 
@@ -103,43 +115,14 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     public static final String PLUGIN_NAME = "binlightning";
 
+    public static final int MISSING_PULSE_INDEX_VALUE = -1;
+
+    // Data store data items
     @Transient
-    private long[] obsTimes = null;
+    private final Map<String, Object> strikeDataArrays = new TreeMap<String, Object>();
 
     @Transient
-    private float[] latitudes = null;
-
-    @Transient
-    private float[] longitudes = null;
-
-    @Transient
-    private int[] intensities = null;
-
-    @Transient
-    private byte[] msgTypes = null;
-
-    @Transient
-    private byte[] strikeTypes = null;
-
-    @Transient
-    private byte[] strikeCounts = null;
-
-    @Transient
-    private Object[] dataArrays = null;
-
-    // Data store data item names
-    @Transient
-    private final String[] dataNames = { "obsTime", "latitude", "longitude",
-            "intensity", "msgType", "strikeType", "strikeCount", };
-
-    @Transient
-    private int insertIndex = 0;
-
-    @Transient
-    private long startTimeMillis = Long.MAX_VALUE;
-
-    @Transient
-    private long stopTimeMillis = Long.MIN_VALUE;
+    private final Map<String, Object> pulseDataArrays = new TreeMap<String, Object>();
 
     // Persisted value - Earliest strike time in the collection.
     @DataURI(position = 1)
@@ -157,7 +140,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
     @Column(length = 5)
     @DataURI(position = 3)
     @DynamicSerializeElement
-    private String lightSource;
+    private String source;
 
     // Used to track
     @Transient
@@ -174,118 +157,157 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * 
      * @param uri
      *            The dataURI
-     * @param tableDef
-     *            The table definition associated with this class
      */
     public BinLightningRecord(String uri) {
         super(uri);
     }
 
     /**
-     * Construct an empty lightning record.
-     */
-    public BinLightningRecord(int arraysSize) {
-        obsTimes = new long[arraysSize];
-        latitudes = new float[arraysSize];
-        longitudes = new float[arraysSize];
-
-        intensities = new int[arraysSize];
-        msgTypes = new byte[arraysSize];
-        strikeTypes = new byte[arraysSize];
-        strikeCounts = new byte[arraysSize];
-        dataArrays = new Object[] { obsTimes, latitudes, longitudes,
-                intensities, msgTypes, strikeTypes, strikeCounts, };
-        insertIndex = 0;
-    }
-
-    // /**
-    // * Construct an empty lightning record.
-    // *
-    // * @param message
-    // * Lightning data report.
-    // */
-    // public BinLightningRecord(String message) {
-    // super(message);
-    // }
-
-    /**
-     * Track the current persistence time for the data set.
-     */
-    @SuppressWarnings("unused")
-    private void updatePersistenceTime() {
-        if ((startTimeMillis != Long.MAX_VALUE)
-                && (stopTimeMillis != Long.MIN_VALUE)) {
-            persistTime = (startTimeMillis + stopTimeMillis) / 2;
-            setPersistenceTime(TimeTools.newCalendar(persistTime).getTime());
-        } else {
-            setPersistenceTime(TimeTools.getSystemCalendar().getTime());
-            persistTime = getInsertTime().getTimeInMillis();
-        }
-    }
-
-    /**
-     * Add a strike report to the record collection.
+     * Construct a lightning record from a list of strikes
      * 
-     * @param strike
-     *            A strike report to add.
+     * @param strikes
      */
-    public void addStrike(LightningStrikePoint strike) {
-        // jjg add
-        if (lightSource == null) {
-            if (strike.getLightSource() == null) {
-                lightSource = "NLDN";
-            } else if (strike.getLightSource().isEmpty()) {
-                lightSource = "UNKN";
-            } else {
-                lightSource = strike.getLightSource();
-            }
-        } else {
-            if (strike.getLightSource() == null) {
-                lightSource = "NLDN";
-            } else if (!lightSource.equals(strike.getLightSource())) {
-                lightSource = "UNKN";
-            }
+    public BinLightningRecord(final Collection<LightningStrikePoint> strikes) {
+        final int arraysSize = strikes.size();
+        long[] obsTimes = new long[arraysSize];
+        float[] latitudes = new float[arraysSize];
+        float[] longitudes = new float[arraysSize];
+        int[] intensities = new int[arraysSize];
+        byte[] msgTypes = new byte[arraysSize];
+        byte[] strikeTypes = new byte[arraysSize];
+        byte[] pulseCounts = new byte[arraysSize];
+        int[] pulseIndexes = new int[arraysSize];
+        int[] heights = new int[arraysSize];
+        int[] sensorCounts = new int[arraysSize];
+
+        strikeDataArrays.put(LightningConstants.TIME_DATASET, obsTimes);
+        strikeDataArrays.put(LightningConstants.LAT_DATASET, latitudes);
+        strikeDataArrays.put(LightningConstants.LON_DATASET, longitudes);
+        strikeDataArrays.put(LightningConstants.INTENSITY_DATASET, intensities);
+        strikeDataArrays.put(LightningConstants.MSG_TYPE_DATASET, msgTypes);
+        strikeDataArrays.put(LightningConstants.STRIKE_TYPE_DATASET,
+                strikeTypes);
+        strikeDataArrays
+                .put(LightningConstants.PULSE_COUNT_DATSET, pulseCounts);
+        strikeDataArrays.put(LightningConstants.PULSE_INDEX_DATASET,
+                pulseIndexes);
+        strikeDataArrays.put(LightningConstants.HEIGHT_DATASET, heights);
+        strikeDataArrays.put(LightningConstants.SENSOR_COUNT_DATASET,
+                sensorCounts);
+
+        if (arraysSize > 0) {
+            LightningStrikePoint sample = strikes.iterator().next();
+            this.source = getDataSource(sample);
         }
-        // end
 
-        if (insertIndex < obsTimes.length) {
-            long t1 = startTimeMillis;
+        long startTimeMillis = Long.MAX_VALUE;
+        long stopTimeMillis = Long.MIN_VALUE;
 
-            Calendar c = TimeTools.getBaseCalendar(strike.getYear(),
-                    strike.getMonth(), strike.getDay());
+        int pulseDataCount = 0;
 
-            c.set(Calendar.HOUR_OF_DAY, strike.getHour());
-            c.set(Calendar.MINUTE, strike.getMinute());
-            c.set(Calendar.SECOND, strike.getSecond());
-            c.set(Calendar.MILLISECOND, strike.getMillis());
+        final Iterator<LightningStrikePoint> iter = strikes.iterator();
+        for (int i = 0; i < arraysSize; ++i) {
+            LightningStrikePoint strike = iter.next();
+            Calendar c = strike.getTime();
 
             long obsTimeMillis = c.getTimeInMillis();
 
             startTimeMillis = Math.min(startTimeMillis, obsTimeMillis);
             stopTimeMillis = Math.max(stopTimeMillis, obsTimeMillis);
 
-            obsTimes[insertIndex] = obsTimeMillis;
-            latitudes[insertIndex] = (float) strike.getLatitude();
-            longitudes[insertIndex] = (float) strike.getLongitude();
+            obsTimes[i] = obsTimeMillis;
+            latitudes[i] = (float) strike.getLatitude();
+            longitudes[i] = (float) strike.getLongitude();
 
-            intensities[insertIndex] = Math.round((float) strike
-                    .getStrikeStrength());
-            msgTypes[insertIndex] = (byte) strike.getMsgType().ordinal();
-            strikeTypes[insertIndex] = (byte) strike.getType().ordinal();
-            strikeCounts[insertIndex] = (byte) strike.getStrikeCount();
-            insertIndex++;
-            // only update the times if they have changed!
-            if (t1 != startTimeMillis) {
-                startTime = TimeTools.newCalendar(startTimeMillis);
-            }
-            if (t1 != stopTimeMillis) {
-                stopTime = TimeTools.newCalendar(stopTimeMillis);
-            }
+            intensities[i] = (int) Math.round(strike.getStrikeStrength());
+            msgTypes[i] = (byte) strike.getMsgType().getId();
+            strikeTypes[i] = (byte) strike.getType().getId();
+            /* some types have pulse counts but no pulse data */
+            pulseCounts[i] = (byte) strike.getPulseCount();
+            heights[i] = (int) Math.round(strike.getElevation());
+            sensorCounts[i] = strike.getSensorCount();
 
-            // updatePersistenceTime();
+            List<LightningPulsePoint> pulses = strike.getPulses();
+            if (pulses != null && !pulses.isEmpty()) {
+                pulseIndexes[i] = pulseDataCount;
+                pulseDataCount += pulses.size();
+                if (pulseCounts[i] != pulses.size()) {
+                    pulseCounts[i] = (byte) pulses.size();
+                }
+            } else {
+                pulseIndexes[i] = MISSING_PULSE_INDEX_VALUE;
+            }
+        }
+
+        if (pulseDataCount > 0) {
+            /* at least one of the strikes had pulse data */
+            setPulseData(strikes, pulseDataCount);
+        }
+        startTime = TimeUtil.newGmtCalendar(new Date(startTimeMillis));
+        stopTime = TimeUtil.newGmtCalendar(new Date(stopTimeMillis));
+
+        TimeRange range = new TimeRange(startTime, stopTime);
+        setDataTime(new DataTime(startTime, range));
+    }
+
+    /**
+     * @param strikes
+     * @param pulseDataCount
+     *            total number of pulses for all strikes
+     */
+    private void setPulseData(final Collection<LightningStrikePoint> strikes,
+            final int pulseDataCount) {
+        long[] pulseTimes = new long[pulseDataCount];
+        float[] pulseLats = new float[pulseDataCount];
+        float[] pulseLons = new float[pulseDataCount];
+        int[] pulseIntensities = new int[pulseDataCount];
+        byte[] pulseTypes = new byte[pulseDataCount];
+        int[] pulseHeights = new int[pulseDataCount];
+        int[] pulseSensorCounts = new int[pulseDataCount];
+
+        pulseDataArrays.put(LightningConstants.TIME_DATASET, pulseTimes);
+        pulseDataArrays.put(LightningConstants.LAT_DATASET, pulseLats);
+        pulseDataArrays.put(LightningConstants.LON_DATASET, pulseLons);
+        pulseDataArrays.put(LightningConstants.INTENSITY_DATASET,
+                pulseIntensities);
+        pulseDataArrays.put(LightningConstants.PULSE_TYPE_DATASET, pulseTypes);
+        pulseDataArrays.put(LightningConstants.HEIGHT_DATASET, pulseHeights);
+        pulseDataArrays.put(LightningConstants.SENSOR_COUNT_DATASET,
+                pulseSensorCounts);
+
+        int index = 0;
+        for (LightningStrikePoint strike : strikes) {
+            List<LightningPulsePoint> pulses = strike.getPulses();
+            if (pulses != null && !pulses.isEmpty()) {
+                for (LightningPulsePoint pulse : pulses) {
+                    pulseTimes[index] = pulse.getTime().getTimeInMillis();
+                    pulseLats[index] = (float) pulse.getLatitude();
+                    pulseLons[index] = (float) pulse.getLongitude();
+                    pulseIntensities[index] = (int) Math.round(pulse
+                            .getStrikeStrength());
+                    pulseTypes[index] = pulse.getType().getId();
+                    pulseHeights[index] = (int) Math
+                            .round(pulse.getElevation());
+                    pulseSensorCounts[index] = pulse.getSensorCount();
+                    ++index;
+                }
+            }
+        }
+    }
+
+    /**
+     * Extract data source from strike
+     * 
+     * @param strike
+     * @return
+     */
+    public static String getDataSource(LightningStrikePoint strike) {
+        if (strike.getLightSource() == null) {
+            return "NLDN";
+        } else if (strike.getLightSource().isEmpty()) {
+            return "UNKN";
         } else {
-            throw new ArrayIndexOutOfBoundsException(String.format(
-                    "index greater than length [%d]", insertIndex));
+            return strike.getLightSource();
         }
     }
 
@@ -346,25 +368,14 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
         setInsertTime(insert_time);
     }
 
-    public String[] getDataNames() {
-        return dataNames;
-    }
-
-    public Object[] getDataArrays() {
-        return dataArrays;
-    }
-
-    public void setDataArrays(Object[] dataArrays) {
-        this.dataArrays = dataArrays;
-    }
-
     /**
      * gets the obsTimes
      * 
      * @return
      */
     public long[] getObsTimes() {
-        return obsTimes;
+        Object obj = strikeDataArrays.get(LightningConstants.TIME_DATASET);
+        return obj != null ? (long[]) obj : new long[0];
     }
 
     /**
@@ -373,7 +384,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * @return
      */
     public float[] getLatitudes() {
-        return latitudes;
+        Object obj = strikeDataArrays.get(LightningConstants.LAT_DATASET);
+        return obj != null ? (float[]) obj : new float[0];
     }
 
     /**
@@ -382,7 +394,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * @return
      */
     public float[] getLongitudes() {
-        return longitudes;
+        Object obj = strikeDataArrays.get(LightningConstants.LON_DATASET);
+        return obj != null ? (float[]) obj : new float[0];
     }
 
     /**
@@ -391,7 +404,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * @return
      */
     public int[] getIntensities() {
-        return intensities;
+        Object obj = strikeDataArrays.get(LightningConstants.INTENSITY_DATASET);
+        return obj != null ? (int[]) obj : new int[0];
     }
 
     /**
@@ -400,7 +414,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * @return
      */
     public byte[] getMsgTypes() {
-        return msgTypes;
+        Object obj = strikeDataArrays.get(LightningConstants.MSG_TYPE_DATASET);
+        return obj != null ? (byte[]) obj : new byte[0];
     }
 
     /**
@@ -409,7 +424,9 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * @return
      */
     public byte[] getStrikeTypes() {
-        return strikeTypes;
+        Object obj = strikeDataArrays
+                .get(LightningConstants.STRIKE_TYPE_DATASET);
+        return obj != null ? (byte[]) obj : new byte[0];
     }
 
     /**
@@ -417,8 +434,10 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
-    public byte[] getStrikeCounts() {
-        return strikeCounts;
+    public byte[] getPulseCounts() {
+        Object obj = strikeDataArrays
+                .get(LightningConstants.PULSE_COUNT_DATSET);
+        return obj != null ? (byte[]) obj : new byte[0];
     }
 
     /**
@@ -426,8 +445,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
-    public String getLightSource() {
-        return lightSource;
+    public String getSource() {
+        return source;
     }
 
     /**
@@ -435,8 +454,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * 
      * @param lightSource
      */
-    public void setLightSource(String lightSource) {
-        this.lightSource = lightSource;
+    public void setSource(String lightSource) {
+        this.source = lightSource;
     }
 
     /**
@@ -446,40 +465,53 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      */
     public void retrieveFromDataStore(IDataStore dataStore)
             throws StorageException {
+        retrieveFromDataStore(dataStore, false);
+    }
 
+    /**
+     * Sets the data arrays from the store.
+     * 
+     * @param dataStore
+     * @param includePulses
+     *            extract pulse data if true
+     */
+    public void retrieveFromDataStore(IDataStore dataStore,
+            boolean includePulses) throws StorageException {
         try {
-            IDataRecord[] dataRec = dataStore.retrieve(getDataURI());
-            dataArrays = new Object[dataRec.length];
-            for (int i = 0; i < dataRec.length; i++) {
-                if (dataRec[i].getName().equals("obsTime")) {
-                    obsTimes = ((LongDataRecord) dataRec[i]).getLongData();
-                    dataArrays[i] = obsTimes;
-                }
-                if (dataRec[i].getName().equals("latitude")) {
-                    latitudes = ((FloatDataRecord) dataRec[i]).getFloatData();
-                    dataArrays[i] = latitudes;
-                } else if (dataRec[i].getName().equals("longitude")) {
-                    longitudes = ((FloatDataRecord) dataRec[i]).getFloatData();
-                    dataArrays[i] = longitudes;
-                } else if (dataRec[i].getName().equals("intensity")) {
-                    intensities = ((IntegerDataRecord) dataRec[i]).getIntData();
-                    dataArrays[i] = intensities;
-                } else if (dataRec[i].getName().equals("msgType")) {
-                    msgTypes = ((ByteDataRecord) dataRec[i]).getByteData();
-                    dataArrays[i] = msgTypes;
-                } else if (dataRec[i].getName().equals("strikeType")) {
-                    strikeTypes = ((ByteDataRecord) dataRec[i]).getByteData();
-                    dataArrays[i] = strikeTypes;
-                } else if (dataRec[i].getName().equals("strikeCount")) {
-                    strikeCounts = ((ByteDataRecord) dataRec[i]).getByteData();
-                    dataArrays[i] = strikeCounts;
+            IDataRecord[] dataRecs = dataStore.retrieve(getDataURI());
+            for (IDataRecord record : dataRecs) {
+                strikeDataArrays.put(record.getName(), record.getDataObject());
+            }
+            if (includePulses) {
+                String pulseGroup = getDataURI() + DataURI.SEPARATOR
+                        + LightningConstants.PULSE_HDF5_GROUP_SUFFIX;
+                try {
+                    IDataRecord[] pulseRecords = dataStore.retrieve(pulseGroup);
+                    for (IDataRecord record : pulseRecords) {
+                        pulseDataArrays.put(record.getName(),
+                                record.getDataObject());
+                    }
+                } catch (Exception e) {
+                    /* FIXME better way to find out if group doesn't exist */
                 }
             }
-            setDataArrays(dataArrays);
-
-        } catch (Exception se) {
-            se.printStackTrace();
+        } catch (FileNotFoundException e) {
+            throw new StorageException(e.getLocalizedMessage(), null, e);
         }
+    }
+
+    /**
+     * @return the strikeDataArrays
+     */
+    public Map<String, Object> getStrikeDataArrays() {
+        return strikeDataArrays;
+    }
+
+    /**
+     * @return the pulseDataArrays
+     */
+    public Map<String, Object> getPulseDataArrays() {
+        return pulseDataArrays;
     }
 
     @Override

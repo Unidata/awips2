@@ -22,6 +22,15 @@
 #
 ##
 ##########################################################################
+##
+#
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# Oct 20, 2014    #3685          randerso    Changed to support mixed case
+#
+##
+
 import GenericHazards
 import string, time, re, os, types, copy, sets
 import ModuleAccessor, LogStream
@@ -108,12 +117,12 @@ class TextProduct(GenericHazards.TextProduct):
         productName = self.checkTestMode(argDict, 
           self._productName + watchPhrase) 
         
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
                "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n" + self._easPhrase + "\n"
-        fcst = string.upper(fcst)
+        fcst = fcst + s.upper()
         return fcst
 
 

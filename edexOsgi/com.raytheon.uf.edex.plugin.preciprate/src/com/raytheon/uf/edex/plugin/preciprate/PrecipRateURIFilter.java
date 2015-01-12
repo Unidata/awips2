@@ -24,12 +24,24 @@ import java.util.regex.Pattern;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 
+/**
+ * Filter for data radar data URIs that have a specific tiltAngle, layer, dhr,
+ * etc
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ???          ???         ???        Initial creation
+ * Aug 26, 2014 3503       bclement    removed serial version id
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
 public class PrecipRateURIFilter extends URIFilter {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1346354654L;
 
     public PrecipRateURIFilter(String name) {
         super(name);

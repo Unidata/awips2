@@ -39,8 +39,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 import com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDestination;

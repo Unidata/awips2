@@ -34,6 +34,7 @@
 #    06/11/13        #2083         randerso       Move backups to edex_static
 #    01/24/14        #2504         randerso       change to use iscUtil.getLogger for consistency 
 #    03/25/14        #2884         randerso       Added xxxid to VTECChange
+#    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
 #
 
 
@@ -49,6 +50,7 @@ import siteConfig
 import VTECPartners
 import VTECTableSqueeze
 import VTECTableUtil
+import JUtil
 
 from java.util import ArrayList
 from com.raytheon.uf.common.activetable import MergeResult
@@ -56,6 +58,7 @@ from com.raytheon.uf.common.activetable import VTECChange
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
 from com.raytheon.uf.common.site import SiteMap
+from com.raytheon.uf.common.activetable import VTECPartners as JavaVTECPartners
 
 
 class MergeVTEC(VTECTableUtil.VTECTableUtil):
@@ -90,8 +93,8 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
         VTECTableUtil.VTECTableUtil.__init__(self, fileName)
 
         # get the SPC site id from the configuration file
-        self._spcSite = getattr(VTECPartners, "VTEC_SPC_SITE", "KWNS")
-        self._tpcSite = getattr(VTECPartners, "VTEC_TPC_SITE", "KNHC")
+        self._spcSite = JUtil.javaObjToPyVal(JavaVTECPartners.getInstance(siteConfig.GFESUITE_SITEID).getSpcSites("KWNS"))
+        self._tpcSite = JUtil.javaObjToPyVal(JavaVTECPartners.getInstance(siteConfig.GFESUITE_SITEID).getTpcSites("KNHC"))
 
         # get our site
         siteid = siteConfig.GFESUITE_SITEID
@@ -393,8 +396,8 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
         sites = getattr(VTECPartners, "VTEC_MERGE_SITES", [])
         if sites is None:
             return None
-        sites.append(self._spcSite)
-        sites.append(self._tpcSite)
+        sites.extend(self._spcSite)
+        sites.extend(self._tpcSite)
         sites.append(self._ourSite)
         self._log.debug("Filter Sites: %s", sites)
         return sites

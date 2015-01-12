@@ -24,8 +24,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * TODO Add Description

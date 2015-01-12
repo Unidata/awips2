@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
@@ -34,14 +35,12 @@ import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator;
 import com.raytheon.uf.edex.dat.utils.DatMenuUtil;
 import com.raytheon.uf.edex.dat.utils.ScanDataCache;
@@ -57,6 +56,9 @@ import com.raytheon.uf.edex.dat.utils.ScanDataCache;
  * ------------ ----------  ----------- --------------------------
  * Feb 25, 2013 1660        D. Hladky   Fixed SCAN configuration bug.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * May 12, 2014 3133        njensen     Remove unused field
+ * Jul 10, 2014 2914        garmendariz Remove EnvProperties
+ * Aug 26, 2014 3503        bclement    removed constructDataURI() call
  * 
  * </pre>
  * 
@@ -79,9 +81,6 @@ public class ScanGenerator extends CompositeProductGenerator implements
 
     /** Set of icaos to filter for */
     private Set<String> icaos = null;
-
-    /** SCAN table Configuration object **/
-    public SCANConfig scanConfig = null;
 
     /** run configuration manager **/
     public SCANRunSiteConfigurationManager srcm = null;
@@ -212,7 +211,6 @@ public class ScanGenerator extends CompositeProductGenerator implements
                     scanRec.setTableData(tables.get(table));
                     scanRec.setVolScanTime(tables.get(table).getVolScanTime());
 
-                    scanRec.constructDataURI();
                     scanRecords[i] = scanRec;
                     i++;
                 }
@@ -301,11 +299,9 @@ public class ScanGenerator extends CompositeProductGenerator implements
             resetFilters();
 
             DatMenuUtil dmu = new DatMenuUtil();
-            dmu.setDatSite(PropertiesFactory.getInstance().getEnvProperties()
-                    .getEnvValue("SITENAME"));
+            dmu.setDatSite(SiteUtil.getSite());
             dmu.setOverride(true);
             dmu.createMenus();
         }
     }
-
 }

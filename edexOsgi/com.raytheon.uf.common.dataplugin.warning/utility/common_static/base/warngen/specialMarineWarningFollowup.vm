@@ -365,13 +365,14 @@ ${canwarning}
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
+
 ##
 #######################################################################
 ## MWS CON PRODUCT
@@ -537,13 +538,14 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
+
 ##
 ## #####################################################################
 ## MWS CAN/CON PRODUCT
@@ -644,10 +646,10 @@ THE ${eventType} !** WEAKENED / MOVED OUT OF THE WARNED AREA **! AND NO LONGER $
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #if(${productClass}=="T")
@@ -843,10 +845,10 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #elseif(${CORCAN} == "true")
@@ -915,12 +917,13 @@ THE ${eventType} !** WEAKENED / MOVED OUT OF THE WARNED AREA **! AND NO LONGER $
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
+
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
@@ -928,7 +931,6 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
-
 
 $$
 
@@ -1102,13 +1104,14 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
+
 ##
 ## #####################################################################
 ## MWS EXP PRODUCT
@@ -1179,10 +1182,10 @@ ${expwarning}
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end

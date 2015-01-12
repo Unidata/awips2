@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
+import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * April 29, 2009   2037    dhladky     Initial creation
  * 02/01/13     1569        D. Hladky   removed XML where not needed
+ * May 13, 2014 3133        njensen     Use ScanUtils instead of ScanConfig
  * </pre>
  * 
  * @author dhladky
@@ -753,7 +754,7 @@ public class CellTableDataRow extends ScanTableDataRow {
             // if (mdaSR.length() > 1) {
             // value = new Double(mdaSR.substring(0, 1));
             // }
-            value = SCANConfig.getInstance().convertStrankValue(mdaSR);
+            value = ScanUtils.convertStrankValue(mdaSR);
         } else if (column.equals(SCANConfigEnums.CELLTable.POSH.getColName())) {
             value = posh;
         } else if (column.equals(SCANConfigEnums.CELLTable.POH.getColName())) {

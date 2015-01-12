@@ -1,6 +1,5 @@
 package com.raytheon.uf.edex.plugin.ffmp.common;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -34,6 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * July 16, 2012            dhladky     Initial creation
  * 02/01/13     1569        D. Hladky   Added constants, last update time
+ * Aug 26, 2014 3503        bclement    removed ISerialableObject
  * 
  * </pre>
  * 
@@ -42,7 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class FFTIData implements ISerializableObject {
+public class FFTIData {
 
     @DynamicSerializeElement
     private Double gap = 0.0;

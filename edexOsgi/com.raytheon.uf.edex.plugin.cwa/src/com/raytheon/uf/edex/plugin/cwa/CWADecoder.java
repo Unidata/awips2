@@ -19,21 +19,22 @@
  **/
 package com.raytheon.uf.edex.plugin.cwa;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.cwa.CWARecord;
+import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.plugin.cwa.decoder.CWAParser;
 import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;
 
 /**
- * 
+ * CWA Decoder.
  * 
  * <pre>
  * 
@@ -42,6 +43,8 @@ import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2010            jsanchez     Initial creation
  * Apr 19, 2012  #457      dgilling     Minor code cleanup.
+ * Mar 25, 2014  2930      skorolev     Fixed error in distance.
+ * Apr 02, 2014  2930      skorolev     Corrected log message.
  * 
  * </pre>
  * 
@@ -49,7 +52,7 @@ import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;
  * @version 1.0
  */
 public class CWADecoder {
-    private Log logger = LogFactory.getLog(getClass());
+    private IUFStatusHandler logger = UFStatus.getHandler(CWADecoder.class);
 
     private final String pluginName;
 
@@ -93,7 +96,8 @@ public class CWADecoder {
      * @param headers
      * @return
      */
-    public PluginDataObject[] decode(byte[] data, Headers headers) {
+    public PluginDataObject[] decode(byte[] data, Headers headers)
+            throws MalformedDataException, IOException {
         String traceId = null;
         PluginDataObject[] decodedData = null;
 
@@ -108,20 +112,15 @@ public class CWADecoder {
 
         if (data != null && data.length > 0) {
             List<CWARecord> obsList = new ArrayList<CWARecord>();
-            try {
-                CWAParser parser = new CWAParser(dao, pdd, pluginName, loader);
-                parser.setData(data, traceId, headers);
+            CWAParser parser = new CWAParser(dao, pdd, pluginName, loader);
+            parser.setData(data, traceId, headers);
 
-                CWARecord report;
-                while (parser.hasNext()) {
-                    report = parser.next();
-                    if (report != null) {
-                        obsList.add(report);
-                    }
+            CWARecord report;
+            while (parser.hasNext()) {
+                report = parser.next();
+                if (report != null) {
+                    obsList.add(report);
                 }
-            } catch (Exception e) {
-                logger.error(traceId + "-Error in decode", e);
-            } finally {
                 if (!obsList.isEmpty()) {
                     decodedData = obsList.toArray(new PluginDataObject[obsList
                             .size()]);

@@ -136,6 +136,7 @@
  	<distanceThreshold>10</distanceThreshold>
  	<sortBy>
   		<sort>distance</sort>
+  		<sort>warngenlev</sort>
   	</sortBy>
 	<filter>
  		<mapping key="WARNGENLEV">

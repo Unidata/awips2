@@ -19,53 +19,59 @@
  **/
 package com.raytheon.uf.common.dataplugin.binlightning.impl;
 
-import com.raytheon.uf.edex.decodertools.core.BasePoint;
+import java.util.Calendar;
+import java.util.List;
+
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Record implementation for the Binary Lightning data decoder.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070810            379 jkorman     Initial Coding from prototype.
  * 20130227        DCS 152 jgerth      Support for WWLLN and multiple sources
+ * Jun 3, 2014  3226      bclement     refactor to support pulse data
  * 
  * </pre>
- *
+ * 
  * @author jkorman
  * @version 1.0
  */
-public class LightningStrikePoint extends BasePoint
+public class LightningStrikePoint extends BaseLightningPoint
 {
     
     private LtgStrikeType type;
     
     private LtgMsgType msgType;
 
-    // Lightning strike strength and polarity
-    private double strikeStrength;
-
-    // Number of strikes for this record.
-    private int strikeCount;
+    // Number of pulses for this record.
+    private int pulseCount;
 
     // JJG - Lightning data source
 	private String lightSource;
+
+    private List<LightningPulsePoint> pulses;
     
     /**
      * Construct a LightningStrikePoint using given data.
-     * @param base The base point which should contain a valid time.
-     * @param latitude The latitude of the strike.
-     * @param longitude The longitude of the strike.
-     * @param type The strike message type.
+     * 
+     * @param latitude
+     *            The latitude of the strike.
+     * @param longitude
+     *            The longitude of the strike.
+     * @param time
+     * @param type
+     *            The strike message type.
      */
-    public LightningStrikePoint(BasePoint base, double latitude, double longitude, LtgMsgType type)
+    public LightningStrikePoint(double latitude, double longitude,
+            Calendar time, LtgMsgType type)
     {
-        super(base);
-        setLatitude(latitude);
-        setLongitude(longitude);
+        super(latitude, longitude, time);
         setElevation(0);
         this.msgType = type;
     }
@@ -77,44 +83,37 @@ public class LightningStrikePoint extends BasePoint
      */
     public LightningStrikePoint(double latitude, double longitude)
     {
-        super(latitude,longitude);
+        super(latitude, longitude, TimeUtil.newGmtCalendar());
         setElevation(0);
     }
 
     /**
-     * Get the strike count.
-     * @return The strike count.
+     * @param time
+     * @param type
      */
-    public int getStrikeCount()
-    {
-        return strikeCount;
+    public LightningStrikePoint(Calendar time, LtgMsgType type) {
+        super(time);
+        this.msgType = type;
     }
 
     /**
-     * Set the strike count.
-     * @return The strike count.
+     * Get the pulse count.
+     * 
+     * @return The pulse count.
      */
-    public void setStrikeCount(int strikeCount)
+    public int getPulseCount()
     {
-        this.strikeCount = strikeCount;
+        return pulseCount;
     }
 
     /**
-     * Get the strike strength. 
-     * @return The strike strength.
+     * Set the pulse count.
+     * 
+     * @return The pulse count.
      */
-    public double getStrikeStrength()
+    public void setPulseCount(int pulseCount)
     {
-        return strikeStrength;
-    }
-
-    /**
-     * Set the strike strength. 
-     * @return The strike strength.
-     */
-    public void setStrikeStrength(double strikeStrength)
-    {
-        this.strikeStrength = strikeStrength;
+        this.pulseCount = pulseCount;
     }
 
     /**
@@ -189,13 +188,22 @@ public class LightningStrikePoint extends BasePoint
     	{
     		buffer = new StringBuilder();
     	}
-    	buffer.append(String.format("%4d%02d%02d",getYear(),getMonth(),getDay()));
-    	buffer.append(String.format("%02d%02d%02d",getHour(),getMinute(),getSecond()));
+        Calendar obsTime = getTime();
+        int year = obsTime.get(Calendar.YEAR);
+        int month = obsTime.get(Calendar.MONTH) + 1;
+        int day = obsTime.get(Calendar.DAY_OF_MONTH);
+        int hour = obsTime.get(Calendar.HOUR);
+        int minute = obsTime.get(Calendar.MINUTE);
+        int second = obsTime.get(Calendar.SECOND);
+        int millis = obsTime.get(Calendar.MILLISECOND);
+        buffer.append(String.format("%4d%02d%02d", year, month, day));
+        buffer.append(String.format("%02d%02d%02d", hour, minute, second));
         
     	buffer.append(String.format(" %9.5f %10.5f ",getLatitude(), getLongitude() ));
     	buffer.append(String.format("%2s %2s ",msgType.getType(),type.getType()));
 
-    	buffer.append(String.format("%4.0f %02d %02d", strikeStrength,(getMillis() / 100),strikeCount));
+        buffer.append(String.format("%4.0f %02d %02d", getStrikeStrength(),
+                (millis / 100), pulseCount));
     	
     	return buffer;
     }
@@ -212,6 +220,21 @@ public class LightningStrikePoint extends BasePoint
     public String toString()
     {
         return toString(null).toString();
+    }
+
+    /**
+     * @return the pulses
+     */
+    public List<LightningPulsePoint> getPulses() {
+        return pulses;
+    }
+
+    /**
+     * @param pulses
+     *            the pulses to set
+     */
+    public void setPulses(List<LightningPulsePoint> pulses) {
+        this.pulses = pulses;
     }
     
 }

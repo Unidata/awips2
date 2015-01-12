@@ -31,13 +31,16 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.site.xml.AdjacentWfoXML;
 import com.raytheon.uf.common.site.xml.CwaXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
 /**
@@ -51,6 +54,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * Dec 22, 2009            mpduff      Initial creation
  * Jul 24, 2013   2219     mpduff      Improve error handling.
  * Oct 02, 2013   2361     njensen     Use JAXBManager for XML
+ * May 23, 2014   3086     skorolev    Cleaned code.
+ * Nov 11, 2014   3741     skorolev    Corrected Exceptions.
  * 
  * </pre>
  * 
@@ -69,14 +74,17 @@ public class AdjacentWfoMgr {
     private static final SingleTypeJAXBManager<AdjacentWfoXML> jaxb = SingleTypeJAXBManager
             .createWithoutException(AdjacentWfoXML.class);
 
-    /** Configuration XML. */
+    /** Configuration Adjacent WFO XML. */
     private AdjacentWfoXML adjXML = null;
 
-    private ArrayList<String> adjZones = null;
+    /** Adjacent zones */
+    private List<String> adjZones = null;
 
+    /** Current site */
     private final String currentSite;
 
-    private ArrayList<String> idList = null;
+    /** List of adjacent areas */
+    private List<String> idList = null;
 
     /** Adjacent area geometry */
     private Geometry geoAdjAreas = null;
@@ -98,20 +106,14 @@ public class AdjacentWfoMgr {
      * Read the XML adjacent data for the current XML file name.
      */
     private void readAdjXml() {
-
+        adjXML = null;
+        IPathManager pm = PathManagerFactory.getPathManager();
+        String path = pm.getFile(
+                pm.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.BASE), fileName).getAbsolutePath();
+        statusHandler.debug("**** path = " + path);
         try {
-            adjXML = null;
-            IPathManager pm = PathManagerFactory.getPathManager();
-
-            String path = pm.getFile(
-                    pm.getContext(LocalizationType.COMMON_STATIC,
-                            LocalizationLevel.BASE), fileName)
-                    .getAbsolutePath();
-
-            statusHandler.debug("**** path = " + path);
-
             adjXML = jaxb.unmarshalFromXmlFile(path);
-
             ArrayList<CwaXML> list = adjXML.getAreaIds();
             for (CwaXML cx : list) {
                 if (cx.getId().equals(currentSite)) {
@@ -122,12 +124,18 @@ public class AdjacentWfoMgr {
                             .toArray(new String[idList.size()]));
                 }
             }
-        } catch (Exception e) {
-            statusHandler.error("Error setting up adjacent WFO data", e);
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to serialize adjacent XML", e);
+        } catch (SpatialException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error to read adjacent XML", e);
         }
     }
 
     /**
+     * Gets Adjacent Wfo XML.
+     * 
      * @return the adjXML
      */
     public AdjacentWfoXML getAdjXML() {
@@ -135,6 +143,8 @@ public class AdjacentWfoMgr {
     }
 
     /**
+     * Sets Adjacent Wfo XML.
+     * 
      * @param adjXML
      *            the adjXML to set
      */
@@ -143,6 +153,8 @@ public class AdjacentWfoMgr {
     }
 
     /**
+     * Gets Adjacent Zones.
+     * 
      * @return the adjZones
      */
     public ArrayList<String> getAdjZones() {
@@ -156,9 +168,11 @@ public class AdjacentWfoMgr {
     }
 
     /**
+     * Gets list of adjacent areas.
+     * 
      * @return List of adjacent areas
      */
-    public ArrayList<String> getAdjIdList() {
+    public List<String> getAdjIdList() {
         return idList;
     }
 
@@ -198,7 +212,7 @@ public class AdjacentWfoMgr {
             for (String site : areaList) {
                 sb.append(StringUtil.NEWLINE).append(site);
             }
-            UFStatus.getHandler(AdjacentWfoMgr.class).warn(sb.toString());
+            statusHandler.handle(Priority.WARN, sb.toString());
         }
 
         return adjAreaGeometry;
@@ -243,8 +257,10 @@ public class AdjacentWfoMgr {
         } catch (SpatialException e) {
             UFStatus.getHandler(AdjacentWfoMgr.class).error(
                     "Error getting CWA Geometry", e);
+        } catch (ParseException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Failed to parse the geometry.", e);
         }
-
         return geo;
     }
 

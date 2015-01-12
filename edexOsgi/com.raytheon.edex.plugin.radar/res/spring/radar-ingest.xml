@@ -3,6 +3,11 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
+    <bean class="com.raytheon.uf.common.status.logback.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="radar" />
+        <constructor-arg value="Ingest.Radar.*" />
+    </bean>
+
 	<bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
 	<bean id="radarDecoder" class="com.raytheon.edex.plugin.radar.RadarDecoder"/>
 
@@ -10,25 +15,18 @@
 		factory-method="register">
 		<constructor-arg value="radar" />
 		<constructor-arg value="jms-durable:queue:Ingest.Radar" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
 	</bean>
 	
-	<!--
 	<bean id="radarRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="radar" />
 		<constructor-arg value="jms-durable:queue:Ingest.RadarRadarServer" />
 	</bean>
-	-->
 
-    <bean id="radarCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="radar-camel"/>
-  	</bean>  
-	
 	<camelContext id="radar-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="radarFileEndpoint" uri="file:${edex.home}/data/sbn/radar?noop=true&amp;idempotent=false" />
 
@@ -44,14 +42,13 @@
 
 		<!-- Begin Radar routes -->
 		<route id="radarIngestRoute">
-			<from uri="jms-durable:queue:Ingest.Radar?concurrentConsumers=4"/>
+			<from uri="jms-durable:queue:Ingest.Radar"/>
  			<setHeader headerName="dataType">
  				<constant>radar-sbn</constant>
 			</setHeader>
 			<to uri="direct:radarcommon" />
 		</route>
 		
-		<!--  
 		<route id="radarRadarServerIngestRoute">
 			<from uri="jms-durable:queue:Ingest.RadarRadarServer"/>
 			<setHeader headerName="dataType">
@@ -59,7 +56,6 @@
 			</setHeader>
 			<to uri="direct:radarcommon" />
 		</route>
-		-->
 
 		<route id="radarCommonIngestRoute">
 			<from uri="direct:radarcommon" />
@@ -74,14 +70,17 @@
 					<to uri="direct-vm:persistIndexAlert" />
 				</pipeline>
 				<doCatch>
+				    <exception>com.raytheon.uf.common.dataplugin.exception.MalformedDataException</exception>
+				    <to uri="direct-vm:logFailureAsInfo" />
+				</doCatch>
+				<doCatch>				   
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:radar?level=ERROR" />
+					<to uri="direct-vm:logFailedData" />					
 				</doCatch>
 			</doTry>
 		</route>
 	</camelContext>
 	
-	<!--
 	<bean id="radarServerConnectionHandler"
 		class="com.raytheon.edex.rpgenvdata.RadarServerConnectionHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
@@ -89,5 +88,25 @@
 			value="com.raytheon.uf.common.dataplugin.radar.request.RadarServerConnectionRequest" />
 		<constructor-arg ref="radarServerConnectionHandler" />
 	</bean>
-	-->
+	
+    <bean id="radarMenuCreator" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil"/>
+    <bean id="import88dLocations" class="com.raytheon.edex.plugin.radar.util.Import88DLocationsUtil"/>
+	
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="tdwrElevations.txt" />
+        <constructor-arg ref="radarMenuCreator" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="fsl-w88d.shp" />
+        <constructor-arg ref="import88dLocations" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="fsl-w88d.shx" />
+        <constructor-arg ref="import88dLocations" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="fsl-w88d.dbf" />
+        <constructor-arg ref="import88dLocations" />
+    </bean>
+
 </beans>

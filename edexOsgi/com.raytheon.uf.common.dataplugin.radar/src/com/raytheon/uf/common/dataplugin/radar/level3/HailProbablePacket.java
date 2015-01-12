@@ -19,23 +19,38 @@
  **/
 package com.raytheon.uf.common.dataplugin.radar.level3;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+
 /**
  * Hail probable uses the same decoder as TVS
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 19, 2009            mnash     Initial creation
- * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 19, 2009           mnash       Initial creation
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Add constructors.
  * 
  * </pre>
  * 
  * @author mnash
  * @version 1.0
  */
-
+@DynamicSerialize
 public class HailProbablePacket extends HailPositivePacket {
+
+    public HailProbablePacket(int packetId, DataInputStream in)
+            throws IOException {
+        super(packetId, in);
+    }
+
+    public HailProbablePacket() {
+        super();
+    }
 
 }

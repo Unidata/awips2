@@ -42,6 +42,9 @@
    <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
       <level value="ERROR"/>
    </logger>
+   <logger name="org.apache.camel.core.xml">
+      <level value="WARN"/>
+   </logger>
    <logger name="org.apache.qpid">
       <level value="INFO"/>
    </logger>
@@ -56,9 +59,6 @@
    </logger>
    <logger name="org.springframework">
       <level value="ERROR"/>
-   </logger>
-   <logger name="uk.ltd.getahead">
-      <level value="WARN"/>
    </logger>
    <logger name="org.hibernate" additivity="false">
       <level value="ERROR"/>

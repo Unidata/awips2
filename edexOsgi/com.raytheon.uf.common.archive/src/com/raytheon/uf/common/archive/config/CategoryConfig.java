@@ -73,6 +73,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * May 1, 2013  1966       rferrel     Initial creation
  * Aug 03, 2013 2224       rferrel     Changes to include DataSet.
  * Jan 09, 2014 2603       rferrel     Fix bug in setSelectedDisplayNames
+ * Apr 17, 2014 3045       rferrel     Code cleanup to prevent null pointer.
  * 
  * </pre>
  * 
@@ -97,7 +98,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
     private int retentionHours;
 
     @XmlElement(name = "dataSet")
-    private List<CategoryDataSet> dataSetList;
+    private List<CategoryDataSet> dataSetList = new ArrayList<CategoryDataSet>();
 
     @XmlElement(name = "selectedDisplayName")
     private final Collection<String> selectedDisplayNames = new TreeSet<String>();
@@ -138,31 +139,66 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * Set the retention hours must be greater then zero.
      */
     public void setRetentionHours(int retentionHours) {
-        this.retentionHours = retentionHours;
+        if (retentionHours > 0) {
+            this.retentionHours = retentionHours;
+        } else {
+            this.retentionHours = 1;
+        }
     }
 
+    /**
+     * 
+     * @return dataSetList
+     */
     public List<CategoryDataSet> getDataSetList() {
-        return new ArrayList<CategoryDataSet>(dataSetList);
+        List<CategoryDataSet> list = new ArrayList<CategoryDataSet>(
+                dataSetList.size());
+        list.addAll(dataSetList);
+        return list;
     }
 
+    /**
+     * 
+     * @param dataSetList
+     */
     public void setDataSetList(List<CategoryDataSet> dataSetList) {
-        this.dataSetList = dataSetList;
+        this.dataSetList.clear();
+        if (dataSetList != null) {
+            this.dataSetList.addAll(dataSetList);
+        }
     }
 
+    /**
+     * 
+     * @return selectedDisplayNames
+     */
     public Collection<String> getSelectedDisplayNames() {
         return selectedDisplayNames;
     }
 
-    public void setSelectedDisplayNames(
-            Collection<String> selectedDisplayNameList) {
-        selectedDisplayNames.clear();
-        selectedDisplayNames.addAll(selectedDisplayNameList);
+    /**
+     * 
+     * @param selectedDisplayNames
+     */
+    public void setSelectedDisplayNames(Collection<String> selectedDisplayNames) {
+        this.selectedDisplayNames.clear();
+        if (selectedDisplayNames != null) {
+            this.selectedDisplayNames.addAll(selectedDisplayNames);
+        }
     }
 
+    /**
+     * 
+     * @param displayName
+     */
     public void addSelectedDisplayName(String displayName) {
         selectedDisplayNames.add(displayName);
     }
 
+    /**
+     * 
+     * @param displayName
+     */
     public void removeSelectedDisplayName(String displayName) {
         selectedDisplayNames.remove(displayName);
     }

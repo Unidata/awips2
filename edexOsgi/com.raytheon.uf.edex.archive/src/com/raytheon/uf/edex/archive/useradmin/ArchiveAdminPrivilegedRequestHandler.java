@@ -24,9 +24,9 @@ import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
+import com.raytheon.uf.edex.auth.authorization.IAuthorizer;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
-import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 
 /**
  * Handler for Archive Admin Privileged Requests.
@@ -38,6 +38,7 @@ import com.raytheon.uf.edex.auth.roles.IRoleStorage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 02, 2013  2326      rferrel     Initial creation.
+ * May 28, 2014  3211      njensen     Use IAuthorizer instead of IRoleStorage
  * 
  * </pre>
  * 
@@ -64,8 +65,10 @@ public class ArchiveAdminPrivilegedRequestHandler extends
     @Override
     public ArchiveAdminAuthRequest handleRequest(ArchiveAdminAuthRequest request)
             throws Exception {
-        // If it reaches this point in the code, then the user is authorized, so
-        // just return the request object with authorized set to true
+        /*
+         * If it reaches this point in the code, then the user is authorized, so
+         * just return the request object with authorized set to true.
+         */
         request.setAuthorized(true);
         return request;
     }
@@ -83,16 +86,15 @@ public class ArchiveAdminPrivilegedRequestHandler extends
             ArchiveAdminAuthRequest request) throws AuthorizationException {
 
         AuthManager manager = AuthManagerFactory.getInstance().getManager();
-        IRoleStorage roleStorage = manager.getRoleStorage();
+        IAuthorizer auth = manager.getAuthorizer();
 
-        boolean authorized = roleStorage.isAuthorized((request).getRoleId(),
-                user.uniqueId().toString(), APPLICATION);
+        boolean authorized = auth.isAuthorized(request.getRoleId(), user
+                .uniqueId().toString(), APPLICATION);
 
         if (authorized) {
             return new AuthorizationResponse(authorized);
         } else {
-            return new AuthorizationResponse(
-                    (request).getNotAuthorizedMessage());
+            return new AuthorizationResponse(request.getNotAuthorizedMessage());
         }
     }
 }

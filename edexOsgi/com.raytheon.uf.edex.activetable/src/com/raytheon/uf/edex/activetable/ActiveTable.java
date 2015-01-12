@@ -22,17 +22,18 @@ package com.raytheon.uf.edex.activetable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import jep.JepException;
 
 import org.apache.log4j.Logger;
 
-import com.raytheon.edex.util.Util;
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.MergeResult;
@@ -49,9 +50,13 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
@@ -81,6 +86,15 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Aug 29, 2013    1843    dgilling    Move ETN related methods to 
  *                                     GetNextEtnUtil.
  * Mar 06, 2014    2883    randerso    Pass siteId into python code
+ * Apr 10, 2014    3004    dgilling    Remove ActiveTableMode parameter from
+ *                                     clearPracticeTable().
+ * May 15, 2014    3157    dgilling    Add support for multiple TPC and SPC
+ *                                     issuing sites.
+ * Jun 17, 2014    3296    randerso    Cached PythonScript. Moved active table 
+ *                                     backup and purging to a separate thread.
+ *                                     Added performance logging
+ * Nov 14, 2014    4953    randerso    Moved dumpProductToTempFile into PracticeVtecDecoder
+ *                                     since it had no reason to be in this class
  * 
  * </pre>
  * 
@@ -95,9 +109,44 @@ public class ActiveTable {
     private static final Logger changeLog = Logger
             .getLogger("ActiveTableChange");
 
-    private static String filePath;
+    private static ThreadLocal<PythonScript> threadLocalPythonScript = new ThreadLocal<PythonScript>() {
 
-    private static String includePath;
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.ThreadLocal#initialValue()
+         */
+        @Override
+        protected PythonScript initialValue() {
+            try {
+                ITimer timer = TimeUtil.getTimer();
+                timer.start();
+                IPathManager pathMgr = PathManagerFactory.getPathManager();
+                LocalizationContext commonCx = pathMgr.getContext(
+                        LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+                String filePath = pathMgr.getFile(commonCx,
+                        "vtec" + File.separator + "ActiveTable.py").getPath();
+                String siteId = pathMgr.getContext(
+                        LocalizationType.COMMON_STATIC, LocalizationLevel.SITE)
+                        .getContextName();
+                String includePath = PyUtil.buildJepIncludePath(
+                        ActiveTablePyIncludeUtil.getCommonPythonIncludePath(),
+                        ActiveTablePyIncludeUtil.getVtecIncludePath(siteId),
+                        ActiveTablePyIncludeUtil
+                                .getGfeConfigIncludePath(siteId));
+
+                PythonScript python = new PythonScript(filePath, includePath,
+                        ActiveTable.class.getClassLoader());
+                timer.stop();
+                PerformanceStatus.getHandler("ActiveTable").logDuration(
+                        "create PythonScript", timer.getElapsedTime());
+                return python;
+            } catch (JepException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    };
 
     private static CoreDao practiceDao = new CoreDao(
             DaoConfig.forClass(PracticeActiveTableRecord.class));
@@ -105,25 +154,9 @@ public class ActiveTable {
     private static CoreDao operationalDao = new CoreDao(
             DaoConfig.forClass(OperationalActiveTableRecord.class));
 
-    private PythonScript python;
-
-    static {
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext commonCx = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        filePath = pathMgr.getFile(commonCx,
-                "vtec" + File.separator + "ActiveTable.py").getPath();
-        String siteId = pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.SITE).getContextName();
-        String pythonPath = ActiveTablePyIncludeUtil
-                .getCommonPythonIncludePath();
-        String vtecPath = ActiveTablePyIncludeUtil.getVtecIncludePath(siteId);
-        String configPath = ActiveTablePyIncludeUtil
-                .getGfeConfigIncludePath(siteId);
-        includePath = PyUtil.buildJepIncludePath(pythonPath, vtecPath,
-                configPath);
-    }
-
+    /**
+     * Default constructor
+     */
     public ActiveTable() {
     }
 
@@ -152,6 +185,10 @@ public class ActiveTable {
      *            the active table mode (PRACTICE or OPERATIONAL)
      * @param phensigList
      *            phensigs to include. If null, all phensigs will be included.
+     * @param act
+     *            the VTEC action. If null all actions will be included
+     * @param etn
+     *            the ETN. If null all ETNs will be included
      * @param requestValidTimes
      *            true if only valid times are to be returned
      * @return the active table corresponding to the input parameters
@@ -171,6 +208,10 @@ public class ActiveTable {
      *            the active table mode (PRACTICE or OPERATIONAL)
      * @param phensigList
      *            phensigs to include. If null, all phensigs will be included.
+     * @param act
+     *            the VTEC action. If null all actions will be included
+     * @param etn
+     *            the ETN. If null all ETNs will be included
      * @param requestValidTimes
      *            true if only valid times are to be returned
      * @param wfos
@@ -183,33 +224,19 @@ public class ActiveTable {
             ActiveTableMode mode, String phensigList, String act, String etn,
             String[] wfos) {
 
-        if (wfos == null || !Arrays.asList(wfos).contains("all")) {
-            SiteMap siteMap = SiteMap.getInstance();
+        if ((wfos == null) || !Arrays.asList(wfos).contains("all")) {
 
-            if (wfos == null || wfos.length == 0) {
+            if ((wfos == null) || (wfos.length == 0)) {
                 // default to WFOs from VTECPartners
 
-                // Use the 3-char site or VTEC_DECODER_SITES will be empty
-                Set<String> site3s = siteMap.getSite3LetterIds(siteId);
-                Set<String> wfoSet = new TreeSet<String>();
-                for (String site3 : site3s) {
-                    VTECPartners vtecPartners = VTECPartners.getInstance(site3);
-                    List<String> wfoList = (List<String>) vtecPartners
-                            .getattr("VTEC_DECODER_SITES");
-                    wfoSet.addAll(wfoList);
-                    String spcSite = (String) vtecPartners
-                            .getattr("VTEC_SPC_SITE");
-                    wfoSet.add(spcSite);
-                    String tpcSite = (String) vtecPartners
-                            .getattr("VTEC_TPC_SITE");
-                    wfoSet.add(tpcSite);
-                }
+                Set<String> wfoSet = getDecoderSites(siteId);
                 wfoSet.add(siteId);
                 wfos = wfoSet.toArray(new String[0]);
             }
 
             // We have an array of 3- or 4-char WFOs to filter against.
             // We need a String "KMFL,KTBW,..." for the query.
+            SiteMap siteMap = SiteMap.getInstance();
             StringBuilder wfosb = new StringBuilder();
             String sep = "";
             for (String wfo : wfos) {
@@ -224,6 +251,26 @@ public class ActiveTable {
 
         return queryTable(siteId, mode, phensigList, act, etn, null, false,
                 false);
+    }
+
+    private static Set<String> getDecoderSites(String siteId) {
+        SiteMap siteMap = SiteMap.getInstance();
+
+        // Use the 3-char site or VTEC_DECODER_SITES will be empty
+        Set<String> site3s = siteMap.getSite3LetterIds(siteId);
+        Set<String> wfoSet = new HashSet<String>();
+        for (String site3 : site3s) {
+            VTECPartners vtecPartners = VTECPartners.getInstance(site3);
+            @SuppressWarnings("unchecked")
+            List<String> wfoList = (List<String>) vtecPartners
+                    .getattr("VTEC_DECODER_SITES");
+            wfoSet.addAll(wfoList);
+            Collection<String> spcSite = vtecPartners.getSpcSites();
+            wfoSet.addAll(spcSite);
+            Collection<String> tpcSite = vtecPartners.getTpcSites();
+            wfoSet.addAll(tpcSite);
+        }
+        return wfoSet;
     }
 
     /**
@@ -242,11 +289,38 @@ public class ActiveTable {
                 mode = ActiveTableMode.OPERATIONAL;
             }
 
-            MergeResult result = filterTable(siteId,
-                    getActiveTable(siteId, mode), newRecords, mode, offsetSecs);
+            IPerformanceStatusHandler perfStat = PerformanceStatus
+                    .getHandler("ActiveTable");
+            ITimer timer = TimeUtil.getTimer();
+            timer.start();
+            List<ActiveTableRecord> activeTable = getActiveTable(siteId, mode);
+            timer.stop();
+            perfStat.logDuration("getActiveTable", timer.getElapsedTime());
 
+            // get decoder sites to see if we need to backup active table
+            Set<String> decoderSites = getDecoderSites(siteId);
+
+            // if any new record is from one of the decoder sites
+            // we need to queue a backup
+            for (ActiveTableRecord rec : newRecords) {
+                if (decoderSites.contains(rec.getOfficeid())) {
+                    ActiveTableBackup.queue(mode, activeTable);
+                    break;
+                }
+            }
+
+            timer.reset();
+            timer.start();
+            MergeResult result = filterTable(siteId, activeTable, newRecords,
+                    mode, offsetSecs);
+            timer.stop();
+            perfStat.logDuration("filterTable", timer.getElapsedTime());
+
+            timer.reset();
+            timer.start();
             updateTable(siteId, result, mode);
-
+            timer.stop();
+            perfStat.logDuration("updateTable", timer.getElapsedTime());
             if (result.changeList.size() > 0) {
                 sendNotification(mode, result.changeList, "VTECDecoder");
             }
@@ -279,25 +353,16 @@ public class ActiveTable {
         args.put("offsetSecs", offsetSecs);
         MergeResult result = null;
         try {
+            PythonScript python = threadLocalPythonScript.get();
             try {
-                python = new PythonScript(filePath, includePath,
-                        ActiveTable.class.getClassLoader());
-                try {
-                    result = (MergeResult) python
-                            .execute("mergeFromJava", args);
-                } catch (JepException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error updating active table", e);
-                }
+                result = (MergeResult) python.execute("mergeFromJava", args);
             } catch (JepException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error initializing active table python", e);
+                        "Error updating active table", e);
             }
-        } finally {
-            if (python != null) {
-                python.dispose();
-                python = null;
-            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error initializing active table python", e);
         }
 
         return result;
@@ -358,11 +423,11 @@ public class ActiveTable {
                 query.addQueryParam("etn", etn, "in");
             }
 
-            if (requestValidTimes && currentTime != null) {
+            if (requestValidTimes && (currentTime != null)) {
                 // Current Time
                 query.addQueryParam("endTime", currentTime, "greater_than");
             }
-            if (latestEtn && currentTime != null) {
+            if (latestEtn && (currentTime != null)) {
                 Calendar yearStart = Calendar.getInstance();
                 yearStart.set(currentTime.get(Calendar.YEAR), Calendar.JANUARY,
                         0, 0, 0);
@@ -413,15 +478,32 @@ public class ActiveTable {
         }
     }
 
+    /**
+     * Merge new records into the active table
+     * 
+     * @param newRecords
+     *            records to be merged
+     * @return Exception if any occurs during merge
+     */
     public Exception merge(List<ActiveTableRecord> newRecords) {
         return merge(newRecords, 0.0f);
     }
 
+    /**
+     * Merge new records into the active table
+     * 
+     * @param newRecords
+     *            records to be merged
+     * @param timeOffset
+     *            time offset for practice mode in displaced real time mode
+     * @return Exception if any occurs during merge
+     */
     public Exception merge(List<ActiveTableRecord> newRecords, float timeOffset) {
         Exception exc = null;
         try {
             if (newRecords != null) {
-                String siteId = newRecords.get(0).getOfficeid();
+                String siteId = SiteUtil.getSite();
+                siteId = SiteMap.getInstance().getSite4LetterId(siteId);
                 updateActiveTable(siteId, newRecords, timeOffset);
             }
         } catch (Throwable t) {
@@ -526,12 +608,15 @@ public class ActiveTable {
         }
     }
 
-    public void dispose() {
-        python.dispose();
-    }
-
-    public static void clearPracticeTable(String requestedSiteId,
-            ActiveTableMode mode) throws DataAccessLayerException {
+    /**
+     * Clear the practice active table for the requested site
+     * 
+     * @param requestedSiteId
+     *            site ID
+     * @throws DataAccessLayerException
+     */
+    public static void clearPracticeTable(String requestedSiteId)
+            throws DataAccessLayerException {
         CoreDao dao = practiceDao;
         String sql = "delete from practice_activetable;";
         dao.executeNativeSql(sql);
@@ -540,12 +625,6 @@ public class ActiveTable {
                 + GetNextEtnUtil.getEtnClusterLockName(requestedSiteId,
                         ActiveTableMode.PRACTICE) + "';";
         dao.executeNativeSql(sql);
-    }
-
-    public static File dumpProductToTempFile(String productText) {
-        File file = Util.createTempFile(productText.getBytes(), "vtec");
-        file.deleteOnExit();
-        return file;
     }
 
     /**

@@ -27,6 +27,14 @@
 #
 # Author: Matt Davis
 # ----------------------------------------------------------------------------
+##
+#
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# Oct 20, 2014    #3685          randerso    Changed to support mixed case
+#
+##
 
 
 import GenericReport
@@ -67,7 +75,7 @@ class TextProduct(GenericReport.TextProduct):
         "language": "english",
         "lineLength": 66,   #Maximum line length
         "includeCities" : 0,    # Cities included in area header
-        "cityDescriptor" : "INCLUDING THE CITIES OF",
+        "cityDescriptor" : "Including the cities of",
         "includeZoneNames" : 0, # Zone names will be included in the area header
         "includeIssueTime" : 0,   # This should be set to zero
         "singleComboOnly" : 1, # Used for non-segmented products
@@ -108,20 +116,18 @@ class TextProduct(GenericReport.TextProduct):
 
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, self._productName)
-        fcst = fcst + productName + "\n" + \
+        s =  productName + "\n" + \
                "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst = string.upper(fcst)
+        fcst = fcst + s.upper() 
         return fcst
 
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
         fcst = fcst + "...PUBLIC INFORMATION STATEMENT...\n\n"
-        fcst = fcst + "|* INFORMATION GOES HERE *|\n\n"
+        fcst = fcst + "|* Information goes here *|\n\n"
         return fcst
 
     def _postProcessProduct(self, fcst, argDict):
-        fcst = string.upper(fcst)
-
         #
         # Clean up multiple line feeds
         #

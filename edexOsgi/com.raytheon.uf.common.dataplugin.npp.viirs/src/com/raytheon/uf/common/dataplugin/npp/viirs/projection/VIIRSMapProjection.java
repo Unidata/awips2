@@ -62,6 +62,8 @@ import com.vividsolutions.jts.geom.LineSegment;
  *                                      algorithm to use great circle intersections for
  *                                      more accurate results
  * Aug 27, 2013  #2190     mschenke     Sped up transform functions
+ * Mar 27, 2014  #2015     njensen      Overrode getParameterValues()
+ * Oct 08, 2014  #3674     bsteffen     Bug fixes.
  * 
  * </pre>
  * 
@@ -146,6 +148,24 @@ public class VIIRSMapProjection extends MapProjection {
     @Override
     public ParameterDescriptorGroup getParameterDescriptors() {
         return Provider.PARAMETERS;
+    }
+
+    @Override
+    public ParameterValueGroup getParameterValues() {
+        final ParameterDescriptorGroup descriptor = getParameterDescriptors();
+        final ParameterValueGroup values = descriptor.createValue();
+        values.parameter(CENTER_LATITUDES).setValue(centerLats);
+        values.parameter(CENTER_LONGITUDES).setValue(centerLons);
+        values.parameter(DIRECTIONS).setValue(directions);
+        values.parameter(CENTER_LENGTH).setValue(actualHeight);
+        values.parameter(RESOLUTION).setValue(resolution);
+        values.parameter(SEMI_MAJOR).setValue(
+                VIIRSMapProjectionFactory.SEMI_MINOR_MAJOR_VALUE);
+        values.parameter(SEMI_MINOR).setValue(
+                VIIRSMapProjectionFactory.SEMI_MINOR_MAJOR_VALUE);
+        values.parameter(Provider.CENTRAL_MERIDIAN.getName().getCode())
+                .setValue(Provider.CENTRAL_MERIDIAN.getDefaultValue());
+        return values;
     }
 
     /*
@@ -314,6 +334,11 @@ public class VIIRSMapProjection extends MapProjection {
 
             Coordinate a = index(xi, closestY);
             Coordinate b = index(xi, closestY2);
+            if (a.x - b.x > 180) {
+                b.x += 360;
+            } else if (b.x - a.x > 180) {
+                a.x += 360;
+            }
             LineSegment ls = new LineSegment(a, b);
             c = ls.pointAlong(-Math.abs(yDiff));
         }
@@ -504,7 +529,7 @@ public class VIIRSMapProjection extends MapProjection {
         // Compute potential bestY grid value
         bestY = actualHeight - idxToUse - 0.5;
         // Compute bestY value based on hypotenuse and angle diff in grid space
-        bestY = bestY * resolution - best.yDist * radius;
+        bestY = bestY * resolution + best.yDist * radius;
 
         Point2D point = ptDst != null ? ptDst : new Point2D.Double();
         point.setLocation(bestX, bestY);

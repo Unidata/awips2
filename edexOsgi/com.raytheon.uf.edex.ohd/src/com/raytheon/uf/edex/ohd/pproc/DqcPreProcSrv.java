@@ -20,10 +20,9 @@
 
 package com.raytheon.uf.edex.ohd.pproc;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.ohd.MainMethod;
 
@@ -35,6 +34,7 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 25 2008             snaples    Initial creation
+ * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * </pre>
  * 
  * @author snaples
@@ -42,15 +42,16 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  */
 public class DqcPreProcSrv {
 
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(DqcPreProcSrv.class);
+
     /** The argument pattern if only hours are specified */
     private static final String DAYS_ARG = "\\d{1,2}";
 
     /** The default number of days to process if no argument if provided */
     private static final String defaultNumDays = "10";
 
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
-
-    private Log logger = LogFactory.getLog(getClass());
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
     public Object process(String dqcArg) throws EdexException {
 

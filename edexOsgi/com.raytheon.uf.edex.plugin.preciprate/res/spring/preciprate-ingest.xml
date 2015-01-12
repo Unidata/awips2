@@ -6,11 +6,16 @@
 
    <bean id="preciprateGenerator" class="com.raytheon.uf.edex.plugin.preciprate.PrecipRateGenerator"/>
        
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="preciprate-camel" />
+        <constructor-arg ref="preciprateGenerator" />
+    </bean>     
+       
     <bean factory-bean="cpgSrvDispatcher" factory-method="register">
 		<constructor-arg ref="preciprateGenerator"/>
 	</bean>
 	
-	<camelContext id="preciprate-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
+	<camelContext id="preciprate-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="PrecipRateGenerate">
         	<from uri="jms-durable:queue:preciprateGenerate"/>
             <doTry>

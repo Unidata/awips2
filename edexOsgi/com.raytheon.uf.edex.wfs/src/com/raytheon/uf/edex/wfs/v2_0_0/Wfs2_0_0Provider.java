@@ -67,6 +67,7 @@ import org.w3.xmlschema.Schema;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
@@ -77,7 +78,6 @@ import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
 import com.raytheon.uf.edex.ogc.common.feature.GmlUtils;
 import com.raytheon.uf.edex.ogc.common.feature.SimpleFeatureFormatter;
 import com.raytheon.uf.edex.ogc.common.http.EndpointInfo;
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
 import com.raytheon.uf.edex.ogc.common.http.OgcHttpHandler;
 import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 import com.raytheon.uf.edex.ogc.common.output.OgcResponseOutput;
@@ -116,8 +116,9 @@ import com.raytheon.uf.edex.wfs.util.XMLGregorianCalendarConverter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2012            bclement     Initial creation
- * Sep 18, 2013 #411       skorolev    Added required RESPONSE METADATA
- * Nov 11, 2013 2539        bclement    moved registry/marshal to parent
+ * Sep 18, 2013 #411       skorolev     Added required RESPONSE METADATA
+ * Nov 11, 2013 2539       bclement     moved registry/marshal to parent
+ * Jul 15, 2014 3373       bclement     jaxb manager api changes
  * 
  * </pre>
  * 
@@ -1063,7 +1064,7 @@ public class Wfs2_0_0Provider extends AbstractWfsProvider implements
                 try {
                     String xml = registry.marshal(object, true);
                     rval.put(key, xml);
-                } catch (JAXBException e) {
+                } catch (Exception e) {
                     log.error("Problem marshalling parameter value", e);
                     // is it possible that this isn't our fault?
                     throw new WfsException(Code.OperationProcessingFailed);

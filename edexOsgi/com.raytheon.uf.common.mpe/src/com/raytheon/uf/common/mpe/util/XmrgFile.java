@@ -20,9 +20,6 @@
 package com.raytheon.uf.common.mpe.util;
 
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferUShort;
-import java.awt.image.Raster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,8 +34,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.imageio.ImageIO;
-import javax.media.jai.RasterFactory;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -51,6 +46,8 @@ import javax.xml.bind.annotation.XmlElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2008            randerso     Initial creation
+ * May 20, 2014 2913       bsteffen     Remove main
+ * 
  * </pre>
  * 
  * @author randerso
@@ -444,52 +441,6 @@ public class XmrgFile {
          */
         public void setVersionNumber(float versionNumber) {
             this.versionNumber = versionNumber;
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            XmrgFile xFile = new XmrgFile(
-            // "/home/randerso/oaxData/precip_proc/local/data/mpe/rmosaic/RMOSAIC2008092213z");
-                    "/home/randerso/oaxData/precip_proc/local/data/app/mpe/prism/prism_mean_precip_oax_sep");
-            // "/home/randerso/MPE/RMOSAIC2008102315z");
-            xFile.load();
-            Rectangle extent = xFile.getHrapExtent();
-
-            XmrgHeader header = xFile.getHeader();
-
-            short[] data = xFile.getData();
-
-            System.out.println(extent);
-            System.out.println(header);
-
-            DataBufferUShort dataBuffer = new DataBufferUShort(data,
-                    data.length);
-
-            int[] bandMasks = new int[] { 0xf800, 0x07e0, 0x001f };
-            Raster raster = RasterFactory.createPackedRaster(dataBuffer,
-                    extent.width, extent.height, extent.width, bandMasks, null);
-
-            BufferedImage bi = new BufferedImage(extent.width, extent.height,
-                    BufferedImage.TYPE_USHORT_565_RGB);
-            bi.setData(raster);
-            ImageIO.write(bi, "png", new File("/tmp/xxx.png"));
-
-            xFile.save("/tmp/xmrg.dat");
-
-            Rectangle rect = new Rectangle(
-                    //
-                    // extent.x, extent.y, 7, 7);
-                    extent.x + extent.width - 7, extent.y + extent.height - 7,
-                    7, 7);
-            short[][] subData = xFile.getData(rect);
-            for (int i = 0; i < rect.height; i++) {
-                System.out.println(Arrays.toString(subData[i]));
-            }
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 

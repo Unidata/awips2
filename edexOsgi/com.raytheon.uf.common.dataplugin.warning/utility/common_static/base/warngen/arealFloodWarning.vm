@@ -9,6 +9,8 @@
 ## Evan Bookbinder 9-18-2013 implemented config.vm
 ## Mike Rega 01-18-2014 added Alaska GP changes for 14.2.1
 ## Mike Rega 02-26-2014 changed MND to IMMEDIATE BROADCAST
+## Phil Kurimski 06-24-2014 rewrote code for storm position to account for non-thunderstorm events
+## Evan Bookbinder 9-5-2014 corrected first bullet wording if hycType and urban/small stream were selected
 #################################### SET SOME VARIABLES ###################################
 #parse("config.vm")
 ##
@@ -20,13 +22,6 @@
 	#set($extend = false)
 #end
 ##
-#if(${list.contains(${bullets}, "smallstreams")})
-	#set($advType = "FLOOD WARNING FOR SMALL STREAMS IN...")
-#elseif(${list.contains(${bullets}, "urbansmallstreams")})
-	#set($advType = "FLOOD WARNING FOR URBAN AREAS AND SMALL STREAMS IN...")
-#else
-	#set($advType = "FLOOD WARNING FOR...")
-#end
 #set($ic = "ER")
 #set($hycType = "")
 #if(${list.contains(${bullets}, "er")})
@@ -59,6 +54,21 @@
 #elseif(${list.contains(${bullets}, "uu")})
 	#set($ic = "UU")
     #set($hycType = "")
+#end
+#if(${list.contains(${bullets}, "smallstreams")})
+	#if(${hycType} != "")
+	#set($advType = "FLOOD WARNING FOR SMALL STREAMS FOR...")
+	#else
+	#set($advType = "FLOOD WARNING FOR SMALL STREAMS IN...")
+	#end
+#elseif(${list.contains(${bullets}, "urbansmallstreams")})
+	#if(${hycType} != "")
+	#set($advType = "FLOOD WARNING FOR URBAN AREAS AND SMALL STREAMS FOR...")
+	#else
+	#set($advType = "FLOOD WARNING FOR URBAN AREAS AND SMALL STREAMS IN...")
+	#end
+#else
+	#set($advType = "FLOOD WARNING FOR...")
 #end
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
@@ -211,13 +221,14 @@ THIS IS A TEST MESSAGE. ##
 ############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
 #if(${list.contains(${bullets},"stormPosition")})
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#if(${stormType} == "line")
-...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
-#else
-...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#set($phenom="")
+#if(${stormType} == "line" && ${list.contains(${bullets}, "thunder")})
+  #set($phenom="A LINE OF THUNDERSTORMS PRODUCING ")
+#elseif(${list.contains(${bullets}, "thunder")})
+  #set($phenom="A THUNDERSTORM PRODUCING ")
 #end
+...${phenom}HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 ...AND IS STATIONARY. ##
 #else

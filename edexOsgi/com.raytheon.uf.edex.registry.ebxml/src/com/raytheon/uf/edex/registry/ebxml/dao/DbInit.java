@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.persistence.Version;
 import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
@@ -46,7 +45,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -66,7 +65,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyAdministrator;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
@@ -93,6 +92,10 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * Nov 14, 2013 2552        bkowal      EbxmlJaxbManager is now accessed via getInstance
  * Dec 20, 2013 2636        mpduff      Set initialized to true before postInitialized is called.
  * Dec 04, 2013 2584        dhladky     Version based EbxmlJaxbManager
+ * 7/10/2014    1717        bphillip    Removed xacml policy admin object
+ * Jul 10, 2014 2914        garmendariz Remove EnvProperties
+ * Jul 28, 2014 3474        dhladky     Fixed bad ownership settings.
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * </pre>
  * 
  * @author bphillip
@@ -118,6 +121,8 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     private SessionFactory sessionFactory;
 
     private ApplicationContext applicationContext;
+    
+    private XACMLPolicyAdministrator xacmlPolicyAdmin;
 
     /**
      * Creates a new instance of DbInit. This constructor should only be called
@@ -137,6 +142,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
         executeRegistrySql();
 
         populateDB();
+        xacmlPolicyAdmin.loadAccessControlPolicies();
     }
 
     public static boolean isDbInitialized() {
@@ -209,8 +215,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
         JarFile jar = null;
 
         try {
-            jar = new JarFile(PropertiesFactory.getInstance()
-                    .getEnvProperties().getEnvValue("PLUGINDIR")
+            jar = new JarFile(EDEXUtil.getEdexPlugins() + File.separator
                     + "com.raytheon.uf.edex.registry.ebxml.jar");
         } catch (IOException e) {
             throw new EbxmlRegistryException("Unable to find registry jar!", e);
@@ -286,7 +291,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
 
             // If no owner is assigned, assign the defaul owner
             if (regObj.getOwner() == null) {
-                regObj.setOwner(RegistryUtil.DEFAULT_OWNER);
+                regObj.setOwner(RegistryUtil.defaultUser);
             }
 
             /*
@@ -315,12 +320,12 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
      * {@inheritDoc}
      */
     @Override
-    protected AnnotationConfiguration getAnnotationConfiguration() {
+    protected Configuration getConfiguration() {
         /*
          * Create a new configuration object which holds all the classes that
          * this Hibernate SessionFactory is aware of
          */
-        AnnotationConfiguration aConfig = new AnnotationConfiguration();
+        Configuration aConfig = new Configuration();
         for (Object obj : sessionFactory.getAllClassMetadata().keySet()) {
             try {
                 Class<?> clazz = Class.forName((String) obj);
@@ -404,4 +409,13 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
             throws BeansException {
         this.applicationContext = applicationContext;
     }
+
+    /**
+     * @param xacmlPolicyAdmin the xacmlPolicyAdmin to set
+     */
+    public void setXacmlPolicyAdmin(XACMLPolicyAdministrator xacmlPolicyAdmin) {
+        this.xacmlPolicyAdmin = xacmlPolicyAdmin;
+    }
+    
+    
 }

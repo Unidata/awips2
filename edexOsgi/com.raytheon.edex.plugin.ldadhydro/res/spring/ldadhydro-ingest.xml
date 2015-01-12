@@ -17,16 +17,10 @@
 	</bean>	
 	
 	<bean id="ldadhydroPointData" class="com.raytheon.edex.plugin.ldadhydro.dao.LdadhydroPointDataTransform"/>
-	
-    <bean id="ldadhydroCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ldadhydro-camel"/>
-  	</bean>
 
 	<camelContext id="ldadhydro-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<route id="ldadhydroIngestRoute">
 			<from uri="jms-durable:queue:Ingest.ldadhydro"/>
 			<doTry>

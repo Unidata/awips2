@@ -19,14 +19,14 @@
 # further licensing information.
 ##
 
-export MAX_MEM=1536 # in Meg
+export MAX_MEM=2048 # in Meg
 export MAX_PERM_SIZE=192m
 export EDEX_DEBUG_PORT=5011
 export EDEX_JMX_PORT=1622
 export LOG_CONF=logback-registry.xml
 export MGMT_PORT=9607
 
-export METADATA_POOL_MIN=10
-export METADATA_POOL_MAX=25
 export METADATA_POOL_TIMEOUT=60
 export CLUSTER_ID=NCF
+
+export SOFT_REF_LRU_POLICY_MS_PER_MB=50

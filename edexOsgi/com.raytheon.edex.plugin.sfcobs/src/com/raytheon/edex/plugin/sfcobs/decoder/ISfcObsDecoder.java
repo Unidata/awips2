@@ -23,8 +23,8 @@ import java.util.Calendar;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Declare the methods common to the surface observation class data. In the
@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
+ * Sep 26, 2014       3629 mapeters    Added SYNOPTIC_*, DRIFTING_BUOY constants.
  * </pre>
  * 
  * @author jkorman
@@ -50,6 +51,16 @@ public interface ISfcObsDecoder {
     public static final Integer VAL_ERROR = IDecoderConstants.VAL_ERROR;
 
     public static final Integer VAL_MISSING = IDecoderConstants.VAL_MISSING;
+
+    public static final int SYNOPTIC_SHIP = 1003;
+
+    public static final int SYNOPTIC_CMAN = 1004;
+
+    public static final int SYNOPTIC_MOORED_BUOY = 1005;
+
+    public static final int DRIFTING_BUOY = 1006;
+
+    public static final int SYNOPTIC_MAROB = 1007;
 
     /**
      * Get the text report data.

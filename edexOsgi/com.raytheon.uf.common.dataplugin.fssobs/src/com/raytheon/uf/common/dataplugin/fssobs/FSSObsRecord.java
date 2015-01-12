@@ -1,18 +1,26 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.common.dataplugin.fssobs;
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.DataAmount;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Velocity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -29,7 +37,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -42,6 +49,21 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
+/**
+ * 
+ * {@link PluginDataObject} implementation for FSSObs.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Sep 04, 2014  3220     skorolev    Removed cwa and monitorUse from record.
+ * 
+ * </pre>
+ */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "fssobsseq")
 @Table(name = FSSObsRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -55,76 +77,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FSSObsRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPersistable, IPointData {
+        ISpatialEnabled, IPersistable, IPointData {
 
     private static final long serialVersionUID = 1L;
 
     public static final String PLUGIN_NAME = "fssobs";
 
-    private static final int MISSING = -9999;
-
-    // UNITS
-
-    public static final Unit<Temperature> TEMPERATURE_UNIT = SI.CELSIUS;
-
-    public static final Unit<Velocity> WIND_SPEED_UNIT = NonSI.KNOT;
-
-    public static final Unit<Length> HEIGHT_UNIT = SI.METER;
-
-    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Pressure> PRESSURE_UNIT = SI.HECTO(SI.PASCAL);
-
-    public static final Unit<Length> PRECIP_UNIT = NonSI.INCH;
-
-    public static final Unit<Length> WAVE_UNIT = SI.METER;
-
-    public static final Unit<Length> VISIBILITY_UNIT = NonSI.MILE;
-
-    public static final Unit<DataAmount> CLOUD_COVER = NonSI.OCTET;
-
-    /** Metar specific parameter keys */
-    public static final class ParameterKey {
-        public static final String SFC_ALTIMETER = "SFC.PRESS.ALTIMETER";
-
-        public static final String PRESSURE_CHANGE = "PCHNG";
-
-        public static final String VISIBILITY = "VIS";
-
-        public static final String PRECIPITATION_1HR = "PR1HR";
-    }
-
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put("rawMessage", "rawMessage");
-    }
-
     /** is feature new **/
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    public boolean isNew = true;
-
-    // Current CWA (WFO)
-    @Column
-    @DataURI(position = 2)
-    @DynamicSerializeElement
-    @XmlElement(nillable = false)
-    private String cwa;
-
-    // Monitor which should use this station record
-    // fog = "fog"
-    // safeseas = "ss"
-    // snow = "snow"
-    @Column
-    @DataURI(position = 4)
-    @DynamicSerializeElement
-    @XmlElement
-    private String monitorUse = "";
+    protected boolean isNew = true;
 
     // Station name
     @Column
@@ -141,7 +104,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     protected String reportType;
 
     @Embedded
-    @DataURI(position = 3, embedded = true)
+    @DataURI(position = 2, embedded = true)
     @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
@@ -180,13 +143,13 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windSpeed = -9999;;
+    private float windSpeed = -9999;
 
     // Wind gust in knots
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windGust = -9999;;
+    private float windGust = -9999;
 
     // Observed maximum wind speed in knots
     @Transient
@@ -397,85 +360,11 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
         super(uri);
     }
 
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-
-        String pName = PARM_MAP.get(paramName);
-
-        if (SFC_TEMP.equals(pName) && (temperature != -9999f)) {
-            a = new Amount(temperature, TEMPERATURE_UNIT);
-        } else if (SFC_DWPT.equals(pName) && (dewpoint != -9999f)) {
-            a = new Amount(dewpoint, TEMPERATURE_UNIT);
-        } else if (SFC_WNDSPD.equals(pName) && (windSpeed != -9999f)) {
-            a = new Amount(windSpeed, WIND_SPEED_UNIT);
-        } else if (SFC_WNDDIR.equals(pName) && (windDir != -9999f)) {
-            a = new Amount(windDir, WIND_DIR_UNIT);
-        } else if (SFC_WNDGST.equals(pName) && (windGust != -9999f)) {
-            a = new Amount(windGust, WIND_SPEED_UNIT);
-        } else if (PRES_SLP.equals(pName) && (seaLevelPress != -9999f)) {
-            a = new Amount(seaLevelPress, PRESSURE_UNIT);
-            // } else if (PRES_ALTSG.equals(pName) && (pressureAltimeter !=
-            // -9999f)) {
-            // a = new Amount(pressureAltimeter, PRESSURE_UNIT);
-        } else if (STA_LAT.equals(pName)) {
-            a = new Amount(this.getLatitude(), LOCATION_UNIT);
-        } else if (STA_LON.equals(pName)) {
-            a = new Amount(this.getLongitude(), LOCATION_UNIT);
-        } else if ("WT".equals(pName) && (this.seaSurfaceTemp != -9999f)) {
-            a = new Amount(this.seaSurfaceTemp, TEMPERATURE_UNIT);
-        } else if ("WH".equals(pName)) {
-            a = new Amount(waveHeight, WAVE_UNIT);
-        } else if ("SWP".equals(pName)) {
-            a = new Amount(primarySwellWavePeriod, WAVE_UNIT);
-        } else if ("SWH".equals(pName)) {
-            a = new Amount(primarySwellWaveHeight, WAVE_UNIT);
-            // } else if ("PCHNG".equals(pName) && pressChange3Hour != MISSING)
-            // {
-            // a = new Amount(pressChange3Hour, PRESSURE_UNIT);
-        } else if ("PKWND".equals(paramName) && (maxWindSpeed != MISSING)) {
-            a = new Amount(maxWindSpeed, WIND_SPEED_UNIT);
-        } else if ("SWS".equals(paramName) || "SWGS".equals(paramName)) {
-            a = new Amount(1, WIND_SPEED_UNIT);
-        } else if ("SWD".equals(paramName) && (primarySwellWaveDir != MISSING)) {
-            a = new Amount(primarySwellWaveDir, WIND_DIR_UNIT);
-        }
-
-        return a;
-    }
-
     /**
      * @return the isNew
      */
     public boolean getIsNew() {
         return isNew;
-    }
-
-    /**
-     * @return the cwa
-     */
-    public String getCwa() {
-        return cwa;
-    }
-
-    /**
-     * @param monitorUse
-     *            the monitorUse to set
-     */
-    public void setMonitorUse(String monitorUse) {
-        this.monitorUse = monitorUse;
-    }
-
-    /**
-     * @return the monitorUse
-     */
-    public String getMonitorUse() {
-        return monitorUse;
     }
 
     /**
@@ -515,7 +404,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the geometry latitude.
+     * Gets the geometry latitude.
      * 
      * @return The geometry latitude.
      */
@@ -524,7 +413,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the geometry longitude.
+     * Gets the geometry longitude.
      * 
      * @return The geometry longitude.
      */
@@ -533,7 +422,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the station identifier for this observation.
+     * Gets the station identifier for this observation.
      * 
      * @return the stationId
      */
@@ -542,7 +431,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the elevation, in meters, of the observing platform or location.
+     * Gets the elevation, in meters, of the observing platform or location.
      * 
      * @return The observation elevation, in meters.
      */
@@ -800,14 +689,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param cwa
-     *            the cwa to set
-     */
-    public void setCwa(String cwa) {
-        this.cwa = cwa;
-    }
-
-    /**
+     * Sets station name.
+     * 
      * @param stnName
      *            the stnName to set
      */
@@ -816,6 +699,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
+     * Sets report type.
+     * 
      * @param reportType
      *            the reportType to set
      */
@@ -824,6 +709,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
+     * Sets location
+     * 
      * @param location
      *            the location to set
      */
@@ -1170,21 +1057,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
      */
     public int getTotCloudAmount() {
         return totCloudAmount;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
     }
 
     @Override

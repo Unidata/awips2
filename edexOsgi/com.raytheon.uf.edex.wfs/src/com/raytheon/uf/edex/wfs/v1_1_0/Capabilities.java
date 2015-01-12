@@ -56,11 +56,11 @@ import net.opengis.wfs.v_1_1_0.GMLObjectTypeType;
 import net.opengis.wfs.v_1_1_0.OutputFormatListType;
 import net.opengis.wfs.v_1_1_0.WFSCapabilitiesType;
 
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.edex.ogc.common.OgcNamespace;
 import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
 import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
 import com.raytheon.uf.edex.ogc.common.feature.GmlUtils;
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
 import com.raytheon.uf.edex.wfs.IWfsProvider.WfsOpType;
 import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.reg.WfsRegistryImpl;

@@ -40,6 +40,7 @@ import org.itadaki.bzip2.BZip2InputStream;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.radar.util.RadarEdexTextProductUtil;
 import com.raytheon.edex.plugin.radar.util.RadarSpatialUtil;
+import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.level3.AlertAdaptationParameters;
 import com.raytheon.uf.common.dataplugin.radar.level3.AlertMessage;
@@ -55,10 +56,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * BaseRadar is a class that will allow the user to do the following:
@@ -91,7 +92,18 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * graphics context and the extents of the Component used to create the Graphics
  * object.
  * 
- * Copyright 2006 Raytheon Corporation
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * --/--/2006             brockwoo    Initial creation
+ * Jan 21, 2014  2627     njensen     Changed offset errors to MalformedDataException
+ * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
+ *                                     added storeTextProduct()
+ * 
+ * </pre>
+ * 
  * 
  * @author Bryan Rockwood
  * @version 1.0
@@ -200,8 +212,10 @@ public class Level3BaseRadar {
      *            A java.io.File object containing a raw radar file
      * @throws IOException
      *             If the radar head parsing fails, an IO exception is thrown
+     * @throws MalformedDataException
      */
-    public Level3BaseRadar(File aRadar, Headers headers) throws IOException {
+    public Level3BaseRadar(File aRadar, Headers headers) throws IOException,
+            MalformedDataException {
         int fileSize = (int) aRadar.length();
         byte[] tempRawRadarByteArray = new byte[fileSize];
 
@@ -227,13 +241,15 @@ public class Level3BaseRadar {
      *            A byte array containing a raw radar file
      * @throws IOException
      *             If the radar head parsing fails, an IO exception is thrown
+     * @throws MalformedDataException
      */
-    public Level3BaseRadar(byte[] aRadar, Headers headers) throws IOException {
+    public Level3BaseRadar(byte[] aRadar, Headers headers) throws IOException,
+            MalformedDataException {
         init(aRadar, headers);
     }
 
     public Level3BaseRadar(byte[] aRadar, Headers headers, RadarInfoDict dict)
-            throws IOException {
+            throws IOException, MalformedDataException {
         this.dict = dict;
         init(aRadar, headers);
     }
@@ -241,8 +257,10 @@ public class Level3BaseRadar {
     /**
      * @param aRadar
      * @throws IOException
+     * @throws MalformedDataException
      */
-    private void init(byte[] aRadar, Headers headers) throws IOException {
+    private void init(byte[] aRadar, Headers headers) throws IOException,
+            MalformedDataException {
         // printPacketContents(aRadar);
 
         int wmoHeaderSize;
@@ -512,7 +530,8 @@ public class Level3BaseRadar {
         return dataLevelThresholds[code];
     }
 
-    private SymbologyBlock readSymbologyBlock(int offset) throws IOException {
+    private SymbologyBlock readSymbologyBlock(int offset) throws IOException,
+            MalformedDataException {
         SymbologyBlock symBlock = null;
         if (offset != 0) {
             theRadarData.reset();
@@ -520,8 +539,8 @@ public class Level3BaseRadar {
             int divider = theRadarData.readShort();
             int blockId = theRadarData.readUnsignedShort();
             if ((divider != -1) || (blockId != SymbologyBlock.getBlockId())) {
-                throw new IOException(
-                        "This does not appear to be a symbology block");
+                throw new MalformedDataException("Symbology block offset "
+                        + offset + " does not point to a symbology block");
             }
             int blockLen = theRadarData.readInt();
             byte[] buf = RadarUtil.subArray(theRawRadarByteArray, offset,
@@ -537,7 +556,8 @@ public class Level3BaseRadar {
         return symBlock;
     }
 
-    private GraphicBlock readGraphicBlock(int offset) throws IOException {
+    private GraphicBlock readGraphicBlock(int offset) throws IOException,
+            MalformedDataException {
         GraphicBlock graphicBlock = null;
         if (offset != 0) {
             theRadarData.reset();
@@ -545,8 +565,8 @@ public class Level3BaseRadar {
             int divider = theRadarData.readShort();
             int blockId = theRadarData.readUnsignedShort();
             if ((divider != -1) || (blockId != GraphicBlock.getBlockId())) {
-                throw new IOException(
-                        "This does not appear to be a graphic block");
+                throw new MalformedDataException("Graphic block offset "
+                        + offset + " does not point to a graphic block");
             }
             int blockLen = theRadarData.readInt();
             byte[] buf = RadarUtil.subArray(theRawRadarByteArray, offset,
@@ -559,7 +579,8 @@ public class Level3BaseRadar {
         return graphicBlock;
     }
 
-    private TabularBlock readTabularBlock(int offset) throws IOException {
+    private TabularBlock readTabularBlock(int offset) throws IOException,
+            MalformedDataException {
         TabularBlock tabBlock = null;
         if (offset != 0) {
             theRadarData.reset();
@@ -567,8 +588,8 @@ public class Level3BaseRadar {
             int divider = theRadarData.readShort();
             int blockId = theRadarData.readUnsignedShort();
             if ((divider != -1) || (blockId != TabularBlock.getBlockId())) {
-                throw new IOException(
-                        "This does not appear to be a tabular block");
+                throw new MalformedDataException("Tabular block offset "
+                        + offset + " does not point to a tabular block");
             }
             int blockLen = theRadarData.readInt();
             byte[] buf = RadarUtil.subArray(theRawRadarByteArray, offset,
@@ -587,13 +608,14 @@ public class Level3BaseRadar {
      * @return
      * @throws IOException
      */
-    private TabularBlock readStandaloneTabular(int offset) throws IOException {
+    private TabularBlock readStandaloneTabular(int offset) throws IOException,
+            MalformedDataException {
         int divider = theRadarData.readShort();
         TabularBlock tabBlock = new TabularBlock();
         int numPages = theRadarData.readUnsignedShort();
         if ((divider != -1)) {
-            throw new IOException(
-                    "This does not appear to be a standalone tabular block");
+            throw new MalformedDataException("Standalone tabular block offset "
+                    + offset + " does not point to a standalone tabular block");
         }
         List<List<String>> pages = new ArrayList<List<String>>();
         for (int p = 0; p < numPages; p++) {
@@ -678,7 +700,8 @@ public class Level3BaseRadar {
 
     }
 
-    private void parseRadarMessage(Headers headers) throws IOException {
+    private void parseRadarMessage(Headers headers) throws IOException,
+            MalformedDataException {
         // Product Description Block
         theRadarData.skip(2);
         theLatitude = theRadarData.readInt() * 0.001;
@@ -728,16 +751,21 @@ public class Level3BaseRadar {
             byte[] msg = new byte[120];
             InputStream byt;
             if (uncompressedSize + msg.length != theRawRadarByteArray.length) {
+                InputStream ins = null;
                 try {
                     theRadarData.reset();
                     theRadarData.readFully(msg);
-                    InputStream ins = new BZip2InputStream(theRadarData, false);
+                    ins = new BZip2InputStream(theRadarData, false);
                     uncompressed = new byte[uncompressedSize];
                     ins.read(uncompressed);
                 } catch (IOException e) {
                     theHandler.handle(Priority.ERROR,
                             "Error decompressing product: ", e);
                     return;
+                } finally {
+                    if (ins != null) {
+                        ins.close();
+                    }
                 }
                 theRawRadarByteArray = new byte[120 + uncompressed.length];
                 System.arraycopy(msg, 0, theRawRadarByteArray, 0, 120);
@@ -769,20 +797,7 @@ public class Level3BaseRadar {
             }
             if (RadarTextProductUtil.radarTable.keySet().contains(
                     theProductCode)) {
-                byte[] wmoid = wmoHeader.getBytes();
-                WMOHeader header = new WMOHeader(wmoid, headers);
-                AFOSProductId afos = new AFOSProductId(afosId);
-                if (afos.isFilled()) {
-                    try {
-                        Calendar cal = (TimeTools.allowArchive() ? theMsgTimestamp
-                                : Calendar.getInstance());
-                        RadarEdexTextProductUtil.storeTextProduct(afos, header,
-                                tabularBlock.getString(), true, cal);
-                    } catch (Exception e) {
-                        theHandler.handle(Priority.ERROR,
-                                "Could not store text product", e);
-                    }
-                }
+                storeTextProduct(headers);
             }
         }
     }
@@ -842,23 +857,36 @@ public class Level3BaseRadar {
         }
 
         tabularBlock.setString(builder.toString());
-        
+
         lookupAfosId();
-        
+
         if (RadarTextProductUtil.radarTable.keySet().contains(theMessageCode)) {
-            byte[] wmoid = wmoHeader.getBytes();
-            WMOHeader header = new WMOHeader(wmoid, headers);
-            AFOSProductId afos = new AFOSProductId(afosId);
-            if (afos.isFilled()) {
-                try {
-                    Calendar cal = (TimeTools.allowArchive() ? theMsgTimestamp
-                            : Calendar.getInstance());
-                    RadarEdexTextProductUtil.storeTextProduct(afos, header,
-                            tabularBlock.getString(), true, cal);
-                } catch (Exception e) {
-                    theHandler.handle(Priority.ERROR,
-                            "Could not store text product", e);
-                }
+            storeTextProduct(headers);
+        }
+    }
+
+    /**
+     * Stores text from tabular block if AFOS product id is filled.
+     * 
+     * @see RadarEdexTextProductUtil#storeTextProduct(AFOSProductId, WMOHeader,
+     *      String, boolean, Calendar)
+     * @see AFOSProductId#isFilled()
+     * @param headers
+     */
+    private void storeTextProduct(Headers headers) {
+        byte[] wmoid = wmoHeader.getBytes();
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        WMOHeader header = new WMOHeader(wmoid, fileName);
+        AFOSProductId afos = new AFOSProductId(afosId);
+        if (afos.isFilled()) {
+            try {
+                Calendar cal = (WMOTimeParser.allowArchive() ? theMsgTimestamp
+                        : Calendar.getInstance());
+                RadarEdexTextProductUtil.storeTextProduct(afos, header,
+                        tabularBlock.getString(), true, cal);
+            } catch (Exception e) {
+                theHandler.handle(Priority.ERROR,
+                        "Could not store text product", e);
             }
         }
     }
@@ -944,10 +972,11 @@ public class Level3BaseRadar {
         }
     }
 
-    private void parseGeneralStatusMessage() throws IOException {
+    private void parseGeneralStatusMessage() throws IOException,
+            MalformedDataException {
         int divider = theRadarData.readShort();
         if ((divider != -1)) {
-            throw new IOException("This does not appear to be a gsm block");
+            throw new MalformedDataException("This is not a gsm block");
         }
         int blockLen = theRadarData.readShort();
         byte[] buf = RadarUtil.subArray(theRawRadarByteArray, 22, blockLen);

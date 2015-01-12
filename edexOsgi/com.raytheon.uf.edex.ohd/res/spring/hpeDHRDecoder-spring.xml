@@ -19,7 +19,7 @@
 	</bean>
 
 	<camelContext id="nonClusteredDHRroutes" xmlns="http://camel.apache.org/schema/spring"
-	    errorHandlerRef="errorHandler">                
+	    errorHandlerRef="errorHandler">
 		<!-- Begin non-clustered dhr Routes -->
 		<route id="dhrIngestFilter">
 			<from uri="jms-durable:queue:Ingest.dhr"/>
@@ -41,9 +41,7 @@
 		</route>
  	</camelContext>
 
- 	<camelContext id="clusteredDHRroutes" 
- 	    autoStartup="false"
-	    xmlns="http://camel.apache.org/schema/spring"
+    <camelContext id="clusteredDHRroutes" xmlns="http://camel.apache.org/schema/spring"
 	    errorHandlerRef="errorHandler">                
 		<!-- Begin dhr Routes -->
 		<route id="dhrIngestRoute">
@@ -62,7 +60,7 @@
 		</route>
  	</camelContext>
  	
- 	<bean factory-bean="clusteredCamelContextMgr" factory-method="register">
+ 	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clusteredDHRroutes" />
   	</bean>
 </beans>

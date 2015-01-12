@@ -55,6 +55,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 10, 2013 1951       rjpeter     Added own id sequence tagging
  * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
  *                                     spatial
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * </pre>
  * 
  * @author njensen
@@ -144,7 +145,7 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
     protected boolean ufn;
 
     @Column
-    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @Type(type = "org.hibernate.spatial.GeometryType")
     @DynamicSerializeElement
     protected Geometry geometry;
 

@@ -19,8 +19,6 @@
  **/
 package com.raytheon.edex.plugin.profiler.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-
 import java.io.File;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -41,12 +39,13 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * This class contains several utility methods that construct a ProfilerObs
@@ -60,6 +59,11 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * May 09, 2013  1869     bsteffen    Modified D2D time series of point data to
  *                                    work without dataURI.
  * Dec 03, 2013  2537     bsteffen    Switch logger to ufstatus.
+ * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
+ *                                     added breaks/default to switch
+ * Jul 23, 2014 3410      bclement    location changed to floats
+ * Sep 16, 2014  3628     mapeters    Replaced static imports.
+ * Sep 26, 2014  3629     mapeters    Added PROFILER_DATA constant.
  * 
  * </pre>
  * 
@@ -70,6 +74,8 @@ public class ProfilerDataAdapter {
 
     private static final IUFStatusHandler logger = UFStatus
             .getHandler(ProfilerDataAdapter.class);
+
+    private static final int PROFILER_DATA = 3000;
 
     private static final String PROFILER_SITES = "profilerSites.xml";
 
@@ -123,7 +129,8 @@ public class ProfilerDataAdapter {
                     // get the replication sublist
                     IBUFRDataPacket p = dataList.get(21);
                     if ((p instanceof BUFRSublistPacket)
-                            && (RepSubList.getPacketType().equals(p.getUnits()))) {
+                            && (DataPacketTypes.RepSubList.getPacketType()
+                                    .equals(p.getUnits()))) {
 
                         List<IBUFRDataPacket> subList = (List<IBUFRDataPacket>) p
                                 .getValue();
@@ -142,7 +149,8 @@ public class ProfilerDataAdapter {
                     hIncrement = getHeightIncrement(dataList, 22);
                     p = dataList.get(23);
                     if ((p instanceof BUFRSublistPacket)
-                            && (RepSubList.getPacketType().equals(p.getUnits()))) {
+                            && (DataPacketTypes.RepSubList.getPacketType()
+                                    .equals(p.getUnits()))) {
                         List<IBUFRDataPacket> subList = (List<IBUFRDataPacket>) p
                                 .getValue();
 
@@ -186,7 +194,7 @@ public class ProfilerDataAdapter {
         if (dataList != null) {
 
             obsData = new ProfilerObs();
-            obsData.setReportType(IDecoderConstants.PROFILER_DATA);
+            obsData.setReportType(PROFILER_DATA);
             SurfaceObsLocation location = new SurfaceObsLocation();
 
             lat = getDouble(dataList.get(2), IDecoderConstants.VAL_MISSING);
@@ -210,7 +218,7 @@ public class ProfilerDataAdapter {
                 ProfilerSite site = profilers.get(wmoBSN);
                 if (site != null) {
                     location.setStationId(site.getStationId());
-                    location.assignLocation(lat, lon);
+                    location.assignLocation(lat.floatValue(), lon.floatValue());
                     location.setLocationDefined(false);
                     if (stationHeight != IDecoderConstants.VAL_MISSING) {
                         location.setElevation(stationHeight);
@@ -224,8 +232,8 @@ public class ProfilerDataAdapter {
                     obsData.setLocation(location);
                     Calendar baseTime = getTimeInfo(dataList);
                     if (baseTime != null) {
-                        obsData.setTimeObs(TimeTools.copy(baseTime));
-                        DataTime dt = new DataTime(TimeTools.copy(baseTime));
+                        obsData.setTimeObs((Calendar) baseTime.clone());
+                        DataTime dt = new DataTime((Calendar) baseTime.clone());
                         obsData.setDataTime(dt);
                     } else {
                         logger.error(traceId
@@ -323,7 +331,7 @@ public class ProfilerDataAdapter {
         // Ensure that we have all of the time info and create the
         // date-time and datatime info.
         if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)) {
-            baseTime = TimeTools.getBaseCalendar(year, month, day);
+            baseTime = TimeUtil.newGmtCalendar(year, month, day);
             baseTime.set(Calendar.HOUR_OF_DAY, hour);
             baseTime.set(Calendar.MINUTE, minute);
         }
@@ -409,33 +417,35 @@ public class ProfilerDataAdapter {
             Object o = packet.getValue();
             if (o != null) {
                 switch (t) {
-                case STRING: {
+                case STRING:
                     if (o instanceof String) {
                         view.setString(parmName, (String) o, index);
                     }
-                }
-                case INT: {
+                    break;
+                case INT:
                     if (o instanceof Double) {
                         view.setInt(parmName, ((Double) o).intValue(), index);
                     } else if (o instanceof Long) {
                         view.setInt(parmName, ((Long) o).intValue(), index);
                     }
-                }
-                case LONG: {
+                    break;
+                case LONG:
                     if (o instanceof Double) {
                         view.setLong(parmName, ((Double) o).longValue(), index);
                     } else if (o instanceof Long) {
                         view.setLong(parmName, (Long) o, index);
                     }
-                }
-                case FLOAT: {
+                    break;
+                case FLOAT:
                     if (o instanceof Double) {
                         view.setFloat(parmName, ((Double) o).floatValue(),
                                 index);
                     } else if (o instanceof Long) {
                         view.setFloat(parmName, ((Long) o).floatValue(), index);
                     }
-                }
+                    break;
+                default:
+                    logger.warn("Unsupported point data view type: " + t);
                 }
             }
         }

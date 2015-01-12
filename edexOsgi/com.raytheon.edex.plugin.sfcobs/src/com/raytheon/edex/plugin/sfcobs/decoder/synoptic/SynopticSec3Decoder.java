@@ -19,26 +19,24 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.getInt;
-import static com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder.matchElement;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_3_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_4_LEAD;
-import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_LEAD;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_ERROR;
-import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_MISSING;
+import java.util.regex.Pattern;
+
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.SI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
+import com.raytheon.edex.plugin.sfcobs.decoder.DataItem;
+import com.raytheon.edex.plugin.sfcobs.decoder.ReportParser;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncPrecip;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncPressure;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncTemp;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.edex.decodertools.core.DataItem;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.core.ReportParser;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
  * TODO Add Description
@@ -58,7 +56,10 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 20071010            391 jkorman     Initial coding.
  * 20071203            410 jkorman     JavaDoc complaints.
  * 20080116            798 jkorman     Changed logging levels.
- * 
+ * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter}, removed 
+ *                                     unused duration field, made patterns constant.
+ * Sep 26, 2014 #3629      mapeters    Replaced static imports.
+ * Sep 30, 2014 #3629      mapeters    Conformed to changes in ISynoptic constants.
  * 
  * </pre>
  * 
@@ -66,6 +67,16 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * @version 1.0
  */
 public class SynopticSec3Decoder extends AbstractSectionDecoder {
+
+    private static final Pattern P589 = Pattern.compile("5[89][0-9/]{3}");
+
+    private static final Pattern P907 = Pattern.compile("907\\d{2}");
+
+    private static final Pattern P910 = Pattern.compile("910\\d{2}");
+
+    private static final Pattern P911 = Pattern.compile("911\\d{2}");
+
+    private static final Pattern P912 = Pattern.compile("912\\d{2}");
 
     /** The logger */
     private Log logger = LogFactory.getLog(getClass());
@@ -86,7 +97,8 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
 
     private Double windGust912 = null;
 
-    private Integer duration = null;
+    private static final UnitConverter hPaToPa = SI.HECTO(SI.PASCAL)
+            .getConverterTo(SI.PASCAL);
 
     /**
      * 
@@ -117,7 +129,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
             return;
         }
         String element = null;
-        if (reportParser.positionTo(SEC_3_LEAD)) {
+        if (reportParser.positionTo(ISynoptic.SEC_3_LEAD_STRING)) {
             while (true) {
                 // if we run out of data, exit.
                 if (reportParser.next()) {
@@ -127,15 +139,14 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                 } else {
                     break;
                 }
-                if (SEC_4_LEAD.equals(element)) {
+                if (ISynoptic.SEC_4_LEAD_STRING.equals(element)) {
                     break;
-                } else if (SEC_5_LEAD.equals(element)) {
+                } else if (ISynoptic.SEC_5_LEAD_STRING.equals(element)) {
                     break;
                 } else if ("80000".equals(element)) {
                     break;
                 }
 
-                // String s = null;
                 if ("1".equals(element.substring(0, 1)) && doGroup(1)) {
                     maxTemperature = SynopticGroups.decodeTemperature(element,
                             3);
@@ -151,7 +162,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                     closeGroup(3);
                 } else if ("4".equals(element.substring(0, 1)) && doGroup(4)) {
                     closeGroup(4);
-                } else if (matchElement(element, "5[89][0-9/]{3}")
+                } else if (P589.matcher(element).find()
                         && doGroup(5)) {
                     int sign = 0;
                     if (element.charAt(1) == '8') {
@@ -159,12 +170,12 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                     } else if (element.charAt(1) == '9') {
                         sign = -1;
                     }
-                    Integer val = getInt(element, 2, 5);
+                    Integer val = AbstractSfcObsDecoder.getInt(element, 2, 5);
                     if ((val != null) && (val >= 0)) {
-                        pressure24 = new DataItem("Pascals", "24HRChange", 3);
-                        pressure24.setDataValue(DecoderTools.hPaToPascals(val
+                        pressure24 = new DataItem("24HRChange");
+                        pressure24.setDataValue(hPaToPa.convert(val
                                 * sign));
-                        pressure24.setDataPeriod(TimeTools.SECONDS_DAY);
+                        pressure24.setDataPeriod(TimeUtil.SECONDS_PER_DAY);
                     }
                     closeGroup(5);
                 } else if ("6".equals(element.substring(0, 1)) && doGroup(6)) {
@@ -177,30 +188,21 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                     // TODO :
                     // Group 8 doesn't get closed here, there may be more than
                     // one group.
-                } else if (matchElement(element, "907\\d{2}")) {
-                    Integer temp = getInt(element, 3, 5);
-                    if ((temp != null) && (temp >= 0)) {
-                        if (temp < 61) {
-                            duration = 6 * temp;
-                        } else if (temp < 67) {
-                            duration = (60 * (temp - 60)) + 360;
-                        } else {
-                            duration = 1080;
-                        }
-                    }
-                } else if (matchElement(element, "910\\d{2}")) {
-                    Integer temp = getInt(element, 3, 5);
+                } else if (P907.matcher(element).find()) {
+                    // TODO : Should something be done here?
+                } else if (P910.matcher(element).find()) {
+                    Integer temp = AbstractSfcObsDecoder.getInt(element, 3, 5);
                     if ((temp != null) && (temp >= 0)) {
                         windGust910 = temp * conversion;
                     }
-                } else if (matchElement(element, "911\\d{2}")) {
-                    Integer temp = getInt(element, 3, 5);
+                } else if (P911.matcher(element).find()) {
+                    Integer temp = AbstractSfcObsDecoder.getInt(element, 3, 5);
                     if ((temp != null) && (temp >= 0)) {
 
                         windGust911 = temp * conversion;
                     }
-                } else if (matchElement(element, "912\\d{2}")) {
-                    Integer temp = getInt(element, 3, 5);
+                } else if (P912.matcher(element).find()) {
+                    Integer temp = AbstractSfcObsDecoder.getInt(element, 3, 5);
                     if ((temp != null) && (temp >= 0)) {
                         windGust912 = temp * conversion;
                         ;
@@ -220,8 +222,6 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
      * @return The populated receiver object.
      */
     public ObsCommon getDecodedData(ObsCommon receiver) {
-        final Double[] ignore = { VAL_ERROR.doubleValue(),
-                VAL_MISSING.doubleValue() };
 
         if (maxTemperature != null) {
             AncTemp temp = new AncTemp();
@@ -260,6 +260,9 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
             }
         }
         if (pressure24 != null) {
+            final Double[] ignore = {
+                    IDecoderConstants.VAL_ERROR.doubleValue(),
+                    IDecoderConstants.VAL_MISSING.doubleValue() };
             Double v = DataItem.getValue(pressure24, ignore);
             if ((v != null) && (v >= -9999)) {
                 AncPressure press = new AncPressure();

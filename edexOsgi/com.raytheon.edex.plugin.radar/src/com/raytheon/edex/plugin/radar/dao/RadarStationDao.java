@@ -23,6 +23,7 @@ package com.raytheon.edex.plugin.radar.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
@@ -45,6 +46,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/24/07      353         bphillip    Initial Check in
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * 
  * </pre>
  * 
@@ -167,10 +170,14 @@ public class RadarStationDao extends CoreDao {
                 }
             }
             crit.add(stationEq);
-            List<RadarStation> stations = getHibernateTemplate()
-                    .findByCriteria(crit);
-
-            return stations;
+            Session session = getSession();
+            try {
+                return crit.getExecutableCriteria(session).list();
+            } finally {
+                if (session != null){
+                    session.close();
+                }
+            }
         } else {
             logger.warn("Cannot execute spatial query with less than 3 points");
             return new ArrayList<RadarStation>();

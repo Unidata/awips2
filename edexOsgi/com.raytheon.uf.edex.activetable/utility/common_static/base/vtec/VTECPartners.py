@@ -26,6 +26,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/11/13        #2083         randerso       Fixed getISCSites to look in configured
+#    02/20/2014      #2824         randerso       Added log message when no localVTECPartners file is found
 
 #VTEC_Partners.py - configuration file to control filtering and merging
 #of VTEC active table.
@@ -36,8 +37,8 @@
 VTEC_TABLE_REQUEST_SITES = []
 
 # Name of site identifier for SPC and TCV bulletins. 4-characters.
-VTEC_SPC_SITE = 'KWNS'
-VTEC_TPC_SITE = 'KNHC'
+VTEC_SPC_SITE = ['KWNS']
+VTEC_TPC_SITE = ['KNHC']
 
 # The following list is a set of office identifiers which is used
 # in the ingestAT/MergeVTEC software to filter out records from offices
@@ -298,5 +299,6 @@ except:
 #allow overrides
 try:
     from localVTECPartners import *
-except:
-    pass
+except ImportError:
+    import LogStream
+    LogStream.logEvent("No localVTECPartners file found, using baseline settings.");

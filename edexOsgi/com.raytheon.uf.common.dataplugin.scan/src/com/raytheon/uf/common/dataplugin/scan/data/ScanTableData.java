@@ -25,9 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -39,8 +37,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * April 29, 2009   2037    dhladky     Initial creation
- * 02/01/13     1569       D. Hladky   removed XML where not needed
+ * 04/29/2009   2037       dhladky     Initial creation
+ * 02/01/2013   1569       D. Hladky   removed XML where not needed
+ * 05/12/2014   3133       njensen     Remove unused field
  * </pre>
  * 
  * @author dhladky
@@ -50,7 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @DynamicSerialize
 public abstract class ScanTableData<T extends ScanTableDataRow> implements
-        ISerializableObject, Serializable {
+        Serializable {
 
     /**
      * 
@@ -77,8 +76,6 @@ public abstract class ScanTableData<T extends ScanTableDataRow> implements
 
     @DynamicSerializeElement
     public List<String> featureIds = null;
-
-    public SCANConfig config = null;
 
     public ScanTableData() {
         tableData = new ConcurrentHashMap<String, T>();

@@ -47,9 +47,11 @@ import org.opengis.referencing.operation.MathTransform;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 6, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jun 06, 2012           bsteffen    Initial creation
+ * Feb 08, 2012  2672     bsteffen    Fix projection of points between the last
+ *                                    and first radial.
  * 
  * </pre>
  * 
@@ -99,6 +101,11 @@ public class RadialBinMapProjection extends AzimuthRangeMapProjection {
         int nextRadial = (int) Math.ceil(radial) % normalAngleData.length;
         float prevAngle = normalAngleData[prevRadial];
         float nextAngle = normalAngleData[nextRadial];
+        if (nextAngle + 180 < prevAngle) {
+            nextAngle += 360;
+        } else if (nextAngle - 180 > prevAngle) {
+            nextAngle -= 360;
+        }
         double az = prevAngle + (radial - prevRadial) * (nextAngle - prevAngle);
         return super.inverseTransformNormalized(az, ran, dest);
     }

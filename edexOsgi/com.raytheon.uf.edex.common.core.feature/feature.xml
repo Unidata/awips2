@@ -78,28 +78,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.wxmath"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.sounding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.management"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.management"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -149,6 +128,20 @@
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.maps"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.ndm"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.wmo"
          download-size="0"
          install-size="0"
          version="0.0.0"

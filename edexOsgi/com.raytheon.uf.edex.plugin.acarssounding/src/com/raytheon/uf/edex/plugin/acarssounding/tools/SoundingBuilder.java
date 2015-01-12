@@ -35,8 +35,6 @@ import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingConstants;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingLayer;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
-import com.raytheon.uf.common.dataplugin.acarssounding.tools.Airport;
-import com.raytheon.uf.common.dataplugin.acarssounding.tools.AirportsBean;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -44,7 +42,7 @@ import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * TODO Add Description
@@ -56,6 +54,12 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2009            jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 24, 2014 DR15038    M.Porricelli In createSounding, use 
+ *                                      difference between flight
+ *                                      level and airport elevation
+ *                                      to determine which airport
+ *                                      to use
+ * Aug 18, 2014 3530       bclement    removed dead code
  * 
  * </pre>
  * 
@@ -203,17 +207,17 @@ public class SoundingBuilder {
             List<ACARSRecord> obsData) {
         ACARSSoundingRecord sounding = null;
         if (obsData != null) {
-
             // examine the lower MAX_FIRST meters of the data to determine which
             // airport to use.
             Airport airport = null;
             Double dist = Double.MAX_VALUE;
             ACARSRecord recObs = null;
             for (ACARSRecord r : obsData) {
-                if (r.getFlightLevel() < ACARSSoundingTools.MAX_FIRST) {
-                    Airport a = airports.nearest(r,
-                            ACARSSoundingTools.MAX_DISTANCE);
-                    if ((a != null) && (a.getDistance() < dist)) {
+                Airport a = airports
+                        .nearest(r, ACARSSoundingTools.MAX_DISTANCE);
+                if (a != null
+                        && (r.getFlightLevel() - a.getElevation()) < ACARSSoundingTools.MAX_FIRST) {
+                    if ((a.getDistance() < dist)) {
                         // Keep track of the obs that contributes the distance.
                         recObs = r;
                         dist = a.getDistance();
@@ -221,7 +225,7 @@ public class SoundingBuilder {
                     }
                 }
             }
-            // If we have an airport we'll use that to create the sounding
+ // If we have an airport we'll use that to create the sounding
             if (airport != null) {
                 sounding = new ACARSSoundingRecord();
                 Calendar soundingTime = recObs.getTimeObs();
@@ -235,18 +239,12 @@ public class SoundingBuilder {
                 sounding.setLocation(loc);
                 sounding.setTailNumber(data.getTailNumber());
 
-                try {
-                    sounding.constructDataURI();
-                    // we have a sounding, so add the layer data.
-                    for (ACARSRecord r : obsData) {
-                        r.setUsedInSounding(true);
-                        sounding.addLevel(ACARSSoundingTools.createLayer(r));
-                    }
-                    determineFlightPhase(sounding);
-                } catch (Exception e) {
-                    logger.error("Unable to construct datauri", e);
-                    sounding = null;
+                // we have a sounding, so add the layer data.
+                for (ACARSRecord r : obsData) {
+                    r.setUsedInSounding(true);
+                    sounding.addLevel(ACARSSoundingTools.createLayer(r));
                 }
+                determineFlightPhase(sounding);
             }
         }
 
@@ -466,14 +464,8 @@ public class SoundingBuilder {
                 }
                 Calendar c = r.getTimeObs();
                 c.set(Calendar.SECOND, (dt * i));
-                r.setDataTime(new DataTime(TimeTools.copy(c)));
-                try {
-                    r.setDataURI(null);
-                    r.constructDataURI();
-                } catch (Exception e) {
-                    logger.error("Unable to construct datauri in assignTimes",
-                            e);
-                }
+                r.setDataTime(new DataTime(TimeUtil.newCalendar(c)));
+                r.setDataURI(null);
             }
         }
     }

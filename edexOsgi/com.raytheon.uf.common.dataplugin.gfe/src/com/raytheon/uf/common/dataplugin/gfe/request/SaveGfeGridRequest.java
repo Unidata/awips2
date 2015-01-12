@@ -35,34 +35,75 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2009 3058       rjpeter     Initial creation
+ * Apr 03, 2014 2737       randerso    Moved clientSendStatus from SaveGridRequest
+ *                                     Added proper constructor
  * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
-
 @DynamicSerialize
 public class SaveGfeGridRequest extends AbstractGfeRequest {
-    @DynamicSerializeElement
-    private List<SaveGridRequest> saveRequest = new ArrayList<SaveGridRequest>();
+    /**
+     * Denotes whether to send ISC grids on save based on the client's
+     * preferences
+     */
 
-    public void addRequest(SaveGridRequest req) {
-        saveRequest.add(req);
+    @DynamicSerializeElement
+    private boolean clientSendStatus = true;
+
+    @DynamicSerializeElement
+    private List<SaveGridRequest> saveRequests = new ArrayList<SaveGridRequest>();
+
+    /**
+     * Default constructor for serialization
+     */
+    public SaveGfeGridRequest() {
+
+    }
+
+    /**
+     * Constructor
+     * 
+     * @param clientSendStatus
+     *            true if ISC grids should be sent
+     * @param saveRequests
+     *            the save requests
+     */
+    public SaveGfeGridRequest(boolean clientSendStatus,
+            List<SaveGridRequest> saveRequests) {
+        this.clientSendStatus = clientSendStatus;
+        this.saveRequests = saveRequests;
+    }
+
+    /**
+     * @return the clientSendStatus
+     */
+    public boolean isClientSendStatus() {
+        return clientSendStatus;
+    }
+
+    /**
+     * @param clientSendStatus
+     *            the clientSendStatus to set
+     */
+    public void setClientSendStatus(boolean clientSendStatus) {
+        this.clientSendStatus = clientSendStatus;
     }
 
     /**
      * @return the saveRequest
      */
-    public List<SaveGridRequest> getSaveRequest() {
-        return saveRequest;
+    public List<SaveGridRequest> getSaveRequests() {
+        return saveRequests;
     }
 
     /**
      * @param saveRequest
      *            the saveRequest to set
      */
-    public void setSaveRequest(List<SaveGridRequest> saveRequest) {
-        this.saveRequest = saveRequest;
+    public void setSaveRequests(List<SaveGridRequest> saveRequests) {
+        this.saveRequests = saveRequests;
     }
 }

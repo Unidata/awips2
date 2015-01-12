@@ -11,7 +11,8 @@
                                         Create new areaSource objects    
      Mike Dangelo            2-4-2013  Added commented bullet for NWS METS DECTECTED
      Richard Barnhill        10-28-2013 Changed/added torEMER bulletGroup to keep it locked on followups 
-     Mike Dangelo            1-23-2014 Changed parseStrings for default safety rules CTAs and law enf CTA   
+     Mike Dangelo            1-23-2014 Changed parseStrings for default safety rules CTAs and law enf CTA
+     Evan Bookbinder         9-5-2014 Fixed law enf CTA parse strings to match   
 -->
 
 <warngenConfig>
@@ -132,7 +133,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY OBSCURE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
   <bullet bulletName="largeTORCTA" bulletText="Large/Violent tornado" parseString="A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report to NWS or Law Enforcement" parseString="LOCAL AUTHORITY"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report to NWS or Law Enforcement" parseString="LAW ENFORCEMENT AGENCY"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>   
   <bullet bulletName="squallCTA" bulletText="Squall line tornadoes" parseString="THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES"/>
@@ -197,7 +198,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY OBSCURE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
   <bullet bulletName="largeTORCTA" bulletText="Large/Violent tornado" parseString="A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report to NWS or Law Enforcement" parseString="LOCAL AUTHORITY"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report to NWS or Law Enforcement" parseString="LAW ENFORCEMENT AGENCY"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>   
   <bullet bulletName="squallCTA" bulletText="Squall line tornadoes" parseString="THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES"/>

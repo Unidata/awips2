@@ -40,6 +40,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
+import com.raytheon.uf.edex.core.IContextStateProcessor;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -61,7 +62,8 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 02/05/2013   1580       mpduff     EventBus refactor.
  * 02/12/2013   1615       bgonzale   Changed ProcessEvent pluginName to dataType.
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
- * 
+ * Apr 17, 2014 2726       rjpeter     Updated to send alerts directly to notification route.
+ * Aug 26, 2014 3503       bclement    moved initialization to context state processor pre-start method
  * </pre>
  * 
  * @author dhladky
@@ -69,7 +71,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  */
 
 public abstract class CompositeProductGenerator implements
-        ICompositeProductGenerator, IURIFilter {
+        ICompositeProductGenerator, IURIFilter, IContextStateProcessor {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CompositeProductGenerator.class);
@@ -123,16 +125,54 @@ public abstract class CompositeProductGenerator implements
      */
     public CompositeProductGenerator(String name, String compositeProductType,
             Executor executor) {
-        // create CPG
         if (isRunning()) {
             setGeneratorName(name);
             setCompositeProductType(compositeProductType);
             setExecutor(executor);
-            configureFilters();
-            createFilters();
         }
 
         routeId = getGeneratorName() + "Generate";
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.core.IContextStateProcessor#preStart()
+     */
+    @Override
+    public void preStart() {
+        // create CPG
+        if (isRunning()) {
+            configureFilters();
+            createFilters();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.core.IContextStateProcessor#postStart()
+     */
+    @Override
+    public void postStart() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.core.IContextStateProcessor#preStop()
+     */
+    @Override
+    public void preStop() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.core.IContextStateProcessor#postStop()
+     */
+    @Override
+    public void postStop() {
     }
 
     /*
@@ -380,7 +420,7 @@ public abstract class CompositeProductGenerator implements
     protected void persistRecords() {
         try {
             PluginDataObject[] pdos = getPluginDataObjects();
-            if (pdos != null && getDao() != null && pdos.length > 0) {
+            if ((pdos != null) && (getDao() != null) && (pdos.length > 0)) {
                 EDEXUtil.checkPersistenceTimes(pdos);
                 getDao().persistRecords(pdos);
             }
@@ -394,10 +434,10 @@ public abstract class CompositeProductGenerator implements
      */
     protected void fireTopicUpdate() {
         try {
-            if (getPluginDataObjects() != null
-                    && getPluginDataObjects().length > 0) {
-                EDEXUtil.getMessageProducer().sendAsync("cpgProcessAlerts",
-                        getPluginDataObjects());
+            if ((getPluginDataObjects() != null)
+                    && (getPluginDataObjects().length > 0)) {
+                EDEXUtil.getMessageProducer().sendAsync(
+                        "notificationAggregation", getPluginDataObjects());
             }
         } catch (EdexException e) {
             e.printStackTrace();
@@ -437,7 +477,8 @@ public abstract class CompositeProductGenerator implements
     @Override
     public void log(URIGenerateMessage message) {
 
-        if (getPluginDataObjects() != null && getPluginDataObjects().length > 0) {
+        if ((getPluginDataObjects() != null)
+                && (getPluginDataObjects().length > 0)) {
 
             long curTime = System.currentTimeMillis();
             ProcessEvent processEvent = new ProcessEvent();

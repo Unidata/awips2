@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,7 +22,7 @@ package com.raytheon.edex.plugin.radar.dao;
 
 /**
  * Data Access Object implementation for accessing radar data
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -30,14 +30,15 @@ package com.raytheon.edex.plugin.radar.dao;
  * Feb 06, 2009 1990       bphillip    Initial creation
  * Mar 18, 2013 1804       bsteffen    Reduce useless data stored in radar hdf5
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- * 
+ * Aug 14, 2014 3393       nabowle     Remove broken getFullRecord override.
+ * Aug 19, 2014 3393       nabowle     Default constructor.
+ *
  * </pre>
- * 
+ *
  * @author bphillip
  * @version 1.0
  */
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,10 +49,6 @@ import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStoredData;
-import com.raytheon.uf.common.dataplugin.radar.level3.GSMBlock.GSMMessage;
-import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
-import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyBlock;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -62,17 +59,24 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 public class RadarDao extends PluginDao {
 
     /**
+     * Creates a new radar dao. Equivalent to RadarDao("radar").
+     *
+     * @throws PluginException
+     *             If the dao cannot be initialized
+     */
+    public RadarDao() throws PluginException {
+        super("radar");
+    }
+
+    /**
      * Creates a new radar dao
-     * 
+     *
      * @param pluginName
      *            "radar"
      * @throws PluginException
@@ -270,38 +274,6 @@ public class RadarDao extends PluginDao {
         return retVal;
     }
 
-    @Override
-    public PluginDataObject[] getFullRecord(DatabaseQuery query, int tile)
-            throws PluginException {
-        PluginDataObject[] queryResults = getMetadata(query);
-        for (PluginDataObject obj : queryResults) {
-            RadarRecord record = (RadarRecord) obj;
-            IDataRecord[] hdf5Data = getHDF5Data(record, tile);
-            record.setMessageData(hdf5Data[0].getDataObject());
-            record.setAngleData((float[]) hdf5Data[1].getDataObject());
-            record.setThresholds((short[]) hdf5Data[2].getDataObject());
-            record.setProductDependentValues((short[]) hdf5Data[8]
-                    .getDataObject());
-
-            record.setProductVals((HashMap<RadarConstants.MapValues, Map<String, Map<RadarConstants.MapValues, String>>>) hdf5Data[5]
-                    .getDataObject());
-            record.setMapRecordVals((HashMap<RadarConstants.MapValues, Map<RadarConstants.MapValues, String>>) hdf5Data[6]);
-            record.setGsmMessage((GSMMessage) hdf5Data[7].getDataObject());
-            try {
-                record.setSymbologyBlock((SymbologyBlock) SerializationUtil
-                        .transformFromThrift((byte[]) hdf5Data[3]
-                                .getDataObject()));
-                record.setGraphicBlock((GraphicBlock) SerializationUtil
-                        .transformFromThrift((byte[]) hdf5Data[4]
-                                .getDataObject()));
-
-            } catch (SerializationException e) {
-                throw new PluginException(
-                        "Error deserializing symbology block", e);
-            }
-        }
-        return queryResults;
-    }
 
     public void populateData(RadarRecord record) throws Exception {
         RadarDataRetriever.populateRadarRecord(getDataStore(record), record);

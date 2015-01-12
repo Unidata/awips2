@@ -26,13 +26,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFErrorCodes;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * SHEF Utility class
@@ -46,12 +43,12 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 03/19/08     387         M. Duff     Initial creation.
  * 12/12/08     1786        J. Sanchez  Handled date parsing exceptions.  
  * 01/12/08     1846        J. Sanchez  Update parseCreationDate to use default year.
- *    
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed unused log
+ * 
  * </pre>
  */
 public final class ShefUtil {
 
-    private final static Log log = LogFactory.getLog(ShefUtil.class);
 	/**
 	 * Parses the date/data string and sets the time using the record date and
 	 * time zone as a base time value.

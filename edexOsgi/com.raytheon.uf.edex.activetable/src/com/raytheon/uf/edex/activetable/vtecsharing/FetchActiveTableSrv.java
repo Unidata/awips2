@@ -37,7 +37,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.registry.RegistryException;
 import com.raytheon.uf.edex.site.ISiteActivationListener;
+import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
 /**
  * Service that fetches neighboring sites' active table entries that are
@@ -49,7 +51,10 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 28, 2013            dgilling     Initial creation
+ * Feb 28, 2013            dgilling    Initial creation
+ * Feb 20, 2014   #2824    randerso    Changed log level of message when activating FetchAT
+ *                                     Registered with SiteAwareRegistry so we can stop
+ *                                     fetching when site is deactivated.
  * 
  * </pre>
  * 
@@ -74,13 +79,20 @@ public class FetchActiveTableSrv implements ISiteActivationListener {
         jobExecutor = MoreExecutors
                 .getExitingScheduledExecutorService((ScheduledThreadPoolExecutor) Executors
                         .newScheduledThreadPool(1));
+
+        try {
+            SiteAwareRegistry.getInstance().register(this);
+        } catch (RegistryException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error registering with SiteAwareRegistry", e);
+        }
     }
 
     public void addSite(Map<String, Object> configData) {
         FetchATJobConfig config = new FetchATJobConfig(configData);
         final String site = config.getSiteId();
 
-        statusHandler.debug("Activating FetchAT for " + site);
+        statusHandler.info("Activating FetchAT for " + site);
         statusHandler.debug("Site: " + site + " config: " + config);
 
         if ((siteConfigMap.containsKey(site))
@@ -152,9 +164,11 @@ public class FetchActiveTableSrv implements ISiteActivationListener {
      */
     @Override
     public void deactivateSite(String siteID) throws Exception {
-        statusHandler.info("Deactivating FetchAT for " + siteID);
         ScheduledFuture<?> siteJob = siteJobInstanceMap.remove(siteID);
-        siteJob.cancel(false);
+        if (siteJob != null) {
+            statusHandler.info("Deactivating FetchAT for " + siteID);
+            siteJob.cancel(false);
+        }
         siteConfigMap.remove(siteID);
     }
 
@@ -189,7 +203,7 @@ public class FetchActiveTableSrv implements ISiteActivationListener {
      */
     @Override
     public String validateConfig(String siteID) {
-        return null;
+        return "";
     }
 
     /*

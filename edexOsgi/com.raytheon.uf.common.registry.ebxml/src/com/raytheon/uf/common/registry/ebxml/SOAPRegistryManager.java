@@ -10,7 +10,7 @@ import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManagerSOA
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManagerSOAPService;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 
 /**
  * 

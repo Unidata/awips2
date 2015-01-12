@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 4/18/08      875        bphillip    Initial Creation
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -85,20 +87,21 @@ public class ParmIdType implements UserType{
     public boolean isMutable() {
         return false;
     }
-
+    
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
+    public Object nullSafeGet(ResultSet rs, String[] names,
+            SessionImplementor session, Object owner)
             throws HibernateException, SQLException {
-        return new ParmID(resultSet.getString(names[0]));
+        return new ParmID(rs.getString(names[0]));
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement statement, Object value, int index)
-            throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, Object value, int index,
+            SessionImplementor session) throws HibernateException, SQLException {
         if(value == null){
-            statement.setString(index, null);
+            st.setString(index, null);
         }else{
-            statement.setString(index, value.toString());
+            st.setString(index, value.toString());
         }
         
     }
@@ -118,6 +121,4 @@ public class ParmIdType implements UserType{
     public int[] sqlTypes() {
         return ParmIdType.SQL_TYPES;
     }
-
-
 }

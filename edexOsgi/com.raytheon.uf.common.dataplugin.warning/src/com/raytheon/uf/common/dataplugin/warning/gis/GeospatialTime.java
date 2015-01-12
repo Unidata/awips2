@@ -24,6 +24,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
 /**
  * Wrapper for GeospatialConfiguration representing last time a the geometry
  * data was created for a warngen configuration
@@ -35,6 +38,7 @@ import javax.xml.bind.annotation.XmlElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 15, 2011            rjpeter     Initial creation
+ * Aug 21, 2014 3353       rferrel     Allow serialization.
  * 
  * </pre>
  * 
@@ -43,20 +47,26 @@ import javax.xml.bind.annotation.XmlElement;
  */
 
 @XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
 public class GeospatialTime {
     @XmlElement
+    @DynamicSerializeElement
     private GeospatialMetadata metaData;
 
     @XmlAttribute
+    @DynamicSerializeElement
     private String fileName;
 
     @XmlAttribute
+    @DynamicSerializeElement
     private long areaSourceTime;
 
     @XmlAttribute
+    @DynamicSerializeElement
     private long timeZoneSourceTime;
 
     @XmlAttribute
+    @DynamicSerializeElement
     private long parentSourceTime;
 
     public GeospatialMetadata getMetaData() {

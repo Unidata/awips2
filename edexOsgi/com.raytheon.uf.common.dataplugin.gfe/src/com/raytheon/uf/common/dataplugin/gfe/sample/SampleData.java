@@ -30,8 +30,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.raytheon.uf.common.geospatial.adapter.CoordAdapter;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
-import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Coordinate;

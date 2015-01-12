@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 22, 2013 2361       njensen     Remove XML annotations
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -146,8 +147,8 @@ public class TropicalCycloneSummary extends PersistablePluginDataObject
         displayTime = "";
     }
 
-    public TropicalCycloneSummary(String name, int pressure, double longitude,
-            double latitude, String displayTime, int wind, boolean tropical) {
+    public TropicalCycloneSummary(String name, int pressure, float longitude,
+            float latitude, String displayTime, int wind, boolean tropical) {
         this.name = name;
         this.pressure = pressure;
         location = new SurfaceObsLocation(name);

@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.npp.viirs.dao;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 
 /**
  * Wraps a {@link DataSource} and checks for an array of missingValues and

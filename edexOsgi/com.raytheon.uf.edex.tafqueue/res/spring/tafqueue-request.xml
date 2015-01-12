@@ -30,7 +30,7 @@
 	<!-- TAF Send Routes -->
 	<camelContext id="clusteredTafQueueRoutes"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+		errorHandlerRef="errorHandler">
 		
 		<route id="tafQueueSendJobAggr">
             <from uri="quartz://tafQueueQuartz?trigger.repeatInterval=1"/>
@@ -54,8 +54,7 @@
 		</route>
 	</camelContext>
 	
-	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clusteredTafQueueRoutes" />
   	</bean>
  </beans>

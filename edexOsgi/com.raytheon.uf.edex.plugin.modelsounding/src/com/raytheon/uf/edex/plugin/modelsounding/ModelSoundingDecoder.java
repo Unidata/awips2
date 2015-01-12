@@ -36,16 +36,16 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.DefaultDescriptorDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.BUFRDocument;
+import com.raytheon.uf.edex.bufrtools.BUFRFile;
+import com.raytheon.uf.edex.bufrtools.descriptors.DefaultDescriptorDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactoryDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.plugin.modelsounding.decoder.ModelSoundingDataAdapter;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Perform decode on BUFR model sounding data. Currently this decoder does not
@@ -76,6 +76,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                    destruction.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Dec 02, 2013  2537     bsteffen    Remove dead/deprecated code.
+ * May 14, 2014  2536     bclement    moved WMO Header to common
  * 
  * 
  * </pre>
@@ -125,14 +126,6 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
         }
     }
 
-    public void start() {
-        this.modelSoundingPersistenceManager.start();
-    }
-
-    public void shutdown() {
-        this.modelSoundingPersistenceManager.shutdown();
-    }
-
     /**
      * Get one entry from the separator and interpret that data as a single
      * profiler observation.
@@ -156,7 +149,8 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
 
         if ((data != null) && (data.length > 0)) {
 
-            WMOHeader wmoHeader = new WMOHeader(data, headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            WMOHeader wmoHeader = new WMOHeader(data, fileName);
 
             if (wmoHeader.isValid()) {
                 try {
@@ -288,7 +282,7 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
      * always returns "DEFAULT".
      * 
      * @return Return the string value "DEFAULT".
-     * @see com.raytheon.edex.tools.bufr.descriptors.IDescriptorFactorySelector#getSelector()
+     * @see com.raytheon.uf.edex.bufrtools.descriptors.tools.bufr.descriptors.IDescriptorFactorySelector#getSelector()
      */
     @Override
     public String getSelector() {

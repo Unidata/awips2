@@ -19,10 +19,11 @@
  **/
 package com.raytheon.edex.plugin.binlightning.impl;
 
+import java.util.Calendar;
+
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgMsgType;
-import com.raytheon.uf.edex.decodertools.core.BasePoint;
-import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Decode one or more Flash lightning observations. Decode algorithm is taken
@@ -30,13 +31,14 @@ import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
  * 
  * <pre>
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070810            379 jkorman     Initial Coding from prototype.
+ * Jun 05, 2014 3226       bclement    LightningStikePoint refactor
  * 
  * </pre>
- *
+ * 
  * @author jkorman
  * @version 1.0
  */
@@ -62,7 +64,7 @@ public class FlashLightningDecoder extends BaseLightningDecoder
     {
         if(msgData.available(TIME_SIZE))
         {
-            BasePoint base = parseDate(msgData);
+            Calendar baseTime = parseDate(msgData);
 
             if(msgData.available(FLASH_MSG_SIZE * count))
             {
@@ -70,17 +72,23 @@ public class FlashLightningDecoder extends BaseLightningDecoder
                 {
                     double lon = getFlashLon(msgData);
                     double lat = getFlashLat(msgData);
-                    // Create the strike record from the report info and base time information. 
-                    LightningStrikePoint strikeData = new LightningStrikePoint(base,lat,lon,LtgMsgType.STRIKE_MSG_FL);
-        
-                    strikeData.setStrikeStrength(msgData.getS8() * 2.0);
+
+                    double strikeStrength = msgData.getS8() * 2.0;
                     
                     // strike count and 1/10s seconds
                     int u8 = msgData.getU8();
-                    strikeData.setStrikeCount(u8 & 0x0F);
-                    strikeData.setMillis(((u8 & 0xF0) >> 4) * 100);
+                    int flashCount = u8 & 0x0F;
+
+                    Calendar obsTime = TimeUtil.newCalendar(baseTime);
+                    obsTime.set(Calendar.MILLISECOND, ((u8 & 0xF0) >> 4) * 100);
         
+                    // Create the strike record from the report info and base
+                    // time information.
+                    LightningStrikePoint strikeData = new LightningStrikePoint(
+                            lat, lon, baseTime, LtgMsgType.STRIKE_MSG_FL);
                     strikeData.setType(DEFAULT_FLASH_TYPE);
+                    strikeData.setStrikeStrength(strikeStrength);
+                    strikeData.setPulseCount(flashCount);
                     addStrike(strikeData);
                 }
             }

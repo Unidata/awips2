@@ -34,9 +34,9 @@ import com.raytheon.uf.common.tafqueue.TafQueueRequest;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest.Type;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
+import com.raytheon.uf.edex.auth.authorization.IAuthorizer;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
-import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -53,6 +53,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * May 1, 2012  14715      rferrel     Initial creation
  * May 08, 2013 1814       rjpeter     Added time to live to topic
  * Jun 07, 2013 1981       mpduff      TafQueueRequest is now protected.
+ * May 08, 2014 3091       rferrel     Added CHECK_AUTHORIZED.
+ * May 28, 2014 3211       njensen     Use IAuthorizer instead of IRoleStorage
  * </pre>
  * 
  * @author rferrel
@@ -140,6 +142,10 @@ public class TafQueueRequestHandler extends
                     sendNotification(Type.RETRANSMIT);
                 }
                 break;
+            case CHECK_AUTHORIZED:
+                response = new ServerResponse<String>();
+                response.addMessage("User is authorized.");
+                break;
             default:
                 response = new ServerResponse<String>();
                 response.addMessage("Unknown type: " + request.getType());
@@ -212,10 +218,10 @@ public class TafQueueRequestHandler extends
     public AuthorizationResponse authorized(IUser user, TafQueueRequest request)
             throws AuthorizationException {
         AuthManager manager = AuthManagerFactory.getInstance().getManager();
-        IRoleStorage roleStorage = manager.getRoleStorage();
+        IAuthorizer auth = manager.getAuthorizer();
 
-        boolean authorized = roleStorage.isAuthorized((request).getRoleId(),
-                user.uniqueId().toString(), APPLICATION);
+        boolean authorized = auth.isAuthorized((request).getRoleId(), user
+                .uniqueId().toString(), APPLICATION);
 
         if (authorized) {
             return new AuthorizationResponse(authorized);

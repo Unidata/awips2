@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 3/13/2013    1082       bphillip    Initial creation
  * 9/5/2013     1538       bphillip    Added eagerLoadAll method
  * 2/13/2014    2769       bphillip    Added read only flags to query methods
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 
  * </pre>
  * 
@@ -78,8 +79,7 @@ public class SubscriptionDao extends RegistryObjectTypeDao<SubscriptionType> {
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<SubscriptionType> eagerLoadAll() throws EbxmlRegistryException {
-        List<SubscriptionType> subs = this.template
-                .loadAll(SubscriptionType.class);
+        List<SubscriptionType> subs = super.loadAll();
         for (SubscriptionType sub : subs) {
             try {
                 /*

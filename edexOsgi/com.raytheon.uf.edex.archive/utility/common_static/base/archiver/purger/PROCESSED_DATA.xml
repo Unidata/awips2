@@ -30,6 +30,7 @@
  * Nov 13, 2013 2549       rferrel     Changes to GFE and modelsounding.
  * Dec 12, 2013 2624       rferrel     Document Julian time stamp.
  * Dec 13, 2013 2555       rjpeter     Updated all to use dirPatterns.
+ * May 24, 2014 2881	   rferrel     Updated retention times.
  * 
  * @author rferrel
  * @version 1.0
@@ -45,8 +46,8 @@
     The <category> has four types of tags:
         <name>              - Required tag. The id for the category such as grib2 or redbook.
                               Used in the GUIs to filter what is the display in the table.
-        <extRetentionHours>    - Optional tag. The  extended retentionHours for selected directories of this category.
-                              Default is the archive's <minRetentionHours>.
+        <extRetentionHours>    - Optional tag. The hours to retain data in directories of selected Data Sets for a category.
+                              Default is 1 hour.
         <dataSet>           - Required to have a least one. Each one contains a set of tags explained below.
         <selectedDisplayNames>  - A directory matching <dirPattern>. These are selected directories from the Retention GUI. The purger
                                   will used the category's <extRetentionHours> instead of the Arhivie's <minRetentionHours>.
@@ -139,7 +140,7 @@
 <archive>
     <name>Processed</name>
     <rootDir>/archive/</rootDir>
-    <minRetentionHours>24</minRetentionHours>
+    <minRetentionHours>168</minRetentionHours>
      <category>
         <name>Decision Assistance</name>
          <extRetentionHours>168</extRetentionHours>

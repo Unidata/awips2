@@ -34,16 +34,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.edex.plugin.shef.util.SHEFErrors;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFErrorCodes;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * 
@@ -59,7 +58,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 11/29/2012               lbousaidi   fixed the decoding issue when the shef starts
  *                                      with :
  * 6/27/2013    16225       wkwock      Fixed trail with slash and space issue.
- * 
+ * 04/29/2014    3088       mpduff      Use UFStatus logging
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author bphillip
@@ -85,7 +85,8 @@ public class ShefSeparator extends AbstractRecordSeparator {
         public String traceId;
     }
 
-    private static final Log log = LogFactory.getLog(ShefSeparator.class);
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(ShefSeparator.class);
 
     private static final SHEFErrors ERR_LOGGER = SHEFErrors
             .registerLogger(ShefSeparator.class);
@@ -150,7 +151,8 @@ public class ShefSeparator extends AbstractRecordSeparator {
             currentRecord = -1;
 
             /* Extracts the header */
-            wmoHeader = new WMOHeader(data, headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            wmoHeader = new WMOHeader(data, fileName);
             if (wmoHeader.isValid()) {
                 if (traceId == null) {
                     traceId = wmoHeader.getWmoHeader();
@@ -165,7 +167,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
             } else {
                 // No WMO header found or bad one, so process as best
                 // as we can.
-                Calendar c = TimeTools.getSystemCalendar();
+                Calendar c = TimeUtil.newGmtCalendar();
                 if (c != null) {
                     productTime = c.getTime();
                 }
@@ -199,11 +201,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
             }
             separator.setData(data, headers);
         } catch (Exception e) {
-            if(log.isDebugEnabled()) {
-                log.error(separator.traceId + "- Error separating data.", e);
-            } else {
-                log.error(separator.traceId + "- Error separating data " + e.toString());
-            }
+            log.error(separator.traceId + "- Error separating data.", e);
         }
         return separator;
     }
@@ -598,15 +596,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
                 records.add(buffer.toString());
             }
         } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                ERR_LOGGER.error(getClass(), "Data error ", e);
-            } else {
-                ERR_LOGGER.error(getClass(), "Data error ");
-            }
-        }
-        if (log.isDebugEnabled()) {
-            ERR_LOGGER.debug(getClass(), "Message has " + records.size()
-                    + " records.");
+            ERR_LOGGER.error(getClass(), "Data error ", e);
         }
     }
 
@@ -619,19 +609,19 @@ public class ShefSeparator extends AbstractRecordSeparator {
     private static String removeInternalComments(String dataLine) {
         String s = null;
         if (dataLine != null) {
-                StringBuilder buffer = new StringBuilder(dataLine.length());
-                boolean inComment = false;
-                for (int i = 0; i < dataLine.length(); i++) {
-                    if (dataLine.charAt(i) != ':') {
-                        if (!inComment) {
-                            buffer.append(dataLine.charAt(i));
-                        }
-                    } else {
-                        // Toggle comments
-                        inComment = !inComment;
+            StringBuilder buffer = new StringBuilder(dataLine.length());
+            boolean inComment = false;
+            for (int i = 0; i < dataLine.length(); i++) {
+                if (dataLine.charAt(i) != ':') {
+                    if (!inComment) {
+                        buffer.append(dataLine.charAt(i));
                     }
+                } else {
+                    // Toggle comments
+                    inComment = !inComment;
                 }
-                s = buffer.toString();           
+            }
+            s = buffer.toString();
         } else {
             s = new String();
         }
@@ -718,7 +708,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
     private static boolean findTrailingSlash(String data) {
         boolean trailingSlash = false;
         if ((data != null) && (data.length() > 0)) {
-        	String trimData = data.trim();
+            String trimData = data.trim();
             trailingSlash = (trimData.charAt(trimData.length() - 1) == '/');
         }
         return trailingSlash;

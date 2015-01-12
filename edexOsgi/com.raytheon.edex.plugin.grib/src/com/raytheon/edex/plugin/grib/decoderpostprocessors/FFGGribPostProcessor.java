@@ -25,7 +25,6 @@ import java.util.List;
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
@@ -43,6 +42,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Aug 31, 2010  5875     bphillip    Initial Creation
  * Mar 26, 2013  1821     bsteffen    Optimize FFG version query.
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
+ * Apr 25, 2014  2060     njensen     Remove dependency on grid dataURI column
  * 
  * </pre>
  * 
@@ -57,13 +57,14 @@ public class FFGGribPostProcessor implements IDecoderPostProcessor {
         try {
             GridDao gribDao = (GridDao) PluginFactory.getInstance()
                     .getPluginDao(GridConstants.GRID);
-            record.setSecondaryId("%");
-            record.setDataURI(null);
 
+            /*
+             * All we want to do is check for pre-existing records, and if some
+             * are found, increment the version number in the secondaryId so
+             * it's not identified as a duplicate
+             */
             DatabaseQuery query = new DatabaseQuery(GridRecord.class);
             query.addReturnedField(GridConstants.SECONDARY_ID);
-            // The dataURI constraint does the final selection but the other
-            // constraints help the db optimize efficiently.
             query.addQueryParam(GridConstants.DATASET_ID, record.getDatasetId());
             query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, record
                     .getParameter().getAbbreviation());
@@ -71,9 +72,21 @@ public class FFGGribPostProcessor implements IDecoderPostProcessor {
                     .getId());
             query.addQueryParam(GridConstants.LOCATION_ID, record.getLocation()
                     .getId());
-            query.addQueryParam("dataURI", record.getDataURI(),
-                    QueryOperand.LIKE);
+            query.addQueryParam("dataTime.refTime", record.getDataTime()
+                    .getRefTime());
+            query.addQueryParam("dataTime.fcstTime", record.getDataTime()
+                    .getFcstTime());
+            query.addQueryParam(GridConstants.ENSEMBLE_ID,
+                    record.getEnsembleId());
             List<?> result = gribDao.queryByCriteria(query);
+
+            /*
+             * TODO this does not appear to be cluster safe, but we probably
+             * dodge it due to the low frequency of this data arriving for the
+             * same parameters, time, etc
+             */
+
+            // find the highest version number
             int maxVersion = -1;
             for (Object row : result) {
                 String secondaryId = (String) row;
@@ -90,6 +103,7 @@ public class FFGGribPostProcessor implements IDecoderPostProcessor {
             }
             record.setSecondaryId("Version" + (maxVersion + 1));
             record.getInfo().setId(null);
+            // clear out dataURI in case it was cached
             record.setDataURI(null);
         } catch (Exception e) {
             throw new GribException("Error decoding FFG grid", e);

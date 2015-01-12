@@ -14,3 +14,5 @@ com.raytheon.uf.common.dataplugin.text.db.TextProductInfo
 com.raytheon.uf.common.dataplugin.text.db.TextProductInfoPK
 com.raytheon.uf.common.dataplugin.text.db.WatchWarn
 com.raytheon.uf.common.dataplugin.text.db.WatchWarnPK
+com.raytheon.uf.common.dataplugin.text.db.SubscriptionRecord
+com.raytheon.uf.common.dataplugin.text.db.ReplacementRecord

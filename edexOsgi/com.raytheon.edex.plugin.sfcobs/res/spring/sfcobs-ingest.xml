@@ -16,14 +16,37 @@
         <constructor-arg value="jms-durable:queue:Ingest.sfcobs" />
     </bean>
 
-    <bean id="sfcobsCamelRegistered" factory-bean="contextManager" factory-method="register"
-        depends-on="persistCamelRegistered, 
-		            shefCamelRegistered">
-        <constructor-arg ref="sfcobs-camel" />
+    <bean id="buoyListener" class="com.raytheon.edex.plugin.sfcobs.ingest.BuoySubscriber" />
+
+    <bean id="marineInfoListener" class="com.raytheon.edex.plugin.sfcobs.ingest.MarineInfoSubscriber">
+        <constructor-arg value="${db.port}" />
+        <constructor-arg value="${edex.home}" />
+    </bean>    
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MarineInfo.txt" />
+        <constructor-arg ref="marineInfoListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="BUOY.spi" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="BUOY.goodness" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="BUOY.primary" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="maritimeStationInfo.txt" />
+        <constructor-arg ref="buoyListener" />
     </bean>
 
     <camelContext id="sfcobs-camel" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler" autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <!-- Begin sfcobs routes -->
         <route id="sfcobsIngestRoute">

@@ -31,11 +31,11 @@ import org.apache.camel.Processor;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.log.cxf.RequestLogController;
 import com.raytheon.uf.edex.ogc.common.stats.IStatsRecorder;
 import com.raytheon.uf.edex.ogc.common.stats.OperationType;
 import com.raytheon.uf.edex.ogc.common.stats.ServiceType;
 import com.raytheon.uf.edex.ogc.common.stats.StatsRecorderFinder;
+import com.raytheon.uf.edex.soap.RequestLogController;
 
 /**
  * HTTP Camel Processor for OGC REST Services

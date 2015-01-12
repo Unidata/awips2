@@ -26,11 +26,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -45,7 +44,9 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 11, 2011            mpduff     Initial creation
+ * Jan 11, 2011            mpduff      Initial creation
+ * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
+ * Apr 21, 2014   2060     njensen     Remove dependency on grid dataURI column
  * 
  * </pre>
  * 
@@ -64,7 +65,8 @@ public class GAFFDB {
     private static final String LINESEGS_QUERY = "select hrap_row, hrap_beg_col, "
             + "hrap_end_col, area from linesegs";
 
-    private Log log = LogFactory.getLog("GenArealFFG");
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(GAFFDB.class);
 
     /**
      * Default constructor.
@@ -131,9 +133,8 @@ public class GAFFDB {
                 } else {
                     throw new Exception("Error getting Last Run Time");
                 }
-                if (log.isDebugEnabled()) {
-                    log.debug("Last run time: " + ts.toString());
-                }
+
+                log.debug("Last run time: " + ts.toString());
                 return ts.getTime();
             }
         } catch (Exception e) {
@@ -146,15 +147,13 @@ public class GAFFDB {
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Last run time set to 00Z");
-        }
+        log.debug("Last run time set to 00Z");
 
         return c.getTimeInMillis();
     }
 
     /**
-     * Get the data URI
+     * Get the grid record
      * 
      * @param rfc
      *            The RFC
@@ -165,13 +164,10 @@ public class GAFFDB {
      * @return The database uri, or null if no data
      * @throws DataAccessLayerException
      */
-    public String getDataURI(String rfc, String duration, String today)
+    public GridRecord getGridRecord(String rfc, String duration, String today)
             throws DataAccessLayerException {
-        String uri = null;
-
-        // Query for uri
+        GridRecord rec = null;
         DatabaseQuery query = new DatabaseQuery(GridRecord.class);
-        query.addReturnedField("dataURI");
         query.addQueryParam(GridConstants.DATASET_ID, "FFG-" + rfc);
         query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "FFG"
                 + duration + "24hr");
@@ -182,14 +178,13 @@ public class GAFFDB {
         dao = new CoreDao(DaoConfig.forDatabase("metadata"));
         List<?> rs = dao.queryByCriteria(query);
         if ((rs != null) && (!rs.isEmpty())) {
-            if ((rs.get(0) != null) && (rs.get(0) instanceof String)) {
-                uri = (String) rs.get(0);
+            Object result = rs.get(0);
+            if (result != null && result instanceof GridRecord) {
+                rec = ((GridRecord) result);
             }
-        } else {
-            uri = null;
         }
 
-        return uri;
+        return rec;
     }
 
     /**
@@ -261,9 +256,7 @@ public class GAFFDB {
                     + DEFAULT_QC_VALUE + ", " + "0, 'GRIDFFG', '" + validDate
                     + "', '" + postDate + "')";
 
-            if (log.isDebugEnabled()) {
-                log.debug(sql);
-            }
+            log.debug(sql);
 
             dao.executeNativeSql(sql, false);
         } else {
@@ -306,9 +299,7 @@ public class GAFFDB {
         if ((rs != null) && (rs.length > 0)) {
             if ((rs[0] != null) && (rs[0] instanceof String)) {
                 hsa = (String) rs[0];
-                if (log.isDebugEnabled()) {
-                    log.debug("HSA: " + hsa);
-                }
+                log.debug("HSA: " + hsa);
             }
         }
 

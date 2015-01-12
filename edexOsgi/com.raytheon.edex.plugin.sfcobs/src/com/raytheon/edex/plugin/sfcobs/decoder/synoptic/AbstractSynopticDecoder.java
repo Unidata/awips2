@@ -23,12 +23,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.ITimeService;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
@@ -45,12 +47,19 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
+ * May 14, 2014 2536       bclement    removed TimeTools usage
+ * Sep 30, 2014 3629       mapeters    Added LAT_PATTERN, LON_PATTERN.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
+
+    protected static final Pattern LAT_PATTERN = Pattern.compile("99\\d{3}");
+
+    protected static final Pattern LON_PATTERN = Pattern
+            .compile("[1357]((0\\d{3})|(1(([0-7]\\d{2})|(800))))");
 
     private static final int LINE_CUT_LENGTH = 58;
 
@@ -392,7 +401,7 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
         ObsCommon report = null;
 
         Calendar oTime = calculateObsDateTime(
-                TimeTools.getSystemCalendar(obsYear, obsMonth, obsDay), obsDay,
+                TimeUtil.newGmtCalendar(obsYear, obsMonth, obsDay), obsDay,
                 obsHour, obsYear, obsMonth);
         if (oTime != null) {
             report = new ObsCommon();
@@ -460,7 +469,7 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
             Integer obsDay, Integer obsHour, Integer obsYear, Integer obsMonth) {
         Calendar obsTime = null;
         Calendar tTime = TimeTools.copyToNearestHour(currentClock);
-        TimeTools.rollByDays(tTime, 1);
+        tTime.add(Calendar.DAY_OF_MONTH, 1);
 
         if ((obsDay != null) && (obsHour != null)) {
             if (obsDay == currentClock.get(Calendar.DAY_OF_MONTH)) {
@@ -475,7 +484,7 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
                 int i = 0;
                 while (i++ < 25) {
                     // Go back a day
-                    TimeTools.rollByDays(tTime, -1);
+                    tTime.add(Calendar.DAY_OF_MONTH, -1);
                     if (obsDay == tTime.get(Calendar.DAY_OF_MONTH)) {
                         // Day values are equal, so this is it.
                         obsTime = TimeTools.copyToNearestHour(tTime);
@@ -553,7 +562,8 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
         Integer obsDay = 31;
         Integer obsHour = 21;
         
-        Calendar currentClock = TimeTools.getSystemCalendar(obsYear, obsMonth, obsDay);
+        Calendar currentClock = TimeUtil.newGmtCalendar(obsYear, obsMonth,
+                obsDay);
         System.out.println(TMFMT.format(currentClock.getTime()));
         
         Calendar c = calculateObsDateTime(currentClock,obsDay,obsHour,obsYear,obsMonth); 

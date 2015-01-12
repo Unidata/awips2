@@ -54,6 +54,7 @@ import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.StringSlotConverter;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
+import com.raytheon.uf.common.util.ClusterIdUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.ReflectionException;
 import com.raytheon.uf.common.util.ReflectionUtil;
@@ -79,6 +80,13 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Jun 03, 2013 2038       djohnson    Allow setting the same encoder strategy.
  * Jun 24, 2013 2106       djohnson    Remove encoder strategy from instance variables.
  * Dec 04, 2013 2584       dhladky     Versions for Registry objects
+ * Mar 31, 2014 2889       dhladky     Added username for notification center tracking.
+ * Apr 24, 2014 2992       dhladky     fixed all objects in ebxml owned by NCF, bad.
+ * 6/5/2014     1712       bphillip    Registry now communicates over https
+ * June 25, 2014 3273      dhladky     Remove all DD environment variables from setup.env
+ * 7/10/2014    1717       bphillip    Changed default user
+ * Jul 28, 2014 3474        dhladky    Fixed bad default user settings.
+ * 
  * 
  * </pre>
  * 
@@ -96,13 +104,17 @@ public final class RegistryUtil {
     public static final String registryObjectClassName = "registryObjectClassName";
     
     public static final String registryObjectDefaultVersion = "1.0";
+        
+    public static final String defaultUser = "NCF";
+    
+    public static final String DEFAULT_OWNER = "System";
 
     static {
-        if (System.getenv("EBXML_REGISTRY_HOST") != null
-                && System.getenv("EBXML_REGISTRY_WEBSERVER_PORT") != null) {
-            LOCAL_REGISTRY_ADDRESS = "http://"
-                    + System.getenv("EBXML_REGISTRY_HOST") + ":"
-                    + System.getenv("EBXML_REGISTRY_WEBSERVER_PORT");
+        if (System.getProperty("ebxml.registry.host") != null
+                && System.getProperty("ebxml.registry.webserver.port") != null) {
+            LOCAL_REGISTRY_ADDRESS = "https://"
+                    + System.getProperty("ebxml.registry.host") + ":"
+                    + System.getProperty("ebxml.registry.webserver.port");
         }
 
     }
@@ -110,9 +122,9 @@ public final class RegistryUtil {
     public static final String CALLING_REGISTRY_SOAP_HEADER_NAME = "Calling_Registry";
 
     /**
-     * The default internal owner
+     * The default internal owner is the local registry ID
      */
-    public static final String DEFAULT_OWNER = "NCF";
+    public static final String registryUser = ClusterIdUtil.getId();
 
     // A private mapping of attribute types to slot types, used when storing an
     // object to the registry to map QueryableAttributes to SlotConverters.
@@ -372,7 +384,7 @@ public final class RegistryUtil {
                         registryObject, RegistryObjectOwner.class);
                 registryObject.setOwner(objectOwner);
                 if (objectOwner == null) {
-                    registryObject.setOwner(DEFAULT_OWNER);
+                    registryObject.setOwner(registryUser);
                 }
 
                 registryObject.setName(getInternationalString(ReflectionUtil
@@ -612,10 +624,11 @@ public final class RegistryUtil {
      * @return the request
      */
     public static SubmitObjectsRequest newSubmitObjects(
-            List<RegistryObjectType> asList, Mode mode) {
+            List<RegistryObjectType> asList, String username, Mode mode) {
         SubmitObjectsRequest request = new SubmitObjectsRequest();
         request.setCheckReferences(false);
         request.setMode(mode);
+        request.setUsername(username);
         RegistryObjectListType registryObjectList = new RegistryObjectListType();
         registryObjectList.getRegistryObject().addAll(asList);
         request.setRegistryObjectList(registryObjectList);

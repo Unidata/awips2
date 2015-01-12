@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Mar 16, 2012            jsanchez     Initial creation
  * Nov 08, 2013 2506       bgonzale     Added constructors.  Added object deleted field.
  *                                      Added RegistryObjectType field.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -48,8 +49,6 @@ public class RemoveRegistryEvent extends RegistryEvent {
 
     private static final long serialVersionUID = -5854149256576746509L;
 
-    private String username;
-
     private RegistryObjectType removedObject;
 
     public RemoveRegistryEvent() {
@@ -58,17 +57,8 @@ public class RemoveRegistryEvent extends RegistryEvent {
 
     public RemoveRegistryEvent(String username, String id,
             RegistryObjectType removedObject) {
-        super(id, null, null, Action.DELETE);
-        this.username = username;
+        super(id, null, null, username, Action.DELETE);
         this.removedObject = removedObject;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     /**

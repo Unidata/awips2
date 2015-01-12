@@ -26,33 +26,35 @@ import com.raytheon.uf.common.dataplugin.svrwx.SvrWxRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
-
 /**
- * 
+ * SvrWxRecord Dao
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 4, 2010            jsanchez     Initial creation
- *
+ * 
+ * Date          Ticket#    Engineer    Description
+ * ------------  ---------- ----------- --------------------------
+ * Jan  4, 2010            jsanchez     Initial creation
+ * Apr 10, 2014  2971      skorolev     Cleaned code.
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
- * @version 1.0 
+ * @version 1.0
  */
 
 public class SvrWxRecordDao extends PointDataPluginDao<SvrWxRecord> {
     /**
-     * Creates a new TropicalCycloneGuidanceDao
-     * @throws PluginException 
+     * Creates a new TropicalCycloneGuidance Dao
+     * 
+     * @param pluginName
+     * @throws PluginException
      */
     public SvrWxRecordDao(String pluginName) throws PluginException {
         super(pluginName);
     }
-    
+
     /**
      * Retrieves an tcg report using the datauri .
      * 
@@ -73,6 +75,7 @@ public class SvrWxRecordDao extends PointDataPluginDao<SvrWxRecord> {
         }
         return report;
     }
+
     /**
      * Queries for to determine if a given data uri exists on the tcg table.
      * 
@@ -91,16 +94,35 @@ public class SvrWxRecordDao extends PointDataPluginDao<SvrWxRecord> {
         return results;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.pointdata.PointDataPluginDao#getKeysRequiredForFileName
+     * ()
+     */
     @Override
     public String[] getKeysRequiredForFileName() {
         return new String[] { "dataTime.refTime" };
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.pointdata.PointDataPluginDao#getPointDataFileName
+     * (com.raytheon.uf.common.dataplugin.PluginDataObject)
+     */
     @Override
     public String getPointDataFileName(SvrWxRecord p) {
         return "svrwx.h5";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.pointdata.PointDataPluginDao#newObject()
+     */
     @Override
     public SvrWxRecord newObject() {
         return new SvrWxRecord();

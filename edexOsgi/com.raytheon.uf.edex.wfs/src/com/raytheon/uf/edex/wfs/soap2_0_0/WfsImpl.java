@@ -35,7 +35,6 @@ import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.log.cxf.RequestLogController;
 import com.raytheon.uf.edex.ogc.common.http.EndpointInfo;
 import com.raytheon.uf.edex.ogc.common.soap.AbstractOwsService;
 import com.raytheon.uf.edex.ogc.common.soap.ServiceExceptionReport;
@@ -43,6 +42,7 @@ import com.raytheon.uf.edex.ogc.common.stats.IStatsRecorder;
 import com.raytheon.uf.edex.ogc.common.stats.OperationType;
 import com.raytheon.uf.edex.ogc.common.stats.ServiceType;
 import com.raytheon.uf.edex.ogc.common.stats.StatsRecorderFinder;
+import com.raytheon.uf.edex.soap.RequestLogController;
 import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.WfsException.Code;
 import com.raytheon.uf.edex.wfs.request.DescFeatureTypeReq;

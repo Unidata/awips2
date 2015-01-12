@@ -23,7 +23,6 @@
 -->
 <pointDataDescription>
   <parameter name="wmoHeader" numDims="1" type="STRING" />
-  <parameter name="dataURI" numDims="1" type="STRING" />
   <parameter name="productType" numDims="1" type="STRING" />
   <parameter name="name" numDims="1" type="STRING" />
   <parameter name="pressure" numDims="1" type="INT" unit="mbar"/>

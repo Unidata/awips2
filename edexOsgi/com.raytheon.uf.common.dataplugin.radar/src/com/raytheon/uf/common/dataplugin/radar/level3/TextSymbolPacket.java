@@ -22,18 +22,18 @@ package com.raytheon.uf.common.dataplugin.radar.level3;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * A {@link SymbologyPacket} representing colored text.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -41,8 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class TextSymbolPacket extends SymbologyPacket implements
-        ISerializableObject {
+public class TextSymbolPacket extends SymbologyPacket {
 
     private static final int TEXT_SYMBOL_PACKET8 = 8;
 

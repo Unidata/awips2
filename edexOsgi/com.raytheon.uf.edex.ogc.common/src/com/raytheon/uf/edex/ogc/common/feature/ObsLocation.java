@@ -43,6 +43,7 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2013  1746     dhladky     Initial creation
+ * Jul 23, 2014 3410      bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -74,8 +75,8 @@ public class ObsLocation {
     	
     	this.setStationId(sol.getStationId());
     	this.setElevation(sol.getElevation());
-		Double lat = sol.getLatitude();
-		Double lon = sol.getLongitude();
+        Double lat = sol.getLatitude().doubleValue();
+        Double lon = sol.getLongitude().doubleValue();
 		PointType point = new PointType();
 		DirectPositionType pos = new DirectPositionType();
 		pos.setValue(Arrays.asList(lon, lat));

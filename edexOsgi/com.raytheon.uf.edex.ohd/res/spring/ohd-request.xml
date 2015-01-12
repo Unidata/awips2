@@ -16,25 +16,9 @@
   		<constructor-arg ref="mpeProcessGribHandler"/>
   	</bean>
   
-	<camelContext id="mpeFieldGenReq-context"
-		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler">
-		
-		<endpoint id="mpeHttp_from"
-			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/mpeFieldGenHttpService?disableStreamCache=true" />
-			
-		<route id="mpeHttp">
-			<from uri="ref:mpeHttp_from" />
-			<doTry>
-				<bean ref="mpeFieldGenService" method="process" />
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:mpeFieldGen?level=ERROR"/>
-				</doCatch>
-			</doTry>
-			<bean ref="serializationUtil" method="transformToThrift" />
-		</route>
-	</camelContext>
- 
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.mpe.fieldgen.MpeFieldGenRequest"/>
+        <constructor-arg ref="mpeFieldGenService"/>
+    </bean>
 </beans>
 

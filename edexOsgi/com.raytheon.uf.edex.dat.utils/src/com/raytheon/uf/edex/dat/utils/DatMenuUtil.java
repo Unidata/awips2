@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.dat.utils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -42,6 +42,7 @@ import com.raytheon.uf.common.menus.xml.VariableSubstitution;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.DATA_TYPE;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
@@ -52,7 +53,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.menus.AbstractMenuUtil;
 
 /**
- * TODO Add Description
+ * Utility for DAT menu creation.
  * 
  * <pre>
  * 
@@ -64,6 +65,7 @@ import com.raytheon.uf.edex.menus.AbstractMenuUtil;
  * June 6, 2011 #9827      bkowal    Skip scan menu creation if the Run
  *                                   Configuration Manager has not read a
  *                                   FFMPRunConfig.xml file.
+ * Sep 04, 2014 3220       skorolev  Updated menu creation for Fog, Safeseas and Snow monitors.
  * 
  * </pre>
  * 
@@ -393,54 +395,22 @@ public class DatMenuUtil extends AbstractMenuUtil {
                 + "scan.xml");
 
         /*************************************** OTHER ********************************/
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext commonStaticSite = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        String cwa = commonStaticSite.getContextName();
-
-        CommonMenuContributionFile fogMenuContributionFile = new CommonMenuContributionFile();
-        fogMenuContributionFile.contribution = new CommonIncludeMenuItem[1];
-
-        fogMenuContributionFile.contribution[0] = new CommonIncludeMenuItem();
-
-        fogMenuContributionFile.contribution[0] = processOtherContribution(cwa,
-                "menus/fog/baseFog.xml", "menu:obs?after=FOGPLACEHOLDER",
-                "Fog Monitor", fogMenuContributionFile.contribution[0]);
-
-        toXml(fogMenuContributionFile, "menus" + File.separator + "fog"
-                + File.separator + "index.xml");
-
-        CommonMenuContributionFile safeMenuContributionFile = new CommonMenuContributionFile();
-        safeMenuContributionFile.contribution = new CommonIncludeMenuItem[1];
-
-        safeMenuContributionFile.contribution[0] = new CommonIncludeMenuItem();
-
-        safeMenuContributionFile.contribution[0] = processOtherContribution(
-                cwa, "menus/safeseas/baseSafeSeas.xml",
-                "menu:obs?before=EndOfMaritime", "SAFESEAS",
-                safeMenuContributionFile.contribution[0]);
-
-        toXml(safeMenuContributionFile, "menus" + File.separator + "safeseas"
-                + File.separator + "index.xml");
-
-        CommonMenuContributionFile snowMenuContributionFile = new CommonMenuContributionFile();
-        snowMenuContributionFile.contribution = new CommonIncludeMenuItem[1];
-
-        snowMenuContributionFile.contribution[0] = new CommonIncludeMenuItem();
-
-        snowMenuContributionFile.contribution[0] = processOtherContribution(
-                cwa, "menus/snow/baseSnow.xml",
-                "menu:obs?after=SNOWPLACEHOLDER", "SNOW",
-                safeMenuContributionFile.contribution[0]);
-
-        toXml(snowMenuContributionFile, "menus" + File.separator + "snow"
-                + File.separator + "index.xml");
+        createFogMenu();
+        createSafeseasMenu();
+        createSnowMenu();
 
         statusHandler.info("Finished processing DAT menus.");
         override = false;
         datSite = null;
     }
 
+    /**
+     * Process Contribution.
+     * 
+     * @param radar
+     * @param filePath
+     * @return
+     */
     private CommonAbstractMenuContribution processContribution(String radar,
             String filePath) {
         CommonIncludeMenuContribution subIncludeContribution = new CommonIncludeMenuContribution();
@@ -472,6 +442,17 @@ public class DatMenuUtil extends AbstractMenuUtil {
         return list;
     }
 
+    /**
+     * Process FFMP Contribution.
+     * 
+     * @param site
+     * @param source
+     * @param dataKey
+     * @param displayName
+     * @param filePath
+     * @param subIncludeContribution
+     * @return
+     */
     private CommonAbstractMenuContribution processFFMPContribution(String site,
             String source, String dataKey, String displayName, String filePath,
             CommonIncludeMenuContribution subIncludeContribution) {
@@ -496,14 +477,102 @@ public class DatMenuUtil extends AbstractMenuUtil {
         return subIncludeContribution;
     }
 
-    private CommonIncludeMenuItem processOtherContribution(String cwa,
+    /**
+     * Creates SAFESEAS Menu.
+     */
+    private void createSafeseasMenu() {
+        FSSObsMonitorConfigurationManager ssConfig = FSSObsMonitorConfigurationManager
+                .getSsObsManager();
+        Set<String> ssStns = ssConfig.getStationIDs();
+        StringBuilder stations = new StringBuilder();
+        for (String s : ssStns) {
+            if (stations.length() > 0) {
+                stations.append(",");
+            }
+            stations.append(s);
+        }
+        String ssStations = stations.toString();
+        CommonMenuContributionFile safeMenuContributionFile = new CommonMenuContributionFile();
+        safeMenuContributionFile.contribution = new CommonIncludeMenuItem[1];
+        safeMenuContributionFile.contribution[0] = new CommonIncludeMenuItem();
+        safeMenuContributionFile.contribution[0] = processOtherContribution(
+                ssStations, "menus/safeseas/baseSafeSeas.xml",
+                "menu:obs?before=EndOfMaritime", "SAFESEAS",
+                safeMenuContributionFile.contribution[0]);
+        toXml(safeMenuContributionFile, "menus" + File.separator + "safeseas"
+                + File.separator + "index.xml");
+    }
+
+    /**
+     * Creates Fog Menu.
+     */
+    private void createFogMenu() {
+        FSSObsMonitorConfigurationManager fogConfig = FSSObsMonitorConfigurationManager
+                .getFogObsManager();
+        Set<String> fogStns = fogConfig.getStationIDs();
+        StringBuilder stations = new StringBuilder();
+        for (String s : fogStns) {
+            if (stations.length() > 0) {
+                stations.append(",");
+            }
+            stations.append(s);
+        }
+        String fogStations = stations.toString();
+        CommonMenuContributionFile fogMenuContributionFile = new CommonMenuContributionFile();
+        fogMenuContributionFile.contribution = new CommonIncludeMenuItem[1];
+        fogMenuContributionFile.contribution[0] = new CommonIncludeMenuItem();
+        fogMenuContributionFile.contribution[0] = processOtherContribution(
+                fogStations, "menus/fog/baseFog.xml",
+                "menu:obs?after=FOGPLACEHOLDER", "Fog Monitor",
+                fogMenuContributionFile.contribution[0]);
+        toXml(fogMenuContributionFile, "menus" + File.separator + "fog"
+                + File.separator + "index.xml");
+    }
+
+    /**
+     * Creates SNOW Menu.
+     */
+    private void createSnowMenu() {
+        FSSObsMonitorConfigurationManager snowConfig = FSSObsMonitorConfigurationManager
+                .getSnowObsManager();
+        Set<String> snowStns = snowConfig.getStationIDs();
+        StringBuilder stations = new StringBuilder();
+        for (String s : snowStns) {
+            if (stations.length() > 0) {
+                stations.append(",");
+            }
+            stations.append(s);
+        }
+        String snowStations = stations.toString();
+        CommonMenuContributionFile snowMenuContributionFile = new CommonMenuContributionFile();
+        snowMenuContributionFile.contribution = new CommonIncludeMenuItem[1];
+        snowMenuContributionFile.contribution[0] = new CommonIncludeMenuItem();
+        snowMenuContributionFile.contribution[0] = processOtherContribution(
+                snowStations, "menus/snow/baseSnow.xml",
+                "menu:obs?after=SNOWPLACEHOLDER", "SNOW",
+                snowMenuContributionFile.contribution[0]);
+        toXml(snowMenuContributionFile, "menus" + File.separator + "snow"
+                + File.separator + "index.xml");
+    }
+
+    /**
+     * Process Other(Fog, Safaseas and Snow) Contribution.
+     * 
+     * @param stations
+     * @param filePath
+     * @param installLoc
+     * @param subMenuName
+     * @param commonIncludeMenu
+     * @return
+     */
+    private CommonIncludeMenuItem processOtherContribution(String stations,
             String filePath, String installLoc, String subMenuName,
             CommonIncludeMenuItem commonIncludeMenu) {
 
         commonIncludeMenu.substitutions = new VariableSubstitution[1];
         commonIncludeMenu.substitutions[0] = new VariableSubstitution();
-        commonIncludeMenu.substitutions[0].key = "cwa";
-        commonIncludeMenu.substitutions[0].value = cwa;
+        commonIncludeMenu.substitutions[0].key = "stations";
+        commonIncludeMenu.substitutions[0].value = stations;
         commonIncludeMenu.fileName = new File(filePath);
         commonIncludeMenu.installationLocation = installLoc;
         commonIncludeMenu.subMenuName = subMenuName;

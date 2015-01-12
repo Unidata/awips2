@@ -31,6 +31,13 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 /**
  * A series of methods to help in the processing and tiling of radar data.
  * 
+ * 
+ * <pre>
+ *  * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- -------------- ------------
+ * Jun 20, 2014  3072      mweeks       Updates to remove caculateExtent's dependence on RadarRecord.
+ * </pre>
+ * 
  * @author brockwoo
  * @version 1.0
  */
@@ -236,17 +243,20 @@ public class RadarUtil {
     }
 
     public static double calculateExtent(RadarRecord radarData) {
-        int numBins = radarData.getNumBins();
-        if (radarData.getJstart() != null) {
-            numBins += radarData.getJstart();
-        }
-        double maxExtent = radarData.getGateResolution() * numBins
-                * Math.cos(Math.toRadians(radarData.getTrueElevationAngle()));
+    	return calculateExtent(radarData.getNumBins(), radarData.getJstart(), radarData.getGateResolution(), 
+        		(double)radarData.getTrueElevationAngle(), radarData.getFormat());
+    }
 
-        if ("Raster".equals(radarData.getFormat())) {
+    public static double calculateExtent(int numBins, Integer startBin, Integer gateResolution, 
+    		Double elevationAngle, String format) {
+        if (startBin != null) {
+            numBins += startBin;
+        }
+        double maxExtent = gateResolution * numBins
+                * Math.cos(Math.toRadians(elevationAngle));
+        if ("Raster".equals(format)) {
             maxExtent /= 2;
         }
-
         return maxExtent;
     }
 

@@ -6,14 +6,12 @@
 ## UPDATED -- Bookbinder 2/22/13 2013 IBW Changes       ##
 ## UPDATED -- Kurimski 5/20/13 Addl IBW Changes         ##
 ## UPDATED -- Kurimski 9/17/13 Tor Emer Headline        ##
-## UPDATED -- Bookbinder 9/18/2013 implement config.vm  ##
-## Mike D -- 1/23/2014 used approved wording for torEmerCTA and fixed position of 3rd bullet torEmer mention (immed. below "* AT" para). 
-## Mike D -- 1/24/2014 added logic to keep defaultCTAs from being used in a TOR EMER (duplication)
+## UPDATED -- Bookbinder 9/18/2013 implement config.vm  ## 
+## UPDATED -- Dangelo 1/24/2014 added logic to keep defaultCTAs from being used in a TOR EMER (duplication) ##
+## UPDATED -- Bookbinder 2/27/2014 TOR EMER CTA         ##
+## UPDATED -- Bookbinder 6/24/14 Added code to prevent Lg/Vlnt TOR w/ base ##
 ##########################################################
-## Commented out Impact statements Feb 2013 and created file to
-## be parsed into the template called impactStatements.vm
-## Changes to the impact statements can be made to this file
-## instead of the template
+## Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
 ## ESTABLISH SOME INITIAL VARIABLES ############################
 ################################################################
@@ -367,7 +365,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 ############################################################################
 ## IF A CONSIDERABLE TORNADO IS SELECTED THE FOLLOWING WILL OVERRIDE CERTAIN
-## VARIABLES TO HEIGHTED AWARENESS OF THIS DANGEROUS SITUATION
+## VARIABLES TO HEIGHTENHEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
 ############################################################################
 #if(${list.contains(${bullets}, "considerableTornado")})
   #set($reportType = "A ${confirmed}LARGE AND EXTREMELY DANGEROUS TORNADO WAS LOCATED") 
@@ -393,7 +391,7 @@ THIS IS A TEST MESSAGE. ##
   #set($torTag = "OBSERVED")
   #set($torHazard = "DEADLY TORNADO")
   #set($torThreat = "<L>TORNADO DAMAGE THREAT...CATASTROPHIC</L>")
-  #set($pdstor = "THIS IS A PARTICULARLY DANGEROUS SITUATION.")
+  #set($pdstor = "THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!. TAKE COVER NOW. THIS IS A PARTICULARLY DANGEROUS SITUATION.")
   #if(${stormType} == "line")
     #set($pathcastLead = "THESE TORNADIC STORMS")
     #set($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
@@ -470,13 +468,6 @@ THIS IS A TEST MESSAGE. ##
 ## Section to include the dangerous storm wording as well as the hazard ##
 ##########################################################################
 
-#####################################################################
-### TORNADO EMERGENCY PER NWS 10-511 DIRECTIVE GOES WITH 3RD BULLET #
-#####################################################################
-#if(${list.contains($bullets, "torEmergency")})
-#wrapText("THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!. TAKE COVER NOW." 2 2)
-
-#end
 #wrapText("${pdstor}" 2 2)
 
 #wrapText("HAZARD...${hazard}" 2 11)
@@ -527,6 +518,10 @@ THOSE ATTENDING !**event/venue name or location**! ARE IN THE PATH OF THIS STORM
 #end
 #end
 
+## Comment out #parse command below to pull in Dynamic DSS Event Info
+## If this feature is utilized, the "specialEvent" bullet (output above) can
+## likely be commented out from the impactSevereThunderstormWarning.xml file
+#parse("dssEvents.vm")
 ## parse file command here is to pull in mile marker info
 ## #parse("pointMarkers.vm")
 ## parse file command here is to pull in mile marker info
@@ -562,14 +557,14 @@ THIS TORNADO WARNING REPLACES THE SEVERE THUNDERSTORM WARNING ISSUED FOR THE SAM
 
 #end
 #if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
-  #set($dummy='dummy')
+##AVOID DUPLICATE CTAS FOR GENERIC AND TOR EMER
 #else
 #if(${list.contains(${bullets}, "defaultMobileCTA")})
-${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE OUTDOORS...IN A MOBILE HOME...OR IN A VEHICLE...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
 #end
 #if(${list.contains(${bullets}, "defaultUrbanCTA")})
-${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE IN A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE OUTDOORS OR IN A VEHICLE...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
 #end
 #end
@@ -585,9 +580,16 @@ HEAVY RAINFALL MAY HIDE THIS TORNADO. DO NOT WAIT TO SEE OR HEAR THE TORNADO. TA
 TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT. DO NOT WAIT TO SEE OR HEAR THE TORNADO. TAKE COVER NOW.
 
 #end
+
 #if(${list.contains(${bullets}, "largeTORCTA")})
+#if(${list.contains(${bullets}, "baseTornado")} || ${list.contains(${bullets}, "landspoutTornado")})
+!** LARGE AND EXTREME DANGEROUS TORNADO CTA SELECTED WITH A BASE/WEAK TORNADO WARNING. PLEASE CHECK
+YOUR SELECTIONS AND REGENERATE THIS WARNING **!
+
+#else
 A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND. TAKE IMMEDIATE TORNADO PRECAUTIONS. THIS IS AN EMERGENCY SITUATION.
 
+#end
 #end
 #if(${list.contains(${bullets}, "lawEnforcementCTA")})
 TO REPORT SEVERE WEATHER CONTACT YOUR NEAREST LAW ENFORCEMENT AGENCY. THEY WILL SEND YOUR REPORT TO THE NATIONAL WEATHER SERVICE OFFICE IN ${officeLoc}.

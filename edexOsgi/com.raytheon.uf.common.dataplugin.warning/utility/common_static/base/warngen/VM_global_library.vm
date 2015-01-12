@@ -10,6 +10,12 @@
 #####                                  like the ~ and % characters in A1.
 #####    Evan Bookbinder    05-05-2013 handleClosesPoints and 3rd bullet changes (OVER & now) 
 #####    Evan Bookbinder    09-20-2013 Fixed rural area otherPoints in pathcast section, added rural phrase
+#####         Qinglu Lin    03-17-2014 DR 16309. Updated inserttorwatches and insertsvrwatches. 
+#####         Qinglu Lin    05-21-2014 DR 16309. Updated inserttorwatches and insertsvrwatches by changing 'FOR##' to 'FOR ##'.
+#####         D. Friedman   08-28-2014 ASM #15658.  Add marine watch wording.
+#####         Qinglu Lin    09-15-2014 ASM #15551. Overhauled inserttorwatches and insertsvrwatches, added until.
+#####         Qinglu Lin    10-06-2014 ASN #556.   Updated secondBullet.
+#####    Evan Bookbinder    10-24-2014 Fixed UGC > 500 check for Indep Cities in svrl macros to ignore zone codes
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -187,70 +193,121 @@ ${drainage.name}##
 ########END MACRO
 
 #macro(inserttorwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($torWatches = ${watches.getTorWatches()})
-#set($torWatchAlso = "")
-#set($torWatchFirst = 1)
-#foreach(${watch} in ${torWatches})
-#if($torWatchFirst)
-#set($torWatchFirst = 0)
-#else
- ##
+#set($tornadoWatches = [])
+#set($ALSO = "")
+
+#foreach(${watch} in ${watches})
+#if(${watch.getPhenSig()} == 'TO.A')
+#set($success = $tornadoWatches.add($watch))
 #end
-A TORNADO WATCH ${torWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${localtimezone})}##
-#if(${secondtimezone})
-/${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
-#end
- FOR ##
-#set($numPortions = ${list.size(${watch.getPortions()})})
-#set($count = 0)
-#foreach(${portion} in ${watch.getPortions()})
-#set($count = $count + 1)
-#areaFormat(${portion.partOfParentRegion} true false false) ${portion.parentRegion}##
-#if($count == $numPortions - 1)
- AND ##
-#elseif($count < $numPortions)
-...##
-#end
-#end
-#set($torWatchAlso = "ALSO ")
-.##
 #end
 
+#set($etns = [])
+#set($lastTime = "")
+#set($currTime = "")
+#set($lastEtn = "")
+#set($count = 0)
+#foreach(${watch} in ${tornadoWatches})
+#set($success = $etns.add(${watch.etn}))
+#end
+#foreach(${watch} in ${tornadoWatches})
+#set($count = $count + 1)
+#if(${lastEtn} != "" && ${watch.etn} != ${lastEtn})
+. ##
+#end
+#set($endTime = ${watch.endTime})
+#if(${watch.etn} != ${lastEtn})
+#set($lastTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
+A TORNADO WATCH${ALSO} REMAINS IN EFFECT ${lastTime}##
+#set($ALSO = " ALSO")
+#else
+#if(!$foreach.hasNext() || ${watch.etn} != $etns.get(${count}))
+ AND ##
+#else
+...##
+#end
+#set($currTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
+#if(${currTime} != ${lastTime})
+${currTime}##
+#set($lastTime = ${currTime})
+#end
+#end
+#if(!${watch.marineArea})
+#areaFormat(${watch.partOfState} true false true)${watch.state}##
+#else
+#formatMarineArea(${watch.marineArea})
+#end
+#set($lastEtn = ${watch.etn})
+#end
+#if(${lastEtn} != "")
+.
+#end
 #end
 ########END MACRO
 
-#macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($svrWatches = ${watches.getSvrWatches()})
-#set($svrWatchAlso = "")
-#set($svrWatchFirst = 1)
-#foreach(${watch} in ${svrWatches})
-#if($svrWatchFirst)
-#set($svrWatchFirst = 0)
-#else
- ##
-#end
-A SEVERE THUNDERSTORM WATCH ${svrWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${watches.getLatestSvrTime()},${timeFormat.plain}, 15, ${localtimezone})}##
+#macro(until $endTime $timeFormat $secondtimezone $watch)
+UNTIL ${dateUtil.formatUseNoonMidnight(${endTime}, ${timeFormat.clock}, 15, ${localtimezone})}##
 #if(${secondtimezone})
-/${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
+/${dateUtil.formatUseNoonMidnight(${watch.getEndTime()}, ${timeFormat.clock}, 15, ${secondtimezone})}/##
 #end
  FOR ##
-#set($numPortions = ${list.size(${watch.getPortions()})})
-#set($count = 0)
-#foreach(${portion} in ${watch.getPortions()})
-#set($count = $count + 1)
-#areaFormat(${portion.partOfParentRegion} true false) ${portion.parentRegion}##
-#if($count == $numPortions - 1)
- AND ##
-#elseif($count < $numPortions)
-...##
-#end
-#end
-#set($svrWatchAlso = "ALSO ")
-.##
 #end
 
+#macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
+#set($svrWatches = [])
+#set($ALSO = "")
+
+#foreach(${watch} in ${watches})
+#if(${watch.getPhenSig()} == 'SV.A')
+#set($success = $svrWatches.add($watch))
+#end
+#end
+
+#set($etns = [])
+#set($lastTime = "")
+#set($currTime = "")
+#set($lastEtn = "")
+#set($count = 0)
+#foreach(${watch} in ${svrWatches})
+#set($success = $etns.add(${watch.etn}))
+#end
+#foreach(${watch} in ${svrWatches})
+#set($count = $count + 1)
+#if(${lastEtn} != "" && ${watch.etn} != ${lastEtn})
+. ##
+#end
+#set($endTime = ${watch.endTime})
+#if(${watch.etn} != ${lastEtn})
+#set($lastTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
+A SEVERE THUNDERSTORM WATCH${ALSO} REMAINS IN EFFECT ${lastTime}##
+#set($ALSO = " ALSO")
+#else
+#if(!$foreach.hasNext() || ${watch.etn} != $etns.get(${count}))
+ AND ##
+#else
+...##
+#end
+#set($currTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
+#if(${currTime} != ${lastTime})
+${currTime}##
+#set($lastTime = ${currTime})
+#end
+#end
+#if(!${watch.marineArea})
+#areaFormat(${watch.partOfState} true false true)${watch.state}##
+#else
+#formatMarineArea(${watch.marineArea})
+#end
+#set($lastEtn = ${watch.etn})
+#end
+#if(${lastEtn} != "")
+.
+#end
+#end
+########END MACRO
+
+#macro(formatMarineArea $marineArea)
+${marineArea}##
 #end
 ########END MACRO
 
@@ -366,18 +423,6 @@ SOUTH##
 #if(${list.contains($directionSet, "WEST")})
 #set($output = "${output}WEST")
 #end
-#if(${list.contains($directionSet, "NE")})
-#set($output = "${output}NORTHEAST")
-#end 
-#if(${list.contains($directionSet, "NW")})
-#set($output = "${output}NORTHWEST")
-#end 
-#if(${list.contains($directionSet, "SE")})
-#set($output = "${output}SOUTHEAST")
-#end 
-#if(${list.contains($directionSet, "SW")})
-#set($output = "${output}SOUTHWEST")
-#end 
 #if(${useCentral} && ${list.contains($directionSet, "CENTRAL")}) 
 #if(${list.contains($directionSet, "NORTH")} || ${list.contains($directionSet, "SOUTH")} || ${list.contains($directionSet, "EAST")} || ${list.contains($directionSet, "WEST")})
 #set($output = "${output} ")
@@ -514,6 +559,12 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 ## useExtremexxx = boolean to use the word EXTREME in the county of State phrase
 ##################################################################
 #macro(headlineLocList $areas $useCentralCounty $useExtremeCounty $useCentralState $useExtremeState)
+#### DETERMINE IF WE HAVE A FIPS OR ZONE BASED PRODUCT
+#if(${areaSource.equalsIgnoreCase("COUNTY")})
+#set($areaFIPS = true)
+#else
+#set($areaFIPS = false)
+#end
 #set($countyCount = 0)
 #set($countyCounter = 0)
 #set($itemCount = 0)
@@ -554,7 +605,7 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 #end
 #set($FIPS = ${area.fips.substring(${fipsIdx})})
 #set($intFIPS = 0)
-#if(${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX")
+#if(${intFIPS.parseInt($FIPS)} < 500 || ${areaFIPS} == "false" || ${area.stateabbr} == "TX")
 #set($countyCounter = $countyCounter + 1)
 ##INITIALIZE CHECK VARIABLES
 #if($countyCount == 0)
@@ -744,7 +795,7 @@ ${prevCounty}##
 #foreach (${area} in ${areas})
 #set($FIPS = ${area.fips.substring(2)})
 #set($intFIPS = 0)
-#if(${intFIPS.parseInt($FIPS)} >= 500 && ${area.stateabbr} != "TX")
+#if(${intFIPS.parseInt($FIPS)} >= 500 && ${area.stateabbr} != "TX" && ${areaFIPS} == "true")
 #set($indepCityCount= $indepCityCount + 1)
 #if(${indepCityCount} == 1 && ${countyCount} > 0)
 #if(${countyCounter} > 1) 
@@ -1003,7 +1054,7 @@ ${prevZone}##
 #set($FIPS = ${area.fips.substring(2)})
 #set($intFIPS = 0)
 ##OUTPUT FOR NORMAL COUNTIES/ZONES
-#if((${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
+#if((${intFIPS.parseInt($FIPS)} < 500 || ${areaFIPS} == "false" || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} true true true)##
 #end
@@ -1107,7 +1158,7 @@ THE FOLLOWING COUNTIES AND PARISHES...
 #set($intFIPS = 0)
 #set($partOfArea = "")
 ##OUTPUT FOR NORMAL COUNTIES/ZONES
-#if((${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
+#if((${intFIPS.parseInt($FIPS)} < 500 || ${areaFIPS} == "false" || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
 #if(${area.partOfArea})
 #set($partOfArea = "#areaFormat(${area.partOfArea} true true true)")
 #end
@@ -1141,15 +1192,15 @@ ${partOfArea}${area.name}...
 ######### MACRO TO GENERATE SECOND BULLET (UNTIL XXXX AMPM TZ (DAY) IN WARNINGS ##########
 #macro(secondBullet $dateUtil $expire $timeFormat $localtimezone $secondtimezone $duration)
 #if(${duration} >= 360)
-UNTIL ${dateUtil.format(${expire}, ${timeFormat.plain}, 15, ${localtimezone})}##
+UNTIL ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${localtimezone})}##
 #else
-UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}##
+UNTIL ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}##
 #end
 #if(${secondtimezone})
 #if(${duration} >= 360)
-/${dateUtil.format(${expire}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
+/${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #else
-/${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${secondtimezone})}/##
+/${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, 15, ${secondtimezone})}/##
 #end
 #end
 #end

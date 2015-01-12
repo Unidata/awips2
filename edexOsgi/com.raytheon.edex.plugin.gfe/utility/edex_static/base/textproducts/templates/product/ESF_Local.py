@@ -27,6 +27,15 @@
 #
 # Author: Matt Davis
 # ----------------------------------------------------------------------------
+##
+#
+# SOFTWARE HISTORY
+# Date            Ticket#        Engineer    Description
+# ------------    ----------     ----------- --------------------------
+# Oct 20, 2014    #3685          randerso    Changed to support mixed case
+#
+##
+
 #-------------------------------------------------------------------------
 # Example Output:
 # Refer to the NWS 10-922 Directive for further information.
@@ -119,10 +128,10 @@ class TextProduct(GenericReport.TextProduct):
 
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, self._productName)
-        fcst = fcst + productName + "\n" + \
+        s = productName + "\n" + \
                "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst = string.upper(fcst)
+        fcst = fcst + s.upper()
         return fcst
 
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
@@ -132,8 +141,6 @@ class TextProduct(GenericReport.TextProduct):
         return fcst
 
     def _postProcessProduct(self, fcst, argDict):
-        fcst = string.upper(fcst)
-
         #
         # Clean up multiple line feeds
         #

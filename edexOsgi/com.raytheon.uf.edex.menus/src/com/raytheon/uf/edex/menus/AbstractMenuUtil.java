@@ -40,7 +40,7 @@ import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * 
- * Abstract class for generting menu files
+ * Abstract class for generating menu files
  * 
  * <pre>
  * 
@@ -48,7 +48,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 8, 2012            mschenke     Initial javadoc creation
+ * Nov 08, 2012            mschenke    Initial javadoc creation
+ * Mar 11, 2014    2858    mpduff      javadoc updates
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * @version 1.0
  */
 public abstract class AbstractMenuUtil {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractMenuUtil.class);
 
     private final PathManager pm = (PathManager) PathManagerFactory
@@ -70,6 +71,9 @@ public abstract class AbstractMenuUtil {
 
     private String site = null;
 
+    /**
+     * Create the menu contribution xml.
+     */
     public abstract void createMenus();
 
     /**
@@ -93,7 +97,10 @@ public abstract class AbstractMenuUtil {
      * Convert menu objects to xml and writes them to disk
      * 
      * @param object
+     *            The object to marshal
+     * 
      * @param path
+     *            The path
      */
     public void toXml(Object object, String path) {
         try {
@@ -107,17 +114,13 @@ public abstract class AbstractMenuUtil {
             if (!file.getFile().exists()) {
                 file.getFile().getParentFile().mkdirs();
             }
-            // if (file.exists()) {
-            // statusHandler.info("Did not need to create the menu : "
-            // + file.getName());
-            // return;
-            // }
+
             marshaller.marshal(object, pm.getFile(caveConfigured, path));
             file.save();
         } catch (JAXBException e) {
-            statusHandler.error("Unable to process the menu", e);
+            statusHandler.error("Unable to process the menu: " + path, e);
         } catch (LocalizationOpFailedException e) {
-            statusHandler.error("Unable to process the menu", e);
+            statusHandler.error("Unable to process the menu: " + path, e);
         }
     }
 
@@ -132,6 +135,16 @@ public abstract class AbstractMenuUtil {
         return object;
     }
 
+    /**
+     * Unmarshal an xml file.
+     * 
+     * @param path
+     *            The path of the file
+     * @param lContext
+     *            The localization context
+     * 
+     * @return The xml object
+     */
     public Object fromXml(String path, LocalizationContext lContext) {
         Object object = null;
         try {
@@ -142,17 +155,26 @@ public abstract class AbstractMenuUtil {
                 object = unmarshaller.unmarshal(file.getFile());
             }
         } catch (JAXBException e) {
-            e.printStackTrace();
+            statusHandler.error("Error unmarshalling " + path, e);
         }
+
         return object;
     }
 
+    /**
+     * Check to see whether the menu creator needs to be run
+     * 
+     * @return true if it needs to be run
+     */
     protected abstract boolean checkCreated();
 
     /**
      * Check to see whether the menu creator needs to be run
      * 
-     * @return
+     * @param fileName
+     * @param type
+     * 
+     * @return true if it needs to be run
      */
     public boolean checkCreated(String fileName, String type) {
         LocalizationContext context = pm.getContextForSite(
@@ -180,13 +202,14 @@ public abstract class AbstractMenuUtil {
                 statusHandler.error("Error saving menu creation time file", e);
             }
             return false;
-        } else {
-            statusHandler.info("Timestamp in " + fileName
-                    + " was before timestamp in ." + type + "MenuTime");
-            statusHandler.info("Menus already created for site " + getSite()
-                    + " for " + type);
-            return true;
         }
+
+        statusHandler.info("Timestamp in " + fileName
+                + " was before timestamp in ." + type + "MenuTime");
+        statusHandler.info("Menus already created for site " + getSite()
+                + " for " + type);
+        return true;
+
     }
 
     /**

@@ -28,13 +28,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.site.SiteUtil;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.edex.ndm.ingest.IDataSetIngester;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.edex.plugin.loctables.util.CommonObsSpatialBuilder;
 import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.handlers.DefaultHandler;
@@ -45,12 +41,9 @@ import com.raytheon.uf.edex.plugin.loctables.util.handlers.PirepTableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.handlers.RAOBTableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.handlers.SynopticLandTableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationStoreStrategy;
-import com.raytheon.uf.edex.plugin.loctables.util.store.PrintStreamStoreStrategy;
-import com.raytheon.uf.edex.plugin.loctables.util.store.RowStoreStrategy;
-import com.raytheon.uf.edex.site.ingest.IDataSetIngester;
 
 /**
- * TODO Add Description
+ * Location Tables NDM subscriber
  * 
  * <pre>
  * 
@@ -58,7 +51,11 @@ import com.raytheon.uf.edex.site.ingest.IDataSetIngester;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2010            jkorman     Initial creation
+ * Apr 08, 2010            jkorman     Initial creation
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
+ * Apr 28, 2014   3086     skorolev    Updated setupLocalFiles method
+ * Sep 04, 2014   3220     skorolev    Removed parameter currentSite from FSSObs configuration managers.
+ * Oct 17, 2014   3220     skorolev    Corrected FSSObsMonitorConfigurationManager instances.
  * 
  * </pre>
  * 
@@ -74,12 +71,18 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
 
     private IDataSetIngester ingester = null;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     @SuppressWarnings("unused")
     private LocationTablesIngest() {
     }
 
+    /**
+     * Location Tables Ingest.
+     * 
+     * @param pluginName
+     * @param ingester
+     */
     public LocationTablesIngest(String pluginName, IDataSetIngester ingester) {
         this.ingester = ingester;
 
@@ -89,7 +92,7 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
     }
 
     /**
-     * 
+     * Setup Handlers.
      */
     private void setupHandlers() {
 
@@ -119,20 +122,15 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
         }
     }
 
+    /**
+     * Setup local FSSObs managers.
+     */
     private void setupLocalFiles() {
-        String currentSite = SiteUtil.getSite();
+        List<FSSObsMonitorConfigurationManager> monitors = new ArrayList<FSSObsMonitorConfigurationManager>();
 
-        List<MonitorConfigurationManager> monitors = new ArrayList<MonitorConfigurationManager>();
-        monitors.add(FogMonitorConfigurationManager.getInstance());
-        monitors.add(SSMonitorConfigurationManager.getInstance());
-        monitors.add(SnowMonitorConfigurationManager.getInstance());
-        for (MonitorConfigurationManager monitor : monitors) {
-            try {
-                monitor.readConfigXml(currentSite);
-            } catch (Throwable t) {
-                logger.error("Could not configure " + monitor.getClass().getName() + " for site " + currentSite, t);
-            }
-        }
+        monitors.add(FSSObsMonitorConfigurationManager.getSsObsManager());
+        monitors.add(FSSObsMonitorConfigurationManager.getFogObsManager());
+        monitors.add(FSSObsMonitorConfigurationManager.getSnowObsManager());
     }
 
     /**
@@ -153,6 +151,7 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
     }
 
     /**
+     * Gets Handler.
      * 
      * @param file
      * @return
@@ -175,8 +174,9 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
     }
 
     /**
+     * Gets Handlers.
      * 
-     * @return
+     * @return handlers
      */
     public Map<String, TableHandler> getHandlers() {
         return handlers;

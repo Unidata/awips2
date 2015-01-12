@@ -27,9 +27,11 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    12/17/12                      njensen       Initial Creation.
-#    Feb 14, 2013    1614          bsteffen       refactor data access framework
+#    Dec 17, 2012                  njensen        Initial Creation.
+#    Feb 14, 2013    1614          bsteffen       Refactor data access framework
 #                                                 to use single request.
+#    Jul 22, 2014    3185          njensen        Fix getters to return python objs
+#    Aug 13, 2014    3185          njensen        Fix setEnvelope() typo
 #    
 # 
 #
@@ -70,7 +72,7 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
         from com.vividsolutions.jts.geom import Envelope        
         bounds = env.bounds        
         jenv = Envelope(bounds[0], bounds[2], bounds[1], bounds[3])
-        self.jobj.setEnvelope(bounds)
+        self.jobj.setEnvelope(jenv)
 
     def setLocationNames(self, *args):
         from java.lang import String as JavaString
@@ -85,15 +87,10 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
     def getIdentifiers(self):
         ids = {}
         jmap = self.jobj.getIdentifiers()
-        itr = jmap.keySet().iterator()
-        while itr.hasNext():
-            key = itr.next()
-            value = JUtil.javaObjToPyVal(jmap.get(key))
-            ids[key] = value
-        return ids
+        return JUtil.javaObjToPyVal(jmap)
     
     def getParameters(self):
-        return self.jobj.getParameters()
+        return JUtil.javaObjToPyVal(self.jobj.getParameters())
     
     def getLevels(self):
         levels = []
@@ -106,12 +103,13 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
         env = None
         jenv = self.jobj.getEnvelope()        
         if jenv:
+            import shapely
             from com.vividsolutions.jts.geom import GeometryFactory
             env = shapely.wkt.loads(GeometryFactory().toGeometry(jenv).toText())
         return env 
     
     def getLocationNames(self):        
-        return self.jobj.getLocationNames()
+        return JUtil.javaObjToPyVal(self.jobj.getLocationNames())
     
     def toJavaObj(self):
         return self.jobj

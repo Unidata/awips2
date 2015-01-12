@@ -8,7 +8,7 @@
         <!-- Non clustered, specifically used by handleOUP.py to push published files directly into stream -->
         <!-- This route does not delete the file passed!  If delete is needed, create a new route and use moveFileToArchive -->
 		<route id="manualFilePush">
-		    <from uri="jms-durable:queue:Ingest.manual"/>
+		    <from uri="jms-durable:queue:Ingest.manual?concurrentConsumers=5"/>
 			<doTry>
 			    <bean ref="stringToFile"/>
 			    <bean ref="manualProc" />

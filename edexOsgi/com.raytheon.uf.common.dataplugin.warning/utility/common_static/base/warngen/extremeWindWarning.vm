@@ -191,10 +191,10 @@ THE SAFEST PLACE TO BE DURING A MAJOR LANDFALLING HURRICANE IS IN A REINFORCED I
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 

@@ -23,8 +23,6 @@ package com.raytheon.uf.edex.ohd.pproc;
 import java.io.File;
 import java.sql.Timestamp;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.opengis.metadata.spatial.PixelOrientation;
 
@@ -38,6 +36,8 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -53,8 +53,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date              Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 06, 2011       5951      jnjanga     Initial creation
- * Jan 10, 2013 1448       bgonzale    Added app context check in runOnSchedule().
+ * Jan 10, 2013       1448      bgonzale    Added app context check in runOnSchedule().
  * Jan 18, 2013       1469      bkowal      Removed the hdf5 data directory.
+ * Mar 28, 2014       2952      mpduff      Changed to use UFStatus for logging.
+ * Jun 05, 2014       3226      bclement    BinLightning refactor
+ * Aug 20, 2014       3549      njensen     Fixed spelling in exceptions
+ * Sep 17, 2014       3015      bclement    improved exception handling
+ * Dec 04, 2014       3015      njensen     Corrected usage of Coordinate(x, y)
  * 
  * </pre>
  * 
@@ -80,7 +85,8 @@ public class MpeLightningSrv {
         }
     }
 
-    private Log logger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(MpeLightningSrv.class);
 
     /**
      * Check the metadata Database for new lightning entries.
@@ -96,7 +102,7 @@ public class MpeLightningSrv {
             rs = (QueryResult) coreDao.executeNativeSql(lgtSQL, true);
         } catch (Exception e) {
             throw new EdexException("Couldn't get BinLightning records from"
-                    + " metadata database. " + e);
+                    + " metadata database. Failed SQL: " + lgtSQL, e);
         }
         return rs.getRows();
     }
@@ -136,7 +142,7 @@ public class MpeLightningSrv {
             float[] latitudes = ltngRec.getLatitudes();
             float[] longitudes = ltngRec.getLongitudes();
             long[] obstimes = ltngRec.getObsTimes();
-            byte[] strikes = ltngRec.getStrikeCounts();
+            byte[] strikes = ltngRec.getPulseCounts();
 
             // convert latitude and longitude to grid coordinate
             HRAP hrap = HRAP.getInstance();
@@ -147,8 +153,8 @@ public class MpeLightningSrv {
             for (int i = 0; i < latitudes.length; i++) {
                 float lat = latitudes[i];
                 float lon = longitudes[i];
-                Coordinate latLon = new Coordinate(lat, lon);
-                gridCell = hrap.latLonToGridCoordinate(latLon, po);
+                Coordinate c = new Coordinate(lon, lat);
+                gridCell = hrap.latLonToGridCoordinate(c, po);
                 x_hgrids[i] = (short) gridCell.x;
                 y_hgrids[i] = (short) gridCell.y;
             }
@@ -180,13 +186,16 @@ public class MpeLightningSrv {
 
         } catch (StorageException se) {
             throw new EdexException(
-                    "Could not retrive datasets from datastore : " + se);
+                    "Could not retrieve datasets from datastore for dataURI: "
+                            + dataURI, se);
         } catch (HibernateException he) {
             throw new EdexException(
-                    "Could not insert into ifhs ligthning table : " + he);
+                    "Could not insert into ifhs lightning table for dataURI: "
+                            + dataURI, he);
         } catch (Exception e) {
-            throw new EdexException("Could not convert to grid coordinate : "
-                    + e);
+            throw new EdexException(
+                    "Could not convert to grid coordinate for dataURI: "
+                            + dataURI, e);
         }
     }
 

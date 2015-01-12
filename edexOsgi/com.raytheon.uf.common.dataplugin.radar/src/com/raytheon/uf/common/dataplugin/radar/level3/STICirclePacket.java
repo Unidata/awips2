@@ -24,19 +24,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * A {@link SymbologyPacket} containing multiple {@link STICirclePoint}s.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 1-26-2009               mnash       Initial Creation
- * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 26, 2009           mnash    Initial creation
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -44,8 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class STICirclePacket extends SymbologyPacket implements
-        ISerializableObject {
+public class STICirclePacket extends SymbologyPacket {
 
     /**
      * @param packetId
@@ -61,7 +60,7 @@ public class STICirclePacket extends SymbologyPacket implements
     }
 
     @DynamicSerialize
-    public static class STICirclePoint implements ISerializableObject {
+    public static class STICirclePoint {
         @DynamicSerializeElement
         public int i;
 

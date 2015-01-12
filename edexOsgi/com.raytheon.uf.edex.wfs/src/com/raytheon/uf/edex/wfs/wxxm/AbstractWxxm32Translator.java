@@ -22,7 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.measure.converter.UnitConverter;
+import javax.measure.Measure;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.Quantity;
+import javax.measure.quantity.Temperature;
+import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
@@ -59,7 +65,6 @@ import com.eurocontrol.wx.v_1_1_1.VerticalDistanceType;
 import com.eurocontrol.wx.v_1_1_1.WeatherIntensityType;
 import com.eurocontrol.wx.v_1_1_1.WindDirectionType;
 import com.eurocontrol.wx.v_1_1_1.WindSpeedType;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -88,6 +93,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 27, 2012            bclement     Initial creation
+ * Jun 18, 2014 2061       bsteffen    Replace Amount with Measure
  * 
  * </pre>
  * 
@@ -303,14 +309,11 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      * @param amount
      * @return null if amount is null
      */
-    protected PressureType getPressure(Amount amount) {
+    protected PressureType getPressure(Measure<?, Pressure> amount) {
         if (amount == null) {
             return null;
         }
-        double value = amount.getValue().doubleValue();
-        Unit<?> unit = amount.getUnit();
-        UnitConverter converter = unit.getConverterTo(SI.PASCAL);
-        double paValue = converter.convert(value);
+        double paValue = amount.doubleValue(SI.PASCAL);
         PressureType rval = new PressureType();
         rval.setValue(paValue);
         rval.setUom(UomPressureType.PA);
@@ -322,11 +325,12 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      * @param uom
      * @return null if value is null
      */
-    protected Amount createAmount(Double value, Unit<?> uom) {
+    protected <Q extends Quantity> Measure<Double, Q> createAmount(
+            Double value, Unit<Q> uom) {
         if (value == null) {
             return null;
         }
-        return new Amount(value, uom);
+        return Measure.valueOf(value, uom);
     }
 
     /**
@@ -334,11 +338,12 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      * @param uom
      * @return null if value is null
      */
-    protected Amount createAmount(double value, Unit<?> uom, double missingVal) {
+    protected <Q extends Quantity> Measure<Double, Q> createAmount(
+            double value, Unit<Q> uom, double missingVal) {
         if (value == missingVal) {
             return null;
         }
-        return new Amount(value, uom);
+        return Measure.valueOf(value, uom);
     }
 
     /**
@@ -346,11 +351,12 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      * @param uom
      * @return null if value is null
      */
-    protected Amount createAmount(Integer value, Unit<?> uom) {
+    protected <Q extends Quantity> Measure<Integer, Q> createAmount(
+            Integer value, Unit<Q> uom) {
         if (value == null) {
             return null;
         }
-        return new Amount(value, uom);
+        return Measure.valueOf(value, uom);
     }
 
     /**
@@ -384,14 +390,11 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      * @param amount
      * @return null if amount is null
      */
-    protected AirTemperatureType getAirTemp(Amount amount) {
+    protected AirTemperatureType getAirTemp(Measure<?, Temperature> amount) {
         if (amount == null) {
             return null;
         }
-        double value = amount.getValue().doubleValue();
-        Unit<?> unit = amount.getUnit();
-        UnitConverter converter = unit.getConverterTo(SI.CELSIUS);
-        double celValue = converter.convert(value);
+        double celValue = amount.doubleValue(SI.CELSIUS);
         return getAirTemp(celValue, UomTemperatureType.C);
     }
 
@@ -401,14 +404,11 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      * @param amount
      * @return null if amount is null
      */
-    protected WindSpeedType getWindSpeed(Amount amount) {
+    protected WindSpeedType getWindSpeed(Measure<?, Velocity> amount) {
         if (amount == null) {
             return null;
         }
-        double value = amount.getValue().doubleValue();
-        Unit<?> unit = amount.getUnit();
-        UnitConverter converter = unit.getConverterTo(NonSI.KNOT);
-        double knotVal = converter.convert(value);
+        double knotVal = amount.doubleValue(NonSI.KNOT);
         WindSpeedType rval = new WindSpeedType();
         rval.setValue(knotVal);
         rval.setUom(UomSpeedType.KT);
@@ -421,14 +421,11 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      * @param amount
      * @return null if amount is null
      */
-    protected WindDirectionType getWindDir(Amount amount) {
+    protected WindDirectionType getWindDir(Measure<?, Angle> amount) {
         if (amount == null) {
             return null;
         }
-        double value = amount.getValue().doubleValue();
-        Unit<?> unit = amount.getUnit();
-        UnitConverter converter = unit.getConverterTo(NonSI.DEGREE_ANGLE);
-        double degValue = converter.convert(value);
+        double degValue = amount.doubleValue(NonSI.DEGREE_ANGLE);
         WindDirectionType rval = new WindDirectionType();
         rval.setValue(degValue);
         rval.setUom(UomAngleType.DEG);
@@ -568,14 +565,11 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      * @param amount
      * @return null if amount is null
      */
-    protected VerticalDistanceType getVertDist(Amount amount) {
+    protected VerticalDistanceType getVertDist(Measure<?, Length> amount) {
         if (amount == null) {
             return null;
         }
-        double value = amount.getValue().doubleValue();
-        Unit<?> unit = amount.getUnit();
-        UnitConverter converter = unit.getConverterTo(NonSI.FOOT);
-        double ftValue = converter.convert(value);
+        double ftValue = amount.doubleValue(NonSI.FOOT);
         VerticalDistanceType rval = new VerticalDistanceType();
         rval.setValue(ftValue);
         rval.setUom(UomDistanceType.FT);
@@ -657,7 +651,8 @@ public abstract class AbstractWxxm32Translator<T extends PluginDataObject>
      * @return
      */
     protected FeaturePropertyType createFeatureOfInterest(
-            JAXBElement<AbstractGeometryType> geom, Amount base, Amount top) {
+            JAXBElement<AbstractGeometryType> geom, Measure<?, Length> base,
+            Measure<?, Length> top) {
         FeaturePropertyType rval = new FeaturePropertyType();
         AirspaceType airspaceType = avFactory.createAirspaceType();
         if (base != null) {

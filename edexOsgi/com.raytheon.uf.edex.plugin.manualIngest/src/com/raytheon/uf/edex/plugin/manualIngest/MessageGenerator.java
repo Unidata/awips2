@@ -38,9 +38,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.header.WMOHeaderFinder;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.distribution.DistributionPatterns;
 
 /**
@@ -56,6 +55,10 @@ import com.raytheon.uf.edex.distribution.DistributionPatterns;
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2009            brockwoo    Initial creation
  * Sep 03, 2013 2327       rjpeter     Added directory routing by plugin and date of product.
+ * Apr 17, 2014 2942       skorolev    Updated throw exception in sendFileToIngest.
+ * May 14, 2014 2536       bclement    removed TimeTools usage
+ * Jul 10, 2014 2914       garmendariz Remove EnvProperties
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -66,8 +69,7 @@ public class MessageGenerator implements Processor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MessageGenerator.class);
 
-    private static String DIR = PropertiesFactory.getInstance()
-            .getEnvProperties().getEnvValue("ARCHIVEDIR")
+    private static String DIR = System.getProperty("data.archive.root")
             + File.separator + "manual";
 
     private static MessageGenerator instance = new MessageGenerator();
@@ -166,7 +168,7 @@ public class MessageGenerator implements Processor {
             header = header.trim();
             try {
                 String dtg = WMOHeaderFinder.findDtg(header);
-                Calendar headerTime = TimeTools.findCurrentTime(dtg,
+                Calendar headerTime = WMOTimeParser.findCurrentTime(dtg,
                         inFile.getName());
                 if (headerTime != null) {
                     fileTime = headerTime.getTime();
@@ -285,6 +287,10 @@ public class MessageGenerator implements Processor {
 
         try {
             File archiveFile = copyFileToArchive(new File(inFile));
+            if (archiveFile == null) {
+                throw new Exception("File " + inFile
+                        + " has not been copied into archive.");
+            }
             EDEXUtil.getMessageProducer().sendAsync(route,
                     archiveFile.getAbsolutePath());
         } catch (Exception e) {

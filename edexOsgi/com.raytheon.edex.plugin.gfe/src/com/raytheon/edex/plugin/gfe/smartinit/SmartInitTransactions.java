@@ -37,13 +37,13 @@ import org.hibernate.criterion.Restrictions;
 
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecordPK.State;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
+import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 
 /**
- * TODO Add Description
+ * SmartInit Transactions
  * 
  * <pre>
  * 
@@ -51,6 +51,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 12, 2010            njensen     Initial creation
+ * May 20, 2014 #3069      randerso    Added validTime to sort order when 
+ *                                     choosing next smartInit to run
  * 
  * </pre>
  * 
@@ -104,8 +106,8 @@ public class SmartInitTransactions {
                                 LockOptions.UPGRADE);
                         // double check to make sure another process hasn't
                         // already grabbed it and the run didn't finish
-                        if (record != null
-                                && record.getInsertTime().getTime() < timeOutCheck) {
+                        if ((record != null)
+                                && (record.getInsertTime().getTime() < timeOutCheck)) {
                             logger.info("Running smartInit " + record.getId()
                                     + " timed out.  Rerunning smartInit.");
                             record.setInsertTime(new Date(System
@@ -120,8 +122,9 @@ public class SmartInitTransactions {
 
             // query the pending table for available inits
             Criteria pendingCrit = sess.createCriteria(SmartInitRecord.class);
-            pendingCrit.addOrder(Order.asc("priority")).addOrder(
-                    Order.asc("insertTime"));
+            pendingCrit.addOrder(Order.asc("priority"))
+                    .addOrder(Order.asc("insertTime"))
+                    .addOrder(Order.asc("id.validTime"));
             long pendingTimeRest = System.currentTimeMillis()
                     - pendingInitMinTimeMillis;
 
@@ -151,8 +154,8 @@ public class SmartInitTransactions {
                         record.getId(), LockOptions.UPGRADE);
 
                 // double check its still valid
-                if (record != null
-                        && record.getInsertTime().getTime() <= pendingTimeRest) {
+                if ((record != null)
+                        && (record.getInsertTime().getTime() <= pendingTimeRest)) {
                     sess.delete(record);
                     // can we update primary key in place?? or do we need to
                     // delete then add

@@ -110,10 +110,10 @@ public class DPAFile {
 
             fis.close();
         } catch (FileNotFoundException e) {
-            System.out.println("DPA file not found " + e);
+            System.out.println("Radar file not found " + e);
             // throw e;
         } catch (IOException e) {
-            System.out.println("IO Error on DPA file " + e);
+            System.out.println("IO Error attempting to read radar file " + e);
             // throw e;
         }
     }
@@ -171,7 +171,7 @@ public class DPAFile {
      * @return
      */
     public double[][] getStage1i() {
-        System.out.println("Getting Stage1i Data...");
+        System.out.println("Getting Radar Data...");
         return stage1i;
     }
 
@@ -181,7 +181,7 @@ public class DPAFile {
      * @return
      */
     public double[][] getStage1u() {
-        System.out.println("Getting Stage1u Data...");
+        System.out.println("Getting Radar Data multiplied by MFB...");
         return stage1u;
     }
 

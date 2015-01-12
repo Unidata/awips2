@@ -36,9 +36,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.raytheon.edex.plugin.shef.util.SHEFDate;
 import com.raytheon.edex.plugin.shef.util.ShefUtil;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -47,15 +45,17 @@ import com.raytheon.uf.common.time.DataTime;
 /**
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * June2006     314         Phillippe   Initial Creation.
- * Nov 29, 2007 472         jkorman     Added IDecoderGettable interface.
- * Mar 19, 2008 387         M. Duff     Modified to store SHEF data.
- * May 07, 2013 1869        bsteffen    Remove dataURI column from
- *                                      PluginDataObject.
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
- * </pre>
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun ??, 2006  314      Phillippe   Initial Creation.
+ * Nov 29, 2007  472      jkorman     Added IDecoderGettable interface.
+ * Mar 19, 2008  387      M. Duff     Modified to store SHEF data.
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from
+ *                                    PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * 
+ </pre>
  * 
  * @author bphillip
  * @version 1
@@ -128,9 +128,6 @@ public class ShefRecord extends PluginDataObject {
 
     @Transient
     private SHEFDate createDate = null;
-
-    @Transient
-    private final int durationValue = ParameterCode.Duration.DEFAULT.getValue();
 
     /**
      * Empty constructor
@@ -548,17 +545,6 @@ public class ShefRecord extends PluginDataObject {
      */
     public void setMessageSource(String msgSrc) {
         messageSource = msgSrc;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     @Override

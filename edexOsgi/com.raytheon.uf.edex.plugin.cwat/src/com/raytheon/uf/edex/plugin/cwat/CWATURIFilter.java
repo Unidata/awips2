@@ -32,6 +32,7 @@ import com.raytheon.edex.urifilter.URIFilter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/07/2009   1981       dhladky    Initial Creation.
+ * Aug 26, 2014 3503       bclement   removed serial version id
  * 
  * </pre>
  * 
@@ -40,11 +41,6 @@ import com.raytheon.edex.urifilter.URIFilter;
  */
 
 public class CWATURIFilter extends URIFilter {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -3535529277218686093L;
 
     /** an ICAO you may wish to use in matching */
     protected String icao = null;

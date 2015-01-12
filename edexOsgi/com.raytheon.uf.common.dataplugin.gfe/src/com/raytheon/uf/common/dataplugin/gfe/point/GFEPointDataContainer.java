@@ -26,19 +26,19 @@ import java.util.Set;
 
 import com.raytheon.uf.common.pointdata.IPointDataContainerReader;
 import com.raytheon.uf.common.pointdata.IPointDataViewReader;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * GFE Point Data Container
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2009            njensen     Initial creation
+ * Aug  4, 2009            njensen     Initial creation
+ * Apr 23, 2014  #3006     randerso    Added toString to aid in debugging
  * 
  * </pre>
  * 
@@ -47,8 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class GFEPointDataContainer implements IPointDataContainerReader,
-        ISerializableObject {
+public class GFEPointDataContainer implements IPointDataContainerReader {
 
     @DynamicSerializeElement
     private List<GFEPointDataView> views = new ArrayList<GFEPointDataView>();
@@ -102,6 +101,16 @@ public class GFEPointDataContainer implements IPointDataContainerReader,
 
     public void setViews(List<GFEPointDataView> views) {
         this.views = views;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return views.toString();
     }
 
 }

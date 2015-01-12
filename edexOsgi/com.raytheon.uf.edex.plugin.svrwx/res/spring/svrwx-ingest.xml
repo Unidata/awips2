@@ -13,15 +13,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.svrwx" />
 	</bean>
 	
-	<bean id="svrwxCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="svrwx-camel"/>
-  	</bean> 	
-	
     <camelContext id="svrwx-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <route id="svrwxIngestRoute">
             <from uri="jms-durable:queue:Ingest.svrwx"/>

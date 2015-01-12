@@ -67,11 +67,11 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <!-- <trackEnabled>true</trackEnabled> -->  
  
   <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include torWatches and/or svrWatches, 
+ 	included with the warning product include TO.A and/or SV.A, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
-  <includedWatch>torWatches</includedWatch>
-  <includedWatch>svrWatches</includedWatch>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
  </includedWatches>
  
  <!-- durations: the list of possible durations of the warning -->
@@ -109,15 +109,12 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
   <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
   <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
-<!-- added by GP -->
   <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
-<!--  GP end -->
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="flash" bulletText="Flash flooding occurring" bulletGroup="event" parseString="FLASH FLOODING IS ALREADY OCCURRING."/>
-<!-- <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" parseString="MOVING"/> 
--->
+ <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" parseString="MOVING"/> 
   <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
   <bullet bulletName="burnScar" bulletText="Burn scar area with debris flow" bulletGroup="addevent" parseString="BURN SCAR"/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE"/>
@@ -160,9 +157,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
   <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
   <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/>
-<!-- added by GP -->
   <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
-<!--  GP end -->  
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
@@ -212,9 +207,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
   <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
   <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
-<!-- added by GP -->
   <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
-<!--  GP end -->
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>

@@ -72,8 +72,12 @@ public class RectFilterElement extends AbstractFilterElement implements ISeriali
     private double lowerRightLon = 0;
 
     /**
-     * This execute
-     * @see com.raytheon.uf.edex.decodertools.core.IObsFilterElement#filter(com.raytheon.uf.common.dataplugin.PluginDataObject)
+     * Executes this filter element against the supplied report data. The
+     * supplied report is returned if it matches the filter criteria. A null
+     * report reference is returned if the report fails.
+     * 
+     * @param report
+     * @return may be null
      */
     @Override
     public PluginDataObject filter(PluginDataObject report) {

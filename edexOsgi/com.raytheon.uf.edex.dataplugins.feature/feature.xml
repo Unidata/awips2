@@ -18,21 +18,14 @@
    </license>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.acars"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.acarssounding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.dataplugin.binlightning"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.ccfp"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -61,13 +54,6 @@
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.lsr"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.profiler"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -116,28 +102,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.goessounding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.airep"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.edex.plugin.ccfp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.edex.plugin.goessounding"
+         id="com.raytheon.uf.edex.plugin.ccfp"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -172,20 +137,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.modelsounding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.plugin.modelsounding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.edex.plugin.obs"
          download-size="0"
          install-size="0"
@@ -193,28 +144,14 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.pirep"
+         id="com.raytheon.uf.edex.plugin.redbook"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.edex.plugin.poessounding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.edex.plugin.profiler"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.edex.plugin.redbook"
+         id="com.raytheon.uf.common.dataplugin.redbook"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -228,21 +165,14 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.edex.plugin.taf"
+         id="com.raytheon.uf.edex.plugin.taf"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.edex.plugin.acars"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.plugin.acarssounding"
+         id="com.raytheon.uf.common.dataplugin.taf"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -305,27 +235,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.poessounding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.airep"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.pirep"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.dataplugin.obs"
          download-size="0"
          install-size="0"
@@ -348,6 +257,33 @@
 
    <plugin
          id="com.raytheon.uf.edex.plugin.madis"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.bufrobs"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.nc.bufr"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.plugin.hpe"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.hpe"
          download-size="0"
          install-size="0"
          version="0.0.0"

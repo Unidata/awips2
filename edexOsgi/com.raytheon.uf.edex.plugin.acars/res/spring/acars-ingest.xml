@@ -12,18 +12,10 @@
 		<constructor-arg ref="acarsPluginName" />
 		<constructor-arg value="jms-durable:queue:Ingest.acars"/>
 	</bean>
-	
-	<bean id="acarsCamelRegistered" factory-bean="contextManager"
-		factory-method="register" 
-		depends-on="persistCamelRegistered, 
-		            acarsSoundingCamelRegistered">
-		<constructor-arg ref="acars-camel"/>
-  	</bean>  
 
 	<camelContext id="acars-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="acarsFileEndpoint" uri="file:${edex.home}/data/sbn/acars?noop=true&amp;idempotent=false" />
 

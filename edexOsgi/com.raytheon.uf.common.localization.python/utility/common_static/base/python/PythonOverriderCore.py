@@ -30,11 +30,14 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    11/12/13                      bkowal         Initial Creation.
+#    01/20/14        2712          bkowal         Improve python class merging. Classes
+#                                                 will now truly override each other
+#                                                 instead of extending each other.
 #
 #
 #
 
-import os, imp, types
+import os, imp, types, inspect
 import ModuleUtil
 
 def _internalOverride(files):
@@ -111,29 +114,41 @@ def _mergeClasses(source, target, className):
     for attr in dir(sourceClass):
          # include private attributes because this is a class? 
          # methods cannot just be merged into a class, so skip them.
-         if isinstance(attr, types.BuiltinFunctionType) \
-         or isinstance(attr, types.MethodType) \
-         or attr.startswith('__') or attr.startswith('_'):
-             continue
+         if isinstance(getattr(sourceClass, attr), types.BuiltinFunctionType) \
+            or isinstance(getattr(sourceClass, attr), types.MethodType) \
+            or attr.startswith('__'):
+            continue
          
          # do we need to worry about nested classes?
          if isinstance(getattr(sourceClass, attr), types.ClassType) \
-         or isinstance(getattr(sourceClass, attr), types.TypeType):
+            or isinstance(getattr(sourceClass, attr), types.TypeType):
              target = _mergeClasses(source, target, attr)
          
          attributeName = className + '.' + attr
          target = _mergeAttributes(source, target, attributeName)
+    
+    # make new class "extend" the original class
+    for attr in dir(targetClass):
+        if attr != '__init__' \
+            and isinstance(getattr(targetClass, attr), types.MethodType) \
+            and not attr in dir(sourceClass):
+            # complete the merge / override of methods for any method that
+            # the new class does not implement
+            
+            # retrieve the implementation of the method (this is different from
+            # retrieving the method, itself)
+            exec('method = target.' + className + '.' + attr + '.im_func')
+            # copy the method implementation to the other class and give it
+            # the same name as the original
+            classMethodDirective = _buildReplaceClassMethodDirective(className, attr)
+            exec(classMethodDirective)    
          
-    # complete the merge / override of methods.
-    exec(_buildMergeDirective(className, legacyMode))
     return _mergeAttributes(source, target, className)
 
-def _buildMergeDirective(className, legacyMode):
-    if (legacyMode):
-        return 'source.' + className + '.__bases__ = (target.' + className + ',)'
-    else:
-        return 'source.' + className + ' = type("' + className + \
-            '", (target.' + className + ',), dict(source.' + className + '.__dict__))'
+def _buildReplaceClassMethodDirective(className, methodName):
+    replaceDirective = 'setattr(source.' + className + ', "' + methodName + '", method)'
+    
+    return replaceDirective
             
 def _compareClasses(clazz1, clazz2):
     clazz1Attr = dir(clazz1)

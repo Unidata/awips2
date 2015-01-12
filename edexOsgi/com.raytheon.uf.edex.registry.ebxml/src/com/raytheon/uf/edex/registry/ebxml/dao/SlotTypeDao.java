@@ -19,13 +19,16 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import org.hibernate.SQLQuery;
+import org.hibernate.criterion.Property;
 
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
 /**
  * 
@@ -40,6 +43,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * 7/11/2013    1707        bphillip    Initial implementation
  * 7/29/2013    2191        bphillip    Modified method to get orphaned slots
  * 12/2/2013    1829        bphillip    Changed how orphans are purged
+ * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * </pre>
  * 
  * @author bphillip
@@ -81,7 +85,15 @@ public class SlotTypeDao extends SessionManagedDao<String, SlotType> {
     public void deleteBySlotId(String id) {
         SlotType slot = this.getById(id);
         if (slot != null) {
-            this.template.delete(slot);
+            getCurrentSession().delete(slot);
+        }
+    }
+    
+    public void deleteBySlotId(Collection<String> ids){
+        for(Object obj: createCriteria().add(
+                Property.forName(QueryConstants.ID).in(ids))
+                .list()){
+            getCurrentSession().delete(obj);
         }
     }
 }

@@ -42,9 +42,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
+import com.raytheon.uf.edex.auth.authorization.IAuthorizer;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
-import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 import com.raytheon.uf.edex.dissemination.transmitted.TransProdHeader;
 
 /**
@@ -58,7 +58,8 @@ import com.raytheon.uf.edex.dissemination.transmitted.TransProdHeader;
  * Oct 22, 2009            njensen     Initial creation
  * Oct 12, 2012  DR 15418  D. Friedman Use clustered TransmittedProductList
  * Jun 07, 2013   1981     mpduff      This is now a priviledged request handler.
-#  Nov 20, 2013  DR 16777  D. Friedman Add a test mode.
+ * Nov 20, 2013  DR 16777  D. Friedman Add a test mode.
+ * May 28, 2014 3211       njensen     Use IAuthorizer instead of IRoleStorage
  * 
  * </pre>
  * 
@@ -80,7 +81,8 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
         return handleOUPRequest(request, false);
     }
 
-    public OUPResponse handleOUPRequest(OUPRequest request, boolean test) throws Exception {
+    public OUPResponse handleOUPRequest(OUPRequest request, boolean test)
+            throws Exception {
         OfficialUserProduct oup = request.getProduct();
         OUPResponse resp = new OUPResponse();
         boolean changedBbb = false;
@@ -90,7 +92,7 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
                     request = ModifyProduct.addWmoHeader(request);
                 }
                 TransProdHeader header = ModifyProduct.getProductHeader(oup);
-                if (request.isCheckBBB() && ! test) {
+                if (request.isCheckBBB() && !test) {
                     changedBbb = ModifyProduct.checkBBBField(oup, header);
                     if (changedBbb) {
                         resp.setChangedBBB(request.getProduct().getWmoType());
@@ -197,9 +199,9 @@ public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
             authorized = true;
         } else {
             AuthManager manager = AuthManagerFactory.getInstance().getManager();
-            IRoleStorage roleStorage = manager.getRoleStorage();
+            IAuthorizer auth = manager.getAuthorizer();
 
-            authorized = roleStorage.isAuthorized((request).getRoleId(), user
+            authorized = auth.isAuthorized((request).getRoleId(), user
                     .uniqueId().toString(), APPLICATION);
         }
 

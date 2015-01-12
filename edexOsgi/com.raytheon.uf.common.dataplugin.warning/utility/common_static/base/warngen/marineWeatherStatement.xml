@@ -4,6 +4,7 @@
                  Evan Bookbinder 09-11-2012 Added settings for locations shapefile
                                             Added new areaSource objects
                  Phil Kurimski   09-19-2013 added geospatialConfig.xml
+                 Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
 -->
 <warngenConfig>
 
@@ -51,12 +52,15 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
 
  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include torWatches and/or svrWatches, 
+<  	included with the warning product include TO.A and/or SV.A, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
-  <includedWatch>torWatches</includedWatch>
-  <includedWatch>svrWatches</includedWatch>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
  </includedWatches>
+ 
+ <!-- Include references to marine zones for watches.  See marineZoneWording.xml -->
+ <includeMarineAreasInWatches>true</includeMarineAreasInWatches>
  
  <!-- durations: the list of possible durations -->
  <defaultDuration>60</defaultDuration>
@@ -124,6 +128,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="lightningCTA" bulletText="Intense lightning" parseString="INTENSE LIGHTNING IS OCCURRING WITH THIS STORM"/>
   <bullet bulletName="reportCTA" bulletText="Report severe weather to coast guard" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD"/>
   <bullet bulletName="fogCTA" bulletText="Dense fog" parseString="DENSE FOG WAS REDUCING VISIBILITIES TO"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/> 
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="MA" sig="S">
@@ -164,6 +170,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="lightningCTA" bulletText="Intense lightning" parseString="INTENSE LIGHTNING IS OCCURRING WITH THIS STORM"/>
   <bullet bulletName="reportCTA" bulletText="Report severe weather to coast guard" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD"/>
   <bullet bulletName="fogCTA" bulletText="Dense fog" parseString="DENSE FOG WAS REDUCING VISIBILITIES TO"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/> 
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>

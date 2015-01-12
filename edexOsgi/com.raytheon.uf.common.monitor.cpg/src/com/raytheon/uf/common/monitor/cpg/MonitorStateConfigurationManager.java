@@ -189,6 +189,14 @@ public class MonitorStateConfigurationManager {
     }
 
     /**
+     * HydroDualPol state
+     * @return
+     */
+    public boolean getHydroDualPolState() {
+        return configXml.isHydroDualPol();
+    }
+    
+    /**
      * Fog state
      * 
      * @return

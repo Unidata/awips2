@@ -23,7 +23,7 @@
 	</model>
 
 	<model>
-		<name>MPE-Mosaic</name>
+		<name>MPE-Local</name>
 		<center>9</center>
 		<subcenter>0</subcenter>
 		<grid>304</grid>
@@ -36,7 +36,6 @@
 		<name>HPE</name>
 		<center>9</center>
 		<subcenter>0</subcenter>
-		<grid>303</grid>
 		<process>
 			<id>165</id>
 		</process>
@@ -46,11 +45,11 @@
 		<name>BHPE</name>
 		<center>9</center>
 		<subcenter>0</subcenter>
-		<grid>303</grid>
 		<process>
 			<id>166</id>
 		</process>
 	</model>
+
 
 	<!-- END SUBCENTER 0 -->
 

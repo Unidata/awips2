@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 15, 2013 2361       njensen     Removed XML annotations
+ * Feb 27, 2014 2638       njensen     Corrected dataURI annotation for eventId
  * 
  * </pre>
  * 
@@ -93,7 +94,7 @@ public class CWARecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private CWADimension dimension;
 
-    @DataURI(position = 1, embedded = true)
+    @DataURI(position = 1)
     @DynamicSerializeElement
     private String eventId;
 
