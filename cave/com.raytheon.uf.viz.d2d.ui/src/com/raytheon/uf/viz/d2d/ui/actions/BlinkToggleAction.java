@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Menu;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
@@ -45,17 +44,16 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
  * 
- * BlinkToggleAction
- * 
  * Enable blinking on a resource
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Oct 15, 2007             chammack    Initial Creation.
+ * Date          Ticket#   Engineer    Description
+ * ------------- --------  ----------- --------------------------
+ * Oct 15, 2007            chammack    Initial Creation.
+ * Jan 09, 2014  2647      bsteffen    Get properties directly from resource.
  * 
  * </pre>
  * 
@@ -82,8 +80,8 @@ public class BlinkToggleAction extends AbstractRightClickAction implements
     private static float[] blinkRates;
 
     static {
-        blinkRates = ((HierarchicalPreferenceStore) Activator.getDefault()
-                .getPreferenceStore()).getFloatArray("blinkRate");
+        blinkRates = Activator.getDefault().getPreferenceStore()
+                .getFloatArray("blinkRate");
         Arrays.sort(blinkRates);
     }
 
@@ -119,11 +117,10 @@ public class BlinkToggleAction extends AbstractRightClickAction implements
      */
     @Override
     public void run() {
-        System.out.println("TODO: Handle mode = " + mode);
         switch (mode) {
         case OTHER: {
-            ResourceProperties props = getDescriptor().getResourceList()
-                    .getProperties(getTopMostSelectedResource());
+            ResourceProperties props = getTopMostSelectedResource()
+                    .getProperties();
             boolean isEnabled = props.isBlinking();
             props.setBlinking(!isEnabled);
             this.setChecked(!isEnabled);
@@ -154,8 +151,7 @@ public class BlinkToggleAction extends AbstractRightClickAction implements
         } else {
             mode = InternalMode.OTHER;
 
-            ResourceProperties topMostProps = getDescriptor().getResourceList()
-                    .getProperties(topMost);
+            ResourceProperties topMostProps = topMost.getProperties();
             boolean isEnabled = topMostProps.isBlinking();
             this.setChecked(isEnabled);
         }
@@ -314,7 +310,6 @@ public class BlinkToggleAction extends AbstractRightClickAction implements
     }
 
     private class BlinkRateAction extends Action {
-        boolean preSelected;
 
         private float rate;
 

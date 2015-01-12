@@ -27,16 +27,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.measure.unit.NonSI;
-
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -49,6 +47,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -58,7 +57,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
 import com.raytheon.uf.viz.d2d.core.sampling.ID2DSamplingResource;
-import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
+import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
+import com.raytheon.uf.viz.d2d.core.time.ID2DTimeMatchingExtension;
+import com.raytheon.uf.viz.d2d.core.time.TimeMatcher;
 import com.raytheon.viz.radar.DefaultVizRadarRecord;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
@@ -74,11 +75,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 03, 2010            mnash     Initial creation
- * MAR 05, 2013 15313      kshresth  Added sampling for DMD 
- * Apr 11, 2013 DR 16030   D. Friedman Fix NPE.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 03, 2010           mnash       Initial creation
+ * MAR 05, 2013  15313    kshresth    Added sampling for DMD 
+ * Apr 11, 2013  16030    D. Friedman Fix NPE.
+ * May  5, 2014  17201    D. Friedman Enable same-radar time matching.
+ * Jun 11, 2014  2061     bsteffen    Move rangeable methods to radial resource
  * 
  * </pre>
  * 
@@ -88,8 +91,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class AbstractRadarResource<D extends IDescriptor> extends
         AbstractVizResource<RadarResourceData, D> implements
-        IResourceDataChanged, IRangeableResource, IDataScaleResource,
-        IRadarTextGeneratingResource, ICacheObjectCallback<RadarRecord> {
+        IResourceDataChanged, IDataScaleResource,
+        IRadarTextGeneratingResource, ICacheObjectCallback<RadarRecord>,
+        ID2DTimeMatchingExtension {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractRadarResource.class);
 
@@ -520,49 +524,6 @@ public class AbstractRadarResource<D extends IDescriptor> extends
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource#getCenter
-     * ()
-     */
-    @Override
-    public Coordinate getCenter() {
-        RadarRecord record = getRadarRecord(displayedDate);
-        if (record != null) {
-            return new Coordinate(record.getLongitude(), record.getLatitude());
-        }
-        return new Coordinate();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource#
-     * getElevation()
-     */
-    @Override
-    public Amount getElevation() {
-        return new Amount(0.0, NonSI.FOOT);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource#getTilt
-     * ()
-     */
-    @Override
-    public double getTilt() {
-        double tilt = 0.0;
-        if (displayedDate != null) {
-            tilt = displayedDate.getLevelValue();
-        }
-        return tilt;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
      * com.raytheon.uf.viz.d2d.core.map.IDataScaleResource#getCenterLocation()
      */
     @Override
@@ -589,5 +550,23 @@ public class AbstractRadarResource<D extends IDescriptor> extends
     @Override
     public void objectArrived(RadarRecord object) {
         issueRefresh();
+    }
+
+    @Override
+    public void modifyTimeMatching(D2DTimeMatcher d2dTimeMatcher,
+            AbstractVizResource<?, ?> rsc, TimeMatcher timeMatcher) {
+        /* Intended to be equivalent to A1 radar-specific part of
+         * TimeMatchingFunctions.C:setRadarOnRadar.
+         */
+        AbstractVizResource<?, ?> tmb = d2dTimeMatcher.getTimeMatchBasis();
+        if (tmb instanceof AbstractRadarResource) {
+            AbstractRadarResource<?> tmbRadarRsc = (AbstractRadarResource<?>) tmb;
+            AbstractResourceData tmbResData = tmbRadarRsc.getResourceData();
+            RequestConstraint icaoRC = getResourceData().getMetadataMap().get("icao");
+            if (icaoRC != null && tmbResData instanceof RadarResourceData &&
+                    icaoRC.equals(((RadarResourceData) tmbResData).getMetadataMap().get("icao"))) {
+                timeMatcher.setRadarOnRadar(true);
+            }
+        }
     }
 }

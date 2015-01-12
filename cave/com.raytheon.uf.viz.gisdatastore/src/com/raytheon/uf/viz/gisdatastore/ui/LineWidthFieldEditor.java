@@ -24,6 +24,8 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 
+import com.raytheon.uf.viz.core.preferences.StringConverter;
+
 /**
  * Preference field editor for selecting a line width for DataStoreResource
  * highlight

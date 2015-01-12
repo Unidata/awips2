@@ -2,11 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Awipstools Plug-in
 Bundle-SymbolicName: com.raytheon.viz.awipstools;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.awipstools.Activator
 Bundle-Vendor: Raytheon
-Eclipse-BuddyPolicy: registered, ext, global
-Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.viz.core, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.uf.viz.core.rsc
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.apache.commons.lang,
@@ -21,7 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.util
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.viz.datacube
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.awipstools.capabilities,
@@ -31,8 +31,9 @@ Export-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.awipstools.ui.action,
  com.raytheon.viz.awipstools.ui.display,
  com.raytheon.viz.awipstools.ui.layer
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.viz.core,
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.inventory.exception,
+ com.raytheon.viz.core,
  com.raytheon.viz.core.interval,
  com.raytheon.viz.core.rsc,
  com.raytheon.viz.core.rsc.jts

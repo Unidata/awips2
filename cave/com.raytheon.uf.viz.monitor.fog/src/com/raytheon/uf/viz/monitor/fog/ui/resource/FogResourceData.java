@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -35,7 +36,6 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;

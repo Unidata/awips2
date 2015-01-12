@@ -20,13 +20,17 @@
 
 package com.raytheon.viz.core.graphing.axis;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import com.raytheon.uf.viz.core.DrawableLine;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -47,6 +51,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * 24Oct2006				Phillippe	Initial Creation      
  * Oct 2007                 njensen     Major refactor
+ * 24Jul2014    3429        mapeters    Updated deprecated drawLine() calls.
+ * 29Jul2014    3465        mapeters    Updated deprecated drawString() calls.
+ * 04Aug2014    3489        mapeters    Updated deprecated getStringBounds() calls.
  * 
  * </pre>
  * 
@@ -119,7 +126,9 @@ public class NumberAxis extends Axis {
         // Draws the axes
         target.drawRect(new PixelExtent(graphArea), DEFAULT_AXIS_COLOR, 1.0f,
                 1.0);
-
+        
+        List<DrawableLine> lines = new ArrayList<DrawableLine>();
+        List<DrawableString> strings = new ArrayList<DrawableString>();
         if (orientation == IAxis.Orientation.VERTICAL) {
 
             double maxLabelWidth = 0.0;
@@ -130,11 +139,10 @@ public class NumberAxis extends Axis {
                 double xPos = 0;
                 double yPos = 0;
 
-                for (double labelVal : keys) {
-                    double width = target.getStringBounds(font,
-                            labeling.getLabel(labelVal)).getWidth();
-                    maxLabelWidth = Math.max(width, maxLabelWidth);
-                }
+                DrawableString yLabels = new DrawableString(labeling
+                        .getLabels().values().toArray(new String[0]));
+                yLabels.font = font;
+                maxLabelWidth = target.getStringsBounds(yLabels).getWidth();
 
                 maxLabelWidth *= paintProps.getView().getExtent().getWidth()
                         / paintProps.getCanvasBounds().width;
@@ -154,9 +162,13 @@ public class NumberAxis extends Axis {
                             double x = graphArea.x;
                             double x2 = graphArea.x + graphArea.width;
 
-                            target.drawLine(x, y, 0.0, x2, y, 0.0,
-                                    DEFAULT_AXIS_COLOR, lineWeight,
-                                    labelLineStyle);
+                            DrawableLine line = new DrawableLine();
+                            line.setCoordinates(x, y);
+                            line.addPoint(x2, y);
+                            line.basics.color = DEFAULT_AXIS_COLOR;
+                            line.width = lineWeight;
+                            line.lineStyle = labelLineStyle;
+                            lines.add(line);
                         }
 
                         yPos = y
@@ -164,20 +176,27 @@ public class NumberAxis extends Axis {
 
                         if (drawTickmarksAtLabels) {
                             double x = graphArea.x;
+                            DrawableString string = new DrawableString(
+                                    labeling.getLabel(labelVal));
+                            string.font = font;
                             double x2 = xPos
-                                    + target.getStringBounds(font,
-                                            labeling.getLabel(labelVal))
+                                    + target.getStringsBounds(string)
                                             .getWidth();
 
-                            target.drawLine(x, y, 0.0, x2, y, 0.0,
-                                    DEFAULT_AXIS_COLOR, lineWeight,
-                                    labelLineStyle);
+                            DrawableLine line = new DrawableLine();
+                            line.setCoordinates(x, y);
+                            line.addPoint(x2, y);
+                            line.basics.color = DEFAULT_AXIS_COLOR;
+                            line.width = lineWeight;
+                            line.lineStyle = labelLineStyle;
+                            lines.add(line);
                         }
 
-                        target.drawString(font, labeling.getLabel(labelVal),
-                                xPos, yPos, 0.0,
-                                IGraphicsTarget.TextStyle.NORMAL, color,
-                                HorizontalAlignment.LEFT, null);
+                        DrawableString string = new DrawableString(
+                                labeling.getLabel(labelVal), color);
+                        string.font = font;
+                        string.setCoordinates(xPos, yPos);
+                        strings.add(string);
                     }
                 }
             }
@@ -191,9 +210,12 @@ public class NumberAxis extends Axis {
                 double xPos = extent.getMinX() / (i + 1);
                 // If Necessary make room for large labels
                 xPos = Math.min(xPos, graphArea.x - maxLabelWidth - 10);
-                target.drawString(null, title, xPos, yPos, 0.0,
-                        IGraphicsTarget.TextStyle.NORMAL, titleColors.get(i),
-                        HorizontalAlignment.LEFT, 90.0);
+
+                DrawableString string = new DrawableString(title,
+                        titleColors.get(i));
+                string.setCoordinates(xPos, yPos);
+                string.rotation = 90.0;
+                strings.add(string);
             }
         } else {
             double yEnd = graphArea.y + graphArea.height;
@@ -202,10 +224,11 @@ public class NumberAxis extends Axis {
             for (int i = 0; i < titles.size(); i++) {
                 String title = titles.get(i);
                 double x = (graphArea.x + graphArea.width) / 2;
-                target.drawString(null, title, x, yEnd
-                        + (graphArea.y * THIRD * 2) / (i + 1), 0.0,
-                        IGraphicsTarget.TextStyle.NORMAL, titleColors.get(i),
-                        HorizontalAlignment.LEFT, null);
+                DrawableString string = new DrawableString(title,
+                        titleColors.get(i));
+                string.setCoordinates(x, yEnd + (graphArea.y * THIRD * 2)
+                        / (i + 1));
+                strings.add(string);
             }
 
             if (labeling != null) {
@@ -221,26 +244,41 @@ public class NumberAxis extends Axis {
                     if (drawLinesAtLabels) {
                         double y = graphArea.y;
 
-                        target.drawLine(x, y, 0.0, x, yEnd, 0.0,
-                                DEFAULT_AXIS_COLOR, lineWeight, labelLineStyle);
+                        DrawableLine line = new DrawableLine();
+                        line.setCoordinates(x, y);
+                        line.addPoint(x, yEnd);
+                        line.basics.color = DEFAULT_AXIS_COLOR;
+                        line.width = lineWeight;
+                        line.lineStyle = labelLineStyle;
+                        lines.add(line);
                     }
                     if (drawTickmarksAtLabels) {
+                        DrawableString string = new DrawableString(
+                                labeling.getLabel(labelVal));
                         double y = yPos
-                                - target.getStringBounds(null,
-                                        labeling.getLabel(labelVal))
-                                        .getHeight();
-
-                        target.drawLine(x, y, 0.0, x, yEnd, 0.0,
-                                DEFAULT_AXIS_COLOR, lineWeight, labelLineStyle);
+                                - target.getStringsBounds(string).getHeight();
+                        
+                        DrawableLine line = new DrawableLine();
+                        line.setCoordinates(x, y);
+                        line.addPoint(x, yEnd);
+                        line.basics.color = DEFAULT_AXIS_COLOR;
+                        line.width = lineWeight;
+                        line.lineStyle = labelLineStyle;
+                        lines.add(line);
                     }
 
-                    target.drawString(font, labeling.getLabel(labelVal), xPos,
-                            yPos, 0.0, IGraphicsTarget.TextStyle.NORMAL, color,
-                            HorizontalAlignment.CENTER, null);
+                    DrawableString string = new DrawableString(
+                            labeling.getLabel(labelVal), color);
+                    string.font = font;
+                    string.setCoordinates(xPos, yPos);
+                    string.horizontalAlignment = HorizontalAlignment.CENTER;
+                    strings.add(string);
                 }
             }
 
         }
+        target.drawLine(lines.toArray(new DrawableLine[0]));
+        target.drawStrings(strings);
 
         if (font != target.getDefaultFont()) {
             font.dispose();

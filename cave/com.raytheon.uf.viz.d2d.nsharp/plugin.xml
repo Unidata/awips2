@@ -36,7 +36,7 @@
       point="org.eclipse.ui.handlers">
       <handler
          class="com.raytheon.uf.viz.d2d.nsharp.rsc.action.NSharpSaveScreenAction"
-         commandId="com.raytheon.viz.ui.actions.saveScreen">
+         commandId="com.raytheon.uf.viz.image.export.save">
          <activeWhen>
          	<with variable="activeEditorId">
        			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
@@ -45,7 +45,7 @@
    </handler>
    <handler
          class="com.raytheon.uf.viz.d2d.nsharp.rsc.action.NSharpPrintScreenAction"
-         commandId="com.raytheon.viz.ui.actions.printScreenAction">
+         commandId="com.raytheon.uf.viz.image.export.print">
 		 <activeWhen>
          	<with variable="activeEditorId">
        			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>

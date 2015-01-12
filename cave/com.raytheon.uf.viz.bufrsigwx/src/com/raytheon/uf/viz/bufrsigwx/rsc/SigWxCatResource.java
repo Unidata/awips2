@@ -24,12 +24,12 @@ import java.awt.geom.Rectangle2D;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -47,6 +47,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Sep 25, 2009 3099       bsteffen     Initial creation
  * Sep 28, 2009 3099       bsteffen     Updated to conform with common SigWxResource
+ * Jul 29, 2014 3465       mapeters     Updated deprecated drawStrings() calls.
+ * Aug 04, 2014 3489       mapeters     Updated deprecated getStringBounds() calls.
  * 
  * </pre>
  * 
@@ -99,9 +101,13 @@ public class SigWxCatResource extends SigWxPolygonResource {
         }
         y = textLoc[1] + (symDim[1] + 3 * PADDING) * scale[1];
         x = textLoc[0] + (boxDim[0] / 2) * scale[0];
-        RGB[] colors = { color, color };
-        target.drawStrings(font, getTextLines(pdv), x, y, 0, TextStyle.NORMAL,
-                colors, HorizontalAlignment.CENTER, VerticalAlignment.TOP);
+
+        DrawableString string = new DrawableString(getTextLines(pdv), color);
+        string.font = font;
+        string.setCoordinates(x, y);
+        string.horizontalAlignment = HorizontalAlignment.CENTER;
+        string.verticallAlignment = VerticalAlignment.TOP;
+        target.drawStrings(string);
     }
 
     private String[] getTextLines(PointDataView pdv) {
@@ -133,15 +139,12 @@ public class SigWxCatResource extends SigWxPolygonResource {
 
     private double[] getTextDimensions(IGraphicsTarget target, PointDataView pdv) {
         // Calculate the height and Width of the text box
-        double textWidth = 0;
-        double textHeight = 0;
-        for (String line : getTextLines(pdv)) {
-            Rectangle2D rect = target.getStringBounds(font, line);
-            if (rect.getWidth() > textWidth) {
-                textWidth = rect.getWidth();
-            }
-            textHeight += rect.getHeight() + 1;
-        }
+        String[] textLines = getTextLines(pdv);
+        DrawableString lines = new DrawableString(textLines);
+        lines.font = font;
+        Rectangle2D rect = target.getStringsBounds(lines);
+        double textWidth = rect.getWidth();
+        double textHeight = rect.getHeight() + textLines.length;
         return new double[] { textWidth, textHeight };
     }
 

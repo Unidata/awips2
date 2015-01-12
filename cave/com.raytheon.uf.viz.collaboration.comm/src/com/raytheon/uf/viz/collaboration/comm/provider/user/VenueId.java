@@ -19,10 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId;
+import org.jivesoftware.smack.util.StringUtils;
+
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
- * TODO Add Description
+ * Qualified id for a venue
  * 
  * <pre>
  * 
@@ -31,6 +34,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    removed resource, fixed getFQN
+ * May 19, 2014 3180       bclement    added isSameVenue() fromString() and hashcode/equals
+ * Jun 16, 2014 3288       bclement    added constructors, default subdomain
+ * Oct 08, 2014 3705       bclement    added single string constructor, compareTo()
  * 
  * </pre>
  * 
@@ -38,20 +45,49 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId;
  * @version 1.0
  */
 
-public class VenueId implements IVenueId {
+public class VenueId implements IQualifiedID, Comparable<VenueId> {
+
+    public static final String DEFAULT_SUBDOMAIN = "conference";
 
     private String host;
-
-    private String resource;
-
-    private String venueName;
 
     private String name;
 
     /**
+     * 
+     */
+    public VenueId() {
+    }
+
+    public VenueId(String jid) {
+        this.name = StringUtils.parseName(jid);
+        this.host = StringUtils.parseServer(jid);
+    }
+
+    /**
+     * @param host
+     * @param name
+     */
+    public VenueId(String host, String name) {
+        this.host = host;
+        this.name = name;
+    }
+
+    /**
+     * subdomain and domain are combined to create the host
+     * 
+     * @param subdomain
+     * @param domain
+     * @param name
+     */
+    public VenueId(String subdomain, String domain, String name) {
+        this.host = subdomain + "." + domain;
+        this.name = name;
+    }
+
+    /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setHost(java.lang.String)
      */
-    @Override
     public void setHost(String hostName) {
         host = hostName;
     }
@@ -65,28 +101,10 @@ public class VenueId implements IVenueId {
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setResource(java.lang.String)
-     */
-    @Override
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getResource()
-     */
-    @Override
-    public String getResource() {
-        return resource;
-    }
-
-    /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.ID#setName(java.lang.String)
      */
-    @Override
-    public void setName(String userName) {
-        name = userName;
-        venueName = name;
+    public void setName(String venueName) {
+        name = venueName;
     }
 
     /**
@@ -102,15 +120,107 @@ public class VenueId implements IVenueId {
      */
     @Override
     public String getFQName() {
-        return null;
+        return name + "@" + host;
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId#getVenueName()
+     * @param venueId
+     * @return true if argument represents the same venue on the server
      */
-    @Override
-    public String getVenueName() {
-        return venueName;
+    public boolean isSameVenue(String venueId) {
+        boolean rval;
+        if (venueId == null) {
+            rval = false;
+        } else {
+            rval = this.equals(fromString(venueId));
+        }
+        return rval;
     }
 
+    /**
+     * @param other
+     * @return true if argument represents the same venue on the server
+     */
+    public boolean isSameVenue(VenueId other) {
+        return this.equals(other);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((host == null) ? 0 : host.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VenueId other = (VenueId) obj;
+        if (host == null) {
+            if (other.host != null)
+                return false;
+        } else if (!host.equals(other.host))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
+    }
+
+    /**
+     * @param venueId
+     *            in the form room@host
+     * @return
+     */
+    public static VenueId fromString(String venueId) {
+        VenueId rval = new VenueId();
+        rval.setName(Tools.parseName(venueId));
+        rval.setHost(Tools.parseHost(venueId));
+        return rval;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(VenueId o) {
+        int rval;
+        if (o == null) {
+            rval = 1;
+        } else if (this.name == null) {
+            if (o.name == null) {
+                rval = 0;
+            } else {
+                rval = -1;
+            }
+        } else {
+            if (o.name == null) {
+                rval = 1;
+            } else {
+                rval = this.name.compareTo(o.name);
+            }
+        }
+        return rval;
+    }
 }

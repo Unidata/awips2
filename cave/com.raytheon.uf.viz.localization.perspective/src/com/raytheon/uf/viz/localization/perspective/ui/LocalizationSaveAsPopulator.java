@@ -55,8 +55,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.localization.LocalizationEditorInput;
 import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
 import com.raytheon.viz.ui.EditorUtil;
 
@@ -70,6 +70,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2011            mschenke     Initial creation
+ * Aug 29, 2014 #3527      mapeters     Check for active editor to not 
+ *                                      be null before calling isDirty().
  * 
  * </pre>
  * 
@@ -142,7 +144,7 @@ public class LocalizationSaveAsPopulator extends CompoundContributionItem {
              */
             @Override
             public boolean isEnabled() {
-                return active.isDirty();
+                return (active != null) ? active.isDirty() : false;
             }
 
             /*

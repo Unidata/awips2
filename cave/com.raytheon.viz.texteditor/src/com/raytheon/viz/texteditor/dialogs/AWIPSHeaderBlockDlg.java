@@ -99,6 +99,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 11/26/2012	14526	mgamazaychikov	Added traverse listener for RETURN key
  * 10/07/2013	16664	mgamazaychikov	Added padProdDesignatorText method
  * 11/21/2013   16633   mgamazaychikov  Improved consistency between AFOS PIL and WMO Heading fields.
+ * 08May2014    16041       kshrestha   Save unofficial text products from text editor.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -646,6 +648,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 			return;
 		}
 		boolean sendEnabled = true;
+        boolean unOfficialProd = false;
 		if (!isProductValid()) {
 			// Notify the user that the product may not be valid.
 			//
@@ -665,6 +668,9 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 			}
 			parentEditor.enableSend(false);
 			sendEnabled = false;
+            if(isAfosPilComplete()) {
+                unOfficialProd = true;
+            }
 		} else {
 			parentEditor.enableSend(true);
 		}
@@ -672,7 +678,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 		// call the set methods
 		parentEditor.setCurrentWmoId(wmoTtaaiiTF.getText());
 		parentEditor.setCurrentSiteId(ccccTF.getText());
-		if (sendEnabled) {
+		if (sendEnabled || (sendEnabled == false && unOfficialProd == true)) {
 			parentEditor.setCurrentWsfoId(wsfoIdTF.getText());
 			parentEditor.setCurrentProdCategory(prodCatTF.getText());
 			parentEditor.setCurrentProdDesignator(prodDesignatorTF.getText());

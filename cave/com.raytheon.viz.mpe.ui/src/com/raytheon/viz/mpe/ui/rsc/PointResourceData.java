@@ -8,8 +8,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
-import com.raytheon.viz.hydrocommon.resource.HydroPointResource;
-import com.raytheon.viz.hydrocommon.resource.HydroPointResourceData;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.ColorLookupParameters;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;

@@ -19,14 +19,14 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * TODO Add Description
+ * Event that is posted when a participant's status changes
  * 
  * <pre>
  * 
@@ -35,6 +35,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2012            jkorman     Initial creation
+ * Dec 19, 2013 2563       bclement    added description
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -46,17 +48,20 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
 
     private final ParticipantEventType eventType;
 
-    private final UserId participant;
+    private final VenueParticipant participant;
 
-    private IPresence presence;
+    private Presence presence;
 
-    public VenueParticipantEvent(UserId participant,
+    private String eventDescription;
+
+    public VenueParticipantEvent(VenueParticipant participant,
             ParticipantEventType eventType) {
         this.participant = participant;
         this.eventType = eventType;
     }
 
-    public VenueParticipantEvent(UserId participant, IPresence presence,
+    public VenueParticipantEvent(VenueParticipant participant,
+            Presence presence,
             ParticipantEventType eventType) {
         this.participant = participant;
         this.eventType = eventType;
@@ -75,7 +80,7 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent#getParticipant()
      */
     @Override
-    public UserId getParticipant() {
+    public VenueParticipant getParticipant() {
         return participant;
     }
 
@@ -83,8 +88,28 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent#getPresence()
      */
     @Override
-    public IPresence getPresence() {
+    public Presence getPresence() {
         return presence;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent
+     * #getEventDescription()
+     */
+    @Override
+    public String getEventDescription() {
+        return eventDescription;
+    }
+
+    /**
+     * @param eventDescription
+     *            the eventDescription to set
+     */
+    public void setEventDescription(String eventDescription) {
+        this.eventDescription = eventDescription;
     }
 
 }

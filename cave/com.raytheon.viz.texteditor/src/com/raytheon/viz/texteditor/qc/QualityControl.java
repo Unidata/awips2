@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXB;
 
-import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
+import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Sep 6, 2011  10764      rferrel     Use QualityControlCfg.xml for
  *                                     configuable information.
+ * Apr 29, 2013 3033       jsanchez    Updated method to retrieve files in localization.
  * 
  * </pre>
  * 
@@ -77,7 +78,7 @@ public class QualityControl {
 
         try {
             QualityControl.loadQualityControlCfg();
-            String file = FileUtil.open("countyTypes.txt", "base");
+            String file = WarnFileUtil.convertFileContentsToString("countyTypes.txt", null, null);
             countyTypes = new HashMap<String, String>();
             for (String line : file.split("\n")) {
                 String[] parts = line.split("\\\\");

@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.rsc.telestrator;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +32,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
@@ -60,7 +63,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 23, 2012            mschenke     Initial creation
+ * May 23, 2012            mschenke    Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Mar 18, 2014 2895       njensen     Fix concurrent mod exception on dispose
+ * May 05, 2014 3076       bclement    old CLEAR_ALL is now DISPOSE_ALL,
+ *                                      added clearLayers() and getAllDrawingLayers()
+ * Jun 30, 2014 1798       bclement    added getManager()
  * 
  * </pre>
  * 
@@ -73,9 +82,9 @@ public class CollaborationDrawingResource extends
 
     private SessionContainer container;
 
-    private UserId myUser;
+    private VenueParticipant myUser;
 
-    private Map<UserId, DrawingToolLayer> layerMap;
+    private Map<VenueParticipant, DrawingToolLayer> layerMap;
 
     private CollaborationDrawingUIManager manager;
 
@@ -97,7 +106,7 @@ public class CollaborationDrawingResource extends
         }
 
         myUser = container.getSession().getUserID();
-        layerMap = new HashMap<UserId, DrawingToolLayer>();
+        layerMap = new HashMap<VenueParticipant, DrawingToolLayer>();
     }
 
     /*
@@ -111,7 +120,7 @@ public class CollaborationDrawingResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         EditableManager.makeEditable(this, true);
         if (layerMap == null) {
-            layerMap = new HashMap<UserId, DrawingToolLayer>();
+            layerMap = new HashMap<VenueParticipant, DrawingToolLayer>();
         }
 
         OutlineCapability outline = getCapability(OutlineCapability.class);
@@ -126,7 +135,7 @@ public class CollaborationDrawingResource extends
             CollaborationDrawingEvent event = new CollaborationDrawingEvent(
                     resourceData.getDisplayId());
             event.setUserName(myUser);
-            event.setType(CollaborationEventType.CLEAR_ALL);
+            event.setType(CollaborationEventType.DISPOSE_ALL);
             sendEvent(event);
         }
 
@@ -165,14 +174,14 @@ public class CollaborationDrawingResource extends
         OutlineCapability outline = getCapability(OutlineCapability.class);
 
         synchronized (layerMap) {
-            for (UserId user : layerMap.keySet()) {
+            for (VenueParticipant user : layerMap.keySet()) {
                 DrawingToolLayer layer = layerMap.get(user);
                 if (layer != null) {
                     layer.setEraserWidth(16); // Configure?
                     layer.setLineStyle(outline.getLineStyle());
                     layer.setLineWidth(outline.getOutlineWidth());
-                    layer.setColor(container.getColorManager()
-                            .getColorFromUser(user));
+                    layer.setColor(container.getColorManager().getColorForUser(
+                            user));
                     layer.paint(target, paintProps);
                 }
             }
@@ -188,22 +197,36 @@ public class CollaborationDrawingResource extends
     protected void disposeInternal() {
         container.getSession().unregisterEventHandler(this);
         disposeLayers();
-        layerMap.clear();
         layerMap = null;
 
         manager.dispose();
     }
 
     private void disposeLayers() {
-        for (DrawingToolLayer layer : layerMap.values()) {
-            layer.dispose();
+        synchronized (layerMap) {
+            for (DrawingToolLayer layer : layerMap.values()) {
+                layer.dispose();
+            }
+            layerMap.clear();
+        }
+    }
+
+    /**
+     * Clear all drawing layers. Does not generate any collaboration events.
+     * This is not "undoable".
+     */
+    private void clearLayers() {
+        synchronized (layerMap) {
+            for (DrawingToolLayer layer : layerMap.values()) {
+                layer.clearAllDrawingData();
+            }
         }
     }
 
     /**
      * @return the myUser
      */
-    public UserId getMyUser() {
+    public VenueParticipant getMyUser() {
         return myUser;
     }
 
@@ -224,7 +247,7 @@ public class CollaborationDrawingResource extends
      * @param user
      * @return
      */
-    public DrawingToolLayer getDrawingLayerFor(UserId user) {
+    public DrawingToolLayer getDrawingLayerFor(VenueParticipant user) {
         if (layerMap != null) {
             synchronized (layerMap) {
                 DrawingToolLayer layer = layerMap.get(user);
@@ -242,6 +265,23 @@ public class CollaborationDrawingResource extends
             }
         }
         return null;
+    }
+
+    /**
+     * A collection of drawing layers for resource
+     * 
+     * @return empty collection if there are no layers
+     */
+    public Collection<DrawingToolLayer> getAllDrawingLayers() {
+        Collection<DrawingToolLayer> rval;
+        if (layerMap != null) {
+            synchronized (layerMap) {
+                rval = new ArrayList<DrawingToolLayer>(layerMap.values());
+            }
+        } else {
+            rval = Collections.emptyList();
+        }
+        return rval;
     }
 
     /*
@@ -266,7 +306,8 @@ public class CollaborationDrawingResource extends
      * @return
      */
     public boolean isSessionLeader() {
-        return container.getSession().getCurrentSessionLeader().equals(myUser);
+        return container.getSession().getCurrentSessionLeader()
+                .isSameUser(myUser);
     }
 
     /**
@@ -303,7 +344,7 @@ public class CollaborationDrawingResource extends
 
     @Subscribe
     public void participantChanged(IVenueParticipantEvent event) {
-        UserId user = event.getParticipant();
+        VenueParticipant user = event.getParticipant();
         switch (event.getEventType()) {
         case DEPARTED:
             synchronized (layerMap) {
@@ -321,9 +362,9 @@ public class CollaborationDrawingResource extends
 
     @Subscribe
     public void handleDrawEvent(CollaborationDrawingEvent event) {
-        UserId user = event.getUserName();
+        VenueParticipant user = event.getUserName();
         if (event.getDisplayId() != resourceData.getDisplayId()
-                || user.equals(myUser)) {
+                || user.isSameUser(myUser)) {
             // Early exit case, don't process my own events twice
             issueRefresh();
             return;
@@ -371,8 +412,11 @@ public class CollaborationDrawingResource extends
             case UNDO:
                 layer.undo();
                 break;
-            case CLEAR_ALL:
+            case DISPOSE_ALL:
                 disposeLayers();
+                break;
+            case CLEAR_ALL:
+                clearLayers();
                 break;
             case NEW_USER_ARRIVED:
                 CollaborationDrawingToolLayer myLayer = (CollaborationDrawingToolLayer) getDrawingLayerFor(getMyUser());
@@ -413,7 +457,7 @@ public class CollaborationDrawingResource extends
         }
     }
 
-    public void sendEventToUser(Object event, UserId user) {
+    public void sendEventToUser(Object event, VenueParticipant user) {
         try {
             container.getSession().sendObjectToPeer(user, event);
         } catch (CollaborationException e) {
@@ -439,4 +483,12 @@ public class CollaborationDrawingResource extends
         // Though I hate this methods exists, it serves its purpose
         return false;
     }
+
+    /**
+     * @return the manager
+     */
+    public CollaborationDrawingUIManager getManager() {
+        return manager;
+    }
+
 }

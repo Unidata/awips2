@@ -72,6 +72,14 @@ import com.vividsolutions.jts.geom.LineString;
  * Aug 29, 2013  2281     bsteffen       Fix click distance calculations.
  * Sep 03, 2013  2310     bsteffen       Move MouseHandler from ShearAction to
  *                                       ShearLayer.
+ * Mar  3, 2014  2804     mschenke       Set back up clipping pane
+ * Jul 28, 2014  3430     mapeters       Updated the 'handleMouseUp' and 
+ *                                       'handleMouseDownMove' functions 
+ *                                       to prevent errors when MB3 clicking off 
+ *                                       the map or MB1 dragging off the map with 
+ *                                       tool in editable mode.
+ * Aug 14, 2014  3523     mapeters       Updated deprecated {@link DrawableString#textStyle} 
+ *                                       assignments.
  * 
  * </pre>
  * 
@@ -167,7 +175,11 @@ public class ShearLayer extends
         drawLineString(target, ls, color, IGraphicsTarget.LineStyle.SOLID);
         String label = drawLabeling(target, ls, color, paintProps);
         target.clearClippingPlane();
-        drawUpperLeftCornerLabel(target, paintProps, label);
+        try {
+            drawUpperLeftCornerLabel(target, paintProps, label);
+        } finally {
+            target.setupClippingPlane(paintProps.getClippingPane());
+        }
     }
 
     public void drawLines(Coordinate[] coors) {
@@ -227,7 +239,7 @@ public class ShearLayer extends
         return coorOnCircle;
 
     }
-    
+
     protected void drawBaselineLabel(IGraphicsTarget target,
             Coordinate latLong, String label) throws VizException {
 
@@ -240,11 +252,10 @@ public class ShearLayer extends
         ds.basics.x = c2[0];
         ds.basics.y = c2[1];
         ds.font = null;
-        ds.textStyle = IGraphicsTarget.TextStyle.NORMAL;
         ds.horizontalAlignment = HorizontalAlignment.LEFT;
         // set the magnification
         ds.magnification = this.getCapability(MagnificationCapability.class)
-        .getMagnification().floatValue();
+                .getMagnification().floatValue();
         target.drawStrings(ds);
     }
 
@@ -309,8 +320,7 @@ public class ShearLayer extends
      *            y location in screen pixels
      * @return T Coordinate of the endpoint, null if not found.
      */
-    public Coordinate isInsideEndpoint(int x,
-            int y) {
+    public Coordinate isInsideEndpoint(int x, int y) {
         IDisplayPaneContainer container = getResourceContainer();
         if (container == null) {
             return null;
@@ -374,11 +384,10 @@ public class ShearLayer extends
         ds.basics.x = x1;
         ds.basics.y = y1;
         ds.font = null;
-        ds.textStyle = IGraphicsTarget.TextStyle.NORMAL;
         ds.horizontalAlignment = HorizontalAlignment.LEFT;
         // set the magnification
         ds.magnification = this.getCapability(MagnificationCapability.class)
-        .getMagnification().floatValue();
+                .getMagnification().floatValue();
         target.drawStrings(ds);
     }
 
@@ -425,9 +434,10 @@ public class ShearLayer extends
         String separatorSymbol;
 
         public VelocityRange(Map<String, Object> map) {
-            if (map != null && map.containsKey("Mnemonic")
-                    && (map.containsKey(BASE_VELOCITY_VALUE_KEY) ||
-                            map.containsKey(VALUE_KEY))) {
+            if (map != null
+                    && map.containsKey("Mnemonic")
+                    && (map.containsKey(BASE_VELOCITY_VALUE_KEY) || map
+                            .containsKey(VALUE_KEY))) {
                 String mnemonic = map.get("Mnemonic").toString();
 
                 if (mnemonic.equalsIgnoreCase("V")
@@ -605,6 +615,10 @@ public class ShearLayer extends
                 Coordinate c = container.translateClick(lastMouseX, lastMouseY);
                 Coordinate c2 = container.translateClick(x, y);
 
+                if (c == null || c2 == null) {
+                    return true;
+                }
+
                 Coordinate delta = new Coordinate(c2.x - c.x, c2.y - c.y);
 
                 if (this.mode == Mode.MOVE_LINE) {
@@ -636,6 +650,10 @@ public class ShearLayer extends
                         return false;
                     }
                     Coordinate c = container.translateClick(x, y);
+
+                    if (c == null) {
+                        return false;
+                    }
 
                     // move prior unmoved end point
                     Coordinate[] coords = shearLayer.getBaseline()

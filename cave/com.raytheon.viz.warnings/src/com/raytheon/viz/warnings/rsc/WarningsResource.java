@@ -33,12 +33,14 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.vividsolutions.jts.geom.Geometry;
@@ -52,7 +54,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 1, 2010            jsanchez     Initial creation
- * Aug 22, 2011  10631    njensen  Major refactor
+ * Aug 22, 2011  10631    njensen      Major refactor
  * May 3, 2012  DR 14741  porricel     Stop setting end time of orig.
  *                                     warning to start time of update.
  * Jun 04, 2012 DR14992  mgamazaychikov Fix the problem with plotting expiration time for 
@@ -62,6 +64,11 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     Removed no longer needed frameAltered. Do not set wire frame for a CAN.
  * Jul 24, 2013 DR16350  mgamazaychikov Fix the problem with plotting EXP warning
  * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
+ * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
+ * Mar 04, 2014 2832       njensen     Moved disposeInternal() to abstract class
+ * Apr 07, 2014 2959       njensen     Correct handling of color change
+ * Apr 14, 2014 DR 17257  D. Friedman  Redo time matching on per-minute refresh.
+ * 
  * </pre>
  * 
  * @author jsanchez
@@ -82,6 +89,7 @@ public class WarningsResource extends AbstractWWAResource {
             }
             for (WarningsResource rsc : rscs) {
                 rsc.issueRefresh();
+                rsc.redoTimeMatching();
             }
         }
 
@@ -116,7 +124,7 @@ public class WarningsResource extends AbstractWWAResource {
     protected void initInternal(IGraphicsTarget target) throws VizException {
         FramesInfo info = descriptor.getFramesInfo();
         DataTime[] times = info.getFrameTimes();
-        if (times != null && times.length > 0) {
+        if ((times != null) && (times.length > 0)) {
             // Request data for "earliest" time
             requestData(times[0]);
         }
@@ -131,23 +139,7 @@ public class WarningsResource extends AbstractWWAResource {
     @Override
     protected void disposeInternal() {
         cancelRefreshTask(this);
-        for (WarningEntry entry : entryMap.values()) {
-            if (entry.shadedShape != null) {
-                entry.shadedShape.dispose();
-            }
-            if (entry.wireframeShape != null) {
-                entry.wireframeShape.dispose();
-            }
-        }
-
-        entryMap.clear();
-        if (warningsFont != null) {
-            warningsFont.dispose();
-        }
-
-        if (emergencyFont != null) {
-            emergencyFont.dispose();
-        }
+        super.disposeInternal();
     }
 
     @Override
@@ -165,26 +157,14 @@ public class WarningsResource extends AbstractWWAResource {
                 }
             }
         } else if (type == ChangeType.CAPABILITY) {
-            if (color != null
-                    && color.equals(getCapability((ColorableCapability.class))
-                            .getColor()) == false) {
+            if ((color != null)
+                    && (color.equals(getCapability((ColorableCapability.class))
+                            .getColor()) == false)) {
                 color = getCapability((ColorableCapability.class)).getColor();
-
-                // TODO this needs to be fixed to work with watches which are
-                // shaded
-                // for (String dataUri : entryMap.keySet()) {
-                // WarningEntry entry = entryMap.get(dataUri);
-                // TODO init a shape somewhere else
-                // if (entry.shadedShape != null) {
-                // entry.shadedShape.dispose();
-                // try {
-                // initShape(entry.record);
-                // } catch (VizException e) {
-                // statusHandler.handle(Priority.PROBLEM,
-                // e.getLocalizedMessage(), e);
-                // }
-                // }
-                // }
+                for (String dataUri : entryMap.keySet()) {
+                    WarningEntry entry = entryMap.get(dataUri);
+                    entry.project = true;
+                }
             }
         }
         issueRefresh();
@@ -212,7 +192,7 @@ public class WarningsResource extends AbstractWWAResource {
                 // Do not paint a wire frame shape for a CAN
                 if (act != WarningAction.CAN) {
                     wfs = target.createWireframeShape(false, descriptor);
-                    geo = (Geometry) record.getGeometry().clone();
+                    geo = record.getGeometry();
 
                     JTSCompiler jtsCompiler = new JTSCompiler(null, wfs,
                             descriptor);
@@ -234,12 +214,10 @@ public class WarningsResource extends AbstractWWAResource {
     protected synchronized void updateDisplay(IGraphicsTarget target)
             throws VizException {
         if (!this.recordsToLoad.isEmpty()) {
-            FramesInfo info = getDescriptor().getFramesInfo();
-            DataTime[] frames = info.getFrameTimes();
             for (AbstractWarningRecord warnrec : recordsToLoad) {
                 WarningAction act = WarningAction.valueOf(warnrec.getAct());
-                if (act == WarningAction.CON || act == WarningAction.CAN
-                        || act == WarningAction.EXT) {
+                if ((act == WarningAction.CON) || (act == WarningAction.CAN)
+                        || (act == WarningAction.EXT)) {
                     AbstractWarningRecord createShape = null;
                     for (String key : entryMap.keySet()) {
                         WarningEntry entry = entryMap.get(key);
@@ -274,8 +252,8 @@ public class WarningsResource extends AbstractWWAResource {
                                 // if it's a con, need to have a new entry for a
                                 // new
                                 // polygon
-                                if (act == WarningAction.CON
-                                        || act == WarningAction.EXT) {
+                                if ((act == WarningAction.CON)
+                                        || (act == WarningAction.EXT)) {
                                     createShape = warnrec;
                                 }
                             } else if ((entry.altered && entry.partialCancel)) {
@@ -357,4 +335,14 @@ public class WarningsResource extends AbstractWWAResource {
         return r.getOfficeid() + '.' + r.getPhensig() + '.' + r.getEtn();
     }
 
+    /**
+     * Redo the time matching
+     */
+    protected void redoTimeMatching() {
+        AbstractTimeMatcher timeMatcher = this.getDescriptor().getTimeMatcher();
+        if (timeMatcher != null) {
+            timeMatcher.redoTimeMatching(this);
+            TimeMatchingJob.scheduleTimeMatch(this.getDescriptor());
+        }
+    }
 }

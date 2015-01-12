@@ -56,6 +56,11 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Aug 26, 2013 #2225      rferrel      Make dialog perspective independent.
  * Oct 01, 2013 #2147      rferrel      Change getEnd() to pick up files with future time stamps.
  * Oct 07, 2013 #2438      rferrel      Properly save and load retention times.
+ * Apr 14, 2014 #3023      rferrel      Code clean up.
+ * Apr 24, 2014 #3045      rferrel      Implement loadedAllDsipalyData.
+ * May 28, 2014 #3171      rferrel      Change retention labels.
+ * Aug 26, 2014 #3553      rferrel      No longer need to override loadedAllDisplayData.
+ * Sep 17, 2014 #3609      rferrel      Corrected spelling.
  * 
  * </pre>
  * 
@@ -69,12 +74,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
     /** Current Archive/Category selection's extended retention hours. */
     private RetentionHours extRetention;
-
-    /** Displays the total number of selected items for all tables. */
-    private Label totalSelectedItems;
-
-    /** Displays the total size of selected items. */
-    private Label totalSizeLbl;
 
     /** Flag to indicate when retention hours are modified. */
     private boolean retentionHoursAreModified = false;
@@ -163,14 +162,16 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
         // composite for retention time selection
         Composite selectionComp = new Composite(retentionComp, SWT.NONE);
-        selectionComp.setLayout(new GridLayout(3, true));
+        selectionComp.setLayout(new GridLayout(3, false));
         selectionComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
                 false));
 
         gd = new GridData();
         gd.horizontalIndent = 20;
         Label minRetentionLbl = new Label(selectionComp, SWT.NONE);
-        minRetentionLbl.setText("Minimum Retention: ");
+        String tooltip = "Default retention for all of\nthe Archive's Categories.";
+        minRetentionLbl.setText("Default Retention:");
+        minRetentionLbl.setToolTipText(tooltip);
         minRetentionLbl.setLayoutData(gd);
 
         gd = new GridData(60, SWT.DEFAULT);
@@ -183,7 +184,8 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
         Combo minRetentionCbo = new Combo(selectionComp, SWT.VERTICAL
                 | SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
-        minRetention = new RetentionHours(1, minRetentionSpnr, minRetentionCbo) {
+        minRetention = new RetentionHours(1, minRetentionSpnr, minRetentionCbo,
+                tooltip) {
 
             @Override
             protected boolean handleTimeSelection() {
@@ -199,8 +201,10 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
          */
         gd = new GridData();
         gd.horizontalIndent = 20;
+        tooltip = "Current Category's retention\nfor checked Data Sets.";
         Label extRetentionLbl = new Label(selectionComp, SWT.NONE);
-        extRetentionLbl.setText("Extended Retention: ");
+        extRetentionLbl.setText("Selected Retention: ");
+        extRetentionLbl.setToolTipText(tooltip);
         extRetentionLbl.setLayoutData(gd);
 
         gd = new GridData(60, SWT.DEFAULT);
@@ -213,7 +217,8 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
         Combo extRetentionCbo = new Combo(selectionComp, SWT.VERTICAL
                 | SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
-        extRetention = new RetentionHours(1, extRetentionSpnr, extRetentionCbo) {
+        extRetention = new RetentionHours(1, extRetentionSpnr, extRetentionCbo,
+                tooltip) {
 
             @Override
             protected boolean handleTimeSelection() {
@@ -293,9 +298,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
      */
     @Override
     protected void setTotalSizeText(String sizeStringText) {
-        if (totalSizeLbl != null && !totalSizeLbl.isDisposed()) {
-            totalSizeLbl.setText(sizeStringText);
-        }
     }
 
     /*
@@ -307,9 +309,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
      */
     @Override
     protected void setTotalSelectedItems(int totalSize) {
-        if (totalSelectedItems != null && !totalSelectedItems.isDisposed()) {
-            totalSelectedItems.setText("" + totalSize);
-        }
     }
 
     /*

@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.Status;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
+import com.raytheon.uf.common.activetable.request.ClearPracticeVTECTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
@@ -41,7 +42,6 @@ import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.request.AbstractGfeRequest;
-import com.raytheon.uf.common.dataplugin.gfe.request.ClearPracticeVTECTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.CommitGridsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetActiveTableRequest;
@@ -118,6 +118,12 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * 06/06/13     #2073      dgilling    Make getGridInventory() better match A1,
  *                                     fix warnings.
  * 11/20/2013   #2331      randerso    Added getTopoData method
+ * 04/03/2014   #2737      randerso    Moved clientISCSendStatus to SaveGFEGridRequest
+ * 04/09/2014   #3004      dgilling    Support moved ClearPracticeVTECTableRequest.
+ * 07/01/2014   #3149      randerso    Changed getGridData to handle limited number of grids returned 
+ *                                     and re-request if not all data returned
+ * 09/23/14     #3648      randerso    Changed getParmList to return results even if some DbIds
+ *                                     have errors
  * 
  * </pre>
  * 
@@ -190,8 +196,20 @@ public class IFPClient {
             throws GFEServerException {
         GetParmListRequest request = new GetParmListRequest();
         request.setDbIds(ids);
-        ServerResponse<?> sr = makeRequest(request);
-        return (List<ParmID>) sr.getPayload();
+        ServerResponse<?> sr = makeRequest(request, false);
+        List<ParmID> parmIds = (List<ParmID>) sr.getPayload();
+        if (!sr.isOkay()) {
+            String msg = formatSRMessage(sr);
+            if (parmIds != null && !parmIds.isEmpty()) {
+                // got something so display an error message and continue
+                statusHandler.error(msg);
+            } else {
+                // got nothing so throw exception
+                throw new GFEServerException(msg);
+            }
+        }
+
+        return parmIds;
     }
 
     /**
@@ -421,8 +439,8 @@ public class IFPClient {
             throws GFEServerException {
         ServerResponse<?> response = null;
         if (!requests.isEmpty()) {
-            SaveGfeGridRequest request = new SaveGfeGridRequest();
-            request.setSaveRequest(requests);
+            SaveGfeGridRequest request = new SaveGfeGridRequest(
+                    dataManager.clientISCSendStatus(), requests);
             response = makeRequest(request);
         }
         logResponse(response);
@@ -561,21 +579,34 @@ public class IFPClient {
      * @return List of grid slices
      * @throws GFEServerException
      */
+    @SuppressWarnings("unchecked")
     public List<IGridSlice> getGridData(ParmID parmId, List<TimeRange> gridTimes)
             throws GFEServerException {
-        return getGridData(parmId, gridTimes, false);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<IGridSlice> getGridData(ParmID parmId,
-            List<TimeRange> gridTimes, boolean convertUnit)
-            throws GFEServerException {
         GetGridRequest req = new GetGridRequest(parmId, gridTimes);
-        req.setConvertUnit(convertUnit);
         GetGridDataRequest request = new GetGridDataRequest();
         request.addRequest(req);
-        ServerResponse<?> resp = makeRequest(request);
-        List<IGridSlice> slices = (List<IGridSlice>) resp.getPayload();
+
+        List<IGridSlice> slices = new ArrayList<IGridSlice>(gridTimes.size());
+        while (slices.size() < gridTimes.size()) {
+            ServerResponse<List<IGridSlice>> resp = (ServerResponse<List<IGridSlice>>) makeRequest(request);
+            slices.addAll(resp.getPayload());
+
+            // if no slices returned (shouldn't happen unless server code is
+            // broken)
+            if (slices.isEmpty()) {
+                String msg = "No data returned from GetGridDataRequest for "
+                        + parmId + " for times:" + req.getTimes();
+                statusHandler.error(msg);
+                throw new GFEServerException(msg);
+            }
+
+            // if not all slices returned
+            if (slices.size() < gridTimes.size()) {
+                // request remaining times.
+                req.setTimes(gridTimes.subList(slices.size(), gridTimes.size()));
+            }
+        }
+
         return slices;
     }
 
@@ -729,32 +760,43 @@ public class IFPClient {
 
         if ((throwExceptionsBasedOnResponse) && (rval != null)
                 && (!rval.isOkay())) {
-            StringBuilder msg = new StringBuilder();
-            if (rval.getMessages().size() > 1) {
-                msg.append("Errors ");
-            } else {
-                msg.append("Error ");
-            }
-            msg.append("occurred on GFE server -");
-            Iterator<ServerMsg> iter = rval.getMessages().iterator();
-            while (iter.hasNext()) {
-                msg.append(iter.next().getMessage());
-                if (iter.hasNext()) {
-                    msg.append(", ");
-                }
-            }
-            throw new GFEServerException(msg.toString());
+            String msg = formatSRMessage(rval);
+            throw new GFEServerException(msg);
 
         }
 
         return rval;
     }
 
+    private String formatSRMessage(ServerResponse<?> rval) {
+        StringBuilder sb = new StringBuilder();
+        if (rval.getMessages().size() > 1) {
+            sb.append("Errors ");
+        } else {
+            sb.append("Error ");
+        }
+        sb.append("occurred on GFE server: ");
+        Iterator<ServerMsg> iter = rval.getMessages().iterator();
+        while (iter.hasNext()) {
+            sb.append(iter.next().getMessage());
+            if (iter.hasNext()) {
+                sb.append(", ");
+            }
+        }
+        String msg = sb.toString();
+        return msg;
+    }
+
     public void clearPracticeTable(String siteId) throws VizException {
-        ClearPracticeVTECTableRequest request = new ClearPracticeVTECTableRequest();
-        request.setRequestedSiteId(SiteMap.getInstance().getSite4LetterId(
-                siteId));
-        makeRequest(request);
+        try {
+            ClearPracticeVTECTableRequest request = new ClearPracticeVTECTableRequest(
+                    SiteMap.getInstance().getSite4LetterId(siteId),
+                    workstationID);
+            ThriftClient.sendRequest(request);
+        } catch (VizException e) {
+            throw new GFEServerException(
+                    "Could not clear practice active table.", e);
+        }
     }
 
     public ServerResponse<?> getGridHistory(ParmID parmID,

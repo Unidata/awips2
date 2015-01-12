@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Oct 10, 2012 1229       rferrel     Make dialog non-blocking.
+ * May 07, 2014 3091       rferrel     Use OUP authorization to bring up send dialog.
  * 
  * </pre>
  * 
@@ -98,7 +99,7 @@ public class ResourceEditorDlg extends CaveSWTDialog implements IResize {
     }
 
     private void createTopLabelAndButtons() {
-        String userName = AviationDialog.USERNAME;
+        String userName = AviationDialog.getForecaster();
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Label title = new Label(shell, SWT.CENTER);

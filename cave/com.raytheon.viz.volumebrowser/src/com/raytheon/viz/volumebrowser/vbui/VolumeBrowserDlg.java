@@ -77,6 +77,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  *                                      the Time Series Point menu.
  * Oct  2, 2012 #1234      rferrel     Time series Point menu accounts for 
  *                                      having no points.
+ * Jun 23, 2014 #3162      lvenable    Added code to have the Volume Browser display the min/max
+ *                                     buttons in the title bar on thin client.
  * 
  * </pre>
  * 
@@ -142,7 +144,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
      *            Parent shell.
      */
     public VolumeBrowserDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
+        super(parent, SWT.SHELL_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
                 | CAVE.DO_NOT_BLOCK);
         setText(DIALOG_TITLE);
 

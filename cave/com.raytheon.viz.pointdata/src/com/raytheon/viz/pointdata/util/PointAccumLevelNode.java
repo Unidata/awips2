@@ -27,14 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
 
 /**
  * A Node representing the Accum derived paramteer method which is used by point
@@ -80,7 +80,8 @@ public class PointAccumLevelNode extends AbstractDerivedDataNode {
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
             Set<TimeAndSpace> availability,
-            AvailabilityContainer availabilityContainer) throws VizException {
+            AvailabilityContainer availabilityContainer)
+            throws DataCubeException {
         Map<AbstractRequestableNode, Set<TimeAndSpace>> rval = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
         for (AbstractRequestableNode idNode : idNodes) {
             rval.put(idNode, availability);
@@ -93,7 +94,7 @@ public class PointAccumLevelNode extends AbstractDerivedDataNode {
     public Set<AbstractRequestableData> getData(
             Set<TimeAndSpace> availability,
             Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
-            throws VizException {
+            throws DataCubeException {
         List<AbstractRequestableData> idRequesters = new ArrayList<AbstractRequestableData>(
                 idNodes.size());
         for (AbstractRequestableNode idNode : idNodes) {
@@ -130,7 +131,7 @@ public class PointAccumLevelNode extends AbstractDerivedDataNode {
     @Override
     public Set<TimeAndSpace> getAvailability(
             Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
-            throws VizException {
+            throws DataCubeException {
         return AvailabilityContainer.AGNOSTIC_SET;
     }
 

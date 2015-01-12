@@ -41,7 +41,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.localization.LocalizationEditorInput;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
 
 /**
  * Deletes the selected localation file

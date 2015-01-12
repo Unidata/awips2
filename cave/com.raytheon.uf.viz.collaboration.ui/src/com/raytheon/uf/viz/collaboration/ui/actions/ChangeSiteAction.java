@@ -19,25 +19,23 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import java.util.Map;
-
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
-import com.raytheon.uf.viz.collaboration.ui.session.SubscribeList;
+import com.raytheon.uf.viz.collaboration.ui.session.SiteChangeEvent;
 
 /**
  * Change the site for the logged in user
@@ -49,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.SubscribeList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 5, 2012            bsteffen     Initial creation
+ * Oct 10, 2014 3708       bclement    added SiteChangeEvent
  * 
  * </pre>
  * 
@@ -73,9 +72,10 @@ public class ChangeSiteAction extends Action {
     public ChangeSiteAction(String site) {
         super(site, Action.AS_RADIO_BUTTON);
         this.site = site;
-        IPresence presence = CollaborationConnection.getConnection()
+        Presence presence = CollaborationConnection.getConnection()
                 .getPresence();
-        String currentSite = (String) presence.getProperties().get(
+        String currentSite = (String) presence
+                .getProperty(
                 SiteConfigInformation.SITE_NAME);
         if (site.equals(currentSite)) {
             setChecked(true);
@@ -90,15 +90,10 @@ public class ChangeSiteAction extends Action {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
 
-        IPresence presence = connection.getPresence();
-        @SuppressWarnings("unchecked")
-        Map<Object, Object> props = presence.getProperties();
-        props.put(SiteConfigInformation.SITE_NAME, site);
-        // now need to send the new subscribe list out to those who are
-        // listening for it
-        SubscribeList list = new SubscribeList();
-        list.setEnabledSites(SiteConfigurationManager.getSubscribeList(site));
-        connection.postEvent(list);
+        Presence presence = connection.getPresence();
+        presence.setProperty(SiteConfigInformation.SITE_NAME, site);
+        /* now need to send the new site out to those who are listening for it */
+        connection.postEvent(new SiteChangeEvent(site));
 
         try {
             connection.getAccountManager().sendPresence(presence);
@@ -132,9 +127,7 @@ public class ChangeSiteAction extends Action {
         }
 
         private void fill() {
-            SiteConfigInformation siteInfo = SiteConfigurationManager
-                    .getSiteConfigInformation();
-            for (SiteConfig config : siteInfo.getConfig()) {
+            for (SiteConfig config : SiteConfigurationManager.getSiteConfigs()) {
                 Action action = new ChangeSiteAction(config.getSite());
                 IContributionItem contrib = new ActionContributionItem(action);
                 contrib.fill(menu, -1);

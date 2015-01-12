@@ -19,9 +19,11 @@
  **/
 package com.raytheon.viz.mpe.ui.dialogs.postanalysis;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
@@ -35,6 +37,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -60,11 +63,14 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
      * Maps composite.
      */
     protected MapsComp mapsComp = null;
+    protected Label leftMapLbl = null;
+    protected Label rightMapLbl = null;
 
     /**
      * Legend canvas.
      */
     protected Canvas legendCanvas = null;
+    protected ColorLegendMgr colorLegendMgr = null;
 
     /**
      * Canvas height.
@@ -76,6 +82,28 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
      */
     protected int canvasWidth = 700;
 
+    
+    /**
+     * Data that belongs to the internal maps
+     */
+    private String dataFileName1 = null;
+    private String dataFileName2 = null;
+    
+    private float[] dataArray1 = null;
+    private float[] dataArray2 = null;
+    
+    private java.awt.Rectangle extent1 = null;
+    private java.awt.Rectangle extent2 = null;
+    
+    private NamedColorUseSet namedColorUseSet1 = null;
+    private NamedColorUseSet namedColorUseSet2 = null;
+    
+    protected abstract NamedColorUseSet createNamedColorUseSet1();
+    protected abstract NamedColorUseSet createNamedColorUseSet2();
+   
+    private PAResourceType resourceType1 = PAResourceType.XMRG;
+    private PAResourceType resourceType2 = PAResourceType.XMRG;
+    
     /**
      * Constructor.
      * 
@@ -84,6 +112,7 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
      */
     public BasePostAnalysisDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
+        
     }
 
     @Override
@@ -304,10 +333,10 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
         labelComp.setLayout(new GridLayout(2, true));
         labelComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
-        Label leftMapLbl = new Label(labelComp, SWT.CENTER);
+        leftMapLbl = new Label(labelComp, SWT.CENTER);
         leftMapLbl.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
-        Label rightMapLbl = new Label(labelComp, SWT.CENTER);
+        rightMapLbl = new Label(labelComp, SWT.CENTER);
         rightMapLbl.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         if (lblNames.length >= 2) {
@@ -323,8 +352,10 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
      * Create the map composite.
      */
     private void createMapComposite() {
-        mapsComp = new MapsComp(shell);
+    	System.out.println(" BasePostAnalysisDl:createMapComposite(): ");
+        mapsComp = new MapsComp(shell, this);
     }
+
 
     /**
      * Create the color bar legend canvas.
@@ -343,11 +374,21 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
         legendCanvas.setSize(canvasWidth, canvasHeight);
         legendCanvas.setLayoutData(gd);
 
+        //let the colorLegendMgr handle the actual painting
+        //The ColorLegendMgr sets up its own PaintListener()
+        setColorLegendMgr(createColorLegendMgr(legendCanvas));
+
+        /* 
         legendCanvas.addPaintListener(new PaintListener() {
             public void paintControl(PaintEvent e) {
                 drawCanvas(e.gc);
             }
         });
+        */
+        
+        
+        
+        
     }
 
     /**
@@ -365,11 +406,14 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
      * 
      * @param gc
      */
-    private void drawCanvas(GC gc) {
-        gc.setAntialias(SWT.ON);
-        gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+    private void drawCanvas(GC gc)
+    {
+    	getColorLegendMgr().paintLegend(gc);
+    	
+    //    gc.setAntialias(SWT.ON);
+    //    gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 
-        gc.fillRectangle(0, 0, canvasWidth, canvasHeight);
+    //    gc.fillRectangle(0, 0, canvasWidth, canvasHeight);
     }
 
     /**
@@ -399,4 +443,132 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
      * @return Number of color legend color bars.
      */
     abstract protected int getNumberOfColorLegends();
+    
+   
+	private ColorLegendMgr createColorLegendMgr(Canvas canvas)
+	{
+		NamedColorUseSet namedColorUseSet1 = getNamedColorUseSet1();
+    	NamedColorUseSet namedColorUseSet2 =  getNamedColorUseSet2();
+	
+    	Date selectedDateTime = PostAnalysisManager.getSelectedDate();
+    	
+    	String dateTimeString = "ending at " + getDateTimeStringFromLongTime(selectedDateTime.getTime());
+    	
+    	ColorLegendMgr legendMgr = new ColorLegendMgr(canvas, namedColorUseSet1,
+    												  namedColorUseSet2, dateTimeString);
+
+    	return legendMgr;
+	}
+	
+	private static String getStringFromLongTime(long time, String dateFormat)
+	{
+	    String timeString  = null;
+	
+		//System.out.println("timeString = !" + timeString + "!");
+		SimpleDateFormat utcSdf2 = new SimpleDateFormat(dateFormat);
+		utcSdf2.setTimeZone(TimeZone.getTimeZone("UTC"));
+		timeString = utcSdf2.format(new java.util.Date(time));
+	
+		return timeString;
+	}
+	
+	protected static String getDateTimeStringFromLongTime(long time)
+	{
+		String timeString  = getStringFromLongTime(time, "yyyy-MM-dd HHz");
+	
+		return timeString;
+	}
+
+
+	protected void setDataFileName1(String dataFileName1) {
+		this.dataFileName1 = dataFileName1;
+	}
+
+	protected String getDataFileName1() {
+		return dataFileName1;
+	}
+
+	protected void setDataFileName2(String dataFileName2) {
+		this.dataFileName2 = dataFileName2;
+	}
+
+	protected String getDataFileName2() {
+		return dataFileName2;
+	}
+
+	protected void setDataArray1(float[] dataArray1) {
+		this.dataArray1 = dataArray1;
+	}
+
+	protected float[] getDataArray1() {
+		return dataArray1;
+	}
+
+	protected void setDataArray2(float[] dataArray2) {
+		this.dataArray2 = dataArray2;
+	}
+
+	protected float[] getDataArray2() {
+		return dataArray2;
+	}
+
+	protected void setExtent1(java.awt.Rectangle extent1) {
+		this.extent1 = extent1;
+	}
+
+	protected java.awt.Rectangle getExtent1() {
+		return extent1;
+	}
+
+	protected void setExtent2(java.awt.Rectangle extent2) {
+		this.extent2 = extent2;
+	}
+
+	protected java.awt.Rectangle getExtent2() {
+		return extent2;
+	}
+	
+	
+	public NamedColorUseSet getNamedColorUseSet1() {
+	
+		if (namedColorUseSet1 == null)
+		{
+			namedColorUseSet1 = createNamedColorUseSet1();
+		}
+		return namedColorUseSet1;
+	}
+
+	public NamedColorUseSet getNamedColorUseSet2() {
+		
+		if (namedColorUseSet2 == null)
+		{
+			namedColorUseSet2 = createNamedColorUseSet2();
+		}
+		return namedColorUseSet2;
+	}
+
+	protected void setColorLegendMgr(ColorLegendMgr colorLegendMgr) {
+		this.colorLegendMgr = colorLegendMgr;
+	}
+
+	public ColorLegendMgr getColorLegendMgr() {
+	
+		return colorLegendMgr;
+	}
+	
+	public PAResourceType getResourceType1() {
+		return resourceType1;
+	}
+	public void setResourceType1(PAResourceType resourceType1) {
+		this.resourceType1 = resourceType1;
+	}
+	public PAResourceType getResourceType2() {
+		return resourceType2;
+	}
+	public void setResourceType2(PAResourceType resourceType2) {
+		this.resourceType2 = resourceType2;
+	}
+
+
+
 }

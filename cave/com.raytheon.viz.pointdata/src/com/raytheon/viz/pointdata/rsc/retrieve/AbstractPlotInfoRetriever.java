@@ -28,12 +28,12 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.viz.pointdata.PlotInfo;
-import com.raytheon.viz.pointdata.rsc.PlotResource2;
+import com.raytheon.viz.pointdata.rsc.PlotResource;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Base class for all objects which can retrieve {@link PlotInfo} objects for
- * use in {@link PlotResource2}. For most applications the
+ * use in {@link PlotResource}. For most applications the
  * {@link PointDataPlotInfoRetriever} should be used however other instances can
  * provide more advanced features such as incremental loading or retrieving
  * additional data.
@@ -45,6 +45,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * 
  * </pre>
  * 

@@ -26,15 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.data.AggregateRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.data.AggregateRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractAliasLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.derivparam.tree.AbstractAliasLevelNode;
 
 /**
  * 
@@ -68,7 +68,7 @@ public class GatherLevelNode extends AbstractAliasLevelNode {
     public Set<AbstractRequestableData> getData(
             Set<TimeAndSpace> availability,
             Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
-            throws VizException {
+            throws DataCubeException {
         Map<TimeAndSpace, List<AbstractRequestableData>> availMap = new HashMap<TimeAndSpace, List<AbstractRequestableData>>();
         for (AbstractRequestableData data : dependencyData.get(sourceNode)) {
             TimeAndSpace ast = data.getTimeAndSpace();

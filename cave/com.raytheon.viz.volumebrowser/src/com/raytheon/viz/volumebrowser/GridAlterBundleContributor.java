@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -56,7 +55,9 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Jan 04, 2010           mschenke    Initial creation
  * Oct 03, 2012  1248     rferrel     Change to use adapter.
  * Dec 11, 2013  2602     bsteffen    Remove dead catch block.
- * 
+ * Aug 19, 2014  3506     mapeters    Modified getModelTitleToNameMap function 
+ *                                    to still get correct VB sources after 
+ *                                    splitting them into multiple files.
  * </pre>
  * 
  * @author mschenke
@@ -73,19 +74,11 @@ public class GridAlterBundleContributor extends AlterBundleContributorAdapter {
 
         if (modelTitleToNameMap == null) {
             modelTitleToNameMap = new HashMap<String, String>();
-            for (VbSource source : VbSourceList.getInstance().getEntries()) {
-                if (source.getName() != null) {
-                    modelTitleToNameMap.put(source.getName(), source.getKey());
-                } else {
-                    DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(
-                            source.getKey());
-                    if (info == null) {
-                        modelTitleToNameMap.put(source.getKey(),
+            for (VbSource source : VbSourceList.getInstance()
+                    .getAllSources()) {
+                if (!source.getRemove()) {
+                    modelTitleToNameMap.put(source.getName(),
                                 source.getKey());
-                    } else {
-                        modelTitleToNameMap.put(info.getTitle(),
-                                source.getKey());
-                    }
                 }
             }
         }

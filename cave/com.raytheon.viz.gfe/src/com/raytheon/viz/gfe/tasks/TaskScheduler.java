@@ -19,10 +19,11 @@
  **/
 package com.raytheon.viz.gfe.tasks;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -32,13 +33,10 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.tasks.AbstractGfeTask.TaskStatus;
 
 /**
- * TODO Add Description
+ * GFE Task Scheduler
  * 
  * <pre>
  * 
@@ -48,6 +46,8 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask.TaskStatus;
  * ------------ ---------- ----------- --------------------------
  * Apr 07, 2011            randerso    Initial creation
  * Mar 03, 2012  #346      dgilling    Use identity-based ListenerLists.
+ * May 28, 2014  #2841     randerso    Made scheduler generic so multiple instances
+ *                                     can be created to process different script types
  * 
  * </pre>
  * 
@@ -55,39 +55,31 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask.TaskStatus;
  * @version 1.0
  */
 
-public class TaskScheduler extends Job {
+public class TaskScheduler<TaskType extends AbstractGfeTask> extends Job {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TaskScheduler.class);
 
     private List<AbstractGfeTask> allTasks;
 
-    private ArrayBlockingQueue<AbstractGfeTask> pendingTasks;
+    private BlockingQueue<AbstractGfeTask> pendingTasks;
 
-    private ArrayBlockingQueue<AbstractGfeTask> finishedTasks;
+    private BlockingQueue<AbstractGfeTask> finishedTasks;
 
-    private int runningTasks, runningTaskLimit;
+    private int pendingTaskLimit;
+
+    private int runningTaskLimit;
+
+    private int runningTasks;
 
     private ListenerList listeners;
 
-    protected TaskScheduler() {
+    protected TaskScheduler(int pendingTaskLimit, int runningTaskLimit,
+            int finishedTaskLimit) {
         super("Task Manager Job");
+        this.runningTaskLimit = runningTaskLimit;
+        this.pendingTaskLimit = pendingTaskLimit;
+
         listeners = new ListenerList(ListenerList.IDENTITY);
-
-        PythonPreferenceStore prefs = Activator.getDefault()
-                .getPreferenceStore();
-        int pendingTaskLimit = 20;
-        if (prefs.contains("ProcessMonitorMaxPendingTasks")) {
-            pendingTaskLimit = prefs.getInt("ProcessMonitorMaxPendingTasks");
-        }
-
-        runningTaskLimit = 1;
-        if (prefs.contains("ProcessMonitorMaxTasks")) {
-            runningTaskLimit = prefs.getInt("ProcessMonitorMaxTasks");
-        }
-        int finishedTaskLimit = 10;
-        if (prefs.contains("ProcessMonitorMaxOldTasks")) {
-            finishedTaskLimit = prefs.getInt("ProcessMonitorMaxOldTasks");
-        }
 
         pendingTasks = new ArrayBlockingQueue<AbstractGfeTask>(pendingTaskLimit);
         runningTasks = 0;
@@ -98,53 +90,40 @@ public class TaskScheduler extends Job {
 
     }
 
-    protected void queueTask(AbstractGfeTask task) {
-        allTasks.add(task);
+    protected void queueTask(TaskType task) {
         task.setScheduler(this);
         try {
             pendingTasks.add(task);
+            allTasks.add(task);
+            fireTaskStatusChanged(task);
         } catch (IllegalStateException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to queue job "
-                    + task.getDisplayName(), e);
+            task.cancel();
+            statusHandler
+                    .error(String
+                            .format("Unable to queue job: %s. Pending task limit (%d) exceeded.",
+                                    task.getDisplayName(), pendingTaskLimit));
         }
         this.schedule();
-        fireTaskStatusChanged(task);
     }
 
-    protected synchronized void forceRunTask(AbstractGfeTask task) {
+    protected synchronized void forceRunTask(TaskType task) {
         if (pendingTasks.remove(task)) {
             runTask(task);
         }
     }
 
-    protected synchronized void cancelTask(AbstractGfeTask task) {
+    protected synchronized void cancelTask(TaskType task) {
         // remove from pending list in case it's still pending
         // will do nothing if it's not in the pending list anymore
         pendingTasks.remove(task);
         task.cancel();
     }
 
-    protected synchronized void runTask(AbstractGfeTask task) {
-        System.out.println("runTask");
-        // try {
-        // String[] cmdArray = task.getCommand().split(" ");
-        // File f = new File(scriptsBaseDir + File.separator + cmdArray[0]);
-        // String dir = f.getParentFile().getAbsolutePath();
-        // cmdArray[0] = f.getAbsolutePath();
-        // ProcessBuilder pb = new ProcessBuilder(cmdArray);
-        // pb.directory(new File(dir));
-        // pb.redirectErrorStream(true);
-        // task.setLogFile(File.createTempFile("gfe_", ".log", logBaseDir));
-        // task.setProcessBuilder(pb);
+    private synchronized void runTask(AbstractGfeTask task) {
+        // System.out.println("runTask");
         runningTasks++;
         task.start();
 
-        // } catch (IOException e) {
-        // UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
-        // StatusConstants.CATEGORY_GFE, null,
-        // "Error creating log file for job " + task.getDisplayName()
-        // + ": " + e.getLocalizedMessage(), e);
-        // }
         this.schedule();
         fireTaskStatusChanged(task);
     }
@@ -157,9 +136,9 @@ public class TaskScheduler extends Job {
      */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        System.out.println("pending: " + pendingTasks.size() + " running: "
-                + runningTasks);
-        while (runningTasks < runningTaskLimit && pendingTasks.size() > 0) {
+        // System.out.println("pending: " + pendingTasks.size() + " running: "
+        // + runningTasks);
+        while ((runningTasks < runningTaskLimit) && (pendingTasks.size() > 0)) {
             AbstractGfeTask task = pendingTasks.poll();
             runTask(task);
         }
@@ -167,23 +146,26 @@ public class TaskScheduler extends Job {
         return Status.OK_STATUS;
     }
 
-    protected synchronized void taskCompleted(AbstractGfeTask task) {
-        System.out.println("taskCompleted");
+    protected synchronized void taskCompleted(TaskType task) {
+        // System.out.println("taskCompleted");
         runningTasks--;
         finishTask(task);
     }
 
-    protected synchronized void taskCanceled(AbstractGfeTask task) {
+    protected synchronized void taskCanceled(TaskType task) {
         task.status = TaskStatus.CANCELED;
-        System.out.println("taskCompleted");
+        // System.out.println("taskCompleted");
         finishTask(task);
     }
 
-    private void finishTask(AbstractGfeTask task) {
+    private void finishTask(TaskType task) {
         if (finishedTasks.remainingCapacity() == 0) {
             AbstractGfeTask t = finishedTasks.poll();
             allTasks.remove(t);
-            t.getLogFile().delete();
+            File logFile = t.getLogFile();
+            if ((logFile != null) && logFile.exists()) {
+                logFile.delete();
+            }
         }
         finishedTasks.add(task);
 
@@ -198,7 +180,7 @@ public class TaskScheduler extends Job {
     }
 
     protected List<AbstractGfeTask> getTaskList() {
-        return Collections.unmodifiableList(allTasks);
+        return allTasks;
     }
 
     protected void addTaskStatusChangedListener(

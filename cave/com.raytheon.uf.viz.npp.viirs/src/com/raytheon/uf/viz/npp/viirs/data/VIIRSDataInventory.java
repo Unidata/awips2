@@ -28,17 +28,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.derivparam.tree.DataTree;
-import com.raytheon.uf.common.derivparam.tree.LevelNode;
-import com.raytheon.uf.common.derivparam.tree.ParameterNode;
-import com.raytheon.uf.common.derivparam.tree.SourceNode;
+import com.raytheon.uf.common.derivparam.inv.AbstractInventory;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.inventory.tree.DataTree;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
+import com.raytheon.uf.common.inventory.tree.ParameterNode;
+import com.raytheon.uf.common.inventory.tree.SourceNode;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -46,13 +53,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivParamField;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
@@ -65,7 +65,8 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 18, 2012            mschenke     Initial creation
+ * Jan 18, 2012            mschenke    Initial creation
+ * Sep 09, 2014  3356      njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -103,7 +104,7 @@ public class VIIRSDataInventory extends AbstractInventory implements
 
     private List<Level> viirsLevels = new ArrayList<Level>();
 
-    public VIIRSDataInventory() throws CommunicationException {
+    public VIIRSDataInventory() {
         entireAtmosphere = LevelFactory.getInstance().getLevel(
                 VIIRS_LEVEL_NAME, 0.0);
         ProductAlertObserver.addObserver(PLUGIN_NAME, this);
@@ -273,6 +274,7 @@ public class VIIRSDataInventory extends AbstractInventory implements
         try {
             return walkTree(null, sources, parameters, levels, true, true, null);
         } catch (InterruptedException e) {
+            // no-op
         }
         return new ArrayList<AbstractRequestableNode>(0);
     }
@@ -376,7 +378,7 @@ public class VIIRSDataInventory extends AbstractInventory implements
      */
     @Override
     public List<DataTime> timeAgnosticQuery(Map<String, RequestConstraint> query)
-            throws VizException {
+            throws DataCubeException {
         return null;
     }
 

@@ -26,12 +26,12 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -44,6 +44,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.ConnectivityPreferenceDialog;
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.localization.ServerRemembrance;
+import com.raytheon.uf.viz.core.localization.TextOrCombo;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.ThinClientUriUtil;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
@@ -56,14 +58,17 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 23, 2011            bsteffen    Initial creation
- * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
- * Feb 04, 2014 2704       njensen     Refactored
- * Feb 17, 2014 2704       njensen     Added checks for alertviz connectivity
- * Feb 20, 2014 2704       njensen     Fix issues where settings are valid
- *                                        but dialog doesn't realize it
+ * Date          Ticket#    Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 23, 2011           bsteffen    Initial creation
+ * Aug 02, 2013  2202     bsteffen    Add edex specific connectivity checking.
+ * Feb 04, 2014  2704     njensen     Refactored
+ * Feb 17, 2014  2704     njensen     Added checks for alertviz connectivity
+ * Feb 20, 2014  2704     njensen     Fix issues where settings are valid
+ *                                    but dialog doesn't realize it
+ * Jun 03, 2014  3217     bsteffen    Add option to always open startup dialog.
+ * Jun 24, 2014  3236     njensen     Add ability to remember multiple servers
+ * 
  * 
  * 
  * </pre>
@@ -127,15 +132,19 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
 
     private Button disableJmsCheck;
 
+    private Button alwaysPromptCheck;
+
     private boolean disableJms = false;
 
     private boolean jmsGood = false;
+
+    private boolean alwaysPrompt;
 
     private Label jmsErrorLabel;
 
     private IConnectivityCallback jmsCallback = new JmsCallback();
 
-    private Text proxyText;
+    private TextOrCombo proxySrv;
 
     private String proxyAddress;
 
@@ -155,45 +164,17 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         super.createTextBoxes(textBoxComp);
 
         Label label = new Label(textBoxComp, SWT.RIGHT);
-        label.setText("Disable JMS:");
-        GridData gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
-        gd.widthHint = 150;
-        label.setLayoutData(gd);
-
-        Composite jmsComp = new Composite(textBoxComp, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        jmsComp.setLayout(gl);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        jmsComp.setLayoutData(gd);
-
-        disableJmsCheck = new Button(jmsComp, SWT.CHECK | SWT.LEFT);
-        disableJmsCheck.setSelection(disableJms);
-        disableJmsCheck.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                disableJms = disableJmsCheck.getSelection();
-                validate();
-            }
-        });
-        jmsErrorLabel = new Label(jmsComp, SWT.LEFT);
-        jmsErrorLabel.setText("Error connecting to JMS");
-        jmsErrorLabel.setForeground(display.getSystemColor(SWT.COLOR_RED));
-        jmsErrorLabel.setVisible(false);
-
-        label = new Label(textBoxComp, SWT.RIGHT);
         label.setText("Use Proxy Server:");
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
-        gd.widthHint = 150;
+        GridData gd = new GridData(SWT.RIGHT, SWT.CENTER, false, true);
+        gd.horizontalIndent = 20;
         label.setLayoutData(gd);
 
         Composite proxyComp = new Composite(textBoxComp, SWT.NONE);
-        gl = new GridLayout(2, false);
+        GridLayout gl = new GridLayout(2, false);
         gl.marginHeight = 0;
         gl.marginWidth = 0;
         proxyComp.setLayout(gl);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         proxyComp.setLayoutData(gd);
 
         useProxyCheck = new Button(proxyComp, SWT.CHECK | SWT.LEFT);
@@ -205,43 +186,125 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
             }
         });
 
-        proxyText = new Text(proxyComp, SWT.NONE | SWT.BORDER);
-        gd = new GridData(SWT.FILL, SWT.None, true, true);
-        proxyText.setLayoutData(gd);
-        proxyText.setText(proxyAddress == null ? "" : proxyAddress);
-        proxyText.setBackground(getTextColor(servicesGood && pypiesGood));
+        IPreferenceStore thinPrefs = Activator.getDefault()
+                .getPreferenceStore();
+        String[] proxyOptions = ServerRemembrance.getServerOptions(thinPrefs,
+                ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS);
+        proxySrv = new TextOrCombo(proxyComp, SWT.BORDER, proxyOptions);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
+        proxySrv.widget.setLayoutData(gd);
+        proxySrv.setText(proxyAddress == null ? "" : proxyAddress);
+        proxySrv.widget.setBackground(getTextColor(servicesGood && pypiesGood));
+        proxySrv.addSelectionListener(new SelectionListener() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                // user clicked an option
+                validate();
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                // user hit Enter
+                performOk();
+            }
+        });
+
+        new Label(textBoxComp, SWT.NONE);
+
+        Composite jmsComp = new Composite(textBoxComp, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        jmsComp.setLayout(gl);
+
+        disableJmsCheck = new Button(jmsComp, SWT.CHECK | SWT.LEFT);
+        disableJmsCheck.setSelection(disableJms);
+        disableJmsCheck.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                disableJms = disableJmsCheck.getSelection();
+                validate();
+            }
+        });
+        disableJmsCheck.setText("Disable JMS");
+        jmsErrorLabel = new Label(jmsComp, SWT.LEFT);
+        jmsErrorLabel.setText("Error connecting to JMS");
+        jmsErrorLabel.setForeground(display.getSystemColor(SWT.COLOR_RED));
+        jmsErrorLabel.setVisible(true);
+        new Label(textBoxComp, SWT.NONE);
+
+        alwaysPrompt = LocalizationManager
+                .getInstance()
+                .getLocalizationStore()
+                .getBoolean(
+                        LocalizationConstants.P_LOCALIZATION_PROMPT_ON_STARTUP);
+        alwaysPromptCheck = new Button(textBoxComp, SWT.CHECK | SWT.LEFT);
+        alwaysPromptCheck.setText("Prompt for settings on startup");
+        alwaysPromptCheck.setSelection(alwaysPrompt);
+        alwaysPromptCheck.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                alwaysPrompt = alwaysPromptCheck.getSelection();
+            }
+
+        });
 
         updateProxyEnabled();
     }
 
     @Override
     protected void applySettings() {
-        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        store.setValue(ThinClientPreferenceConstants.P_DISABLE_JMS, disableJms);
+        IPersistentPreferenceStore thinStore = Activator.getDefault()
+                .getPreferenceStore();
+        thinStore.setValue(ThinClientPreferenceConstants.P_DISABLE_JMS,
+                disableJms);
+        thinStore.setValue(ThinClientPreferenceConstants.P_USE_PROXIES,
+                useProxy);
+
+        IPersistentPreferenceStore localStore = LocalizationManager
+                .getInstance().getLocalizationStore();
+        localStore.setValue(
+                LocalizationConstants.P_LOCALIZATION_PROMPT_ON_STARTUP,
+                alwaysPrompt);
+
         if (useProxy) {
-            store.setValue(ThinClientPreferenceConstants.P_USE_PROXIES,
-                    useProxy);
-            store.setValue(ThinClientPreferenceConstants.P_PROXY_ADDRESS,
+            thinStore.setValue(ThinClientPreferenceConstants.P_PROXY_ADDRESS,
                     proxyAddress);
+            String proxyServerOptions = ServerRemembrance.formatServerOptions(
+                    proxyAddress, thinStore,
+                    ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS);
+            thinStore.setValue(
+                    ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS,
+                    proxyServerOptions);
 
             if (getAlertVizServer() != null) {
-                LocalizationManager
-                        .getInstance()
-                        .getLocalizationStore()
-                        .setValue(LocalizationConstants.P_ALERT_SERVER,
-                                getAlertVizServer());
+                localStore.setValue(LocalizationConstants.P_ALERT_SERVER,
+                        getAlertVizServer());
             }
-            // setting the site will save the preference store
             LocalizationManager.getInstance().setCurrentSite(getSite());
 
             try {
-                ((IPersistentPreferenceStore) store).save();
+                localStore.save();
             } catch (IOException e) {
                 statusHandler.handle(Priority.SIGNIFICANT,
                         "Unable to persist localization preference store", e);
             }
         } else {
             super.applySettings();
+        }
+
+        /*
+         * Have to store the thin client preferences either way to remember the
+         * JMS and proxy checkboxes correctly
+         */
+        try {
+            thinStore.save();
+        } catch (IOException e) {
+            statusHandler
+                    .handle(Priority.SIGNIFICANT,
+                            "Unable to persist thinclient localization preference store",
+                            e);
         }
 
     }
@@ -258,9 +321,9 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         details = null;
 
         // validate proxy
-        if (proxyText != null && !proxyText.isDisposed()
-                && proxyText.isEnabled()) {
-            proxyAddress = proxyText.getText();
+        if (proxySrv != null && !proxySrv.widget.isDisposed()
+                && proxySrv.widget.isEnabled()) {
+            proxyAddress = proxySrv.getText();
         }
         if (proxyAddress != null && proxyAddress.length() > 0) {
             validateServices();
@@ -268,8 +331,9 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         } else {
             status = "Please enter a thin client proxy server address";
         }
-        if (proxyText != null && !proxyText.isDisposed()) {
-            proxyText.setBackground(getTextColor(servicesGood && pypiesGood));
+        if (proxySrv != null && !proxySrv.widget.isDisposed()) {
+            proxySrv.widget.setBackground(getTextColor(servicesGood
+                    && pypiesGood));
         }
 
         validateJms(servicesGood);
@@ -316,15 +380,15 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
 
     private void updateProxyEnabled() {
         useProxy = useProxyCheck.getSelection();
-        proxyText.setEnabled(useProxy);
+        proxySrv.widget.setEnabled(useProxy);
         super.setLocalizationEnabled(!useProxy);
         if (useProxy) {
-            if (localizationText != null && !localizationText.isDisposed()) {
-                localizationText.setBackground(getTextColor(true));
+            if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
+                localizationSrv.widget.setBackground(getTextColor(true));
             }
         } else {
-            if (proxyText != null && !proxyText.isDisposed()) {
-                proxyText.setBackground(getTextColor(true));
+            if (proxySrv != null && !proxySrv.widget.isDisposed()) {
+                proxySrv.widget.setBackground(getTextColor(true));
             }
         }
         validate();

@@ -26,11 +26,13 @@ import java.util.List;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.raytheon.uf.viz.core.AbstractDrawableObject;
+import com.raytheon.uf.viz.core.DrawableCircle;
+import com.raytheon.uf.viz.core.DrawableLine;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -56,7 +58,9 @@ import com.raytheon.viz.radar.ui.xy.RadarGraphResource.GraphPosition;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009             askripsk    Initial creation
- * 
+ * 07-21-14     #3412      mapeters    Updated deprecated drawCircle call.
+ * 07-24-14     #3429      mapeters    Updated deprecated drawLine() calls.
+ * 07-29-14     #3465      mapeters    Updated deprecated drawString() calls.
  * </pre>
  * 
  * @author askripsk
@@ -106,20 +110,24 @@ public class CellTrendGraph extends XYGraph {
                  * Paint the data series
                  */
                 target.setupClippingPlane(this.worldExtent);
-                double previousScreenX = 0.0;
-                double previousScreenY = 0.0;
 
                 // Paint each series in the xyData
-                boolean first = true;
                 int i = 0;
 
                 LineStyle currLineStyle;
                 PointType currPointType;
+                List<DrawableCircle> circles = new ArrayList<DrawableCircle>();
+                List<DrawableLine> lines = new ArrayList<DrawableLine>();
+
                 for (XYDataList currSeries : dataSeries) {
                     currLineStyle = dataSeriesLineTypes.get(i);
                     currPointType = dataSeriesPointTypes.get(i++);
+                    
+                    DrawableLine line = new DrawableLine();
+                    line.basics.color = colorCap.getColor();
+                    line.width = outlineCap.getOutlineWidth();
+                    line.lineStyle = currLineStyle;
 
-                    first = true;
                     for (XYData currPoint : currSeries.getData()) {
                         double x = ((Number) currPoint.getX()).doubleValue();
                         double y = ((Number) currPoint.getY()).doubleValue();
@@ -131,49 +139,67 @@ public class CellTrendGraph extends XYGraph {
                         double screenX = domainAxis.valueToCoordinate(x);
                         double screenY = rangeAxis.valueToCoordinate(y);
 
-                        // Draw the cooresponding type of point
-                        drawPoint(target, screenX, screenY, currPointType);
-
-                        // Don't draw a line for the first
-                        if (first) {
-                            first = false;
-                            previousScreenX = screenX;
-                            previousScreenY = screenY;
-                        } else {
-                            target.drawLine(screenX, screenY, 0,
-                                    previousScreenX, previousScreenY, 0,
-                                    colorCap.getColor(), outlineCap
-                                            .getOutlineWidth(), currLineStyle);
+                        AbstractDrawableObject object = createPoint(target,
+                                screenX, screenY, currPointType);
+                        // Add the point to its corresponding list
+                        if (object instanceof DrawableCircle) {
+                            circles.add((DrawableCircle) object);
+                        } else if (object instanceof DrawableLine) {
+                            lines.add((DrawableLine) object);
                         }
-                        previousScreenX = screenX;
-                        previousScreenY = screenY;
+
+                        line.addPoint(screenX, screenY);
+                    }
+                    if (line.points.size() > 0) {
+                        lines.add(line);
                     }
                 }
+                target.drawLine(lines.toArray(new DrawableLine[0]));
+                target.drawCircle(circles.toArray(new DrawableCircle[0]));
 
                 target.clearClippingPlane();
             }
         }
     }
-
-    private void drawPoint(IGraphicsTarget target, double x, double y,
+    
+    private AbstractDrawableObject createPoint(IGraphicsTarget target,
+            double x, double y,
             PointType currPointType) throws VizException {
         if (currPointType.equals(PointType.CIRCLE)) {
-            target.drawCircle(x, y, 0, 3, colorCap.getColor(), 1);
+            DrawableCircle circle = new DrawableCircle();
+            circle = new DrawableCircle();
+            circle.setCoordinates(x, y);
+            circle.radius = 3.0;
+            circle.basics.color = colorCap.getColor();
+            return circle;
         } else if (currPointType.equals(PointType.X)) {
-            target.drawLine(x - 3, y - 3, 0.0, x + 3, y + 3, 0.0, colorCap
-                    .getColor(), 1.0f);
-            target.drawLine(x - 3, y + 3, 0.0, x + 3, y - 3, 0.0, colorCap
-                    .getColor(), 1.0f);
+            DrawableLine line = new DrawableLine();
+            line = new DrawableLine();
+            line.setCoordinates(x - 3, y - 3);
+            line.addPoint(x + 3, y + 3);
+            line.addPoint(x, y);
+            line.addPoint(x - 3, y + 3);
+            line.addPoint(x + 3, y - 3);
+            line.basics.color = colorCap.getColor();
+            return line;
         } else if (currPointType.equals(PointType.UP_ARROW)) {
-            target.drawLine(x - 3, y + 3, 0.0, x, y - 3, 0.0, colorCap
-                    .getColor(), 1.0f);
-            target.drawLine(x, y - 3, 0.0, x + 3, y + 3, 0.0, colorCap
-                    .getColor(), 1.0f);
+            DrawableLine line = new DrawableLine();
+            line = new DrawableLine();
+            line.setCoordinates(x - 3, y + 3);
+            line.addPoint(x, y - 3);
+            line.addPoint(x + 3, y + 3);
+            line.basics.color = colorCap.getColor();
+            return line;
         } else if (currPointType.equals(PointType.DOWN_ARROW)) {
-            target.drawLine(x - 3, y - 3, 0.0, x, y + 3, 0.0, colorCap
-                    .getColor(), 1.0f);
-            target.drawLine(x, y + 3, 0.0, x + 3, y - 3, 0.0, colorCap
-                    .getColor(), 1.0f);
+            DrawableLine line = new DrawableLine();
+            line = new DrawableLine();
+            line.setCoordinates(x - 3, y - 3);
+            line.addPoint(x, y + 3);
+            line.addPoint(x + 3, y - 3);
+            line.basics.color = colorCap.getColor();
+            return line;
+        } else {
+            return null;
         }
     }
 
@@ -200,22 +226,40 @@ public class CellTrendGraph extends XYGraph {
 
         double offset = (labelX1 - labelX0) * 1 / 4;
 
+        List<DrawableCircle> circles = new ArrayList<DrawableCircle>();
+        List<DrawableLine> lines = new ArrayList<DrawableLine>();
+        DrawableString[] strings = new DrawableString[dataSeriesLabels.size()];
         // Write legend from left to right and top to bottom
         for (int i = 0; i < dataSeriesLabels.size(); i++) {
             // Point type
-            drawPoint(target, labelx[i], labely[i], dataSeriesPointTypes.get(i));
+            PointType pt = dataSeriesPointTypes.get(i);
+            AbstractDrawableObject object = createPoint(target, labelx[i],
+                    labely[i], pt);
+            //Add the point to its corresponding list
+            if (object instanceof DrawableCircle) {
+                circles.add((DrawableCircle) object);
+            } else if (object instanceof DrawableLine) {
+                lines.add((DrawableLine) object);
+            }
 
             // Draw line sample
-            target.drawLine(labelx[i], labely[i], 0, labelx[i]
-                    + (offset * 3 / 4), labely[i], 0, colorCap.getColor(), 1,
-                    dataSeriesLineTypes.get(i));
+            DrawableLine line = new DrawableLine();
+            line.setCoordinates(labelx[i], labely[i]);
+            line.addPoint(labelx[i] + (offset * 3 / 4), labely[i]);
+            line.basics.color = colorCap.getColor();
+            line.lineStyle = dataSeriesLineTypes.get(i);
+            lines.add(line);
 
             // Label Text
-            target.drawString(null, dataSeriesLabels.get(i),
-                    labelx[i] + offset, labely[i], 0.0, TextStyle.NORMAL,
-                    colorCap.getColor(), HorizontalAlignment.LEFT,
-                    VerticalAlignment.MIDDLE, 0.0);
+            strings[i] = new DrawableString(dataSeriesLabels.get(i),
+                    colorCap.getColor());
+            strings[i].setCoordinates(labelx[i] + offset, labely[i]);
+            strings[i].verticallAlignment = VerticalAlignment.MIDDLE;
         }
+        
+        target.drawLine(lines.toArray(new DrawableLine[0]));
+        target.drawCircle(circles.toArray(new DrawableCircle[0]));
+        target.drawStrings(strings);
     }
 
     private void createAxes() {

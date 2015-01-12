@@ -40,6 +40,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 20, 2011            dgilling     Initial creation
+ * Jul 08, 2014 3361       njensen      Only build include path once
  * 
  * </pre>
  * 
@@ -48,6 +49,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  */
 
 public class VCModuleControllerFactory {
+
+    private static String includePath;
 
     /**
      * A private constructor so that Java does not attempt to create one for us.
@@ -69,10 +72,14 @@ public class VCModuleControllerFactory {
 
     public static VCModuleController buildInstance(DataManager dataMgr)
             throws JepException {
-        String includePath = PyUtil.buildJepIncludePath(
+        synchronized (VCModuleController.class) {
+            if (includePath == null) {
+            includePath = PyUtil.buildJepIncludePath(
                 GfePyIncludeUtil.getVCModUtilsIncludePath(),
                 GfePyIncludeUtil.getVCModulesIncludePath(),
                 GfePyIncludeUtil.getCommonPythonIncludePath());
+            }
+        }
 
         return new VCModuleController(getScriptPath(), includePath,
                 VCModuleControllerFactory.class.getClassLoader(), dataMgr);

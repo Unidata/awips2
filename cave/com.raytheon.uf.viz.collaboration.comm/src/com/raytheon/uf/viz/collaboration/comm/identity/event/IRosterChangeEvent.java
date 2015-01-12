@@ -19,10 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import org.eclipse.ecf.presence.roster.IRosterItem;
+import org.jivesoftware.smack.packet.Presence;
+
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Event fired when the roster has changed
  * 
  * <pre>
  * 
@@ -30,7 +32,9 @@ import org.eclipse.ecf.presence.roster.IRosterItem;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2012            jkorman     Initial creation
+ * Apr 06, 2012            jkorman     Initial creation.
+ * Feb 24, 2014    2632    mpduff      Added getPresence, changed getItem to getEntry.
+ * Apr 24, 2014    3070    bclement    getEntry() returns UserId
  * 
  * </pre>
  * 
@@ -43,15 +47,22 @@ public interface IRosterChangeEvent {
     /**
      * Get the event type.
      * 
-     * @return The event type.
+     * @return The event type
      */
     RosterChangeType getType();
 
     /**
-     * Get the changed entry
+     * Get the changed entry.
      * 
-     * @return The changed entry.
+     * @return The changed entry
      */
-    IRosterItem getItem();
+    UserId getEntry();
+
+    /**
+     * Get the Presence object.
+     * 
+     * @return The Presence object
+     */
+    Presence getPresence();
 
 }

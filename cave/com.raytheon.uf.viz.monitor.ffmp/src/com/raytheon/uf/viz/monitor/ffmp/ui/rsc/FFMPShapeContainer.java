@@ -20,8 +20,8 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
  * further licensing information.
  **/
 
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension;
@@ -38,6 +38,8 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
  * ------------ ---------- ----------- --------------------------
  * 15 Sept, 2011 10899     dhladky     Initial creation
  * 27 June, 2013 2152      njensen     Added dispose()
+ * Sep 23,  2014 3009      njensen     Cleaned up
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -47,21 +49,22 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 public class FFMPShapeContainer {
 
     /** always the same vertexes, one for each CWA **/
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, IColormapShadedShape>> shadedShapes = null;
+    private ConcurrentMap<String, ConcurrentMap<String, IColormapShadedShape>> shadedShapes = null;
 
     // public constructor
     public FFMPShapeContainer() {
-        shadedShapes = new ConcurrentHashMap<String, ConcurrentHashMap<String, IColormapShadedShape>>();
+        shadedShapes = new ConcurrentHashMap<String, ConcurrentMap<String, IColormapShadedShape>>();
     }
 
     /**
-     * build the ones you need to draw all possible FFMP configs
+     * Retrieves the shaded shape if it exists, or builds and caches it if it
+     * does not exist
      * 
      * @param cwa
      * @param huc
      * @param target
      * @param descriptor
-     * @return
+     * @return the shaded shape
      */
     public IColormapShadedShape getShape(String cwa, String huc,
             IGraphicsTarget target, MapDescriptor descriptor)
@@ -74,7 +77,7 @@ public class FFMPShapeContainer {
                     .createColormapShadedShape(descriptor.getGridGeometry(),
                             true);
 
-            ConcurrentHashMap<String, IColormapShadedShape> cwaShapes = shadedShapes
+            ConcurrentMap<String, IColormapShadedShape> cwaShapes = shadedShapes
                     .get(cwa);
 
             if (cwaShapes == null) {
@@ -89,43 +92,33 @@ public class FFMPShapeContainer {
     }
 
     /**
-     * return only drawable shape
+     * Retrieves the shaded shape from the cache
      * 
      * @param cwa
      * @param huc
-     * @return
+     * @return the shape if it exists, otherwise null
      */
     public IColormapShadedShape getDrawableShape(String cwa, String huc) {
-
         IColormapShadedShape shape = null;
-
-        try {
-            shape = shadedShapes.get(cwa).get(huc);
-        } catch (NullPointerException npe) {
-            // System.out.println(cwa + " " + huc +
-            // " Shape Not created yet!!!!");
-            // do nothing
+        if (cwa != null) {
+            ConcurrentMap<String, IColormapShadedShape> innerMap = shadedShapes
+                    .get(cwa);
+            if (innerMap != null && huc != null) {
+                shape = innerMap.get(huc);
+            }
         }
 
         return shape;
     }
 
     /**
-     * clears the shapes
-     * 
-     * @return
+     * Disposes of each of the shaded shapes and clears the maps
      */
-    public void clear() {
-        shadedShapes.clear();
-    }
-
     public void dispose() {
-        for (String key : shadedShapes.keySet()) {
-            ConcurrentHashMap<String, IColormapShadedShape> innerMap = shadedShapes
-                    .get(key);
-            Iterator<IColormapShadedShape> itr = innerMap.values().iterator();
-            while (itr.hasNext()) {
-                itr.next().dispose();
+        for (ConcurrentMap<String, IColormapShadedShape> innerMap : shadedShapes
+                .values()) {
+            for (IColormapShadedShape shp : innerMap.values()) {
+                shp.dispose();
             }
             innerMap.clear();
         }

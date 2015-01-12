@@ -19,13 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
-import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.util.Base64;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.viz.collaboration.comm.compression.CompressionUtil;
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.util.Base64;
 
 /**
  * Provides some utility methods for parsing and serializing/deserializing data.
@@ -39,6 +39,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
  * Mar 07, 2012           jkorman     Initial creation
  * Oct 31, 2013  2491     bsteffen    Use CollaborationXmlManager for xml
  *                                    serialization.
+ * Dec  6, 2013  2561     bclement    removed ECF
+ * Dec 16, 2013  2562     bclement    moved compression to smack, 
+ *                                    moved marshalling to session payload
  * 
  * 
  * </pre>
@@ -49,10 +52,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 
 public abstract class Tools {
 
-    public static final String TAG_INVITE = "[[INVITEID#";
-
-    public static final String TAG_INVITE_ID = TAG_INVITE + "%s]]%s";
-
     public static final String PROP_SESSION_ID = "sessionId";
 
     public static final String CMD_PREAMBLE = "[[COMMAND#";
@@ -60,27 +59,6 @@ public abstract class Tools {
     public static final String CONFIG_PREAMBLE = "[[CONFIG#";
 
     public static final String DIRECTIVE_SUFFIX = "]]";
-
-    private static final String ENV_THRIFT = CMD_PREAMBLE
-            + SerializationMode.THRIFT.name() + "]]";
-
-    private static final String ENV_THRIFT_COMPRESSED = CMD_PREAMBLE
-            + SerializationMode.THRIFT.name() + "-COMPRESSED]]";
-
-    private static final String ENV_JAXB = CMD_PREAMBLE
-            + SerializationMode.JAXB.name() + "]]";
-
-    private static final String ENV_JAXB_COMPRESSED = CMD_PREAMBLE
-            + SerializationMode.JAXB.name() + "-COMPRESSED]]";
-
-    private static final String ENV_STRING = CMD_PREAMBLE
-            + SerializationMode.STRING.name() + "]]";
-
-    private static final String ENV_JAVA = CMD_PREAMBLE
-            + SerializationMode.JAVA.name() + "]]";
-
-    private static final String ENV_NONE = CMD_PREAMBLE
-            + SerializationMode.NONE.name() + "]]";
 
     public static final String VENUE_SUBJECT_PROP = "subject";
 
@@ -90,30 +68,8 @@ public abstract class Tools {
 
     public static final String RESOURCE_DELIM = "/";
 
-    public static boolean COMPRESSION_OFF = false;
-
-    static {
-        try {
-            COMPRESSION_OFF = Boolean
-                    .getBoolean("collaboration.compressionOff");
-        } catch (Exception e) {
-            // must not have permission to access system properties. ignore and
-            // use default.
-        }
-    }
-
-    /**
-     * 
-     * @param <T>
-     * @param container
-     * @param c
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T getPresenceContainerAdapter(IContainer container,
-            Class<T> c) {
-        return (T) container.getAdapter(c);
-    }
+    public static final Pattern JID_RESERVED_CHARACTERS = Pattern
+            .compile("[ \"&'/:<>@]");
 
     /**
      * 
@@ -236,160 +192,43 @@ public abstract class Tools {
      * @return The encoded data as a String.
      */
     public static String encodeToBase64(byte[] message) {
-        return Base64.encode(message);
+        return Base64.encodeBytes(message);
     }
 
     /**
+     * Add properties to packet
      * 
-     * @param data
-     * @return
+     * @param p
+     * @param props
      */
-    public static String marshallData(Object data)
-            throws CollaborationException {
-        String marshalledData = null;
-        if (data != null) {
-            StringBuilder sb = new StringBuilder();
-            byte[] marshalledBinary = null;
-            SerializationMode mode = SerializationMode.getMode(data);
-            switch (mode) {
-            case THRIFT: {
-                try {
-                    if (COMPRESSION_OFF) {
-                        marshalledBinary = SerializationUtil
-                                .transformToThrift(data);
-                        sb.append(ENV_THRIFT);
-                    } else {
-                        /*
-                         * compress(thrift(data))
-                         */
-                        byte[] marshalledThrift = SerializationUtil
-                                .transformToThrift(data);
-                        marshalledBinary = CompressionUtil
-                                .compress(marshalledThrift);
-                        sb.append(ENV_THRIFT_COMPRESSED);
-                    }
-                } catch (Exception e) {
-                    throw new CollaborationException(
-                            "[THRIFT] Could not serialize object", e);
-                }
-                break;
-            }
-            case JAXB: {
-                try {
-                    CollaborationXmlManager jaxb = CollaborationXmlManager
-                            .getInstance();
-                    if (COMPRESSION_OFF) {
-                        String s = jaxb.marshal(data);
-                        if (s != null) {
-                            sb.append(ENV_JAXB);
-                            sb.append(s);
-                        }
-                    } else {
-                        String rawString = jaxb.marshal(data);
-                        marshalledBinary = CompressionUtil.compress(rawString
-                                .getBytes());
-                        sb.append(ENV_JAXB_COMPRESSED);
-                    }
-                } catch (Exception je) {
-                    throw new CollaborationException(
-                            "[JAXB] Could not serialize object", je);
-                }
-                break;
-            }
-            case JAVA: {
-                break;
-            }
-            case STRING: {
-                sb.append(ENV_STRING);
-                sb.append(data);
-                break;
-            }
-            case NONE: {
-                throw new CollaborationException("Serialization of "
-                        + data.getClass().getName() + " not supported");
-            }
-            case ISNULL: {
-                break;
-            }
-            }
-            if (marshalledBinary != null) {
-                sb.append(encodeToBase64(marshalledBinary));
-            }
-            if (sb.length() > 0) {
-                marshalledData = sb.toString();
-            }
+    public static void setProperties(Packet p, Map<String, String> props) {
+        for (Entry<String, String> e : props.entrySet()) {
+            p.setProperty(e.getKey(), e.getValue());
         }
-        return marshalledData;
     }
 
     /**
+     * Copy properties from packet
      * 
-     * @param data
-     * @return
-     * @throws CollaborationException
+     * @param p
+     * @param props
      */
-    public static Object unMarshallData(String data)
-            throws CollaborationException {
-        Object unMarshalledData = null;
-        if (data != null) {
-            // look for the envelope header first
-            if (data.startsWith(ENV_THRIFT)) {
-                String s = data.substring(ENV_THRIFT.length());
-                try {
-                    byte[] b = decodeFromBase64(s);
-                    unMarshalledData = SerializationUtil.transformFromThrift(
-                            Object.class, b);
-                } catch (SerializationException e) {
-                    throw new CollaborationException(
-                            "Could not deserialize object", e);
-                }
-            } else if (data.startsWith(ENV_THRIFT_COMPRESSED)) {
-                String s = data.substring(ENV_THRIFT_COMPRESSED.length());
-                try {
-                    byte[] rawBytes = decodeFromBase64(s);
-                    byte[] uncompressedBytes = CompressionUtil
-                            .uncompress(rawBytes);
-
-                    unMarshalledData = SerializationUtil.transformFromThrift(
-                            Object.class, uncompressedBytes);
-                    // unMarshalledData = SerializationUtil
-                    // .transformFromThrift(createCompressionInputStream(rawBytes));
-                } catch (Exception e) {
-                    throw new CollaborationException(
-                            "Could not deserialize object", e);
-                }
-            } else if (data.startsWith(ENV_JAXB)) {
-                String s = data.substring(ENV_JAXB.length());
-                try {
-                    unMarshalledData = CollaborationXmlManager.getInstance()
-                            .unmarshal(s);
-                } catch (SerializationException je) {
-                    throw new CollaborationException(
-                            "[JAXB] Could not deserialize object", je);
-                }
-            } else if (data.startsWith(ENV_JAXB_COMPRESSED)) {
-                String rawString = data.substring(ENV_JAXB_COMPRESSED.length());
-                try {
-                    byte[] rawBytes = decodeFromBase64(rawString);
-                    unMarshalledData = CollaborationXmlManager.getInstance()
-                            .unmarshal(
-                                    new String(CompressionUtil
-                                            .uncompress(rawBytes)));
-                    // unMarshalledData = SerializationUtil
-                    // .unmarshalFromXml(createCompressionInputStream(rawBytes));
-                } catch (Exception je) {
-                    throw new CollaborationException(
-                            "[JAXB] Could not deserialize object", je);
-                }
-            } else if (data.startsWith(ENV_STRING)) {
-                unMarshalledData = data.substring(ENV_STRING.length());
-            } else if (data.startsWith(ENV_JAVA)) {
-                throw new CollaborationException("Could not deserialize object");
-            } else if (data.startsWith(ENV_NONE)) {
-                throw new CollaborationException("Could not deserialize object");
-            }
+    public static void copyProperties(Packet source, Packet dest) {
+        for (String key : source.getPropertyNames()) {
+            dest.setProperty(key, source.getProperty(key));
         }
-        return unMarshalledData;
+    }
+
+    /**
+     * @param id
+     * @return true if id doesn't contain any invalid characters
+     */
+    public static boolean isValidId(String id) {
+        if (id == null) {
+            return false;
+        }
+        Matcher matcher = JID_RESERVED_CHARACTERS.matcher(id);
+        return !matcher.find();
     }
 
 }

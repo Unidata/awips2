@@ -68,19 +68,13 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.viz.derivparam"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.viz.derivparam.python"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.raytheon.uf.viz.derivparam.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.image.export"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -124,6 +118,12 @@
 
    <plugin
          id="com.raytheon.viz.ui.personalities.awips"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.personalities.cave"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -192,4 +192,5 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
 </feature>

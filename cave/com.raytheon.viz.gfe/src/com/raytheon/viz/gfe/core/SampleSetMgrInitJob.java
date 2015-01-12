@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.core.internal.SampleSetManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 25, 2011            njensen     Initial creation
+ * Sep 09, 2014  #3592     randerso    Removed unused DataManager parameter to SampleSetManager constructor
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ public class SampleSetMgrInitJob extends Job {
      */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        dataMgr.sampleSetManager = new SampleSetManager(dataMgr);
+        dataMgr.sampleSetManager = new SampleSetManager();
         dataMgr.getInitStatus().setSampleSetMgrDone(true);
 
         return Status.OK_STATUS;

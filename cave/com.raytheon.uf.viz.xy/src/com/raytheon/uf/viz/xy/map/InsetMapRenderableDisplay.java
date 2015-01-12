@@ -61,7 +61,8 @@ import com.vividsolutions.jts.geom.Point;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2009            mschenke     Initial creation
+ * Oct 03, 2009            mschenke    Initial creation
+ * Jun 18, 2014 3242       njensen     Synchronized resources
  * 
  * </pre>
  * 
@@ -109,7 +110,9 @@ public class InsetMapRenderableDisplay extends PlainMapRenderableDisplay
     }
 
     public void setParentDisplay(IRenderableDisplay parentDisplay) {
-        this.resources.clear();
+        synchronized (resources) {
+            this.resources.clear();
+        }
         if (this.parentDisplay != null) {
             this.parentDisplay.getDescriptor().getResourceList()
                     .removePostAddListener(this);
@@ -137,26 +140,31 @@ public class InsetMapRenderableDisplay extends PlainMapRenderableDisplay
         target.drawRect(extent, GREY, 2.0f, 1.0);
 
         // Recalculate the projection when we need to and we have resources
-        if (recalc && resources.size() > 0) {
-            // if the IInsetMapResources are not initialized don't do anything
-            if (!allInitialized()) {
-                target.setNeedsRefresh(true);
-                return;
-            } else {
-                recalc = false;
-                calculateProjection(target, paintProps);
+        synchronized (resources) {
+            if (recalc && !resources.isEmpty()) {
+                // if the IInsetMapResources are not initialized don't do
+                // anything
+                if (!allInitialized()) {
+                    target.setNeedsRefresh(true);
+                    return;
+                } else {
+                    recalc = false;
+                    calculateProjection(target, paintProps);
+                }
+            }
+
+            for (IInsetMapResource rsc : resources) {
+                rsc.paintInsetMap(target, paintProps, getDescriptor());
             }
         }
 
-        for (IInsetMapResource rsc : resources) {
-            rsc.paintInsetMap(target, paintProps, getDescriptor());
-        }
         // Paint maps last
         super.paint(target, paintProps);
     }
 
     /**
-     * returns whether all of the inset map resources initialized
+     * Returns whether all of the inset map resources are initialized. Must be
+     * externally synchronized.
      * 
      * @return
      */
@@ -181,19 +189,23 @@ public class InsetMapRenderableDisplay extends PlainMapRenderableDisplay
     private void addResource(ResourcePair rp) {
         AbstractVizResource<?, ?> rsc = rp.getResource();
         if (rsc != null && rsc instanceof IInsetMapResource) {
-            resources.add((IInsetMapResource) rsc);
+            synchronized (resources) {
+                resources.add((IInsetMapResource) rsc);
+            }
             recalc = true;
         }
     }
 
     @Override
     public void notifyRemove(ResourcePair rp) throws VizException {
-        resources.remove(rp.getResource());
+        synchronized (resources) {
+            resources.remove(rp.getResource());
+        }
         recalc = true;
     }
 
     /**
-     * Calculate the projection of the map
+     * Calculate the projection of the map. Must be externally synchronized.
      * 
      * @param target
      * @param paintProps

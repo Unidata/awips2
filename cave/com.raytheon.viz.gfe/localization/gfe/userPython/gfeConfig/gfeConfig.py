@@ -30,6 +30,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    11/20/2013      2488          randerso       Changed to use DejaVu fonts
+#    05/28/2014      2841          randerso       Added separate configurable limits for
+#                                                 text formatter and product script tasks
 
 GFESUITE_HOME = "/awips2/GFESuite"
 GFESUITE_PRDDIR = "/tmp/products"
@@ -413,16 +415,27 @@ ProductOutputDialog_nonWrapPils = ['AFM','PFM','FWF','SFT','WCN','FWS']
 # Process Monitor Options
 #------------------------------------------------------------------------
 #
-# The maximum number of pending tasks to queue.
-#ProcessMonitorMaxPendingTasks = 20
+# The maximum number of pending product scripts to queue.
+#ProcessMonitorMaxPendingScripts = 10
 
-# The maximum number of finished tasks to keep around (so you can
+# The maximum number of finished product scripts to keep around (so you can
 # see their output).
-#ProcessMonitorMaxOldTasks = 10
+#ProcessMonitorMaxOldScripts = 5
 
-# The maximum number of Tasks to run at one time (user can still
-# start more via the TaskMonitorDialog).
-#ProcessMonitorMaxTasks = 1
+# The maximum number of product scripts to run at one time (user can still
+# start more via the ProcessMonitorDialog).
+#ProcessMonitorMaxScripts = 1
+
+# The maximum number of pending text formatters to queue.
+#ProcessMonitorMaxPendingFormatters = 10
+
+# The maximum number of finished text formatters to keep around (so you can
+# see their output).
+#ProcessMonitorMaxOldFormatters = 5
+
+# The maximum number of text formatters to run at one time (user can still
+# start more via the ProcessMonitorDialog).
+#ProcessMonitorMaxFormatters = 1
 
 #------------------------------------------------------------------------
 # Sample and Legend Colors, Sample Shadows

@@ -28,8 +28,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -47,6 +45,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2009            chammack     Initial creation
  * Feb 27, 2013 DCS 152    jgerth       Support for WWLLN and multiple sources
+ * Jun 19, 2014  3214      bclement     added pulse and cloud flash support
+ * Jul 07, 2014  3333       bclement    removed plotLightSource field
  * 
  * </pre>
  * 
@@ -65,7 +65,10 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     private boolean handlingNegativeStrikes = true;
 
     @XmlAttribute
-    private String plotLightSource = "";
+    private boolean handlingCloudFlashes = false;
+
+    @XmlAttribute
+    private boolean handlingPulses = false;
 
     @XmlAttribute
     private int countPosition = 0;
@@ -73,20 +76,8 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
-    	// jjg add
-    	String ls = "";
-    	if (this.metadataMap.containsKey("lightSource"))
-    		ls = this.metadataMap.get("lightSource").getConstraintValue();
-    	else if (!plotLightSource.isEmpty()) {
-    		ls = plotLightSource;
-    		RequestConstraint lsrc = new RequestConstraint(ls, ConstraintType.EQUALS);
-    		this.metadataMap.put("lightSource", lsrc);
-    	}
-    	int pa = 0;
-    	if (countPosition != 0)
-    		pa = countPosition;
-    	// end
-    	LightningResource rsc = new LightningResource(this, loadProperties, ls, pa);
+        LightningResource rsc = new LightningResource(this, loadProperties,
+                countPosition);
         List<BinLightningRecord> records = new ArrayList<BinLightningRecord>(
                 objects.length);
         for (PluginDataObject pdo : objects) {
@@ -146,19 +137,59 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     }
 
     /**
-     * @return plotLightSource
-     *            the lightSource to get - JJG
+     * @return the handlingCloudFlashes
      */
-    public String getPlotLightSource() {
-    	return plotLightSource;
+    public boolean isHandlingCloudFlashes() {
+        return handlingCloudFlashes;
     }
-    
+
     /**
-     * @param plotLightSource
-     *            the lightSource to set - JJG
+     * @param handlingCloudFlashes
+     *            the handlingCloudFlashes to set
      */
-    public void setPlotLightSource(String plotLightSource) {
-        this.plotLightSource = plotLightSource;
+    public void setHandlingCloudFlashes(boolean handlingCloudFlashes) {
+        this.handlingCloudFlashes = handlingCloudFlashes;
+    }
+
+    /**
+     * @return the handlingPulses
+     */
+    public boolean isHandlingPulses() {
+        return handlingPulses;
+    }
+
+    /**
+     * @see #isHandlingCloudFlashes()
+     * @see #isHandlingNegativeStrikes()
+     * @see #isHandlingPositiveStrikes()
+     * @see #isHandlingPulses()
+     * @return true if resource data handles exactly one type of data
+     */
+    public boolean isExclusiveForType() {
+        boolean[] bools = { isHandlingCloudFlashes(),
+                isHandlingNegativeStrikes(), isHandlingPositiveStrikes(),
+                isHandlingPulses() };
+        boolean handlingZero = true;
+        boolean handlingMoreThanOne = false;
+        for (boolean handlingSomething : bools) {
+            if (handlingSomething) {
+                if (handlingZero) {
+                    handlingZero = false;
+                } else {
+                    handlingMoreThanOne = true;
+                    break;
+                }
+            }
+        }
+        return !handlingZero && !handlingMoreThanOne;
+    }
+
+    /**
+     * @param handlingPulses
+     *            the handlingPulses to set
+     */
+    public void setHandlingPulses(boolean handlingPulses) {
+        this.handlingPulses = handlingPulses;
     }
 
     /**
@@ -177,20 +208,48 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         this.countPosition = countPosition;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + countPosition;
+        result = prime * result + (handlingCloudFlashes ? 1231 : 1237);
+        result = prime * result + (handlingNegativeStrikes ? 1231 : 1237);
+        result = prime * result + (handlingPositiveStrikes ? 1231 : 1237);
+        result = prime * result + (handlingPulses ? 1231 : 1237);
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object obj) {
-        // TODO Auto-generated method stub
-        if (!super.equals(obj)) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
             return false;
-        }
-
-        if (obj instanceof LightningResourceData == false) {
+        if (getClass() != obj.getClass())
             return false;
-        }
-
         LightningResourceData other = (LightningResourceData) obj;
-        return (this.handlingNegativeStrikes == other.handlingNegativeStrikes && this.handlingPositiveStrikes == other.handlingPositiveStrikes &&
-        		this.plotLightSource == other.plotLightSource && this.countPosition == other.countPosition);
+        if (countPosition != other.countPosition)
+            return false;
+        if (handlingCloudFlashes != other.handlingCloudFlashes)
+            return false;
+        if (handlingNegativeStrikes != other.handlingNegativeStrikes)
+            return false;
+        if (handlingPositiveStrikes != other.handlingPositiveStrikes)
+            return false;
+        if (handlingPulses != other.handlingPulses)
+            return false;
+        return true;
     }
 
 }

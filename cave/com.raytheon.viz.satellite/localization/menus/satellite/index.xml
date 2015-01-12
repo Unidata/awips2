@@ -36,6 +36,14 @@
     </include>
     <include subMenu="Derived Products Plots" installTo="menu:satellite?after=GROUP4" 
              fileName="menus/satellite/baseDerivedProductPlots.xml"/>
+    <include installTo="menu:satellite?after=GROUP5" 
+             fileName="menus/satellite/baseNHemisphere.xml">
+    	<substitute key="sector0" value="West CONUS"/>
+    	<substitute key="sector1" value="East CONUS"/>
+    	<substitute key="sector2" value="Supernational"/>
+    	<substitute key="sector3" value="Northern Hemisphere Composite"/>
+    	<substitute key="entity" value="GOES%"/>
+    </include>
     <include installTo="menu:satellite?after=GROUP6" 
              fileName="menus/satellite/baseFourSatComposite.xml">
     	<substitute key="sector" value="NH Composite - Meteosat-GOES E-GOES W-GMS"/>

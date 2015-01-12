@@ -28,8 +28,8 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    08/12/09                      njensen       Initial Creation.
-#    
+#    08/12/09                      njensen        Initial Creation.
+#    04/23/2-14       #3006        randerso       Fix Wx parsing
 # 
 #
 
@@ -99,7 +99,7 @@ def wxVal(value, index):
         return value
 
     skip = index
-    count = 0
+    count = 1
     for subkey in wxStats:
         if subkey.wxType() not in ['<NoWx>','T'] + _vsbyCodes:
             if count == skip:
@@ -120,7 +120,7 @@ def wxValInst(value, index):
         return value
 
     skip = index
-    count = 0
+    count = 1
     for subkey in wxStats:
         if subkey.wxType() not in ['<NoWx>','T'] + _vsbyCodes:
             if count == skip:
@@ -141,7 +141,7 @@ def wxValCov(value, index):
         return value
 
     skip = index
-    count = 0
+    count = 1
     for subkey in wxStats:
         if subkey.wxType() not in ['<NoWx>','T'] + _vsbyCodes:
             if count == skip:
@@ -149,7 +149,6 @@ def wxValCov(value, index):
                 break
             else:
                 count = count + 1
-
     return value
 
 def wxTstm(value):
@@ -179,7 +178,7 @@ def wxTstmInt(value):
 
     for subkey in wxStats:
         if subkey.wxType() == 'T':
-            value = self._translateCode.get(subkey.intensity(), 'm' )
+            value = _translateCode.get(subkey.intensity(), 'm' )
             break
 
     return value
@@ -188,10 +187,13 @@ def wxTstmInt(value):
 class FakeWxKey:
     
     def __init__(self, value):
-        split = value.split(',')
+        split = value.split('^')
         self.subkeys = []
         for s in split:
-            self.subkeys.append(FakeWxSubkey(s))        
+            self.subkeys.append(FakeWxSubkey(s))
+    
+    def __str__(self):
+        return "^".join([str(subkey) for subkey in self.subkeys])
         
     def __getitem__(self, key):
         return self.subkeys[key]
@@ -207,10 +209,13 @@ class FakeWxSubkey:
     
     def __init__(self, value):
         split = value.split(':')
-        self.cov = value[0]
-        self.type = value[1]
-        self.inten = value[2]
-        self.vis = value[3]
+        self.cov = split[0]
+        self.type = split[1]
+        self.inten = split[2]
+        self.vis = split[3]
+    
+    def __str__(self):
+        return ":".join([self.cov, self.type, self.inten, self.vis])
 
     def wxType(self):
         return self.type

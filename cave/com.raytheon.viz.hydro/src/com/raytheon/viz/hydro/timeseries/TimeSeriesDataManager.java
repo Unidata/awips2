@@ -71,6 +71,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * May  30 2012 14967      wkwock      overload insertRejectedData method
  * Feb  22 2013 14676      lbousaidi   check when producttime is null
  * Mar 25, 2013  1781      mpduff      Constrain time series table query with a start time.
+ * May 12  2014  16705     lbousaidi   update revision and shef_qual_code in edit routine.
  * </pre>
  * 
  * @author dhladky
@@ -1167,6 +1168,8 @@ public class TimeSeriesDataManager extends HydroDataManager {
             SqlBuilder sql = new SqlBuilder(tablename);
             sql.setSqlType(SqlBuilder.UPDATE);
             sql.addDouble("value", data.getValue());
+            sql.addString("shef_qual_code", "M");
+            sql.addInt("revision", 1);
             sql.addString("postingTime", HydroConstants.DATE_FORMAT.format(now));
             if (data.getProductTime() == null) {
                 sql.addString(

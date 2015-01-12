@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 3/31/2011    8774        rferrel     killProcess when doing a disposed
  * 4/4/2011     8896        rferrel     Made timeout configurable
  * 3/9/2012     14530       zhao        Revised wind rose plot to match AWIPS-1
+ * 19Mar2014    #2925       lvenable    Added dispose checks for runAsync and cleaned up code.
  * 
  * </pre>
  * 
@@ -77,7 +78,7 @@ public class WindRoseDataMgr implements PyProcessListener {
 
     private static WindRoseDataMgr instance = null;
 
-    private static WindRoseCanvasComp canvas;
+    private WindRoseCanvasComp canvas;
 
     private String siteId;
 
@@ -246,12 +247,12 @@ public class WindRoseDataMgr implements PyProcessListener {
             final int flightCat, final String site, WindRoseCanvasComp canvas) {
         final int timeout = ClimateTimeoutManager.getInstance()
                 .getWindRoseTimeout();
-        WindRoseDataMgr.canvas = canvas;
+        this.canvas = canvas;
 
         if (site.equals(siteId) && (Integer.parseInt(monthStr) == month)
                 && (Integer.parseInt(numMonths) == this.numMonths)
                 && flightCat == this.flightCat) {
-            WindRoseDataMgr.canvas.resetCursor();
+            this.canvas.resetCursor();
             return;
         }
 
@@ -315,14 +316,14 @@ public class WindRoseDataMgr implements PyProcessListener {
                         }
                     }
 
-                    if (WindRoseDataMgr.canvas.isDisposed() == false) {
-                        VizApp.runAsync(new Runnable() {
-                            @Override
-                            public void run() {
-                                WindRoseDataMgr.canvas.resetCursor();
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (WindRoseDataMgr.this.canvas.isDisposed() == false) {
+                                WindRoseDataMgr.this.canvas.resetCursor();
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             }
         };
@@ -554,7 +555,7 @@ public class WindRoseDataMgr implements PyProcessListener {
         }
 
         for (int i = 0; i < dblArray.length; ++i) {
-        	dblArray[i] = (dblArray[i] / totalCount) * 100;
+            dblArray[i] = (dblArray[i] / totalCount) * 100;
         }
 
         return dblArray;
@@ -567,7 +568,7 @@ public class WindRoseDataMgr implements PyProcessListener {
      */
     public double getTotalWindDirCount() {
         int total = 0;
-        
+
         for (int x = hour; x < (hour + numHours); ++x) {
             int h = x;
             if (h >= 24) {
@@ -622,10 +623,11 @@ public class WindRoseDataMgr implements PyProcessListener {
 
     public void printData(String filename) {
         File file = new File(filename);
-        FileWriter writer;
+        FileWriter writer = null;
+        BufferedWriter buf = null;
         try {
             writer = new FileWriter(file);
-            BufferedWriter buf = new BufferedWriter(writer);
+            buf = new BufferedWriter(writer);
 
             for (int i = 0; i < numMonths; i++) {
                 int monthIdx = month + i;
@@ -688,11 +690,15 @@ public class WindRoseDataMgr implements PyProcessListener {
                     buf.write("\n");
                 }
             }
-            buf.close();
-            writer.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+        } finally {
+            try {
+                buf.close();
+                writer.close();
+            } catch (IOException e) {
+                // Ignore
+            }
         }
     }
 }

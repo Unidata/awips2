@@ -37,7 +37,6 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="Echo Tops (ET)" id="${icao}TerminalEchoTopET">
-			<dataURI>/radar/%/${icao}/41/0.0</dataURI>
 			<substitute key="icao" value="${icao}" />
 			<substitute key="product" value="41" />
 			<substitute key="elevation" value="0.0--0.0" />

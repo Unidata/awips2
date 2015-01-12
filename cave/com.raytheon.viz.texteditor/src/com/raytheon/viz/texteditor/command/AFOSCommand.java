@@ -22,14 +22,13 @@ package com.raytheon.viz.texteditor.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.edex.textdb.dbapi.impl.AFOSParser;
 import com.raytheon.uf.common.dataplugin.text.StdTextProductContainer;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.request.ExecuteAfosCmdRequest;
+import com.raytheon.uf.common.dataplugin.text.util.AFOSParser;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -50,6 +49,8 @@ import com.raytheon.viz.texteditor.AfosBrowserModel;
  * 02Aug2010    2187       cjeanbap    Update method signature to be consistent.
  * 20Mar2011    8561       jdortiz     Added enterEditor field.
  * May 23, 2012 14952      rferrel     Added refTime.
+ * Sep 09, 2014 3580       mapeters    Removed IQueryTransport usage 
+ *                                     (no longer exists).
  * 
  * </pre>
  * 
@@ -93,15 +94,13 @@ public class AFOSCommand implements ICommand {
     }
 
     @Override
-    public List<StdTextProduct> executeCommand(IQueryTransport transport)
+    public List<StdTextProduct> executeCommand()
             throws CommandFailedException {
         if (parser == null) {
             throw new CommandFailedException("AFOS command not set");
         } else if (!parser.isValidCommand()) {
             throw new CommandFailedException("AFOS command is invalid: "
                     + parser.getAfosCommand());
-        } else if (transport == null) {
-            throw new CommandFailedException("Command transport method not set");
         }
 
         List<StdTextProduct> response = null;

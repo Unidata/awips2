@@ -25,7 +25,7 @@ import java.util.Collections;
 import org.eclipse.swt.SWT;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.SortDirection;
 import com.raytheon.uf.viz.monitor.ui.dialogs.ISortColumn;
 
 /**

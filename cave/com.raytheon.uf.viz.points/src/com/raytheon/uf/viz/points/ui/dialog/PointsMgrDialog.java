@@ -92,6 +92,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct  2, 2012 #1234      rferrel     Clicking on new group/point when no
  *                                      node selected will now add the new
  *                                      to the root node.
+ * Apr 01, 2014 #2976      lvenable     Added SWT dispose checks in runAsync call.
  * 
  * </pre>
  * 
@@ -649,6 +650,10 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
 
             @Override
             public void run() {
+                if (pointsTreeViewer.getTree().isDisposed()) {
+                    return;
+                }
+
                 if (selectedNode == null) {
                     selectedNode = getSelectedPoint();
                 }

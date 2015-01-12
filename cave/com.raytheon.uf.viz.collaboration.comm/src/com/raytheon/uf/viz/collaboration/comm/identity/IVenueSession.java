@@ -21,14 +21,16 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import java.util.List;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * 
+ * Interface for multi user sessions
  * 
  * <ul>
  * <li>EventBus subscription events. Implementors are required to post the
@@ -50,7 +52,11 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 5, 2012            jkorman     Initial creation
+ * Mar 05, 2012            jkorman     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Mar 06, 2014 2751       bclement    added isAdmin()
+ * Mar 07, 2014 2848       bclement    added getVenueName() and hasOtherParticipants()
+ * Oct 08, 2014 3705       bclement    added getVenueId()
  * 
  * </pre>
  * 
@@ -68,6 +74,16 @@ public interface IVenueSession extends ISession {
     public IVenue getVenue();
 
     /**
+     * @return name of chat room serving as venue
+     */
+    public String getVenueName();
+
+    /**
+     * @return qualified id of venue on server
+     */
+    public VenueId getVenueId();
+
+    /**
      * Send a chat message.
      * 
      * @param message
@@ -80,9 +96,8 @@ public interface IVenueSession extends ISession {
      * 
      * @param id
      *            The target user for this invitation.
-     * @param subject
-     *            The intended subject of the venue conversation.
-     * @return
+     * @param invite
+     * @throws CollaborationException
      */
     public void sendInvitation(UserId id, VenueInvite invite)
             throws CollaborationException;
@@ -92,9 +107,8 @@ public interface IVenueSession extends ISession {
      * 
      * @param ids
      *            A list of target users for this invitation.
-     * @param body
-     *            Any text that the user may wish to include.
-     * @return
+     * @param invite
+     * @throws CollaborationException
      */
     public void sendInvitation(List<UserId> ids, VenueInvite invite)
             throws CollaborationException;
@@ -104,6 +118,20 @@ public interface IVenueSession extends ISession {
      * 
      * @param presence
      */
-    public void sendPresence(IPresence presence) throws CollaborationException;
+    public void sendPresence(Presence presence) throws CollaborationException;
 
+    /**
+     * @return participant id of current user
+     */
+    public VenueParticipant getUserID();
+
+    /**
+     * @return true if current user has admin privileges in venue
+     */
+    public boolean isAdmin();
+
+    /**
+     * @return false if current user is the only participant in the session
+     */
+    public boolean hasOtherParticipants();
 }

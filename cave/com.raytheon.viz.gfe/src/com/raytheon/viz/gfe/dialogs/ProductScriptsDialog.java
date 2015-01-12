@@ -72,6 +72,9 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * Jan  9, 2013	15635	   jdynina	   Allowed to mix and match entry dialogs. Changed order
  * 									   of dialogs to match A1 displaying entry fields first.
  * Mar 29, 2013 1790       rferrel     Bug fix for non-blocking dialogs.
+ * Oct 23, 2013	DR16203    equintin    Restore the "-c" argument when the command
+ *                                     for Png Images... is rebuilt after
+ *                                     return from the dialog.
  * 
  * </pre>
  * 
@@ -84,7 +87,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProductScriptsDialog.class);
-
+    
     private final int RUN_ID = IDialogConstants.CLIENT_ID + 1;
 
     private String[] scripts;
@@ -159,6 +162,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 Boolean run = false;
                 List<FieldDefinition> fieldDefs = new ArrayList<FieldDefinition>();
                 int start = 0;
+                int endIdx = -1;
 
                 String name = scriptsList.getItem(idx);
                 String cmd = scriptDict.get(name);
@@ -205,7 +209,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 cmd = cmd.replace("{ztime}", curGMTTime);
                 cmd = cmd.replace("{home}", gfeHome);
                 cmd = cmd.replace("{prddir}", prddir);
-
+                
                 // The user is prompted to enter the value with which to replace
                 // the
                 // following variables:
@@ -224,6 +228,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 int entryIdx = cmd.indexOf("{entry:");
                 if (entryIdx >= 0) {
                     run = true;
+                    
                     int endEntryIdx = cmd.indexOf("}", entryIdx);
                     String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
                             .split(":");
@@ -246,6 +251,10 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                         start = entryIdx;
                     } else if ((start > 0) && (start > entryIdx)) {
                         start = entryIdx;
+                    }
+
+                    if (entry[1].equals("ConfigFile")) {	//DR 16203 eeq 10/23/2013
+                    	endIdx = endEntryIdx;
                     }
                 }
 
@@ -347,16 +356,21 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
                     if (dlgOpen <= 0) {
                         Map<Object, Object> map = scriptDlg.getValues();
+                        
                         String returnMsg = "";
-
+                        
                         for (Map.Entry<Object, Object> entry : map.entrySet()) {
                             returnMsg = returnMsg + entry.getValue().toString()
                                     + " ";
                         }
-
-                        start = start - 3;
-                        cmd = cmd.substring(0, start) + returnMsg;
-                    }   
+                        
+                        if (endIdx > 0) {
+                            cmd = cmd.replace(cmd.substring(start, endIdx+2), returnMsg);
+                        } else {
+                            start = start - 3;
+                            cmd = cmd.substring(0, start) + returnMsg;
+                        }
+                    }
                 }
 
                 TaskManager.getInstance().createScriptTask(name, cmd);

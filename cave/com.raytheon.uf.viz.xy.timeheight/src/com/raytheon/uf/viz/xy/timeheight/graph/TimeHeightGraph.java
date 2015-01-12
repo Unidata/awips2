@@ -45,14 +45,15 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * 
- * TODO Add Description
+ * The background graph for a time height display
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 3, 2010            bsteffen     Initial creation
+ * Jul 03, 2010            bsteffen     Initial creation
+ * Jun 18, 2014 3242       njensen      Null safety checks
  * 
  * </pre>
  * 
@@ -134,10 +135,13 @@ public class TimeHeightGraph extends AbstractGraph {
      */
     @Override
     protected void createAxes() {
-        yAxisPlacer.setPixelWidth(graphExtent.getWidth());
+        if (yAxisPlacer != null && xAxisPlacer != null) {
+            yAxisPlacer.setPixelWidth(graphExtent.getWidth());
 
-        createHeightAxis(((TimeHeightDescriptor) descriptor).getHeightScale(),
-                zoomLevel);
+            createHeightAxis(
+                    ((TimeHeightDescriptor) descriptor).getHeightScale(),
+                    zoomLevel);
+        }
     }
 
     @Override

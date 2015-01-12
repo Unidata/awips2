@@ -31,9 +31,9 @@ import com.raytheon.uf.common.dataplugin.bufrsigwx.TropHeightData;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.bufrsigwx.common.SigWxCommon;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
  * ------------ ---------- ----------- --------------------------
  *  09/25/2009             jsanchez    Initial creation.
  * Sep 28, 2009 3099       bsteffen    Updated to conform with common SigWxResource
+ * Jul 29, 2014 #3465      mapeters    Updated deprecated drawStrings() calls.
  * 
  * </pre>
  * 
@@ -163,9 +164,12 @@ public class SigWxTropHeightResource extends SigWxResource {
             lines = new String[] { heightStr, "L" };
 
         }
-        target.drawStrings(font, lines, locationPixel[0], locationPixel[1],
-                0.0, TextStyle.NORMAL, new RGB[] { color, color },
-                HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE);
+        DrawableString string = new DrawableString(lines, color);
+        string.font = font;
+        string.setCoordinates(locationPixel[0], locationPixel[1]);
+        string.horizontalAlignment = HorizontalAlignment.CENTER;
+        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        target.drawStrings(string);
     }
 
     protected String[] getParameters() {

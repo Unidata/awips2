@@ -25,9 +25,9 @@ import java.util.Date;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.common.monitor.data.CommonTableConfig;
 import com.raytheon.uf.common.monitor.data.ObConst;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 
 /**
  * Table cell data class to define how the data is to be displayed in a table.

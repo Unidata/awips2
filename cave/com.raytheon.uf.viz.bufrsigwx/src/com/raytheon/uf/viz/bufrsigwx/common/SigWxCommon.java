@@ -23,6 +23,7 @@ import java.util.Formatter;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -38,7 +39,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *  09/25/2009             jsanchez    Initial creation.
- * 
+ *  07/24/2014  3429       mapeters    Updated deprecated drawLine() calls.
  * 
  * </pre>
  * 
@@ -79,13 +80,15 @@ public class SigWxCommon {
             Double length, Double dir, RGB color) throws VizException {
         double[] pointPixel = target.getPointOnCircle(center[0], center[1],
                 center[2], length, dir + 210);
-        target.drawLine(pointPixel[0], pointPixel[1], pointPixel[2],
-                center[0],
-                center[1], center[2], color, 1.5f);
-        pointPixel = target.getPointOnCircle(center[0], center[1], center[2],
+        DrawableLine line = new DrawableLine();
+        line.setCoordinates(pointPixel[0], pointPixel[1], pointPixel[2]);
+        line.addPoint(center[0],  center[1], center[2]);
+        double[] pointPixel2 = target.getPointOnCircle(center[0], center[1],
+                center[2],
                 length, dir + 150);
-        target.drawLine(pointPixel[0], pointPixel[1], pointPixel[2],
-                center[0],
-                center[1], center[2], color, 1.5f);
+        line.addPoint(pointPixel2[0], pointPixel2[1], pointPixel2[2]);
+        line.basics.color = color;
+        line.width = 1.5f;
+        target.drawLine(line);
     }
 }

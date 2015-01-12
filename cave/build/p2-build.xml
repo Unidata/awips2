@@ -113,6 +113,12 @@
 			<fileset dir="${workspace.dir}"
 				includes="it.*/**" />
 		</copy>
+		
+		<echo message="PLUGINS: v*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="v*/**" />
+		</copy>
 
                 <echo message="PLUGINS: ch.*/**" />
                 <copy todir="${basedir}/cave/p2/plugins">
@@ -144,6 +150,12 @@
 		<!-- We Need To Build The p2 Repos In A Certain Order Due To
 		     Dependencies. -->
 
+		<!-- copy the com.raytheon.uf.viz.application.feature feature.
+		     Used by the com.raytheon.viz.feature.awips feature. -->
+                <copy todir="${basedir}/cave/p2/features" verbose="true">
+                	<fileset dir="${workspace.dir}"
+                		includes="com.raytheon.uf.viz.application.feature/**" />
+                </copy>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.viz.feature.awips" />
@@ -169,10 +181,10 @@
 			<param name="feature"
 				value="com.raytheon.uf.viz.common.core.feature" />
 		</antcall>
-                <antcall target="p2.build.repo">
-                        <param name="feature"
-                                value="com.raytheon.uf.viz.localization.perspective.feature" />
-                </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature"
+                    value="com.raytheon.uf.viz.localization.perspective.feature" />
+        </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.viz.core.feature" />
@@ -213,6 +225,10 @@
 			<param name="feature"
 				value="com.raytheon.viz.grib.feature" />
 		</antcall>
+        	<antcall target="p2.build.repo">
+                     <param name="feature"
+                                value="com.raytheon.uf.viz.kml.export.feature" />
+                </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.viz.gfe.feature" />
@@ -228,6 +244,10 @@
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.viz.ncep.core.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.viz.aviation.advisory.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
@@ -269,18 +289,18 @@
 		     <param name="feature"
 		          value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
+		<antcall target="p2.build.repo">
+		             <param name="feature"
+		                  value="com.raytheon.uf.viz.useradmin.feature" />
+		</antcall>
+        <antcall target="p2.build.repo">
+             <param name="feature"
+                  value="com.raytheon.uf.viz.registry.feature" />
+        </antcall>
         <antcall target="p2.build.repo">
              <param name="feature"
                   value="com.raytheon.uf.viz.datadelivery.feature" />
-        </antcall>
-        <antcall target="p2.build.repo">
-             <param name="feature"
-                  value="com.raytheon.uf.viz.useradmin.feature" />
-        </antcall>
-        <antcall target="p2.build.repo">
-             <param name="feature"
-                  value="com.raytheon.uf.viz.kml.export.feature" />
-        </antcall>		
+        </antcall>        	
         <antcall target="p2.build.repo">
              <param name="feature"
                   value="com.raytheon.uf.viz.npp.feature" />
@@ -293,18 +313,18 @@
 			<param name="feature"
 				value="com.raytheon.viz.volumebrowser.feature" />
 		</antcall>
-                <antcall target="p2.build.repo">
-                        <param name="feature"
-                                value="com.raytheon.uf.viz.acarssounding.feature" />
-                </antcall>
-                <antcall target="p2.build.repo">
-                        <param name="feature"
-                                value="com.raytheon.viz.avnfps.feature" />
-                </antcall>
-                <antcall target="p2.build.repo">
-                        <param name="feature"
-                                value="com.raytheon.uf.viz.dat.feature" />
-                </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature"
+                    value="com.raytheon.uf.viz.acarssounding.feature" />
+        </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature"
+                    value="com.raytheon.viz.avnfps.feature" />
+        </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature"
+                    value="com.raytheon.uf.viz.dat.feature" />
+        </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.viz.d2d.gfe.feature" />
@@ -342,7 +362,38 @@
            </for>           
 	</target>
 	
-        <target name="main" depends="clean, p2.build, wa-build" />
+	<target name="wa-cleanup" depends="wa-build" description="Removes references to WA-specific features that should not be built as an RPM.">
+           <for param="wa.feature.list.file">
+               <fileset dir="${basedir}" includes="*-wa-build.properties" />
+               <sequential>
+                   <var name="wa.features.ignore" unset="true" />
+                   <property file="@{wa.feature.list.file}" />
+                   <for list="${wa.features.ignore}" param="wa.feature">
+                       <sequential>
+                		<if>
+                			<available file="${basedir}/cave/p2/features/@{wa.feature}" type="dir" />
+                			<then>
+                				<!-- Remove the feature directory. -->
+                				<delete includeemptydirs="true">
+                					<fileset dir="${basedir}/cave/p2/features/@{wa.feature}" />
+                				</delete>
+                				
+                				<!-- Remove references to the feature from features.txt -->
+                				<exec executable="/bin/sed" output="${basedir}/cave/p2/dist/features.txt.tmp">
+                					<arg value="/@{wa.feature}/d" />
+                					<arg value="${basedir}/cave/p2/dist/features.txt" />
+                				</exec>
+                				<move file="${basedir}/cave/p2/dist/features.txt.tmp" 
+                					tofile="${basedir}/cave/p2/dist/features.txt" />
+                			</then>
+                		</if>                           
+                       </sequential>
+                   </for>
+               </sequential>
+           </for>           
+	</target>
+	
+        <target name="main" depends="clean, p2.build, wa-build, wa-cleanup" />
 
 	<target name="p2.build.repo">
 		<!-- Copy The Feature -->

@@ -28,8 +28,8 @@ import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.site.SiteMap;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.msgs.IAviationObserver;

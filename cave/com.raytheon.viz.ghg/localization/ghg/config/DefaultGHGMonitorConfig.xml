@@ -68,11 +68,6 @@
 		<actions>EXT</actions>
 		<actions>EXA</actions>
 		<actions>EXB</actions>
-		<phenSigs>SV.W</phenSigs>
-		<phenSigs>TO.W</phenSigs>
-		<pils>SVR</pils>
-		<pils>SVS</pils>
-		<pils>TOR</pils>
 	</currentAlerts>
 	<currentFont>SMALL_FONT</currentFont>
 	<currentFilter>
@@ -92,38 +87,6 @@
 		<actions>EXB</actions>
 		<actions>EXT</actions>
 	</currentFilter>
-	<filters>
-		<item>
-			<key>filter-1</key>
-			<value>
-				<currentHazards>false</currentHazards>
-				<name>filter-1</name>
-				<combineGeoId>true</combineGeoId>
-				<combineSegments>true</combineSegments>
-				<combinePurgeTimes>false</combinePurgeTimes>
-				<combineActions>false</combineActions>
-				<includeAlerts>true</includeAlerts>
-				<includeMapSelections>true</includeMapSelections>
-				<includePastEvents>false</includePastEvents>
-				<includeOrgPilEvents>false</includeOrgPilEvents>
-			</value>
-		</item>
-		<item>
-			<key>filter-2</key>
-			<value>
-				<currentHazards>true</currentHazards>
-				<name>filter-2</name>
-				<combineGeoId>false</combineGeoId>
-				<combineSegments>false</combineSegments>
-				<combinePurgeTimes>true</combinePurgeTimes>
-				<combineActions>true</combineActions>
-				<includeAlerts>true</includeAlerts>
-				<includeMapSelections>true</includeMapSelections>
-				<includePastEvents>false</includePastEvents>
-				<includeOrgPilEvents>false</includeOrgPilEvents>
-			</value>
-		</item>
-	</filters>
 	<visibleColumns>ACTION</visibleColumns>
 	<visibleColumns>ETN</visibleColumns>
 	<visibleColumns>PHEN_SIG</visibleColumns>
@@ -136,4 +99,5 @@
 <!-- <visibleColumns>GEO_ID</visibleColumns>-->
 	<sortColumn>PURGE</sortColumn>
 	<descending>false</descending>
+	<identifyTestEvents>true</identifyTestEvents>
 </ghgConfig>

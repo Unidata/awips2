@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.localization.perspective.view;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -100,14 +101,14 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.localization.LocalizationEditorInput;
-import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
 import com.raytheon.uf.viz.localization.adapter.LocalizationPerspectiveAdapter;
 import com.raytheon.uf.viz.localization.filetreeview.FileTreeEntryData;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileEntryData;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileGroupData;
 import com.raytheon.uf.viz.localization.filetreeview.PathData;
 import com.raytheon.uf.viz.localization.perspective.Activator;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorUtils;
 import com.raytheon.uf.viz.localization.perspective.ui.compare.LocalizationCompareEditorInput;
 import com.raytheon.uf.viz.localization.perspective.view.actions.CopyToAction;
 import com.raytheon.uf.viz.localization.perspective.view.actions.DeleteAction;
@@ -135,6 +136,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Sep 17, 2013  2285      mschenke    Made openFile refresh items if file not found
  * Oct  9, 2013  2104      mschenke    Fixed file delete/add refresh issue and file change message
  *                                     found when testing scalesInfo.xml file
+ * Sep 18, 2014  3531      bclement    fixed file delete/add refresh issue when paths share string prefixes
  * 
  * </pre>
  * 
@@ -1371,7 +1373,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         if (filePath == null) {
             return directoryImage;
         }
-        ImageDescriptor desc = LocalizationPerspectiveUtils.getEditorRegistry()
+        ImageDescriptor desc = LocalizationEditorUtils.getEditorRegistry()
                 .getImageDescriptor(filePath);
         if (desc != null) {
             Image img = imageMap.get(desc);
@@ -1437,11 +1439,33 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         return null;
     }
 
+    /**
+     * @see #find(TreeItem, LocalizationContext, java.nio.file.Path, boolean)
+     * @param item
+     * @param ctx
+     * @param path
+     * @param populateToFind
+     * @return null if no item found
+     */
     private TreeItem find(TreeItem item, LocalizationContext ctx, String path,
             boolean populateToFind) {
+        return find(item, ctx, Paths.get(path), populateToFind);
+    }
+
+    /**
+     * Recursively search tree for node matching path starting at item
+     * 
+     * @param item
+     * @param ctx
+     * @param path
+     * @param populateToFind
+     * @return null if no item found
+     */
+    private TreeItem find(TreeItem item, LocalizationContext ctx,
+            java.nio.file.Path path, boolean populateToFind) {
         FileTreeEntryData data = (FileTreeEntryData) item.getData();
         if (data.getPathData().getType() == ctx.getLocalizationType()) {
-            String itemPath = data.getPath();
+            java.nio.file.Path itemPath = Paths.get(data.getPath());
             if (path.startsWith(itemPath)) {
                 if (path.equals(itemPath)
                         || (data.hasRequestedChildren() == false && !populateToFind)) {
@@ -1746,7 +1770,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             if (item.getData() instanceof LocalizationFileEntryData) {
                 LocalizationFileEntryData fileData = (LocalizationFileEntryData) item
                         .getData();
-                LocalizationPerspectiveUtils.openInEditor(
+                LocalizationEditorUtils.openInEditor(
                         page,
                         new LocalizationEditorInput(file, fileData
                                 .getResource()));

@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -79,6 +78,8 @@ import com.vividsolutions.jts.geom.LineString;
  * Aug 15, 2013 2258       bsteffen    Convert profiler sounding to var height
  *                                     with hodo.
  * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
+ * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 09, 2014 3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -168,8 +169,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                     Object[] cols = (Object[]) row;
                     SurfaceObsLocation loc = new SurfaceObsLocation();
                     loc.setStationId(cols[0].toString());
-                    loc.setLatitude((Double) cols[1]);
-                    loc.setLongitude((Double) cols[2]);
+                    loc.setLatitude(((Number) cols[1]).floatValue());
+                    loc.setLongitude(((Number) cols[2]).floatValue());
                     locs[i++] = loc;
                 }
                 availableStations.put(sourceKey, locs);
@@ -195,8 +196,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         }
 
         SurfaceObsLocation target = new SurfaceObsLocation();
-        target.setLatitude(coordinate.y);
-        target.setLongitude(coordinate.x);
+        target.setLatitude((float) coordinate.y);
+        target.setLongitude((float) coordinate.x);
         int index = Arrays.binarySearch(availableStations, target,
                 locComparator);
         if (index < 1) {
@@ -399,15 +400,10 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
      */
     @Override
     protected Collection<? extends Level> get3DLevels() {
-        try {
-            return LevelMappingFactory
-                    .getInstance(
-                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                    .getLevelMappingForKey("Station").getLevels();
-        } catch (CommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            return Collections.emptyList();
-        }
+        return LevelMappingFactory
+                .getInstance(
+                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                .getLevelMappingForKey("Station").getLevels();
     }
 
     @Override
@@ -440,12 +436,10 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             AbstractRequestableResourceData resourceData = super
                     .getResourceData(catalogEntry, resourceType);
             // TODO this should be configurable, and shared with PLAN_VIEW
-            if (sourceText
-                    .equals("RaobOA")) {
+            if (sourceText.equals("RaobOA")) {
                 BinOffset binOffset = new BinOffset(3600, 3600);
                 resourceData.setBinOffset(binOffset);
-            } else if (sourceText
-                    .equals("MetarOA")) {
+            } else if (sourceText.equals("MetarOA")) {
                 BinOffset binOffset = new BinOffset(1800, 1800);
                 resourceData.setBinOffset(binOffset);
             }
@@ -558,7 +552,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         ViewMenu viewSelection = VolumeBrowserAction.getVolumeBrowserDlg()
                 .getDialogSettings().getViewSelection();
         if (viewSelection == ViewMenu.PLANVIEW) {
-            ;//
+            // no-op
         } else if (viewSelection == ViewMenu.TIMESERIES) {
             String name = VolumeBrowserAction.getVolumeBrowserDlg()
                     .getDialogSettings().getPointsSelection().getName();

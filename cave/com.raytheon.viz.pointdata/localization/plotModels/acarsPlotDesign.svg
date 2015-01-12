@@ -56,10 +56,12 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 ]]>
 </style>
 <symbol overflow="visible" id="plotData" class="info">
-  <text id="altitudeText" plotMode="text" plotParam="altitude" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: start;" x="10px" y="-10px">75</text>
-  <text id="tempText" plotMode="text" plotParam="T" plotUnit="°C" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text>
-  <text id="dewPtText" plotMode="text" plotParam="DpT" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">75</text>
-  <g id="windVaneText" plotMode="barb" required="true" plotParam="WS,WD" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
+  <text id="sample1" plotMode="sample" class="text" plotParam="tailNumber">0</text>
+  <text id="sample2" plotMode="sample" class="text" plotParam="timeObs" plotFormat="time:dd/HHmm">0</text>
+  <text id="altitudeText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: start;" x="10px" y="-10px">75</text>
+  <text id="tempText" plotMode="text" plotParam="temp" plotUnit="°C" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text>
+  <text id="dewPtText" plotMode="text" plotParam="dwpt" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">75</text>
+  <g id="windVaneText" plotMode="barb" required="true" plotParam="windSpeed,windDirection" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
     <text id="windVaneText" class="arrow" x="0" y="0">0</text>
     <text id="windArrowText" class="barb" x="0" y="0">arrow</text>
   </g>

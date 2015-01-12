@@ -34,7 +34,8 @@ import com.raytheon.viz.aviation.observer.TafMonitorDlg;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 3, 2009            njensen     Initial creation
+ * Sep 3, 2009              njensen     Initial creation
+ * 19Mar2014    #2925       lvenable    Added dispose checks for runAsync.
  * 
  * </pre>
  * 
@@ -56,7 +57,9 @@ public abstract class MonitorObserver implements IAlertObserver {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                dialog.getMessageBar().setMessageText(msg, GREEN);
+                if (dialog.isDisposed() == false) {
+                    dialog.getMessageBar().setMessageText(msg, GREEN);
+                }
             }
         });
     }

@@ -27,6 +27,7 @@ import java.util.Map;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObsAdapter;
@@ -41,9 +42,9 @@ import com.raytheon.uf.common.sounding.adapter.IVerticalSoundingProvider;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.sounding.Activator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -109,7 +110,7 @@ public class BufruaSoundingProvider extends
                     UAObs.PLUGIN_NAME, BufrUAPointDataTransform.MAN_PARAMS,
                     constraints);
             return BufrUAPointDataTransform.toUAObsRecords(pdc);
-        } catch (VizException e) {
+        } catch (DataCubeException e) {
             throw new RuntimeException("Error querying for sounding records: "
                     + constraints, e);
         }

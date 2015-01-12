@@ -93,6 +93,13 @@
          unpack="false"/>
 
    <plugin
+         id="com.raytheon.uf.common.jms"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="com.raytheon.uf.viz.core"
          download-size="0"
          install-size="0"
@@ -230,12 +237,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="net.sf.ehcache"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.raytheon.uf.common.message"
          download-size="0"
          install-size="0"
@@ -248,6 +249,12 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.numeric"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.geospatial"
@@ -302,12 +309,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.apache.mina"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.raytheon.uf.common.util"
          download-size="0"
          install-size="0"
@@ -327,13 +328,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.common.topo"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.auth"
          download-size="0"
          install-size="0"
@@ -348,13 +342,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.hamcrest.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.alertviz"
          download-size="0"
          install-size="0"
@@ -363,13 +350,6 @@
 
    <plugin
          id="com.raytheon.uf.common.dataquery"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.site"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -418,13 +398,6 @@
 
    <plugin
          id="com.raytheon.uf.viz.plugin.nwsauth"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.cache"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -512,5 +485,38 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.datacube"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.derivparam"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.inventory"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.xerces"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.convert"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

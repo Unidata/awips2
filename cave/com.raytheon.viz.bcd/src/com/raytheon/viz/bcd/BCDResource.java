@@ -30,17 +30,19 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.vadriver.VA_Advanced;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.datastructure.WireframeCache;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -49,7 +51,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.maps.rsc.AbstractMapResource;
+import com.raytheon.uf.viz.core.maps.rsc.StyledMapResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -71,6 +73,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    1/10/08       562         bphillip    Modified to handle .bcx files
  *    02/11/09                  njensen     Refactored to new rsc architecture
  *    07/31/12      DR 14935    D. Friedman Handle little-endian files
+ *    Jul 28, 2014  3397        bclement    switched to non deprecated version of createWireframeShape()
+ *                                          now closes on FileInputStream instead of FileChannel in initInternal()
+ *    Jul 29, 2014  3465        mapeters    Updated deprecated drawString() calls.
+ *    Aug 04, 2014  3489        mapeters    Updated deprecated getStringBounds() calls.
+ *    Aug 13, 2014  3492        mapeters    Updated deprecated createWireframeShape() calls.
+ *    Aug 21, 2014 #3459        randerso    Restructured Map resource class hierarchy
  * 
  * </pre>
  * 
@@ -78,7 +86,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  */
 public class BCDResource extends
-        AbstractMapResource<BCDResourceData, MapDescriptor> implements
+        StyledMapResource<BCDResourceData, MapDescriptor> implements
         IResourceDataChanged {
 
     /** The wireframe object */
@@ -153,7 +161,7 @@ public class BCDResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
-        FileChannel fc = null;
+        FileInputStream fis = null;
         try {
 
             if (this.resourceData.getFilename().endsWith("bcx")) {
@@ -166,15 +174,7 @@ public class BCDResource extends
             if (wireframeShape == null) {
 
                 this.gridGeometry = descriptor.getGridGeometry();
-                wireframeShape = target.createWireframeShape(true, descriptor,
-                        0.0f, true, new PixelExtent(descriptor
-                                .getGridGeometry().getGridRange().getLow(0),
-                                descriptor.getGridGeometry().getGridRange()
-                                        .getHigh(0), descriptor
-                                        .getGridGeometry().getGridRange()
-                                        .getLow(1), descriptor
-                                        .getGridGeometry().getGridRange()
-                                        .getHigh(1)));
+                wireframeShape = target.createWireframeShape(true, descriptor);
                 // wireframeShape = target.createWireframeShape(true,
                 // mapDescriptor);
                 File file = new File(resourceData.getFilename());
@@ -183,12 +183,12 @@ public class BCDResource extends
                             FileUtil.join(VizApp.getMapsDir(),
                                     resourceData.getFilename()));
                 }
-                if (file == null || file.exists() == false) {
+                if ((file == null) || (file.exists() == false)) {
                     throw new VizException("Could not find bcd file",
                             new FileNotFoundException(String.valueOf(file)));
                 }
-                FileInputStream fis = new FileInputStream(file);
-                fc = fis.getChannel();
+                fis = new FileInputStream(file);
+                FileChannel fc = fis.getChannel();
 
                 ByteBuffer buffer = fc.map(MapMode.READ_ONLY, 0, file.length());
 
@@ -196,11 +196,10 @@ public class BCDResource extends
                 if (buffer.remaining() >= 4) {
                     // Whether BCX or not, first value is an int.
                     // Note: Different from A1 which tests >31 or >500
-                    if (buffer.getInt(0) > Short.MAX_VALUE)
+                    if (buffer.getInt(0) > Short.MAX_VALUE) {
                         buffer.order(ByteOrder.LITTLE_ENDIAN);
+                    }
                 }
-
-                int i = 0;
 
                 double minLat = Double.MAX_VALUE;
                 double minLon = Double.MAX_VALUE;
@@ -254,7 +253,6 @@ public class BCDResource extends
                         labels.add(new BcxLabel(label, pts[0], descriptor));
                         wireframeShape.addLabel(label, labelPixel);
                     }
-                    i++;
                 }
 
                 if (isBCX) {
@@ -285,8 +283,8 @@ public class BCDResource extends
 
         } finally {
             try {
-                if (fc != null) {
-                    fc.close();
+                if (fis != null) {
+                    fis.close();
                 }
             } catch (IOException e) {
                 // ignore
@@ -325,10 +323,13 @@ public class BCDResource extends
                 font = target.initializeFont(target.getDefaultFont()
                         .getFontName(), (float) (10 * magnification), null);
             }
-            Rectangle2D charSize = target.getStringBounds(font, "N");
+
+            DrawableString stringN = new DrawableString("N");
+            stringN.font = font;
+            Rectangle2D charSize = target.getStringsBounds(stringN);
             double charWidth = charSize.getWidth();
 
-            double minSepDist = metersPerPixel / 1000.0 / density * charWidth;
+            double minSepDist = (metersPerPixel / 1000.0 / density) * charWidth;
 
             if (maxLen <= 5) {
                 minSepDist *= maxLen;
@@ -338,24 +339,22 @@ public class BCDResource extends
 
             IView view = paintProps.getView();
 
+            List<DrawableString> strings = new ArrayList<DrawableString>();
+            RGB color = getCapability(ColorableCapability.class).getColor();
             for (BcxLabel p : labels) {
                 if (p.pixel == null) {
                     continue;
                 }
 
-                if (view.isVisible(p.pixel) && p.distance >= minSepDist) {
-
-                    target.drawString(
-                            font,
-                            p.label,
-                            p.pixel[0],
-                            p.pixel[1],
-                            0.0,
-                            IGraphicsTarget.TextStyle.NORMAL,
-                            getCapability(ColorableCapability.class).getColor(),
-                            HorizontalAlignment.CENTER, null);
+                if (view.isVisible(p.pixel) && (p.distance >= minSepDist)) {
+                    DrawableString string = new DrawableString(p.label, color);
+                    string.font = font;
+                    string.setCoordinates(p.pixel[0], p.pixel[1]);
+                    string.horizontalAlignment = HorizontalAlignment.CENTER;
+                    strings.add(string);
                 }
             }
+            target.drawStrings(strings);
         }
 
         if (ready && getCapability(OutlineCapability.class).isOutlineOn()) {

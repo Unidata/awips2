@@ -37,6 +37,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 9, 2009            bsteffen     Initial creation
+ * Aug 08, 2014 3477      bclement     changed plot info locations to floats
  * 
  * </pre>
  * 
@@ -58,8 +59,8 @@ public class RadarPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
     @Override
     protected PlotInfo getPlotInfo(Object[] data) {
         PlotInfo stationInfo = new PlotInfo();
-        stationInfo.latitude = ((Float) data[0]).doubleValue();
-        stationInfo.longitude = ((Float) data[1]).doubleValue();
+        stationInfo.latitude = ((Number) data[0]).floatValue();
+        stationInfo.longitude = ((Number) data[1]).floatValue();
         stationInfo.stationId = (String) data[2];
         if (stationInfo.stationId == null) {
             stationInfo.stationId = "" + data[0] + "#" + data[1];

@@ -1,10 +1,27 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.viz.pointdata.lookup;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -12,28 +29,36 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
+/**
+ * Range lookup table for SVG plots
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ???                      ???         Initial creation
+ * Sep 16, 2014 2707       bclement    removed warnings, closed input
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class R2SLookupTable implements IAbstractLookupTable {
 
     private class R2SPair {
-        private Double low;
+        private final Double low;
 
-        private Double high;
+        private final Double high;
 
-        private String value;
+        private final String value;
 
         public R2SPair(Double low, Double high, String value) {
             this.low = low;
             this.high = high;
             this.value = value;
-        }
-
-        /**
-         * set the low value of the range
-         * 
-         * @param low
-         */
-        public void setLow(Double low) {
-            this.low = low;
         }
 
         /**
@@ -46,30 +71,12 @@ public class R2SLookupTable implements IAbstractLookupTable {
         }
 
         /**
-         * set the high value of the range
-         * 
-         * @param high
-         */
-        public void setHigh(Double high) {
-            this.high = high;
-        }
-
-        /**
          * get the high value of the range
          * 
          * @return
          */
         public Double getHigh() {
             return high;
-        }
-
-        /**
-         * set the string the range maps to
-         * 
-         * @param value
-         */
-        public void setValue(String value) {
-            this.value = value;
         }
 
         /**
@@ -124,8 +131,6 @@ public class R2SLookupTable implements IAbstractLookupTable {
         }
     }
 
-    private String mode = "";
-
     LinkedList<R2SPair> lookupList = null;
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -141,8 +146,7 @@ public class R2SLookupTable implements IAbstractLookupTable {
         lookupList = new LinkedList<R2SPair>();
         tablePath = table.getAbsolutePath();
 
-        try {
-            BufferedReader input = new BufferedReader(new FileReader(table));
+        try (BufferedReader input = new BufferedReader(new FileReader(table))) {
             String line = null;
             int lineNumber = 0;
             while ((line = input.readLine()) != null) {
@@ -160,10 +164,8 @@ public class R2SLookupTable implements IAbstractLookupTable {
                     }
                 }
             }
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.CRITICAL, e.getLocalizedMessage(), e);
-        } catch (IOException e) {
-            statusHandler.handle(Priority.CRITICAL, e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            statusHandler.error("Unable to parse SVG table: " + table, e);
         }
     }
 
@@ -295,7 +297,6 @@ public class R2SLookupTable implements IAbstractLookupTable {
 
     @Override
     public void setMode(String mode) {
-        this.mode = mode;
     }
 
 }

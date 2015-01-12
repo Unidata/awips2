@@ -2,42 +2,39 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pointdata Plug-in
 Bundle-SymbolicName: com.raytheon.viz.pointdata;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.viz.pointdata.Activator
+Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
-Require-Bundle: org.apache.batik,
- org.eclipse.ui,
- org.eclipse.core.runtime,
- com.raytheon.viz.core,
- com.raytheon.uf.viz.core,
- com.raytheon.viz.ui,
- org.apache.commons.lang,
- javax.measure,
- com.raytheon.uf.viz.localization;bundle-version="1.12.1174",
- org.jep;bundle-version="1.0.0",
- com.raytheon.uf.common.python;bundle-version="1.12.1161",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.common.wxmath
 Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.apache.batik;bundle-version="1.6",
+ org.eclipse.ui;bundle-version="3.8",
+ org.eclipse.core.runtime;bundle-version="3.8",
+ com.raytheon.uf.viz.core;bundle-version="1.14.3",
+ com.raytheon.viz.ui;bundle-version="1.14.0",
+ org.apache.commons.lang;bundle-version="2.3.0",
+ javax.measure,
+ com.raytheon.uf.viz.localization,
+ org.jep;bundle-version="2.3.0",
+ com.raytheon.uf.common.python,
+ com.raytheon.uf.common.pointdata;bundle-version="1.13.0",
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.14.0",
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.wxmath,
+ com.raytheon.uf.common.python.concurrent,
+ com.raytheon.uf.common.derivparam;bundle-version="1.14.0",
+ com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
+ com.raytheon.uf.common.inventory;bundle-version="1.14.0",
+ com.raytheon.uf.common.datastorage;bundle-version="1.14.0",
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.1",
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.grid;bundle-version="1.13.0",
+ com.raytheon.uf.common.message;bundle-version="1.14.0",
+ com.raytheon.uf.viz.productbrowser;bundle-version="1.14.0",
+ com.raytheon.viz.alerts,
+ com.raytheon.uf.common.comm
 Export-Package: com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.drawables,
  com.raytheon.viz.pointdata.rsc,
  com.raytheon.viz.pointdata.rsc.retrieve,
  com.raytheon.viz.pointdata.util
-Import-Package: com.raytheon.uf.common.comm,
- com.raytheon.uf.common.dataplugin.grid,
- com.raytheon.uf.common.derivparam.tree,
- com.raytheon.uf.common.message.response,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.pointdata.accumulate,
- com.raytheon.uf.viz.derivparam.data,
- com.raytheon.uf.viz.derivparam.inv,
- com.raytheon.uf.viz.derivparam.library,
- com.raytheon.uf.viz.derivparam.tree,
- com.raytheon.uf.viz.productbrowser,
- com.raytheon.viz.alerts,
- com.raytheon.viz.alerts.observers
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6

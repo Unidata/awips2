@@ -23,15 +23,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.dataplugin.grid.util.StaticGridDataType;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
-import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.viz.grid.data.StaticGridRequestableData;
 import com.raytheon.viz.grid.data.TiltRequestableData;
 import com.raytheon.viz.grid.util.CoverageUtils;
@@ -79,11 +80,15 @@ public class StaticGridDataLevelNode extends AbstractBaseDataNode {
     @Override
     public Set<TimeAndSpace> getAvailability(
             Map<String, RequestConstraint> originalConstraints, Object response)
-            throws VizException {
+            throws DataCubeException {
         Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
-        for (GridCoverage coverage : CoverageUtils.getInstance().getCoverages(
-                source)) {
-            result.add(new TimeAndSpace(coverage));
+        try {
+            for (GridCoverage coverage : CoverageUtils.getInstance()
+                    .getCoverages(source)) {
+                result.add(new TimeAndSpace(coverage));
+            }
+        } catch (VizException e) {
+            throw new DataCubeException(e);
         }
         return result;
     }
@@ -99,7 +104,7 @@ public class StaticGridDataLevelNode extends AbstractBaseDataNode {
     public Set<AbstractRequestableData> getData(
             Map<String, RequestConstraint> orignalConstraints,
             Set<TimeAndSpace> availability, Object response)
-            throws VizException {
+            throws DataCubeException {
         Set<AbstractRequestableData> results = new HashSet<AbstractRequestableData>();
         for (TimeAndSpace ast : availability) {
             if (ast.getSpace() instanceof GridCoverage) {
@@ -108,11 +113,15 @@ public class StaticGridDataLevelNode extends AbstractBaseDataNode {
                 data.setDataTime(ast.getTime());
                 results.add(data);
             } else {
-                for (GridCoverage coverage : CoverageUtils.getInstance()
-                        .getCoverages(source)) {
-                    AbstractRequestableData data = createRequestableData(coverage);
-                    data.setDataTime(ast.getTime());
-                    results.add(data);
+                try {
+                    for (GridCoverage coverage : CoverageUtils.getInstance()
+                            .getCoverages(source)) {
+                        AbstractRequestableData data = createRequestableData(coverage);
+                        data.setDataTime(ast.getTime());
+                        results.add(data);
+                    }
+                } catch (VizException e) {
+                    throw new DataCubeException(e);
                 }
             }
         }

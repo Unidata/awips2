@@ -1113,7 +1113,6 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarLayered.xml"
 			menuText="User 6hr Accum" id="${icao}User6hrAccum">
-			<dataURI>/radar/%/${icao}/173/%</dataURI>
 	        <substitute key="icao" value="${icao}"/>
 	        <substitute key="product" value="173"/>
 			<substitute key="layer" value="4.0"/>
@@ -1407,7 +1406,6 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 					menuText="6.0 Spec Diff" id="${icao}604bitSpecDiff">
-				<dataURI>/radar/%/${icao}/162/6.0</dataURI>
 		       	<substitute key="icao" value="${icao}"/>
 		       	<substitute key="product" value="162"/>
 				<substitute key="elevation" value="6.0--6.0"/>

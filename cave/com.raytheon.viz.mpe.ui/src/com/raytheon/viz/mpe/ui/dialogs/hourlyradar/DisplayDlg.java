@@ -191,13 +191,11 @@ public class DisplayDlg extends CaveSWTDialog {
         RadarDataManager rdm = RadarDataManager.getInstance();
 
         try {
-            DPAAdaptableParam adaptData = rdm
-                    .getAdaptableParameters(radId, dtg);
+            DPAAdaptableParam adaptData = rdm.getAdaptableParameters(radId, dtg);
 
-            if (adaptData != null) {
-                buffer
-                        .append(String
-                                .format(
+            if (adaptData != null)
+            {
+                buffer.append(String.format(
                                         "          ***** Radar = %s *****\n"
                                                 + "          Preprocessing Algorithm Parameters\n"
                                                 + "%.2f = min reflectivity for isolated bin test (dBZ)%s"

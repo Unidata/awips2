@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 10, 2013  16257    MPorricelli Fix so that wind for global grids displays on
  *                                    mercator maps.
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * Feb 27, 2014  2791     bsteffen    Remove Unnecessary throws
  * 
  * </pre>
  * 
@@ -432,7 +433,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 
     }
 
-    public void reproject() throws VizException {
+    public void reproject() {
         initPlotLocations();
         issueRefresh();
     }

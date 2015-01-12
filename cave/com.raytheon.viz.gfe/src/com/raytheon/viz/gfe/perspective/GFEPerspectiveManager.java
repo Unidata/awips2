@@ -88,6 +88,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Oct 23, 2012  #1287      rferrel     Changes for non-blocking FormattrLauncherDialog.
  * Dec 09, 2013  #2367      dgilling    Remove shutdown of ProcedureJob and
  *                                      SmartToolJob.
+ * Jan 14, 2014      2594   bclement    added low memory notification
  * </pre>
  * 
  * @author randerso
@@ -397,4 +398,17 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         super.addContextMenuItems(menuManager, container, pane);
         menuManager.add(new ZoomMenuAction(container));
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#
+     * getLowMemoryMessage(long)
+     */
+    @Override
+    protected String getLowMemoryMessage(long availMemory) {
+        return super.getLowMemoryMessage(availMemory)
+                + "\n\nConsider saving Fcst grids to free up memory.";
+    }
+
 }

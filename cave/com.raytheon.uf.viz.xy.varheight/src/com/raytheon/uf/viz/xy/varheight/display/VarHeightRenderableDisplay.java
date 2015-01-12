@@ -32,9 +32,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.d2d.ui.AbstractHeightDisplay;
-import com.raytheon.uf.viz.d2d.ui.Activator;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResource;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData.OverlayMode;
@@ -42,14 +40,15 @@ import com.raytheon.viz.core.slice.request.HeightScale;
 import com.raytheon.viz.core.slice.request.HeightScales;
 
 /**
- * TODO Add Description
+ * Renderable display for var height
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 28, 2010            bsteffen     Initial creation
+ * Jun 28, 2010            bsteffen    Initial creation
+ * Jun 18, 2014 3242       njensen     Removed unused imports
  * 
  * </pre>
  * 
@@ -60,7 +59,8 @@ import com.raytheon.viz.core.slice.request.HeightScales;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class VarHeightRenderableDisplay extends AbstractHeightDisplay {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(VarHeightRenderableDisplay.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VarHeightRenderableDisplay.class);
 
     public VarHeightRenderableDisplay() {
         this(new PixelExtent(0, 1000, 0, 1000));

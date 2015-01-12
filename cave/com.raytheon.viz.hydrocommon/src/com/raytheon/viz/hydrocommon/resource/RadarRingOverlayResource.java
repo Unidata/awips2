@@ -47,8 +47,6 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.viz.hydrocommon.Activator;
-import com.raytheon.viz.hydrocommon.constants.StatusConstants;
 import com.raytheon.viz.hydrocommon.radaroverlay.RadarRingOverlayDAO;
 import com.raytheon.viz.hydrocommon.radaroverlay.RadarRingOverlayData;
 
@@ -61,7 +59,8 @@ import com.raytheon.viz.hydrocommon.radaroverlay.RadarRingOverlayData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2010 1783       mpduff      Initial creation.
- * Apr 4, 2011  8934        mnash       Fix memory leaks, added timer to retrieve data
+ * Apr 04, 2011 8934       mnash       Fix memory leaks, added timer to retrieve data
+ * May 27, 2014 3133       njensen     Organized imports
  * 
  * </pre>
  * 
@@ -71,7 +70,9 @@ import com.raytheon.viz.hydrocommon.radaroverlay.RadarRingOverlayData;
 
 public class RadarRingOverlayResource extends
         AbstractVizResource<AbstractResourceData, MapDescriptor> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(RadarRingOverlayResource.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarRingOverlayResource.class);
+
     /** Number of segments in the circle */
     private static final int RANGE_CIRCLE_PTS = 360;
 
@@ -206,8 +207,8 @@ public class RadarRingOverlayResource extends
                 }
             }
         } catch (VizException e1) {
-            statusHandler.handle(Priority.ERROR,
-                    "Could not draw radar rings", e1);
+            statusHandler.handle(Priority.ERROR, "Could not draw radar rings",
+                    e1);
         }
     }
 

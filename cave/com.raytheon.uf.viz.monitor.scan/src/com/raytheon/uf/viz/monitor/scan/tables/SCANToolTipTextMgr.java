@@ -21,13 +21,13 @@ package com.raytheon.uf.viz.monitor.scan.tables;
 
 import java.util.HashMap;
 
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.CELLTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.DMDTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.MESOTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.TVSTable;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.SortDirection;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 
 public class SCANToolTipTextMgr {
     private static SCANToolTipTextMgr classInstance;

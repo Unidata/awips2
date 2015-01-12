@@ -34,7 +34,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView;
 import com.raytheon.uf.viz.collaboration.ui.ConnectionSubscriber;
@@ -53,6 +53,8 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2012            bsteffen     Initial creation
+ * Dec 19, 2013 2563       bclement     moved close logic to public method
+ * Apr 11, 2014 2903       bclement     made close method static, added safety check
  * 
  * </pre>
  * 
@@ -81,35 +83,46 @@ public class LogoutAction extends Action {
                 + "close all collaboration views\n" + "and editors.");
         int result = messageBox.open();
         if (result == SWT.OK) {
-            for (IViewReference ref : CaveWorkbenchPageManager
-                    .getActiveInstance().getViewReferences()) {
-                IViewPart view = ref.getView(false);
-                if (view instanceof AbstractSessionView
-                        || view instanceof CollaborationGroupView) {
-                    CaveWorkbenchPageManager.getActiveInstance().hideView(ref);
-                }
-            }
+            closeCollaboration();
+        }
+    }
 
-            // Close all Collaboration Editors.
-            for (IEditorReference ref : PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage()
-                    .getEditorReferences()) {
-                IEditorPart editor = ref.getEditor(false);
-                if (editor instanceof CollaborationEditor) {
-                    PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                            .getActivePage().hideEditor(ref);
-                }
+    /**
+     * Close collaboration UI and close connection
+     * 
+     */
+    public static void closeCollaboration() {
+        for (IViewReference ref : CaveWorkbenchPageManager.getActiveInstance()
+                .getViewReferences()) {
+            IViewPart view = ref.getView(false);
+            if (view instanceof AbstractSessionView
+                    || view instanceof CollaborationGroupView) {
+                CaveWorkbenchPageManager.getActiveInstance().hideView(ref);
             }
-            try {
-                Activator.getDefault().getPreferenceStore().save();
-            } catch (IOException e) {
-                statusHandler.handle(Priority.WARN,
-                        "Unable to save preferences", e);
+        }
+
+        // Close all Collaboration Editors.
+        for (IEditorReference ref : PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getActivePage()
+                .getEditorReferences()) {
+            IEditorPart editor = ref.getEditor(false);
+            if (editor instanceof CollaborationEditor) {
+                PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                        .getActivePage().hideEditor(ref);
             }
-            CollaborationConnection connection = CollaborationConnection
-                    .getConnection();
+        }
+        try {
+            Activator.getDefault().getPreferenceStore().save();
+        } catch (IOException e) {
+            statusHandler
+                    .handle(Priority.WARN, "Unable to save preferences", e);
+        }
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        if (connection != null) {
             ConnectionSubscriber.unsubscribe(connection);
             connection.close();
         }
     }
+
 }

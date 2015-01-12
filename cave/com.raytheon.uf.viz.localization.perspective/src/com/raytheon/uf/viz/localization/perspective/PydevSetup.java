@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.localization.perspective;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,13 +30,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PydevShowBrowserMessage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PydevRootPrefs;
 import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -56,6 +61,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------- -------- ----------- --------------------------
  * May 01, 2013  1967     njensen     Initial creation
  * Oct 11, 2013  2441     bsteffen    Make initialize async.
+ * May 09, 2014  3075     njensen     Updates for pydev 3.4.1
  * 
  * </pre>
  * 
@@ -73,6 +79,7 @@ public class PydevSetup {
      * annoyances as possible.
      */
     public static void preparePydev() {
+        preventPydevEclipsePopup();
         preventFundingPopup();
         initializeInterpreterAsync();
     }
@@ -156,7 +163,9 @@ public class PydevSetup {
                          * at the time of this writing.
                          */
                         monitor.beginTask("Examining python path.", 3832);
-                        mgr.setInfos(infoList, null, monitor);
+                        Set<String> interpretersToRestore = new HashSet<String>();
+                        interpretersToRestore.add(pathToFile);
+                        mgr.setInfos(infoList, interpretersToRestore, monitor);
                     } else {
                         if (retry) {
                             throw new Exception(
@@ -200,12 +209,8 @@ public class PydevSetup {
             base = stateLocation.toFile();
 
             String additionalInfoInterpreter = info.getExecutableOrJar();
-            File file = new File(
-                    base,
-                    manager.getManagerRelatedName()
-                            + "_"
-                            + StringUtils
-                                    .getExeAsFileSystemValidPath(additionalInfoInterpreter));
+            File file = new File(base, manager.getManagerRelatedName() + "_v1_"
+                    + StringUtils.md5(additionalInfoInterpreter));
 
             if (!file.exists()) {
                 file.mkdirs();
@@ -233,4 +238,18 @@ public class PydevSetup {
                 "true");
     }
 
+    /**
+     * Sets the preference values to prevent pydev from popping up a dialog
+     * about some settings for running python files in Eclipse. This only
+     * pertains to running python inside Eclipse, not viz, so we don't want the
+     * popup.
+     */
+    public static void preventPydevEclipsePopup() {
+        PydevRootPrefs.setCheckPreferredPydevSettings(false);
+        IEclipsePreferences debug = InstanceScope.INSTANCE
+                .getNode("org.eclipse.debug.ui");
+        debug.put("org.eclipse.debug.ui.wait_for_build", "never");
+        debug.put("org.eclipse.debug.ui.build_before_launch", "false");
+        debug.put("org.eclipse.debug.ui.UseContextualLaunch", "");
+    }
 }

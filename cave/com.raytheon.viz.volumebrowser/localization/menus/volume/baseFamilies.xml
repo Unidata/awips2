@@ -30,7 +30,7 @@
 
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="GFS CONUS 40km" id="GFS-40km" useReferenceTime="true">
-		<substitute key="modelName" value="GFS212"/>
+		<substitute key="modelName" value="GFS212"/> 
 		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="41"/>
 	</contribute>

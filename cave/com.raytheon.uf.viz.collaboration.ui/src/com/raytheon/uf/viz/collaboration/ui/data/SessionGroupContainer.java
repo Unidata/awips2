@@ -21,15 +21,14 @@ package com.raytheon.uf.viz.collaboration.ui.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 
 /**
- * TODO Add Description
+ * Retrieve session objects from contacts list
  * 
  * <pre>
  * 
@@ -38,31 +37,34 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 6, 2012            rferrel     Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
+ * Oct 08, 2014 3705       bclement    extends TreeObjectContainer
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
+public class SessionGroupContainer extends TreeObjectContainer {
 
-public class SessionGroupContainer {
+    public SessionGroupContainer() {
+        super("Active Sessions", "session_group");
+    }
 
-    public List<Object> getObjects() {
+    public Object[] getObjects() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
-            return Collections.emptyList();
+            return new Object[0];
         }
         Collection<ISession> sessions = connection.getSessions();
         List<Object> result = new ArrayList<Object>();
         for (ISession session : sessions) {
             if (session instanceof IVenueSession) {
-                if (((IVenueSession) session).getVenue().getInfo()
-                        .isPersistent() == false) {
-                    result.add(session);
-                }
+                result.add(session);
             }
         }
-        return result;
+        return result.toArray();
     }
+
 }

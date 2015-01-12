@@ -35,7 +35,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -48,16 +47,13 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator.FrameChangeMode;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator.FrameChangeOperation;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
-import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
-import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource.LegendMode;
@@ -70,7 +66,6 @@ import com.raytheon.viz.ui.color.IBackgroundColorChangedListener;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
-import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.ui.input.PanHandler;
 import com.raytheon.viz.ui.panes.PaneManager;
@@ -96,7 +91,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *      Mar 21, 2013       1638     mschenke    Changed map scales not tied to d2d
  *      Aug  9, 2013   DR 16427     D. Friedman Swap additional input handlers.
  *      Oct 10, 2013    #2104       mschenke    Switched to use MapScalesManager
- *      
+ *      Jul 15, 2014     2954       njensen     Updated init() for MapScalesManager change
+ *      Aug 25, 2014     3467       mapeters    Removed changing of editability from swapPanes().
+ * 
  * </pre>
  * 
  * @author chammack
@@ -112,8 +109,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
     private PaneManager paneManager;
 
     private LoopProperties loopProperties;
-
-    private AbstractVizResource<?, ?> editableResource = null;
 
     private Bundle bundleToLoad = null;
 
@@ -141,18 +136,8 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         String myId = site.getId() + UiUtil.SECONDARY_ID_SEPARATOR
                 + site.getSecondaryId();
 
-        for (ManagedMapScale scale : MapScalesManager.getInstance()
-                .getScalesForPart(myId)) {
-            try {
-                Bundle b = scale.getScaleBundle();
-                b.setView(myId);
-                bundleToLoad = b;
-            } catch (SerializationException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error deserializing bundle for scale: " + scale, e);
-            }
-            break;
-        }
+        bundleToLoad = MapScalesManager.getInstance().getScaleBundleForPart(
+                myId);
     }
 
     @Override
@@ -284,6 +269,7 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
      * 
      * @see com.raytheon.viz.core.IDisplayPaneContainer#getActiveDisplayPane()
      */
+    @Override
     public IDisplayPane getActiveDisplayPane() {
         return paneManager.getActiveDisplayPane();
     }
@@ -377,21 +363,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                 dPane.getRenderableDisplay().setSwapping(true);
                 if (dPane.isVisible() == false) {
                     editorHiddenDisplays.add(dPane.getRenderableDisplay());
-                }
-
-                if (editableResource == null) {
-                    for (ResourcePair rp : dPane.getDescriptor()
-                            .getResourceList()) {
-                        AbstractVizResource<?, ?> rsc = rp.getResource();
-                        if (rsc != null
-                                && rsc.hasCapability(EditableCapability.class)) {
-                            if (rsc.getCapability(EditableCapability.class)
-                                    .isEditable()) {
-                                editableResource = rsc;
-                                break;
-                            }
-                        }
-                    }
                 }
             }
 
@@ -584,16 +555,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                     }
                 }
 
-                // Set up editableness
-                if (editableResource != null) {
-                    EditableManager.makeEditable(editableResource, false);
-                }
-
-                this.editableResource = editableResource;
-                if (this.editableResource != null) {
-                    EditableManager.makeEditable(this.editableResource, true);
-                }
-
                 theEditor.getBackgroundColor().setColor(BGColorMode.EDITOR,
                         myRenderables[0].getBackgroundColor());
 
@@ -774,15 +735,18 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
             ISelectedPanesChangedListener listener) {
     }
 
+    @Override
     public void registerMouseHandler(IInputHandler handler,
             InputPriority priority) {
         paneManager.registerMouseHandler(handler, priority);
     }
 
+    @Override
     public void registerMouseHandler(IInputHandler handler) {
         paneManager.registerMouseHandler(handler);
     }
 
+    @Override
     public void unregisterMouseHandler(IInputHandler handler) {
         paneManager.unregisterMouseHandler(handler);
     }

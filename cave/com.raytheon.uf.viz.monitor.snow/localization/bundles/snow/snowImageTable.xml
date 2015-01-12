@@ -20,20 +20,29 @@
     -->
 <bundle>
     <displayList>
-        <displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <descriptor xsi:type="mapDescriptor" currentAnimationMode="Temporal">
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor"
+                currentAnimationMode="Temporal">
                 <resource>
                     <loadProperties loadWithoutData="false">
                         <capabilities>
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
-                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#9b9b9b" />
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
-                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="true" isHoverOn="false"
+                        isVisible="true">
+                        <pdProps maxDisplayWidth="100000000"
+                            minDisplayWidth="0" />
                     </properties>
-                    <resourceData xsi:type="spiResourceData" pixelSizeHint="45">
+                    <resourceData xsi:type="spiResourceData"
+                        pixelSizeHint="45">
                         <filename>basemaps/MTR.spi</filename>
                         <mapName>METAR Station Locations</mapName>
                     </resourceData>
@@ -45,27 +54,32 @@
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true"/>
-                    <resourceData xsi:type="plotResourceData" plotMissingData="false" plotSource="METARS in SNOW Monitor Area " 
-                    	plotModelFile="fssMetar.svg" spiFile="basemaps/MTR.spi" 
-                    	retrieveData="false" isUpdatingOnMetadataOnly="true" 
-                    	isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="false">
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotMissingData="false" plotSource="METARS in SNOW Monitor Area "
+                        plotModelFile="fssMetar.svg" spiFile="basemaps/MTR.spi"
+                        retrieveData="false" isUpdatingOnMetadataOnly="true"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        isTopOfTheHour="false">
                         <metadataMap>
                             <mapping key="pluginName">
-                                <constraint constraintValue="fssobs" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="cwa">
-                                <constraint constraintValue="${cwa}" constraintType="EQUALS"/>
+                                <constraint constraintValue="fssobs"
+                                    constraintType="EQUALS" />
                             </mapping>
                             <mapping key="reportType">
-                                <constraint constraintValue="METAR, SPECI" constraintType="IN"/>
+                                <constraint constraintValue="METAR, SPECI"
+                                    constraintType="IN" />
                             </mapping>
-                            <mapping key="monitorUse">
-                                <constraint constraintValue="snow" constraintType="EQUALS"/>
+                            <mapping key="location.stationId">
+                                <constraint constraintValue="${stations}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
-                        <binOffset virtualOffset="0" posOffset="1800" negOffset="1800"/>
-                        <alertParser xsi:type="plotAlertParser"/>
+                        <binOffset virtualOffset="0"
+                            posOffset="1800" negOffset="1800" />
+                        <alertParser xsi:type="plotAlertParser" />
                     </resourceData>
                 </resource>
                 <!-- **************************Mesowest************************************ -->
@@ -75,22 +89,28 @@
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true"/>
-                    <resourceData xsi:type="plotResourceData" plotMissingData="false" plotSource="LDAD MESONET in SNOW Monitor Area" 
-                    	plotModelFile="fssMetar.svg" retrieveData="false" isUpdatingOnMetadataOnly="true" 
-                    	isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="false">
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotMissingData="false"
+                        plotSource="LDAD MESONET in SNOW Monitor Area"
+                        plotModelFile="fssMetar.svg" retrieveData="false"
+                        isUpdatingOnMetadataOnly="true"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        isTopOfTheHour="false">
                         <metadataMap>
                             <mapping key="pluginName">
-                                <constraint constraintValue="fssobs" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="cwa">
-                                <constraint constraintValue="${cwa}" constraintType="EQUALS"/>
+                                <constraint constraintValue="fssobs"
+                                    constraintType="EQUALS" />
                             </mapping>
                             <mapping key="reportType">
-                                <constraint constraintValue="mesonet" constraintType="EQUALS"/>
+                                <constraint constraintValue="mesonet"
+                                    constraintType="EQUALS" />
                             </mapping>
-                            <mapping key="monitorUse">
-                                <constraint constraintValue="snow" constraintType="EQUALS"/>
+                            <mapping key="location.stationId">
+                                <constraint constraintValue="${stations}"
+                                    constraintType="IN" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
@@ -102,10 +122,14 @@
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true"/>
-                    <resourceData xsi:type="snowResourceData" plotSource="SNOW Table Display"/>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="snowResourceData"
+                        plotSource="SNOW Table Display" />
                 </resource>
-                <timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
+                <timeMatcher xsi:type="d2DTimeMatcher"
+                    deltaFilter="0" forecastFilter="0" />
                 <numberOfFrames>12</numberOfFrames>
             </descriptor>
         </displays>

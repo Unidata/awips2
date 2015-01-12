@@ -23,6 +23,7 @@ import java.nio.FloatBuffer;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
@@ -37,8 +38,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
@@ -73,6 +74,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    11Nov2009    2037        dhladky    Initial Creation.
  *    16Jun2012    14386       zhao       Fixed a bug causing auto update to fail; 
  *                                        also modified to keep only latest Fog record for each frame.
+ *    29Jul2014    3465        mapeters   Updated deprecated drawString() calls.
  * </pre>
  * 
  * @author dhladky
@@ -349,20 +351,27 @@ public class FogResource extends
 
         target.clearClippingPlane();
 
-        target.drawString(font, "LOW", pixel1[0], pixel1[1], 0,
-                TextStyle.BLANKED, getCapability(ColorableCapability.class)
-                        .getColor(), HorizontalAlignment.LEFT,
-                VerticalAlignment.MIDDLE, 0.0);
+        RGB color = getCapability(ColorableCapability.class).getColor();
+        DrawableString[] strings = new DrawableString[3];
+        strings[0] = new DrawableString("LOW", color);
+        strings[0].font = font;
+        strings[0].setCoordinates(pixel1[0], pixel1[1]);
+        strings[0].addTextStyle(TextStyle.BLANKED);
+        strings[0].verticallAlignment = VerticalAlignment.MIDDLE;
 
-        target.drawString(font, "MODERATE", pixel2[0], pixel2[1], 0,
-                TextStyle.BLANKED, getCapability(ColorableCapability.class)
-                        .getColor(), HorizontalAlignment.LEFT,
-                VerticalAlignment.MIDDLE, 0.0);
+        strings[1] = new DrawableString("MODERATE", color);
+        strings[1].font = font;
+        strings[1].setCoordinates(pixel2[0], pixel2[1]);
+        strings[1].addTextStyle(TextStyle.BLANKED);
+        strings[1].verticallAlignment = VerticalAlignment.MIDDLE;
 
-        target.drawString(font, "HIGH", pixel3[0], pixel3[1], 0,
-                TextStyle.BLANKED, getCapability(ColorableCapability.class)
-                        .getColor(), HorizontalAlignment.LEFT,
-                VerticalAlignment.MIDDLE, 0.0);
+        strings[2] = new DrawableString("HIGH", color);
+        strings[2].font = font;
+        strings[2].setCoordinates(pixel3[0], pixel3[1]);
+        strings[2].addTextStyle(TextStyle.BLANKED);
+        strings[2].verticallAlignment = VerticalAlignment.MIDDLE;
+
+        target.drawStrings(strings);
     }
 
     @Override

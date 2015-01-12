@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 8, 2009             snaples     Initial creation
+ * Feb 2, 2014  16201      snaples      Added saved data flag support
  * 
  * </pre>
  * 
@@ -91,6 +92,8 @@ public class AddPseudoGageDialog extends CaveSWTDialog {
     private String pgageId;
 
     private MPEGageResource resource;
+
+    private MPEDisplayManager mgr;
 
     private static final String psstr = "PSEUDO";
 
@@ -124,7 +127,8 @@ public class AddPseudoGageDialog extends CaveSWTDialog {
     @Override
     protected void initializeComponents(Shell shell) {
         font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
-        datetime = MPEDisplayManager.getCurrent().getCurrentEditDate();
+        mgr = MPEDisplayManager.getCurrent();
+        datetime = mgr.getCurrentEditDate();
         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -219,6 +223,7 @@ public class AddPseudoGageDialog extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 writePGage();
+                mgr.setSavedData(false);
                 close();
             }
         });

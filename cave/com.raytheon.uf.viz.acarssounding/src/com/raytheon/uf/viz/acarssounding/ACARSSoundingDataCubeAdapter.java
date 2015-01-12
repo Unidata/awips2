@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingLayer;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
@@ -38,13 +39,12 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.datastorage.records.StringDataRecord;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.wxmath.ZToPsa;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
 import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
 
@@ -132,7 +132,7 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
                 pointInventory.initTree(DerivedParameterGenerator
                         .getDerParLibrary());
                 this.inventory = pointInventory;
-            } catch (VizException e) {
+            } catch (DataCubeException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
@@ -141,7 +141,8 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
 
     @Override
     public PointDataContainer getBaseRecords(Collection<String> baseParameters,
-            Map<String, RequestConstraint> queryParams) throws VizException {
+            Map<String, RequestConstraint> queryParams)
+            throws DataCubeException {
         List<String> baseParams = new ArrayList<String>(baseParameters);
 
         PluginDataObject[] pdos = getData(queryParams, null);

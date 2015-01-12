@@ -54,13 +54,13 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.TVSTable;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.SortDirection;
 import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlarms;
 

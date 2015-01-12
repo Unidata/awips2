@@ -103,6 +103,9 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * ------------ ---------- ----------- --------------------------
  * May 28, 2009 2476       mpduff     Initial creation.
  * Mar 08, 2013 15725      snaples    Updated to fix resort issues when editing value.
+ * Jan 28, 2014 16994      snaples    Updated populateGridCombo to get correct filename prefix for matching up selection.
+ * Feb 02, 2014  16201     snaples    Added saved data flag support
+ * Apr 16, 2014  3025      mpduff     Fix sort method.
  * 
  * </pre>
  * 
@@ -486,8 +489,8 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         for (int i = 0; i < columnData.size(); i++) {
             if (columnData.get(i).isDataColumn()) {
                 gridCombo.addItem(columnData.get(i).getName());
-                if (selectedGrid
-                        .equalsIgnoreCase(columnData.get(i).getPrefix())) {
+                if (selectedGrid.equalsIgnoreCase(columnData.get(i)
+                        .getProductDescriptor().getProductFilenamePrefix())) {
                     gridComboSelection = gridSelectionIndex;
                 }
                 gridSelectionIndex++;
@@ -525,6 +528,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 saveChanges();
+                displayManager.setSavedData(false);
             }
         });
 
@@ -1134,20 +1138,25 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                 response = -1;
             } else {
                 if (ascending) {
-                    if (o1.toString().trim().equalsIgnoreCase("M")) {
-                        response = -1;
-                    } else if (o2.toString().trim().equalsIgnoreCase("M")) {
-                        response = 1;
-                    } else {
-                        response = o1.compareTo(o2);
+                    // Check for equality first
+                    response = o1.compareTo(o2);
+                    if (response != 0) {
+                        if (o1.toString().trim().equalsIgnoreCase("M")) {
+                            response = -1;
+                        } else if (o2.toString().trim().equalsIgnoreCase("M")) {
+                            response = 1;
+                        }
                     }
                 } else {
-                    if (o1.toString().trim().equalsIgnoreCase("M")) {
-                        response = 1;
-                    } else if (o2.toString().trim().equalsIgnoreCase("M")) {
-                        response = -1;
-                    } else {
-                        response = o2.compareTo(o1);
+                    // Check for equality first
+                    response = o1.compareTo(o2);
+                    response *= -1;
+                    if (response != 0) {
+                        if (o1.toString().trim().equalsIgnoreCase("M")) {
+                            response = 1;
+                        } else if (o2.toString().trim().equalsIgnoreCase("M")) {
+                            response = -1;
+                        }
                     }
                 }
             }
@@ -1313,12 +1322,11 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         dispose();
     }
 
-    public void setDataChanged(boolean dataChanged)
-    {
-    	this.dataChanged = dataChanged;
+    public void setDataChanged(boolean dataChanged) {
+        this.dataChanged = dataChanged;
     }
 
-	/**
+    /**
      * Set the sort order of the columns.
      * 
      * @param settings

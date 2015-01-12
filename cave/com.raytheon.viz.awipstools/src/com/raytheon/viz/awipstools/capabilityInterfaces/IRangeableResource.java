@@ -19,28 +19,34 @@
  **/
 package com.raytheon.viz.awipstools.capabilityInterfaces;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
+import javax.measure.Measure;
+import javax.measure.quantity.Length;
+
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.viz.awipstools.ui.layer.RangeRingsOverlayLayer;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Interface for {@link AbstractVizResource}s that are able to provide
+ * information that can be used to draw range rings.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 11, 2014  2061     bsteffen    Switch from Amount to Measure.
  * 
  * </pre>
  * 
  * @author bgonzale
  * @version 1.0
+ * @see RangeRingsOverlayLayer
  */
 
 public interface IRangeableResource {
 
-    public Amount getElevation();
+    public Measure<?, Length> getElevation();
 
     public Coordinate getCenter();
 

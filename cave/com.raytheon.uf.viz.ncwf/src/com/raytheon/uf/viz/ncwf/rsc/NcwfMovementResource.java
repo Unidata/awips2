@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.ncwf.rsc;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
@@ -33,6 +34,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintTyp
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -53,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 16, 2009            bsteffen     Initial creation
+ * Jul 24, 2014 3429       mapeters     Updated deprecated drawLine() calls.
  * 
  * </pre>
  * 
@@ -100,6 +103,10 @@ public class NcwfMovementResource extends
             return;
         }
 
+        List<DrawableLine> lines = new ArrayList<DrawableLine>(
+                curRecords.size() * 2);
+        List<DrawableString> strings = new ArrayList<DrawableString>(
+                curRecords.size() * 2);
         for (BUFRncwf record : curRecords) {
             RGB color = getCapability(ColorableCapability.class).getColor();
             // This should adjust the direction so 0 is north
@@ -115,7 +122,9 @@ public class NcwfMovementResource extends
             double[] or_centerPixel = descriptor.worldToPixel(new double[] {
                     or_centerll.x, or_centerll.y, or_centerll.z });
             // 90 are added to dir so that 0 is now on the right
-            paintArrowHead(target, centerPixel, spd, dir + 90, color);
+            DrawableLine arrowhead = createArrowHead(target, centerPixel, spd,
+                    dir + 90, color);
+            lines.add(arrowhead);
 
             // Get the string objects.
             DrawableString topStr = new DrawableString(String.format("%.0f",
@@ -154,27 +163,40 @@ public class NcwfMovementResource extends
                 spdStr.horizontalAlignment = HorizontalAlignment.LEFT;
             }
             // Draw the tops string
-            target.drawStrings(topStr);
-            // Draw the body of the arrow
-            target.drawLine(centerPixel[0], centerPixel[1], centerPixel[2],
-                    or_centerPixel[0], or_centerPixel[1], or_centerPixel[2],
-                    color, 1.5f);
-            // Draw the wind speed string
-            target.drawStrings(spdStr);
+            strings.add(topStr);
 
+            // Draw the body of the arrow
+            DrawableLine line = new DrawableLine();
+            line.setCoordinates(centerPixel[0], centerPixel[1], centerPixel[2]);
+            line.addPoint(or_centerPixel[0], or_centerPixel[1], or_centerPixel[2]);
+            line.basics.color = color;
+            line.width = 1.5f;
+            lines.add(line);
+
+            // Draw the wind speed string
+            strings.add(spdStr);
         }
+        target.drawLine(lines.toArray(new DrawableLine[0]));
+        target.drawStrings(strings);
     }
 
-    private void paintArrowHead(IGraphicsTarget target, double[] center,
+    private DrawableLine createArrowHead(IGraphicsTarget target,
+            double[] center,
             Double length, Double dir, RGB color) throws VizException {
         double[] pointPixel = target.getPointOnCircle(center[0], center[1],
                 center[2], length, dir + 210);
-        target.drawLine(pointPixel[0], pointPixel[1], pointPixel[2], center[0],
-                center[1], center[2], color, 1.5f);
-        pointPixel = target.getPointOnCircle(center[0], center[1], center[2],
+
+        DrawableLine line = new DrawableLine();
+        line = new DrawableLine();
+        line.setCoordinates(pointPixel[0], pointPixel[1], pointPixel[2]);
+        line.addPoint(center[0], center[1], center[2]);
+        double[] pointPixel2 = target.getPointOnCircle(center[0], center[1],
+                center[2],
                 length, dir + 150);
-        target.drawLine(pointPixel[0], pointPixel[1], pointPixel[2], center[0],
-                center[1], center[2], color, 1.5f);
+        line.addPoint(pointPixel2[0], pointPixel2[1], pointPixel2[2]);
+        line.basics.color = color;
+        line.width = 1.5f;
+        return line;
     }
 
     private void updateRecords(DataTime displayedDataTime) throws VizException {

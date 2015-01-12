@@ -146,14 +146,16 @@
 		<command id="com.raytheon.viz.gfe.actions.ShowProcessMonitorDialog"
 			name="ShowProcessMonitorDialog">
 		</command>
-		<command id="com.raytheon.viz.gfe.actions.ShowDeleteSampleSetDialog"
-			name="ShowDeleteSampleSetDialog">
-		</command>
 		<command id="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
 			name="ShowLoadSampleSetDialog">
 		</command>
-		<command id="com.raytheon.viz.gfe.actions.ShowSaveSampleSetDialog"
-			name="ShowSaveSampleSetDialog">
+		<command id="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
+			name="ShowSaveDeleteSampleSetDialog">
+     <commandParameter
+           id="Action"
+           name="Action"
+           optional="false">
+     </commandParameter>
 		</command>
 		<command id="com.raytheon.viz.gfe.actions.ShowClearSamples"
 			name="ShowClearSamples">
@@ -361,6 +363,12 @@
         description="Site Activation"
         id="com.raytheon.viz.gfe.SiteActivation"
         name="GFE Site Activation">
+  </command>
+  <command
+        categoryId="com.raytheon.viz.gfe.GFECategory"
+        description="Coordinate Conversion"
+        id="com.raytheon.viz.gfe.CoordinateConversion"
+        name="GFE Coordinate Conversion">
   </command>
   <category
         description="GFE Edit Tools"
@@ -570,13 +578,6 @@
                 </reference>
             </activeWhen>
 		</handler>
-		<handler class="com.raytheon.viz.gfe.actions.ShowDeleteSampleSetDialog"
-			commandId="com.raytheon.viz.gfe.actions.ShowDeleteSampleSetDialog">
-            <activeWhen>
-                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-                </reference>
-            </activeWhen>
-		</handler>
 		<handler class="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
 			commandId="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog">
             <activeWhen>
@@ -584,8 +585,8 @@
                 </reference>
             </activeWhen>
 		</handler>
-		<handler class="com.raytheon.viz.gfe.actions.ShowSaveSampleSetDialog"
-			commandId="com.raytheon.viz.gfe.actions.ShowSaveSampleSetDialog">
+		<handler class="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog">
             <activeWhen>
                 <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
                 </reference>
@@ -975,6 +976,28 @@
         </reference>
      </activeWhen>
   </handler>
+  <handler
+        class="com.raytheon.viz.gfe.actions.CoordinateConversionHandler"
+        commandId="com.raytheon.viz.gfe.CoordinateConversion">
+  </handler>
+  <handler
+         class="com.raytheon.viz.gfe.export.image.GfeExportImageHandler"
+         commandId="com.raytheon.uf.viz.image.export.save">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+  <handler
+         class="com.raytheon.viz.gfe.export.kml.GfeKmlExportHandler"
+         commandId="com.raytheon.uf.viz.kml.export.exportKML">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
 	</extension>
 	<extension point="com.raytheon.uf.viz.core.resource">
 		<resource class="com.raytheon.viz.gfe.rsc.GFEResource" name="GFEResource"
@@ -1125,6 +1148,13 @@
                       label="Site Activation..."
                       style="push">
                 </command>
+                <!-- Commented out for now. May re-enable when DR #15463 is worked
+                <command
+                      commandId="com.raytheon.viz.gfe.CoordinateConversion"
+                      label="Coordinate Conversion..."
+                      style="push">
+                </command>
+                -->
 			</menu>
 			<menu label="WeatherElement" mnemonic="W">
 				<visibleWhen>
@@ -1314,11 +1344,19 @@
 					<command commandId="com.raytheon.viz.gfe.actions.ShowClearSamples"
 						label="Clear">
 					</command>
-					<command commandId="com.raytheon.viz.gfe.actions.ShowSaveSampleSetDialog"
+					<command commandId="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
 						label="Save...">
+        <parameter
+              name="Action"
+              value="Save">
+        </parameter>
 					</command>
-					<command commandId="com.raytheon.viz.gfe.actions.ShowDeleteSampleSetDialog"
+					<command commandId="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
 						label="Delete...">
+        <parameter
+              name="Action"
+              value="Delete">
+        </parameter>
 					</command>
 					<separator name="xxx" visible="true" />
 					<command

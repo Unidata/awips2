@@ -22,11 +22,11 @@ package com.raytheon.uf.viz.monitor.ui.dialogs;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
 
-import com.raytheon.uf.common.monitor.data.ColumnAttribData;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
+import com.raytheon.uf.viz.monitor.data.ColumnAttribData;
 import com.raytheon.uf.viz.monitor.data.TableData;
 
 /**

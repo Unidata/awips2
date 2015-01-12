@@ -84,6 +84,7 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
  *                                     logging for save performance
  * 04/23/13     #1949      rjpeter     Added logging of number of records.
  * 06/26/13     #2044      randerso    Fixed error message priority
+ * 04/03/2014   #2737      randerso    Moved clientSendStatus from SaveGridRequest to SaveGFEGridRequest
  * </pre>
  * 
  * @author chammack
@@ -618,8 +619,7 @@ public class DbParm extends Parm {
                 if (size > GfeClientConfig.getInstance().getGridSaveThreshold()) {
                     TimeRange tr = new TimeRange(saveTime.getStart(), data
                             .getGridTime().getEnd());
-                    sgr.add(new SaveGridRequest(getParmID(), tr, records,
-                            dataManager.clientISCSendStatus()));
+                    sgr.add(new SaveGridRequest(getParmID(), tr, records));
 
                     // save this batch of grids
                     if (doSave(sgr)) {
@@ -647,8 +647,7 @@ public class DbParm extends Parm {
 
             // if any grids or any time not saved
             if ((size > 0) || (saveTime.getDuration() > 0)) {
-                sgr.add(new SaveGridRequest(getParmID(), saveTime, records,
-                        dataManager.clientISCSendStatus()));
+                sgr.add(new SaveGridRequest(getParmID(), saveTime, records));
                 recordCount = records.size();
             }
 

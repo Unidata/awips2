@@ -54,12 +54,15 @@ import com.vividsolutions.jts.geom.Envelope;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *  12-03-09     #3698      bgonzale    Range rings overlay with labels 
- *                                      for radius in km and miles and
- *                                      labels for elevation in ftMSL and
- *                                      kmAgl.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 03, 2009  3698     bgonzale    Range rings overlay with labels 
+ *                                    for radius in km and miles and
+ *                                    labels for elevation in ftMSL and
+ *                                    kmAgl.
+ * Jun 11, 2014  2061     bsteffen    Switch IRangeableResource to return
+ *                                    Measure.
+ * 
  * 
  * 
  * </pre>
@@ -139,8 +142,7 @@ public class RangeRingsOverlayLayer implements IRenderable {
         this.rangedResource = rangedResource;
         this.center = this.rangedResource.getCenter();
         this.resourceSourceElevationInMeters = this.rangedResource
-                .getElevation().getUnit().getConverterTo(SI.METER)
-                .convert(this.rangedResource.getElevation().doubleValue());
+                .getElevation().doubleValue(SI.METER);
         this.gc.setStartingGeographicPoint(this.center.x, this.center.y);
         updateTilt();
     }
@@ -151,15 +153,16 @@ public class RangeRingsOverlayLayer implements IRenderable {
      * @seecom.raytheon.viz.core.rsc.IVizResource#paint(com.raytheon.viz.core.
      * IGraphicsTarget, com.raytheon.viz.core.PixelExtent, double, float)
      */
+    @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         // calculate ring spacing to use, in miles
-        float zoomLevel = (float) paintProps.getZoomLevel();
+        float zoomLevel = paintProps.getZoomLevel();
         IExtent pixelExtent = paintProps.getView().getExtent();
 
         float metersZoomConstant = 500000;
         int mapWidth = descriptor.getMapWidth();
-        float dataZoom = (float) ((mapWidth * zoomLevel) / metersZoomConstant);
+        float dataZoom = (mapWidth * zoomLevel) / metersZoomConstant;
         double dRing = getStandardRadius(dataZoom);
 
         IWireframeShape shape = getRangeRingsWireframe(dRing, pixelExtent,

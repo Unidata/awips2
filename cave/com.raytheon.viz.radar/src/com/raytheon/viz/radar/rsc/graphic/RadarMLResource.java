@@ -34,6 +34,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedContourVectorPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVector;
@@ -50,12 +51,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -83,6 +82,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 13, 2103 2223       njensen     Overrode remove() to fix memory leak
  * Jul 28, 2013 2227       mnash       Fixing the projection issues, moving things
  *                                     around for better logical separation
+ * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * </pre>
  * 
  * @author mnash
@@ -220,7 +221,6 @@ public class RadarMLResource extends RadarGraphicsResource {
         info.verticallAlignment = VerticalAlignment.TOP;
         info.setCoordinates(extent.getMinX() + X_OFFSET * ratio,
                 extent.getMinY() + Y_OFFSET * ratio);
-        info.textStyle = TextStyle.NORMAL;
         target.drawStrings(info);
         target.setupClippingPlane(extent);
     }

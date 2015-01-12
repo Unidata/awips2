@@ -74,6 +74,7 @@ import com.raytheon.viz.ui.input.InputManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            njensen     Initial creation
+ * Mar 25, 2014 2935       njensen     Fix refresh issue
  * 
  * </pre>
  * 
@@ -167,7 +168,15 @@ public class CollaborationEditor extends EditorPart implements
             displayMap.put(displayId, display);
 
             fireListeners(displayId, display, RemoteDisplayChangeType.CREATED);
-            if (currentActiveDisplay == displayId) {
+            if (currentActiveDisplay == displayId || currentActiveDisplay == -1) {
+                /*
+                 * when transferring leader, it's possible the leader told us to
+                 * activate a display that we don't have so we request it (see
+                 * activateRemoteDisplay when display==null), so the leader
+                 * responds with this create event, but then the display had
+                 * missed the activate event so we still have to activate it,
+                 * hence the == -1 check
+                 */
                 ActivateRemoteDisplay activate = new ActivateRemoteDisplay();
                 activate.setDisplayId(displayId);
                 activateRemoteDisplay(activate);

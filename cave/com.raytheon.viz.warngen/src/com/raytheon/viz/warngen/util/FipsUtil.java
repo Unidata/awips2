@@ -50,6 +50,7 @@ import com.raytheon.viz.warnings.DateUtil;
  * Apr 25, 2013 1877        jsanchez    Sorted the UGC line for cancellations.
  * May 10, 2013 1951        rjpeter     Updated ugcZones references
  * May 31, 2013 DR 16237    D. Friedman Added getUgcFromFips.
+ * Mar 17, 2014 DR 16309    Qinglu Lin  Changed parseCountyHeader() to parseHeader() and updated it..
  * </pre>
  * 
  * @author bwoodle
@@ -101,7 +102,7 @@ public class FipsUtil {
      */
     public static String getUgcLine(AffectedAreas[] areas, Date endtime,
             int interval) {
-        // TODO: If changed, change parseCountyHeader as well to reverse
+        // TODO: If changed, change parseHeader as well to reverse
         StringBuffer rval = new StringBuffer();
         ArrayList<String> countiesOrZones = new ArrayList<String>();
         DateUtil du = new DateUtil();
@@ -177,16 +178,16 @@ public class FipsUtil {
         return rval.toString();
     }
 
-    public static Map<String, String[]> parseCountyHeader(String countyHeader) {
+    public static Map<String, String[]> parseHeader(String header, String countyOrMarine) {
         Map<String, String[]> stateToIdMap = new HashMap<String, String[]>();
         // Remove new lines:
-        String[] lines = countyHeader.split("[\n]");
-        countyHeader = "";
+        String[] lines = header.split("[\n]");
+        header = "";
         for (String line : lines) {
-            countyHeader += line;
+            header += line;
         }
 
-        String[] ranges = countyHeader.split("[-]");
+        String[] ranges = header.split("[-]");
         List<String> curList = null;
         String curState = null;
         for (String range : ranges) {
@@ -197,7 +198,11 @@ public class FipsUtil {
                     stateToIdMap.put(curState,
                             curList.toArray(new String[curList.size()]));
                 }
-                curState = range.substring(0, 2);
+                if (!countyOrMarine.equals("Marine")) {
+                    curState = range.substring(0, 2);
+                } else {
+                    curState = ""; 
+                }
                 curList = new ArrayList<String>();
                 range = range.substring(3);
             }

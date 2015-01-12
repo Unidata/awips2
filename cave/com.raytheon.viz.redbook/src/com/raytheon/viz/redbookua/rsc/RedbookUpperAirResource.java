@@ -20,6 +20,7 @@
 package com.raytheon.viz.redbookua.rsc;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,8 +34,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -47,17 +49,14 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.HDF5Util;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -70,7 +69,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.viz.pointdata.PlotData;
-import com.raytheon.viz.pointdata.PlotModelFactory2;
+import com.raytheon.viz.pointdata.PlotModelFactory;
 import com.raytheon.viz.redbook.Activator;
 import com.raytheon.viz.redbook.RedbookWMOMap;
 import com.raytheon.viz.redbookua.RedbookUpperAirDecoder;
@@ -86,6 +85,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2010 1029       dfriedma    Initial creation
  * Jul 24, 2013 2203       njensen     Synchronized init and dispose of frames
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
+ * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() calls.
+ * Aug 11, 2014 3504       mapeters    Replaced deprecated IODataPreparer
+ *                                     instances with IRenderedImageCallback.
  * 
  * </pre>
  * 
@@ -106,7 +110,7 @@ public class RedbookUpperAirResource extends
 
     private String humanReadableName;
 
-    private PlotModelFactory2 plotModelFactory;
+    private PlotModelFactory plotModelFactory;
 
     private IGraphicsTarget graphicsTarget;
 
@@ -242,9 +246,9 @@ public class RedbookUpperAirResource extends
         this.graphicsTarget = target;
     }
 
-    protected PlotModelFactory2 getPlotModelFactory() {
+    protected PlotModelFactory getPlotModelFactory() {
         if (plotModelFactory == null) {
-            plotModelFactory = new PlotModelFactory2(getDescriptor(),
+            plotModelFactory = new PlotModelFactory(getDescriptor(),
                     "redbookuaDesign.svg");
             plotModelFactory.setColor(getCapability(ColorableCapability.class)
                     .getColor());
@@ -376,7 +380,7 @@ public class RedbookUpperAirResource extends
             if (pointData == null)
                 retrieveAndDecodeData();
 
-            PlotModelFactory2 pmf;
+            PlotModelFactory pmf;
 
             synchronized (job) {
                 plotSettingsChanged = false;
@@ -402,13 +406,19 @@ public class RedbookUpperAirResource extends
                                 .getFloat(RedbookUpperAirDecoder.P_LONGITUDE);
                         PlotData pd = new PlotData();
                         pd.addData(pdv);
-                        BufferedImage bImage = pmf.getStationPlot(pd, lat, lon);
+                        final BufferedImage bImage = pmf.getStationPlot(pd,
+                                lat, lon);
                         IImage image = null;
-                        if (bImage != null)
-                            image = target.initializeRaster(new IODataPreparer(
-                                    bImage, "rbua"/*
-                                                   * UUID.randomUUID().toString()
-                                                   */, 0), null);
+                        if (bImage != null) {
+                            image = target
+                                    .initializeRaster(new IRenderedImageCallback() {
+                                        @Override
+                                        public RenderedImage getImage()
+                                                throws VizException {
+                                            return bImage;
+                                        }
+                                    });
+                        }
                         images[i] = image;
                     }
                 }
@@ -516,11 +526,15 @@ public class RedbookUpperAirResource extends
 
             if (dumpTime != null && dumpTime.length() > 0) {
                 target.clearClippingPlane();
-                target.drawString(font, "Dump time: " + dumpTime, pe.getMinX()
-                        + 2 * xRatio, pe.getMaxY() - 2 * yRatio, 0,
-                        TextStyle.NORMAL,
-                        getCapability(ColorableCapability.class).getColor(),
-                        HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, 0.0);
+
+                DrawableString string = new DrawableString("Dump time: "
+                        + dumpTime, getCapability(ColorableCapability.class)
+                        .getColor());
+                string.font = font;
+                string.setCoordinates(pe.getMinX() + 2 * xRatio, pe.getMaxY()
+                        - 2 * yRatio);
+                target.drawStrings(string);
+
                 target.setupClippingPlane(new PixelExtent(getDescriptor()
                         .getGridGeometry().getGridRange()));
             }

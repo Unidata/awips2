@@ -40,7 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
- * TODO Add Description
+ * provides access to alias information stored in localization
  * 
  * <pre>
  * 

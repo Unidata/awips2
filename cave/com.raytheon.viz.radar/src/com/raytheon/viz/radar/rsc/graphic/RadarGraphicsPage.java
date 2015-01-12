@@ -20,11 +20,11 @@
 package com.raytheon.viz.radar.rsc.graphic;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
@@ -37,55 +37,38 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint.RadarProductType;
-import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendDataPacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.CellTrendVolumeScanPacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.CorrelatedShearPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
-import com.raytheon.uf.common.dataplugin.radar.level3.ETVSPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.HailPositivePacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.HailProbablePacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.HdaHailPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.HdaHailPacket.HdaHailPoint;
-import com.raytheon.uf.common.dataplugin.radar.level3.LinkedContourVectorPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVector;
-import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVectorPacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.MesocyclonePacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.MesocyclonePacket.MesocyclonePoint;
-import com.raytheon.uf.common.dataplugin.radar.level3.PrecipDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SCITDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SCITDataPacket.SCITDataCell;
-import com.raytheon.uf.common.dataplugin.radar.level3.STICirclePacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.SpecialGraphicSymbolPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SpecialGraphicSymbolPacket.SpecialGraphicPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.StormIDPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.StormIDPacket.StormIDPoint;
-import com.raytheon.uf.common.dataplugin.radar.level3.SuperObWindDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPoint;
-import com.raytheon.uf.common.dataplugin.radar.level3.TVSPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.TVSPacket.TVSPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.TextSymbolPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedContourVectorPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedVector;
 import com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedVectorPacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.VectorArrowPacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket.WindBarbPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.ReferencedGeometry;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -109,17 +92,21 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
- * TODO Add Description
+ * {@link IRenderable} for displaying a single "page" of radar symbology data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 8, 2009            chammack     Initial creation
- * 03/05/2013   DCS51     zwang        Handle GFM product 
- * 06/24/2013   DR16162   zwang        Remove "wind behind"
- * 11/20/2013   2488      randerso     Removed use of VeraMono font file
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 08, 2009           chammack    Initial creation
+ * Mar 05, 2013  DCS51    zwang       Handle GFM product 
+ * Jun 24, 2013  16162    zwang       Remove "wind behind"
+ * Nov 20, 2013  2488     randerso    Removed use of VeraMono font file
+ * Jun 04, 2014  3232     bsteffen    Cleanup.
+ * Aug 11, 2014  3504     mapeters    Replaced deprecated IODataPreparer
+ *                                    instances with IRenderedImageCallback.
+ * Sep 03, 2014  3574     njensen      Properly dispose objects
  * 
  * </pre>
  * 
@@ -128,10 +115,12 @@ import com.vividsolutions.jts.geom.LineString;
  */
 
 public class RadarGraphicsPage implements IRenderable {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarGraphicsPage.class);
 
     public static enum CoordinateSystem {
         LOCAL, SCREEN
-    };
+    }
 
     private IDescriptor descriptor;
 
@@ -239,8 +228,6 @@ public class RadarGraphicsPage implements IRenderable {
     public void addSymbologyPacket(SymbologyPacket sp, CoordinateSystem cs)
             throws VizException {
         List<ReferencedGeometry> localGeometries = new ArrayList<ReferencedGeometry>();
-        // System.out.println("Page : " + page + " Current Packet: "
-        // + sp.getClass());
         if (sp instanceof UnlinkedVectorPacket
                 || sp instanceof UnlinkedContourVectorPacket) {
             List<UnlinkedVector> vectors = (List<UnlinkedVector>) RadarHelper
@@ -351,9 +338,9 @@ public class RadarGraphicsPage implements IRenderable {
                                             RadarGraphicFunctions.MesocycloneType.MESOCYCLONE,
                                             color);
                         } catch (TransformException e) {
-                            e.printStackTrace();
+                            statusHandler.error(e.getLocalizedMessage(), e);
                         } catch (FactoryException e) {
-                            e.printStackTrace();
+                            statusHandler.error(e.getLocalizedMessage(), e);
                         }
 
                         if (pObject == null) {
@@ -385,11 +372,6 @@ public class RadarGraphicsPage implements IRenderable {
                             pObject.label = stormData.getStormID();
                             break POINT;
                         }
-                    } else if (currPoint instanceof WindBarbPoint) {
-
-                    } else {
-                        System.out.println("Need to display point: "
-                                + currPoint.getClass());
                     }
                 }
             }
@@ -399,22 +381,7 @@ public class RadarGraphicsPage implements IRenderable {
             for (Integer type : stormData.getDisplayPacketData().keySet()) {
                 for (SymbologyPacket currPacket : stormData
                         .getDisplayPacketData().get(type).values()) {
-                    if (currPacket instanceof CellTrendDataPacket) {
-                    } else if (currPacket instanceof CellTrendVolumeScanPacket) {
-                    } else if (currPacket instanceof HailProbablePacket) {
-                    } else if (currPacket instanceof HailPositivePacket) {
-                    } else if (currPacket instanceof HdaHailPacket) {
-                    } else if (currPacket instanceof LinkedVectorPacket
-                            || currPacket instanceof LinkedContourVectorPacket) {
-                    } else if (currPacket instanceof CorrelatedShearPacket) {
-                    } else if (currPacket instanceof MesocyclonePacket) {
-                    } else if (currPacket instanceof PrecipDataPacket) {
-                    } else if (currPacket instanceof SCITDataPacket) {
-                    } else if (currPacket instanceof SpecialGraphicSymbolPacket) {
-                    } else if (currPacket instanceof STICirclePacket) {
-                    } else if (currPacket instanceof StormIDPacket) {
-                    } else if (currPacket instanceof SuperObWindDataPacket) {
-                    } else if (currPacket instanceof TextSymbolPacket) {
+                    if (currPacket instanceof TextSymbolPacket) {
                         TextSymbolPacket tsp = (TextSymbolPacket) currPacket;
                         if ("\" ".equals(tsp.getTheText())) {
                             if (RadarDisplayManager.getInstance()
@@ -430,15 +397,6 @@ public class RadarGraphicsPage implements IRenderable {
                             getImage((TextSymbolPacket) currPacket, cs,
                                     localMap, screenMap);
                         }
-                    } else if (currPacket instanceof ETVSPacket) {
-                    } else if (currPacket instanceof TVSPacket) {
-                    } else if (currPacket instanceof UnlinkedVectorPacket
-                            || currPacket instanceof UnlinkedContourVectorPacket) {
-                    } else if (currPacket instanceof VectorArrowPacket) {
-                    } else if (currPacket instanceof WindBarbPacket) {
-                    } else {
-                        System.out.println("Need to display packet: "
-                                + currPacket.getClass());
                     }
                 }
             }
@@ -878,11 +836,11 @@ public class RadarGraphicsPage implements IRenderable {
 
                     this.localStringMap.put(coordID, mesoID);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
+                    statusHandler.error(e.getLocalizedMessage(), e);
                 } catch (TransformException e) {
-                    e.printStackTrace();
+                    statusHandler.error(e.getLocalizedMessage(), e);
                 } catch (FactoryException e) {
-                    e.printStackTrace();
+                    statusHandler.error(e.getLocalizedMessage(), e);
                 }
             }
         }
@@ -964,11 +922,16 @@ public class RadarGraphicsPage implements IRenderable {
             }
 
             barb.setWind(pU, pV, false);
-            BufferedImage imgBuf = barb.getWindImage(false, DisplayType.ARROW,
+            final BufferedImage imgBuf = barb.getWindImage(false,
+                    DisplayType.ARROW,
                     0.2);
-            IImage img = this.target.initializeRaster(new IODataPreparer(
-                    imgBuf, UUID.randomUUID().toString(), 0), null);
-            poWind.image = img;
+            poWind.image = target
+                    .initializeRaster(new IRenderedImageCallback() {
+                @Override
+                public RenderedImage getImage() throws VizException {
+                    return imgBuf;
+                }
+            });
 
             ReferencedCoordinate rc = referencedGfmCoord(wX, wY);
             try {
@@ -1137,9 +1100,9 @@ public class RadarGraphicsPage implements IRenderable {
                 break;
             }
         } catch (TransformException e) {
-            e.printStackTrace();
+            statusHandler.error(e.getLocalizedMessage(), e);
         } catch (FactoryException e) {
-            e.printStackTrace();
+            statusHandler.error(e.getLocalizedMessage(), e);
         }
 
         return images;
@@ -1454,6 +1417,21 @@ public class RadarGraphicsPage implements IRenderable {
         if (this.wireframeShape != null) {
             this.wireframeShape.dispose();
             this.wireframeShape = null;
+        }
+
+        if (this.gfmFcstWireframeShape != null) {
+            this.gfmFcstWireframeShape.dispose();
+            this.gfmFcstWireframeShape = null;
+        }
+
+        if (plotObjects != null) {
+            for (PlotObject po : plotObjects) {
+                if (po != null) {
+                    po.image.dispose();
+                    po.image = null;
+                }
+            }
+            plotObjects.clear();
         }
 
         if (this.font != null) {

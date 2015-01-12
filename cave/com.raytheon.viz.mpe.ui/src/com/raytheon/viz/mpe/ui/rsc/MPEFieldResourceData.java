@@ -271,10 +271,17 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
         case Index:
         case Locspan:
         case Locbias:
+        case LocspanDP:
+        case LocbiasDP:	
             return Unit.ONE;
+            
         case mintempPrism:
         case maxtempPrism:
             return NonSI.FAHRENHEIT;
+            
+        case precipRatioField:    
+            return Unit.ONE; //unit-less
+            
 		default:
 			return NonSI.INCH;
         }
@@ -283,17 +290,22 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
     public static Unit<?> getDataUnitsForField(DisplayFieldData fieldData) {
         switch (fieldData) {
         case Locbias:
-            return Unit.ONE.divide(100);
+        case LocbiasDP:
+            return Unit.ONE.divide(100);        
         case Height:
             return SI.METER;
         case Index:
         case Locspan:
-            return Unit.ONE;
+        case LocspanDP:
+            return Unit.ONE;  
         case Prism:
             return SI.MILLIMETER;
         case mintempPrism:
         case maxtempPrism:
             return NonSI.FAHRENHEIT.divide(10);
+            
+        case precipRatioField:    
+            return Unit.ONE.divide(100); //unit-less
             
         default :
         	return SI.MILLIMETER.divide(100);

@@ -51,6 +51,7 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 18 APR 2008  ###        lvenable    Initial creation
+ * 29 MAY 2014  #2841      randerso    Fix NPE when formatter fails to queue
  * 
  * </pre>
  * 
@@ -111,6 +112,7 @@ public class OutputLogComp extends Composite {
         this.pack();
 
         addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 textFont.dispose();
             }
@@ -172,9 +174,9 @@ public class OutputLogComp extends Composite {
         StringBuilder buffer = new StringBuilder();
         AbstractGfeTask task = TaskManager.getInstance().getTask(taskName);
         File file = null;
-        if (task != null && (file = task.getLogFile()) != null) {
+        if ((task != null) && ((file = task.getLogFile()) != null)) {
             this.fileName = taskName;
-            if (file != null && file.exists()) {
+            if ((file != null) && file.exists()) {
                 try {
                     BufferedReader in = new BufferedReader(new FileReader(file));
                     String str;
@@ -189,7 +191,7 @@ public class OutputLogComp extends Composite {
                 buffer.append("Log file " + file + " not found");
             }
         } else {
-            if (task.getStatus().equals(TaskStatus.CANCELED)) {
+            if ((task != null) && task.getStatus().equals(TaskStatus.CANCELED)) {
                 buffer.append(taskName + " was canceled\n");
             }
             buffer.append("No log file found for " + taskName);

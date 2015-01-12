@@ -22,14 +22,9 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.roster.IRosterEntry;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -37,6 +32,10 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
@@ -60,8 +59,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -69,19 +68,27 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
+import com.raytheon.uf.viz.core.sounds.SoundUtil;
 
 /**
  * The ViewPart of a text only room, contains methods that are used by the
@@ -94,13 +101,32 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 19, 2013 2563       bclement    reworked participant event logic
+ * Jan 28, 2014 2698       bclement    removed venue info
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Feb 18, 2014 2631       mpduff      Add processJoinAlert()
+ * Feb 24, 2014 2632       mpduff      Move playSound to CollaborationUtils
+ * Mar 05, 2014 2798       mpduff      Moved processJoinAlert() call from participantHandler
+ *                                         to participantArrived.
+ * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
+ * Mar 06, 2014 2848       bclement    get venueName directly from session
+ * Mar 11, 2014 #2865      lvenable    Added null checks in threads
+ * Mar 28, 2014 #2960      lvenable    Added check to make sure the SashForm is not getting
+ *                                     negative weights - set to zero if negative.
+ * Jun 17, 2014 3078       bclement    added private chat to menu and double click
+ * Jul 03, 2014 3342       bclement    added count to participants label
+ * Nov 26, 2014 3709       mapeters    added styleAndAppendText() taking fg and bg colors, 
+ *                                     use parent's colors map.
+ * Dec 02, 2014 3709       mapeters    added color actions for group chats without shared display.
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class SessionView extends AbstractSessionView implements IPrintableView {
+public class SessionView extends AbstractSessionView<VenueParticipant>
+        implements IPrintableView {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SessionView.class);
 
@@ -124,11 +150,11 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
 
     private Image highlightedDownArrow;
 
-    protected Action chatAction;
-
     protected SessionColorManager colorManager;
 
-    protected Map<RGB, Color> mappedColors;
+    private static UserColorConfigManager colorConfigManager;
+
+    protected boolean enableUserColors = true;
 
     public SessionView() {
         super();
@@ -139,7 +165,6 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         super.createPartControl(parent);
         createActions();
         createContextMenu();
-        mappedColors = new HashMap<RGB, Color>();
     }
 
     /*
@@ -152,6 +177,9 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
     protected void initComponents(Composite parent) {
         initColorManager();
         super.initComponents(parent);
+        if (enableUserColors) {
+            colorConfigManager = new UserColorConfigManager();
+        }
 
         // unfortunately this code cannot be a part of createToolbarButton
         // because I cannot instantiate the ACI until after the messagesText
@@ -171,24 +199,6 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
     }
 
     protected void createActions() {
-        chatAction = new Action("Chat") {
-            @Override
-            public void run() {
-                try {
-                    ISession session = CollaborationConnection.getConnection()
-                            .getPeerToPeerSession();
-                    CaveWorkbenchPageManager.getActiveInstance().showView(
-                            PeerToPeerView.ID, session.getSessionId(),
-                            IWorkbenchPage.VIEW_ACTIVATE);
-                } catch (PartInitException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Unable to open chat", e);
-                } catch (CollaborationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
-            }
-        };
     }
 
     /**
@@ -216,6 +226,20 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
     }
 
     protected void fillContextMenu(IMenuManager manager) {
+        IStructuredSelection selection = (IStructuredSelection) usersTable
+                .getSelection();
+        VenueParticipant entry = (VenueParticipant) selection.getFirstElement();
+        boolean me = entry.isSameUser(session.getUserID());
+        if (!me) {
+            manager.add(new PeerToPeerChatAction(entry));
+        }
+        if (enableUserColors) {
+            // add color actions if in group chat room without shared display
+            String user = entry.getName();
+            RGB defaultForeground = colorManager.getColorForUser(entry);
+            manager.add(new ChangeTextColorAction(user, me, me,
+                    defaultForeground, colorConfigManager));
+        }
     }
 
     @Subscribe
@@ -231,19 +255,6 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         }
         appendMessage(msg);
 
-    }
-
-    @Subscribe
-    public void updateUserAlias(UserId id) {
-        List<IRosterEntry> entries = (List<IRosterEntry>) usersTable.getInput();
-        for (IRosterEntry entry : entries) {
-            UserId uid = (UserId) entry.getUser();
-            if (uid.getFQName().equals(id.getFQName())) {
-                ((UserId) entry.getUser()).setName(id.getAlias());
-                break;
-            }
-        }
-        usersTable.refresh();
     }
 
     protected void initColorManager() {
@@ -328,6 +339,15 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
                     participantsLabel
                             .setToolTipText("Select to hide participants...");
                 }
+
+                // If the weight value is negative then make it zero since it
+                // cannot have a negative number.
+                for (int i = 0; i < weights.length; i++) {
+                    if (weights[i] < 0) {
+                        weights[i] = 0;
+                    }
+                }
+
                 ((SashForm) parent).setWeights(weights);
                 parent.layout();
             }
@@ -348,16 +368,35 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         usersTable.setSorter(new ViewerSorter() {
             @Override
             public int compare(Viewer viewer, Object e1, Object e2) {
-                IUser c1 = (IUser) e1;
-                IUser c2 = (IUser) e1;
+                VenueParticipant c1 = (VenueParticipant) e1;
+                VenueParticipant c2 = (VenueParticipant) e1;
 
-                return c1.getID().getName().compareTo(c2.getID().getName());
+                return c1.getHandle().compareTo(c2.getHandle());
             }
         });
 
         ColumnViewerToolTipSupport.enableFor(usersTable, ToolTip.RECREATE);
+        usersTable.addDoubleClickListener(new IDoubleClickListener() {
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+                StructuredSelection selection = (StructuredSelection) usersTable
+                        .getSelection();
+
+                Object o = selection.getFirstElement();
+                if (o instanceof IUser) {
+                    IUser user = (IUser) o;
+                    CollaborationConnection connection = CollaborationConnection
+                            .getConnection();
+                    UserId accountUser = connection.getUser();
+                    if (!accountUser.isSameUser(user)) {
+                        new PeerToPeerChatAction(user).run();
+                    }
+                }
+            }
+        });
+
         if (session != null) {
-            usersTable.setInput(session.getVenue().getParticipants());
+            refreshParticipantList();
         } else {
             // session was null, why this would happen we don't know but this
             // will somewhat gracefully let the user know a problem occurred and
@@ -385,12 +424,6 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         disposeArrow(downArrow);
         disposeArrow(rightArrow);
 
-        if (mappedColors != null) {
-            for (Color col : mappedColors.values()) {
-                col.dispose();
-            }
-            mappedColors.clear();
-        }
         if (colorManager != null) {
             colorManager.clearColors();
         }
@@ -424,8 +457,8 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
-                UserId id = CollaborationConnection.getConnection().getUser();
-                appendMessage(id, System.currentTimeMillis(), message, null);
+                appendMessage(session.getUserID(), System.currentTimeMillis(),
+                        message, null);
                 session.sendChatMessage(message);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
@@ -445,17 +478,11 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
      */
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, String subject, List<StyleRange> ranges) {
-        RGB rgb = colorManager.getColorFromUser(userId);
-        if (mappedColors.get(rgb) == null) {
-            if (rgb == null) {
-                rgb = new RGB(0, 0, 0);
-            }
-            Color col = new Color(Display.getCurrent(), rgb);
-            mappedColors.put(rgb, col);
-        }
+            String name, VenueParticipant userId, String subject,
+            List<StyleRange> ranges) {
+        RGB rgb = colorManager.getColorForUser(userId);
         styleAndAppendText(sb, offset, name, userId, ranges,
-                mappedColors.get(rgb));
+                getColorFromRGB(rgb), null, subject);
     }
 
     /*
@@ -468,23 +495,36 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
      */
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, List<StyleRange> ranges, Color color) {
-        StyleRange range = new StyleRange(messagesText.getCharCount(), offset,
-                color, null, SWT.NORMAL);
-        ranges.add(range);
-        if (userId != null) {
-            range = new StyleRange(messagesText.getCharCount() + offset,
-                    name.length() + 1, color, null, SWT.BOLD);
-        } else {
-            range = new StyleRange(messagesText.getCharCount() + offset,
-                    sb.length() - offset, color, null, SWT.BOLD);
+            String name, VenueParticipant userId, List<StyleRange> ranges,
+            Color color) {
+        styleAndAppendText(sb, offset, name, userId, ranges, color, null, null);
+    }
+
+    protected void styleAndAppendText(StringBuilder sb, int offset,
+            String name, VenueParticipant userId, List<StyleRange> ranges,
+            Color fgColor, Color bgColor, String subject) {
+        if (enableUserColors && name != null) {
+            // Color text by user if in group chat room without shared display
+            ColorInfo userColor = colorConfigManager.getColor(name);
+            if (userColor != null) {
+                fgColor = getColorFromRGB(userColor.getColor(SWT.FOREGROUND));
+                bgColor = getColorFromRGB(userColor.getColor(SWT.BACKGROUND));
+            }
         }
+        StyleRange range = new StyleRange(messagesText.getCharCount(),
+                sb.length(), fgColor, null, SWT.NORMAL);
+        ranges.add(range);
+        range = new StyleRange(messagesText.getCharCount() + offset,
+                (userId != null ? name.length() + 1 : sb.length() - offset),
+                fgColor, null, SWT.BOLD);
         ranges.add(range);
         messagesText.append(sb.toString());
         for (StyleRange newRange : ranges) {
             messagesText.setStyleRange(newRange);
         }
-        messagesText.setTopIndex(messagesText.getLineCount() - 1);
+        int lineNumber = messagesText.getLineCount() - 1;
+        messagesText.setLineBackground(lineNumber, 1, bgColor);
+        messagesText.setTopIndex(lineNumber);
     }
 
     public String getRoom() {
@@ -560,9 +600,9 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         label.setLayoutData(data);
         StringBuilder labelInfo = new StringBuilder();
         if (session != null) {
-            IVenueInfo info = session.getVenue().getInfo();
-            labelInfo.append(info.getVenueSubject());
-            label.setToolTipText(info.getVenueSubject());
+            String subject = session.getVenue().getSubject();
+            labelInfo.append(subject);
+            label.setToolTipText(subject);
         }
         label.setText(labelInfo.toString());
     }
@@ -583,8 +623,6 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         CollaborationConnection.getConnection().registerEventHandler(this);
 
         session.registerEventHandler(this);
-
-        ((VenueSession) session).connectToRoom();
     }
 
     /*
@@ -598,7 +636,12 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         if (session == null) {
             return sessionId;
         }
-        return session.getVenue().getInfo().getVenueDescription();
+        return session.getVenueName();
+    }
+
+    @Subscribe
+    public void userEventHandler(VenueUserEvent event) {
+        sendSystemMessage(new StringBuilder(event.getMessage()));
     }
 
     @Subscribe
@@ -606,8 +649,9 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
             throws Exception {
 
         final ParticipantEventType type = event.getEventType();
-        final IPresence presence = event.getPresence();
-        final UserId participant = event.getParticipant();
+        final Presence presence = event.getPresence();
+        final VenueParticipant participant = event.getParticipant();
+        final String description = event.getEventDescription();
         VizApp.runAsync(new Runnable() {
 
             @Override
@@ -618,16 +662,21 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
                 }
                 switch (type) {
                 case ARRIVED:
-                    participantArrived(participant);
+                    participantArrived(participant, description);
                     break;
                 case DEPARTED:
-                    participantDeparted(participant);
+                    participantDeparted(participant, description);
                     break;
                 case PRESENCE_UPDATED:
                     participantPresenceUpdated(participant, presence);
                     break;
                 case UPDATED:
-                    // TODO ?
+                    if (usersTable.getTable().isDisposed() == false) {
+                        usersTable.refresh();
+                    }
+                    if (description != null) {
+                        sendParticipantSystemMessage(participant, description);
+                    }
                     break;
                 default:
                     System.err.println("Unknown Event type");
@@ -636,33 +685,74 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         });
     }
 
+    /**
+     * get an updated list of participants from session and refresh usersTable
+     */
+    protected void refreshParticipantList() {
+        IVenue venue = session.getVenue();
+        Collection<VenueParticipant> participants = venue.getParticipants();
+        if (session.isAdmin()) {
+            for (VenueParticipant p : participants) {
+                if (!p.hasActualUserId()) {
+                    p.setUserid(venue.getParticipantUserid(p));
+                }
+            }
+        }
+        usersTable.setInput(participants);
+        usersTable.refresh();
+        participantsLabel.setText("Participants (" + participants.size() + ")");
+    }
+
     @Subscribe
     public void userNicknameChanged(UserNicknameChangedEvent e) {
-        usersTable.refresh();
+        refreshParticipantList();
     }
 
-    protected void participantArrived(UserId participant) {
-        usersTable.setInput(session.getVenue().getParticipants());
-        usersTable.refresh();
-
-        String name = CollaborationConnection.getConnection()
-                .getContactsManager().getDisplayName(participant);
-        StringBuilder builder = new StringBuilder(name
-                + " has entered the room");
-        sendSystemMessage(builder);
+    /**
+     * Update participant list and notify user that new participant joined chat
+     * 
+     * @param participant
+     */
+    protected void participantArrived(VenueParticipant participant,
+            String description) {
+        refreshParticipantList();
+        String message = description != null ? description
+                : "has entered the room.";
+        sendParticipantSystemMessage(participant, message);
+        processJoinAlert();
     }
 
-    protected void participantDeparted(UserId participant) {
-        usersTable.setInput(session.getVenue().getParticipants());
-        usersTable.refresh();
+    /**
+     * Update participant list and notify user that new participant left chat
+     * 
+     * @param participant
+     */
+    protected void participantDeparted(VenueParticipant participant,
+            String description) {
+        refreshParticipantList();
+        String message = description != null ? description
+                : "has left the room.";
+        sendParticipantSystemMessage(participant, message);
+    }
+
+    /**
+     * Send message about about participant. Message is in the form of a
+     * statement pertaining to the participant. For example, to get the output
+     * "Susan was kicked", you would provide Susan's UserId and the message
+     * "was kicked".
+     * 
+     * @param participant
+     * @param message
+     */
+    protected void sendParticipantSystemMessage(VenueParticipant participant,
+            String message) {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection != null) {
-            String name = connection.getContactsManager().getDisplayName(
-                    participant);
+            String name = getDisplayName(participant);
 
-            StringBuilder builder = new StringBuilder(name
-                    + " has left the room");
+            StringBuilder builder = new StringBuilder(name);
+            builder.append(" ").append(message);
             sendSystemMessage(builder);
         }
     }
@@ -671,8 +761,8 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
      * @param participant
      * @param presence
      */
-    protected void participantPresenceUpdated(UserId participant,
-            IPresence presence) {
+    protected void participantPresenceUpdated(VenueParticipant participant,
+            Presence presence) {
         usersTable.refresh();
     }
 
@@ -686,7 +776,6 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
     protected SessionMsgArchive createMessageArchive() {
         String sessionName = getSessionName();
         UserId me = CollaborationConnection.getConnection().getUser();
-        // UserId me = session.getUserID();
         return new SessionMsgArchive(me.getHost(), me.getName(), sessionName);
     }
 
@@ -727,5 +816,31 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         return "Conversation session from room " + getSessionName()
                 + ", Date: "
                 + dateFormatter.format(msgArchive.getCreationTime());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * getDisplayName
+     * (com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID)
+     */
+    @Override
+    protected String getDisplayName(VenueParticipant userId) {
+        return userId.getHandle();
+    }
+
+    /**
+     * Process a room join alert.
+     */
+    protected void processJoinAlert() {
+        boolean enabled = Activator
+                .getDefault()
+                .getPreferenceStore()
+                .getBoolean(
+                        CollabPrefConstants.ENABLE_JOIN_EVENTS_FIELD_EDITOR_ID);
+        if (enabled) {
+            SoundUtil.playSound(getJoinFile());
+        }
     }
 }

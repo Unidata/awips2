@@ -36,7 +36,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Jun 17, 2009            snaples     Initial creation
  * May 06, 2011   #8994    jpiatt      Added set precipitation value as zero
- * 
+ * Sep 04, 2014    283     cgobs       Fixed possible selection of filtered-out gages
  * </pre>
  * 
  * @author snaples
@@ -80,11 +80,25 @@ public class GroupEditPrecipStns {
                 continue;
             }
 
+            //precip filter
             if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data < QcPrecipOptionsDialog
                     .getPointFilterValue()) {
                 continue;
             }
 
+            //reverse precip filter
+            if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data > QcPrecipOptionsDialog
+                    .getPointFilterReverseValue()) {
+                continue;
+            }
+            
+            //elevation filter
+            if (DailyQcUtils.precip_stations.get(i).elev <  DailyQcUtils.elevation_filter_value)
+            {
+                continue;
+            }
+            
+            
             /* Retrieve the latitude and longitude of this station. */
             lat = DailyQcUtils.precip_stations.get(i).lat;
             lon = DailyQcUtils.precip_stations.get(i).lon;

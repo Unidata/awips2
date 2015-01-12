@@ -60,9 +60,13 @@ import com.vividsolutions.jts.geom.TopologyException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 23, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 23, 2012           mschenke    Initial creation
+ * May 23, 2012  2646     bsteffen    Fix NPE in project.
+ * Apr 03, 2014  2967     njensen     Fix error when erasing the last part of a line
+ * May 05, 2014  3076     bclement    added clearAllDrawingData() and disposeWireframeShape()
+ *                                      renamed canClear() to hasDrawing()
  * 
  * </pre>
  * 
@@ -265,8 +269,10 @@ public class DrawingToolLayer implements IRenderable {
                                 // To avoid self intersecting lines, this
                                 // will split the difference geometry
                                 Coordinate[] coords = diff.getCoordinates();
-                                diff = diff.union(factory
-                                        .createPoint(coords[0]));
+                                if (coords != null && coords.length > 0) {
+                                    diff = diff.union(factory
+                                            .createPoint(coords[0]));
+                                }
                             }
                             // Add diff to newGeoms
                             flattenGeometry(diff, newGeoms);
@@ -327,15 +333,7 @@ public class DrawingToolLayer implements IRenderable {
      * Disposes the data in the layer
      */
     public void dispose() {
-        synchronized (currentData) {
-            if (wireframeShape != null) {
-                wireframeShape.dispose();
-            }
-            currentData.geometries.clear();
-            currentDrawingLine = null;
-            undoStack.clear();
-            redoStack.clear();
-        }
+        clearAllDrawingData();
     }
 
     /**
@@ -499,7 +497,7 @@ public class DrawingToolLayer implements IRenderable {
      * 
      * @return
      */
-    public boolean canClear() {
+    public boolean hasDrawing() {
         return currentData.geometries.size() > 0 || redoStack.size() > 0;
     }
 
@@ -527,6 +525,20 @@ public class DrawingToolLayer implements IRenderable {
                 addCurrentDataToStack(undoStack);
                 currentData.geometries.clear();
             }
+            redoStack.clear();
+        }
+    }
+
+    /**
+     * Clears the current display and the undo and redo stacks. This operation
+     * is not "undoable"
+     */
+    public void clearAllDrawingData() {
+        synchronized (currentData) {
+            disposeWireframeShape();
+            currentData.geometries.clear();
+            currentDrawingLine = null;
+            undoStack.clear();
             redoStack.clear();
         }
     }
@@ -564,6 +576,13 @@ public class DrawingToolLayer implements IRenderable {
         StackFrame oldData = new StackFrame(new ArrayList<Geometry>(
                 currentData.geometries));
         stack.push(oldData);
+        disposeWireframeShape();
+    }
+
+    /**
+     * disposes and sets wireframeShape to null if not already null
+     */
+    private void disposeWireframeShape() {
         if (wireframeShape != null) {
             wireframeShape.dispose();
             wireframeShape = null;
@@ -656,8 +675,10 @@ public class DrawingToolLayer implements IRenderable {
                     currentData.geometries = reprojectCollection(
                             currentData.geometries, projectionMap,
                             oldGridToNewGrid);
-                    currentDrawingLine = JTS.transform(currentDrawingLine,
-                            oldGridToNewGrid);
+                    if (currentDrawingLine != null) {
+                        currentDrawingLine = JTS.transform(currentDrawingLine,
+                                oldGridToNewGrid);
+                    }
                 }
             } catch (Exception e) {
                 UFStatus.getHandler().handle(Priority.PROBLEM,

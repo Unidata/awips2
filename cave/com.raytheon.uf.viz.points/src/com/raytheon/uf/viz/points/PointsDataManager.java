@@ -88,6 +88,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 10, 2012 #875       rferrel     Initial creation
  * Dec 05, 2012 #1364      rferrel     Replace File.Separator with IPathManager.SEPARATOR
  *                                      to work correctly on all platforms.
+ * Oct 20, 2014 #3418      dlovely     Fixed a possible NPE in loadPoint.
  * 
  * </pre>
  * 
@@ -658,12 +659,6 @@ public class PointsDataManager implements ILocalizationFileObserver {
         try {
             point = unmarshalPointFromXmlFile(lFile);
         } catch (IOException ex) {
-            StringBuffer sb = new StringBuffer(lFile.toString());
-            sb.replace(0, pointsDir.toString().length(), "");
-            int index = sb.lastIndexOf(IPathManager.SEPARATOR);
-            sb.setLength(index);
-            point.setGroup(sb.toString());
-
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to open localized file: " + lFile, ex);
         } catch (LocalizationException e) {

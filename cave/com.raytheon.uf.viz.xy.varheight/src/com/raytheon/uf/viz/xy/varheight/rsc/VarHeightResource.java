@@ -37,6 +37,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -54,7 +55,6 @@ import com.raytheon.uf.viz.xy.hodo.HodographDescriptor;
 import com.raytheon.uf.viz.xy.hodo.IHodographResource;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
 import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
-import com.raytheon.uf.viz.xy.map.rsc.PointRenderable;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.uf.viz.xy.varheight.display.VarHeightDescriptor;
 import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
@@ -82,6 +82,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 10, 2011 8344       bkowal       enabled the magnification capability.
  * Sep 23, 2013 2363       bsteffen     Add more vector configuration options.
  * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
+ * Jun 18, 2014 3242       njensen      Replaced deprecated calls
+ * Aug 15, 2014 3535       njensen      Bigger inset map point
  * 
  * </pre>
  * 
@@ -103,8 +105,6 @@ public class VarHeightResource extends
     protected GraphPreferences prefs;
 
     protected int displayedIndex = 0;
-
-    protected PointRenderable pointR = null;
 
     protected VarHeightResource secondaryResource;
 
@@ -338,7 +338,6 @@ public class VarHeightResource extends
             double screenX = screenLoc[0];
             double screenY = screenLoc[1];
 
-
             IExtent graphExtent = descriptor.getGraph(this).getExtent();
 
             if (d instanceof XYWindImageData) {
@@ -353,8 +352,8 @@ public class VarHeightResource extends
                 }
 
                 if (withinBounds) {
-                    vgr.paintBarb(plotLoc, dd.getWindSpd(),
-                            dd.getWindDir() * DEGREE_TO_RADIAN);
+                    vgr.paintBarb(plotLoc, dd.getWindSpd(), dd.getWindDir()
+                            * DEGREE_TO_RADIAN);
                     vgr.setColor(color);
                     vgr.setLineWidth(getCapability(OutlineCapability.class)
                             .getOutlineWidth());
@@ -395,9 +394,13 @@ public class VarHeightResource extends
             if (previousScreenX != 0.0) {
                 OutlineCapability lineCap = getCapability(OutlineCapability.class);
                 if (combineOperation != CombineOperation.NONE) {
-                    target.drawLine(screenX, screenY, 0.0, previousScreenX,
-                            previousScreenY, 0.0, color,
-                            lineCap.getOutlineWidth(), lineCap.getLineStyle());
+                    DrawableLine line = new DrawableLine();
+                    line.basics.color = color;
+                    line.width = lineCap.getOutlineWidth();
+                    line.lineStyle = lineCap.getLineStyle();
+                    line.addPoint(screenX, screenY);
+                    line.addPoint(previousScreenX, previousScreenY);
+                    target.drawLine(line);
                 }
             }
             previousScreenY = screenY;
@@ -435,14 +438,12 @@ public class VarHeightResource extends
             PaintProperties paintProps, MapDescriptor insetMapDescriptor)
             throws VizException {
         // paint a point
-        if (pointR == null) {
-            pointR = new PointRenderable(resourceData.getPoint(),
-                    getCapability(ColorableCapability.class).getColor(),
-                    insetMapDescriptor);
-        } else {
-            pointR.setColor(getCapability(ColorableCapability.class).getColor());
-        }
-        pointR.paint(target, paintProps);
+        Coordinate point = resourceData.getPoint();
+        double[] pixels = insetMapDescriptor.worldToPixel(new double[] {
+                point.x, point.y });
+        target.drawPoint(pixels[0], pixels[1], 0.0,
+                getCapability(ColorableCapability.class).getColor(),
+                PointStyle.STAR, 1.5f);
     }
 
     public void addRecord(PluginDataObject pdo) {
@@ -551,8 +552,8 @@ public class VarHeightResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Coordinate object = coord.getObject();
-        double[] worldCoord = descriptor.pixelToWorld(
-                new double[] { object.x, object.y });
+        double[] worldCoord = descriptor.pixelToWorld(new double[] { object.x,
+                object.y });
         Coordinate c = new Coordinate(worldCoord[0], worldCoord[1]);
 
         c = descriptor.getGraphCoordiante(this, c);

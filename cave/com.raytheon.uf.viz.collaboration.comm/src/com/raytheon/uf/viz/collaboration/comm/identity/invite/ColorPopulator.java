@@ -28,10 +28,10 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * TODO Add Description
+ * Color information for a list of users
  * 
  * <pre>
  * 
@@ -40,6 +40,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 19, 2012            mnash     Initial creation
+ * Dec  6, 2013 2561       bclement    code cleanup
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -50,7 +52,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 @DynamicSerialize
 public class ColorPopulator {
     @DynamicSerializeElement
-    private List<UserId> userName;
+    private List<VenueParticipant> users;
 
     @DynamicSerializeElement
     private List<Integer> red;
@@ -61,44 +63,55 @@ public class ColorPopulator {
     @DynamicSerializeElement
     private List<Integer> blue;
 
+    /**
+     * For serialization only, use {@link ColorPopulator#ColorPopulator(Map)}
+     */
+    @Deprecated
     public ColorPopulator() {
     }
 
-    public ColorPopulator(Map<UserId, RGB> rgbs) {
-        userName = new ArrayList<UserId>();
+    /**
+     * @param rgbs
+     *            Map of user ids to color information
+     */
+    public ColorPopulator(Map<VenueParticipant, RGB> rgbs) {
+        users = new ArrayList<VenueParticipant>();
         red = new ArrayList<Integer>();
         green = new ArrayList<Integer>();
         blue = new ArrayList<Integer>();
-        for (UserId key : rgbs.keySet()) {
-            userName.add(key);
+        for (VenueParticipant key : rgbs.keySet()) {
+            users.add(key);
             red.add(rgbs.get(key).red);
             green.add(rgbs.get(key).green);
             blue.add(rgbs.get(key).blue);
         }
     }
 
-    public Map<UserId, RGB> getColors() {
-        Map<UserId, RGB> colors = new HashMap<UserId, RGB>();
-        for (int i = 0; i < userName.size(); i++) {
-            colors.put(userName.get(i),
+    /**
+     * @return Map of user ids to color information
+     */
+    public Map<VenueParticipant, RGB> getColors() {
+        Map<VenueParticipant, RGB> colors = new HashMap<VenueParticipant, RGB>();
+        for (int i = 0; i < users.size(); i++) {
+            colors.put(users.get(i),
                     new RGB(red.get(i), green.get(i), blue.get(i)));
         }
         return colors;
     }
 
     /**
-     * @return the userName
+     * @return the users
      */
-    public List<UserId> getUserName() {
-        return userName;
+    public List<VenueParticipant> getUsers() {
+        return users;
     }
 
     /**
-     * @param userName
-     *            the userName to set
+     * @param users
+     *            the users to set
      */
-    public void setUserName(List<UserId> userName) {
-        this.userName = userName;
+    public void setUsers(List<VenueParticipant> users) {
+        this.users = users;
     }
 
     /**

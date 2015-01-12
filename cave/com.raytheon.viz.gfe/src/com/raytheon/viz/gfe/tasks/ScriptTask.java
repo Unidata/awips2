@@ -31,7 +31,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 
 /**
- * TODO Add Description
+ * GFE Product Script Task
  * 
  * <pre>
  * 
@@ -40,8 +40,8 @@ import com.raytheon.uf.common.time.SimulatedTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2011            randerso     Initial creation
- * Sep 19,2011  10955      rferrel     make sure process destroy is called.
- * 
+ * Sep 19,2011  10955     rferrel      make sure process destroy is called.
+ * May 28,2014  #2841     randerso     Fix null pointer when script is cancelled.
  * 
  * </pre>
  * 
@@ -52,8 +52,6 @@ import com.raytheon.uf.common.time.SimulatedTime;
 public class ScriptTask extends AbstractGfeTask {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ScriptTask.class);
-
-    private static String scriptsBaseDir;
 
     private String command;
 
@@ -74,32 +72,10 @@ public class ScriptTask extends AbstractGfeTask {
     @Override
     public synchronized void start() {
         ProcessBuilder pb = new ProcessBuilder("sh", "-c", getCommand());
-        // File dir = new File(getBaseDir()).getAbsoluteFile();
-        // pb.directory(dir);
         pb.redirectErrorStream(true);
         setProcessBuilder(pb);
         super.start();
     }
-
-    // private String getBaseDir() {
-    // if (scriptsBaseDir == null) {
-    // IPathManager pathMgr = PathManagerFactory.getPathManager();
-    // LocalizationContext caveStaticBase = pathMgr.getContext(
-    // LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-    // try {
-    // LocalizationFile lf = pathMgr.getLocalizationFile(
-    // caveStaticBase, "abc");
-    // scriptsBaseDir = lf.getFile(false).getParentFile()
-    // .getAbsolutePath();
-    //
-    // } catch (LocalizationException e) {
-    // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-    // e);
-    //
-    // }
-    // }
-    // return scriptsBaseDir;
-    // }
 
     /*
      * (non-Javadoc)
@@ -123,14 +99,22 @@ public class ScriptTask extends AbstractGfeTask {
                 log.flush();
             }
 
-            int exitVal = process.waitFor();
-            log.write("Exited with error code " + exitVal + "\n");
+            StringBuilder msg = new StringBuilder("Job ");
+            msg.append(getDisplayName());
             Priority priority = Priority.INFO;
-            if (exitVal != 0) {
-                priority = Priority.PROBLEM;
+            if (process != null) {
+                int exitVal = process.waitFor();
+                log.write("Exited with error code " + exitVal + "\n");
+                if (exitVal != 0) {
+                    priority = Priority.PROBLEM;
+                }
+                msg.append(" exited with code: ").append(exitVal);
+            } else {
+                msg.append(" was cancelled.");
             }
-            statusHandler.handle(priority, "Job " + getDisplayName()
-                    + " exited with code: " + exitVal);
+            statusHandler.handle(priority, msg.toString());
+            msg.append("\n");
+            log.write(msg.toString());
         } catch (Exception e) {
             statusHandler.handle(
                     Priority.PROBLEM,

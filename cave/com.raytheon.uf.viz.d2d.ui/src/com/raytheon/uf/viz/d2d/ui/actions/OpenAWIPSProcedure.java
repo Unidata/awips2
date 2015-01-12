@@ -28,6 +28,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.procedures.Procedure;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.OpenProcedureListDlg;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
@@ -47,7 +49,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *    Sep 13, 2007             chammack    Initial Creation.
  *    Oct 16, 2012 1229        rferrel     Change to use ProcedureDlg.displayDialog.
  *    Oct 16, 2012 1229        rferrel     Changes for non-blocking ProcedureListDlg.
- *    Jun 7, 2013  2074       mnash        Don't open the dialog if no procedures are deserialized
+ *    Jun 07, 2013 2074        mnash       Don't open the dialog if no procedures are deserialized
+ *    Aug 11, 2014 3480        bclement    added logging
  * </pre>
  * 
  * @author chammack
@@ -56,6 +59,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 public class OpenAWIPSProcedure extends AbstractHandler {
 
     private OpenProcedureListDlg dialog;
+
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(OpenAWIPSProcedure.class);
 
     /*
      * (non-Javadoc)
@@ -78,6 +84,8 @@ public class OpenAWIPSProcedure extends AbstractHandler {
                         Procedure p = (Procedure) LoadSerializedXml
                                 .deserialize(f);
                         if (p != null) {
+                            log.info("Loading display file: "
+                                    + f.getAbsolutePath());
                             ProcedureDlg.displayDialog(LocalizationUtil
                                     .extractName(selectedFile.getName()), p,
                                     VizWorkbenchManager.getInstance()

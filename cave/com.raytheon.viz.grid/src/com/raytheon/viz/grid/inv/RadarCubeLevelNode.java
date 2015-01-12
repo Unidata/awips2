@@ -21,10 +21,10 @@ package com.raytheon.viz.grid.inv;
 
 import java.util.List;
 
-import com.raytheon.uf.viz.derivparam.library.DerivParamField;
-import com.raytheon.uf.viz.derivparam.tree.AbstractCubeLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
-import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.inventory.tree.CubeLevel;
+import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.tree.AbstractCubeLevelNode;
 
 /**
  * 

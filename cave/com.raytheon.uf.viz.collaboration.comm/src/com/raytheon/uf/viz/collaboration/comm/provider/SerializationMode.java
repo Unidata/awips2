@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -27,7 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * 
+ * Serialization mechanisms for collaboration data
  * 
  * <pre>
  * 
@@ -36,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2012            jkorman     Initial creation
+ * Dec 18, 2013  2562      bclement    removed java serialization mode
  * 
  * </pre>
  * 
@@ -44,15 +44,19 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 
 public enum SerializationMode {
-    THRIFT, JAXB, JAVA, STRING, NONE, ISNULL;
+    THRIFT, JAXB, STRING, NONE, ISNULL;
 
+    /**
+     * Uses reflection to determine serialization mode for object's type
+     * 
+     * @param object
+     * @return {@link SerializationMode#NONE} if no match found
+     */
     public static SerializationMode getMode(Object object) {
         SerializationMode mode = ISNULL;
         if (object != null) {
             if (object instanceof String) {
                 mode = STRING;
-            } else if (object instanceof Serializable) {
-                mode = JAVA;
             } else {
                 // We may override the serialization type
                 Class<?> clazz = object.getClass();
