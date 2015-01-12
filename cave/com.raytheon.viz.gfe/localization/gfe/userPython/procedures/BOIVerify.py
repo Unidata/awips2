@@ -50,6 +50,13 @@
 #
 #   2010/04/23  ryu   Initial port to AWIPS II. Fixed bugs with the "Stat vs. Scale" tab.
 #
+#
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer     Description
+# ------------ ---------- -----------  --------------------------
+# 12/02/2014   RM #625    ryu          Changed checkGroup() as suggested to display models
+#                                      in multi-columns when a single column is insufficient.
+#
 # ----------------------------------------------------------------------------
 #
 MenuItems = ["Verify"]
@@ -7721,18 +7728,31 @@ class Verif(BVDialog):
    #  checkGroup - make a group of check buttons
    #
    def checkGroup(self,master,labeltext,varlist,valuelist,
-                  defaultvalues,filltype,expandflag,callback=None):
+                  defaultvalues,filltype,expandflag,callback=None,maxRows=30):
       checkFrame=Tkinter.Frame(master,relief=Tkinter.GROOVE,borderwidth=2)
       checkLabel=Tkinter.Label(checkFrame,text=labeltext)
       checkLabel.pack(side=Tkinter.TOP,anchor=Tkinter.W)
       cnt=0
+      row=0
+      col=0
+      f=Tkinter.Frame(checkFrame,relief=Tkinter.FLAT,borderwidth=2)
+      f.pack(side=Tkinter.TOP,anchor=Tkinter.W)
+      if len(valuelist) > maxRows:
+         ncols = (len(valuelist) - 1)/maxRows + 1
+         maxRows = (len(valuelist) - 1)/ncols + 1
       for item in valuelist:
-         a=Tkinter.Checkbutton(checkFrame,text=item,variable=varlist[cnt],
+         a=Tkinter.Checkbutton(f,text=item,variable=varlist[cnt],
                                onvalue=item,offvalue="",command=callback)
          if item in defaultvalues:
             varlist[cnt].set(item)
-         a.pack(side=Tkinter.TOP,anchor=Tkinter.W)
-         cnt+=1
+
+         a.grid(row=row,column=col,sticky=Tkinter.NW)
+         print "Formatting row %d col %d for %s" % (row,col,item)
+         row=row+1
+         if row == maxRows:
+            row = 0
+            col =col + 1
+         cnt=cnt+1
       checkFrame.pack(side=Tkinter.TOP,fill=filltype,expand=expandflag)
       return varlist
    #=================================================================
