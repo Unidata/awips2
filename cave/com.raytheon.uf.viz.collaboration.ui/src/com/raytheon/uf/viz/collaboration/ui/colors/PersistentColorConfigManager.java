@@ -1,4 +1,4 @@
-package com.raytheon.uf.viz.collaboration.ui;
+package com.raytheon.uf.viz.collaboration.ui.colors;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,8 @@ import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
-import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
 
 /**
  * Abstract class for collaboration chat coloring configuration managers
@@ -27,16 +28,23 @@ import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2014 3709       mapeters    Initial creation.
  * Dec 09, 2014 3709       mapeters    setColors() sets foreground and background together.
+ * Jan 09, 2015 3709       bclement    renamed from AbstractColorConfigManager
+ *                                      moved colorInfoMap from subclasses to here
  * 
  * </pre>
  * 
  * @author mapeters
  * @version 1.0
  */
-public abstract class AbstractColorConfigManager {
+public abstract class PersistentColorConfigManager implements
+        IColorConfigManager {
+
+    protected static final String CONFIG_DIR_NAME = "collaboration";
 
     private static final SingleTypeJAXBManager<ColorInfoMap> jaxb = SingleTypeJAXBManager
             .createWithoutException(ColorInfoMap.class);
+
+    private ColorInfoMap colorInfoMap;
 
     /**
      * Set and store the given foreground and background colors for the given
@@ -118,11 +126,11 @@ public abstract class AbstractColorConfigManager {
         return null;
     }
 
-    public abstract void setColors(String key, RGB foreground, RGB background);
+    protected ColorInfoMap getColorInfoMap() {
+        return colorInfoMap;
+    }
 
-    public abstract ColorInfo getColor(String key);
-
-    protected abstract ColorInfoMap getColorInfoMap();
-
-    protected abstract void setColorInfoMap(ColorInfoMap colorInfo);
+    protected void setColorInfoMap(ColorInfoMap colorInfo) {
+        this.colorInfoMap = colorInfo;
+    }
 }

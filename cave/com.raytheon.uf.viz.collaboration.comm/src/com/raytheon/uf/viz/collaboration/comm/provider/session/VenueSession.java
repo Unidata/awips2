@@ -113,7 +113,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 29, 2014 3061       bclement    moved invite payload to shared display session
  * May 09, 2014 3107       bclement    removed catch from isRoomOwner() so callers know about errors
  * Jun 16, 2014 3288       bclement    changed String venueName to VenueId venueId, added createVenueId()
- * Oct 08, 2014 3705       bclement    aded getVenueId()
+ * Oct 08, 2014 3705       bclement    added getVenueId()
+ * Jan 12, 2015 3709       bclement    fixed rare invite bug
  * 
  * 
  * </pre>
@@ -247,7 +248,11 @@ public class VenueSession extends BaseSession implements IVenueSession {
     protected Message createInviteMessage(UserId id, VenueInvite invite) {
         Message msg = new Message();
         msg.setType(Type.normal);
-        msg.setBody(invite.getMessage());
+        /*
+         * don't set a body on the message. smack will add a packet extension on
+         * it that will have the actual invite. openfire gets confused if there
+         * is both a body and an extension and drops the invite on the floor.
+         */
         return msg;
     }
 
