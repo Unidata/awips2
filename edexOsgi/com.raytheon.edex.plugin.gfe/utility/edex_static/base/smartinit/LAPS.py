@@ -56,7 +56,7 @@ class LAPSForecaster(Forecaster):
 ## Uses LAPS skyCover grid to make IFP sky grids
 ##-------------------------------------------------------------------------
     def calcSky(self, ccov_SFC):
-        return clip(ccov_SFC*100, 0, 100)
+        return clip(ccov_SFC, 0, 100)
 
 ##-------------------------------------------------------------------------
 ## Uses LAPS one-hour snowAmt grids to initialize SnowAmt
