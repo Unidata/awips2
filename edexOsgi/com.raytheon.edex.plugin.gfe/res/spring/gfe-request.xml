@@ -414,10 +414,16 @@
     <bean id="sbLockMgr" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ServiceBackupLockManager"
         factory-method="getInstance"/>
 
+    <bean id="productPurger" class="com.raytheon.uf.common.dataplugin.gfe.util.FilePurger">
+        <constructor-arg value="/awips2/GFESuite/products"/> <!--  directory to be purged -->
+        <constructor-arg value="2419200000"/> <!-- purge age: 28 days in milliseconds -->
+    </bean>
+
     <camelContext id="gfe-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <endpoint id="exportDigitalDataCron" uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}"/>
         <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.gfe.logs.cron}"/>
+        <endpoint id="gfeProductPurgeCron" uri="clusteredquartz://gfe/purgeGfeProducts/?cron=${purge.gfe.products.cron}"/>
         <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
         <endpoint id="iscSendLauncher" uri="quartz://iscSendThread?trigger.repeatCount=0&amp;trigger.repeatInterval=1"/>
 
@@ -457,7 +463,23 @@
                 </doCatch>
             </doTry>
         </route>
-
+        
+        <route id="purgeGfeProducts"> 
+            <from uri="gfeProductPurgeCron"/> 
+            <to uri="jms-generic:queue:purgeGfeProductWork"/> 
+        </route> 
+        <route id="purgeGfeProductWork"> 
+            <from uri="jms-generic:queue:purgeGfeProductWork"/> 
+            <doTry> 
+                <bean ref="productPurger" method="purge"/> 
+                <doCatch> 
+                    <exception>java.lang.Throwable</exception> 
+                    <to 
+                        uri="log:svcBackup?level=ERROR"/> 
+                </doCatch> 
+            </doTry> 
+        </route>
+        
         <route id="purgeSvcbuLogs">
             <from uri="svcbuLogPurgeCron"/>
             <to uri="jms-generic:queue:purgeSvcbuLogWork"/>
