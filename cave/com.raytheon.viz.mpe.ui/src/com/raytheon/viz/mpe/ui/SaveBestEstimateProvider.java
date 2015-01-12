@@ -25,7 +25,7 @@ import java.util.Map;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
-import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;
 
 /**
@@ -36,7 +36,8 @@ import org.eclipse.ui.services.ISourceProviderService;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 2, 2010            mschenke     Initial creation
+ * Sep  2, 2010            mschenke    Initial creation
+ * Feb 26, 2014     2842   mpduff      Use PlatformUI rather than HandlerUtil.
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ public class SaveBestEstimateProvider extends AbstractSourceProvider {
 
     private static final String[] MENU_ENABLED = new String[] { "com.raytheon.viz.mpe.ui.saveBestEstBottom" };
 
-    private Map<String, Boolean> sourceMap = new HashMap<String, Boolean>();
+    private final Map<String, Boolean> sourceMap = new HashMap<String, Boolean>();
 
     private boolean enabled = false;
 
@@ -88,9 +89,8 @@ public class SaveBestEstimateProvider extends AbstractSourceProvider {
     }
 
     public static SaveBestEstimateProvider getProvider(ExecutionEvent event) {
-        ISourceProviderService service = (ISourceProviderService) HandlerUtil
-                .getActiveWorkbenchWindow(event).getService(
-                        ISourceProviderService.class);
+        ISourceProviderService service = (ISourceProviderService) PlatformUI
+                .getWorkbench().getService(ISourceProviderService.class);
         return (SaveBestEstimateProvider) service
                 .getSourceProvider(MENU_ENABLED[0]);
     }

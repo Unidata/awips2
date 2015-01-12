@@ -54,20 +54,23 @@ import com.raytheon.viz.ui.input.EditableManager;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 08-16-2010   #2492      bkowal      Completed a TODO so that the
- *                                     available datatimes would be
- *                                     re-calculated when in time match
- *                                     mode and when the user increased
- *                                     the number of frames.
- * 10-27-2010   #6964      bkowal      The OutlineCapability is now used to
- *                                     retrieve the requested line style so
- *                                     that it can be stored in the 
- *                                     StormTrackState.
- * 02-12-2013   1600       jsanchez    Changed the visibility of the method adjustAngle
- * 03-05-2013   1600       jsanchez    Returned the visibility of the method adjustAngle to protected.
- * 15Mar2013    15693  mgamazaychikov  Added magnification to display state.
+ * Date          Ticket#  Engineer       Description
+ * ------------- -------- -------------- --------------------------------------
+ * Aug 16, 2010  2492     bkowal         Completed a TODO so that the available
+ *                                       datatimes would be re-calculated when 
+ *                                       in time match mode and when the user
+ *                                       increased the number of frames.
+ * Oct 27, 2010  6964     bkowal         The OutlineCapability is now used to
+ *                                       retrieve the requested line style so
+ *                                       that it can be stored in the 
+ *                                       StormTrackState.
+ * Feb 12, 2013  1600     jsanchez       Changed the visibility of the method
+ *                                       adjustAngle
+ * Mar 05, 2013  1600     jsanchez       Returned the visibility of the method
+ *                                       adjustAngle to protected.
+ * Mar 15, 2013  15693    mgamazaychikov Added magnification to display state.
+ * Jun 10, 2014  3263     bsteffen       Synchronize dataTimes
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -100,7 +103,7 @@ public abstract class AbstractStormTrackResource extends
         super(resourceData, loadProperties);
         setDescriptor(descriptor);
         resourceData.addChangeListener(this);
-        dataTimes = new ArrayList<DataTime>();
+        dataTimes = Collections.synchronizedList(new ArrayList<DataTime>());
 
         displayState = new StormTrackState();
         trackUtil = new StormTrackUtil();
@@ -121,49 +124,56 @@ public abstract class AbstractStormTrackResource extends
 
     @Override
     public DataTime[] getDataTimes() {
-        if (timeMatchBasis) {
-            /*
-             * We only want to calculate more data times if the user has
-             * selected more frames than there have been in the past.
-             */
-            if (this.descriptor.getNumberOfFrames() > this.maximumFrameCount) {
-                int variance = this.descriptor.getNumberOfFrames()
-                        - this.maximumFrameCount;
+        synchronized (this.dataTimes) {
 
+            if (timeMatchBasis) {
+                /*
+                 * We only want to calculate more data times if the user has
+                 * selected more frames than there have been in the past.
+                 */
+                if (this.descriptor.getNumberOfFrames() > this.maximumFrameCount) {
+                    int variance = this.descriptor.getNumberOfFrames()
+                            - this.maximumFrameCount;
+
+                    this.maximumFrameCount = this.descriptor
+                            .getNumberOfFrames();
+
+                    DataTime earliestTime = this.dataTimes.get(0);
+                    this.fillDataTimeArray(earliestTime, variance);
+                }
+            } else {
+                FramesInfo info = descriptor.getFramesInfo();
+                dataTimes.clear();
                 this.maximumFrameCount = this.descriptor.getNumberOfFrames();
-
-                DataTime earliestTime = this.dataTimes.get(0);
-                this.fillDataTimeArray(earliestTime, variance);
-            }
-        } else {
-            FramesInfo info = descriptor.getFramesInfo();
-            dataTimes.clear();
-            this.maximumFrameCount = this.descriptor.getNumberOfFrames();
-            // First time called
-            if (info.getFrameTimes() != null) {
-                for (DataTime dt : info.getFrameTimes()) {
-                    dataTimes.add(dt);
-                }
-            }
-
-            if (dataTimes.size() == 0) {
-                timeMatchBasis = true;
-                // Case where this tool is time match basis or no data loaded
-                DataTime currentTime = null;
-                if (dataTimes.size() > 0) {
-                    currentTime = dataTimes.get(dataTimes.size() - 1);
-                } else {
-                    currentTime = new DataTime(SimulatedTime.getSystemTime()
-                            .getTime());
+                // First time called
+                if (info.getFrameTimes() != null) {
+                    for (DataTime dt : info.getFrameTimes()) {
+                        dataTimes.add(dt);
+                    }
                 }
 
-                dataTimes.add(currentTime);
-                this.fillDataTimeArray(currentTime,
-                        this.descriptor.getNumberOfFrames() - 1);
+                if (dataTimes.size() == 0) {
+                    timeMatchBasis = true;
+                    /*
+                     * Case where this tool is time match basis or no data
+                     * loaded
+                     */
+                    DataTime currentTime = null;
+                    if (dataTimes.size() > 0) {
+                        currentTime = dataTimes.get(dataTimes.size() - 1);
+                    } else {
+                        currentTime = new DataTime(SimulatedTime
+                                .getSystemTime().getTime());
+                    }
+
+                    dataTimes.add(currentTime);
+                    this.fillDataTimeArray(currentTime,
+                            this.descriptor.getNumberOfFrames() - 1);
+                }
             }
+            Collections.sort(dataTimes);
+            return dataTimes.toArray(new DataTime[dataTimes.size()]);
         }
-        Collections.sort(dataTimes);
-        return dataTimes.toArray(new DataTime[dataTimes.size()]);
     }
 
     private void fillDataTimeArray(DataTime startDataTime, int numberOfDataTimes) {
@@ -219,8 +229,8 @@ public abstract class AbstractStormTrackResource extends
         displayState.lineStyle = getCapability(OutlineCapability.class)
                 .getLineStyle();
         // set the magnification for the display state
-        displayState.magnification = getCapability(MagnificationCapability.class)
-                .getMagnification().floatValue();
+        displayState.magnification = getCapability(
+                MagnificationCapability.class).getMagnification().floatValue();
 
         PaintProperties newProps = new StormTrackProperties(paintProps,
                 displayState);

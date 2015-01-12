@@ -42,6 +42,7 @@ import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -59,7 +60,6 @@ import com.raytheon.uf.viz.xy.graph.labeling.DoubleLabel;
 import com.raytheon.uf.viz.xy.graph.labeling.IGraphLabel;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
 import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
-import com.raytheon.uf.viz.xy.map.rsc.PointRenderable;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
@@ -69,6 +69,7 @@ import com.raytheon.viz.core.map.GeoUtil;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.core.slice.request.HeightScale;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -84,6 +85,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 20, 2009            njensen     Refactored to new rsc architecture
  * Feb 14, 2011 8244       bkowal      enabled magnification capability to
  *                                     adjust magnification of x-axis.
+ * Jun 18, 2014 3242       njensen     Replaced deprecated calls
+ * Aug 15, 2014 3535       njensen     Bigger inset map point
  * 
  * 
  * </pre>
@@ -99,8 +102,6 @@ public abstract class AbstractTimeHeightResource extends
             .getHandler(AbstractTimeHeightResource.class);
 
     protected static final float DEFAULT_INTERPOLATION = 1.0f;
-
-    protected PointRenderable point = null;
 
     protected AbstractVarHeightAdapter<?> adapter;
 
@@ -306,13 +307,12 @@ public abstract class AbstractTimeHeightResource extends
             PaintProperties paintProps, MapDescriptor insetMapDescriptor)
             throws VizException {
         // paint a point
-        if (point == null) {
-            point = new PointRenderable(resourceData.getPoint(), getCapability(
-                    ColorableCapability.class).getColor(), insetMapDescriptor);
-        } else {
-            point.setColor(getCapability(ColorableCapability.class).getColor());
-        }
-        point.paint(target, paintProps);
+        Coordinate point = resourceData.getPoint();
+        double[] pixels = insetMapDescriptor.worldToPixel(new double[] {
+                point.x, point.y });
+        target.drawPoint(pixels[0], pixels[1], 0.0,
+                getCapability(ColorableCapability.class).getColor(),
+                PointStyle.STAR, 1.5f);
     }
 
     public String getUnitString() {

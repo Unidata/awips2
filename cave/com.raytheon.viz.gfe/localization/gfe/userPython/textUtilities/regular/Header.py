@@ -27,6 +27,12 @@
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    10/20/2014       #3685        randerso       Changes to support mixed case products 
 
 import EditAreaUtils
 import StringUtils
@@ -49,7 +55,7 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
                        cityDescriptor ="Including the cities of",
                        areaList=None, includeCities=1, includeZoneNames=1,
                        includeIssueTime=1, includeCodes=1, includeVTECString=1,
-                       hVTECString=None, accurateCities=False):
+                       hVTECString=None, accurateCities=False, upperCase=True):
         # Make a UGC area header for the given areaLabel
         # Determine list of areas (there could be more than one if we are using a combination)
 
@@ -227,7 +233,17 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
         if cityString != "":
             numCities = len(string.split(cityString, "...")[1:])
             if numCities == 1:
-                cityDescriptor = string.replace(cityDescriptor, "CITIES", "CITY")
+                def preserveCase(matchobj):
+                    orig = matchobj.group(0)
+                    repl = 'city'
+                    retv = ''
+                    for i in range(len(repl)):
+                        c = repl[i]
+                        if orig[i].isupper():
+                             c = c.upper()
+                        retv = retv + c
+                    return retv
+                cityDescriptor = re.sub("cities", preserveCase, cityDescriptor, flags=re.IGNORECASE)
             cityString = self.endline(cityDescriptor + cityString,
               linelength=self._lineLength, breakStr=["..."])
         issueTimeStr = issueTimeStr + "\n\n"
@@ -249,6 +265,8 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
         if includeVTECString == 0:
             VTECString = ""
         header = codeString + VTECString + nameString + cityString  + issueTimeStr
+        if upperCase:
+            header = header.upper()
         return header
 
     # Make accurate city list based on the grids
@@ -569,8 +587,8 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
                 if entry.has_key("fullStateName"):
                     state = entry["fullStateName"]
                     #Special District of Columbia case
-                    if state == "DISTRICT OF COLUMBIA":
-                        state = "THE DISTRICT OF COLUMBIA"
+                    if state.upper() == "DISTRICT OF COLUMBIA":
+                        state = "The District of Columbia"
                 # Get part-of-state information
                 partOfState = ""
                 if entry.has_key("partOfState"):
@@ -583,15 +601,15 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
                 if entry.has_key("ugcCode"):
                     codeType = entry["ugcCode"][2]
                     if codeType == "Z":
-                        nameType = "ZONE"
+                        nameType = "zone"
                     elif codeType == "C":
                         indCty=entry.get("independentCity", 0)
                         if indCty == 1:
-                            nameType = "INDEPENDENT CITY"
-                        elif state == "LOUISIANA":
-                            nameType = "PARISH"
+                            nameType = "independent city"
+                        elif state == "Louisiana":
+                            nameType = "parish"
                         else:
-                            nameType = "COUNTY"
+                            nameType = "county"
                     else:
                         codeType == "?"
                 value = (state, partOfState)

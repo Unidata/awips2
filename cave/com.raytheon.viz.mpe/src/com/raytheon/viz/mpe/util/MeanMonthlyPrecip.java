@@ -22,6 +22,7 @@ package com.raytheon.viz.mpe.util;
 import java.io.File;
 import java.io.IOException;
 
+import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
@@ -85,9 +86,10 @@ public class MeanMonthlyPrecip {
         Unit<?> dataUnit = Unit.ONE;
 
         displayUnit = NonSI.INCH;
-        dataUnit = NonSI.INCH;
+        dataUnit = SI.MILLIMETER;
         cmc.setDisplayUnit(displayUnit);
         cmc.setDataUnit(dataUnit);
+        UnitConverter dataToImage = cmc.getDataToImageConverter();
 
         /*
          * Loop over the months. Determine for which months PRISM data are
@@ -142,23 +144,11 @@ public class MeanMonthlyPrecip {
             for (int i = MaxY - 1; i >= 0; i--) {    
                 for (int j = 0; j < MaxX; j++) {
                     float f = 0;
-                    short s= pdata[j + MaxX * (MaxY - i -1)];                    
+                    short s = pdata[j + MaxX * (MaxY - i -1)];                    
                     if (s < 0) {
-                        if (s == -9999 || s == -999 || s == -99 || (s == -9)) {
-                            f = s;
-                        } else if (s == -8888 || s == -899) {
-                            f = s;
-                        } else {
-                            f = (float) cmc.getDataToDisplayConverter()
-                                    .convert(s);
-                        }
+                        f = 0;
                     } else {
-                        if (s < 30 && s > 24) {
-                            s = 26;
-                        } else if (s > 0 && s <= 24) {
-                            s = 0;
-                        }
-                        f = (float) cmc.getDataToDisplayConverter().convert(s);
+                        f = (float) dataToImage.convert(s);
                     }
                     float aa = (float) ((Math.floor((int) (f * 100))) / 100.0);
                     isoh.value[k][i][j] = (int) aa;

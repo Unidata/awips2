@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 16, 2009            mschenke     Initial creation
  * Feb 10, 2011 8244       bkowal       replaced deprecated method calls;
  *                                      magnitude influences axis label font.
+ * Jun 18, 2014 3242       njensen      Replaced deprecated calls
  * 
  * </pre>
  * 
@@ -115,11 +116,13 @@ public class TimeSeriesGraph extends AbstractGraph {
         }
     }
 
+    @Override
     protected boolean canHandleResoruce(IGraphableResource<?, ?> rsc) {
         // Can only handle graphing of TimeSeriesResources
         return (rsc instanceof TimeSeriesResource);
     }
 
+    @Override
     protected void paintTitles(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
 
@@ -171,7 +174,7 @@ public class TimeSeriesGraph extends AbstractGraph {
                         DrawableString parameters = new DrawableString("",
                                 colorToUse);
                         parameters.font = unitsFont;
-                        parameters.textStyle = TextStyle.DROP_SHADOW;
+                        parameters.addTextStyle(TextStyle.DROP_SHADOW);
                         parameters.horizontalAlignment = HorizontalAlignment.RIGHT;
                         parameters.magnification = this.currentMagnification;
 

@@ -40,6 +40,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.DrawableCircle;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -98,8 +99,19 @@ import com.vividsolutions.jts.geom.LineString;
  *  15Mar2013	15693	mgamazaychikov Made sure that magnification capability works.
  *  06-11-2013  DR 16234   D. Friedman Fix pivot index when frames count is reduced.
  *  06-24-2013  DR 16317   D. Friedman Handle "motionless" track.
+ *  01-28-2014  DR16465 mgamazaychikov Fixed the problem with anchor point when frame 
+ *                                     count changes; made line width configurable.
  *  04-07-2014  DR 17232   D. Friedman Make sure pivot indexes are valid.
- * 
+ *  04-24-2014  DR 16356   Qinglu Lin  Updated generateTrackInfo(), generateNewTrackInfo(),
+ *                                     and createTrack().
+ *  06-03-14    3191       njensen     Fix postData to not retrieve
+ *  06-17-2014  DR17409 mgamazaychikov Fix futurePoints calculation in generateNewTrackInfo()
+ *                                     and generateExistingTrackInfo()
+ *  07-24-2014  3429       mapeters    Updated deprecated drawLine() calls.
+ *  08-21-2014  DR 15700   Qinglu Lin  handle the situation where frameTime is null in paintTrack().
+ *  09-09-2014  RM #657    Qinglu Lin  handle StormTrackState.trackType is null.
+ *  09-25-2014  ASM #16773 D. Friedman Fix NPE.
+ *  10-10-2014  ASM #16844 D. Friedman Prevent some errors when moving track.
  * </pre>
  * 
  * @author mschenke
@@ -411,13 +423,13 @@ public class StormTrackDisplay implements IRenderable {
         // if mouseDownGeom set or not
         RGB lineColor = state.mouseDownGeom != null ? LIGHT_GRAY : state.color;
         // Paint the non dragging geom
-        paintLine(target, line.getCoordinates(), lineColor, state.isEditable(),
+        paintLine(target, line.getCoordinates(), lineColor, state.lineWidth, state.isEditable(),
                 circleSize, LineStyle.SOLID);
 
         if (state.mouseDownGeom != null) {
             // Paint the dragging geom
             paintLine(target, state.mouseDownGeom.getCoordinates(),
-                    state.color, state.isEditable(), circleSize,
+                    state.color, state.lineWidth, state.isEditable(), circleSize,
                     LineStyle.DOTTED);
             lineColor = LIGHT_GRAY;
         }
@@ -428,7 +440,7 @@ public class StormTrackDisplay implements IRenderable {
                             line,
                             gf.createPoint(state.futurePoints[state.futurePoints.length - 1].coord));
             if (endLine != null) {
-                paintLine(target, endLine.getCoordinates(), lineColor, false,
+                paintLine(target, endLine.getCoordinates(), lineColor, state.lineWidth, false,
                         0, LineStyle.DASHED_LARGE);
             }
         }
@@ -443,19 +455,24 @@ public class StormTrackDisplay implements IRenderable {
      *            coordinates in the line
      * @param color
      *            color of the line
+     * @param lineWidth 
      * @param editable
      *            if the line is editable
      * @throws VizException
-     */
+     */   
     private void paintLine(IGraphicsTarget target, Coordinate[] coords,
-            RGB color, boolean editable, double circleSize, LineStyle style)
+            RGB color, float lineWidth, boolean editable, double circleSize, LineStyle style)
             throws VizException {
         DrawableCircle circle = new DrawableCircle();
         circle.basics.color = color;
         circle.radius = circleSize;
         circle.filled = true;
 
-        Coordinate lastCoord = null;
+        DrawableLine line = new DrawableLine();
+        line.basics.color = color;
+        line.width = lineWidth;
+        line.lineStyle = style;
+        double[] p1;
         for (int i = 0; i < coords.length; ++i) {
             Coordinate currCoord = coords[i];
             if (currCoord != null) {
@@ -463,25 +480,18 @@ public class StormTrackDisplay implements IRenderable {
                 if (editable) {
                     paintPoint(target, currCoord, color, circleSize);
                 } else {
-                    double[] p1 = descriptor.worldToPixel(new double[] {
+                    p1 = descriptor.worldToPixel(new double[] {
                             currCoord.x, currCoord.y });
                     circle.setCoordinates(p1[0], p1[1]);
                     target.drawCircle(circle);
                 }
 
-                // paint line if lastCoord not null
-                if (lastCoord != null) {
-                    double[] p1 = descriptor.worldToPixel(new double[] {
-                            currCoord.x, currCoord.y });
-                    double[] p2 = descriptor.worldToPixel(new double[] {
-                            lastCoord.x, lastCoord.y });
-
-                    target.drawLine(p1[0], p1[1], 0.0, p2[0], p2[1], 0.0,
-                            color, 1.0f, style);
-                }
+                p1 = descriptor.worldToPixel(new double[] {
+                        currCoord.x, currCoord.y });
+                line.addPoint(p1[0], p1[1]);
             }
-            lastCoord = currCoord;
         }
+        target.drawLine(line);
     }
 
     /**
@@ -685,12 +695,25 @@ public class StormTrackDisplay implements IRenderable {
         }
 
         if (state.geomChanged) {
-            if (cachedTrack != null) {
-                cachedTrack.dispose();
+            if (StormTrackState.trackType != null && StormTrackState.trackType.equals("lineOfStorms")
+                    && state.justSwitchedToLOS) {
+                GeodeticCalculator gc = new GeodeticCalculator();
+                Coordinate[] coords = state.dragMeGeom.getCoordinates();
+                gc.setStartingGeographicPoint(coords[0].x, coords[0].y);
+                gc.setDestinationGeographicPoint(coords[coords.length - 1].x,
+                        coords[coords.length - 1].y);
+                state.angle = adjustAngle(gc.getAzimuth() - 90);
             }
-            generateTrackInfo(state, paintProps);
-            if (state.mode == Mode.TRACK) {
-                createTrack(target, paintProps);
+            DataTime frameTime = paintProps.getDataTime();
+            if (frameTime != null) {
+                if (cachedTrack != null) {
+                    cachedTrack.dispose();
+                }
+                generateTrackInfo(state, paintProps, frameTime);
+                if (state.mode == Mode.TRACK) {
+                    createTrack(target, paintProps);
+                }
+                state.geomChanged = false;
             }
             state.geomChanged = false;
         }
@@ -700,6 +723,10 @@ public class StormTrackDisplay implements IRenderable {
                     state.lineWidth, state.lineStyle);
             paintLabels(target, paintProps);
         }
+        if (StormTrackState.trackType != null && StormTrackState.trackType.equals("lineOfStorms") 
+                && state.justSwitchedToLOS) {
+            state.angle = StormTrackState.oneStormAngle;
+        }
     }
 
     /**
@@ -708,7 +735,7 @@ public class StormTrackDisplay implements IRenderable {
      * @param currentState
      */
     private void generateTrackInfo(StormTrackState currentState,
-            PaintProperties paintProps) throws VizException {
+            PaintProperties paintProps, DataTime frameTime) throws VizException {
         int frameCount = trackUtil.getFrameCount(paintProps.getFramesInfo());
         int currFrame = trackUtil.getCurrentFrame(paintProps.getFramesInfo());
         try {
@@ -719,6 +746,14 @@ public class StormTrackDisplay implements IRenderable {
                     || currentState.newDuration != -1 || update) {
                 if (currentState.timePoints != null
                         && currentState.timePoints.length != frameCount) {
+                    // need to set theAnchorPoint and theAnchorIndex here
+                    // because timePoints get erased before we get to updateAnchorPoint
+                    for (int j=0;j<currentState.timePoints.length;j++){
+                        if (frameTime.equals(currentState.timePoints[j].time)) {
+                            theAnchorPoint = currentState.timePoints[j].coord;
+                            theAnchorIndex = j;
+                        }
+                    }
                     currentState.timePoints = null;
                 }
 
@@ -759,7 +794,7 @@ public class StormTrackDisplay implements IRenderable {
                 generateNewTrackInfo(currentState, currFrame, paintProps);
                 currentDisplayedTimes = trackUtil.getDataTimes(paintProps
                         .getFramesInfo());
-                generateTrackInfo(currentState, paintProps);
+                generateTrackInfo(currentState, paintProps, frameTime);
             } else {
 
                 if (currentState.pointMoved) {
@@ -769,6 +804,10 @@ public class StormTrackDisplay implements IRenderable {
                     currentState.pointMoved = false;
                     currentState.originalTrack = false;
                     moved = true;
+                    if (StormTrackState.trackType != null && StormTrackState.trackType.equals("lineOfStorms") &&
+                            currentState.justSwitchedToLOS) {
+                        currentState.justSwitchedToLOS = false;
+                    }
                 }
 
                 currentDisplayedTimes = trackUtil.getDataTimes(paintProps
@@ -801,7 +840,9 @@ public class StormTrackDisplay implements IRenderable {
             PaintProperties paintProps) throws ImpossibleTrackException {
         int moveIndex = this.trackUtil.getCurrentFrame(paintProps
                 .getFramesInfo());
+        moveIndex = Math.min(moveIndex, state.timePoints.length - 1);
         int pivotIndex = state.displayedPivotIndex;
+        pivotIndex = Math.min(pivotIndex, state.timePoints.length - 1);
 
         double angle;
         double oppositeAngle;
@@ -909,7 +950,7 @@ public class StormTrackDisplay implements IRenderable {
         // time, the arrow of the pathcast is drawn behind the last frame
         if (state.duration >= 0) {
             for (int i = 1; i < futurePoints.length - (remainder == 0 ? 0 : 1); ++i) {
-                timeInMillis += minIntervalInSeconds * 1000;
+                timeInMillis += interval * 60 * 1000;
                 DataTime time = new DataTime(new Date(timeInMillis));
 
                 double distance = speed
@@ -947,6 +988,7 @@ public class StormTrackDisplay implements IRenderable {
         state.futurePoints = futurePoints;
 
         state.angle = angle;
+        StormTrackState.oneStormAngle = angle;
         state.speed = speed;
 
         postData(state);
@@ -983,7 +1025,11 @@ public class StormTrackDisplay implements IRenderable {
                         coords[coords.length - 1].y);
                 angle = adjustAngle(gc.getAzimuth() - 90);
             } else {
-                angle = adjustAngle(std.getMotionDirection());
+                if (state.justSwitchedToOS) {
+                    angle = StormTrackState.oneStormAngle;
+                } else {
+                    angle = adjustAngle(std.getMotionDirection());
+                }
             }
             state.angle = angle;
             state.speed = speed;
@@ -1061,7 +1107,7 @@ public class StormTrackDisplay implements IRenderable {
         // time, the arrow of the pathcast is drawn behind the last frame
         if (state.duration >= 0) {
             for (int i = 1; i < futurePoints.length - (remainder == 0 ? 0 : 1); ++i) {
-                timeInMillis += minIntervalInSeconds * 1000;
+                timeInMillis += interval * 60 * 1000;
                 DataTime time = new DataTime(new Date(timeInMillis));
 
                 double distance = speed
@@ -1170,6 +1216,11 @@ public class StormTrackDisplay implements IRenderable {
         compiler.handle(gf.createLineString(coords));
 
         double angle = state.angle;
+        if(!state.justSwitchedToOS) {
+            if (StormTrackState.trackType != null && StormTrackState.trackType.equals("oneStorm")) {
+                StormTrackState.oneStormAngle = angle;
+            }
+        }
         // Draw ticks, X and Arrow
         for (int i = 0; i < orig.length - 1; ++i) {
             GeodeticCalculator gc = new GeodeticCalculator();
@@ -1177,6 +1228,10 @@ public class StormTrackDisplay implements IRenderable {
             gc.setDestinationGeographicPoint(orig[i + 1].x, orig[i + 1].y);
 
             angle = gc.getAzimuth();
+            if (state.justSwitchedToLOS) {
+                angle = 90.0;
+                state.justSwitchedToLOS = false;
+            }
 
             if (i == state.displayedPivotIndex) {
                 double tickLen = SQRT_2 * tickLengthInMeters;
@@ -1266,6 +1321,11 @@ public class StormTrackDisplay implements IRenderable {
     private void paintLabels(IGraphicsTarget target,
             StormTrackProperties paintProps) throws VizException {
         StormTrackState state = paintProps.getState();
+
+        if (state.timePoints == null || state.futurePoints == null) {
+            return;
+        }
+
         // get the magnification from the state
         float magnification = state.magnification;
         // find a nice looking radius
@@ -1394,7 +1454,7 @@ public class StormTrackDisplay implements IRenderable {
     }
 
     private void postData(StormTrackState state) {
-        StormTrackData data = dataManager.getStormTrackData();
+        StormTrackData data = new StormTrackData();
         Coordinate[] coords = new Coordinate[state.timePoints.length];
         for (int i = 0; i < coords.length; ++i) {
             coords[i] = new Coordinate(state.timePoints[i].coord);

@@ -36,6 +36,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.level.Level.LevelType;
+import com.raytheon.uf.common.topo.TopoException;
 import com.raytheon.uf.common.topo.TopoQuery;
 import com.raytheon.uf.common.wxmath.Hgt2Pres;
 import com.raytheon.uf.viz.core.DrawableString;
@@ -75,10 +76,11 @@ import com.vividsolutions.jts.geom.Point;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 3, 2010            bsteffen     Initial creation
+ * Jul 3, 2010             bsteffen    Initial creation
  * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
  *                                     and moved into common
  * Aug 13, 2013 2262       dgilling    Use new wxmath hgt2pres method.
+ * Jun 14, 2014 3242       njensen     Null safety checks
  * 
  * </pre>
  * 
@@ -157,17 +159,19 @@ public class CrossSectionGraph extends AbstractGraph {
      */
     @Override
     protected void createAxes() {
-        yAxisPlacer.setPixelWidth(graphExtent.getWidth());
+        if (yAxisPlacer != null && xAxisPlacer != null) {
+            yAxisPlacer.setPixelWidth(graphExtent.getWidth());
 
-        createHeightAxis(
-                ((CrossSectionDescriptor) descriptor).getHeightScale(),
-                zoomLevel);
+            createHeightAxis(
+                    ((CrossSectionDescriptor) descriptor).getHeightScale(),
+                    zoomLevel);
+        }
     }
 
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-        if (1 / paintProps.getZoomLevel() != zoomLevel) {
+        if ((1 / paintProps.getZoomLevel()) != zoomLevel) {
             zoomLevel = (int) (1 / paintProps.getZoomLevel());
             createAxes();
             redraw = true;
@@ -208,7 +212,7 @@ public class CrossSectionGraph extends AbstractGraph {
         testString.magnification = currentMagnification;
         double unitsHeight = target.getStringsBounds(testString).getHeight();
         // Leave 4.5 lines for the cities labels and the distance labels
-        double y = graphExtent.getMaxY() + unitsHeight / ratio * 4.5;
+        double y = graphExtent.getMaxY() + ((unitsHeight / ratio) * 4.5);
         if (y > paintProps.getView().getExtent().getMaxY()) {
             y = paintProps.getView().getExtent().getMaxY();
         }
@@ -216,7 +220,7 @@ public class CrossSectionGraph extends AbstractGraph {
                 titleColor);
         titleString.font = titleFont;
         titleString.setCoordinates(x, y);
-        titleString.textStyle = TextStyle.DROP_SHADOW;
+        titleString.addTextStyle(TextStyle.DROP_SHADOW);
         titleString.horizontalAlignment = HorizontalAlignment.LEFT;
         titleString.verticallAlignment = VerticalAlignment.BOTTOM;
         titleString.magnification = currentMagnification;
@@ -242,7 +246,7 @@ public class CrossSectionGraph extends AbstractGraph {
 
         paintHeightUnits(target, paintProps);
 
-        paintTopoLine(target, paintProps);
+        paintTopoLine(target);
 
         paintCities(target, paintProps);
 
@@ -300,22 +304,22 @@ public class CrossSectionGraph extends AbstractGraph {
 
         double y = graphExtent.getMaxY() + height;
         // Leave space for the distance labels below this
-        if (y > paintProps.getView().getExtent().getMaxY() - height * 3.5) {
-            y = paintProps.getView().getExtent().getMaxY() - height * 3.5;
+        if (y > (paintProps.getView().getExtent().getMaxY() - (height * 3.5))) {
+            y = paintProps.getView().getExtent().getMaxY() - (height * 3.5);
         }
         List<DrawableString> labels = new ArrayList<DrawableString>();
         for (int i = 0; i < cities.length; i++) {
             if (cities[i] == null) {
                 continue;
             }
-            double x = graphExtent.getMinX() + graphExtent.getWidth()
-                    / (cities.length - 1) * i;
+            double x = graphExtent.getMinX()
+                    + ((graphExtent.getWidth() / (cities.length - 1)) * i);
             DrawableString caret = new DrawableString("^", graphColor);
             DrawableString city = new DrawableString(cities[i], graphColor);
             caret.setCoordinates(x, y);
             city.setCoordinates(x, y);
             caret.font = city.font = unitsFont;
-            city.textStyle = TextStyle.BLANKED;
+            city.addTextStyle(TextStyle.BLANKED);
             caret.horizontalAlignment = city.horizontalAlignment = HorizontalAlignment.CENTER;
             caret.verticallAlignment = VerticalAlignment.BOTTOM;
             city.verticallAlignment = VerticalAlignment.MIDDLE;
@@ -340,9 +344,9 @@ public class CrossSectionGraph extends AbstractGraph {
                 .getColor();
         double inc = determineIncrement(yAxisPlacer.getDataWidth());
         // Leave space for the cities labels above and the Distance label below
-        double y = graphExtent.getMaxY() + height * 2;
-        if (y > paintProps.getView().getExtent().getMaxY() - height * 2.5) {
-            y = paintProps.getView().getExtent().getMaxY() - height * 2.5;
+        double y = graphExtent.getMaxY() + (height * 2);
+        if (y > (paintProps.getView().getExtent().getMaxY() - (height * 2.5))) {
+            y = paintProps.getView().getExtent().getMaxY() - (height * 2.5);
         }
         List<DrawableString> labels = new ArrayList<DrawableString>();
         for (double d = yAxisPlacer.getMinDataValue(); d <= yAxisPlacer
@@ -360,8 +364,7 @@ public class CrossSectionGraph extends AbstractGraph {
         target.drawStrings(labels);
     }
 
-    protected void paintTopoLine(IGraphicsTarget target,
-            PaintProperties paintProps) throws VizException {
+    protected void paintTopoLine(IGraphicsTarget target) throws VizException {
         // Draw topo graph
 
         RGB graphColor = ((CrossSectionDescriptor) descriptor)
@@ -386,12 +389,12 @@ public class CrossSectionGraph extends AbstractGraph {
             shape = target.createWireframeShape(false, descriptor);
             double[][] lineSegment = new double[topoData.length][2];
             for (int i = 0; i < topoData.length; i++) {
-                lineSegment[i][0] = graphExtent.getMinX() + i
-                        * graphExtent.getWidth() / (topoData.length - 1);
+                lineSegment[i][0] = graphExtent.getMinX()
+                        + ((i * graphExtent.getWidth()) / (topoData.length - 1));
                 lineSegment[i][1] = topoData[i];
                 lineSegment[i][1] = Math.min(lineSegment[i][1],
                         graphExtent.getMaxY());
-                if (i % 2 == 0) {
+                if ((i % 2) == 0) {
                     double[][] bar = new double[2][2];
                     bar[0] = lineSegment[i];
                     bar[1][0] = lineSegment[i][0];
@@ -407,7 +410,7 @@ public class CrossSectionGraph extends AbstractGraph {
 
     public double[] getTopoData(LineString line, int numPoints) {
         if (topoData.containsKey(line)
-                && topoData.get(line).length == numPoints) {
+                && (topoData.get(line).length == numPoints)) {
             return topoData.get(line);
         }
 
@@ -420,11 +423,12 @@ public class CrossSectionGraph extends AbstractGraph {
             Coordinate[] lineData;
             lineData = GeoUtil.splitLine(numPoints, line.getCoordinates());
 
-            heights = TopoQuery.getInstance().getHeight(lineData);
-            if (heights == null) {
+            try {
+                heights = TopoQuery.getInstance().getHeight(lineData);
+            } catch (TopoException e) {
                 statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Error occured requesting Topo data, topo will be unavailable.");
+                        .error("Error occured requesting Topo data, topo will be unavailable.",
+                                e);
                 return new double[numPoints];
             }
             if (csDesc.getHeightScale().getHeightType() == LevelType.PRESSURE) {

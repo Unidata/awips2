@@ -25,7 +25,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.CELLTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.DMDTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.MESOTable;
@@ -33,6 +32,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanThresholdColor;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.TVSTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.WARN_TYPE;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 
 /**
  * 

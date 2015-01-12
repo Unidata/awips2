@@ -68,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 17, 2008 1787        askripsk    Connected to Database.
  * May 6, 2009  2181        mpduff      Keep selection upon submit.
  * Apr 18, 2013 1790        rferrel     Make dialog non-blocking.
+ * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
  * 
  * </pre>
  * 
@@ -513,6 +514,9 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
                     VizApp.runAsync(new Runnable() {
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             updateLocDialogDisplay();
                         }
                     });
@@ -523,6 +527,9 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
                     VizApp.runAsync(new Runnable() {
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             setBusy(false);
                         }
                     });
@@ -551,6 +558,9 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
 
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             updateTextDialogDisplay();
                         }
                     });
@@ -561,6 +571,9 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
                     VizApp.runAsync(new Runnable() {
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             setBusy(false);
                         }
                     });

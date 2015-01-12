@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.gfe.dialogs;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -33,6 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
@@ -52,9 +55,10 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 16, 2011            dgilling     Initial creation
+ * Sep 16, 2011            dgilling    Initial creation
  * Nov 13, 2012 1298       rferrel     Code clean up for non-blocking dialog.
  * Mar 29, 2013 1790       rferrel     Bug fix for non-blocking dialogs.
+ * Aug 20, 2014 #1664      randerso    Fixed invalid thread access
  * 
  * </pre>
  * 
@@ -194,6 +198,20 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
         newShell.setText("Delta Value");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog#createContents(org.eclipse
+     * .swt.widgets.Composite)
+     */
+    @Override
+    protected Control createContents(Composite parent) {
+        Control contents = super.createContents(parent);
+        setUpDialog();
+        return contents;
+    }
+
     @Override
     protected Control createDialogArea(Composite parent) {
         dialogFrame = (Composite) super.createDialogArea(parent);
@@ -201,11 +219,10 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
         GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
         dialogFrame.setLayout(layout);
         dialogFrame.setLayoutData(data);
-        setUpDialog(dialogFrame);
         return dialogFrame;
     }
 
-    private void setUpDialog(Composite master) {
+    private void setUpDialog() {
         // remove any existing ones first
         if (label != null) {
             label.dispose();
@@ -229,7 +246,7 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
         // Set up the display for setting delta value
         GridData data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         data.horizontalSpan = 2;
-        label = new Label(master, SWT.CENTER);
+        label = new Label(dialogFrame, SWT.CENTER);
         label.setText("No active weather element");
         label.setLayoutData(data);
 
@@ -251,7 +268,7 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
                         .getGridInfo().getMinValue()) / 5;
             }
 
-            scale = new Scale(master, SWT.HORIZONTAL);
+            scale = new Scale(dialogFrame, SWT.HORIZONTAL);
             scale.setMinimum(0);
             scale.setMaximum((int) (maxLimit / res));
             scale.setIncrement((int) (1 / res));
@@ -262,20 +279,23 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
             scale.setLayoutData(data);
             scale.addSelectionListener(scaleListener);
 
-            entryLabel = new Label(master, SWT.NONE);
+            entryLabel = new Label(dialogFrame, SWT.NONE);
             data = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
             entryLabel.setText("Enter Value:");
             entryLabel.setLayoutData(data);
 
             data = new GridData(80, SWT.DEFAULT);
-            entryField = new Text(master, SWT.BORDER);
+            entryField = new Text(dialogFrame, SWT.BORDER);
             entryField.setText(String.format("%-6." + (prec + 1) + "f",
                     origValue).trim());
             entryField.setLayoutData(data);
             entryField.addSelectionListener(entryListener);
-        }
 
-        master.layout();
+        }
+        getButton(ADJUST_UP).setEnabled(parm != null);
+        getButton(ADJUST_DOWN).setEnabled(parm != null);
+
+        dialogFrame.layout();
         getShell().pack(true);
     }
 
@@ -298,7 +318,12 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
     @Override
     public void activatedParmChanged(Parm newParm) {
         parm = newParm;
-        setUpDialog(dialogFrame);
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                setUpDialog();
+            }
+        });
     }
 
     /*
@@ -313,11 +338,14 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
     public void displayedParmListChanged(Parm[] parms, Parm[] deletions,
             Parm[] additions) {
         if (parm != null) {
-            for (Parm deleted : deletions) {
-                if (parm.equals(deleted)) {
-                    parm = null;
-                    setUpDialog(dialogFrame);
-                }
+            if (Arrays.asList(deletions).contains(parm)) {
+                parm = null;
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        setUpDialog();
+                    }
+                });
             }
         }
     }

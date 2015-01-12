@@ -26,14 +26,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
 import com.raytheon.viz.grid.inv.GridInventory;
 
@@ -47,6 +46,7 @@ import com.raytheon.viz.grid.inv.GridInventory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 19, 2013   2391     mpduff      Initial creation
+ * Sep 09, 2014   3356     njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -64,10 +64,9 @@ public class GridProductBrowserDataFormatter {
      * @param parameters
      *            List of parameters
      * @return List of ProductBrowserLabel objects
-     * @throws CommunicationException
      */
     public static List<ProductBrowserLabel> formatGridData(String param,
-            String[] parameters) throws CommunicationException {
+            String[] parameters) {
         List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
         if (GridInventory.MODEL_NAME_QUERY.equals(param)) {
             DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();

@@ -30,7 +30,8 @@ package com.raytheon.uf.viz.thinclient.preferences;
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2011            mschenke     Initial creation
  * Jan 14, 2013 1469       bkowal       The hdf5 data directory is no longer a preference constant.
- * Feb 04, 2014 2704       njensen      Single proxy preference constant
+ * Feb 04, 2014 2704       njensen      Consolidate services and pypies proxy addresses
+ * Jun 24, 2014 3236       njensen      Added proxy address options
  * 
  * </pre>
  * 
@@ -69,4 +70,6 @@ public class ThinClientPreferenceConstants {
     public static String P_PREFERENCE_PLACEHOLDER = "placeholderPreference";
 
     public static String P_PROXY_ADDRESS = "proxyAddress";
+
+    public static final String P_PROXY_SERVER_OPTIONS = "proxyAddressOptions";
 }

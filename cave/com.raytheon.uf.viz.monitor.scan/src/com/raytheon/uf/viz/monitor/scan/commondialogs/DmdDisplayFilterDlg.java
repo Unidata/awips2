@@ -32,12 +32,12 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.scan.config.DmdConfigMgr;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.DMDTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
 import com.raytheon.uf.common.monitor.scan.xml.SCANConfigDmdXML;
+import com.raytheon.uf.viz.monitor.scan.config.DmdConfigMgr;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**

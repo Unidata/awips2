@@ -20,25 +20,25 @@
 package com.raytheon.viz.texteditor.alarmalert.util;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.core.mode.CAVEMode;
 
 /**
- * TODO Add Description
+ * Alarm Alert Notification Observer
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 13, 2009            mnash     Initial creation
+ * Oct 13, 2009            mnash       Initial creation
  * Jun 07, 2010 5851       cjeanbap    Properly stop alarm/alert observer listener.
+ * Jul 24, 2014 3423       randerso    Get afos command execution off the UI thread
  * 
  * </pre>
  * 
@@ -79,9 +79,9 @@ public class AlarmAlertNotificationObserver implements INotificationObserver {
     /*
      * (non-Javadoc)
      * 
-     * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
@@ -108,7 +108,8 @@ public class AlarmAlertNotificationObserver implements INotificationObserver {
                 }
 
                 if (run != null) {
-                    VizApp.runAsync(run);
+                    Thread thread = new Thread(run);
+                    thread.start();
                 }
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,

@@ -21,9 +21,9 @@ package com.raytheon.uf.viz.npp.viirs.data;
 
 import java.util.Collection;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 
 /**
  * TODO Add Description

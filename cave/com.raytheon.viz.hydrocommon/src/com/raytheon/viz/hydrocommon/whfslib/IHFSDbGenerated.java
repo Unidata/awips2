@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
+import com.raytheon.uf.common.dataplugin.shef.tables.DAARadarResult;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypc;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypp;
 import com.raytheon.uf.common.dataplugin.shef.tables.Ingestfilter;
@@ -252,6 +253,40 @@ public class IHFSDbGenerated {
     }
 
     public static int UpdateRWRadarResult(Rwradarresult obj) {
+        try {
+            return DirectDbQuery.saveOrUpdate(obj, "ihfs");
+        } catch (VizException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
+    
+    public static List<DAARadarResult> GetDAARadarResult(String where) {
+        StringBuilder query = new StringBuilder("FROM ");
+        query.append(DAARadarResult.class.getName());
+        query.append(" ");
+        query.append(where);
+        
+        ArrayList<DAARadarResult> retVal = new ArrayList<DAARadarResult>();
+        try {
+            List<Object[]> results = DirectDbQuery.executeQuery(query
+                    .toString(), "ihfs", QueryLanguage.HQL);
+
+            retVal.ensureCapacity(results.size());
+            for (Object[] item : results) {
+                retVal.add((DAARadarResult) item[0]);
+            }
+        } catch (VizException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return retVal;
+    }
+    
+    public static int UpdateDAARadarResult(DAARadarResult obj) {
         try {
             return DirectDbQuery.saveOrUpdate(obj, "ihfs");
         } catch (VizException e) {

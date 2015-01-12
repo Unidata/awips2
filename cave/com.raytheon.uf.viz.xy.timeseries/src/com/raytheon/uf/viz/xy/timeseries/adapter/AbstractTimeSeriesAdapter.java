@@ -43,7 +43,8 @@ import com.raytheon.viz.core.graphing.xy.XYDataList;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 7, 2010            bsteffen     Initial creation
+ * May 07, 2010            bsteffen    Initial creation
+ * Jun 18, 2014 3242       njensen     Added getEnsembleId()
  * 
  * </pre>
  * 
@@ -103,9 +104,8 @@ public abstract class AbstractTimeSeriesAdapter<T extends PluginDataObject> {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public boolean hasRecord(PluginDataObject pdo) {
-        return records.contains((T) pdo);
+        return records.contains(pdo);
     }
 
     public void remove(DataTime time) {
@@ -117,6 +117,15 @@ public abstract class AbstractTimeSeriesAdapter<T extends PluginDataObject> {
                 }
             }
         }
+    }
+
+    /**
+     * Get the ensemble id if applicable, otherwise return null
+     * 
+     * @return
+     */
+    public String getEnsembleId() {
+        return null;
     }
 
 }

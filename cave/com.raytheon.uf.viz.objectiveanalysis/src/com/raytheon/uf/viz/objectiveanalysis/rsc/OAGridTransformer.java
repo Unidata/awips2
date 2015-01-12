@@ -32,6 +32,7 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -41,8 +42,8 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.common.wxmath.DistFilter;
 import com.raytheon.uf.common.wxmath.ScalelessAnalysis;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * Requests point data and performs objective analysis to map then data onto a
@@ -115,8 +116,13 @@ public class OAGridTransformer {
 
         String[] parameters = { "latitude", "longitude", parameter };
 
-        PointDataContainer pdc = DataCubeContainer.getPointData(pluginName,
-                parameters, levelKey, constraints);
+        PointDataContainer pdc;
+        try {
+            pdc = DataCubeContainer.getPointData(pluginName, parameters,
+                    levelKey, constraints);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         if (pdc == null) {
             return null;
         }

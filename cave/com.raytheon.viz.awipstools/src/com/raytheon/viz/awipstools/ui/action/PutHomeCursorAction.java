@@ -38,6 +38,7 @@ import com.raytheon.viz.awipstools.ui.layer.HomeToolLayer;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Sep 03, 2013  2310     bsteffen    Rewritten to extend HomeToolAction.
+ * Apr 21, 2014  3041     lvenable    Added dispose check.
  * 
  * </pre>
  * 
@@ -50,12 +51,10 @@ public class PutHomeCursorAction extends HomeToolAction {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (putHomeCursorDialog == null
-                || putHomeCursorDialog.getShell() == null) {
+        if (putHomeCursorDialog == null || putHomeCursorDialog.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             putHomeCursorDialog = new PutHomeCursorDialog(shell);
-            putHomeCursorDialog.setBlockOnOpen(false);
             putHomeCursorDialog.open();
         }
 

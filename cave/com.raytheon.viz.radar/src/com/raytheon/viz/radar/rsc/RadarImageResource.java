@@ -37,6 +37,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -59,7 +61,6 @@ import com.raytheon.uf.viz.core.IMeshCallback;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -72,7 +73,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
-import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.util.DataUtilities;
@@ -85,9 +85,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 4, 2010            mnash     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 04, 2010           mnash       Initial creation
+ * Jun 11, 2014  2061     bsteffen    Move rangeable capability to radial
+ *                                    resource
  * 
  * </pre>
  * 
@@ -277,7 +279,11 @@ public class RadarImageResource<D extends IDescriptor> extends
                 colorMapName = "Radar/OSF/16 Level Reflectivity";
             }
 
-            params.setColorMap(ColorMapLoader.loadColorMap(colorMapName));
+            try {
+                params.setColorMap(ColorMapLoader.loadColorMap(colorMapName));
+            } catch (ColorMapException e) {
+                throw new VizException(e);
+            }
 
         }
 
@@ -345,9 +351,6 @@ public class RadarImageResource<D extends IDescriptor> extends
                         paintProps.getAlpha());
             }
         }
-        RangeRingsOverlayCapability rrcap = getCapability(RangeRingsOverlayCapability.class);
-        rrcap.setRangeableResource(this);
-        rrcap.paint(target, paintProps);
     }
 
     public void paintRadar(IGraphicsTarget target, PaintProperties paintProps)

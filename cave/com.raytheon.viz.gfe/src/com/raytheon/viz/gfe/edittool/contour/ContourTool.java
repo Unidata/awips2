@@ -117,6 +117,8 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     drawing and calculating new grid.
  * Aug 08, 2012 #621       dgilling    Fix ConcurrentModificationException
  *                                     in handling of renderables field.
+ * May 15, 2014 #3069      randerso    Changed to compute contour label spacing variable
+ *                                     based on subsample setting
  * 
  * </pre>
  * 
@@ -212,7 +214,7 @@ public class ContourTool extends AbstractFreeformTool implements
             Point gridSize = gloc.gridSize();
             int newX = ((gridSize.x - 1) / subFactor) + 1;
             int newY = ((gridSize.y - 1) / subFactor) + 1;
-            if (newX <= 5 || newY <= 5) {
+            if ((newX <= 5) || (newY <= 5)) {
                 int tmpX = gridSize.x / 5;
                 int tmpY = gridSize.y / 5;
                 subFactor = Math.min(tmpX, tmpY);
@@ -228,14 +230,14 @@ public class ContourTool extends AbstractFreeformTool implements
     }
 
     private RemapGrid getToLowRes() {
-        if (toLowRes == null && currentGrid != null) {
+        if ((toLowRes == null) && (currentGrid != null)) {
             computeRemaps();
         }
         return toLowRes;
     }
 
     private RemapGrid getToHiRes() {
-        if (toHiRes == null && currentGrid != null) {
+        if ((toHiRes == null) && (currentGrid != null)) {
             computeRemaps();
         }
         return toHiRes;
@@ -319,9 +321,6 @@ public class ContourTool extends AbstractFreeformTool implements
         refresh();
     }
 
-    /**
-     * 
-     */
     private void replaceCLines(List<CLine> contours) {
         clearRenderables();
 
@@ -335,6 +334,7 @@ public class ContourTool extends AbstractFreeformTool implements
             JTSRenderable renderable = new JTSRenderable();
             renderable.setLineWidth(2.0f);
             renderable.setColor(contourColor);
+            renderable.setLabelSpacing(200 / subSample);
             for (CLine contour : contours) {
                 LineString ls = contour.getLineString();
                 if (ls == null) {
@@ -1141,8 +1141,8 @@ public class ContourTool extends AbstractFreeformTool implements
                 sumLoc.x += coords.get(i).x;
                 sumLoc.y += coords.get(i).y;
             }
-            sumLoc.x = sumLoc.x / (end - start + 1);
-            sumLoc.y = sumLoc.y / (end - start + 1);
+            sumLoc.x = sumLoc.x / ((end - start) + 1);
+            sumLoc.y = sumLoc.y / ((end - start) + 1);
             return sumLoc;
         } else {
             int i;
@@ -1154,8 +1154,8 @@ public class ContourTool extends AbstractFreeformTool implements
                 sumLoc.x += coords.get(i).x;
                 sumLoc.y += coords.get(i).y;
             }
-            sumLoc.x = sumLoc.x / (start - end + 1);
-            sumLoc.y = sumLoc.y / (start - end + 1);
+            sumLoc.x = sumLoc.x / ((start - end) + 1);
+            sumLoc.y = sumLoc.y / ((start - end) + 1);
             return sumLoc;
         }
     }
@@ -1182,7 +1182,7 @@ public class ContourTool extends AbstractFreeformTool implements
         double distance = line.getCoordinateN(0).distance(
                 line.getCoordinateN(line.getNumPoints() - 1));
 
-        if (distance < 3 * (cellSize.x + cellSize.y) / 2) {
+        if (distance < ((3 * (cellSize.x + cellSize.y)) / 2)) {
             return true;
         }
 
@@ -1260,7 +1260,7 @@ public class ContourTool extends AbstractFreeformTool implements
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
         Parm activeParm = dataManager.getSpatialDisplayManager()
                 .getActivatedParm();
-        if (activeParm != null
+        if ((activeParm != null)
                 && activeParm.getGridInfo().getGridType()
                         .equals(GridType.SCALAR)) {
 
@@ -1668,7 +1668,7 @@ public class ContourTool extends AbstractFreeformTool implements
 
     @Override
     public void gridDataChanged(ParmID parmId, TimeRange validTime) {
-        if (currentGrid != null
+        if ((currentGrid != null)
                 && currentGrid.getParm().getParmID().equals(parmId)
                 && currentGrid.getGridTime().equals(validTime)) {
             initializeContourData(getGrid());
@@ -1681,7 +1681,7 @@ public class ContourTool extends AbstractFreeformTool implements
 
     @Override
     public void parmInventoryChanged(Parm parm, TimeRange affectedTimeRange) {
-        if (currentGrid != null
+        if ((currentGrid != null)
                 && parm.getParmID().equals(currentGrid.getParm().getParmID())
                 && affectedTimeRange.contains(currentGrid.getGridTime())) {
             initializeContourData(getGrid());

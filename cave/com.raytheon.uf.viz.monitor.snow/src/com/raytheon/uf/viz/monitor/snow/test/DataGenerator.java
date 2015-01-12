@@ -22,8 +22,8 @@ package com.raytheon.uf.viz.monitor.snow.test;
 import java.util.Date;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.data.TableCellData;
 import com.raytheon.uf.viz.monitor.data.TableData;
 import com.raytheon.uf.viz.monitor.data.TableRowData;

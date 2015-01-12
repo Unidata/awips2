@@ -30,8 +30,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.hydrocommon.Activator;
-import com.raytheon.viz.hydrocommon.constants.StatusConstants;
 import com.raytheon.viz.hydrocommon.radaroverlay.RadarRingOverlayData;
 import com.raytheon.viz.hydrocommon.resource.RadarRingOverlayResource;
 import com.raytheon.viz.hydrocommon.resource.RadarRingOverlayResourceData;
@@ -47,7 +45,8 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 22, 2010 4356       mpduff      Initial creation.
- * Apr 4, 2011  8934        mnash       Fix memory leaks, added timer to retrieve data
+ * Apr 04, 2011 8934       mnash       Fix memory leaks, added timer to retrieve data
+ * May 27, 2014 3133       njensen     Organized imports
  * </pre>
  * 
  * @author mpduff
@@ -55,7 +54,9 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager;
  */
 
 public class MPERadarRingOverlayResource extends RadarRingOverlayResource {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(MPERadarRingOverlayResource.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MPERadarRingOverlayResource.class);
+
     // utilizes the RadarRingOverlayResource, except adds an extra color and
     // also adds an extra query
     private final RGB RED = new RGB(255, 0, 0);
@@ -87,7 +88,8 @@ public class MPERadarRingOverlayResource extends RadarRingOverlayResource {
                         MPEDisplayManager displayManager = MPEDisplayManager
                                 .getCurrent();
                         if (displayManager != null) {
-                            Date displayDate = displayManager.getCurrentEditDate();
+                            Date displayDate = displayManager
+                                    .getCurrentEditDate();
                             for (RadarRingOverlayData rdata : dataMap.values()) {
                                 dao.getRadarAvailable(rdata, displayDate);
                                 if (rdata.isRadAvail()) {

@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2012            mschenke     Initial creation
+ * Apr 08, 2014 2968       njensen      Added byte[] data arg to persistEvent
  * 
  * </pre>
  * 
@@ -41,8 +42,18 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
 
 public interface IObjectEventPersistance {
 
-    public IPersistedEvent persistEvent(AbstractDispatchingObjectEvent event)
-            throws CollaborationException;
+    /**
+     * Persists an event to the remote service
+     * 
+     * @param event
+     *            the event to persist
+     * @param data
+     *            the event transformed to bytes
+     * @return an IPersistedEvent that references the remotely persisted event
+     * @throws CollaborationException
+     */
+    public IPersistedEvent persistEvent(AbstractDispatchingObjectEvent event,
+            byte[] data) throws CollaborationException;
 
     public void dispose() throws CollaborationException;
 }

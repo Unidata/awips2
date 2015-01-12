@@ -22,6 +22,7 @@ package com.raytheon.viz.pointdata.util;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ import org.w3c.dom.Text;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -55,6 +56,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Sep 25, 2009 3099       bsteffen     Initial creation
  * Oct 20, 2010 6853       bgonzale     Migrated common symbol loading code.
  * Aug 09, 2013  2033      mschenke    Switched File.separator to IPathManager.SEPARATOR
+ * Aug 11, 2014  3504      mapeters    Replaced deprecated IODataPreparer
+ *                                     instances with IRenderedImageCallback.
  * 
  * </pre>
  * 
@@ -118,7 +121,7 @@ public class SymbolLoader {
             byte[] blue = { 0, (byte) color.blue };
             IndexColorModel colorModel = new IndexColorModel(8, 2, red, green,
                     blue, 0);
-            BufferedImage bImage = new BufferedImage(12, 12,
+            final BufferedImage bImage = new BufferedImage(12, 12,
                     BufferedImage.TYPE_BYTE_INDEXED, colorModel);
             Graphics2D g2d = bImage.createGraphics();
 
@@ -127,8 +130,13 @@ public class SymbolLoader {
             GraphicsNode gn = builder.build(this.bridgeContext, this.document);
             gn.paint(g2d);
 
-            IImage iImage = target.initializeRaster(new IODataPreparer(bImage,
-                    String.format("wxsym%x", (int) c), 0), null);
+            IImage iImage = target
+                    .initializeRaster(new IRenderedImageCallback() {
+                        @Override
+                        public RenderedImage getImage() throws VizException {
+                            return bImage;
+                        }
+                    });
 
             images.put(c, iImage);
 

@@ -34,12 +34,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.apache.commons.pool"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.sun.jna"
          download-size="0"
          install-size="0"
@@ -64,19 +58,25 @@
          version="0.0.0"/>
 
    <plugin
+         id="org.apache.derby"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="javax.servlet"
+         download-size="0"
+         install-size="0"
+         version="3.0.0"/>
+
+   <plugin
          id="org.apache.commons.cxf"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="it.geosolutions"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.derby"
+         id="org.opensaml"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009   2307         dhladky     Initial creation
  * Apr 18, 2013    1916      njensen       Bulk rendering
+ * May 09, 2014    3145      mpduff        Fix threat report displays
  * 
  * 
  * </pre>
@@ -196,7 +197,8 @@ public class CWATLocalThreatResource extends CWATResource {
                         color);
                 ds.horizontalAlignment = HorizontalAlignment.CENTER;
                 ds.font = font;
-                ds.textStyle = TextStyle.BOXED;
+                ds.addTextStyle(TextStyle.BOXED);
+                ds.addTextStyle(TextStyle.BLANKED);
                 ds.verticallAlignment = VerticalAlignment.MIDDLE;
                 double[] center = descriptor.worldToPixel(new double[] {
                         loc.getLon(), loc.getLat() });

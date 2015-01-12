@@ -30,6 +30,7 @@ import javax.measure.unit.Unit;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.referencing.GeodeticCalculator;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -39,10 +40,10 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.interp.IInterpolation;
 import com.raytheon.uf.viz.core.interp.InterpolationRequest;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.graph.CrossSectionGraph;
@@ -126,9 +127,15 @@ public class PointCSAdapter extends
                     new RequestConstraint(TimeUtil
                             .formatToSqlTimestamp(currentTime.getRefTime())));
         }
-        PointDataContainer pdc = DataCubeContainer.getPointData(records.get(0)
-                .getPluginName(), new String[] { parameter, "stationId",
-                heightScale.getParameter() }, constraints);
+        PointDataContainer pdc;
+        try {
+            pdc = DataCubeContainer.getPointData(
+                    records.get(0).getPluginName(), new String[] { parameter,
+                            "stationId", heightScale.getParameter() },
+                    constraints);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         unit = pdc.getDescription(parameter).getUnitObject();
         Unit<?> dataYUnit = pdc.getDescription(heightScale.getParameter())
                 .getUnitObject();

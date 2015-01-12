@@ -89,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 11/26/2012   1298       rferrel     Non-blocking dialog code cleanup.
  * 12 Aug 2013  #2256      lvenable    Disposed of masterImage.
+ * 19Mar2014    #2925      lvenable    Added dispose checks for runAsync.
  * 
  * </pre>
  * 
@@ -723,21 +724,24 @@ public class WeatherPlotDialog extends CaveSWTDialog {
             @Override
             public void run() {
                 dataMgr.loadCacheData(siteId);
-                if (isDisposed() == false) {
-                    VizApp.runAsync(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (dataMgr.loadData(siteId, currentTime)) {
-                                updateSiteTimeLabel();
-                                displayData();
-                            } else {
-                                // Something cleared the cache try again.
-                                populateData();
-                            }
-                            setCursorBusy(false);
+
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isDisposed()) {
+                            return;
                         }
-                    });
-                }
+
+                        if (dataMgr.loadData(siteId, currentTime)) {
+                            updateSiteTimeLabel();
+                            displayData();
+                        } else {
+                            // Something cleared the cache try again.
+                            populateData();
+                        }
+                        setCursorBusy(false);
+                    }
+                });
             }
         });
         thread.start();

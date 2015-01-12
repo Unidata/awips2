@@ -26,21 +26,18 @@ import javax.measure.unit.SI;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.topo.TopoException;
 import com.raytheon.uf.common.topo.TopoQuery;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.viz.grid.util.SliceUtil;
 
 /**
- * requestable data that queries the topo datastore and transforms the data into
+ * Requestable data that queries the topo datastore and transforms the data into
  * the correct coverage.
  * 
  * <pre>
@@ -51,6 +48,7 @@ import com.raytheon.viz.grid.util.SliceUtil;
  * Jan 15, 2010            rjpeter     Initial creation
  * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
  *                                     and moved into common
+ * Sep 09, 2014 3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -59,8 +57,6 @@ import com.raytheon.viz.grid.util.SliceUtil;
  */
 
 public class TopoRequestableData extends AbstractRequestableData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(TopoRequestableData.class);
 
     // need to move to a static timed cache
     private static Map<GridCoverage, FloatDataRecord> topoCache = new HashMap<GridCoverage, FloatDataRecord>();
@@ -70,11 +66,7 @@ public class TopoRequestableData extends AbstractRequestableData {
         this.parameter = "staticTopo";
         this.parameterName = "Topography";
         this.unit = SI.METER;
-        try {
-            this.level = LevelFactory.getInstance().getLevel("SFC", 0.0);
-        } catch (CommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
+        this.level = LevelFactory.getInstance().getLevel("SFC", 0.0);
     }
 
     /*
@@ -83,19 +75,20 @@ public class TopoRequestableData extends AbstractRequestableData {
      * @see com.raytheon.viz.grid.util.AbstractRequestableData#getDataValue()
      */
     @Override
-    public FloatDataRecord getDataValue(Object arg) throws VizException {
+    public FloatDataRecord getDataValue(Object arg) throws DataCubeException {
         GridCoverage coverage = (GridCoverage) this.getSpace();
         FloatDataRecord rval = topoCache.get(coverage);
 
         if (rval == null) {
             // retrieve topo data and assign record to FloatDataRecord
             GridGeometry2D gridGeom = coverage.getGridGeometry();
-            float[] heights = TopoQuery.getInstance().getHeight(gridGeom);
-
-            if (heights != null) {
+            try {
+                float[] heights = TopoQuery.getInstance().getHeight(gridGeom);
                 rval = new FloatDataRecord(null, null, heights, 2, new long[] {
                         coverage.getNx(), coverage.getNy() });
                 topoCache.put(coverage, rval);
+            } catch (TopoException e) {
+                throw new DataCubeException("Unable to retrieve topo data", e);
             }
         }
         if (arg instanceof Request) {

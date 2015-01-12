@@ -19,15 +19,18 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="bundleItem" file="bundles/snow/snowImageTable.xml" id="SNOWMONITOR" commandId="com.raytheon.uf.viz.monitor.snow.ui.actions.snow"
-               menuText="SNOW Table/Display">
-               <substitute key="cwa" value="${cwa}" />
+    <contribute xsi:type="bundleItem" file="bundles/snow/snowImageTable.xml"
+        id="SNOWMONITOR" commandId="com.raytheon.uf.viz.monitor.snow.ui.actions.snow"
+        menuText="SNOW Table/Display">
+        <substitute key="stations" value="${stations}" />
     </contribute>
     <contribute xsi:type="separator" id="Snow monitor Controls" />
-    <contribute xsi:type="command" id="ConfigureMonitorArea" commandId="com.raytheon.uf.viz.monitor.snow.ui.actions.snowAreaConfig"
-               menuText="Configure SNOW Monitor Area">
+    <contribute xsi:type="command" id="ConfigureMonitorArea"
+        commandId="com.raytheon.uf.viz.monitor.snow.ui.actions.snowAreaConfig"
+        menuText="Configure SNOW Monitor Area">
     </contribute>
-    <contribute xsi:type="command" id="SNOWAlertVisThresholds" commandId="com.raytheon.uf.viz.monitor.snow.ui.actions.snowThresholdAlertVisConfig"
-               menuText="Configure SNOW Thresholds for AlertViz Monitoring">
+    <contribute xsi:type="command" id="SNOWAlertVisThresholds"
+        commandId="com.raytheon.uf.viz.monitor.snow.ui.actions.snowThresholdAlertVisConfig"
+        menuText="Configure SNOW Thresholds for AlertViz Monitoring">
     </contribute>
 </menuTemplate>

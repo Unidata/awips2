@@ -37,8 +37,8 @@ import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.kml.export.KmlFeatureGenerator;
@@ -123,7 +123,7 @@ public abstract class KmlGroundOverlayGenerator extends KmlFeatureGenerator {
         } else {
             interp = new NearestNeighborInterpolation();
         }
-        FloatArrayWrapper dst = new FloatArrayWrapper(dest);
+        FloatBufferWrapper dst = new FloatBufferWrapper(dest.getGridRange2D());
         return reproj.reprojectedGrid(interp, data, dst).getArray();
     }
 

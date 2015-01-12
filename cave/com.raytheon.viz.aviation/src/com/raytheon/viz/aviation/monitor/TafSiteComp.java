@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
@@ -93,6 +93,8 @@ import com.raytheon.viz.avnconfig.IStatusSettable;
  * 20JUL2012    14570       gzhang/zhao Add data structure for highlighting correct time groups in TAF viewer
  * 01/02/2013   15606		gzhang		Remove GridData widthHint so button/label size change with GUI
  * 03/07/2013   1735        rferrel     Flag to indicate grid data is needed.
+ * 19Mar2014    #2925       lvenable    Added dispose checks for runAsync.
+ * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * </pre>
  * 
  * @author lvenable
@@ -554,8 +556,11 @@ public class TafSiteComp {
         if (taf == null) {
             VizApp.runAsync(new Runnable() {
                 public void run() {
-                    siteIdBtn.setBackground(getErrorColor());
-                    tafTimeLbl.setText("HH:MM");
+                    if (siteIdBtn.isDisposed() == false
+                            && tafTimeLbl.isDisposed() == false) {
+                        siteIdBtn.setBackground(getErrorColor());
+                        tafTimeLbl.setText("HH:MM");
+                    }
                 }
             });
         }
@@ -824,6 +829,8 @@ public class TafSiteComp {
             // Update viewer with new TAF.
             VizApp.runAsync(new Runnable() {
                 public void run() {
+                    // Not checking for a dispose since this is an interface.
+                    // The method should be responsible for handling this.
                     tveDlg.updateSettings(TafSettings.UPDATE_VIEW, stationName);
                 }
             });

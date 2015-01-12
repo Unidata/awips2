@@ -19,7 +19,7 @@
 		further_licensing_information.
 	-->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="titleItem" titleText="------ Best Res Z+V ------"
+	<contribute xsi:type="titleItem" titleText="------ Best Res Z+V combo ------"
 		id="BestResZV" />
 	<contribute xsi:type="bundleItem"
 		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="0.0 Z+V"

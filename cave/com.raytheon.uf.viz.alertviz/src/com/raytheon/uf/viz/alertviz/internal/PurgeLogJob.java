@@ -40,6 +40,8 @@ import com.raytheon.uf.viz.alertviz.Constants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2008 1433       chammack    Initial creation
+ * Aug 04, 2014 3356       njensen     Added e.printStacktrace() to trace errors
+ * 
  * </pre>
  * 
  * @author chammack
@@ -82,16 +84,14 @@ public class PurgeLogJob extends Job {
         } catch (AlertvizException e) {
             final Status s = new Status(Status.ERROR, Activator.PLUGIN_ID,
                     "Error occurred during purge and rotate", e);
+            e.printStackTrace();
             Display.getDefault().syncExec(new Runnable() {
 
                 @Override
                 public void run() {
-                    ErrorDialog
-                            .openError(
-                                    Display.getDefault().getActiveShell(),
-                                    "Error",
-                            "Error purging logs.",
-                                    s);
+                    ErrorDialog.openError(
+                            Display.getDefault().getActiveShell(), "Error",
+                            "Error purging logs.", s);
                 }
 
             });

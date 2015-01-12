@@ -59,6 +59,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * 16 Jan 2009  1883       Venable &amp;   Updated database calls and query methods. 
  *                         Duff
  * 10 Feb 2009             wkwock      Added functions and clean up.
+ * 12 Aug 2014  3049       bkowal      Close the BufferedReader when finished.
  * </pre>
  * 
  * @author wkwock
@@ -708,13 +709,12 @@ public class XdatDB {
         if (peMap == null) {
             peMap = new HashMap<String, String>();
             String line = null;
-            
+
             String xdatDir = AppsDefaults.getInstance().getToken("xdat_params");
             File file = new File(xdatDir + File.separator + "pe_map");
             if (file.exists()) {
-                try {
-                    BufferedReader br = new BufferedReader(new FileReader(file));
-    
+                try (BufferedReader br = new BufferedReader(
+                        new FileReader(file));) {
                     while (null != (line = br.readLine())) {
                         if (line.trim().equals("")) {
                             continue;
@@ -726,8 +726,8 @@ public class XdatDB {
                     ioe.printStackTrace();
                 }
             } else {
-                statusHandler.handle(Priority.ERROR, "pe_map file not found.  " +
-                        "Check for file in " + file.getParent());
+                statusHandler.handle(Priority.ERROR, "pe_map file not found.  "
+                        + "Check for file in " + file.getParent());
             }
         }
 

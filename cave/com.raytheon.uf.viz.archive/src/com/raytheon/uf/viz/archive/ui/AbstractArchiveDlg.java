@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.archive.ui;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.archive.data.ArchiveInfo;
 import com.raytheon.uf.viz.archive.data.CategoryInfo;
 import com.raytheon.uf.viz.archive.data.IArchiveTotals;
+import com.raytheon.uf.viz.archive.data.ILoadDisplayDataListener;
 import com.raytheon.uf.viz.archive.data.IRetentionHour;
 import com.raytheon.uf.viz.archive.data.IUpdateListener;
 import com.raytheon.uf.viz.archive.data.SizeJob;
@@ -77,6 +79,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Aug 06, 2013 2222       rferrel      Changes to display all selected data.
  * Nov 14, 2013 2549       rferrel      Get category data moved off the UI thread.
  * Dec 11, 2013 2624       rferrel      No longer clear table prior to populating.
+ * Apr 15, 2014 3034       lvenable     Added dispose checks in runAsync calls.
+ * Apr 10, 2014 3023       rferrel      Added setTotalSelectedSize method.
+ * Apr 23, 2014 3045       rferrel      Changes to prevent race condition while getting labels.
+ * Aug 26, 2014 3553       rferrel      Force redisplay of table after getting all display labels.
+ * 
  * </pre>
  * 
  * @author bgonzale
@@ -84,7 +91,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
-        IArchiveTotals, IUpdateListener, IModifyListener, IRetentionHour {
+        IArchiveTotals, IUpdateListener, IModifyListener, IRetentionHour,
+        ILoadDisplayDataListener {
 
     /** Table composite that holds the table controls. */
     private ArchiveTableComp tableComp;
@@ -112,7 +120,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     /**
      * Job that computes sizes of table row entries off the UI thread.
      */
-    protected final SizeJob sizeJob = new SizeJob();
+    protected final SizeJob sizeJob = new SizeJob(this);
 
     /** Keeps track of when it is safe to clear the busy cursor. */
     protected final AtomicInteger busyCnt = new AtomicInteger(0);
@@ -135,6 +143,12 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     private String previousSelectedArchive = null;
 
     private String previousSelectedCategory = null;
+
+    /** Job running to populate the currently selected archive/category. */
+    private Job populateTableJob = null;
+
+    /** Flag to indicate all labels for all tables are loaded. */
+    protected volatile boolean haveAllLabels = false;
 
     /**
      * @param parentShell
@@ -350,6 +364,9 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      */
     protected void createTable() {
         tableComp = new ArchiveTableComp(shell, type, this, sizeJob);
+        // Indicate loading the table labels.
+        tableComp
+                .setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         sizeJob.addUpdateListener(this);
     }
 
@@ -362,6 +379,9 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     protected void disposed() {
         sizeJob.removeUpdateListener(this);
         sizeJob.cancel();
+        if (populateTableJob != null) {
+            populateTableJob.cancel();
+        }
     }
 
     /**
@@ -460,12 +480,17 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Load a select configuration file.
+     * Load selected configuration file.
      * 
      * @param selectName
      */
-    protected void loadSelect(String selectName) {
-        sizeJob.loadSelect(selectName, type);
+    protected boolean loadSelect(String selectName) {
+        String message = sizeJob.loadSelect(selectName, type);
+        if (message != null) {
+            MessageDialog.openError(shell, "Unable to load Case", message);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -473,6 +498,13 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * adjust sizes on the display table.
      */
     protected void populateTableComp() {
+        populateTableComp(false);
+    }
+
+    /**
+     * @param forceUpdate
+     */
+    protected void populateTableComp(final boolean forceUpdate) {
         final String archiveName = getSelectedArchiveName();
         final String categoryName = getSelectedCategoryName();
 
@@ -480,15 +512,40 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
         setShowingSelected(false);
 
-        Job job = new Job("populate category table") {
+        if (populateTableJob != null) {
+            populateTableJob.cancel();
+            setCursorBusy(false);
+        }
+
+        populateTableJob = new Job("populate category table") {
+            private AtomicBoolean shutdown = new AtomicBoolean(false);
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                getCategoryTableData(archiveName, categoryName);
+                getCategoryTableData(archiveName, categoryName, shutdown,
+                        forceUpdate);
+
+                // Just populated the current table update cursor.
+                if (!shutdown.get()) {
+                    populateTableJob = null;
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            setCursorBusy(false);
+                        }
+                    });
+                }
                 return Status.OK_STATUS;
             }
+
+            @Override
+            protected void canceling() {
+                shutdown.set(true);
+            }
+
         };
-        job.schedule();
+        populateTableJob.schedule();
     }
 
     /**
@@ -498,26 +555,41 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * 
      * @param archiveName
      * @param categoryName
+     * @param shutdown
      */
     private void getCategoryTableData(final String archiveName,
-            final String categoryName) {
+            final String categoryName, final AtomicBoolean shutdown,
+            boolean forceUpdate) {
+
+        if (!sizeJob.isCurrentDisplay(archiveName, categoryName)) {
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (!isDisposed()) {
+                        tableComp.clearTable();
+                    }
+                }
+            });
+        }
 
         final List<DisplayData> displayDatas = sizeJob.changeDisplay(
-                archiveName, categoryName);
+                archiveName, categoryName, shutdown, forceUpdate);
 
         VizApp.runAsync(new Runnable() {
 
             @Override
             public void run() {
-                try {
-                    if (displayDatas != null) {
-                        tableComp.populateTable(archiveName, categoryName,
-                                displayDatas);
-                    } else {
-                        tableComp.refresh();
-                    }
-                } finally {
-                    setCursorBusy(false);
+                // If the dialog has been disposed then return.
+                if (isDisposed()) {
+                    return;
+                }
+
+                if (displayDatas != null) {
+                    tableComp.populateTable(archiveName, categoryName,
+                            displayDatas);
+                } else {
+                    tableComp.refresh();
                 }
             }
         });
@@ -529,11 +601,14 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * @param state
      */
     protected void setCursorBusy(boolean state) {
-        if (state) {
-            busyCnt.addAndGet(1);
-            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
-        } else if (busyCnt.addAndGet(-1) == 0) {
-            shell.setCursor(null);
+        if (!shell.isDisposed()) {
+            if (state) {
+                busyCnt.addAndGet(1);
+                shell.setCursor(shell.getDisplay().getSystemCursor(
+                        SWT.CURSOR_WAIT));
+            } else if (busyCnt.addAndGet(-1) == 0) {
+                shell.setCursor(null);
+            }
         }
     }
 
@@ -570,15 +645,22 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
             }
         }
 
+        setTotalSelectedSize(totalSize);
+        setTotalSelectedItems(totalSelected);
+    }
+
+    /**
+     * 
+     * @param selectedTotalSize
+     */
+    protected void setTotalSelectedSize(long selectedTotalSize) {
         String sizeMsg = null;
-        if (totalSize == DisplayData.UNKNOWN_SIZE) {
+        if (selectedTotalSize == DisplayData.UNKNOWN_SIZE) {
             sizeMsg = DisplayData.UNKNOWN_SIZE_LABEL;
         } else {
-            sizeMsg = SizeUtil.prettyByteSize(totalSize);
+            sizeMsg = SizeUtil.prettyByteSize(selectedTotalSize);
         }
-
         setTotalSizeText(sizeMsg);
-        setTotalSelectedItems(totalSelected);
     }
 
     /**
@@ -629,6 +711,8 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
                             .setToolTipText("Change display to show all case selections");
                 }
             }
+        } else {
+            showingSelected = false;
         }
     }
 
@@ -676,6 +760,11 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
             @Override
             public void run() {
+                // If the dialog has been disposed then return.
+                if (isDisposed()) {
+                    return;
+                }
+
                 tableComp.updateSize(myDisplayDatas);
                 updateTotals(null);
             }
@@ -764,6 +853,25 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         }
 
         return errorMsg == null;
+    }
+
+    /**
+     * Perform updates once all the display data is loaded.
+     */
+    public void loadedAllDisplayData() {
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                haveAllLabels = true;
+                if (showingSelected) {
+                    populateSelectAllTable();
+                } else {
+                    populateTableComp(true);
+                }
+                tableComp.setCursor(null);
+            }
+        });
     }
 
     /**

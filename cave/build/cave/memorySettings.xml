@@ -30,7 +30,7 @@
 	<default-memory-setting>
 		<default-max-memory>
 			<jvm-arg>Xmx</jvm-arg>
-			<value>1280M</value>
+			<value>2048M</value>
 		</default-max-memory>
 		
 		<default-max-perm>
@@ -394,7 +394,7 @@
             <site-type>wfo</site-type>
 			<ini-substitutions>
 				<max-memory>
-					<value>3072M</value>
+					<value>2560M</value>
 				</max-memory>
 			
 				<max-perm>
@@ -433,7 +433,7 @@
             <site-type>cwsu</site-type>
 			<ini-substitutions>
 				<max-memory>
-					<value>3072M</value>
+					<value>2560M</value>
 				</max-memory>
 			
 				<max-perm>

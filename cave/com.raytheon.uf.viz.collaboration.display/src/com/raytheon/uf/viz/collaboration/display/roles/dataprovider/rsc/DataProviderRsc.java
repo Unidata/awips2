@@ -25,7 +25,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
@@ -54,9 +53,13 @@ import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 13, 2012            njensen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 13, 2012           njensen     Initial creation
+ * Jan 28, 2014  2698     bclement    removed venue info
+ * Mar 06, 2014  2848     bclement    get subject dynamically from session
+ * May 16, 2014  3163     bsteffen    Remove references to deprecated
+ *                                    {@link DrawableString} field.
  * 
  * </pre>
  * 
@@ -68,8 +71,6 @@ public class DataProviderRsc extends
         AbstractVizResource<DataProviderRscData, IDescriptor> {
 
     private String roomName;
-
-    private String subject;
 
     private ISharedDisplaySession session;
 
@@ -85,9 +86,7 @@ public class DataProviderRsc extends
         if (container != null) {
             session = container.getSession();
             colorManager = container.getColorManager();
-            IVenueInfo info = session.getVenue().getInfo();
-            roomName = info.getVenueDescription();
-            subject = info.getVenueSubject();
+            roomName = session.getVenueName();
         }
     }
 
@@ -104,7 +103,7 @@ public class DataProviderRsc extends
         }
         target.clearClippingPlane();
         IExtent extent = paintProps.getView().getExtent();
-        RGB color = colorManager.getColorFromUser(session.getUserID());
+        RGB color = colorManager.getColorForUser(session.getUserID());
         target.drawRect(extent, color, 3.0f, 1.0f);
 
         DrawableString string = new DrawableString(getName(), color);
@@ -113,7 +112,7 @@ public class DataProviderRsc extends
         string.setCoordinates(extent.getMinX() + extent.getWidth() / 2,
                 extent.getMaxY());
         string.font = font;
-        string.textStyle = TextStyle.BLANKED;
+        string.addTextStyle(TextStyle.BLANKED);
         target.drawStrings(string);
 
         target.setupClippingPlane(paintProps.getClippingPane());
@@ -150,10 +149,15 @@ public class DataProviderRsc extends
         }
     }
 
+    @Override
     public String getName() {
         String text = "Sharing with " + roomName;
-        if (subject.isEmpty() == false) {
-            text += " (" + subject + ")";
+        if (session.getVenue() != null) {
+            // session subject could change
+            String subject = session.getVenue().getSubject();
+            if (subject.isEmpty() == false) {
+                text += " (" + subject + ")";
+            }
         }
         return text;
     }

@@ -42,22 +42,27 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.GraphType;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.common.monitor.data.ObConst;
+import com.raytheon.uf.common.monitor.xml.AreaIdXML;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.monitor.IMonitor;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.GraphType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.data.ObHourReports;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
-import com.raytheon.uf.viz.monitor.data.ObStnHourReports;
 import com.raytheon.uf.viz.monitor.data.ObTrendDataSet;
 import com.raytheon.uf.viz.monitor.data.TableData;
 import com.raytheon.uf.viz.monitor.data.TableUtil;
@@ -69,9 +74,11 @@ import com.raytheon.uf.viz.monitor.util.ObUtil;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.io.ParseException;
 
 /**
- * Abstrct Zone table dialog that is the foundation for all Zone dialogs.
+ * Abstract Zone table dialog that is the foundation for all Zone dialogs.
  * 
  * <pre>
  * 
@@ -85,6 +92,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 07, 2010 5105      zhao         Disabled the 'X' button of the shell
  * Oct 26, 2012 1280      skorolev     Changes for non-blocking dialog. 
  * Nov.11, 2012 1297      skorolev     new abstract initiateProdArray()
+ * May 13, 2014 3133      njensen      Updated getting ObsHistType from configMgr
+ * May 15, 2014 3086      skorolev     Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager.
+ * Sep 15, 2014 3220      skorolev     Added refreshZoneTableData method.
+ * Oct 17, 2014 3220      skorolev     Added condition into launchTrendPlot to avoid NPE.
+ * Nov 03, 2014 3741      skorolev     Updated zoom procedures.
  * 
  * </pre>
  * 
@@ -94,6 +106,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 public abstract class ZoneTableDlg extends CaveSWTDialog implements
         IMonitorListener, IMonitorControlListener, IStationTableAction,
         IZoneTableAction {
+    private final static IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ZoneTableDlg.class);
 
     /** Array listening monitors **/
     protected List<IMonitor> controlListeners = new ArrayList<IMonitor>();
@@ -226,10 +240,16 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     /** title of plot. **/
     private String dlgTitle;
 
+    /** current site **/
+    protected String site;
+
+    protected FSSObsMonitorConfigurationManager configMgr;
+
     /**
      * Constructor
      * 
      * @param parent
+     * @param obData
      * @param appName
      */
     public ZoneTableDlg(Shell parent, ObMultiHrsReports obData,
@@ -237,6 +257,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK
                 | CAVE.INDEPENDENT_SHELL);
         this.appName = appName;
+        this.site = LocalizationManager.getInstance().getCurrentSite();
         dFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         this.obData = obData;
         // the zone table data of the latest nominal time:
@@ -464,23 +485,33 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     public void updateTableDlg(ObHourReports obHrData) {
         nominalTime = obHrData.getNominalTime();
         updateZoneTable(nominalTime);
-        if (!selectedZone.equals("")) {
+        if (!selectedZone.equals("")
+                && obHrData.getHourReports().containsKey(selectedZone)) {
             updateStationTable(nominalTime);
         }
         updateNominalTimeLabel(nominalTime);
     }
 
     /**
-     * Sets zone table sort column index and sort direction to the current zone
-     * table sort column index and sort direction
+     * Sets Column and Sort Direction for Zone table.
      */
-    protected abstract void setZoneSortColumnAndDirection();
+    protected void setZoneSortColumnAndDirection() {
+        if (zoneTblData != null) {
+            zoneSortColumn = zoneTblData.getSortColumn();
+            zoneSortDirection = zoneTblData.getSortDirection();
+        }
+    }
 
     /**
      * Sets station table sort column index and sort direction to the current
      * station table sort column index and sort direction
      */
-    protected abstract void setStnSortColumnAndDirection();
+    protected void setStnSortColumnAndDirection() {
+        if (stnTblData != null) {
+            stnSortColumn = stnTblData.getSortColumn();
+            stnSortDirection = stnTblData.getSortDirection();
+        }
+    }
 
     /**
      * Creates the station table.
@@ -511,9 +542,12 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         // their current values
         setStnSortColumnAndDirection();
         stnTblData = obData.getStationTableData(nominalTime, selectedZone);
-        stnTblData.setSortColumnAndDirection(stnSortColumn, stnSortDirection);
-        stnTblData.sortData();
-        stationTable.setTableData(stnTblData);
+        if (stnTblData != null) {
+            stnTblData.setSortColumnAndDirection(stnSortColumn,
+                    stnSortDirection);
+            stnTblData.sortData();
+            stationTable.setTableData(stnTblData);
+        }
         stationTable.setZoneCountyId(selectedZone);
         stationTable.setIdLabel(selectedZoneHoverText);
         stationTable.table.redraw();
@@ -604,6 +638,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * com.raytheon.uf.viz.monitor.ui.dialogs.IStationTableAction#launchTrendPlot
      * (int, int)
      */
+    @Override
     public void launchTrendPlot(int rowIndex, int colIndex) {
         setRowIndex(rowIndex);
         setColIndex(colIndex);
@@ -695,28 +730,25 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * @see com.raytheon.uf.viz.monitor.ui.dialogs.IStationTableAction#
      * launchObHistoryTable(int)
      */
+    @Override
     public void launchObHistoryTable(int rowIndex) {
         String station = stnTblData.getTableRows().get(rowIndex)
                 .getTableCellData(0).getCellText();
-        ObStnHourReports report = obData.getObHourReports()
-                .getObZoneHourReports(selectedZone)
-                .getObStnHourReports(station);
-        if (report.getStationCenter() != null) {
-            lat = report.getStationCenter()[1];
-            lon = report.getStationCenter()[0];
-        } else {
-            lat = 0.0;
-            lon = 0.0;
-        }
         // Set dialog index
         String dialogID = appName.name() + station;
-        MonitorConfigurationManager configMgr = getConfigMgr();
-        ObsHistType histType = configMgr.getStationType(selectedZone, station);
+        ObsHistType histType = null;
+        if (configMgr != null) {
+            String strHistType = configMgr
+                    .getStationType(selectedZone, station);
+            histType = ObsHistType.valueOf(strHistType);
+        }
+        if (histType == null)
+            return;
         /**
          * For Snow monitor, no history table is displayed for a Maritime
          * station
          */
-        if (appName == AppName.SNOW && histType == ObsHistType.Maritime) {
+        if (appName == AppName.SNOW && histType == ObsHistType.MARITIME) {
             return;
         }
         ObsHistTableDlg obsHstTblDlg = (ObsHistTableDlg) openedDlgs
@@ -735,13 +767,6 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         }
         obsHstTblDlg.open();
     }
-
-    /**
-     * Gets Configuration manager.
-     * 
-     * @return manager
-     */
-    protected abstract MonitorConfigurationManager getConfigMgr();
 
     /**
      * Configuration button action method.
@@ -766,10 +791,16 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * @throws Exception
      */
     private void zoomToZone(String zone) throws Exception {
-        double[] zoneCenter = MonitorAreaUtils.getZoneCenter(zone);
-        if (zoneCenter != null) {
-            zoomAndRecenter(zoneCenter, ZONE_ZOOM_LEVEL);
+        Coordinate zoneCenter = MonitorAreaUtils.getZoneCenter(zone);
+        if (zoneCenter == null) { // Test a newly added zone.
+            AreaIdXML zoneXML = configMgr.getAreaXml(zone);
+            if (zoneXML != null // Coordinates do not the null values.
+                    && (zoneXML.getCLon() != null || zoneXML.getCLat() != null)) {
+                zoneCenter = new Coordinate(zoneXML.getCLon(),
+                        zoneXML.getCLat());
+            }
         }
+        zoomAndRecenter(zoneCenter, ZONE_ZOOM_LEVEL);
     }
 
     /*
@@ -779,15 +810,18 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * com.raytheon.uf.viz.monitor.ui.dialogs.IStationTableAction#zoomToStation
      * (int)
      */
+    @Override
     public void zoomToStation(int rowIndex) {
         String selectedStation = stnTblData.getTableRows().get(rowIndex)
                 .getTableCellData(0).getCellText();
-        ObStnHourReports reports = obData.getObHourReports()
-                .getObZoneHourReports(selectedZone)
-                .getObStnHourReports(selectedStation);
-        double[] stnCenter = reports.getStationCenter();
-        if (stnCenter != null) {
-            zoomAndRecenter(stnCenter, STATION_ZOOM_LEVEL);
+        try {
+            Coordinate stnCenter = MonitorAreaUtils
+                    .getStationCenter(selectedStation);
+            if (stnCenter != null) {
+                zoomAndRecenter(stnCenter, STATION_ZOOM_LEVEL);
+            }
+        } catch (SpatialException | ParseException e) {
+            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
         }
     }
 
@@ -797,7 +831,10 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * @param center
      * @param zoom
      */
-    private void zoomAndRecenter(double[] center, float zoom) {
+    private void zoomAndRecenter(Coordinate center, float zoom) {
+        if (center == null) {// No zoom.
+            return;
+        }
         IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
         if (container != null) {
             IDescriptor descriptor = container.getActiveDisplayPane()
@@ -808,10 +845,11 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
             } else {
                 mapWidth = 10000;
             }
-            float zoomLevel = (float) zoom / mapWidth;
+            float zoomLevel = zoom / mapWidth;
             for (IDisplayPane pane : container.getDisplayPanes()) {
                 pane.getRenderableDisplay().getExtent().reset();
-                pane.getRenderableDisplay().recenter(center);
+                pane.getRenderableDisplay().recenter(
+                        new double[] { center.x, center.y });
                 pane.getRenderableDisplay().zoom(zoomLevel);
                 pane.refresh();
             }
@@ -852,6 +890,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     @Override
     protected void disposed() {
         setReturnValue(true);
+        configMgr = null;
     }
 
     /**
@@ -905,7 +944,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      */
     private String getTrendPlotName(List<String> prod) {
         String varName = null;
-        String name = (String) prod.get(0);
+        String name = prod.get(0);
         int stInd = name.indexOf("_");
         if (prod.size() > 1) {
             varName = name.substring(0, stInd);
@@ -928,5 +967,15 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
             varName = name.substring(stInd + 1);
         }
         return varName;
+    }
+
+    /**
+     * Refreshes Zone Table.
+     * 
+     * @param obData
+     */
+    public void refreshZoneTableData(ObMultiHrsReports obData) {
+        obData.getObHourReports().updateZones();
+        this.updateTableDlg(obData.getObHourReports());
     }
 }

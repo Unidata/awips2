@@ -80,6 +80,7 @@ import com.raytheon.viz.mpe.MPECommandConstants;
 import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarLoc;
+import com.raytheon.viz.mpe.ui.dialogs.hourlyradar.RadarDataManager;
 import com.raytheon.viz.mpe.ui.displays.MPEMapRenderableDisplay;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData;
@@ -102,7 +103,11 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Mar 14, 2013   1457     mpduff       Reset the gages on the resource.
  * Apr 18, 2013   1920     mpduff       Added updateGages method to reload the gage data, 
  *                                      fix formatting of legend for Base field Height.
- * Jul 02, 2013   2160     mpduff       Initialize newly displayed resources.                                     
+ * Jul 02, 2013   2160     mpduff       Initialize newly displayed resources.
+ * Feb 02, 2014  16201     snaples      Added saved data flag support
+ * Feb 04, 2014   16410    lbousaidi    changed the first letter of the month to lower case.
+ * Feb 19, 2014   2628     mpduff       Change cast from short to int when creating color bar.
+ * Jun 30, 2014  17457     snaples      Added default case to switch in getXmrgfile.
  * 
  * </pre>
  * 
@@ -129,6 +134,12 @@ public class MPEDisplayManager {
     private int dqcDays = Integer.parseInt(AppsDefaults.getInstance().getToken(
             "mpe_dqc_num_days"));
 
+    /** Radar Type for Radar Coverage Map Legend **/
+    public static enum AvailableRadarGridType
+    {
+        DUAL_POL, SINGLE_POL, SINGLE_AND_DUAL_POL, MISSING
+    };
+    
     /**
      * @return the qpf
      */
@@ -207,6 +218,8 @@ public class MPEDisplayManager {
 
     private AbstractVizResource<?, ?> displayedResource;
 
+    private boolean savedData = true;
+
     public void setDisplayedResource(AbstractVizResource<?, ?> rsc) {
         displayedResource = rsc;
         if (displayedFieldResource != null
@@ -222,11 +235,11 @@ public class MPEDisplayManager {
      * @return the dataSaved
      */
     public boolean isDataSaved() {
-        // TODO: Does A1 MPE EVER have a time where you change edit dates and it
-        // doesn't prompt? If so, we need to check here if data is saved or not
-        // TODO: Also, any editing methods need to change displayed frame to
-        // stop looping so they can see what they are editing.
-        return false;
+        return savedData;
+    }
+
+    public void setSavedData(boolean saved) {
+        savedData = saved;
     }
 
     /**
@@ -268,7 +281,16 @@ public class MPEDisplayManager {
             DisplayFieldData.Xmrg, DisplayFieldData.rfcMosaic,
             DisplayFieldData.rfcbMosaic, DisplayFieldData.rfcmMosaic,
             DisplayFieldData.qmosaic, DisplayFieldData.lqmosaic,
-            DisplayFieldData.mlqmosaic, DisplayFieldData.localField1,
+            DisplayFieldData.mlqmosaic,
+            
+            // Dual Pol fields
+            DisplayFieldData.rdMosaic, DisplayFieldData.avgrdMosaic,
+            DisplayFieldData.maxrdMosaic, DisplayFieldData.bdMosaic,
+            DisplayFieldData.ldMosaic,
+            DisplayFieldData.mdMosaic, DisplayFieldData.mldMosaic,
+            DisplayFieldData.srdMosaic, DisplayFieldData.srdgMosaic,
+            
+            DisplayFieldData.localField1,
             DisplayFieldData.localField2, DisplayFieldData.localField3 };
 
     public static final String APPLICATION_NAME = "hmapmpe";
@@ -412,6 +434,8 @@ public class MPEDisplayManager {
     private final MPEFieldResourceData fieldResourceData = new MPEFieldResourceData();
 
     private MPEFieldResource displayedFieldResource;
+    
+    private ComparisonFields comparisonFields = new ComparisonFields();
 
     private Date editTime;
 
@@ -430,8 +454,15 @@ public class MPEDisplayManager {
         }
         editTime = getCurrentDisplayedDate();
 
-        displayedField = DisplayFieldData.mMosaic;
+        // token for default display
+        String mdd = AppsDefaults.getInstance().getToken("mpe_def_display");
 
+        if(mdd != null){
+            displayedField = DisplayFieldData.fromString(mdd);
+        } else {
+            displayedField = DisplayFieldData.fromString("MMOSAIC");
+        }
+        
         ChangeTimeProvider.update(this);
 
         VizApp.runAsync(new Runnable() {
@@ -706,11 +737,23 @@ public class MPEDisplayManager {
      */
     public void displayFieldData(DisplayFieldData fieldToDisplay,
             int accumulationHrs, ArealDisplay arealDisplay) {
+    	
         if (displayedField != fieldToDisplay || displayedFieldResource == null
                 || accumulationHrs != displayedAccumHrs
                 || arealDisplay != displayedArealDisplay) {
             DisplayFieldData oldField = displayedField;
             displayedField = fieldToDisplay;
+            
+            //check for comparisonFields
+            if  ( displayedField.isAComparisonField() )
+            {
+            	displayedField.setComparisonFields(comparisonFields);
+            }
+            else
+            {
+            	displayedField.setComparisonFields(null);
+            }
+            
             displayedAccumHrs = accumulationHrs;
             displayedArealDisplay = arealDisplay;
             ResourceList list = display.getDescriptor().getResourceList();
@@ -750,7 +793,7 @@ public class MPEDisplayManager {
                     listener.displayFieldChanged(oldField, fieldToDisplay);
                 }
             }
-            }
+        }
 
         displayedFieldResource.issueRefresh();
     }
@@ -925,15 +968,15 @@ public class MPEDisplayManager {
     public static XmrgFile getXmrgFile(DisplayFieldData fieldData, Date date) {
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         String dirname = appsDefaults.getToken(fieldData.getDirToken());
-        String cv_use = fieldData.getCv_use();
+        String fileNamePrefix = fieldData.getFileNamePrefix();
         String prismType = null;
         String dateFormatString = MPEDateFormatter.yyyyMMddHH;
         switch (fieldData) {
         case rfcMosaic:
-            cv_use += "01";
+        	fileNamePrefix += "01";
             break;
         case Xmrg:
-            cv_use = cv_use.toLowerCase();
+        	fileNamePrefix = fileNamePrefix.toLowerCase();
             dateFormatString = MPEDateFormatter.MMddyyyyHH;
             break;
         case Prism:
@@ -948,6 +991,8 @@ public class MPEDisplayManager {
             prismType = "min_temp";
             dateFormatString = MPEDateFormatter.MMM;
             break;
+        default:
+            break;
         }
 
         String dateString = MPEDateFormatter.format(date, dateFormatString);
@@ -955,11 +1000,12 @@ public class MPEDisplayManager {
         String fname = null;
         if (prismType != null) {
             // Load prism type
+            dateString= dateString.toLowerCase();
             String mpe_site_id = appsDefaults.getToken("mpe_site_id");
             fname = FileUtil.join(dirname, "prism_" + prismType + "_"
                     + mpe_site_id + "_" + dateString);
         } else {
-            fname = FileUtil.join(dirname, cv_use + dateString + "z");
+            fname = FileUtil.join(dirname, fileNamePrefix + dateString + "z");
         }
         return new XmrgFile(fname);
     }
@@ -979,6 +1025,7 @@ public class MPEDisplayManager {
         if (durationInHrs == 0) {
             durationInHrs = 1;
         }
+        
         ColorMapParameters params = new ColorMapParameters();
         params.setFormatString("0.00");
         params.setDisplayUnit(displayUnit);
@@ -1020,13 +1067,12 @@ public class MPEDisplayManager {
                 entry.setOperator("<");
                 entry.setLabel("");
             } else {
-                // Convert display to data, cast to short, convert back to
-                // display
-                entry.setDisplayValue(dataToDisplay
-                        .convert((short) displayToData.convert(threshold)));
+                // Convert display to data, cast to int, convert back to display
+                entry.setDisplayValue(dataToDisplay.convert((int) displayToData
+                        .convert(threshold)));
                 if (displayField != DisplayFieldData.Index) {
                     entry.setLabel(format.format(threshold));
-            }
+                }
             }
             entry.setPixelValue((double) i);
 
@@ -1047,18 +1093,25 @@ public class MPEDisplayManager {
         params.setColorMapMax(params.getDataMax());
 
         // Check for Index parameter and set labels to radar sites
-        if (displayField == DisplayFieldData.Index) {
+        // Determine and store radar type (S/D/M) for display in legend
+        // See getAvailableRadarGridType method in .../MPEGui/TEXT/drawMpeLegend.c
+        if (displayField == DisplayFieldData.Index)
+        {
             MPERadarLoc[] radars = MPEDataManager.getInstance().getRadars()
                     .toArray(new MPERadarLoc[0]);
             DataMappingEntry[] entries = dm.getEntries().toArray(
                     new DataMappingEntry[0]);
-
+          
             int offset = 2;
-            for (int i = offset; i < entries.length; ++i) {
+            for (int i = offset; i < entries.length; ++i)
+            {
                 int radarIdx = i - offset;
-                if (radarIdx < radars.length) {
+                if (radarIdx < radars.length)
+                {
                     entries[i].setLabel(radars[radarIdx].getId());
-                } else {
+                }
+                else
+                {
                     entries[i].setLabel("");
                 }
             }
@@ -1155,5 +1208,81 @@ public class MPEDisplayManager {
         for (MPEGageResource rsc : rscs) {
             rsc.reloadGages();
         }
+    }
+
+	public ComparisonFields getComparisonFields() {
+		return comparisonFields;
+	}
+
+	public void setComparisonFields(ComparisonFields comparisonFields) {
+		this.comparisonFields = comparisonFields;
+	}
+	
+	public  AvailableRadarGridType getAvailableRadarType(String radId) {
+		// get radar type (SINGLE_POL/DUAL_POL/MISSING)
+		// check for DAA radar in DAARadarResult table - if found then return "DUAL_POL"
+		// else check for DPA radar in RWRadarResult table - if found then return "SINGLE_POL"
+		// else return "MISSING" - this is the default value
+		AvailableRadarGridType type = AvailableRadarGridType.MISSING;
+	
+		Date dateTime = getCurrentDisplayedDate();
+		int available;
+		
+		boolean dualPolAvailable = false;
+		boolean singlePolAvailable = false;
+		
+		RadarDataManager radarDataManager = RadarDataManager.getInstance();
+
+		try 
+		{
+			available = radarDataManager.getAvailableRadarDP(radId, dateTime);
+
+			if(available == 0 || available == 2)
+			{
+				dualPolAvailable = true;
+			}
+
+			available = radarDataManager.getAvailableRadarSP(radId, dateTime);
+			if(available == 0 || available == 2)
+			{
+				singlePolAvailable = true;
+			}
+		}
+		
+		catch (VizException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (singlePolAvailable)
+		{
+			if (dualPolAvailable)
+			{
+				type = AvailableRadarGridType.SINGLE_AND_DUAL_POL;
+			}
+			else
+			{
+				type = AvailableRadarGridType.SINGLE_POL;
+			}
+		}
+		
+		else if (dualPolAvailable)
+		{
+			type = AvailableRadarGridType.DUAL_POL;
+		}
+		
+		else
+		{
+			type = AvailableRadarGridType.MISSING;
+		}
+		
+		
+		return type;
+	}
+
+    public int getDisplayedAccumHrs() {
+       
+        return displayedAccumHrs;
     }
 }

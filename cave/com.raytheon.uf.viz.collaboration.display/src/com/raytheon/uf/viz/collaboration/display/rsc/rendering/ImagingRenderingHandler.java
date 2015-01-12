@@ -21,8 +21,13 @@ package com.raytheon.uf.viz.collaboration.display.rsc.rendering;
 
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
@@ -61,8 +66,8 @@ import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImagesEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.RenderedImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateImageDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateSingleColorImage;
+import com.raytheon.uf.viz.remote.graphics.events.mesh.CloneMeshEvent;
 import com.raytheon.uf.viz.remote.graphics.events.mesh.CreateMeshEvent;
-import com.raytheon.uf.viz.remote.graphics.events.mesh.ReprojectMeshEvent;
 import com.raytheon.uf.viz.remote.graphics.events.mosaic.CreateMosaicImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.mosaic.UpdateImagesToMosaic;
 import com.raytheon.uf.viz.remote.graphics.events.mosaic.UpdateMosaicExtent;
@@ -76,9 +81,11 @@ import com.raytheon.uf.viz.remote.graphics.extensions.DispatchingMosaicOrderedEx
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 16, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 16, 2012           mschenke     Initial creation
+ * Feb 21, 2014  2817     bsteffen     Fix mesh cloning.
+ * Mar 06, 2014  2826     njensen      Added mosaicMemberMap and relevant safety
  * 
  * </pre>
  * 
@@ -89,6 +96,15 @@ import com.raytheon.uf.viz.remote.graphics.extensions.DispatchingMosaicOrderedEx
 public class ImagingRenderingHandler extends CollaborationRenderingHandler {
 
     private Object colorMapLock = new Object();
+
+    /**
+     * Map contains the images that combine to make a mosaic. This is
+     * specifically tracked because there's a small window of opportunity where
+     * a member image is disposed but the mosaic is told to paint and is not yet
+     * aware of that member's disposal.
+     */
+    private Multimap<IMosaicImage, DrawableImage> mosaicMemberMap = ArrayListMultimap
+            .create();
 
     @Subscribe
     public void renderImages(PaintImagesEvent event) {
@@ -152,6 +168,31 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
 
     @Subscribe
     public void disposeImage(IImage image) {
+        synchronized (mosaicMemberMap) {
+            if (image instanceof IMosaicImage) {
+                // guava will kindly remove the key from the map when there are
+                // no members left
+                mosaicMemberMap.removeAll(image);
+            } else {
+                for (IMosaicImage mosaic : mosaicMemberMap.keySet()) {
+                    boolean didRemove = false;
+                    Collection<DrawableImage> collect = mosaicMemberMap
+                            .get(mosaic);
+                    Iterator<DrawableImage> itr = collect.iterator();
+                    while (itr.hasNext()) {
+                        DrawableImage itrImage = itr.next();
+                        if (image.equals(itrImage.getImage())) {
+                            itr.remove();
+                            didRemove = true;
+                        }
+                    }
+                    if (didRemove) {
+                        mosaic.setImagesToMosaic(collect
+                                .toArray(new DrawableImage[0]));
+                    }
+                }
+            }
+        }
         image.dispose();
     }
 
@@ -319,12 +360,13 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
     }
 
     @Subscribe
-    public void reprojectMesh(ReprojectMeshEvent event) {
-        IMesh mesh = dataManager.getRenderableObject(event.getObjectId(),
+    public void cloneMesh(CloneMeshEvent event) {
+        IMesh mesh = dataManager.getRenderableObject(event.getSourceObjectId(),
                 IMesh.class);
         if (mesh != null) {
             try {
-                mesh.reproject(event.getTargetGeometry());
+                mesh = mesh.clone(event.getTargetGeometry());
+                dataManager.putRenderableObject(event.getObjectId(), mesh);
             } catch (VizException e) {
                 Activator.statusHandler.handle(Priority.PROBLEM,
                         e.getLocalizedMessage(), e);
@@ -414,7 +456,6 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
             extensionClass = IMosaicOrderedImageExtension.class;
         }
         try {
-
             dataManager.putRenderableObject(
                     imageId,
                     target.getExtension(extensionClass).initializeRaster(
@@ -430,8 +471,13 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
         IMosaicImage image = dataManager.getRenderableObject(
                 event.getObjectId(), IMosaicImage.class);
         if (image != null) {
-            image.setImagesToMosaic(ImagingRenderingHandler.toDrawableImages(
-                    event.getImagesToMosaic(), dataManager));
+            DrawableImage[] drawables = ImagingRenderingHandler
+                    .toDrawableImages(event.getImagesToMosaic(), dataManager);
+            image.setImagesToMosaic(drawables);
+
+            synchronized (mosaicMemberMap) {
+                mosaicMemberMap.replaceValues(image, Arrays.asList(drawables));
+            }
         }
     }
 

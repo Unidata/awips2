@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.viz.core.RGBColors;
+import com.raytheon.uf.viz.core.preferences.StringConverter;
 
 /**
  * Preference field editor for selecting a color for the DataStoreResource

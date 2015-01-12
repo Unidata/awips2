@@ -100,6 +100,9 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 09/05/2013    2307      dgilling    Use better PythonScript constructor.
  * 09/16/2013    2033      dgilling    Remove unused IToolController.
  * 12/09/2013    2367      dgilling    Instantiate ProcedureJobPool here.
+ * 05/22/2014    3110      randerso    Attach router to edex.alerts.gfe earlier
+ * 09/09/2014    3592      randerso    Added call to SampleSetManager.dispose()
+ * 10/30/2014    3775      randerso    Added parmCacheInit to initStatus
  * 
  * </pre>
  * 
@@ -218,9 +221,10 @@ public class DataManager {
                 discriminator);
         this.client = new IFPClient(VizApp.getWsId(), this);
         this.router = new NotificationRouter(this.getSiteID());
+        NotificationManagerJob.addObserver("edex.alerts.gfe", this.router);
 
         this.parmManager = new ParmManager(this);
-        GFEParmCacheInitJob cacheJob = new GFEParmCacheInitJob(this.parmManager);
+        GFEParmCacheInitJob cacheJob = new GFEParmCacheInitJob(this);
         cacheJob.setSystem(true);
         cacheJob.schedule();
         this.refManager = new ReferenceSetManager(this);
@@ -267,7 +271,6 @@ public class DataManager {
             enableISCsend(true);
         }
         // this.queryString = "siteID='" + this.getSiteID() + "'";
-        NotificationManagerJob.addObserver("edex.alerts.gfe", this.router);
         this.router.start();
 
         this.parmOp = new ParmOp(this);
@@ -290,6 +293,7 @@ public class DataManager {
      * {@link DataManagerFactory#dispose(Object)}
      */
     void dispose() {
+        sampleSetManager.dispose();
         selectTimeRangeManager.dispose();
         refManager.dispose();
         parmManager.dispose();

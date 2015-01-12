@@ -41,15 +41,14 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.sounding.SoundingLayer;
 import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.core.map.GeoUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -63,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 22, 2013       2190 mschenke    Initial creation
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -106,7 +106,7 @@ public class GridSoundingProvider extends
             try {
                 DataCubeContainer.getDataRecords(Arrays.asList(records),
                         Request.ALL, null);
-            } catch (VizDataCubeException e) {
+            } catch (DataCubeException e) {
                 UFStatus.getHandler().handle(Priority.PROBLEM,
                         "Error requesting model data for sounding", e);
             }
@@ -188,7 +188,7 @@ public class GridSoundingProvider extends
             Coordinate location) {
         try {
             return DataCubeContainer.getData(constraints, time);
-        } catch (VizException e) {
+        } catch (DataCubeException e) {
             throw new RuntimeException("Error querying for sounding records: "
                     + constraints, e);
         }
@@ -240,8 +240,8 @@ public class GridSoundingProvider extends
                 vs = createSounding(index, records);
                 SurfaceObsLocation loc = new SurfaceObsLocation();
                 loc.setStationId(vs.getStationId());
-                loc.setLatitude(location.y);
-                loc.setLongitude(location.x);
+                loc.setLatitude((float) location.y);
+                loc.setLongitude((float) location.x);
                 vs.setSpatialInfo(loc);
                 vs.setName(GeoUtil.formatCoordinate(location));
                 sounding[index] = vs;

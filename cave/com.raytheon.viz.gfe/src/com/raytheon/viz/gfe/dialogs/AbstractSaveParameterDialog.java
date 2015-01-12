@@ -47,6 +47,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.memory.GarbageUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.GfeClientConfig;
@@ -68,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Feb 13, 2013 1597       randerso    Made number of concurrent save threads a configurable value.
  *                                     Added logging to support GFE Performance metrics
  * Nov 20, 2013 2488       randerso    Changed to use DejaVu font
+ * Jun 16, 2014 3274       njensen     Garbage collect after save is finished
  * 
  * </pre>
  * 
@@ -236,6 +238,11 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
                                     .saveFinished(allSuccessful.get());
                         }
                     });
+                    /*
+                     * this dialog is already blocking so a user's not going to
+                     * notice the pause caused by a garbage collect
+                     */
+                    GarbageUtil.releaseMemoryToOS();
                 }
                 return Status.OK_STATUS;
             }

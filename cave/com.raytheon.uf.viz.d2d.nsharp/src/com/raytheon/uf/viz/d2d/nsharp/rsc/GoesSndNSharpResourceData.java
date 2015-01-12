@@ -49,7 +49,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.d2d.nsharp.SoundingLayerBuilder;
 import com.raytheon.viz.pointdata.PointDataRequest;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Provides sounding data to nsharp from goes sounding satellite data.
@@ -61,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 14, 2013 2259       bsteffen    Initial creation
+ * Jul 23, 2014 3410       bclement    preparePointInfo() calls unpackResultLocation()
  * 
  * </pre>
  * 
@@ -105,9 +105,8 @@ public class GoesSndNSharpResourceData extends D2DNSharpResourceData {
 
             for (Map<String, Object> result : response.getResults()) {
                 if (coordinate == null) {
-                    coordinate = new Coordinate();
-                    coordinate.x = (Double) result.get(LONGITUDE);
-                    coordinate.y = (Double) result.get(LATITUDE);
+                    coordinate = unpackResultLocation(result, LONGITUDE,
+                            LATITUDE);
                 }
             }
         }

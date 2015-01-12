@@ -23,7 +23,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 
 /**
- * TODO Add Description
+ * Event fired when a text message is received. Carries TextMessage with
+ * optional error
  * 
  * <pre>
  * 
@@ -32,23 +33,33 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2012            jkorman     Initial creation
+ * Jun 20, 2014 3281       bclement    added error field
  * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
-
 public class ChatMessageEvent implements ITextMessageEvent {
 
     private final TextMessage message;
 
+    private String error;
+
     /**
-     * 
      * @param msg
      */
     public ChatMessageEvent(TextMessage msg) {
+        this(msg, null);
+    }
+
+    /**
+     * @param msg
+     * @param error
+     */
+    public ChatMessageEvent(TextMessage msg, String error) {
         message = msg;
+        this.error = error;
     }
 
     /**
@@ -59,4 +70,37 @@ public class ChatMessageEvent implements ITextMessageEvent {
     public TextMessage getMessage() {
         return message;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent
+     * #hasError()
+     */
+    @Override
+    public boolean hasError() {
+        return error != null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent
+     * #getError()
+     */
+    @Override
+    public String getError() {
+        return error;
+    }
+
+    /**
+     * @param error
+     *            the error to set
+     */
+    public void setError(String error) {
+        this.error = error;
+    }
+
 }

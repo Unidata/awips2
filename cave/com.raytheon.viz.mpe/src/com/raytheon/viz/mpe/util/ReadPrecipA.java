@@ -84,6 +84,7 @@ public class ReadPrecipA {
         try {
 
             in = new BufferedReader(new FileReader(preca));
+            System.out.println("Reading point file: " + preca);
 
             for (j = 0; j < 5; j++) {
                 number_found[j] = 0;

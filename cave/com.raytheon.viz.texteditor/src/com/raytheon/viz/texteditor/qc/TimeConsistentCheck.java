@@ -42,6 +42,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  *                                     Initial creation
  * Aug 25, 2011 10719      rferrel     ugcPtrn now local to file.
  * Mar 14, 2014  DR 17175  D. Friedman Get correct time zone from times.
+ * May 13, 2014  DR 17177  Qinglu Lin  Updated runQC().
  * </pre>
  * 
  * @version 1.0
@@ -89,7 +90,9 @@ public class TimeConsistentCheck implements IQCCheck {
             }
 
             // Event ending time (second bullet) vs Expiration
-            m = secondBulletPtrn.matcher(body);
+            String newBody = body.replaceAll("UNTIL NOON", "UNTIL 1200 PM");
+            newBody = newBody.replaceAll("UNTIL MIDNIGHT", "UNTIL 1200 AM");
+            m = secondBulletPtrn.matcher(newBody);
             if (m.find()) {
                 TimeZone timeZone = TextWarningConstants.timeZoneShortNameMap
                         .get(m.group(4));

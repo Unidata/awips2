@@ -30,6 +30,9 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.topo.TopoException;
 import com.raytheon.uf.common.topo.TopoQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -55,6 +58,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GribNSharpResourceData extends D2DNSharpResourceData {
 
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GribNSharpResourceData.class);
+
     private float surfaceElevation = NcSoundingProfile.MISSING;
 
     public GribNSharpResourceData() {
@@ -79,16 +85,18 @@ public class GribNSharpResourceData extends D2DNSharpResourceData {
         NcSoundingCube cube = NcSoundingQuery.mdlSoundingQueryByLatLon(
                 refTimeStr, validTimeStr, latLon, "grid", getSoundingType(),
                 false, "-1");
-        if (cube != null && !cube.getSoundingProfileList().isEmpty()) {
+        if ((cube != null) && !cube.getSoundingProfileList().isEmpty()) {
             NcSoundingProfile profileList = cube.getSoundingProfileList()
                     .get(0);
             // If stationElevation is not set, set it to the topo value.
             if (profileList.getStationElevation() == NcSoundingProfile.MISSING) {
                 if (surfaceElevation == NcSoundingProfile.MISSING) {
-                    TopoQuery topoQuery = TopoQuery.getInstance();
-                    if (topoQuery != null) {
+                    try {
+                        TopoQuery topoQuery = TopoQuery.getInstance();
                         surfaceElevation = (float) topoQuery
                                 .getHeight(coordinate);
+                    } catch (TopoException e) {
+                        statusHandler.error("Unable to retrieve topo", e);
                     }
                 }
                 profileList.setStationElevation(surfaceElevation);
@@ -108,7 +116,7 @@ public class GribNSharpResourceData extends D2DNSharpResourceData {
                             float h1 = layers.get(i - 1).getGeoHeight();
                             float h2 = layers.get(i).getGeoHeight();
                             float h = sfcLayer.getGeoHeight();
-                            float p = p1 + (h - h1) * (p1 - p2) / (h1 - h2);
+                            float p = p1 + (((h - h1) * (p1 - p2)) / (h1 - h2));
                             sfcLayer.setPressure(p);
                         }
                         layers.add(i, sfcLayer);

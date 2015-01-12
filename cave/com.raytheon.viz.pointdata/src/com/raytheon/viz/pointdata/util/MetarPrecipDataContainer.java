@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -41,8 +42,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -456,7 +456,7 @@ public class MetarPrecipDataContainer {
             try {
                 tmppdc = DataCubeContainer.getPointData("obs",
                         parameters.toArray(new String[0]), rcMap);
-            } catch (VizException e) {
+            } catch (DataCubeException e) {
                 statusHandler
                         .handle(Priority.ERROR,
                                 "Error getting precip data, some precip will not display.",

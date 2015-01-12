@@ -1,43 +1,61 @@
-
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
 <bundle>
-    <displayList>
-        <displays xsi:type="d2DMapRenderableDisplay" density="1.0" magnification="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <descriptor xsi:type="mapDescriptor">
-                <resource>
-                    <loadProperties loadWithoutData="true">
-                        <capabilities>
-                            <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="${colormap}"/>
-                            </capability>
-                            <capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
-                        </capabilities>
-                        <resourceType>PLAN_VIEW</resourceType>
-	                    <perspectiveProperty  xsi:type="d2dLoadProperties" overlayMatchTolerance="1"/>
-                    </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
-                    </properties>
-                    <resourceData xsi:type="satResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-                        <metadataMap>
-                            <mapping key="pluginName">
-                                <constraint constraintValue="satellite" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="physicalElement">
-                                <constraint constraintValue="${element}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="sectorID">
-                                <constraint constraintValue="${sector}" constraintType="EQUALS"/>
-                            </mapping>
-                            <mapping key="creatingEntity">
-								<constraint constraintValue="${entity}" constraintType="LIKE"/>
+	<displayList>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+					<loadProperties loadWithoutData="true">
+						<capabilities>
+							<capability xsi:type="colorMapCapability">
+								<colorMapParameters colorMapName="${colormap}" />
+							</capability>
+							<capability xsi:type="imagingCapability" />
+						</capabilities>
+						<perspectiveProperty xsi:type="d2dLoadProperties"
+							overlayMatchTolerance="1" />
+					</loadProperties>
+					<resourceData xsi:type="satResourceData">
+						<metadataMap>
+							<mapping key="pluginName">
+								<constraint constraintValue="satellite"
+									constraintType="EQUALS" />
 							</mapping>
-							<mapping key="DERIVED">
-								<constraint constraintValue="execute1" constraintType="EQUALS"/>
+							<mapping key="physicalElement">
+								<constraint constraintValue="${element}"
+									constraintType="EQUALS" />
 							</mapping>
-                        </metadataMap>
-                    </resourceData>
-                </resource>
-                <timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
-            </descriptor>
-        </displays>
-    </displayList>
+							<mapping key="sectorID">
+								<constraint constraintValue="${sector}"
+									constraintType="EQUALS" />
+							</mapping>
+							<mapping key="creatingEntity">
+								<constraint constraintValue="${entity}"
+									constraintType="LIKE" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+	</displayList>
 </bundle>

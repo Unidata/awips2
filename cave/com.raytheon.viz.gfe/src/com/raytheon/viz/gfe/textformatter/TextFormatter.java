@@ -52,6 +52,7 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
  * Oct 15, 2008             njensen     Split python running to
  *                                      non-UI thread
  * Dec 1, 2010    6130      ryu         Set proper state and invoke callback
+ * May 29, 2014   2841      randerso    Handle failure to queue due to pending limit
  * 
  * </pre>
  * 
@@ -166,7 +167,8 @@ public class TextFormatter extends AbstractGfeTask {
         // TODO: this is deprecated and probably not a good thing to do.
         // we really need to get formatters running in their own process
         // so we can kill them safely
-        if (this.state.equals(productStateEnum.Queued)) {
+        if (this.state.equals(productStateEnum.Queued)
+                || this.state.equals(productStateEnum.New)) {
             state = ConfigData.productStateEnum.Failed;
             cleanUp(null);
 

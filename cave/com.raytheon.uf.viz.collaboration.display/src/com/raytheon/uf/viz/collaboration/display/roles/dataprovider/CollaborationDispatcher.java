@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.EndFrameEvent;
@@ -61,9 +62,14 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 19, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 19, 2012           mschenke    Initial creation
+ * Feb 19, 2014  2751     bclement    added check for closed session
+ * Mar 05, 2014  2843     bsteffen    Prevent exceptions on dispose.
+ * Mar 06, 2014  2848     bclement    only send to venue if non empty
+ * Apr 08, 2014  2968     njensen     Only serialize/compress persisted objects once
+ * 
  * 
  * </pre>
  * 
@@ -201,24 +207,41 @@ public class CollaborationDispatcher extends Dispatcher {
         // Set PERSISTENCE to true if testing persisting capabilities
         if (eventObject instanceof AbstractDispatchingObjectEvent
                 && eventObject instanceof IRenderEvent == false) {
-            boolean immediateSend = true;
-            if (eventObject instanceof ICreationEvent == false) {
-                // Not a creation event, check event size. All creation events
-                // are sent immediately to avoid false negatives
-                try {
-                    byte[] data = CompressionUtil.compress(SerializationUtil
-                            .transformToThrift(eventObject));
-                    if (data.length > IMMEDIATE_SEND_SIZE) {
-                        immediateSend = false;
-                    }
-                } catch (Exception e) {
-                    Activator.statusHandler.handle(Priority.PROBLEM,
-                            "Error determing size of eventObject: "
-                                    + eventObject, e);
-                }
+            if (eventObject instanceof DisposeObjectEvent && session.isClosed()) {
+                // object disposal is asynchronous and dispose events could
+                // happen after session has been closed. If any participants are
+                // still connected to session, their objects will be disposed
+                // when they close the view.
+                return;
             }
+
+            boolean immediateSend = false;
+            byte[] data = null;
+            try {
+                data = CompressionUtil.compress(SerializationUtil
+                        .transformToThrift(eventObject));
+            } catch (Exception e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        "Error serializing eventObject: " + eventObject, e);
+                return;
+            }
+            if (eventObject instanceof ICreationEvent
+                    || data.length <= IMMEDIATE_SEND_SIZE) {
+                /*
+                 * All creation events are sent immediately to avoid false
+                 * negatives. All events under a set size are also sent
+                 * immediately for optimal performance.
+                 */
+                immediateSend = true;
+            }
+
+            final byte[] compressedEvent = data;
             final AbstractDispatchingObjectEvent toPersist = (AbstractDispatchingObjectEvent) eventObject;
             final boolean[] sendPersisted = new boolean[] { !immediateSend };
+            /*
+             * we will always persist events to the data service for clients
+             * that join late
+             */
             persistPool.schedule(new Runnable() {
                 @Override
                 public void run() {
@@ -226,8 +249,12 @@ public class CollaborationDispatcher extends Dispatcher {
                         synchronized (persistance) {
                             if (!disposed) {
                                 IPersistedEvent event = persistance
-                                        .persistEvent(toPersist);
-                                // If was no immediateSend, send now
+                                        .persistEvent(toPersist,
+                                                compressedEvent);
+                                /*
+                                 * If it was not immediately sent, send
+                                 * notification now that it's persisted
+                                 */
                                 if (sendPersisted[0]) {
                                     send(event);
                                 }
@@ -239,9 +266,30 @@ public class CollaborationDispatcher extends Dispatcher {
                     }
                 }
             });
-            // Need to immediately send eventObject
+
             if (immediateSend) {
-                send(eventObject);
+                /*
+                 * Need to immediately send eventObject to get fast behavior on
+                 * connected clients. It will go through serialization again and
+                 * not be compressed, but since it's only small objects we don't
+                 * care.
+                 */
+                try {
+                    send(eventObject);
+                } catch (RuntimeException e) {
+                    /*
+                     * Dispose events should never throw exceptions. Since
+                     * disposed objects are not used after dispose the exception
+                     * is not useful and it often corrupts the display
+                     * permanently so it is better to log it and ignore it.
+                     */
+                    if (eventObject instanceof DisposeObjectEvent) {
+                        Activator.statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    } else {
+                        throw e;
+                    }
+                }
             }
         } else if (eventObject instanceof IRenderEvent) {
             if (eventObject instanceof BeginFrameEvent && currentFrame == null) {
@@ -303,7 +351,13 @@ public class CollaborationDispatcher extends Dispatcher {
 
     private void send(Object obj) {
         try {
-            session.sendObjectToVenue(obj);
+            if (session.hasOtherParticipants()) {
+                session.sendObjectToVenue(obj);
+            } else {
+                Activator.statusHandler
+                        .debug("Skipping sending event to empty room: "
+                                + obj.getClass());
+            }
         } catch (CollaborationException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);

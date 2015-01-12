@@ -95,6 +95,10 @@ import com.raytheon.uf.common.activetable.VTECChange;
 import com.raytheon.uf.common.activetable.VTECTableChangeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.textproduct.DraftProduct;
 import com.raytheon.uf.common.dataplugin.gfe.textproduct.ProductDefinition;
+import com.raytheon.uf.common.dataplugin.text.db.MixedCaseProductSupport;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -103,9 +107,6 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.spellchecker.dialogs.SpellCheckDlg;
@@ -157,6 +158,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     aren't being corrected.
  * 02/05/2014  17022       ryu         Modified loadDraft() to fix merging of WMO heading and AWIPS ID.
  * 03/25/2014   #2884      randerso    Added xxxid to check for disabling editor
+ * 05/12/2014  16195       zhao        Modified widgetSelected() for "Auto Wrap" option widget
+ * 10/20/2014   #3685      randerso    Made conversion to upper case conditional on product id
  * 
  * </pre>
  * 
@@ -479,7 +482,7 @@ public class ProductEditorComp extends Composite implements
                     break;
                 case SWT.Show:
                     if ((!dead)
-                            && (getProductText() != null || !getProductText()
+                            && ((getProductText() != null) || !getProductText()
                                     .isEmpty())) {
                         timeUpdater.schedule();
                     }
@@ -706,7 +709,7 @@ public class ProductEditorComp extends Composite implements
                     Rectangle trim = p.computeTrim(0, 0, 0, 0);
                     Point dpi = p.getDPI();
                     int leftMargin = dpi.x + trim.x;
-                    int topMargin = dpi.y / 2 + trim.y;
+                    int topMargin = (dpi.y / 2) + trim.y;
                     GC gc = new GC(p);
                     Font font = gc.getFont();
                     String printText = textComp.getProductText();
@@ -865,7 +868,8 @@ public class ProductEditorComp extends Composite implements
         autoWrapMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                textComp.setAutoWrapMode(autoWrapMI.getSelection());
+                wrapMode = !wrapMode;
+                textComp.setAutoWrapMode(wrapMode);
             }
         });
 
@@ -1157,7 +1161,9 @@ public class ProductEditorComp extends Composite implements
             textComp.getTextEditorST().setText(
                     textComp.getTextEditorST().getText() + "\n");
         }
-        textComp.upper();
+        if (!MixedCaseProductSupport.isMixedCase(getNNNid())) {
+            textComp.upper();
+        }
         textComp.endUpdate();
 
         if (!frameCheck(false)) {
@@ -1290,7 +1296,7 @@ public class ProductEditorComp extends Composite implements
                     "Error sending active table request to http server ", e);
         }
 
-        if (records == null || records.isEmpty()) {
+        if ((records == null) || records.isEmpty()) {
             activeVtecRecords = null;
         } else {
             if (pil != null) {
@@ -1389,7 +1395,7 @@ public class ProductEditorComp extends Composite implements
                     activeRecs = getMatchingActiveVTEC(zones, oid, phen, sig,
                             etn);
                     String eventStr = "." + phen + "." + sig + "." + etn;
-                    if (activeRecs == null || activeRecs.isEmpty()) {
+                    if ((activeRecs == null) || activeRecs.isEmpty()) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "No active records found for " + vtec);
                     } else {
@@ -1404,7 +1410,7 @@ public class ProductEditorComp extends Composite implements
 
                         // segment invalid due to the event going into
                         // effect in part of the segment area
-                        if (started > 0 && started < activeRecs.size()) {
+                        if ((started > 0) && (started < activeRecs.size())) {
                             final String msg = "Event "
                                     + eventStr
                                     + " has gone into effect in part"
@@ -1506,8 +1512,8 @@ public class ProductEditorComp extends Composite implements
             }
 
             // Check start and ending time for end later than start
-            if (vtecStart != null && vtecEnd != null
-                    && vtecStart.getTime() >= vtecEnd.getTime()) {
+            if ((vtecStart != null) && (vtecEnd != null)
+                    && (vtecStart.getTime() >= vtecEnd.getTime())) {
                 setTabColorFunc(productStateEnum.New);
                 String msg = "VTEC ending time is before "
                         + "starting time. Product is invalid and must"
@@ -1518,13 +1524,13 @@ public class ProductEditorComp extends Composite implements
             // Give 30 minutes of slack to a couple of action codes
             // check the ending time and transmission time
             if ((action.equals("EXP") || action.equals("CAN"))
-                    && vtecEnd != null) {
-                vtecEnd.setTime(vtecEnd.getTime() + 30
-                        * TimeUtil.MILLIS_PER_MINUTE);
+                    && (vtecEnd != null)) {
+                vtecEnd.setTime(vtecEnd.getTime()
+                        + (30 * TimeUtil.MILLIS_PER_MINUTE));
             }
 
-            if (vtecEnd != null
-                    && vtecEnd.getTime() <= transmissionTime.getTime()) {
+            if ((vtecEnd != null)
+                    && (vtecEnd.getTime() <= transmissionTime.getTime())) {
                 setTabColorFunc(productStateEnum.New);
                 String msg = "VTEC ends before current time."
                         + " Product is invalid and must be regenerated.";
@@ -1594,7 +1600,7 @@ public class ProductEditorComp extends Composite implements
 
         // time contains, if time range (tr) contains time (t), return 1 def
         public boolean contains(Date t) {
-            return t.getTime() >= startTime.getTime() && t.before(endTime);
+            return (t.getTime() >= startTime.getTime()) && t.before(endTime);
         }
 
         public Date getStartTime() {
@@ -1648,7 +1654,7 @@ public class ProductEditorComp extends Composite implements
                 zones = decodeUGCs(segData);
                 vtecs = getVTEClines(segData);
                 newVtecs = fixVTEC(zones, vtecs, transmissionTime);
-                if (newVtecs != null && !newVtecs.isEmpty()) {
+                if ((newVtecs != null) && !newVtecs.isEmpty()) {
                     textComp.replaceText(tipVtec, newVtecs);
                 }
             } catch (VizException e) {
@@ -1759,7 +1765,9 @@ public class ProductEditorComp extends Composite implements
 
         textComp.startUpdate();
         try {
-            textComp.upper();
+            if (!MixedCaseProductSupport.isMixedCase(getNNNid())) {
+                textComp.upper();
+            }
             status1 = frameCheck(true);
             boolean status2 = changeTimes();
             if (status1 && status2) {
@@ -1933,7 +1941,8 @@ public class ProductEditorComp extends Composite implements
         int sel = hoursSpnr.getSelection();
         int hours = sel / 100;
         int minuteInc = (sel % 100) / 25;
-        int purgeOffset = hours * TimeUtil.MINUTES_PER_HOUR + minuteInc * 15; // minutes
+        int purgeOffset = (hours * TimeUtil.MINUTES_PER_HOUR)
+                + (minuteInc * 15); // minutes
 
         Date now = SimulatedTime.getSystemTime().getTime();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -1941,7 +1950,7 @@ public class ProductEditorComp extends Composite implements
         cal.add(Calendar.MINUTE, purgeOffset);
         int min = cal.get(Calendar.MINUTE);
         if ((min % 15) >= 1) {
-            cal.set(Calendar.MINUTE, (min / 15 + 1) * 15);
+            cal.set(Calendar.MINUTE, ((min / 15) + 1) * 15);
             cal.set(Calendar.SECOND, 0);
         }
         this.expireDate = cal.getTime();
@@ -2128,7 +2137,7 @@ public class ProductEditorComp extends Composite implements
         long delta = expireTimeSec % roundSec;
         long baseTime = (expireTimeSec / roundSec) * roundSec
                 * TimeUtil.MILLIS_PER_SECOND;
-        if (delta / TimeUtil.SECONDS_PER_MINUTE >= 1) {
+        if ((delta / TimeUtil.SECONDS_PER_MINUTE) >= 1) {
             expireTime.setTime(baseTime
                     + (roundSec * TimeUtil.MILLIS_PER_SECOND));
         } else { // within 1 minute, don't add next increment
@@ -2286,7 +2295,8 @@ public class ProductEditorComp extends Composite implements
         } catch (IOException e) {
             MessageBox mb = new MessageBox(parent.getShell(), SWT.OK
                     | SWT.ICON_WARNING);
-            mb.setText("Formatter AutoWrite failed: " + this.pil);
+            mb.setText("Error");
+            mb.setMessage("Formatter AutoWrite failed: " + this.pil);
             mb.open();
         }
     }
@@ -2420,7 +2430,7 @@ public class ProductEditorComp extends Composite implements
 
     private void displayCallToActionsDialog(int callToActionType) {
         // Allow only one of the 3 types of dialogs to be displayed.
-        if (ctaDialog != null && ctaDialog.getShell() != null
+        if ((ctaDialog != null) && (ctaDialog.getShell() != null)
                 && !ctaDialog.isDisposed()) {
             ctaDialog.bringToTop();
             return;
@@ -2671,6 +2681,10 @@ public class ProductEditorComp extends Composite implements
         return productId;
     }
 
+    public String getNNNid() {
+        return textdbPil.substring(3, 6);
+    }
+
     public String getProductName() {
         return productName;
     }
@@ -2690,9 +2704,9 @@ public class ProductEditorComp extends Composite implements
     /*
      * (non-Javadoc)
      * 
-     * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
@@ -2899,24 +2913,24 @@ public class ProductEditorComp extends Composite implements
 
         // Word-wrap the whole selection.
         int curLine = styledText.getLineAtOffset(selectionRange.x);
-        int lastSelIdx = selectionRange.x + selectionRange.y - 1;
+        int lastSelIdx = (selectionRange.x + selectionRange.y) - 1;
         int lastLine = styledText.getLineAtOffset(lastSelIdx);
         int[] indices = null;
-        while (curLine <= lastLine && curLine < styledText.getLineCount()) {
+        while ((curLine <= lastLine) && (curLine < styledText.getLineCount())) {
             int lineOff = styledText.getOffsetAtLine(curLine);
             // word wrap a block, and find out how the text length changed.
             indices = textComp.wordWrap(styledText, lineOff, wrapColumn);
             int firstIdx = indices[0];
             int lastIdx = indices[1];
             int newLen = indices[2];
-            int oldLen = 1 + lastIdx - firstIdx;
+            int oldLen = (1 + lastIdx) - firstIdx;
             int diff = newLen - oldLen;
             // adjust our endpoint for the change in length
             lastSelIdx += diff;
             lastLine = styledText.getLineAtOffset(lastSelIdx);
             // newLen doesn't include \n, so it can be 0. Don't allow
             // firstIdx+newLen-1 to be < firstIdx, or loop becomes infinite.
-            int lastWrapIdx = Math.max(firstIdx, firstIdx + newLen - 1);
+            int lastWrapIdx = Math.max(firstIdx, (firstIdx + newLen) - 1);
             // move down to the next unwrapped line
             curLine = styledText.getLineAtOffset(lastWrapIdx) + 1;
         }
@@ -2977,7 +2991,7 @@ public class ProductEditorComp extends Composite implements
         String str = null;
 
         Object obj = productDefinition.get(key);
-        if (obj != null && obj instanceof Collection) {
+        if ((obj != null) && (obj instanceof Collection)) {
             Collection<?> collection = (Collection<?>) obj;
             str = (String) (collection.toArray())[0];
         } else {

@@ -33,6 +33,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02/12/2014          #2591     randerso       Added retry when loading combinations fails
+#    10/20/2014          #3685     randerso       Changed default of lowerCase to True if not specified
 
 import string, getopt, sys, time, os, types, math
 import ModuleAccessor
@@ -191,7 +192,7 @@ class TextFormatter:
             if language is not None:
                 text = product.translateForecast(text, language)
             # Convert to Upper Case
-            if not forecastDef.get('lowerCase', 0):
+            if not forecastDef.get('lowerCase', True):
                 text = text.upper()
         else:
             text = "Text Product Type Invalid " + \

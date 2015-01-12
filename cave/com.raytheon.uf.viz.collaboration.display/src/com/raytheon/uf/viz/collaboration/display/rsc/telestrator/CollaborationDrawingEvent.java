@@ -23,11 +23,11 @@ import java.util.List;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Event posted when a venue participant draws on shared display
  * 
  * <pre>
  * 
@@ -36,6 +36,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 3, 2012            mnash     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * May 05, 2014 3076       bclement    added DISPOSE_ALL
  * 
  * </pre>
  * 
@@ -47,7 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class CollaborationDrawingEvent {
 
     public static enum CollaborationEventType {
-        DRAW, ERASE, REDO, UNDO, CLEAR, LOCK_USERS, UNLOCK_USERS, CLEAR_ALL, NEW_USER_ARRIVED;
+        DRAW, ERASE, REDO, UNDO, CLEAR, CLEAR_ALL, LOCK_USERS, UNLOCK_USERS, DISPOSE_ALL, NEW_USER_ARRIVED;
     }
 
     @DynamicSerializeElement
@@ -57,7 +59,7 @@ public class CollaborationDrawingEvent {
     private List<Coordinate> coordinates;
 
     @DynamicSerializeElement
-    private UserId userName;
+    private VenueParticipant userName;
 
     @DynamicSerializeElement
     private CollaborationEventType type;
@@ -103,7 +105,7 @@ public class CollaborationDrawingEvent {
     /**
      * @return the userName
      */
-    public UserId getUserName() {
+    public VenueParticipant getUserName() {
         return userName;
     }
 
@@ -111,7 +113,7 @@ public class CollaborationDrawingEvent {
      * @param userName
      *            the userName to set
      */
-    public void setUserName(UserId userName) {
+    public void setUserName(VenueParticipant userName) {
         this.userName = userName;
     }
 

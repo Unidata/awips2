@@ -47,6 +47,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -111,41 +112,42 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.IMenuService;
 
-import com.raytheon.edex.textdb.dbapi.impl.AFOSParser;
 import com.raytheon.uf.common.activetable.SendPracticeProductRequest;
 import com.raytheon.uf.common.dataplugin.text.RemoteRetrievalResponse;
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
+import com.raytheon.uf.common.dataplugin.text.db.MixedCaseProductSupport;
+import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
+import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProductId;
 import com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest;
 import com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest;
 import com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateRequest;
-import com.raytheon.uf.common.dissemination.OUPTestRequest;
+import com.raytheon.uf.common.dataplugin.text.util.AFOSParser;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
+import com.raytheon.uf.common.dissemination.OUPTestRequest;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.status.StatusConstants;
@@ -334,7 +336,14 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 20Sep2013   #2394        lvenable    Fixed color memory leaks.
  * 20Nov2013   DR 16777     D. Friedman Check if OUPRequest will work before setting ETN.
  * 10Dec2013   2601         mpduff      Fix NullPointerException.
+ * 28Jan2014   DR14595   mgamazaychikov Added template loading and editing functionality.
  * 14Mar2014   DR 17175     D. Friedman Get correct time zone for MND header time sync.
+ * 08May2014   DR 16041     kshrestha   Save unofficial text products from text editor.
+ * 13May2014   2536         bclement    moved WMO Header to common, switched from TimeTools to TimeUtil
+ * 11Sep2014   3580         mapeters    Replaced SerializationTuil usage with JAXBManager, 
+ *                                      removed IQueryTransport usage (no longer exists).
+ * 20Oct2014   3685         randerso    Made conversion to upper case conditional on product id
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -347,8 +356,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Handler used for messges.
      */
-    private final IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TextEditorDialog.class);
+
+    private static volatile JAXBManager jaxb;
 
     /**
      * List of CCCs that can be handled even if the PIL is on the gfe pil list.
@@ -505,8 +516,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private static final SimpleDateFormat AUTOSAVE_DATE_FORMAT = new SimpleDateFormat(
             "yyMMdd_HHmm");
     static {
-        AUTOSAVE_DATE_FORMAT.setTimeZone(TimeZone
-                .getTimeZone(TimeTools.ZULU_TIMEZONE));
+        AUTOSAVE_DATE_FORMAT.setTimeZone(TimeUtil.GMT_TIME_ZONE);
     }
 
     /*
@@ -1090,6 +1100,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private SearchReplaceDlg searchReplaceDlg;
 
     /**
+     * Flag indicating if the overwrite mode has been set for template editing.
+     */
+    private boolean isTemplateOverwriteModeSet = false;
+
+    /**
      * Flag to indicate if the document being edited has been saved.
      */
     private boolean saved = false;
@@ -1186,11 +1201,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Flag that determines if this text editor supports scripting
      */
     private final boolean hasScripting;
-
-    /**
-     * Transport usded to send query to server and get results.
-     */
-    private IQueryTransport queryTransport = null;
 
     /**
      * Job to handle query for products off the UI thread.
@@ -1452,6 +1462,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         this.textWorkstationFlag = textWorkstationFlag;
     }
 
+    private static JAXBManager getJaxbManager() throws JAXBException {
+        if (jaxb == null) {
+            jaxb = new JAXBManager(OperationalStdTextProduct.class,
+                    PracticeStdTextProduct.class);
+        }
+        return jaxb;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -1528,10 +1546,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     close();
                 }
             });
-        }
-
-        if (isWarnGenDlg) {
-            queryTransport = TextEditorUtil.getTextDbsrvTransport();
         }
 
         commandHistory = new CommandHistory();
@@ -2052,14 +2066,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         overStrikeItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (overwriteMode == true) {
-                    overwriteMode = false;
-                    editorInsertCmb.select(INSERT_TEXT);
-                } else {
-                    overwriteMode = true;
-                    editorInsertCmb.select(OVERWRITE_TEXT);
+                if (!AFOSParser.isTemplate) {
+                    if (overwriteMode == true) {
+                        overwriteMode = false;
+                        editorInsertCmb.select(INSERT_TEXT);
+                    } else {
+                        overwriteMode = true;
+                        editorInsertCmb.select(OVERWRITE_TEXT);
+                    }
+                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                 }
-                textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
             }
         });
     }
@@ -3699,18 +3715,20 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         editorInsertCmb.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if ((editorInsertCmb.getSelectionIndex() == INSERT_TEXT)
-                        && (overwriteMode == true)) {
-                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
-                    overwriteMode = false;
-                    overStrikeItem.setSelection(false);
-                } else if ((editorInsertCmb.getSelectionIndex() == OVERWRITE_TEXT)
-                        && (overwriteMode == false)) {
-                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
-                    overwriteMode = true;
-                    overStrikeItem.setSelection(true);
+                if (!AFOSParser.isTemplate) {
+                    if ((editorInsertCmb.getSelectionIndex() == INSERT_TEXT)
+                            && (overwriteMode == true)) {
+                        textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                        overwriteMode = false;
+                        overStrikeItem.setSelection(false);
+                    } else if ((editorInsertCmb.getSelectionIndex() == OVERWRITE_TEXT)
+                            && (overwriteMode == false)) {
+                        textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                        overwriteMode = true;
+                        overStrikeItem.setSelection(true);
+                    }
+                    textEditor.setFocus();
                 }
-                textEditor.setFocus();
             }
         });
 
@@ -3870,16 +3888,18 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     event.doit = false; // Ignore Ctrl+Shift+PageDown
                 } else if (event.keyCode == SWT.INSERT) {
                     // Ins key on the keypad
-                    if (overwriteMode == true) {
-                        overwriteMode = false;
-                        overStrikeItem.setSelection(false);
-                        editorInsertCmb.select(INSERT_TEXT);
-                    } else {
-                        overwriteMode = true;
-                        overStrikeItem.setSelection(true);
-                        editorInsertCmb.select(OVERWRITE_TEXT);
+                    if (AFOSParser.isTemplate) {
+                        if (overwriteMode == true) {
+                            overwriteMode = false;
+                            overStrikeItem.setSelection(false);
+                            editorInsertCmb.select(INSERT_TEXT);
+                        } else {
+                            overwriteMode = true;
+                            overStrikeItem.setSelection(true);
+                            editorInsertCmb.select(OVERWRITE_TEXT);
+                        }
+                        textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                     }
-                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                 } else if (event.keyCode > 500) {
                     // Do nothing...
                     // We need to capture the non-alphanumeric editing-related
@@ -3892,6 +3912,70 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         && (event.character != '\r')
                         && (event.character != '\n')) {
                     userKeyPressed = true;
+                }
+                if (AFOSParser.isTemplate) {
+
+                    if (event.keyCode == SWT.BS) {
+                        event.doit = false;
+                        int currentPos = textEditor.getCaretOffset();
+                        String textUpToCaret = textEditor.getText().substring(
+                                0, currentPos);
+                        int leftMost = textUpToCaret.lastIndexOf("[") + 1;
+                        int rightMost = textEditor.getText().indexOf("]",
+                                currentPos);
+                        int editableTextWidth = rightMost - leftMost;
+                        String leftPart = "";
+                        String rightPart = "";
+                        if (currentPos == leftMost) {
+                            leftPart = "";
+                            rightPart = textEditor.getText().substring(
+                                    currentPos, rightMost);
+                            textEditor.setCaretOffset(leftMost);
+                        } else if ((currentPos > leftMost)
+                                && (currentPos <= rightMost)) {
+                            leftPart = textEditor.getText().substring(leftMost,
+                                    currentPos - 1);
+                            rightPart = textEditor.getText().substring(
+                                    currentPos, rightMost);
+                        } else if (currentPos == rightMost) {
+                            leftPart = textEditor.getText().substring(leftMost,
+                                    currentPos - 1);
+                            rightPart = "";
+                        }
+                        String newString = leftPart + rightPart;
+                        int neededPadSpaces = editableTextWidth
+                                - newString.length();
+                        String newPaddedString = String.format("%1$-"
+                                + (neededPadSpaces + 1) + "s", newString);
+                        String spacedoutString = String.format("%1$-"
+                                + (editableTextWidth) + "s", " ");
+                        textEditor.replaceTextRange(leftMost,
+                                spacedoutString.length(), spacedoutString);
+                        textEditor.replaceTextRange(leftMost,
+                                newPaddedString.length(), newPaddedString);
+                        textEditor.setCaretOffset(currentPos - 1);
+
+                    } else if (event.keyCode == SWT.TAB) {
+                        if (!isTemplateOverwriteModeSet) {
+                            if (overwriteMode) {
+                                textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                            } else {
+                            }
+                            isTemplateOverwriteModeSet = true;
+                        }
+
+                        event.doit = false;
+                        int currentPos = textEditor.getCaretOffset();
+                        String textUpToCaret = textEditor.getText().substring(
+                                0, currentPos);
+                        int openBracketPos = textUpToCaret.lastIndexOf("[");
+                        openBracketPos = textEditor.getText().indexOf("[",
+                                currentPos);
+                        textEditor.setCaretOffset(openBracketPos + 1);
+                    } else if (((event.keyCode >= 97) && (event.keyCode <= 122))
+                            || ((event.keyCode >= 48) && (event.keyCode <= 57))) {
+                        event.doit = true;
+                    }
                 }
             }
         });
@@ -4077,6 +4161,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Enter the text editor mode.
      */
     private void enterEditor() {
+        initTemplateOverwriteMode();
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
         if ((product != null)
@@ -4317,7 +4402,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     .getProductCategory(token)
                     + tdm.getProductDesignator(token);
             // Set the header text field.
-            if (bbbid.equals("NOR")) {
+            if (bbbid.equals("NOR")
+                    || (bbbid.isEmpty() && (tdm.getAfosPil(token) != null))) {
                 String wmoId = tdm.getWmoId(token);
                 wmoId = (wmoId.length() > 0 ? wmoId : "-");
                 String siteId = tdm.getSiteId(token);
@@ -4818,7 +4904,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (warnGenFlag) {
             QCConfirmationMsg qcMsg = new QCConfirmationMsg();
             if (!qcMsg.checkWarningInfo(headerTF.getText().toUpperCase(),
-                    textEditor.getText().toUpperCase(), prod.getNnnid())) {
+                    MixedCaseProductSupport.conditionalToUpper(prod.getNnnid(),
+                            textEditor.getText()), prod.getNnnid())) {
                 WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
                         qcMsg.getTitle(), qcMsg.getProductMessage(),
                         qcMsg.getModeMessage());
@@ -4902,7 +4989,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         StdTextProduct prod = getStdTextProduct();
         EmergencyConfirmationMsg emergencyMsg = new EmergencyConfirmationMsg();
         if (emergencyMsg.checkWarningInfo(headerTF.getText().toUpperCase(),
-                textEditor.getText().toUpperCase(), prod.getNnnid()) == false) {
+                MixedCaseProductSupport.conditionalToUpper(prod.getNnnid(),
+                        textEditor.getText()), prod.getNnnid()) == false) {
 
             WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
                     emergencyMsg.getTitle(), emergencyMsg.getProductMessage(),
@@ -4932,8 +5020,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void warngenCloseCallback(boolean resend) {
 
-        // DR14553 (make upper case in product)
-        String body = textEditor.getText().toUpperCase();
+        StdTextProduct prod = getStdTextProduct();
+        String body = MixedCaseProductSupport.conditionalToUpper(
+                prod.getNnnid(), textEditor.getText());
         CAVEMode mode = CAVEMode.getMode();
         boolean isOperational = (CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST
                 .equals(mode));
@@ -4947,7 +5036,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     inEditMode = false;
                 }
                 if (!resend) {
-                    StdTextProduct prod = getStdTextProduct();
                     OUPTestRequest testReq = new OUPTestRequest();
                     testReq.setOupRequest(createOUPRequest(prod,
                             prod.getProduct()));
@@ -4991,8 +5079,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                 String product = TextDisplayModel.getInstance().getProduct(
                         token);
-                // TODO: Should not need to call getProduct and the like twice.
-                StdTextProduct prod = getStdTextProduct();
 
                 OUPRequest req = createOUPRequest(prod, product);
 
@@ -5009,8 +5095,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         } else {
             try {
                 if (!resend) {
-                    body = VtecUtil.getVtec(removeSoftReturns(textEditor
-                            .getText()));
+                    body = VtecUtil
+                            .getVtec(removeSoftReturns(MixedCaseProductSupport
+                                    .conditionalToUpper(prod.getNnnid(),
+                                            textEditor.getText())));
                 }
                 updateTextEditor(body);
                 if ((inEditMode || resend)
@@ -5084,7 +5172,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private static String copyEtn(String from, String to) {
         VtecObject fromVtec = VtecUtil.parseMessage(from);
 
-        if (fromVtec != null && "NEW".equals(fromVtec.getAction())) {
+        if ((fromVtec != null) && "NEW".equals(fromVtec.getAction())) {
             VtecObject toVtec = VtecUtil.parseMessage(to);
             if (toVtec != null) {
                 toVtec.setSequence(fromVtec.getSequence());
@@ -5120,6 +5208,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             body.append("\n");
         }
         body.append(textEditor.getText().trim());
+
+        if (AFOSParser.isTemplate) {
+            return removePreformat(body.toString());
+        }
 
         return body.toString();
     }
@@ -5191,7 +5283,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
             String header = headerTF.getText().toUpperCase();
             String body = resend ? resendMessage()
-                    : removeSoftReturns(textEditor.getText().toUpperCase());
+                    : removeSoftReturns(MixedCaseProductSupport
+                            .conditionalToUpper(product.getNnnid(),
+                                    textEditor.getText()));
             // verify text
             headerTF.setText(header);
             updateTextEditor(body);
@@ -5214,8 +5308,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (!isAutoSave) {
             if (!resend) {
                 // If not a resend, set the DDHHMM field to the current time
-                productText = replaceDDHHMM(productText, currentDate);
-
+                if (productText.startsWith("- -")
+                        && productText.contains("DDHHMM")) {
+                    productText = getUnofficeProduct(currentDate);
+                } else {
+                    productText = replaceDDHHMM(productText, currentDate);
+                }
                 VtecObject vtecObj = VtecUtil.parseMessage(productText);
                 if (warnGenFlag) {
                     /*
@@ -5249,6 +5347,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             int startIndex = statusBarLabel.getText().indexOf(":") + 2;
             productText += ATTACHMENT_STR
                     + statusBarLabel.getText().substring(startIndex);
+        }
+
+        if (AFOSParser.isTemplate) {
+            productText = removePreformat(productText);
         }
 
         storedProduct.setProduct(productText.trim());
@@ -5814,14 +5916,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (m.find()) {
             SimpleDateFormat headerFormat = new SimpleDateFormat(
                     "hmm a z EEE MMM d yyyy");
-            TimeZone tz = TextWarningConstants.timeZoneShortNameMap
-                    .get(m.group(5));
+            TimeZone tz = TextWarningConstants.timeZoneShortNameMap.get(m
+                    .group(5));
             if (tz != null) {
                 headerFormat.setTimeZone(tz);
                 product = product.replace(m.group(1), headerFormat.format(now)
                         .toUpperCase());
             } else {
-                statusHandler.warn("Could not sync MND header time because the time zone could not be determined.  Will proceed with save/send.");
+                statusHandler
+                        .warn("Could not sync MND header time because the time zone could not be determined.  Will proceed with save/send.");
             }
         }
         return product;
@@ -5950,10 +6053,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 + TextEditorUtil.getCommandText(command));
         statusBarLabel.update();
         setBusy(true);
-
-        if (queryTransport == null) {
-            queryTransport = TextEditorUtil.getTextDbsrvTransport();
-        }
         productQueryJob.addRequest(command, isObsUpdated,
                 accumChkBtn.getSelection());
     }
@@ -6853,7 +6952,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
         String textProduct = product.getASCIIProduct();
         if ((product.getNnnid() + product.getXxxid())
-                .startsWith(AFOSParser.DRAFT_PIL)) {
+                .startsWith(AFOSParser.DRAFT_PIL)
+                || (product.getNnnid() + product.getXxxid())
+                        .startsWith(AFOSParser.MCP_NNN)) {
             String[] nnnxxx = TextDisplayModel.getNnnXxx(textProduct);
             String operationalPil = nnnxxx[0] + nnnxxx[1];
             String siteNode = SiteAbbreviationUtil.getSiteNode(nnnxxx[1]);
@@ -7042,17 +7143,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         updateButtonology(commandText);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IWmoBrowserCallback#getQueryTransport()
-     */
-    @Override
-    public IQueryTransport getQueryTransport() {
-        return queryTransport;
-    }
-
     /**
      * Checks product to verify all required fields have been filled in.
      * 
@@ -7198,7 +7288,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     + "_"
                     + filenameIdentifier
                     + "_"
-                    + AUTOSAVE_DATE_FORMAT.format(TimeTools.getSystemCalendar()
+                    + AUTOSAVE_DATE_FORMAT.format(TimeUtil.newGmtCalendar()
                             .getTime()) + ".txt";
             BufferedOutputStream bufStream = null;
 
@@ -7219,15 +7309,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     synchronized (this) {
                         bufStream = new BufferedOutputStream(
                                 new FileOutputStream(file));
-                        bufStream.write(SerializationUtil.marshalToXml(
-                                stdTextProduct).getBytes());
+                        getJaxbManager().marshalToStream(stdTextProduct,
+                                bufStream);
                     }
                 }
 
                 // TODO Should the edit session be backed up to the server?
                 // lFile.save();
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, "Auto save failed", e);
+                statusHandler.handle(Priority.PROBLEM, "Auto save failed to "
+                        + filename, e);
             } finally {
                 if (bufStream != null) {
                     try {
@@ -7247,20 +7338,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 BufferedInputStream bufStream = null;
 
                 try {
-                    String xml = null;
                     synchronized (this) {
-                        byte[] b = new byte[(int) file.length()];
                         bufStream = new BufferedInputStream(
                                 new FileInputStream(file));
-                        bufStream.read(b);
-                        xml = new String(b);
                     }
 
-                    rval = SerializationUtil.unmarshalFromXml(
-                            StdTextProduct.class, xml);
+                    rval = (StdTextProduct) getJaxbManager()
+                            .unmarshalFromInputStream(bufStream);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Retrieval of product failed", e);
+                            "Retrieval of product failed:" + file.getName(), e);
                 } finally {
                     if (bufStream != null) {
                         try {
@@ -7329,14 +7416,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /*
      * (non-Javadoc)
      * 
-     * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[]) This is the
-     * callback method called by the NotificationManagerJob when observations
-     * are received. It parses the notifications and triggers a load of a
-     * product that matches the currently loaded product. Short circuits are
-     * provided for cases when the dialog is either not displaying a product or
-     * is in edit mode.
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[]) This is
+     * the callback method called by the NotificationManagerJob when
+     * observations are received. It parses the notifications and triggers a
+     * load of a product that matches the currently loaded product. Short
+     * circuits are provided for cases when the dialog is either not displaying
+     * a product or is in edit mode.
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
@@ -8496,5 +8583,78 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         } else {
             return bbb;
         }
+    }
+
+    private void initTemplateOverwriteMode() {
+        if (AFOSParser.isTemplate) {
+            editorInsertCmb.setEnabled(false);
+            editorCutBtn.setEnabled(false);
+            editorCopyBtn.setEnabled(false);
+            editorPasteBtn.setEnabled(false);
+            editorFillBtn.setEnabled(false);
+            editorAttachBtn.setEnabled(false);
+            overStrikeItem.setEnabled(false);
+            if (!isTemplateOverwriteModeSet) {
+                if (overwriteMode) {
+                } else {
+                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                }
+                isTemplateOverwriteModeSet = true;
+            }
+
+        } else {
+            editorInsertCmb.setEnabled(true);
+            overStrikeItem.setEnabled(true);
+            editorCutBtn.setEnabled(true);
+            editorCopyBtn.setEnabled(true);
+            editorPasteBtn.setEnabled(true);
+            editorFillBtn.setEnabled(true);
+            editorAttachBtn.setEnabled(true);
+            if (isTemplateOverwriteModeSet && !overwriteMode) {
+                textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                isTemplateOverwriteModeSet = false;
+            }
+            if (!isTemplateOverwriteModeSet && overwriteMode) {
+                textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+            }
+        }
+    }
+
+    private String removePreformat(String preformattedText) {
+        String modifiedText = preformattedText.replaceAll("\\[|\\]", " ");
+        modifiedText = removeSoftReturns(modifiedText);
+        return modifiedText;
+    }
+
+    private String getUnofficeProduct(String currDate) {
+        StdTextProduct textProd = TextDisplayModel.getInstance()
+                .getStdTextProduct(token);
+
+        String header = headerTF.getText();
+
+        String nnn = textProd.getNnnid();
+        String xxx = textProd.getXxxid();
+        String nnnXxx = nnn + xxx;
+        String site = SiteMap.getInstance().getSite4LetterId(
+                textProd.getCccid());
+        String wmoId = textProd.getCccid() + nnnXxx + " " + getAddressee()
+                + "\nTTAA00 " + site;
+
+        header = header.replaceFirst("\n" + nnnXxx, "");
+        header = header.replaceFirst("-", "ZCZC");
+        header = header.replaceFirst("-", wmoId);
+
+        if (currDate != null) {
+            header = header.replaceFirst("DDHHMM", currDate);
+        } else {
+            header = header.replaceFirst("DDHHMM", textProd.getHdrtime());
+        }
+
+        String body = MixedCaseProductSupport.conditionalToUpper(nnn,
+                textEditor.getText());
+
+        header = header + "\n\n" + body + "\n!--not sent--!";
+
+        return header;
     }
 }

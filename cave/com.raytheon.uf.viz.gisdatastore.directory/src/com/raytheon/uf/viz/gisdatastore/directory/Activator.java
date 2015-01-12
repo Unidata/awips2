@@ -23,10 +23,8 @@ import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 
 /**
@@ -38,7 +36,8 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 12, 2012      #1326 randerso     Initial creation
+ * Nov 12, 2012      #1326 randerso    Initial creation
+ * Mar 3,  2014      #2861 mschenke    Create preference store immediately
  * 
  * </pre>
  * 
@@ -49,14 +48,15 @@ public class Activator extends AbstractUIPlugin {
     public static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Activator.class);
 
-    // pref store
-    private HierarchicalPreferenceStore prefs;
-
     // The plug-in ID
     public static final String PLUGIN_ID = "com.raytheon.uf.viz.gisdatastore.directory"; //$NON-NLS-1$
 
     // The shared instance
     private static Activator plugin;
+
+    // pref store
+    private HierarchicalPreferenceStore prefs = new HierarchicalPreferenceStore(
+            this);
 
     /**
      * The constructor
@@ -106,17 +106,6 @@ public class Activator extends AbstractUIPlugin {
      */
     @Override
     public IPersistentPreferenceStore getPreferenceStore() {
-        try {
-            if (prefs == null) {
-                prefs = new HierarchicalPreferenceStore(this);
-            }
-        } catch (LocalizationException e) {
-            statusHandler.handle(
-                    Priority.PROBLEM,
-                    "Error reading preference store: "
-                            + e.getLocalizedMessage(), e);
-        }
-
         return prefs;
     }
 }

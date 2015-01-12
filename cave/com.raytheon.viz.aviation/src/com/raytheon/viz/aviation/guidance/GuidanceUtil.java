@@ -22,6 +22,8 @@ package com.raytheon.viz.aviation.guidance;
 import com.raytheon.uf.common.dataplugin.gfe.point.GFEPointDataContainers;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetPointDataRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -37,6 +39,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Jul 29, 2009            njensen     Initial creation
  * Mar 11, 2013 1735       rferrel     Get a list of GFE Point Data Containers
  * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
+ * Apr 23, 2014 3006       randerso    Added error logging
  * 
  * </pre>
  * 
@@ -45,6 +48,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  */
 
 public class GuidanceUtil {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GuidanceUtil.class);
 
     /**
      * Get a list of GFE Point Data information for the task request.
@@ -59,6 +64,10 @@ public class GuidanceUtil {
         task.setWorkstationID(VizApp.getWsId());
         ServerResponse<GFEPointDataContainers> sr = (ServerResponse<GFEPointDataContainers>) ThriftClient
                 .sendRequest(task);
+        if (!sr.isOkay()) {
+            // some kind of error occurred on the server side
+            statusHandler.error(sr.message());
+        }
         return sr.getPayload();
     }
 

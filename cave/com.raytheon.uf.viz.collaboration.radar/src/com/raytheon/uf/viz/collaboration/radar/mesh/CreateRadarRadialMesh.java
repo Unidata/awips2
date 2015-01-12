@@ -21,11 +21,11 @@ package com.raytheon.uf.viz.collaboration.radar.mesh;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
+import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension.RadialMeshData;
 
 /**
  * Event class used to specify the creation of a radar radial mesh
@@ -34,9 +34,11 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 16, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 16, 2012           mschenke    Initial creation
+ * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
+ *                                    Mesh
  * 
  * </pre>
  * 
@@ -77,37 +79,29 @@ public class CreateRadarRadialMesh extends AbstractDispatchingObjectEvent
     @DynamicSerializeElement
     private GeneralGridGeometry targetGeometry;
 
-    /**
-     * @return the radarRecord
-     */
-    public RadarRecord getRadarRecord() {
-        RadarRecord radarRecord = new RadarRecord();
+    public RadialMeshData getMeshData() {
+        RadialMeshData radarRecord = new RadialMeshData();
         radarRecord.setAngleData(angleData);
-        radarRecord.setFormat(format);
-        radarRecord.setGateResolution(gateResolution);
-        radarRecord.setJstart(jstart);
+        radarRecord.setBinWidth(gateResolution);
+        radarRecord.setFirstBin(jstart);
         radarRecord.setLatitude(latitude);
         radarRecord.setLongitude(longitude);
         radarRecord.setNumBins(numBins);
         radarRecord.setNumRadials(numRadials);
-        radarRecord.setTrueElevationAngle(trueElevationAngle);
+        radarRecord.setTiltAngle(trueElevationAngle);
         return radarRecord;
     }
 
-    /**
-     * @param radarRecord
-     *            the radarRecord to set
-     */
-    public void setRadarRecord(RadarRecord radarRecord) {
+    public void setMeshData(RadialMeshData radarRecord) {
         this.angleData = radarRecord.getAngleData();
-        this.format = radarRecord.getFormat();
-        this.gateResolution = radarRecord.getGateResolution();
-        this.jstart = radarRecord.getJstart();
+        this.format = "Radial";
+        this.gateResolution = radarRecord.getBinWidth();
+        this.jstart = radarRecord.getFirstBin();
         this.latitude = radarRecord.getLatitude();
         this.longitude = radarRecord.getLongitude();
         this.numBins = radarRecord.getNumBins();
         this.numRadials = radarRecord.getNumRadials();
-        this.trueElevationAngle = radarRecord.getTrueElevationAngle();
+        this.trueElevationAngle = radarRecord.getTiltAngle();
     }
 
     /**

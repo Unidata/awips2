@@ -3,13 +3,13 @@ package com.raytheon.uf.viz.preciprate;
 import java.io.File;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.preciprate.PrecipRateRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStoredData;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.DHRValues;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.cache.CacheObject;
 import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetriever;
 import com.raytheon.viz.radar.VizRadarRecord;

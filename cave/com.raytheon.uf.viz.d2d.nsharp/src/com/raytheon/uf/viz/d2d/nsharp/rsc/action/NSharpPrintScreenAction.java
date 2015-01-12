@@ -36,8 +36,8 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.image.export.handler.PrintImageCaptureHandler;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.actions.PrintScreenAction;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
@@ -56,7 +56,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @author chammack
  * @version 1
  */
-public class NSharpPrintScreenAction extends PrintScreenAction {
+public class NSharpPrintScreenAction extends PrintImageCaptureHandler {
 
     /*
      * (non-Javadoc)

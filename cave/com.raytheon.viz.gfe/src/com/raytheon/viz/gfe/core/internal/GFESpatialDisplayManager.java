@@ -34,6 +34,8 @@ import org.opengis.geometry.Envelope;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -55,6 +57,9 @@ import com.raytheon.viz.gfe.core.ISampleSetManager;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
 import com.raytheon.viz.gfe.core.msgs.ISampleSetChangedListener;
 import com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener;
+import com.raytheon.viz.gfe.core.msgs.Message;
+import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
+import com.raytheon.viz.gfe.core.msgs.ShowISCGridsMsg;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.rsc.GFEReferenceSetResource;
 import com.raytheon.viz.gfe.rsc.GFEResource;
@@ -75,7 +80,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 10/06/2008   1433       chammack    Removed log listener
  * 12/02/2008   1450       randerso    Moved getEditors method into UiUtil for general use
  * 04/09/2009   1288       rjpeter     Add sample set listener,ensure remove called for listeners
- * 08/20/2009   2310       njensen   Separated most logic out into AbstractSpatialDisplayManager
+ * 08/20/2009   2310       njensen     Separated most logic out into AbstractSpatialDisplayManager
+ * 04/02/2014   2961       randerso    Added a listener to redo time matching when ISC mode changes
+ * 
  * 04/02/2014   2969       randerso    Fix state of Topography menu item
  * </pre>
  * 
@@ -84,14 +91,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  */
 
 public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
-        implements IDisplayedParmListChangedListener, IFrameChangedListener {
-
-    private final ISampleSetChangedListener sampleSetListener = new ISampleSetChangedListener() {
-        @Override
-        public void sampleSetChanged(ISampleSetManager sampleSetMgr) {
-            GFESpatialDisplayManager.this.refresh();
-        }
-    };
+        implements IDisplayedParmListChangedListener, IFrameChangedListener,
+        ISampleSetChangedListener, IMessageClient {
 
     private boolean isRegistered;
 
@@ -124,6 +125,9 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
                 }
             }
         }
+
+        Message.registerInterest(this, ShowISCGridsMsg.class);
+
         setShowDescription(wxd_val);
     }
 
@@ -152,7 +156,7 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
                 this.dataManager.getParmManager()
                         .addDisplayedParmListChangedListener(this);
                 this.dataManager.getSampleSetManager()
-                        .addSampleSetChangedListener(sampleSetListener);
+                        .addSampleSetChangedListener(this);
                 isRegistered = true;
             }
 
@@ -172,8 +176,8 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
                 GridLocation gloc = parmManager.compositeGridLocation();
                 GridGeometry2D gridGeometry = MapUtil.getGridGeometry(gloc);
                 Envelope envelope = gridGeometry.getEnvelope();
-                double colorBarHeight = GFEColorbarResource.HEIGHT
-                        * envelope.getSpan(1) / pane.getBounds().height;
+                double colorBarHeight = (GFEColorbarResource.HEIGHT * envelope
+                        .getSpan(1)) / pane.getBounds().height;
 
                 PythonPreferenceStore prefs = Activator.getDefault()
                         .getPreferenceStore();
@@ -195,10 +199,10 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
                     expandBottom = prefs.getDouble("OfficeDomain_expandBottom");
                 }
 
-                double dxLeft = (envelope.getSpan(0) * expandLeft / 100.0);
-                double dxRight = (envelope.getSpan(0) * expandRight / 100.0);
-                double dyTop = (envelope.getSpan(1) * expandTop / 100.0);
-                double dyBottom = (envelope.getSpan(1) * expandBottom / 100.0);
+                double dxLeft = ((envelope.getSpan(0) * expandLeft) / 100.0);
+                double dxRight = ((envelope.getSpan(0) * expandRight) / 100.0);
+                double dyTop = ((envelope.getSpan(1) * expandTop) / 100.0);
+                double dyBottom = ((envelope.getSpan(1) * expandBottom) / 100.0);
 
                 GeneralEnvelope newEnvelope = new GeneralEnvelope(
                         envelope.getCoordinateReferenceSystem());
@@ -322,15 +326,17 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
      * 
      * @throws VizException
      */
+    @SuppressWarnings("unchecked")
     public void dispose() throws VizException {
         synchronized (this) {
             if (isRegistered) {
                 this.dataManager.getSampleSetManager()
-                        .removeSampleSetChangedListener(sampleSetListener);
+                        .removeSampleSetChangedListener(this);
                 this.dataManager.getParmManager()
                         .removeDisplayedParmListChangedListener(this);
                 isRegistered = false;
             }
+            Message.unregisterInterest(this, ShowISCGridsMsg.class);
         }
     }
 
@@ -372,6 +378,33 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
         }
     }
 
+    @Override
+    public void sampleSetChanged(ISampleSetManager sampleSetMgr) {
+        refresh();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.gfe.core.msgs.Message.IMessageClient#receiveMessage(
+     * com.raytheon.viz.gfe.core.msgs.Message)
+     */
+    @Override
+    public void receiveMessage(Message message) {
+        if (message instanceof ShowISCGridsMsg) {
+            for (IDescriptor descriptor : getDescriptors()) {
+                try {
+                    // ISC mode affects GFE time matching
+                    descriptor.redoTimeMatching();
+                } catch (VizException e) {
+                    UFStatus.getHandler().handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -384,7 +417,7 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
     @Override
     public void frameChanged(IDescriptor descriptor, DataTime oldTime,
             DataTime newTime) {
-        if (newTime != null && oldTime != null && seTime != null
+        if ((newTime != null) && (oldTime != null) && (seTime != null)
                 && oldTime.getRefTime().equals(seTime)) {
             // time was set to seTime, frame changed, set seTime to null
             setSpatialEditorTime(null);

@@ -20,25 +20,12 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	
-	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/SPCWatchPlot.xml" 
-             menuText="SPC Watches" id="spcWatches">
+    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/ConvectiveWatchPlot.xml"
+             menuText="Convective Watches" id="convectiveWatches">
     </contribute>
  	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/SvrWxPlot.xml" 
                menuText="Svr Wx Plot" id="spcWxPlot">
 	</contribute>
 	
-	<contribute xsi:type="subMenu" menuText="SPC Convective Outlooks"
-	            id="ncepHydro.spc.convectiveOutlooks">
-	    <contribute xsi:type="separator" id="ncepHydro.spc.convectiveOutlooks.top" visible="false"/>
-	    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/spc/convectiveOutlooks.xml"/>
-	    <contribute xsi:type="separator" id="ncepHydro.spc.convectiveOutlooks.bottom" visible="false"/>
-	</contribute>
-
-	<contribute xsi:type="subMenu" menuText="Fire Weather"
-	            id="ncepHydro.spc.fireWeather">
-	    <contribute xsi:type="separator" id="ncepHydro.spc.fireWeather.top" visible="false"/>
-	    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/spc/fireWeather.xml"/>
-	    <contribute xsi:type="separator" id="ncepHydro.spc.fireWeather.bottom" visible="false"/>
-	</contribute>
-
+	<contribute xsi:type="subinclude" fileName="menus/ncepHydro/spc/hazardMenus.xml"/>
 </menuTemplate>

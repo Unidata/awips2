@@ -25,8 +25,7 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
@@ -53,6 +52,9 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * July 20,2010 4891       skorolev    added code to fireDialogShutdown
  * Nov. 8, 2012 1297       skorolev    Added initiateProdArray method
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs
+ * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
+ * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
+ * Oct 16, 2014 3220       skorolev    Corrected configMgr assignment.
  * 
  * </pre>
  * 
@@ -62,14 +64,18 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
 
 public class SnowZoneTableDlg extends ZoneTableDlg {
 
+    /** SNOW threshold dialog. **/
     private SnowMonDispThreshDlg snowThreshDlg;
 
     /**
+     * Constructor
+     * 
      * @param parent
      * @param obData
      */
     public SnowZoneTableDlg(Shell parent, ObMultiHrsReports obData) {
         super(parent, obData, CommonConfig.AppName.SNOW);
+        configMgr = FSSObsMonitorConfigurationManager.getSnowObsManager();
     }
 
     /**
@@ -116,7 +122,7 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     protected void configThreshAction() {
-        if (snowThreshDlg == null) {
+        if (snowThreshDlg == null || snowThreshDlg.isDisposed()) {
             snowThreshDlg = new SnowMonDispThreshDlg(getParent().getShell(),
                     CommonConfig.AppName.SNOW, DataUsageKey.DISPLAY);
         }
@@ -168,7 +174,7 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     public void fireConfigUpdate(IMonitorConfigurationEvent imce) {
-        // Not used
+
     }
 
     /*
@@ -232,16 +238,6 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#getConfigMgr()
-     */
-    @Override
-    protected MonitorConfigurationManager getConfigMgr() {
-        return SnowMonitorConfigurationManager.getInstance();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#handleLinkToFrame()
      */
@@ -261,28 +257,4 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
     protected void shellDisposeAction() {
         // Not used
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
-     * setZoneSortColumnAndDirection()
-     */
-    @Override
-    protected void setZoneSortColumnAndDirection() {
-        if (zoneTblData != null) {
-            zoneSortColumn = zoneTblData.getSortColumn();
-            zoneSortDirection = zoneTblData.getSortDirection();
-        }
-        return;
-    }
-
-    @Override
-    protected void setStnSortColumnAndDirection() {
-        if (stnTblData != null) {
-            stnSortColumn = stnTblData.getSortColumn();
-            stnSortDirection = stnTblData.getSortDirection();
-        }
-    }
-
 }

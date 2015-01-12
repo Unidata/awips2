@@ -88,6 +88,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 04/08/2012   1229       rferrel     Made dialog non-blocking.
  * 10/15/2012   1229       rferrel      Changes for non-blocking HelpUsageDlg.
  * 16 Aug 2013  #2256      lvenable    Fixed image and cursor memory leaks.
+ * 19Mar2014    #2925       lvenable    Added dispose checks for runAsync.
  * 
  * </pre>
  * 
@@ -830,14 +831,16 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
                         }
                     }
 
-                    if (isDisposed() == false) {
-                        VizApp.runAsync(new Runnable() {
-                            @Override
-                            public void run() {
-                                setBusyCursor(false);
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (isDisposed()) {
+                                return;
                             }
-                        });
-                    }
+
+                            setBusyCursor(false);
+                        }
+                    });
                 }
             }
         };
@@ -895,6 +898,10 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
 
                     @Override
                     public void run() {
+                        if (isDisposed()) {
+                            return;
+                        }
+
                         ((ICigVisTabComp) byMonthTab.getControl())
                                 .setCigVisData(data);
                         ((ICigVisTabComp) byHourTab.getControl())

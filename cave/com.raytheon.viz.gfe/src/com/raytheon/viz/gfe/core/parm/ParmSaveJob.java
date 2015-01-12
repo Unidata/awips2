@@ -28,6 +28,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
@@ -40,6 +42,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2013     #2302  randerso    Initial creation
+ * Jun 30, 2014     #3332  randerso    Added exception handling
  * 
  * </pre>
  * 
@@ -48,6 +51,9 @@ import com.raytheon.uf.common.time.TimeRange;
  */
 
 public class ParmSaveJob extends Job {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ParmSaveJob.class);
+
     public static class ParmSaveStatus {
         boolean successful = false;
 
@@ -127,8 +133,13 @@ public class ParmSaveJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         ParmSaveRequest req = null;
         while ((req = this.saveQueue.poll()) != null) {
-            boolean successful = parm.saveParameterSubClass(req.times);
-            req.status.setSuccessful(successful);
+            try {
+                boolean successful = parm.saveParameterSubClass(req.times);
+                req.status.setSuccessful(successful);
+            } catch (Exception e) {
+                statusHandler.error("Error saving grids for " + this.parm, e);
+                req.status.setSuccessful(false);
+            }
         }
         return Status.OK_STATUS;
     }

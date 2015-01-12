@@ -59,7 +59,8 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * Aug 09, 2013  2033     mschenke    Switched File.separator to 
  *                                    IPathManager.SEPARATOR
  * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
- * 
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
+ * Sep 16, 2014  2707     bclement    lsr no longer uses dataURI
  * 
  * </pre>
  * 
@@ -75,32 +76,22 @@ public class PlotResourceData extends AbstractRequestableResourceData {
     public static class PluginPlotProperties {
 
         /**
-         * Plugins that use the point data api will be instantiated using
-         * PlotResource2, otherwise PlotResource will be used which requires
-         * that the PDO of the plugin implement IDecoderGettable
-         */
-        public final boolean usesPointDataApi;
-
-        /**
          * When this is true all plots will be correlated based on the
          * stationId, otherwise each dataURI is mapped to a specific set of
          * data.
          */
         public final boolean hasDistinctStationId;
 
-        public PluginPlotProperties(boolean usesPointDataApi,
-                boolean hasDistinctStationId) {
-            this.usesPointDataApi = usesPointDataApi;
+        public PluginPlotProperties(boolean hasDistinctStationId) {
             this.hasDistinctStationId = hasDistinctStationId;
         }
 
         /**
-         * This is the goal for all plugins, they should use the new api and
-         * they should have distinct stationIds.
+         * This is the goal for all plugins, they should have distinct
+         * stationIds.
          */
         public PluginPlotProperties() {
-            this.usesPointDataApi = true;
-            this.hasDistinctStationId = true;
+            this(true);
         }
 
     }
@@ -148,23 +139,17 @@ public class PlotResourceData extends AbstractRequestableResourceData {
 
     static {
         /*
-         * These use the original PlotResource, whoever can convert these gets
-         * to delete thousands of lines of code, it will be amazing.
-         */
-        pluginProps.put("acars", new PluginPlotProperties(false, false));
-
-        /*
          * These have a dependency on dataURI because they don't set stationId,
          * In the future if stationId can be set to anything that is even a
          * little unique we can get rid of this
          */
-        pluginProps.put("bufrquikscat", new PluginPlotProperties(true, false));
-        pluginProps.put("radar", new PluginPlotProperties(true, false));
-        pluginProps.put("lsr", new PluginPlotProperties(true, false));
-        pluginProps.put("tcg", new PluginPlotProperties(true, false));
-        pluginProps.put("svrwx", new PluginPlotProperties(true, false));
-        pluginProps.put("ldadhydro", new PluginPlotProperties(true, false));
-        pluginProps.put("textPoints", new PluginPlotProperties(true, false));
+        pluginProps.put("bufrquikscat", new PluginPlotProperties(false));
+        pluginProps.put("radar", new PluginPlotProperties(false));
+        pluginProps.put("tcg", new PluginPlotProperties(false));
+        pluginProps.put("svrwx", new PluginPlotProperties(false));
+        pluginProps.put("ldadhydro", new PluginPlotProperties(false));
+        pluginProps.put("textPoints", new PluginPlotProperties(false));
+
         /*
          * The good ones, these don't even need to be here because this is the
          * default behavior, but for now they are included so we have a
@@ -194,6 +179,8 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("madis", new PluginPlotProperties());
         pluginProps.put("pirep", new PluginPlotProperties());
         pluginProps.put("airep", new PluginPlotProperties());
+        pluginProps.put("acars", new PluginPlotProperties());
+        pluginProps.put("lsr", new PluginPlotProperties());
 
         ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
@@ -215,11 +202,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
-
-        if (getPluginProperties().usesPointDataApi) {
-            return new PlotResource2(this, loadProperties);
-        }
-
         return new PlotResource(this, loadProperties);
     }
 
@@ -384,7 +366,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
 
     @Override
     public boolean equals(Object obj) {
-        // TODO Auto-generated method stub
         if (!super.equals(obj)) {
             return false;
         }

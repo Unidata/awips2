@@ -28,7 +28,6 @@ import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.ICommand;
@@ -47,6 +46,8 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
  * 08/19/2009   2191        rjpeter     Initial creation.
  * 04/14/2010   4734        mhuang      Corrected StdTextProduct import 
  *                                       dependency
+ * 09/09/2014   3580        mapeters    Removed IQueryTransport usage 
+ *                                      (no longer exists).
  * </pre>
  * 
  * @author rjpeter
@@ -66,8 +67,7 @@ public class PythonTextEditorToolCallback implements
 
         try {
             ICommand command = CommandFactory.getAfosCommand(afosCommand);
-            List<StdTextProduct> prods = command.executeCommand(TextEditorUtil
-                    .getTextDbsrvTransport());
+            List<StdTextProduct> prods = command.executeCommand();
             rval = prods.toArray(new StdTextProduct[0]);
         } catch (CommandFailedException e) {
             statusHandler.handle(Priority.PROBLEM,
@@ -86,8 +86,7 @@ public class PythonTextEditorToolCallback implements
         try {
             ICommand command = CommandFactory.getCommand(wmoid, siteid,
                     awipsid, hdrtime, bbbid, lastHours, fullRead);
-            List<StdTextProduct> prods = command.executeCommand(TextEditorUtil
-                    .getTextDbsrvTransport());
+            List<StdTextProduct> prods = command.executeCommand();
             rval = prods.toArray(new StdTextProduct[0]);
         } catch (CommandFailedException e) {
             statusHandler.handle(Priority.PROBLEM,

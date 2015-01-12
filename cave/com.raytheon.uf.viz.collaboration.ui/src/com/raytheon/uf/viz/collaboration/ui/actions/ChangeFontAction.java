@@ -26,7 +26,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FontDialog;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
@@ -40,6 +40,8 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 6, 2012            bsteffen     Initial creation
+ * Oct 14, 2014 3709      mapeters     Post event using ChatDisplayChangeEvent.
+ * Nov 14, 2014 3709      mapeters     Changed back to posting event using FontData.
  * 
  * </pre>
  * 

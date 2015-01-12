@@ -24,7 +24,8 @@ import java.util.List;
 import com.raytheon.viz.pointdata.PlotInfo;
 
 /**
- * TODO Add Description
+ * A task to retrieve plot data for a set of stations, possibly requesting the
+ * parameters necessary for the plot image or the sample text or both.
  * 
  * <pre>
  * 
@@ -33,6 +34,7 @@ import com.raytheon.viz.pointdata.PlotInfo;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 18, 2011            njensen     Initial creation
+ * Mar 21, 2014 2868       njensen     Improved javadoc
  * 
  * </pre>
  * 

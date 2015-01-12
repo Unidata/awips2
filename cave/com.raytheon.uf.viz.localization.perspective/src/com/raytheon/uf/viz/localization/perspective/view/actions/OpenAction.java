@@ -23,9 +23,9 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 
-import com.raytheon.uf.viz.localization.LocalizationEditorInput;
-import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileEntryData;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorUtils;
 
 /**
  * Action to open a localization file in the default editor (based on file
@@ -76,19 +76,19 @@ public class OpenAction extends Action {
     public void run() {
         if (descriptor == null) {
             for (LocalizationFileEntryData file : files) {
-                LocalizationPerspectiveUtils.openInEditor(
+                LocalizationEditorUtils.openInEditor(
                         page,
                         new LocalizationEditorInput(file.getFile(), file
                                 .getResource()));
             }
         } else {
             for (LocalizationFileEntryData file : files) {
-                LocalizationPerspectiveUtils.openInEditor(
+                LocalizationEditorUtils.openInEditor(
                         page,
                         new LocalizationEditorInput(file.getFile(), file
                                 .getResource()), descriptor.getId());
-                LocalizationPerspectiveUtils.getEditorRegistry()
-                        .setDefaultEditor(file.getName(), descriptor.getId());
+                LocalizationEditorUtils.getEditorRegistry().setDefaultEditor(
+                        file.getName(), descriptor.getId());
             }
         }
     }

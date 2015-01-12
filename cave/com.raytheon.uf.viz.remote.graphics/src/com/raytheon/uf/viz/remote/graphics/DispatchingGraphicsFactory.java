@@ -24,6 +24,8 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.opengis.coverage.grid.GridEnvelope;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -45,9 +47,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 5, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 05, 2012           mschenke    Initial creation
+ * Mar 05, 2014  2843     bsteffen    Catch recycle errors.
  * 
  * </pre>
  * 
@@ -56,6 +59,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DispatchingGraphicsFactory.class);
 
     private AbstractGraphicsFactoryAdapter delegate;
 
@@ -211,7 +217,15 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
 
         for (ResourcePair rp : descriptor.getResourceList()) {
             if (rp.getResource() != null) {
-                rp.getResource().recycle();
+                try {
+                    rp.getResource().recycle();
+                } catch (Throwable e) {
+                    rp.getProperties().setVisible(false);
+                    statusHandler.handle(Priority.PROBLEM, "Refresh error: "
+                            + e.getMessage() + ":: The resource ["
+                            + rp.getResource().getSafeName()
+                            + "] has been disabled.", e);
+                }
             }
         }
 
@@ -219,7 +233,7 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
             try {
                 descriptor.getTimeMatcher().redoTimeMatching(descriptor);
             } catch (VizException e) {
-                Activator.statusHandler.handle(Priority.PROBLEM,
+                statusHandler.handle(Priority.PROBLEM,
                         "Error redoing time matching", e);
             }
         }

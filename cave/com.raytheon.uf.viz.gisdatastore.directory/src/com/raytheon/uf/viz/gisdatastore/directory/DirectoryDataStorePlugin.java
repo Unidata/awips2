@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.geotools.data.DataStore;
-import org.geotools.data.directory.DirectoryDataStoreFactory;
+import org.geotools.data.shapefile.ShapefileDirectoryFactory;
 
 import com.raytheon.uf.viz.gisdatastore.IGisDataStorePlugin;
 import com.raytheon.uf.viz.gisdatastore.directory.rsc.DirectoryDataStoreResourceData;
@@ -57,7 +57,8 @@ import com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResourceData;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 6, 2012            randerso     Initial creation
+ * Dec  6, 2012            randerso     Initial creation
+ * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -161,7 +162,7 @@ public class DirectoryDataStorePlugin implements IGisDataStorePlugin {
         URL url = new File(dir).toURI().toURL();
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put(DirectoryDataStoreFactory.URLP.key, url);
+        params.put(ShapefileDirectoryFactory.URLP.key, url);
 
         DataStoreResourceData rd = constructResourceData(null, params);
         DataStore dataStore = rd.getDataStore();

@@ -31,10 +31,10 @@ import java.util.TreeMap;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 
 /**
@@ -51,8 +51,9 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Dec 24, 2009  3424       zhao       added getTrendDataSet() that returns ObTrendDataSet object
  * Jan 25, 2010  4281, 3888, 3877 wkwock/zhao added getHistTableData method
  * Oct.31, 2012  1297       skorolev    Clean code.
- * Jan. 29, 2013 15654      zhao       add Wind Chill calculation for SNOW  
- * 
+ * Jan. 29, 2013 15654      zhao       add Wind Chill calculation for SNOW 
+ * Sep 04, 2014  3220       skorolev   Updated getStationTableData method.
+ *
  * </pre>
  * 
  * @author zhao
@@ -265,6 +266,9 @@ public class ObMultiHrsReports {
      * object is returned.
      */
     public TableData getStationTableData(Date nominalTime, String zone) {
+        if(zone.equals("")){
+            return this.getEmptyZoneTableData();
+        }
         if (nominalTime == null) {
             return getEmptyStationTableData(zone);
         }

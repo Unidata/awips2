@@ -35,10 +35,12 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
+import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -50,10 +52,9 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.objectiveanalysis.rsc.OAGridTransformer;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
@@ -69,11 +70,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 07, 2010            bsteffen    Initial creation
- * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
- *                                     work without dataURI.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 07, 2010           bsteffen    Initial creation
+ * May 09, 2013  1869     bsteffen    Modified D2D time series of point data to
+ *                                    work without dataURI.
+ * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * 
  * </pre>
  * 
@@ -131,7 +133,6 @@ public class PointDataTimeSeriesAdapter extends
 
         String parameter = resourceData.getYParameter().code;
 
-        boolean isIcon = displayType == DisplayType.ICON;
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
                 resourceData.getMetadataMap());
         String[] parameters = null;
@@ -149,31 +150,40 @@ public class PointDataTimeSeriesAdapter extends
                     PointDataConstants.DATASET_FORECASTHR, parameter };
         }
 
-        PointDataContainer pdc = DataCubeContainer.getPointData(
-                recordsToLoad[0].getPluginName(), parameters,
-                resourceData.getLevelKey(), constraints);
+        PointDataContainer pdc;
+        try {
+            pdc = DataCubeContainer.getPointData(
+                    recordsToLoad[0].getPluginName(), parameters,
+                    resourceData.getLevelKey(), constraints);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
+
+        boolean isWind = pdc.getParameters().contains(parameter + "[1]");
+        boolean isIcon = displayType == DisplayType.ICON;
+
         ArrayList<XYData> data = new ArrayList<XYData>();
         for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
             PointDataView pdv = pdc.readRandom(uriCounter);
             DataTime x = getDataTime(pdv, refTimeOnly);
             Number y = pdv.getNumber(parameter);
 
-            if (x == null) {
+            if (x == null || y.intValue() < -9000) {
                 continue;
             }
 
             // the parameter is a (wind) vector
-            if (pdc.getParameters().contains(parameter + "[1]")) {
+            if (isWind) {
+                double u = y.doubleValue();
+                double v = pdv.getNumber(parameter + "[1]").doubleValue();
+                double speed = Math.hypot(u, v);
+                double dir = Math.toDegrees(Math.atan2(-u, -v));
 
-                if (y.intValue() != -9999) {
-                    double windSpeed = y.doubleValue();
-                    double windDirection = pdv.getNumber(parameter + "[1]")
-                            .doubleValue();
-                    data.add(new XYWindImageData(x, y, windSpeed, windDirection));
-                }
+                data.add(new XYWindImageData(x, speed, speed, dir));
+
             } else if (isIcon) {
                 data.add(new XYIconImageData(x, y, y.intValue()));
-            } else if (y.intValue() > -9000) {
+            } else {
                 data.add(new XYData(x, y));
             }
         }

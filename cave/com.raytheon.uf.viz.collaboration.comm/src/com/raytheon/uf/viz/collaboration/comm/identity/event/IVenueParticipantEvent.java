@@ -19,12 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * TODO Add Description
+ * Event fired when a venue participant has a change in status
  * 
  * <pre>
  * 
@@ -33,6 +33,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2012            jkorman     Initial creation
+ * Dec 19, 2013 2563       bclement    added description getter
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -43,20 +45,22 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 public interface IVenueParticipantEvent {
 
     /**
-     * 
-     * @return
+     * @return type of event
      */
-    ParticipantEventType getEventType();
+    public ParticipantEventType getEventType();
 
     /**
-     * 
-     * @return
+     * @return user id of participant
      */
-    UserId getParticipant();
+    public VenueParticipant getParticipant();
 
     /**
-     * 
-     * @return
+     * @return presence of participant, may be null
      */
-    IPresence getPresence();
+    public Presence getPresence();
+
+    /**
+     * @return description of participant update event, may be null
+     */
+    public String getEventDescription();
 }

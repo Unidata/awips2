@@ -21,15 +21,12 @@ package com.raytheon.viz.gfe.core.parm.vcparm;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import jep.JepException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
-import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
-import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.python.PyConstants;
 import com.raytheon.viz.gfe.BaseGfePyController;
@@ -48,6 +45,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2011            dgilling     Initial creation
  * Jan 08, 2013  1486      dgilling     Support changes to BaseGfePyController.
+ * Oct 14, 2014  3676      njensen      Removed decodeGD(GridType) since it was
+ *                                       a copy of getNumpyResult()
  * 
  * </pre>
  * 
@@ -119,10 +118,11 @@ public class VCModuleController extends BaseGfePyController {
         if (!methodName.equals("calcGrid")) {
             jep.eval(RESULT + " = JUtil.pyValToJavaObj(" + RESULT + ")");
             obj = jep.getValue(RESULT);
+            jep.eval(RESULT + " = None");
         } else {
-            obj = decodeGD(type);
+            obj = getNumpyResult(type);
+            // getNumpyResult will set result to None to free up memory
         }
-        jep.eval(RESULT + " = None");
 
         return obj;
     }
@@ -167,52 +167,6 @@ public class VCModuleController extends BaseGfePyController {
             jep.eval("del " + gridName);
         }
         tempGridNames.clear();
-    }
-
-    private Object decodeGD(GridType type) throws JepException {
-        Object result = null;
-        boolean resultFound = (Boolean) jep.getValue(RESULT + " is not None");
-
-        if (resultFound) {
-            int xDim, yDim = 0;
-            switch (type) {
-            case SCALAR:
-                float[] scalarData = (float[]) jep.getValue(RESULT
-                        + ".astype(numpy.float32)");
-                xDim = (Integer) jep.getValue(RESULT + ".shape[1]");
-                yDim = (Integer) jep.getValue(RESULT + ".shape[0]");
-                result = new Grid2DFloat(xDim, yDim, scalarData);
-                break;
-            case VECTOR:
-                float[] mag = (float[]) jep.getValue(RESULT
-                        + "[0].astype(numpy.float32)");
-                float[] dir = (float[]) jep.getValue(RESULT
-                        + "[1].astype(numpy.float32)");
-                xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
-                yDim = (Integer) jep.getValue(RESULT + "[0].shape[0]");
-
-                Grid2DFloat magGrid = new Grid2DFloat(xDim, yDim, mag);
-                Grid2DFloat dirGrid = new Grid2DFloat(xDim, yDim, dir);
-                result = new Grid2DFloat[] { magGrid, dirGrid };
-                break;
-            case WEATHER:
-            case DISCRETE:
-                byte[] bytes = (byte[]) jep.getValue(RESULT
-                        + "[0].astype(numpy.int8)");
-                String[] keys = (String[]) jep.getValue(RESULT + "[1]");
-                xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
-                yDim = (Integer) jep.getValue(RESULT + "[0].shape[0]");
-
-                Grid2DByte grid = new Grid2DByte(xDim, yDim, bytes);
-                List<String> keysList = new ArrayList<String>();
-                Collections.addAll(keysList, keys);
-
-                result = new Object[] { grid, keysList };
-                break;
-            }
-        }
-
-        return result;
     }
 
     /*

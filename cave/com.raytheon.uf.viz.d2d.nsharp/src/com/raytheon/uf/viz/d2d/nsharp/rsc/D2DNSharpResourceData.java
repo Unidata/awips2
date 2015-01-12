@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -39,8 +40,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
+import com.raytheon.uf.viz.core.alerts.DataCubeAlertMessageParser;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -60,6 +63,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 12, 2011            bsteffen    Initial creation
  * May 31, 2013 1847       bsteffen    D2D nsharp will now format Lat/Lons as
  *                                     stationId like NC ncharp.
+ * May 08, 2014 2060       njensen     Constructor sets alert parser
+ * Jul 23, 2014 3410       bclement    added unpackResultLocation()
  * 
  * </pre>
  * 
@@ -81,6 +86,7 @@ public abstract class D2DNSharpResourceData extends
 
     public D2DNSharpResourceData() {
         super();
+        this.setAlertParser(new DataCubeAlertMessageParser());
     }
 
     public D2DNSharpResourceData(String soundingType) {
@@ -144,6 +150,25 @@ public abstract class D2DNSharpResourceData extends
     }
 
     protected abstract void preparePointInfo() throws VizException;
+
+    /**
+     * Creates a new coordinate from query result map
+     * 
+     * @see DbQueryResponse#getResults()
+     * @param result
+     * @param lonKey
+     *            longitude field
+     * @param latKey
+     *            latitude field
+     * @return
+     */
+    protected static Coordinate unpackResultLocation(
+            Map<String, Object> result, String lonKey, String latKey) {
+        Coordinate rval = new Coordinate();
+        rval.x = ((Number) result.get(lonKey)).doubleValue();
+        rval.y = ((Number) result.get(latKey)).doubleValue();
+        return rval;
+    }
 
     protected abstract NcSoundingCube getSoundingCube(NsharpStationInfo stnInfo);
 

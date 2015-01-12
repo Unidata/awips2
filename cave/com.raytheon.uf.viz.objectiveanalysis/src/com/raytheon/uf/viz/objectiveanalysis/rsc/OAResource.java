@@ -40,6 +40,8 @@ import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -99,6 +101,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 27, 2013  2287     randerso    Added new parameters to
  *                                    GriddedVectorDisplay constructor
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * Jun 30, 2014  3165     njensen     Use ColorMapLoader to get ColorMap
  * 
  * </pre>
  * 
@@ -256,8 +259,12 @@ public class OAResource extends
                         ColorMapCapability.class).getColorMapParameters();
 
                 if (parameters.getColorMap() == null) {
-                    parameters.setColorMap(target.buildColorMap(parameters
-                            .getColorMapName()));
+                    try {
+                        parameters.setColorMap(ColorMapLoader
+                                .loadColorMap(parameters.getColorMapName()));
+                    } catch (ColorMapException e) {
+                        throw new VizException(e);
+                    }
                 }
 
                 image.setColorMapParameters(parameters);
@@ -433,8 +440,8 @@ public class OAResource extends
                 FloatBuffer dir = data.slice();
                 GriddedVectorDisplay vector = new GriddedVectorDisplay(mag,
                         dir, descriptor, transformer.getGridGeom(),
-                        VECTOR_DENSITY_FACTOR,
-                        true, displayType, new VectorGraphicsConfig());
+                        VECTOR_DENSITY_FACTOR, true, displayType,
+                        new VectorGraphicsConfig());
 
                 renderableMap.put(dataTime, vector);
                 break;

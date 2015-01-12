@@ -26,9 +26,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 
 /**
  * A job that sets up the ScanMonitor then asks the UI thread to open the

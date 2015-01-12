@@ -19,27 +19,17 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.ISampleSetManager;
-import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
-import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
+import com.raytheon.viz.gfe.dialogs.LoadSampleSetDialog;
 
 /**
  * Action to launch sampele set dialog.
@@ -51,6 +41,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 7, 2008             Eric Babin  Initial Creation
  * Apr 9, 2009  1288       rjpeter     Removed explicit refresh of SpatialDisplayManager.
  * Oct 24, 2012 1287       rferrel     Changes for non-blocking SampleSetDialog.
+ * Sep 15, 2014 3592       randerso    Move logic into dialog code.
  * 
  * </pre>
  * 
@@ -60,11 +51,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 public class ShowLoadSampleSetDialog extends AbstractHandler {
     private final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ShowLoadSampleSetDialog.class);
+            .getHandler(ShowSaveDeleteSampleSetDialog.class);
 
-    private SampleSetDialog dialog;
-
-    private DataManager dm;
+    private LoadSampleSetDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -74,82 +63,26 @@ public class ShowLoadSampleSetDialog extends AbstractHandler {
      * .ExecutionEvent)
      */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            dm = DataManager.getCurrentInstance();
-            if (dm == null) {
-                return null;
-            }
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
+        if (dm == null) {
+            return null;
+        }
 
+        if ((dialog == null) || (dialog.getShell() == null)
+                || dialog.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
 
-            ArrayList<SampleId> sampleIdList = dm.getSampleSetManager()
-                    .getInventoryAsList();
-
-            Collections.sort(sampleIdList, new Comparator<SampleId>() {
-
-                @Override
-                public int compare(SampleId o1, SampleId o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-
-            });
-
-            dialog = new SampleSetDialog(shell, sampleIdList,
-                    SampleSetDialog.LOAD);
+            dialog = new LoadSampleSetDialog(dm.getSampleSetManager(), shell);
 
             dialog.setBlockOnOpen(false);
-            dialog.setCloseCallback(new ICloseCallback() {
-
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    if (returnValue instanceof Integer) {
-                        int returnCode = (Integer) returnValue;
-                        doDialogClosed(returnCode);
-                    }
-                    dialog = null;
-                }
-            });
-
             dialog.open();
         } else {
             dialog.bringToTop();
         }
+
         return null;
     }
 
-    private void doDialogClosed(int returnCode) {
-        if (returnCode != Window.CANCEL
-                && dialog.getSelectedSampleIdIndexes() != null) {
-            List<SampleId> sampleIdList = dialog.getSamples();
-            ISampleSetManager.SampleSetLoadMode mode = null;
-            switch (returnCode) {
-            case SampleSetDialog.OK:
-                mode = ISampleSetManager.SampleSetLoadMode.ADD;
-                break;
-            case SampleSetDialog.REMOVE:
-                mode = ISampleSetManager.SampleSetLoadMode.REMOVE;
-                break;
-            case SampleSetDialog.REPLACE:
-                mode = ISampleSetManager.SampleSetLoadMode.REPLACE;
-                break;
-            default:
-                statusHandler.handle(Priority.PROBLEM,
-                        "Load unknow return code: " + returnCode);
-                return;
-            }
-
-            for (int index : dialog.getSelectedSampleIdIndexes()) {
-                SampleId id = sampleIdList.get(index);
-                try {
-                    dm.getSampleSetManager().loadSampleSet(id, mode);
-                } catch (GFEException e) {
-                    statusHandler.handle(Priority.ERROR,
-                            "Load failed for mode: " + mode.toString()
-                                    + ", sample id: " + id.toString(), e);
-                }
-            }
-        }
-    }
 }

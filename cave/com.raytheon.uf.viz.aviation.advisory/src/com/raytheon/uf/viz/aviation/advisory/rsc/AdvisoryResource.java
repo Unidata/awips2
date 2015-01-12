@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
@@ -72,6 +73,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jun 10, 2011 9744      cjeanbap     Added Magnification, Outline, and 
  *                                     Density capability.
  * Jun 13, 2011 9758      cjeanbap     Set colorString of AdvisoryResourceData.
+ * Aug 14, 2014 3523      mapeters     Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * </pre>
  * 
  * @author bsteffen
@@ -256,7 +259,7 @@ public class AdvisoryResource extends
                             record.getLabel(), color);
                     dStrings.font = font;
                     dStrings.setCoordinates(pixelLoc[0], pixelLoc[1]);
-                    dStrings.textStyle = TextStyle.DROP_SHADOW;
+                    dStrings.addTextStyle(TextStyle.DROP_SHADOW);
                     dStrings.horizontalAlignment = HorizontalAlignment.LEFT;
                     dStrings.verticallAlignment = VerticalAlignment.TOP;
                     target.drawStrings(dStrings);
@@ -270,6 +273,7 @@ public class AdvisoryResource extends
             dashedShape.clearLabels();
             dottedShape.clearLabels();
 
+            List<DrawableString> strings = new ArrayList<DrawableString>();
             for (AdvisoryRecord record : records.get(curDataTime)) {
                 if (record.getType() == AdvisoryResourceType.AREA) {
                     font.setMagnification(magnification);
@@ -282,10 +286,10 @@ public class AdvisoryResource extends
                     DrawableString dStrings = new DrawableString(labels, colors);
                     dStrings.font = font;
                     dStrings.setCoordinates(pixelLoc[0], pixelLoc[1]);
-                    dStrings.textStyle = TextStyle.DROP_SHADOW;
+                    dStrings.addTextStyle(TextStyle.DROP_SHADOW);
                     dStrings.horizontalAlignment = HorizontalAlignment.CENTER;
                     dStrings.verticallAlignment = VerticalAlignment.MIDDLE;
-                    target.drawStrings(dStrings);
+                    strings.add(dStrings);
                 } else if (record.getType() == AdvisoryResourceType.TEXT) {
                     double[] pixelLoc = descriptor.worldToPixel(new double[] {
                             record.getLabelLoc().x, record.getLabelLoc().y });
@@ -295,13 +299,13 @@ public class AdvisoryResource extends
                             record.getLabel(), color);
                     dStrings.font = font;
                     dStrings.setCoordinates(pixelLoc[0], pixelLoc[1]);
-                    dStrings.textStyle = TextStyle.DROP_SHADOW;
+                    dStrings.addTextStyle(TextStyle.DROP_SHADOW);
                     dStrings.horizontalAlignment = HorizontalAlignment.LEFT;
                     dStrings.verticallAlignment = VerticalAlignment.TOP;
-                    target.drawStrings(dStrings);
+                    strings.add(dStrings);
                 }
             }
-
+            target.drawStrings(strings);
         }
         // LineStyle lineStyle = resourceData.getDataAdapter().getLineStyle();
         // float lineWidth = resourceData.getDataAdapter().getLineWidth();
@@ -365,7 +369,7 @@ public class AdvisoryResource extends
                         nonStandardInspectStrings, colors);
                 dStrings.font = null;
                 dStrings.setCoordinates(xLoc, yLoc);
-                dStrings.textStyle = TextStyle.BLANKED;
+                dStrings.addTextStyle(TextStyle.BLANKED);
                 dStrings.horizontalAlignment = HorizontalAlignment.LEFT;
                 dStrings.verticallAlignment = VerticalAlignment.TOP;
                 target.drawStrings(dStrings);

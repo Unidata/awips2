@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.util.GridLevelTranslator;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
+import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -44,8 +44,6 @@ import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
-import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -83,6 +81,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 20, 2013 2259       bsteffen    Delete old skewt plugin.
  * Sep 06, 2013 2251       mnash       Move graph prefs style type to
  *                                      graph plugin
+ * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
+ *                                     parameters to common
+ * Sep 09, 2014  3356      njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -358,24 +359,14 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
         Collection<Level> levels = Collections.emptyList();
         if (planesKey.startsWith("spatial-")) {
-            try {
-                levels = LevelUtilities.getOrderedSetOfStandardLevels(planesKey
-                        .replace("spatial-", ""));
-            } catch (VizCommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
+            levels = LevelUtilities.getOrderedSetOfStandardLevels(planesKey
+                    .replace("spatial-", ""));
         } else {
-            try {
-                LevelMappingFactory lmf = LevelMappingFactory
-                        .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
-                LevelMapping lm = lmf.getLevelMappingForKey(planesKey);
-                if (lm != null) {
-                    levels = lm.getLevels();
-                }
-            } catch (CommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+            LevelMappingFactory lmf = LevelMappingFactory
+                    .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
+            LevelMapping lm = lmf.getLevelMappingForKey(planesKey);
+            if (lm != null) {
+                levels = lm.getLevels();
             }
         }
         ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();

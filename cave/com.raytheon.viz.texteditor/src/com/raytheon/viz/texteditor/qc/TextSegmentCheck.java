@@ -20,6 +20,7 @@
 package com.raytheon.viz.texteditor.qc;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -58,6 +59,8 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * 07 NOV 2012  15003	   mgamazaychikov	Do not perform QC check on standalone MWS headline.
  * 21 MAY 2013  16200      Qinglu Lin  Prevent countyOrZoneCounter from being increased for a line
  *                                     that has no word County/Parish/Municipality in it. 
+ * 13 MAY 2014  17177      Qinglu Lin  Updated runQC().
+ * 15 SEP 2014    529      mgamazaychikov	Create firstBulletImmediateCauseQCExclusions list and add IC to it.
  * 
  * </pre>
  * 
@@ -84,6 +87,9 @@ public class TextSegmentCheck implements IQCCheck {
                     e);
         }
     }
+
+    // List of immediate causes to be excluded from quality control check in the first bullet
+    private static List<String> firstBulletImmediateCauseQCExclusions = Arrays.asList("ER", "MC", "UU", "IC");
 
     @Override
     public String runQC(String header, String body, String nnn) {
@@ -305,7 +311,7 @@ public class TextSegmentCheck implements IQCCheck {
             // second bullet
             if (line.startsWith("*") && nb == 2) {
                 m = secondBulletPtrn.matcher(line);
-                if (m.find()) {
+                if (m.find() || line.contains("* UNTIL NOON") || line.contains("* UNTIL MIDNIGHT")) {
                     secondBulletFound = true;
                     insideFirstBullet = false;
                     continue;
@@ -361,8 +367,9 @@ public class TextSegmentCheck implements IQCCheck {
             }
 
             if (insideFirstBullet) {
-                if (ic != null && !ic.equals("ER") && !ic.equals("MC")
-                        && !ic.equals("UU") && checkIC) {
+                if (ic != null
+                        && !firstBulletImmediateCauseQCExclusions.contains(ic)
+                        && checkIC) {
                     boolean validIC = false;
                     for (String causes : QualityControl.getImmediateCauses()) {
                         if (causes.startsWith(ic)

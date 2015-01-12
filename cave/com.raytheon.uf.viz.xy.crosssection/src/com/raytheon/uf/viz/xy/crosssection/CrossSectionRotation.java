@@ -37,22 +37,23 @@ import com.raytheon.viz.core.slice.request.HeightScale;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Method for calculating wind relative to the baseline.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 1, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 01, 2011           bsteffen    Initial creation
+ * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
+ * 
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-
 public class CrossSectionRotation {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CrossSectionRotation.class);
@@ -61,7 +62,7 @@ public class CrossSectionRotation {
             List<Coordinate> linePoints, List<float[]> floatData,
             int lineLengthInMeters, HeightScale heightScale,
             CoordinateReferenceSystem dataCRS) {
-        if (floatData.size() < 4) {
+        if (floatData.size() < 2) {
             return floatData;
         }
         RotationMode mode = CrossSectionRotationsFile
@@ -69,8 +70,8 @@ public class CrossSectionRotation {
         if (mode == RotationMode.VR_NO_ROTATION) {
             return floatData;
         }
-        float[] u = floatData.get(2);
-        float[] v = floatData.get(3);
+        float[] u = floatData.get(0);
+        float[] v = floatData.get(1);
         for (int i = 0; i < u.length; i += 1) {
             if (u[i] <= -9999) {
                 u[i] = Float.NaN;
@@ -133,44 +134,35 @@ public class CrossSectionRotation {
             return Arrays.asList(result);
         }
         case VR_VERT_CIRC: {
+            if (floatData.size() < 3) {
+                return floatData;
+            }
             float umult = 86400.0f / (lineLengthInMeters);
             float vmult = 86400.0f / ((heightScale.getDifference()) * 100);
-            float[] pvv = floatData.get(0);
-            float[] resultMag = result;
+            float[] pvv = floatData.get(2);
             float[] resultU = new float[result.length];
             float[] resultV = new float[result.length];
-            float[] resultDir = new float[result.length];
             for (int j = 0; j < height; j++) {
                 for (int i = 0; i < width; i++) {
                     int idx = j * width + i;
                     resultU[idx] = umult
                             * ((u[idx] * cosRot[i]) + (v[idx] * sinRot[i]));
                     resultV[idx] = vmult * pvv[idx];
-                    resultMag[idx] = (float) Math.hypot(resultU[idx],
-                            resultV[idx]);
-                    resultDir[idx] = (float) Math.atan2(resultU[idx],
-                            resultV[idx]);
                 }
             }
-            return Arrays.asList(resultMag, resultDir, resultU, resultV);
+            return Arrays.asList(resultU, resultV);
         }
         default: {
-            float[] resultMag = result;
             float[] resultU = new float[result.length];
             float[] resultV = new float[result.length];
-            float[] resultDir = new float[result.length];
             for (int j = 0; j < height; j++) {
                 for (int i = 0; i < width; i++) {
                     int idx = j * width + i;
                     resultU[idx] = (u[idx] * cosRot[i]) + (v[idx] * sinRot[i]);
                     resultV[idx] = -(u[idx] * sinRot[i]) + (v[idx] * cosRot[i]);
-                    resultMag[idx] = (float) Math.hypot(resultU[idx],
-                            resultV[idx]);
-                    resultDir[idx] = (float) Math.atan2(resultU[idx],
-                            resultV[idx]);
                 }
             }
-            return Arrays.asList(resultMag, resultDir, resultU, resultV);
+            return Arrays.asList(resultU, resultV);
         }
         }
 

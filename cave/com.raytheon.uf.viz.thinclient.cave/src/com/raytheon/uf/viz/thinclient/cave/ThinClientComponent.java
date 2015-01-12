@@ -26,16 +26,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.jobs.StatsJob;
 import com.raytheon.uf.viz.core.localization.BundleScanner;
+import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.IThinClientComponent;
@@ -52,7 +53,8 @@ import com.raytheon.uf.viz.thinclient.localization.LocalizationCachePersistence;
 import com.raytheon.uf.viz.thinclient.localization.ThinClientLocalizationInitializer;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AWIPSWorkbenchAdvisor;
+import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
 import com.raytheon.viz.ui.personalities.awips.CAVE;
 
 /**
@@ -67,6 +69,8 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  * Aug  4, 2011            njensen     Initial creation
  * Apr 23, 2013 1939       randerso    Return null from initializeSerialization
  * Nov 14, 2013 2361       njensen     Remove initializeSerialization()
+ * Nov 06, 2014  3356      njensen     Always initialize ILocalizationAdapter   
+ *                                      in case cache preference is not enabled
  * 
  * </pre>
  * 
@@ -75,8 +79,9 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  */
 
 public class ThinClientComponent extends CAVE implements IThinClientComponent {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AbstractCAVEComponent.class, "ThinClient");
+            .getHandler(AbstractAWIPSComponent.class, "ThinClient");
 
     private ThinClientCacheManager cacheManager;
 
@@ -152,15 +157,27 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
                         .getUnderlyingFactory()));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#
+     * initializeLocalization()
+     */
     @Override
-    protected void initializeLocalization(boolean nonui) {
+    protected void initializeLocalization() throws Exception {
+        /*
+         * Set the normal adapter first, based on cache preference settings the
+         * next few lines may replace it with the thin client localization
+         * adapter
+         */
+        PathManagerFactory.setAdapter(new CAVELocalizationAdapter());
         cacheManager = new ThinClientCacheManager(
                 new GeometryCachePersistence(),
                 new LocalizationCachePersistence(),
                 new MapQueryCachePersistence());
         cacheManager.restoreCaches();
         try {
-            new ThinClientLocalizationInitializer(!nonui,
+            new ThinClientLocalizationInitializer(!isNonUIComponent(),
                     !LocalizationManager.internalAlertServer).run();
         } catch (Exception e1) {
             e1.printStackTrace();
@@ -172,12 +189,11 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#
-     * getWorkbenchAdvisor()
+     * @see com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent#
+     * createAWIPSWorkbenchAdvisor()
      */
     @Override
-    protected WorkbenchAdvisor getWorkbenchAdvisor() {
-        // Use custom workbench advisor, will add thin client preferences page
+    protected AWIPSWorkbenchAdvisor createAWIPSWorkbenchAdvisor() {
         return new ThinClientWorkbenchAdvisor();
     }
 

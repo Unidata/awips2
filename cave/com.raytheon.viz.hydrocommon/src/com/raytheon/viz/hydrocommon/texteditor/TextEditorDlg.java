@@ -46,8 +46,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import com.raytheon.viz.hydrocommon.Activator;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -61,6 +61,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 18, 2009 2772        mpduff      Fixed NullPointer when opening in Read only.
  * Jul 15, 2013 2088        rferrel     Changes for non-blocking FindReplaceDlg.
  *                                      Make dialog non-blocking.
+ * May 27, 2014 3133        njensen     Removed references to Activator
  * 
  * </pre>
  * 
@@ -68,6 +69,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class TextEditorDlg extends CaveSWTDialog {
+
+    private static final String PLUGIN = "com.raytheon.viz.hydrocommon";
 
     /**
      * Control font.
@@ -849,36 +852,36 @@ public class TextEditorDlg extends CaveSWTDialog {
     private void getImages() {
         ImageDescriptor id;
 
-        id = Activator.imageDescriptorFromPlugin(
-                "com.raytheon.viz.hydrocommon", "icons/media-floppy.png");
+        id = AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN,
+                "icons/media-floppy.png");
         saveImage = id.createImage();
 
-        id = Activator.imageDescriptorFromPlugin(
-                "com.raytheon.viz.hydrocommon", "icons/edit-cut.png");
+        id = AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN,
+                "icons/edit-cut.png");
         cutImage = id.createImage();
 
-        id = Activator.imageDescriptorFromPlugin(
-                "com.raytheon.viz.hydrocommon", "icons/edit-copy.png");
+        id = AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN,
+                "icons/edit-copy.png");
         copyImage = id.createImage();
 
-        id = Activator.imageDescriptorFromPlugin(
-                "com.raytheon.viz.hydrocommon", "icons/edit-paste.png");
+        id = AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN,
+                "icons/edit-paste.png");
         pasteImage = id.createImage();
 
-        id = Activator.imageDescriptorFromPlugin(
-                "com.raytheon.viz.hydrocommon", "icons/edit-find-replace.png");
+        id = AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN,
+                "icons/edit-find-replace.png");
         findReplaceImage = id.createImage();
 
-        id = Activator.imageDescriptorFromPlugin(
-                "com.raytheon.viz.hydrocommon", "icons/edit-select-all.png");
+        id = AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN,
+                "icons/edit-select-all.png");
         selectAllImage = id.createImage();
 
-        id = Activator.imageDescriptorFromPlugin(
-                "com.raytheon.viz.hydrocommon", "icons/edit-undo.png");
+        id = AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN,
+                "icons/edit-undo.png");
         undoImage = id.createImage();
 
-        id = Activator.imageDescriptorFromPlugin(
-                "com.raytheon.viz.hydrocommon", "icons/edit-redo.png");
+        id = AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN,
+                "icons/edit-redo.png");
         redoImage = id.createImage();
     }
 

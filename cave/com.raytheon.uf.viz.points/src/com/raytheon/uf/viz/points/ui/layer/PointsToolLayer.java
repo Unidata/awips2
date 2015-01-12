@@ -84,6 +84,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *  02-08-11     #8214       bkowal      Points now have the Magnification
  *                                       capability.
  *  07-31-2012   #875        rferrel     Converted to use points.
+ *  07-28-2014   #3430       mapeters    Updated move function to prevent errors
+ *                                       when MB3 clicking off the map with
+ *                                       tool in editable mode.
  * 
  * </pre>
  * 
@@ -358,10 +361,8 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
             Point point) {
         if (point.getMovable() == PointFieldState.TRUE) {
             if (clickLoc == null) {
-                clickLoc = lastClickedCoordinate;
-                // Get The Current Coordinates Of The "Point".
-                lastClickedCoordinate = this.dataManager.getCoordinate(point
-                        .getName());
+                clickLoc = (lastClickedCoordinate == null) ? this.dataManager
+                        .getCoordinate(point.getName()) : lastClickedCoordinate;
             }
 
             Point newPoint = new Point(point);

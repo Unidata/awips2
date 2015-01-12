@@ -42,8 +42,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
-import com.raytheon.uf.common.monitor.scan.config.MesoConfigMgr;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.CELLTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.MESOTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
@@ -58,6 +56,8 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.IThresholdUpdate;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANAlarmTimeLimitDlg;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANAttributesDlg;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANColorThreshDlg;
+import com.raytheon.uf.viz.monitor.scan.config.MesoConfigMgr;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 

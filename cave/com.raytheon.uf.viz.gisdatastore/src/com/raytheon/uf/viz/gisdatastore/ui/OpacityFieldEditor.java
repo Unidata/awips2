@@ -29,6 +29,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
+import com.raytheon.uf.viz.core.preferences.StringConverter;
 import com.raytheon.viz.ui.dialogs.SetOpacityDialog;
 
 /**

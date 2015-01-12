@@ -20,6 +20,9 @@
 package com.raytheon.uf.viz.remote.graphics.events.strings;
 
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -40,9 +43,12 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingFont;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 10, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 10, 2012           mschenke    Initial creation
+ * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
+ * mAY 16, 2014  3163     bsteffen    Add support for reading colored text styles.
+ * 
  * 
  * </pre>
  * 
@@ -52,6 +58,16 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingFont;
 
 @DynamicSerialize
 public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
+
+    /**
+     * Flipping this boolean breaks support for older clients. The plan is to
+     * phase in the style colors over multiple releases to ensure that each
+     * release is compatible with the previous release, however if there is a
+     * use case requiring support sooner then it is safe to flip this flag
+     * assuming all clients support it.
+     */
+    private static boolean SUPPORT_STYLE_COLORS = Boolean
+            .getBoolean("collaboration.supportStringStyleColors");
 
     @DynamicSerializeElement
     private int fontId = -1;
@@ -71,13 +87,39 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
     @DynamicSerializeElement
     private VerticalAlignment verticalAlignment;
 
+    /**
+     * For backwards compatibility this field should never be set, but for
+     * forward compatibility it can be deserialized.
+     * 
+     * @see DrawStringEvent#SUPPORT_STYLE_COLORS
+     */
     @DynamicSerializeElement
-    private TextStyle textStyle;
+    private Map<TextStyle, RGB> textStyleColorMap;
 
+    /**
+     * @deprecated Once backwards compatibility is not needed switch to
+     *             {@link #textStyleColorMap}
+     * @see DrawStringEvent#SUPPORT_STYLE_COLORS
+     */
     @DynamicSerializeElement
+    @Deprecated
+    private EnumSet<TextStyle> textStyles;
+
+    /**
+     * @deprecated Once backwards compatibility is not needed switch to
+     *             {@link #textStyleColorMap}
+     * @see DrawStringEvent#SUPPORT_STYLE_COLORS
+     */
+    @DynamicSerializeElement
+    @Deprecated
     private RGB boxColor;
 
+    /**
+     * @deprecated Once backwards compatibility is not needed switch to
+     *             {@link #textStyleColorMap}
+     */
     @DynamicSerializeElement
+    @Deprecated
     private RGB shadowColor;
 
     @DynamicSerializeElement
@@ -101,35 +143,40 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
      * .graphics.events.rendering.IRenderEvent)
      */
     @Override
-    public DrawStringEvent createDiffObject(IRenderEvent event) {
-        DrawStringEvent diffEvent = (DrawStringEvent) event;
-        DrawStringEvent diffObject = new DrawStringEvent();
-        diffObject.alpha = diffEvent.alpha;
-        diffObject.boxColor = diffEvent.boxColor;
-        diffObject.shadowColor = diffEvent.shadowColor;
-        diffObject.xOrColors = diffEvent.xOrColors;
-        diffObject.fontId = diffEvent.fontId;
-        diffObject.magnification = diffEvent.magnification;
-        diffObject.rotation = diffEvent.rotation;
-        if (Arrays.equals(colors, diffEvent.colors) == false) {
-            diffObject.colors = diffEvent.colors;
+    public DrawStringEvent createDiffObject(IRenderEvent newEvent) {
+        DrawStringEvent newStringEvent = (DrawStringEvent) newEvent;
+        DrawStringEvent diffStringEvent = new DrawStringEvent();
+        diffStringEvent.alpha = newStringEvent.alpha;
+        diffStringEvent.boxColor = newStringEvent.boxColor;
+        diffStringEvent.shadowColor = newStringEvent.shadowColor;
+        diffStringEvent.xOrColors = newStringEvent.xOrColors;
+        diffStringEvent.fontId = newStringEvent.fontId;
+        diffStringEvent.magnification = newStringEvent.magnification;
+        diffStringEvent.rotation = newStringEvent.rotation;
+        if (Arrays.equals(colors, newStringEvent.colors) == false) {
+            diffStringEvent.colors = newStringEvent.colors;
         }
-        if (Arrays.equals(text, diffEvent.text) == false) {
-            diffObject.text = diffEvent.text;
+        if (Arrays.equals(text, newStringEvent.text) == false) {
+            diffStringEvent.text = newStringEvent.text;
         }
-        if (Arrays.equals(point, diffEvent.point) == false) {
-            diffObject.point = diffEvent.point;
+        if (Arrays.equals(point, newStringEvent.point) == false) {
+            diffStringEvent.point = newStringEvent.point;
         }
-        if (horizontalAlignment != diffEvent.horizontalAlignment) {
-            diffObject.horizontalAlignment = diffEvent.horizontalAlignment;
+        if (horizontalAlignment != newStringEvent.horizontalAlignment) {
+            diffStringEvent.horizontalAlignment = newStringEvent.horizontalAlignment;
         }
-        if (verticalAlignment != diffEvent.verticalAlignment) {
-            diffObject.verticalAlignment = diffEvent.verticalAlignment;
+        if (verticalAlignment != newStringEvent.verticalAlignment) {
+            diffStringEvent.verticalAlignment = newStringEvent.verticalAlignment;
         }
-        if (textStyle != diffEvent.textStyle) {
-            diffObject.textStyle = diffEvent.textStyle;
+        if (newStringEvent.textStyles != null
+                && newStringEvent.textStyles.equals(textStyles) == false) {
+            diffStringEvent.textStyles = newStringEvent.textStyles;
         }
-        return diffObject;
+        if (newStringEvent.textStyleColorMap != null
+                && newStringEvent.textStyleColorMap.equals(textStyleColorMap) == false) {
+            diffStringEvent.textStyleColorMap = newStringEvent.textStyleColorMap;
+        }
+        return diffStringEvent;
     }
 
     /*
@@ -164,8 +211,11 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         if (diffObject.text != null) {
             text = diffObject.text;
         }
-        if (diffObject.textStyle != null) {
-            textStyle = diffObject.textStyle;
+        if (diffObject.textStyles != null) {
+            textStyles = diffObject.textStyles;
+        }
+        if (diffObject.textStyleColorMap != null) {
+            textStyleColorMap = diffObject.textStyleColorMap;
         }
     }
 
@@ -173,12 +223,10 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         this.text = string.getText();
         this.colors = string.getColors();
         this.alpha = string.basics.alpha;
-        this.boxColor = string.boxColor;
-        this.shadowColor = string.shadowColor;
+
         this.xOrColors = string.basics.xOrColors;
         this.horizontalAlignment = string.horizontalAlignment;
         this.verticalAlignment = string.verticallAlignment;
-        this.textStyle = string.textStyle;
         this.magnification = string.magnification;
         this.point = new double[] { string.basics.x, string.basics.y,
                 string.basics.z };
@@ -186,20 +234,58 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         if (string.font instanceof DispatchingFont) {
             fontId = ((DispatchingFont) string.font).getObjectId();
         }
+        Map<TextStyle, RGB> textStyleColorMap = string.getTextStyleColorMap();
+        if (textStyleColorMap != null && !textStyleColorMap.isEmpty()) {
+            if (SUPPORT_STYLE_COLORS) {
+                this.textStyleColorMap = textStyleColorMap;
+            } else {
+                this.textStyles = EnumSet.copyOf(textStyleColorMap.keySet());
+                if (textStyleColorMap.containsKey(TextStyle.BOXED)) {
+                    this.boxColor = textStyleColorMap.get(TextStyle.BLANKED);
+                }
+                if (textStyleColorMap.containsKey(TextStyle.DROP_SHADOW)) {
+                    this.shadowColor = textStyleColorMap
+                            .get(TextStyle.DROP_SHADOW);
+                }
+            }
+        } else if (!SUPPORT_STYLE_COLORS) {
+            /* No TextStyle 14.3 is an empty set, not null. */
+            this.textStyles = EnumSet.noneOf(TextStyle.class);
+        }
+
     }
 
     public DrawableString getDrawableString() {
         DrawableString ds = new DrawableString(text, colors);
         ds.basics.alpha = alpha;
         ds.basics.xOrColors = xOrColors;
-        ds.boxColor = boxColor;
-        ds.shadowColor = shadowColor;
+
         ds.horizontalAlignment = horizontalAlignment;
         ds.verticallAlignment = verticalAlignment;
-        ds.textStyle = textStyle;
         ds.magnification = magnification;
         ds.setCoordinates(point[0], point[1], point[2]);
         ds.rotation = rotation;
+        if (textStyleColorMap != null) {
+            for (Entry<TextStyle, RGB> entry : textStyleColorMap.entrySet()) {
+                ds.addTextStyle(entry.getKey(), entry.getValue());
+            }
+        } else {
+            if (textStyles != null) {
+                for (TextStyle style : textStyles) {
+                    if (style.equals(TextStyle.BOXED)) {
+                        ds.addTextStyle(style);
+                        ds.addTextStyle(TextStyle.BLANKED, boxColor);
+                    } else if (style.equals(TextStyle.DROP_SHADOW)) {
+                        ds.addTextStyle(style, shadowColor);
+
+                    } else {
+                        ds.addTextStyle(style);
+                    }
+                }
+            } else {
+                System.out.println();
+            }
+        }
         return ds;
     }
 
@@ -296,16 +382,24 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
     /**
      * @return the textStyle
      */
-    public TextStyle getTextStyle() {
-        return textStyle;
+    public EnumSet<TextStyle> getTextStyles() {
+        return textStyles;
+    }
+
+    public Map<TextStyle, RGB> getTextStyleColorMap() {
+        return textStyleColorMap;
+    }
+
+    public void setTextStyleColorMap(Map<TextStyle, RGB> textStyleColorMap) {
+        this.textStyleColorMap = textStyleColorMap;
     }
 
     /**
-     * @param textStyle
-     *            the textStyle to set
+     * @param textStyles
+     *            the textStyles to set
      */
-    public void setTextStyle(TextStyle textStyle) {
-        this.textStyle = textStyle;
+    public void setTextStyles(EnumSet<TextStyle> textStyles) {
+        this.textStyles = textStyles;
     }
 
     /**
@@ -398,11 +492,42 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         this.xOrColors = xOrColors;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Float.floatToIntBits(alpha);
+        result = prime * result
+                + ((boxColor == null) ? 0 : boxColor.hashCode());
+        result = prime * result + Arrays.hashCode(colors);
+        result = prime * result + fontId;
+        result = prime
+                * result
+                + ((horizontalAlignment == null) ? 0 : horizontalAlignment
+                        .hashCode());
+        long temp;
+        temp = Double.doubleToLongBits(magnification);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + Arrays.hashCode(point);
+        temp = Double.doubleToLongBits(rotation);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result
+                + ((shadowColor == null) ? 0 : shadowColor.hashCode());
+        result = prime * result + Arrays.hashCode(text);
+        result = prime
+                * result
+                + ((textStyleColorMap == null) ? 0 : textStyleColorMap
+                        .hashCode());
+        result = prime * result
+                + ((textStyles == null) ? 0 : textStyles.hashCode());
+        result = prime
+                * result
+                + ((verticalAlignment == null) ? 0 : verticalAlignment
+                        .hashCode());
+        result = prime * result + (xOrColors ? 1231 : 1237);
+        return result;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -433,9 +558,22 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         if (Double.doubleToLongBits(rotation) != Double
                 .doubleToLongBits(other.rotation))
             return false;
+        if (shadowColor == null) {
+            if (other.shadowColor != null)
+                return false;
+        } else if (!shadowColor.equals(other.shadowColor))
+            return false;
         if (!Arrays.equals(text, other.text))
             return false;
-        if (textStyle != other.textStyle)
+        if (textStyleColorMap == null) {
+            if (other.textStyleColorMap != null)
+                return false;
+        } else if (!textStyleColorMap.equals(other.textStyleColorMap))
+            return false;
+        if (textStyles == null) {
+            if (other.textStyles != null)
+                return false;
+        } else if (!textStyles.equals(other.textStyles))
             return false;
         if (verticalAlignment != other.verticalAlignment)
             return false;

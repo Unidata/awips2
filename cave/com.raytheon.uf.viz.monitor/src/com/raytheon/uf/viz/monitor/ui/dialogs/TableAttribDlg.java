@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
 
 /**
  * Table attributes dialog for changing the visible column on a table.

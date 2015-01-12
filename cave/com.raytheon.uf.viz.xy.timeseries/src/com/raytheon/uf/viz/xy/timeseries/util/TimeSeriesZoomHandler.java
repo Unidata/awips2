@@ -38,7 +38,9 @@ import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * A zoom handler for time series. Time series needs a special zoom handler
+ * since the axes will redraw as the user zooms in and out.
+ * 
  * 
  * <pre>
  * 
@@ -47,6 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Oct 16, 2009            mschenke     Initial creation
  * Dec 11, 2013 DR 16795   D. Friedman  Transform pixel coordinate for zoom
+ * Jun 18, 2014 3242       njensen      Null safety checks
  * 
  * </pre>
  * 
@@ -126,7 +129,7 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
             hiddenGraphs.push(graphToHide);
         } else {
             IGraph graph = desc.getGraphResource().getClosestGraph(grid);
-            if (graph.getExtent().contains(new double[] { grid.x, grid.y })) {
+            if (graphContainsCoordinate(graph, grid)) {
                 graph.zoom((int) Math.pow(2, zoomIndex - totalGraphs + 1), grid);
             } else {
                 zoomIndex--;
@@ -148,7 +151,7 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
         if (zoomIndex > 0) {
             if (zoomIndex >= totalGraphs) {
                 IGraph graph = desc.getGraphResource().getClosestGraph(grid);
-                if (graph.getExtent().contains(new double[] { grid.x, grid.y })) {
+                if (graphContainsCoordinate(graph, grid)) {
                     graph.zoom((int) Math.pow(2, zoomIndex - totalGraphs), grid);
                 } else {
                     zoomIndex++;
@@ -169,7 +172,8 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
         if (grid == null) {
             return null;
         }
-        /* Convert from the overall display coordinate space to the coordinate
+        /*
+         * Convert from the overall display coordinate space to the coordinate
          * space for our resource.
          */
         DirectPosition2D dp = new DirectPosition2D(grid.x, grid.y);

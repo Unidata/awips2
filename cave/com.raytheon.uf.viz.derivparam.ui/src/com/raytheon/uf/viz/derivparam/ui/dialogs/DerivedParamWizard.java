@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.derivparam.ui.dialogs;
 
 import java.io.File;
 
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -31,7 +32,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
 import com.raytheon.viz.ui.dialogs.CaveSWTWizard;
@@ -95,7 +95,7 @@ public class DerivedParamWizard extends CaveSWTWizard {
     public boolean performFinish() {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext userCtx = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
         String functionContents = newFunctionPage.createFunction();
         LocalizationFile functionFile = null, definitionFile = null;
         if (functionContents != null) {

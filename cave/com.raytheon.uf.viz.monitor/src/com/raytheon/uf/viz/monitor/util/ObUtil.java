@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.monitor.util;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -46,6 +45,7 @@ import com.raytheon.uf.viz.monitor.data.ObReport;
  * Jan 19, 2010 4240       zhao        Modified generateObReportSnow method
  * Aug 14, 2013 2262       dgilling    Use new wxmath method for calcrh.
  * Oct 23, 2013 2361       njensen     Removed two unused methods
+ * Jan 06, 2014 2653       skorolev    Removed not used methods.
  * 
  * </pre>
  * 
@@ -178,80 +178,6 @@ public final class ObUtil {
     }
 
     /**
-     * This method supplements generation of an observation report for SNOW
-     * 
-     * @param obReport
-     *            -- the observation report
-     * @return -- the generated observation report
-     */
-    public static ObReport generateObReportSnow(ObReport obReport,
-            String remarks) {
-        // Check parameters for wind chill/frostbite
-        // time calculation (upper limit for wind chill
-        // is set at 40F) :
-        if ((obReport.getTemperature() == ObConst.MISSING)
-                || (obReport.getTemperature() > 277.6) // 40 F
-                || (obReport.getWindSpeed() == ObConst.MISSING)
-                || (obReport.getWindSpeed() > 1e36f)) {
-            obReport.setWindChill(ObConst.MISSING);
-            obReport.setFrostbiteTime(ObConst.MISSING);
-        } else {
-            // Kelvin to Celsius
-            // float tempC = obReport.getTemperature() - 273.15f;
-
-            // obReport.getTemperature() in Celsius already
-            // [Jan 19, 2010, zhao]
-            float tempC = obReport.getTemperature();
-
-            // mps to kph
-            // float speedKPH = obReport.getWindSpeed() * 3.6f;
-
-            // mph to kph
-            // [Jan 19, 2010, zhao]
-            float speedKPH = obReport.getWindSpeed() * 1.6f;
-
-            // Call AWIPS wind chill routine. Return units
-            // are in Celsius.
-            float windChillC = calcWindChill(tempC, speedKPH);
-            float windChillK = 273.15f;
-            // Check for too-warm default (default should come back
-            // as 1e37 if conditions are too warm, so we'll check one
-            // order of magnitude lower, for > 1e36.) Actual limit
-            // is 16C or ~61F. If the wind chill is valid, carry
-            // it through the active program as Fahrenheit, but store
-            // it in the NetCDF files as Kelvin (to match the other
-            // temperature parameters).
-
-            if (windChillC > 1e36f) {
-                obReport.setWindChill(ObConst.MISSING);
-                windChillK = ObConst.MISSING;
-            } else {
-                // Carry through the program in Fahrenheit...
-                obReport.setWindChill(1.8f * windChillC + 32.0f);
-                windChillK += windChillC;
-            }
-
-            // Calculate frostbite time.
-
-            float fbMinutes = calcFrostbiteTime(speedKPH, tempC);
-            obReport.setFrostbiteTime(fbMinutes);
-
-        }
-
-        // Check for Snow Increasing Rapidly (SNINCR) in the remarks.
-        // First, retrieve the current raw report (don't want to have
-        // to store it in the Report class).
-
-        // Call routine to get the hourly and total values, if present.
-        getSNINCR(remarks, obReport);
-
-        // Call routine to get snow depth, if present.
-        getSnowDepth(remarks, obReport);
-
-        return obReport;
-    }
-
-    /**
      * This method supplements generation of an observation report for FOG
      * 
      * @param obReport
@@ -304,140 +230,6 @@ public final class ObUtil {
             // ignore cloud cover that is null
         }
         return ceiling >= 1e20f ? ObConst.MISSING : ceiling;
-    }
-
-    /**
-     * This method calculates the windChill from temperature and windSpeed.
-     * 
-     * @param temp
-     *            -- temperature in degrees Celsius
-     * @param windSpd
-     *            -- wind speed in kilometers per hour
-     * @return -- wind chill in degrees Celsius
-     */
-    public static float calcWindChill(float temp, float windSpd) {
-        float spd;
-
-        /* arbitrarily do the calculation only for temps at or below 60F */
-        if (temp > 16.) {
-            return 1e37f;
-        }
-
-        /* no chilling if speed < 4 mph = 6.44km/h */
-        if (windSpd < 6.4) {
-            return temp;
-        }
-        /* peg speed at 80 mph (= 128.75 km/h) */
-        if (windSpd > 128.75) {
-            spd = 128.75f;
-        } else {
-            spd = windSpd;
-        }
-
-        spd = (float) Math.pow(spd, 0.16);
-        float windChillTemp = 13.12f + 0.6215f * temp - 11.37f * spd + 0.3965f
-                * temp * spd;
-        return windChillTemp;
-    }
-
-    /**
-     * This method calculates the amount of time needed for frostbite to occur
-     * on exposed skin.
-     * 
-     * @param windspeedKPH
-     *            -- wind speed in kilometers per hour
-     * @param temperatureC
-     *            -- temperature in degrees Celsius
-     * @return -- time in minutes
-     */
-    public static float calcFrostbiteTime(float windspeedKPH, float temperatureC) {
-        float fbMinutes = ObConst.MISSING;
-
-        // Temperature must be lower than -4.8C (23F) to avoid a calculation
-        // error (a negative number to -1.668 power is NAN)
-
-        if (temperatureC < -4.8) {
-            fbMinutes = ((-24.5f * ((0.667f * windspeedKPH) + 4.8f)) + 2111f)
-                    * (float) Math.pow((-4.8 - temperatureC), -1.668);
-        } else {
-            return ObConst.MISSING;
-        }
-
-        // Check for frostbite boundaries
-
-        if (!(fbMinutes <= 30 && windspeedKPH > 25.0 && windspeedKPH <= 80.5)) {
-            fbMinutes = ObConst.MISSING;
-        }
-
-        return fbMinutes;
-    }
-
-    /**
-     * This method retrieves "snow increasing rapidly" parameters -- hourly and
-     * total snowfall in inches -- from a METAR's remarks section. This method
-     * update the observation report with the "snow increasing rapidly"
-     * parameters.
-     * 
-     * @param remarks
-     *            -- the METAR remarks
-     * @param obReport
-     *            -- the observation report
-     * @return success
-     */
-    public static boolean getSNINCR(String remarks, ObReport obReport) {
-
-        // New up a Scanner to use to parse the raw data for desired pattern.
-        Scanner sc = new Scanner(remarks);
-        String whatMatched;
-        whatMatched = sc.findWithinHorizon("REMARK_EXPR", 0);
-        if (whatMatched != null) {
-            whatMatched = sc.findWithinHorizon("SNINCR", 0);
-            if (whatMatched != null) {
-                sc.useDelimiter("/");
-                obReport.setSnincrHourly(sc.nextInt());
-                sc.reset();
-                obReport.setSnincrTotal(sc.nextInt());
-            } else {
-                obReport.setSnincrHourly(ObConst.MISSING);
-                obReport.setSnincrTotal(ObConst.MISSING);
-            }
-        } else {
-            obReport.setSnincrHourly(ObConst.MISSING);
-            obReport.setSnincrTotal(ObConst.MISSING);
-        }
-
-        return true;
-    }
-
-    /**
-     * This method retrieves "snow depth" parameters -- total snow depth in
-     * inches -- from a METAR's remarks section. This method update the
-     * observation report with the "snow depth" parameters.
-     * 
-     * @param remarks
-     *            -- the METAR remarks
-     * @param obReport
-     *            -- the observation report
-     * @return success
-     */
-    public static boolean getSnowDepth(String remarks, ObReport obReport) {
-
-        // New up a Scanner to use to parse the raw data for desired pattern.
-        Scanner sc = new Scanner(remarks);
-        String whatMatched;
-        whatMatched = sc.findWithinHorizon("REMARK_EXPR", 0);
-        if (whatMatched != null) {
-            whatMatched = sc.findWithinHorizon("4/", 0);
-            if (whatMatched != null) {
-                obReport.setSnowDepth(sc.nextInt());
-            } else {
-                obReport.setSnowDepth(ObConst.MISSING);
-            }
-        } else {
-            obReport.setSnowDepth(ObConst.MISSING);
-        }
-
-        return true;
     }
 
     /**

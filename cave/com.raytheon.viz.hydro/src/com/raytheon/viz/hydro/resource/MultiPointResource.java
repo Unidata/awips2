@@ -126,7 +126,8 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * May 16, 2011 9356        djingtao    When timeseries is disposed, launch a new timesereis after double click
  *                                      or right click to select TimeSeries
  * Jan 30, 2013 15646       wkwock      Fix middle button drag map incorrect
- * Feb 05, 2013 1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ * Feb 05, 2013 1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ * Feb 18, 2014 2596        mpduff      Check for null coordinates.
  * 
  * </pre>
  * 
@@ -143,9 +144,9 @@ public class MultiPointResource extends
     private static class HydroImageMakerCallback implements
             IRenderedImageCallback {
 
-        private String dispClass;
+        private final String dispClass;
 
-        private RGB color;
+        private final RGB color;
 
         private HydroImageMakerCallback(String dispClass, RGB color) {
             this.dispClass = dispClass;
@@ -208,9 +209,9 @@ public class MultiPointResource extends
 
     private static final RGB LABEL_COLOR = RGBColors.getRGBColor("White");
 
-    private Map<String, Map<RGB, IImage>> imageMap = new HashMap<String, Map<RGB, IImage>>();
+    private final Map<String, Map<RGB, IImage>> imageMap = new HashMap<String, Map<RGB, IImage>>();
 
-    private Map<String, GageData> dataMap = new HashMap<String, GageData>();
+    private final Map<String, GageData> dataMap = new HashMap<String, GageData>();
 
     private STRtree strTree = new STRtree();
 
@@ -895,6 +896,7 @@ public class MultiPointResource extends
     public Map<String, Object> interrogate(ReferencedCoordinate rcoord)
             throws VizException {
         List<GageData> gageDataList = pdcManager.getObsReportList();
+
         try {
             GageData selected = null;
             Coordinate coord = rcoord.asLatLon();
@@ -905,7 +907,7 @@ public class MultiPointResource extends
 
             if ((gageDataList != null) && (gageDataList.size() > 0)) {
                 for (GageData gd : gageDataList) {
-                    if (gd.isUse()) {
+                    if (gd.isUse() && gd.getCoordinate() != null) {
                         double[] gagePoint = descriptor
                                 .worldToPixel(new double[] {
                                         gd.getCoordinate().x,

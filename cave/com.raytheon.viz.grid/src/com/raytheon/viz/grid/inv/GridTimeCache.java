@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 
 /**
  * Cache times for grid data to avoid multiple trips to edex for the same data.

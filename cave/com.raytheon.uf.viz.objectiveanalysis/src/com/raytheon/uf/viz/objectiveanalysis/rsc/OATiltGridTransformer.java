@@ -28,18 +28,19 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.CubeLevel;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.common.wxmath.DistFilter;
 import com.raytheon.uf.common.wxmath.ScalelessAnalysis;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
-import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.grid.util.TiltUtils;
 
 /**
@@ -184,8 +185,13 @@ public class OATiltGridTransformer extends OAGridTransformer {
                 21);
         String[] parameters = { "latitude", "longitude", "P", parameter };
 
-        PointDataContainer pdc = DataCubeContainer.getPointData(pluginName,
-                parameters, constraints);
+        PointDataContainer pdc;
+        try {
+            pdc = DataCubeContainer.getPointData(pluginName, parameters,
+                    constraints);
+        } catch (DataCubeException e1) {
+            throw new VizException(e1);
+        }
 
         if (pdc == null || pdc.getCurrentSz() < 1) {
             return null;

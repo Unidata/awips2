@@ -24,13 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.measure.Measure;
+import javax.measure.quantity.Length;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -40,11 +40,14 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.awipstools.capabilities.EAVCapability;
+import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
+import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
 import com.raytheon.viz.awipstools.common.EstimatedActualVelocity;
 import com.raytheon.viz.awipstools.common.IRadialVelocityToolSource;
 import com.raytheon.viz.radar.VizRadarRecord;
@@ -53,20 +56,25 @@ import com.raytheon.viz.radar.interrogators.RadarRadialInterrogator;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
 import com.raytheon.viz.radar.rsc.RadarProductFactory;
 import com.raytheon.viz.radar.rsc.RadarResourceData;
+import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension.RadialMeshData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * {@link RadarImageResource} that is able to display radial data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 29, 2010            mnash       Initial creation
- * 05/02/2013   DR 14587   D. Friedman Implement IRadialVelocityToolSource
- * Jul 31, 2013       2190 mschenke    Convert interrogate string "msl" to Measure and 
- *                                     put in as "height"
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 29, 2010           mnash       Initial creation
+ * May 02, 2013  14587    D. Friedman Implement IRadialVelocityToolSource
+ * Jul 31, 2013  2190     mschenke    Convert interrogate string "msl" to
+ *                                    Measure and put in as "height"
+ * Jun 11, 2014  2061     bsteffen    Move rangeable methods here.
+ * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
+ *                                    Mesh
+ * 
  * </pre>
  * 
  * @author mnash
@@ -74,7 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class RadarRadialResource extends RadarImageResource<MapDescriptor>
-        implements IRadialVelocityToolSource {
+        implements IRadialVelocityToolSource, IRangeableResource {
 
     public static final String HEIGHT_INTERROGATE_ID = "height";
 
@@ -90,19 +98,13 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
         super(rrd, loadProps, interrogator);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.radar.rsc.AbstractRadarResource#getElevation()
-     */
     @Override
-    public Amount getElevation() {
-        RadarRecord radarRecord = getRadarRecord(displayedDate);
-
-        if (radarRecord != null) {
-            return new Amount(radarRecord.getElevation(), NonSI.FOOT);
-        }
-        return super.getElevation();
+    protected void paintInternal(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        super.paintInternal(target, paintProps);
+        RangeRingsOverlayCapability rrcap = getCapability(RangeRingsOverlayCapability.class);
+        rrcap.setRangeableResource(this);
+        rrcap.paint(target, paintProps);
     }
 
     /*
@@ -245,7 +247,7 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
     public IMesh buildMesh(IGraphicsTarget target, VizRadarRecord radarRecord)
             throws VizException {
         return target.getExtension(IRadialMeshExtension.class).constructMesh(
-                radarRecord, descriptor.getGridGeometry());
+                new RadialMeshData(radarRecord), descriptor.getGridGeometry());
     }
 
     @Override
@@ -267,5 +269,53 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
             // ignore
         }
         return RadarProductFactory.isVelocityProductCode(productCode);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @seecom.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource#
+     * getElevation()
+     */
+    @Override
+    public Measure<?, Length> getElevation() {
+        RadarRecord radarRecord = getRadarRecord(displayedDate);
+
+        if (radarRecord != null) {
+            return Measure.valueOf(radarRecord.getElevation(), NonSI.FOOT);
+        }
+        return Measure.valueOf(0.0, NonSI.FOOT);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource#getCenter
+     * ()
+     */
+    @Override
+    public Coordinate getCenter() {
+        RadarRecord record = getRadarRecord(displayedDate);
+        if (record != null) {
+            return new Coordinate(record.getLongitude(), record.getLatitude());
+        }
+        return new Coordinate();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource#getTilt
+     * ()
+     */
+    @Override
+    public double getTilt() {
+        double tilt = 0.0;
+        if (displayedDate != null) {
+            tilt = displayedDate.getLevelValue();
+        }
+        return tilt;
     }
 }

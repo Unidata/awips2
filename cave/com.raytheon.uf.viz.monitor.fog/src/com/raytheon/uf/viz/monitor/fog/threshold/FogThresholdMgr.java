@@ -21,10 +21,9 @@ package com.raytheon.uf.viz.monitor.fog.threshold;
 
 import java.util.ArrayList;
 
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogDisplay;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogMonitor;
@@ -33,20 +32,23 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogMonitor;
  * This class manages the FOG thresholds for display and monitor.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2009 #3963      lvenable     Initial creation
- *
+ * Feb 03, 2014 #2757      skorolev     Fixed reInitialize()
+ * May 20, 2014  3086      skorolev     Cleaned code.
+ * Sep 04, 2014  3220      skorolev     Removed "site".
+ * Oct 16, 2014  3220      skorolev     Corrected areaConfigMgr assignment.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
-public class FogThresholdMgr extends AbstractThresholdMgr
-{
+public class FogThresholdMgr extends AbstractThresholdMgr {
     /**
      * Class instance.
      */
@@ -55,75 +57,63 @@ public class FogThresholdMgr extends AbstractThresholdMgr
     /**
      * Private constructor.
      */
-    private FogThresholdMgr()
-    {
+    private FogThresholdMgr() {
         super("DefaultFogDisplayThresholds.xml",
-                "DefaultFogMonitorThresholds.xml",
-                "fog");
-         
-        areaConfigMgr = getAreaConfigMgr();
-        init();  // call init() after areaConfigMgr is set
+                "DefaultFogMonitorThresholds.xml", AppName.FOG.name()
+                        .toLowerCase());
+        areaConfigMgr = FSSObsMonitorConfigurationManager.getFogObsManager();
+        init();
     }
-    
+
     /**
-     * Get an instance of the manager class.
+     * Gets an instance of the manager class.
+     * 
      * @return Class instance.
      */
-    public static FogThresholdMgr getInstance()
-    {
-        if (classInstance == null)
-        {
+    public static FogThresholdMgr getInstance() {
+        if (classInstance == null) {
             classInstance = new FogThresholdMgr();
         }
-        
         return classInstance;
     }
 
     /**
-     * DR#11279:
-     * When monitor area configuration is changed, 
-     * threshold manager needs to be re-initialized 
-     * using the new monitor area configuration
+     * Re-initialization of threshold manager.
+     * 
+     * DR#11279: When monitor area configuration is changed, threshold manager
+     * needs to be re-initialized using the new monitor area configuration
+     * 
      */
     public static void reInitialize() {
-    	if ( classInstance != null ) {
-    		classInstance = null;
-    		classInstance = new FogThresholdMgr();
-    	}
+        if (classInstance != null) {
+            classInstance = null;
+        }
+        classInstance = new FogThresholdMgr();
+        // Update threshold file.
+        classInstance.loadDefaultMonitorThreshold();
+        classInstance.saveMonitorThresholds();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr#getThresholdKeys
+     * (com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey)
+     */
     @Override
-    protected ArrayList<String> getThresholdKeys(DataUsageKey dataUsage)
-    {
+    protected ArrayList<String> getThresholdKeys(DataUsageKey dataUsage) {
         ArrayList<String> threshKeys = new ArrayList<String>();
-        
-        if (dataUsage == DataUsageKey.DISPLAY)
-        {
-            for (FogDisplay fogDisp : FogDisplay.values())
-            {
+
+        if (dataUsage == DataUsageKey.DISPLAY) {
+            for (FogDisplay fogDisp : FogDisplay.values()) {
                 threshKeys.add(fogDisp.getXmlKey());
             }
-        }
-        else if (dataUsage == DataUsageKey.MONITOR)
-        {
-            for (FogMonitor fogMon : FogMonitor.values())
-            {
+        } else if (dataUsage == DataUsageKey.MONITOR) {
+            for (FogMonitor fogMon : FogMonitor.values()) {
                 threshKeys.add(fogMon.getXmlKey());
             }
         }
-        
         return threshKeys;
     }
-
-	@Override
-	public MonitorConfigurationManager getAreaConfigMgr() {
-        if (areaConfigMgr == null) {
-            LocalizationManager mgr = LocalizationManager.getInstance();
-            String siteScope = mgr.getCurrentSite();
-                  
-            areaConfigMgr = FogMonitorConfigurationManager.getInstance();
-            areaConfigMgr.readConfigXml(siteScope);
-        }
-        return areaConfigMgr;
-	}
 }

@@ -20,27 +20,18 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="bundleItem" file="bundles/LightningPlot60Min.xml" 
-                menuText="1hr CG stroke plot" id="1HrLightningStrokePlot"
-                productInterval="3600">
-        <dataURI>/binlightning/%</dataURI>
+                menuText="1hr plot" id="1HrLightningStrokePlot">
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LightningPlot15Min.xml" 
-                menuText="15min CG stroke plot" id="15MinLightningStrokePlot"
-                productInterval="900">
-        <dataURI>/binlightning/%</dataURI>
+                menuText="15min plot" id="15MinLightningStrokePlot">
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LightningPlot15MinPN.xml" 
-                menuText="15min Pos/Neg CG stroke plot" id="15MinPNLightningStrokePlot"
-                productInterval="900">
-        <dataURI>/binlightning/%</dataURI>
+                menuText="15min Pos/Neg plot" id="15MinPNLightningStrokePlot">
     </contribute> 
     <contribute xsi:type="bundleItem" file="bundles/LightningPlot5Min.xml" 
-                menuText="5min CG stroke plot" id="5MinLightningStrokePlot"
-                productInterval="300">
-        <dataURI>/binlightning/%</dataURI>
+                menuText="5min plot" id="5MinLightningStrokePlot">
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LightningSeq.xml" 
-                menuText="1min Lgtng Seq CG stroke" id="1MinLightningStrokeSeq">
-        <dataURI>/binlightning/%</dataURI>
+                menuText="1min Lgtng Seq" id="1MinLightningStrokeSeq">
     </contribute>
 </menuTemplate>

@@ -21,8 +21,8 @@ package com.raytheon.viz.redbook.blocks;
 
 import java.nio.ByteBuffer;
 
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlock;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockHeader;
 import com.raytheon.viz.redbook.rsc.RedbookLegend;
 import com.raytheon.viz.redbook.rsc.RedbookLegend.Type;
 
@@ -33,8 +33,10 @@ import com.raytheon.viz.redbook.rsc.RedbookLegend.Type;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * Mar 18, 2010 #3260       dfriedma    Initial creation
+ * Mar 18, 2010 3260        dfriedma    Initial creation
  * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
+ * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
+ *                                      and edex redbook plugins
  * 
  * </pre>
  * 
@@ -43,19 +45,21 @@ import com.raytheon.viz.redbook.rsc.RedbookLegend.Type;
  */
 
 public abstract class AbstractTextBlock extends RedbookBlock {
-    
+
     protected int origXPos;
+
     protected int origYPos;
-    
+
     public AbstractTextBlock(RedbookBlockHeader header, ByteBuffer data) {
         super(header, data);
     }
-    
+
     public abstract TextBlock getTextBlock();
 
     public TextBlock determineTextBlockType(RedbookLegend legend) {
         TextBlock textBlock = getTextBlock();
-        RedbookLegend.Type type = legend.isLegend(textBlock.text, origXPos, origYPos);
+        RedbookLegend.Type type = legend.isLegend(textBlock.text, origXPos,
+                origYPos);
         textBlock.isLegend = type == Type.LEGEND;
         if (type == Type.GRAPHIC)
             legend.addCoordinate(origXPos, origYPos);

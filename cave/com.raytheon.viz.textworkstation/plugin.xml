@@ -47,6 +47,13 @@
                 value="textws/gui"
                 recursive="true">
         </path>
+        <path
+                application="TextWS"
+                localizationType="COMMON_STATIC"
+                name="Mixed Case"
+                value="mixedCase"
+                recursive="false">
+        </path>
    </extension> 
    
 </plugin>

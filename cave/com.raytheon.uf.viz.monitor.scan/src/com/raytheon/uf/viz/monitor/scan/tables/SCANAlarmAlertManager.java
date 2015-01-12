@@ -34,10 +34,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.swt.SWT;
 
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
 
 /**

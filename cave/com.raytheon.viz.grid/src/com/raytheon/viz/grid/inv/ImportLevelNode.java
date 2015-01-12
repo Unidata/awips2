@@ -31,17 +31,18 @@ import java.util.TreeSet;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.derivparam.tree.AbstractAliasLevelNode;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractAliasLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.viz.grid.data.ImportRequestableData;
 import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.RadarAdapter;
@@ -49,15 +50,17 @@ import com.raytheon.viz.grid.util.RadarAdapter;
 /**
  * This node handles all Alias derived parameters which includes Import in AWIPS
  * I. Data requests and Time queries are simply forwarded to the source nodes.
- * Returned records are wrapped in an ALiasRecord which can handle unit
+ * Returned records are wrapped in an AliasRecord which can handle unit
  * conversion and model conversion if necessary.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 15, 2010 #3965      rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 15, 2010  3965     rjpeter     Initial creation
+ * Apr 11, 2014  2947     bsteffen    Switch spatial matching to use
+ *                                    IGridGeometryProvider
  * 
  * </pre>
  * 
@@ -85,7 +88,7 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
     public Set<AbstractRequestableData> getData(
             Set<TimeAndSpace> availability,
             Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
-            throws VizException {
+            throws DataCubeException {
         Set<AbstractRequestableData> origs = dependencyData.get(sourceNode);
         Set<AbstractRequestableData> results = new HashSet<AbstractRequestableData>(
                 origs.size());
@@ -112,10 +115,14 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
                     }
                 }
                 Collection<GridCoverage> spaces = null;
-                ISpatialObject space = time.getSpace();
+                IGridGeometryProvider space = time.getSpace();
                 if (space.equals(TimeAndSpace.SPACE_AGNOSTIC)) {
-                    spaces = CoverageUtils.getInstance().getCoverages(
-                            sourceNodeModelName);
+                    try {
+                        spaces = CoverageUtils.getInstance().getCoverages(
+                                sourceNodeModelName);
+                    } catch (VizException e) {
+                        throw new DataCubeException(e);
+                    }
                 } else if (space instanceof GridCoverage) {
                     spaces = Arrays.asList((GridCoverage) space);
                 } else {
@@ -166,7 +173,7 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
     @Override
     public Set<TimeAndSpace> getAvailability(
             Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
-            throws VizException {
+            throws DataCubeException {
         boundingSourceTimes.clear();
 
         // grab this source and discover all available times ala time agnostic,
@@ -187,8 +194,12 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
             sourceDt *= 3600000;
         }
         if (RadarAdapter.RADAR_SOURCE.equals(modelName)) {
-            Set<DataTime> radarTimes = RadarAdapter.getInstance()
-                    .timeInvariantQuery();
+            Set<DataTime> radarTimes;
+            try {
+                radarTimes = RadarAdapter.getInstance().timeInvariantQuery();
+            } catch (VizException e) {
+                throw new DataCubeException(e);
+            }
 
             for (DataTime radarTime : radarTimes) {
                 if (sourceDataTimes.contains(radarTime)) {
@@ -213,9 +224,13 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
         }
         Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
         for (DataTime time : boundingSourceTimes.keySet()) {
-            for (GridCoverage coverage : CoverageUtils.getInstance()
-                    .getCoverages(modelName)) {
-                result.add(new TimeAndSpace(time, coverage));
+            try {
+                for (GridCoverage coverage : CoverageUtils.getInstance()
+                        .getCoverages(modelName)) {
+                    result.add(new TimeAndSpace(time, coverage));
+                }
+            } catch (VizException e) {
+                throw new DataCubeException(e);
             }
         }
         return result;

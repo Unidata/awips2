@@ -63,7 +63,10 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  *                                     and set default value for check hours.
  * 04/28/2011   8065       rferrel     Add flag to indicate display is current
  *                                     and implement data caching
- * 31JUL2012    14570      zhao        Highlight Metar alert for case of 'cat'  
+ * 31JUL2012    14570      zhao        Highlight Metar alert for case of 'cat'
+ * 09Apr2014    #3005      lvenable    Added method call to mark the data and header text
+ *                                     controls to updating when the number
+ *                                     of hours has changed (via combo control).
  * 
  * </pre>
  * 
@@ -127,8 +130,10 @@ public class MetarViewer extends ViewerTab implements
      */
     private static final HashMap<String, String[]> alertMap = new HashMap<String, String[]>();
     static {
-    	//alertMap.put("cat", new String[] { "<vsby>", "</vsby>", "<sky>", "</sky>" }); // 14570
-        alertMap.put("tempo", new String[] { "<vsby>", "</vsby>", "<wind>", "</wind>", "<wx>", "</wx>", "<sky>", "</sky>" }); // 14570
+        // alertMap.put("cat", new String[] { "<vsby>", "</vsby>", "<sky>",
+        // "</sky>" }); // 14570
+        alertMap.put("tempo", new String[] { "<vsby>", "</vsby>", "<wind>",
+                "</wind>", "<wx>", "</wx>", "<sky>", "</sky>" }); // 14570
         alertMap.put("vsby", new String[] { "<vsby>", "</vsby>" });
         alertMap.put("wind", new String[] { "<wind>", "</wind>" });
         alertMap.put("wx", new String[] { "<wx>", "</wx>" });
@@ -256,6 +261,7 @@ public class MetarViewer extends ViewerTab implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 // Update the metar in the viewer tab.
+                markTextAsUpdating();
                 if (MetarViewer.this.allChk.getSelection()) {
                     allChkHrs = numHrsCbo.getItem(numHrsCbo.getSelectionIndex());
                 } else {
@@ -411,12 +417,13 @@ public class MetarViewer extends ViewerTab implements
 
             if (alertMap != null && alertMap.size() > 0) {
                 for (String key : alertMap.keySet()) {
-                	if ( key.equals("cat") ) { // "cat" involves "visibility" and "sky condition"
-                		colorViewerAlert("vsby", configMgr);
-                		colorViewerAlert("sky", configMgr);
-                	} else {
-                		colorViewerAlert(key, configMgr);
-                	}
+                    if (key.equals("cat")) { // "cat" involves "visibility" and
+                                             // "sky condition"
+                        colorViewerAlert("vsby", configMgr);
+                        colorViewerAlert("sky", configMgr);
+                    } else {
+                        colorViewerAlert(key, configMgr);
+                    }
                 }
             }
         }

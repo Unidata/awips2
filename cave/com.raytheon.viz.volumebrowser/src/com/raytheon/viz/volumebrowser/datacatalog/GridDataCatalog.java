@@ -33,12 +33,13 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
+import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -47,9 +48,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
@@ -85,6 +84,10 @@ import com.vividsolutions.jts.geom.LineString;
  * Jul 31, 2012 875        rferrel     Now uses points.
  * May 30, 2013 2055       bsteffen    Remove modelName from sounding pointName.
  * Dec 06, 2013 2271       mpduff      Added check for null coordinate.
+ * Jan 30, 2014 #2725      ekladstrup  updated exception handling during move of derived
+ *                                     parameters to common
+ * Mar 11, 2014 #2718      randerso    Changes for GeoTools 10.5
+ * Sep 09, 2014  3356      njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -185,16 +188,12 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
             } else {
                 // Get all possible levels for the selected levels
                 List<Level> selectedLevels = Collections.emptyList();
-                try {
-                    LevelMappingFactory lmf = LevelMappingFactory
-                            .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
-                    selectedLevels = new ArrayList<Level>(lmf
-                            .getLevelMappingForKey(
-                                    catalogEntry.selectedPlanesKey).getLevels());
-                } catch (CommunicationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
+                LevelMappingFactory lmf = LevelMappingFactory
+                        .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
+                selectedLevels = new ArrayList<Level>(lmf
+                        .getLevelMappingForKey(catalogEntry.selectedPlanesKey)
+                        .getLevels());
+
                 RequestConstraint masterRC = new RequestConstraint(null,
                         ConstraintType.IN);
                 RequestConstraint oneRC = new RequestConstraint(null,
@@ -304,7 +303,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occured during perturbation query.", e);
         }
-        if (ensemebles != null && ensemebles.size() > 1) {
+        if ((ensemebles != null) && (ensemebles.size() > 1)) {
             Collections.sort(ensemebles);
             Collection<ResourcePair> requests = new ArrayList<ResourcePair>();
             for (String ensemble : ensemebles) {
@@ -343,32 +342,23 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
     @Override
     protected Collection<? extends Level> get3DLevels() {
         ArrayList<Level> all = new ArrayList<Level>();
-        try {
-            NavigableSet<Level> tilts = LevelUtilities
-                    .getOrderedSetOfStandardLevels("TILT");
-            if (tilts != null) {
-                all.addAll(tilts);
-            }
-        } catch (VizCommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+
+        NavigableSet<Level> tilts = LevelUtilities
+                .getOrderedSetOfStandardLevels("TILT");
+        if (tilts != null) {
+            all.addAll(tilts);
         }
-        try {
-            NavigableSet<Level> pres = LevelUtilities
-                    .getOrderedSetOfStandardLevels("MB");
-            if (pres != null) {
-                all.addAll(pres);
-            }
-        } catch (VizCommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+
+        NavigableSet<Level> pres = LevelUtilities
+                .getOrderedSetOfStandardLevels("MB");
+        if (pres != null) {
+            all.addAll(pres);
         }
-        try {
-            NavigableSet<Level> theta = LevelUtilities
-                    .getOrderedSetOfStandardLevels("K");
-            if (theta != null) {
-                all.addAll(theta);
-            }
-        } catch (VizCommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+
+        NavigableSet<Level> theta = LevelUtilities
+                .getOrderedSetOfStandardLevels("K");
+        if (theta != null) {
+            all.addAll(theta);
         }
 
         return all;
@@ -384,7 +374,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
         ViewMenu viewSelection = VolumeBrowserAction.getVolumeBrowserDlg()
                 .getDialogSettings().getViewSelection();
         if (viewSelection == ViewMenu.PLANVIEW) {
-            ;//
+            // no-op
         } else if (viewSelection == ViewMenu.TIMESERIES) {
             pointLetters.add(VolumeBrowserAction.getVolumeBrowserDlg()
                     .getDialogSettings().getPointsSelection().getName());
@@ -454,7 +444,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                                 lineEnv.add(dp.x, dp.y);
                             }
                         }
-                        if (lineEnv.intersects(env)) {
+                        if (lineEnv.intersects((BoundingBox) env)) {
                             fileredSources.add(source);
                             break;
                         }
@@ -463,13 +453,13 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                             gridGeom.getCoordinateReferenceSystem());
                     rEnv = rEnv.transform(MapUtil.getLatLonProjection(), true);
                     for (Double lat : lats) {
-                        if (rEnv.getMinY() < lat && rEnv.getMaxY() > lat) {
+                        if ((rEnv.getMinY() < lat) && (rEnv.getMaxY() > lat)) {
                             fileredSources.add(source);
                             break;
                         }
                     }
                     for (Double lon : lons) {
-                        if (rEnv.getMinX() < lon && rEnv.getMaxX() > lon) {
+                        if ((rEnv.getMinX() < lon) && (rEnv.getMaxX() > lon)) {
                             fileredSources.add(source);
                             break;
                         }
@@ -488,9 +478,9 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
     protected Collection<String> get3DPlanes(Collection<String> sources) {
         ViewMenu viewSelection = VolumeBrowserAction.getVolumeBrowserDlg()
                 .getDialogSettings().getViewSelection();
-        if (sources == null || sources.isEmpty()
-                || viewSelection == ViewMenu.PLANVIEW
-                || viewSelection == ViewMenu.TIMESERIES) {
+        if ((sources == null) || sources.isEmpty()
+                || (viewSelection == ViewMenu.PLANVIEW)
+                || (viewSelection == ViewMenu.TIMESERIES)) {
             Set<String> results = new HashSet<String>();
             results.addAll(MenuItemManager.getInstance().getLatLonKeys());
             results.addAll(getPointLineKeys());
@@ -538,7 +528,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                                 lineEnv.add(dp.x, dp.y);
                             }
                         }
-                        if (lineEnv.intersects(env)) {
+                        if (lineEnv.intersects((BoundingBox) env)) {
                             validPlanes.add("Line" + letter);
                         }
                     }
@@ -550,13 +540,15 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                         if (llKey.startsWith("Lat")) {
                             double lat = Double.parseDouble(llKey.replace(
                                     "Lat", ""));
-                            if (rEnv.getMinY() < lat && rEnv.getMaxY() > lat) {
+                            if ((rEnv.getMinY() < lat)
+                                    && (rEnv.getMaxY() > lat)) {
                                 validPlanes.add(llKey);
                             }
                         } else if (llKey.startsWith("Lon")) {
                             double lon = Double.parseDouble(llKey.replace(
                                     "Lon", ""));
-                            if (rEnv.getMinX() < lon && rEnv.getMaxX() > lon) {
+                            if ((rEnv.getMinX() < lon)
+                                    && (rEnv.getMaxX() > lon)) {
                                 validPlanes.add(llKey);
                             }
                         } else {

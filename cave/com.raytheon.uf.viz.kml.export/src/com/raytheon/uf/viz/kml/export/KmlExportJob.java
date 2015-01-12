@@ -98,9 +98,11 @@ import de.micromata.opengis.kml.v_2_2_0.Vec2;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 6, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun0 6, 2012           bsteffen    Initial creation
+ * Jan 23, 2014  2703     bsteffen    Use framesInfo for frame count.
+ * Oct 06, 2014  3686     njensen     Ensure lastIndex is at least 1
  * 
  * </pre>
  * 
@@ -301,7 +303,10 @@ public class KmlExportJob extends Job {
                 int startIndex = options.getFirstFrameIndex();
                 startIndex = Math.max(startIndex, 0);
                 int lastIndex = options.getLastFrameIndex();
-                lastIndex = Math.min(lastIndex, descriptor.getNumberOfFrames());
+                lastIndex = Math.min(lastIndex, descriptor.getFramesInfo()
+                        .getFrameCount());
+                // in case there's zero frames (i.e. all time agnostic)
+                lastIndex = Math.max(lastIndex, 1);
                 rscmonitor.beginTask("Saving " + rsc.getName(), lastIndex
                         - startIndex);
                 DataTime[] times = descriptor.getFramesInfo().getTimeMap()
@@ -318,6 +323,7 @@ public class KmlExportJob extends Job {
                         }
                     }
                 }
+
                 List<DataTime> pastFrames = new ArrayList<DataTime>();
                 for (int i = startIndex; i < lastIndex; i += 1) {
                     descriptor.setFramesInfo(new FramesInfo(i));
@@ -518,6 +524,7 @@ public class KmlExportJob extends Job {
             try {
                 Thread.sleep(options.getPaintSleepMillis());
             } catch (InterruptedException e) {
+                /* When interupted try again right away. */
             }
             if (monitor.isCanceled()) {
                 break;
@@ -535,7 +542,7 @@ public class KmlExportJob extends Job {
     }
 
     private void addColorMap(KmlOutputManager out, RGB backcolor,
-            AbstractVizResource<?, ?> rsc) throws IOException {
+            AbstractVizResource<?, ?> rsc) {
         ColorMapParameters parameters = null;
         if (rsc.hasCapability(ColorMapCapability.class)) {
             ColorMapCapability cap = rsc
@@ -643,6 +650,7 @@ public class KmlExportJob extends Job {
             try {
                 Thread.sleep(300);
             } catch (InterruptedException e) {
+                /* When interupted move on right away. */
             }
             int r = backgroundPool.getWorkRemaining();
             monitor.worked(remaining - r);

@@ -20,15 +20,18 @@
 package com.raytheon.uf.viz.monitor.snow.ui.dialogs;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.snow.SnowMonitor;
 import com.raytheon.uf.viz.monitor.snow.threshold.SnowThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * SNOW Monitor area configuration dialog.
@@ -40,6 +43,14 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * ------------ ---------- ----------- --------------------------
  * Jan  5, 2010            mpduff      Initial creation
  * Nov 27, 2012 1351       skorolev    Changes for non-blocking dialog.
+ * Jan 29, 2014 2757       skorolev    Changed OK button handler.
+ * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
+ * Apr 28, 2014 3086       skorolev    Updated snowConfigManager.
+ * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
+ * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
+ * Oct 16, 2014 3220       skorolev    Corrected getInstance() method.
+ * Oct 27, 2014 3667       skorolev    Cleaned code.
+ * Nov 21, 2014 3841       skorolev     Corrected handleOkBtnSelection.
  * 
  * </pre>
  * 
@@ -49,90 +60,102 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
+    private SnowMonDispThreshDlg snowMonitorDlg;
+
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param title
+     */
     public SnowMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SNOW);
-        readConfigData();
+        SnowMonitor.getInstance();
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * handleOkBtnSelection()
+     * handleApplyBtnSelection()
      */
     @Override
     protected void handleOkBtnSelection() {
-        SnowMonitorConfigurationManager configManager = SnowMonitorConfigurationManager
-                .getInstance();
-        // Check for changes in the data
-        if (!configManager.getAddedZones().isEmpty()
-                || !configManager.getAddedZones().isEmpty()) {
-            int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
-                    "SNOW Monitor Confirm Changes",
-                    "Want to update the SNOW setup files?");
-            if (choice == SWT.OK) {
-                // Save the config xml file
-                configManager.setTimeWindow(timeScale.getSelection());
-                configManager.saveConfigData();
-                /**
-                 * DR#11279: re-initialize threshold manager and the monitor
-                 * using new monitor area configuration
-                 */
+        if (dataIsChanged()) {
+            int choice = showMessage(shell, SWT.YES | SWT.NO,
+                    "SNOW Monitor Confirm Changes", "Save changes?");
+            if (choice == SWT.YES) {
+                // Save the config xml file.
+                saveConfigs();
                 SnowThresholdMgr.reInitialize();
-                SnowMonitor.reInitialize();
-                showMessage(shell, SWT.ICON_INFORMATION | SWT.OK,
-                        "SNOW Config Change",
-                        "You're updating the SNOW monitoring settings."
-                                + "\n\nIf SNOW is running anywhere within "
-                                + "the office, please clear it.\n");
+                // Open Threshold Dialog if zones/stations are added.
+                if ((!configMgr.getAddedZones().isEmpty())
+                        || (!configMgr.getAddedStations().isEmpty())) {
+                    if (editDialog() == SWT.YES) {
+                        if ((snowMonitorDlg == null)
+                                || snowMonitorDlg.isDisposed()) {
+                            snowMonitorDlg = new SnowMonDispThreshDlg(shell,
+                                    CommonConfig.AppName.SNOW,
+                                    DataUsageKey.MONITOR);
+                        }
+                        snowMonitorDlg.setCloseCallback(new ICloseCallback() {
 
-                String message2 = "New zones have been added, and their monitoring thresholds "
-                        + "have been set to default values; would you like to modify "
-                        + "their threshold values now?";
-                int yesno = showMessage(shell, SWT.ICON_QUESTION | SWT.YES
-                        | SWT.NO, "Edit Thresholds Now?", message2);
-                if (yesno == SWT.YES) {
-                    SnowMonDispThreshDlg snowMonitorDlg = new SnowMonDispThreshDlg(
-                            shell, CommonConfig.AppName.SNOW,
-                            DataUsageKey.MONITOR);
-                    snowMonitorDlg.open();
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                setReturnValue(true);
+                                close();
+                            }
+                        });
+                        snowMonitorDlg.open();
+                    }
                 }
-            }
-        } else {
-            String message3 = "No changes made.\nDo you want to exit?";
-            int yesno = showMessage(shell,
-                    SWT.ICON_QUESTION | SWT.YES | SWT.NO, "Exit", message3);
-            if (yesno == SWT.NO) {
+                fireConfigUpdateEvent();
+                resetParams();
+            } else { // Return back to continue edit.
                 return;
             }
         }
-        setReturnValue(true);
-        close();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * setAlgorithmText()
-     */
-    @Override
-    protected void setAlgorithmText() {
-        // Not used for SNOW
+        if ((snowMonitorDlg == null) || snowMonitorDlg.isDisposed()) {
+            setReturnValue(true);
+            close();
+        }
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#readConfigData
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#getInstance
      * ()
      */
     @Override
-    protected void readConfigData() {
-        SnowMonitorConfigurationManager configManager = SnowMonitorConfigurationManager
-                .getInstance();
-        configManager.readConfigXml(currentSite);
+    protected FSSObsMonitorConfigurationManager getInstance() {
+        return FSSObsMonitorConfigurationManager.getSnowObsManager();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#disposed()
+     */
+    @Override
+    protected void disposed() {
+        configMgr = null;
+    }
+
+    /**
+     * Fire Table reload event
+     */
+    private void fireConfigUpdateEvent() {
+        final IMonitorConfigurationEvent me = new IMonitorConfigurationEvent(
+                configMgr);
+        shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                SnowMonitor.getInstance().configUpdate(me);
+            }
+        });
+    }
 }

@@ -20,18 +20,21 @@
 package com.raytheon.uf.viz.monitor.safeseas.ui.dialogs;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
 import com.raytheon.uf.viz.monitor.safeseas.threshold.SSThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
- * TODO Add Description
+ * SAFESEAS area configuration dialog.
  * 
  * <pre>
  * 
@@ -40,6 +43,15 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * ------------ ---------- ----------- --------------------------
  * Jan  5, 2010            mpduff      Initial creation
  * Nov 27, 2012 1351       skorolev    Changes for non-blocking dialog.
+ * Jan 29, 2014 2757       skorolev    Changed OK button handler.
+ * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
+ * Apr 28, 2014 3086       skorolev    Updated getConfigManager.
+ * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
+ * Sep 19, 2014 2757       skorolev    Updated handlers for dialog buttons.
+ * Oct 16, 2014 3220       skorolev    Corrected getInstance() method.
+ * Oct 27, 2014 3667       skorolev    Cleaned code.
+ * Nov 21, 2014 3841       skorolev    Corrected handleOkBtnSelection.
+ * 
  * 
  * </pre>
  * 
@@ -49,6 +61,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
+    private SSDispMonThreshDlg ssMonitorDlg;
+
     /**
      * Constructor
      * 
@@ -57,88 +71,83 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public SSMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SAFESEAS);
-        readConfigData();
+        SafeSeasMonitor.getInstance();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * handleOkBtnSelection()
-     */
     @Override
     protected void handleOkBtnSelection() {
-        SSMonitorConfigurationManager configManager = SSMonitorConfigurationManager
-                .getInstance();
-        // Check for changes in the data
-        if (!configManager.getAddedZones().isEmpty()
-                || !configManager.getAddedZones().isEmpty()) {
-            int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
-                    "SAFESEAS Monitor Confirm Changes",
-                    "Want to update the SAFESEAS setup files?");
-            if (choice == SWT.OK) {
-                // Save the config xml file
-                configManager.setShipDistance(distanceScale.getSelection());
-                configManager.setTimeWindow(timeScale.getSelection());
-                configManager.setUseAlgorithms(fogChk.getSelection());
-                configManager.saveConfigData();
-                /**
-                 * DR#11279: re-initialize threshold manager and the monitor
-                 * using new monitor area configuration
-                 */
+        if (dataIsChanged()) {
+            int choice = showMessage(shell, SWT.YES | SWT.NO,
+                    "SAFESEAS Monitor Confirm Changes", "Save changes?");
+            if (choice == SWT.YES) {
+                // Save the config xml file.
+                saveConfigs();
                 SSThresholdMgr.reInitialize();
-                SafeSeasMonitor.reInitialize();
-                showMessage(shell, SWT.OK, "SAFESEAS Config Change",
-                        "You're updating the SAFESEAS monitoring settings."
-                                + "\n\nIf SAFESEAS is running anywhere within "
-                                + "the office, please clear it.\n");
-                String message2 = "New zones have been added, and their monitoring thresholds "
-                        + "have been set to default values; would you like to modify "
-                        + "their threshold values now?";
-                int yesno = showMessage(shell, SWT.ICON_QUESTION | SWT.YES
-                        | SWT.NO, "Edit Thresholds Now?", message2);
-                if (yesno == SWT.YES) {
-                    SSDispMonThreshDlg ssMonitorDlg = new SSDispMonThreshDlg(
-                            shell, CommonConfig.AppName.SAFESEAS,
-                            DataUsageKey.MONITOR);
-                    ssMonitorDlg.open();
+                if ((!configMgr.getAddedZones().isEmpty())
+                        || (!configMgr.getAddedStations().isEmpty())) {
+                    // Open Threshold Dialog if zones/stations are added.
+                    if (editDialog() == SWT.YES) {
+                        ssMonitorDlg = new SSDispMonThreshDlg(shell,
+                                CommonConfig.AppName.SAFESEAS,
+                                DataUsageKey.MONITOR);
+                        ssMonitorDlg.setCloseCallback(new ICloseCallback() {
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                setReturnValue(true);
+                                close();
+                            }
+                        });
+                        ssMonitorDlg.open();
+                    }
                 }
-            }
-        } else {
-            String message3 = "No changes made.\nDo you want to exit?";
-            int yesno = showMessage(shell,
-                    SWT.ICON_QUESTION | SWT.YES | SWT.NO, "Exit", message3);
-            if (yesno == SWT.NO) {
+                fireConfigUpdateEvent();
+                resetParams();
+            } else { // Return back to continue edit.
                 return;
             }
         }
-        setReturnValue(true);
-        close();
+        if ((ssMonitorDlg == null) || ssMonitorDlg.isDisposed()) {
+            setReturnValue(true);
+            close();
+        }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * setAlgorithmText()
+    /**
+     * Fire Table reload event
      */
-    @Override
-    protected void setAlgorithmText() {
-        fogChk.setText("The Fog Monitor overall threat level is "
-                + "considered when determining the anchor color.");
+    private void fireConfigUpdateEvent() {
+        final IMonitorConfigurationEvent me = new IMonitorConfigurationEvent(
+                configMgr);
+        shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                SafeSeasMonitor.getInstance().configUpdate(me);
+            }
+        });
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#readConfigData
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#getInstance
      * ()
      */
     @Override
-    protected void readConfigData() {
-        SSMonitorConfigurationManager configManager = SSMonitorConfigurationManager
-                .getInstance();
-        configManager.readConfigXml(currentSite);
+    public FSSObsMonitorConfigurationManager getInstance() {
+        return FSSObsMonitorConfigurationManager.getSsObsManager();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#disposed()
+     */
+    @Override
+    protected void disposed() {
+        configMgr = null;
+    }
+
 }

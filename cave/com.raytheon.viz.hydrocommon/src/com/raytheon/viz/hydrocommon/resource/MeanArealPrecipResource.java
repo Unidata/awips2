@@ -50,6 +50,7 @@ import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -75,7 +76,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 27, 2009            mpduff     Initial creation
+ * Aug 27, 2009            mpduff      Initial creation
+ * Jul 29, 2014 #3465      mapeters    Updated deprecated drawString() calls.
  * 
  * </pre>
  * 
@@ -522,6 +524,7 @@ public class MeanArealPrecipResource extends
         gridDisplay.paint(target, paintProps);
 
         if ((ids == true) || (labels == true)) {
+            List<DrawableString> strings = new ArrayList<DrawableString>();
             for (GeoAreaLineSegs pMeanPrecip : meanAreaNodes) {
                 /* Using the MPE Lat/Lon Grid, draw the point. */
                 setScaleWidth(paintProps);
@@ -549,30 +552,20 @@ public class MeanArealPrecipResource extends
                 String valStr = df.format(val);
 
                 if (ids == true) {
-                    try {
-                        target.drawString(font, area_id, labelCoor.x,
-                                labelCoor.y, 0.0,
-                                IGraphicsTarget.TextStyle.NORMAL, txtcolor,
-                                IGraphicsTarget.HorizontalAlignment.LEFT, 0.0);
-
-                    } catch (VizException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
+                    DrawableString string = new DrawableString(area_id,
+                            txtcolor);
+                    string.font = font;
+                    string.setCoordinates(labelCoor.x, labelCoor.y);
+                    strings.add(string);
                 }
                 if (labels == true) {
-                    try {
-                        target.drawString(font, valStr, valueCoor.x,
-                                valueCoor.y, 0.0,
-                                IGraphicsTarget.TextStyle.NORMAL, txtcolor,
-                                IGraphicsTarget.HorizontalAlignment.LEFT, 0.0);
-
-                    } catch (VizException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
+                    DrawableString string = new DrawableString(valStr, txtcolor);
+                    string.font = font;
+                    string.setCoordinates(valueCoor.x, valueCoor.y);
+                    strings.add(string);
                 }
             }
+            target.drawStrings(strings);
         }
     }
 
