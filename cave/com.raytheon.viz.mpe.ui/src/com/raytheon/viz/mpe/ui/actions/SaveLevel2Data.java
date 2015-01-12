@@ -1032,7 +1032,7 @@ public class SaveLevel2Data {
 
             /* build map file */
             System.out.println("Building MAP .");
-            found: for (m = 0; mean_areal_precip_global[m].hb5 != ""; m++) {
+            found: for (m = 0; mean_areal_precip_global[m] != null; m++) {
                 for (k = 0; k < 4; k++) {
 
                     num = j * 4 + 3 - k;
@@ -1047,9 +1047,11 @@ public class SaveLevel2Data {
 
             }
 
-            if (mean_areal_precip_global[m].hb5 == "") {
+            if (mean_areal_precip_global[m] != null) {
+                if (mean_areal_precip_global[m].hb5 == "") {
                 System.out.println("MAP.hb5 is empty, continuing. ");
                 continue;
+                }
             }
 
             gm.setTime(dqc.pdata[j].data_time);
