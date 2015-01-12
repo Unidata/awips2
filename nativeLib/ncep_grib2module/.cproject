@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject>
+<?fileVersion 4.0.0?><cproject>
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.gnu.so.debug.1670804518.380995065">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.so.debug.1670804518.380995065" moduleId="org.eclipse.cdt.core.settings" name="Build x86">
@@ -134,7 +132,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="so" artifactName="grib2" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib" cleanCommand="rm -rf" description="Build the 64-bit version of grib2 and dependencies." id="cdt.managedbuild.config.gnu.so.debug.1670804518.380995065.712907077" name="Build x86_64" parent="cdt.managedbuild.config.gnu.so.debug" postannouncebuildStep="Cleanup the dependencies built during the pre-build phase." postbuildStep="rm -f ../dependencies/lib/libgrib2c.a" preannouncebuildStep="Build required libraries - currently, libgrib2c.a." prebuildStep="cd ../dependencies/src/g2clib-1.1.8; make; rm -f *.so; mv libgrib2c.a ../../lib/">
+				<configuration artifactExtension="so" artifactName="grib2" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib" cleanCommand="rm -rf" description="Build the 64-bit version of grib2 and dependencies." id="cdt.managedbuild.config.gnu.so.debug.1670804518.380995065.712907077" name="Build x86_64" parent="cdt.managedbuild.config.gnu.so.debug" postannouncebuildStep="Cleanup the dependencies built during the pre-build phase." postbuildStep="rm -f ../dependencies/lib/libgrib2c.a" preannouncebuildStep="Build required libraries - currently, libgrib2c.a." prebuildStep="cd ../../rary.cots.g2clib; make;">
 					<folderInfo id="cdt.managedbuild.config.gnu.so.debug.1670804518.380995065.712907077." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.so.debug.1635104846" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.so.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.so.debug.1041170975" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.so.debug"/>
@@ -148,7 +146,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.so.debug.option.optimization.level.1170644295" name="Optimization Level" superClass="gnu.c.compiler.so.debug.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.so.debug.option.debugging.level.704921663" name="Debug Level" superClass="gnu.c.compiler.so.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1682607275" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="../dependencies/include"/>
+									<listOptionValue builtIn="false" value="../../rary.cots.g2clib"/>
 									<listOptionValue builtIn="false" value="/awips2/python/include/python2.7"/>
 									<listOptionValue builtIn="false" value="/awips2/python/lib/python2.7/site-packages/numpy/core/include"/>
 								</option>
@@ -164,7 +162,7 @@
 								<option id="gnu.c.link.option.paths.1305955291" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/build.native/i386-pc-linux-gnu/lib}&quot;"/>
 									<listOptionValue builtIn="false" value="/awips2/python/lib"/>
-									<listOptionValue builtIn="false" value="../dependencies/lib"/>
+									<listOptionValue builtIn="false" value="../../rary.cots.g2clib"/>
 								</option>
 								<option id="gnu.c.link.option.libs.637192993" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="python2.7"/>

@@ -34,6 +34,7 @@ g2int g2_unpack7(unsigned char *cgrib,g2int *iofst,g2int igdsnum,g2int *igdstmpl
 //                        PNG now allowed to use WMO Template no. 5.41
 // 2004-12-16  Taylor   - Added check on comunpack return code.
 // 2008-12-23  Wesley   - Initialize Number of data points unpacked
+// 2014-07-29  vkorolev - Added processing Template no. 5.4
 //
 // USAGE:    int g2_unpack7(unsigned char *cgrib,g2int *iofst,g2int igdsnum,
 //                          g2int *igdstmpl, g2int idrsnum,
@@ -81,6 +82,9 @@ g2int g2_unpack7(unsigned char *cgrib,g2int *iofst,g2int igdsnum,g2int *igdstmpl
       g2int ierr,isecnum;
       g2int ipos,lensec;
       g2float *lfld;
+      g2int *ifld;
+
+
 
       ierr=0;
       *fld=0;     //NULL
@@ -98,6 +102,7 @@ g2int g2_unpack7(unsigned char *cgrib,g2int *iofst,g2int igdsnum,g2int *igdstmpl
 
       ipos=(*iofst/8);
       lfld=(g2float *)calloc(ndpts ? ndpts : 1,sizeof(g2float));
+
       if (lfld == 0) {
          ierr=6;
          return(ierr);
@@ -112,6 +117,18 @@ g2int g2_unpack7(unsigned char *cgrib,g2int *iofst,g2int igdsnum,g2int *igdstmpl
         if (comunpack(cgrib+ipos,lensec,idrsnum,idrstmpl,ndpts,lfld) != 0) {
           return 7;
         }
+      }
+      else if(idrsnum == 4) {
+          ifld=(g2int *)calloc(ndpts ? ndpts : 1, sizeof(g2int));
+          if(ifld != 0){
+              gbits(cgrib+ipos,ifld,0,32,0,ndpts);
+              rdieee(ifld,*fld,ndpts);
+              free(ifld);
+          }
+          else {
+              ierr=6;
+              return(ierr);
+          }
       }
       else if (idrsnum == 50) {            // Spectral Simple
         simunpack(cgrib+ipos,idrstmpl,ndpts-1,lfld+1);

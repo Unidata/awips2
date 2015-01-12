@@ -26,6 +26,10 @@
 *                                                  radar mosaic is used
 *                                                  as the base of all of the
 *                                                  MPE mosaics.
+*                    4/2010       P Tilles         Added array entries for 3
+*                                                  new local fields to
+*                                                  mpe_qpe_fields and
+*                                                  mpe_qpe_dependencies 
 ********************************************************************************
 */
 #include <stdlib.h>
@@ -34,12 +38,18 @@
 #include "GeneralUtil.h"
 #include "get_mpe_product_state.h"
 #include "mpe_log_utils.h"
+#include "mpe_fieldgen.h"
+
 
 /* Define the MPE base radar mosaic list. */
 const static char * mpe_base_radar_mosaics [ NUM_BASE_RADAR_MOSAICS ] =
                                      { "RMOSAIC",
                                        "AVGRMOSAIC",
                                        "MAXRMOSAIC" };
+const static char * mpe_base_radardp_mosaics [ NUM_BASE_RADAR_MOSAICS ] =
+                                     { "RDMOSAIC",
+                                       "AVGRDMOSAIC",
+                                       "MAXRDMOSAIC" };
 
 /* Define the MPE product generation rules. */
 const static char * mpe_qpe_fields [ NUM_BEST_PRODUCTS ] =
@@ -62,29 +72,57 @@ const static char * mpe_qpe_fields [ NUM_BEST_PRODUCTS ] =
                                        "RFCMMOSAIC",
                                        "QMOSAIC",
                                        "LQMOSAIC",
-                                       "MLQMOSAIC" } ;
+				       "MLQMOSAIC",    
+                                       "RDMOSAIC",
+                                       "AVGRDMOSAIC",
+                                       "MAXRDMOSAIC",
+                                       "BDMOSAIC",
+                                       "LDMOSAIC",
+                                       "MDMOSAIC",
+                                       "MLDMOSAIC",
+                                       "SRDMOSAIC",
+                                       "SRDGMOSAIC",
+				       "LOCALFIELD1",    
+				       "LOCALFIELD2",    
+				       "LOCALFIELD3" };
 
 const static char * mpe_qpe_dependencies [ NUM_BEST_PRODUCTS ] =
-                                        { "",
-                                          "",
-                                          "",
-                                          "RMOSAIC",
-                                          "RMOSAIC" ,
-                                          "RMOSAIC",
-                                          "RMOSAIC,BMOSAIC" ,
-                                          "RMOSAIC,LMOSAIC" ,
-                                          "" ,
-                                          "RMOSAIC,SATPRE",
-                                          "LSATPRE,LMOSAIC",
-                                          "LSATPRE",
-                                          "SRMOSAIC",
-                                          "RMOSAIC",
-                                          "",
-                                          "RMOSAIC",
-                                          "RMOSAIC,RFCBMOSAIC",
-                                          "",
-                                          "QMOSAIC",
-                                          "QMOSAIC, LQMOSAIC"
+                                        {
+                                          "", //"RMOSAIC",
+                                          "", //  "AVGRMOSAIC",
+                                          "",//"MAXRMOSAIC",
+                                          "RMOSAIC", //   "BMOSAIC",
+                                          "RMOSAIC" ,//   "LMOSAIC",
+                                          "RMOSAIC",//   "GAGEONLY",
+                                          "RMOSAIC,BMOSAIC" ,//    "MMOSAIC",
+                                          "RMOSAIC,LMOSAIC" ,//      "MLMOSAIC",
+                                          "" ,//   "SATPRE",
+                                          "RMOSAIC,SATPRE",//    "LSATPRE",
+                                          "LSATPRE,LMOSAIC",//     "SRMOSAIC",
+                                          "LSATPRE",//    "SGMOSAIC",
+                                          "SRMOSAIC",//      "SRGMOSAIC",
+                                          "RMOSAIC",//    "P3LMOSAIC",
+                                          "",//  "RFCMOSAIC",
+                                          "RMOSAIC",//   "RFCBMOSAIC",
+                                          "RMOSAIC,RFCBMOSAIC",//  "RFCMMOSAIC",
+					  "",//   "QMOSAIC",
+					  "QMOSAIC",//  "LQMOSAIC",
+					  "QMOSAIC,LQMOSAIC",   //   "MLQMOSAIC",
+					  "",   //  "RDMOSAIC",
+					  "",   //  "AVGRDMOSAIC",
+					  "",   //  "MAXRDMOSAIC",
+                      "RDMOSAIC",//  "BDMOSAIC",
+                      "RDMOSAIC", // "LDMOSAIC",
+
+                      "", // "MDMOSAIC",
+                      "", // "MLDMOSAIC",
+
+                      "", //"SRDMOSAIC",
+                      "", // "SRDGMOSAIC",
+
+                      "",//  "LOCALFIELD1",
+                      "",//   "LOCALFIELD2",
+					  ""//  "LOCALFIELD3"
                                           };
 
 
@@ -471,6 +509,7 @@ void get_mpe_product_state ( const char * product , const int * product_len ,
 			     int * exit_status )
 {
    static char mpe_base_radar_field [ BESTFIELD_LEN ] = { '\0' };
+   static char mpe_base_radardp_field [ BESTFIELD_LEN ] = { '\0' };
    static char * mpe_del_gage_zeros_token = MPE_DEL_GAGE_ZEROS_TOKEN ;
    char mpe_del_gage_zeros_reply [ MPE_PRODUCT_REPLY_LEN ] = { '\0' } ;
    char mpe_generate_areal_qpe_reply [ MPE_PRODUCT_REPLY_LEN ] = {'\0'};
@@ -483,6 +522,7 @@ void get_mpe_product_state ( const char * product , const int * product_len ,
    int i ;
    static int mpe_field_states [ NUM_BEST_PRODUCTS ] = { 0 } ;
    int mpe_base_radar_len = BESTFIELD_LEN;
+   int mpe_base_radardp_len = BESTFIELD_LEN;
    int mpe_qpe_fieldtype_len = BESTFIELD_LEN ;
    int request_len ;
    int reply_len ;
@@ -513,9 +553,19 @@ void get_mpe_product_state ( const char * product , const int * product_len ,
 
 
       /* Get the radar mosaic the user has chosen as the base for the
-         MPE radar derived products. */
+         MPE radar SP derived products. */
       get_mpe_base_radar ( verbose , mpe_base_radar_field ,
                            & mpe_base_radar_len , exit_status );
+      if ( ( * exit_status ) != 0 )
+      {
+         * exit_status = -1 ; 
+         return ;
+      }
+
+      /* Get the radar mosaic the user has chosen as the base for the 
+         MPE radar DP derived products. */
+      get_mpe_base_radardp ( verbose , mpe_base_radardp_field , 
+                           & mpe_base_radardp_len , exit_status );
 
       if ( ( * exit_status ) != 0 )
       {
@@ -550,6 +600,7 @@ void get_mpe_product_state ( const char * product , const int * product_len ,
 
          memset ( mpe_generate_list_reply , '\0' , MPE_PRODUCT_REPLY_LEN ) ;
       }
+      printf("get_mpe_product_state(): mpe_generate_list_reply = :%s: \n", mpe_generate_list_reply);
 
       /* Get the value of the mpe_del_gage_zeros token. */
       request_len = strlen ( mpe_del_gage_zeros_token ) ;
@@ -1151,9 +1202,185 @@ void get_mpe_base_radar ( const int * verbose , char * base_radar_field ,
 
    return ;
 
+}
+
+void get_mpe_base_radardp ( const int * verbose , char * base_radar_field , 
+                          int * baseradar_len , int * exit_status )
+{
+   static char * mpe_base_radardp_mosaic_token = MPE_BASE_RADARDP_MOSAIC_TOKEN ;
+   static char mpe_base_radar_mosaic_reply [ MPE_PRODUCT_REPLY_LEN ] = {'\0'} ;
+   static int firstdp_call = 1 ;
+   int i ;
+   int reply_len ;
+   int request_len ;
+   int status ;
+   
+   * exit_status = 0 ;
+
+   if ( firstdp_call == 1 )
+   {
+      firstdp_call = 0 ;
+
+      /* Get the value of the mpe_base_radardp_mosaic_token token */
+      request_len = strlen ( mpe_base_radardp_mosaic_token ) ;
+      status = get_apps_defaults ( mpe_base_radardp_mosaic_token ,
+                                   & request_len ,
+                                   mpe_base_radar_mosaic_reply ,
+                                   & reply_len ) ; 
+
+      if ( ( status != 0 ) || ( reply_len == 0 ) )
+      {
+         if ( * verbose == 1 )
+         {
+            flogMessage ( stderr , "\nIn routine 'get_mpe_base_radardp':\n"
+                               "No value retrieved for token %s.\n"
+                               "Setting the MPE base radar mosaic to "
+                               "RDMOSAIC.\n", mpe_base_radardp_mosaic_token ) ;
+         }
+         
+         memset ( mpe_base_radar_mosaic_reply , '\0' , MPE_PRODUCT_REPLY_LEN ) ;
+         strcpy ( mpe_base_radar_mosaic_reply , "RDMOSAIC" ) ;
+         base_prod = RDMOSAIC;
+      }
+      else
+      {
+         /* Test to make sure the mpe_base_radar_mosaic_reply is valid. */
+         for ( i = 0 ; i < NUM_BASE_RADAR_MOSAICS ; ++ i )
+         {
+            status = strcmp ( mpe_base_radar_mosaic_reply ,  
+                              mpe_base_radardp_mosaics [ i ] ) ;
+
+            if ( status == 0 )
+            {
+               break ;
+            }
+         }
+
+         if ( status != 0 )
+         {
+            /* The user has supplied an unrecognized base radar mosaic. */
+            if ( * verbose == 1 )
+            {
+               flogMessage ( stderr , "\nIn routine 'get_mpe_base_radardp':\n"
+                                  "The value of token %s, '%s', is invalid.\n"
+                                  "The base radar mosaic is being set to\n"
+                                  "RDMOSAIC.\n" , mpe_base_radardp_mosaic_token ,
+                                   mpe_base_radar_mosaic_reply ) ;
+            }
+
+            memset ( mpe_base_radar_mosaic_reply , '\0' , 
+                     MPE_PRODUCT_REPLY_LEN ) ;
+            strcpy ( mpe_base_radar_mosaic_reply , "RDMOSAIC" ) ;
+            base_prod = RDMOSAIC ; 
+         }
+         else
+         {
+
+            printf("get_mpe_base_radardp(): mpe_base_radar_mosaic_reply = :%s:\n", mpe_base_radar_mosaic_reply);
+
+            /* Find the index of this product in the main list of MPE
+               qpe products. */
+            for ( i = 0 ; i < NUM_BEST_PRODUCTS ; ++ i )
+            {
+               status = strcmp ( mpe_base_radar_mosaic_reply ,  
+                                 mpe_qpe_fields [ i ] ) ;
+   
+               if ( status == 0 )
+               {
+                  /* Remember the index of the qpe_fieldtype. */
+                  base_prod = ( enum MpeBestProdList ) i ;
+    
+                  printf("get_mpe_base_radardp(): base_prod = %d\n", base_prod);
+
+                  break ;
+               }
+            }
+         }
+      }
+   }
+
+   /* Check to make sure the user-supplied base_radar_field array is large 
+      enough to contain the base radar product name. */ 
+   request_len = strlen ( mpe_base_radar_mosaic_reply ) ;
+   
+/*
+   sprintf ( message , "In get_mpe_base_radardp\n");
+   printMessage( message, logFile );
+
+   sprintf ( message , "baseradar_len = %d\n", * baseradar_len);
+   printMessage( message, logFile );
+
+   sprintf ( message , "request_len = %d\n", request_len);
+   printMessage( message, logFile );
+*/
+
+   if ( ( request_len + 1 ) > ( * baseradar_len ) )
+   {
+      /* The base_radar_field array is not large enough. */
+      if ( * verbose == 1 )
+      {
+         flogMessage ( stderr , "\nIn routine 'get_mpe_base_radardp':\n"
+                            "The user-supplied base_radardp_field array has "
+                            "capacity %d. This is too small to contain the\n"
+                            "base field name, %s, plus a terminating "
+                            "NULL, length %d.\n", * baseradar_len , 
+                            mpe_base_radar_mosaic_reply ,
+                            ( request_len + 1 ) ) ;
+      }
+
+      * baseradar_len = 0 ;
+      * exit_status = -1 ;
+   }
+   else
+   {
+      /* The baseradar_field array is of an acceptable size.  Copy the
+         mpe qpe field type into the best array.  Return the length
+         of the mpq qpe field type. */
+      memset ( base_radar_field , '\0' , * baseradar_len ) ;
+      strcpy ( base_radar_field , mpe_base_radar_mosaic_reply ) ;
+      * baseradar_len = strlen ( base_radar_field ) ; 
+   }
+
+/*
+   sprintf ( message , "base_radar_field = %s\n",base_radar_field);
+   printMessage( message, logFile );
+
+   sprintf ( message , "baseradar_len = %d\n", * baseradar_len);
+   printMessage( message, logFile );
+
+   sprintf ( message , "exit_status = %d\n", * exit_status);
+   printMessage( message, logFile );
+*/
+
+   return ;
+
+}
+
+/*
+ * This is a simpler version of get_mpe_product_state()
+ * Returns non-zero to mean true
+ */
+int isInGenerateList(const char * qpeFieldName)
+{
+    int inGenerateList = 0;
+
+    int length = strlen(qpeFieldName);
+    int verbose = 1;
+    int result_status;
+
+    //void get_mpe_product_state ( const char * product , const int * product_len ,
+    //const int * verbose , int * state ,
+    //int * exit_status )
+
+    get_mpe_product_state(qpeFieldName, &length, &verbose,
+                      &inGenerateList, &result_status) ;
+
+    return inGenerateList;
+
+
 /*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEUtil/RCS/get_mpe_product_state.c,v $";
- static char rcs_id2[] = "$Id: get_mpe_product_state.c,v 1.4 2007/10/18 18:37:50 lawrence Exp $";}
+{static char rcs_id1[] = "$Source: /fs/hseb/ob9e/ohd/pproc_lib/src/MPEUtil/RCS/get_mpe_product_state.c,v $";
+ static char rcs_id2[] = "$Id: get_mpe_product_state.c,v 1.14 2012/05/30 19:12:24 pst Exp $";}
 /*  ===================================================  */
 
 }

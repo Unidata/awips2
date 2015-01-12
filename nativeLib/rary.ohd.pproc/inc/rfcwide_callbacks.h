@@ -58,6 +58,9 @@ void do_time_lapse_RFCW ( Widget w , XtPointer clientdata ,
 
 void ignore_radar_RFCW ( Widget w , XtPointer clientdata ,
                          XtPointer calldata ) ;
+void ignore_dp_radar_RFCW ( Widget w , XtPointer clientdata ,
+                         XtPointer calldata ) ;
+
 void next_callback_RFCW ( Widget w , XtPointer clientdata ,  
                              XtPointer calldata ) ;
 

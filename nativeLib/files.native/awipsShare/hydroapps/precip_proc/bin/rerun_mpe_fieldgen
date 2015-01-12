@@ -12,8 +12,11 @@
 
 # This allows you to call this script from outside of ./standard/bin
 RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+export MPE_TRANSMIT_BIAS=$(get_apps_defaults mpe_transmit_bias)
+export TRANSMIT_BIAS_ON_RERUN=$(get_apps_defaults transmit_bias_on_rerun)
+export PPROC_BIN=$(get_apps_defaults pproc_bin)
 
-#
 # Transmit the RFC bias message if the user has
 # elected to do so on reruns.
 #
@@ -21,6 +24,8 @@ if [[ "$MPE_TRANSMIT_BIAS" = "ON" && "$TRANSMIT_BIAS_ON_RERUN" = "YES" ]]
 then
    year=`echo $2 | cut -c5-8`
    monthday=`echo $2 | cut -c1-4`
+   hour=`echo $1`
+   echo $year$monthday$1
    $PPROC_BIN/transmit_rfc_bias $year$monthday$1
 fi
 

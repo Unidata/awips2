@@ -135,8 +135,44 @@ extern int mpe_editor_call;
     }
 
     /**
+     * read daa_wind = number of minutes
+     * around top of hour in which to search
+     * for a top-of-hour DAA product
+     * if token is not found, then 5 minutes is assumed.
+     **/
+    pMPEParams->daa_wind = 5;    
+    if((getAppsDefaults("daa_wind", tokenvalue) != -1)
+         && (isDigits(tokenvalue) == 1))
+    {
+        pMPEParams->daa_wind = atoi(tokenvalue);
+    }
+    else
+    {
+        sprintf( message , "\tDefault DAA_WIND = 5 minutes" ) ;
+        printMessage( message, logFile );
+    }
+
+    /**
+     * read daa_min_coverage_dur = minimum coverage of an hour
+     * for a radar product to be considered good
+     * units = minutes                        
+     * if token is not found, then 60 minutes is assumed.
+     **/
+    pMPEParams->daa_min_coverage_dur = 60;    
+    if((getAppsDefaults("daa_min_coverage_dur", tokenvalue) != -1)
+         && (isDigits(tokenvalue) == 1))
+    {
+        pMPEParams->daa_min_coverage_dur = atoi(tokenvalue);
+    }
+    else
+    {
+        sprintf( message , "\tDefault min_coverage_dur = 60 minutes" ) ;
+        printMessage( message, logFile );
+    }
+
+   /**
      * read del_gage_zeros = flag if need delete zeros in gage data
-     * if token is not found, then 10 minutes is assumed.
+     * if token is not found, then Delete Gages Zeros = OFF is assumed
      **/
     pMPEParams->del_gage_zeros = 0;
     if((getAppsDefaults("mpe_del_gage_zeros", tokenvalue) != -1)

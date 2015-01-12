@@ -24,14 +24,30 @@
       <Directory Id="ProgramFilesFolder" Name="PFiles">
         <Directory Id="INSTALLDIR" Name="Raytheon">
           <Directory Id="AwipsII" Name="AWIPS II">
-              <Component Id="VizLauncherExe" Guid="8924277C-5B6A-4EEB-AE9F-5471481F92A6">
-                <File Id="VizLauncherExe" Name="VizLauncher.exe"
-                  DiskId="1" Source="SourceDir\VizLauncher.exe" />
-                <Shortcut Id="vizLauncherDesktopShortcut" Directory="DesktopFolder" Name="Viz Launcher"
-                  WorkingDirectory="SourceDir" Advertise="yes" Icon="cave.exe" IconIndex="0" />
-                <Shortcut Id="vizLauncherStartMenu" Directory="ProgramMenuDir" Name="Viz Launcher"
-                  WorkingDirectory="SourceDir" Advertise="yes" Icon="cave.exe" IconIndex="0" />
+            <Directory Id="CaveDir" Name="CAVE">
+              <Component Id="caveBatch" Guid="8924277C-5B6A-4EEB-AE9F-5471481F92A6">
+                <File Id="caveBAT" Name="cave.bat"
+                  DiskId="1" Source="SourceDir\CAVE\cave.bat" />
+                <Shortcut Id="caveDesktopShortcut" Directory="DesktopFolder" Name="CAVE"
+                  WorkingDirectory="CaveDir" Advertise="yes" Icon="cave.exe" IconIndex="0" 
+                  Arguments="-component thinclient" />
+                <Shortcut Id="caveStartMenu" Directory="ProgramMenuDir" Name="CAVE"
+                  WorkingDirectory="CaveDir" Advertise="yes" Icon="cave.exe" IconIndex="0"
+                  Arguments="-component thinclient" />
               </Component>
+            </Directory>
+            <Directory Id="AlertvizDir" Name="AlertViz">
+              <Component Id="alertvizBatch" Guid="8924277C-5B6A-4EEB-AE9F-5471481F92B4">
+                <File Id="alertvizBAT" Name="alertviz.bat"
+                  DiskId="1" Source="SourceDir\AlertViz\alertviz.bat" />
+                <Shortcut Id="alertvizDesktopShortcut" Directory="DesktopFolder" Name="AlertViz"
+                  WorkingDirectory="AlertvizDir" Advertise="yes" Icon="alertviz.exe" IconIndex="0" 
+                  Arguments="-component thinalertviz" />
+                <Shortcut Id="alertvizStartMenu" Directory="ProgramMenuDir" Name="AlertViz"
+                  WorkingDirectory="AlertvizDir" Advertise="yes" Icon="alertviz.exe" IconIndex="0"
+                  Arguments="-component thinalertviz" />
+              </Component>              
+            </Directory>
           </Directory>
         </Directory>
 
@@ -55,6 +71,7 @@
     <Feature Id="AWIPS_II_CAVE" Title="AWIPS II CAVE" Level="1"
     Display="expand" Description="AWIPS II Common AWIPS Visualization Environment (CAVE)"
     ConfigurableDirectory="INSTALLDIR">
+      <ComponentRef Id="caveBatch" />
       <ComponentRef Id="ProgramMenuDir" />
       
       <ComponentGroupRef Id="AWIPSII_CAVE" />
@@ -63,20 +80,16 @@
     <Feature Id="AWIPS_II_ALERTVIZ" Title="AWIPS II AlertViz" Level="1"
     Display="expand" Description="AWIPS II AlertViz"
     ConfigurableDirectory="INSTALLDIR">
+      <ComponentRef Id="alertvizBatch" />
       
       <ComponentGroupRef Id="AWIPSII_ALERTVIZ" />
-    </Feature>
-
-    <Feature Id="AWIPS_II_LAUNCHER" Title="AWIPS II Viz Launcher" Level="1"
-    Display="expand" Description="Viz Launcher - Starts both AlertViz and CAVE"
-    ConfigurableDirectory="INSTALLDIR">
-      <ComponentRef Id="VizLauncherExe" />
     </Feature>
 
     <UIRef Id="WixUI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" />
 
     <Icon Id="cave.exe" SourceFile="SourceDir\CAVE\cave.exe" />
+    <Icon Id="alertviz.exe" SourceFile="SourceDir\AlertViz\alertviz.exe" />
 
   </Product>
 </Wix>

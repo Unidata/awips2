@@ -1,6 +1,6 @@
 <project default="build" basedir=".">
 	<property name="eclipse.dir" 
-		value="/awips2/eclipse" />	
+		value="/opt/uframe-eclipse" />	
 	
 	<target name="init">
 		<antcall target="clean" />

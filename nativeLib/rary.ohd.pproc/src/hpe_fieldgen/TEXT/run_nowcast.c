@@ -93,7 +93,8 @@ void initProjectionParams();
 
 void runNowcast(const geo_data_struct * pGeoData, const time_t tRunTime,
         const char * mosaicID, const empe_params_struct * pEMPEParams,
-        const char * pInputDir, double ** currMosaic)
+        const char * pInputDir, double ** currMosaic,
+        const int  radar_data_source)
 {
     const int rowSize = pGeoData->num_rows;
     const int colSize = pGeoData->num_cols;
@@ -373,7 +374,7 @@ void runNowcast(const geo_data_struct * pGeoData, const time_t tRunTime,
             newRowSize, newColSize, p4kmPrevMosaic);
 
     runProjection(&tmpGeoData, tRunTime, mosaicID, pEMPEParams,
-            pProjectionParams, timeDiff, p4kmCurrMosaic, p4kmPrevMosaic);
+            pProjectionParams, timeDiff, p4kmCurrMosaic, p4kmPrevMosaic, radar_data_source);
 
     free2DDoubleArray(prevMosaic, rowSize);
     free2DDoubleArray(p4kmCurrMosaic, newRowSize);

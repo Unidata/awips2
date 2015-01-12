@@ -204,7 +204,7 @@ void MPEFieldGen_gageRadarPairsQC(const mpe_params_struct * pMPEParams ,
             }
         }
     }
-    else
+    else /* (npair < npair_stddev_test) */
     {
         slope = bias_long ;
         b = 0.0 ;
@@ -241,7 +241,8 @@ void MPEFieldGen_gageRadarPairsQC(const mpe_params_struct * pMPEParams ,
                 printMessage(message, logFile);        
             }
         }
-    }
+    } /* (npair < npair_stddev_test) */
 
     pGageRadarPairTable->pairNum = count;
-}
+
+} /* end MPEFieldGen_gageRadarPairsQC */

@@ -124,7 +124,7 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
         const double maxProjectedRate, int ** ibins, double ** velocityX,
         double ** velocityY, double ** growth, int ** pCount, double ** rmean,
         double ** resid, double ** pObservedVar, const double varres,
-        double projParam)
+        double projParam, const int radar_data_source)
 {
 
     const char * SAVE_RATE_GRIB_TOKEN = "hpe_rate_save_grib";
@@ -145,6 +145,7 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
     char fileName[PATH_LEN] = { '\0' };
 
     char strDateTime[ANSI_YEARSEC_TIME_LEN + 1] = { '\0' };
+    char prdDateTime[ANSI_YEARSEC_TIME_LEN + 1] = { '\0' };
 
     const char * rateFilePrefix = "PRT";
     const char * biasedRateFilePrefix = "BPRT";
@@ -188,6 +189,8 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
 
     struct tm * pRunTime = gmtime(&tRunTime) ;
     strftime(strDateTime, ANSI_YEARSEC_TIME_LEN + 1, "%Y%m%d%H%M", pRunTime);
+    strftime(prdDateTime, ANSI_YEARSEC_TIME_LEN + 1,
+                            "%Y-%m-%d %H:%M:%S", pRunTime);
 
     if (strstr(mosaicID, "BDHR") != NULL)
     {
@@ -581,6 +584,12 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
                 sprintf(message, "STATUS: file written to: %s/%s", outputDir,
                         fileName) ;
                 printLogMessage(message);
+
+                sprintf ( message , "\nSTATUS:  In Project, insert/update 1km mosaic nowcast into HPERadarResult table");
+                printLogMessage( message );
+
+                wrtodb_HPERadarResult(fileName, prdDateTime, pEMPEParams, radar_data_source);
+
             }
 
             /*
@@ -649,6 +658,11 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
             sprintf(message, "STATUS: Output top-hour 4km mosaic product.\n"
                 "\tfile written to: %s/%s", outputDir, fileName) ;
             printLogMessage(message);
+
+            sprintf ( message , "\nSTATUS:  In Project, insert/update 4km mosaic nowcast into HPERadarResult table");
+            printLogMessage( message );
+
+            wrtodb_HPERadarResult(fileName,  prdDateTime, pEMPEParams, radar_data_source);
         }
 
     }
@@ -742,6 +756,11 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
     {
         sprintf(message, "STATUS: file written to: %s/%s", outputDir, fileName) ;
         printLogMessage(message);
+
+        sprintf ( message , "\nSTATUS:  In Project, insert/update 1km mosaic nowcast into HPERadarResult table");
+        printLogMessage( message );
+
+        wrtodb_HPERadarResult(fileName,  prdDateTime, pEMPEParams, radar_data_source);
     }
 
     /*

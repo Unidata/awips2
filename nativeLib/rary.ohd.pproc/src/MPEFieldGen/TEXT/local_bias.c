@@ -2,7 +2,7 @@
 * FILENAME:            local_bias.c
 * NUMBER OF MODULES:
 * GENERAL INFORMATION:
-*   MODULE 1:  initialize
+*   MODULE 1:  local_bias_initialize 
 * DESCRIPTION: Subroutine to write the initial conditions for the state
 *              variables.
 *   MODULE 2:  find_array_indices
@@ -95,7 +95,7 @@ static const float dist_cut = 40.0;
 
 /*******************************************************************************
 * MODULE NUMBER:
-* MODULE NAME:   initialize
+* MODULE NAME:   local_bias_initialize
 * PURPOSE:       Subroutine to write the initial conditions for state
 *                variables.
 *
@@ -118,7 +118,7 @@ static const float dist_cut = 40.0;
 *
 ********************************************************************************
 */
-static int initialize ( const geo_data_struct *  pGeoData,
+static int local_bias_initialize ( const geo_data_struct *  pGeoData, 
                         const local_bias_params * pLocalBiasParams,
                         const mpe_params_struct * pMPEParams,
                         const char * filename, int num_seq )
@@ -575,8 +575,8 @@ C in       - preserve copy of previous in  array */
    int i0;
    int it;
    int m = 0;
-
    short * jn = NULL;
+
    jn = ( short * ) malloc ( sizeof ( short ) * NBMAX );
 
    if ( jn == NULL )
@@ -795,6 +795,7 @@ C in       - preserve copy of previous in  array */
 
    free ( jn );
    jn = NULL;
+
    return;
 }
 /*******************************************************************************
@@ -968,7 +969,6 @@ c cormat - 2-d array holding correlation coefficient matrix
       return;
    }
 
-
    if ( pLocalBiasParams->type_of_est == 2 )
    {
       for ( j = 0; j < nbors; ++j )
@@ -1120,7 +1120,6 @@ static void lsolve_array ( int neq, double cov[][NBMAX], double * rhs,
    free ( s );
    s = NULL;
    return;
-
 }
 
 /*******************************************************************************
@@ -1511,6 +1510,7 @@ c
 *
 ********************************************************************************
 */
+
 static void interpolate_nearby ( const geo_data_struct * pGeoData,
                                  const local_bias_params * pLocalBiasParams,
                                  short int ** locspan,
@@ -1688,6 +1688,7 @@ c**********************************************************************/
    locbias_temp = NULL;
    free ( locspan_temp );
    locspan_temp = NULL;
+
    return;
 }
 
@@ -1913,7 +1914,6 @@ void MPEFieldGen_find_nbrs1 ( int n, short * iu, short * iv, int iu0, int iv0,
               free ( in );
               in = NULL;
               return;
-
            }
 
            jn[j] = in_save[i];
@@ -2097,7 +2097,6 @@ static void find_nbrs1orig ( int n, short * iu, short * iv, int iu0, int iv0,
             sprintf ( message, "m gt nx1...stop and reset nx1 to a larger "
                                "value\n" );
             printMessage ( message, logFile );
-
             free ( in );
             in = NULL;
             free ( jn );
@@ -2125,7 +2124,6 @@ static void find_nbrs1orig ( int n, short * iu, short * iv, int iu0, int iv0,
             sprintf ( message, "m gt nx1...stop and reset nx1 to a larger "
                                "value\n" );
             printMessage ( message, logFile );
-
             free ( in );
             in = NULL;
             free ( jn );
@@ -2184,7 +2182,6 @@ static void find_nbrs1orig ( int n, short * iu, short * iv, int iu0, int iv0,
              free ( ivv );
              ivv = NULL;
              return;
-
            }
 
           ivv[m] = iv[it];
@@ -2220,11 +2217,10 @@ static void find_nbrs1orig ( int n, short * iu, short * iv, int iu0, int iv0,
              free ( in );
              in = NULL;
              free ( jn );
-             in = NULL;
+             jn = NULL;
              free ( ivv );
              ivv = NULL;
              return;
-
           }
 
           jn[j] = in[i];
@@ -2251,7 +2247,6 @@ static void find_nbrs1orig ( int n, short * iu, short * iv, int iu0, int iv0,
              free ( ivv );
              ivv = NULL;
              return;
-
           }
 
           jn[j] = in[it];
@@ -2270,6 +2265,12 @@ static void find_nbrs1orig ( int n, short * iu, short * iv, int iu0, int iv0,
              sprintf ( message, "j gt nbmax...stop & reset nbmax to a "
                                 "larger value\n" );
              printMessage ( message, logFile );
+             free ( in );
+             in = NULL;
+             free ( jn );
+             jn = NULL;
+             free ( ivv );
+             ivv = NULL;
              return;
           }
 
@@ -2289,14 +2290,13 @@ static void find_nbrs1orig ( int n, short * iu, short * iv, int iu0, int iv0,
              sprintf ( message, "j gt nbmax...stop & reset nbmax to a "
                                 "larger value\n" );
              printMessage ( message, logFile );
-             free ( in );
-             in = NULL;
-             free ( jn );
-             jn = NULL;
-             free ( ivv );
-             ivv = NULL;
+    free ( in );
+    in = NULL;
+    free ( jn );
+    jn = NULL;
+    free ( ivv );
+    ivv = NULL;
              return;
-
           }
 
           jn[j]=in[it];
@@ -2360,6 +2360,7 @@ static void find_nbrs1orig ( int n, short * iu, short * iv, int iu0, int iv0,
 *
 ********************************************************************************
 */
+
 # define FREE_INTERPOLATE_EVERYWHERE_MEMORY()     \
    free ( rlist );                                \
    rlist = NULL;                                  \
@@ -2385,6 +2386,7 @@ static void find_nbrs1orig ( int n, short * iu, short * iv, int iu0, int iv0,
    free ( loc_span_temp );                        \
    loc_span_temp = NULL;                          \
 
+
 static void interpolate_everywhere ( const geo_data_struct * pGeoData,
                                      const local_bias_params * pLocalBiasParams,
                                      short ** locspan,
@@ -2409,7 +2411,6 @@ static void interpolate_everywhere ( const geo_data_struct * pGeoData,
    int nbor2;
    int nbor3;
    int npair;
-
    short * ilist = NULL;
    short * iu = NULL;
    short * iv = NULL;
@@ -2490,7 +2491,6 @@ static void interpolate_everywhere ( const geo_data_struct * pGeoData,
       sprintf ( message, "ndata eq 0...nothing to interpolate on...return\n" );
       printMessage ( message, logFile );
       FREE_INTERPOLATE_EVERYWHERE_MEMORY();
-
       return;
    }
 
@@ -2548,7 +2548,6 @@ static void interpolate_everywhere ( const geo_data_struct * pGeoData,
                   sprintf ( message, "dist2 eq 0...impossible event\n" );
                   printMessage ( message, logFile );
                   FREE_INTERPOLATE_EVERYWHERE_MEMORY();
-
                   return;
                }
 
@@ -2918,8 +2917,10 @@ void MPEFieldGen_local_bias ( const run_date_struct * pRunDate,
                          "initializing new generic state variable file" );
       printMessage ( message, logFile );
 
-      status = initialize ( pGeoData, pLocalBiasParams, pMPEParams,
+
+      status = local_bias_initialize ( pGeoData, pLocalBiasParams, pMPEParams, 
                             filename1, iseq );
+
 
       if ( status != 0 )
       {
@@ -2927,6 +2928,7 @@ void MPEFieldGen_local_bias ( const run_date_struct * pRunDate,
          return;
       }
    }
+
 
    /* if the number of positive radar-gage pairs is less than the number of
       neighbors to be located, set the latter to the former. */
@@ -3257,6 +3259,7 @@ void MPEFieldGen_local_bias ( const run_date_struct * pRunDate,
    fclose ( pStateFile );
    pStateFile = NULL;
 
+
    /* State variables have now been updated: determine whether to write out
       the state variables for the current hour or not. */
    lltime ( pRunDate->tRunTime, & tm );
@@ -3273,6 +3276,7 @@ void MPEFieldGen_local_bias ( const run_date_struct * pRunDate,
        sprintf ( copy_file, "cp %s %s", filename1, filename2 );
        system ( copy_file );
     }
+
 
     /* if local bias is not estimated at every bin, fill holes via
        interpolation */
@@ -3297,6 +3301,7 @@ void MPEFieldGen_local_bias ( const run_date_struct * pRunDate,
           }
        }
     }
+
 
     for ( i = 0; i < pGeoData->num_rows; ++i )
     {

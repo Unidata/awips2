@@ -184,7 +184,7 @@ void MPEFieldGen_runGageonly(const run_date_struct * pRunDate,
     }
 
     releaseGageonlyMemory(pGeoData) ;
-}
+} /* end MPEFieldGen_runGageonly */
 
 
 void allocGageonlyMemory(const geo_data_struct * pGeoData)
@@ -212,7 +212,7 @@ void allocGageonlyMemory(const geo_data_struct * pGeoData)
             shutDownMPE( message, logFile );
         }
     }    
-}
+} /* end allocGageonlyMemory */
 
 void releaseGageonlyMemory(const geo_data_struct * pGeoData) 
 {
@@ -233,9 +233,4 @@ void releaseGageonlyMemory(const geo_data_struct * pGeoData)
         GMosaic = NULL;
     }
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source$";
- static char rcs_id2[] = "$Id$";}
-/*  ===================================================  */
-
-}
+} /* end releaseGageonlyMemory */
