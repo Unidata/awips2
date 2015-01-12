@@ -19,7 +19,10 @@
  **/
 package com.raytheon.openfire.plugin.detailedfeedlog;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 /**
  * Contains all the necessary information to be stored in memory for useful
@@ -31,7 +34,9 @@ import java.util.Date;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 27, 2012            mnash     Initial creation
+ * Jul 27, 2012            mnash       Initial creation
+ * Apr 07, 2014 2937       bgonzale    Changed to immutable. Use predefined patterns
+ *                                     and a constant for pipe.
  * 
  * </pre>
  * 
@@ -41,17 +46,28 @@ import java.util.Date;
 
 public class LogEntry {
 
-    private Date date;
+    private static final String PIPE = "|";
 
-    private String username;
+    private static final Pattern PIPE_PATTERN = Pattern.compile("\\|");
 
-    private String message;
+    private static final Pattern AT_PATTERN = Pattern.compile("@");
+
+    private static final Pattern DATE_PATTERN = Pattern.compile("\\(|\\)");
+
+    private final Date date;
+
+    private final String site;
+
+    private final String username;
+
+    private final String message;
 
     /**
-     * 
+     * Initialization Constructor.
      */
-    public LogEntry(Date date, String username, String message) {
+    public LogEntry(Date date, String site, String username, String message) {
         this.date = date;
+        this.site = site;
         this.username = username;
         this.message = message;
     }
@@ -64,14 +80,6 @@ public class LogEntry {
     }
 
     /**
-     * @param date
-     *            the date to set
-     */
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    /**
      * @return the username
      */
     public String getUsername() {
@@ -79,11 +87,10 @@ public class LogEntry {
     }
 
     /**
-     * @param username
-     *            the username to set
+     * @return the user without host information
      */
-    public void setUsername(String username) {
-        this.username = username;
+    public String getUser() {
+        return AT_PATTERN.split(username)[0];
     }
 
     /**
@@ -94,10 +101,48 @@ public class LogEntry {
     }
 
     /**
-     * @param message
-     *            the message to set
+     * @return the site
      */
-    public void setMessage(String message) {
-        this.message = message;
+    public String getSite() {
+        return site;
     }
+
+    /**
+     * Parse a String and create a LineEntry.
+     * 
+     * @param line
+     * @param dateFormat
+     * @return a LineEntry
+     * @throws ParseException
+     * @throws ArrayIndexOutOfBoundsException
+     */
+    public static LogEntry fromString(String line, DateFormat dateFormat)
+            throws ParseException, ArrayIndexOutOfBoundsException {
+        String[] splitLine = PIPE_PATTERN.split(line);
+        String dateString = splitLine[0];
+        // get the string date without parenthesis
+        dateString = DATE_PATTERN.split(dateString)[1];
+        Date date = dateFormat.parse(dateString);
+        String username = splitLine[1];
+        String site = splitLine[2];
+        String message = splitLine[3];
+
+        return new LogEntry(date, site, username, message);
+    }
+
+    /**
+     * Generate a formatted LineEntry String that is readable by the fromString
+     * method.
+     * 
+     * @param dateFormat
+     * @return formated String representing a LineEntry
+     */
+    public String toString(DateFormat dateFormat) {
+        StringBuilder sb = new StringBuilder("(")
+                .append(dateFormat.format(date)).append(")").append(PIPE)
+                .append(username).append(PIPE).append(site).append(PIPE)
+                .append(message);
+        return sb.toString();
+    }
+
 }

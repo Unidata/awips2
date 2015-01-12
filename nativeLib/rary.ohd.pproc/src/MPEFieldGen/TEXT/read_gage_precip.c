@@ -188,7 +188,7 @@ static int compare_gage_lids (  void * string_to_compare,
 
    status = strcmp ( gage_id, bad_gage_id );
    return status;
-}
+} /* end compare_gage_lids */
 
 static int compare_gage_ids ( const void * string_to_compare,
                               const void * string_in_array )
@@ -199,7 +199,7 @@ static int compare_gage_ids ( const void * string_to_compare,
 
    status = strcmp ( gage_id, bad_gage_id );
    return status;
-}
+} /* end compare_gage_ids */
 
 void MPEFieldGen_readGagePrecip ( const int runHours ,
                       char ** datetimes ,
@@ -775,7 +775,7 @@ void MPEFieldGen_readGagePrecip ( const int runHours ,
 
 
 
-}
+} /* end MPEFieldGen_readGagePrecip */
 
 
 //---------------------------------------------------------------------------------------------
@@ -799,7 +799,7 @@ void copyGage(gage_record_struct *gage_record_ptr,  gage_struct *gagePtr, double
     gage_record_ptr->longitude = lon ;
 
     return;
-}
+} /* end copyGage */
 
 
 //---------------------------------------------------------------------------------------------
@@ -943,9 +943,5 @@ void readGagePrecipFromMpeEditor ( const int runHours ,
 
     } //end for i  (runHours)
 
-}
-
-
-
-
+} /* end readGagePrecipFromMpeEditor */
 

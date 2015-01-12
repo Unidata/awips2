@@ -76,11 +76,24 @@
 		-->
 		<for list="${plugin.dependent.libs}" param="plugin">
 			<sequential>
-				<copy todir="${openfire.src.dir}/src/plugins/${plugin.name}/lib">
-					<fileset dir="${baseline.dir}/@{plugin}">
-						<include name="**/*.jar" />
-					</fileset>
-				</copy>
+				<!-- Dependencies are found in the base dir or cots -->
+				<if>
+					<available file="${baseline.dir}/@{plugin}" type="dir"/>
+					<then>
+						<copy todir="${openfire.src.dir}/src/plugins/${plugin.name}/lib">
+							<fileset dir="${baseline.dir}/@{plugin}">
+								<include name="**/*.jar" />
+							</fileset>
+						</copy>
+					</then>
+					<else>
+                        <copy todir="${openfire.src.dir}/src/plugins/${plugin.name}/lib">
+                            <fileset dir="${baseline.dir}/../cots/@{plugin}">
+                                <include name="**/*.jar" />
+                            </fileset>
+                        </copy>
+					</else>
+				</if>
 			</sequential>
 		</for>
 	</target>

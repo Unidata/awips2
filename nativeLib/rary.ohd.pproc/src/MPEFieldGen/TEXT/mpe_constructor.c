@@ -21,11 +21,19 @@
 #include "read_stage1_decoded.h"
 
 extern double  ** MPEFieldGen_RMosaic;
+extern double  ** MPEFieldGen_RDMosaic;
+
 extern double  ** MPEFieldGen_BMosaic;
+extern double  ** MPEFieldGen_BDMosaic;
+
 extern double  ** MPEFieldGen_LMosaic;
-extern double  ** LQMosaic;
-extern double  ** QMosaic;
+extern double  ** MPEFieldGen_LDMosaic;
+
+extern double  ** MPEFieldGen_QMosaic;
+extern double  ** MPEFieldGen_LQMosaic;
+
 extern int     ** MPEFieldGen_ID;
+extern int     ** MPEFieldGen_IDDP;
 extern int     ** Q2ID;
 extern double  ** MPEFieldGen_LSatpre;
 extern double  ** MPEFieldGen_umeang;
@@ -38,6 +46,11 @@ extern double ** RfcBMosaic;
 extern double  ** MPEFieldGen_MaxMosaic;
 extern double  ** MPEFieldGen_AvgMosaic;
 extern int     ** MPEFieldGen_AvgMosaicNumRadars;
+
+extern double  ** MPEFieldGen_MaxRDMosaic;
+extern double  ** MPEFieldGen_AvgRDMosaic;
+extern int     ** MPEFieldGen_AvgRDMosaicNumRadars;
+
 // ------------------------
 // structure for p3 lmosaic calculation
 // ----------------------
@@ -144,7 +157,7 @@ void constructor()
               (RADAR_ID_LEN + 1));
     }
 
-}
+} /* end constructor() */
 
 /***************************************************************************
  * This function allocates memory for global struct data and initialization
@@ -299,7 +312,7 @@ void constructorByRunTime()
 
     }
 
-}
+} /* end constructorByRunTime */
 
 
 /**********************************************************************
@@ -328,6 +341,15 @@ void constructorByGeodata(int blnMosaic[])
     // Allocating memory for the max mosaic, average mosaic and AvgMosaicNumRadars
     // structures.
     // -------------------------------
+
+
+    /********************************************************************
+     * Consider breaking out each of the following memory allocation
+     * sections to its own function for the sake of readability and
+     * modularity.
+     ********************************************************************/
+
+
     MPEFieldGen_MaxMosaic = (double **)malloc(rowSize * sizeof(double *));
     if(MPEFieldGen_MaxMosaic == NULL)
     {
@@ -402,6 +424,87 @@ void constructorByGeodata(int blnMosaic[])
             MPEFieldGen_AvgMosaicNumRadars[i][j] = 0;
         }
     }
+/*---------------------------------------------------------*/
+/* malloc space for MaxRDMosaic, AvgRDMosaic  and AvgRDMosaicNumRadars arrays        */
+/*---------------------------------------------------------*/
+
+
+    // -------------------------------
+    MPEFieldGen_MaxRDMosaic = (double **)malloc(rowSize * sizeof(double *));
+    if(MPEFieldGen_MaxRDMosaic == NULL)
+    {
+        sprintf ( message , "ERROR: memory allocation failure"
+            " in constructorByGeodata function."
+            "\n\tProgram exit.") ;
+        shutDownMPE( message, logFile );
+    }
+    for(i = 0; i < rowSize; i++)
+    {
+        MPEFieldGen_MaxRDMosaic[i] = (double *)malloc(colSize * sizeof(double));
+        if(MPEFieldGen_MaxRDMosaic[i] == NULL)
+        {
+            sprintf ( message , "ERROR: memory allocation failure"
+                " in constructorByGeodata function."
+                "\n\tProgram exit.") ;
+            shutDownMPE( message, logFile );
+        }
+
+        for(j=0;j<colSize;j++)
+        {
+            MPEFieldGen_MaxRDMosaic[i][j] = MOSAIC_DEFAULT;
+        }
+    }
+
+    MPEFieldGen_AvgRDMosaic = (double **)malloc(rowSize * sizeof(double *));
+    if(MPEFieldGen_AvgRDMosaic == NULL)
+    {
+        sprintf ( message , "ERROR: memory allocation failure"
+            " in constructorByGeodata function."
+            "\n\tProgram exit.") ;
+        shutDownMPE( message, logFile );
+    }
+    for(i = 0; i < rowSize; i++)
+    {
+        MPEFieldGen_AvgRDMosaic[i] = (double *)malloc(colSize * sizeof(double));
+        if(MPEFieldGen_AvgRDMosaic[i] == NULL)
+        {
+            sprintf ( message , "ERROR: memory allocation failure"
+                " in constructorByGeodata function."
+                "\n\tProgram exit.") ;
+            shutDownMPE( message, logFile );
+        }
+
+        for(j=0;j<colSize;j++)
+        {
+            MPEFieldGen_AvgRDMosaic[i][j] = MOSAIC_DEFAULT;
+        }
+    }
+
+    MPEFieldGen_AvgRDMosaicNumRadars = (int **)malloc(rowSize * sizeof(int *));
+    if(MPEFieldGen_AvgRDMosaicNumRadars == NULL)
+    {
+        sprintf ( message , "ERROR: memory allocation failure"
+            " in constructorByGeodata function."
+            "\n\tProgram exit.") ;
+        shutDownMPE( message, logFile );
+    }
+    for(i = 0; i < rowSize; i++)
+    {
+        MPEFieldGen_AvgRDMosaicNumRadars[i] = (int *)malloc(colSize * sizeof(int));
+        if(MPEFieldGen_AvgRDMosaicNumRadars[i] == NULL)
+        {
+            sprintf ( message , "ERROR: memory allocation failure"
+                " in constructorByGeodata function."
+                "\n\tProgram exit.") ;
+            shutDownMPE( message, logFile );
+        }
+
+        for(j=0;j<colSize;j++)
+        {
+            MPEFieldGen_AvgRDMosaicNumRadars[i][j] = 0;
+        }
+    }
+
 
     MPEFieldGen_P3Mosaic = (double **)malloc(rowSize * sizeof(double *));
     if(MPEFieldGen_P3Mosaic == NULL)
@@ -462,7 +565,43 @@ void constructorByGeodata(int blnMosaic[])
 
     }
 
-    /* allocate memory for gage ID variable */
+
+/* new code block */
+
+     //allocate memory for RDMosaic array
+     
+    MPEFieldGen_RDMosaic = (double **)malloc(rowSize * sizeof(double *)); 
+    if(MPEFieldGen_RDMosaic == NULL)
+    {
+        sprintf ( message , "ERROR: memory allocation failure"
+            " in constructorByGeodata function."
+            "\n\tProgram exit.") ;
+        shutDownMPE( message, logFile );
+    }
+    for(i = 0; i < rowSize; i++)
+    {
+        MPEFieldGen_RDMosaic[i] = (double *)malloc(colSize * sizeof(double)); 
+        if(MPEFieldGen_RDMosaic[i] == NULL)
+        {
+            sprintf ( message , "ERROR: memory allocation failure"
+                " in constructorByGeodata function."
+                "\n\tProgram exit.") ;
+            shutDownMPE( message, logFile );
+        }
+
+        for(j = 0; j < colSize; j++)
+        {
+            MPEFieldGen_RDMosaic[i][j] = MOSAIC_DEFAULT;
+        }
+
+    }    
+
+
+
+/* end of new code block */
+
+
+    /* allocate memory for gage (SP radar?) ID variable */
     MPEFieldGen_ID = (int **)malloc(rowSize * sizeof(int *));
     if(MPEFieldGen_ID == NULL)
     {
@@ -482,6 +621,33 @@ void constructorByGeodata(int blnMosaic[])
             shutDownMPE( message, logFile );
         }
     }
+
+/* new code block (not sure about MPEFieldGen_ prefix to IDDP */
+
+    /* allocate memory for DP radar ID variable */
+    MPEFieldGen_IDDP = (int **)malloc(rowSize * sizeof(int *)); 
+    if(MPEFieldGen_IDDP == NULL)
+    {
+        sprintf ( message , "ERROR: memory allocation failure"
+            " in constructorByGeodata function."
+            "\n\tProgram exit.") ;
+        shutDownMPE( message, logFile );
+    }
+    for(i = 0; i < rowSize; i++)
+    {
+        MPEFieldGen_IDDP[i] = (int *)malloc(colSize * sizeof(int)); 
+        if(MPEFieldGen_IDDP[i] == NULL)
+        {
+            sprintf ( message , "ERROR: memory allocation failure"
+                " in constructorByGeodata function."
+                "\n\tProgram exit.") ;
+            shutDownMPE( message, logFile );
+        }
+    }
+
+/* end of new code block */
+
+
     /* allocate memory for gage Q2ID variable */
     Q2ID = (int **)malloc(rowSize * sizeof(int *));
     if(Q2ID == NULL)
@@ -545,6 +711,7 @@ void constructorByGeodata(int blnMosaic[])
             "\n\tProgram exit.") ;
         shutDownMPE( message, logFile );
     }
+
     for(i = 0; i < rowSize; i++)
     {
         MPEFieldGen_QPEMosaic[i] = (double *)malloc(colSize * sizeof(double));
@@ -560,7 +727,7 @@ void constructorByGeodata(int blnMosaic[])
             MPEFieldGen_QPEMosaic[i][j] = MOSAIC_DEFAULT;
         }
 
-    }
+    } /* for i */
 
     /**********************************************************
      * allocate memory for prism variable.
@@ -573,6 +740,7 @@ void constructorByGeodata(int blnMosaic[])
             "\n\tProgram exit.") ;
         shutDownMPE( message, logFile );
     }
+
     for(i = 0; i < rowSize; i++)
     {
         MPEFieldGen_umeang[i] = (double *)malloc(colSize * sizeof(double));
@@ -588,7 +756,7 @@ void constructorByGeodata(int blnMosaic[])
             MPEFieldGen_umeang[i][j] = 0;
         }
 
-    }
+    } /* for i */
 
     /*******************************************************
      * allocate memory for bmosaic variable
@@ -621,7 +789,81 @@ void constructorByGeodata(int blnMosaic[])
             }
 
         }
-    }
+    } /* if(blnMosaic[index] == 1) */
+
+/* new code block */
+
+
+    /*******************************************************
+     * allocate memory for ldmosaic variable
+     * if blnMosaic[ldosaic] = 1.
+     **/
+    index = ldmosaic ; 
+    if(blnMosaic[index] == 1)
+     {
+    	MPEFieldGen_LDMosaic = (double **)malloc(rowSize * sizeof(double *));
+        if(MPEFieldGen_LDMosaic == NULL)
+        {
+            sprintf ( message , "ERROR: memory allocation failure"
+                " in constructorByGeodata function."
+                "\n\tProgram exit.") ;
+            shutDownMPE( message, logFile );
+        }
+        for(i = 0; i < rowSize; i++)
+        {
+        	MPEFieldGen_LDMosaic[i] = (double *)malloc(colSize * sizeof(double));
+            if(MPEFieldGen_LDMosaic[i] == NULL)
+            {
+                sprintf ( message , "ERROR: memory allocation failure"
+                    " in constructorByGeodata function."
+                    "\n\tProgram exit.") ;
+                shutDownMPE( message, logFile );
+            }
+            for(j = 0; j < colSize; j++)
+            {
+            	MPEFieldGen_LDMosaic[i][j] = MOSAIC_DEFAULT;
+            }
+
+        }
+    } /* if(blnMosaic[index] == 1) */
+    /*******************************************************
+     * allocate memory for bdmosaic variable
+     * if blnMosaic[bdosaic] = 1.
+     **/
+    index = bdmosaic ; 
+    if(blnMosaic[index] == 1)
+     {
+    	MPEFieldGen_BDMosaic = (double **)malloc(rowSize * sizeof(double *));
+        if(MPEFieldGen_BDMosaic == NULL)
+        {
+            sprintf ( message , "ERROR: memory allocation failure"
+                " in constructorByGeodata function."
+                "\n\tProgram exit.") ;
+            shutDownMPE( message, logFile );
+        }
+        for(i = 0; i < rowSize; i++)
+        {
+        	MPEFieldGen_BDMosaic[i] = (double *)malloc(colSize * sizeof(double));
+            if(MPEFieldGen_BDMosaic[i] == NULL)
+            {
+                sprintf ( message , "ERROR: memory allocation failure"
+                    " in constructorByGeodata function."
+                    "\n\tProgram exit.") ;
+                shutDownMPE( message, logFile );
+            }
+            for(j = 0; j < colSize; j++)
+            {
+            	MPEFieldGen_BDMosaic[i][j] = MOSAIC_DEFAULT;
+            }
+
+        }
+    } /* if(blnMosaic[index] == 1) */
+
+
+
+/* end of new code block */
+
+
 
     /**************************************************
      * allocate memory for lmosaic variable
@@ -654,7 +896,7 @@ void constructorByGeodata(int blnMosaic[])
             }
 
         }
-    }
+    } /* if(blnMosaic[index] == 1) */
 
     /**************************************************
      * allocate memory for lqmosaic variable
@@ -663,8 +905,8 @@ void constructorByGeodata(int blnMosaic[])
     index = qmosaic ;
     if(blnMosaic[index] == 1)
      {
-        QMosaic = (double **)malloc(rowSize * sizeof(double *));
-        if(QMosaic == NULL)
+        MPEFieldGen_QMosaic = (double **)malloc(rowSize * sizeof(double *));
+        if(MPEFieldGen_QMosaic == NULL)
         {
             sprintf ( message , "ERROR: memory allocation failure"
                 " in constructorByGeodata function."
@@ -673,8 +915,8 @@ void constructorByGeodata(int blnMosaic[])
         }
         for(i = 0; i < rowSize; i++)
         {
-            QMosaic[i] = (double *)malloc(colSize * sizeof(double));
-            if(QMosaic[i] == NULL)
+            MPEFieldGen_QMosaic[i] = (double *)malloc(colSize * sizeof(double));
+            if(MPEFieldGen_QMosaic[i] == NULL)
             {
                 sprintf ( message , "ERROR: memory allocation failure"
                     " in constructorByGeodata function."
@@ -682,7 +924,7 @@ void constructorByGeodata(int blnMosaic[])
                 shutDownMPE( message, logFile );
             }
         }
-    }
+    } /* if(blnMosaic[index] == 1) */
 
 
     /**************************************************
@@ -692,8 +934,8 @@ void constructorByGeodata(int blnMosaic[])
      index = lqmosaic ;
      if(blnMosaic[index] == 1)
       {
-         LQMosaic = (double **)malloc(rowSize * sizeof(double *));
-         if(LQMosaic == NULL)
+    	 MPEFieldGen_LQMosaic = (double **)malloc(rowSize * sizeof(double *));
+         if(MPEFieldGen_LQMosaic == NULL)
          {
              sprintf ( message , "ERROR: memory allocation failure"
                  " in constructorByGeodata function."
@@ -702,8 +944,8 @@ void constructorByGeodata(int blnMosaic[])
          }
          for(i = 0; i < rowSize; i++)
          {
-             LQMosaic[i] = (double *)malloc(colSize * sizeof(double));
-             if(LQMosaic[i] == NULL)
+        	 MPEFieldGen_LQMosaic[i] = (double *)malloc(colSize * sizeof(double));
+             if(MPEFieldGen_LQMosaic[i] == NULL)
              {
                  sprintf ( message , "ERROR: memory allocation failure"
                      " in constructorByGeodata function."
@@ -711,7 +953,7 @@ void constructorByGeodata(int blnMosaic[])
                  shutDownMPE( message, logFile );
              }
          }
-     }
+     } /* if(blnMosaic[index] == 1) */
 
      /**************************************************
      * allocate memory for lmosaic variable
@@ -742,9 +984,12 @@ void constructorByGeodata(int blnMosaic[])
             {
                 RfcBMosaic[i][j] = MOSAIC_DEFAULT;
             }
-        }
-    }
-}
+
+        } /* for i */
+
+    } /* if(blnMosaic[index] == 1) */
+
+} /* end constructorByGeodata */
 
 /****************************************************************
  * This function allocates memory for global struct data
@@ -799,9 +1044,7 @@ void constructorByRadarLoc(int radarLocNum)
        }
     }
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEFieldGen/RCS/mpe_constructor.c,v $";
- static char rcs_id2[] = "$Id: mpe_constructor.c,v 1.1 2007/10/15 12:19:10 dsa Exp lawrence $";}
+
 /*  ===================================================  */
 
-}
+} /* end constructorByRadarLoc */

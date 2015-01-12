@@ -25,9 +25,10 @@
 
 void MPEFieldGen_writeParams(const mpe_params_struct * pMPEParams)
 {
-    char hostname[20] = {'\0'};
+    const int hostLen = 128 ;
+    char hostname[128] = {'\0'};
     int i ;
-    const int hostLen = 20 ;
+
 
     gethostname(hostname, hostLen) ;
 
@@ -40,6 +41,8 @@ void MPEFieldGen_writeParams(const mpe_params_struct * pMPEParams)
         hostname);
     fprintf(logFile, "\tdpa wind\t= %d (minutes)\n",
         pMPEParams->dpa_wind);
+    fprintf(logFile, "\tdaa wind\t= %d (minutes)\n",
+        pMPEParams->daa_wind);
     fprintf(logFile, "\txmrgdtform\t= %s\n",
         pMPEParams->xmrgdtform);
     fprintf(logFile, "\trfc name\t= %s\n\n",
@@ -122,13 +125,15 @@ void MPEFieldGen_writeParams(const mpe_params_struct * pMPEParams)
     if(pMPEParams->ptrRWParams->nn_srch_method == 1)
         fprintf(logFile, "\tnearest-neighbor search method = "
             "double heap-sorting.\n");
-    else
+    else if(pMPEParams->ptrRWParams->nn_srch_method == 2)
         fprintf(logFile, "\tnearest-neighbor search method = "
             "spiral search.\n");
+    else
+        fprintf(logFile, "\tnearest-neighbor search method not defined.\n");
 
 /*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEFieldGen/RCS/write_params.c,v $";
- static char rcs_id2[] = "$Id: write_params.c,v 1.1 2007/10/15 12:19:17 dsa Exp $";}
+{static char rcs_id1[] = "$Source: /fs/hseb/ob9e/ohd/pproc_lib/src/MPEFieldGen/RCS/write_params.c,v $";
+ static char rcs_id2[] = "$Id: write_params.c,v 1.3 2012/07/05 18:40:37 pst Exp $";}
 /*  ===================================================  */
 
 }

@@ -139,7 +139,7 @@ void MPEFieldGen_writeRWResult ( const char *rfc,
       FreeRWResult( pRWResult );
       pRWResult = NULL ;
    }
-   else
+   else /* ( pRWResult == NULL ) */
    {
       /* The record does not exist. Perform an Insert. */
       ret = PutRWResult(&fppp);
@@ -147,4 +147,4 @@ void MPEFieldGen_writeRWResult ( const char *rfc,
    }
 
    return;
-}
+} /* end MPEFieldGen_writeRWResult */

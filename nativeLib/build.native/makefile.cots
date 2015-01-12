@@ -4,7 +4,7 @@
 
 .SILENT:
 
-tar_files = $(wildcard *.tar.bz2)
+tar_files = $(wildcard *.tar.bz2 *.tar.gz)
 
 target_dir = $(realpath .)/$(INSTALL_TO)
 

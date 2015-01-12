@@ -40,6 +40,12 @@ New-Item -path ${A2_PREPARE_CAVE_DIR}\cave `
     -name etc -type directory | Out-Null
 if ($? -ne $true) { EXIT 1; }
 
+$repo_suffix = "-repo-win32.x86"
+if ("${AWIPS2_BUILD_ARCHITECTURE}" -eq "x64")
+{
+    $repo_suffix = "-repo-win32.x86_64"
+}
+
 echo "`n"
 $feature_list = Get-Content "${A2_PREPARE_CAVE_DIR}\features.txt"
 Write-Host Feature Count = $feature_list.count
@@ -47,7 +53,7 @@ foreach ($feature in $feature_list)
 {
     Write-Host Installing Feature: $feature
     $feature_group = $feature + ".feature.group"
-    $repo = $feature + "-repo-win32.x86"
+    $repo = $feature + $repo_suffix
     
     installCAVERepository -feature_group "$feature_group" `
         -repo "$repo" 

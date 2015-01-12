@@ -28,6 +28,7 @@
 #                       - changed purge of mpe_fieldgen logs to purge filenames mpe_*
 #          Dec 2007     - removed purge of old disagg logs from old disagg app
 #          Jan 2008     - added purge of DailyQC freezing level preprocessor logs.
+#          April 2014   - add purge dualpol products
 
 # This allows you to run this script from outside of ./whfs/bin
 RUN_FROM_DIR=`dirname $0`
@@ -75,6 +76,20 @@ RWDRAWPRECIP=$RFCWIDE_OUTPUT_DIR/draw_precip
 MPESRMOSAIC=$RFCWIDE_OUTPUT_DIR/srmosaic
 MPESGMOSAIC=$RFCWIDE_OUTPUT_DIR/sgmosaic
 MPESRGMOSAIC=$RFCWIDE_OUTPUT_DIR/srgmosaic
+
+MPERDMOSAIC=$RFCWIDE_OUTPUT_DIR/rdmosaic
+MPEBDMOSAIC=$RFCWIDE_OUTPUT_DIR/bdmosaic
+MPELDMOSAIC=$RFCWIDE_OUTPUT_DIR/ldmosaic
+MPELOCSPANDP=$RFCWIDE_OUTPUT_DIR/locspandp
+MPELOCBIASDP=$RFCWIDE_OUTPUT_DIR/locbiasdp
+MPESTATEVARDP=$RFCWIDE_OUTPUT_DIR/state_var_dp
+MPESRDMOSAIC=$RFCWIDE_OUTPUT_DIR/srdmosaic
+MPESRDGMOSAIC=$RFCWIDE_OUTPUT_DIR/srdgmosaic
+
+MPEMDMOSAIC=$RFCWIDE_OUTPUT_DIR/mdmosaic
+MPEMLDMOSAIC=$RFCWIDE_OUTPUT_DIR/mldmosaic
+MPEAVGRDMOSAIC=$RFCWIDE_OUTPUT_DIR/avgrdmosaic
+MPEMAXRDMOSAIC=$RFCWIDE_OUTPUT_DIR/maxrdmosaic
 
 MPERFCBMOSAIC=$RFCWIDE_OUTPUT_DIR/rfcbmosaic
 MPERFCMMOSAIC=$RFCWIDE_OUTPUT_DIR/rfcmmosaic
@@ -288,6 +303,33 @@ find $RFCBIASINDIR -name '*[0-9]' -type f -mtime +1 -print -exec rm {} \; \
  >> $fnm
 find $RFCBIASOUTDIR -name '*z' -type f -mtime +1 -print -exec rm {} \; \
  >> $fnm
+
+find $MPEMDMOSAIC -name '*z' -type f -mtime +2 -print -exec rm {} \;  \
+>> $fnm
+find $MPEMLDMOSAIC -name '*z' -type f -mtime +2 -print -exec rm {} \;  \
+>> $fnm
+find $MPEAVGRDMOSAIC -name '*z' -type f -mtime +2 -print -exec rm {} \;  \
+>> $fnm
+find $MPEMAXRDMOSAIC -name '*z' -type f -mtime +2 -print -exec rm {} \;  \
+>> $fnm
+
+find $MPERDMOSAIC -name '*z' -type f -mtime +2 -print -exec rm {} \;  \
+>> $fnm
+find $MPEBDMOSAIC -name '*z' -type f -mtime +2 -print -exec rm {} \;  \
+>> $fnm
+find $MPELDMOSAIC -name '*z' -type f -mtime +2 -print -exec rm {} \;  \
+>> $fnm
+find $MPELOCSPANDP -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $MPELOCBIASDP -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $MPESTATEVARDP -name '*z' -type f -mtime +0 -print -exec rm {} \;  \
+>> $fnm
+
+find $MPESRDMOSAIC  -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
+find $MPESRDGMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+>> $fnm
 
 Dte=`date -u`
 echo "End   purge_mpe_files at:  " $Dte >> $fnm

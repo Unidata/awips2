@@ -1,6 +1,6 @@
 #Radar Connection Characteristic D'n' Key
 #D1 - LAN 10 mbps
-#D2 - FR DoD 256 kbps
+#D2 - FR DoD 1.54 mbps
 #D3 - FAA FR 256 kbps
 #D4 - NWS & DoD Supplemental FR 128 kbps
 #D5 - NWS & DoD Supplemental FR 256 kbps
@@ -8,7 +8,7 @@
 #D7 - Dedicated Backup Across WAN 128 kbps Aggregate
 #D8 - ASR-4/ARSR-11 radars
 #
-#Site ID   Region   numRpgs   RPGs  020209
+#Site ID   Region   numRpgs   RPGs  071911
 KABQ         5         5      ABXYD1 FDXYD2 EPZND7 HDXND7 AMAND7
 KABR         3         4      ABRYD1 FSDND7 BISND7 MBXND7
 KAKQ         1         4      AKQYD1 DOXYD2 MHXND7 RAXND7
@@ -87,7 +87,7 @@ KLZK         4         4      LZKYD1 SRXND4 NQAND7 INXND7
 KMAF         4         5      MAFYD1 SJTND7 DYXND7 EPZND7 HDXND7
 KMEG         4         7      NQAYD1 GWXND4 MEMYD6 LZKND7 OHXND7 PAHND7 SRXND7
 KMFL         2         7      AMXYD1 BYXND4 FLLYD6 MIAYD6 PBIYD6 JUAND7 TBWND7
-KMFR         6         4      MAXYD1 BHXND7 ATXND7 RTXND7
+KMFR         6         5      MAXYD1 BHXND7 ATXND7 LGXND7 RTXND7
 KMHX         2         4      MHXYD1 AKQND7 DOXND7 LTXND7
 KMKX         3         4      MKXYD1 MKEYD6 GRBND7 LOTND7
 KMLB         2         5      MLBYD1 MCOYD6 TBWND7 JUAND7 AMXND7
@@ -96,7 +96,7 @@ KMPX         3         4      MPXYD1 MSPYD6 DLHND7 FSDND7
 KMQT         3         3      MQTYD1 APXND7 GRBND7
 KMRX         4         5      MRXYD1 HTXND4 OHXND7 FFCND7 JGXND7
 KMSO         5         3      MSXYD1 TFXND7 OTXND7
-KMSR         3         1      MPXND1
+KMSR         3         2      MPXND1 MSPND6
 KMTR         6         6      MUXYD1 BHXND7 VTXND7 VBXND7 NKXND7 SOXND7
 KOAX         3         3      OAXYD1 UEXND7 DMXND7
 KOHX         4         6      OHXYD1 HTXND4 BNAYD6 MRXND7 NQAND7 GWXND7
@@ -110,7 +110,7 @@ KPBZ         1         4      PBZYD1 PITYD6 RLXND7 BUFND7
 KPDT         6         3      PDTYD1 OTXND7 CBXND7
 KPHI         1         5      DIXYD1 DOXND4 PHLYD6 LWXND7 OKXND7
 KPIH         5         4      SFXYD1 MTXND4 CBXND7 ICXND7
-KPQR         6         3      RTXYD1 ATXND7 MAXND7
+KPQR         6         4      RTXYD1 LGXND5 ATXND7 MAXND7
 KPSR         5         5      IWAYD1 YUXYD1 PHXYD6 EMXND7 FSXND7
 KPTR         6         1      RTXND1
 KPUB         5         3      PUXYD1 FTGND7 GLDND7
@@ -121,7 +121,7 @@ KRIW         5         3      RIWYD1 BLXND7 CYSND7
 KRLX         1         3      RLXYD1 PBZND7 JKLND7
 KRNK         1         3      FCXYD1 RAXND7 GSPND7
 KRSA         6         1      DAXND1
-KSEW         6         4      ATXYD1 RTXND7 PDTND7 QKWND8
+KSEW         6         5      ATXYD1 LGXYD1 RTXND7 PDTND7 QKWND8
 KSGF         3         5      SGFYD1 EAXND7 PAHND7 VWXND7 HPXND7
 KSGX         6         6      NKXYD1 SOXYD1 EYXND5 VTXND7 VBXND7 HNXND7
 KSHV         4         7      SHVYD1 LZKND4 FWSND7 GRKND7 DGXND7 GWXND7 SRXND7
@@ -144,8 +144,8 @@ KVEF         5         6      ESXYD1 EYXYD2 LASYD6 FSXND7 IWAND7 YUXND7
 KVHW         5         2      MTXND5 ICXND5
 KVUY         1         1      OKXND5
 KWNO         1         1      LWXND5
-PACR         8         7      ABCYD3 AKCYD3 AHGND7 AIHND7 APDND7 AECND7 ACGND7
-PAFC         8         7      AHGYD3 AIHYD3 ABCND7 AKCND7 APDND7 AECND7 ACGND7
+PACR         8         7      ABCND7 AKCND7 AHGND7 AIHND7 APDND7 AECND7 ACGND7
+PAFC         8         7      AHGYD3 AIHYD3 ABCYD3 AKCYD3 APDND7 AECND7 ACGND7
 PAFG         9         7      AECYD3 APDYD3 AHGND7 AIHND7 ABCND7 AKCND7 ACGND7
 PAJK         7         7      ACGYD3 AHGND7 AIHND7 ABCND7 AKCND7 APDND7 AECND7
 PGUM         0         1      GUAYD1

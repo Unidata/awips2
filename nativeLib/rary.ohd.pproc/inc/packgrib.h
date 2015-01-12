@@ -1,8 +1,8 @@
 /*
  * packgrib.h
  *
- *  Created on: Aug 26, 2011
- *      Author: snaples
+ *  Created on: BEFORE OB83
+ *  Author: ohd
  */
 /*
 

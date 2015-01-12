@@ -162,7 +162,8 @@ void MPEFieldGen_apply_mpe_polygons ( double ** real_mosaic,
     /* The polygons have been applied.   Return this field to the calling
        routine so that it can be written out to a xmrg file. */
     return;
-}
+
+} /* end MPEFieldGen_apply_mpe_polygons */
 
 void MPEFieldGen_editPolygonDestructor ( const geo_data_struct * pGeoData )
 {
@@ -181,15 +182,11 @@ void MPEFieldGen_editPolygonDestructor ( const geo_data_struct * pGeoData )
    }
 
    free_poly_temp ( );
-}
+} /* end MPEFieldGen_editPolygonDestructor */
 
+/* Honestly, this function seems to do absolutely NOTHING! */
 bool MPEFieldGen_eliminateP3Gages ( int hrapx, int hrapy, enum DisplayFieldData field )
 {
    return true;
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEFieldGen/RCS/apply_polygons.c,v $";
- static char rcs_id2[] = "$Id: apply_polygons.c,v 1.1 2007/10/15 12:19:05 dsa Exp lawrence $";}
-/*  ===================================================  */
-
-}
+} /* MPEFieldGen_eliminateP3Gages */

@@ -42,6 +42,7 @@ import com.raytheon.rcm.event.RadarEventAdapter;
  * ------------ ---------- ----------- --------------------------
  * Nov 9, 2011            mnash     Initial creation
  * 2012-07-27   DR 14896   D. Friedman  Handle multiple RPGs.
+ * 2014-05-22   DR 16319   dhuffman     Change some methods to static.
  * 
  * </pre>
  * 
@@ -86,7 +87,7 @@ public class RadarServerAvailable extends RadarEventAdapter {
         }
     }
     
-    private void sendNotification(final String radarId, final String message) {
+    public static void sendNotification(final String radarId, final String message) {
         getExecutorService().submit(new Runnable() {
             @Override
             public void run() {
@@ -95,7 +96,7 @@ public class RadarServerAvailable extends RadarEventAdapter {
         });
     }
     
-    private void sendNotification2(String radarId, String message) {
+    private static void sendNotification2(String radarId, String message) {
         ProcessBuilder builder;
         Process proc = null;
         

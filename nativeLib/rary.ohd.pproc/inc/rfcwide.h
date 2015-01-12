@@ -43,15 +43,17 @@ void hour_sensitive_RFCW();
 /*----------------------------------*/
 
 char date_form[4];   /*   date format for xmrg filename  */
+int daa_min_coverage_dur;  /* NOTE: this variable is same as field in mpe_params_struct */
 
-/*--------------------------------------------------*/
-/* reading radar related data                       */
-/*--------------------------------------------------*/
+/*------------------------------------------*/
+/* radar related data                       */
+/*------------------------------------------*/
 
 short int    ***stage1u;
 short int    ***radcov;
 
 char  **datetime_radar_prod;
+char  **datetime_daaradar_prod;
 
 /*--------------------------------------------------------*/
 /* routines for reading data from PseudoGageRadarVal and  */

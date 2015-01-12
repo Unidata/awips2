@@ -113,7 +113,7 @@ void MPEUtil_copy_area ( Widget w , XtPointer client_data ,
 
 /***************************************************************************/
 /*  FUNCTION NAME:   label_rawrad()                                        */
-/*       FUNCTION:   writes "Raw Radar" label                              */
+/*       FUNCTION:   writes "Raw SP Radar" label                              */
 /***************************************************************************
 
 Function type:
@@ -132,7 +132,7 @@ Functions called:
 void label_rawrad ( Widget w , XtPointer clientdata , XtPointer calldata )
 
 {
-   char        *string="Raw Radar";
+   char        *string="Raw SP Radar";
    char        *fontname="*-misc-fixed-medium-r-normal--13-120-75-75-c-80-*";
    XFontStruct *font_info = NULL ;
    Display     *dpy = NULL ;
@@ -180,7 +180,7 @@ Functions called:
 void label_unbrad ( Widget w , XtPointer clientdata , XtPointer calldata )
 
 {
-   char        *string="Mean Field Bias Corrected Radar";
+   char        *string="Mean Field Bias Corrected SP Radar";
    char        *fontname="*-misc-fixed-medium-r-normal--13-120-75-75-c-80-*";
    XFontStruct *font_info = NULL ;
    Display     *dpy = NULL ;
@@ -210,7 +210,7 @@ void label_unbrad ( Widget w , XtPointer clientdata , XtPointer calldata )
 
 /***************************************************************************/
 /*  FUNCTION NAME:   label_radclim()                                       */
-/*       FUNCTION:   writes "Radar Climatology" label                      */
+/*       FUNCTION:   writes "Raw DP Radar" label                      */
 /***************************************************************************
 
 Function type:
@@ -228,7 +228,7 @@ Functions called:
 void label_radclim ( Widget w , XtPointer clientdata , XtPointer calldata )
 
 {
-   char        *string="Radar Climatology";
+   char        *string="Raw DP Radar";
    char        *fontname="*-misc-fixed-medium-r-normal--13-120-75-75-c-80-*";
    XFontStruct *font_info = NULL ;
    Display     *dpy = NULL ;

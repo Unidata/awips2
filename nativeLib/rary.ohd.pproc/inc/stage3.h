@@ -185,9 +185,11 @@ float          *bias_slope;
 float          *bias_inter;
 float          *sibias;
 short int      *iflarad;
+short int      *iflarad_dp;
 short int      *iflgg;
 short int      *iflml;
 short int      *iflign;
+short int      *iflign_dp;  //dual-pol version of ignore radar array
 char            mosaic_type[10];
 char            default_mosaic_type[10];
 int             iselect;

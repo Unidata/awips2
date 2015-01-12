@@ -34,10 +34,7 @@ Local variables:
 
 ******************************************** BEGIN get_vip_level ***********/
 
-int get_vip_level(num_levels, levels, value)
-   int  num_levels;
-   int *levels;
-   int  value;
+int get_vip_level(int num_levels, int *levels, int value)
 {
    int  i;
 
@@ -51,7 +48,30 @@ int get_vip_level(num_levels, levels, value)
 
 return(num_levels-1);
 
+}
 
+
+
+int get_vip_level_allow_negative(int num_levels, int *levels, int value)
+{
+    int  i;
+
+
+    for(i=1; i < num_levels - 1; i++)
+    {
+        if(value < levels[i])
+        {
+            return(i);
+        }
+    }
+    //must belong in the final category, > final value
+    return(num_levels-1);
+
+
+/*  ==============  Statements containing RCS keywords:  */
+{static char rcs_id1[] = "$Source: /fs/hseb/ob9e/ohd/pproc_lib/src/MPEUtil/RCS/get_vip_levels.c,v $";
+ static char rcs_id2[] = "$Id: get_vip_levels.c,v 1.2 2012/05/10 15:35:55 cgobs Exp $";}
+/*  ===================================================  */
 
 }
 

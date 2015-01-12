@@ -15,7 +15,6 @@ Require-Bundle: com.raytheon.edex.common,
  ucar.nc2;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: 
- com.raytheon.edex.uengine.tasks.query,
  com.raytheon.edex.util.satellite,
  com.raytheon.uf.common.dataplugin.satellite,
  com.raytheon.uf.common.localization,

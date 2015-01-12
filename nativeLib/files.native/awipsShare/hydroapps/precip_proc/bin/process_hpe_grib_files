@@ -150,7 +150,7 @@ then
      new_string=`date -u +%d%H%M%S`
      new_file_name=ZETA98_${out_file%.*}_$new_string.grib
 
-     INPUT_DIR=$(get_apps_defaults d2d_input_dir)
+     INPUT_DIR=$(get_apps_defaults hpe_grib_input_dir)
   
      echo Copy grib file $HPE_DHRMOSAIC_GRIB_DIR/$out_file  >> $griblog
      echo to $HPE_DHRMOSAIC_GRIB_DIR/gribfile.tmp >> $griblog
@@ -183,7 +183,7 @@ then
      new_string=`date -u +%d%H%M%S`
      new_file_name=ZETA98_${out_file%.*}_$new_string.grib
 
-     INPUT_DIR=$(get_apps_defaults d2d_input_dir)
+     INPUT_DIR=$(get_apps_defaults hpe_grib_input_dir)
   
      echo Copy grib file $HPE_BDHRMOSAIC_GRIB_DIR/$out_file  >> $griblog
      echo to $HPE_BDHRMOSAIC_GRIB_DIR/gribfile.tmp >> $griblog
@@ -216,7 +216,7 @@ then
      new_string=`date -u +%d%H%M%S`
      new_file_name=ZETA98_${out_file%.*}_$new_string.grib
 
-     INPUT_DIR=$(get_apps_defaults d2d_input_dir)
+     INPUT_DIR=$(get_apps_defaults hpe_grib_input_dir)
  
      echo Copy grib file $HPE_EBMOSAIC_GRIB_DIR/$out_file  >> $griblog
      echo to $HPE_EBMOSAIC_GRIB_DIR/gribfile.tmp >> $griblog
@@ -249,7 +249,7 @@ then
      new_string=`date -u +%d%H%M%S`
      new_file_name=ZETA98_${out_file%.*}_$new_string.grib
 
-     INPUT_DIR=$(get_apps_defaults d2d_input_dir)
+     INPUT_DIR=$(get_apps_defaults hpe_grib_input_dir)
   
      echo Copy grib file $HPE_ERMOSAIC_GRIB_DIR/$out_file  >> $griblog
      echo to $HPE_ERMOSAIC_GRIB_DIR/gribfile.tmp >> $griblog

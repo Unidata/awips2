@@ -40,6 +40,7 @@
 #define QPEMAPPER_SITE_NAME_LEN 20   /* The max length of a site name in
                                         QPEmapper. */ 
 
+#define    GAGE_ID_LEN     8
 #define    MESSAGE_LEN     512 
 #define    HHMMSS_LEN      8
 #define    YYYYMMDDHH_LEN  10
@@ -57,9 +58,12 @@
 #define    DEFAULT_MIN_GOOD_STATIONS      5
 #define    DEFAULT_DQC_COPY_TO_IHFS       0
 #define    DEFAULT_DQC_COPY_TO_ARCHIVE    0
+#define    DEFAULT_SAVE_NETCDF            0
+#define    DEFAULT_SAVE_GRIB              0
 
 #define    DAILYQC_FAILED 1
 #define    DAILYQC_OK     0
+#define    NUM_QCTYPE     3
 
 struct _dqc_run_date
 {

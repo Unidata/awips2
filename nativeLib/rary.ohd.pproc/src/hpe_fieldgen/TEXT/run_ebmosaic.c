@@ -75,6 +75,7 @@
 * 08/08/2007  Guoxian Zhou      add option to use local bias data 
 *
 ***********************************************************************/
+extern int dualpol_used;
 
 void runEBMosaic(const run_date_struct   * pRunDate ,
                 const geo_data_struct   * pGeoData ,
@@ -105,6 +106,7 @@ void runEBMosaic(const run_date_struct   * pRunDate ,
     const char * SAVE_JPEG_TOKEN = "ebmosaic_save_jpeg";
 
     static char strDateTime[ANSI_YEARSEC_TIME_LEN + 1] = {'\0'} ; 
+    static char prdDateTime[ANSI_YEARSEC_TIME_LEN + 1] = {'\0'} ;
     static char fileName[PATH_LEN] = {'\0'} ;
     static char mosaicDir[PATH_LEN] = {'\0'} ;
 
@@ -121,6 +123,9 @@ void runEBMosaic(const run_date_struct   * pRunDate ,
     pRunTime = gmtime(&(pRunDate->tRunTime)) ;
     strftime(strDateTime, ANSI_YEARSEC_TIME_LEN + 1,
              "%Y%m%d%H%M", pRunTime);
+
+    strftime(prdDateTime, ANSI_YEARSEC_TIME_LEN + 1,
+                "%Y-%m-%d %H:%M:%S", pRunTime);
 
     hpe_fieldgen_getCurrentTime(currTime) ;
     sprintf( message , "%s = time begin EBMOSAIC calculation.", currTime) ;
@@ -216,6 +221,14 @@ void runEBMosaic(const run_date_struct   * pRunDate ,
     sprintf( message , "%s = time end writing fields to flat files." , 
                     currTime) ;
     hpe_fieldgen_printMessage( message);
+
+    sprintf ( message , "\nSTATUS:  In EBMOSAIC, insert/update HPERadarResult table");
+    printLogMessage( message );
+
+    wrtodb_HPERadarResult(fileName, prdDateTime, pEMPEParams, dualpol_used);
+
+    sprintf ( message , "\nSTATUS:  In EBMOSAIC, complete insert/update HPERadarResult table");
+    printLogMessage( message );
 
     /*
      * fill in the "best estimate" mosaic

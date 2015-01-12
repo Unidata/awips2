@@ -88,13 +88,8 @@ void MPEFieldGen_readRadarLoc ( radarLoc_table_struct * pRadarLocTable )
         pRadarLocNode = NULL;
         FreeRadarLoc ( pRadarLocHead );
         pRadarLocHead = NULL;
-    }
+    } /* if ( pRadarLocHead != NULL ) */
 
     pRadarLocTable->radarNum = counter;
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEFieldGen/RCS/read_radarloc.c,v $";
- static char rcs_id2[] = "$Id: read_radarloc.c,v 1.1 2007/10/15 12:19:13 dsa Exp lawrence $";}
-/*  ===================================================  */
-
-}
+} /* end MPEFieldGen_readRadarLoc */

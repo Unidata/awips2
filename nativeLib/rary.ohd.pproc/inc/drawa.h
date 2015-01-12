@@ -18,7 +18,8 @@
 
 void  fill_pixmap ( Pixmap user_pixmap ) ;
 
-int   get_vip_level();
+int get_vip_level(int num_levels, int *levels, int value);
+int get_vip_level_allow_negative(int num_levels, int *levels, int value);
 
 void  MPEUtil_copy_area ( Widget w , XtPointer client_data , XEvent * calldata ,
                   Boolean * flag ) ;

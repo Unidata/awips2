@@ -15,7 +15,7 @@
 		extract dependency information from the plugin manifest.
 	-->
 	<property name="plugin.dependent.libs"
-		value="org.apache.commons.configuration,org.apache.commons.collections,org.apache.http" />
+		value="org.apache.commons.collections,org.apache.http" />
 	
 	<import file="${build.dir.location}/${ant.abstract}" />
 </project>

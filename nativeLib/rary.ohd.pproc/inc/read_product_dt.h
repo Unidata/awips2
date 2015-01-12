@@ -18,6 +18,7 @@
 #define READ_PRODUCT_DT_H
 
 void read_product_dt ( char rad[4], char * datetime, int * n );
+void read_daaproduct_dt ( char rad[4], char * datetime, int * n );
  
 #endif /* #ifndef READ_PRODUCT_DT_H */
  

@@ -81,6 +81,7 @@
 #include "map_library.h"
 #include "map_resource.h"
 #include "mpe_log_utils.h"
+#include "mpe_field_names.h"
 #include "stage3.h"
 #include "stage3_globals.h"
 #include "stage3_interface.h"
@@ -586,13 +587,28 @@ static void plotHrapData ( draw_struct * data,
      return ;
   }
    
+  enum DisplayFieldData display_field_type ;
+  display_field_type = rad_data [ user_pixmap ].field_type;
+   
   for ( i = 0 ; i < data->maximum_columns ; i++ )
   {
      for ( j = 0 ; j < data->maximum_rows ; j++ )
      {
+         switch(display_field_type)
+         {
+         case display_diffField:
+         case display_ratioField:
+
+
+             vip =  get_vip_level_allow_negative ( data->num_levels , data->levels ,
+                                 data->data_array [ i ] [ j ] ) ;
+             break;
+
+         default:
         /* Retrieve the vip level for the HRAP bin. */
         vip =  get_vip_level ( data->num_levels , data->levels ,
                                data->data_array [ i ] [ j ] ) ;
+         } //end switch
 
         /* Don't bother drawing a vip level of 1.  The MPE forecast area
            has already been colored as this level. Or there is a user-supplied
@@ -1534,8 +1550,8 @@ void setToPlotContour ( Boolean state )
    plotDataAsContour = state;
 
 /*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEUtil/RCS/fill_pixmap.c,v $";
- static char rcs_id2[] = "$Id: fill_pixmap.c,v 1.8 2007/10/18 18:37:49 lawrence Exp $";}
+{static char rcs_id1[] = "$Source: /fs/hseb/ob9e/ohd/pproc_lib/src/MPEUtil/RCS/fill_pixmap.c,v $";
+ static char rcs_id2[] = "$Id: fill_pixmap.c,v 1.10 2012/05/10 15:26:34 cgobs Exp $";}
 /*  ===================================================  */
 
 }

@@ -135,10 +135,8 @@
             <fileset dir="${cots.dir}/org.apache.commons.beanutils" includes="**/*.jar" />
             <fileset dir="${cots.dir}/org.apache.commons.codec" includes="**/*.jar" />
             <fileset dir="${cots.dir}/org.apache.commons.collections" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.commons.lang" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.commons.logging" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.mina" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.log4j" includes="**/*.jar" />
+            <fileset dir="${cots.dir}/org.apache.commons.lang" includes="**/*.jar" />            
+            <fileset dir="${cots.dir}/ch.qos.logback" includes="**/*.jar" />
             <fileset dir="${cots.dir}/javax.jms" includes="**/*.jar" />
             <fileset dir="${cots.dir}/org.springframework">
                 <include name="**/*spring*beans*.jar" />
@@ -146,7 +144,6 @@
             </fileset>
             <fileset dir="${cots.dir}/org.itadaki.bzip2" includes="**/*.jar" />
             <fileset dir="${cots.dir}/org.quartz" includes="**/*.jar" />
-            <fileset dir="lib" includes="**/*.jar" />
         </copy>
 
         <delete dir="bin" />
