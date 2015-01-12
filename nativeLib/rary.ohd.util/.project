@@ -3,7 +3,6 @@
 	<name>rary.ohd.util</name>
 	<comment></comment>
 	<projects>
-		<project>rary.cots.jasper</project>
 		<project>rary.cots.postgresql</project>
 		<project>rary.empty.motif</project>
 		<project>rary.ohd.ifp</project>
