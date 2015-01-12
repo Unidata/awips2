@@ -166,18 +166,18 @@
      <creatingEntity>Composite</creatingEntity>
   </paramLevelMatches>
   <imageStyle>
-     <displayUnits>mm</displayUnits>
+     <displayUnits>in</displayUnits>
      <range scale="LINEAR">
        <minValue>0</minValue>
-       <maxValue>85.425</maxValue>
+       <maxValue>3.36</maxValue>
      </range>
      <samplePrefs>
-       <minValue>-0.3</minValue>
-       <maxValue>67</maxValue>
+       <minValue>-0.01</minValue>
+       <maxValue>2.64</maxValue>
      </samplePrefs>
      <defaultColormap>Sat/Precip Water/Precip Water Default</defaultColormap>
      <colorbarLabeling>
-        <values>10 20 30 40 50 67</values>
+        <values>0.4 0.8 1.2 1.6 2.0 2.6</values>
      </colorbarLabeling>
   </imageStyle>
 </styleRule>
@@ -289,14 +289,14 @@
      <creatingEntity>Miscellaneous</creatingEntity>
   </paramLevelMatches>
   <imageStyle>
-     <displayUnits>mm</displayUnits>
+     <displayUnits>in</displayUnits>
      <range scale="LINEAR">
-       <minValue>-176</minValue>
-       <maxValue>76</maxValue>
+       <minValue>-7</minValue>
+       <maxValue>3</maxValue>
      </range>
      <defaultColormap>Sat/Precip Water/Blended Total Precip Water</defaultColormap>
      <colorbarLabeling>
-        <values>0 25 50 75</values>
+        <values>0 1 2 3</values>
      </colorbarLabeling>
      <!-- dataMapping>
 		<entry pixelValue="0" label="NO DATA" />
