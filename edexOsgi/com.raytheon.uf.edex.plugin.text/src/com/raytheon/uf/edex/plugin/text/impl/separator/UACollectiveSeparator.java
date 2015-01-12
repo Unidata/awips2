@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.edex.plugin.text.impl.separator;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -47,6 +50,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
  * Apr 02, 2014 2652       skorolev    Corrected a removing of excess control characters.
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Dec 03, 2014 ASM #16859 D. Friedman Use CharBuffer instead of StringBuilder.
  * </pre>
  * 
  * @author jkorman
@@ -122,12 +126,13 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
         if (endIndex <= startIndex) {
             endIndex = rawData.length - 1;
         }
-        String rawMsg = new String(rawData, startIndex, endIndex - startIndex);
+        CharBuffer rawMsg = Charset.forName("ISO-8859-1").decode(
+                ByteBuffer.wrap(rawData, startIndex, endIndex - startIndex));
         Matcher nnnxxxMatcher = NNNXXX.matcher(rawMsg);
         if (nnnxxxMatcher.find() && nnnxxxMatcher.start() == 0) {
-            rawMsg = rawMsg.substring(nnnxxxMatcher.end());
+            rawMsg.position(rawMsg.position() + nnnxxxMatcher.end());
         }
-        StringBuilder buffer = new StringBuilder(rawMsg);
+        CharBuffer buffer = rawMsg;
         String hdrStr = wmoHdr.getWmoHeader();
         String dataDes = createDataDes(wmoHdr);
         String origin = wmoHdr.getCccc();
@@ -213,7 +218,7 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                             // filter out junk characters
                             while (buffer.length() > 0
                                     && !checkCharNum(buffer.charAt(0))) {
-                                buffer.deleteCharAt(0);
+                                buffer.get();
                             }
 
                             // again, trash data if it is less than 20 bytes
@@ -400,35 +405,35 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
     // ---------------------------------------------------------
     // Called by the decodeUpAirMsg function.
     // ---------------------------------------------------------------------------
-    private void parseUpairMsg(StringBuilder buffer, StringBuilder stationNum,
+    private void parseUpairMsg(CharBuffer buffer, StringBuilder stationNum,
             StringBuilder parsedMsg, String dataDes) {
         stationNum.setLength(0);
 
         // Check each message for the \036 record separator and increment past
         // it.
         if (!checkCharNum(buffer.charAt(0))) {
-            buffer.deleteCharAt(0);
+            buffer.get();
         }
 
         // Check for UEXX or UJXX formatted messages and decode
         if (dataDes.endsWith("XX") || dataDes.endsWith("81")
                 || dataDes.endsWith("82")) {
-            stationNum.append(assignTextSegment(buffer.toString(), CSPC));
+            stationNum.append(assignTextSegment(buffer, CSPC));
             getTextSegment(buffer, parsedMsg, MARKERANDEOM);
         }
         // Check for USUS80 or 90 formatted messages and decode
         else if (dataDes.endsWith("80") || dataDes.endsWith("90")) {
             if (checkCharNum(buffer.charAt(0))) {
-                buffer.deleteCharAt(0);
+                buffer.get();
             } else {
-                stationNum.append(assignTextSegment(buffer.toString(), CSPC));
+                stationNum.append(assignTextSegment(buffer, CSPC));
             }
 
             getTextSegment(buffer, parsedMsg, CSEP);
         } else {
             // Otherwise it's standard format so decode
             if (!checkCharNum(buffer.charAt(0))) {
-                buffer.deleteCharAt(0);
+                buffer.get();
             } else {
 
                 // Move to the third field of the message to get the station
@@ -444,11 +449,11 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                         if (len - buffer.length() >= 4) {
                             x++;
                         }
-                        buffer.deleteCharAt(0);
+                        buffer.get();
                     }
                 }
 
-                stationNum.append(assignTextSegment(buffer.toString(), CSPC));
+                stationNum.append(assignTextSegment(buffer, CSPC));
             }
 
             getTextSegment(buffer, parsedMsg, CSEP);
@@ -462,11 +467,11 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                 trim_message(parsedMsg);
             }
         } else if (buffer.charAt(0) == '=') {
-            buffer.deleteCharAt(0);
+            buffer.get();
             while (buffer.length() > 0) {
                 char c = buffer.charAt(0);
                 if ((c == '\n') || (c == '\r')) {
-                    buffer.deleteCharAt(0);
+                    buffer.get();
                 } else {
                     break;
                 }
