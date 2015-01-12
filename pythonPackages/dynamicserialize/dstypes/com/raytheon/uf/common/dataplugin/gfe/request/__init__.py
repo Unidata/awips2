@@ -22,7 +22,6 @@
 
 __all__ = [
             'AbstractGfeRequest',
-            'ClearPracticeVTECTableRequest',
             'CommitGridsRequest',
             'ConfigureTextProductsRequest',
             'ExecuteIfpNetCDFGridRequest',
@@ -36,7 +35,6 @@ __all__ = [
             'GetLockTablesRequest',
             'GetOfficialDbNameRequest',
             'GetParmListRequest',
-            'GetPythonGridDataRequest',
             'GetSelectTimeRangeRequest',
             'GetSingletonDbIdsRequest',
             'GetSiteTimeZoneInfoRequest',
@@ -52,7 +50,6 @@ __all__ = [
           ]
 
 from AbstractGfeRequest import AbstractGfeRequest
-from ClearPracticeVTECTableRequest import ClearPracticeVTECTableRequest
 from CommitGridsRequest import CommitGridsRequest
 from ConfigureTextProductsRequest import ConfigureTextProductsRequest
 from ExecuteIfpNetCDFGridRequest import ExecuteIfpNetCDFGridRequest
@@ -66,7 +63,6 @@ from GetLatestModelDbIdRequest import GetLatestModelDbIdRequest
 from GetLockTablesRequest import GetLockTablesRequest
 from GetOfficialDbNameRequest import GetOfficialDbNameRequest
 from GetParmListRequest import GetParmListRequest
-from GetPythonGridDataRequest import GetPythonGridDataRequest
 from GetSelectTimeRangeRequest import GetSelectTimeRangeRequest
 from GetSingletonDbIdsRequest import GetSingletonDbIdsRequest
 from GetSiteTimeZoneInfoRequest import GetSiteTimeZoneInfoRequest

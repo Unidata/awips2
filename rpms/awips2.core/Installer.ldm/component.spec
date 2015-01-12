@@ -1,4 +1,4 @@
-%define _ldm_version 6.11.5
+%define _ldm_version 6.12.6
 %define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes
@@ -10,6 +10,7 @@ Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
 Release: 23
+#Release: %{_component_version}.%{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -47,6 +48,7 @@ fi
 %build
 
 %install
+
 # create the ldm directory
 /bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
 if [ $? -ne 0 ]; then
@@ -68,6 +70,7 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
+
 
 _ldm_destination=%{_build_root}/usr/local/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
@@ -195,6 +198,8 @@ if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
    exit 1
 fi
+# Fix libtool incompatibility in source tar ball
+su ldm -lc "cd ${_current_dir}; rm -f libtool; ln -s /usr/bin/libtool libtool"
 export _current_dir=`pwd`
 su ldm -lc "cd ${_current_dir}; make install" > install.log 2>&1
 if [ $? -ne 0 ]; then
@@ -202,11 +207,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-su ldm -lc "cd ${_current_dir}; /bin/bash my-install" > my-install.log 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: my-install has failed!"
-   exit 1
-fi
 popd > /dev/null 2>&1
 pushd . > /dev/null 2>&1
 cd ${_ldm_root_dir}/src

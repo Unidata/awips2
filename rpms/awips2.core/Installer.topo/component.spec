@@ -52,9 +52,7 @@ function copyLegal()
    tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp %{_baseline_workspace}/rpms/legal/license.txt \
-      ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master_Rights_File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
@@ -78,19 +76,19 @@ fi
 
 TOPO_TO_COPY=\
 (\
+   'gtopo30.h5'\
+   'srtm30.h5'\
+   'srtm30_plus.h5'\
+   'defaultTopo.h5' \
    'akTopo.dat.gz' \
    'caribTopo.dat.gz' \
    'modelStaticTopo.h5' \
    'pacTopo.dat.gz' \
-   'srtm30.h5'\
-   'defaultTopo.h5'\
    'staticTopo.h5' \
    'usTopo.dat.gz' \
    'worldTopo.dat.gz' \
+   'gmted2010.h5' \
 )
-#   'gtopo30.h5'\
-#   'defaultTopo.h5' \
-#   'srtm30_plus.h5'\
 # !!!!! WARNING - THIS WILL TAKE A LONG TIME !!!!!
 
 for topoFile in ${TOPO_TO_COPY[*]};

@@ -1,5 +1,5 @@
 %define _build_arch %(uname -i)
-%define _pgadmin3_version 1.16.1
+%define _pgadmin3_version 1.18.1
 %define _pgadmin3_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 #
@@ -21,23 +21,15 @@ Packager: Bryan Kowal
 
 AutoReq: no
 BuildRequires: awips2-postgresql = 9.2.3-1.el6
-# OLD
-#BuildRequires: postgresql = 8.4.13-1.el6_3
-#BuildRequires: postgresql-devel = 8.4.13-1.el6_3
-#BuildRequires: postgresql-libs = 8.4.13-1.el6_3
-##BuildRequires: wxGTK = 2.8.12-1.el6.rf
-#BuildRequires: wxGTK = 2.8.12-1.el6.centos.x86_64
-#BuildRequires: wxGTK-devel = 2.8.12-1.el6.rf
-# NEW
-BuildRequires: postgresql 
-BuildRequires: postgresql-devel
-BuildRequires: postgresql-libs
-BuildRequires: wxGTK 
-BuildRequires: wxGTK-devel
+BuildRequires: postgresql = 8.4.13-1.el6_3
+BuildRequires: postgresql-devel = 8.4.13-1.el6_3
+BuildRequires: postgresql-libs = 8.4.13-1.el6_3
+BuildRequires: wxGTK >= 2.8.12-1
+BuildRequires: wxGTK-devel >= 2.8.12-1
 
 provides: awips2-pgadmin3
 requires: awips2-psql = 9.2.3-1
-requires: wxGTK
+requires: wxGTK >= 2.8.12-1
 
 %description
 AWIPS II pgadmin3 Distribution - A custom compilation of the pgadmin3 client compatible with
@@ -108,9 +100,7 @@ function copyLegal()
    tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp %{_baseline_workspace}/rpms/legal/license.txt \
-      ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master_Rights_File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses

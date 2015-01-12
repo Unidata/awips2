@@ -29,6 +29,10 @@
 #    ------------    ----------    -----------    --------------------------
 #    05/21/13         #2023        dgilling       Initial Creation.
 #    01/06/14         #2537        bsteffen       Share geometry WKT.
+#    03/03/14         #2673        bsteffen       Add ability to query only ref times.
+#    07/22/14         #3185        njensen        Added optional/default args to newDataRequest
+#    07/23/14         #3185        njensen        Added new methods
+#    07/30/14         #3185        njensen        Renamed valid identifiers to optional
 #
 
 
@@ -40,6 +44,11 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import G
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableTimesRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetGeometryDataRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetGridDataRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableParametersRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableLevelsRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetRequiredIdentifiersRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetOptionalIdentifiersRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetSupportedDatatypesRequest
 
 from ufpy import ThriftClient 
 from ufpy.dataaccess import PyGeometryData
@@ -51,9 +60,10 @@ class ThriftClientRouter(object):
     def __init__(self, host='localhost'):
         self._client = ThriftClient.ThriftClient(host)
     
-    def getAvailableTimes(self, request):
+    def getAvailableTimes(self, request, refTimeOnly):
         timesRequest = GetAvailableTimesRequest()
         timesRequest.setRequestParameters(request)
+        timesRequest.setRefTimeOnly(refTimeOnly)
         response = self._client.sendRequest(timesRequest)
         return response
     
@@ -115,6 +125,48 @@ class ThriftClientRouter(object):
         locNamesRequest.setRequestParameters(request)
         response = self._client.sendRequest(locNamesRequest)
         return response
+    
+    def getAvailableParameters(self, request):
+        paramReq = GetAvailableParametersRequest()
+        paramReq.setRequestParameters(request)
+        response = self._client.sendRequest(paramReq)
+        return response
+    
+    def getAvailableLevels(self, request):
+        levelReq = GetAvailableLevelsRequest()
+        levelReq.setRequestParameters(request)
+        response = self._client.sendRequest(levelReq)
+        return response
+    
+    def getRequiredIdentifiers(self, datatype):
+        idReq = GetRequiredIdentifiersRequest()
+        idReq.setDatatype(datatype)
+        response = self._client.sendRequest(idReq)
+        return response
+    
+    def getOptionalIdentifiers(self, datatype):
+        idReq = GetOptionalIdentifiersRequest()
+        idReq.setDatatype(datatype)
+        response = self._client.sendRequest(idReq)
+        return response        
 
-    def newDataRequest(self):
-        return DefaultDataRequest()
+    def newDataRequest(self, datatype, parameters=[], levels=[], locationNames = [], envelope=None, **kwargs):
+        req = DefaultDataRequest()
+        if datatype:
+            req.setDatatype(datatype)
+        if parameters:            
+            req.setParameters(*parameters)
+        if levels:        
+            req.setLevels(*levels)
+        if locationNames:
+            req.setLocationNames(*locationNames)
+        if envelope:
+            req.setEnvelope(envelope)        
+        if kwargs:
+            # any args leftover are assumed to be identifiers
+            req.identifiers = kwargs        
+        return req
+    
+    def getSupportedDatatypes(self):                
+        response = self._client.sendRequest(GetSupportedDatatypesRequest())
+        return response

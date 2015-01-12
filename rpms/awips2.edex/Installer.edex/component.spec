@@ -19,6 +19,7 @@ provides: awips2-base
 requires: awips2-python
 requires: awips2-java
 requires: awips2-psql
+requires: awips2-yajsw
 
 %description
 AWIPS II Edex Installation - Installs and configures AWIPS II Edex.
@@ -54,6 +55,11 @@ mkdir -p %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
+mkdir -p %{_build_root}/awips2/edex/webapps
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 
 DEPLOY_SCRIPT="build.edex/deploy-common/deploy-esb.xml"
 
@@ -167,9 +173,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/edex/lib/*
 %dir /awips2/edex/logs
 %dir /awips2/edex/webapps
-/awips2/edex/webapps/*
-%dir /awips2/edex/bin/yajsw
-/awips2/edex/bin/yajsw/*
 
 %attr(775,awips,fxalpha) /awips2/edex/data/manual
 

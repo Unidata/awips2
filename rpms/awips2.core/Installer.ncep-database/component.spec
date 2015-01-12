@@ -71,7 +71,6 @@ if [ "${1}" = "2" ]; then
    exit 0
 fi
 POSTGRESQL_INSTALL="/awips2/postgresql"
-# Need this for the lwpostgis.sql and spatial_ref_sys.sql scripts
 DATABASE_INSTALL="/awips2/database"
 AWIPS2_DATA_DIRECTORY="/awips2/data"
 PSQL_INSTALL="/awips2/psql"
@@ -86,8 +85,6 @@ DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
 # Our log file
 SQL_LOG="${DATABASE_INSTALL}/sqlScripts/share/sql/ncep/ncep_sql_install.log"
 SQL_SHARE_DIR="${DATABASE_INSTALL}/sqlScripts/share/sql/ncep"
-LWPOSTGIS_SQL="/awips2/postgresql/share/contrib/postgis-2.0/postgis.sql"
-SPATIAL_SQL="/awips2/postgresql/share/contrib/postgis-2.0/spatial_ref_sys.sql"
 LEGACY_SQL="/awips2/postgresql/share/contrib/postgis-2.0/legacy.sql"
 
 # Determine if PostgreSQL is running.
@@ -149,12 +146,12 @@ su ${DB_OWNER} -c \
 su ${DB_OWNER} -c \
    "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepSchemas.sql" \
    >> ${SQL_LOG} 2>&1
+
 su ${DB_OWNER} -c \
-   "${PSQL} -d ncep -U awips -q -p 5432 -f ${LWPOSTGIS_SQL}" \
-   >> ${SQL_LOG} 2>&1
+   "${PSQL} -d ncep -U awips -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1   
 su ${DB_OWNER} -c \
-   "${PSQL} -d ncep -U awips -q -p 5432 -f ${SPATIAL_SQL}" \
-   >> ${SQL_LOG} 2>&1
+   "${PSQL} -d ncep -U awips -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
+   
 su ${DB_OWNER} -c \
    "${PSQL} -d ncep -U awips -q -p 5432 -f ${LEGACY_SQL}" \
    >> ${SQL_LOG} 2>&1
@@ -294,6 +291,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/database/sqlScripts/share/sql
 %dir /awips2/database/sqlScripts/share/sql/ncep
 %attr(777,root,root) /awips2/database/sqlScripts/share/sql/ncep/ncep_sql_install.log
+%attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/addNcepNwxAdminMessageGpTable.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/createNcepConfigTables.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/createNcepDb.sh
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/createNcepDb.sql
@@ -336,6 +334,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNcStnsCountyclust.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNexrad.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNgmmos.sql
+%attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNwxAdminMessagesBulletinTables.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNwxAviationforecastsBulletinTables.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNwxCPCProductsBulletinTables.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNwxFlashFloodBulletinTables.sql
