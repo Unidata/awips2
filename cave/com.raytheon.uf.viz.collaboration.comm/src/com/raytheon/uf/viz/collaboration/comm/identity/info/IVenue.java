@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 28, 2014 2698       bclement    removed getInfo, added methods to replace
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Mar 06, 2014 2751       bclement    added getParticipantUserid()
+ * Jan 09, 2015 3709       bclement    added isPersistent()
  * 
  * </pre>
  * 
@@ -90,5 +91,11 @@ public interface IVenue {
      * @throws CollaborationException
      */
     public UserId getParticipantUserid(VenueParticipant participant);
+
+    /**
+     * @return true if this is a room that exists on the server even when there
+     *         are no participants
+     */
+    public boolean isPersistent();
 
 }
