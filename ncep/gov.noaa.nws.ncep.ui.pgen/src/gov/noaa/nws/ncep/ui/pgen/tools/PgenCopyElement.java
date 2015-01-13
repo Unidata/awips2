@@ -148,18 +148,6 @@ public class PgenCopyElement extends AbstractPgenTool {
             }
             else if ( button == 3 ) {
             	
-            	if (  drawingLayer.getSelectedComp() != null ){
-            		// de-select element
-            		drawingLayer.removeSelected();
-            		drawingLayer.removeGhostLine();
-            		ghostEl = null;
-            		mapEditor.refresh();
-            	}
-            	else {
-            		// set selecting mode
-            		PgenUtil.setSelectingMode();
-            	}
-      	        
             	return true;
             	
             }
@@ -343,6 +331,24 @@ public class PgenCopyElement extends AbstractPgenTool {
         public boolean handleMouseUp(int x, int y, int button) {
         	
         	if ( !isResourceEditable()|| shiftDown || simulate ) return false;
+        	
+        	 if ( button == 3 ) {
+                 
+                 if (  drawingLayer.getSelectedComp() != null ){
+                     // de-select element
+                     drawingLayer.removeSelected();
+                     drawingLayer.removeGhostLine();
+                     ghostEl = null;
+                     mapEditor.refresh();
+                 }
+                 else {
+                     // set selecting mode
+                     PgenUtil.setSelectingMode();
+                 }
+                 
+                 return true;
+                 
+             }
         	
         	if ( ghostEl != null ) {
        		
