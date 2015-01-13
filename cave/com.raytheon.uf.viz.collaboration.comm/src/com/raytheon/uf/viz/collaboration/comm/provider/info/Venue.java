@@ -34,10 +34,12 @@ import org.jivesoftware.smack.packet.Presence.Type;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.RoomInfo;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
@@ -59,6 +61,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Mar 05, 2014 2798       mpduff      Get Presence from MUC.
  * Mar 06, 2014 2751       bclement    added getParticipantUserid()
  * Mar 07, 2014 2848       bclement    added hasOtherParticipants()
+ * Jan 09, 2015 3709       bclement    added isPersistent()
  * 
  * </pre>
  * 
@@ -193,6 +196,23 @@ public class Venue implements IVenue {
     public boolean hasOtherParticipants() {
         // current user is included in participant count
         return getParticipantCount() > 1;
+    }
+
+    @Override
+    public boolean isPersistent() {
+        boolean rval = false;
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        XMPPConnection xmppConn = connection.getXmppConnection();
+        try {
+            RoomInfo roomInfo = MultiUserChat.getRoomInfo(xmppConn,
+                    muc.getRoom());
+            rval = roomInfo.isPersistent();
+        } catch (XMPPException e) {
+            log.error("Unable to determine if room " + this.getId()
+                    + " is persistent", e);
+        }
+        return rval;
     }
 
 }
