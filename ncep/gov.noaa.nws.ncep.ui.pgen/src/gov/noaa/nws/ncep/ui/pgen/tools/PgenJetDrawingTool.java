@@ -184,54 +184,7 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 
 			}
 			else if ( button == 3 ) {
-
-				if ( points.size() == 0 ) {
-
-					drawingLayer.removeGhostLine();   
-					mapEditor.refresh();
-					attrDlg.close(); 
-					attrDlg = null; 
-					PgenUtil.setSelectingMode();
-
-				}
-				else if ( points.size() < 2 ){
-
-					drawingLayer.removeGhostLine();
-					points.clear();
-
-					mapEditor.refresh();
-
-				}
-				else {
-
-					// create a new Jet.    
-					elem = def.create( DrawableType.JET, (IAttribute)attrDlg,
-							pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
-
-					jet = (Jet)elem;
-					
-					jet.setSnapTool(new PgenSnapJet(drawingLayer.getDescriptor(), mapEditor, (JetAttrDlg)attrDlg));
-					
-					// add the jet to PGEN resource
-					drawingLayer.addElement( jet );
-
-					//reset the jet line attributes
-            		AbstractDrawableComponent adc = AttrSettings.getInstance().getSettings().get( pgenType );
-            		if ( adc != null && adc instanceof Jet ){
-            			((Jet)adc).getJetLine().update(attrDlg);
-            		}
-            		
-					drawingLayer.removeGhostLine();
-					points.clear();
-
-					mapEditor.refresh();
-
-					((JetAttrDlg)attrDlg).setJetDrawingTool(PgenJetDrawingTool.this);
-					((JetAttrDlg)attrDlg).enableBarbBtns(true);
-
-				}
-
-				return true;
+			    return true;
 
 			}
 			else{
@@ -282,5 +235,70 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 			if ( !isResourceEditable() || shiftDown ) return false;
 			else return true;
 		}
+		
+
+		/*
+		 * overrides the function in selecting tool
+		 */
+		@Override
+		public boolean handleMouseUp(int x, int y, int button){
+		    if ( !drawingLayer.isEditable() || shiftDown ) return false;
+
+		    if (button == 3) {
+
+		        if ( points.size() == 0 ) {
+
+		            drawingLayer.removeGhostLine();   
+		            mapEditor.refresh();
+		            attrDlg.close(); 
+		            attrDlg = null; 
+		            PgenUtil.setSelectingMode();
+
+		        }
+		        else if ( points.size() < 2 ){
+
+		            drawingLayer.removeGhostLine();
+		            points.clear();
+
+		            mapEditor.refresh();
+
+		        }
+		        else {
+
+		            // create a new Jet.    
+		            elem = def.create( DrawableType.JET, (IAttribute)attrDlg,
+		                    pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
+
+		            jet = (Jet)elem;
+
+		            jet.setSnapTool(new PgenSnapJet(drawingLayer.getDescriptor(), mapEditor, (JetAttrDlg)attrDlg));
+
+		            // add the jet to PGEN resource
+		            drawingLayer.addElement( jet );
+
+		            //reset the jet line attributes
+		            AbstractDrawableComponent adc = AttrSettings.getInstance().getSettings().get( pgenType );
+		            if ( adc != null && adc instanceof Jet ){
+		                ((Jet)adc).getJetLine().update(attrDlg);
+		            }
+
+		            drawingLayer.removeGhostLine();
+		            points.clear();
+
+		            mapEditor.refresh();
+
+		            ((JetAttrDlg)attrDlg).setJetDrawingTool(PgenJetDrawingTool.this);
+		            ((JetAttrDlg)attrDlg).enableBarbBtns(true);
+
+		        }
+
+
+		        return true;
+		    }
+		    else {
+		        return false;
+		    }
+		}
+
 	}
 }
