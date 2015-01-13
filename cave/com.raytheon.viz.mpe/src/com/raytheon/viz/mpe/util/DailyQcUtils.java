@@ -917,6 +917,9 @@ public class DailyQcUtils {
             String currntQcArea, int days, boolean autoqc) {
         currentQcArea = currntQcArea;
         currDate = currentDate;
+        if (prevDate == null){
+            prevDate = currDate;
+        }
         selDate = prevDate;
         auto_dailyqc_flag = autoqc;
         qcDays = MPEDataManager.getInstance().getDQCDays();
