@@ -123,6 +123,7 @@ import com.raytheon.uf.viz.collaboration.ui.actions.RemoveFromRosterAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.SendSubReqAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ShowVenueAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.UserSearchAction;
+import com.raytheon.uf.viz.collaboration.ui.colors.UserColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.PublicRoomContainer;
@@ -168,6 +169,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Nov 14, 2014 3709       mapeters    Removed change background/foreground color actions from menu.
  * Dec 08, 2014 3709       mapeters    Added MB3 change user text color actions to contacts list.
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
+ * Jan 09, 2015 3709       bclement    color config manager API changes
  * 
  * </pre>
  * 
@@ -448,7 +450,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         if (o instanceof SessionGroupContainer) {
             manager.add(createSessionAction);
             return;
-        } else if (o instanceof PublicRoomContainer){
+        } else if (o instanceof PublicRoomContainer) {
             manager.add(roomSearchAction);
             return;
         } else if (o instanceof IVenueSession) {
@@ -476,14 +478,15 @@ public class CollaborationGroupView extends CaveFloatingView implements
             }
             manager.add(new AddNotifierAction(this));
             manager.add(new Separator());
-            String name = user.getName();
-            ChangeTextColorAction userColorAction = userColorActions.get(name);
+            String colorActionKey = user.getFQName();
+            ChangeTextColorAction userColorAction = userColorActions
+                    .get(colorActionKey);
             if (userColorAction == null) {
                 userColorAction = ChangeTextColorAction
-                        .createChangeUserTextColorAction(name, false, false,
+                        .createChangeUserTextColorAction(user, false, false,
                                 new RGB(0, 0, 255),
-                                new UserColorConfigManager());
-                userColorActions.put(name, userColorAction);
+                                UserColorConfigManager.getInstance());
+                userColorActions.put(colorActionKey, userColorAction);
             }
             manager.add(userColorAction);
         } else if (o instanceof UserId) {
@@ -494,15 +497,15 @@ public class CollaborationGroupView extends CaveFloatingView implements
             UserId me = connection.getUser();
             if (me.isSameUser(user)) {
                 createMenu(manager);
-                String name = user.getName();
+                String colorActionKey = user.getFQName();
                 ChangeTextColorAction userColorAction = userColorActions
-                        .get(name);
+                        .get(colorActionKey);
                 if (userColorAction == null) {
                     userColorAction = ChangeTextColorAction
-                            .createChangeUserTextColorAction(name, true, true,
+                            .createChangeUserTextColorAction(user, true, true,
                                     new RGB(0, 0, 255),
-                                    new UserColorConfigManager());
-                    userColorActions.put(name, userColorAction);
+                                    UserColorConfigManager.getInstance());
+                    userColorActions.put(colorActionKey, userColorAction);
                 }
                 manager.insertBefore("afterFont", userColorAction);
             }
