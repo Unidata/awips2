@@ -432,7 +432,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
         return analysisList
     
     def _extraRainfallAnalysisList(self):
-        # The grids for the Surge Section will be intersected with a special edit area
         analysisList = [
             ("QPF", self.accumSum),
             ]
@@ -2122,8 +2121,8 @@ class WindSectionStats(SectionCommonStats):
 
         #  See if this hour a valid DAYtime hour
         isValidDay = self._isValidDayTime(tr.startTime().hour,
-                                          self.DAY() + utcHourOffset,
-                                          self.NIGHT() + utcHourOffset)
+                                          self._textProduct.DAY() + utcHourOffset,
+                                          self._textProduct.NIGHT() + utcHourOffset)
 
         #  If we have pwsD data, and this is a time period it applies to
         if pwsDXX is not None and isValidDay:
