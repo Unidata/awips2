@@ -231,6 +231,9 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetTopoDataRequest"/>
         <constructor-arg ref="getTopoDataHandler"/>
     </bean>
+    <bean id="ClearGfeOrphanedLocks" class="com.raytheon.edex.plugin.gfe.server.lock.ClearGfeOrphanedLocks">
+        <property name="provider" ref="brokerConnectionsProvider" />
+    </bean>
 
 
     <!-- Service Backup Handlers -->
@@ -426,6 +429,7 @@
         <endpoint id="gfeProductPurgeCron" uri="clusteredquartz://gfe/purgeGfeProducts/?cron=${purge.gfe.products.cron}"/>
         <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
         <endpoint id="iscSendLauncher" uri="quartz://iscSendThread?trigger.repeatCount=0&amp;trigger.repeatInterval=1"/>
+        <endpoint id="gfeClearOrphanedLocksCron" uri="clusteredquartz://gfe/clearGfeOrhpanedLocks/?cron=${clear.gfe.orphaned.locks.cron}"/>
 
         <route id="exportDigitalData">
             <from uri="exportDigitalDataCron"/>
@@ -492,6 +496,21 @@
                     <exception>java.lang.Throwable</exception>
                     <to
                         uri="log:svcBackup?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+        
+        <route id="clearGfeOrphanedLocks">
+            <from uri="gfeClearOrphanedLocksCron"/>
+            <to uri="jms-generic:queue:clearOrphanedLocksWork"/>
+        </route>
+        <route id="clearOrphanedLocksWork">
+            <from uri="jms-generic:queue:clearOrphanedLocksWork"/>
+            <doTry>
+                <bean ref="ClearGfeOrphanedLocks" method="clearLocksCron"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:svcBackup?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
