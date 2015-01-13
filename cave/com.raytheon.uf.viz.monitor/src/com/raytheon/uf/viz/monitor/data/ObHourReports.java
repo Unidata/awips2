@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
@@ -40,13 +39,14 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
+ * Date           Ticket#    Engineer   Description
  * ------------ ---------- ----------- --------------------------
  * Dec. 1, 2009  3424       zhao       Initial creation.
  * Oct.29, 2012  1297       skorolev   Changed HashMap to Map
- * Oct.31  2012  1297       skorolev   Cleaned code.
- * Sep 04  2014  3220       skorolev   Added updateZones method.
- * Dec 18  2014  3841       skorolev   Corrected updateZones method.
+ * Oct.31, 2012  1297       skorolev   Cleaned code.
+ * Sep 04, 2014  3220       skorolev   Added updateZones method.
+ * Dec 18, 2014  3841       skorolev   Corrected updateZones method.
+ * Jan 08, 2015  3220       skorolev   Replaced MonitoringArea with areaConfig.
  * 
  * </pre>
  * 
@@ -73,6 +73,9 @@ public class ObHourReports {
      */
     private Map<String, ObZoneHourReports> hourReports;
 
+    /**
+     * current threshold manager
+     */
     private AbstractThresholdMgr thresholdMgr;
 
     /**
@@ -86,9 +89,8 @@ public class ObHourReports {
         this.appName = appName;
         this.thresholdMgr = thresholdMgr;
         hourReports = new HashMap<String, ObZoneHourReports>();
-        Map<String, List<String>> zoneStationMap = MonitoringArea
-                .getPlatformMap();
-        for (String zone : zoneStationMap.keySet()) {
+        List<String> zones = thresholdMgr.getAreaConfigMgr().getAreaList();
+        for (String zone : zones) {
             hourReports.put(zone, new ObZoneHourReports(nominalTime, zone,
                     appName, thresholdMgr));
         }
@@ -101,7 +103,8 @@ public class ObHourReports {
      */
     public void addReport(ObReport report) {
         String station = report.getPlatformId();
-        List<String> zones = MonitoringArea.getZoneIds(station);
+        List<String> zones = thresholdMgr.getAreaConfigMgr()
+                .getAreaByStationId(station);
         if (zones.size() == 0) {
             statusHandler
                     .error("Error: station: "
@@ -123,6 +126,8 @@ public class ObHourReports {
     }
 
     /**
+     * Gets HourReports
+     * 
      * @return hourReports
      */
     public Map<String, ObZoneHourReports> getHourReports() {
@@ -186,8 +191,8 @@ public class ObHourReports {
     }
 
     /**
-     * Returns the ObZoneHourReports object of a caller-specified zone. If such
-     * object not available, returns null.
+     * Gets ObZoneHourReports Returns the ObZoneHourReports object of a
+     * caller-specified zone. If such object not available, returns null.
      * 
      * @param zone
      * @return hour reports
@@ -200,6 +205,8 @@ public class ObHourReports {
     }
 
     /**
+     * Gets NominalTime
+     * 
      * @return nominalTime
      */
     public Date getNominalTime() {
@@ -207,6 +214,8 @@ public class ObHourReports {
     }
 
     /**
+     * Gets AppName
+     * 
      * @return appName
      */
     public CommonConfig.AppName getAppName() {
@@ -217,10 +226,10 @@ public class ObHourReports {
      * Updates zones in the Hour Reports
      */
     public void updateZones() {
-        Map<String, List<String>> zoneStationMap = MonitoringArea
-                .getPlatformMap();
         // Updated list of zones
-        Set<String> updtZones = zoneStationMap.keySet();
+        List<String> updtZones = thresholdMgr.getAreaConfigMgr().getAreaList();
+        // remove zones
+        hourReports.keySet().retainAll(updtZones);
         // add zones
         for (String zone : updtZones) {
             if (!hourReports.keySet().contains(zone)) {
@@ -228,12 +237,14 @@ public class ObHourReports {
                         appName, thresholdMgr));
             }
         }
-        // remove zones
-        hourReports.keySet().retainAll(updtZones);
         // add and(or) remove stations
         for (String zone : updtZones) {
             // Updated list of stations in this zone
-            List<String> updtStns = zoneStationMap.get(zone);
+            List<String> updtStns = thresholdMgr.getAreaConfigMgr()
+                    .getAreaStations(zone);
+            // remove stations
+            hourReports.get(zone).getZoneHourReports().keySet()
+                    .retainAll(updtStns);
             // add stations
             for (String stn : updtStns) {
                 if (!hourReports.get(zone).getZoneHourReports()
@@ -246,9 +257,8 @@ public class ObHourReports {
                                             stn, appName, thresholdMgr));
                 }
             }
-            // remove stations
-            hourReports.get(zone).getZoneHourReports().keySet()
-                    .retainAll(updtStns);
+            // update hourReports for current zone
+            hourReports.get(zone).getZoneHourReports();
         }
     }
 }

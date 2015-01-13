@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Feb 28, 2013  14410      zhao       Modified getCellTypeForBlizWarn
  * May 23, 2014  3086       skorolev   Corrected ObsHistType. Cleaned code.
  * Nov 21, 2014  3841       skorolev   Added coordinates in the hover text for a newly added zones.
+ * Jan 08, 2015  3220       skorolev   Corrected code for Fog and SNOW table data.
  * 
  * </pre>
  * 
@@ -113,10 +114,10 @@ public final class TableUtil {
             isZone = true;
         }
 
-        String hoverText = null;
+        String hoverText = "";
         if (isZone) {
             AreaIdXML zoneXML = FSSObsMonitorConfigurationManager
-                    .getSsObsManager().getAreaXml(zone);
+                    .getFogObsManager().getAreaXml(zone);
             if (zoneXML != null) {
                 hoverText = getZoneHoverText(zoneXML);
             }
@@ -344,7 +345,7 @@ public final class TableUtil {
             isZone = true;
         }
 
-        String hoverText = null;
+        String hoverText = "";
         if (isZone) {
             AreaIdXML zoneXML = FSSObsMonitorConfigurationManager
                     .getSsObsManager().getAreaXml(zone);
@@ -649,10 +650,10 @@ public final class TableUtil {
             isZone = true;
         }
 
-        String hoverText = null;
+        String hoverText = "";
         if (isZone) {
             AreaIdXML zoneXML = FSSObsMonitorConfigurationManager
-                    .getSsObsManager().getAreaXml(zone);
+                    .getSnowObsManager().getAreaXml(zone);
             if (zoneXML != null) {
                 hoverText = getZoneHoverText(zoneXML);
             }
