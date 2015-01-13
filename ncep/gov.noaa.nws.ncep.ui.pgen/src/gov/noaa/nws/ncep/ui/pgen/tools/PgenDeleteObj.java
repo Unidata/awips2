@@ -61,6 +61,24 @@ public class PgenDeleteObj extends AbstractPgenTool {
                 return false;
 
             if (button == 3) {
+                return true;
+            }
+
+            return false;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
+         * int, int)
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button) {
+            if (!isResourceEditable())
+                return false;
+
+            if (button == 3) {
                 // set selecting mode
                 PgenUtil.setSelectingMode();
                 return true;
