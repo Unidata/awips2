@@ -27,6 +27,10 @@
         <source>PREDEFINED_AREA</source>
         <areaName>BasicWX_US</areaName>
     </AreaMenuItem>
+    <AreaMenuItem subMenuName="" menuName="CONUS - Mercator">
+        <source>PREDEFINED_AREA</source>
+        <areaName>CONUS_Mercator</areaName>
+    </AreaMenuItem>
     <AreaMenuItem subMenuName="" menuName="North America">
         <source>PREDEFINED_AREA</source>
         <areaName>North_America</areaName>
@@ -97,11 +101,11 @@
     </AreaMenuItem>
     <AreaMenuItem subMenuName="" menuName="World (1)">
         <source>PREDEFINED_AREA</source>
-        <areaName>World</areaName>
+        <areaName>World0</areaName>
     </AreaMenuItem>
     <AreaMenuItem subMenuName="" menuName="World (2)">
         <source>PREDEFINED_AREA</source>
-        <areaName>World0</areaName>
+        <areaName>World</areaName>
     </AreaMenuItem>
     <AreaMenuItem subMenuName="" menuName="North Hemisphere">
         <source>PREDEFINED_AREA</source>
