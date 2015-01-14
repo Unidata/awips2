@@ -255,7 +255,7 @@ class ChangeCancelDialog(Dialog):
          curNums=self.__VU.getFcstrNums()
          for testNum in curNums:
             if int(testNum)==num:
-               tkMessageBox.showerror("Errror","Forecaster Number %d is already in use"%num,
+               tkMessageBox.showerror("Error","Forecaster Number %d is already in use"%num,
                              parent=self)
                self.numEntry.selection_range(0,Tkinter.END)
                self.numEntry.focus_set()
