@@ -14,14 +14,11 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IDisposeListener;
-import com.raytheon.uf.viz.core.rsc.IRefreshListener;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResource;
 import com.raytheon.viz.grid.rsc.general.AbstractGridResource;
 import com.raytheon.viz.ui.editor.AbstractEditor;
-
-//jing test
 
 /**
  * Handle all ensemble products member resources, reference to any loaded grid
@@ -47,8 +44,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * </pre>
  */
 
-public class EnsembleResourceManager implements IRefreshListener,
-        IDisposeListener {
+public class EnsembleResourceManager implements IDisposeListener {
     private final static double DEFAULT_DENSITY = 0.15;
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -135,7 +131,7 @@ public class EnsembleResourceManager implements IRefreshListener,
      * @param guiUpdate
      *            - if need update GUI
      */
-    public void registerResource(AbstractVizResource<?, ?> rsc,
+    public synchronized void registerResource(AbstractVizResource<?, ?> rsc,
             AbstractEditor editor, boolean guiUpdate) {
 
         if ((rsc == null) || (!isToolLayerReady()))
@@ -161,7 +157,6 @@ public class EnsembleResourceManager implements IRefreshListener,
         // TODO: Must refactor so we don't use setSystemResource(boolean)
         // method.
         rsc.getProperties().setSystemResource(true);
-        rsc.registerListener((IRefreshListener) this);
         rsc.registerListener((IDisposeListener) this);
 
         // Set to default density for all loaded resources if can
@@ -199,14 +194,13 @@ public class EnsembleResourceManager implements IRefreshListener,
      * @param notifyGUI
      *            - if update the GUI.
      */
-    public void unregisterResource(GenericResourceHolder gr,
+    public synchronized void unregisterResource(GenericResourceHolder gr,
             AbstractEditor editor, boolean notifyGUI) {
         if (gr == null
                 || ensembleToolResourcesMap.get(editor).getResourceHolders()
                         .isEmpty())
             return;
         ensembleToolResourcesMap.get(editor).remove(gr);
-        gr.getRsc().unregisterListener((IRefreshListener) this);
         gr.getRsc().unregisterListener((IDisposeListener) this);
 
         syncRegisteredResource(editor);
@@ -225,7 +219,7 @@ public class EnsembleResourceManager implements IRefreshListener,
      * @param rsc
      *            - the generated resource by calculation.
      */
-    public void registerGenerated(AbstractVizResource<?, ?> rsc,
+    public synchronized void registerGenerated(AbstractVizResource<?, ?> rsc,
             AbstractEditor editor) {
 
         if ((rsc == null) || (!isToolLayerReady()))
@@ -238,11 +232,6 @@ public class EnsembleResourceManager implements IRefreshListener,
         if (ensembleToolResourcesMap.get(editor) == null) {
             ensembleToolResourcesMap.put(editor, new NavigatorResourceList(
                     editor));
-
-            if (!EnsembleToolManager.getInstance().hasToolLayer(editor)) {
-                EnsembleToolManager.getInstance().addToolLayer(editor);
-            }
-
         }
 
         // Only one instance of a generated resource is saved. If a duplicate is
@@ -277,7 +266,6 @@ public class EnsembleResourceManager implements IRefreshListener,
             // TODO: Must refactor so we don't use setSystemResource(boolean)
             // method.
             rsc.getProperties().setSystemResource(true);
-            rsc.registerListener((IRefreshListener) this);
             rsc.registerListener((IDisposeListener) this);
         }
 
@@ -302,14 +290,13 @@ public class EnsembleResourceManager implements IRefreshListener,
      * @param notifyGUI
      *            - if update the GUI.
      */
-    public void unregisterGenerated(GenericResourceHolder gr,
+    public synchronized void unregisterGenerated(GenericResourceHolder gr,
             AbstractEditor editor, boolean notifyGUI) {
         if (gr == null
                 || ensembleToolResourcesMap.get(editor).getResourceHolders()
                         .isEmpty())
             return;
         ensembleToolResourcesMap.get(editor).remove(gr);
-        gr.getRsc().unregisterListener((IRefreshListener) this);
         gr.getRsc().unregisterListener((IDisposeListener) this);
 
         // notify client the generated resource change?
@@ -344,7 +331,11 @@ public class EnsembleResourceManager implements IRefreshListener,
      */
     public String getTimeBasisLegendTime(AbstractEditor editor) {
 
-        return getResourceList(editor).getTimeBasisLegendTime();
+        String s = "";
+        if ((editor != null) && (getResourceList(editor) != null)) {
+            s = getResourceList(editor).getTimeBasisLegendTime();
+        }
+        return s;
 
     }
 
@@ -507,75 +498,6 @@ public class EnsembleResourceManager implements IRefreshListener,
 
         // notify client
         notifyClientListChanged();
-    }
-
-    private static long LAST_TIME = 0;
-
-    private final int BUNCH_REFRESH_REQUESTS_PERIOD = 500;
-
-    private Thread forceReset = null;
-
-    @Override
-    public void refresh() {
-
-        // but wait for other resource pairs to catch up ...
-        if (((LAST_TIME == 0) || ((System.currentTimeMillis() - LAST_TIME) > BUNCH_REFRESH_REQUESTS_PERIOD))) {
-
-            if (LAST_TIME == 0) {
-                // TODO: wait for the resource (e.g. unit conversion) to
-                // update. We probably need to look for a better solution.
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    // ignore
-                }
-            }
-
-            LAST_TIME = System.currentTimeMillis();
-
-            /**
-             * Register the resource in to the resource manager
-             */
-            if (forceReset != null) {
-                synchronized (forceReset) {
-                    // restart the timer for another interval to pass
-                    // before forcing a "final" refresh
-                    if (forceReset.isAlive()) {
-                        forceReset.interrupt();
-                    }
-                    forceReset = null;
-                    forceReset = new Thread(new ForceRefreshIfNecessary(
-                            BUNCH_REFRESH_REQUESTS_PERIOD));
-                    forceReset.start();
-                }
-            } else {
-                forceReset = new Thread(new ForceRefreshIfNecessary(
-                        BUNCH_REFRESH_REQUESTS_PERIOD));
-                forceReset.start();
-            }
-        }
-
-    }
-
-    private class ForceRefreshIfNecessary implements Runnable {
-
-        int waitForReset = 0;
-
-        ForceRefreshIfNecessary(int waitTime) {
-            waitForReset = waitTime;
-        }
-
-        @Override
-        public void run() {
-
-            try {
-                Thread.sleep(waitForReset);
-                notifyClientListChanged();
-
-            } catch (InterruptedException e) {
-                /* ignore */
-            }
-        }
     }
 
     /**
