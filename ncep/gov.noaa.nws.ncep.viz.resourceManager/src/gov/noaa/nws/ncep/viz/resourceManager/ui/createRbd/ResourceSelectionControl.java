@@ -245,8 +245,8 @@ public class ResourceSelectionControl extends Composite {
         fd.height = rscListViewerHeight;
     	fd.top = new FormAttachment( 0, 20 );
         fd.left = new FormAttachment(0, 10);
-        // fd.right = new FormAttachment( 15, 0 );
-    	fd.width= 70;
+        fd.right = new FormAttachment( 15, 0 );
+
 
         // This allows a resize to change the size of the lists.
     	fd.bottom = new FormAttachment( 100, -75 );
@@ -256,7 +256,7 @@ public class ResourceSelectionControl extends Composite {
         rscCatLbl.setText("Category");
         fd = new FormData();
         fd.left = new FormAttachment(rscCatLViewer.getList(), 0, SWT.LEFT);
-        fd.bottom = new FormAttachment(rscCatLViewer.getList(), -3, SWT.TOP);
+        fd.bottom = new FormAttachment(rscCatLViewer.getList(), -2, SWT.TOP);
         rscCatLbl.setLayoutData(fd);
 
         // first create the lists and then attach the label to the top of them
@@ -266,8 +266,8 @@ public class ResourceSelectionControl extends Composite {
         fd.height = rscListViewerHeight;
         fd.top = new FormAttachment(rscCatLViewer.getList(), 0, SWT.TOP);
         fd.left = new FormAttachment(rscCatLViewer.getList(), 8, SWT.RIGHT);
-    	//fd.right = new FormAttachment( 37, 0 );
-    	fd.width = 150;
+    	fd.right = new FormAttachment( 37, 0 );
+    	//fd.width = 150;
 
         fd.bottom = new FormAttachment(rscCatLViewer.getList(), 0, SWT.BOTTOM);
         rscTypeLViewer.getList().setLayoutData(fd);
@@ -276,7 +276,7 @@ public class ResourceSelectionControl extends Composite {
     	rscTypeLbl.setText("Source");
         fd = new FormData();
         fd.left = new FormAttachment(rscTypeLViewer.getList(), 0, SWT.LEFT);
-        fd.bottom = new FormAttachment(rscTypeLViewer.getList(), -3, SWT.TOP);
+        fd.bottom = new FormAttachment(rscTypeLViewer.getList(), -2, SWT.TOP);
 
         rscTypeLbl.setLayoutData(fd);
 
@@ -289,7 +289,7 @@ public class ResourceSelectionControl extends Composite {
         fd.height = rscListViewerHeight;
         fd.top = new FormAttachment(rscTypeLViewer.getList(), 0, SWT.TOP);
         fd.left = new FormAttachment(rscTypeLViewer.getList(), 8, SWT.RIGHT);
-    	fd.width = 100;
+    	fd.width = 120;
         fd.bottom = new FormAttachment(rscTypeLViewer.getList(), 0, SWT.BOTTOM);
         rscGroupLViewer.getList().setLayoutData(fd);
 
@@ -297,7 +297,7 @@ public class ResourceSelectionControl extends Composite {
         rscTypeGroupLbl.setText("Group");
         fd = new FormData();
         fd.left = new FormAttachment(rscGroupLViewer.getList(), 0, SWT.LEFT);
-        fd.bottom = new FormAttachment(rscGroupLViewer.getList(), -3, SWT.TOP);
+        fd.bottom = new FormAttachment(rscGroupLViewer.getList(), -2, SWT.TOP);
         rscTypeGroupLbl.setLayoutData(fd);
 
         rscAttrSetLViewer = new ListViewer(sel_rsc_comp, SWT.SINGLE
@@ -1169,7 +1169,7 @@ public class ResourceSelectionControl extends Composite {
         if (enableSelections) {
 
             addResourceBtn.setEnabled(true);
-            replaceResourceBtn.setEnabled(replaceBtnEnabled);
+            //replaceResourceBtn.setEnabled(replaceBtnEnabled);
 
             if (this.isForecast()) {
                 cycleTimeLbl.setEnabled(true);

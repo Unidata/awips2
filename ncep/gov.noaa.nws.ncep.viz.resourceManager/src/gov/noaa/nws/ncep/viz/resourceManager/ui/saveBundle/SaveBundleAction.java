@@ -80,7 +80,7 @@ public class SaveBundleAction extends AbstractHandler {
 
 		if( saveDlg.getRbdOkay() ) {
 			RscBundleDisplayMngr rbdMngr = new RscBundleDisplayMngr( 
-	    			new NcPaneLayout(6,6), dispType );
+	    			new NcPaneLayout(4,4), dispType );
 			AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
 			try {
 				AbstractRBD<?> rbdBndl = AbstractRBD.createRbdFromEditor(currEditor);

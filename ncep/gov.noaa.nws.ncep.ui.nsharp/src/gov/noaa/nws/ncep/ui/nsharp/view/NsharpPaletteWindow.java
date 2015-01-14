@@ -440,7 +440,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                         "Unable to find an Inventory to support Grid Model times. Please wait while one"
                                 + " is created.", MessageDialog.ERROR,
                         new String[] { "OK" }, 0);
-                errDlg.open();
+                //errDlg.open();
 
                 try {
                     NsharpGridInventory.createInventory();

@@ -136,7 +136,7 @@ public class ManageSpfControl extends Composite {
     
     private List<AbstractRBD<?>> seldRbdsList = null; // RBDs to 
 
-    private Point initDlgSize = new Point( 750, 860 );
+    private Point initDlgSize = new Point( 850, 860 );
 
 	public ManageSpfControl(Composite parent) {
 		super(parent, SWT.NONE);
