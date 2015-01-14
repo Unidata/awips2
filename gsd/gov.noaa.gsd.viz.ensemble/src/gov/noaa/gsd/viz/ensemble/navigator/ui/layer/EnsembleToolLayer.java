@@ -18,6 +18,7 @@ import gov.noaa.gsd.viz.ensemble.display.common.NavigatorResourceList;
 import gov.noaa.gsd.viz.ensemble.display.control.EnsembleResourceManager;
 import gov.noaa.gsd.viz.ensemble.display.control.load.GeneratedDataLoader;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -105,11 +106,10 @@ public class EnsembleToolLayer extends
 
     private boolean isDisposed = true;
 
-    private Object[] expandedElements = new Object[0];
+    private List<String> expandedElements = new ArrayList<String>();
 
     private TreePath[] expandedTreePaths = new TreePath[0];
 
-    // TODO: Let's try and use the ResourceManager at next sprint ...
     private Map<String, List<GenericResourceHolder>> ensemblesTree = new HashMap<String, List<GenericResourceHolder>>();
 
     public EnsembleToolLayer(
@@ -120,6 +120,7 @@ public class EnsembleToolLayer extends
 
         resourceData
                 .setNameGenerator(new EnsembleToolLayerNameGeneratorWithTimeStampBasis());
+
     }
 
     synchronized public Map<String, List<GenericResourceHolder>> getEnsembleResources() {
@@ -129,7 +130,7 @@ public class EnsembleToolLayer extends
 
         if (EnsembleResourceManager.getInstance().getResourceList(editor) != null) {
             ensemblesTree = EnsembleResourceManager.getInstance()
-                    .getResourceList(editor).getAllRscsAsMap();
+                    .getResourceList(editor).getAllRscsAsMap(ensemblesTree);
         } else {
             ensemblesTree = null;
         }
@@ -137,11 +138,11 @@ public class EnsembleToolLayer extends
         return ensemblesTree;
     }
 
-    public Object[] getExpandedElements() {
+    public synchronized List<String> getExpandedElements() {
         return expandedElements;
     }
 
-    public void setExpandedElements(Object[] ee) {
+    public synchronized void setExpandedElements(List<String> ee) {
         expandedElements = ee;
     }
 
@@ -278,6 +279,7 @@ public class EnsembleToolLayer extends
         descriptor.addFrameChangedListener(this);
         resourceData.addChangeListener(this);
         registerListener((IRefreshListener) this);
+
     }
 
     @Override

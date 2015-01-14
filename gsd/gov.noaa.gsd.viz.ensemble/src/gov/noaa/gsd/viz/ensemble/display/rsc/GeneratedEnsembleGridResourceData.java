@@ -300,13 +300,10 @@ public class GeneratedEnsembleGridResourceData extends GridResourceData {
 
             // use requestData()
             // Whatever matched time in the frame, just use it for calculation.
-            // User can
-            // control the matching from D2D GUI
+            // User can control the matching from D2D GUI
             DataTime memberTime = this.mapDescriptor.getFramesInfo()
                     .getTimeForResource(member, i);
-            if (memberTime == null
-                    || memberTime.compareTo(frameTimes[0]) < 0
-                    || memberTime.compareTo(frameTimes[frameTimes.length - 1]) > 0) {
+            if (memberTime == null) {
                 continue;
             }
             List<GeneralGridData> data = member.requestData(memberTime);
