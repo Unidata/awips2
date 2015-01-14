@@ -38,6 +38,7 @@ import org.jivesoftware.smackx.muc.Occupant;
  * Jan 30, 2014 2698       bclement    reworked convertFromRoom for venue participants
  * Feb  3, 2014 2699       bclement    fixed room id parsing when handle has special characters
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Jan 13, 2015 3709       bclement    added convertFromRoom that doesn't reference MUC
  * 
  * </pre>
  * 
@@ -72,6 +73,24 @@ public class IDConverter {
      * @return
      */
     public static VenueParticipant convertFromRoom(MultiUserChat room, String id) {
+        VenueParticipant rval = convertFromRoom(id);
+        Occupant occupant;
+        if (room != null && (occupant = room.getOccupant(id)) != null) {
+            if (occupant.getJid() != null) {
+                // get actual user name
+                rval.setUserid(convertFrom(occupant.getJid()));
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * Parse userId from room id string "room@host/handle".
+     * 
+     * @param id
+     * @return
+     */
+    public static VenueParticipant convertFromRoom(String id) {
         String handle = StringUtils.parseResource(id);
         if (handle == null || handle.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -81,13 +100,6 @@ public class IDConverter {
         String host = StringUtils.parseServer(cleanId);
         String roomName = StringUtils.parseName(id);
         VenueParticipant rval = new VenueParticipant(roomName, host, handle);
-        Occupant occupant;
-        if (room != null && (occupant = room.getOccupant(id)) != null) {
-            if (occupant.getJid() != null) {
-                // get actual user name
-                rval.setUserid(convertFrom(occupant.getJid()));
-            }
-        }
         return rval;
     }
 
