@@ -99,6 +99,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  *                                     implemented here, added messagesTextMenuMgr.
  * Nov 26, 2014 3709       mapeters    Added {@link #getColorFromRGB()}.
  * Dec 08, 2014 3709       mapeters    Removed messagesTextMenuMgr.
+ * Jan 13, 2015 3709       bclement    styleAndAppendText() takes foreground and background
  * </pre>
  * 
  * @author rferrel
@@ -366,8 +367,8 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 sb.append("(").append(time).append(") ");
                 int offset = sb.length();
 
-                boolean newLine = Activator.getDefault()
-                        .getPreferenceStore().getBoolean("chatLines");
+                boolean newLine = Activator.getDefault().getPreferenceStore()
+                        .getBoolean("chatLines");
                 String displayPreference = newLine ? ("\n      ") : (": ");
 
                 sb.append(name).append(displayPreference).append(body);
@@ -470,7 +471,8 @@ public abstract class AbstractSessionView<T extends IUser> extends
             String name, T userId, String subject, List<StyleRange> ranges);
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
-            String name, T userId, List<StyleRange> ranges, Color color);
+            String name, T userId, List<StyleRange> ranges, Color foreground,
+            Color background);
 
     /**
      * Find keys words in body of message starting at offset.
@@ -586,7 +588,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
             oldFont.dispose();
         }
     }
-    
+
     public void setAlertWords(List<AlertWord> words) {
         alertWords = words;
     }
@@ -636,14 +638,17 @@ public abstract class AbstractSessionView<T extends IUser> extends
                         builder.insert(0, "\n");
                     }
 
-                    Color color = Display.getCurrent().getSystemColor(swtColor);
+                    Color foreground = Display.getCurrent().getSystemColor(
+                            swtColor);
+                    Color background = Display.getCurrent().getSystemColor(
+                            SWT.COLOR_WHITE);
                     StyleRange range = new StyleRange(messagesText
-                            .getCharCount(), builder.length(), color, null,
-                            SWT.BOLD);
+                            .getCharCount(), builder.length(), foreground,
+                            null, SWT.BOLD);
                     List<StyleRange> ranges = new ArrayList<StyleRange>();
                     ranges.add(range);
                     styleAndAppendText(builder, 0, builder.toString(), null,
-                            ranges, color);
+                            ranges, foreground, background);
                 }
 
                 // Archive the message

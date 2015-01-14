@@ -59,7 +59,6 @@ import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -89,6 +88,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.BookmarkEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
@@ -170,6 +170,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Dec 08, 2014 3709       mapeters    Added MB3 change user text color actions to contacts list.
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
  * Jan 09, 2015 3709       bclement    color config manager API changes
+ * Jan 13, 2015 3709       bclement    ChangeTextColorAction API changes
  * 
  * </pre>
  * 
@@ -210,7 +211,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     private Action roomSearchAction;
 
-    private Map<String, ChangeTextColorAction> userColorActions;
+    private Map<String, ChangeTextColorAction<?>> userColorActions;
 
     /**
      * @param parent
@@ -287,7 +288,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
         activeImage.dispose();
         pressedImage.dispose();
 
-        for (ChangeTextColorAction userColorAction : userColorActions.values()) {
+        for (ChangeTextColorAction<?> userColorAction : userColorActions
+                .values()) {
             userColorAction.dispose();
         }
     }
@@ -479,13 +481,11 @@ public class CollaborationGroupView extends CaveFloatingView implements
             manager.add(new AddNotifierAction(this));
             manager.add(new Separator());
             String colorActionKey = user.getFQName();
-            ChangeTextColorAction userColorAction = userColorActions
+            ChangeTextColorAction<?> userColorAction = userColorActions
                     .get(colorActionKey);
             if (userColorAction == null) {
-                userColorAction = ChangeTextColorAction
-                        .createChangeUserTextColorAction(user, false, false,
-                                new RGB(0, 0, 255),
-                                UserColorConfigManager.getInstance());
+                userColorAction = new ChangeTextColorAction<IUser>(user, false,
+                        false, false, UserColorConfigManager.getInstance());
                 userColorActions.put(colorActionKey, userColorAction);
             }
             manager.add(userColorAction);
@@ -498,13 +498,12 @@ public class CollaborationGroupView extends CaveFloatingView implements
             if (me.isSameUser(user)) {
                 createMenu(manager);
                 String colorActionKey = user.getFQName();
-                ChangeTextColorAction userColorAction = userColorActions
+                ChangeTextColorAction<?> userColorAction = userColorActions
                         .get(colorActionKey);
                 if (userColorAction == null) {
-                    userColorAction = ChangeTextColorAction
-                            .createChangeUserTextColorAction(user, true, true,
-                                    new RGB(0, 0, 255),
-                                    UserColorConfigManager.getInstance());
+                    userColorAction = new ChangeTextColorAction<IUser>(user,
+                            true, true, false,
+                            UserColorConfigManager.getInstance());
                     userColorActions.put(colorActionKey, userColorAction);
                 }
                 manager.insertBefore("afterFont", userColorAction);
