@@ -106,7 +106,7 @@ public class NavigatorResourceList {
     public boolean containsResource(AbstractVizResource<?, ?> rsc) {
 
         for (GenericResourceHolder emr : ensembleToolResources) {
-            if (emr.getRsc().equals(rsc)) {
+            if ((emr.getRsc() == rsc) || (emr.getRsc().equals(rsc))) {
                 return true;
             }
         }
@@ -135,6 +135,59 @@ public class NavigatorResourceList {
     public Map<String, List<GenericResourceHolder>> getAllRscsAsMap() {
 
         Map<String, List<GenericResourceHolder>> rscMap = new ConcurrentHashMap<String, List<GenericResourceHolder>>();
+
+        EnsembleResourceManager.getInstance().syncRegisteredResource(theEditor);
+
+        List<GenericResourceHolder> rscs = EnsembleResourceManager
+                .getInstance().getResourceList(theEditor).getUserLoadedRscs();
+
+        String currRscName = null;
+
+        // let's loop through and find the group names
+        // and store them in a set of strings (no duplicates
+        // allowed) so sub-members such as perturbations will
+        // only be counted once.
+        Set<String> rscGroupNames = new HashSet<String>();
+        for (GenericResourceHolder rsc : rscs) {
+            currRscName = rsc.getGroupName();
+            if (!rscGroupNames.contains(currRscName)) {
+                rscGroupNames.add(currRscName);
+            }
+        }
+        Iterator<String> iter = rscGroupNames.iterator();
+        while (iter.hasNext()) {
+            String currRsc = iter.next();
+            List<GenericResourceHolder> members = findAssociatedMembers(currRsc);
+            if (!members.isEmpty()) {
+                rscMap.put(currRsc, members);
+            }
+        }
+
+        // Generated resource add on
+        rscs = EnsembleResourceManager.instance.getResourceList(theEditor)
+                .getUserGeneratedRscs();
+        for (GenericResourceHolder rsc : rscs) {
+            currRscName = rsc.getUniqueName();
+            if ((currRscName == null) || (currRscName.length() == 0)) {
+                currRscName = rsc.getRsc().getName();
+            }
+            List<GenericResourceHolder> members = new CopyOnWriteArrayList<GenericResourceHolder>();
+            members.add(rsc);
+
+            rscMap.put(currRscName, members);
+        }
+
+        return rscMap;
+    }
+
+    /**
+     * Get all loaded and generated resources as GenericResourceHolder
+     * instances.
+     */
+    public Map<String, List<GenericResourceHolder>> getAllRscsAsMap(
+            Map<String, List<GenericResourceHolder>> rscMap) {
+
+        rscMap.clear();
 
         EnsembleResourceManager.getInstance().syncRegisteredResource(theEditor);
 
@@ -423,7 +476,8 @@ public class NavigatorResourceList {
     }
 
     public static boolean isTimeEmpty(String timeBasisLegend) {
-        return (timeBasisLegend.compareTo(TIME_BASIS_EMPTY_STR) == 0);
+        return ((timeBasisLegend == null) || (timeBasisLegend.length() == 0) || (timeBasisLegend
+                .compareTo(TIME_BASIS_EMPTY_STR) == 0));
     }
 
     // Currently get the first resource loaded to get time from
