@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorWheelComp;
 import com.raytheon.viz.ui.dialogs.colordialog.IColorWheelChange;
@@ -49,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorWheelChange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 09, 2015 3709       bclement     Initial creation, logic from ForegroundBackgroundColorDlg
+ * Jan 13, 2015 3709       bclement     return UserColorInfo instead of RGB
  * 
  * </pre>
  * 
@@ -225,7 +227,7 @@ public class ForegroundColorDlg extends CaveSWTDialog implements
      * button.
      */
     protected void collectReturnValue() {
-        setReturnValue(foregroundClr.getRGB());
+        setReturnValue(new UserColorInfo(foregroundClr.getRGB()));
     }
 
     /**
