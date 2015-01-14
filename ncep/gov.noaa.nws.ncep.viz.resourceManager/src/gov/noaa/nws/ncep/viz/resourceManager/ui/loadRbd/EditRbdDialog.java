@@ -44,7 +44,7 @@ public class EditRbdDialog extends Dialog {
             throws VizException {
         super(parShell);
 
-        rbdMngr = new RscBundleDisplayMngr(new NcPaneLayout(6, 6),
+        rbdMngr = new RscBundleDisplayMngr(new NcPaneLayout(4, 4),
                 seldRbd.getDisplayType());
 
         shell = new Shell(parShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL);

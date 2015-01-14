@@ -161,7 +161,7 @@ public class LoadRbdControl extends Composite {
     // one.
     // private HashMap<String, AbstractRBD<?>> editedRbdMap = null;
 
-    private Point initDlgSize = new Point(750, 860);
+    private Point initDlgSize = new Point(850, 860);
 
     private EditRbdDialog editRbdDlg = null;
 
@@ -946,7 +946,7 @@ public class LoadRbdControl extends Composite {
             }
         }
         // In the loadRBD method, before start the rbdLoader, call
-        updateImportCombo();
+        //updateImportCombo();
         VizApp.runSync(rbdLoader);
 
         // They aren't going to like this if there is an error loading....
@@ -962,6 +962,7 @@ public class LoadRbdControl extends Composite {
 
     // If the active editor is changed, we need to update the “Import” menu when
     // an SPF is loaded.
+    /*
     private void updateImportCombo() {
 
         if (getParent() instanceof TabFolder) {
@@ -974,6 +975,7 @@ public class LoadRbdControl extends Composite {
             }
         }
     }
+    */
 
     private void editRbd() {
         int seldRbdIndx = rbd_lviewer.getList().getSelectionIndex();
