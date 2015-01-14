@@ -126,7 +126,7 @@ public class OverlayMenu extends CompoundContributionItem {
             // TODO : if more than 20(?) overlays then we could add sub-menus for 
             // the filters for enabled resources.
             //
-            if( enabledOvrlyRscDfns.size() <= 40 ) {
+            if( enabledOvrlyRscDfns.size() <= 400 ) {
                 // add menu items for the enabled overlays
                 //
                 for( ResourceDefinition ord : enabledOvrlyRscDfns ) {
@@ -170,7 +170,8 @@ public class OverlayMenu extends CompoundContributionItem {
             	}
 
             	// add a sub-menu for each filter string
-            	//
+            	// - no, don't do this anymore
+            	/*
             	for( String filtStr : disabledFiltersList ) {
             		IMenuManager filtMenu = new MenuManager( filtStr,
             				moreMenu.getId() + "." + filtStr );
@@ -189,8 +190,12 @@ public class OverlayMenu extends CompoundContributionItem {
 
             		moreMenu.add( filtMenu );
             	}
-
-            	ovrlyMenuMngr.add( moreMenu );
+            	*/
+            	for( ResourceDefinition ord : disabledOvrlyRscDfns ) {
+                	List<String> ordFiltList = ResourceDefnsMngr.getInstance().
+                			getResourceDefnFilter( ord.getResourceDefnName() ).getFilters();
+                	ovrlyMenuMngr.add( createOverlayMenuItem( ord ) );
+            	}
             }
             // next add 
                         
@@ -204,13 +209,15 @@ public class OverlayMenu extends CompoundContributionItem {
     private CommandContributionItem createOverlayMenuItem( ResourceDefinition ovrlyRsc ) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("overlayName", ovrlyRsc.getResourceDefnName() );
+		
 		CommandContributionItemParameter param = new CommandContributionItemParameter(
 				PlatformUI.getWorkbench(), null,
 				"gov.noaa.nws.ncep.viz.ui.actions.loadOverlay", params,
 				null, null, null, ovrlyRsc.getResourceDefnName(), null, null,
-				CommandContributionItem.STYLE_PUSH, null, true);
+				CommandContributionItem.STYLE_CHECK, null, true);
 		
 		return new CommandContributionItem( param );
+		
     }
 }
 
