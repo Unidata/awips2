@@ -1,10 +1,14 @@
 package gov.noaa.gsd.viz.ensemble.display.control;
 
+import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolManager;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -21,8 +25,15 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.IRenderableDisplayCustomizer;
 
 /**
- * Notice ensemble resource manager a resource has been changed. TODO This
- * description needs to be improved once we do an improvement DR.
+ * The ensemble tool renderable display customizer classes contain the event
+ * handlers that keeps track of when new displays are created or removed, and
+ * listens also for when resources get added or removed from those displays.
+ * 
+ * TODO: We need verify whether we need only keep track of displays that are
+ * created when the ensemble tool is "on". This is problematic for the very
+ * first display because the ensemble tool would like to "know" of that display
+ * but is not "on" by default. So how do we know that the new display is the
+ * very first display created (i.e. initial "Map" editor display).
  * 
  * <pre>
  * 
@@ -41,10 +52,9 @@ import com.raytheon.viz.ui.perspectives.IRenderableDisplayCustomizer;
 public class EnsembleToolDisplayCustomizer implements
         IRenderableDisplayCustomizer {
 
-    /**
-     * The ensemble marked resource list holds the loaded and generated
-     * resources and flags, is used by ensemble display, GUI and calculation.
-     */
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EnsembleToolDisplayCustomizer.class);
+
     static final private List<ResourcePair> batchedPairs = new CopyOnWriteArrayList<ResourcePair>();
 
     /** List of listeners we have for renderable displays */
@@ -53,6 +63,7 @@ public class EnsembleToolDisplayCustomizer implements
     @Override
     public void customizeDisplay(IRenderableDisplay display) {
 
+        // TODO: if (EnsembleToolManager.getInstance().isReady()) {
         boolean add = true;
         for (EnsembleToolRscLoadListener listener : listeners) {
             if (display == listener.getDisplay()) {
@@ -64,10 +75,16 @@ public class EnsembleToolDisplayCustomizer implements
         if (add) {
             listeners.add(new EnsembleToolRscLoadListener(display));
         }
+
+        if (EnsembleToolManager.getInstance().isReady()) {
+            EnsembleToolManager.getInstance().prepareForNewEditor();
+        }
     }
 
     @Override
     public void uncustomizeDisplay(IRenderableDisplay display) {
+
+        // TODO: if (EnsembleToolManager.getInstance().isReady()) {
         EnsembleToolRscLoadListener toRemove = null;
         for (EnsembleToolRscLoadListener listener : listeners) {
             if (listener.getDisplay() == display) {
@@ -84,12 +101,21 @@ public class EnsembleToolDisplayCustomizer implements
     private static class EnsembleToolRscLoadListener implements AddListener,
             RemoveListener, IInitListener {
 
-        // for batching purposes, keep track of the amount of time spent between
-        // requests
+        /*
+         * For batching purposes, keep track of the amount of time spent between
+         * requests
+         */
         private static long LAST_TIME = 0;
 
-        // maximum wait period for batching
-        private final int ALLOW_FOR_BUNCHED_REQUESTS_PERIOD = 1400;
+        /*
+         * Maximum wait period for batching; this value was chosen as the
+         * minimum necessary wait time for a two-ensemble load (e.g. 500MB and
+         * 850MB Heights). By waiting this long, both full products sets will
+         * get batched into one load (at least on a typically performant
+         * machine).
+         */
+
+        private final int ALLOW_FOR_BUNCHED_REQUESTS_PERIOD = 1800;
 
         // thread which acts upon batched requests
         private Thread forceReset = null;
@@ -97,15 +123,10 @@ public class EnsembleToolDisplayCustomizer implements
         // the display we are listening to
         private final IRenderableDisplay display;
 
-        private boolean resourcesAdded = false;
-
         public EnsembleToolRscLoadListener(IRenderableDisplay display) {
             this.display = display;
             IDescriptor descriptor = display.getDescriptor();
             ResourceList list = descriptor.getResourceList();
-            if (hasCompatibleResource(list)) {
-                addResources(descriptor);
-            }
             list.addPostAddListener(this);
             list.addPostRemoveListener(this);
         }
@@ -162,22 +183,90 @@ public class EnsembleToolDisplayCustomizer implements
             }
 
             // add the resource pair to the staging list ...
-            addButNoDuplicates(rp);
+            rp.getResource().registerListener((IInitListener) this);
+            synchronized (batchedPairs) {
+                batchedPairs.add(rp);
+            }
+        }
 
-            // but wait for other resource pairs to catch up ...
+        /**
+         * Pass a resource into the ensemble resource manager.
+         * 
+         * @param resourcePairs
+         */
+        private void addBatchedResourcesToManager() {
+
+            Iterator<ResourcePair> pairsIter = batchedPairs.iterator();
+            ResourcePair rp = null;
+
+            while (pairsIter.hasNext()) {
+
+                rp = pairsIter.next();
+                if (pairsIter.hasNext()) {
+                    EnsembleResourceManager.getInstance().registerResource(
+                            rp.getResource(), getEditor(), false);
+
+                } else {
+                    EnsembleResourceManager.getInstance().registerResource(
+                            rp.getResource(), getEditor(), true);
+                }
+            }
+            synchronized (batchedPairs) {
+                batchedPairs.clear();
+            }
+        }
+
+        /**
+         * Get the current Editor.
+         * 
+         * @return
+         */
+        private static AbstractEditor getEditor() {
+            AbstractEditor editor = (AbstractEditor) EditorUtil
+                    .getActiveEditor();
+            return editor;
+        }
+
+        private boolean isCompatibleResource(ResourcePair rp) {
+            AbstractVizResource<?, ?> resource = rp.getResource();
+            if ((resource != null)
+                    && ((resource instanceof GridResource) || (resource instanceof TimeSeriesResource))) {
+                return true;
+            }
+            return false;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.viz.core.rsc.IInitListener#inited(com.raytheon.uf
+         * .viz.core.rsc.AbstractVizResource)
+         */
+        @Override
+        public synchronized void inited(AbstractVizResource<?, ?> rsc) {
+
+            /*
+             * ensemble resources can come in a bunch ... wait for some time to
+             * pass to batch them ...
+             */
             if (((LAST_TIME == 0) || ((System.currentTimeMillis() - LAST_TIME) > ALLOW_FOR_BUNCHED_REQUESTS_PERIOD))) {
 
+                /*
+                 * TODO: this thread may be superstitious yet is being left here
+                 * until we can verify it is not needed. The very first time any
+                 * resource is inited we sleep for small period to allow other
+                 * similar threads (e.g. in other plug-ins) to have priority in
+                 * acting on the resource.
+                 */
                 if (LAST_TIME == 0) {
-                    // TODO: wait for the resource (e.g. unit conversion) to
-                    // update. We probably need to look for a better solution.
+                    // poor man's object.wait() for the very first time through
                     try {
-                        Thread.sleep(150);
+                        Thread.sleep(50);
                     } catch (InterruptedException e) {
                         // ignore
                     }
                 }
-
-                LAST_TIME = System.currentTimeMillis();
 
                 /**
                  * Register the resource in to the resource manager
@@ -199,23 +288,10 @@ public class EnsembleToolDisplayCustomizer implements
                             ALLOW_FOR_BUNCHED_REQUESTS_PERIOD));
                     forceReset.start();
                 }
+            } else {
+                LAST_TIME = System.currentTimeMillis();
             }
-        }
 
-        // add the resource pair if it is not already in the list.
-        private void addButNoDuplicates(ResourcePair rp) {
-
-            boolean found = false;
-            for (ResourcePair orp : EnsembleToolDisplayCustomizer.batchedPairs) {
-                if (orp.getResource().getName()
-                        .compareTo(rp.getResource().getName()) == 0) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                EnsembleToolDisplayCustomizer.batchedPairs.add(rp);
-            }
         }
 
         private class ForceRefreshIfNecessary implements Runnable {
@@ -230,96 +306,12 @@ public class EnsembleToolDisplayCustomizer implements
             public void run() {
 
                 try {
-                    Thread.sleep(waitForReset);
 
-                    addResourceToManager(EnsembleToolDisplayCustomizer.batchedPairs);
+                    Thread.sleep(waitForReset);
+                    addBatchedResourcesToManager();
 
                 } catch (InterruptedException e) {
                     /* ignore */
-                }
-            }
-        }
-
-        /**
-         * Pass a resource into the ensemble resource manager.
-         * 
-         * @param resourcePairs
-         */
-        private void addResourceToManager(List<ResourcePair> resourcePairs) {
-
-            Iterator<ResourcePair> pairsIter = resourcePairs.iterator();
-            ResourcePair rp = null;
-            while (pairsIter.hasNext()) {
-
-                rp = pairsIter.next();
-                if (pairsIter.hasNext()) {
-                    EnsembleResourceManager.getInstance().registerResource(
-                            rp.getResource(), getEditor(), false);
-
-                } else {
-                    EnsembleResourceManager.getInstance().registerResource(
-                            rp.getResource(), getEditor(), true);
-                }
-            }
-        }
-
-        /**
-         * Get the current Editor.
-         * 
-         * @return
-         */
-        private static AbstractEditor getEditor() {
-            AbstractEditor editor = (AbstractEditor) EditorUtil
-                    .getActiveEditor();
-            return editor;
-        }
-
-        /**
-         * 
-         * @param list
-         * @return
-         */
-
-        private boolean hasCompatibleResource(ResourceList list) {
-            for (ResourcePair rp : list) {
-                if (isCompatibleResource(rp)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private boolean isCompatibleResource(ResourcePair rp) {
-            AbstractVizResource<?, ?> resource = rp.getResource();
-            if (resource != null) {
-                if (resource instanceof GridResource
-                        || resource instanceof TimeSeriesResource) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private synchronized void addResources(IDescriptor descriptor) {
-            if (!resourcesAdded) {
-                ResourceList list = descriptor.getResourceList();
-                list.instantiateResources(descriptor, true);
-                resourcesAdded = true;
-            }
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.uf.viz.core.rsc.IInitListener#inited(com.raytheon.uf
-         * .viz.core.rsc.AbstractVizResource)
-         */
-        @Override
-        public synchronized void inited(AbstractVizResource<?, ?> rsc) {
-            if (rsc instanceof GridResource) {
-                if (!resourcesAdded) {
-                    addResources(rsc.getDescriptor());
                 }
             }
         }
