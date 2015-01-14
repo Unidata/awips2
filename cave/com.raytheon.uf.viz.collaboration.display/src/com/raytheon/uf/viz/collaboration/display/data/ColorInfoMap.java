@@ -17,18 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.colors;
+package com.raytheon.uf.viz.collaboration.display.data;
 
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.RGB;
 
 /**
  * Contains foreground and background chat colors for a list of users or sites
@@ -43,6 +39,8 @@ import org.eclipse.swt.graphics.RGB;
  * Nov 26, 2014 3709        mapeters    Renamed from UserColorInformation, added fgSet getter.
  * Dec 08, 2014 3709        mapeters    Removed fgSet and individual colors' getters/setters, 
  *                                      set foreground and background together.
+ * Jan 13, 2015 3709        bclement    moved from collaboration.ui to collaboration.display
+ *                                      moved ColorInfo class to UserColorInfo
  * 
  * </pre>
  * 
@@ -54,12 +52,25 @@ import org.eclipse.swt.graphics.RGB;
 public class ColorInfoMap {
 
     @XmlElement
-    private Map<String, ColorInfo> colors;
+    private Map<String, UserColorInfo> colors;
+
+    /**
+     * 
+     */
+    public ColorInfoMap() {
+    }
+
+    /**
+     * @param colors
+     */
+    public ColorInfoMap(Map<String, UserColorInfo> colors) {
+        this.colors = colors;
+    }
 
     /**
      * @return the colors
      */
-    public Map<String, ColorInfo> getColors() {
+    public Map<String, UserColorInfo> getColors() {
         return colors;
     }
 
@@ -67,58 +78,8 @@ public class ColorInfoMap {
      * @param colors
      *            the colors to set
      */
-    public void setColors(Map<String, ColorInfo> colors) {
+    public void setColors(Map<String, UserColorInfo> colors) {
         this.colors = colors;
     }
 
-    @XmlAccessorType(XmlAccessType.NONE)
-    public static class ColorInfo {
-
-        @XmlAttribute
-        private int fgRed;
-
-        @XmlAttribute
-        private int fgGreen;
-
-        @XmlAttribute
-        private int fgBlue;
-
-        @XmlAttribute
-        private int bgRed;
-
-        @XmlAttribute
-        private int bgGreen;
-
-        @XmlAttribute
-        private int bgBlue;
-
-        public ColorInfo() {
-        }
-
-        /**
-         * @param type
-         * @return the RGB color of the given type
-         */
-        public RGB getColor(int type) {
-            if (type == SWT.FOREGROUND) {
-                return new RGB(fgRed, fgGreen, fgBlue);
-            } else {
-                return new RGB(bgRed, bgGreen, bgBlue);
-            }
-        }
-
-        /**
-         * @param fg
-         * @param bg
-         */
-        public void setColors(RGB fg, RGB bg) {
-            fgRed = fg.red;
-            fgGreen = fg.green;
-            fgBlue = fg.blue;
-            bgRed = bg.red;
-            bgGreen = bg.green;
-            bgBlue = bg.blue;
-
-        }
-    }
 }
