@@ -4,7 +4,6 @@ import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
 import gov.noaa.gsd.viz.ensemble.display.calculate.Range;
 import gov.noaa.gsd.viz.ensemble.display.common.GenericResourceHolder;
 import gov.noaa.gsd.viz.ensemble.display.control.EnsembleResourceManager;
-import gov.noaa.gsd.viz.ensemble.display.control.EnsembleToolDisplayCustomizer;
 import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer;
 import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.ViewerWindowState;
 
@@ -113,8 +112,6 @@ public class EnsembleToolManager extends AbstractTool implements
 
     private IWorkbenchPartReference viewPartRef = null;
 
-    private EnsembleToolDisplayCustomizer displayCustomizer = null;
-
     public static EnsembleToolManager SINGLETON = null;
 
     /*
@@ -140,8 +137,6 @@ public class EnsembleToolManager extends AbstractTool implements
     private EnsembleToolManager() {
 
         ETLMResourceDataManager.getInstance();
-
-        displayCustomizer = new EnsembleToolDisplayCustomizer();
 
     }
 
@@ -1110,4 +1105,7 @@ public class EnsembleToolManager extends AbstractTool implements
 
     }
 
+    public void prepareForNewEditor() {
+        ensembleToolViewer.prepareForNewToolInput();
+    }
 }
