@@ -33,6 +33,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
+
 /**
  * A dialog that displays a label with settable foreground and background colors
  * using a color control.
@@ -43,8 +45,9 @@ import org.eclipse.swt.widgets.Shell;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 04, 2014  3709      lvenable    Initial creation
+ * Dec 04, 2014 3709       lvenable    Initial creation
  * Jan 09, 2015 3709       bclement    moved primary logic to new super class
+ * Jan 13, 2015 3709       bclement    return UserColorInfo instead of RGB[]
  * 
  * </pre>
  * 
@@ -156,9 +159,9 @@ public class ForegroundBackgroundColorDlg extends ForegroundColorDlg {
 
     @Override
     protected void collectReturnValue() {
-        RGB[] rgbArray = new RGB[] { foregroundClr.getRGB(),
-                backgroundClr.getRGB() };
-        setReturnValue(rgbArray);
+        UserColorInfo colors = new UserColorInfo(foregroundClr.getRGB(),
+                backgroundClr.getRGB());
+        setReturnValue(colors);
     }
 
     @Override

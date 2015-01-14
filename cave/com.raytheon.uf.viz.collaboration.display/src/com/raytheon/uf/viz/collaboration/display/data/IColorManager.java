@@ -17,16 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.colors;
+package com.raytheon.uf.viz.collaboration.display.data;
 
-import org.eclipse.swt.graphics.RGB;
-
-import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 
 /**
- * Interface for color configuration managers to keep track of custom color
- * settings for users. Colors are tracked by a string key which could be the
- * user name or attribute (eg site name).
+ * Interface for color managers that keep track of color settings for users in a
+ * session or chat.
  * 
  * <pre>
  * 
@@ -34,35 +31,39 @@ import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 08, 2015  3709       bclement     Initial creation
+ * Jan 13, 2015 3709       bclement     Initial creation
  * 
  * </pre>
  * 
  * @author bclement
  * @version 1.0
  */
-public interface IColorConfigManager {
+public interface IColorManager<T extends IUser> {
 
     /**
-     * Set display colors
+     * Get assigned color for user
      * 
-     * @param key
-     * @param foreground
-     * @param background
-     */
-    public void setColors(String key, RGB foreground, RGB background);
-
-    /**
-     * Get display colors
-     * 
-     * @param key
+     * @param user
      * @return
      */
-    public ColorInfo getColor(String key);
+    public UserColorInfo getColorForUser(T user);
+
+    /**
+     * Assign color to user
+     * 
+     * @param user
+     * @param color
+     */
+    public void setColorForUser(T user, UserColorInfo color);
+
+    /**
+     * Clear color assignments
+     */
+    public void clearColors();
 
     /**
      * @return human readable description of color management
      */
-    public String getDescription(String key);
+    public String getDescription(T user);
 
 }
