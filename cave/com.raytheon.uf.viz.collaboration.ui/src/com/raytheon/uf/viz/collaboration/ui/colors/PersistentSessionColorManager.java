@@ -19,17 +19,16 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.colors;
 
-import org.eclipse.swt.graphics.RGB;
+import java.util.Map;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
-import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
+import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
 
 /**
- * Keeps track of custom user color configurations for users in a particular
- * chat room
+ * Session color manager that persists colors to localization
  * 
  * <pre>
  * 
@@ -37,20 +36,24 @@ import com.raytheon.uf.viz.collaboration.ui.colors.ColorInfoMap.ColorInfo;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 08, 2015 3709       bclement     Initial creation
+ * Jan 13, 2015 3709       bclement     Initial creation
  * 
  * </pre>
  * 
  * @author bclement
  * @version 1.0
  */
-public class RoomSpecificColorConfigManager extends
-        PersistentColorConfigManager {
+public class PersistentSessionColorManager extends SessionColorManager {
 
-    private static final String ROOM_CONFIG_DIR = CONFIG_DIR_NAME
+    private static final String ROOM_CONFIG_DIR = PersistentColorConfigStorage.CONFIG_DIR_NAME
             + IPathManager.SEPARATOR + "roomColors";
 
-    private final String roomId;
+    private final PersistentColorConfigStorage<VenueParticipant> storage = new PersistentColorConfigStorage<VenueParticipant>() {
+        @Override
+        protected VenueParticipant convert(String persisted) {
+            return IDConverter.convertFromRoom(persisted);
+        }
+    };
 
     private final String configFilePath;
 
@@ -58,62 +61,46 @@ public class RoomSpecificColorConfigManager extends
      * @param roomId
      * @return
      */
-    public static RoomSpecificColorConfigManager getManagerForRoom(String roomId) {
+    public static PersistentSessionColorManager getManagerForRoom(String roomId) {
         /*
          * if multiple managers are created for the same room, it could cause
          * concurrency issues with writing to localization. This could be solved
          * with a soft reference cache here. However, since there *should* only
          * be one of these per room id, it might be overkill
          */
-        return new RoomSpecificColorConfigManager(roomId);
+        return new PersistentSessionColorManager(roomId);
     }
 
     /**
      * @param roomId
      */
-    protected RoomSpecificColorConfigManager(String roomId) {
-        this.roomId = roomId;
+    protected PersistentSessionColorManager(String roomId) {
         this.configFilePath = ROOM_CONFIG_DIR + IPathManager.SEPARATOR + roomId;
+        Map<VenueParticipant, UserColorInfo> persistedColors = storage
+                .getColors(configFilePath);
+        colors.putAll(persistedColors);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.AbstractColorConfigManager#setColors
-     * (java.lang.String, org.eclipse.swt.graphics.RGB,
-     * org.eclipse.swt.graphics.RGB)
-     */
     @Override
-    public synchronized void setColors(String participant, RGB foreground,
-            RGB background) {
-        super.setColors(participant, foreground, background, configFilePath);
+    public String getDescription(VenueParticipant participant) {
+        return "Color changes will apply to the user " + participant.getName()
+                + " only in the " + participant.getRoom() + " room.";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.AbstractColorConfigManager#getColor
-     * (java.lang.String)
-     */
     @Override
-    public synchronized ColorInfo getColor(String participant) {
-        return super.getColor(participant, configFilePath);
+    protected void setColorInternal(VenueParticipant user, UserColorInfo color) {
+        synchronized (storage) {
+            super.setColorInternal(user, color);
+            storage.persistColors(colors, configFilePath);
+        }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.collaboration.ui.colors.IColorConfigManager#
-     * getDescription()
-     */
     @Override
-    public String getDescription(String key) {
-        VenueParticipant id = IDConverter.convertFromRoom(null, key);
-        VenueId venue = VenueId.fromString(roomId);
-        return "Color changes will apply to the user " + id.getName()
-                + " only in the " + venue.getName() + " room.";
+    public void clearColors() {
+        synchronized (storage) {
+            super.clearColors();
+            storage.persistColors(colors, configFilePath);
+        }
     }
 
 }
