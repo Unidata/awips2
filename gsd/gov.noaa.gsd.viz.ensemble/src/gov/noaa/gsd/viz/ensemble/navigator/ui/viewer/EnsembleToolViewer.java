@@ -41,7 +41,6 @@ import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
@@ -94,6 +93,7 @@ import org.eclipse.ui.services.IServiceLocator;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IRefreshListener;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
@@ -143,7 +143,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
  * @version 1.0
  */
 
-public class EnsembleToolViewer extends ViewPart {
+public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
 
     public static final String ID = "gov.noaa.gsd.viz.ensemble.tool.viewer";
 
@@ -268,6 +268,8 @@ public class EnsembleToolViewer extends ViewPart {
     private Cursor selectionModeCursor = null;
 
     private Cursor toggleVisibilityModeCursor = null;
+
+    private Cursor waitCursor = null;
 
     private static boolean isDisposing = false;
 
@@ -444,8 +446,11 @@ public class EnsembleToolViewer extends ViewPart {
 
         selectionModeCursor = owner.getDisplay().getSystemCursor(
                 SWT.CURSOR_HAND);
+
         toggleVisibilityModeCursor = owner.getDisplay().getSystemCursor(
                 SWT.CURSOR_ARROW);
+
+        waitCursor = owner.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
 
         ensembleTree.addKeyListener(new EnsembleTreeKeyListener());
         ensembleTree.setCursor(toggleVisibilityModeCursor);
@@ -762,7 +767,7 @@ public class EnsembleToolViewer extends ViewPart {
                 item.setForeground(EnsembleToolViewer.ENABLED_FOREGROUND_COLOR);
                 ensemblesTreeViewer.getTree().deselectAll();
             }
-            ensemblesTreeViewer.refresh();
+            ensemblesTreeViewer.refresh(true);
 
         } else if (mousedItem instanceof GenericResourceHolder) {
 
@@ -780,7 +785,7 @@ public class EnsembleToolViewer extends ViewPart {
                 item.setForeground(EnsembleToolViewer.DISABLED_FOREGROUND_COLOR);
                 ensemblesTreeViewer.getTree().deselectAll();
             }
-            ensemblesTreeViewer.refresh();
+            ensemblesTreeViewer.refresh(true);
         }
 
     }
@@ -1281,8 +1286,7 @@ public class EnsembleToolViewer extends ViewPart {
                 }
             }
             // update the visibility status cosmetically (i.e. normal text
-            // versus
-            // graying-out)
+            // versus graying-out)
             if (element instanceof GenericResourceHolder) {
                 GenericResourceHolder gr = (GenericResourceHolder) element;
 
@@ -1595,16 +1599,21 @@ public class EnsembleToolViewer extends ViewPart {
                             new Listener() {
 
                                 public void handleEvent(Event event) {
-                                    Runnable r = new Runnable() {
+
+                                    final Cursor currCursor = ensembleTree
+                                            .getCursor();
+
+                                    VizApp.runAsync(new Runnable() {
+
                                         @Override
                                         public void run() {
 
+                                            ensembleTree.setCursor(waitCursor);
                                             startAddERFLayer(mousedEnsembleName);
+                                            ensembleTree.setCursor(currCursor);
 
                                         }
-                                    };
-                                    BusyIndicator.showWhile(owner.getDisplay(),
-                                            r);
+                                    });
 
                                 }
                             });
@@ -1623,14 +1632,20 @@ public class EnsembleToolViewer extends ViewPart {
                             new Listener() {
                                 public void handleEvent(Event event) {
 
-                                    Runnable r = new Runnable() {
+                                    final Cursor currCursor = ensembleTree
+                                            .getCursor();
+
+                                    VizApp.runAsync(new Runnable() {
+
                                         @Override
                                         public void run() {
+
+                                            ensembleTree.setCursor(waitCursor);
                                             updateColorsOnResource(mousedEnsembleName);
+                                            ensembleTree.setCursor(currCursor);
+
                                         }
-                                    };
-                                    BusyIndicator.showWhile(owner.getDisplay(),
-                                            r);
+                                    });
                                 }
                             });
 
@@ -1651,18 +1666,23 @@ public class EnsembleToolViewer extends ViewPart {
 
                                     if (proceed) {
 
-                                        Runnable r = new Runnable() {
+                                        final Cursor currCursor = ensembleTree
+                                                .getCursor();
+
+                                        VizApp.runAsync(new Runnable() {
+
                                             @Override
                                             public void run() {
+                                                ensembleTree
+                                                        .setCursor(waitCursor);
                                                 EnsembleToolManager
                                                         .getInstance()
                                                         .unloadResourcesByName(
                                                                 item.getText());
-                                                // removeEnsembleResourceFromRadioGroup(item.getText());
+                                                ensembleTree
+                                                        .setCursor(currCursor);
                                             }
-                                        };
-                                        BusyIndicator.showWhile(
-                                                owner.getDisplay(), r);
+                                        });
 
                                     }
                                 }
@@ -1678,17 +1698,23 @@ public class EnsembleToolViewer extends ViewPart {
                             new Listener() {
 
                                 public void handleEvent(Event event) {
-                                    Runnable r = new Runnable() {
+
+                                    final Cursor currCursor = ensembleTree
+                                            .getCursor();
+
+                                    VizApp.runAsync(new Runnable() {
+
                                         @Override
                                         public void run() {
+
+                                            ensembleTree.setCursor(waitCursor);
                                             setItemVisible(item,
                                                     toggleVisibilityMenuItem
                                                             .getSelection());
-                                        }
-                                    };
-                                    BusyIndicator.showWhile(owner.getDisplay(),
-                                            r);
+                                            ensembleTree.setCursor(currCursor);
 
+                                        }
+                                    });
                                 }
                             });
 
@@ -1759,11 +1785,11 @@ public class EnsembleToolViewer extends ViewPart {
         public void mouseUp(MouseEvent event) {
 
             Point point = new Point(event.x, event.y);
-            final TreeItem item = ensembleTree.getItem(point);
+            final TreeItem userClickedTreeItem = ensembleTree.getItem(point);
 
             // the mouse up event currently only acts on items in the tree
             // so if the tree item is null then just return ...
-            if (item == null)
+            if (userClickedTreeItem == null)
                 return;
 
             // keep track of the last highlighted resource and make sure
@@ -1783,10 +1809,10 @@ public class EnsembleToolViewer extends ViewPart {
 
             // is this a CTRL-MB1 (e.g. CONTROL LEFT-CLICK) over a tree item?
             // ... then this is a UI SWT item selection
-            if ((item != null) && (event.button == 1)
+            if ((userClickedTreeItem != null) && (event.button == 1)
                     && ((event.stateMask & SWT.CTRL) != 0)) {
 
-                final Object mousedItem = item.getData();
+                final Object mousedItem = userClickedTreeItem.getData();
 
                 // Ctrl-click on a item that is already selected deselects it.
                 if (EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE != null) {
@@ -1794,7 +1820,7 @@ public class EnsembleToolViewer extends ViewPart {
                     if (mousedItem instanceof GenericResourceHolder) {
                         GenericResourceHolder grh = (GenericResourceHolder) mousedItem;
                         if (grh.getRsc() == EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE) {
-                            ensembleTree.deselect(item);
+                            ensembleTree.deselect(userClickedTreeItem);
                             EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE = null;
                             return;
                         }
@@ -1808,7 +1834,8 @@ public class EnsembleToolViewer extends ViewPart {
                         EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE = grh
                                 .getRsc();
                         ensemblesTreeViewer.getTree().deselectAll();
-                        ensemblesTreeViewer.getTree().select(item);
+                        ensemblesTreeViewer.getTree().select(
+                                userClickedTreeItem);
                     }
                     ensemblesTreeViewer.getTree().update();
                 }
@@ -1938,30 +1965,36 @@ public class EnsembleToolViewer extends ViewPart {
 
             }
             // is this a simple left-click (MB1) over a tree item?
-            else if ((item != null) && (event.button == 1)) {
+            else if ((userClickedTreeItem != null) && (event.button == 1)) {
 
                 // by default, left-clicking on a tree item in the
                 // tree will toggle that product's visibility.
-                final Object mousedItem = item.getData();
+                final Object mousedItem = userClickedTreeItem.getData();
 
+                // A string means it is an ensemble product name
                 if (mousedItem instanceof String) {
-
+                    // TODO: need a performant solution for toggling visibility
+                    // of all the resources in one ensemble
                 } else if (mousedItem instanceof GenericResourceHolder) {
 
-                    Runnable r = new Runnable() {
+                    final Cursor currCursor = ensembleTree.getCursor();
+
+                    VizApp.runAsync(new Runnable() {
 
                         @Override
                         public void run() {
-                            toggleItemVisible(item);
+
+                            ensembleTree.setCursor(waitCursor);
+                            toggleItemVisible(userClickedTreeItem);
 
                             // if this was the last item to be toggled off,
                             // for example, in an ensemble group, then you
                             // need to toggle the parent tree item off also
-                            matchParentToChildrenVisibility(item);
+                            matchParentToChildrenVisibility(userClickedTreeItem);
+                            ensembleTree.setCursor(currCursor);
                         }
-                    };
 
-                    BusyIndicator.showWhile(owner.getDisplay(), r);
+                    });
 
                 }
             }
@@ -1994,10 +2027,15 @@ public class EnsembleToolViewer extends ViewPart {
     private void updateSREFColors(String ensembleName,
             final List<GenericResourceHolder> children) {
 
-        Runnable r = new Runnable() {
+        final Cursor currCursor = ensembleTree.getCursor();
+
+        VizApp.runAsync(new Runnable() {
 
             @Override
             public void run() {
+
+                ensembleTree.setCursor(waitCursor);
+
                 EnsembleSREFColorChooser cd = new EnsembleSREFColorChooser(
                         owner.getShell());
                 cd.create();
@@ -2022,20 +2060,24 @@ public class EnsembleToolViewer extends ViewPart {
                 }
                 ensemblesTreeViewer.refresh();
 
-            }
-        };
+                ensembleTree.setCursor(currCursor);
 
-        BusyIndicator.showWhile(owner.getDisplay(), r);
+            }
+        });
 
     }
 
     private void updateGEFSEnsembleColors(String ensembleName,
             final List<GenericResourceHolder> children) {
 
-        Runnable r = new Runnable() {
+        final Cursor currCursor = ensembleTree.getCursor();
+
+        VizApp.runAsync(new Runnable() {
 
             @Override
             public void run() {
+
+                ensembleTree.setCursor(waitCursor);
 
                 EnsembleGEFSColorChooser cd = new EnsembleGEFSColorChooser(
                         owner.getShell());
@@ -2066,10 +2108,11 @@ public class EnsembleToolViewer extends ViewPart {
                     }
                 }
                 ensemblesTreeViewer.refresh();
-            }
-        };
 
-        BusyIndicator.showWhile(owner.getDisplay(), r);
+                ensembleTree.setCursor(currCursor);
+            }
+
+        });
 
     }
 
@@ -2162,6 +2205,14 @@ public class EnsembleToolViewer extends ViewPart {
         return childResources;
     }
 
+    public void prepareForNewToolInput() {
+        VizApp.runAsync(new Runnable() {
+            public void run() {
+                ensemblesTreeViewer.setInput(null);
+            }
+        });
+    }
+
     public void refreshInput() {
 
         // TODO: Is there a better way to initialize e.g. listeners;
@@ -2181,35 +2232,63 @@ public class EnsembleToolViewer extends ViewPart {
         }
 
         VizApp.runAsync(new Runnable() {
+            @SuppressWarnings("unchecked")
             public void run() {
 
-                GenericResourceHolder grh = null;
-                String ensembleRscName = null;
-                if ((ensemblesTreeViewer != null)
-                        && (EnsembleToolManager.getInstance().isReady())) {
-                    TreeItem[] selectedItems = ensembleTree.getSelection();
-                    if ((selectedItems != null) && (selectedItems.length > 0)
-                            && (selectedItems[0] != null)) {
-                        Object o = selectedItems[0].getData();
-                        if (o instanceof GenericResourceHolder) {
-                            grh = (GenericResourceHolder) o;
-                        } else if (o instanceof String) {
-                            ensembleRscName = (String) o;
+                if (ensemblesTreeViewer == null)
+                    return;
+
+                Map<String, List<GenericResourceHolder>> ensembleResourcesMap = EnsembleToolManager
+                        .getInstance().getEnsembleResources();
+                Map<String, List<GenericResourceHolder>> previousResourcesMap = null;
+
+                // this method only acts on an instance of a Map ...
+                if (ensembleResourcesMap != null) {
+                    // only change the tree's input reference (via setInput)
+                    // when the ensembleResourcesMap reference is new or has
+                    // changed.
+                    if ((ensemblesTreeViewer.getInput() == null)
+                            || (ensembleResourcesMap != ensemblesTreeViewer
+                                    .getInput())) {
+                        // unregister previous model's resources
+                        if (ensemblesTreeViewer.getInput() != null) {
+                            previousResourcesMap = (Map<String, List<GenericResourceHolder>>) ensemblesTreeViewer
+                                    .getInput();
+                            unregisterResources(previousResourcesMap);
                         }
+                        ensemblesTreeViewer.setInput(ensembleResourcesMap);
+                        ensemblesTreeViewer.refresh(true);
+                        // register new model's resources
+                        registerResources(ensembleResourcesMap);
+                    } else {
+                        ensemblesTreeViewer.refresh(true);
+                        registerResources(ensembleResourcesMap);
                     }
 
-                    updateTimeBasisInfo(EnsembleToolManager.getInstance()
-                            .getTimeBasisResourceName(), EnsembleToolManager
-                            .getInstance().getTimeBasisLegendTime());
+                    GenericResourceHolder grh = null;
+                    String ensembleRscName = null;
+                    if ((ensemblesTreeViewer != null)
+                            && (EnsembleToolManager.getInstance().isReady())) {
+                        TreeItem[] selectedItems = ensembleTree.getSelection();
+                        if ((selectedItems != null)
+                                && (selectedItems.length > 0)
+                                && (selectedItems[0] != null)) {
+                            Object o = selectedItems[0].getData();
+                            if (o instanceof GenericResourceHolder) {
+                                grh = (GenericResourceHolder) o;
+                            } else if (o instanceof String) {
+                                ensembleRscName = (String) o;
+                            }
+                        }
 
-                    Map<String, List<GenericResourceHolder>> ensembleResources = EnsembleToolManager
-                            .getInstance().getEnsembleResources();
-                    if (ensembleResources != null) {
-                        ensemblesTreeViewer.setInput(ensembleResources);
-                        ensemblesTreeViewer.refresh(true);
+                        updateTimeBasisInfo(EnsembleToolManager.getInstance()
+                                .getTimeBasisResourceName(),
+                                EnsembleToolManager.getInstance()
+                                        .getTimeBasisLegendTime());
+
                         setTreeExpansion(EnsembleToolManager.getInstance()
                                 .getActiveToolLayer().getExpandedElements());
-                        ensemblesTreeViewer.refresh(false);
+
                         if ((selectedItems != null)
                                 && (selectedItems.length > 0)
                                 && (selectedItems[0] != null)) {
@@ -2224,23 +2303,74 @@ public class EnsembleToolViewer extends ViewPart {
                             }
                         }
                     }
+                    // always refresh the tree ...
+                    ensemblesTreeViewer.refresh(true);
                 }
-            }
 
+            }
         });
+
     }
 
-    private void setTreeExpansion(Object[] expandedElements) {
+    private void registerResources(
+            Map<String, List<GenericResourceHolder>> ensembleResourcesMap) {
+
+        List<AbstractVizResource<?, ?>> allResources = getAllResources(ensembleResourcesMap);
+        for (AbstractVizResource<?, ?> vr : allResources) {
+            vr.registerListener(this);
+        }
+
+    }
+
+    private void unregisterResources(
+            Map<String, List<GenericResourceHolder>> previousResourcesMap) {
+
+        List<AbstractVizResource<?, ?>> allResources = getAllResources(previousResourcesMap);
+        for (AbstractVizResource<?, ?> vr : allResources) {
+            vr.unregisterListener(this);
+        }
+    }
+
+    private List<AbstractVizResource<?, ?>> getAllResources(
+            Map<String, List<GenericResourceHolder>> previousResourcesMap) {
+
+        List<AbstractVizResource<?, ?>> allRscs = new ArrayList<AbstractVizResource<?, ?>>();
+        List<GenericResourceHolder> currList = null;
+
+        Set<String> keys = previousResourcesMap.keySet();
+        for (String k : keys) {
+            currList = previousResourcesMap.get(k);
+            for (GenericResourceHolder grh : currList) {
+                allRscs.add(grh.getRsc());
+            }
+        }
+        return allRscs;
+    }
+
+    private void setTreeExpansion(List<String> expandedElements) {
         TreeItem ti = null;
-        for (Object o : expandedElements) {
-            if (o instanceof String) {
-                String s = (String) o;
-                ti = this.findTreeItemByLabelName(s);
-                if (ti != null) {
-                    ti.setExpanded(true);
+        for (String s : expandedElements) {
+            ti = this.findTreeItemByLabelName(s);
+            if (ti != null) {
+                ti.setExpanded(true);
+            }
+        }
+    }
+
+    private List<String> getTreeExpansion() {
+
+        List<String> expandedItems = new ArrayList<String>();
+        TreeItem[] children = ensemblesTreeViewer.getTree().getItems();
+        List<TreeItem> immediateChildren = Arrays.asList(children);
+        for (TreeItem ti : immediateChildren) {
+            if (ti.getData() instanceof String) {
+                String s = (String) ti.getData();
+                if (ti.getExpanded()) {
+                    expandedItems.add(s);
                 }
             }
         }
+        return expandedItems;
     }
 
     /*
@@ -2248,7 +2378,7 @@ public class EnsembleToolViewer extends ViewPart {
      */
     public void updateExpansionState() {
         EnsembleToolManager.getInstance().getActiveToolLayer()
-                .setExpandedElements(ensemblesTreeViewer.getExpandedElements());
+                .setExpandedElements(getTreeExpansion());
     }
 
     protected TreeItem calculationItemSelected = null;
@@ -3352,14 +3482,38 @@ public class EnsembleToolViewer extends ViewPart {
 
         @Override
         public void treeCollapsed(TreeExpansionEvent event) {
-            updateExpansionState();
+
+            VizApp.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    updateExpansionState();
+                }
+            });
         }
 
         @Override
         public void treeExpanded(TreeExpansionEvent event) {
-            updateExpansionState();
+            VizApp.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    updateExpansionState();
+                }
+            });
         }
+    }
 
+    @Override
+    public void refresh() {
+
+        if ((ensemblesTreeViewer != null)
+                && (EnsembleToolManager.getInstance().isReady())) {
+            VizApp.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    ensemblesTreeViewer.refresh(true);
+                }
+            });
+        }
     }
 
 }
