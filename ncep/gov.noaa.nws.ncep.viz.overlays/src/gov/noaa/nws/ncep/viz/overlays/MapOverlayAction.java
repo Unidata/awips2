@@ -24,17 +24,21 @@ import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
+import com.raytheon.uf.viz.core.maps.MapStore;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 
 /**
@@ -113,13 +117,28 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                     if( seldPanes.length == 0 ) {
                     	System.out.println("There are no Selected Panes to load to?");
                     }
-
+                    
+                            
                     // this assumes a map bundle has only a single display 
                     for (IDisplayPane pane : seldPanes ) {
+                        // check to see if map already loaded
+                    	//IDisplayPaneContainer cont = EditorUtil.getActiveVizContainer();
+                        String mapName = MapStore.findMapName(overlayName);
+                        //ResourcePair rpAll = findMapInAllPanes(mapName, cont);
+                        //ResourcePair frp = findMap(mapName);
+                        
                     	existingMD = pane.getRenderableDisplay().getDescriptor();
 
                     	ResourceList resourceList = existingMD.getResourceList();
+                    	
                     	ResourcePair rp = new ResourcePair();
+                    	
+                    	for (ResourcePair rpe : resourceList) {
+                            if (rpe.getResource() != null && rpe.getResource().getName() != null
+                                    && rpe.getResource().getName().equals(mapName)) {
+                                break;
+                            }
+                        }
                     	rp.setResourceData( ovrlyRscData );
                     	resourceList.add( rp ); 
                     	resourceList.instantiateResources( existingMD, true );
@@ -138,9 +157,10 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
 
         j.schedule();
 
+
         return null;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -149,6 +169,18 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
      */
     @SuppressWarnings("unchecked")
     public void updateElement(UIElement element, Map parameters) {
+    	IDisplayPaneContainer cont = EditorUtil.getActiveVizContainer();
+    	if (cont != null) {
+            for (IDisplayPane pane : getSelectedPanes(cont)) {
+                IDescriptor descriptor = pane.getDescriptor();
+                if (descriptor instanceof IMapDescriptor) {
+                    element.setChecked(MapManager.getInstance(
+                            (IMapDescriptor) descriptor).isMapLoaded(
+                            (String) parameters.get("mapName")));
+                }
+            }
+        }
+    	/*
     	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
         if (editor == null) {
             return;
@@ -157,12 +189,22 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
         IDescriptor descriptor = editor.getActiveDisplayPane().getDescriptor();
         
         if (descriptor instanceof IMapDescriptor) {
-            //element.setChecked(((IMapDescriptor) descriptor).getMapManager()
-            //        .isMapLoaded((String) parameters.get("mapName")));
-            element.setChecked(MapManager.getInstance((IMapDescriptor) descriptor)
-                    .isMapLoaded((String) parameters.get("mapName")));
-            
-            //MapManager.getInstance((IMapDescriptor) descriptor)
+            element.setChecked(MapManager.getInstance(
+                    (IMapDescriptor) descriptor).isMapLoaded(
+                    (String) parameters.get("mapName")));
         }
+        */
+    }
+    protected IDisplayPane[] getSelectedPanes(IDisplayPaneContainer editor) {
+        IDisplayPane[] displayPanes = editor.getDisplayPanes();
+
+        if (editor instanceof IMultiPaneEditor) {
+            IDisplayPane selected = ((IMultiPaneEditor) editor)
+                    .getSelectedPane(IMultiPaneEditor.LOAD_ACTION);
+            if (selected != null) {
+                displayPanes = new IDisplayPane[] { selected };
+            }
+        }
+        return displayPanes;
     }
 }
