@@ -18,6 +18,8 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * 										dataStore.retrieveGroups()
  * Oct 15, 2012 2473        bsteffen    Remove ncgrib
  * 03/2014		1116		T. Lee		Added DpD
+ * 01/2015      DR#16959    Chin Chen   Added DpT support to fix DR 16959 NSHARP freezes when loading a sounding from 
+ *                                      HiRes-ARW/NMM models
  * </pre>
  * 
  * @author Chin Chen
@@ -66,12 +68,12 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 //import org.opengis.geometry.Envelope;
 
 public class MdlSoundingQuery {
-    private static final String D2DGRIB_TBL_NAME = "grid";
+    private static final String GRID_TBL_NAME = "grid";
 
-    private static String D2D_PARMS = "GH, uW, vW,T, DWPK, SPFH,OMEG, RH, DpD";
+    private static String GRID_PARMS = "GH, uW, vW,T, DWPK, SPFH,OMEG, RH, DpD, DpT";
 
-    private enum D2DParmNames {
-        GH, uW, vW, T, DWPK, SPFH, OMEG, RH, DpD
+    private enum GridParmNames {
+        GH, uW, vW, T, DWPK, SPFH, OMEG, RH, DpD, DpT
     };
 
     public static UnitConverter kelvinToCelsius = SI.KELVIN
@@ -415,7 +417,7 @@ public class MdlSoundingQuery {
     public static NcSoundingModel getMdls(String pluginName) {
         NcSoundingModel mdls = new NcSoundingModel();
         Object[] mdlName = null;
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridInfoRecord.class));
             String queryStr = new String(
                     "Select Distinct modelname FROM grib_models ORDER BY modelname");
@@ -437,7 +439,7 @@ public class MdlSoundingQuery {
 
         ISpatialObject spatialArea = null;
         MathTransform crsFromLatLon = null;
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
             DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
@@ -524,7 +526,7 @@ public class MdlSoundingQuery {
 
         ISpatialObject spatialArea = null;
         MathTransform crsFromLatLon = null;
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
             DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
@@ -597,7 +599,7 @@ public class MdlSoundingQuery {
     public static Float getModelSfcPressure(Point pnt, String refTime,
             String validTime, String pluginName, String modelName) {
 
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
             DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
@@ -662,7 +664,7 @@ public class MdlSoundingQuery {
         List<NcSoundingProfile> soundingProfileList = new ArrayList<NcSoundingProfile>();
         List<float[]> fdataArrayList = new ArrayList<float[]>();
         // long t01 = System.currentTimeMillis();
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             List<GridRecord> recList = new ArrayList<GridRecord>();
             ;
             TableQuery query;
@@ -670,7 +672,7 @@ public class MdlSoundingQuery {
                 query = new TableQuery("metadata", GridRecord.class.getName());
                 query.addParameter(GridConstants.MASTER_LEVEL_NAME, "MB");
                 query.addParameter(GridConstants.DATASET_ID, modelName);
-                query.addList(GridConstants.PARAMETER_ABBREVIATION, D2D_PARMS);
+                query.addList(GridConstants.PARAMETER_ABBREVIATION, GRID_PARMS);
                 query.addParameter("dataTime.refTime", refTime);
                 query.addParameter("dataTime.validPeriod.start", validTime);
                 query.setSortBy(GridConstants.LEVEL_ONE, false);
@@ -707,7 +709,8 @@ public class MdlSoundingQuery {
                         float fdata = fdataArray[i];
                         if (rec1.getLevel().getLevelonevalue() == pressure) {
                             String prm = rec1.getParameter().getAbbreviation();
-                            switch (D2DParmNames.valueOf(prm)) {
+                            //System.out.println("prm="+prm+" value="+fdata);
+                            switch (GridParmNames.valueOf(prm)) {
                             case GH:
                                 soundingLy.setGeoHeight(fdata);
                                 break;
@@ -743,6 +746,15 @@ public class MdlSoundingQuery {
                             case DpD:
                                 soundingLy.setDpd(fdata);
                                 break;
+                            case DpT:
+                            	soundingLy.setDewpoint((float) kelvinToCelsius
+                                        .convert(fdata));
+                                break;
+                            case SPFH:
+                            	soundingLy.setSpecHumidity(fdata);
+                            	break;
+                            default: 
+                            	break;
                             }
                         }
                     }
@@ -939,7 +951,7 @@ public class MdlSoundingQuery {
             String pluginName, String modelName) {
 
         // List<?>vals = null;
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
             DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
             query.addDistinctParameter(GridConstants.LEVEL_ONE);
@@ -990,7 +1002,7 @@ public class MdlSoundingQuery {
 
         Point pnt = null;
 
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
             DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
