@@ -111,7 +111,7 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                 	ResourcePair rscPair = rbt.getResourcePair();
             		ResourceProperties props = rscPair.getProperties();
             		AbstractResourceData ovrlyRscData = rscPair.getResourceData(); 
-            		
+
                     IDisplayPane[] seldPanes = NcEditorUtil.getSelectedPanes(editor);
                     
                     if( seldPanes.length == 0 ) {
@@ -121,27 +121,37 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                             
                     // this assumes a map bundle has only a single display 
                     for (IDisplayPane pane : seldPanes ) {
-                        // check to see if map already loaded
-                    	//IDisplayPaneContainer cont = EditorUtil.getActiveVizContainer();
-                        String mapName = MapStore.findMapName(overlayName);
-                        //ResourcePair rpAll = findMapInAllPanes(mapName, cont);
-                        //ResourcePair frp = findMap(mapName);
-                        
+                    	
                     	existingMD = pane.getRenderableDisplay().getDescriptor();
-
                     	ResourceList resourceList = existingMD.getResourceList();
                     	
                     	ResourcePair rp = new ResourcePair();
+                    	//Boolean checkRl = resourceList.;
                     	
                     	for (ResourcePair rpe : resourceList) {
+                    		// If resource is already loaded
                             if (rpe.getResource() != null && rpe.getResource().getName() != null
-                                    && rpe.getResource().getName().equals(mapName)) {
-                                break;
-                            }
+                                    && rpe.getResourceData().equals(ovrlyRscData)) {
+                            		//rpe.setResourceData( rpe.getResourceData() );
+                            		rp.setResourceData( null );
+                            		
+                            		resourceList.remove( rpe ); 
+                            		//resourceList.removeRsc(rp.getResource());
+                            		break;
+                            		//unload map from the current mapDescriptor
+                                    //AbstractVizResource<?, ?> rsc = map.getResource();
+                                    //mapDescriptor.getResourceList().removeRsc(rsc);
+                            } else {
+                            	//ResourcePair rp = new ResourcePair();
+                            	//rp.setResourceData( ovrlyRscData );
+                            	
+                            	rp.setResourceData( ovrlyRscData );
+                            	resourceList.add( rp ); 
+                            }	
                         }
-                    	rp.setResourceData( ovrlyRscData );
-                    	resourceList.add( rp ); 
+                    	
                     	resourceList.instantiateResources( existingMD, true );
+                    	
                     }
 
                     editor.refresh();
@@ -169,7 +179,9 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
      */
     @SuppressWarnings("unchecked")
     public void updateElement(UIElement element, Map parameters) {
-    	IDisplayPaneContainer cont = EditorUtil.getActiveVizContainer();
+    	
+    	/*
+    	 * IDisplayPaneContainer cont = EditorUtil.getActiveVizContainer();
     	if (cont != null) {
             for (IDisplayPane pane : getSelectedPanes(cont)) {
                 IDescriptor descriptor = pane.getDescriptor();
@@ -180,7 +192,8 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                 }
             }
         }
-    	/*
+    	*/
+    	
     	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
         if (editor == null) {
             return;
@@ -193,7 +206,7 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                     (IMapDescriptor) descriptor).isMapLoaded(
                     (String) parameters.get("mapName")));
         }
-        */
+        
     }
     protected IDisplayPane[] getSelectedPanes(IDisplayPaneContainer editor) {
         IDisplayPane[] displayPanes = editor.getDisplayPanes();
