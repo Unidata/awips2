@@ -2719,6 +2719,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
     }
 
     public void removeSelectedResource(ResourceSelection rscSel) {
+    	rbdMngr.removeSelectedResource(rscSel);
         /*
         if (groupListViewer.getSelection() == null
                 || groupListViewer.getSelection().isEmpty()
