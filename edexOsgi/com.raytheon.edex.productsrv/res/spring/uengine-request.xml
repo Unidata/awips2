@@ -20,9 +20,8 @@
                              location="classpath:edex-uengine.properties" />
         
         <restConfiguration component="jetty" host="0.0.0.0" port="{{env:HTTP_PORT}}" >
-            <componentProperty key="disableStreamCache" value="{{edex.uengine.http.disableStreamCache}}" />
-            <componentProperty key="chunked" value="{{edex.uengine.http.chunked}}" />
-            <componentProperty key="matchOnUriPrefix" value="{{edex.uengine.http.matchOnUriPrefix}}" />
+            <endpointProperty key="disableStreamCache" value="{{edex.uengine.http.disableStreamCache}}" />
+            <endpointProperty key="chunked" value="{{edex.uengine.http.chunked}}" />
         </restConfiguration>
 
         <rest path="{{env:HTTP_SERVER_PATH}}">
