@@ -43,7 +43,6 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -68,6 +67,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 08/06/13       #1571    randerso    Added hibernate annotations, javadoc cleanup
  * 10/22/2013     #2361    njensen     Remove ISerializableObject
  * 05/06/2014     #3118    randerso    Changed clone() to also clone gridLoc
+ * 01/13/2015     #3955    randerso    Moved GridType enum to GridParmInfo where it belongs
  * 
  * </pre>
  * 
@@ -78,6 +78,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @Embeddable
 @DynamicSerialize
 public class GridParmInfo implements Cloneable {
+    /** Grid type enumeration */
+    public enum GridType {
+        NONE, SCALAR, VECTOR, WEATHER, DISCRETE
+    }
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridParmInfo.class);

@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.temporaleditor.AbstractTemporalEditorBar;
 import com.raytheon.viz.gfe.temporaleditor.TEParmDisplayAttributes;

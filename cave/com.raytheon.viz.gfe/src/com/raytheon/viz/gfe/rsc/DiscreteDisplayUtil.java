@@ -28,8 +28,8 @@ import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -54,17 +54,17 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 /**
  * Utilities for displaying GFEResources correctly. Determines the fill color
  * and/or pattern for discrete data (Weather or Hazard grids).
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 9, 2009            njensen     Initial creation
  * Jan 9, 2013  15648     ryu         Update colormap when new discrete colrmap is selected.
- *
+ * 
  * </pre>
- *
+ * 
  * @author njensen
  * @version 1.0
  */
@@ -101,7 +101,7 @@ public class DiscreteDisplayUtil {
      * Delete the discrete color map for parm. This should be done whenever the
      * color map in the resource is changed (to make getFillColor() load the new
      * color map), or when the parm is destroyed (to conserve storage).
-     *
+     * 
      * @param parm
      *            The discrete parm whose color map is to be deleted.
      */
@@ -115,7 +115,7 @@ public class DiscreteDisplayUtil {
 
     /**
      * Given a parm, build a ColorMapParameters object for it.
-     *
+     * 
      * @param aparm
      *            The parm for which color map parameters should be built.
      * @return the ColorMapParameters for the parm.
@@ -215,18 +215,18 @@ public class DiscreteDisplayUtil {
         if (info.getGridType() == GridType.DISCRETE) {
             List<String> keys = info.getDiscreteKeys();
             DataMappingPreferences dataMap = new DataMappingPreferences();
-            for (int i=0; i < keys.size(); i++) {
+            for (int i = 0; i < keys.size(); i++) {
                 DataMappingEntry entry = new DataMappingEntry();
-                entry.setPixelValue((double) i+0.5);
+                entry.setPixelValue(i + 0.5);
                 entry.setLabel(keys.get(i));
                 entry.setOperator("<");
                 dataMap.addEntry(entry);
             }
             colorMP.setDataMapping(dataMap);
             colorMP.setDataMin(0);
-            colorMP.setDataMax(keys.size()-1);
+            colorMP.setDataMax(keys.size() - 1);
             colorMP.setColorMapMin(0);
-            colorMP.setColorMapMax(keys.size()-1);
+            colorMP.setColorMapMax(keys.size() - 1);
         }
 
         deleteParmColorMap(aparm);
