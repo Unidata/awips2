@@ -156,8 +156,22 @@ public class OverlayMenu extends CompoundContributionItem {
     private CommandContributionItem createOverlayMenuItem( ResourceDefinition ovrlyRsc ) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("overlayName", ovrlyRsc.getResourceDefnName() );
-		params.put("overlayRscName", ovrlyRsc.getLocalizationName() );
+		ResourceName fullRscName = new ResourceName( 
+    			ResourceCategory.OverlayRscCategory, ovrlyRsc.getResourceDefnName(), null );
+		//params.put("resourceName", fullRscName.toString());
+		if (ovrlyRsc.getResourceDefnName().equals("LatLon")) {
+		//System.out.println("ovrlyRsc.getResourceDefnName: " + ovrlyRsc.getResourceDefnName());
+		//System.out.println("ovrlyRsc.getLocalizationFile: " + ovrlyRsc.getLocalizationFile());
+		//System.out.println("ovrlyRsc.getInventoryAlias: " + ovrlyRsc.getInventoryAlias() );
+		//System.out.println("ovrlyRsc.getLocalizationName: " + ovrlyRsc.getLocalizationName() );
+		//System.out.println("ovrlyRsc.getRscImplementation: " + ovrlyRsc.getRscImplementation() );
+		//System.out.println("ovrlyRsc.getRscTypeGenerator: " + ovrlyRsc.getRscTypeGenerator() );
+		//System.out.println("ovrlyRsc.getResourceCategory: " + ovrlyRsc.getResourceCategory() );
+		//System.out.println("ovrlyRsc.getAttrSetOrg: " + ovrlyRsc.getAttrSetOrg() );
+		System.out.println("---------");
 		System.out.println("setting overlayName as: " + ovrlyRsc.getResourceDefnName());
+		//System.out.println("ovrlyRsc: " + ovrlyRsc);
+		}
 		//System.out.println("ovrlyRsc.getLocalizationName() is: " + ovrlyRsc.getLocalizationName());
 		//		getLocalizationName());
 		CommandContributionItemParameter param = new CommandContributionItemParameter(
