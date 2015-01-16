@@ -24,7 +24,10 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.ui.personalities.awips
 Eclipse-LazyStart: true
 Export-Package: gov.noaa.nws.ncep.viz.ui.perspectives;uses:="org.eclipse.ui,org.eclipse.ui.plugin,org.osgi.framework"
-Import-Package: com.raytheon.uf.viz.core.maps.display,
+Import-Package: com.raytheon.uf.viz.core.maps,
+ com.raytheon.uf.viz.core.maps.display,
+ com.raytheon.uf.viz.core.maps.menus,
+ com.raytheon.uf.viz.ui.menus.widgets,
  com.raytheon.viz.alerts.observers,
  gov.noaa.nws.ncep.viz.gempak.grid.inv,
  gov.noaa.nws.ncep.viz.gempak.grid.mapper,
