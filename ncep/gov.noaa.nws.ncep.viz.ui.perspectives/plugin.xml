@@ -785,8 +785,8 @@
                optional="false">
          </commandParameter>
           <commandParameter
-               id="overlayRscName"
-               name="overlayRscName"
+               id="resourceName"
+               name="resourceName"
                optional="false">
          </commandParameter>
       </command>

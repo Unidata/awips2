@@ -103,6 +103,8 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
     private ResourceCategory resourceCategory;
 
     private String localizationName; // the path
+    
+    private String mapName; // map name defined in each resource
 
     private LocalizationFile localizationFile;
 
@@ -288,7 +290,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
 
         generatedSubTypesList = new ArrayList<String>();
     }
-
+    
     public String getLocalizationName() {
         return localizationName;
     }

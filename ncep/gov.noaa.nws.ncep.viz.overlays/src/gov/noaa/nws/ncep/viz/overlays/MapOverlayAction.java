@@ -1,7 +1,9 @@
 package gov.noaa.nws.ncep.viz.overlays;
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceCategory;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -11,6 +13,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -180,40 +183,60 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
      * org.eclipse.ui.commands.IElementUpdater#updateElement(org.eclipse.ui.
      * menus.UIElement, java.util.Map)
      */
+    
     @SuppressWarnings("unchecked")
     public void updateElement(UIElement element, Map parameters) {
+    	    	 
+    	String OverlayName = (String) parameters.get("overlayName");
+    	String ResourceName = (String) parameters.get("resourceName");
     	
-    	String ResourceOverlayName = (String) parameters.get("overlayName");
-    	    	
     	ResourceName fullRscName = new ResourceName( 
-    			ResourceCategory.OverlayRscCategory, ResourceOverlayName, null );
+    			ResourceCategory.OverlayRscCategory, OverlayName, null );
     	
     	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
     	if (editor == null) {
             return;
         }
+    	System.out.println("overlayName: " + OverlayName);
+    	//System.out.println("resourceName: " + ResourceName);
+    	//System.out.println("fullRscName.getRscType(): " + fullRscName.getRscType());
+    	System.out.println("----MapOverlayAction-----");
     	
-    	System.out.println("---------");
-    	
+    	/*
+    	NcDisplayType dispType = NcEditorUtil.getNcDisplayType( 
+    			NcDisplayMngr.getActiveNatlCntrsEditor() );
+    	List<ResourceDefinition> ovrlyRscDfns = null;
+ 		try {
+ 			ovrlyRscDfns = ResourceDefnsMngr.getInstance().getResourceDefnsForCategory( ResourceCategory.OverlayRscCategory, "", dispType, 
+ 			false, true );
+ 		} catch (VizException e1) {
+ 			// TODO Auto-generated catch block
+ 			e1.printStackTrace();
+ 		} // no gen types, include disabled defns.
+ 		List<ResourceDefinition> ovrlyRDs = ovrlyRscDfns;
+ 		
+ 		for( ResourceDefinition ord : ovrlyRDs ) {
+        	System.out.println("ord="+ord.getResourceDefnName());
+            //ovrlyMenuMngr.add( createOverlayMenuItem( ord ) );
+        	if (ord.getResourceDefnName().equals(OverlayName)) {
+        		System.out.println("MATCH ord="+ord.getResourceDefnName());
+        	}
+        }  
+ 		*/
         IDescriptor descriptor = editor.getActiveDisplayPane().getDescriptor();
         
         if (descriptor instanceof IMapDescriptor) {
-
+        	//element.setChecked(MapManager.getInstance((IMapDescriptor) descriptor)
         	for (ResourcePair rscName : descriptor.getResourceList() ) {
-        		
-        		//if ( rscName.getResource().getName() != null ) {
-        			
-        			System.out.println("fullRscName.getRscType(): " + fullRscName.getRscType());
-        			System.out.println("ResourceOverlayName: " + ResourceOverlayName);
-        			//System.out.println("rscName.getResource().getName(): " + rscName.getResource().getName());
-        			if ( rscName.getResource().getName() == ResourceOverlayName) {
-        				element.setChecked( true );
-        			}
-        			
-        		//}
-        		
+    			//System.out.println("fullRscName.getRscType(): " + fullRscName.getRscType());
+    			//System.out.println("rscName.getResource().getName(): " + rscName.getResource().getName());
+    			if ( rscName.getResource().getName() == OverlayName) {
+    				element.setChecked( true );
+    			}
         	}
+        	
         }
     }
+
 }
