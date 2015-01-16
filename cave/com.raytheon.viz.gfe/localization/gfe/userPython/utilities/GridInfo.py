@@ -92,7 +92,7 @@ class GridInfo(object):
     ##
     # Return the grid type.
     # @return: the grid type 
-    # @rtype: com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType
+    # @rtype: com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType
     def type(self):
         return self.gridParmInfo.getGridType()
     

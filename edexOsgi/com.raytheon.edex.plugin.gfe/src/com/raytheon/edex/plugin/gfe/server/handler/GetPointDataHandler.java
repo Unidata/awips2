@@ -35,7 +35,7 @@ import javax.measure.unit.Unit;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.point.GFEPointDataContainer;

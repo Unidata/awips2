@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.progress.UIJob;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -152,9 +152,9 @@ public class GridCanvas extends Canvas implements IMessageClient {
         @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
             Point p = scrolledComp.getOrigin();
-            if ((increment < 0 && p.y > 0)
-                    || (increment > 0 && p.y < (getSize().y - scrolledComp
-                            .getClientArea().height))) {
+            if (((increment < 0) && (p.y > 0))
+                    || ((increment > 0) && (p.y < (getSize().y - scrolledComp
+                            .getClientArea().height)))) {
                 p.y += increment;
                 scrolledComp.setOrigin(p);
 
@@ -201,7 +201,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
         @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
 
-            if (!GridCanvas.this.isDisposed() && dirtyRect != null) {
+            if (!GridCanvas.this.isDisposed() && (dirtyRect != null)) {
                 Rectangle rect;
                 synchronized (this) {
                     rect = dirtyRect;
@@ -386,7 +386,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
                     if (e.y < p.y) {
                         scrollJob.setIncrement(-30);
                         scrollJob.schedule();
-                    } else if (e.y > p.y + r.height) {
+                    } else if (e.y > (p.y + r.height)) {
                         scrollJob.setIncrement(30);
                         scrollJob.schedule();
                     } else {
@@ -438,7 +438,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
             public void mouseClick(MouseEvent e) {
                 super.mouseClick(e);
 
-                if (e.stateMask == SWT.BUTTON1 || e.stateMask == SWT.BUTTON2) {
+                if ((e.stateMask == SWT.BUTTON1)
+                        || (e.stateMask == SWT.BUTTON2)) {
                     processClickEvent(e);
                 }
             }
@@ -455,8 +456,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
                 super.mouseDown(e);
 
                 GridBar gridBar = findClickedBar(e.x, e.y);
-                if (e.button == 1 && (e.stateMask & SWT.MODIFIER_MASK) == 0
-                        && gridBar != null) {
+                if ((e.button == 1) && ((e.stateMask & SWT.MODIFIER_MASK) == 0)
+                        && (gridBar != null)) {
                     if (!gridBar.inSelectionBox(e.x, e.y)) {
                         selectOnly(gridBar);
                         Date clickTime = gridManager.getUtil().pixelToDate(e.x);
@@ -523,7 +524,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
                         }
 
                         WxValue defaultValue = WxValue.defaultValue(parm);
-                        if (defaultValue != null
+                        if ((defaultValue != null)
                                 && !defaultValue.equals(parm.getParmState()
                                         .getPickUpValue())) {
                             menuMgr.add(new AssignAction(parm, overGrid
@@ -673,9 +674,9 @@ public class GridCanvas extends Canvas implements IMessageClient {
             gid = new GridID(grid.getParm(), grid.getGridTime().getStart());
         }
 
-        if (gid != null && gid.equals(quickviewGrid)) {
+        if ((gid != null) && gid.equals(quickviewGrid)) {
             return;
-        } else if (gid == null && quickviewGrid == null) {
+        } else if ((gid == null) && (quickviewGrid == null)) {
             return;
         }
 
@@ -720,7 +721,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
         int vPos = 0;
         separatorPosition = -1;
         for (GridBar gridBar : gridBarList) {
-            if (separatorPosition == -1 && !gridBar.getParm().isMutable()) {
+            if ((separatorPosition == -1) && !gridBar.getParm().isMutable()) {
                 separatorPosition = vPos;
                 vPos += SEPARATOR_HEIGHT + GRIDBAR_SPACING;
             }
@@ -880,9 +881,9 @@ public class GridCanvas extends Canvas implements IMessageClient {
         if (gridBarList.size() > 0) {
             rect = gridBarList.get(gridBarList.size() - 1).getBounds();
             return new Point(hint, rect.y + rect.height + SEPARATOR_HEIGHT
-                    + GRIDBAR_SPACING * 2);
+                    + (GRIDBAR_SPACING * 2));
         } else {
-            return new Point(hint, SEPARATOR_HEIGHT + GRIDBAR_SPACING * 2);
+            return new Point(hint, SEPARATOR_HEIGHT + (GRIDBAR_SPACING * 2));
         }
     }
 
@@ -930,7 +931,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         // make it active, make it inactive depending upon okToEdit
         try {
-            if (clickGridID.grid() != null && clickGridID.grid().isOkToEdit()) {
+            if ((clickGridID.grid() != null) && clickGridID.grid().isOkToEdit()) {
                 gridManager.getDataManager().getSpatialDisplayManager()
                         .activateParm(parm);
             } else {
@@ -1009,8 +1010,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
                     scrolledComp.setOrigin(p);
                 } else {
                     Rectangle ca = scrolledComp.getClientArea();
-                    if (rect.y + rect.height > p.y + ca.height) {
-                        p.y = rect.y + rect.height - ca.height;
+                    if ((rect.y + rect.height) > (p.y + ca.height)) {
+                        p.y = (rect.y + rect.height) - ca.height;
                         scrolledComp.setOrigin(p);
                     }
                 }
