@@ -29,6 +29,9 @@ import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.maps.MapStore;
+import com.raytheon.uf.viz.core.maps.MapStore.MapNode;
+import com.raytheon.uf.viz.ui.menus.widgets.AbstractTearOffableCompoundContributionItem;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
@@ -55,16 +58,129 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @version 1
  */
 public class OverlayMenu extends CompoundContributionItem {
+
+	@Override
+	protected IContributionItem[] getContributionItems() {
+		
+		IMenuManager ovrlyMenuMngr = new MenuManager( "Overlays", 
+        		OverlayMenu.class.getName() );
+		
+		List<String> enabledFiltersList = new ArrayList<String>();
+		
+        List<String> disabledFiltersList = new ArrayList<String>();
+        
+        List<ResourceDefinition> enabledOvrlyRscDfns = 
+        		new ArrayList<ResourceDefinition>();
+        
+        List<ResourceDefinition> disabledOvrlyRscDfns = 
+        		new ArrayList<ResourceDefinition>();
+        
+        NcDisplayType dispType = NcEditorUtil.getNcDisplayType( 
+        			NcDisplayMngr.getActiveNatlCntrsEditor() );
+        if( dispType != NcDisplayType.NMAP_DISPLAY ) { // ???
+            return new IContributionItem[0];
+        }
+
+        List<ResourceDefinition> ovrlyRscDfns = null;
+		try {
+			ovrlyRscDfns = ResourceDefnsMngr.getInstance().
+			getResourceDefnsForCategory( 
+			ResourceCategory.OverlayRscCategory, "", dispType, 
+			false, true );
+		} catch (VizException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} // no gen types, include disabled defns.
+        Collections.sort( ovrlyRscDfns, new Comparator<ResourceDefinition>() { // alphabetize
+        	
+        	private Integer getCategory( ResourceDefinition o ) {
+        		if( o.getRscImplementation().equals( "LatlonOverlay" ) ) {
+        			return 1;
+        		}
+        		else if( o.getRscImplementation().equals( "Locator" ) ) {
+        			return 2;
+        		}
+        		else if( o.getRscImplementation().equals( "ScaleOverlay" ) ) {
+        			return 3;
+        		}
+        		else {
+        			return 4;
+        		}
+        	}
+        	
+        	public int compare(ResourceDefinition o1, ResourceDefinition o2) { // ...case
+        		if( getCategory(o1) != getCategory(o2) ) {
+        			return getCategory( o1 )-getCategory( o2 );
+        		}
+        		return o1.getResourceDefnName().compareToIgnoreCase( o2.getResourceDefnName() );
+        	}
+        });
+        
+        for( ResourceDefinition rd : ovrlyRscDfns ) { 
+        	
+        	if( rd.getResourceDefnName().equals( dispType.getBaseResource() ) ) {
+        		continue;
+        	}
+        	
+        	List<String> filtList = ( rd.isEnabled() ? enabledFiltersList : disabledFiltersList );
+        	List<ResourceDefinition> ovrlyRDs = 
+        		                    ( rd.isEnabled() ? enabledOvrlyRscDfns : disabledOvrlyRscDfns );
+
+        	ovrlyRDs.add( rd );
+        		
+        	List<String> ordFiltList = null;
+			try {
+				ordFiltList = ResourceDefnsMngr.getInstance().
+				getResourceDefnFilter( rd.getResourceDefnName() ).getFilters();
+			} catch (VizException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	
+        	for( String filtStr : ordFiltList ) { 
+        		if( !filtList.contains( filtStr ) ) {
+        			filtList.add( filtStr );
+        		}
+        	}
+        }
+        
+        for( ResourceDefinition ord : enabledOvrlyRscDfns ) {
+        	//System.out.println("ord="+ord.getResourceDefnName());
+            ovrlyMenuMngr.add( createOverlayMenuItem( ord ) );            	
+        }  
+        
+		return ovrlyMenuMngr.getItems();
+
+    }
 	
+    private CommandContributionItem createOverlayMenuItem( ResourceDefinition ovrlyRsc ) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("overlayName", ovrlyRsc.getResourceDefnName() );
+		//params.put("shortName", ovrlyRsc.getResourceDefnName() );
+		System.out.println("ovrlyRsc.getResourceDefnName() is: " + ovrlyRsc.getResourceDefnName());
+		//		getLocalizationName());
+		CommandContributionItemParameter param = new CommandContributionItemParameter(
+				PlatformUI.getWorkbench(), null,
+				"gov.noaa.nws.ncep.viz.ui.actions.loadOverlay", params,
+				null, null, null, ovrlyRsc.getResourceDefnName(), null, null,
+				CommandContributionItem.STYLE_CHECK, null, true);
+		
+		return new CommandContributionItem( param );
+		
+    }
+/*
     @Override
     protected IContributionItem[] getContributionItems() {
-        IMenuManager ovrlyMenuMngr = new MenuManager( "Overlays", OverlayMenu.class.getName() );
+        IMenuManager ovrlyMenuMngr = new MenuManager( "Overlays", 
+        		OverlayMenu.class.getName() );
 
         try {
             List<String> enabledFiltersList = new ArrayList<String>();
             List<String> disabledFiltersList = new ArrayList<String>();
-            List<ResourceDefinition> enabledOvrlyRscDfns = new ArrayList<ResourceDefinition>();
-            List<ResourceDefinition> disabledOvrlyRscDfns = new ArrayList<ResourceDefinition>();
+            List<ResourceDefinition> enabledOvrlyRscDfns = 
+            		new ArrayList<ResourceDefinition>();
+            List<ResourceDefinition> disabledOvrlyRscDfns = 
+            		new ArrayList<ResourceDefinition>();
             
             NcDisplayType dispType = NcEditorUtil.getNcDisplayType( 
             			NcDisplayMngr.getActiveNatlCntrsEditor() );
@@ -72,7 +188,9 @@ public class OverlayMenu extends CompoundContributionItem {
                 return new IContributionItem[0];
             }
 
-            List<ResourceDefinition> ovrlyRscDfns = ResourceDefnsMngr.getInstance().getResourceDefnsForCategory( 
+            List<ResourceDefinition> ovrlyRscDfns = 
+            		ResourceDefnsMngr.getInstance().
+            		getResourceDefnsForCategory( 
             		ResourceCategory.OverlayRscCategory, "", dispType, 
             		false, true ); // no gen types, include disabled defns.
 
@@ -83,7 +201,7 @@ public class OverlayMenu extends CompoundContributionItem {
             			return 1;
             		}
             		else if( o.getRscImplementation().equals( "Locator" ) ) {
-            			return 3;
+            			return 2;
             		}
             		else if( o.getRscImplementation().equals( "ScaleOverlay" ) ) {
             			return 3;
@@ -169,28 +287,6 @@ public class OverlayMenu extends CompoundContributionItem {
             		disabledFiltersList.add("Other");
             	}
 
-            	// add a sub-menu for each filter string
-            	// - no, don't do this anymore
-            	/*
-            	for( String filtStr : disabledFiltersList ) {
-            		IMenuManager filtMenu = new MenuManager( filtStr,
-            				moreMenu.getId() + "." + filtStr );
-
-            		for( ResourceDefinition ord : disabledOvrlyRscDfns ) {
-                    	List<String> ordFiltList = ResourceDefnsMngr.getInstance().
-                    			getResourceDefnFilter( ord.getResourceDefnName() ).getFilters();
-
-            			if( (filtStr.equals("Other") && 
-            					ordFiltList.isEmpty()) || 
-            					ordFiltList.contains( filtStr ) ) {
-
-            				filtMenu.add( createOverlayMenuItem( ord ) ); //filtOvrlyMenuItem );
-            			}
-            		}
-
-            		moreMenu.add( filtMenu );
-            	}
-            	*/
             	for( ResourceDefinition ord : disabledOvrlyRscDfns ) {
                 	List<String> ordFiltList = ResourceDefnsMngr.getInstance().
                 			getResourceDefnFilter( ord.getResourceDefnName() ).getFilters();
@@ -205,7 +301,7 @@ public class OverlayMenu extends CompoundContributionItem {
             return new IContributionItem[0];
         }
     }
-    
+
     private CommandContributionItem createOverlayMenuItem( ResourceDefinition ovrlyRsc ) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("overlayName", ovrlyRsc.getResourceDefnName() );
@@ -219,5 +315,8 @@ public class OverlayMenu extends CompoundContributionItem {
 		return new CommandContributionItem( param );
 		
     }
+    
+*/
+
 }
 

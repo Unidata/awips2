@@ -81,18 +81,17 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
         if (arg0.getCommand() == null) {
             return null;
         }
-
         final AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
         if( editor == null )
             return null;
 
-        Job j = new Job("Loading Map Overlays...") {
+        Job j = new Job("Loading Overlay...") {
             @SuppressWarnings("unchecked")
 			@Override
             protected IStatus run(IProgressMonitor monitor) {
                 long t0 = System.currentTimeMillis();
                 String overlayName = arg0.getParameter("overlayName");
-
+                //System.out.println(overlayName);
                 if (overlayName == null) {
                     return new Status(IStatus.ERROR, UiPlugin.PLUGIN_ID,
                             "bundleName was null");
@@ -111,7 +110,7 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                 	ResourcePair rscPair = rbt.getResourcePair();
             		ResourceProperties props = rscPair.getProperties();
             		AbstractResourceData ovrlyRscData = rscPair.getResourceData(); 
-
+            		AbstractVizResource ovrlyRsc = rscPair.getResource(); 
                     IDisplayPane[] seldPanes = NcEditorUtil.getSelectedPanes(editor);
                     
                     if( seldPanes.length == 0 ) {
@@ -125,9 +124,10 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                     	existingMD = pane.getRenderableDisplay().getDescriptor();
                     	ResourceList resourceList = existingMD.getResourceList();
                     	
+
                     	ResourcePair rp = new ResourcePair();
-                    	//Boolean checkRl = resourceList.;
-                    	
+                    	rp.setResourceData( ovrlyRscData );
+						
                     	for (ResourcePair rpe : resourceList) {
                     		// If resource is already loaded
                             if (rpe.getResource() != null && rpe.getResource().getName() != null
@@ -145,7 +145,7 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                             	//ResourcePair rp = new ResourcePair();
                             	//rp.setResourceData( ovrlyRscData );
                             	
-                            	rp.setResourceData( ovrlyRscData );
+                            	
                             	resourceList.add( rp ); 
                             }	
                         }
@@ -166,58 +166,45 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
         };
 
         j.schedule();
-
-
+        //NcEditorUtil.refreshGUIElements(NcDisplayMngr.getActiveNatlCntrsEditor());
+        // this doesn't appear to change anything
+        //NcEditorUtil.refreshGUIElements( (AbstractEditor)editor );
         return null;
+
     }
-    
+
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.ui.commands.IElementUpdater#updateElement(org.eclipse.ui.menus.UIElement,
-     *      java.util.Map)
+     * @see
+     * org.eclipse.ui.commands.IElementUpdater#updateElement(org.eclipse.ui.
+     * menus.UIElement, java.util.Map)
      */
     @SuppressWarnings("unchecked")
     public void updateElement(UIElement element, Map parameters) {
     	
-    	/*
-    	 * IDisplayPaneContainer cont = EditorUtil.getActiveVizContainer();
-    	if (cont != null) {
-            for (IDisplayPane pane : getSelectedPanes(cont)) {
-                IDescriptor descriptor = pane.getDescriptor();
-                if (descriptor instanceof IMapDescriptor) {
-                    element.setChecked(MapManager.getInstance(
-                            (IMapDescriptor) descriptor).isMapLoaded(
-                            (String) parameters.get("mapName")));
-                }
-            }
-        }
-    	*/
+    	String ResourceOverlayName = (String) parameters.get("overlayName");
+    	
+    	//ResourceName fullRscName = new ResourceName( 
+    	//		ResourceCategory.OverlayRscCategory, ResourceOverlayName, null );
     	
     	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
-        if (editor == null) {
+    	if (editor == null) {
             return;
         }
-
+    	
         IDescriptor descriptor = editor.getActiveDisplayPane().getDescriptor();
         
         if (descriptor instanceof IMapDescriptor) {
-            element.setChecked(MapManager.getInstance(
-                    (IMapDescriptor) descriptor).isMapLoaded(
-                    (String) parameters.get("mapName")));
-        }
-        
-    }
-    protected IDisplayPane[] getSelectedPanes(IDisplayPaneContainer editor) {
-        IDisplayPane[] displayPanes = editor.getDisplayPanes();
 
-        if (editor instanceof IMultiPaneEditor) {
-            IDisplayPane selected = ((IMultiPaneEditor) editor)
-                    .getSelectedPane(IMultiPaneEditor.LOAD_ACTION);
-            if (selected != null) {
-                displayPanes = new IDisplayPane[] { selected };
-            }
+        	for (ResourcePair rscName : descriptor.getResourceList() ) {
+        		
+        		System.out.println("getResource().getName(): " + rscName.getResource().getName());
+        		System.out.println("ResourceOverlayName: " + ResourceOverlayName);
+        		if ( rscName.getResource().getName() == ResourceOverlayName) {
+        	        	element.setChecked( true );
+        	    }
+        	}
         }
-        return displayPanes;
     }
 }
