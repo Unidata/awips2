@@ -137,7 +137,7 @@
       </nc-resourceParameter>
       <nc-resourceParameter
             paramClass="String"
-            paramName="mapPath"
+            paramName="overlay"
             paramType="IMPLEMENTATION_PARAM"
             ncResourceName="DbOverlay">
       </nc-resourceParameter>
@@ -198,12 +198,6 @@
             paramType="IMPLEMENTATION_PARAM"
             ncResourceName="OverlayGroup">
       </nc-resourceParameter>
-      <nc-resourceParameter
-            paramClass="String"
-            paramName="mapPath"
-            paramType="IMPLEMENTATION_PARAM"
-            ncResourceName="OverlayGroup">
-      </nc-resourceParameter> 
       
       <nc-resourceParameter
             paramClass="RGB"
@@ -400,12 +394,6 @@
             paramType="IMPLEMENTATION_PARAM"
             ncResourceName="PointOverlay">
       </nc-resourceParameter>
-      <nc-resourceParameter
-            paramClass="String"
-            paramName="mapPath"
-            paramType="IMPLEMENTATION_PARAM"
-            ncResourceName="PointOverlay">
-      </nc-resourceParameter>    
  
  <!-- The Resource for displaying Day/Night Terminator overlay -->     
       <nc-resourceParameter

@@ -184,14 +184,17 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
     public void updateElement(UIElement element, Map parameters) {
     	
     	String ResourceOverlayName = (String) parameters.get("overlayName");
-    	
-    	//ResourceName fullRscName = new ResourceName( 
-    	//		ResourceCategory.OverlayRscCategory, ResourceOverlayName, null );
+    	    	
+    	ResourceName fullRscName = new ResourceName( 
+    			ResourceCategory.OverlayRscCategory, ResourceOverlayName, null );
     	
     	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
+    	
     	if (editor == null) {
             return;
         }
+    	
+    	System.out.println("---------");
     	
         IDescriptor descriptor = editor.getActiveDisplayPane().getDescriptor();
         
@@ -199,11 +202,17 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
 
         	for (ResourcePair rscName : descriptor.getResourceList() ) {
         		
-        		System.out.println("getResource().getName(): " + rscName.getResource().getName());
-        		System.out.println("ResourceOverlayName: " + ResourceOverlayName);
-        		if ( rscName.getResource().getName() == ResourceOverlayName) {
-        	        	element.setChecked( true );
-        	    }
+        		//if ( rscName.getResource().getName() != null ) {
+        			
+        			System.out.println("fullRscName.getRscType(): " + fullRscName.getRscType());
+        			System.out.println("ResourceOverlayName: " + ResourceOverlayName);
+        			//System.out.println("rscName.getResource().getName(): " + rscName.getResource().getName());
+        			if ( rscName.getResource().getName() == ResourceOverlayName) {
+        				element.setChecked( true );
+        			}
+        			
+        		//}
+        		
         	}
         }
     }

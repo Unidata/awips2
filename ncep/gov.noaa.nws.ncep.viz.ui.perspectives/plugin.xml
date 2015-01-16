@@ -784,6 +784,11 @@
                name="overlayName"
                optional="false">
          </commandParameter>
+          <commandParameter
+               id="overlayRscName"
+               name="overlayRscName"
+               optional="false">
+         </commandParameter>
       </command>
       <command
             description="Auto Update"
