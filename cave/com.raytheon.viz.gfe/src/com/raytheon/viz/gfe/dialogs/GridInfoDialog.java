@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
@@ -671,10 +671,10 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         if (tdiff < 60) {
             return "(< 1 minute ago)";
         } else if (tdiff < 3600) {
-            return "(" + (int) tdiff / 60 + " minutes ago)";
+            return "(" + ((int) tdiff / 60) + " minutes ago)";
         } else if (tdiff < 86400) {
             int hours = (int) (tdiff / 3600);
-            int minutes = (int) (tdiff % 3600 / 60);
+            int minutes = (int) ((tdiff % 3600) / 60);
 
             return "(" + hours + " hours " + minutes + " minutes ago)";
         } else {

@@ -22,7 +22,7 @@ package com.raytheon.viz.gfe.core.wxvalue;
 import java.util.Arrays;
 import java.util.List;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.parm.Parm;
