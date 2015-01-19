@@ -29,9 +29,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmStorageInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
@@ -50,6 +50,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  * 08/05/2013   #1571      randerso    Made GridParmInfo a field in ParmStorageInfo
  *                                     Cloned ParmStorageInfo when requested so we have
  *                                     a unique instance per database.
+ * 01/13/2015   #3955      randerso    Fixed NullPointerException when extraWEPrecision is null
  * 
  * </pre>
  * 
@@ -249,7 +250,10 @@ public class GridDbConfig {
         format.dataMultiplier = 0.0f;
         format.storageFormat = dataFormat;
         int precision = config.precision;
-        Integer extraPrecision = extraWEPrecision.get(config.parmName);
+        Integer extraPrecision = null;
+        if (extraWEPrecision != null) {
+            extraPrecision = extraWEPrecision.get(config.parmName);
+        }
         if (extraPrecision != null) {
             if (extraPrecision > 0) {
                 precision += extraPrecision;

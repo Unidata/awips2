@@ -145,6 +145,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 09/08/2104    #3592     randerso    Changed to use new pm listStaticFiles()
  * 10/08/2014    #3684     randerso    Minor code optimization
  * 10/30/2014    #3775     randerso    Changed to createMutableDb before getting initial database inventory
+ * 01/13/2015    #3955     randerso    Changed getProductDatabase() to return mutableDb for EditTopo
  * </pre>
  * 
  * @author chammack
@@ -598,7 +599,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         // can't find an official database that matches the mutable database
-        return new DatabaseID();
+        return mutableDb;
     }
 
     @Override

@@ -16,6 +16,13 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+# ----------------------------------------------------------------------------
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/13/2015       #3955        randerso       Changed to use ifpServer.getTopoData
+#             
 ##
 
 
@@ -509,7 +516,7 @@ def storeTopoGrid(client, file, databaseID, invMask, clipArea):
     pDict = gridLoc.getProjection()
 
     # Get the topo grid
-    topoGrid = ifpServer.getTopoMgr().getTopoData(gridLoc).getPayload().__numpy__[0]
+    topoGrid = ifpServer.getTopoData(gridLoc).getPayload().__numpy__[0]
     topoGrid = clipToExtrema(topoGrid, clipArea)
     topoGrid = numpy.flipud(topoGrid)
     
