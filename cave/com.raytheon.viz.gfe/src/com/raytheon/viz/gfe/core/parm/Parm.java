@@ -42,9 +42,8 @@ import org.opengis.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
@@ -3182,10 +3181,10 @@ public abstract class Parm implements Comparable<Parm> {
         // that our setValue really zeros the grid.
         ParmState.VectorMode cVectorMode = this.parmState.getVectorMode();
         ParmState.CombineMode cCombineMode = this.parmState.getCombineMode();
-        if (this.gridInfo.getGridType() == GFERecord.GridType.VECTOR) {
+        if (this.gridInfo.getGridType() == GridType.VECTOR) {
             this.parmState.setVectorMode(ParmState.VectorMode.BOTH);
-        } else if ((this.gridInfo.getGridType() == GFERecord.GridType.WEATHER)
-                || (this.gridInfo.getGridType() == GFERecord.GridType.DISCRETE)) {
+        } else if ((this.gridInfo.getGridType() == GridType.WEATHER)
+                || (this.gridInfo.getGridType() == GridType.DISCRETE)) {
             this.parmState.setCombineMode(ParmState.CombineMode.REPLACE);
         }
 
@@ -3200,10 +3199,10 @@ public abstract class Parm implements Comparable<Parm> {
         boolean endOkay = endParmEdit();
 
         // restore the edit modes
-        if (this.gridInfo.getGridType() == GFERecord.GridType.VECTOR) {
+        if (this.gridInfo.getGridType() == GridType.VECTOR) {
             this.parmState.setVectorMode(cVectorMode);
-        } else if ((this.gridInfo.getGridType() == GFERecord.GridType.WEATHER)
-                || (this.gridInfo.getGridType() == GFERecord.GridType.DISCRETE)) {
+        } else if ((this.gridInfo.getGridType() == GridType.WEATHER)
+                || (this.gridInfo.getGridType() == GridType.DISCRETE)) {
             this.parmState.setCombineMode(cCombineMode);
         }
 
