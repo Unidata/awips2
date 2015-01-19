@@ -25,6 +25,7 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -42,7 +43,9 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            njensen     Initial creation
+ * Apr  8, 2009            njensen     Initial creation
+ * Jan 13, 2015  #3955     randerso    Fixed NullPointerException when no resource
+ *                                     matching the current parm is found
  * 
  * </pre>
  * 
@@ -88,7 +91,7 @@ public class FitToData {
 
     public void fitToData(GridID gid, ReferenceData refData)
             throws GFEOperationFailedException {
-        if (gid == null || gid.getParm() == null) {
+        if ((gid == null) || (gid.getParm() == null)) {
             throw new GFEOperationFailedException(
                     "fitToData: no grid is selected.");
         }
@@ -250,21 +253,22 @@ public class FitToData {
     private void finishFitToData(float minimum, float maximum) {
         // check for special case when no data was found (no valid grid points)
         // OR if all grids are the same value, reset them to the parm limits
-        if ((maximum == parm.getGridInfo().getMinValue() && minimum == parm
-                .getGridInfo().getMaxValue()) || minimum == maximum) {
+        if (((maximum == parm.getGridInfo().getMinValue()) && (minimum == parm
+                .getGridInfo().getMaxValue())) || (minimum == maximum)) {
             maximum = parm.getGridInfo().getMaxValue();
             minimum = parm.getGridInfo().getMinValue();
         }
 
         // set the new ranges in the base class
         ISpatialDisplayManager spatialMgr = dataMgr.getSpatialDisplayManager();
-        GFEResource rsc = (GFEResource) spatialMgr.getResourcePair(parm)
-                .getResource();
-        ColorMapParameters params = rsc.getCapability(ColorMapCapability.class)
-                .getColorMapParameters();
-        params.setColorMapMax(maximum);
-        params.setColorMapMin(minimum);
-
-        parm.getListeners().fireColorTableModified(parm);
+        ResourcePair rp = spatialMgr.getResourcePair(parm);
+        if (rp != null) {
+            GFEResource rsc = (GFEResource) rp.getResource();
+            ColorMapParameters params = rsc.getCapability(
+                    ColorMapCapability.class).getColorMapParameters();
+            params.setColorMapMax(maximum);
+            params.setColorMapMin(minimum);
+            parm.getListeners().fireColorTableModified(parm);
+        }
     }
 }
