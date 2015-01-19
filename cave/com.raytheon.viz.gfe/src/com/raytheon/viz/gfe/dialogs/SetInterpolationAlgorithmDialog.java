@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
@@ -104,7 +104,7 @@ public class SetInterpolationAlgorithmDialog extends CaveJFACEDialog {
         parmMap = new HashMap<Button, Parm>(parms.length);
         for (Parm parm : parms) {
             if (parm.isMutable()
-                    && parm.getGridInfo().getGridType() == GridType.SCALAR) {
+                    && (parm.getGridInfo().getGridType() == GridType.SCALAR)) {
                 Button button = new Button(elementGroup, SWT.RADIO);
                 parmMap.put(button, parm);
                 if (parmMap.size() == 1) {

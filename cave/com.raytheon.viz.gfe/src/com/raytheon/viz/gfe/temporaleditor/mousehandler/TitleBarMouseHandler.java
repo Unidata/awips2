@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.gridmanager.MouseHandler;
@@ -145,7 +145,7 @@ public class TitleBarMouseHandler extends MouseHandler {
 
             final List<AbstractTemporalEditorBar> barList = teBar
                     .getTemporalEditor().getCombinableBars(parm, teBar);
-            if (teBar.getParms().size() > 1 || barList.size() > 0) {
+            if ((teBar.getParms().size() > 1) || (barList.size() > 0)) {
                 menuMgr.add(new Action("Move "
                         + TemporalEditorUtil.getTitleBarText(parm) + "...") {
                     @Override

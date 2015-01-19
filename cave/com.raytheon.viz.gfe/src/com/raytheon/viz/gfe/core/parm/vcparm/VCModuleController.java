@@ -26,7 +26,7 @@ import java.util.Map;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.python.PyConstants;
 import com.raytheon.viz.gfe.BaseGfePyController;
