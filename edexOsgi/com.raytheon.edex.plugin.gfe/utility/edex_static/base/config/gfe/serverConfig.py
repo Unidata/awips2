@@ -46,6 +46,8 @@
 #    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS 
 #    07/09/2014          #3146     randerso       Removed unused import
 #    12/03/2014          #3866     rferrel        Added GFS20
+#    01/13/2015          #3955     randerso       Added definitions for NewTerrain database
+#                                                 Added Topo to ISCPARMS 
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1985,6 +1987,23 @@ for wes, officeType in (EXTRA_ISC_PARMS + localISCExtraParms):
 RESTOREPARMS = []
 for wes, tc in (OFFICIALDBS + localParms):
     RESTOREPARMS.append((wes, TC1))
+
+#
+# Add new parameters for NewTerrain
+#
+OldTerrain = ("OldTerrain", SCALAR, "ft", "Old Terrain", 50000.0, -32000.0, 1, NO)
+NewTerrain = ("NewTerrain", SCALAR, "ft", "New Terrain", 50000.0, -32000.0, 1, NO)
+Topo       = ("Topo",       SCALAR, "ft", "Topography",  50000.0, -32000.0, 1, NO)
+
+NewTerrainDB = ("NewTerrain",   GRID, 'EditTopo', YES, NO, 1, 0)
+NewTerrainParms = [([OldTerrain, NewTerrain], TC1)]
+DATABASES.append((NewTerrainDB, NewTerrainParms))
+
+# Add Topo to ISC parms for NewTerrain
+if type(REQUESTED_ISC_PARMS) is list and not "Topo" in REQUESTED_ISC_PARMS:
+    REQUESTED_ISC_PARMS.append("Topo")
+ISCPARMS.append(([Topo], Persistent))
+
 
 # Now add the ISC and Restore databases to the DATABASES groupings
 DATABASES.append((Restore, RESTOREPARMS))
