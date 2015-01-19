@@ -49,7 +49,8 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
@@ -102,7 +103,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * Oct 31, 2012 1298       rferrel     Changes for non-blocking MaskDialog.
  *                                      Changes for non-blocking WeatherDialog.
  *                                      Changes for non-blocking DiscreteDialog. 
- * 2/14/2013                mnash       Move QueryScript to use new Python concurrency implementation
+ * Feb 14, 2013            mnash       Move QueryScript to use new Python concurrency implementation
+ * Jan 13, 2015 3955       randerso    Improve handling of Topo parm for Standard Terrain editing
  * 
  * </pre>
  * 
@@ -193,7 +195,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
         this.initialGroups = Activator.getDefault().getPreferenceStore()
                 .getStringArray("EditAreaGroups");
-        if (this.initialGroups == null || this.initialGroups.length == 0) {
+        if ((this.initialGroups == null) || (this.initialGroups.length == 0)) {
             this.initialGroups = new String[] { "Misc" };
         }
     }
@@ -588,7 +590,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     protected void maskCB(Parm parm) {
-        if (menuModalDlg == null || menuModalDlg.getShell() == null
+        if ((menuModalDlg == null) || (menuModalDlg.getShell() == null)
                 || menuModalDlg.isDisposed()) {
             menuModalDlg = new MaskDialog(this.getShell(), parm);
             menuModalDlg.setBlockOnOpen(false);
@@ -642,7 +644,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     protected void wxCB(Parm parm) {
         if (parm.getGridInfo().getGridType().equals(GridType.WEATHER)) {
-            if (menuModalDlg == null || menuModalDlg.getShell() == null
+            if ((menuModalDlg == null) || (menuModalDlg.getShell() == null)
                     || menuModalDlg.isDisposed()) {
                 menuModalDlg = new WeatherDialog(this.getShell(), parm);
                 menuModalDlg.setBlockOnOpen(false);
@@ -667,7 +669,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                 menuModalDlg.bringToTop();
             }
         } else {
-            if (menuModalDlg == null || menuModalDlg.getShell() == null
+            if ((menuModalDlg == null) || (menuModalDlg.getShell() == null)
                     || menuModalDlg.isDisposed()) {
                 menuModalDlg = new DiscreteDialog(this.getShell(), parm);
                 menuModalDlg.setBlockOnOpen(false);
@@ -852,7 +854,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         final String s = this.queryField.getText().trim();
         AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
                 DataManagerUIFactory.getCurrentInstance());
-        PythonJobCoordinator coordinator = PythonJobCoordinator
+        PythonJobCoordinator<QueryScript> coordinator = PythonJobCoordinator
                 .newInstance(factory);
         Map<String, Object> argMap = new HashMap<String, Object>();
         argMap.put("expression", s);
@@ -1012,7 +1014,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             s = refData.getId().getName() + ": {" + refData.getQuery() + "}";
         } else {
             MultiPolygon polygons = refData.getPolygons(CoordinateType.GRID);
-            if (polygons == null || polygons.isEmpty()) {
+            if ((polygons == null) || polygons.isEmpty()) {
                 s = "Empty";
             } else {
                 s = refData.getId().getName() + ": Polygons";
@@ -1038,14 +1040,15 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
         we.add("Topo");
         for (Parm parm : parms) {
+            ParmID parmId = parm.getParmID();
             String exprName;
             if (parm.getParmID().getDbId().getModelName()
                     .equalsIgnoreCase("Fcst")) {
-                exprName = parm.getParmID().compositeNameUI();
+                exprName = parmId.compositeNameUI();
             } else {
-                exprName = parm.getParmID().getParmId().replaceAll(":", "_");
+                exprName = parmId.toString().replaceAll(":", "_");
             }
-            if (exprName.indexOf("Topo") != -1) {
+            if (parmId.getParmName().contains("Topo")) {
                 exprName = "Topo";
             }
             if (!we.contains(exprName)) {
@@ -1091,7 +1094,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     private void saveAreaCB() {
 
-        if (menuModalDlg == null || menuModalDlg.getShell() == null
+        if ((menuModalDlg == null) || (menuModalDlg.getShell() == null)
                 || menuModalDlg.isDisposed()) {
             menuModalDlg = new SaveDeleteRefDialog(getShell(), this.refSetMgr,
                     "Save");
@@ -1104,7 +1107,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     private void deleteAreaCB() {
 
-        if (menuModalDlg == null || menuModalDlg.getShell() == null
+        if ((menuModalDlg == null) || (menuModalDlg.getShell() == null)
                 || menuModalDlg.isDisposed()) {
             menuModalDlg = new SaveDeleteRefDialog(this.getShell(), refSetMgr,
                     "Delete");
@@ -1116,7 +1119,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     private void saveGroupCB() {
-        if (menuModalDlg == null || menuModalDlg.getShell() == null
+        if ((menuModalDlg == null) || (menuModalDlg.getShell() == null)
                 || menuModalDlg.isDisposed()) {
             menuModalDlg = new SaveDeleteEditAreaGroupDialog(getShell(),
                     this.refSetMgr, "Save");
@@ -1129,7 +1132,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     private void deleteGroupCB() {
 
-        if (menuModalDlg == null || menuModalDlg.getShell() == null
+        if ((menuModalDlg == null) || (menuModalDlg.getShell() == null)
                 || menuModalDlg.isDisposed()) {
             menuModalDlg = new SaveDeleteEditAreaGroupDialog(getShell(),
                     this.refSetMgr, "Delete");

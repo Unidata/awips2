@@ -20,6 +20,7 @@
 package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,16 +30,22 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
+import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
+import com.raytheon.edex.plugin.gfe.config.SimpleGridParmConfig;
+import com.raytheon.edex.plugin.gfe.config.SimpleModelConfig;
+import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory.OriginType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
+import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
@@ -52,9 +59,9 @@ import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.topo.TopoException;
 import com.raytheon.uf.common.topo.TopoQuery;
@@ -76,6 +83,8 @@ import com.raytheon.uf.common.topo.TopoQuery;
  * Nov 20, 2013  #2331     randerso    Changed return type of getTopoData
  * Feb 11, 2014  #2788     randerso    Set missing data points to 0 to match A1
  * Oct 07, 2014  #3684     randerso    Restructured IFPServer start up
+ * Jan 15, 2015  #3955     randerso     Changed TopoDatabase to extend IFPGridDatabase
+ *                                      to work with ISC for Standarad Terrain WA
  * 
  * </pre>
  * 
@@ -90,19 +99,19 @@ public class TopoDatabaseManager {
 
     private final IFPServerConfig config;
 
-    private final IDataStore dataStore;
+    private IDataStore dataStore;
 
-    private DatabaseID getTopoDbId(String siteID) {
-        return new DatabaseID(siteID, DataType.GRID, "EditTopo", "Topo");
-    }
+    private TopoDatabase topoDatabase;
 
     /**
      * Constructor
      * 
      * @param siteID
      * @param config
+     * @throws GfeException
      */
-    public TopoDatabaseManager(String siteID, IFPServerConfig config) {
+    public TopoDatabaseManager(String siteID, IFPServerConfig config)
+            throws GfeException {
         this.config = config;
 
         statusHandler.info("Topography Manager started for " + siteID);
@@ -110,12 +119,39 @@ public class TopoDatabaseManager {
         // get GridParmInfo configuration
         GridLocation gloc = config.dbDomain();
 
-        File hdf5File = GfeUtil.getHdf5TopoFile(GridDatabase.gfeBaseDataDir,
-                getTopoDbId(siteID));
-        dataStore = DataStoreFactory.getDataStore(hdf5File);
+        try {
+            // this.topoDatabase = new TopoDatabase(this.config, this);
 
-        // create the disk cache
-        createDiskCache(gloc);
+            GFEDao dao = new GFEDao();
+            DatabaseID dbId = dao.getDatabaseId(new DatabaseID(siteID,
+                    DataType.GRID, "EditTopo", "Topo"));
+
+            SimpleModelConfig smc = new SimpleModelConfig(siteID, "GRID",
+                    "EditTopo", "Topo", gloc.getProjection().getProjectionID(),
+                    true, false, 1, 0);
+            smc.grids = Arrays.asList(new SimpleGridParmConfig("Topo",
+                    "Scalar", "ft", "Topography", 50000.0f, -32000.0f, 1, true,
+                    gloc.gridSize(), gloc.getOrigin(), gloc.getExtent(), 0, 0,
+                    0, false));
+            GridDbConfig gridDbConfig = new GridDbConfig(smc,
+                    config.getWxDefinition(), gloc.getProjection(),
+                    config.getDiscreteDefinition(), null);
+            this.topoDatabase = new TopoDatabase(dbId, gridDbConfig, this);
+
+        } catch (Exception e) {
+            throw new GfeException("Error creating Topo database", e);
+        }
+
+        if (this.topoDatabase.databaseIsValid()) {
+            File hdf5File = GfeUtil.getHdf5TopoFile(
+                    GridDatabase.gfeBaseDataDir, this.topoDatabase.getDbId());
+            dataStore = DataStoreFactory.getDataStore(hdf5File);
+
+            // create the disk cache
+            createDiskCache(gloc);
+        } else {
+            throw new GfeException("Invalid Topo database");
+        }
 
         statusHandler.info("Topography Manager ready for " + siteID);
     }
@@ -124,13 +160,7 @@ public class TopoDatabaseManager {
      * @return the topo database
      */
     public TopoDatabase getTopoDatabase() {
-        TopoDatabase tdb = new TopoDatabase(this.config, this);
-        if (tdb.databaseIsValid()) {
-            return tdb;
-        } else {
-            statusHandler.error("Invalid Topo database");
-        }
-        return null;
+        return this.topoDatabase;
     }
 
     /**
@@ -144,31 +174,16 @@ public class TopoDatabaseManager {
         ServerResponse<ScalarGridSlice> sr = new ServerResponse<ScalarGridSlice>();
         ScalarGridSlice data = new ScalarGridSlice();
         Grid2DFloat grid = null;
-        String cacheGroupName = calcGroupName(gloc);
-
         try {
-            IDataRecord[] dr = dataStore.retrieve(cacheGroupName);
+            FloatDataRecord fdr = getTopoRecord(gloc)[0];
 
-            // file exists, so read it
-            grid = readTopoData((FloatDataRecord) dr[0]);
+            grid = new Grid2DFloat(gloc.getNx(), gloc.getNy(),
+                    fdr.getFloatData());
             if (!grid.isValid()) {
                 sr.addMessage("Invalid topography grid from cache for " + gloc);
             }
         } catch (Exception e) {
-            // create new cache since file doesn't exist
-            statusHandler.handle(Priority.DEBUG, "Calculating Topography for "
-                    + gloc);
-
-            try {
-                grid = processTopography(gloc, config.isTopoAllowedBelowZero());
-                if (grid.isValid()) {
-                    writeTopoData(gloc, grid);
-                } else {
-                    sr.addMessage("Error calculating topography for " + gloc);
-                }
-            } catch (TopoException e1) {
-                sr.addMessage("Unable to calculate topography for " + gloc);
-            }
+            sr.addMessage("Unable to retrieve topo record for " + gloc);
         }
 
         // convert to IGridSlice
@@ -235,10 +250,10 @@ public class TopoDatabaseManager {
      * @param allowValuesBelowZero
      *            If set to false, values less than zero in the grid will be set
      *            to 0.
-     * @return The topography grid.
+     * @return The topography data.
      * @throws TopoException
      */
-    private Grid2DFloat processTopography(final GridLocation gloc,
+    private FloatDataRecord processTopography(final GridLocation gloc,
             boolean allowValuesBelowZero) throws TopoException {
         float[] heights = TopoQuery.getInstance().getHeight(
                 MapUtil.getGridGeometry(gloc));
@@ -254,43 +269,69 @@ public class TopoDatabaseManager {
             }
         }
 
-        return new Grid2DFloat(gloc.getNx(), gloc.getNy(), heights);
+        String name = calcGroupName(gloc);
+        return new FloatDataRecord("Data", name, heights, 2, new long[] {
+                gloc.getNx().longValue(), gloc.getNy().longValue() });
     }
 
     /**
      * Creates the disk cache given the <code>GridLocation</code>.
      * 
      * @param gloc
+     * @throws GfeException
      */
-    private void createDiskCache(final GridLocation gloc) {
-        statusHandler.info("Creating Topography Disk Cache");
-
+    private void createDiskCache(final GridLocation gloc) throws GfeException {
         // first clean out the disk cache of old and unnecessary data
         // commenting out call, since this function does nothing in current
         // versions of AWIPS1.
         // cleanDiskCache(gloc);
 
         // now determine if gloc needs to be created
+        boolean needToCreate = false;
+        ParmID parmId = this.topoDatabase.getParmList().getPayload().get(0);
+
         List<String> cachedFiles = fileList();
         if (!cachedFiles.contains(calcGroupName(gloc))) {
-            // if not in list, then we need to make one
-            statusHandler.debug("Calculating Topography for " + gloc);
-            try {
-                Grid2DFloat grid = processTopography(gloc,
-                        config.isTopoAllowedBelowZero());
-                if (grid.isValid()) {
-                    writeTopoData(gloc, grid);
-                } else {
-                    statusHandler.error("Error calculating topography for "
-                            + gloc);
-                }
-            } catch (TopoException e1) {
-                statusHandler.error("Unable to calculate topography for "
-                        + gloc);
+            needToCreate = true;
+        } else {
+            ServerResponse<List<TimeRange>> sr = this.topoDatabase
+                    .getGridInventory(parmId);
+            if (sr.isOkay()) {
+                needToCreate = sr.getPayload().isEmpty();
+            } else {
+                needToCreate = true;
             }
         }
 
-        statusHandler.info("Finished Creating Topography Disk Cache.");
+        if (needToCreate) {
+            statusHandler.info("Creating Topography Disk Cache");
+
+            FloatDataRecord fdr = getTopoRecord(gloc)[0];
+
+            TimeRange timeRange = TimeRange.allTimes();
+            GridDataHistory history = new GridDataHistory(OriginType.SCRATCH,
+                    parmId, timeRange);
+
+            Grid2DFloat topoGrid = new Grid2DFloat(gloc.getNx(), gloc.getNy(),
+                    fdr.getFloatData());
+            ScalarGridSlice slice = makeGridSlice(gloc, topoGrid);
+
+            GFERecord record = new GFERecord(parmId, timeRange);
+            record.setGridHistory(Arrays.asList(history));
+            record.setMessageData(slice);
+
+            ServerResponse<?> sr = this.topoDatabase.saveGridData(parmId,
+                    timeRange, Arrays.asList(record), new WsId(null, "EDEX",
+                            "GFE"));
+            if (sr.isOkay()) {
+                statusHandler.info("Finished Creating Topography Disk Cache");
+            } else {
+                throw new GfeException("Error Creating Topography Disk Cache: "
+                        + sr.message());
+            }
+        } else {
+            statusHandler.info("Topography Disk Cache exists");
+        }
     }
 
     /**
@@ -323,8 +364,9 @@ public class TopoDatabaseManager {
      * @param gloc
      *            The <code>GridLocation</code> to reset the topography cache
      *            for.
+     * @throws GfeException
      */
-    public void revertTopoData(final GridLocation gloc) {
+    public void revertTopoData(final GridLocation gloc) throws GfeException {
         String name = calcGroupName(gloc);
         try {
             dataStore.deleteGroups(name);
@@ -378,19 +420,28 @@ public class TopoDatabaseManager {
      * Outputs topography data to the disk cache.
      * 
      * @param gloc
-     * @param data
+     * @param slice
      * @throws IllegalArgumentException
      *             If data is not of type <code>ScalarGridSlice</code>.
+     * @throws GfeException
      */
-    public void saveTopoData(final GridLocation gloc, final IGridSlice data)
-            throws IllegalArgumentException {
-        if (!(data instanceof ScalarGridSlice)) {
+    public void saveTopoData(final GridLocation gloc, final IGridSlice slice)
+            throws IllegalArgumentException, GfeException {
+        if (!(slice instanceof ScalarGridSlice)) {
             throw new IllegalArgumentException(
                     "Attempting to save non-scalar grid slice in saveTopoData");
         }
 
-        ScalarGridSlice casted = (ScalarGridSlice) data;
-        writeTopoData(gloc, casted.getScalarGrid());
+        float[] data = ((ScalarGridSlice) slice).getScalarGrid().getFloats();
+        String name = calcGroupName(gloc);
+        FloatDataRecord fdr = new FloatDataRecord(
+                "Data",
+                name,
+                data,
+                2,
+                new long[] { gloc.getNx().longValue(), gloc.getNy().longValue() });
+
+        writeTopoData(gloc, fdr);
     }
 
     /**
@@ -399,44 +450,43 @@ public class TopoDatabaseManager {
      * @param gloc
      * @param grid
      */
-    private void writeTopoData(final GridLocation gloc, final Grid2DFloat grid) {
-        String name = calcGroupName(gloc);
-        IDataRecord output = new FloatDataRecord("Data", name,
-                grid.getFloats(), 2, new long[] { gloc.getNx().longValue(),
-                        gloc.getNy().longValue() });
+    private void writeTopoData(final GridLocation gloc,
+            final FloatDataRecord fdr) throws GfeException {
         try {
-            dataStore.addDataRecord(output);
+            dataStore.addDataRecord(fdr);
             StorageStatus status = dataStore.store(StoreOp.REPLACE);
             StorageException[] exceptions = status.getExceptions();
             if ((exceptions != null) && (exceptions.length > 0)) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Storage exceptions occurred during hdf5 save. "
-                                        + " errors occurred. The first failure will be logged.");
-                statusHandler.error("Unable to ouput cache data to: " + name,
+                throw new GfeException("Error storing topo data for " + gloc,
                         exceptions[0]);
             }
         } catch (StorageException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to ouput cache data to: " + name, e);
+            throw new GfeException("Error storing topo data for " + gloc, e);
         }
     }
 
     /**
-     * Reads topography data from the disk cache.
-     * 
-     * @param input
-     *            The <code>FloatDataRecord</code> from the disk cache.
-     * @return The topography grid.
+     * @param gridLoc
      */
-    private Grid2DFloat readTopoData(final FloatDataRecord input) {
-        // input the data
-        long[] gridSize = input.getSizes();
-        int xGridSize = (int) gridSize[0];
-        int yGridSize = (int) gridSize[1];
+    public FloatDataRecord[] getTopoRecord(GridLocation gloc)
+            throws GfeException {
+        String cacheGroupName = calcGroupName(gloc);
 
-        Grid2DFloat grid = new Grid2DFloat(xGridSize, yGridSize,
-                input.getFloatData());
-        return grid;
+        try {
+            IDataRecord[] records = dataStore.retrieve(cacheGroupName);
+            return new FloatDataRecord[] { (FloatDataRecord) records[0] };
+        } catch (FileNotFoundException | StorageException e) {
+            // create new cache since file doesn't exist
+            try {
+                FloatDataRecord fdr = processTopography(gloc,
+                        config.isTopoAllowedBelowZero());
+                writeTopoData(gloc, fdr);
+
+                return new FloatDataRecord[] { fdr };
+            } catch (TopoException e1) {
+                throw new GfeException("Unable to calculate topography for "
+                        + gloc, e1);
+            }
+        }
     }
 }
