@@ -13,6 +13,11 @@
      THIS CHANGE WAS DONE SO THAT CONFIGURATIONS COULD BE MADE IN ONE LOCATION
      AND NOT ACROSS 20-30 TEMPLATES. A COUNTY-BASED and ZONE-BASED COUNTERPART
      EXISTS TO THIS FILE.      
+
+SOFTWARE HISTORY
+Date     Ticket#     Engineer    Description
+01/20/15 RM #14929   Qinglu Lin  Changed false to true for <withinPolygon> tags in <pathcastConfig>,
+                                 <pointSource variable="otherPoints>, and <pointSource variable="locationList">.
 -->
 
 <!-- CREATE DEFAULT OBJECTS. THIS SHOULD GENERALLY NOT BE TOUCHED-->
@@ -96,10 +101,7 @@
 <!-- CREATE pathcastConfig OBJECT FOR PATHCAST (4TH BULLET) --> 
 <pathcastConfig>
   <type>AREA</type>
-  <!-- the withinPolygon variable set to false will bring in points
-  outside of the polygon which is necessary for the pathcast to reference
-  points that are near the water but not on the water -->
-  <withinPolygon>false</withinPolygon>
+  <withinPolygon>true</withinPolygon>
   <inclusionPercent>1</inclusionPercent>
   <distanceThreshold>10.0</distanceThreshold>
   <interval>5</interval>
@@ -131,7 +133,7 @@
  	<inclusionPercent>1</inclusionPercent>
  	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
- 	<withinPolygon>false</withinPolygon>
+ 	<withinPolygon>true</withinPolygon>
  	<maxResults>10</maxResults>
  	<distanceThreshold>10</distanceThreshold>
  	<sortBy>
@@ -154,7 +156,7 @@
  	<inclusionPercent>1</inclusionPercent>
  	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
- 	<withinPolygon>false</withinPolygon>
+ 	<withinPolygon>true</withinPolygon>
  	<maxResults>20</maxResults>
  	<distanceThreshold>10</distanceThreshold>
 	<filter> 	
