@@ -72,7 +72,6 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public SSMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SAFESEAS);
-        SafeSeasMonitor.getInstance();
     }
 
     @Override
