@@ -71,7 +71,6 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public FogMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.FOG);
-        FogMonitor.getInstance();
     }
 
     /*
