@@ -47,7 +47,8 @@
 #    07/09/2014          #3146     randerso       Removed unused import
 #    12/03/2014          #3866     rferrel        Added GFS20
 #    01/13/2015          #3955     randerso       Added definitions for NewTerrain database
-#                                                 Added Topo to ISCPARMS 
+#                                                 Added Topo to ISCPARMS
+#    01/19/2015          #4014     dgilling       Added ETSS. 
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1024,6 +1025,7 @@ NamDNG5     = ('NamDNG5',      GRID,   '', NO,   NO,  2, 0)
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
 SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
 ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
+ETSS        = ('ETSS',         GRID,   '', NO,   NO,  2, 0)
 #---------------------------------------------------------------------------
 #
 #  D2D Model Database Version Specification
@@ -1086,6 +1088,7 @@ if SID in ALASKA_SITES:
                  'AKHwave4',
                  'GLOBHwave',
                  ('GFS217', 'GFS20'),
+                 ('ETSS-AK', 'ETSS'),
                ]
 
 # Hawaii OCONUS
@@ -1212,6 +1215,7 @@ elif SID in CONUS_EAST_SITES:
                  'GLOBHwave',
                  'URMA25',
                  ('GFS215', 'GFS20'),
+                 'ETSS',
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1273,6 +1277,7 @@ else:   #######DCS3501 WEST_CONUS
                  'GLOBHwave',
                  'URMA25',
                  ('GFS215', 'GFS20'),
+                 'ETSS',
                ]
 
 if SID in GreatLake_SITES:
@@ -1418,6 +1423,7 @@ elif SID in ALASKA_SITES:
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "AKMOSGuide" : ['MOSGuide'],
+        "ETSS" : ["ETSS"],
         }
 
 # Hawaii OCONUS
@@ -1512,6 +1518,7 @@ else:
 #        "WNAwave4" : ["WNAwave4"],
 #        "ENPwave": ["ENPwave"],
         "ESTOFS" : ["ESTOFS"],
+        "ETSS" : ["ETSS"],
         }
 
 #initialization skip certain model runs
@@ -1654,6 +1661,7 @@ localNamDNG5Parms = []
 localSREFParms = []
 localTPCProbParms = []
 localHRRRParms = localESTOFSParms = localISCExtraParms = []
+localETSSParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
@@ -1667,6 +1675,7 @@ if not BASELINE and siteImport('localConfig'):
         myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
 
     localESTOFSParms = getattr(localConfig, 'parmsESTOFS', localESTOFSParms)
+    localETSSParms = getattr(localConfig, 'parmsETSS', localETSSParms)
     localParms = getattr(localConfig, 'parms', localParms)
     localNAM12Parms = getattr(localConfig, 'parmsNAM12', localNAM12Parms)
     localOPCWavEParms = getattr(localConfig, 'parmsOPCWavE', localOPCWavEParms)
@@ -1754,6 +1763,8 @@ STD1_MODEL = [([Temp, Td, RH, Wind, Wind20ft, Sky, FzLevel, SnowLevel], TC1),
              ([Wetflag], FireWx1300TC)]
 
 ESTOFSPARMS = [([StormSurge, AstroTide], TC1)]
+
+ETSSPARMS = [([StormSurge], TC1)]
 
 HRRRPARMS = [([Temp, Td, RH, Wind, WindGust, Sky, QPF], TC1)]
 
@@ -1935,6 +1946,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (AKwave4, WAVEPARMS + localAKwave4Parms),
              (EPwave10, WAVEPARMS + localEPwave10Parms),
              (ESTOFS, ESTOFSPARMS + localESTOFSParms),
+             (ETSS, ETSSPARMS + localETSSParms),
              (GlobalWave, WAVEPARMS + localGlobalWaveParms),
              (GLWM, GLWMPARMS + localGLWMParms),            #####DCS3499
              (HIRESWarw, STD3_MODEL + localHIRESWarwParms), #####DCS3501

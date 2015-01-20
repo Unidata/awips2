@@ -806,4 +806,14 @@
 		<versionsToKeep>120</versionsToKeep>
 		<period>03-00:00:00</period>
 	</rule>
+	
+	<!-- Purge rule for the ETSS model -->
+	<rule>
+		<keyValue>ETSS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ETSS-AK</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
 </purgeRuleSet>
