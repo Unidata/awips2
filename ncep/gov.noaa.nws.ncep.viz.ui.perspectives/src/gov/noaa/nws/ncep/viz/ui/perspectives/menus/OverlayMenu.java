@@ -5,7 +5,9 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceCategory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 
@@ -28,9 +30,13 @@ import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.maps.MapStore;
 import com.raytheon.uf.viz.core.maps.MapStore.MapNode;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.ui.menus.widgets.AbstractTearOffableCompoundContributionItem;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
@@ -82,11 +88,14 @@ public class OverlayMenu extends CompoundContributionItem {
         }
 
         List<ResourceDefinition> ovrlyRscDfns = null;
+       
 		try {
+			// get all
 			ovrlyRscDfns = ResourceDefnsMngr.getInstance().
 			getResourceDefnsForCategory( 
 			ResourceCategory.OverlayRscCategory, "", dispType, 
 			false, true );
+			
 		} catch (VizException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -146,6 +155,28 @@ public class OverlayMenu extends CompoundContributionItem {
         
         for( ResourceDefinition ord : enabledOvrlyRscDfns ) {
         	//System.out.println("ord="+ord.getResourceDefnName());
+    		/*
+        	ResourceName fullRscName = new ResourceName( 
+        			ResourceCategory.OverlayRscCategory, ord.getResourceDefnName(), null );
+    		
+    		System.out.println("fullRscName.getRscType()=== "+fullRscName.getRscType());
+        	ResourceSelection rbt;
+        	AbstractResourceData ovrlyRscData = null;
+        	ResourcePair rpe = new ResourcePair();
+    		try {
+    			rbt = ResourceFactory.createResource( fullRscName );
+    			ovrlyRscData = rbt.getResourcePair().getResourceData(); 
+    			
+            	rpe.setResourceData( ovrlyRscData );
+    			System.out.println("rpe.getResourceData() = " + rpe.getResourceData().toString());
+    			System.out.println("ovrlyRscData = " + ovrlyRscData);
+    			
+    			
+    		} catch (VizException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		} 
+    		*/
             ovrlyMenuMngr.add( createOverlayMenuItem( ord ) );            	
         }  
         
@@ -155,22 +186,26 @@ public class OverlayMenu extends CompoundContributionItem {
 	
     private CommandContributionItem createOverlayMenuItem( ResourceDefinition ovrlyRsc ) {
 		Map<String, String> params = new HashMap<String, String>();
+		ovrlyRsc.getResourceParameters(isEnabled());
 		params.put("overlayName", ovrlyRsc.getResourceDefnName() );
-		ResourceName fullRscName = new ResourceName( 
-    			ResourceCategory.OverlayRscCategory, ovrlyRsc.getResourceDefnName(), null );
+		//params.put("resourceName", rp.getResourceData().toString());
+		
+
+		
 		//params.put("resourceName", fullRscName.toString());
 		if (ovrlyRsc.getResourceDefnName().equals("LatLon")) {
-		//System.out.println("ovrlyRsc.getResourceDefnName: " + ovrlyRsc.getResourceDefnName());
-		//System.out.println("ovrlyRsc.getLocalizationFile: " + ovrlyRsc.getLocalizationFile());
-		//System.out.println("ovrlyRsc.getInventoryAlias: " + ovrlyRsc.getInventoryAlias() );
-		//System.out.println("ovrlyRsc.getLocalizationName: " + ovrlyRsc.getLocalizationName() );
-		//System.out.println("ovrlyRsc.getRscImplementation: " + ovrlyRsc.getRscImplementation() );
-		//System.out.println("ovrlyRsc.getRscTypeGenerator: " + ovrlyRsc.getRscTypeGenerator() );
-		//System.out.println("ovrlyRsc.getResourceCategory: " + ovrlyRsc.getResourceCategory() );
-		//System.out.println("ovrlyRsc.getAttrSetOrg: " + ovrlyRsc.getAttrSetOrg() );
-		System.out.println("---------");
-		System.out.println("setting overlayName as: " + ovrlyRsc.getResourceDefnName());
-		//System.out.println("ovrlyRsc: " + ovrlyRsc);
+			System.out.println("ovrlyRsc: " + ovrlyRsc);
+			System.out.println("ovrlyRsc.getResourceParameters: " + ovrlyRsc.getResourceParameters(true));
+			System.out.println("ovrlyRsc.getPluginName: " + ovrlyRsc.getPluginName());
+			System.out.println("ovrlyRsc.getResourceCategory: " + ovrlyRsc.getResourceCategory());
+			System.out.println("ovrlyRsc.getSubTypeGenerator: " + ovrlyRsc.getSubTypeGenerator());
+			System.out.println("ovrlyRsc.getRscTypeGenerator: " + ovrlyRsc.getRscTypeGenerator());
+			System.out.println("ovrlyRsc.getLocalizationFile: " + ovrlyRsc.getLocalizationFile());
+			System.out.println("ovrlyRsc.getLocalizationName: " + ovrlyRsc.getLocalizationName() );
+			System.out.println("ovrlyRsc.getRscImplementation: " + ovrlyRsc.getRscImplementation() );
+			System.out.println("---------");
+			System.out.println("setting overlayName as: " + ovrlyRsc.getResourceDefnName());
+			//System.out.println("ovrlyRsc: " + ovrlyRsc);
 		}
 		//System.out.println("ovrlyRsc.getLocalizationName() is: " + ovrlyRsc.getLocalizationName());
 		//		getLocalizationName());
