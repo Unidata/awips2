@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.monitor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecordTransform;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -42,6 +44,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
+import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
@@ -59,8 +62,7 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
  * Feb 04, 2014 2757       skorolev    Added filter for removed stations
  * May 08, 2014 3086       skorolev    Added current site definition.
- * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUsefrom vals.
- * Jan 08, 2015 3220       skorolev    Added zones parameter to processURI.
+ * Jan 27, 2015 3220       skorolev    Removed cwa and monitorUsefrom vals.Added zones parameter to processURI.Updated code for better performance.
  * 
  * </pre>
  * 
@@ -101,6 +103,15 @@ public abstract class ObsMonitor extends Monitor {
 
     /** these are the patterns for the stations **/
     protected ArrayList<Pattern> stationPatterns = new ArrayList<Pattern>();
+
+    /**
+     * This object contains all observation data necessary for the table dialogs
+     * and trending plots
+     */
+    protected ObMultiHrsReports obData;
+
+    /** current time of monitor dialog */
+    protected Date dialogTime;
 
     /** Current CWA **/
     public static String cwa = LocalizationManager.getInstance().getSite();
@@ -186,10 +197,11 @@ public abstract class ObsMonitor extends Monitor {
      * 
      * @param dataURI
      * @param filtered
-     * @param zones
+     * @param areaConfig
      */
     public void processURI(String dataURI, AlertMessage filtered,
-            final List<String> zones) {
+            final FSSObsMonitorConfigurationManager areaConfig) {
+        List<String> zones = areaConfig.getAreaList();
         try {
             Map<String, RequestConstraint> constraints = RequestConstraint
                     .toConstraintMapping(DataURIUtil.createDataURIMap(dataURI));
@@ -223,51 +235,55 @@ public abstract class ObsMonitor extends Monitor {
      * @param zones
      * 
      */
-    public void processProductAtStartup(List<String> zones) {
+    public void processProductAtStartup(
+            FSSObsMonitorConfigurationManager areaConfig) {
 
-        /**
-         * Assume this number for MaxNumObsTimes is larger enough to cover data
-         * of all observations (at least 24 hours' worth of data) in database
-         * [changed from 10 to 240 on May, 18, 2010 for DR #6015, zhao]
-         */
-        int MaxNumObsTimes = 240;
-        Map<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
-        try {
-            vals.put(FSSObsRecord.PLUGIN_NAME_ID, new RequestConstraint(
-                    FSSObsRecord.PLUGIN_NAME));
+        List<String> zones = areaConfig.getAreaList();
+        if (!zones.isEmpty()) {
+            /**
+             * Assume this number for MaxNumObsTimes is larger enough to cover
+             * data of all observations (at least 24 hours' worth of data) in
+             * database [changed from 10 to 240 on May, 18, 2010 for DR #6015,
+             * zhao]
+             */
+            int MaxNumObsTimes = 240;
+            Map<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
+            try {
+                vals.put(FSSObsRecord.PLUGIN_NAME_ID, new RequestConstraint(
+                        FSSObsRecord.PLUGIN_NAME));
 
-            DataTime[] dataTimesAvailable = DataCubeContainer.performTimeQuery(
-                    vals, false);
-            DataTime[] selectedTimes = dataTimesAvailable;
+                DataTime[] dataTimesAvailable = DataCubeContainer
+                        .performTimeQuery(vals, false);
+                DataTime[] selectedTimes = dataTimesAvailable;
 
-            // Ensure that the latest product is retrieved.
-            // [Modified: retrieve at most MaxNumObsTimes data
-            // points, Feb
-            // 19, 2010, zhao]
-            if (dataTimesAvailable.length > 0) {
-                Arrays.sort(dataTimesAvailable);
-                // at most, MaxNumObsTimes observation times are
-                // considered
-                if (dataTimesAvailable.length > MaxNumObsTimes) {
-                    selectedTimes = new DataTime[MaxNumObsTimes];
-                    System.arraycopy(dataTimesAvailable,
-                            dataTimesAvailable.length - MaxNumObsTimes,
-                            selectedTimes, 0, MaxNumObsTimes);
-                }
+                // Ensure that the latest product is retrieved.
+                // [Modified: retrieve at most MaxNumObsTimes data
+                // points, Feb
+                // 19, 2010, zhao]
+                if (dataTimesAvailable.length > 0) {
+                    Arrays.sort(dataTimesAvailable);
+                    // at most, MaxNumObsTimes observation times are
+                    // considered
+                    if (dataTimesAvailable.length > MaxNumObsTimes) {
+                        selectedTimes = new DataTime[MaxNumObsTimes];
+                        System.arraycopy(dataTimesAvailable,
+                                dataTimesAvailable.length - MaxNumObsTimes,
+                                selectedTimes, 0, MaxNumObsTimes);
+                    }
 
-                FSSObsRecord[] obsRecords = requestFSSObs(vals, selectedTimes);
-                for (FSSObsRecord objectToSend : obsRecords) {
-                    // Filter removed stations
-                    if (!zones.isEmpty()) {
-                        ObReport result = GenerateFSSObReport
+                    FSSObsRecord[] obsRecords = requestFSSObs(vals,
+                            selectedTimes);
+                    for (FSSObsRecord objectToSend : obsRecords) {
+                        // Filter removed stations
+                        final ObReport result = GenerateFSSObReport
                                 .generateObReport(objectToSend);
                         processAtStartup(result);
                     }
                 }
+            } catch (DataCubeException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "No data in database at startup.");
             }
-        } catch (DataCubeException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "No data in database at startup.");
         }
     }
 
@@ -295,5 +311,36 @@ public abstract class ObsMonitor extends Monitor {
                 FSSObsRecord.PLUGIN_NAME, FSSObsRecordTransform.FSSOBS_PARAMS,
                 constraints);
         return FSSObsRecordTransform.toFSSObsRecords(pdc);
+    }
+
+    public ObMultiHrsReports getObData() {
+        return obData;
+    }
+
+    public void setObData(ObMultiHrsReports obData) {
+        this.obData = obData;
+    }
+
+    /**
+     * The date for the dialog to stay in step with
+     * 
+     * @return
+     */
+    public Date getDialogTime() {
+        return dialogTime;
+    }
+
+    public void setDialogTime(Date dialogTime) {
+        this.dialogTime = dialogTime;
+    }
+
+    /**
+     * Resource sets the Drawtime.
+     * 
+     * @param dialogTime
+     */
+    public void updateDialogTime(Date dialogTime) {
+        this.dialogTime = dialogTime;
+        fireMonitorEvent(this);
     }
 }
