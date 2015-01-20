@@ -82,11 +82,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct.31  2012 1297       skorolev    Clean code
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
- * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
- * Sep 23, 2014 3356       njensen     Remove unnecessary import
- * Oct 16, 2014 3220       skorolev    Corrected fogConfig assignment.
- * Dec 11, 2014 3220       skorolev    Moved refreshing of table in the UI thread.
- * Jan 08, 2015 3220       skorolev    Replaced MonitoringArea with fogConfig.
+ * Sep 04, 2014 3220       skorolev    
+ * Sep 23, 2014 3356       njensen     Remove unnecessary import  
+ * Jan 27, 2015 3220       skorolev    Corrected fogConfig assignment.Moved refreshing of table in the UI thread.
+ *                                     Updated configUpdate method and added updateMonitoringArea.
+ *                                     Replaced MonitoringArea with fogConfig.Updated code for better performance.
  * 
  * 
  * </pre>
@@ -104,20 +104,11 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     /** Singleton instance of this class */
     private static FogMonitor monitor = null;
 
-    /**
-     * This object contains all observation data necessary for the table dialogs
-     * and trending plots [this replaces the objects of ObsData and TableData
-     * below Jan 21, 2010, zhao]
-     */
-    private ObMultiHrsReports obData;
-
     /** data holder for FOG **/
     private ObsData obsData;
 
     /** data holder for FOG ALG data **/
     private SortedMap<Date, Map<String, FOG_THREAT>> algorithmData = null;
-
-    private Date dialogTime = null;
 
     /** list of coordinates for each zone **/
     private Map<String, Geometry> zoneGeometries = null;
@@ -129,7 +120,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     private MonitoringAreaConfigDlg areaDialog = null;
 
     /** area config manager **/
-    private FSSObsMonitorConfigurationManager fogConfig = null;
+    private static FSSObsMonitorConfigurationManager fogConfig = null;
 
     /** table data for the station table **/
     private final TableData stationTableData = new TableData(
@@ -162,7 +153,6 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.FOG);
         obData.setThresholdMgr(FogThresholdMgr.getInstance());
-        obData.getZoneTableData();
     }
 
     /**
@@ -173,14 +163,10 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     public static synchronized FogMonitor getInstance() {
         if (monitor == null) {
             monitor = new FogMonitor();
-            // Pre-populate dialog with an observations from DB
             monitor.createDataStructures();
             monitor.getAdjAreas();
-            List<String> zones = monitor.fogConfig.getAreaList();
-            monitor.processProductAtStartup(zones);
-            monitor.fireMonitorEvent(monitor);
+            monitor.processProductAtStartup(fogConfig);
         }
-
         return monitor;
     }
 
@@ -204,7 +190,6 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         // [Jan 21, 2010, zhao]
         obData = new ObMultiHrsReports(CommonConfig.AppName.FOG);
         obData.setThresholdMgr(FogThresholdMgr.getInstance());
-
         obsData = new ObsData();
         algorithmData = new TreeMap<Date, Map<String, FOG_THREAT>>();
 
@@ -247,8 +232,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     public void processProductMessage(final AlertMessage filtered) {
         if (fogPattern.matcher(filtered.dataURI).matches()) {
-            List<String> zones = fogConfig.getAreaList();
-            processURI(filtered.dataURI, filtered, zones);
+            processURI(filtered.dataURI, filtered, fogConfig);
         }
     }
 
@@ -285,8 +269,9 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     public void configUpdate(IMonitorConfigurationEvent me) {
         fogConfig = (FSSObsMonitorConfigurationManager) me.getSource();
+        obData.getObHourReports().updateZones(fogConfig);
         if (zoneDialog != null && !zoneDialog.isDisposed()) {
-            zoneDialog.refreshZoneTableData(obData);
+            obData.updateTableCache();
             fireMonitorEvent(zoneDialog.getClass().getName());
         }
     }
@@ -320,6 +305,8 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     protected void process(ObReport result) throws Exception {
         obData.addReport(result);
+        // update table cache
+        obData.getZoneTableData(result.getRefHour());
         // Get zones containing station
         List<String> zones = fogConfig.getAreaByStationId(result
                 .getPlatformId());
@@ -328,10 +315,10 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
                 AreaContainer ac = getTableData().getArea(zn);
                 if (ac != null) {
                     ac.addReport(result.getObservationTime(), result);
-                    fireMonitorEvent(this);
                 }
             }
         }
+        fireMonitorEvent(this);
     }
 
     /**
@@ -351,26 +338,20 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     public void launchDialog(String type, Shell shell) {
         if (type.equals("zone")) {
-            if (zoneDialog == null) {
-                zoneDialog = new FogZoneTableDlg(shell, obData);
-                addMonitorListener(zoneDialog);
-                zoneDialog.addMonitorControlListener(this);
-                fireMonitorEvent(zoneDialog.getClass().getName());
-            }
+            zoneDialog = new FogZoneTableDlg(shell, obData);
+            addMonitorListener(zoneDialog);
+            zoneDialog.addMonitorControlListener(this);
             zoneDialog.open();
         } else if (type.equals("area")) {
-            if (areaDialog == null) {
-                areaDialog = new FogMonitoringAreaConfigDlg(shell,
-                        "Fog Monitor Area Configuration");
-                areaDialog.setCloseCallback(new ICloseCallback() {
+            areaDialog = new FogMonitoringAreaConfigDlg(shell,
+                    "Fog Monitor Area Configuration");
+            areaDialog.setCloseCallback(new ICloseCallback() {
 
-                    @Override
-                    public void dialogClosed(Object returnValue) {
-                        areaDialog = null;
-                    }
-
-                });
-            }
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    areaDialog = null;
+                }
+            });
             areaDialog.open();
         }
     }
@@ -490,19 +471,16 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      * 
      * @param drawTime
      */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ObsMonitor#updateDialogTime(java.util.Date)
+     */
     @Override
     public void updateDialogTime(Date dialogTime) {
         this.dialogTime = dialogTime;
         fireMonitorEvent(zoneDialog.getClass().getName());
-    }
-
-    /**
-     * The date for the dialog to stay in step with
-     * 
-     * @return
-     */
-    public Date getDialogDate() {
-        return dialogTime;
     }
 
     /*
