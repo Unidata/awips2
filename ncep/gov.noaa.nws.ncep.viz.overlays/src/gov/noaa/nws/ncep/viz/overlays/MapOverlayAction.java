@@ -1,7 +1,10 @@
 package gov.noaa.nws.ncep.viz.overlays;
 
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceCategory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
@@ -187,56 +190,69 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
     @SuppressWarnings("unchecked")
     public void updateElement(UIElement element, Map parameters) {
     	    	 
+    	// OverlayName = "LatLon"
     	String OverlayName = (String) parameters.get("overlayName");
     	String ResourceName = (String) parameters.get("resourceName");
     	
     	ResourceName fullRscName = new ResourceName( 
     			ResourceCategory.OverlayRscCategory, OverlayName, null );
-    	
     	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
     	if (editor == null) {
             return;
         }
-    	System.out.println("overlayName: " + OverlayName);
+    	//System.out.println("read overlayName as: " + OverlayName);
     	//System.out.println("resourceName: " + ResourceName);
     	//System.out.println("fullRscName.getRscType(): " + fullRscName.getRscType());
-    	System.out.println("----MapOverlayAction-----");
+    	//System.out.println("----MapOverlayAction-----");
+
+    	// get the name of the default attr set and create the overlay resource
+    	//String qualRscName = NmapCommon.OverlaysRscDir + bundleName;
     	
-    	/*
-    	NcDisplayType dispType = NcEditorUtil.getNcDisplayType( 
-    			NcDisplayMngr.getActiveNatlCntrsEditor() );
-    	List<ResourceDefinition> ovrlyRscDfns = null;
- 		try {
- 			ovrlyRscDfns = ResourceDefnsMngr.getInstance().getResourceDefnsForCategory( ResourceCategory.OverlayRscCategory, "", dispType, 
- 			false, true );
- 		} catch (VizException e1) {
- 			// TODO Auto-generated catch block
- 			e1.printStackTrace();
- 		} // no gen types, include disabled defns.
- 		List<ResourceDefinition> ovrlyRDs = ovrlyRscDfns;
- 		
- 		for( ResourceDefinition ord : ovrlyRDs ) {
-        	System.out.println("ord="+ord.getResourceDefnName());
-            //ovrlyMenuMngr.add( createOverlayMenuItem( ord ) );
-        	if (ord.getResourceDefnName().equals(OverlayName)) {
-        		System.out.println("MATCH ord="+ord.getResourceDefnName());
-        	}
-        }  
- 		*/
+    	
+    	ResourceSelection rbt;
+    	AbstractResourceData ovrlyRscData = null;
+		try {
+			rbt = ResourceFactory.createResource( fullRscName );
+			ovrlyRscData = rbt.getResourcePair().getResourceData(); 
+			ResourcePair rpe = new ResourcePair();
+        	rpe.setResourceData( ovrlyRscData );
+			System.out.println("rpe.getResourceData() = " + rpe.getResourceData());
+			System.out.println("ovrlyRscData = " + ovrlyRscData);
+			
+		} catch (VizException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+    	
+    	
+    	
         IDescriptor descriptor = editor.getActiveDisplayPane().getDescriptor();
         
-        if (descriptor instanceof IMapDescriptor) {
+        if (descriptor instanceof INatlCntrsDescriptor) {
         	//element.setChecked(MapManager.getInstance((IMapDescriptor) descriptor)
-        	for (ResourcePair rscName : descriptor.getResourceList() ) {
-    			//System.out.println("fullRscName.getRscType(): " + fullRscName.getRscType());
-    			//System.out.println("rscName.getResource().getName(): " + rscName.getResource().getName());
-    			if ( rscName.getResource().getName() == OverlayName) {
-    				element.setChecked( true );
-    			}
+        	for (ResourcePair rp : descriptor.getResourceList() ) {
+        		//INatlCntrsResource rscData = (INatlCntrsResource)rp.getResource();
+        		//System.out.println("rscData.getResourceData: " + rscData.getResourceData());
+        		//ResourceDefinition rscDef = new ResourceDefinition();
+        		//rscDef.getRscTypeGenerator();
+        		//if (OverlayName.equals("LatLon")) {
+        			System.out.println("==============");
+        			System.out.println("OverlayName: " + OverlayName);
+        			//System.out.println("rscName: " + descriptor.getResourceList());
+        			System.out.println("fullRscName.getRscType() " + fullRscName.getRscType());
+        			System.out.println("rscName.getResourceData(): " 
+        					+ rp.getResourceData());
+        			System.out.println("rscName.getResource().getName(): " + rp.getResource().getName());
+        			System.out.println("rscName.getResource().getClass().getName(): " 
+        					+ rp.getResource().getClass().getName());
+        			if ( rp.getResourceData().equals( ovrlyRscData )) {
+        				element.setChecked( true );
+        			}
+        		//}
         	}
-        	
         }
+        
     }
 
 }
