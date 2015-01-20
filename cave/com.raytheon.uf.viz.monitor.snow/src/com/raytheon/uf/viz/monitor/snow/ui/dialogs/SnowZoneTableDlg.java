@@ -53,8 +53,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Nov. 8, 2012 1297       skorolev    Added initiateProdArray method
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
- * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
- * Oct 16, 2014 3220       skorolev    Corrected configMgr assignment.
+ * Jan 27, 2015 3220       skorolev    Removed "site". Added check on dispose.Corrected configMgr assignment.Added table cache update.
  * 
  * </pre>
  * 
@@ -76,6 +75,9 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
     public SnowZoneTableDlg(Shell parent, ObMultiHrsReports obData) {
         super(parent, obData, CommonConfig.AppName.SNOW);
         configMgr = FSSObsMonitorConfigurationManager.getSnowObsManager();
+        obData.updateTableCache();
+        zoneTblData = obData.getZoneTableData();
+        zoneTblData.sortData();
     }
 
     /**

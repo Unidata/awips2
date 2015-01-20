@@ -71,7 +71,6 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public SnowMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SNOW);
-        SnowMonitor.getInstance();
     }
 
     /*
