@@ -930,6 +930,7 @@ public class FSSObsMonitorConfigurationManager implements
     public void fileUpdated(FileUpdatedMessage message) {
         if (message.getFileName().equals(getConfigFileName())) {
             try {
+                readConfigXml();
                 // inform listeners
                 for (MonitorConfigListener fl : listeners) {
                     fl.configChanged(new MonitorConfigEvent(this));

@@ -54,10 +54,9 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Dec 30, 2009 3424       zhao         use ObMultiHrsReports for obs data archive
  * Oct 30, 2012 1297       skorolev     Changed HashMap to Map
  * Nov 10, 2012 1297       skorolev     Added initiateProdArray
- * Dec 7,  2012 #1351      skorolev     Changes for non-blocking dialogs.
+ * Dec 7,  2012 1351       skorolev     Changes for non-blocking dialogs.
  * Apr 28, 2014 3086       skorolev     Updated getConfigMgr method.
- * Sep 04, 2014 3220       skorolev     Removed "site". Added check on dispose.
- * Oct 16, 2014 3220       skorolev    Corrected configMgr assignment.
+ * Jan 27, 2015 3220       skorolev     Removed "site". Added check on dispose.Corrected configMgr assignment.Added table cache update.
  * 
  * </pre>
  * 
@@ -81,6 +80,9 @@ public class SSZoneTableDlg extends ZoneTableDlg {
     public SSZoneTableDlg(Shell parent, ObMultiHrsReports obData) {
         super(parent, obData, CommonConfig.AppName.SAFESEAS);
         configMgr = FSSObsMonitorConfigurationManager.getSsObsManager();
+        obData.updateTableCache();
+        zoneTblData = obData.getZoneTableData();
+        zoneTblData.sortData();
     }
 
     /**
@@ -280,7 +282,7 @@ public class SSZoneTableDlg extends ZoneTableDlg {
      * setZoneSortColumnAndDirection()
      */
     @Override
-    protected void setZoneSortColumnAndDirection() {
+    public void setZoneSortColumnAndDirection() {
         if (zoneTblData != null) {
             zoneSortColumn = zoneTblData.getSortColumn();
             zoneSortDirection = zoneTblData.getSortDirection();
