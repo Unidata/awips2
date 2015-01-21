@@ -3,6 +3,7 @@ package gov.noaa.nws.ncep.viz.overlays;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceCategory;
@@ -196,6 +197,7 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
     	
     	ResourceName fullRscName = new ResourceName( 
     			ResourceCategory.OverlayRscCategory, OverlayName, null );
+    	
     	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
     	if (editor == null) {
@@ -210,15 +212,22 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
     	//String qualRscName = NmapCommon.OverlaysRscDir + bundleName;
     	
     	
-    	ResourceSelection rbt;
-    	AbstractResourceData ovrlyRscData = null;
+    	
+    	// try with ResourceDefinition
+    	//ResourceDefinition newRscDefn = new ResourceDefinition();
+    	//System.out.println("-------- newRscDefn.getResourceDefnName(): " + newRscDefn.getResourceDefnName());
+    	
+    	// try with ResourceSelection
+    	//ResourceSelection rbt;
+
+    	AbstractNatlCntrsResourceData ovrlyRscData = null;
 		try {
-			rbt = ResourceFactory.createResource( fullRscName );
-			ovrlyRscData = rbt.getResourcePair().getResourceData(); 
-			ResourcePair rpe = new ResourcePair();
-        	rpe.setResourceData( ovrlyRscData );
-			System.out.println("rpe.getResourceData() = " + rpe.getResourceData());
-			System.out.println("ovrlyRscData = " + ovrlyRscData);
+			//rbt = ResourceFactory.createResource( fullRscName );
+			ovrlyRscData = (AbstractNatlCntrsResourceData) ResourceFactory.createResource( fullRscName ).getResourcePair().getResourceData(); 
+			//ResourcePair rpe = new ResourcePair();
+        	//rpe.setResourceData( ovrlyRscData );
+			//System.out.println("rpe.getResourceData() = " + rpe.getResourceData());
+			//System.out.println("ovrlyRscData = " + ovrlyRscData);
 			
 		} catch (VizException e) {
 			// TODO Auto-generated catch block
@@ -227,7 +236,7 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
     	
     	
     	
-        IDescriptor descriptor = editor.getActiveDisplayPane().getDescriptor();
+		INatlCntrsDescriptor descriptor = (INatlCntrsDescriptor) editor.getActiveDisplayPane().getDescriptor();
         
         if (descriptor instanceof INatlCntrsDescriptor) {
         	//element.setChecked(MapManager.getInstance((IMapDescriptor) descriptor)
@@ -238,14 +247,13 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
         		//rscDef.getRscTypeGenerator();
         		//if (OverlayName.equals("LatLon")) {
         			System.out.println("==============");
-        			System.out.println("OverlayName: " + OverlayName);
+        			System.out.println("?__ OverlayName: " + OverlayName);
+        			System.out.println("?__ ResourceName: " + ResourceName);
         			//System.out.println("rscName: " + descriptor.getResourceList());
-        			System.out.println("fullRscName.getRscType() " + fullRscName.getRscType());
-        			System.out.println("rscName.getResourceData(): " 
-        					+ rp.getResourceData());
-        			System.out.println("rscName.getResource().getName(): " + rp.getResource().getName());
-        			System.out.println("rscName.getResource().getClass().getName(): " 
-        					+ rp.getResource().getClass().getName());
+        			System.out.println("?__ fullRscName.getRscType() " + fullRscName.getRscType());
+        			System.out.println("?__ rp.getResourceData(): " + rp.getResourceData());
+        			System.out.println("?__ rp.getResource(): " + rp.getResource());
+        			System.out.println("?__ rp.getResource().getClass(): " + rp.getResource().getClass());
         			if ( rp.getResourceData().equals( ovrlyRscData )) {
         				element.setChecked( true );
         			}
