@@ -37,6 +37,7 @@
 #                                     Name changes to reflect plugin names for modelsounding, goessounding, poessounding.
 #20140424            3068 dgilling    Add pattern for MetOp-B ASCAT T winds.
 #20140612            3230 rferrel     Add pattern for URMA.
+#20150121            4014 dgilling    Add pattern for ETSS.
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -754,3 +755,11 @@ NGRID	^(E[EHC][IP][A-Z]88) (KWBM) (..)(..)(..)
 NGRID	^(Y.C[A-MZ][05789][0-9]) (KWBY) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/HRRR/GRID184/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
 #
+
+# ETSS CONUS 
+NGRID	^(MHU...) (KNHC) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/ETSS/GRID184/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+
+# ETSS-AK 
+NGRID	^(MHR...) (KNHC) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/ETSS/NDFD-AK/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
