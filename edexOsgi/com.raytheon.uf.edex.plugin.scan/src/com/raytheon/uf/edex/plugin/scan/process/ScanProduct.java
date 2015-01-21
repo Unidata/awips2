@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.geotools.referencing.GeodeticCalculator;
 
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -59,6 +60,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 05/07/2009   2037       dhladky     Initial Creation.
  * Apr 30, 2014 2060       njensen     Updates for removal of grid dataURI column
  * Jun 05, 2014  3226      bclement    compare lightning strike type by id instead of ordinal
+ * Jan 22, 2015 3949       nabowle     Use DataURI.SEPARATOR.
  * 
  * </pre>
  * 
@@ -108,13 +110,13 @@ public abstract class ScanProduct implements Serializable {
     protected static String wildCard = "[\\w\\(\\)\\-_:.]+";
 
     /** Separator for URI's */
-    public static String uriSeparator = "/";
+    public static final String uriSeparator = DataURI.SEPARATOR;
 
     protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ScanProduct.class);
 
     /**
-     * 
+     *
      * @param uri
      * @param tableType
      * @param filter
@@ -127,14 +129,14 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Ensures that folks set a data type
-     * 
+     *
      * @param type
      */
     public abstract void setDataType();
 
     /**
      * get the type set
-     * 
+     *
      * @return
      */
     public ScanTables getTableType() {
@@ -143,14 +145,14 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Ensures that folks set an allowance
-     * 
+     *
      * @param
      */
     public abstract boolean getAllowNew();
 
     /**
      * get the Record you need
-     * 
+     *
      * @return
      * @throws Exception
      */
@@ -158,14 +160,14 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Process the product, adding the data to the SCAN Table Data objects
-     * 
+     *
      * @throws VizException
      */
     public abstract void process() throws Exception;
 
     /**
      * Does the actual writing of the table data
-     * 
+     *
      * @throws VizException
      */
     public abstract ScanTableDataRow write(ScanTableDataRow row,
@@ -173,7 +175,7 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Get County Query
-     * 
+     *
      * @param c
      * @return
      */
@@ -205,7 +207,7 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Get CWA Query
-     * 
+     *
      * @param c
      * @return
      */
@@ -238,7 +240,7 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * process lightning
-     * 
+     *
      * @param filter
      * @param startTime
      * @param stopTime
@@ -342,7 +344,7 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Gets a list of rows that should be dumped
-     * 
+     *
      * @param list
      * @param data
      * @return
@@ -363,7 +365,7 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Gets a list of rows that should be added
-     * 
+     *
      * @param list
      * @param data
      * @return
@@ -389,7 +391,7 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Gets a list of rows that should be added
-     * 
+     *
      * @param list
      * @param data
      * @return
@@ -409,7 +411,7 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Gets the dataTable entry by time
-     * 
+     *
      * @param time
      * @return
      */
@@ -428,7 +430,7 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Sets up the spatial sections for the tables
-     * 
+     *
      * @param row
      * @param key
      * @param pdo
@@ -439,7 +441,7 @@ public abstract class ScanProduct implements Serializable {
 
     /**
      * Create a new tabledata object
-     * 
+     *
      * @param <T>
      * @param tableType
      * @return
