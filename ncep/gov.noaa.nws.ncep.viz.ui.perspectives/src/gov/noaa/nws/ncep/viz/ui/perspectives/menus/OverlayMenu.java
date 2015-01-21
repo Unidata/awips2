@@ -154,10 +154,12 @@ public class OverlayMenu extends CompoundContributionItem {
         }
         
         for( ResourceDefinition ord : enabledOvrlyRscDfns ) {
-        	//System.out.println("ord="+ord.getResourceDefnName());
-    		/*
         	ResourceName fullRscName = new ResourceName( 
         			ResourceCategory.OverlayRscCategory, ord.getResourceDefnName(), null );
+        	
+        	//System.out.println("ord="+ord.getResourceDefnName());
+    		/*
+        	
     		
     		System.out.println("fullRscName.getRscType()=== "+fullRscName.getRscType());
         	ResourceSelection rbt;
@@ -188,8 +190,7 @@ public class OverlayMenu extends CompoundContributionItem {
 		Map<String, String> params = new HashMap<String, String>();
 		ovrlyRsc.getResourceParameters(isEnabled());
 		params.put("overlayName", ovrlyRsc.getResourceDefnName() );
-		//params.put("resourceName", rp.getResourceData().toString());
-		
+		params.put("resourceName", ovrlyRsc.getLocalizationFile().toString() );
 
 		
 		//params.put("resourceName", fullRscName.toString());
