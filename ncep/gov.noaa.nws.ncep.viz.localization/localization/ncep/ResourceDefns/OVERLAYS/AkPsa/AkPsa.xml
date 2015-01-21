@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resourceDefnName>AkPsa</resourceDefnName>
+    <resourceMapName>AK PSA</resourceMapName>
     <resourceCategory>OVERLAY</resourceCategory>
 	<resourceParameters>
 dbName=ncep
 tableName=bounds.akpsabnds
 labelField=area
-mapName=AK PSA </resourceParameters>    
+mapName=AK PSA</resourceParameters>    
     <rscImplementation>DbOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

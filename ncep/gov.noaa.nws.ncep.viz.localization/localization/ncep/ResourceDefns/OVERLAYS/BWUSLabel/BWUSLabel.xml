@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resourceDefnName>BWUSLabel</resourceDefnName>
+    <resourceMapName>BWUS LABEL</resourceMapName>
     <resourceCategory>OVERLAY</resourceCategory>
 	<resourceParameters>
 dbName=ncep
 tableName=bounds.bwus_label
 labelField=area
-mapName=BWUS LABEL </resourceParameters>    
+mapName=BWUS LABEL</resourceParameters>    
     <rscImplementation>DbOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resourceDefnName>BuoysFixed</resourceDefnName>
+    <resourceMapName>Fixed Buoys IDs</resourceMapName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
 sourceType=STATIONS_DB_TABLE
 ! catalogType=32 in common_obs_spatial db
 sourceName=BUOY_FXD
 sourceParams=stationid
-mapName=Fixed Buoys ids
+mapName=Fixed Buoys IDs
     </resourceParameters>
     <rscImplementation>PointOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

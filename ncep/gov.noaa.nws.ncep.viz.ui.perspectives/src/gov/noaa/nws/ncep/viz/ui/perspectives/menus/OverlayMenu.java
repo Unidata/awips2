@@ -32,6 +32,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapStore;
 import com.raytheon.uf.viz.core.maps.MapStore.MapNode;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -189,23 +190,26 @@ public class OverlayMenu extends CompoundContributionItem {
     private CommandContributionItem createOverlayMenuItem( ResourceDefinition ovrlyRsc ) {
 		Map<String, String> params = new HashMap<String, String>();
 		ovrlyRsc.getResourceParameters(isEnabled());
-		params.put("overlayName", ovrlyRsc.getResourceDefnName() );
-		params.put("resourceName", ovrlyRsc.getLocalizationFile().toString() );
-
+		params.put("overlayName", ovrlyRsc.getResourceDefnName() );  // "LatLon"
+		params.put("resourceName", ovrlyRsc.getMapName() );
+		//System.out.println("ovrlyRsc.getMapName(): " + ovrlyRsc.getMapName());
 		
 		//params.put("resourceName", fullRscName.toString());
-		if (ovrlyRsc.getResourceDefnName().equals("LatLon")) {
+		if (ovrlyRsc.getResourceDefnName().equals("LaxtLon")) {
+			System.out.println("\n------begin---------");
 			System.out.println("ovrlyRsc: " + ovrlyRsc);
 			System.out.println("ovrlyRsc.getResourceParameters: " + ovrlyRsc.getResourceParameters(true));
 			System.out.println("ovrlyRsc.getPluginName: " + ovrlyRsc.getPluginName());
-			System.out.println("ovrlyRsc.getResourceCategory: " + ovrlyRsc.getResourceCategory());
-			System.out.println("ovrlyRsc.getSubTypeGenerator: " + ovrlyRsc.getSubTypeGenerator());
-			System.out.println("ovrlyRsc.getRscTypeGenerator: " + ovrlyRsc.getRscTypeGenerator());
+			//System.out.println("ovrlyRsc.getResourceCategory: " + ovrlyRsc.getResourceCategory());
+			//System.out.println("ovrlyRsc.getSubTypeGenerator: " + ovrlyRsc.getSubTypeGenerator());
+			//System.out.println("ovrlyRsc.getRscTypeGenerator: " + ovrlyRsc.getRscTypeGenerator());
 			System.out.println("ovrlyRsc.getLocalizationFile: " + ovrlyRsc.getLocalizationFile());
-			System.out.println("ovrlyRsc.getLocalizationName: " + ovrlyRsc.getLocalizationName() );
+			System.out.println("ovrlyRsc.getLocalizationName: " + ovrlyRsc.getLocalizationName());
 			System.out.println("ovrlyRsc.getRscImplementation: " + ovrlyRsc.getRscImplementation() );
-			System.out.println("---------");
+			
 			System.out.println("setting overlayName as: " + ovrlyRsc.getResourceDefnName());
+			System.out.println("setting resourceName as: " + ovrlyRsc.getRscImplementation());
+			System.out.println("--------------------");
 			//System.out.println("ovrlyRsc: " + ovrlyRsc);
 		}
 		//System.out.println("ovrlyRsc.getLocalizationName() is: " + ovrlyRsc.getLocalizationName());
