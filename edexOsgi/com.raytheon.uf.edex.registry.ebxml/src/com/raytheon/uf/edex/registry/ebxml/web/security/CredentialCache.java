@@ -126,8 +126,10 @@ public class CredentialCache {
                                 @Override
                                 public String[] doInTransaction(
                                         TransactionStatus status) {
+                                    String localUserName = userName;
                                     PersonType user = null;
-
+                                    String password = null;
+                                    String role = null;
                                     /*
                                      * If we are the central registry, directly
                                      * query the registry
@@ -135,31 +137,34 @@ public class CredentialCache {
                                     if (centralRegistry) {
                                         user = personDao.getById(userName
                                                 + RegistryUsers.USER_SUFFIX);
-                                    }
+                                    } else {                                
+                                        // This is a case required if you are
+                                        // connected to a central registry.
+                                        if (isFederationEnabled) {
 
-                                    // This is a case required if you are
-                                    // connected to a central registry.
-                                    if (isFederationEnabled) {
-
-                                        /*
-                                         * If we are not the central registry,
-                                         * query the central registry to get the
-                                         * user's information
-                                         */
-                                        try {
-                                            user = restServices
-                                                    .getRegistryObject(
-                                                            CENTRAL_REGISTRY_ADDRESS,
-                                                            userName
-                                                                    + RegistryUsers.USER_SUFFIX);
-                                        } catch (Exception e) {
-                                            throw new WebServiceException(
-                                                    "Error contacting central registry!",
-                                                    e);
+                                            /*
+                                             * If we are not the central
+                                             * registry, query the central
+                                             * registry to get the user's
+                                             * information
+                                             */
+                                            try {
+                                                user = restServices
+                                                        .getRegistryObject(
+                                                                CENTRAL_REGISTRY_ADDRESS,
+                                                                userName
+                                                                        + RegistryUsers.USER_SUFFIX);
+                                            } catch (Exception e) {
+                                                throw new WebServiceException(
+                                                        "Error contacting central registry!",
+                                                        e);
+                                            }
                                         }
-
+                                    }
+                                    
+                                    if (isFederationEnabled) {
                                         /*
-                                         * User not found means unauthorized
+                                         * User not found in federation mode means unauthorized
                                          */
                                         if (user == null) {
                                             throw new WebServiceException(
@@ -173,9 +178,8 @@ public class CredentialCache {
                                              * role in the return array. Decrypt
                                              * the password.
                                              */
-                                            String userName = user
+                                            localUserName = user
                                                     .getSlotValue(RegistryUsers.USER_SLOT_NAME);
-                                            String password = null;
                                             try {
                                                 password = encryption.decrypt(
                                                         securityConfig
@@ -187,28 +191,29 @@ public class CredentialCache {
                                                         "Error decrypting password!",
                                                         e);
                                             }
-                                            String role = user
+                                            role = user
                                                     .getSlotValue(RegistryUsers.ROLE_SLOT_NAME);
-                                            return new String[] { userName,
-                                                    password, role };
                                         }
-                                    }
+                                    } else {
+                                        /*
+                                         * This is a case where you are not
+                                         * connected to a central registry
+                                         * (Standalone server and edge
+                                         * condition), use defaults.
+                                         */
 
-                                    /*
-                                     * This is a case where you are not
-                                     * connected to a central registry
-                                     * (Standalone server and edge condition),
-                                     * use defaults.
-                                     */
-                                    else {
                                         statusHandler
                                                 .handle(Priority.INFO,
                                                         "Federation not enabled! Proceeding with default user, pass, and role!");
-                                        return new String[] { DEFAULT_USER,
-                                                DEFAULT_PASSWORD, DEFAULT_ROLE };
-                                    }
-                                }
+                                        localUserName = DEFAULT_USER;
+                                        password = DEFAULT_PASSWORD;
+                                        role = DEFAULT_ROLE;
 
+                                    }
+
+                                    return new String[] { localUserName,
+                                            password, role };
+                                }
                             });
                 }
             });
