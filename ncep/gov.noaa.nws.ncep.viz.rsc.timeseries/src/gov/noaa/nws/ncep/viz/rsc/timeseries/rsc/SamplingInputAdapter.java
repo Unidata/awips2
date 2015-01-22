@@ -43,6 +43,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 07/16/2014   R4079      qzhou       Initial creation
+ * 07/28/2014   R4078      sgurung     Added null check
  * 
  * </pre>
  * 
@@ -63,74 +64,77 @@ public class SamplingInputAdapter<T extends GeoMagResource> extends
     public boolean handleMouseMove(int x, int y) {
 
         IDisplayPaneContainer container = resource.getResourceContainer();
-        Coordinate c = container.translateClick(x, y);
 
-        boolean isActiveResource = false;
+        if (container != null) {
+            Coordinate c = container.translateClick(x, y);
 
-        AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
-        IDisplayPane activePane = editor.getActiveDisplayPane();
+            boolean isActiveResource = false;
 
-        ResourceList acResources = activePane.getDescriptor().getResourceList();
-        int acRscSize = acResources.size();
+            AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
+            IDisplayPane activePane = editor.getActiveDisplayPane();
 
-        for (int i = acRscSize - 1; i >= 0; i--) {
-            ResourcePair rp = acResources.get(i);
-            AbstractVizResource<?, ?> activeRsc = rp.getResource();
+            ResourceList acResources = activePane.getDescriptor()
+                    .getResourceList();
+            int acRscSize = acResources.size();
 
-            if (activeRsc != null
-                    && activeRsc instanceof GeoMagResource
-                    && rp.getProperties().isVisible()
-                    && !((GeoMagResource) activeRsc).getLegendStr().equals(
-                            "No Data")) {
+            for (int i = acRscSize - 1; i >= 0; i--) {
+                ResourcePair rp = acResources.get(i);
+                AbstractVizResource<?, ?> activeRsc = rp.getResource();
 
-                if (activeRsc.equals(resource)) {
-                    isActiveResource = true;
+                if (activeRsc != null
+                        && activeRsc instanceof GeoMagResource
+                        && rp.getProperties().isVisible()
+                        && !((GeoMagResource) activeRsc).getLegendStr().equals(
+                                "No Data")) {
+
+                    if (activeRsc.equals(resource)) {
+                        isActiveResource = true;
+                    }
+                    break;
                 }
-                break;
             }
 
-        }
+            if (resource.getResourceContainer().getDisplayPanes().length > 1) {
+                // Coordinate latLonCoord = ((GeoMagResource) resource)
+                // .getLatLonFromPixel(c);
 
-        if (resource.getResourceContainer().getDisplayPanes().length > 1) {
-            // Coordinate latLonCoord = ((GeoMagResource) resource)
-            // .getLatLonFromPixel(c);
+                for (IDisplayPane pane : resource.getResourceContainer()
+                        .getDisplayPanes()) {
 
-            for (IDisplayPane pane : resource.getResourceContainer()
-                    .getDisplayPanes()) {
+                    if (!pane.equals(activePane) && isActiveResource) {
 
-                if (!pane.equals(activePane) && isActiveResource) {
+                        ResourceList resources = pane.getDescriptor()
+                                .getResourceList();
+                        int size = resources.size();
 
-                    ResourceList resources = pane.getDescriptor()
-                            .getResourceList();
-                    int size = resources.size();
+                        for (int i = 0; i < size && size > 1; i++) {
+                            ResourcePair rp = resources.get(i);
+                            AbstractVizResource<?, ?> rsc = rp.getResource();
 
-                    for (int i = 0; i < size && size > 1; i++) {
-                        ResourcePair rp = resources.get(i);
-                        AbstractVizResource<?, ?> rsc = rp.getResource();
+                            if (rsc != null && rsc instanceof GeoMagResource
+                                    && rp.getProperties().isVisible()) {
+                                // ((GeoMagResource) rsc)
+                                // .setVirtualCursor(latLonCoord);
 
-                        if (rsc != null && rsc instanceof GeoMagResource
-                                && rp.getProperties().isVisible()) {
-                            // ((GeoMagResource) rsc)
-                            // .setVirtualCursor(latLonCoord);
+                                ((GeoMagResource) rsc).issueRefresh();
 
-                            ((GeoMagResource) rsc).issueRefresh();
-
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if (isActiveResource) {
-            if (c != null) {
-                resource.sampleCoord = new ReferencedCoordinate(c);
-            } else {
-                resource.sampleCoord = null;
+            if (isActiveResource) {
+                if (c != null) {
+                    resource.sampleCoord = new ReferencedCoordinate(c);
+                } else {
+                    resource.sampleCoord = null;
+                }
             }
-        }
 
-        // The sampling is always true for geomag
-        resource.issueRefresh();
+            // The sampling is always true for geomag
+            resource.issueRefresh();
+        }
 
         return false;
     }

@@ -17,6 +17,7 @@ import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,6 +82,7 @@ import com.raytheon.uf.common.time.DataTime;
  *                                      Add functions to get position from time and vice versa
  *                                      Modified updateTimeline, updateSelectedTimes, calculateSlider, calculateAvailableBoxes
  * 06/10/2014     #1136     qzhou       Modified getSelectedTimes and updateTimeline
+ * 08/13/2014     R4079     sgurung     Added code changes from TimeLineControl (related to TTR1032)
  * 
  * </pre>
  * 
@@ -163,15 +165,16 @@ public class GraphTimelineControl extends TimelineControl {
     private int availFrameIntervalMins[] = { -1, 1, 2, 5, 10, 15, 20, 30, 60,
             90, 120, 180, 360, 720, 1440 };
 
-    private String availGraphRangeStrings[] = { "3 hrs", "6 hrs", "12 hrs",
-            "24 hrs", "3 days", "7 days" };
+    private String availGraphRangeStrings[] = { "1 hr", "2 hrs", "3 hrs",
+            "6 hrs", "12 hrs", "24 hrs", "3 days", "7 days", "30 days" };
 
-    private int availGraphRangeHrs[] = { 3, 6, 12, 24, 72, 168 };
+    private int availGraphRangeHrs[] = { 1, 2, 3, 6, 12, 24, 72, 168, 720 };
 
     // extend refTime to next snap point
-    private String availHourSnapStrings[] = { "0", "1", "3", "6", "12", "24" };
+    private String availHourSnapStrings[] = { "0", "1", "2", "3", "6", "12",
+            "24" };
 
-    private int availHourSnapHrs[] = { 0, 1, 3, 6, 12, 24 };
+    private int availHourSnapHrs[] = { 0, 1, 2, 3, 6, 12, 24 };
 
     // keep this in order since code is referencing the index into this list.
     private String refTimeSelectionOptions[] = { "Current", "Latest ",
@@ -287,6 +290,13 @@ public class GraphTimelineControl extends TimelineControl {
 
         timeMatcher = tm;
 
+        /*
+         * loadTimes will adjust time line with "false" - it updates available
+         * times from DB but keeps selected frame times intact. If "true" is
+         * used, the time line will be completely rebuilt - available times are
+         * updated, the selected frames times are cleared and then re-built with
+         * "numFrames" and "skip" factor.
+         */
         timeMatcher.loadTimes(false);
 
         if (timeMatcher.getDominantResourceName() != null) {
@@ -613,6 +623,38 @@ public class GraphTimelineControl extends TimelineControl {
 
             timeData = new TimelineData(availTimes);
 
+            /*
+             * TTR 1034+: Force the timeline to start from a given time and
+             * extend backward to with a time range, regardless of the actual
+             * data availability - only for obs. For forecast data, always use
+             * actually data time (cycle time).
+             */
+            if (!timeMatcher.isForecast()) {
+                long refTimeMillisecs;
+                if (timeMatcher.isCurrentRefTime()) {
+                    refTimeMillisecs = Calendar.getInstance().getTimeInMillis();
+                } else {
+                    refTimeMillisecs = timeMatcher.getRefTime().getValidTime()
+                            .getTimeInMillis();
+                }
+
+                long timeRangeMillisecs = ((long) timeMatcher.getTimeRange()) * 60 * 60 * 1000;
+
+                DataTime endRefTime = timeMatcher
+                        .getNormalizedTime(new DataTime(new Date(
+                                refTimeMillisecs)));
+                DataTime startRefTime = timeMatcher
+                        .getNormalizedTime(new DataTime(new Date(
+                                refTimeMillisecs - timeRangeMillisecs)));
+
+                timeData.setStartTime(startRefTime.getValidTime());
+                timeData.setEndTime(endRefTime.getValidTime());
+            }
+            // End of TTR1034+ change.
+
+            // update widgets from default resource definition.
+            updateTimelineWidgets(timeMatcher);
+
             removeSpinnerListeners();
 
             // these can trigger the modify listeners too...
@@ -636,23 +678,8 @@ public class GraphTimelineControl extends TimelineControl {
 
             }
 
-            // if this is a forecast dominant resource, the reference time
-            // is not needed since the cycle time is the reference time.
-            refTimeCombo.setVisible(!timeMatcher.isForecast());
-            refTimeLbl.setVisible(!timeMatcher.isForecast());
-
-            setGraphRangeCombo(timeMatcher.getGraphRange());
-
-            setHourSnapCombo(timeMatcher.getHourSnap());
-
-            setFrameInterval(timeMatcher.getFrameInterval());
-
-            setTimeRangeHrs(timeMatcher.getTimeRange());
-
-            addSpinnerListeners();
-
-            resetSlider();
-            canvas.redraw();
+            // update widgets from default resource definition.
+            updateTimelineWidgets(timeMatcher);
         }
     }
 
@@ -729,8 +756,8 @@ public class GraphTimelineControl extends TimelineControl {
         if (firstSelected == null)
             return list;
 
-        firstSelected = GraphTimelineUtil.snapTimeToClosest(firstSelected,
-                timeMatcher.getHourSnap());
+        // firstSelected = GraphTimelineUtil.snapTimeToClosest(firstSelected,
+        // timeMatcher.getHourSnap());
 
         // firstSelected.add(Calendar.HOUR_OF_DAY, selectedRange / 60);
         timeData.deselectAll();
@@ -1458,7 +1485,8 @@ public class GraphTimelineControl extends TimelineControl {
             return new Rectangle(0, 0, 0, 0);
 
         Calendar prev = timeData.getPreviousTime(time1);
-        if (prev != null)
+        if (prev != null && timeLocations.get(prev) != null
+                && timeLocations.get(time1) != null)
             ulX = (timeLocations.get(prev) + timeLocations.get(time1)) / 2;
         else
             ulX = sliderMin + 5;
@@ -1539,8 +1567,8 @@ public class GraphTimelineControl extends TimelineControl {
         dayLocation = new ArrayList<Integer>();
         int lineLength = end.x - beg.x;
 
-        Calendar first = timeData.getFirstTime();
-        Calendar last = timeData.getLastTime();
+        Calendar first = timeData.getStartTime();
+        Calendar last = timeData.getEndTime();
         long timeLength = timeData.getTotalMillis();
 
         Calendar cal = (Calendar) first.clone();
@@ -1672,8 +1700,8 @@ public class GraphTimelineControl extends TimelineControl {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Calendar first = timeData.getFirstTime();
-        Calendar last = timeData.getLastTime();
+        Calendar first = timeData.getStartTime();
+        Calendar last = timeData.getEndTime();
 
         int textHeight = gc.getFontMetrics().getHeight();
         int width = gc.getCharWidth('0');
@@ -1765,7 +1793,7 @@ public class GraphTimelineControl extends TimelineControl {
 
         int lineLength = end.x - beg.x;
 
-        Calendar first = timeData.getFirstTime();
+        Calendar first = timeData.getStartTime();
 
         long timeLength = timeData.getTotalMillis();
 
@@ -1925,6 +1953,15 @@ public class GraphTimelineControl extends TimelineControl {
         timeRangeHrsSpnr.setSelection(timeRangeHrs % 24);
     }
 
+    /**
+     * Sets the number of times that should be selected
+     * 
+     * @param num
+     */
+    public void setNumberofFrames(int num) {
+        timeMatcher.setNumFrames(num);
+    }
+
     /*
      * resets the slider bar so that it is recalculated using the selected times
      */
@@ -2042,6 +2079,36 @@ public class GraphTimelineControl extends TimelineControl {
         // cals.add(timeData.getFirstSelected());
         timeMatcher.setFrameTimes(toDataTimes(timeData.getSelectedTimes())); // getSelectedTimes()));
 
+    }
+
+    /*
+     * Re-draws timeline-related widgets based on a given NCTimeMatcher.
+     */
+    private void updateTimelineWidgets(NCTimeMatcher tm) {
+
+        if (tm.getDominantResource() != null && tm.isForecast()) {
+            refTimeCombo.setVisible(false);
+
+            refTimeLbl.setVisible(false);
+        } else {
+            refTimeCombo.setVisible(true);
+            refTimeLbl.setVisible(true);
+        }
+
+        setNumberofFrames(tm.getNumFrames());
+
+        setGraphRangeCombo(tm.getGraphRange());
+
+        setHourSnapCombo(tm.getHourSnap());
+
+        setFrameInterval(tm.getFrameInterval());
+
+        setTimeRangeHrs(tm.getTimeRange());
+
+        addSpinnerListeners();
+
+        resetSlider();
+        canvas.redraw();
     }
 
 }
