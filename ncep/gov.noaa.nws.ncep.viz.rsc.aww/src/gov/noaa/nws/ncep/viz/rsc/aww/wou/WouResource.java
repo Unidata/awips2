@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.aww.wou;
 
+import gov.noaa.nws.ncep.common.dataplugin.aww.AwwFips;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord.AwwReportType;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
@@ -25,6 +26,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -80,6 +84,9 @@ import com.vividsolutions.jts.io.WKBReader;
  *                                    Added label/time for union.  Fixed a bug for querying county. Modified fill alpha to 0.5.
  * 09/13/12      857    Q. Zhou      Remove constraint & metamap in initResource().   
  * 08/14/13     1028    G. Hull      Move to aww project. Use AwwReportType enum.
+ * 9/15/14      4637    J. Huber     Added fipsRangeReparse to handle "character" in UGC line. Also added logic on when to use it.
+ *                                   Also fixed a clean up error for the county list array which prevented some counties from being
+ *                                   displayed.
  * 
  * </pre>
  * 
@@ -101,6 +108,9 @@ public class WouResource extends
 
     // Area change flag
     private boolean areaChangeFlag = false;
+
+    private static java.util.logging.Logger logger = java.util.logging.Logger
+            .getLogger(WouResource.class.getCanonicalName());
 
     private class WouRscDataObj implements IRscDataObject {
         String datauri; // used as a key string
@@ -136,6 +146,10 @@ public class WouResource extends
         String evProductClass;
 
         String evSignificance;
+
+        boolean isCounty; // TODO
+
+        List<String> countyFips = new ArrayList<String>(); // probably TODO
 
         @Override
         public DataTime getDataTime() {
@@ -220,9 +234,8 @@ public class WouResource extends
         @Override
         public boolean updateFrameData(IRscDataObject rscDataObj) {
             if (!(rscDataObj instanceof WouRscDataObj)) {
-                System.out
-                        .println("WouResource.updateFrameData: expecting objects "
-                                + " of type WouRscDataObj???");
+                logger.warning("WouResource.updateFrameData: expecting objects "
+                        + " of type WouRscDataObj???");
                 return false;
             }
 
@@ -269,10 +282,11 @@ public class WouResource extends
                             wData.rebuild = true;
                         }
                         if (oldStatus != newStatus) {
-                            if (newStatus)
+                            if (newStatus) {
                                 wData.numOfActCnties++;
-                            else
+                            } else {
                                 wData.numOfActCnties--;
+                            }
                         }
                     }
                 } else {
@@ -355,16 +369,21 @@ public class WouResource extends
         WouRscDataObj wouStatusData = null;
         List<WouRscDataObj> wouDataList = new ArrayList<WouRscDataObj>();
 
+        final String ENDTIME_REGEX = "([0-9]{6})";
+        final Pattern endTimePattern = Pattern.compile(ENDTIME_REGEX);
+
         try {
-
             Set<AwwUgc> awwUgc = awwRecord.getAwwUGC();
-
             for (AwwUgc awwugcs : awwUgc) {
                 wouStatusData = new WouRscDataObj();
                 wouStatusData.issueTime = new DataTime(awwRecord.getIssueTime());
                 wouStatusData.reportType = AwwReportType
                         .getReportType(awwRecord.getReportType());
                 wouStatusData.datauri = awwRecord.getDataURI();
+
+                if (!(wouStatusData.isCounty = isCountyUgs(awwugcs))) {
+                    setMarineZonesFips(awwugcs.getAwwFIPS(), wouStatusData);
+                }
 
                 String ugcline = awwugcs.getUgc();// get the ugc line to find
                                                   // the counties
@@ -378,27 +397,100 @@ public class WouResource extends
                     StringTokenizer strugcs = new StringTokenizer(ugcline);
                     while (strugcs.hasMoreTokens()) {
                         temp = strugcs.nextToken("-");
-                        if (temp != null) {
-                            if (temp.contains("\r\r\n")) {
+
+                        boolean dontSkip = true;
+
+                        Matcher endTimeMatcher = endTimePattern.matcher(temp);
+                        if (endTimeMatcher.find()) {
+                            dontSkip = false;
+                        }
+                        // Pull together a county list expanding the ">"
+                        // character if necessary
+                        if (temp != null && dontSkip) {
+                            if (temp.startsWith("\r\r\n")) {
                                 String temp1 = temp.substring(3);
                                 temp = temp1;
                             }
                             if (temp.contains(countyname)) {
-                                (wouStatusData.countyUgc).add(temp);
+
+                                if (temp.length() == 6) {
+                                    if ((0 == Character.getNumericValue(temp
+                                            .toCharArray()[3]))
+                                            && (0 == Character
+                                                    .getNumericValue(temp
+                                                            .toCharArray()[4]))
+                                            && (0 == Character
+                                                    .getNumericValue(temp
+                                                            .toCharArray()[5]))) {
+                                        // not in mapdata.marinezones yet, keep
+                                        // parsing
+                                    } else {
+                                        (wouStatusData.countyUgc).add(temp);
+                                    }
+                                } else {
+                                    fipsRangeReparse(temp, countyname,
+                                            (wouStatusData.countyUgc));
+                                }
+                            } else if (temp.length() == 7) {
+                                fipsRangeReparse(temp, countyname,
+                                        (wouStatusData.countyUgc));
+
                             } else {
-                                (wouStatusData.countyUgc).add(countyname
-                                        .concat(temp));
+                                if (!"".equalsIgnoreCase(temp)
+                                        && Character.isLetter(temp
+                                                .toCharArray()[0])) {
+                                    countyname = temp.substring(0, 3);
+                                    String temp2 = countyname.substring(0, 3)
+                                            + temp.substring(3);
+                                    (wouStatusData.countyUgc).add(temp2);
+                                }
+
+                                // (wouStatusData.countyUgc).add(countyname.concat(temp));
+
+                                String temp2 = countyname.substring(0, 3)
+                                        + temp;
+                                if (temp2.length() > 6) {
+                                    if (9 == temp2.length()) {
+                                        (wouStatusData.countyUgc).add(temp2
+                                                .substring(3, 9));
+                                    } else {
+                                        // (wcnStatusData.countyUgc).add(temp2
+                                        // .substring(0, 6));
+                                        fipsRangeReparse(temp2.substring(0, 6),
+                                                countyname,
+                                                (wouStatusData.countyUgc));
+                                    }
+                                } else {
+                                    if (!(6 > temp2.length())
+                                            && (0 == Character
+                                                    .getNumericValue(temp2
+                                                            .toCharArray()[3]))
+                                            && (0 == Character
+                                                    .getNumericValue(temp2
+                                                            .toCharArray()[4]))
+                                            && (0 == Character
+                                                    .getNumericValue(temp2
+                                                            .toCharArray()[5]))) {
+                                        // not in mapdata.marinezones yet, keep
+                                        // parsing
+                                        // System.err.println(temp2);
+                                    } else {
+                                        (wouStatusData.countyUgc).add(temp2);
+                                    }
+                                }
+
                             }
                             i++;
                         }
                     }
                     if (i > 1) {
-                        wouStatusData.countyUgc.remove(i - 1);
-                        wouStatusData.countyUgc.remove(i - 2);
+                        wouStatusData.countyUgc.remove(wouStatusData.countyUgc
+                                .size() - 1);// cleanup
                     }
 
                     wouStatusData = getCountyNameLatLon(wouStatusData);
                 }
+
                 int vtechNumber = awwugcs.getAwwVtecLine().size();
                 if (vtechNumber > 0) {
                     for (AwwVtec awwVtech : awwugcs.getAwwVtecLine()) {
@@ -417,6 +509,10 @@ public class WouResource extends
                         if ((awwVtech.getAction().equalsIgnoreCase("COR"))
                                 || (awwVtech.getAction()
                                         .equalsIgnoreCase("CAN"))
+                                || (awwVtech.getAction()
+                                        .equalsIgnoreCase("NEW"))
+                                || (awwVtech.getAction()
+                                        .equalsIgnoreCase("EXT"))
                                 || (awwVtech.getAction()
                                         .equalsIgnoreCase("EXP"))) {
                             modifyList.add(wouStatusData);
@@ -449,11 +545,15 @@ public class WouResource extends
                 wouDataList.add(wouStatusData);
             }
         } catch (Exception e) {
-            System.out.println("at line 212" + e);
+            logger.warning("In getCountyNameLatLon(WouRscDataObj wdata)\n"
+                    + e.getClass().getCanonicalName() + ":"
+                    + e.getLocalizedMessage());
         }
 
         return (ArrayList<WouRscDataObj>) wouDataList;
     }
+
+    private static String queryPrefixMZ_LatLons = "select wfo,name,id, lat, lon from mapdata.marinezones";
 
     private WouRscDataObj getCountyNameLatLon(WouRscDataObj wdata) {
         wdata.countyPoints = new ArrayList<LatLonPoint>();
@@ -466,8 +566,11 @@ public class WouResource extends
             int i = 0;
             for (Iterator<String> iterator = wdata.countyUgc.iterator(); iterator
                     .hasNext();) {
+
+                String theKey = iterator.next();
+
                 Station station = stationTable.getStation(StationField.STID,
-                        iterator.next());
+                        theKey);
                 if (station != null) {
                     LatLonPoint point = new LatLonPoint(station.getLatitude(),
                             station.getLongitude(), LatLonPoint.INDEGREES);
@@ -476,13 +579,56 @@ public class WouResource extends
                     wdata.stateNames.add(station.getState());
                     wdata.countyLat[i] = station.getLatitude();
                     wdata.countyLon[i] = station.getLongitude();
-                    i++;
 
+                    if (wdata.isCounty) {
+                        String s = station.getStnnum();
+                        wdata.countyFips.add(s.length() == 4 ? "0" + s : s);
+                    }
+
+                } else {
+                    // ELSE:
+                    // <station>
+                    // <stid>GUC110</stid> == maps.id
+                    // <stnnum>69110</stnnum> ???
+                    // <stnname>Saipan</stnname> == maps.name
+                    // <state>GU</state> ...
+                    // <country>US</country> ...
+                    // <latitude>15.19</latitude> == maps.lat
+                    // <longitude>145.76</longitude> == maps.lon
+                    // <elevation>0</elevation> 0..
+                    // <priority>0</priority>
+                    // <wfo>GUM</wfo> == maps.wfo
+                    // </station>
+
+                    List<Object[]> results = DirectDbQuery.executeQuery(
+                            queryPrefixMZ_LatLons.toString() + " where id = '"
+                                    + theKey + "'", "maps", QueryLanguage.SQL);
+
+                    LatLonPoint point = new LatLonPoint(
+                            Float.parseFloat(results.get(0)[3].toString()),
+                            Float.parseFloat(results.get(0)[4].toString()),
+                            LatLonPoint.INDEGREES);
+                    wdata.countyPoints.add(point);
+                    wdata.countyNames.add(results.get(0)[1].toString());
+                    wdata.stateNames.add("");
+                    wdata.countyLat[i] = Float.parseFloat(results.get(0)[3]
+                            .toString());
+                    wdata.countyLon[i] = Float.parseFloat(results.get(0)[4]
+                            .toString());
+                    wdata.countyFips.add(results.get(0)[2].toString());
                 }
-
+                i++;
             }
+        } catch (IndexOutOfBoundsException idxOobEx) {
+            logger.log(Level.FINEST,
+                    "In getCountyNameLatLon(WouRscDataObj wdata)\n" // mute?
+                            + idxOobEx.getClass().getCanonicalName()
+                            + ":"
+                            + idxOobEx.getLocalizedMessage());
         } catch (Exception e) {
-            System.out.println("wouResource.java at Line 245" + e);
+            logger.warning("In getCountyNameLatLon(WouRscDataObj wdata)\n"
+                    + e.getClass().getCanonicalName() + ":"
+                    + e.getLocalizedMessage());
         }
         wdata.countyNumPoints = wdata.countyNames.size();
         return wdata;
@@ -492,7 +638,7 @@ public class WouResource extends
     @Override
     protected boolean preProcessFrameUpdate() {
 
-        // modifyQueue();
+        modifyQueue();
         return true;
     }
 
@@ -512,10 +658,49 @@ public class WouResource extends
                             && modify.evSignificance
                                     .equalsIgnoreCase(candidate.evSignificance)) {
                         if (candidate.eventType.equalsIgnoreCase("CAN")
-                                || candidate.eventType.equalsIgnoreCase("COR")
                                 || candidate.eventType.equalsIgnoreCase("EXP")) {
-                        } else {
                             candidate.evEndTime = modify.issueTime;
+                            candidate.eventTime = new DataTime(
+                                    candidate.eventTime.getRefTimeAsCalendar(),
+                                    new TimeRange(candidate.eventTime
+                                            .getRefTimeAsCalendar(),
+                                            candidate.evEndTime
+                                                    .getRefTimeAsCalendar()));
+                        } else if (candidate.eventType.equalsIgnoreCase("COR")) {
+                            candidate.evEndTime = modify.evEndTime;
+                            candidate.eventTime = new DataTime(
+                                    candidate.eventTime.getRefTimeAsCalendar(),
+                                    new TimeRange(candidate.eventTime
+                                            .getRefTimeAsCalendar(),
+                                            candidate.evEndTime
+                                                    .getRefTimeAsCalendar()));
+                        } else if (candidate.eventType.equalsIgnoreCase("EXT")) {
+                            candidate.evEndTime = modify.evEndTime;
+                            candidate.eventTime = new DataTime(
+                                    candidate.eventTime.getRefTimeAsCalendar(),
+                                    new TimeRange(candidate.eventTime
+                                            .getRefTimeAsCalendar(),
+                                            candidate.evEndTime
+                                                    .getRefTimeAsCalendar()));
+                        } else if (candidate.eventType.equalsIgnoreCase("NEW")) {
+                            candidate.eventTime = modify.eventTime;
+                            candidate.evEndTime = modify.evEndTime;
+                            candidate.eventTime = new DataTime(
+                                    candidate.eventTime.getRefTimeAsCalendar(),
+                                    new TimeRange(candidate.eventTime
+                                            .getRefTimeAsCalendar(),
+                                            candidate.evEndTime
+                                                    .getRefTimeAsCalendar()));
+                        } else if (candidate.eventType.equalsIgnoreCase("CON")) {
+                            candidate.evEndTime = modify.evEndTime;
+                            candidate.eventTime = new DataTime(
+                                    candidate.eventTime.getRefTimeAsCalendar(),
+                                    new TimeRange(candidate.eventTime
+                                            .getRefTimeAsCalendar(),
+                                            candidate.evEndTime
+                                                    .getRefTimeAsCalendar()));
+                        } else {
+                            candidate.evEndTime = modify.evEndTime; // issueTime
                             candidate.eventTime = new DataTime(
                                     candidate.eventTime.getRefTimeAsCalendar(),
                                     new TimeRange(candidate.eventTime
@@ -805,7 +990,9 @@ public class WouResource extends
                     }
                 }
             } catch (Exception e) {
-                System.out.println("error at line 392 " + e);
+                logger.warning("In getCountyNameLatLon(WouRscDataObj wdata)\n"
+                        + e.getClass().getCanonicalName() + ":"
+                        + e.getLocalizedMessage());
             }
         }
     }
@@ -1035,7 +1222,9 @@ public class WouResource extends
                     }
                 }
             } catch (Exception e) {
-                System.out.println("wouResource.java at Line 427" + e);
+                logger.warning("In getCountyNameLatLon(WouRscDataObj wdata)\n"
+                        + e.getClass().getCanonicalName() + ":"
+                        + e.getLocalizedMessage());
             }
         }
     }
@@ -1075,7 +1264,6 @@ public class WouResource extends
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void drawSevereThunderstormWatchUnion(FrameData currFrameData,
             IGraphicsTarget target) throws VizException {
         LineStyle lineStyle = LineStyle.SOLID;
@@ -1375,6 +1563,111 @@ public class WouResource extends
 
         }
         return cntyName;
+    }
+
+    private void fipsRangeReparse(String inUgcPart, String countyname,
+            List<String> outList) {
+        final String inclusiveDelim = ">";
+        String county = countyname;
+        String countyFips;
+
+        if (inUgcPart.length() == 10) { // "([A-Z]{3}[0-9]{3}[>][0-9]{3})"
+            String intervalToken = inUgcPart.substring(3, 10);
+            county = inUgcPart.substring(0, 3);
+
+            // Format in NAMDDD1>DDD2
+            StringTokenizer twoTokens = new StringTokenizer(intervalToken,
+                    inclusiveDelim);
+            String firstToken = twoTokens.nextToken();
+            String secondToken = twoTokens.nextToken();
+
+            Integer countyBegin = Integer.parseInt(firstToken);
+            Integer countyEnd = Integer.parseInt(secondToken);
+
+            for (int counter = countyBegin; counter <= countyEnd; counter++) {
+
+                String inclusiveToken = Integer.toString(counter);
+
+                // set "1" to "001" ...etc
+                if (counter < 10) {
+                    inclusiveToken = "00".concat(inclusiveToken);
+                }
+
+                // set "10" to "010" ...etc
+                else if (counter < 100) {
+                    inclusiveToken = "0".concat(inclusiveToken);
+                }
+                countyFips = county.concat(inclusiveToken);
+
+                outList.add(countyFips);
+                // UGC.addAwwFIPS(currentFips);
+            }
+        } else if (inUgcPart.length() == 7) { // "([0-9]{3}[>][0-9]{3})"
+            // A continuation of previous county FIPS
+            // with format DDD1>DDD2
+            StringTokenizer twoTokens = new StringTokenizer(inUgcPart,
+                    inclusiveDelim);
+            String firstToken = twoTokens.nextToken();
+            String secondToken = twoTokens.nextToken();
+
+            Integer countyBegin = Integer.parseInt(firstToken);
+            Integer countyEnd = Integer.parseInt(secondToken);
+
+            for (int counter = countyBegin; counter <= countyEnd; counter++) {
+
+                String inclusiveToken = Integer.toString(counter);
+
+                // set "1" to "001" ...etc
+                if (counter < 10) {
+                    inclusiveToken = "00".concat(inclusiveToken);
+                }
+
+                // set "10" to "010" ...etc
+                else if (counter < 100) {
+                    inclusiveToken = "0".concat(inclusiveToken);
+                }
+                countyFips = county.concat(inclusiveToken);
+
+                outList.add(countyFips);
+                // UGC.addAwwFIPS(currentFips);
+            }
+        } else {
+            outList.add(inUgcPart);// risky?
+        }
+    }
+
+    void setMarineZonesFips(Set<AwwFips> awwFipsSet, WouRscDataObj wrdo) {
+
+        if (awwFipsSet != null && wrdo != null) {
+            for (AwwFips eachAwwFips : awwFipsSet) {
+                wrdo.countyFips.add(eachAwwFips.getFips());
+            }
+        }
+
+    }
+
+    boolean isCountyUgs(AwwUgc au) {
+        Set<AwwFips> awwFipsSet = au.getAwwFIPS();
+        boolean out = false;
+
+        if (awwFipsSet == null) {
+            return false;
+        } else {
+
+            for (AwwFips eachAwwFips : awwFipsSet) {
+
+                String eachFips = eachAwwFips.getFips();
+
+                if (eachFips == null || eachFips.isEmpty()
+                        || eachFips.length() != 6) {
+                    return false;
+                }
+
+                out = ('C' == eachFips.charAt(2));
+            }
+        }
+
+        return out;
     }
 
     @Override

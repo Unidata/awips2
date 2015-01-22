@@ -3,3 +3,4 @@
 plotModel=@PlotModels/bufrmosGFS/standard.xml
 plotDensity=10
 conditionalFilter=
+legendString=GFSMOS Standard
