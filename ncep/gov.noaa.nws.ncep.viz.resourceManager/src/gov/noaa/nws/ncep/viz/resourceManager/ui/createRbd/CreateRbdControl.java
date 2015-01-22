@@ -1420,7 +1420,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         fd.left = new FormAttachment(seld_rscs_grp, 10, SWT.RIGHT);
         fd.top = new FormAttachment(0, 3);
     	fd.right = new FormAttachment( 100, -10 );
-    	fd.bottom = new FormAttachment( 100, -15 );
+    	fd.bottom = new FormAttachment( 100, 0 );
         pane_layout_grp.setLayoutData(fd);
 
         geo_sync_panes = new Button( pane_layout_grp, SWT.CHECK );

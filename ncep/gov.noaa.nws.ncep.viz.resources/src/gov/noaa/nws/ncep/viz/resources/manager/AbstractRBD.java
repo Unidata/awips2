@@ -282,7 +282,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
             // since the wkt format is assuming all projection params are
             // doubles, the CRS string will throw an
             // error on unmarshalling.
-            // This temporary hack will substitude a dummy projection and save
+            // This temporary hack will substitute a dummy projection and save
             // off the wkt for the GVARs
             // and then call the McidasSpatialFactory to handle the parsing.
             //
