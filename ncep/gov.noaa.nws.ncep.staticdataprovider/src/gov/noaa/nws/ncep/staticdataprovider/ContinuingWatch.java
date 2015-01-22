@@ -19,17 +19,20 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * 
@@ -40,6 +43,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * 08/12		#770		Q. Zhou   	Initial Creation.
  * 09/12		#770		Q. Zhou   	Clean up and change selectedWatch to a collection
  * 08/13        #1028       G. Hull     rm dependency on viz.rsc.wtch project
+ * 12/14        R5749       B. Yin      Remove ScriptCreator, use Thrift Client.
+ * 12/14        R5749       B. Yin      Removed try/catch block when querying.
  * </pre>
  * 
  * @author	Q. Zhou
@@ -147,26 +152,21 @@ public class ContinuingWatch {
 		metadataMap.put( "reportType",ids );		
 		metadataMap.put( "pluginName", new RequestConstraint("aww") );     
 		
-		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(metadataMap);
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(metadataMap);
 
-		LayerProperty prop = new LayerProperty();
-		prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-		prop.setEntryQueryParameters(queryList, false);
-		prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap this ?
-		
-		String script = null;
-		script = ScriptCreator.createScript(prop);
-		if (script == null)
-			return null;
-		
-		Object[] pdoList = Connector.getInstance().connect(script, null, 60000);	
-		for (Object pdo : pdoList) {
-			awwRecord = (AwwRecord) pdo;
-			Collection<String> num = getAwwRecord( awwRecord );
-			if (num != null && !num.isEmpty())
-				contWatch.addAll( num );
-		}
-		
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
+
+        for (Map<String, Object> result : response.getResults()) {
+
+            for (Object pdo : result.values()) {
+                awwRecord = (AwwRecord) pdo;
+                Collection<String> num = getAwwRecord( awwRecord );
+                if (num != null && !num.isEmpty())
+                    contWatch.addAll( num );
+            }
+        }
+
 	    //Retrieving unique items from the list
 	    Set<String> set = new HashSet<String>(contWatch);	    
 	    contWatch = new ArrayList<String>(set);

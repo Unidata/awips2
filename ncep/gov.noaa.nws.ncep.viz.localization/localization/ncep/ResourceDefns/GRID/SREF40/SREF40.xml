@@ -4,7 +4,7 @@
     <resourceCategory>GRID</resourceCategory>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
-    <rscTypeGenerator></rscTypeGenerator>
+    <rscTypeGenerator>ensembleMember</rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>60</frameSpan>
     <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
@@ -14,7 +14,7 @@
     <resourceParameters>
 pluginName=grid
 GDFILE=SREF212
-
+ensembleMember=%
 </resourceParameters>
     <inventoryEnabled>true</inventoryEnabled>
 </ResourceDefinition>
