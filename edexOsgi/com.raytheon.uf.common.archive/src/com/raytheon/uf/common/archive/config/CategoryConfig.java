@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * &lt;category>
  *   &lt;name>redbook&lt;/name>
  *   &lt;!-- When 0 default to the parent archive's retentionHours -->
- *   &lt;retentionHours>0&lt;/retentionHours>
+ *   &lt;selectedRetentionHours>0&lt;/selectedRetentionHours>
  *   &lt;dataSet>
  *      &lt;dirPattern>hdf5/(redbook)&lt;/dirPattern>
  *      &lt;displayLabel>{1}&lt;/displayLabel>
@@ -54,7 +54,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * <pre>
  * &lt;category>
  *   &lt;name>Model grib&lt;/name>
- *   &lt;retentionHours>0&lt;/retentionHours>
+ *   &lt;selectedRetentionHours>0&lt;/selectedRetentionHours>
  *   &lt;dataSet>
  *      &lt;dirPattern>grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)&lt;/dirPattern>
  *      &lt;displayLabel>{5}&lt;/displayLabel>
@@ -74,6 +74,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Aug 03, 2013 2224       rferrel     Changes to include DataSet.
  * Jan 09, 2014 2603       rferrel     Fix bug in setSelectedDisplayNames
  * Apr 17, 2014 3045       rferrel     Code cleanup to prevent null pointer.
+ * Jan 22, 2014 3763       rferrel     Change tag extRententionHours to selectedRetentionHours
  * 
  * </pre>
  * 
@@ -94,7 +95,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * Minimum number of hours the purger should retain data. When 0 use the
      * parent archive's value.
      */
-    @XmlElement(name = "extRetentionHours")
+    @XmlElement(name = "selectedRetentionHours")
     private int retentionHours;
 
     @XmlElement(name = "dataSet")

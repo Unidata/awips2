@@ -31,6 +31,8 @@
  * Dec 12, 2013 2624       rferrel     Document Julian time stamp.
  * Dec 13, 2013 2555       rjpeter     Updated all to use dirPatterns.
  * May 24, 2014 2881	   rferrel     Updated retention times.
+ * Jan 22, 2015 3793       rferrel     Converted tags minRetentionHours to defaultRetentionHours
+ *                                      and extRetentionHours to selectedDetentionHours.
  * 
  * @author rferrel
  * @version 1.0
@@ -40,17 +42,17 @@
         <name>           - Required tag. The id for the archive such as Raw or Processed.
                            Used in the GUIs to filter which archive to display.
         <rootDir>        - Required tag. The root directory on the edex server for the archive.
-        <minRetentionHours> - Required tag. The default number of hours to retain data in the <rootDir>
+        <defaultRetentionHours> - Required tag. The default number of hours to retain data in the <rootDir>
         <category>       - Logical grouping of archive's sub-directories.
     
     The <category> has four types of tags:
         <name>              - Required tag. The id for the category such as grib2 or redbook.
                               Used in the GUIs to filter what is the display in the table.
-        <extRetentionHours>    - Optional tag. The hours to retain data in directories of selected Data Sets for a category.
+        <selectedRetentionHours>    - Optional tag. The hours to retain data in directories of selected Data Sets for a category.
                               Default is 1 hour.
         <dataSet>           - Required to have a least one. Each one contains a set of tags explained below.
         <selectedDisplayNames>  - A directory matching <dirPattern>. These are selected directories from the Retention GUI. The purger
-                                  will used the category's <extRetentionHours> instead of the Arhivie's <minRetentionHours>.
+                                  will used the category's <selectedRetentionHours> instead of the Arhivie's <defaultRetentionHours>.
                                   An optional tag; may have more then one. (NOTE these are set internally when a selection configuration
                                   file is loaded. They should not appear in the configuration file.)
      The <dataSet> contains ? types of tags:
@@ -117,7 +119,7 @@
      Example with multiple <dirPattern>s 
      <category>
         <name>Observation</name>
-        <extRetentionHours>168</extRetentionHours>
+        <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
            <dirPattern>(acars|airep|airmet|taf)</dirPattern>
            <dirPattern>(bufrsigwx|sfcobs)/.*</dirPattern>
@@ -140,10 +142,10 @@
 <archive>
     <name>Processed</name>
     <rootDir>/archive/</rootDir>
-    <minRetentionHours>168</minRetentionHours>
+    <defaultRetentionHours>168</defaultRetentionHours>
      <category>
         <name>Decision Assistance</name>
-         <extRetentionHours>168</extRetentionHours>
+         <selectedRetentionHours>168</selectedRetentionHours>
          <dataSet>
             <dirPattern>(cwat|fog|ffmp|fssobs|preciprate|qpf|scan|vil)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
             <displayLabel>{1}</displayLabel>
@@ -152,7 +154,7 @@
     </category>
     <category>
         <name>GFE</name>
-         <extRetentionHours>168</extRetentionHours>
+         <selectedRetentionHours>168</selectedRetentionHours>
          <dataSet>
             <dirPattern>gfe/(.*)/(.*)/(\d{4})_(\d{2})_(\d{2})_(\d{2})\d{2}.*</dirPattern>
             <displayLabel>{1} - {2}</displayLabel>
@@ -166,7 +168,7 @@
     </category>
     <category>
         <name>Local</name>
-        <extRetentionHours>168</extRetentionHours>
+        <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
             <dirPattern>(ldadhydro|ldadmesonet|ldadprofiler|ldad_manual|qc)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
             <displayLabel>{1}</displayLabel>
@@ -175,7 +177,7 @@
     </category>
     <category>
         <name>Model</name>
-        <extRetentionHours>168</extRetentionHours>
+        <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
             <dirPattern>(grid)/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</dirPattern>
             <displayLabel>{2}</displayLabel>
@@ -190,7 +192,7 @@
     </category>
     <category>
         <name>Products</name>
-        <extRetentionHours>168</extRetentionHours>
+        <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
             <dirPattern>(airmet|atcf|aww|bufrncwf|ccfp|convsigmet|cwa|ffg|intlsigmet|nonconvsigmet|stormtrack|taf|tcg|tcm|tcs|text|vaa|warning|wcp)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <dirPattern>(bufrsigwx|redbook)/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
@@ -200,7 +202,7 @@
     </category>
     <category>
         <name>Observation</name>
-        <extRetentionHours>168</extRetentionHours>
+        <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
             <dirPattern>(acars|airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|idft|lsr|obs|pirep|recco|svrwx)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <dirPattern>(sfcobs)/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
@@ -210,7 +212,7 @@
     </category>
     <category>
         <name>Satellite</name>
-        <extRetentionHours>168</extRetentionHours>
+        <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
             <dirPattern>satellite/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <dateGroupIndices>3,4,5,6</dateGroupIndices>
@@ -225,7 +227,7 @@
     </category>
     <category>
         <name>Profiles</name>
-        <extRetentionHours>168</extRetentionHours>
+        <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
             <dirPattern>(acarssounding|bufrua|goessounding|poessounding|profiler)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
@@ -235,7 +237,7 @@
     <category>
     <!-- Find mosaic dataset and add here. -->
         <name>radar</name>
-        <extRetentionHours>168</extRetentionHours>
+        <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
             <dirPattern>radar/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
