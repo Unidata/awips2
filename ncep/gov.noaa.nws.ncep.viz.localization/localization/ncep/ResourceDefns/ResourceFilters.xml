@@ -409,25 +409,25 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="FfgZones">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FireWxAOR">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="FireWxAOR">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="88Ds">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="AkPsa">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="AkPsa">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SPCOutlook">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="SPCOutlook">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WrZones">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="WrZones">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="VORs">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="VORs">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="VorNames">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="VorNames">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="rfcBoundaries">
@@ -436,34 +436,34 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GreatLakes">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Tweb">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Tweb">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="VolcanoNames">
 <filters>NaturalFeatures</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NPsa">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="NPsa">
 <filters>NaturalFeatures</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="LatLon">
 <filters>Misc</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="AtlanticFullBasin">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="AtlanticFullBasin">
 <filters>NaturalFeatures</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Counties">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Carrfa">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Carrfa">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="BWX1224">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="BWX1224">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="EnhArea">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="EnhArea">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Ccfcan">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Ccfcan">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SfcStns">
@@ -478,31 +478,31 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MetarStations">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="IcaoStations">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="IcaoStations">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAOBs">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="RaobNames">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="RaobNames">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Nexrad">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Nexrad">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Buoys">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Buoys">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="BuoysFixed">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="BuoysFixed">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CMAN">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="States">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="States">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FireBnds">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="FireBnds">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Interstates">
@@ -517,142 +517,142 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Cities">
 <filters>ManMadeFeatures</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HCN">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="HCN">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="wrqpf">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="wrqpf">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Airways">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Airways">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Rivers">
 <filters>NaturalFeatures</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="MarineCounty">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="MarineCounty">
 <filters>NaturalFeatures</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="cpcStations">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="cpcStations">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="TimeZones">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="OPCOffshorePacZones">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="OPCOffshorePacZones">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Locator">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Locator">
 <filters>Misc</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="PacificFullBasin">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="PacificFullBasin">
 <filters>NaturalFeatures</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="countyCluster">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="countyCluster">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GfaConus">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="GfaConus">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HighSeasZones">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="HighSeasZones">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NHCOffshoreAtlZones">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="NHCOffshoreAtlZones">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FAArea">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="FAArea">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="CPCUS">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="CPCUS">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FAAreaX">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="FAAreaX">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Lakes">
 <filters>NaturalFeatures</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="snapPoints">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="snapPoints">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Scale">
 <filters>Misc</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="BWUS">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="BWUS">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WFOs">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="TropFirs">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="TropFirs">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="UA">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="UA">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="MWO">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="MWO">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="TPC">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="TPC">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="IcaoUkMidlvl">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="IcaoUkMidlvl">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="IntlSigmetAreas">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="IntlSigmetAreas">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SSA">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="SSA">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FirBnds">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="FirBnds">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GulfFa">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="GulfFa">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="IcaoUkAreas">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="IcaoUkAreas">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="ARTCC">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="ARTCC">
 <filters>AdministrativeBoundaries,PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="OPCBNDS">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="OPCBNDS">
 <filters>AdministrativeBoundaries,PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="IcaoAreas">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="IcaoAreas">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="VAACAR">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="VAACAR">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="ElevNam1000">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="ElevNam1000">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="IcaoUsMidlvl">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="IcaoUsMidlvl">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HPC050Med">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="HPC050Med">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WST">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="WST">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="OPCNomex">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="OPCNomex">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HPCSFC">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="HPCSFC">
 <filters>AdministrativeBoundaries,PGEN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="World">
 <filters>PGEN</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="BWUSLabel">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="BWUSLabel">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="OPCOffshoreAtlZones">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="OPCOffshoreAtlZones">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FARegion">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="FARegion">
 <filters></filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Volcanos">
@@ -664,25 +664,25 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="DwmStns">
 <filters>Stations</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="AirmetCstl">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="AirmetCstl">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="spcwatch">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="spcwatch">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SpcWatchName">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="SpcWatchName">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="Hifiwo">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Hifiwo">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="PFZ">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="PFZ">
 <filters>NaturalFeatures</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CWAs">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GeoPolitical">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="GeoPolitical">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="USAK">
