@@ -134,14 +134,15 @@ public class BinLightningDecoder extends AbstractDecoder {
     private static DecryptedLightningValidator validator = new DecryptedLightningValidator() {
         @Override
         public boolean isValid(byte[] decryptedData) {
-            return BinLightningDecoderUtil.isKeepAliveRecord(decryptedData) == false
-                    && BinLightningDecoderUtil
-                            .isLightningDataRecords(decryptedData) == false;
+            return BinLightningDecoderUtil.isKeepAliveRecord(decryptedData)
+                    || BinLightningDecoderUtil
+                            .isLightningDataRecords(decryptedData);
             /*
              * use this if keep-alive record could be mixed with lightning
              * records
              */
-             // return BinLigntningDecoderUtil.isValidMixedRecordData(decryptedData) == false
+             // return 
+             // BinLigntningDecoderUtil.isValidMixedRecordData(decryptedData);
         }
     };
    
