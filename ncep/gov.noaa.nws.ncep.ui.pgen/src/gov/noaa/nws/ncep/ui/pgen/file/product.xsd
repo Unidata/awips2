@@ -411,27 +411,52 @@
     		<xsd:sequence>
     			<xsd:element name="initialColor" type="ColorType"></xsd:element>
     			<xsd:element name="extrapColor" type="ColorType"></xsd:element>
-    			<xsd:element name="initialPoints" type="TrackPoint" maxOccurs="unbounded" minOccurs="1"></xsd:element>
-    			<xsd:element name="extrapPoints" type="TrackPoint" maxOccurs="unbounded" minOccurs="1"></xsd:element>
-    			<xsd:element name="extraPointTimeTextDisplayIndicator" type="xsd:boolean" maxOccurs="unbounded" minOccurs="1"></xsd:element>
+    			<xsd:element name="initialPoints" type="TrackPoint"
+    				maxOccurs="unbounded" minOccurs="1">
+    			</xsd:element>
+    			<xsd:element name="extrapPoints" type="TrackPoint"
+    				maxOccurs="unbounded" minOccurs="1">
+    			</xsd:element>
+    			<xsd:element name="extraPointTimeTextDisplayIndicator"
+    				type="xsd:boolean" maxOccurs="unbounded" minOccurs="1">
+    			</xsd:element>
     		</xsd:sequence>
-    		<xsd:attribute name="initialLinePattern" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="initialLinePattern"
+    			type="xsd:string">
+    		</xsd:attribute>
     		<xsd:attribute name="extrapLinePattern" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="initialMarker" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="extrapMarker" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="lineWidth" type="xsd:float"></xsd:attribute>
     		<xsd:attribute name="fontName" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="fontStyle" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="fontSize" type="xsd:float"></xsd:attribute>
     		<xsd:attribute name="pgenType" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="pgenCategory" type="xsd:string"></xsd:attribute>
-    		<xsd:attribute name="setTimeButtonSelected" type="xsd:boolean"></xsd:attribute>
-    		<xsd:attribute name="intervalComboSelectedIndex" type="xsd:int"></xsd:attribute>
-    		<xsd:attribute name="intervalTimeTextString" type="xsd:string"></xsd:attribute>
-    		<xsd:attribute name="extraPointTimeDisplayOptionName" type="xsd:string"></xsd:attribute>
-    		<xsd:attribute name="skipFactorTextString" type="xsd:string"></xsd:attribute>
-    		<xsd:attribute name="fontNameComboSelectedIndex" type="xsd:int"></xsd:attribute>
-    		<xsd:attribute name="fontSizeComboSelectedIndex" type="xsd:int"></xsd:attribute>
-    		<xsd:attribute name="fontStyleComboSelectedIndex" type="xsd:int"></xsd:attribute>
+    		<xsd:attribute name="setTimeButtonSelected"
+    			type="xsd:boolean">
+    		</xsd:attribute>
+    		<xsd:attribute name="intervalComboSelectedIndex"
+    			type="xsd:int">
+    		</xsd:attribute>
+    		<xsd:attribute name="intervalTimeTextString"
+    			type="xsd:string">
+    		</xsd:attribute>
+    		<xsd:attribute name="extraPointTimeDisplayOptionName"
+    			type="xsd:string">
+    		</xsd:attribute>
+    		<xsd:attribute name="skipFactorTextString"
+    			type="xsd:string">
+    		</xsd:attribute>
+    		<xsd:attribute name="fontNameComboSelectedIndex"
+    			type="xsd:int">
+    		</xsd:attribute>
+    		<xsd:attribute name="fontSizeComboSelectedIndex"
+    			type="xsd:int">
+    		</xsd:attribute>
+    		<xsd:attribute name="fontStyleComboSelectedIndex"
+    			type="xsd:int">
+    		</xsd:attribute>
     	</xsd:complexType>
     </xsd:element>
     

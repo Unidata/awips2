@@ -2,3 +2,4 @@
 plotModel=@PlotModels/bufrmosETA/standard.xml
 plotDensity=10
 conditionalFilter=
+legendString=ETAMOS Standard
