@@ -1,16 +1,12 @@
 package gov.noaa.nws.ncep.viz.overlays;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceCategory;
-import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
-import java.io.File;
 import java.util.Map;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -27,11 +23,8 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -59,7 +52,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 08/11/10     #273       Greg Hull   bundleName->overlayName and use ResourceFactory to create 
  *                                     the overlay resource.
  * 09/12/12     #869       Greg Hull   call instantiateResources instead of construct().
- * 01/21/14				   M. James	   reconfigured overlay menu to toggle/unload.
+ * 01/21/14                M. James    reconfigured overlay menu to toggle/unload.
  * </pre>
  * 
  * @author bhebbard
@@ -106,7 +99,6 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                 	
                 	ResourceSelection rbt = ResourceFactory.createResource( fullRscName ); 
                 	ResourcePair rscPair = rbt.getResourcePair();
-            		ResourceProperties props = rscPair.getProperties();
             		AbstractResourceData ovrlyRscData = rscPair.getResourceData(); 
             		
                     IDisplayPane[] seldPanes = NcEditorUtil.getSelectedPanes(editor);
@@ -126,11 +118,12 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                     		// If resource is already loaded
                             if (rpe.getResource() != null && rpe.getResource().getName() != null
                                     && rpe.getResourceData().equals(ovrlyRscData)) {
-                            		rp.setResourceData( null );
                             		resourceList.remove( rpe ); 
+                            		resourceList.remove( rp );
                             		break;
                             } else {
                             	resourceList.add( rp ); 
+                            	
                             }	
                         }
                     	resourceList.instantiateResources( existingMD, true );
@@ -160,22 +153,33 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
      */
     @SuppressWarnings("unchecked")
     public void updateElement(UIElement element, Map parameters) {
+    	
+        String ResourceName = (String) parameters.get("resourceName");
+
     	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
         if (editor == null) {
             return;
         }
-        IDescriptor descriptor = editor.getActiveDisplayPane().getDescriptor();
+        IDescriptor descriptor;
         
-        String ResourceName = (String) parameters.get("resourceName");
-        String OverlayName = (String) parameters.get("overlayName");
-        if (descriptor instanceof IMapDescriptor) {
-        	for (ResourcePair rp : descriptor.getResourceList() ) {
-        		if ( !rp.getProperties().isSystemResource() 
-        				&& rp.getResource() != null 
-        				&& rp.getResource().getName().equals( ResourceName )) {
-    				element.setChecked( true );
-    			}
-        	}
+        IDisplayPane[] seldPanes = NcEditorUtil.getSelectedPanes(editor);
+        
+        if( seldPanes.length == 0 ) {
+        	System.out.println("There are no Selected Panes to load to?");
+        }
+
+        // this assumes a map bundle has only a single display 
+        for (IDisplayPane pane : seldPanes ) {
+        	descriptor = pane.getRenderableDisplay().getDescriptor();
+	        if (descriptor instanceof IMapDescriptor) {
+	        	for (ResourcePair rp : descriptor.getResourceList() ) {
+	        		if ( !rp.getProperties().isSystemResource() 
+	        				&& rp.getResource() != null 
+	        				&& rp.getResource().getName().equals( ResourceName )) {
+	    				element.setChecked( true );
+	    			}
+	        	}
+	        }
         }
     }
 }
