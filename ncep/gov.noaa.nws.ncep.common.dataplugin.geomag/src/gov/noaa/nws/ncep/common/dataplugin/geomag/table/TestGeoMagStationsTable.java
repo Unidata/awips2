@@ -15,8 +15,8 @@ public class TestGeoMagStationsTable {
     public static void main(String args[])  throws Exception{
     	
     	
-    	GeoMagStationTableReader gmstr = new GeoMagStationTableReader("/awips2/edex/data/utility/edex_static/base/ncep/geomagstns/GeoMagStations.xml");
-        List<GeoMagStation> list = gmstr.getStationList();//gml.getGeoMagStationList();
+    	GeoMagStationTableReaderWriter gmstr = new GeoMagStationTableReaderWriter("/awips2/edex/data/utility/edex_static/base/ncep/geomagstns/GeoMagStations.xml");
+        List<GeoMagStation> list = gmstr.readGeoMagStationList();//gml.getGeoMagStationList();
         System.out.println(" Station count: " + list.size());
         for(GeoMagStation itm : list){
         	System.out.println(" *******************************************************"); 

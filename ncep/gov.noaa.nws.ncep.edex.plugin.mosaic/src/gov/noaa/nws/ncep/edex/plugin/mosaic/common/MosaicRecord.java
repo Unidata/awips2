@@ -27,9 +27,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -70,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                          PluginDataObject.
  * Aug 06, 2013 2228            njensen     Use deserialize(byte[])
  * Jun 11, 2014 2061            bsteffen    Remove IDecoderGettable
+ * Sep 08, 2014                 sgilbert    Correct CONUS image projection
  * 
  * </pre>
  * 
@@ -211,6 +214,16 @@ public class MosaicRecord extends PersistablePluginDataObject implements
 
     @Transient
     private Map<MosaicDataKey, MosaicDataPoint> symbologyData = new HashMap<MosaicDataKey, MosaicDataPoint>();
+
+    // public static final double GEMPAK_EARTH_RADIUS_KM = 6371.2213;
+
+    public static final double MOSAIC_EARTH_RADIUS_KM = 6380.0;
+
+    private static final int ALASKA_SOURCEID = 10051;
+
+    private static final int HAWAII_SOURCEID = 10052;
+
+    private static final DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
 
     public MosaicRecord() {
         super();
@@ -518,7 +531,6 @@ public class MosaicRecord extends PersistablePluginDataObject implements
         this.elevation = elevation;
     }
 
-
     /**
      * @return the symbologyBlock
      */
@@ -554,8 +566,17 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     }
 
     public ProjectedCRS getCRS() {
-        return MapUtil.constructStereographic(MapUtil.AWIPS_EARTH_RADIUS,
-                MapUtil.AWIPS_EARTH_RADIUS, this.latitude, this.longitude);
+        if (this.getSourceId() != HAWAII_SOURCEID
+                && this.getSourceId() != ALASKA_SOURCEID) {
+            return generateLambertConformal_2StandardParallel(
+                    MosaicRecord.MOSAIC_EARTH_RADIUS_KM * 1000,
+                    MosaicRecord.MOSAIC_EARTH_RADIUS_KM * 1000, 33.0, 45.0,
+                    this.longitude, this.latitude);
+        } else {
+            return MapUtil.constructStereographic(MapUtil.AWIPS_EARTH_RADIUS,
+                    MapUtil.AWIPS_EARTH_RADIUS, this.latitude, this.longitude);
+        }
+
     }
 
     /**
@@ -763,5 +784,36 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     @Override
     public String getPluginName() {
         return "mosaic";
+    }
+
+    /*
+     * This method is temporary and will not be needed when an appropriate
+     * MapUtil method is available that allows different standard parallels.
+     */
+    private ProjectedCRS generateLambertConformal_2StandardParallel(
+            double majorAxis, double minorAxis, double stdParallel1,
+            double stdParallel2, double lonOfOrigin, double latOfOrigin) {
+        ParameterValueGroup parameters = null;
+        try {
+            parameters = dmtFactory
+                    .getDefaultParameters("Lambert_Conformal_Conic_2SP");
+
+            parameters.parameter("semi_major").setValue(majorAxis);
+            parameters.parameter("semi_minor").setValue(minorAxis);
+            parameters.parameter("latitude_of_origin").setValue(latOfOrigin);
+            parameters.parameter("standard_parallel_1").setValue(stdParallel1);
+            parameters.parameter("standard_parallel_2").setValue(stdParallel2);
+            parameters.parameter("longitude_of_origin").setValue(lonOfOrigin);
+            parameters.parameter("false_easting").setValue(0.0);
+            parameters.parameter("false_northing").setValue(0.0);
+
+            String name = "Lambert Conformal (SP: " + stdParallel1 + "/"
+                    + stdParallel2 + ", Origin: " + lonOfOrigin + ")";
+
+            return MapUtil.constructProjection(name, parameters);
+        } catch (Exception e) {
+            //
+            return null;
+        }
     }
 }
