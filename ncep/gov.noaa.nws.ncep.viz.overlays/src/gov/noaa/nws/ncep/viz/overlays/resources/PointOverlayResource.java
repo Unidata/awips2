@@ -126,7 +126,7 @@ public class PointOverlayResource extends AbstractVizResource<PointOverlayResour
 //    		return ptOvrlyRscData.getFilename() + " ("+numPoints+" points)";
 //    	}
 //    	else {
-    		return mapName + " ("+numPoints+")";    		
+    		return mapName;    		
 //    	}
     }
     /*

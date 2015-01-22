@@ -59,6 +59,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 08/11/10     #273       Greg Hull   bundleName->overlayName and use ResourceFactory to create 
  *                                     the overlay resource.
  * 09/12/12     #869       Greg Hull   call instantiateResources instead of construct().
+ * 01/21/14				   M. James	   reconfigured overlay menu to toggle/unload.
  * </pre>
  * 
  * @author bhebbard
@@ -127,7 +128,6 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                                     && rpe.getResourceData().equals(ovrlyRscData)) {
                             		rp.setResourceData( null );
                             		resourceList.remove( rpe ); 
-                            		//resourceList.removeRsc(rp.getResource());
                             		break;
                             } else {
                             	resourceList.add( rp ); 
@@ -168,7 +168,6 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
         
         String ResourceName = (String) parameters.get("resourceName");
         String OverlayName = (String) parameters.get("overlayName");
-        System.out.println("OverlayName: " + OverlayName);
         if (descriptor instanceof IMapDescriptor) {
         	for (ResourcePair rp : descriptor.getResourceList() ) {
         		if ( !rp.getProperties().isSystemResource() 
