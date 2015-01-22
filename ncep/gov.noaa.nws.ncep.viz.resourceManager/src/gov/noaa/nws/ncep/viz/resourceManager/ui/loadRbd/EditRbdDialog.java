@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
- *  Main Dialog to manage and load RBDs.
+ * Main Dialog to manage and load RBDs.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -23,82 +23,87 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------	----------	-----------	--------------------------
  * 02/16/11      #408       Greg Hull    Created
  * 02/22/2013    #972       Greg Hull    work with AbstractRBD
- *                                       
+ * 
  * </pre>
  * 
- * @author ghull 
+ * @author ghull
  * @version 1
  */
 
 public class EditRbdDialog extends Dialog {
 
     private Shell shell;
+
     private boolean isOpen = false;
 
     private RscBundleDisplayMngr rbdMngr = null;
-    
+
     private CreateRbdControl createRbdCntr = null;
-    
-	public EditRbdDialog( Shell parShell, AbstractRBD<?> seldRbd ) throws VizException {
-    	super(parShell);
 
-    	rbdMngr = new RscBundleDisplayMngr( new NcPaneLayout(6,6), seldRbd.getDisplayType() );
+    public EditRbdDialog(Shell parShell, AbstractRBD<?> seldRbd)
+            throws VizException {
+        super(parShell);
 
-		shell = new Shell( parShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL );
-		shell.setText( "Edit RBD "+seldRbd.getRbdName() );
+        rbdMngr = new RscBundleDisplayMngr(new NcPaneLayout(6, 6),
+                seldRbd.getDisplayType());
 
-		GridLayout mainLayout = new GridLayout(1, true);
-		mainLayout.marginHeight = 1;
-		mainLayout.marginWidth = 1;
-		shell.setLayout( mainLayout );
-		
-		shell.setLocation( parShell.getLocation().x+20, parShell.getLocation().y + 20 );
-				
-		rbdMngr.initFromRbdBundle( seldRbd );
-		
-		createRbdCntr = new CreateRbdControl( shell, rbdMngr );
+        shell = new Shell(parShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL);
+        shell.setText("Edit RBD " + seldRbd.getRbdName());
 
-		createRbdCntr.configureForEditRbd();
+        GridLayout mainLayout = new GridLayout(1, true);
+        mainLayout.marginHeight = 1;
+        mainLayout.marginWidth = 1;
+        shell.setLayout(mainLayout);
 
-		GridData gd = new GridData();
-		gd.grabExcessHorizontalSpace = true;
-		gd.grabExcessVerticalSpace = true;
-		gd.horizontalAlignment = SWT.FILL;
-		
-		createRbdCntr.setLayoutData(gd);
-				
-    	shell.setMinimumSize(400,320);
-    	
-    	shell.pack();
+        shell.setLocation(parShell.getLocation().x + 20,
+                parShell.getLocation().y + 20);
 
-    	createRbdCntr.updateDialog();	
-	}
-	
-	
-   	public boolean isOpen() {
+        rbdMngr.initFromRbdBundle(seldRbd);
+
+        createRbdCntr = new CreateRbdControl(shell, rbdMngr);
+
+        createRbdCntr.configureForEditRbd();
+
+        GridData gd = new GridData();
+        gd.grabExcessHorizontalSpace = true;
+        gd.grabExcessVerticalSpace = true;
+        gd.horizontalAlignment = SWT.FILL;
+
+        createRbdCntr.setLayoutData(gd);
+
+        shell.setMinimumSize(400, 320);
+
+        // shell.pack();
+
+        createRbdCntr.updateDialog();
+    }
+
+    public boolean isOpen() {
         return isOpen; // shell != null && !shell.isDisposed();
     }
 
     public AbstractRBD<?> open() {
-    	Shell parent = getParent();
-    	Display display = parent.getDisplay();
+        Shell parent = getParent();
+        Display display = parent.getDisplay();
 
-    	shell.open();
+        shell.setSize(550, 500);
+        shell.pack();
+        shell.open();
 
-    	isOpen = true;
+        isOpen = true;
 
-    	// Don't let the user do anything else while the Edit Rbd Dialog is up.
-    	parent.setEnabled(false);
-    	
-    	while( !shell.isDisposed() ) {
-    		if( !display.readAndDispatch() ) {
-    			display.sleep();
-    		}
-    	}
-    	parent.setEnabled(true);
+        // Don't let the user do anything else while the Edit Rbd Dialog is up.
+        parent.setEnabled(false);
 
-    	isOpen = false;
-    	
-    	return createRbdCntr.getEditedRbd();    	
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        parent.setEnabled(true);
+
+        isOpen = false;
+
+        return createRbdCntr.getEditedRbd();
     }
 }
