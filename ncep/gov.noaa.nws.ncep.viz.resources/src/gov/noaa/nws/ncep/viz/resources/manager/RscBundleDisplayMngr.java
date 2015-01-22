@@ -304,7 +304,7 @@ public class RscBundleDisplayMngr {
     }
 
     // the maximum number of rows & columns
-    private NcPaneLayout maxLayout = new NcPaneLayout(4, 4);
+    private NcPaneLayout maxLayout = new NcPaneLayout(3,3);
 
     // an RBD must be one of these display types and all resources in the RBD
     // must be compatible

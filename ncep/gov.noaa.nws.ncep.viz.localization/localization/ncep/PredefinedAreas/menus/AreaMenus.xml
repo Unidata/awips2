@@ -99,7 +99,7 @@
         <source>PREDEFINED_AREA</source>
         <areaName>S_Hemisphere</areaName>
     </AreaMenuItem>
-    <AreaMenuItem subMenuName="" menuName="World (1)">
+    <AreaMenuItem subMenuName="" menuName="World">
         <source>PREDEFINED_AREA</source>
         <areaName>World0</areaName>
     </AreaMenuItem>
