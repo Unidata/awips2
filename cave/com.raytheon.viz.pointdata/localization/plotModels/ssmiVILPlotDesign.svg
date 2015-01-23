@@ -29,7 +29,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 	<text id="lat" plotMode="sample" class="text" plotParam="latitude" plotSymbol="deg" plotFormat="%3.2f">0</text>
   	<text id="lon" plotMode="sample" class="text" plotParam="longitude" plotSymbol="deg" plotFormat="%3.2f">0</text>
 	<text id="sample5" plotMode="sample" class="text" plotLookupTable="output_formats.txt" plotParam="vertIntegWater" plotFormat="%2.1f" plotSymbol="kg/(m**2)">75</text>
-	<text id="vilText" plotMode="range" class="text" plotLookupTable="output_formats.txt" plotParam="vertIntegWater" plotFormat="%2.1f">0</text>
+	<text id="vilText" plotMode="range" class="text" plotLookupTable="output_formats.txt" plotParam="vertIntegWater" plotFormat="%2.2f">0</text>
   
 
 </symbol>
