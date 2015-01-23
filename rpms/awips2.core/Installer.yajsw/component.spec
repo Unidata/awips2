@@ -7,7 +7,7 @@
 Name: awips2-yajsw
 Summary: AWIPS II yajsw Distribution
 Version: %{_yajsw_version}
-Release: 1
+Release: 2
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: noarch
