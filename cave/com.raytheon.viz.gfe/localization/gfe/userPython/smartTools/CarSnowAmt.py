@@ -167,8 +167,8 @@ class Tool (SmartScript.SmartScript):
         cubeShape = (len(tCube), tCube.shape[1], tCube.shape[2])
         gridShape = (tCube.shape[1], tCube.shape[2])
         layerSR = zeros(cubeShape, 'int8')
-        pvvAvg = zeros(cubeShape, 'int8')
-        pvvSum = zeros(gridShape, 'int8')
+        pvvAvg = zeros(cubeShape, 'float32')
+        pvvSum = zeros(gridShape, 'float32')
 
         for i in range(len(ghCube) - 1):
         #for i in range(len(ghCube)):
@@ -235,10 +235,10 @@ class Tool (SmartScript.SmartScript):
         totalSnowRatio = where(less(pvvSum, 1.0), thicknessSnowRatio, totalSnowRatio)
 
         # If there's any layer above 0.0C, snowRatio gets 0
-        mask = greater(tCube, 272.65)
+        mask = any(less_equal(tCube, 272.65), axis = 0) 
         mask = sum(mask) # reduce to single level by adding bits vertically
         # if mask == 0, nowhere in the column is temp < 0.5C
-        totalSnowRatio = where(equal(mask, 0), totalSnowRatio, 0.0)
+        totalSnowRatio = where(mask, totalSnowRatio, 0.0)
         #Calculate Snowfall - taper to zero from 31 to 34 F.
         snowfall = QPF * totalSnowRatio
         snowfall = where(greater(T, 31.0), pow(35.0 - T,2)/16.0 * snowfall , snowfall)
