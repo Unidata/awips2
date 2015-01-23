@@ -45,6 +45,7 @@
 #    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS 
 #    07/09/2014          #3146     randerso       Removed unused import
 #    07/10/2014                    swhite         Add surge and tropical threat WEs and their dependencies
+#    01/08/2015          #15035    lshi           add site WNJ
 #    12/03/2014          #3866     rferrel        Added GFS20
 ########################################################################
 
@@ -864,6 +865,7 @@ SITES = {
     'ONA' : ([244, 383], (68.9375, 19.5625), (15.1875, 23.875), 'EST5EDT', Grid211, "wfo"),
     'ONP' : ([396, 415], (8.1875, 21.5625), (24.6875, 25.875), 'PST8PDT', Grid211, "wfo"),
     'HPA' : ([899, 671], (284.0, 30.0), (898.0, 670.0), 'Pacific/Honolulu', NDFD_Oceanic_10K, "wfo"),
+    'WNJ' : ([301, 346], (1000.0, 475.0), (300.0, 345.0), 'CST6CDT', NDFD_Oceanic_10K, "wfo"),
 
 #Ice Desk for AFC
     'AICE' : ([560, 340], (9.0, 11.0), (29.0, 19.0), 'America/Anchorage',
