@@ -94,6 +94,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 30 Jan 2012 15459     mpduff        Redmine 1560 - Make graph canvases redraw on page up/down.
  * 06 Feb 2013 1578      rferrel       Code cleanup for non-blocking dialogs.
  * 24 Apr 2013  1921     mpduff        Fix zoom reset to only reset the "active" graph
+ * 14 May 2014 16388     xwei          updated the insertion of rejecteddata table. 
  * 
  * </pre>
  * 
@@ -888,6 +889,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
 
                     if (editList.size() > 0) {
                         try {
+                        	dataManager.insertRejectedData(editList);
                             dataManager.edit(editList);
                             updateMaxFcst(editList);
                         } catch (VizException e) {
