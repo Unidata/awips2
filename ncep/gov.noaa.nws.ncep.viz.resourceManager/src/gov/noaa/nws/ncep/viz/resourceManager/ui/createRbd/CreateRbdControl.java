@@ -2713,7 +2713,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
             }
         }
 
-        updateAreaGUI();
+        //updateAreaGUI();
 
         updateSelectedResourcesView(true);
     }
@@ -2843,6 +2843,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
             StructuredSelection orig_sel_elems = (StructuredSelection) seld_rscs_lviewer
                     .getSelection();
+            System.out.println("BEFORE: seld_rscs_lviewer: " + seld_rscs_lviewer.getList().getItemCount());
             List<ResourceSelection> origSeldRscsList = (List<ResourceSelection>) orig_sel_elems
                     .toList();
 
@@ -2859,6 +2860,24 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                                         .getText()));
             }
             */
+            /*
+            NcDisplayType curDispType = rbdMngr.getRbdType();
+            try {
+                AbstractRBD<?> dfltRbd = NcMapRBD.getDefaultRBD(curDispType);
+
+                rbdMngr.initFromRbdBundle(dfltRbd);
+
+            } catch (VizException e) {
+                MessageDialog errDlg = new MessageDialog(shell, "Error", null,
+                        e.getMessage(), MessageDialog.ERROR, new String[] { "OK" },
+                        0);
+                errDlg.open();
+
+                rbdMngr.init(curDispType);
+            }
+            */
+            // this is where list is reset to not include Locator...
+			
             seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
             seld_rscs_lviewer.refresh(true);
 
@@ -2873,8 +2892,11 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                     }
                 }
             }
+
             seld_rscs_lviewer.setSelection(new StructuredSelection(
                     newSeldRscsList.toArray()), true);
+            System.out.println("AFTER: seld_rscs_lviewer: " + seld_rscs_lviewer.getList().getItemCount());
+
         }
 
         int numSeldRscs = seld_rscs_lviewer.getList().getSelectionCount();
