@@ -61,6 +61,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition.FieldType;
  * ------------ ---------- ----------- --------------------------
  * May 30, 2012            randerso     Initial creation
  * May 12, 2014 16167      ryu         Fix sizing and accessibility of content.
+ * Dec 11, 2014 638    mgamazaychikov   Set isFloat in makeScale.
  * 
  * </pre>
  * 
@@ -403,9 +404,14 @@ public class DialogAreaComposite extends ScrolledComposite {
 
         ScaleWidget scale = new ScaleWidget(labelText);
         scale.setOptions(valueList);
-        scale.setValue(initialValue);
         scale.setResolution(res);
         scale.setPrecision(precision);
+        if (initialValue instanceof Float ){
+            scale.setFloat(true);
+        } else {
+            scale.setFloat(false);
+        }
+        scale.setValue(initialValue);
 
         scale.buildComposite(this.topFrame);
         return scale;
