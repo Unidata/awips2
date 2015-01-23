@@ -3337,6 +3337,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                 this.selectUngroupedGrp();
             }
             */
+            this.selectUngroupedGrp();
 
         } catch (VizException e) {
             rbdMngr.init(curDispType);
