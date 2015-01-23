@@ -2713,7 +2713,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
             }
         }
 
-        updateAreaGUI();
+        //updateAreaGUI();
 
         updateSelectedResourcesView(true);
     }
@@ -3315,6 +3315,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                 this.selectUngroupedGrp();
             }
             */
+            this.selectUngroupedGrp();
 
         } catch (VizException e) {
             rbdMngr.init(curDispType);
