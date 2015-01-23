@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.edex.plugin.text.impl.separator;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +52,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  *                                     Fixed calculation of message end.
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Dec 03, 2014 ASM #16859 D. Friedman Use CharBuffer instead of StringBuilder.
  * </pre>
  * 
  * @author jkorman
@@ -115,6 +119,12 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         }
     }
 
+    static boolean charSeqStartsWith(CharSequence sequence, String searchString) {
+        return sequence.length() >= searchString.length()
+                && searchString.contentEquals(sequence.subSequence(0,
+                        searchString.length()));
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -142,14 +152,17 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         if (endIndex <= startIndex) {
             endIndex = rawData.length - 1;
         }
-        String rawMsg = new String(rawData, startIndex, endIndex - startIndex);
-        StringBuilder sb = null;
-        if ((rawMsg.indexOf(METAR) == 0) || (rawMsg.indexOf(SPECI) == 0)) {
-            productType = (rawMsg.indexOf(METAR) == 0 ? METAR : SPECI);
+
+        CharBuffer rawMsg = Charset.forName("ISO-8859-1").decode(
+                ByteBuffer.wrap(rawData, startIndex, endIndex - startIndex));
+        if (charSeqStartsWith(rawMsg, METAR)) {
+            productType = METAR;
+        } else if (charSeqStartsWith(rawMsg, SPECI)) {
+            productType = SPECI;
         }
 
         if ("TAF".equals(afos_id.getNnn())) {
-            sb = new StringBuilder(rawMsg);
+            StringBuilder sb = new StringBuilder(rawMsg);
             Matcher m = P_TAF.matcher(sb);
             while (m.find()) {
                 sb.delete(m.start(), m.end());
@@ -157,13 +170,16 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             }
             sb.insert(0, "\n");
             sb.insert(0, "TAFXXX\nTAF");
-            rawMsg = sb.toString();
+            rawMsg = CharBuffer.allocate(sb.length());
+            rawMsg.append(sb);
+            rawMsg.flip();
         }
         Matcher nnnxxxMatcher = NNNXXX.matcher(rawMsg);
         if (nnnxxxMatcher.find() && nnnxxxMatcher.start() == 0) {
-            rawMsg = rawMsg.substring(nnnxxxMatcher.end());
+            rawMsg.position(rawMsg.position() + nnnxxxMatcher.end());
         }
-        StringBuilder buffer = new StringBuilder(rawMsg);
+
+        CharBuffer buffer = rawMsg;
         boolean parsing = true;
 
         while (parsing) {
@@ -276,7 +292,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                             // filter out junk characters
                             while (buffer.length() > 0
                                     && !checkCharNum(buffer.charAt(0))) {
-                                buffer.deleteCharAt(0);
+                                buffer.get();
                             }
 
                             // again, trash data if it is less than 20 bytes
@@ -321,9 +337,9 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
      * @param XXX_id
      * @param parsedMsg
      */
-    private void parseCollMsg(StringBuilder buffer, StringBuilder XXX_id,
+    private void parseCollMsg(CharBuffer buffer, StringBuilder XXX_id,
             StringBuilder parsedMsg) {
-        String msgId = null;
+        CharSequence msgId = null;
 
         // Check the status of the special case flags and if necessary,
         // skip the special case characters.
@@ -331,8 +347,8 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         if (checkFouHeader && fouFlag) {
             // Get the length of the FWC header section and save section
             // to store at the beginning of each product.
-            if (buffer.charAt(0) == (char) 0x1e) {
-                buffer.deleteCharAt(0);
+            if (buffer.length() > 0 && buffer.charAt(0) == (char) 0x1e) {
+                buffer.get();
             }
 
             if (!getTextSegment(buffer, fouHeader, OCSEP)) {
@@ -344,8 +360,8 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             checkFouHeader = false;
         }
 
-        String blank = buffer.substring(0,
-                buffer.length() < 5 ? buffer.length() : 5);
+        String blank = buffer.subSequence(0, Math.min(5, buffer.length()))
+                .toString();
 
         if (blank.equals("METAR") || blank.equals("SPECI")
                 || blank.equals("TESTM") || blank.equals("TESTS")) {
@@ -353,9 +369,9 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                 return;
             }
 
-            buffer.deleteCharAt(0);
+            buffer.get();
             if (buffer.charAt(0) == ' ') {
-                buffer.deleteCharAt(0);
+                buffer.get();
             }
 
             reportType = blank;
@@ -366,20 +382,20 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             while (buffer.length() > 0) {
                 char c = buffer.charAt(0);
                 if ((c == '\n') || (c == '\r')) {
-                    buffer.deleteCharAt(0);
+                    buffer.get();
                 } else {
                     break;
                 }
             }
 
             // The next test on blank uses at most three characters
-            blank = buffer.substring(0, buffer.length() < 3 ? buffer.length()
-                    : 3);
+            blank = buffer.subSequence(0, Math.min(3, buffer.length()))
+                    .toString();
         } else if (pirFlag) {
             if (buffer != null) {
                 for (int i = 0; i < buffer.length(); i++) {
                     if (buffer.charAt(i) == '\r') {
-                        buffer.setCharAt(i, '\n');
+                        buffer.put(buffer.position() + i, '\n');
                     }
                 }
 
@@ -391,7 +407,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                 while (buffer.length() > 0) {
                     char c = buffer.charAt(0);
                     if ((c == ' ') || (c == '\n')) {
-                        buffer.deleteCharAt(0);
+                        buffer.get();
                     } else {
                         break;
                     }
@@ -400,17 +416,17 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             }
             pirFlag = false;
         }
-        blank = buffer.toString();
+        blank = buffer.subSequence(0, Math.min(3, buffer.length())).toString();
         if (blank.startsWith("AMD") || blank.startsWith("COR")) {
             if (safeStrpbrk(buffer, CSPC)) {
-                buffer.deleteCharAt(0);
+                buffer.get();
             }
         }
 
         // Skip junk characters
         while (buffer.length() > 0
                 && !(checkCharNum(buffer.charAt(0)) && (buffer.charAt(0) != EOM))) {
-            buffer.deleteCharAt(0);
+            buffer.get();
         }
 
         // Grab the first word of each line to act as the XXX of the afos id.
@@ -452,7 +468,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             parsedMsg.setLength(parsedMsg.length() - 3);
         } else if (buffer.charAt(0) == '=') {
             if (safeStrpbrk(buffer, CSPL)) {
-                buffer.deleteCharAt(0);
+                buffer.get();
             }
         } else if ((buffer.charAt(0) == EOM)
                 && (parsedMsg.length() > (MIN_COLL_DATA_LEN - 1))) {
