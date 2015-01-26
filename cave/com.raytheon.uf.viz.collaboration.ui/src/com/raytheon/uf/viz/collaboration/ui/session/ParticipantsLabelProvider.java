@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySess
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
 import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
 
@@ -58,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
  * Feb 13, 2014 2751       njensen     Added leader icons
  * Feb 18, 2014 2751       bclement    changed tooltip from JID to UserId
  * Oct 10, 2014 3708       bclement    SiteConfigurationManager changes, added actingSite
+ * Jan 13, 2015 3709       bclement    added support for foreground and background colors
  * 
  * </pre>
  * 
@@ -71,10 +73,13 @@ public class ParticipantsLabelProvider extends
     protected String sessionId = null;
 
     private String actingSite;
+    
+    private static final RGB DEFAULT_FOREGROUND = new RGB(0,0,0);
+    private static final RGB DEFAULT_BACKGROUND = new RGB(255,255,255);
 
     protected Map<RGB, Color> colors = new HashMap<RGB, Color>();
 
-    private SessionColorManager manager;
+    private SessionColorManager sessionColorManager;
 
     private Font boldFont;
 
@@ -160,9 +165,34 @@ public class ParticipantsLabelProvider extends
             return null;
         }
         VenueParticipant user = ((VenueParticipant) element);
-        RGB rgb = manager.getColorForUser(user);
+
+        UserColorInfo colors = sessionColorManager.getColorForUser(user);
+        RGB rgb = colors.getForeground();
+        return getTextColor(rgb, DEFAULT_FOREGROUND);
+    }
+
+    @Override
+    public Color getBackground(Object element) {
+        if (!(element instanceof VenueParticipant)) {
+            return null;
+        }
+        VenueParticipant user = ((VenueParticipant) element);
+
+        UserColorInfo colors = sessionColorManager.getColorForUser(user);
+        RGB rgb = colors.getBackground();
+        return getTextColor(rgb, DEFAULT_BACKGROUND);
+    }
+    
+    /**
+     * Gets text coloring for participant.
+     * 
+     * @param rgb
+     * @param defaultColor
+     * @return default if rgb is null
+     */
+    private Color getTextColor(RGB rgb, RGB defaultColor) {
         if (rgb == null) {
-            rgb = new RGB(0, 0, 0);
+            rgb = defaultColor;
         }
         Color color = colors.get(rgb);
         if (color == null) {
@@ -252,8 +282,8 @@ public class ParticipantsLabelProvider extends
      * @param manager
      *            the manager to set
      */
-    public void setManager(SessionColorManager manager) {
-        this.manager = manager;
+    public void setSessionColorManager(SessionColorManager manager) {
+        this.sessionColorManager = manager;
     }
 
     @Override
