@@ -45,6 +45,13 @@ if [ -z "${SKIP_RPM_CHECK}" ]; then
         echo "Unable To Continue ... Terminating."
         exit 1
     fi
+    
+    rpm -q awips2-yajsw > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "ERROR: awips2-yajsw Must Be Installed."
+        echo "Unable To Continue ... Terminating."
+        exit 1
+    fi    
 fi
 
 path_to_script=`readlink -f $0`
@@ -58,6 +65,7 @@ awips_home=$(dirname $EDEX_HOME)
 if [ -z "$PYTHON_INSTALL" ]; then PYTHON_INSTALL="$awips_home/python"; fi
 if [ -z "$JAVA_INSTALL" ]; then JAVA_INSTALL="$awips_home/java"; fi
 if [ -z "$PSQL_INSTALL" ]; then PSQL_INSTALL="$awips_home/psql"; fi
+if [ -z "$YAJSW_HOME" ]; then YAJSW_HOME="$awips_home/yajsw"; fi
 
 # Source The File With The Localization Information
 source ${dir}/setup.env
@@ -150,4 +158,4 @@ if [ $DEBUG_FLAG == "on" ]; then
    echo "To Debug ... Connect to Port: ${EDEX_DEBUG_PORT}."
 fi
 
-java -Xmx32m -XX:MaxPermSize=12m -XX:ReservedCodeCacheSize=4m -jar ${EDEX_HOME}/bin/yajsw/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE} ${WRAPPER_ARGS}
+java -Xmx32m -XX:MaxPermSize=12m -XX:ReservedCodeCacheSize=4m -jar ${YAJSW_HOME}/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE} ${WRAPPER_ARGS}

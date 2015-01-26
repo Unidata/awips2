@@ -22,7 +22,7 @@
                 
 
                      
- <!-- Origianlly P03C, TTR 923, Has no sign +/- -->              
+ <!-- Originally P03C, TTR 923, Has no sign +/- -->              
  <PlotParameterDefn  plotParamName="P03X" metParamName="PressChange3HrAbsVal"  
                      dbParamName="pressChange3Hour" plotUnit="Pa" 
                      plotFormat="%+3.0f"/>                        
@@ -235,7 +235,8 @@ don't think this is needed here plotLookupTable="wx_symbol_trans.txt"
     There are 2 alternatives : 
  First we can add/implement the arrayIndex="0" attribute to display other values and
  Second we can use the prioritySelectTable="wx_sym_select.txt". This is currently 
- only configured to rank all values the same so to prioritize it would need the ranking set -->
+ only configured to rank all values the same so to prioritize it would need the ranking set 
+ RedMine 4230  -->
  <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
                      dbParamName="presWeather" 
                      plotMode="table"

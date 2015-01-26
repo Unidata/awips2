@@ -21,16 +21,18 @@ package com.raytheon.viz.grid.record;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.grid.data.GridRequestableData;
@@ -48,6 +50,7 @@ import com.raytheon.viz.grid.util.TiltRequest;
  * ------------ ---------- ----------- --------------------------
  * Mar 18, 2010            bsteffen    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Nov 21, 2014 3026       mpduff      Set secondary ID if it exists.
  * 
  * 
  * </pre>
@@ -68,9 +71,12 @@ public class RequestableDataRecord extends GridRecord {
         GridCoverage coverage = null;
         if (requester.getSpace() instanceof GridCoverage) {
             coverage = (GridCoverage) requester.getSpace();
-            if (requester instanceof GridRequestableData) {
-                setSecondaryId(((GridRequestableData) requester)
-                        .getGridSource().getSecondaryId());
+            Set<String> secondaryIds = new HashSet<String>();
+            for (GridRequestableData data : getGribRequests()) {
+                secondaryIds.add(data.getGridSource().getSecondaryId());
+            }
+            if (secondaryIds.size() == 1) {
+                setSecondaryId(secondaryIds.iterator().next());
             }
         }
         setDatasetId(requester.getSource());

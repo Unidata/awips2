@@ -35,6 +35,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------- -------- ----------- --------------------------
  * Aug 04, 2011           mnash       Initial creation
  * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
+ * Dec 26, 2014  ASM#632  dhuffman    Edited AlertCategory to conform with
+ *                                    Table IV of the "ICD for the RPG to Class 1 User"
  * 
  * </pre>
  * 
@@ -44,9 +46,50 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @DynamicSerialize
 public class AlertMessage {
-
+    // Table IV in document: Interface Control Document for the RPG to Class 1 User
     public enum AlertCategory {
-        Empty, GRID_Velocity, GRID_Composite_Reflectivity, GRID_Echo_Tops, GRID_Severe_Weather_Probability, GRID_Spare, GRID_Vertically_Integrated_Liquid, VOLUME_Velocity_Azimuth_Display, VOLUME_Minimum_Size_Hail, VOLUME_Spare, VOLUME_Tornado_Vortex_Signature, VOLUME_Maximum_Storm_Reflectivity, VOLUME_Probability_of_Hail, VOLUME_Storm_Top, VOLUME_Maximum_1_Hour_Rainfall_Accumulation, VOLUME_MDA_Strength_Rank, VOLUME_Spare1, FORECAST_Maximum_Hail_Size, FORECAST_Spare, FORECAST_Tornado_Vortex_Signature, FORECAST_Maximum_Storm_Reflectivity, FORECAST_Probability_of_Hail, FORECAST_Probability_of_Severe_Hail, FORECAST_Storm_Top, FORECAST_MDA_Strength_Rank, FORECAST_Spare1
+        UNUSED_Zero, 
+        GRID_Velocity, 
+        GRID_Composite_Reflectivity, 
+        GRID_Echo_Tops, 
+        GRID_Severe_Weather_Probability, 
+        GRID_Spare, 
+        GRID_Vertically_Integrated_Liquid, 
+        VOLUME_Velocity_Azimuth_Display, 
+        VOLUME_Maximum_Size_Hail, 
+        VOLUME_Spare, 
+        VOLUME_Tornado_Vortex_Signature, 
+        VOLUME_Maximum_Storm_Reflectivity, 
+        VOLUME_Probability_of_Hail, 
+        VOLUME_Probability_of_Severe_Hail,
+        VOLUME_Storm_Top, 
+        VOLUME_Maximum_1_Hour_Rainfall_Accumulation, 
+        VOLUME_MDA_Strength_Rank,
+        UNUSED_Spare17,
+        UNUSED_Spare18,
+        UNUSED_Spare19,
+        UNUSED_Spare20,
+        UNUSED_Spare21,
+        UNUSED_Spare22,
+        UNUSED_Spare23,
+        UNUSED_Spare24,
+        FORECAST_Maximum_Hail_Size, 
+        FORECAST_Spare, 
+        FORECAST_Tornado_Vortex_Signature, 
+        FORECAST_Maximum_Storm_Reflectivity, 
+        FORECAST_Probability_of_Hail, 
+        FORECAST_Probability_of_Severe_Hail, 
+        FORECAST_Storm_Top, 
+        FORECAST_MDA_Strength_Rank,
+        UNUSED_Spare33,
+        UNUSED_Spare34,
+        UNUSED_Spare35,
+        UNUSED_Spare36,
+        UNUSED_Spare37,
+        UNUSED_Spare38,
+        UNUSED_Spare39,
+        UNUSED_Spare40,
+        UNUSED_Spare41
     }
 
     @DynamicSerializeElement
