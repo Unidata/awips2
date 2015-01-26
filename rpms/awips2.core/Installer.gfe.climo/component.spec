@@ -63,16 +63,7 @@ function copyLegal()
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 
-# Determine which version of the climo we should use.
-RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
-
-if [ ! -f ${RPM_COMMON_DIR}/LATEST.climo ]; then
-   file ${RPM_COMMON_DIR}/LATEST.climo
-   exit 1
-fi
-VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.climo`
-
-GFE_CLIMO_SRC_DIR="%{_awipscm_share}/awips2-static/climo/${VERSION_DIR}"
+GFE_CLIMO_SRC_DIR="%{_awipscm_share}/awips2-static/climo/"
 if [ ! -d ${GFE_CLIMO_SRC_DIR} ]; then
    file ${GFE_CLIMO_SRC_DIR}
    exit 1

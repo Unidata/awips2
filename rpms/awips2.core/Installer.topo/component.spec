@@ -60,15 +60,7 @@ function copyLegal()
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 
-# Determine which version of the topo we should use.
-RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
-
-if [ ! -f ${RPM_COMMON_DIR}/LATEST.topo ]; then
-   file ${RPM_COMMON_DIR}/LATEST.topo
-   exit 1
-fi
-VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.topo`
-TOPO_SRC_DIR="awips2-static/topo/${VERSION_DIR}"
+TOPO_SRC_DIR="awips2-static/topo/"
 if [ ! -d %{_awipscm_share}/${TOPO_SRC_DIR} ]; then
    file %{_awipscm_share}/${TOPO_SRC_DIR}
    exit 1

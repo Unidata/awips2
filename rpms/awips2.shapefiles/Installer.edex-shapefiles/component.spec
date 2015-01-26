@@ -48,18 +48,7 @@ fi
 
 AWIPS2_STATIC=%{_awipscm_share}/awips2-static
 
-# Determine which version of the shapefiles we should use.
-COMMON=%{_baseline_workspace}/rpms/common
-if [ ! -f ${COMMON}/static.versions/LATEST.maps ]; then
-   file ${COMMON}/static.versions/LATEST.maps
-   exit 1
-fi
-
-LATEST=`cat ${COMMON}/static.versions/LATEST.maps`
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-SHAPEFILES=${AWIPS2_STATIC}/maps/${LATEST}/shapefiles
+SHAPEFILES=${AWIPS2_STATIC}/maps/shapefiles
 if [ ! -d ${SHAPEFILES} ]; then
    file ${SHAPEFILES}
    exit 1
