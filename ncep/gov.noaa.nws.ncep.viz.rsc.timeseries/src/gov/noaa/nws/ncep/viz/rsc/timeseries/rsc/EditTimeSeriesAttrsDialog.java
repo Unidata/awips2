@@ -9,6 +9,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -53,7 +54,7 @@ public class EditTimeSeriesAttrsDialog extends
         top.setLayout(mainLayout);
 
         Group colorsGroup = new Group(top, SWT.SHADOW_NONE);
-        colorsGroup.setText("Colors");
+        colorsGroup.setText("Info");
         GridData gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = true;
@@ -67,8 +68,11 @@ public class EditTimeSeriesAttrsDialog extends
 
     public void initializeComponents(final Group colorsGroup) {
 
-        colorsGroup.setLayout(new GridLayout(2, true));
+        colorsGroup.setLayout(new GridLayout(1, true));
 
+        Label infoLabel = new Label(colorsGroup, SWT.NONE);
+        infoLabel
+                .setText("Currently, attributes cannot be edited using this dialog.");
     }
 
     @Override

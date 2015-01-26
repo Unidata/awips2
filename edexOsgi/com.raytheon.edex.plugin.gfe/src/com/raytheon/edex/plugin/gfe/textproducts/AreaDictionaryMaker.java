@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 4, 2011             wldougher   Moved from MapManager
+ * Oct 8, 2014   #4953     randerso    Added hooks for TCVAreaDictionary creation
  * Oct 10, 2014  #3685     randerso    Add code to generate the fips2cities and zones2cites
  *                                     python modules from the GIS database tables
  * 
@@ -127,21 +128,21 @@ public class AreaDictionaryMaker {
      * Generate the AreaDictionary.py and CityLocation.py scripts for site,
      * using editAreaAttrs.
      * 
-     * @param site
+     * @param siteID
      *            The site for which the area dictionary file and city location
      *            file should be generated.
      * @param editAreaAttrs
      *            A Map from edit area names to shape file attributes
      */
-    public void genAreaDictionary(String site,
+    public void genAreaDictionary(String siteID,
             Map<String, List<Map<String, Object>>> editAreaAttrs) {
         statusHandler.info("Area Dictionary generation phase");
 
-        if (site == null) {
+        if (siteID == null) {
             throw new IllegalArgumentException("site is null");
         }
 
-        if (site.isEmpty()) {
+        if (siteID.isEmpty()) {
             throw new IllegalArgumentException("site is an empty string");
         }
 
@@ -155,7 +156,7 @@ public class AreaDictionaryMaker {
         LocalizationContext context = pathMgr.getContext(
                 LocalizationContext.LocalizationType.EDEX_STATIC,
                 LocalizationContext.LocalizationLevel.CONFIGURED);
-        context.setContextName(site);
+        context.setContextName(siteID);
 
         List<Map<String, Object>> countyAttrs = editAreaAttrs.get("Counties");
         List<Map<String, Object>> zoneAttrs = editAreaAttrs.get("Zones");
@@ -236,7 +237,7 @@ public class AreaDictionaryMaker {
 
         LocalizationContext configCtx = pathMgr.getContext(
                 LocalizationType.EDEX_STATIC, LocalizationLevel.CONFIGURED);
-        configCtx.setContextName(site);
+        configCtx.setContextName(siteID);
         File configDir = pathMgr.getLocalizationFile(configCtx, "gfe")
                 .getFile();
 
@@ -248,7 +249,7 @@ public class AreaDictionaryMaker {
         LocalizationContext caveStaticConfig = pathMgr.getContext(
                 LocalizationContext.LocalizationType.CAVE_STATIC,
                 LocalizationContext.LocalizationLevel.CONFIGURED);
-        caveStaticConfig.setContextName(site);
+        caveStaticConfig.setContextName(siteID);
         File outputDirFile = pathMgr.getLocalizationFile(caveStaticConfig,
                 FileUtil.join("gfe", "userPython", "textUtilities", "regular"))
                 .getFile();
@@ -265,6 +266,16 @@ public class AreaDictionaryMaker {
             // createCityLocation uses script globals modified by
             // createAreaDictionary()
             pyScript.execute("createCityLocation", argMap);
+
+            // check to see if Hazard_TCV was configured for this site
+            LocalizationFile lf = pathMgr.getLocalizationFile(caveStaticConfig,
+                    FileUtil.join("gfe", "userPython", "textProducts",
+                            "Hazard_TCV.py"));
+            if (lf.exists()) {
+                argMap.put("siteID", siteID);
+                pyScript.execute("createTCVAreaDictionary", argMap);
+            }
+
         } catch (JepException e) {
             statusHandler.error("Error generating area dictionary", e);
         } finally {
