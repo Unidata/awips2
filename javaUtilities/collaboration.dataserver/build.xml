@@ -3,10 +3,10 @@
 	<property name="workspace" value="${basedir}/../.." />
 	<property name="workspace_edexOsgi" value="${workspace}/edexOsgi"/>
 	<property name="workspace_javaUtilities" value="${workspace}/javaUtilities"/>
-	<property name="workspace_coreCommon" value="${workspace}/../ufcore/common"/>
+	<property name="workspace_coreCommon" value="${workspace}/../awips2-core/common"/>
 	<property name="workspace_cots" value="${workspace}/cots" />
-	<property name="workspace_coreFoss" value="${workspace}/../ufcore-foss/lib" />
-	<property name="workspace_awipsFoss" value="${workspace}/../AWIPS2_foss/lib" />
+	<property name="workspace_coreFoss" value="${workspace}/../awips2-core-foss/lib" />
+	<property name="workspace_awipsFoss" value="${workspace}/../awips2-foss/lib" />
 
 	<property name="esb.build.directory" value="${workspace_edexOsgi}/build.edex" />
 	<property name="feature.file" value="${basedir}.feature/feature.xml" />
