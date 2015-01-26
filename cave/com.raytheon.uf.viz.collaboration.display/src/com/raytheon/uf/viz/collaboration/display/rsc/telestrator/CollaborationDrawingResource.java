@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingEvent.CollaborationEventType;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
@@ -70,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 05, 2014 3076       bclement    old CLEAR_ALL is now DISPOSE_ALL,
  *                                      added clearLayers() and getAllDrawingLayers()
  * Jun 30, 2014 1798       bclement    added getManager()
+ * Jan 13, 2015 3709       bclement    SessionColorManager API changes
  * 
  * </pre>
  * 
@@ -180,8 +182,9 @@ public class CollaborationDrawingResource extends
                     layer.setEraserWidth(16); // Configure?
                     layer.setLineStyle(outline.getLineStyle());
                     layer.setLineWidth(outline.getOutlineWidth());
-                    layer.setColor(container.getColorManager().getColorForUser(
-                            user));
+                    UserColorInfo colorInfo = container.getColorManager()
+                            .getColorForUser(user);
+                    layer.setColor(colorInfo.getForeground());
                     layer.paint(target, paintProps);
                 }
             }
