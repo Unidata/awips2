@@ -13,6 +13,9 @@
                Mike Dangelo 1/23/2014 added IC group to bottom of CON bullets (it's locked anyway, no need to have it at the top) 
                Phil Kurimski   06-24-2014 Put types of warnings and IC back at the top (forecasters rely on this when choosing a con statement
                                           to determine what warning they are following up!)
+               Evan Bookbinder 10-24-2014 Fixed parseString for EXT for generic flooding
+               Evan Bookbinder 10-31-2014 Changed "FLOOD WARNING FOR" to "FLOOD WARNING" for all parse and show strings where the flood type
+                                           is "Generic"
 -->
                  
 <warngenConfig>
@@ -96,7 +99,7 @@ Must be paired with proper vm code (which are commented out in arealFloodWarning
 <bulletActionGroup action="CAN" phen="FA" sig="W">
  <bullets>
   <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
-  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
   <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
   <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
   <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
@@ -118,7 +121,7 @@ Must be paired with proper vm code (which are commented out in arealFloodWarning
 <bulletActionGroup action="EXP" phen="FA" sig="W">
  <bullets>
   <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
-  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
   <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
   <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
   <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
@@ -140,7 +143,7 @@ Must be paired with proper vm code (which are commented out in arealFloodWarning
 <bulletActionGroup action="CON" phen="FA" sig="W">
  <bullets>
   <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
-  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
   <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
   <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
   <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
@@ -200,7 +203,7 @@ Must be paired with proper vm code (which are commented out in arealFloodWarning
 <bulletActionGroup action="COR" phen="FA" sig="W">
   <bullets>
   <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
-  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;" showString="&quot;FLOOD WARNING&quot;,&quot;-WARNING FOR SMALL STREAMS&quot;,&quot;-WARNING FOR URBAN&quot;"/>
   <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
   <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
   <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>

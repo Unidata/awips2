@@ -15,6 +15,7 @@
 #####         D. Friedman   08-28-2014 ASM #15658.  Add marine watch wording.
 #####         Qinglu Lin    09-15-2014 ASM #15551. Overhauled inserttorwatches and insertsvrwatches, added until.
 #####         Qinglu Lin    10-06-2014 ASN #556.   Updated secondBullet.
+#####    Evan Bookbinder    10-24-2014 Fixed UGC > 500 check for Indep Cities in svrl macros to ignore zone codes
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -558,6 +559,12 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 ## useExtremexxx = boolean to use the word EXTREME in the county of State phrase
 ##################################################################
 #macro(headlineLocList $areas $useCentralCounty $useExtremeCounty $useCentralState $useExtremeState)
+#### DETERMINE IF WE HAVE A FIPS OR ZONE BASED PRODUCT
+#if(${areaSource.equalsIgnoreCase("COUNTY")})
+#set($areaFIPS = true)
+#else
+#set($areaFIPS = false)
+#end
 #set($countyCount = 0)
 #set($countyCounter = 0)
 #set($itemCount = 0)
@@ -598,7 +605,7 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 #end
 #set($FIPS = ${area.fips.substring(${fipsIdx})})
 #set($intFIPS = 0)
-#if(${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX")
+#if(${intFIPS.parseInt($FIPS)} < 500 || ${areaFIPS} == "false" || ${area.stateabbr} == "TX")
 #set($countyCounter = $countyCounter + 1)
 ##INITIALIZE CHECK VARIABLES
 #if($countyCount == 0)
@@ -788,7 +795,7 @@ ${prevCounty}##
 #foreach (${area} in ${areas})
 #set($FIPS = ${area.fips.substring(2)})
 #set($intFIPS = 0)
-#if(${intFIPS.parseInt($FIPS)} >= 500 && ${area.stateabbr} != "TX")
+#if(${intFIPS.parseInt($FIPS)} >= 500 && ${area.stateabbr} != "TX" && ${areaFIPS} == "true")
 #set($indepCityCount= $indepCityCount + 1)
 #if(${indepCityCount} == 1 && ${countyCount} > 0)
 #if(${countyCounter} > 1) 
@@ -1047,7 +1054,7 @@ ${prevZone}##
 #set($FIPS = ${area.fips.substring(2)})
 #set($intFIPS = 0)
 ##OUTPUT FOR NORMAL COUNTIES/ZONES
-#if((${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
+#if((${intFIPS.parseInt($FIPS)} < 500 || ${areaFIPS} == "false" || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
 #if(${area.partOfArea})
 #areaFormat(${area.partOfArea} true true true)##
 #end
@@ -1151,7 +1158,7 @@ THE FOLLOWING COUNTIES AND PARISHES...
 #set($intFIPS = 0)
 #set($partOfArea = "")
 ##OUTPUT FOR NORMAL COUNTIES/ZONES
-#if((${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
+#if((${intFIPS.parseInt($FIPS)} < 500 || ${areaFIPS} == "false" || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
 #if(${area.partOfArea})
 #set($partOfArea = "#areaFormat(${area.partOfArea} true true true)")
 #end

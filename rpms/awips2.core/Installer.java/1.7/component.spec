@@ -11,7 +11,7 @@
 Name: awips2-java
 Summary: AWIPS II Java Distribution
 Version: %{_java_version}
-Release: 1
+Release: %{_component_version}.%{_component_release}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}

@@ -46,27 +46,14 @@
         <contribute xsi:type="titleItem" titleText="------ Volcanic Ash ------" />
         <contribute xsi:type="separator" id="VolcanicAshStart"
             visible="false" />
-        <contribute xsi:type="bundleItem" file="bundles/VAA.xml"
-            menuText="Volcanic Ash Advisories" id="VAA">
-        </contribute>
         <contribute xsi:type="separator" id="VolcanicAshEnd" />
 
-        <contribute xsi:type="titleItem" titleText="------Center Weather ------" />
-        <contribute xsi:type="bundleItem" file="bundles/CWA.xml"
-            menuText="Center Weather Advisories" id="cwa">
-        </contribute>
+        <contribute xsi:type="titleItem" titleText="------ Center Weather ------" />
         <contribute xsi:type="separator" id="CenterWeatherEnd" />
 
         <contribute xsi:type="titleItem"
-            titleText="------Significant Weather------" />
-        <contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml"
-            menuText="Medium Level" id="SigWxMedium">
-            <substitute key="wxLayer" value="SWM" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml"
-            menuText="High Level" id="SigWxHigh">
-            <substitute key="wxLayer" value="SWH" />
-        </contribute>
+            titleText="------ Significant Weather ------" />
+        <contribute xsi:type="separator" id="SignificantWeatherEnd" />
     </contribute>
     <contribute xsi:type="separator" id="AviationMenuEnd" />
 </menuTemplate>
