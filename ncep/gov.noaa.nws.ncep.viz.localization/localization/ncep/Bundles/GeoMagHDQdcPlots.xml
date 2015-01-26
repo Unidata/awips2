@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<graphRBD rbdName="GeoMagHDQdcPlots">
+    <displayType>GRAPH_DISPLAY</displayType>
+    <paneLayout numRows="2" numColumns="1"/>
+    <selectedPaneId row="0" col="0"/>
+    <geoSyncedPanes>false</geoSyncedPanes>
+    <autoUpdate>true</autoUpdate>
+    <rbdSequence>0</rbdSequence>
+    <timeMatcher dominantResourceName="TIMESERIES/GEOMAG:WNG/DIRECT/HQdc_Direct" numFrames="720" graphRange="12" hourSnap="3" skipValue="0" timeRange="24" frameInterval="-1"/>
+    <displayList>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="NCTimeSeriesRenderableDisplay">
+            <descriptor xsi:type="NCTimeSeriesDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="PLOT">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="GeoMagResourceData" isEdited="false" resourceName="TIMESERIES/GEOMAG:WNG/DIRECT/H_Direct" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="stationCode">
+<constraint constraintType="EQUALS" constraintValue="WNG"/>
+                            </mapping>
+                            <mapping key="reportType">
+<constraint constraintType="EQUALS" constraintValue="GEOMAG"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintType="EQUALS" constraintValue="geomag"/>
+                            </mapping>
+                            <mapping key="sourceId">
+<constraint constraintType="EQUALS" constraintValue="101"/>
+                            </mapping>
+                        </metadataMap>
+                        <legendColor>RGB {255, 255, 255}</legendColor>
+                        <resourceVersion></resourceVersion>
+                        <frameSpan>1</frameSpan>
+                        <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+                        <timeMatchMethod>EXACT</timeMatchMethod>
+                        <dfltNumFrames>1</dfltNumFrames>
+                        <dfltGraphRange>12</dfltGraphRange>
+                        <dfltHourSnap>3</dfltHourSnap>
+                        <dfltTimeRange>24</dfltTimeRange>
+                        <yAxesData>H</yAxesData>
+                        <xAxesTitle>Time (hr)</xAxesTitle>
+                        <yAxesTitle>H (nT)</yAxesTitle>
+                        <yDescription>Baseline</yDescription>
+                        <dataColor>red</dataColor>
+                        <showReadoutView>false</showReadoutView>
+                        <showKTableView>false</showKTableView>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="PLOT">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="GeoMagResourceData" isEdited="false" resourceName="TIMESERIES/GEOMAG:WNG/DIRECT/HQdc_Direct" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="stationCode">
+<constraint constraintType="EQUALS" constraintValue="WNG"/>
+                            </mapping>
+                            <mapping key="reportType">
+<constraint constraintType="EQUALS" constraintValue="GEOMAG"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintType="EQUALS" constraintValue="geomag"/>
+                            </mapping>
+                            <mapping key="sourceId">
+<constraint constraintType="EQUALS" constraintValue="101"/>
+                            </mapping>
+                        </metadataMap>
+                        <legendColor>RGB {255, 255, 255}</legendColor>
+                        <resourceVersion></resourceVersion>
+                        <frameSpan>1</frameSpan>
+                        <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+                        <timeMatchMethod>EXACT</timeMatchMethod>
+                        <dfltNumFrames>1</dfltNumFrames>
+                        <dfltGraphRange>12</dfltGraphRange>
+                        <dfltHourSnap>3</dfltHourSnap>
+                        <dfltTimeRange>24</dfltTimeRange>
+                        <yAxesData>HQdc</yAxesData>
+                        <xAxesTitle>Time (hr)</xAxesTitle>
+                        <yAxesTitle>HQdc (nT)</yAxesTitle>
+                        <yDescription>Baseline</yDescription>
+                        <dataColor>pink</dataColor>
+                        <showReadoutView>false</showReadoutView>
+                        <showKTableView>false</showKTableView>
+                    </resourceData>
+                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <gridGeometry rangeX="0 999" rangeY="0 999" envelopeMinX="0.0" envelopeMaxX="1000.0" envelopeMinY="0.0" envelopeMaxY="1000.0">
+                    <CRS>LOCAL_CS[&quot;Cartesian 2D&quot;, 
+  LOCAL_DATUM[&quot;Unknow&quot;, 0], 
+  UNIT[&quot;m&quot;, 1.0], 
+  AXIS[&quot;x&quot;, EAST], 
+  AXIS[&quot;y&quot;, NORTH]]</CRS>
+                </gridGeometry>
+                <numberOfFrames>720</numberOfFrames>
+                <timeMatcher xsi:type="ncTimeMatcher" dominantResourceName="TIMESERIES/GEOMAG:WNG/DIRECT/HQdc_Direct" numFrames="720" graphRange="12" hourSnap="3" skipValue="0" timeRange="24" frameInterval="-1"/> 
+                <autoUpdate>true</autoUpdate>
+                <suspendZoom>false</suspendZoom>
+            </descriptor>
+            <paneId row="0" col="0"/>
+        </displays>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="NCTimeSeriesRenderableDisplay">
+            <descriptor xsi:type="NCTimeSeriesDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="PLOT">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="GeoMagResourceData" isEdited="false" resourceName="TIMESERIES/GEOMAG:WNG/DIRECT/D_Direct" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="stationCode">
+<constraint constraintType="EQUALS" constraintValue="WNG"/>
+                            </mapping>
+                            <mapping key="reportType">
+<constraint constraintType="EQUALS" constraintValue="GEOMAG"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintType="EQUALS" constraintValue="geomag"/>
+                            </mapping>
+                            <mapping key="sourceId">
+<constraint constraintType="EQUALS" constraintValue="101"/>
+                            </mapping>
+                        </metadataMap>
+                        <legendColor>RGB {255, 255, 255}</legendColor>
+                        <resourceVersion></resourceVersion>
+                        <frameSpan>1</frameSpan>
+                        <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+                        <timeMatchMethod>EXACT</timeMatchMethod>
+                        <dfltNumFrames>1</dfltNumFrames>
+                        <dfltGraphRange>12</dfltGraphRange>
+                        <dfltHourSnap>3</dfltHourSnap>
+                        <dfltTimeRange>24</dfltTimeRange>
+                        <yAxesData>D</yAxesData>
+                        <xAxesTitle>Time (hr)</xAxesTitle>
+                        <yAxesTitle>D (nT)</yAxesTitle>
+                        <yDescription>Baseline</yDescription>
+                        <dataColor>dodger blue</dataColor>
+                        <showReadoutView>false</showReadoutView>
+                        <showKTableView>false</showKTableView>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="PLOT">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="GeoMagResourceData" isEdited="false" resourceName="TIMESERIES/GEOMAG:WNG/DIRECT/DQdc_Direct" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="stationCode">
+<constraint constraintType="EQUALS" constraintValue="WNG"/>
+                            </mapping>
+                            <mapping key="reportType">
+<constraint constraintType="EQUALS" constraintValue="GEOMAG"/>
+                            </mapping>
+                            <mapping key="pluginName">
+<constraint constraintType="EQUALS" constraintValue="geomag"/>
+                            </mapping>
+                            <mapping key="sourceId">
+<constraint constraintType="EQUALS" constraintValue="101"/>
+                            </mapping>
+                        </metadataMap>
+                        <legendColor>RGB {255, 255, 255}</legendColor>
+                        <resourceVersion></resourceVersion>
+                        <frameSpan>1</frameSpan>
+                        <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+                        <timeMatchMethod>EXACT</timeMatchMethod>
+                        <dfltNumFrames>1</dfltNumFrames>
+                        <dfltGraphRange>12</dfltGraphRange>
+                        <dfltHourSnap>3</dfltHourSnap>
+                        <dfltTimeRange>24</dfltTimeRange>
+                        <yAxesData>DQdc</yAxesData>
+                        <xAxesTitle>Time (hr)</xAxesTitle>
+                        <yAxesTitle>DQdc (nT)</yAxesTitle>
+                        <yDescription>Baseline</yDescription>
+                        <dataColor>green</dataColor>
+                        <showReadoutView>false</showReadoutView>
+                        <showKTableView>false</showKTableView>
+                    </resourceData>
+                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <gridGeometry rangeX="0 999" rangeY="0 999" envelopeMinX="0.0" envelopeMaxX="1000.0" envelopeMinY="0.0" envelopeMaxY="1000.0">
+                    <CRS>LOCAL_CS[&quot;Cartesian 2D&quot;, 
+  LOCAL_DATUM[&quot;Unknow&quot;, 0], 
+  UNIT[&quot;m&quot;, 1.0], 
+  AXIS[&quot;x&quot;, EAST], 
+  AXIS[&quot;y&quot;, NORTH]]</CRS>
+                </gridGeometry>
+                <numberOfFrames>720</numberOfFrames>
+                <timeMatcher xsi:type="ncTimeMatcher" dominantResourceName="TIMESERIES/GEOMAG:WNG/DIRECT/HQdc_Direct" numFrames="720" graphRange="12" hourSnap="3" skipValue="0" timeRange="24" frameInterval="-1"/>
+                <autoUpdate>true</autoUpdate>
+                <suspendZoom>false</suspendZoom>
+            </descriptor>
+            <paneId row="1" col="0"/>
+        </displays>
+    </displayList>
+    <isDefaultRbd>false</isDefaultRbd>
+</graphRBD>

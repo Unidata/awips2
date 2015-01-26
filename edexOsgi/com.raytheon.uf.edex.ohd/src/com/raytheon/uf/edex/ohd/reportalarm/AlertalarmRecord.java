@@ -43,8 +43,8 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * June 15, 2011    9377     jnjanga     Initial creation
- * 
- * 
+ * October 20, 2014 DR DIM#17259  deng   fix false alert/alarm are generated with
+ *                                       NEW_OR_INCREASED mode
  * </pre>
  * 
  * @author jnjanga
@@ -63,8 +63,7 @@ class AlertalarmRecord {
         groups = new HashMap<String, List<Alertalarmval>>();
     }
 
-    public static AlertalarmRecord newInstance() {
-        if (instance == null)
+    public static AlertalarmRecord newInstance() {     
             instance = new AlertalarmRecord();
         return instance;
     }
