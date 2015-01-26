@@ -71,6 +71,11 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+mkdir -p %{_build_root}/awips2/edex/data/utility/edex_static/base/shapefiles/WarnGenLoc
+if [ $? -ne 0 ]; then
+   exit 1 
+fi
+
 %pre
 
 %post
