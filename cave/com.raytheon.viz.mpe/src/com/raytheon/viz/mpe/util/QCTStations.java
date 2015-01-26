@@ -44,13 +44,15 @@ public class QCTStations {
 
     private double fvalu;
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     public void quality_control_tstations(int j,
             ArrayList<Station> temperature_stations, int numTstations) {
 
         ogood = 0;
         for (int k = 4; k < 6; k++) {
 
-            if (DailyQcUtils.tdata[j].used[k] == 0) {
+            if (dqc.tdata[j].used[k] == 0) {
                 ogood = 0;
                 continue;
             }
@@ -68,7 +70,7 @@ public class QCTStations {
 
         for (int k = 0; k < 4; k++) {
 
-            if (DailyQcUtils.tdata[j].used[k] == 0) {
+            if (dqc.tdata[j].used[k] == 0) {
                 ogood = 0;
                 continue;
             }
@@ -88,8 +90,8 @@ public class QCTStations {
 
     private void qcTLoop(int j, int k, ArrayList<Station> temperature_stations,
             int numTstations) {
-        int isom = DailyQcUtils.isom;
-        int mpe_dqc_max_temp_neighbors = DailyQcUtils.mpe_dqc_max_temp_neighbors;
+        int isom = dqc.isom;
+        int mpe_dqc_max_temp_neighbors = dqc.mpe_dqc_max_temp_neighbors;
         int max_tstations = numTstations;
         int m, i, l, ii;
         double lat1, lon1, fdist, fdata, lat, lon;
@@ -111,7 +113,7 @@ public class QCTStations {
                 continue;
             }
 
-            if (DailyQcUtils.tdata[j].tstn[m].tlevel2[k].data == -99) {
+            if (dqc.tdata[j].tstn[m].tlevel2[k].data == -99) {
                 continue;
             }
 
@@ -125,15 +127,15 @@ public class QCTStations {
 
                 /* only use good or forced good gages to estimate others */
 
-                if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 0
-                        && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 8
-                        && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 6
-                        && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 3
-                        && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 2) {
+                if (dqc.tdata[j].tstn[i].tlevel2[k].qual != 0
+                        && dqc.tdata[j].tstn[i].tlevel2[k].qual != 8
+                        && dqc.tdata[j].tstn[i].tlevel2[k].qual != 6
+                        && dqc.tdata[j].tstn[i].tlevel2[k].qual != 3
+                        && dqc.tdata[j].tstn[i].tlevel2[k].qual != 2) {
                     continue;
                 }
 
-                if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data == -99) {
+                if (dqc.tdata[j].tstn[i].tlevel2[k].data == -99) {
                     continue;
                 }
 
@@ -172,12 +174,12 @@ public class QCTStations {
                 dist = 1 / dist;
 
                 if (k == 4) {
-                    temp = (float) ((DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data + (temperature_stations
+                    temp = (float) ((dqc.tdata[j].tstn[i].tlevel2[k].data + (temperature_stations
                             .get(m).max[isom] - temperature_stations.get(i).max[isom])) * dist);
                 }
 
                 if (k == 5) {
-                    temp = (float) ((DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data + (temperature_stations
+                    temp = (float) ((dqc.tdata[j].tstn[i].tlevel2[k].data + (temperature_stations
                             .get(m).min[isom] - temperature_stations.get(i).min[isom])) * dist);
                 }
 
@@ -207,15 +209,15 @@ public class QCTStations {
 
                     /* only use good or forced good gages to estimate others */
 
-                    if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 0
-                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 8
-                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 6
-                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 3
-                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 2) {
+                    if (dqc.tdata[j].tstn[i].tlevel2[k].qual != 0
+                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 8
+                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 6
+                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 3
+                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 2) {
                         continue;
                     }
 
-                    if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data == -99) {
+                    if (dqc.tdata[j].tstn[i].tlevel2[k].data == -99) {
                         continue;
                     }
 
@@ -257,12 +259,12 @@ public class QCTStations {
                     dist = 1 / dist;
 
                     if (k == 4) {
-                        temp = (float) ((DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data + (temperature_stations
+                        temp = (float) ((dqc.tdata[j].tstn[i].tlevel2[k].data + (temperature_stations
                                 .get(m).max[isom] - temperature_stations.get(i).max[isom])) * dist);
                     }
 
                     if (k == 5) {
-                        temp = (float) ((DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data + (temperature_stations
+                        temp = (float) ((dqc.tdata[j].tstn[i].tlevel2[k].data + (temperature_stations
                                 .get(m).min[isom] - temperature_stations.get(i).min[isom])) * dist);
                     }
 
@@ -280,18 +282,18 @@ public class QCTStations {
                 fdist = 1;
             }
             fvalu = fdata / fdist;
-            DailyQcUtils.tdata[j].tstn[m].tlevel2[k].estimate = (short) fvalu;
+            dqc.tdata[j].tstn[m].tlevel2[k].estimate = (short) fvalu;
 
-            fdif = Math.abs(DailyQcUtils.tdata[j].tstn[m].tlevel2[k].data
+            fdif = Math.abs(dqc.tdata[j].tstn[m].tlevel2[k].data
                     - fvalu);
 
-            DailyQcUtils.tdata[j].tstn[m].tlevel2[k].estimate = (short) fvalu;
+            dqc.tdata[j].tstn[m].tlevel2[k].estimate = (short) fvalu;
 
-            if (DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 0
-                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 1
-                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 5
-                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 6
-                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 2) {
+            if (dqc.tdata[j].tstn[m].tlevel2[k].qual == 0
+                    || dqc.tdata[j].tstn[m].tlevel2[k].qual == 1
+                    || dqc.tdata[j].tstn[m].tlevel2[k].qual == 5
+                    || dqc.tdata[j].tstn[m].tlevel2[k].qual == 6
+                    || dqc.tdata[j].tstn[m].tlevel2[k].qual == 2) {
                 continue;
             }
 
@@ -300,16 +302,16 @@ public class QCTStations {
              * is lower than a minimum temperature
              */
 
-            if (DailyQcUtils.tdata[j].tstn[m].tlevel2[4].data < DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data) {
-                DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual = 3;
+            if (dqc.tdata[j].tstn[m].tlevel2[4].data < dqc.tdata[j].tstn[m].tlevel2[5].data) {
+                dqc.tdata[j].tstn[m].tlevel2[k].qual = 3;
             }
-            if (fdif > DailyQcUtils.tdata[j].stddev) {
-                DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual = 3;
+            if (fdif > dqc.tdata[j].stddev) {
+                dqc.tdata[j].tstn[m].tlevel2[k].qual = 3;
             } else {
 
                 good++;
-                if (DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 3) {
-                    DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual = 8;
+                if (dqc.tdata[j].tstn[m].tlevel2[k].qual == 3) {
+                    dqc.tdata[j].tstn[m].tlevel2[k].qual = 8;
                 }
 
             }
@@ -319,8 +321,8 @@ public class QCTStations {
 
     private void qcT6Loop(int j, int k,
             ArrayList<Station> temperature_stations, int numTstations) {
-        int isom = DailyQcUtils.isom;
-        int mpe_dqc_max_temp_neighbors = DailyQcUtils.mpe_dqc_max_temp_neighbors;
+        int isom = dqc.isom;
+        int mpe_dqc_max_temp_neighbors = dqc.mpe_dqc_max_temp_neighbors;
         int max_tstations = numTstations;
         int m, i, l, ii;
         float a, b;
@@ -343,12 +345,12 @@ public class QCTStations {
                 continue;
             }
 
-            if (DailyQcUtils.tdata[j].tstn[m].tlevel2[k].data == -99) {
+            if (dqc.tdata[j].tstn[m].tlevel2[k].data == -99) {
                 continue;
             }
 
-            if (DailyQcUtils.tdata[j].tstn[m].tlevel2[4].qual == 1
-                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[5].qual == 1) {
+            if (dqc.tdata[j].tstn[m].tlevel2[4].qual == 1
+                    || dqc.tdata[j].tstn[m].tlevel2[5].qual == 1) {
                 continue;
             }
 
@@ -362,18 +364,18 @@ public class QCTStations {
 
                 /* don't estimate unless good or forced good */
 
-                if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 0
-                        && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 8
-                        && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 6
-                        && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 3
-                        && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 2) {
+                if (dqc.tdata[j].tstn[i].tlevel2[k].qual != 0
+                        && dqc.tdata[j].tstn[i].tlevel2[k].qual != 8
+                        && dqc.tdata[j].tstn[i].tlevel2[k].qual != 6
+                        && dqc.tdata[j].tstn[i].tlevel2[k].qual != 3
+                        && dqc.tdata[j].tstn[i].tlevel2[k].qual != 2) {
                     continue;
                 }
 
                 /* don't use missing temperature_stationss */
 
-                if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data == -99
-                        || DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a < -98) {
+                if (dqc.tdata[j].tstn[i].tlevel2[k].data == -99
+                        || dqc.tdata[j].tstn[i].tlevel2[k].a < -98) {
                     continue;
                 }
 
@@ -407,7 +409,7 @@ public class QCTStations {
 
                 dist = 1 / dist;
 
-                temp = (float) (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a * dist);
+                temp = (float) (dqc.tdata[j].tstn[i].tlevel2[k].a * dist);
 
                 fdata = fdata + temp;
 
@@ -433,18 +435,18 @@ public class QCTStations {
                         continue;
                     }
 
-                    if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 0
-                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 8
-                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 6
-                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 3
-                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 2) {
+                    if (dqc.tdata[j].tstn[i].tlevel2[k].qual != 0
+                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 8
+                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 6
+                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 3
+                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 2) {
                         continue;
                     }
 
                     /* dont use missing temperature_stations */
 
-                    if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data == -99
-                            || DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a < -98) {
+                    if (dqc.tdata[j].tstn[i].tlevel2[k].data == -99
+                            || dqc.tdata[j].tstn[i].tlevel2[k].a < -98) {
                         continue;
                     }
 
@@ -475,7 +477,7 @@ public class QCTStations {
 
                     dist = 1 / dist;
 
-                    temp = (float) (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a * dist);
+                    temp = (float) (dqc.tdata[j].tstn[i].tlevel2[k].a * dist);
 
                     fdata = fdata + temp;
 
@@ -493,18 +495,18 @@ public class QCTStations {
             a = (float) (fdata / fdist);
 
             b = a
-                    * (DailyQcUtils.tdata[j].tstn[m].tlevel2[4].data - DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data)
-                    + DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data;
+                    * (dqc.tdata[j].tstn[m].tlevel2[4].data - dqc.tdata[j].tstn[m].tlevel2[5].data)
+                    + dqc.tdata[j].tstn[m].tlevel2[5].data;
 
-            DailyQcUtils.tdata[j].tstn[m].tlevel2[k].estimate = (short) b;
+            dqc.tdata[j].tstn[m].tlevel2[k].estimate = (short) b;
 
-            fdif = Math.abs(DailyQcUtils.tdata[j].tstn[m].tlevel2[k].data - b);
+            fdif = Math.abs(dqc.tdata[j].tstn[m].tlevel2[k].data - b);
 
-            if (DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 0
-                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 1
-                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 5
-                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 6
-                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 2) {
+            if (dqc.tdata[j].tstn[m].tlevel2[k].qual == 0
+                    || dqc.tdata[j].tstn[m].tlevel2[k].qual == 1
+                    || dqc.tdata[j].tstn[m].tlevel2[k].qual == 5
+                    || dqc.tdata[j].tstn[m].tlevel2[k].qual == 6
+                    || dqc.tdata[j].tstn[m].tlevel2[k].qual == 2) {
                 continue;
             }
 
@@ -513,22 +515,22 @@ public class QCTStations {
              * or maximum temperature, set the quality code as Questionable
              */
 
-            if (DailyQcUtils.tdata[j].tstn[m].tlevel2[4].data > -99
-                    && DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data > -99) {
+            if (dqc.tdata[j].tstn[m].tlevel2[4].data > -99
+                    && dqc.tdata[j].tstn[m].tlevel2[5].data > -99) {
 
-                if ((DailyQcUtils.tdata[j].tstn[m].tlevel2[k].data > DailyQcUtils.tdata[j].tstn[m].tlevel2[4].data)
-                        || (DailyQcUtils.tdata[j].tstn[m].tlevel2[k].data < DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data)) {
+                if ((dqc.tdata[j].tstn[m].tlevel2[k].data > dqc.tdata[j].tstn[m].tlevel2[4].data)
+                        || (dqc.tdata[j].tstn[m].tlevel2[k].data < dqc.tdata[j].tstn[m].tlevel2[5].data)) {
 
-                    DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual = 3;
+                    dqc.tdata[j].tstn[m].tlevel2[k].qual = 3;
                 }
             }
-            if (fdif > DailyQcUtils.tdata[j].stddev) {
-                DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual = 3;
+            if (fdif > dqc.tdata[j].stddev) {
+                dqc.tdata[j].tstn[m].tlevel2[k].qual = 3;
             } else {
 
                 good++;
-                if (DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual == 3) {
-                    DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual = 8;
+                if (dqc.tdata[j].tstn[m].tlevel2[k].qual == 3) {
+                    dqc.tdata[j].tstn[m].tlevel2[k].qual = 8;
                 }
             }
         }

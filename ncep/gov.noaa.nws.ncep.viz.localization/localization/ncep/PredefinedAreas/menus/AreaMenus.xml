@@ -119,7 +119,10 @@
         <source>PREDEFINED_AREA</source>
         <areaName>N_Hemisphere</areaName>
     </AreaMenuItem>
-    
+    <AreaMenuItem subMenuName="World" menuName="">
+        <source>PREDEFINED_AREA</source>
+        <areaName>S_Hemisphere</areaName>
+    </AreaMenuItem>   
     <AreaMenuItem subMenuName="GEMPAK" menuName="">
         <source>GEMPAK_GEOG_AREA_CODE</source>
         <areaName>TROPSFC</areaName>

@@ -8,6 +8,7 @@
 package gov.noaa.nws.ncep.viz.ui.display;
 
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
+import gov.noaa.nws.ncep.viz.common.display.IPowerLegend;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -56,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/15/11                    C Chen   fixed frame number not updated while looping problem
  * 11/11/11                 Greg Hull   rm frameChangeListener in place of Raytheon's, synchronize the listener
  * 01/21/12    #972         Greg Hull   implement new INatlCntrsDescriptor
+ * 09/09/14		?			B. Yin		Auto-update for resources in groups
  * 
  * </pre>
  * 
@@ -149,10 +151,17 @@ public class NCMapDescriptor extends MapDescriptor implements INatlCntrsDescript
         try {
             //
             for (ResourcePair rp : resourceList) {
-                if (rp.getResourceData() instanceof AbstractRequestableResourceData) {
+                if (rp.getResourceData() instanceof AbstractRequestableResourceData ||
+                        ( rp.getResource()!= null && rp.getResource() instanceof IPowerLegend)) {
 
                     if (rp.getResource() != null) {
                         timeMatchingMap.put(rp.getResource(), dataTimes);
+                        if ( rp.getResource() instanceof IPowerLegend ){
+                            for (ResourcePair pairInGroup : ((IPowerLegend)rp.getResource()).getResourceList()  ) {
+                                timeMatchingMap.put(pairInGroup.getResource(), dataTimes);
+                            }
+                        }
+                        
                     }
 
                     // HACK ALERT : currently there is a cyclical dependency bug
