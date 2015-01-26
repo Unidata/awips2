@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 23
+Release: 1
 #Release: %{_component_version}.%{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
