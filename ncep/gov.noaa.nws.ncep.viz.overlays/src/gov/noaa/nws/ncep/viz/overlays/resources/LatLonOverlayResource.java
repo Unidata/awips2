@@ -3,13 +3,15 @@ package gov.noaa.nws.ncep.viz.overlays.resources;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -17,6 +19,8 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * Implements a drawing layer to draw lat/lon lines
@@ -53,9 +57,9 @@ public class LatLonOverlayResource extends
     /** The wireframe object for drawing Longitude lines */
     private IWireframeShape wireframeShapeForLonLineArray;
 
-    private List<Coordinate[]> latitudeCoordinatePointArrayList;
+    private Map<Double, Geometry> latitudeLineGeometries;
 
-    private List<Coordinate[]> longitudeCoordinatePointArrayList;
+    private Map<Double, Geometry> longitudeLineGeometries;
 
     private double offset = 0; // 50000;
 
@@ -76,17 +80,26 @@ public class LatLonOverlayResource extends
     private double viewMaxX;
 
     /*
-     * The four minimum and maximum of X and Y used to paint label
+     * The four effective view borders (map borders inside the viewable user
+     * window) used to paint label
      */
-    private double effectiveMinX;
+    private Geometry effectiveLeftBorder;
 
-    private double effectiveMaxY;
+    private Geometry effectiveRightBorder;
 
-    private double effectiveMinY;
+    private Geometry effectiveBottomBorder;
 
-    private double effectiveMaxX;
+    private Geometry effectiveTopBorder;
 
-    private double latLonDrawingPointInterval = 1.0; // 0.7; //1.0; //0.5
+    private Geometry mapBoundary;
+
+    private Geometry mapMedianLine;
+
+    private final double latLonDrawingPointInterval = 1.0; // 0.7; //1.0; //0.5
+
+    private final double drawingGap = 120;
+
+    private double labelGap;
 
     private boolean needsUpdate = true;
 
@@ -115,8 +128,10 @@ public class LatLonOverlayResource extends
     public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
 
-        IFont lfont = target.initializeFont("Courier", 14, null);
+        IFont lfont = target.initializeFont("Courier", 14,
+                new Style[] { Style.BOLD });
         float zoomFactor = paintProps.getZoomLevel();
+        labelGap = drawingGap * zoomFactor;
 
         initializeViewMinAndMaxXAndY(paintProps);
         int latitudeDrawingLineNumber = getLatitudeDrawingLineNumber(latLonOverlayResourceData
@@ -129,15 +144,12 @@ public class LatLonOverlayResource extends
         if (needsUpdate) {
             needsUpdate = false;
 
-            /*
-             * necessary???
-             */
             clearWireFrameShapeArray(wireframeShapeForLatLineArray);
             clearWireFrameShapeArray(wireframeShapeForLonLineArray);
 
-            latitudeCoordinatePointArrayList = new ArrayList<Coordinate[]>(
+            latitudeLineGeometries = new HashMap<Double, Geometry>(
                     latitudeDrawingLineNumber);
-            longitudeCoordinatePointArrayList = new ArrayList<Coordinate[]>(
+            longitudeLineGeometries = new HashMap<Double, Geometry>(
                     longitudeDrawingLineNumber);
 
             wireframeShapeForLatLineArray = target.createWireframeShape(false,
@@ -148,19 +160,17 @@ public class LatLonOverlayResource extends
             double latitudeValue = -90;
             for (int i = 0; i < latitudeDrawingLineNumber
                     && latitudeValue <= 90; i++) {
-                Coordinate[] latLonCoordinateArray = createCoordinateArrayForLatitudeLine(
+                double[][] latLonCoordinateArray = createCoordinateArrayForLatitudeLine(
                         latitudeValue, latLonDrawingPointInterval);
-                latitudeCoordinatePointArrayList.add(latLonCoordinateArray);
 
-                if (!(latitudeValue == -90 || latitudeValue == 90)) {
+                if (!(latitudeValue == -90 || latitudeValue == 90)
+                        && latLonCoordinateArray.length > 0) {
                     wireframeShapeForLatLineArray
                             .addLineSegment(latLonCoordinateArray);
                 }
-
                 latitudeValue += latLonOverlayResourceData
                         .getLatitudeInterval();
             }
-
             wireframeShapeForLatLineArray.compile();
 
             wireframeShapeForLonLineArray = target.createWireframeShape(false,
@@ -171,39 +181,47 @@ public class LatLonOverlayResource extends
             double longitudeValue = -180;
             for (int i = 0; i < longitudeDrawingLineNumber
                     && longitudeValue <= 180; i++) {
-
-                Coordinate[] latLonCoordinateArray = createCoordinateArrayLongitudeLine(
+                double[][] latLonCoordinateArray = createCoordinateArrayLongitudeLine(
                         longitudeValue, latLonDrawingPointInterval);
-                longitudeCoordinatePointArrayList.add(latLonCoordinateArray);
-                wireframeShapeForLonLineArray
-                        .addLineSegment(latLonCoordinateArray);
+
+                if (latLonCoordinateArray.length > 0) {
+                    wireframeShapeForLonLineArray
+                            .addLineSegment(latLonCoordinateArray);
+                }
                 longitudeValue += latLonOverlayResourceData
                         .getLongitudeInterval();
             }
             wireframeShapeForLonLineArray.compile();
         }
-
         double latitudeValue = -90;
-        updateEffectiveMinX(getMapMinX(), getViewMinX(), getViewMaxX());
 
         for (int i = 0; i < latitudeDrawingLineNumber && latitudeValue <= 90; i++) {
-
-            addDefaultLabelByPointIndex(wireframeShapeForLatLineArray,
-                    String.valueOf((int) latitudeValue),
-                    latitudeCoordinatePointArrayList.get(i), 0);
-
-            int pointIndexForAddingLabel = getPointLabelIndexForAddingLatitudeLabel(
-                    latitudeCoordinatePointArrayList.get(i), zoomFactor,
-                    getEffectiveMinX(), getEffectiveMaxX(), getEffectiveMinY(),
-                    getEffectiveMaxY());
-
-            if (!(pointIndexForAddingLabel < 0)) {
-                addLabelOnLatLonLine(wireframeShapeForLatLineArray,
-                        latitudeCoordinatePointArrayList.get(i),
-                        pointIndexForAddingLabel,
-                        String.valueOf((int) latitudeValue));
+            Geometry latLine = latitudeLineGeometries.get(latitudeValue);
+            if (latLine != null) {
+                wireframeShapeForLatLineArray.clearLabels();
+                Coordinate intersection = null;
+                if (effectiveLeftBorder.intersects(latLine)) {
+                    intersection = effectiveLeftBorder.intersection(latLine)
+                            .getCoordinate();
+                } else if (latLine.within(mapBoundary)
+                        && mapMedianLine.intersects(latLine)) {
+                    intersection = mapMedianLine.intersection(latLine)
+                            .getCoordinate();
+                    // Removes default latitude label if it is too close to the
+                    // bottom of the viewable edge to prevent the latitude label
+                    // from being displayed over the longitude labels.
+                    if (intersection.y > effectiveBottomBorder.getCoordinate().y
+                            - 2.5 * labelGap) {
+                        intersection = null;
+                    }
+                }
+                if (intersection != null) {
+                    wireframeShapeForLatLineArray
+                            .addLabel(String.valueOf((int) latitudeValue),
+                                    new double[] { intersection.x + labelGap,
+                                            intersection.y });
+                }
             }
-
             target.drawWireframeShape(wireframeShapeForLatLineArray,
                     latLonOverlayResourceData.getColor(),
                     latLonOverlayResourceData.getLineWidth(),
@@ -211,18 +229,21 @@ public class LatLonOverlayResource extends
             latitudeValue += latLonOverlayResourceData.getLatitudeInterval();
         }
         double longitudeValue = -180;
-        updateEffectiveMaxY(getMapMaxY(), getViewMinY(), getViewMaxY());
 
         for (int i = 0; i < longitudeDrawingLineNumber && longitudeValue <= 180; i++) {
-            int pointIndexForAddingLabel = getPointLabelIndexForAddingLongitudeLabel(
-                    longitudeCoordinatePointArrayList.get(i), zoomFactor,
-                    getEffectiveMinX(), getEffectiveMaxX(), getEffectiveMinY(),
-                    getEffectiveMaxY());
-            if (!(pointIndexForAddingLabel < 0)) {
-                addLabelOnLatLonLine(wireframeShapeForLonLineArray,
-                        longitudeCoordinatePointArrayList.get(i),
-                        pointIndexForAddingLabel,
-                        String.valueOf((int) longitudeValue));
+            Geometry lonLine = longitudeLineGeometries.get(longitudeValue);
+            if (lonLine != null) {
+                wireframeShapeForLonLineArray.clearLabels();
+                if (lonLine.intersects(effectiveBottomBorder)) {
+                    Coordinate intersection = effectiveBottomBorder
+                            .intersection(lonLine).getCoordinate();
+                    int lonInt = (int) longitudeValue;
+                    String label = Math.abs(lonInt) != 180 ? String
+                            .valueOf(lonInt) : "ID";
+                    wireframeShapeForLonLineArray.clearLabels();
+                    wireframeShapeForLonLineArray.addLabel(label, new double[] {
+                            intersection.x, intersection.y - labelGap });
+                }
             }
             target.drawWireframeShape(wireframeShapeForLonLineArray,
                     latLonOverlayResourceData.getColor(),
@@ -233,22 +254,27 @@ public class LatLonOverlayResource extends
         lfont.dispose();
     }
 
-    private void addLabelOnLatLonLine(IWireframeShape wireframeShape,
-            Coordinate[] coordinateArray, int coordiantePointIndex, String label) {
-        double[] tmp = { coordinateArray[coordiantePointIndex].x,
-                coordinateArray[coordiantePointIndex].y };
-        double[] screenPixel = descriptor.worldToPixel(tmp);
-        if (screenPixel != null) {
-            wireframeShape.clearLabels();
-            wireframeShape.addLabel(label, screenPixel);
-        }
-    }
-
     private void initializeMapMinAndMaxXAndY() {
         mapMinX = descriptor.getGridGeometry().getGridRange().getLow(0);
         mapMaxX = descriptor.getGridGeometry().getGridRange().getHigh(0);
         mapMinY = descriptor.getGridGeometry().getGridRange().getLow(1);
         mapMaxY = descriptor.getGridGeometry().getGridRange().getHigh(1);
+
+        double mapMidX = (mapMaxX - mapMinX) / 2;
+        double mapMidY = (mapMaxY - mapMinY) / 2;
+        mapMedianLine = new GeometryFactory()
+                .createLineString(new Coordinate[] {
+                        new Coordinate(mapMidX, mapMinY),
+                        new Coordinate(mapMidX, mapMidY) });
+        // Map boundary must be created in a continuous coordinate order to form
+        // a rectangle!
+        mapBoundary = new GeometryFactory().createPolygon(
+                new GeometryFactory().createLinearRing(new Coordinate[] {
+                        new Coordinate(mapMinX, mapMinY),
+                        new Coordinate(mapMinX, mapMaxY),
+                        new Coordinate(mapMaxX, mapMaxY),
+                        new Coordinate(mapMaxX, mapMinY),
+                        new Coordinate(mapMinX, mapMinY) }), null);
     }
 
     private void initializeViewMinAndMaxXAndY(PaintProperties paintProps) {
@@ -257,129 +283,48 @@ public class LatLonOverlayResource extends
         viewMinY = paintProps.getView().getExtent().getMinY();
         viewMaxY = paintProps.getView().getExtent().getMaxY();
 
-        effectiveMinX = viewMinX;
-        effectiveMaxX = viewMaxX;
-        effectiveMinY = viewMinY;
-        effectiveMaxY = viewMaxY;
+        updateEffectiveView();
     }
 
-    private void updateEffectiveMinX(double mapMinXValue, double viewMinXValue,
-            double viewMaxXValue) {
-        if (isLeftEdgeOfMapInsideCurrentView(mapMinXValue, viewMinXValue,
-                viewMaxXValue)) {
-            effectiveMinX = mapMinXValue;
+    private void updateEffectiveView() {
+        double effectiveMinX = viewMinX;
+        double effectiveMaxX = viewMaxX;
+        double effectiveMinY = viewMinY;
+        double effectiveMaxY = viewMaxY;
+
+        if (mapMinX > viewMinX && mapMinX < viewMaxX) {
+            effectiveMinX = mapMinX;
         }
-    }
-
-    private boolean isLeftEdgeOfMapInsideCurrentView(double minXOfMap,
-            double minXOfCurrentView, double maxXOfCurrentView) {
-        boolean isInsideResult = false;
-        if (minXOfMap > minXOfCurrentView && minXOfMap < maxXOfCurrentView)
-            isInsideResult = true;
-        return isInsideResult;
-    }
-
-    private void updateEffectiveMaxY(double mapMaxYValue, double viewMinYValue,
-            double viewMaxYValue) {
-        if (isBottomEdgeOfMapInsideCurrentView(mapMaxYValue, viewMinYValue,
-                viewMaxYValue))
-            effectiveMaxY = mapMaxYValue;
-    }
-
-    private boolean isBottomEdgeOfMapInsideCurrentView(double maxYOfMap,
-            double minYOfCurrentView, double maxYOfCurrentView) {
-        boolean isInsideResult = false;
-        if (maxYOfMap > minYOfCurrentView && maxYOfMap < maxYOfCurrentView) {
-            isInsideResult = true;
+        if (mapMaxX > viewMinX && mapMaxX < viewMaxX) {
+            effectiveMaxX = mapMaxX;
         }
-        return isInsideResult;
-    }
-
-    private int getPointLabelIndexForAddingLongitudeLabel(
-            Coordinate[] latLonCoordinateArray, float zoomFactor, double minX,
-            double maxX, double minY, double maxY) {
-        int pointIndex = -1;
-        if (latLonCoordinateArray == null || latLonCoordinateArray.length == 0)
-            return pointIndex;
-
-        double positionOffset = 120;
-        for (int i = 0; i < latLonCoordinateArray.length; i++) {
-            double[] tmp = { latLonCoordinateArray[i].x,
-                    latLonCoordinateArray[i].y };
-            double[] screenPixel = descriptor.worldToPixel(tmp);
-            if (isPointForPlacingLongituteLabel(screenPixel, positionOffset,
-                    zoomFactor, minX, maxX, minY, maxY)) {
-                pointIndex = i;
-                break;
-            }
+        if (mapMinY > viewMinY && mapMinY < viewMaxY) {
+            effectiveMinY = mapMinY;
         }
-        return pointIndex;
-    }
-
-    private int getPointLabelIndexForAddingLatitudeLabel(
-            Coordinate[] latLonCoordinateArray, float zoomFactor, double minX,
-            double maxX, double minY, double maxY) {
-        int pointIndex = -1;
-        if (latLonCoordinateArray == null || latLonCoordinateArray.length == 0)
-            return pointIndex;
-
-        double positionOffset = 120;
-        for (int i = 0; i < latLonCoordinateArray.length; i++) {
-            double[] tmp = { latLonCoordinateArray[i].x,
-                    latLonCoordinateArray[i].y };
-            double[] screenPixel = descriptor.worldToPixel(tmp);
-            if (isPointForPlacingLatituteLabel(screenPixel, positionOffset,
-                    zoomFactor, minX, maxX, minY, maxY)) {
-                pointIndex = i;
-                break;
-            }
+        if (mapMaxY > viewMinY && mapMaxY < viewMaxY) {
+            effectiveMaxY = mapMaxY;
         }
-        return pointIndex;
-    }
-
-    private void addDefaultLabelByPointIndex(IWireframeShape wireframeShape,
-            String labelValue, Coordinate[] latLonCoordinateArray,
-            int defaultPointIndex) {
-        double[] tmp = { latLonCoordinateArray[defaultPointIndex].x,
-                latLonCoordinateArray[defaultPointIndex].y };
-        double[] screenPixel = descriptor.worldToPixel(tmp);
-        if (screenPixel != null)
-            wireframeShape.addLabel(labelValue, screenPixel);
-    }
-
-    private boolean isPointForPlacingLongituteLabel(double[] pixelValueArray,
-            double positionOffset, float zoomFactor, double minX, double maxX,
-            double minY, double maxY) {
-        double delta = 200;
-        boolean isPointForLabel = false;
-        if (pixelValueArray != null) {
-            if (pixelValueArray[0] > minX && pixelValueArray[0] < maxX
-                    && pixelValueArray[1] > minY && pixelValueArray[1] < maxY) {
-                if (Math.abs(pixelValueArray[1] - maxY) < delta) {
-                    isPointForLabel = true;
-                }
-            }
-        }
-        return isPointForLabel;
-    }
-
-    private boolean isPointForPlacingLatituteLabel(double[] pixelValueArray,
-            double positionOffset, float zoomFactor, double minX, double maxX,
-            double minY, double maxY) {
-        double delta = 200;
-        double adjustedOffset = positionOffset * zoomFactor;
-        boolean isPointForLabel = false;
-        if (pixelValueArray != null) {
-            if (pixelValueArray[0] > (minX + adjustedOffset)
-                    && pixelValueArray[0] < maxX && pixelValueArray[1] > minY
-                    && pixelValueArray[1] < maxY) {
-                if (Math.abs(pixelValueArray[0] - minX
-                        - (positionOffset * zoomFactor)) < delta) {
-                    isPointForLabel = true;
-                }
-            }
-        }
-        return isPointForLabel;
+        double cornerGap = 2.5 * labelGap;
+        Coordinate[] leftBorderCoordinates = new Coordinate[] {
+                new Coordinate(effectiveMinX, effectiveMinY + cornerGap),
+                new Coordinate(effectiveMinX, effectiveMaxY - cornerGap) };
+        Coordinate[] rightBorderCoordinates = new Coordinate[] {
+                new Coordinate(effectiveMaxX, effectiveMinY + cornerGap),
+                new Coordinate(effectiveMaxX, effectiveMaxY - cornerGap) };
+        Coordinate[] bottomBorderCoordinates = new Coordinate[] {
+                new Coordinate(effectiveMinX + cornerGap, effectiveMaxY),
+                new Coordinate(effectiveMaxX - cornerGap, effectiveMaxY) };
+        Coordinate[] topBorderCoordinates = new Coordinate[] {
+                new Coordinate(effectiveMinX + cornerGap, effectiveMinY),
+                new Coordinate(effectiveMaxX - cornerGap, effectiveMinY) };
+        effectiveLeftBorder = new GeometryFactory()
+                .createLineString(leftBorderCoordinates);
+        effectiveRightBorder = new GeometryFactory()
+                .createLineString(rightBorderCoordinates);
+        effectiveBottomBorder = new GeometryFactory()
+                .createLineString(bottomBorderCoordinates);
+        effectiveTopBorder = new GeometryFactory()
+                .createLineString(topBorderCoordinates);
     }
 
     private int getLatitudeDrawingLineNumber(int latInterval) {
@@ -401,28 +346,54 @@ public class LatLonOverlayResource extends
         return lonLineNumber + 1;
     }
 
-    private Coordinate[] createCoordinateArrayForLatitudeLine(
+    private double[][] createCoordinateArrayForLatitudeLine(
             double latitudeValue, double latLonPointInterval) {
         int coordinateArrayLength = (int) (360 / latLonPointInterval) + 1;
-        Coordinate[] coordinateArray = new Coordinate[coordinateArrayLength];
+        ArrayList<Coordinate> latLineCoordinates = new ArrayList<Coordinate>(
+                coordinateArrayLength);
+        ArrayList<double[]> latLinePixels = new ArrayList<double[]>(
+                coordinateArrayLength);
         double longitude = -180;
-        for (int i = 0; i < coordinateArray.length && longitude <= 180; i++) {
-            coordinateArray[i] = new Coordinate(longitude, latitudeValue);
+        for (int i = 0; i < coordinateArrayLength && longitude <= 180; i++) {
+            double[] latLon = new double[] { longitude, latitudeValue };
+            double[] screenPixel = descriptor.worldToPixel(latLon);
+            if (screenPixel != null) {
+                latLinePixels.add(screenPixel);
+                latLineCoordinates.add(new Coordinate(screenPixel[0],
+                        screenPixel[1]));
+            }
             longitude += latLonPointInterval;
         }
-        return coordinateArray;
+        if (!latLineCoordinates.isEmpty())
+            latitudeLineGeometries.put(latitudeValue, new GeometryFactory()
+                    .createLineString(latLineCoordinates
+                            .toArray(new Coordinate[] {})));
+        return latLinePixels.toArray(new double[][] {});
     }
 
-    private Coordinate[] createCoordinateArrayLongitudeLine(
+    private double[][] createCoordinateArrayLongitudeLine(
             double longitudeValue, double latLonPointInterval) {
         int coordinateArrayLength = (int) ((180 - 10) / latLonPointInterval);
-        Coordinate[] coordinateArray = new Coordinate[coordinateArrayLength];
+        ArrayList<Coordinate> lonLineCoordinates = new ArrayList<Coordinate>(
+                coordinateArrayLength);
+        ArrayList<double[]> lonLinePixels = new ArrayList<double[]>(
+                coordinateArrayLength);
         double latitude = -90 + latLonPointInterval;
-        for (int i = 0; i < coordinateArray.length && latitude <= 90; i++) {
-            coordinateArray[i] = new Coordinate(longitudeValue, latitude);
+        for (int i = 0; i < coordinateArrayLength && latitude <= 90; i++) {
+            double[] latLon = new double[] { longitudeValue, latitude };
+            double[] screenPixel = descriptor.worldToPixel(latLon);
+            if (screenPixel != null) {
+                lonLinePixels.add(screenPixel);
+                lonLineCoordinates.add(new Coordinate(screenPixel[0],
+                        screenPixel[1]));
+            }
             latitude += latLonPointInterval;
         }
-        return coordinateArray;
+        if (!lonLineCoordinates.isEmpty())
+            longitudeLineGeometries.put(longitudeValue, new GeometryFactory()
+                    .createLineString(lonLineCoordinates
+                            .toArray(new Coordinate[] {})));
+        return lonLinePixels.toArray(new double[][] {});
     }
 
     /*
@@ -431,9 +402,8 @@ public class LatLonOverlayResource extends
      * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
      */
     public void disposeInternal() {
-        // clearWireFrameShapeArray(wireframeShapeForLatLineArray);
-        // clearWireFrameShapeArray(wireframeShapeForLonLineArray);
-
+        clearWireFrameShapeArray(wireframeShapeForLatLineArray);
+        clearWireFrameShapeArray(wireframeShapeForLonLineArray);
     }
 
     private void clearWireFrameShapeArray(IWireframeShape wireframeShapeArray) {
@@ -478,22 +448,6 @@ public class LatLonOverlayResource extends
         return mapMaxX;
     }
 
-    public double getEffectiveMinX() {
-        return effectiveMinX;
-    }
-
-    public double getEffectiveMaxY() {
-        return effectiveMaxY;
-    }
-
-    public double getEffectiveMinY() {
-        return effectiveMinY;
-    }
-
-    public double getEffectiveMaxX() {
-        return effectiveMaxX;
-    }
-
     // @Override
     public void resourceAttrsModified() {
         needsUpdate = true;
@@ -504,9 +458,9 @@ public class LatLonOverlayResource extends
         return true;
     }
 
-    // TODO : This has not been tested.
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
         needsUpdate = true;
+        initializeMapMinAndMaxXAndY();
     }
 }

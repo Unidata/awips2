@@ -3,3 +3,4 @@ plotModel=@PlotModels/sfcobs/ship_standard.xml
 plotDensity=12
 conditionalFilter=
 reportType=1003
+legendString=6-Hr Ship Only

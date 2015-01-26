@@ -23,7 +23,7 @@ Definition = {}
 #
 #VariableList = []
 
-#----- WFO <site> FWM Definition -----
+#----- WFO <site> Hazard_HLS Definition -----
 # Definition Statements must start in column 1.
 
 # REQUIRED CONFIGURATION ITEMS 
@@ -36,7 +36,7 @@ Definition["wmoID"] = "<wmoID>"        # WMO ID
 Definition["pil"] = "<pil>"          # product pil
 Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
 Definition["awipsWANPil"] = "<awipsWANPil>"   # Product ID for transmitting to AWIPS WAN.
-Definition["outputFile"] =  "{prddir}/TEXT/FWM_<MultiPil>.txt"
+Definition["outputFile"] =  "{prddir}/TEXT/Hazard_HLS_<MultiPil>.txt"
 
 # OPTIONAL CONFIGURATION ITEMS
 #Definition["database"] = "Official"    # Source database. "Official", "Fcst", or "ISC"

@@ -28,11 +28,13 @@ function lookupRPM()
    awips2_qpid_dir="${rpms_dir}/awips2.qpid"
    python_site__dir="${rpms_dir}/python.site-packages"
 
+   installer_dir="${rpms_dir}/../installers/RPMs"
+
    # lookup the rpm.
 
    # foss rpms -> python rpms.
    if [ "${1}" = "awips2-python" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.python"
+      export RPM_SPECIFICATION="${installer_dir}/python-2.7.8/"
       return 0
    fi
    if [ "${1}" = "awips2-python-cherrypy" ]; then
@@ -52,7 +54,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.matplotlib"
+      export RPM_SPECIFICATION="${installer_dir}/matplotlib-1.2.0/"
       return 0
    fi
    if [ "${1}" = "awips2-python-nose" ]; then
@@ -116,7 +118,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-shapely" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.shapely"
+      export RPM_SPECIFICATION="${installer_dir}/shapely-1.3.3/"
       return 0
    fi
 
@@ -247,6 +249,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-collab-dataserver" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.collab-dataserver"
+      return 0
+   fi
+   if [ "${1}" = "awips2-yajsw" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.yajsw"
       return 0
    fi
 

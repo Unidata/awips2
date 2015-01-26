@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+//
+// Supercell Composite Parameter (Thompson and Edwards)
+//  - uses standard layers not effective layer equation
+//
+
+
+AWIPS 1 format
+SuCP | | |Supercell Composite Parameter | |CONTOUR,IMAGE,OTHER|Layer|      *Filter,Surface|muCape,0-3kmAgl|-2.|1.|      *Multiply,Layer|2.5e-7|Heli,0-3kmAgl|BRNSHR|SuCP,Surface
+    
+    
+abbreviation: |SuCP| 
+Notused1: | | 
+Notused2: | | 
+name: |Supercell Composite Parameter | 
+FIELD: || 
+FIELD: |CONTOUR,IMAGE,OTHER| 
+FIELD: |Layer| 
+FIELD: |muCape,0-3kmAgl| 
+FIELD: |-2.| 
+FIELD: |1.| 
+FIELD: |2.5e-7| 
+FIELD: |Heli,0-3kmAgl| 
+FIELD: |BRNSHR| 
+FIELD: |SuCP,Surface| 
+-->
+<DerivedParameter name="Supercell Composite Parameter" abbreviation="SuCP" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Filter">
+        <Field level="0-3kmAgl" abbreviation="muCape"/>
+        <ConstantField value="-2.0"/>
+	<Field abbreviation="dx"/>
+	<Field abbreviation="dy"/>
+    </Method>
+    <Method levels="Layer" name="Multiply">
+        <ConstantField value="2.5E-7"/>
+        <Field level="0-3kmAgl" abbreviation="Heli"/>
+        <Field abbreviation="BRNSHR"/>
+        <Field level="Surface" abbreviation="SuCP"/>
+    </Method>
+</DerivedParameter>
