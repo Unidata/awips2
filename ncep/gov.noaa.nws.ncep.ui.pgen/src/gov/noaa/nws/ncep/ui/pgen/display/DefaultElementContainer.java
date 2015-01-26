@@ -69,8 +69,26 @@ public class DefaultElementContainer extends AbstractElementContainer {
     public void draw(IGraphicsTarget target, PaintProperties paintProps,
             DisplayProperties dprops, boolean needsCreate) {
 
-        if ((displayEls == null) || paintProps.isZooming())
+        /*
+         * For ghost drawing - "needsCreate && dprops == null" - It is always on
+         * the active layer so DiaplayProperties' "filled" should be true while
+         * "monoColor" should be false (using the element's color).
+         */
+        if (needsCreate && dprops == null) {
+            dprops = new DisplayProperties(false, null, true);
+        }
+
+        // For normal drawing........
+        if ((displayEls == null) || paintProps.isZooming()) {
             needsCreate = true;
+
+            /*
+             * TTR971 - needs to set display properties, otherwise the layer
+             * color may not take effect (e.g., after switching projection)
+             */
+            def.setLayerDisplayAttr(dprops.getLayerMonoColor(),
+                    dprops.getLayerColor(), dprops.getLayerFilled());
+        }
 
         if (paintProps.getZoomLevel() != zoomLevel) {
             needsCreate = true;
@@ -102,5 +120,4 @@ public class DefaultElementContainer extends AbstractElementContainer {
         }
 
     }
-
 }
