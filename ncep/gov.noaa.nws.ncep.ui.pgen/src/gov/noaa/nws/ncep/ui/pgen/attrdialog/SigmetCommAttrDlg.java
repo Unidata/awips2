@@ -81,6 +81,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 11/12		#873		B. Yin		Pass sigmet type "CONV_SIGMET" for snapping.
  * 03/13		#928		B. Yin		Made the button bar smaller.
  * 04/29        #977        S. Gilbert  PGEN Database support
+ * 04/29        #726        J. Wu       Remove the line breaker when saving vor list into file.
  * </pre>
  * 
  * @author gzhang
@@ -538,7 +539,7 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet {
             txtInfo = new Text(top2, style);
             txtInfo.setFont(txtfont);
             attrControlMap.put("editableAttrFromLine", txtInfo);
-            GridData gData = new GridData(600, 48);
+            GridData gData = new GridData(650, 48);
             gData.horizontalSpan = 8;
             txtInfo.setLayoutData(gData);
             txtInfo.setText(this.getEditableAttrFromLine());
@@ -740,13 +741,13 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet {
 
         @Override
         public void createButtonsForButtonBar(Composite parent) {
-        	((GridLayout) parent.getLayout()).verticalSpacing = 0;
-        	((GridLayout) parent.getLayout()).marginHeight = 3;
-        	
+            ((GridLayout) parent.getLayout()).verticalSpacing = 0;
+            ((GridLayout) parent.getLayout()).marginHeight = 3;
+
             createButton(parent, IDialogConstants.OK_ID, "Save", true);
             createButton(parent, IDialogConstants.CANCEL_ID,
                     IDialogConstants.CANCEL_LABEL, false);
-            
+
             getButton(IDialogConstants.OK_ID).setLayoutData(
                     new GridData(ctrlBtnWidth, ctrlBtnHeight));
             getButton(IDialogConstants.CANCEL_ID).setLayoutData(
@@ -775,7 +776,8 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet {
             if (dataURI != null) {
                 try {
                     StorageUtils.storeDerivedProduct(dataURI,
-                            txtSave.getText(), "TEXT", txtInfo.getText());
+                            txtSave.getText(), "TEXT", txtInfo.getText()
+                                    .replaceAll("-\n", "-"));
                 } catch (PgenStorageException e) {
                     StorageUtils.showError(e);
                 }
@@ -801,13 +803,32 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet {
             String forecaster = System.getProperty("user.name");
             ProductTime refTime = new ProductTime();
 
-            Product defaultProduct = new Product(
-                    SigmetCommAttrDlg.this.pgenType,
-                    SigmetCommAttrDlg.this.pgenType, forecaster, null, refTime,
-                    layerList);
-            // defaultProduct.addLayer(defaultLayer);
-            defaultProduct.setOutputFile(SigmetCommAttrDlg.this.drawingLayer
-                    .buildActivityLabel(defaultProduct));
+            String pname = SigmetCommAttrDlg.this.drawingLayer
+                    .getActiveProduct().getName();
+            String ptype = SigmetCommAttrDlg.this.drawingLayer
+                    .getActiveProduct().getType();
+
+            pname = (pname == null) ? "Default" : pname;
+            ptype = (ptype == null) ? "Default" : ptype;
+
+            Product defaultProduct = new Product(pname, ptype, forecaster,
+                    null, refTime, layerList);
+            /*
+             * 
+             * Product defaultProduct = new Product(
+             * SigmetCommAttrDlg.this.pgenType, SigmetCommAttrDlg.this.pgenType,
+             * forecaster, null, refTime, layerList);
+             */
+            String plabel = SigmetCommAttrDlg.this.drawingLayer
+                    .getActiveProduct().getOutputFile();
+            if (plabel == null) {
+                plabel = SigmetCommAttrDlg.this.drawingLayer
+                        .buildActivityLabel(defaultProduct);
+            }
+            defaultProduct.setOutputFile(plabel);
+            // defaultProduct.setOutputFile(SigmetCommAttrDlg.this.drawingLayer
+            // .buildActivityLabel(defaultProduct));
+
             defaultProduct.setCenter(PgenUtil.getCurrentOffice());
 
             try {
@@ -838,7 +859,7 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet {
             txtInfo = new Text(top, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY
                     | SWT.WRAP);
             txtInfo.setFont(txtfont);
-            GridData gData = new GridData(512, 300);
+            GridData gData = new GridData(672, 300);
             gData.horizontalSpan = 3;
             txtInfo.setLayoutData(gData);
             txtInfo.setText(getFileContent());
@@ -1048,9 +1069,9 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet {
             try {
                 stateGeo = (MultiPolygon) wkbReader.read(wkb);
             } catch (Exception e) {
-                System.out
-                        .println("___ Error: SigmetCommAttrDlg: getAreaString(): "
-                                + e.getMessage());
+                // System.out
+                // .println("___ Error: SigmetCommAttrDlg: getAreaString(): "
+                // + e.getMessage());
             }
 
             if (stateGeo != null) {

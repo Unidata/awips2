@@ -27,8 +27,10 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 
 import com.raytheon.uf.common.comm.HttpClient;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
 import com.raytheon.uf.viz.core.jobs.StatsJob;
+import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
 import com.raytheon.uf.viz.product.alertviz.AlertVizApplication;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.IThinClientComponent;
@@ -48,6 +50,8 @@ import com.raytheon.uf.viz.thinclient.localization.ThinClientLocalizationInitial
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2011            mschenke     Initial creation
  * Jan 12, 2012  27        rferrel      Added exit option
+ * Nov 06, 2014  3356      njensen      Always initialize ILocalizationAdapter   
+ *                                       in case cache preference is not enabled
  * 
  * </pre>
  * 
@@ -83,6 +87,12 @@ public class ThinAlertVizComponent extends AlertVizApplication implements
 
     @Override
     protected void initializeLocalization() throws Exception {
+        /*
+         * Set the normal adapter first, based on cache preference settings the
+         * next few lines may replace it with the thin client localization
+         * adapter
+         */
+        PathManagerFactory.setAdapter(new CAVELocalizationAdapter());
         cacheManager = new ThinClientCacheManager(
                 new LocalizationCachePersistence());
         cacheManager.restoreCaches();
@@ -91,10 +101,10 @@ public class ThinAlertVizComponent extends AlertVizApplication implements
 
     @Override
     protected void initializeObservers() {
-        ; // don't do this.
         ThinClientNotificationManagerJob.getInstance();
     }
 
+    @Override
     protected AlertVisualization createAlertVisualization(
             boolean runningStandalone, final Display display) {
         return new AlertVisualization(runningStandalone, display) {

@@ -46,11 +46,13 @@ import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
 import com.raytheon.uf.viz.monitor.ObsMonitor;
+import com.raytheon.uf.viz.monitor.data.AreaContainer;
 import com.raytheon.uf.viz.monitor.data.MonitoringArea;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.data.ObReport;
@@ -90,6 +92,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 23, 2014 3356       njensen     Remove unnecessary import
  * Oct 16, 2014 3220       skorolev    Corrected fogConfig assignment.
+ * Dec 11, 2014 3220       skorolev    Moved refreshing of table in the UI thread.
  * 
  * 
  * </pre>
@@ -318,8 +321,15 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         fogConfig = (FSSObsMonitorConfigurationManager) me.getSource();
         updateMonitoringArea();
         if (zoneDialog != null && !zoneDialog.isDisposed()) {
-            zoneDialog.refreshZoneTableData(obData);
-            fireMonitorEvent(zoneDialog.getClass().getName());
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    zoneDialog.refreshZoneTableData(obData);
+                    fireMonitorEvent(zoneDialog.getClass().getName());
+                }
+            });
+
         }
     }
 
@@ -367,13 +377,14 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     @Override
     protected void process(ObReport result) throws Exception {
         obData.addReport(result);
-
         String zone = findZone(result.getPlatformId());
-        getTableData().getArea(zone).addReport(result.getObservationTime(),
-                result);
-
-        fireMonitorEvent(this);
-
+        if (zone != null) {
+            AreaContainer ac = getTableData().getArea(zone);
+            if (ac != null) {
+                ac.addReport(result.getObservationTime(), result);
+                fireMonitorEvent(this);
+            }
+        }
     }
 
     /**

@@ -72,6 +72,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      Also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
  * Jul 11, 2013   2088      rferrel     Make dialog non-blocking.
  * 
+ * Dec 10, 2014   16061     lbousaidi   set the crest time to the correct value for a
+ *                                      new record,also fixed the sorting to match the correct 
+ *                                      timecrest.
  * 
  * </pre>
  * 
@@ -401,6 +404,8 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent event) {
                 sortCrestHistoryList();
                 updateCrestHistoryList();
+                crestHistoryList.setSelection(0);
+                setSelectedCrest(crestHistoryData.getCrestDataArray().get(0));
             }
         });
     }
@@ -1006,7 +1011,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         suppressChk.setSelection(false);
         iceJamChk.setSelection(false);
 
-        statusCbo.select(3);
+        statusCbo.select(0);
         remarksTF.setText("");
     }
 
