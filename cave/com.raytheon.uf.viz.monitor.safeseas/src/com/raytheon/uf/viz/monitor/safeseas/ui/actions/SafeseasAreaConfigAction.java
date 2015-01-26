@@ -25,8 +25,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSMonitoringAreaConfigDlg;
-import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
 
 /**
  * The SAFESEAS Action
@@ -42,6 +41,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 08, 2014 3086       skorolev   Added CloseCallback to dialog.
  * Sep 16, 2014 2757       skorolev   Added test of dialog on dispose.
  * Sep 19, 2014 3220       skorolev   Added check on dispose.
+ * Jan 08, 2015 3220       skorolev   Used area type for launchDialog.
  * 
  * </pre>
  * 
@@ -50,11 +50,6 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  */
 
 public class SafeseasAreaConfigAction extends AbstractHandler {
-
-    /**
-     * SAFESEAS Monitoring Area Configuration Dialog.
-     */
-    private SSMonitoringAreaConfigDlg configDlg;
 
     /*
      * (non-Javadoc)
@@ -65,19 +60,14 @@ public class SafeseasAreaConfigAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (configDlg == null || configDlg.isDisposed()) {
+
+        SafeSeasMonitor monitor = SafeSeasMonitor.getInstance();
+        if (monitor.getAreaDialog() == null
+                || monitor.getAreaDialog().isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            configDlg = new SSMonitoringAreaConfigDlg(shell,
-                    "SAFESEAS Monitor Area Configuration");
-            configDlg.setCloseCallback(new ICloseCallback() {
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    configDlg = null;
-                }
-            });
+            monitor.launchDialog("area", shell);
         }
-        configDlg.open();
         return null;
     }
 }
