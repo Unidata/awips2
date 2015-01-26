@@ -2,8 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Thinclient Alertviz
 Bundle-SymbolicName: com.raytheon.uf.viz.thinclient.alertviz;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.thinclient.alertviz.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.application;bundle-version="1.0.0",
@@ -15,5 +14,5 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.alertviz;bundle-version="1.12.1174",
  com.raytheon.uf.common.message;bundle-version="1.12.1174",
  com.raytheon.uf.common.comm
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

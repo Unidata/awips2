@@ -22,7 +22,9 @@ package com.raytheon.uf.viz.collaboration.ui;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.action.Action;
@@ -57,6 +59,7 @@ import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -98,14 +101,13 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.ui.actions.AddNotifierAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.AddToGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ArchiveViewerAction;
-import com.raytheon.uf.viz.collaboration.ui.actions.ChangeBackgroundColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeFontAction;
-import com.raytheon.uf.viz.collaboration.ui.actions.ChangeForegroundColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangePasswordAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeRoleAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeSiteAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeStatusAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeStatusMessageAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.CreateSessionAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.DeleteGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.DisplayFeedAction;
@@ -163,6 +165,9 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * May 19, 2014 3180       bclement    fixed inviting multiple users to session
  * Oct 08, 2014 3705       bclement    added room search and bookmarking
  * Oct 14, 2014 3709       mapeters    Added change background/foreground color actions to menu.
+ * Nov 14, 2014 3709       mapeters    Removed change background/foreground color actions from menu.
+ * Dec 08, 2014 3709       mapeters    Added MB3 change user text color actions to contacts list.
+ * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
  * 
  * </pre>
  * 
@@ -202,6 +207,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private LogoutAction logOut;
 
     private Action roomSearchAction;
+
+    private Map<String, ChangeTextColorAction> userColorActions;
 
     /**
      * @param parent
@@ -277,6 +284,10 @@ public class CollaborationGroupView extends CaveFloatingView implements
         inactiveImage.dispose();
         activeImage.dispose();
         pressedImage.dispose();
+
+        for (ChangeTextColorAction userColorAction : userColorActions.values()) {
+            userColorAction.dispose();
+        }
     }
 
     /**
@@ -285,6 +296,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private void createActions() {
         Bundle bundle = Activator.getDefault().getBundle();
         final IUserSelector userSelector = this;
+
+        userColorActions = new HashMap<>();
 
         createSessionAction = new CreateSessionAction(userSelector);
 
@@ -364,9 +377,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         mgr.add(roomSearchAction);
         mgr.add(new Separator());
         mgr.add(new ChangeFontAction());
-        mgr.add(new ChangeForegroundColorAction());
-        mgr.add(new ChangeBackgroundColorAction());
-        mgr.add(new Separator());
+        mgr.add(new Separator("afterFont"));
         mgr.add(new ChangeStatusAction());
         mgr.add(new ChangeStatusMessageAction());
         mgr.add(new ChangePasswordAction());
@@ -464,6 +475,16 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 manager.add(new SendSubReqAction(entry));
             }
             manager.add(new AddNotifierAction(this));
+            manager.add(new Separator());
+            String name = user.getName();
+            ChangeTextColorAction userColorAction = userColorActions.get(name);
+            if (userColorAction == null) {
+                userColorAction = ChangeTextColorAction
+                        .createChangeUserTextColorAction(name, false, new RGB(
+                                0, 0, 255), new UserColorConfigManager());
+                userColorActions.put(name, userColorAction);
+            }
+            manager.add(userColorAction);
         } else if (o instanceof UserId) {
             // the user
             UserId user = (UserId) o;
@@ -472,6 +493,17 @@ public class CollaborationGroupView extends CaveFloatingView implements
             UserId me = connection.getUser();
             if (me.isSameUser(user)) {
                 createMenu(manager);
+                String name = user.getName();
+                ChangeTextColorAction userColorAction = userColorActions
+                        .get(name);
+                if (userColorAction == null) {
+                    userColorAction = ChangeTextColorAction
+                            .createChangeUserTextColorAction(name, true,
+                                new RGB(0, 0, 255),
+                                new UserColorConfigManager());
+                    userColorActions.put(name, userColorAction);
+                }
+                manager.insertBefore("afterFont", userColorAction);
             }
         } else if (o instanceof RosterGroup || o instanceof SharedGroup) {
             Action inviteAction = new InviteAction(getSelectedUsers());
