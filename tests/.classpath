@@ -155,5 +155,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.convert"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.edex.plugin.taf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ntrans"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ncscat"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

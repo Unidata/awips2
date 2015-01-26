@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Coopprecip
 Bundle-SymbolicName: com.raytheon.uf.viz.coopprecip
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.coopprecip.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.datacube
