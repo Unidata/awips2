@@ -528,11 +528,11 @@ public class FSSObsMonitorConfigurationManager implements
     }
 
     /**
-     * Gets an area of a station.
+     * Gets the zones where station is monitoring
      * 
      * @param stationId
-     *            The station to get the area
-     * @return List of areas
+     *            The station to get the zones
+     * @return List of zones
      */
     public List<String> getAreaByStationId(String stationId) {
         List<String> results = new ArrayList<String>();
