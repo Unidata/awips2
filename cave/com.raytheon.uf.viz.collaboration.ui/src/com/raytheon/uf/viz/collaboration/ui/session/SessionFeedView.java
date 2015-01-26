@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jface.action.Action;
@@ -31,9 +28,6 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.jivesoftware.smack.packet.Presence;
 
@@ -43,8 +37,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformatio
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
-import com.raytheon.uf.viz.collaboration.ui.FeedColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
@@ -78,6 +70,9 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Nov 26, 2014 3709       mapeters    support foreground/background color preferences for each site
  * Dec 08, 2014 3709       mapeters    Removed ChangeSiteColorAction, uses {@link ChangeTextColorAction}.
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
+ * Jan 05, 2015 3709       mapeters    Use both site and user name as key in siteColorActions map.
+ * Jan 09, 2015 3709       bclement    color config manager API changes
+ * Jan 12, 2015 3709       bclement    use parent object's session color manager, colors now based on user, not site
  * 
  * </pre>
  * 
@@ -95,8 +90,6 @@ public class SessionFeedView extends SessionView {
 
     private Action userRemoveSiteAction;
 
-    private static FeedColorConfigManager colorConfigManager;
-
     private String actingSite;
 
     /**
@@ -106,16 +99,13 @@ public class SessionFeedView extends SessionView {
 
     private volatile boolean initialized = false;
 
-    private Map<String, ChangeTextColorAction> siteColorActions;
-
     /**
      * 
      */
     public SessionFeedView() {
         super();
-        actingSite = CollaborationConnection.getConnection()
-                .getPresence().getProperty(SiteConfigInformation.SITE_NAME)
-                .toString();
+        actingSite = CollaborationConnection.getConnection().getPresence()
+                .getProperty(SiteConfigInformation.SITE_NAME).toString();
     }
 
     /*
@@ -127,13 +117,8 @@ public class SessionFeedView extends SessionView {
      */
     @Override
     protected void initComponents(Composite parent) {
-        enableUserColors = false;
         super.initComponents(parent);
-
-        colorConfigManager = new FeedColorConfigManager();
         usersTable.refresh();
-
-        siteColorActions = new HashMap<>();
     }
 
     @Subscribe
@@ -206,16 +191,6 @@ public class SessionFeedView extends SessionView {
     protected void fillContextMenu(IMenuManager manager) {
         super.fillContextMenu(manager);
         String site = getSelectedSite();
-        RGB defaultForeground = colorManager
-                .getColorForUser(getSelectedParticipant());
-        ChangeTextColorAction siteColorAction = siteColorActions.get(site);
-        if(siteColorAction == null) {
-            siteColorAction = ChangeTextColorAction
-                    .createChangeSiteTextColorAction(site, defaultForeground,
-                            colorConfigManager);
-            siteColorActions.put(site, siteColorAction);
-        }
-        manager.add(siteColorAction);
         if (!SiteConfigurationManager.isVisible(actingSite, site)) {
             userAddSiteAction
                     .setText("Show Messages from " + getSelectedSite());
@@ -269,48 +244,10 @@ public class SessionFeedView extends SessionView {
 
         // should we append?
         if (site == null
-                || SiteConfigurationManager
-                        .isVisible(actingSite, site.toString())) {
+                || SiteConfigurationManager.isVisible(actingSite,
+                        site.toString())) {
             appendMessage(msg);
         }
-    }
-
-    /**
-     * Get site's foreground/background colors from colorConfigManager to pass
-     * to parent method.
-     * 
-     * @param sb
-     * @param offset
-     * @param name
-     * @param userId
-     * @param ranges
-     * @param fgColor
-     * @param bgColor
-     * @param subject
-     */
-    @Override
-    protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, VenueParticipant userId, List<StyleRange> ranges,
-            Color fgColor, Color bgColor, String subject) {
-        String site = null;
-        if (subject != null) {
-            site = subject;
-        } else if (userId != null) {
-            Presence presence = session.getVenue().getPresence(userId);
-            if (presence != null) {
-                site = String.valueOf(presence
-                        .getProperty(SiteConfigInformation.SITE_NAME));
-            }
-        }
-        if (site != null) {
-            ColorInfo siteColor = colorConfigManager.getColor(site);
-            if (siteColor != null) {
-                fgColor = getColorFromRGB(siteColor.getColor(SWT.FOREGROUND));
-                bgColor = getColorFromRGB(siteColor.getColor(SWT.BACKGROUND));
-            }
-        }
-        super.styleAndAppendText(sb, offset, name, userId, ranges, fgColor,
-                bgColor, subject);
     }
 
     /**
@@ -485,12 +422,4 @@ public class SessionFeedView extends SessionView {
         }
     }
 
-    @Override
-    public void dispose() {
-        for (ChangeTextColorAction siteColorAction : siteColorActions.values()) {
-            siteColorAction.dispose();
-        }
-
-        super.dispose();
-    }
 }
