@@ -2,8 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Textworkstation Plug-in
 Bundle-SymbolicName: com.raytheon.viz.textworkstation;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.viz.textworkstation.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core,
@@ -14,4 +13,4 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.application;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.textworkstation
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

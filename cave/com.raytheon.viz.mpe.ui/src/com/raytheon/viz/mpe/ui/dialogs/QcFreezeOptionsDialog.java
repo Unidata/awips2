@@ -52,8 +52,6 @@ import com.raytheon.viz.mpe.ui.actions.OtherFreezeOptions;
 import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
 import com.raytheon.viz.mpe.ui.actions.SaveLevel2Data;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
@@ -67,7 +65,6 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * ------------ ---------- ----------- --------------------------
  * Jul, 7 2009             snaples     Initial creation
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
- * Aug 26, 2014 14578      snaples     Changed the way we get current data to use new ending hydologic date.
  * 
  * </pre>
  * 
@@ -114,7 +111,9 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
     private int dqc_good = 0;
 
-    public static DrawDQCStations ddqc;
+    public static DrawDQCStations ddq;
+    
+    private DailyQcUtils dqc;
 
     public static ArrayList<String> dataType = new ArrayList<String>();
 
@@ -124,9 +123,9 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
     OtherFreezeOptions ozo = new OtherFreezeOptions();
 
-    Zdata[] zdata = new Zdata[0];
+//    Zdata[] zdata = new Zdata[0];
 
-    Ts[] ts;
+//    Ts[] ts;
 
     private int time_pos;
 
@@ -150,37 +149,39 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
      */
     public QcFreezeOptionsDialog(Shell parent) {
         super(parent);
+        MPEDisplayManager.getCurrent().setZflag(true);
+        dqc = DailyQcUtils.getInstance();
     }
 
     private int getOpts() {
         int ik = 0;
-        if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.pcp_in_use[time_pos] == -1) {
+        if (dqc.points_flag == 1
+                && dqc.pcp_in_use[time_pos] == -1) {
             ik = 0;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1
-                && DailyQcUtils.contour_flag == -1) {
+        } else if (dqc.points_flag == 1
+                && dqc.grids_flag == -1 && dqc.map_flag == -1
+                && dqc.contour_flag == -1) {
             ik = 0;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+        } else if (dqc.points_flag == -1
+                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
             ik = 1;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+        } else if (dqc.points_flag == -1
+                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
             ik = 2;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+        } else if (dqc.points_flag == 1
+                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
             ik = 3;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+        } else if (dqc.points_flag == 1
+                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
             ik = 4;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.contour_flag == 1) {
+        } else if (dqc.points_flag == -1
+                && dqc.contour_flag == 1) {
             ik = 5;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.contour_flag == 1) {
+        } else if (dqc.points_flag == 1
+                && dqc.contour_flag == 1) {
             ik = 6;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1) {
+        } else if (dqc.points_flag == -1
+                && dqc.grids_flag == -1 && dqc.map_flag == -1) {
             ik = 7;
         }
         return ik;
@@ -196,8 +197,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         Shell parent = this.getParent();
         Display display = parent.getDisplay();
         MPEDisplayManager displayMgr = MPEDisplayManager.getCurrent();
-        Date prevDate = ChooseDataPeriodDialog.getCurrentHydroEditDate();
-        Date currDate = ChooseDataPeriodDialog.prevHydDate;
+        Date prevDate = displayMgr.getCurrentEditDate();
+        Date currDate = ChooseDataPeriodDialog.prevDate;
         String QcArea = ChooseDataPeriodDialog.prevArea;
         AppsDefaults appDefaults = AppsDefaults.getInstance();
         DisplayFieldData df = displayMgr.getDisplayFieldType();
@@ -209,16 +210,15 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         }
         int qcDays = displayMgr.getDqcDays();
         // checks to see if area or date has changed since last data load
-        DailyQcUtils dqcu = new DailyQcUtils();
         // reloads data if changed
         // returns 0 for failed, 1 for new area, 2 for Ok
-        dqc_good = dqcu.qcDataHasChanged(prevDate, currDate, QcArea, qcDays,
+        dqc_good = dqc.qcDataHasChanged(prevDate, currDate, QcArea, qcDays,
                 false);
         if (dqc_good == 1) {
             SaveLevel2Data s2 = new SaveLevel2Data();
             dqc_good = s2.check_new_area(currDate, QcArea, qcDays);
             if (dqc_good == 0) {
-                dqc_good = dqcu.qcDataReload(currDate, QcArea, qcDays, false);
+                dqc_good = dqc.qcDataReload(currDate, QcArea, qcDays, false);
             }
         }
         if (dqc_good == 0) {
@@ -242,9 +242,6 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
             QcTempOptionsDialog.destroy(false);
             displayMgr.setMaxmin(false);
         }
-
-        displayMgr.setZflag(true);
-        ddqc = DrawDQCStations.getInstance();
 
         shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MODELESS);
 
@@ -270,8 +267,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
         if (MPEDisplayManager.pcpn_time_step != 0) {
             MPEDisplayManager.pcpn_time_step = 0;
-            DailyQcUtils.pcpn_time = 0;
-            DailyQcUtils.pcp_flag = 3 + DailyQcUtils.pcpn_day * 4;
+            dqc.pcpn_time = 0;
+            dqc.pcp_flag = 3 + dqc.pcpn_day * 4;
         }
         // Initialize all of the controls and layouts
         this.initializeComponents();
@@ -282,33 +279,33 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         displayMgr.setZflag(true);
         isOpen = true;
         isfinished = false;
+        ddq = DrawDQCStations.getInstance();
         ozo.chg_freeze_time(2);
         opo.send_expose();
         while (!shell.isDisposed()) {
             if (dqc_good == 0) {
                 displayMgr.setZflag(false);
                 isOpen = false;
-                ddqc.destroy();
+                ddq.destroy();
                 shell.dispose();
             }
             if (isOpen == false) {
                 displayMgr.setZflag(false);
-                ddqc.destroy();
+                ddq.destroy();
                 shell.dispose();
             }
             if (!display.readAndDispatch()) {
                 display.sleep();
             }
         }
-        ddqc.destroy();
+        ddq.destroy();
         displayMgr.setZflag(false);
         isfinished = true;
         isOpen = false;
         font.dispose();
         SaveLevel2Data s2 = new SaveLevel2Data();
         s2.send_dbase_new_area();
-        DailyQcUtils dc = new DailyQcUtils();
-        dc.clearData();
+        dqc.clearData();
         displayMgr.displayFieldData(df);
         removePerspectiveListener();
         if (MPEDisplayManager.getCurrent() != null) {
@@ -328,43 +325,43 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
      * Initialize the dialog components.
      */
     private void initializeComponents() {
-        zdata = DailyQcUtils.zdata;
-        DailyQcUtils.points_flag = 1;
-        DailyQcUtils.grids_flag = -1;
-        DailyQcUtils.map_flag = -1;
-        DailyQcUtils.contour_flag = -1;
-        if (zdata == null || (zdata.length <= 0)) {
+//        zdata = DailyQcUtils.zdata;
+        dqc.points_flag = 1;
+        dqc.grids_flag = -1;
+        dqc.map_flag = -1;
+        dqc.contour_flag = -1;
+        if (dqc.zdata == null || (dqc.zdata.length <= 0)) {
             Date currDate = ChooseDataPeriodDialog.prevDate;
             String QcArea = ChooseDataPeriodDialog.prevArea;
             int qcDays = MPEDisplayManager.getCurrent().getDqcDays();
             // checks to see if area or date has changed since last data load
             DailyQcUtils dqcu = new DailyQcUtils();
             dqc_good = dqcu.qcDataReload(currDate, QcArea, qcDays, false);
-            zdata = DailyQcUtils.zdata;
+//            dqc.zdata = DailyQcUtils.zdata;
             if (MPEDisplayManager.pcpn_time_step != 0) {
                 MPEDisplayManager.pcpn_time_step = 0;
-                DailyQcUtils.pcpn_time = 0;
-                DailyQcUtils.pcp_flag = 3 + DailyQcUtils.pcpn_day * 4;
+                dqc.pcpn_time = 0;
+                dqc.pcp_flag = 3 + dqc.pcpn_day * 4;
             }
 
         }
         dataSet.clear();
         dataSet.addAll(dataType);
 
-        DailyQcUtils.pcp_flag = 3;
-        DailyQcUtils.pcpn_day = 0;
-        DailyQcUtils.pcpn_time = 0;
+        dqc.pcp_flag = 3;
+        dqc.pcpn_day = 0;
+        dqc.pcpn_time = 0;
 
         for (i = 0; i < 8; i++) {
 
-            time_pos = 100 + DailyQcUtils.pcp_flag;
+            time_pos = 100 + dqc.pcp_flag;
 
-            if ((i != 0 && i != 7) && DailyQcUtils.pcp_in_use[time_pos] == -1) {
+            if ((i != 0 && i != 7) && dqc.pcp_in_use[time_pos] == -1) {
                 dataSet.remove(dataSet.indexOf(dataType.get(i)));
             }
         }
 
-        ts = DailyQcUtils.ts;
+//        ts = DailyQcUtils.ts;
         this.createDataOptionsGroup();
         this.createPointSetComp();
         this.createPointControlComp();
@@ -435,7 +432,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
         i = getOpts();
 
-        time_pos = 100 + DailyQcUtils.pcp_flag;
+        time_pos = 100 + dqc.pcp_flag;
         int ii = dataSet.indexOf((dataType.get(i)));
         dataDispCbo.select(ii);
         dataDispCbo.addSelectionListener(new SelectionAdapter() {
@@ -455,8 +452,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         renderGridsBtn = new Button(renderComp, SWT.PUSH);
         renderGridsBtn.setText("Render Grids+MAZs");
         renderGridsBtn.setLayoutData(gd);
-        if (DailyQcUtils.pcp_in_use[time_pos] == -1
-                && DailyQcUtils.zdata[i].used[DailyQcUtils.pcpn_time] != 0) {
+        if (dqc.pcp_in_use[time_pos] == -1
+                && dqc.zdata[i].used[dqc.pcpn_time] != 0) {
             renderGridsBtn.setEnabled(true);
         } else {
             renderGridsBtn.setEnabled(false);
@@ -508,7 +505,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         Label pntDispLbl = new Label(pntSetComp, SWT.CENTER);
         pntDispLbl.setText("Point display:");
 
-        DailyQcUtils.plot_view = 4;
+        dqc.plot_view = 4;
 
         pntDispCbo = new Combo(pntSetComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         pntDispCbo.setTextLimit(30);
@@ -641,8 +638,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
                     @Override
                     public void mouseUp(MouseEvent e) {
                         int sel = pxTempFilter.getSelection() - 100;
-                        DailyQcUtils.pxtemp = (float) sel / 100;
-                        DailyQcUtils.dmvalue = (int) (DailyQcUtils.pxtemp * 100 * 3.28 / .55);
+                        dqc.pxtemp = (float) sel / 100;
+                        dqc.dmvalue = (int) (dqc.pxtemp * 100 * 3.28 / .55);
                         opo.refresh_exposure();
                     }
                 });
@@ -657,8 +654,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         // DailyQcUtils.elevation_filter_value = pntElFilter.getSelection();
         pntFilter.setSelection(0);
         pntRevFilter.setSelection(0);
-        DailyQcUtils.pxtemp = (pxTempFilter.getSelection() - 100) / 100;
-        DailyQcUtils.dmvalue = (int) (DailyQcUtils.pxtemp * 100 * 3.28 / .55);
+        dqc.pxtemp = (pxTempFilter.getSelection() - 100) / 100;
+        dqc.dmvalue = (int) (dqc.pxtemp * 100 * 3.28 / .55);
 
         opo.send_expose();
         OtherFreezeOptions ozo = new OtherFreezeOptions();
