@@ -143,6 +143,8 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 04/02/2014    #2969     randerso    Fix error when Toop parm is unloaded.
  * 05/28/2014    #3110     randerso    Remove #3105 changes
  * 09/08/2104    #3592     randerso    Changed to use new pm listStaticFiles()
+ * 10/08/2014    #3684     randerso    Minor code optimization
+ * 10/30/2014    #3775     randerso    Changed to createMutableDb before getting initial database inventory
  * </pre>
  * 
  * @author chammack
@@ -358,9 +360,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         dbCategories = Arrays.asList(prefs.getStringArray("dbTypes"));
-
-        this.availableDatabases = new HashSet<DatabaseID>(
-                getDatabaseInventory());
 
         this.dbInvChangeListener = new AbstractGFENotificationObserver<DBInvChangeNotification>(
                 DBInvChangeNotification.class) {
@@ -1282,6 +1281,20 @@ public class ParmManager implements IParmManager, IMessageClient {
     }
 
     private void updateDatabaseLists() throws GFEServerException {
+        boolean containsMutable = false;
+        DatabaseID mutableDbId = getMutableDatabase();
+        if (mutableDbId.isValid()) {
+            // createMutableDb is it doesn't already exist
+            ServerResponse<?> sr = this.dataManager.getClient().createNewDb(
+                    mutableDbId);
+            containsMutable = sr.isOkay();
+        }
+
+        if (this.availableDatabases == null) {
+            this.availableDatabases = new HashSet<DatabaseID>(
+                    getDatabaseInventory());
+        }
+
         this.availableServerDatabases = new ArrayList<DatabaseID>(
                 availableDatabases);
         this.availableVCParmDatabases = determineVCParmDatabases(vcModules);
@@ -1307,39 +1320,24 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         Collections.sort(this.availableServerDatabases);
-        DatabaseID mutableDbId = getMutableDatabase();
-        if (mutableDbId.isValid()) {
-            boolean containsMutable = availableServerDatabases
-                    .contains(mutableDbId);
-
-            if (!containsMutable) {
-                ServerResponse<?> sr = this.dataManager.getClient()
-                        .createNewDb(mutableDbId);
-                containsMutable = sr.isOkay();
+        if (containsMutable) {
+            // order of isc databases is important, since ISCDataAccess will
+            // look for the first match. That's why we don't use
+            // availableDbs()
+            // and simplify the three loops into one.
+            for (DatabaseID dbid : availableVCParmDatabases) {
+                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
+                    iscDbs.add(dbid);
+                }
             }
-
-            if (containsMutable) {
-                // order of isc databases is important, since ISCDataAccess will
-                // look for the first match. That's why we don't use
-                // availableDbs()
-                // and simplify the three loops into one.
-                for (DatabaseID dbid : availableVCParmDatabases) {
-                    if (dbid.getModelName().equals("ISC")
-                            && !iscDbs.contains(dbid)) {
-                        iscDbs.add(dbid);
-                    }
+            for (DatabaseID dbid : availableVParmDatabases) {
+                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
+                    iscDbs.add(dbid);
                 }
-                for (DatabaseID dbid : availableVParmDatabases) {
-                    if (dbid.getModelName().equals("ISC")
-                            && !iscDbs.contains(dbid)) {
-                        iscDbs.add(dbid);
-                    }
-                }
-                for (DatabaseID dbid : availableServerDatabases) {
-                    if (dbid.getModelName().equals("ISC")
-                            && !iscDbs.contains(dbid)) {
-                        iscDbs.add(dbid);
-                    }
+            }
+            for (DatabaseID dbid : availableServerDatabases) {
+                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
+                    iscDbs.add(dbid);
                 }
             }
         }
@@ -2920,7 +2918,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         List<DatabaseID> newAdditions = new ArrayList<DatabaseID>(additions);
         newAdditions.removeAll(availableDatabases);
 
-        availableDatabases.addAll(additions);
+        availableDatabases.addAll(newAdditions);
         availableDatabases.removeAll(deletions);
 
         List<ParmID> toDelete = new ArrayList<ParmID>();

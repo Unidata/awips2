@@ -19,6 +19,7 @@
  **/
 package com.raytheon.edex.plugin.gfe.watch;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,8 +28,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import jep.JepException;
+
 import com.raytheon.uf.common.activetable.VTECPartners;
+import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 
 /**
  * Watches ingested warnings for WOU products from the SPC (Storm Prediction
@@ -39,10 +56,17 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 03, 2008            njensen      Initial creation
- * Jul 10, 2009  #2590     njensen      Added multiple site support
+ * Oct 03, 2008            njensen     Initial creation
+ * Jul 10, 2009  #2590     njensen     Added multiple site support
  * May 12, 2014  #3157     dgilling     Re-factor based on AbstractWatchNotifierSrv.
- * Jun 10, 2014  #3268     dgilling     Re-factor based on AbstractWatchNotifierSrv.
+ * Jun 10, 2014  #3268     dgilling    Re-factor based on AbstractWatchNotifierSrv.
+ * Oct 08, 2014  #4953     randerso    Refactored AbstractWatchNotifierSrv to allow 
+ *                                     subclasses to handle all watches if desired.
+ *                                     Added hooks for TCVAdvisory creation
+ *                                     Changed to use Python to store TCVAdvisory files
+ *                                     Added code to keep practice and operational 
+ *                                     advisory files separated
+ * 
  * </pre>
  * 
  * @author njensen
@@ -50,14 +74,17 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
  */
 
 public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
+    private static final String TCV_ADVISORY_PATH = FileUtil.join("gfe",
+            "tcvAdvisories");
+
+    private static final String PRACTICE_PATH = FileUtil.join(
+            TCV_ADVISORY_PATH, "practice");
 
     private static final String TPC_WATCH_TYPE = "TPC";
 
-    private static final String TPC_SUPPORTED_PIL = "TCV";
-
     private static final String DEFAULT_TPC_SITE = "KNHC";
 
-    private static final String ALERT_TXT = "Alert: %s has arrived from TPC. "
+    private static final String ALERT_TXT = "Alert: TCV has arrived from TPC. "
             + "Check for 'red' locks (owned by others) on your Hazard grid and resolve them. "
             + "If hazards are separated into temporary grids, please run Mergehazards. "
             + "Next...save Hazards grid. Finally, select PlotTPCEvents from Hazards menu.";
@@ -82,8 +109,204 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         actMap = Collections.unmodifiableMap(actMapTemp);
     }
 
+    private ThreadLocal<PythonScript> pythonScript = new ThreadLocal<PythonScript>() {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.ThreadLocal#initialValue()
+         */
+        @Override
+        protected PythonScript initialValue() {
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationContext context = pathMgr.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+            LocalizationFile lf = pathMgr.getLocalizationFile(context, FileUtil
+                    .join(GfePyIncludeUtil.COMMON_GFE, "JsonSupport.py"));
+
+            String filePath = lf.getFile().getAbsolutePath();
+
+            String includePath = PyUtil.buildJepIncludePath(true,
+                    GfePyIncludeUtil.getCommonGfeIncludePath());
+
+            try {
+                return new PythonScript(filePath, includePath, this.getClass()
+                        .getClassLoader());
+            } catch (JepException e) {
+                statusHandler.error(e.getLocalizedMessage(), e);
+            }
+            return null;
+        }
+
+    };
+
+    /**
+     * Constructor
+     */
     public TPCWatchSrv() {
-        super(TPC_WATCH_TYPE, TPC_SUPPORTED_PIL);
+        super(TPC_WATCH_TYPE);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.edex.plugin.gfe.watch.AbstractWatchNotifierSrv#handleWatch
+     * (java.util.List)
+     */
+    @Override
+    public void handleWatch(List<AbstractWarningRecord> warningRecs) {
+        super.handleWatch(warningRecs);
+
+        /*
+         * Since all records originate from a single TCV product the issuing
+         * office and record type will be the same we only need to look at the
+         * first record.
+         */
+        AbstractWarningRecord record = warningRecs.get(0);
+        boolean practiceMode = (record instanceof PracticeWarningRecord);
+        String issuingOffice = record.getOfficeid();
+
+        for (String siteId : getActiveSites()) {
+            String site4 = SiteMap.getInstance().getSite4LetterId(siteId);
+            if (issuingOffice.equals(site4)) {
+                this.saveTCVAdvisories(siteId, practiceMode);
+                break; // found matching officeId so we're done
+            }
+        }
+    }
+
+    private void saveTCVAdvisories(String siteId, boolean practiceMode) {
+        File advisoriesDirectory = this.synchronizeTCVAdvisories(siteId,
+                practiceMode);
+
+        String pendingFilename = "pending.json";
+        LocalizationFile pendingFile = this.getLocalizationFile(siteId,
+                pendingFilename, practiceMode);
+
+        Map<String, Object> pendingDict = this.loadJSONDictionary(pendingFile);
+        if (pendingDict == null) {
+            return;
+        }
+
+        pendingDict.put("Transmitted", true);
+
+        String stormName = (String) pendingDict.get("StormName");
+        String advisoryNumber = (String) pendingDict.get("AdvisoryNumber");
+        String transmittedFilename = stormName + advisoryNumber + ".json";
+
+        LocalizationFile transmittedFile = this.getLocalizationFile(siteId,
+                transmittedFilename, practiceMode);
+        this.saveJSONDictionary(transmittedFile, pendingDict);
+
+        boolean transmittedFileSaved = false;
+        try {
+            transmittedFile.save();
+            transmittedFileSaved = true;
+        } catch (LocalizationOpFailedException e) {
+            statusHandler.error("Failed to save advisory "
+                    + transmittedFilename);
+        }
+
+        if (transmittedFileSaved) {
+            boolean allCAN = (Boolean) pendingDict.get("AllCAN");
+            if (allCAN) {
+                for (File advisory : advisoriesDirectory
+                        .listFiles(FilenameFilters.byFileExtension(".json"))) {
+                    String advisoryName = advisory.getName();
+                    if (advisoryName.startsWith(stormName)) {
+                        LocalizationFile advisoryFile = this
+                                .getLocalizationFile(siteId, advisoryName,
+                                        practiceMode);
+                        try {
+                            advisoryFile.delete();
+                        } catch (LocalizationOpFailedException e) {
+                            statusHandler.error("Unable to delete "
+                                    + advisoryFile, e);
+                        }
+                    }
+                }
+            }
+
+            try {
+                pendingFile.delete();
+            } catch (LocalizationOpFailedException e) {
+            }
+        }
+    }
+
+    private File synchronizeTCVAdvisories(String siteId, boolean practiceMode) {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext context = pathMgr.getContextForSite(
+                LocalizationType.CAVE_STATIC, siteId);
+
+        // Retrieving a directory causes synching to occur
+        File file = pathMgr.getLocalizationFile(context,
+                getTCVAdvisoryPath(practiceMode)).getFile();
+
+        return file;
+    }
+
+    private LocalizationFile getLocalizationFile(String siteId,
+            String filename, boolean practiceMode) {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext context = pathMgr.getContextForSite(
+                LocalizationType.CAVE_STATIC, siteId);
+
+        LocalizationFile localizationFile = pathMgr.getLocalizationFile(
+                context,
+                FileUtil.join(getTCVAdvisoryPath(practiceMode), filename));
+
+        return localizationFile;
+    }
+
+    private String getTCVAdvisoryPath(boolean practiceMode) {
+        return practiceMode ? PRACTICE_PATH : TCV_ADVISORY_PATH;
+    }
+
+    private Map<String, Object> loadJSONDictionary(LocalizationFile lf) {
+        if (lf != null) {
+            PythonScript script = this.pythonScript.get();
+            if (script != null) {
+                Map<String, Object> args = new HashMap<String, Object>();
+                args.put("localizationType", lf.getContext()
+                        .getLocalizationType());
+                args.put("siteID", lf.getContext().getContextName());
+                args.put("fileName", lf.getName());
+                try {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> retVal = (Map<String, Object>) script
+                            .execute("loadJsonFromJava", args);
+                    return retVal;
+                } catch (JepException e) {
+                    statusHandler.error(
+                            "Error loading TCV advisory from " + lf, e);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private void saveJSONDictionary(LocalizationFile lf,
+            Map<String, Object> dict) {
+        if (lf != null) {
+            PythonScript script = this.pythonScript.get();
+            if (script != null) {
+                Map<String, Object> args = new HashMap<String, Object>();
+                args.put("localizationType", lf.getContext()
+                        .getLocalizationType());
+                args.put("siteID", lf.getContext().getContextName());
+                args.put("fileName", lf.getName());
+                args.put("javaObject", dict);
+                try {
+                    script.execute("saveJsonFromJava", args);
+                } catch (JepException e) {
+                    statusHandler
+                            .error("Error saving TCV advisory to " + lf, e);
+                }
+            }
+        }
     }
 
     /*
@@ -122,8 +345,7 @@ public final class TPCWatchSrv extends AbstractWatchNotifierSrv {
         }
 
         // create the message
-        StringBuilder msg = new StringBuilder(String.format(ALERT_TXT,
-                supportedPIL));
+        StringBuilder msg = new StringBuilder(ALERT_TXT);
         for (String phensigStorm : phensigStormAct.keySet()) {
             Collection<String> acts = phensigStormAct.get(phensigStorm);
             String[] splitKey = phensigStorm.split(":");

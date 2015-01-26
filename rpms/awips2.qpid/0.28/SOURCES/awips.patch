@@ -1,0 +1,68 @@
+diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
+*** a/qpid/java/build.deps	2014-04-13 09:12:12.000000000 -0500
+--- b/qpid/java/build.deps	2014-10-28 09:14:30.121201558 -0500
+***************
+*** 17,29 ****
+  # under the License.
+  #
+  
+! commons-beanutils-core=lib/required/commons-beanutils-core-1.8.3.jar
+  commons-cli=lib/required/commons-cli-1.2.jar
+! commons-codec=lib/required/commons-codec-1.6.jar
+  commons-collections=lib/required/commons-collections-3.2.1.jar
+  commons-configuration=lib/required/commons-configuration-1.8.jar
+  commons-digester=lib/required/commons-digester-1.8.1.jar
+! commons-lang=lib/required/commons-lang-2.6.jar
+  commons-logging=lib/required/commons-logging-1.1.1.jar
+  
+  bcel=lib/required/bcel-5.2.jar
+--- 17,29 ----
+  # under the License.
+  #
+  
+! commons-beanutils-core=lib/required/commons-beanutils-1.8.3.jar
+  commons-cli=lib/required/commons-cli-1.2.jar
+! commons-codec=lib/required/commons-codec-1.4.jar
+  commons-collections=lib/required/commons-collections-3.2.1.jar
+  commons-configuration=lib/required/commons-configuration-1.8.jar
+  commons-digester=lib/required/commons-digester-1.8.1.jar
+! commons-lang=lib/required/commons-lang-2.3.jar
+  commons-logging=lib/required/commons-logging-1.1.1.jar
+  
+  bcel=lib/required/bcel-5.2.jar
+***************
+*** 35,41 ****
+  geronimo-jta=lib/required/geronimo-jta_1.1_spec-1.1.1.jar
+  geronimo-kernel=lib/required/geronimo-kernel-2.2.1.jar
+  geronimo-openejb=lib/required/geronimo-ejb_3.0_spec-1.0.1.jar
+! geronimo-servlet=lib/required/geronimo-servlet_3.0_spec-1.0.jar
+  
+  junit=lib/required/junit-3.8.1.jar
+  mockito-all=lib/required/mockito-all-1.9.0.jar
+--- 35,41 ----
+  geronimo-jta=lib/required/geronimo-jta_1.1_spec-1.1.1.jar
+  geronimo-kernel=lib/required/geronimo-kernel-2.2.1.jar
+  geronimo-openejb=lib/required/geronimo-ejb_3.0_spec-1.0.1.jar
+! geronimo-servlet=lib/required/geronimo-servlet_2.5_spec-1.1.2.jar
+  
+  junit=lib/required/junit-3.8.1.jar
+  mockito-all=lib/required/mockito-all-1.9.0.jar
+***************
+*** 60,67 ****
+  dojo-version=1.9.1
+  dojo=lib/required/dojo-${dojo-version}.zip
+  
+! jackson-core=lib/required/jackson-core-asl-1.9.0.jar
+! jackson-mapper=lib/required/jackson-mapper-asl-1.9.0.jar
+  
+  commons-configuration.libs = ${commons-beanutils-core} ${commons-digester} \
+    ${commons-codec} ${commons-lang} ${commons-collections} ${commons-configuration}
+--- 60,67 ----
+  dojo-version=1.9.1
+  dojo=lib/required/dojo-${dojo-version}.zip
+  
+! jackson-core=lib/required/jackson-core-asl-1.7.3.jar
+! jackson-mapper=lib/required/jackson-mapper-asl-1.7.3.jar
+  
+  commons-configuration.libs = ${commons-beanutils-core} ${commons-digester} \
+    ${commons-codec} ${commons-lang} ${commons-collections} ${commons-configuration}

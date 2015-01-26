@@ -417,7 +417,7 @@ public class BoundingBoxUtil {
      * @return
      * @throws OgcException
      */
-    public static ReferencedEnvelope convert2D(BoundingBoxType bbox2d)
+    public static ReferencedEnvelope convert2D(net.opengis.ows.v_1_1_0.BoundingBoxType bbox2d)
             throws OgcException {
         List<Double> lc = bbox2d.getLowerCorner();
         List<Double> uc = bbox2d.getUpperCorner();
@@ -433,6 +433,27 @@ public class BoundingBoxUtil {
         DirectPosition max = convert(uc);
         return convert2D(min, max, bbox2d.getCrs());
     }
+    
+    /**
+     * Convert 2d jaxb bounding box to JTS envelope
+     * 
+     * @param bbox2d
+     * @return
+     * @throws OgcException
+     */
+    public static ReferencedEnvelope convert2D(net.opengis.ows.v_1_0_0.BoundingBoxType bbox2d)
+            throws OgcException {
+        List<Double> lc = bbox2d.getLowerCorner();
+        List<Double> uc = bbox2d.getUpperCorner();
+        if (lc.size() != 2 || uc.size() != 2) {
+            throw new OgcException(Code.InvalidParameterValue,
+                    "2D bounding box must have 2 dimensions");
+        }
+        DirectPosition min = convert(lc);
+        DirectPosition max = convert(uc);
+        return convert2D(min, max, bbox2d.getCrs());
+    }
+
 
     /**
      * Determine altitude reference of vertical axis

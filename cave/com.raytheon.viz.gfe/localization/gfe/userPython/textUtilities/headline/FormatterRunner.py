@@ -37,6 +37,7 @@ from java.io import File
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/29/08                      njensen       Initial Creation.
+#    12/10/14        #14946        ryu           Add getTimeZones() function.
 #    
 # 
 #
@@ -433,6 +434,26 @@ def getVarDict(dspName, dataMgr, issuedBy, dataSource):
 def getVTECMessageType(productCategory):
     import VTECMessageType
     return VTECMessageType.getVTECMessageType(productCategory)
+
+def getTimeZones(zones, officeTZ):
+    import AreaDictionary
+    timezones = []
+    if zones is not None:
+        for zone in JUtil.javaStringListToPylist(zones):
+            area_dict = AreaDictionary.AreaDictionary.get(zone)
+            if area_dict is None:
+                continue
+            tzs = area_dict.get("ugcTimeZone")
+            if tzs is not None:
+                if type(tzs) is str:
+                    tzs = [tzs]
+                for tz in tzs:
+                    if tz not in timezones:
+                        timezones.append(tz)
+    if officeTZ in timezones and officeTZ != timezones[0]:
+        timezones.remove(officeTZ)
+        timezones.insert(0, officeTZ)
+    return JUtil.pylistToJavaStringList(timezones)
 
 def reloadModule(moduleName):
 #    m = __import__(moduleName)
