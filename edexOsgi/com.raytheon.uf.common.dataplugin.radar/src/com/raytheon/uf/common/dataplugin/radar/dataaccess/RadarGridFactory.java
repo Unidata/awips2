@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.dataplugin.radar.dataaccess;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,19 +64,19 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * 
+ *
  * A data factory for getting radar data from the metadata database. There are
  * currently not any required identifiers.
- * 
+ *
  * Radar does not return subgrids for request envelopes like other gridded
  * types. Instead data for only icaos within the request envelope are returned
  * and all data for the product is used. This is done because subgridding radial
  * products is complex and this is not often what a caller actually wants.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 23, 2013           bsteffen    Initial creation
@@ -86,9 +87,13 @@ import com.vividsolutions.jts.geom.Envelope;
  * Oct 28, 2014  3755     nabowle     Implement getAvailableParameters, handle
  *                                    empty parameters, fix error message, and
  *                                    handle dataless radial radars.
- * 
+ * Dec 18, 2014  3600     nabowle     Implement getAvailableLevels and add
+ *                                    optional identifiers to indicate what
+ *                                    fields are used for the level one and two
+ *                                    values.
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  * @version 1.0
  */
@@ -98,6 +103,10 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     private static final String PRODUCT_CODE = "productCode";
 
     private static final String PRIMARY_ANGLE = "primaryElevationAngle";
+
+    private static final String TRUE_ANGLE = "trueElevationAngle";
+
+    private static final String ELEVATION_NUMBER = "elevationNumber";
 
     private static final String ICAO = "icao";
 
@@ -111,8 +120,18 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
 
     private static final String RASTER_FORMAT = "Raster";
 
+    private static final String LEVEL_ONE = "level.one.field";
+
+    private static final String LEVEL_TWO = "level.two.field";
+
     private static final List<String> SUPPORTED_FORMATS = Arrays.asList(
             RADIAL_FORMAT, RASTER_FORMAT);
+
+    private static final List<String> SUPPORTED_LEVELS = Arrays.asList(
+            PRIMARY_ANGLE, TRUE_ANGLE, ELEVATION_NUMBER);
+
+    private static final String LEVEL_ERROR = " must be " + PRIMARY_ANGLE
+            + ", " + TRUE_ANGLE + ", or " + ELEVATION_NUMBER;
 
     private static RadarInfoDict radarInfo = null;
 
@@ -144,8 +163,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
                     .toString());
         }
         defaultGridData.setUnit(radarRecord.getDataUnit());
-        defaultGridData.setLevel(getTiltLevel(radarRecord
-                .getPrimaryElevationAngle()));
+        defaultGridData.setLevel(getLevel(radarRecord, request));
         defaultGridData.setLocationName(generateLocationName(radarRecord));
 
         Map<String, Object> attributes = new HashMap<String, Object>();
@@ -155,6 +173,51 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
         defaultGridData.setAttributes(attributes);
 
         return defaultGridData;
+    }
+
+    /**
+     * Get the level for the radar record. If the request specifies
+     * {@value #LEVEL_ONE} or {@value #LEVEL_TWO} identifiers, those fields will
+     * be used. If {@value #LEVEL_ONE} is not specified, {@value #PRIMARY_ANGLE}
+     * will be used.
+     *
+     * @param radarRecord
+     *            The radar record.
+     * @param request
+     *            The request.
+     * @return The created level.
+     */
+    private Level getLevel(RadarRecord radarRecord, IDataRequest request) {
+        Map<String, Object> identifiers = request.getIdentifiers();
+        String levelOneField = (String) identifiers.get(LEVEL_ONE);
+        String levelTwoField = (String) identifiers.get(LEVEL_TWO);
+
+        if (levelOneField == null) {
+            levelOneField = PRIMARY_ANGLE;
+        }
+
+        Level level;
+        if (PRIMARY_ANGLE.equals(levelOneField)) {
+            level = getTiltLevel(radarRecord.getPrimaryElevationAngle());
+        } else if (TRUE_ANGLE.equals(levelOneField)) {
+            level = getTiltLevel(radarRecord.getTrueElevationAngle());
+        } else { // elevationNumber
+            level = new Level();
+            level.setMasterLevel(new MasterLevel("OSEQD"));
+            level.setLevelonevalue(radarRecord.getElevationNumber());
+        }
+
+        if (levelTwoField != null) {
+            if (PRIMARY_ANGLE.equals(levelTwoField)) {
+                level.setLeveltwovalue(radarRecord.getPrimaryElevationAngle());
+            } else if (TRUE_ANGLE.equals(levelTwoField)) {
+                level.setLeveltwovalue(radarRecord.getTrueElevationAngle());
+            } else { // elevationNumber
+                level.setLeveltwovalue(radarRecord.getElevationNumber());
+            }
+        }
+
+        return level;
     }
 
     /**
@@ -335,11 +398,29 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
         if (levels != null && levels.length > 0) {
             RequestConstraint angleConstraint = new RequestConstraint(null,
                     ConstraintType.IN);
+            RequestConstraint levelTwoConstraint = new RequestConstraint(null,
+                    ConstraintType.IN);
+
+            Map<String, Object> identifiers = request.getIdentifiers();
+            String levelOneField = (String) identifiers.get(LEVEL_ONE);
+            String levelTwoField = (String) identifiers.get(LEVEL_TWO);
+
+            if (levelOneField == null) {
+                levelOneField = PRIMARY_ANGLE;
+            }
             for (Level level : levels) {
                 angleConstraint.addToConstraintValueList(level
                         .getLevelOneValueAsString());
+                if (levelTwoField != null
+                        && level.getLeveltwovalue() != Level.INVALID_VALUE) {
+                    levelTwoConstraint.addToConstraintValueList(level
+                            .getLevelTwoValueAsString());
+                }
             }
-            constraints.put(PRIMARY_ANGLE, angleConstraint);
+            constraints.put(levelOneField, angleConstraint);
+            if (levelTwoConstraint.getConstraintValue() != null) {
+                constraints.put(levelTwoField, levelTwoConstraint);
+            }
         }
 
         String[] locations = request.getLocationNames();
@@ -456,9 +537,83 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
         return parameters.toArray(new String[0]);
     }
 
+    /**
+     * Get the available levels. The optional identifiers, {@value #LEVEL_ONE}
+     * and {@value #LEVEL_TWO} can be supplied to choose which level fields are
+     * returned, otherwise {@value #PRIMARY_ANGLE} will be returned as the level
+     * one value.
+     */
+    @Override
+    public Level[] getAvailableLevels(IDataRequest request) {
+        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
+        dbQueryRequest.setDistinct(Boolean.TRUE);
+
+        Map<String, Object> identifiers = request.getIdentifiers();
+        String levelOneField = (String) identifiers.get(LEVEL_ONE);
+        String levelTwoField = (String) identifiers.get(LEVEL_TWO);
+
+        if (levelOneField == null) {
+            levelOneField = PRIMARY_ANGLE;
+        }
+        dbQueryRequest.addRequestField(levelOneField);
+        if (levelTwoField != null) {
+            dbQueryRequest.addRequestField(levelTwoField);
+        }
+
+        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                dbQueryRequest, request.toString());
+        Level level;
+        List<Level> levels = new ArrayList<>();
+        for (Map<String, Object> result : dbQueryResponse.getResults()) {
+            if (PRIMARY_ANGLE.equals(levelOneField)
+                    || TRUE_ANGLE.equals(levelTwoField)) {
+                level = getTiltLevel(Double.valueOf(result.get(levelOneField)
+                        .toString()));
+            } else {
+                level = new Level();
+                level.setMasterLevel(new MasterLevel("OSEQD"));
+                level.setLevelonevalue(Double.valueOf(result.get(levelOneField)
+                        .toString()));
+            }
+            if (levelTwoField != null) {
+                level.setLeveltwovalue(Double.valueOf(result.get(levelTwoField)
+                        .toString()));
+            }
+            levels.add(level);
+        }
+
+        return levels.toArray(new Level[0]);
+    }
+
     @Override
     public String[] getOptionalIdentifiers() {
-        return new String[] { ICAO };
+        return new String[] { ICAO, LEVEL_ONE, LEVEL_TWO };
+    }
+
+    @Override
+    protected DbQueryRequest buildDbQueryRequest(IDataRequest request) {
+        validateLevelIdentifiers(request);
+        return super.buildDbQueryRequest(request);
+    }
+
+    /**
+     * Validates that, if specified, the {@value #LEVEL_ONE} and
+     * {@value #LEVEL_TWO} identifier values are supported.
+     *
+     * @param request
+     */
+    private void validateLevelIdentifiers(IDataRequest request) {
+        Map<String, Object> identifiers = request.getIdentifiers();
+        String levelOneField = (String) identifiers.get(LEVEL_ONE);
+        String levelTwoField = (String) identifiers.get(LEVEL_TWO);
+
+        if (levelOneField != null && !SUPPORTED_LEVELS.contains(levelOneField)) {
+            throw new DataRetrievalException(LEVEL_ONE + LEVEL_ERROR);
+        }
+
+        if (levelTwoField != null && !SUPPORTED_LEVELS.contains(levelTwoField)) {
+            throw new DataRetrievalException(LEVEL_TWO + LEVEL_ERROR);
+        }
     }
 
     /**

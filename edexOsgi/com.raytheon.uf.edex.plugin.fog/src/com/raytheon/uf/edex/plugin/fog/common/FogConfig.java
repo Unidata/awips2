@@ -132,7 +132,6 @@ public class FogConfig {
             // our new coverage boundaries including adjacent areas
             Geometry monitorAreaGeo = AdjacentWfoMgr.getAdjacentAreas(getCwa());
             // (SK) Geometry monitorAreaGeo =
-            // FogDbUtils.getMonitoringAreaGeometry(filter.getCwaGeometry(),getCwa());
             setCenter(monitorAreaGeo.getCentroid().getCoordinate());
             Coordinate[] coords = monitorAreaGeo.getEnvelope().getCoordinates();
             this.upperLeftCorner = coords[1];
