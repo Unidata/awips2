@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tcs Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.tcs
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.tcs.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core,
@@ -35,5 +34,4 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.eclipse.swt.graphics,
  org.eclipse.ui.plugin,
  org.osgi.framework
-Export-Package: com.raytheon.uf.viz.tcs,
- com.raytheon.uf.viz.tcs.rsc
+Export-Package: com.raytheon.uf.viz.tcs.rsc

@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: VAA Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.vaa;singleton:=true
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.vaa.Activator
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
