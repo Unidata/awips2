@@ -7,6 +7,9 @@
             <mapping key="pluginName">
                 <constraint constraintValue="warning" constraintType="EQUALS"/>
             </mapping>
+            <mapping key="pil">
+                <constraint constraintValue="WOU" constraintType="EQUALS"/>
+            </mapping>
         </metadataMap>
     </pluginNotification>
     <pluginNotification>
@@ -15,7 +18,10 @@
         <endpointType>VM</endpointType>
         <metadataMap>
             <mapping key="pluginName">
-                <constraint constraintValue="warning" constraintType="EQUALS"/>
+                <constraint constraintValue="warning,practicewarning" constraintType="IN"/>
+            </mapping>
+            <mapping key="pil">
+                <constraint constraintValue="TCV" constraintType="EQUALS"/>
             </mapping>
         </metadataMap>
     </pluginNotification>

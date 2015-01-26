@@ -18,6 +18,7 @@ Import-Package: com.raytheon.edex.util,
  com.raytheon.uf.edex.database.dao,
  com.raytheon.uf.edex.database.plugin,
  com.raytheon.uf.edex.plugin.text.db,
+ com.raytheon.uf.edex.plugin.text.dbsrv.impl,
  org.quartz
 Export-Package: com.raytheon.uf.edex.ohd,
  com.raytheon.uf.edex.ohd.reportalarm,
