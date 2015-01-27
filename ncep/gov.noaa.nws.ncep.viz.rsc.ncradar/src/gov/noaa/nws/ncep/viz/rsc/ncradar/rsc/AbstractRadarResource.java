@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.measure.Measure;
 import javax.measure.quantity.Length;
@@ -23,17 +24,18 @@ import javax.measure.unit.NonSI;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
@@ -65,6 +67,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/10/2013    #999      G. Hull     rm IDataScaleResource
  * 06/16/2014    #2061     bsteffen    update IRangeableResource
  * 06/18/2014    TTR1026   J. Wu (/bh) Fixed potential exceptions for loading local radar data.
+ * 12/14            ?      B. Yin       Remove ScriptCreator, use Thrift Client.
  * 
  * </pre>
  * 
@@ -157,22 +160,16 @@ public abstract class AbstractRadarResource<D extends IDescriptor> extends
 
         queryList.put("dataTime.refTime", reqConstr);
 
-        LayerProperty prop = new LayerProperty();
-        prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-        prop.setEntryQueryParameters(queryList, false);
-        prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap
-                                       // this ?
-        String script = null;
-        script = ScriptCreator.createScript(prop);
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(queryList);
 
-        if (script == null)
-            return;
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
 
-        Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
-
-        for (Object pdo : pdoList) {
-            for (IRscDataObject dataObject : processRecord(pdo)) {
-                newRscDataObjsQueue.add(dataObject);
+        for (Map<String, Object> result : response.getResults()) {
+            for (Object pdo : result.values()) {
+                for (IRscDataObject dataObject : processRecord(pdo)) {
+                    newRscDataObjsQueue.add(dataObject);
+                }
             }
         }
         // preProcess
