@@ -101,6 +101,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * 03/13		#928		B. Yin		Made the button bar smaller.
  * 04/13        #977        S. Gilbert  PGEN Database support
  * 09/13        TTR656      J. Wu	  	Display for INTL_SIGMET converted from VGF.
+ * 09/14        TTR974      J. Wu       update "editableAttrFromLine" in "setSigmet()".
+ * 10/14        TTR433      J. Wu       Set input verification/output format for Phenom Lat/Lon.
+ * 10/14        TTR722      J. Wu       Display TC center/Movement/FL level for ISOLATED TC.
  * </pre>
  * 
  * @author gzhang
@@ -209,6 +212,16 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
 
     private HashMap<Control, Control[]> controlEnablerMap = new HashMap<Control, Control[]>();
 
+    /**
+     * Colors to indicate if Phenom lat/lon input is in correct format.
+     */
+    private final Color wrongFormatColor = Color.red;
+
+    private final Color rightFormatColor = Color.green;
+
+    /**
+     * Constructor.
+     */
     protected SigmetAttrDlg(Shell parShell) throws VizException {
         super(parShell);
     }
@@ -764,11 +777,19 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
 
                 @Override
                 public void focusLost(FocusEvent e) {
-                    if (SigmetAttrDlg.this.getEditableAttrPhenomLat() != null)
+                    if (SigmetAttrDlg.this.getEditableAttrPhenomLat() != null) {
                         txtPheLat.setText(SigmetAttrDlg.this
                                 .getEditableAttrPhenomLat());
-                    else
-                        txtPheLat.setText("???");
+                        setBackgroundColor(txtPheLat, rightFormatColor);
+                    } else {
+                        /*
+                         * "???" causes inconvenience for copy/paste. Instead,
+                         * use Color as hint.
+                         */
+                        // txtPheLat.setText("???");
+                        txtPheLat.setText("");
+                        setBackgroundColor(txtPheLat, wrongFormatColor);
+                    }
                 }
             });
 
@@ -796,11 +817,19 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
 
                 @Override
                 public void focusLost(FocusEvent e) {
-                    if (SigmetAttrDlg.this.getEditableAttrPhenomLon() != null)
+                    if (SigmetAttrDlg.this.getEditableAttrPhenomLon() != null) {
                         txtPheLon.setText(SigmetAttrDlg.this
                                 .getEditableAttrPhenomLon());
-                    else
-                        txtPheLon.setText("???");
+                        setBackgroundColor(txtPheLon, rightFormatColor);
+                    } else {
+                        /*
+                         * "???" causes inconvenience for copy/paste. Instead,
+                         * use Color as hint.
+                         */
+                        // txtPheLon.setText("???");
+                        txtPheLon.setText("");
+                        setBackgroundColor(txtPheLon, wrongFormatColor);
+                    }
                 }
             });
 
@@ -1397,8 +1426,8 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
                     .getPoints().toArray(new Coordinate[] {});
 
             /*
-             * Added "trim()" since SIGMETs VGFs has no "editableAttrFromLine" and it is
-             * defaulted as " " when converted into XML - (J. Wu). 
+             * Added "trim()" since SIGMETs VGFs has no "editableAttrFromLine"
+             * and it is defaulted as " " when converted into XML - (J. Wu).
              */
             if (coors != null) {
                 if (editableAttrFromLine == null
@@ -1522,7 +1551,6 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
     private String convertTimeStringPlusHourInHMS(String timeString,
             int plusHour, boolean dayNeeded) {
         Calendar c = Calendar.getInstance();
-        System.out.println("____________timeString: " + timeString);
         c.set(Calendar.DAY_OF_MONTH,
                 Integer.parseInt(timeString.substring(0, 2)));
         c.set(Calendar.HOUR_OF_DAY,
@@ -1996,14 +2024,14 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
 
         @Override
         public void createButtonsForButtonBar(Composite parent) {
-        	
-        	((GridLayout) parent.getLayout()).verticalSpacing = 0;
-        	((GridLayout) parent.getLayout()).marginHeight = 3;
-              
+
+            ((GridLayout) parent.getLayout()).verticalSpacing = 0;
+            ((GridLayout) parent.getLayout()).marginHeight = 3;
+
             createButton(parent, IDialogConstants.OK_ID, "Save", true);
             createButton(parent, IDialogConstants.CANCEL_ID,
                     IDialogConstants.CANCEL_LABEL, false);
-            
+
             getButton(IDialogConstants.OK_ID).setLayoutData(
                     new GridData(ctrlBtnWidth, ctrlBtnHeight));
             getButton(IDialogConstants.CANCEL_ID).setLayoutData(
@@ -2204,18 +2232,25 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
 
                 Sigmet sig = ((Sigmet) SigmetAttrDlg.this.drawingLayer
                         .getSelectedDE());
-                if (SigmetAttrDlg.this.ISOLATED.equals(sig.getType())) {
+
+                /*
+                 * TTR 722 - This "if" causes "ISOLATED" TC center not
+                 * displaying. So we commented it out.
+                 * 
+                 * if (SigmetAttrDlg.this.ISOLATED.equals(sig.getType())) {
+                 * sb.append(" ").append("NEAR"); //
+                 * sb.append(" ").append(sig.getLinePoints()[0].y); //
+                 * sb.append(" ").append(sig.getLinePoints()[0].x); } else {
+                 */
+                if (SigmetAttrDlg.this.getEditableAttrPhenomLat() != null
+                        && SigmetAttrDlg.this.getEditableAttrPhenomLon() != null) {
                     sb.append(" ").append("NEAR");
-                    // sb.append(" ").append(sig.getLinePoints()[0].y);
-                    // sb.append(" ").append(sig.getLinePoints()[0].x);
-                } else {
-                	if ( SigmetAttrDlg.this.getEditableAttrPhenomLat() != null 
-                			&& SigmetAttrDlg.this.getEditableAttrPhenomLon() != null ) {
-                		sb.append(" ").append("NEAR");
-                		sb.append(" ").append(SigmetAttrDlg.this.getEditableAttrPhenomLat());
-                		sb.append(SigmetAttrDlg.this.getEditableAttrPhenomLon());
-                	}
+                    sb.append(" ").append(
+                            SigmetAttrDlg.this.getEditableAttrPhenomLat());
+                    sb.append(" ").append(
+                            SigmetAttrDlg.this.getEditableAttrPhenomLon());
                 }
+                // }
 
                 sb.append(" ").append("AT ");
                 sb.append(getTimeStringPlusHourInHMS(0).substring(0, 4));// C
@@ -2227,6 +2262,11 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
                 // --------------- movement
 
                 String movement = SigmetAttrDlg.this.getEditableAttrMovement();
+
+                if (movement == null) {
+                    movement = "STNRY";
+                }
+
                 if ("STNRY".equals(movement)) {
                     sb.append(" ").append("STNR. ");
                 } else if ("MVG".equals(movement)) {
@@ -2292,7 +2332,8 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
 
             String tops = SigmetAttrDlg.this.getEditableAttrLevel();
 
-            if ("FCST".equals(tops) || isTropCyc) {
+            if ("FCST".equals(tops)) {
+                // if ("FCST".equals(tops) || isTropCyc) {
                 sb.append(tops.equals("-none-") ? "" : tops).append(" ");
                 sb.append(SigmetAttrDlg.this.getEditableAttrLevelInfo1())
                         .append(" ");
@@ -2339,7 +2380,7 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
                     sb.append(" ").append("NM CENTER.");
                 } else {
                     sb.append(" ").append("WI ");
-                    sb.append((int)SigmetAttrDlg.this.getWidth());
+                    sb.append((int) SigmetAttrDlg.this.getWidth());
                     sb.append(" ").append("NM OF ");
                     for (int i = 0; i < lineArray.length - 1; i++)
                         sb.append(" ").append(lineArray[i]);
@@ -2363,7 +2404,7 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
 
             } else {// line with LINE_SEPERATER
                 sb.append(" ").append("WI ");
-                sb.append((int)SigmetAttrDlg.this.getWidth());
+                sb.append((int) SigmetAttrDlg.this.getWidth());
                 sb.append(" ").append("NM ");
                 sb.append(getLineTypeForSOL(lineType));// [lineArray.length-2]);//watch
                                                        // out for index
@@ -2648,8 +2689,14 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
                 // ((Sigmet)sigmet).getType() ) );
             }
         }
+
         if (txtInfo != null && !txtInfo.isDisposed() && s != null)
             this.resetText(s, txtInfo);
+
+        // TTR 974 - "editableAttrFromLine" needs update as well.
+        if (sigmet != null && s != null) {
+            ((Sigmet) sigmet).setEditableAttrFromLine(s);
+        }
 
     }
 
@@ -2787,9 +2834,45 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
         withExpandedArea = false;// ???
     }
 
+    /*
+     * This method validates the input lat or lon are in the specified formats
+     * as below since AWC receives info in various formats from TACs around the
+     * world) and be convertyed later into specified formats.
+     * 
+     * This a new requirement from AWC as described in AWC Sept 2014 FIT test
+     * report for TTR 433 - J. Wu, Oct. 7th, 2014.
+     * 
+     * "N", "S", and "–" are literal; "dd" or "ddd" is degree; "mm" is minute;
+     * "p" is decimal degree; "(d)" is an optional degree longitude digit for
+     * longitudes with absolute value >= 100.0):
+     * 
+     * A) "Phenom Lat" text box accepts a latitude north: Nddmm, ddmmN, dd.pN,
+     * Ndd.p, dd.p; Output is Nddmm.
+     * 
+     * B)"Phenom Lat" text box accepts a latitude south: Sddmm, ddmmS, dd.pS,
+     * Sdd.p, dd.p; Output is Sddmm.
+     * 
+     * C)"Phenom Lon" text box accepts a longitude west: W(d)ddmm, (d)ddmmW,
+     * (d)dd.pW, W(d)dd.p, -(d)dd.p; Output is W[0|1]ddmm.
+     * 
+     * D)"Phenom Lon" text box accepts a longitude east: E(d)ddmm, (d)ddmmE,
+     * (d)dd.pE, E(d)dd.p, (d)dd.p; Output is E[0|1]ddmm.
+     * 
+     * Note:
+     * 
+     * (1) "N", "S", "E", "W" is not case-sensitive.
+     * 
+     * (2) "N"/"S"/"E"/"W" should have been stripped of before sending in here.
+     * 
+     * (3) A "-" should be placed at the beginning if "S" or "W" found in the
+     * input.
+     */
     private boolean validateLatLon(String coor, boolean isLat) {
-        String regexLat = "(-?[0-8]?[0-9](\\.\\d*)?)|-?90(\\.[0]*)?";
-        String regexLon = "(-?([1]?[0-7][1-9]|[1-9]?[0-9])?(\\.\\d*)?)|-?180(\\.[0]*)?";
+        // String regexLat = "(-?[0-8]?[0-9](\\.\\d*)?)|-?90(\\.[0]*)?";
+        // String regexLon =
+        // "(-?([1]?[0-7][1-9]|[1-9]?[0-9])?(\\.\\d*)?)|-?180(\\.[0]*)?";
+        String regexLat = "(-?[0-8]?[0-9](\\.)?(\\d*)?)|-?90(\\.)?([0]*)?";
+        String regexLon = "(-?([1]?[0-7][0-9]|[0]?[0-9]?[0-9])?(\\.)?(\\d*)?)|-?180(\\.)?([0]*)?";
 
         java.util.regex.Matcher m;
         if (isLat) {
@@ -2860,11 +2943,13 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
             Coordinate coor = coors[i];
 
             result.append(coor.y >= 0 ? "N" : "S");
-            long y = ((int) Math.abs(coor.y)*100) + Math.round( Math.abs(coor.y-(int)(coor.y))*60);
+            long y = ((int) Math.abs(coor.y) * 100)
+                    + Math.round(Math.abs(coor.y - (int) (coor.y)) * 60);
             result.append(new DecimalFormat(FOUR_ZERO).format(y));
 
             result.append(coor.x >= 0 ? " E" : " W");
-            long x = ((int) Math.abs(coor.x))*100 + Math.round(Math.abs(coor.x-(int)(coor.x))*60);
+            long x = ((int) Math.abs(coor.x)) * 100
+                    + Math.round(Math.abs(coor.x - (int) (coor.x)) * 60);
 
             result.append(new DecimalFormat(FIVE_ZERO).format(x));
 
@@ -2943,28 +3028,143 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
         return null;
     }
 
+    /*
+     * This method validates the input lat or lon are in the specified formats
+     * and format it into a specfied form as described below:
+     * 
+     * This a new requirement from AWC as described in AWC Sept 2014 FIT test
+     * report for TTR 433 - J. Wu, Oct. 7th, 2014.
+     * 
+     * "N", "S", and "–" are literal; "dd" or "ddd" is degree; "mm" is minute;
+     * "p" is decimal degree; "(d)" is an optional degree longitude digit for
+     * longitudes with absolute value >= 100.0):
+     * 
+     * A) "Phenom Lat" text box accepts a latitude north: Nddmm, ddmmN, dd.pN,
+     * Ndd.p, dd.p; Output is Nddmm.
+     * 
+     * B)"Phenom Lat" text box accepts a latitude south: Sddmm, ddmmS, dd.pS,
+     * Sdd.p, dd.p; Output is Sddmm.
+     * 
+     * C)"Phenom Lon" text box accepts a longitude west: W(d)ddmm, (d)ddmmW,
+     * (d)dd.pW, W(d)dd.p, -(d)dd.p; Output is W[0|1]ddmm.
+     * 
+     * D)"Phenom Lon" text box accepts a longitude east: E(d)ddmm, (d)ddmmE,
+     * (d)dd.pE, E(d)dd.p, (d)dd.p; Output is E[0|1]ddmm.
+     * 
+     * Note: "N", "S", "E", "W" is not case-sensitive here.
+     */
     private String getPhenomLatLon(String input, boolean isLat) {
 
-        if (input.startsWith("S") || input.startsWith("s")
-                || input.startsWith("W") || input.startsWith("w")
-                || input.endsWith("S") || input.endsWith("s")
-                || input.endsWith("W") || input.endsWith("w"))
+        input = input.toUpperCase();
+        if ((isLat && (input.startsWith("S") || input.endsWith("S")))
+                || (!isLat && (input.startsWith("W") || input.endsWith("W")))) {
             input = "-" + input;
+        }
+
+        /*
+         * remove characters that is not a digit, -, or decimal point.
+         */
         input = input.replaceAll("[^-0-9.]", "");
 
+        /*
+         * Format the output to the desired form.
+         */
         StringBuilder result = new StringBuilder();
         if (!"".equals(input) && !"-".equals(input)
                 && validateLatLon(input, isLat)) {
-            Double value = Double.parseDouble(input);
 
-            if (isLat) {
-                result.append(value >= 0.0 ? "N" : "S");
-                double y = (double) Math.abs(value);
-                result.append(y);
+            if (!input.contains(".")) {
+
+                /*
+                 * Padding to make lat as "ddmm" and lon as "dddmm".
+                 */
+                String istr = input.replaceAll("-", "");
+                int len = istr.length();
+                String ostr = "";
+                int val = Integer.parseInt(istr);
+                if (isLat) {
+                    if (len == 1) {
+                        ostr += ("0" + istr + "00");
+                    } else if (len == 2) {
+                        if (val <= 90)
+                            ostr += (istr + "00");
+                    } else if (len == 3) {
+                        if (val <= 900)
+                            ostr += (istr + "0");
+                    } else {
+                        String tmp = istr.substring(0, 4);
+                        if (Integer.parseInt(tmp) <= 9000) {
+                            ostr += tmp;
+                        }
+                    }
+                } else {
+                    if (len == 1) {
+                        ostr += ("00" + istr + "00");
+                    } else if (len == 2) {
+                        ostr += ("0" + istr + "00");
+                    } else if (len == 3) {
+                        if (val <= 180) {
+                            ostr += (istr + "00");
+                        } else {
+                            ostr += ("0" + istr + "0");
+                        }
+                    } else if (len == 4) {
+                        if (val > 180) {
+                            ostr += ("0" + istr);
+                        } else if (val >= 100) {
+                            ostr += (val + "00");
+                        } else if (val >= 10) {
+                            ostr += ("0" + val + "00");
+                        } else {
+                            ostr += ("00" + val + "00");
+                        }
+
+                    } else {
+                        String tmp = istr.substring(0, 5);
+                        if (Integer.parseInt(tmp) <= 18000) {
+                            ostr += tmp;
+                        }
+                    }
+                }
+
+                if (ostr.length() > 0) {
+                    if (isLat) {
+                        result.append(input.startsWith("-") ? "S" : "N");
+                    } else {
+                        result.append(input.startsWith("-") ? "W" : "E");
+                    }
+                }
+
+                result.append(ostr);
+
             } else {
-                result.append(value >= 0.0 ? " E" : " W");
-                double x = (double) Math.abs(value);
-                result.append(x);
+                /*
+                 * Convert to degree and minutes and then padding to make lat as
+                 * "ddmm" and lon as "dddmm".
+                 */
+                Double value = Double.parseDouble(input);
+                int deg = value.intValue();
+
+                Double minute = (Math.abs(value - deg)) * 60.0;
+                int mm = (int) Math.round(minute);
+
+                deg = Math.abs(deg);
+
+                if (isLat) {
+                    result.append(value >= 0.0 ? "N" : "S");
+                    String dstr = (deg < 10) ? ("0" + deg) : ("" + deg);
+                    result.append(dstr);
+                    String mstr = (mm < 10) ? ("0" + mm) : ("" + mm);
+                    result.append(mstr);
+
+                } else {
+                    result.append(value >= 0.0 ? "E" : "W");
+                    String dstr = (deg < 10) ? ("00" + deg)
+                            : ((deg < 100) ? ("0" + deg) : ("" + deg));
+                    result.append(dstr);
+                    String mstr = (mm < 10) ? ("0" + mm) : ("" + mm);
+                    result.append(mstr);
+                }
             }
 
             return result.toString().trim();
@@ -3107,5 +3307,16 @@ public class SigmetAttrDlg extends AttrDlg implements ISigmet {
         this.setEditableAttrId(sig.getEditableAttrId());
         this.setEditableAttrSeqNum(sig.getEditableAttrSeqNum());
 
+    }
+
+    /*
+     * Sets the background color for a SWT control.
+     */
+    private void setBackgroundColor(Control ww, Color color) {
+        org.eclipse.swt.graphics.Color clr = new org.eclipse.swt.graphics.Color(
+                ww.getDisplay(), color.getRed(), color.getGreen(),
+                color.getBlue());
+        ww.setBackground(clr);
+        clr.dispose();
     }
 }

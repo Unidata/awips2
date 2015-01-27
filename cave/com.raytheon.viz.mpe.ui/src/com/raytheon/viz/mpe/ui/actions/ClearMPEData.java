@@ -25,6 +25,7 @@ import org.eclipse.ui.IEditorPart;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.viz.mpe.ui.TransmitBestEstimateQPEProvider;
 import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
 import com.raytheon.viz.ui.EditorUtil;
 
@@ -40,6 +41,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * ------------ ---------- ----------- --------------------------
  * Jan 3, 2012            mschenke     Initial creation
  * Feb 26, 2014    2842    mpduff      Use PlatformUI rather than HandlerUtil.
+ * Jan 05, 2015   14246   lbousaidi    disable TransmitBestEstimateQPE when you 
+ *                                     clear data.
  * 
  * </pre>
  * 
@@ -69,6 +72,7 @@ public class ClearMPEData extends FullScreen {
         // Ensure in full screen
         super.execute(event);
         TransmitRFCBiasProvider.setEnabled(false);
+        TransmitBestEstimateQPEProvider.setEnabled(false);
         return null;
     }
 }

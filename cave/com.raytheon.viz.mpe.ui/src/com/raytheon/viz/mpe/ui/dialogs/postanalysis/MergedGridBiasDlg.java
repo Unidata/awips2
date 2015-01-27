@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
@@ -59,6 +60,8 @@ public class MergedGridBiasDlg extends BasePostAnalysisDlg {
 	
     private BestEstimate1HrQpeDlg bestEstimateDlg = null;
     
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     private double[][] mergeArray = null;
     private double[][] ratioArray = null;
     private double[][] disaggArray = null;
@@ -84,7 +87,7 @@ public class MergedGridBiasDlg extends BasePostAnalysisDlg {
         try
         {
         	
-        	String filePath = PostAnalysisManager.get24HourGageOnlyFilePath();
+        	String filePath = paMgr.get24HourGageOnlyFilePath();
         	
         	//units are hundredths of inches
        // 	double[][] gageOnly24HourGrid = paMgr.createGridArray(filePath, false, true, false); 
@@ -102,7 +105,7 @@ public class MergedGridBiasDlg extends BasePostAnalysisDlg {
                 	
         	//paMgr.printDouble2DArray(qpeAccum24Hr[DailyQcUtils.pcpn_day]);
         	
-          	Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+          	Hrap_Grid hrap_grid = dqc.getHrap_grid();
         	int maxCols = hrap_grid.maxi;
     		int maxRows = hrap_grid.maxj;
     	
@@ -110,7 +113,7 @@ public class MergedGridBiasDlg extends BasePostAnalysisDlg {
     		
         	//units are Inches
         	double[][] accum24HourGrids  =
-        				PostAnalysisManager.get24HourTotalPrecip(maxRows, maxCols, scaleFactor);
+        				paMgr.get24HourTotalPrecip(maxRows, maxCols, scaleFactor);
         	
         	paMgr.mergeData(accum24HourGrids, gageOnly24HourGrid, 
         					mergeArray, ratioArray, 

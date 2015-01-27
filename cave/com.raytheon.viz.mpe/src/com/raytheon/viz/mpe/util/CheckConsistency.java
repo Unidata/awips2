@@ -44,7 +44,8 @@ public class CheckConsistency {
     public void check_consistency(int j, ArrayList<Station> precip_stations,
             int numPstations) {
 
-        int dqc_neig = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+        DailyQcUtils dqc = DailyQcUtils.getInstance();
+        int dqc_neig = dqc.mpe_dqc_max_precip_neighbors;
         int max_stations = numPstations;
         int k, m;
         float rtotal;
@@ -52,23 +53,23 @@ public class CheckConsistency {
 
         for (k = 0; k < max_stations; k++) {
 
-            DailyQcUtils.pdata[j].stn[k].tcons = 1;
+            dqc.pdata[j].stn[k].tcons = 1;
 
-            if (DailyQcUtils.pdata[j].stn[k].frain[4].data < 0) {
+            if (dqc.pdata[j].stn[k].frain[4].data < 0) {
                 continue;
             }
 
             rtotal = 0;
             for (m = 0; m < 4; m++) {
 
-                if (DailyQcUtils.pdata[j].stn[k].frain[m].data >= 0) {
-                    rtotal += DailyQcUtils.pdata[j].stn[k].frain[m].data;
+                if (dqc.pdata[j].stn[k].frain[m].data >= 0) {
+                    rtotal += dqc.pdata[j].stn[k].frain[m].data;
                 }
 
             }
 
-            if (Math.abs(rtotal - DailyQcUtils.pdata[j].stn[k].frain[4].data) > .01) {
-                DailyQcUtils.pdata[j].stn[k].tcons = -1;
+            if (Math.abs(rtotal - dqc.pdata[j].stn[k].frain[4].data) > .01) {
+                dqc.pdata[j].stn[k].tcons = -1;
             }
 
         }
@@ -77,12 +78,12 @@ public class CheckConsistency {
 
             for (m = 0; m < 5; m++) {
 
-                if (DailyQcUtils.pdata[j].stn[k].frain[m].qual == 1
-                        || DailyQcUtils.pdata[j].stn[k].frain[m].data < 0) {
+                if (dqc.pdata[j].stn[k].frain[m].qual == 1
+                        || dqc.pdata[j].stn[k].frain[m].data < 0) {
                     continue;
                 }
 
-                DailyQcUtils.pdata[j].stn[k].scons[m] = 1;
+                dqc.pdata[j].stn[k].scons[m] = 1;
 
                 for (ii = 0; ii < dqc_neig; ii++) {
 
@@ -91,11 +92,11 @@ public class CheckConsistency {
                     if ((precip_stations.get(i).lat == precip_stations.get(k).lat)
                             && (precip_stations.get(i).lon == precip_stations
                                     .get(k).lon)
-                            && (DailyQcUtils.pdata[j].stn[i].frain[m].qual != 1)
-                            && (DailyQcUtils.pdata[j].stn[i].frain[m].data >= 0)
-                            && (DailyQcUtils.pdata[j].stn[i].frain[m].data != DailyQcUtils.pdata[j].stn[k].frain[m].data)) {
+                            && (dqc.pdata[j].stn[i].frain[m].qual != 1)
+                            && (dqc.pdata[j].stn[i].frain[m].data >= 0)
+                            && (dqc.pdata[j].stn[i].frain[m].data != dqc.pdata[j].stn[k].frain[m].data)) {
 
-                        DailyQcUtils.pdata[j].stn[k].scons[m] = -1;
+                        dqc.pdata[j].stn[k].scons[m] = -1;
 
                     }
                 }
