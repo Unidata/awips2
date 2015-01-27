@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rtkp.rsc.GeoMagWorldActivityTitleDateResource"
+            name="GeoMagWorldActivityTitleDateResource"
+            renderingOrderId="MAP_OUTLINE">
+      </resource>
+   </extension>
+    <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rtkp.rsc.GeoMagWorldActivityTitleDateResourceData"
+            name="GeoMagWorldActivityTitleDateResource">
+      </nc-resource>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rtkp.rsc.GeoMagWorldActivityResource"
+            name="GeoMagWorldActivityResource"
+            renderingOrderId="MAP_OUTLINE">
+      </resource>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+     <command
+          id="gov.noaa.nws.ncep.viz.rtkp.rtkp"
+          name="RTKP">
+      </command>     
+      <command
+            id="gov.noaa.nws.ncep.viz.rtkp.actions.GeoMagRTKpAction"
+            name="Load Real-time Kp Monitor">
+      </command>
+       <command
+          id="gov.noaa.nws.ncep.viz.rtkp.palette.GeoMagRTKpDataBlockAction"
+          name="Load View">
+      </command>      
+       <command
+          id="gov.noaa.nws.ncep.viz.rtkp.palette.GeoMagRTKpRecentKpAction"
+          name="Load View">
+      </command>
+       <command
+          id="gov.noaa.nws.ncep.viz.rtkp.EditNetwork"
+          name="Edit Network">
+      </command>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.handlers"> 
+      <handler
+            class="gov.noaa.nws.ncep.viz.rtkp.actions.GeoMagRTKpAction"
+            commandId="gov.noaa.nws.ncep.viz.rtkp.actions.GeoMagRTKpAction">
+      </handler>
+      <handler 
+            class="gov.noaa.nws.ncep.viz.rtkp.actions.GeoMagRTKpDataBlockAction"
+            commandId="gov.noaa.nws.ncep.viz.rtkp.palette.GeoMagRTKpDataBlockAction">
+       </handler>       
+      <handler 
+            class="gov.noaa.nws.ncep.viz.rtkp.actions.GeoMagRTKpRecentKpEstAction"
+            commandId="gov.noaa.nws.ncep.viz.rtkp.palette.GeoMagRTKpRecentKpAction">
+       </handler>
+   </extension>
+         
+   <extension
+         point="com.raytheon.uf.viz.core.descriptor">
+       <descriptor
+      		name="GeoMagRTKpDescriptor"
+            class="gov.noaa.nws.ncep.viz.rtkp.GeoMagRTKpDescriptor"
+            editor="com.raytheon.uf.viz.xy.timeseries.TimeSeriesEditor">
+      </descriptor>
+   </extension>
+      
+   <extension
+         point="com.raytheon.uf.viz.xy.timeseries.timeseriesadapter">
+      <timeSeriesAdapter
+            adapter="gov.noaa.nws.ncep.viz.rtkp.GeoMagRTKpTimeSeriesAdapter"
+            class="gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagRecord"
+            name="GeoMagTimeSeriesAdapter">
+      </timeSeriesAdapter>      
+   </extension>
+        
+   
+
+	<extension
+         point="org.eclipse.ui.views">
+           <category
+            id="gov.noaa.nws.ncep.viz.rtkp.view"
+            name="RTKP Views"/>
+           <view
+            category="gov.noaa.nws.ncep.viz.rtkp.view"
+            allowMultiple="false"
+            restorable="false"
+            class="gov.noaa.nws.ncep.viz.rtkp.palette.GeoMagRTKpDataBlockWindow"
+            id="gov.noaa.nws.ncep.viz.rtkp.GEOMAGRTKPDATABLOCK"
+            name="RTKp - Data Block"/>
+            <view
+            category="gov.noaa.nws.ncep.viz.rtkp.view"
+            allowMultiple="false"
+            restorable="false"
+            class="gov.noaa.nws.ncep.viz.rtkp.palette.GeoMagRTKpRecentKpWindow"
+            id="gov.noaa.nws.ncep.viz.rtkp.GEOMAGRTKPRECENTKP"
+            name="RTKp - Recent Kp Estimates"/>            
+   </extension>  
+   
+   <!-- <extension
+          point="org.eclipse.ui.contexts">
+           <context 
+                    description="The Natl Centers RTKp Context"
+                    id="gov.noaa.nws.ncep.viz.rtkp.rtkpContext"
+                    name="Natl Centers RTKp Context">
+           </context>
+   </extension>
+   -->
+    <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="COMMON_STATIC"
+             name="Geomag"
+             recursive="false"
+             value="ncep/geomag"
+	         extensionFilter=".xml">
+       </path>
+    </extension>
+    
+    <extension
+      point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="gov.noaa.nws.ncep.viz.rtkp.actions.EditKsPlotAttributesAction"
+            capabilityClass="gov.noaa.nws.ncep.viz.rtkp.KsPlotCapability"           
+            name="Edit Ks Plot Attributes..."
+            sortID="6">
+      </contextualMenu>
+       <contextualMenu
+            actionClass="gov.noaa.nws.ncep.viz.rtkp.actions.EditKpPlotAttributesAction"
+            capabilityClass="gov.noaa.nws.ncep.viz.rtkp.KpPlotCapability"           
+            name="Edit Kp Plot Attributes..."
+            sortID="7">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="gov.noaa.nws.ncep.viz.rtkp.actions.EditMagActivityAttributesAction"
+            capabilityClass="gov.noaa.nws.ncep.viz.rtkp.MagActivityCapability"
+            capabilityInterface="gov.noaa.nws.ncep.viz.rtkp.rsc.GeoMagWorldActivityResource"
+            name="Edit Mag Activity Attributes..."
+            sortID="6">
+      </contextualMenu>
+   </extension>    
+   
+</plugin>

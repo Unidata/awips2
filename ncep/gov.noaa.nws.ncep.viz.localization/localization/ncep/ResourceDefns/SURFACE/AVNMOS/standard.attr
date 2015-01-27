@@ -2,3 +2,4 @@
 plotModel=@PlotModels/bufrmosAVN/standard.xml
 plotDensity=10
 conditionalFilter=
+legendString=AVNMOS Standard

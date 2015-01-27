@@ -3,3 +3,4 @@
 plotModel=@PlotModels/nctaf/tempo_flt_condition.xml
 plotDensity=10
 conditionalFilter=@PlotModels/ConditionalFilters/nctaf/taf_tempo_flight_condition.xml
+legendString=TAF Cloud Coverage
