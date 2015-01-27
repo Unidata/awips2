@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Feb 16, 2011 #7346      zhao         added getDirectionalThresholdValueCellType(...)
  * Apr 28, 2014  3086      skorolev     Updated getAreaConfigMgr method.
  * Oct 17, 2014  3220      skorolev     Replaced System.out.print with debug statusHandler.
+ * Jan 08, 2015  3220      skorolev     Added getAreaConfigMgr.
  * 
  * </pre>
  * 
@@ -71,7 +72,7 @@ public abstract class AbstractThresholdMgr {
     /**
      * Monitor Area Configuration Manager.
      */
-    protected FSSObsMonitorConfigurationManager areaConfigMgr;
+    public FSSObsMonitorConfigurationManager areaConfigMgr;
 
     /**
      * Default file name for the FOG display thresholds.
@@ -807,5 +808,14 @@ public abstract class AbstractThresholdMgr {
                         "     Y    " + atXml.getYellow());
             }
         }
+    }
+
+    /**
+     * Gets current Area configuration manager.
+     * 
+     * @return
+     */
+    public FSSObsMonitorConfigurationManager getAreaConfigMgr() {
+        return areaConfigMgr;
     }
 }
