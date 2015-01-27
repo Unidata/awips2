@@ -283,9 +283,9 @@ public class DailyQcUtils {
 
     public static String type = "QME  ";
 
-    public Ts[] ts;
+    public static Ts[] ts;
 
-    public int tsmax = 0;
+    public static int tsmax = 0;
 
     public Maps mean_areal_precip_global[];
 
@@ -445,13 +445,13 @@ public class DailyQcUtils {
 
     public static int[] dflag = new int[10];
 
-    public int[] qflag = new int[10];
+    public static int[] qflag = new int[10];
 
     public float pxtemp = 1.0f;
 
     public int dmvalue = (int) (1.0 * 100 * 3.28 / .55);
 
-    public int elevation_filter_value = 0;
+    public static int elevation_filter_value = 0;
 
     public int temperature_filter_value = -50;
 
@@ -474,7 +474,7 @@ public class DailyQcUtils {
     /* Function which associates the Gage QC edit levels with a value. */
     public int funct[] = { 8, 0, 6, 2, 3, 4, 5, 1, 7, 9 };
 
-    public int gage_char[] = new int[2];
+    public static int gage_char[] = new int[2];
 
     public static int plot_view = 0;
 
