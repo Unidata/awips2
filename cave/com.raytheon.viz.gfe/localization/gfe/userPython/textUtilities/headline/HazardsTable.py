@@ -35,6 +35,7 @@
 #    02/05/14        2774          dgilling       Fix error logging statements in
 #                                                 __warnETNduplication() and
 #                                                 __highestETNActiveTable.
+#    11/11/14        4953          randerso       Changed type of endTime from float to int
 #
 
 
@@ -94,8 +95,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         self.__tpcKeys = self.__processJavaCollection(GFEVtecUtil.TROPICAL_PHENSIGS, self.__convertPhensig)
         self.__tpcBaseETN = '1001'
         self.__ncKeys = self.__processJavaCollection(GFEVtecUtil.NATIONAL_PHENSIGS, self.__convertPhensig)
-        self.__ufnKeys = [('HU', 'A'), ('HU', 'S'), ('HU', 'W'), ('TR', 'A'), ('TR', 'W'),
-          ('TY', 'A'), ('TY', 'W')]
+        self.__ufnKeys = [('HU', 'A'), ('HU', 'W'), ('TR', 'A'), ('TR', 'W'),
+          ('TY', 'A'), ('TY', 'W'), ('SS', 'A'), ('SS', 'W')]
 
         self.__sitesIgnoreNatlEtn = self.__processJavaCollection(GFEVtecUtil.IGNORE_NATIONAL_ETN, str)
 
@@ -957,7 +958,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         # consolidate
         pTable = self.__consolidateTime(pTable)
 
-        # remove old - keep those ended within 30min
+        # remove old - keep those ended within 30 min
         cutoff = self.__time - 30 * 60
         pTable = filter(lambda x: x['endTime'] > cutoff, pTable)
 
@@ -965,7 +966,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         for proposed in pTable:
             if (proposed['phen'], proposed['sig']) in self.__ufnKeys:
                 proposed['startTime'] = self.__time   #now
-                proposed['endTime'] = float(2 ** 31 - 1)  #forever
+                proposed['endTime'] = 2 ** 31 - 1     #forever
                 proposed['ufn'] = 1  #until further notice
 
         self.log.info("Hazards afflicting cities:" +
@@ -1161,7 +1162,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         for proposed in pTable:
             if (proposed['phen'], proposed['sig']) in self.__ufnKeys:
                 proposed['startTime'] = self.__time   #now
-                proposed['endTime'] = float(2 ** 31 - 1)  #forever
+                proposed['endTime'] = 2 ** 31 - 1     #forever
                 proposed['ufn'] = 1  #until further notice
         return pTable
 

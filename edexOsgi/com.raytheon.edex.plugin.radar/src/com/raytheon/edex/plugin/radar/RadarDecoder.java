@@ -99,6 +99,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * Oct 09, 2013  2457     bsteffen    Improve error message for missing icao.
  * Jan 21, 2014  2627     njensen     Removed decode()'s try/catch, camel route will do try/catch
  * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
+ * Dec 26, 2014  ASM#632  dhuffman    Added AlertMessageSanityCheck() for this DR.
  * 
  * </pre>
  * 
@@ -313,11 +314,20 @@ public class RadarDecoder extends AbstractDecoder {
                 details += "Alert Category : " + category + "\n";
                 details += "Threshold : " + msg.getThresholdValue() + "\n";
                 details += "Exceeding : " + msg.getExceedingValue() + "\n";
-                details += "Storm Cell ID :" + msg.getStormId() + "\n";
+                details += "Storm Cell ID : " + msg.getStormId() + "\n";
                 record.setAlertMessage(msg);
-                EDEXUtil.sendMessageAlertViz(Priority.SIGNIFICANT,
-                        RadarConstants.PLUGIN_ID, EDEX, RADAR, record.getIcao()
-                                + ": Alert Message Received", details, null);
+                if (AlertMessageSanityCheck(msg)) {
+                    EDEXUtil.sendMessageAlertViz(Priority.SIGNIFICANT,
+                            RadarConstants.PLUGIN_ID, EDEX, RADAR,
+                            record.getIcao() + ": Alert Message Received",
+                            details, null);
+                } else {
+                    details += "Alert Category # : " + msg.getAlertCategory() + "\n";
+                    EDEXUtil.sendMessageAlertViz(Priority.DEBUG,
+                            RadarConstants.PLUGIN_ID, EDEX, RADAR,
+                            record.getIcao() + ": Alert Received & Obviated",
+                            details, null);
+                }
             } else {
                 record.setLatitude((float) l3Radar.getLatitude());
                 record.setLongitude((float) l3Radar.getLongitude());
@@ -758,5 +768,25 @@ public class RadarDecoder extends AbstractDecoder {
 
     public void setRadarStationDao(RadarStationDao radarStationDao) {
         this.radarStationDao = radarStationDao;
+    }
+
+    /**
+     * Filter these erroneous messages; pursuant to ASM DR #632.
+     * 
+     * @param AlertMessage
+     * @return boolean
+     */
+    private static boolean AlertMessageSanityCheck(final AlertMessage alertMessage) {
+        if (alertMessage.getExceedingValue() < alertMessage.getThresholdValue())
+            return false;
+
+        if (alertMessage.getGridBoxAz() == 0
+                && alertMessage.getGridBoxRange() == 0
+                && alertMessage.getThresholdValue() == 0
+                && alertMessage.getExceedingValue() == 0
+                && (alertMessage.getAlertCategory() == 16 || alertMessage.getAlertCategory() == 25))
+            return false;
+
+        return true;
     }
 }

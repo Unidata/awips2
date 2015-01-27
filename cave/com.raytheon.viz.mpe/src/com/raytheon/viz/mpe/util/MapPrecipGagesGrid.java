@@ -42,7 +42,6 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Coord;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Dval;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Gagem;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 import com.raytheon.viz.mpe.util.DailyQcUtils.QCHRAP;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 import com.raytheon.viz.mpe.util.MeanMonthlyPrecip.Isoh;
@@ -69,12 +68,14 @@ public class MapPrecipGagesGrid {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MapPrecipGagesGrid.class);
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     int maxmin_used;
 
     int isohyets_used;
 
-    int i, k, kk, mini, minj, maxi, maxj, l, m, h;
+    int i, k, mini, minj, maxi, maxj, l, m, h;
 
     QCHRAP hrap;
 
@@ -86,17 +87,17 @@ public class MapPrecipGagesGrid {
 
     MaxMin maxmin;
 
-    Pcp pcp = DailyQcUtils.pcp;
-
-    Pcp spf = DailyQcUtils.spf;
-
-    Pcp tpf = DailyQcUtils.tpf;
+//    Pcp pcp = DailyQcUtils.pcp;
+//
+//    Pcp spf = DailyQcUtils.spf;
+//
+//    Pcp tpf = DailyQcUtils.tpf;
 
     // Hrap_Grid hrap_grid = new Hrap_Grid();
 
     long r, s;
 
-    float sorted[] = new float[DailyQcUtils.mpe_dqc_max_precip_neighbors];
+    float sorted[] = new float[dqc.mpe_dqc_max_precip_neighbors];
 
     float dist, dist1, dist2, distance, value;
 
@@ -112,17 +113,17 @@ public class MapPrecipGagesGrid {
 
     private float elevation;
 
-    Topo topo = DailyQcUtils.topo;
+//    Topo topo = DailyQcUtils.topo;
 
     public Hrap_Grid map_precip_gages_to_grid(int smonth, int emonth,
             String hrap_gage_file, String currentQcArea,
             ArrayList<Station> precip_stations, int numPstations) {
 
-        topo = null;
+//        dqc.topo = null;
         hrap = null;
         hrap = new QCHRAP();
-        // topo = new Topo();
-        DailyQcUtils.Hrap_Grid hrap_grid = new Hrap_Grid();
+//        dqc.topo = new Topo();
+        dqc.setHrap_grid(new Hrap_Grid());
         int newflag;
         TopoCoord tc = new TopoCoord();
         tc.get_topo_coord();
@@ -130,16 +131,16 @@ public class MapPrecipGagesGrid {
         MeanMonthlyTemp mmt = new MeanMonthlyTemp();
         isoh = mmp.getIsoh();
         maxmin = mmt.getMaxmin();
-        if (DailyQcUtils.topo == null) {
+        if (dqc.topo == null) {
             statusHandler
                     .handle(Priority.PROBLEM,
 							"Could not retrieve topo information ... Could not create map precipitation gages to HRAP grid. Check if topo file exists.");
             return null;
         }
-        topo = DailyQcUtils.topo;
+//        topo = DailyQcUtils.topo;
         /* Initialize the array of precipitation flags here. */
         for (i = 0; i < 500; i++) {
-            DailyQcUtils.pcp_in_use[i] = -1;
+            dqc.pcp_in_use[i] = -1;
         }
 
         /* Initialize the maximum and minimum values. */
@@ -152,34 +153,33 @@ public class MapPrecipGagesGrid {
         /* need longitude of 4 corners of display */
         /* Get the coordinates of 4 corners of the MPE forecast area. */
         /* These coordinates are from the read_geo_data routine. */
-        hrap_grid.hrap_minx = (int) MPEDataManager.getInstance()
+        dqc.getHrap_grid().hrap_minx = (int) MPEDataManager.getInstance()
                 .getHRAPExtent().getMinX();
-        hrap_grid.hrap_miny = (int) MPEDataManager.getInstance()
+        dqc.getHrap_grid().hrap_miny = (int) MPEDataManager.getInstance()
                 .getHRAPExtent().getMinY();
         // hrap_grid.maxi = (int) MPEDataManager.getInstance().getHRAPExtent()
         // .getMaxX();
-        hrap_grid.maxi = MPEDataManager.getInstance().getHRAPExtent().width;
-        hrap_grid.maxj = MPEDataManager.getInstance().getHRAPExtent().height;
+        dqc.getHrap_grid().maxi = MPEDataManager.getInstance().getHRAPExtent().width;
+        dqc.getHrap_grid().maxj = MPEDataManager.getInstance().getHRAPExtent().height;
 
         mini = (int) MPEDataManager.getInstance().getHRAPExtent().getMinX();
         minj = (int) MPEDataManager.getInstance().getHRAPExtent().getMinY();
-        maxi = hrap_grid.maxi;
-        maxj = hrap_grid.maxj;
+        maxi = dqc.getHrap_grid().maxi;
+        maxj = dqc.getHrap_grid().maxj;
 
-        pcp.value = new int[maxi][maxj];
-        tpf.value = new int[(maxi) + 1000][maxj];
-        spf.value = new int[maxi][maxj];
-        hrap_grid.coord = new Coord[maxi][maxj];
-        hrap_grid.isoh = new int[12][maxi][maxj];
-        hrap_grid.gage = new Gagem[maxi][maxj];
-        hrap_grid.max = new int[12][maxi][maxj];
-        hrap_grid.min = new int[12][maxi][maxj];
-        hrap_grid.owner = new int[maxi][maxj];
-        hrap_grid.elev = new int[maxi][maxj];
+        dqc.pcp.value = new int[maxi][maxj];
+        dqc.tpf.value = new int[(maxi) + 1000][maxj];
+        dqc.spf.value = new int[maxi][maxj];
+        dqc.getHrap_grid().coord = new Coord[maxi][maxj];
+        dqc.getHrap_grid().isoh = new int[12][maxi][maxj];
+        dqc.getHrap_grid().gage = new Gagem[maxi][maxj];
+        dqc.getHrap_grid().max = new int[12][maxi][maxj];
+        dqc.getHrap_grid().min = new int[12][maxi][maxj];
+        dqc.getHrap_grid().owner = new int[maxi][maxj];
+        dqc.getHrap_grid().elev = new int[maxi][maxj];
         newflag = 0;
         File gagefile = new File(hrap_gage_file);
-        DailyQcUtils du = new DailyQcUtils();
-        File stationfile = new File(du.getStationListPath(currentQcArea));
+        File stationfile = new File(dqc.getStationListPath(currentQcArea));
         long iir = gagefile.lastModified();
         long mir;
         if (stationfile.length() > 0) {
@@ -246,43 +246,43 @@ public class MapPrecipGagesGrid {
             // TODO ****** All need this ******
             irap = new Coordinate();
             Coordinate ci = new Coordinate();
-            for (i = 0; i < hrap_grid.maxi; i++) {
-                for (k = 0; k < hrap_grid.maxj; k++) {
+            for (i = 0; i < dqc.getHrap_grid().maxi; i++) {
+                for (k = 0; k < dqc.getHrap_grid().maxj; k++) {
                     /* Work in the absolute HRAP Coordinate System. */
                     irap.x = (short) (mini + i);
                     irap.y = (short) (minj + k);
 
-                    ci = DailyQcUtils.getHraptoLatLon(irap);
+                    ci = dqc.getHraptoLatLon(irap);
                     if (ci.x < 0) {
                         ci.x = ci.x * -1;
                     }
                     hrap.x = (float) ci.x;
                     hrap.y = (float) ci.y;
 
-                    hrap_grid.gage[i][k] = new Gagem();
-                    hrap_grid.coord[i][k] = new Coord(i, k, hrap.y, hrap.x);
+                    dqc.getHrap_grid().gage[i][k] = new Gagem();
+                    dqc.getHrap_grid().coord[i][k] = new Coord(i, k, hrap.y, hrap.x);
 
                     /*
                      * Initialize the elevation associated this HRAP grid cell.
                      */
-                    int iy = (int) ((topo.max_lat - hrap.y) / topo.delta_lat);
-                    int ix = (int) ((topo.max_lon - hrap.x) / topo.delta_lon);
+                    int iy = (int) ((dqc.topo.max_lat - hrap.y) / dqc.topo.delta_lat);
+                    int ix = (int) ((dqc.topo.max_lon - hrap.x) / dqc.topo.delta_lon);
                     // if (topo.max_lon < 0 && hrap.x < 0) {
                     // ix = ix * -1;
                     // }
 
-                    if (topo == null || ix <= 0 || iy <= 0
-                            || ix >= topo.maxi - 1 || iy >= topo.maxj - 1) {
-                        hrap_grid.elev[i][k] = -1;
+                    if (dqc.topo == null || ix <= 0 || iy <= 0
+                            || ix >= dqc.topo.maxi - 1 || iy >= dqc.topo.maxj - 1) {
+                        dqc.getHrap_grid().elev[i][k] = -1;
                     } else {
                         distance = 0.0f;
                         value = 0.0f;
 
-                        for (kk = ix; kk <= ix + 1; kk++) {
+                        for (int kk = ix; kk <= ix + 1; kk++) {
                             for (int jj = iy; jj <= iy + 1; jj++) {
 
-                                lat = topo.max_lat - jj * topo.delta_lat;
-                                lon = topo.max_lon - kk * topo.delta_lon;
+                                lat = dqc.topo.max_lat - jj * dqc.topo.delta_lat;
+                                lon = dqc.topo.max_lon - kk * dqc.topo.delta_lon;
                                 dist2 = (float) ((hrap.x - lon) * Math
                                         .cos((lat + hrap.y) / 2 * conv));
                                 dist1 = hrap.y - lat;
@@ -295,14 +295,14 @@ public class MapPrecipGagesGrid {
 
                                 dist = 1 / dist;
 
-                                value = value + dist * topo.value[kk][jj];
+                                value = value + dist * dqc.topo.value[kk][jj];
                                 distance = distance + dist;
 
                             }
                         }
 
                         elevation = (value * 32.1f) / distance;
-                        hrap_grid.elev[i][k] = (int) elevation;
+                        dqc.getHrap_grid().elev[i][k] = (int) elevation;
 
                     }
 
@@ -316,17 +316,17 @@ public class MapPrecipGagesGrid {
                      * precipitation and max/min temperature information.
                      */
                     for (h = 0; h < 12; ++h) {
-                        int ier = du.is_good(h, smonth, emonth);
+                        int ier = dqc.is_good(h, smonth, emonth);
 
                         if (ier == -1) {
                             continue;
                         }
 
-                        hrap_grid.isoh[h][i][k] = -1;
-                        hrap_grid.max[h][i][k] = -9999;
-                        hrap_grid.min[h][i][k] = -9999;
+                        dqc.getHrap_grid().isoh[h][i][k] = -1;
+                        dqc.getHrap_grid().max[h][i][k] = -9999;
+                        dqc.getHrap_grid().min[h][i][k] = -9999;
 
-                        if (DailyQcUtils.isohyets_used != -1) {
+                        if (dqc.isohyets_used != -1) {
                             /*
                              * The precipitation PRISM data have been read in.
                              */
@@ -334,15 +334,15 @@ public class MapPrecipGagesGrid {
                              * Much of this code will go away. The PRISM data
                              * are already in HRAP format.
                              */
-                            hrap_grid.isoh[h][i][k] = isoh.value[h][k][i];
+                            dqc.getHrap_grid().isoh[h][i][k] = isoh.value[h][k][i];
                         }
 
-                        if (DailyQcUtils.maxmin_used != -1) {
+                        if (dqc.maxmin_used != -1) {
                             /*
                              * The max/min temperature PRISM data are available.
                              */
-                            hrap_grid.max[h][i][k] = maxmin.maxvalue[h][k][i];
-                            hrap_grid.min[h][i][k] = maxmin.minvalue[h][k][i];
+                            dqc.getHrap_grid().max[h][i][k] = maxmin.maxvalue[h][k][i];
+                            dqc.getHrap_grid().min[h][i][k] = maxmin.minvalue[h][k][i];
 
                         }
                     }
@@ -369,7 +369,7 @@ public class MapPrecipGagesGrid {
                         irap.x = (short) (mini + i);
                         irap.y = (short) (minj + k);
 
-                        ci = DailyQcUtils.getHraptoLatLon(irap);
+                        ci = dqc.getHraptoLatLon(irap);
                         hrap.x = (float) ci.x;
                         hrap.y = (float) ci.y;
                         Arrays.fill(sorted, 9999999f);
@@ -389,15 +389,15 @@ public class MapPrecipGagesGrid {
                             dist = (float) Math.abs((Math.pow(dist1, 2) + Math
                                     .pow(dist2, 2)));
 
-                            for (l = 0; l < DailyQcUtils.mpe_dqc_max_precip_neighbors; l++) {
+                            for (l = 0; l < dqc.mpe_dqc_max_precip_neighbors; l++) {
                                 if (dist < sorted[l]) {
-                                    for (h = DailyQcUtils.mpe_dqc_max_precip_neighbors - 1; h > l; h--) {
+                                    for (h = dqc.mpe_dqc_max_precip_neighbors - 1; h > l; h--) {
                                         sorted[h] = sorted[h - 1];
-                                        hrap_grid.gage[i][k].index[h] = hrap_grid.gage[i][k].index[h - 1];
+                                        dqc.getHrap_grid().gage[i][k].index[h] = dqc.getHrap_grid().gage[i][k].index[h - 1];
                                     }
 
                                     sorted[l] = dist;
-                                    hrap_grid.gage[i][k].index[l] = m;
+                                    dqc.getHrap_grid().gage[i][k].index[l] = m;
 
                                     break;
 
@@ -413,8 +413,8 @@ public class MapPrecipGagesGrid {
                          */
                         StringBuilder gagerec = new StringBuilder();
                         String gages = "";
-                        for (l = 0; l < DailyQcUtils.mpe_dqc_max_precip_neighbors; l++) {
-                            gages = hrap_grid.gage[i][k].index[l] + " ";
+                        for (l = 0; l < dqc.mpe_dqc_max_precip_neighbors; l++) {
+                            gages = dqc.getHrap_grid().gage[i][k].index[l] + " ";
                             gagerec.append(gages);
                         }
                         out.write(gagerec.toString());
@@ -431,20 +431,20 @@ public class MapPrecipGagesGrid {
                 String cbuf = "";
                 Scanner s = new Scanner(cbuf);
                 in.readLine();
-                for (i = 0; i < hrap_grid.maxi; i++) {
-                    for (k = 0; k < hrap_grid.maxj; k++) {
+                for (i = 0; i < dqc.getHrap_grid().maxi; i++) {
+                    for (k = 0; k < dqc.getHrap_grid().maxj; k++) {
                         cbuf = in.readLine();
                         s = new Scanner(cbuf);
-                        for (int mm = 0; mm < DailyQcUtils.mpe_dqc_max_precip_neighbors; mm++) {
+                        for (int mm = 0; mm < dqc.mpe_dqc_max_precip_neighbors; mm++) {
                             /*
                              * Initialize the list of closest stations index.
                              */
                             int lsl = s.nextInt();
-                            hrap_grid.gage[i][k].index[mm] = lsl;
+                            dqc.getHrap_grid().gage[i][k].index[mm] = lsl;
                         }
                     }
                 }
-
+                s.close();
             }
 
             if (out != null) {
@@ -458,7 +458,7 @@ public class MapPrecipGagesGrid {
                 in.close();
             }
 
-            return hrap_grid;
+            return dqc.getHrap_grid();
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         } finally {
@@ -471,7 +471,7 @@ public class MapPrecipGagesGrid {
                         e);
             }
         }
-        return hrap_grid;
+        return dqc.getHrap_grid();
     }
 
     public static class Lcoord {
