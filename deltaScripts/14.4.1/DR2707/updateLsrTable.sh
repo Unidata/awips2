@@ -14,8 +14,8 @@ STATION_COLUMN='stationid'
 LAT_COLUMN='latitude'
 LON_COLUMN='longitude'
 
-CONSTRAINT_NAME='latitude_longitude_officeId_refTime_forecastTime_eventType'
-CONSTRAINT_COLUMNS='latitude, longitude, officeId, refTime, forecastTime, eventType'
+CONSTRAINT_NAME='latitude_longitude_stationId_refTime_forecastTime_eventType'
+CONSTRAINT_COLUMNS='latitude, longitude, stationId, refTime, forecastTime, eventType'
 
 PSQL="/awips2/psql/bin/psql"
 

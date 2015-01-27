@@ -65,7 +65,7 @@ function buildQPID()
       fi
    fi
    
-   cd ${WORKSPACE}/rpms/awips2.qpid/0.30/deploy.builder
+   cd ${WORKSPACE}/installers/RPMs/qpid-lib-0.30
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
       return 1
@@ -74,27 +74,6 @@ function buildQPID()
    /bin/bash build.sh
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
-      return 1
-   fi
-
-   # Copy the 0.30 qpid rpms
-   cd ${WORKSPACE}/rpms/awips2.qpid/0.30/RPMS/noarch
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid v0.30."
-      return 1
-   fi
-   /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/noarch
-   if [ $? -ne 0 ]; then
-      return 1
-   fi
-
-   cd ${WORKSPACE}/rpms/awips2.qpid/0.30/RPMS/x86_64
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build Qpid v0.30."
-      return 1
-   fi
-   /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/x86_64
-   if [ $? -ne 0 ]; then
       return 1
    fi
 
