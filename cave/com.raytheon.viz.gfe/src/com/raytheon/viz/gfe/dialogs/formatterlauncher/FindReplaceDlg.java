@@ -548,7 +548,7 @@ public class FindReplaceDlg extends CaveSWTDialog {
             this.searchOptions.remove(FindReplaceOptions.SEARCH_POS_END);
 
             int[] matchRange = findString(searchString);
-            while (!(matchRange[0] == 0 && matchRange[1] == 0)) {
+            while (!((matchRange[0] == 0) && (matchRange[1] == 0))) {
                 int newOffset = matchRange[1];
 
                 editorST.replaceTextRange(matchRange[0], searchString.length(),
@@ -607,7 +607,7 @@ public class FindReplaceDlg extends CaveSWTDialog {
 
                 int[] replaceMatch = findString(replaceString,
                         selectionToBeReplaced.x);
-                if (!(replaceMatch[0] == 0 && replaceMatch[1] == 0)) {
+                if (!((replaceMatch[0] == 0) && (replaceMatch[1] == 0))) {
                     editorComp.reParse();
                     editorST.setCaretOffset(replaceMatch[1]);
                 }
@@ -630,8 +630,9 @@ public class FindReplaceDlg extends CaveSWTDialog {
      * 
      */
     private void handleClickFind(SelectionEvent event) {
-        if (findTF.getText().equals(""))
+        if (findTF.getText().equals("")) {
             return;
+        }
 
         cursorOffset = editorST.getCaretOffset();
 
@@ -639,8 +640,8 @@ public class FindReplaceDlg extends CaveSWTDialog {
         // For BACKWARD_SEARCH option:
         // Need skip the previously found string
         if (searchOptions.contains(FindReplaceOptions.BACKWARD_SEARCH)) {
-            if (editorST.getSelectionRange() != null
-                    && editorST.getSelectionRange().y > 0) {
+            if ((editorST.getSelectionRange() != null)
+                    && (editorST.getSelectionRange().y > 0)) {
                 cursorOffset -= editorST.getSelectionRange().y;
                 if (cursorOffset < 0) {
                     cursorOffset = 0;
@@ -671,7 +672,7 @@ public class FindReplaceDlg extends CaveSWTDialog {
     private boolean findAndSelectString(String searchString) {
         int[] matchRange = findString(searchString);
 
-        if (!(matchRange[0] == 0 && matchRange[1] == 0)) {
+        if (!((matchRange[0] == 0) && (matchRange[1] == 0))) {
             editorST.setSelection(matchRange[0], matchRange[1]);
             editorST.showSelection();
             cursorOffset = editorST.getCaretOffset();
@@ -744,8 +745,9 @@ public class FindReplaceDlg extends CaveSWTDialog {
         // if (searchOptions.contains(FindReplaceOptions.EXACT_MATCH)
         // && !searchOptions.contains(FindReplaceOptions.REGEX_SEARCH))
         // searchRegex = "\\b" + searchRegex + "\\b";
-        if (searchOptions.contains(FindReplaceOptions.IGNORE_CASE))
+        if (searchOptions.contains(FindReplaceOptions.IGNORE_CASE)) {
             regexFlags |= Pattern.CASE_INSENSITIVE;
+        }
 
         // Need handle the PatternSyntaxException when user searches meta
         // character(s) but forgot to toggle on the regex option.
@@ -761,8 +763,9 @@ public class FindReplaceDlg extends CaveSWTDialog {
                     match[0] = matcher.start();
                     match[1] = matcher.end();
                     if (searchOptions
-                            .contains(FindReplaceOptions.FORWARD_SEARCH))
+                            .contains(FindReplaceOptions.FORWARD_SEARCH)) {
                         break;
+                    }
                 }
             }
         } catch (PatternSyntaxException e) {
@@ -829,7 +832,7 @@ public class FindReplaceDlg extends CaveSWTDialog {
         int searchEndIndex;
         int[] match = { 0, 0 };
 
-        if (searchString == null || searchString.equals("")) {
+        if ((searchString == null) || searchString.equals("")) {
             return match;
         }
 
