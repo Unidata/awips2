@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ncMapRBD rbdName="worldmagactivity">
+    <displayType>NMAP_RTKP_DISPLAY</displayType>
+    <paneLayout numRows="1" numColumns="1"/>
+    <selectedPaneId row="0" col="0"/>
+    <geoSyncedPanes>true</geoSyncedPanes>
+    <autoUpdate>false</autoUpdate>
+    <rbdSequence>0</rbdSequence>
+    <timeMatcher dominantResourceName="" numFrames="0" skipValue="0" timeRange="0" frameInterval="-1"/>
+    <displayList>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="NC-MapRenderableDisplay" mapCenter="0.0 0.0 0.0" zoomLevel="1.0">
+            <descriptor xsi:type="NCMapDescriptor">
+                <resource>
+                   <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                      <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="LocatorResourceData" resourceName="OVERLAY/Locator/default" isEdited="false">
+                        <color>RGB {255, 255, 255}</color>
+                        <fontSize>14</fontSize>
+                        <fontName>Monospace</fontName>
+                        <pos1LocatorSource>LATLON</pos1LocatorSource>
+                        <pos1RoundToNearest>1</pos1RoundToNearest>
+                        <pos1DisplayUnit>degrees</pos1DisplayUnit>
+                        <pos1DirectionUnit>omit</pos1DirectionUnit>
+                        <pos2LocatorSource></pos2LocatorSource>
+                        <pos2RoundToNearest>1</pos2RoundToNearest>
+                        <pos2DisplayUnit>omit</pos2DisplayUnit>
+                        <pos2DirectionUnit>omit</pos2DirectionUnit>
+                        <pos3LocatorSource>None</pos3LocatorSource>
+                        <pos3RoundToNearest>1</pos3RoundToNearest>
+                        <pos3DisplayUnit>omit</pos3DisplayUnit>
+                        <pos3DirectionUnit>omit</pos3DirectionUnit>
+                        <pos4LocatorSource>None</pos4LocatorSource>
+                        <pos4RoundToNearest>1</pos4RoundToNearest>
+                        <pos4DisplayUnit>omit</pos4DisplayUnit>
+                        <pos4DirectionUnit>omit</pos4DirectionUnit>
+                        <pos5LocatorSource>None</pos5LocatorSource>
+                        <pos5RoundToNearest>1</pos5RoundToNearest>
+                        <pos5DisplayUnit>omit</pos5DisplayUnit>
+                        <pos5DirectionUnit>omit</pos5DirectionUnit>
+                    </resourceData>
+                </resource>                  
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities/>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="true" isBlinking="false" isSystemResource="false" renderingOrderId="MAP_OUTLINE">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="NC-OverlayResourceGroupData" isEdited="false" resourceName="OVERLAY/GeoPolitical/default">
+                        <legendColor>RGB {255, 255, 255}</legendColor>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+								<resourceType>PLAN_VIEW</resourceType>
+								<capabilities/>
+                            </loadProperties>
+                            <properties isVisible="true" isHoverOn="false" isMapLayer="true" isBlinking="false" isSystemResource="false">
+								<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" isEdited="false" resourceName="OVERLAY/GeoPolitical/default">
+								<legendColor>RGB {255, 255, 255}</legendColor>
+								<mapName>World</mapName>
+								<dbName>maps</dbName>
+								<table>mapdata.world</table>
+								<geomField>the_geom</geomField>
+								<labelField>name</labelField>
+								<color>RGB {255, 228, 220}</color>
+								<lineWidth>1</lineWidth>
+								<lineStyle>SOLID</lineStyle>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+								<resourceType>PLAN_VIEW</resourceType>
+								<capabilities/>
+                            </loadProperties>
+                            <properties isVisible="true" isHoverOn="false" isMapLayer="true" isBlinking="false" isSystemResource="false">
+								<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" isEdited="false" resourceName="OVERLAY/GeoPolitical/default">
+								<legendColor>RGB {255, 255, 255}</legendColor>
+								<mapName>State Boundaries</mapName>
+								<dbName>maps</dbName>
+								<table>mapdata.states</table>
+								<geomField>the_geom</geomField>
+								<color>RGB {255, 228, 220}</color>
+								<lineWidth>1</lineWidth>
+								<lineStyle>SOLID</lineStyle>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+								<resourceType>PLAN_VIEW</resourceType>
+							<capabilities/>
+                            </loadProperties>
+                            <properties isVisible="true" isHoverOn="false" isMapLayer="true" isBlinking="false" isSystemResource="false">
+								<pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" isEdited="false" resourceName="OVERLAY/GeoPolitical/default">
+								<legendColor>RGB {255, 255, 255}</legendColor>
+								<mapName>Canada</mapName>
+								<dbName>maps</dbName>
+								<table>mapdata.canada</table>
+								<geomField>the_geom</geomField>
+								<color>RGB {255, 228, 220}</color>
+								<lineWidth>1</lineWidth>
+								<lineStyle>SOLID</lineStyle>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+								<resourceType>PLAN_VIEW</resourceType>
+								<capabilities/>
+                            </loadProperties>
+                             <properties isVisible="true" isHoverOn="false" isMapLayer="true" isBlinking="false" isSystemResource="false">
+<pdProps minDisplayWidth="0" maxDisplayWidth="1"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" isEdited="false" resourceName="OVERLAY/GeoPolitical/default">
+								<legendColor>RGB {255, 255, 255}</legendColor>
+								<mapName>Mexico</mapName>
+								<dbName>maps</dbName>
+								<table>mapdata.mexico</table>
+								<geomField>the_geom</geomField>
+								<labelField>name</labelField>
+								<color>RGB {255, 228, 220}</color>
+								<lineWidth>1</lineWidth>
+								<lineStyle>SOLID</lineStyle>
+                            </resourceData>
+                        </resource>                        
+                        <mapName>Geo-Political</mapName>
+                        <color>RGB {255, 228, 220}</color>
+                        <lineWidth>1</lineWidth>
+                        <lineStyle>SOLID</lineStyle>
+                    </resourceData>
+                </resource>
+                <resource>                          
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true" renderingOrderId="MAP_OUTLINE">
+		                      	<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+		                    </properties>                           
+					          <resourceData xsi:type="NC-DayNightTerminatorOverlayResourceData" isEdited="false" resourceName="OVERLAY/DayNightTerminator/default">
+					            <legendColor>RGB {255, 255, 255}</legendColor>
+		                        <termLineColor>RGB {0, 0, 255}</termLineColor>
+		                        <termLineWidth>1</termLineWidth>
+		                        <termLineStyle>SOLID</termLineStyle>
+		                        <sunMarkerColor>RGB {255, 165, 79}</sunMarkerColor>
+		                        <sunMarkerType>ASTERISK</sunMarkerType>
+		                        <sunMarkerSize>1.3</sunMarkerSize>
+		                        <sunMarkerWidth>2</sunMarkerWidth>
+		                        <dayShadeColor>RGB {30, 30, 163}</dayShadeColor>
+		                        <nightShadeColor>RGB {0, 0, 0}</nightShadeColor>
+		                        <shadeAlpha>0.4</shadeAlpha>
+		                        <shadePattern>SOLID</shadePattern>
+		                        <midnightMeridianLineColor>RGB {127, 127, 127}</midnightMeridianLineColor>
+		                        <midnightMeridianLineWidth>1</midnightMeridianLineWidth>
+		                        <midnightMeridianLineStyle>SHORT_DASHED</midnightMeridianLineStyle>
+		                        <displaySun>true</displaySun>
+		                        <applyShading>true</applyShading>
+		                        <displayMidnightMeridian>true</displayMidnightMeridian>
+					          </resourceData>
+                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                 <gridGeometry envelopeMaxY="1.0007857557275645E7" envelopeMinY="-1.0007857557275645E7" envelopeMaxX="2.001571511455129E7" envelopeMinX="-2.001571511455129E7" rangeY="0 9999" rangeX="0 19999">
+                    <CRS>PROJCS["Equidistant_Cylindrical", 
+  GEOGCS["WGS84(DD)", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Equidistant_Cylindrical"], 
+  PARAMETER["semi_major", 6371200.0], 
+  PARAMETER["semi_minor", 6371200.0], 
+  PARAMETER["central_meridian", 0.0], 
+  PARAMETER["latitude_of_origin", 0.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</CRS>
+                </gridGeometry>
+                <numberOfFrames>4320</numberOfFrames>
+                <timeMatcher xsi:type="ncTimeMatcher" dominantResourceName="" numFrames="0" skipValue="0" timeRange="0" frameInterval="-1"/>
+                <autoUpdate>false</autoUpdate>
+                <suspendZoom>false</suspendZoom>
+            </descriptor>
+            <paneId row="0" col="0"/>
+            <initialArea areaName="worldmagactivity" mapCenter="0.00 0.0 0.0">
+                <ncDisplayType>NMAP_DISPLAY</ncDisplayType>
+                <areaSource>PREDEFINED_AREA</areaSource>
+                <zoomLevel>1.0</zoomLevel>
+                <description>N/A</description>
+                <gridGeometry envelopeMaxY="1.0007857557275645E7" envelopeMinY="-1.0007857557275645E7" envelopeMaxX="2.001571511455129E7" envelopeMinX="-2.001571511455129E7" rangeY="0 9999" rangeX="0 19999">
+                    <CRS>PROJCS["Equidistant_Cylindrical", 
+  GEOGCS["WGS84(DD)", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Equidistant_Cylindrical"], 
+  PARAMETER["semi_major", 6371200.0], 
+  PARAMETER["semi_minor", 6371200.0], 
+  PARAMETER["central_meridian", 0.0], 
+  PARAMETER["latitude_of_origin", 0.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</CRS>
+                </gridGeometry>
+            </initialArea>
+        </displays>
+    </displayList>
+    <isDefaultRbd>false</isDefaultRbd>
+</ncMapRBD>
+
+                                                                                                                             

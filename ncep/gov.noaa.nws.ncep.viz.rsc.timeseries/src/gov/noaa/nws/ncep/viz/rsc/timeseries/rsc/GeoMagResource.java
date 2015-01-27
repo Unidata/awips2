@@ -47,6 +47,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -57,10 +58,13 @@ import javax.measure.converter.UnitConverter;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -73,11 +77,10 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
@@ -115,6 +118,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/25/2014   #1136      qzhou       Fixed graph painting duplicated errors. Qdc subtract component's median.
  * 07/03/2014   R4079      qzhou       Added k-index view.
  * 07/10/2014   R4079      qzhou       Added SamplingView and Sampling related classes.
+ * 07/28/2014   R4078      sgurung     Added code changes to support loading GeoMagResource in a new window.
+ * 12/19/2014       ?      B. Yin       Remove ScriptCreator, use Thrift Client.
  * </pre>
  * 
  * @author qzhou
@@ -297,8 +302,14 @@ public class GeoMagResource extends
 
         super(resData, loadProperties);
         geoMagData = resData;
-        reopenKTableView();
-        reopenSamplingView();
+
+        if (geoMagData.getShowKTableView()) {
+            reopenKTableView();
+        }
+
+        if (geoMagData.getShowReadoutView()) {
+            reopenSamplingView();
+        }
 
         samplingRsc = new Sampling();
     }
@@ -314,6 +325,20 @@ public class GeoMagResource extends
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
             container.unregisterMouseHandler(inputAdapter);
+        }
+
+        // close associated views
+        IWorkbenchWindow win = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow();
+        if (win == null)
+            return;
+        IWorkbenchPage wpage = win.getActivePage();
+        if (wpage != null) {
+            IViewPart vpart1 = wpage.findView(KTableView.kTableId);
+            wpage.hideView(vpart1);
+
+            IViewPart vpart2 = wpage.findView(SamplingView.samplingId);
+            wpage.hideView(vpart2);
         }
 
         if (samplingRsc != null) {
@@ -342,7 +367,11 @@ public class GeoMagResource extends
 
         }
 
-        NCTimeMatcher tm = (NCTimeMatcher) ((NCTimeSeriesDescriptor) descriptor)
+        // NCTimeMatcher tm = (NCTimeMatcher) ((NCTimeSeriesDescriptor)
+        // descriptor)
+        // .getTimeMatcher();
+
+        timeMatcher = (NCTimeMatcher) ((NCTimeSeriesDescriptor) descriptor)
                 .getTimeMatcher();
 
         IDisplayPaneContainer container = getResourceContainer();
@@ -383,7 +412,7 @@ public class GeoMagResource extends
         timelineEnd = new DataTime(end);
 
         // snap to synoptic point
-        timeMatcher = (NCTimeMatcher) descriptor.getTimeMatcher();
+        // timeMatcher = (NCTimeMatcher) descriptor.getTimeMatcher();
         if (timelineStart.getRefTime().getMinutes() != 0) {
 
             Calendar tem = GraphTimelineUtil.snapTimeToClosest(
@@ -420,26 +449,21 @@ public class GeoMagResource extends
 
         queryList.put("dataTime.refTime", reqConstr);
 
-        LayerProperty prop = new LayerProperty();
-        prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-        prop.setEntryQueryParameters(queryList, false);
-        prop.setNumberOfImages(100000);
-
-        String script = null;
-        script = ScriptCreator.createScript(prop);
-
-        if (script == null)
-            return;
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(queryList);
+      
+        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
 
         magRecords = new ArrayList<GeoMagRecord>();
-        Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
 
-        for (Object pdo : pdoList) {
-            for (IRscDataObject dataObject : processRecord(pdo)) {
-                newRscDataObjsQueue.add(dataObject);
-                magRecords
-                        .add((GeoMagRecord) ((DfltRecordRscDataObj) dataObject)
-                                .getPDO());
+        for (Map<String, Object> result : response.getResults()) {
+            for (Object pdo : result.values()) {
+                for (IRscDataObject dataObject : processRecord(pdo)) {
+                    newRscDataObjsQueue.add(dataObject);
+                    magRecords
+                    .add((GeoMagRecord) ((DfltRecordRscDataObj) dataObject)
+                            .getPDO());
+                }
             }
         }
 
@@ -528,16 +552,19 @@ public class GeoMagResource extends
             // qdcSize = 1440
         }
 
-        NCTimeMatcher tm = (NCTimeMatcher) ((NCTimeSeriesDescriptor) descriptor)
-                .getTimeMatcher();
-        int graphSize = tm.getGraphRange() * 60;
+        // NCTimeMatcher tm = (NCTimeMatcher) ((NCTimeSeriesDescriptor)
+        // descriptor)
+        // .getTimeMatcher();
+
+        int graphSize = timeMatcher.getGraphRange() * 60;
 
         /*
          * If load 12 hour record, calculate Qdc. To get Qdc, get 30 days
          * hourAvgs before the spTime.
          */
         if (recordSize <= 721
-                && ((geoMagType.equals("HQdc") || geoMagType.equals("DQdc")))) {
+                && ((geoMagType.equalsIgnoreCase("HQdc") || geoMagType
+                        .equalsIgnoreCase("DQdc")))) {
 
             int i = 0;
             Float y = 0f;
@@ -566,25 +593,26 @@ public class GeoMagResource extends
             // time. Not for others
             DataTime extent = recordsList.get(i - 1).getDataTime();
 
-            int hour = ((Calendar) extent.getValidTime())
-                    .get(Calendar.HOUR_OF_DAY);
+            int hour = ((Calendar) extent.getValidTime()).get(Calendar.HOUR);// _OF_DAY);
             int minute = ((Calendar) extent.getValidTime())
                     .get(Calendar.MINUTE);
 
-            if (!(hour % 3 == 2 && minute == 59)) {
+            if (!(hour % 3 == 2 && minute == 59)) {// && !(hour == 0 && minute
+                                                   // == 0)) {
 
-                int fillSize = 3 * 60 - (hour * 60 + minute);
+                int fillSize = 3 * 60 - minute;// (hour * 60 + minute);
                 Calendar cal = extent.getValidTime();
 
-                for (int j = 0; j < fillSize; j++) {
+                for (int j = 0; j < fillSize
+                        && cal.getTime().before(timelineEnd.getRefTime()); j++) {
                     cal.add(Calendar.MINUTE, 1);
                     Calendar time = (Calendar) cal.clone();
                     DataTime x = new DataTime(time);
 
-                    if (geoMagType.equals("HQdc")) {
+                    if (geoMagType.equalsIgnoreCase("HQdc")) {
                         y = hQdc[1440 - fillSize + j];
 
-                    } else if (geoMagType.equals("DQdc")) {
+                    } else if (geoMagType.equalsIgnoreCase("DQdc")) {
                         y = dQdc[1440 - fillSize + j];
                     }
 
@@ -808,7 +836,7 @@ public class GeoMagResource extends
         }
 
         boolean changeExtent = false;
-        timeMatcher = (NCTimeMatcher) descriptor.getTimeMatcher();
+        // timeMatcher = (NCTimeMatcher) descriptor.getTimeMatcher();
 
         if (timeMatcher.isAutoUpdateable()) {
 
@@ -852,20 +880,26 @@ public class GeoMagResource extends
          * get gmDescriptor and graph
          */
         IDisplayPane[] pane = GeoMagDescriptor.getDisplayPane();
-        for (int i = 0; i < pane.length; i++) {
 
-            if (checkPaneId((NCTimeSeriesDescriptor) descriptor, pane[i])) {
-                GeoMagDescriptor gmDescriptor = new GeoMagDescriptor();
-                gmDescriptor.setResourcePair(gmDescriptor, pane[i]);
-                gmDescriptor.setNCTimeMatcher(gmDescriptor, pane[i]);
-                gmDescriptor.addDescriptor(gmDescriptor, pane[i]);
-                gmDescriptor.setAutoUpdate(true);//
-                graph = gmDescriptor.getGraph(this);
-                currentPane = pane[i];
-                break;
+        if (pane[0].getRenderableDisplay() instanceof NCTimeSeriesRenderableDisplay) {
+            for (int i = 0; i < pane.length; i++) {
+                if (checkPaneId((NCTimeSeriesDescriptor) descriptor, pane[i])) {
+                    GeoMagDescriptor gmDescriptor = new GeoMagDescriptor();
+                    gmDescriptor.setResourcePair(gmDescriptor, pane[i]);
+                    gmDescriptor.setNCTimeMatcher(gmDescriptor, pane[i]);
+                    gmDescriptor.addDescriptor(gmDescriptor, pane[i]);
+                    gmDescriptor.setAutoUpdate(true);
+                    graph = gmDescriptor.getGraph(this);
+                    currentPane = pane[i];
+                    break;
+                }
             }
+        } else {
+            GeoMagDescriptor gmDescriptor = new GeoMagDescriptor(
+                    (NCTimeSeriesDescriptor) this.descriptor);
+            gmDescriptor.setAutoUpdate(true);
+            graph = gmDescriptor.getGraph(this);
         }
-
         /*
          * Wait for graph to initialize before plotting to it, TODO: better
          */
@@ -975,49 +1009,60 @@ public class GeoMagResource extends
         /*
          * display k-index view
          */
-        KTableView kTableWin = KTableView.getAccess();
-        if (kTableWin != null && kTableWin.getEditorVisible()) {
+        if (geoMagData.getShowKTableView()) {
+            KTableView kTableWin = KTableView.getAccess();
+            if (kTableWin != null && kTableWin.getEditorVisible()) {
 
-            KTableView kTableViewWin = KTableView.getAccess();
+                KTableView kTableViewWin = KTableView.getAccess();
 
-            if (kTableViewWin != null) {
-                AbstractEditor editor = NcDisplayMngr
-                        .getActiveNatlCntrsEditor();
-                IDisplayPane activePane = editor.getActiveDisplayPane();
-                NCTimeSeriesRenderableDisplay activeDisplay = (NCTimeSeriesRenderableDisplay) activePane
-                        .getRenderableDisplay();
+                if (kTableViewWin != null) {
+                    AbstractEditor editor = NcDisplayMngr
+                            .getActiveNatlCntrsEditor();
+                    IDisplayPane activePane = editor.getActiveDisplayPane();
 
-                NCTimeSeriesRenderableDisplay currDisplay = (NCTimeSeriesRenderableDisplay) currentPane
-                        .getRenderableDisplay();
+                    if (activePane.getRenderableDisplay() instanceof NCTimeSeriesRenderableDisplay) {
+                        NCTimeSeriesRenderableDisplay activeDisplay = (NCTimeSeriesRenderableDisplay) activePane
+                                .getRenderableDisplay();
 
-                if (activeDisplay.getPaneId().equals(currDisplay.getPaneId()))
+                        NCTimeSeriesRenderableDisplay currDisplay = (NCTimeSeriesRenderableDisplay) currentPane
+                                .getRenderableDisplay();
 
-                    kTableViewWin.paintKTable(magRecords);
+                        if (activeDisplay.getPaneId().equals(
+                                currDisplay.getPaneId()))
+
+                            kTableViewWin.paintKTable(magRecords);
+                    }
+                }
             }
         }
 
         /*
          * display Readout view
          */
-        SamplingView samplinWin = SamplingView.getAccess();
-        if (samplinWin != null && samplinWin.getEditorVisible()) {
+        if (geoMagData.getShowReadoutView()) {
+            SamplingView samplinWin = SamplingView.getAccess();
+            if (samplinWin != null && samplinWin.getEditorVisible()) {
 
-            SamplingView samplingViewWin = SamplingView.getAccess();
+                SamplingView samplingViewWin = SamplingView.getAccess();
 
-            if (samplingViewWin != null) {
-                AbstractEditor editor = NcDisplayMngr
-                        .getActiveNatlCntrsEditor();
-                IDisplayPane activePane = editor.getActiveDisplayPane();
-                NCTimeSeriesRenderableDisplay activeDisplay = (NCTimeSeriesRenderableDisplay) activePane
-                        .getRenderableDisplay();
+                if (samplingViewWin != null) {
+                    AbstractEditor editor = NcDisplayMngr
+                            .getActiveNatlCntrsEditor();
+                    IDisplayPane activePane = editor.getActiveDisplayPane();
+                    if (activePane.getRenderableDisplay() instanceof NCTimeSeriesRenderableDisplay) {
+                        NCTimeSeriesRenderableDisplay activeDisplay = (NCTimeSeriesRenderableDisplay) activePane
+                                .getRenderableDisplay();
 
-                NCTimeSeriesRenderableDisplay currDisplay = (NCTimeSeriesRenderableDisplay) currentPane
-                        .getRenderableDisplay();
+                        NCTimeSeriesRenderableDisplay currDisplay = (NCTimeSeriesRenderableDisplay) currentPane
+                                .getRenderableDisplay();
 
-                if (activeDisplay.getPaneId().equals(currDisplay.getPaneId())) {
+                        if (activeDisplay.getPaneId().equals(
+                                currDisplay.getPaneId())) {
 
-                    samplingRsc.getResult(target, descriptor, paintProps,
-                            sampleCoord);
+                            samplingRsc.getResult(target, descriptor,
+                                    paintProps, sampleCoord);
+                        }
+                    }
                 }
             }
         }
@@ -1038,6 +1083,7 @@ public class GeoMagResource extends
         } else {
             return false;
         }
+
     }
 
     private UnitConverter createDataConverter() {
