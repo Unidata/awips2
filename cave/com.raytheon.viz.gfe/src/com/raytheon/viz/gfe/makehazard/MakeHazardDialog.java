@@ -113,6 +113,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  *  Apr 03,2012 436         randerso    Reworked dialog to be called by Python MakeHazard procedure
  *  Apr 09,2012 436         randerso    Merged RNK's MakeHazards_Elevation procedure
  *  May 30,2012 2028        randerso    Cleaned up dialog layout
+ *  Nov 13,2014 646         lshi        Fixed hard coded endTimeSlider's Max value
  * 
  * </pre>
  * 
@@ -1167,6 +1168,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         gd.minimumWidth = 200;
         endTimeSlider.setLayoutData(gd);
 
+        toHours = this.timeScaleEndTime; //#646
         endTimeSlider.setMinimum(1);
         endTimeSlider.setMaximum(toHours + 1);
         endTimeSlider.setIncrement(1);
