@@ -2,33 +2,31 @@
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
+
         U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
         This_software_product_contains_export-restricted_data_whose
         export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
         to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
         an_export_license_or_other_authorization.
-        
+
         Contractor_Name:________Raytheon_Company
         Contractor_Address:_____6825_Pine_Street,_Suite_340
         ________________________Mail_Stop_B8
         ________________________Omaha,_NE_68106
         ________________________402.291.0100
-        
+
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<requestPatterns>
-    <!-- Super Set of all possible WMO grib patterns -->
-    <!-- Is specifically not restricting on CCCC since HPE isn't populating it -->
-    <regex>^[EHLMOYZ][A-Z]{3}\d{2}</regex>
-    <!-- Exclude Data Delivery specific patterns -->
-    <regexExclude>^LZ[ABC][ABC]9[123] KWBC</regexExclude>
-
-    <!-- ECMWF decrypted -->
-    <regex>ecmwf_decrypted</regex>
-
-    <!-- NWPS pattern -->
-    <regex>xxx_nwps_CG1*</regex>
-    <regex>xxx_nwps_CG0_Trkng*</regex>
-</requestPatterns>
+<latLonGridCoverage>
+    <name>10201978</name>
+    <description>Grid for NWPS</description>
+    <la1>24.1</la1>
+    <lo1>276.45999</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>174</nx>
+    <ny>134</ny>
+    <dx>0.029653</dx>
+    <dy>0.027068</dy>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>
