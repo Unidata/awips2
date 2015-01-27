@@ -47,13 +47,13 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
 
 public class GetHrapMask {
 
-    private int minhrapi;
-
-    private int minhrapj;
-
-    private int maxhrapi;
-
-    private int maxhrapj;
+//    private int minhrapi;
+//
+//    private int minhrapj;
+//
+//    private int maxhrapi;
+//
+//    private int maxhrapj;
 
     int ghrapi, ghrapj;
 
@@ -93,10 +93,10 @@ public class GetHrapMask {
             Arrays.fill(hrap_grid.owner[i], -1);
         }
 
-        minhrapi = hrap_grid.hrap_minx;
-        minhrapj = hrap_grid.hrap_miny;
-        maxhrapi = hrap_grid.maxi;
-        maxhrapj = hrap_grid.maxj;
+//        minhrapi = hrap_grid.hrap_minx;
+//        minhrapj = hrap_grid.hrap_miny;
+//        maxhrapi = hrap_grid.maxi;
+//        maxhrapj = hrap_grid.maxj;
         try {
 
             /* Initialize the wfo names to empty string. */

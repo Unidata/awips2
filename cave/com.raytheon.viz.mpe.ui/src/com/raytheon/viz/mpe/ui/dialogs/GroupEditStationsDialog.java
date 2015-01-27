@@ -53,6 +53,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class GroupEditStationsDialog extends CaveSWTDialog {
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
 	private Font font;
 
@@ -120,7 +122,7 @@ public class GroupEditStationsDialog extends CaveSWTDialog {
 				badCodeRdo, zeroGageRdo };
 		for (int i = 0; i < 4; i++) {
 
-			if (DailyQcUtils.func[i] == group_qual) {
+			if (dqc.func[i] == group_qual) {
 				radios[i].setSelection(true);
 			} else {
 				radios[i].setSelection(false);
@@ -222,7 +224,7 @@ public class GroupEditStationsDialog extends CaveSWTDialog {
 	}
 
 	public void change_group_qual(int j) {
-		group_qual = DailyQcUtils.func[j];
+		group_qual = dqc.func[j];
 	}
 
 }

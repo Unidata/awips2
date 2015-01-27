@@ -9,6 +9,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -30,6 +38,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * ------------ ----------  ----------- --------------------------
  * 04/2013      975         S. Gurung   Initial Creation
  * 07/16/2013   975         Q. Zhou     Added fields.
+ * 07/02/2014   R4078       S. Gurung   Added k3hrStateDao, methods getGeoMagRecords() and getGeoMagRecordsCount()
  * </pre>
  * 
  * @author sgurung
@@ -43,6 +52,8 @@ public class GeoMagDao extends PluginDao {
     private GeoMagK3hrDao k3hrDao = new GeoMagK3hrDao();
 
     private GeoMagK1minDao k1minDao = new GeoMagK1minDao();
+
+    private GeoMagK3hrStateDao k3hrStateDao = new GeoMagK3hrStateDao();
 
     public GeoMagDao(String pluginName) throws PluginException {
         super(pluginName);
@@ -61,12 +72,21 @@ public class GeoMagDao extends PluginDao {
         int results = super.purgeDataByRefTime(refTime, productKeys, trackHdf5,
                 trackToUri, hdf5FileToUriPurged);
 
-        // delete expired data from geomag_k1min, geomag_houravg and geomag_k3hr
+        // delete expired data from geomag_k1min, geomag_houravg, geomag_k3hr
+        // and geomag_k3hr_state
         // tables
         try {
             avgDao.purgeDataByRefTime(refTime);
             k1minDao.purgeDataByRefTime(refTime);
+
+            // purge states associated with k3hr record with the given refTime
+            List<GeoMagK3hr> k3hrList = k3hrDao.getK3hr(null, refTime);
+            for (GeoMagK3hr k3hr : k3hrList) {
+                k3hrStateDao.purgeDataByK3hrId(k3hr.getId());
+            }
+
             k3hrDao.purgeDataByRefTime(refTime);
+
         } catch (Exception e) {
             PurgeLogger
                     .logError(
@@ -297,5 +317,52 @@ public class GeoMagDao extends PluginDao {
 
     public void setGeoMagK3hrDao(GeoMagK3hrDao k3hrDao) {
         this.k3hrDao = k3hrDao;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<GeoMagRecord> getGeoMagRecords(final String stationCode,
+            final Date start, final Date end, final int sourceId) {
+
+        return (List<GeoMagRecord>) txTemplate
+                .execute(new TransactionCallback() {
+                    @Override
+                    public Object doInTransaction(TransactionStatus status) {
+                        Session sess = getCurrentSession();
+                        Criteria crit = sess.createCriteria(GeoMagRecord.class);
+                        Criterion where1 = Restrictions.eq("stationCode",
+                                stationCode);
+                        crit.add(where1);
+                        Criterion where2 = Restrictions
+                                .eq("sourceId", sourceId);
+                        crit.add(where2);
+                        Criterion where3 = Restrictions.between(
+                                "dataTime.refTime", start, end);
+                        crit.add(where3);
+                        crit.addOrder(Order.asc("dataTime.refTime"));
+                        return crit.list();
+                    }
+                });
+    }
+
+    @SuppressWarnings("unchecked")
+    public Integer getGeoMagRecordsCount(final String stationCode,
+            final Date start, final Date end, final int sourceId) {
+
+        return (Integer) txTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                Session sess = getCurrentSession();
+                Criteria crit = sess.createCriteria(GeoMagRecord.class);
+                Criterion where1 = Restrictions.eq("stationCode", stationCode);
+                crit.add(where1);
+                Criterion where2 = Restrictions.eq("sourceId", sourceId);
+                crit.add(where2);
+
+                if (crit.list() != null)
+                    return crit.list().size();
+                else
+                    return 0;
+            }
+        });
     }
 }

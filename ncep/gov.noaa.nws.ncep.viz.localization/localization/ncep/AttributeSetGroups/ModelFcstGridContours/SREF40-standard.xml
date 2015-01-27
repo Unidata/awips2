@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
     <resource>SREF40</resource>
     <attrSetGroupName>standard</attrSetGroupName>
-    <attrSetNames>tp12c1</attrSetNames>
+    <attrSetNames>500mb_hght</attrSetNames>
 </AttributeSetGroup>

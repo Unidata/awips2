@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
@@ -138,6 +139,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     to remove all stations' met parameter data if requeryDataAndReCreateAllStnImages true,
  *                                     to force re-query (now that we're bypassing stations that already have data).
  *  Aug 08, 2014  3477     bclement    changed plot info locations to floats
+ *  09/03/2014    1009     kbugenhagen Reload Framedata.stationMap if all stations' dist values are null
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -469,8 +472,11 @@ public class NcPlotResource2 extends
     }
 
     public class FrameData extends AbstractFrameData {
+
         // map from the station Id to the station info (plotInfo and image)
-        private Map<String, Station> stationMap = new HashMap<String, Station>();
+        // (using ConcurrentHashMap to take care of
+        // ConcurrentModificationException)
+        private Map<String, Station> stationMap = new ConcurrentHashMap<String, Station>();
 
         private List<PlotInfo> plotInfoObjs = new ArrayList<PlotInfo>();
 
@@ -535,7 +541,10 @@ public class NcPlotResource2 extends
             String stnMapKey = getStationMapKey(plotInfo.latitude,
                     plotInfo.longitude);
 
-            Station stn = stationMap.get(stnMapKey);// plotInfo.stationId );
+            Station stn = new Station();
+            if (stnMapKey != null) {
+                stn = stationMap.get(stnMapKey);// plotInfo.stationId );
+            }
 
             // This can happen during an auto update or if there are multiple
             // reports for this frame.
@@ -554,8 +563,8 @@ public class NcPlotResource2 extends
                                 + " and " + plotInfo.stationId
                                 + " have the same location?" + "\nLat = "
                                 + stn.info.latitude + ",Lon = "
-                                + stn.info.longitude
-                                + " for the time: " + stn.info.dataTime);
+                                + stn.info.longitude + " for the time: "
+                                + stn.info.dataTime);
                     }
                     // if these are the same time, should we check which one
                     // should be used,
@@ -1044,9 +1053,6 @@ public class NcPlotResource2 extends
         }
 
         synchronized (frameData) {
-            // Tracer.print
-            // ("calling checkAndUpdateProgDisclosureProperties on frame - " +
-            // frameData.getShortFrameTime());
             frameData.screenExtentsChangedForCurrentFrame = progressiveDisclosure
                     .checkAndUpdateProgDisclosureProperties();
 
@@ -1070,6 +1076,22 @@ public class NcPlotResource2 extends
                 if (!frameData.stationMap.isEmpty()) {
                     Tracer.print("Calling from paintFrame() - about to schedule progressive disclosure the frame: "
                             + frameData.getShortFrameTime());
+
+                    boolean mapPopulated = false;
+                    for (Station station : frameData.stationMap.values()) {
+                        if (station.distValue != null) {
+                            mapPopulated = true;
+                            break;
+                        }
+                    }
+
+                    // load frame data for new incoming (autoupdated) data
+                    if (!mapPopulated) {
+                        frameLoaderTask = new FrameLoaderTask(
+                                frameData.getFrameTime());
+                        frameRetrievalPool.schedule(frameLoaderTask);
+                        issueRefresh();
+                    }
 
                     frameData.progressiveDisclosureInProgress = true;
 
@@ -1602,6 +1624,12 @@ public class NcPlotResource2 extends
                     + Tracer.shortTimeString(time));
 
             dataRequestor.queueStationsForHdf5Query(time, disclosedStations);
+        } else {
+            Tracer.print("Prog disc returned " + "*NO*" + " stations"
+                    + " for frame: " + Tracer.shortTimeString(time)
+                    + " quitting with no HDF5 retrieval attempted");
+            FrameData fd = ((FrameData) getFrame(time));
+            fd.progressiveDisclosureInProgress = false;
         }
         sem.release();
         Tracer.print("< Exit");
@@ -1643,8 +1671,8 @@ public class NcPlotResource2 extends
                     .addAll(collectionOfStationsToBeRendered);
 
             for (Station stn : collectionOfStationsToBeRendered) {
-            String stnKey = getStationMapKey(stn.info.latitude,
-                    stn.info.longitude);
+                String stnKey = getStationMapKey(stn.info.latitude,
+                        stn.info.longitude);
                 synchronized (fd.stationMap) {
                     fd.stationMap.put(stnKey, stn);
                 }

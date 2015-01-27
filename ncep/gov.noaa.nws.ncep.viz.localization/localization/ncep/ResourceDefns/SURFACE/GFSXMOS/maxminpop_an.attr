@@ -3,3 +3,4 @@
 plotModel=@PlotModels/bufrmosMRF/maxminpop_an.xml
 plotDensity=10
 conditionalFilter=
+legendString=GFSXMOS Day/Night Temperature (F) Forecast and Anomaly, 24-hr POP Forecast and Anomaly
