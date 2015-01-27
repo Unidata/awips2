@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jan 15, 2014 2581       njensen     Changed constraint to use officeId instead of stationId
  * Jan 30, 2014 2581       njensen     Added dataURI column back in
  * Sep 16, 2014 2707       bclement    removed dataURI column, event type now string, added event units
+ * Jan 06, 2014 2707       bclement    changed unique constraint from officeId to stationId
  * 
  * </pre>
  * 
@@ -81,7 +82,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "lsrseq")
 @Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "latitude", "longitude", "officeId", "refTime", "forecastTime",
+        "latitude", "longitude", "stationId", "refTime", "forecastTime",
         "eventType" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
