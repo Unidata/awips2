@@ -56,6 +56,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------	----------	-----------	--------------------------
  * 07/23/2014                B. Hebbard  Fork off NTRANS-specific code from ResourceSelectionControl
  * 08/26/2014                B. Hebbard  Adjust metafile column comparator to put latest data at top
+ * 09/15/2014                B. Hebbard  At CPC request, persist model selected across dialog close/open 
+ *                                       even if resource not preselected (from existing RBD contents).
+ *                                       (This now differs from non-NTRANS behavior.)
+ * 09/15/2014                B. Hebbard  Remove bogus "km" from product group name if it appears (per CPC)
  * 
  * </pre>
  * 
@@ -81,7 +85,7 @@ public class NtransSelectionControl extends ResourceSelectionControl {
     // protected static HashMap<ResourceCategory, ResourceName>
     // prevCatSeldRscNames;
 
-    // a map to store the previous selections for each category.
+    // a map to store the previous selections for each type (model)y.
     protected static HashMap<String, ResourceName> prevModelSelectedRscNames;
 
     // this list must stay in sync with the cycleTimeCombo.
@@ -541,8 +545,7 @@ public class NtransSelectionControl extends ResourceSelectionControl {
         rscTypeLViewer.setComparator(new ViewerComparator() {
 
             // TODO : implement this if we want to group definitions according
-            // to
-            // some meaningful category....
+            // to some meaningful category....
             public int category(Object element) {
                 ResourceDefinition rd = (ResourceDefinition) element;
                 return (rd.isForecast() ? 1 : 0);
@@ -639,11 +642,10 @@ public class NtransSelectionControl extends ResourceSelectionControl {
                 String rscType = seldResourceName.getRscType();
 
                 if (!rscType.isEmpty()) {
-                    // if this resource uses attrSetGroups then get get the list
-                    // of
-                    // groups. (PGEN uses groups but we will list the subTypes
-                    // (products)
-                    // and not the single PGEN attr set group)
+                    // if this resource uses attrSetGroups then get get the
+                    // list of groups. (PGEN uses groups but we will list
+                    // the subTypes (products) and not the single PGEN attr
+                    // set group)
                     if (rscDefnsMngr.doesResourceUseAttrSetGroups(rscType)
                             && !seldResourceName.isPgenResource()) {
 
@@ -767,6 +769,23 @@ public class NtransSelectionControl extends ResourceSelectionControl {
             @Override
             public int compare(Viewer viewer, Object e1, Object e2) {
                 return super.compare(viewer, e1, e2);
+            }
+        });
+
+        productLViewer.setLabelProvider(new LabelProvider() {
+            public String getText(Object element) {
+                String productName = (String) element;
+                // TODO investigate following -- already fixed separately?
+                // This happens intermittently; band-aid until cause located...
+                final String removeMe = "km";
+                if (productName.endsWith(removeMe)) {
+                    System.out
+                            .println("[WARNING:  Caught a productName ending in '"
+                                    + removeMe + "']");
+                    return productName.substring(0, productName.length() - 2);
+                } else {
+                    return productName;
+                }
             }
         });
 
@@ -1115,8 +1134,14 @@ public class NtransSelectionControl extends ResourceSelectionControl {
         seldResourceName = new ResourceName(initRscName);
         seldResourceName.setRscCategory(resourceCategory); // NTRANS
 
-        if (seldResourceName != null) {
-            prevSelectedModel = seldResourceName.getRscType();
+        if ((seldResourceName.getRscType() == null || seldResourceName
+                .getRscType().isEmpty())
+                && (prevSelectedModel != null && !prevSelectedModel.isEmpty())) {
+            ResourceName previousRscNameForModel = prevModelSelectedRscNames
+                    .get(prevSelectedModel);
+            if (previousRscNameForModel != null) {
+                seldResourceName = previousRscNameForModel;
+            }
         }
 
         filterCombo.setItems(new String[] { "All" });
@@ -1553,6 +1578,7 @@ public class NtransSelectionControl extends ResourceSelectionControl {
 
         prevModelSelectedRscNames.put(seldResourceName.getRscType(),
                 seldResourceName);
+        prevSelectedModel = seldResourceName.getRscType();
     }
 
     // TODO: add a way to let the user specifically choose the "LATEST" cycle
