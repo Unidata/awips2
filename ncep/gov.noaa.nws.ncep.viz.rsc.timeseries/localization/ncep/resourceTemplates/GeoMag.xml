@@ -20,8 +20,10 @@
               <dataColor>${dataColor}</dataColor>
               <xAxesTitle>${xAxesTitle}</xAxesTitle>
               <yAxesTitle>${yAxesTitle}</yAxesTitle>
-  			  <yDescription>${yDescription}</yDescription>
-  			  
+  			  <yDescription>${yDescription}</yDescription>  			  
+              <showReadoutView>${showReadoutView}</showReadoutView>
+              <showKTableView>${showKTableView}</showKTableView>
+       
               <metadataMap>
                 <mapping key="pluginName">
                   <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
