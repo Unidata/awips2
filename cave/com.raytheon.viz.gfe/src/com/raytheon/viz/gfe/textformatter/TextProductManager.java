@@ -22,7 +22,9 @@ package com.raytheon.viz.gfe.textformatter;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,6 +61,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Jan 15, 2010  3395      ryu         Fix &quot;issued by&quot; functionality
  * Apr 24, 2013  1936      dgilling    Remove unused imports.
  * Feb 12, 2014  2591      randerso    Removed reloadModule method
+ * Dec 15, 2014  #14946    ryu         Add getTimeZones() method.
  * 
  * </pre>
  * 
@@ -243,6 +246,22 @@ public class TextProductManager {
                     "Exception getting VTECMessageType", e);
         }
         return vtec;
+    }
+
+    
+    public List<String> getTimeZones(List<String> zones, 
+				     String officeTimeZone) {
+        List<String> timeZones = Collections.emptyList();
+        HashMap<String, Object> map = new HashMap<String, Object>(2);
+        map.put("zones", zones);
+        map.put("officeTZ", officeTimeZone);
+        try {
+            timeZones = (List<String>) script.execute("getTimeZones", map);
+        } catch (JepException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                                 "Exception getting time zones", e);            
+        }
+        return timeZones;
     }
 
     public void dispose() {
