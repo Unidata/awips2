@@ -24,11 +24,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
@@ -53,7 +55,8 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Oct.31, 2012  1297       skorolev    Clean code.
  * Jan. 29, 2013 15654      zhao       add Wind Chill calculation for SNOW 
  * Sep 04, 2014  3220       skorolev   Updated getStationTableData method.
- *
+ * Jan 08, 2015  3220       skorolev   Replaced MonitoringArea with cfgMgr.
+ * 
  * </pre>
  * 
  * @author zhao
@@ -151,13 +154,15 @@ public class ObMultiHrsReports {
         /**
          * DR15654: set Wind Chill for SNOW
          */
-        if ( appName == AppName.SNOW ) {
-            if ( report.getTemperature() != ObConst.MISSING && report.getWindSpeed() != ObConst.MISSING ) {
-            	report.setWindChill(calcWindChill( report.getTemperature(), report.getWindSpeed() ));
+        if (appName == AppName.SNOW) {
+            if (report.getTemperature() != ObConst.MISSING
+                    && report.getWindSpeed() != ObConst.MISSING) {
+                report.setWindChill(calcWindChill(report.getTemperature(),
+                        report.getWindSpeed()));
             }
-        	
+
         }
-        
+
         if (multiHrsReports.containsKey(nominalTime)) {
             multiHrsReports.get(nominalTime).addReport(report);
         } else {
@@ -173,28 +178,28 @@ public class ObMultiHrsReports {
         }
     }
 
-	/**
-	 * DR 15654:
-	 * Wind Chill calculation formula based on 
-	 * http://www.nws.noaa.gov/om/windchill/
-	 * as of Jan. 29, 2013
-	 * 
-	 * @param temperature in degree F
-	 * @param windSpeed in knots
-	 * @return wind chill in degree F
-	 */
-	private float calcWindChill(float temp, float windSpd) {
-		if ( temp > 50.0 || windSpd < 3.0 ) {
-			return ObConst.MISSING;
-		}
-		/**
-		 *  1 knots = 1.15078 mph
-		 */
-		float spd = (float) Math.pow(1.15078*windSpd, 0.16);
-		return 35.74f + 0.6215f*temp - 35.75f*spd + 0.4275f*temp*spd;
-	}
+    /**
+     * DR 15654: Wind Chill calculation formula based on
+     * http://www.nws.noaa.gov/om/windchill/ as of Jan. 29, 2013
+     * 
+     * @param temp
+     *            in degree F
+     * @param windSpd
+     *            in knots
+     * @return wind chill in degree F
+     */
+    private float calcWindChill(float temp, float windSpd) {
+        if (temp > 50.0 || windSpd < 3.0) {
+            return ObConst.MISSING;
+        }
+        /**
+         * 1 knots = 1.15078 mph
+         */
+        float spd = (float) Math.pow(1.15078 * windSpd, 0.16);
+        return 35.74f + 0.6215f * temp - 35.75f * spd + 0.4275f * temp * spd;
+    }
 
-	/**
+    /**
      * Returns a zone TableData object of the latest nominal time. If no data
      * available (the map is empty), returns an empty zone TableData object
      * (table cells filled with "N/A").
@@ -252,6 +257,9 @@ public class ObMultiHrsReports {
     /**
      * Returns the station TableData object for the latest nominal time. If no
      * data available, an empty/default station TableData object is returned
+     * 
+     * @param zone
+     * @return
      */
     public TableData getStationTableData(String zone) {
         if (multiHrsReports.isEmpty()) {
@@ -264,9 +272,13 @@ public class ObMultiHrsReports {
      * Returns a station TableData object for a caller-specified nominal-time
      * and zone ID. If no data available, an empty/default station TableData
      * object is returned.
+     * 
+     * @param nominalTime
+     * @param zone
+     * @return
      */
     public TableData getStationTableData(Date nominalTime, String zone) {
-        if(zone.equals("")){
+        if (zone.equals("")) {
             return this.getEmptyZoneTableData();
         }
         if (nominalTime == null) {
@@ -296,6 +308,7 @@ public class ObMultiHrsReports {
      * @param zone
      * @param Station
      * @param varName
+     * @param productName
      * @return ObTrendDataSet object, or null if no data available
      */
     public ObTrendDataSet getTrendDataSet(String zone, String station,
@@ -373,12 +386,15 @@ public class ObMultiHrsReports {
     }
 
     /**
+     * Gets Histogram Table Data
      * 
+     * @param zone
+     *            : current zone
      * @param station
-     *            station ID
+     *            : station ID
      * @param obsType
-     *            ObsHistType
-     * @return TableData object for obs history table
+     *            : ObsHistType
+     * @return
      */
     public TableData getHistTableData(String zone, String station,
             ObsHistType obsType) {
@@ -467,17 +483,17 @@ public class ObMultiHrsReports {
     }
 
     /**
-     * Returns a SortedMap object <nominal time, ObHourReports object>
+     * Gets MultiHrsReports
      * 
-     * @return multiHrsReports
+     * @return SortedMap object <nominal time, ObHourReports object>
      */
     public SortedMap<Date, ObHourReports> getMultiHrsReports() {
         return multiHrsReports;
     }
 
     /**
-     * Returns a SortedMap object (key is nominal time, value is zone TableData
-     * object)
+     * Gets MultiHrsTableData Returns a SortedMap object (key is nominal time,
+     * value is zone TableData object)
      * 
      * @return
      */
@@ -500,8 +516,8 @@ public class ObMultiHrsReports {
     }
 
     /**
-     * Returns the latest nominal time if the map is not empty; otherwise,
-     * returns the nominal time of the present date-time
+     * Gets the Latest NominalTime Returns the latest nominal time if the map is
+     * not empty; otherwise, returns the nominal time of the present date-time
      * 
      * @return
      */
@@ -517,17 +533,17 @@ public class ObMultiHrsReports {
     }
 
     /**
-     * Returns a set of nominal times
+     * Gets Nominal Times
      * 
-     * @return
+     * @return a set of nominal times
      */
     public Set<Date> getNominalTimes() {
         return multiHrsReports.keySet();
     }
 
     /**
-     * Returns the ObHourReports object of the latest nominal time. If no data
-     * available, returns an empty ObHourReports object.
+     * Gets ObHourReports Returns the ObHourReports object of the latest nominal
+     * time. If no data available, returns an empty ObHourReports object.
      * 
      * @return
      */
@@ -540,8 +556,9 @@ public class ObMultiHrsReports {
     }
 
     /**
-     * Returns an ObHourReports object of a caller-specified nominal time. If no
-     * data available, returns an empty ObHourReports object.
+     * Gets ObHourReports Returns an ObHourReports object of a caller-specified
+     * nominal time. If no data available, returns an empty ObHourReports
+     * object.
      * 
      * @param nominalTime
      * @return
@@ -574,6 +591,7 @@ public class ObMultiHrsReports {
     }
 
     /**
+     * Gets Threshold Manager
      * 
      * @return the threshold manager
      */
@@ -591,6 +609,7 @@ public class ObMultiHrsReports {
     }
 
     /**
+     * Gets map of types for ALG cell
      * 
      * @return fogAlgCellType
      */
@@ -603,7 +622,13 @@ public class ObMultiHrsReports {
      */
     private void initFogAlgCellType() {
         fogAlgCellType = new HashMap<String, CellType>();
-        Set<String> zones = MonitoringArea.getPlatformMap().keySet();
+        FSSObsMonitorConfigurationManager cfgMgr = null;
+        if (appName.equals(CommonConfig.AppName.FOG)) {
+            cfgMgr = FSSObsMonitorConfigurationManager.getFogObsManager();
+        } else if (appName.equals(CommonConfig.AppName.SAFESEAS)) {
+            cfgMgr = FSSObsMonitorConfigurationManager.getSsObsManager();
+        }
+        List<String> zones = cfgMgr.getAreaList();
         Iterator<String> itr = zones.iterator();
         while (itr.hasNext()) {
             fogAlgCellType.put(itr.next(), CellType.NotAvailable);
