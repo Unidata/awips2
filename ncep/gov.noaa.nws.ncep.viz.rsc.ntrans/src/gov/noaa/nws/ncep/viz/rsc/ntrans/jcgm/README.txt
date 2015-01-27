@@ -1,5 +1,7 @@
 jcgm -- Computer Graphics Metafile interpreter and renderer
 
+See also the other README.TXT, in sibling "ncgm" package.
+
 This package contains source code from the "jcgm" open source Java
 implementation to interpret and render Computer Graphics Metafile (CGM)
 graphics files.
@@ -28,5 +30,5 @@ Classes in the "ncgm" package generally extend classes from "jcgm", in order
 to implement the INcCommand interface, and so perform this rendering.
 
 Note that all of the jcgm core classes are present, even though we do not
-currently use most of them.  This is for completeness, and to allow
+currently use (extend) most of them.  This is for completeness, and to allow
 possible future expansion.

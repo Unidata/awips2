@@ -80,7 +80,7 @@ public class InitPrecipClimo {
                 {
                     tokens = line.split("\\s+", 14);
                 }
-                if ((tokens == null) || tokens.length != 14) {
+                if ((tokens == null) || (tokens.length != 14)) {
                     // invalid record
                     ++record_count;
                     line = in.readLine();
@@ -100,7 +100,7 @@ public class InitPrecipClimo {
                     // if (precip_stations.get(index).parm.charAt(4) ==
                     // tokens[1]
                     // .charAt(4)) {
-                    Station nstation = dc.new Station();
+                    Station nstation = new Station();
                     nstation = precip_stations.get(index);
                     for (int m = 0; m < 12; m++) {
                         nstation.isoh[m] = Float.parseFloat(tokens[m + 2]);
@@ -126,7 +126,7 @@ public class InitPrecipClimo {
                 {
                     tokens = line.split("\\s+", 14);
                 }
-                if ((tokens == null)) {
+                if ((tokens[0] == null)) {
                     // invalid record
                     ++record_count;
                     line = in.readLine();
@@ -145,7 +145,7 @@ public class InitPrecipClimo {
                     if ((precip_stations.get(index).isoh[0] < 0)
                             || (precip_stations.get(index).cparm
                                     .equalsIgnoreCase("PPMPBCM"))) {
-                        Station nstation = dc.new Station();
+                        Station nstation = new Station();
                         nstation = precip_stations.get(index);
 
                         for (int m = 0; m < 12; m++) {
@@ -174,7 +174,7 @@ public class InitPrecipClimo {
                     if ((precip_stations.get(index).isoh[0] < 0)
                             || (precip_stations.get(index).cparm
                                     .equalsIgnoreCase("PPMPBCM"))) {
-                        Station nstation = dc.new Station();
+                        Station nstation = new Station();
                         nstation = precip_stations.get(index);
 
                         for (int m = 0; m < 12; m++) {
@@ -184,8 +184,8 @@ public class InitPrecipClimo {
                         precip_stations.set(index, nstation);
                         nstation = null;
                     }
+                    ++index;
                 }
-                ++index;
             }
 
             in.close();
@@ -195,7 +195,7 @@ public class InitPrecipClimo {
 
                 int oldk = -1;
                 int k;
-                Station astation = dc.new Station();
+                Station astation = new Station();
 
                 for (int kk = 0; kk < 12; kk++) {
                     if (kk < 3) {

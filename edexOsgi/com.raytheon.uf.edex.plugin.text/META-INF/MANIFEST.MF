@@ -17,7 +17,8 @@ Require-Bundle: org.apache.commons.lang,
 Export-Package: com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.edex.plugin.text.dao,
  com.raytheon.uf.edex.plugin.text.db,
- com.raytheon.uf.edex.plugin.text.dbsrv
+ com.raytheon.uf.edex.plugin.text.dbsrv,
+ com.raytheon.uf.edex.plugin.text.dbsrv.impl
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.edex.uengine.runners,
  com.raytheon.uf.common.dataplugin.text,
