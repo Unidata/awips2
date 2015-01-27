@@ -16,6 +16,8 @@
  * 									from database instead of snstns.xml file
  * 6/2014                  T.Lee        Added support XXAA, XXBB, XXCC, XXDD
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * 10/2014                 B. Hebbard   Allow subsetting XXAA/TTAA params only for faster
+ *                                      retrieval in cases where other params not needed
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system. 
@@ -41,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+
 public class NcUairToRecord {
 
     /** The logger */
@@ -67,7 +70,7 @@ public class NcUairToRecord {
         HDR_PARAMS_LIST = sb.toString();
     }
 
-    public static final String MAN_PARAMS_LIST;
+    public static final String AA_ONLY_PARAMS_LIST;
     static {
         StringBuffer sb = new StringBuffer();
         sb.append(HDR_PARAMS_LIST);
@@ -79,7 +82,22 @@ public class NcUairToRecord {
         sb.append("TTAA_SPED,");
         sb.append("TTAA_HGHT,");
         // -------------------------
-        sb.append("numTTBB,");
+        sb.append("numXXAA,");
+        sb.append("XXAA_PRES,");
+        sb.append("XXAA_TEMP,");
+        sb.append("XXAA_DWPT,");
+        sb.append("XXAA_DRCT,");
+        sb.append("XXAA_SPED,");
+        sb.append("XXAA_HGHT");
+        AA_ONLY_PARAMS_LIST = sb.toString();
+    }
+
+    public static final String MAN_PARAMS_LIST;
+    static {
+        StringBuffer sb = new StringBuffer();
+        sb.append(AA_ONLY_PARAMS_LIST);
+        // -------------------------
+        sb.append(",numTTBB,");
         sb.append("TTBB_PRES,");
         sb.append("TTBB_TEMP,");
         sb.append("TTBB_DWPT,");
@@ -150,14 +168,6 @@ public class NcUairToRecord {
         sb.append("TTBB_LO_MEAN_SPED,");
         sb.append("TTBB_HI_MEAN_DRCT,");
         sb.append("TTBB_HI_MEAN_SPED,");
-        // -------------------------
-        sb.append("numXXAA,");
-        sb.append("XXAA_PRES,");
-        sb.append("XXAA_TEMP,");
-        sb.append("XXAA_DWPT,");
-        sb.append("XXAA_DRCT,");
-        sb.append("XXAA_SPED,");
-        sb.append("XXAA_HGHT,");
         // -------------------------
         sb.append("numXXBB,");
         sb.append("XXBB_PRES,");

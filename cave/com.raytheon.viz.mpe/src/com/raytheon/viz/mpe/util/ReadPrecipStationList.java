@@ -48,35 +48,35 @@ public class ReadPrecipStationList {
 
     private static int max_pstations = 0;
 
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
-    private String station_dir = appsDefaults.getToken("mpe_station_list_dir");
+    private final String station_dir = appsDefaults
+            .getToken("mpe_station_list_dir");
 
-    private String sitename = appsDefaults.getToken("mpe_site_id");
+    private final String sitename = appsDefaults.getToken("mpe_site_id");
 
     private String pathName = "";
 
-    private DailyQcUtils dc = new DailyQcUtils();
+    private final DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     public ArrayList<Station> read_precip_station_list(String qcArea,
             boolean master_file_flag) {
 
-        StationListManager stationListManager = new StationListManager();
+        StationListManager stationListManager = StationListManager
+                .getInstance();
 
         try {
             stationListManager.getStationInfo(qcArea, master_file_flag,
-                    DailyQcUtils.freezing_stations,
-                    DailyQcUtils.temperature_stations,
-                    DailyQcUtils.precip_stations);
+                    dqc.freezing_stations, dqc.temperature_stations,
+                    dqc.precip_stations);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        ReadPrecipStationList.max_pstations = DailyQcUtils.precip_stations
-                .size();
+        ReadPrecipStationList.max_pstations = dqc.precip_stations.size();
 
-        return DailyQcUtils.precip_stations;
+        return dqc.precip_stations;
 
     }
 
@@ -122,8 +122,8 @@ public class ReadPrecipStationList {
                     } else {
                         tokens = null;
                     }
-                    if ((tokens != null) && tokens.length == 7) {
-                        Station astation = dc.new Station();
+                    if ((tokens != null) && (tokens.length == 7)) {
+                        Station astation = new Station();
                         astation.hb5 = tokens[0].toString().trim();
                         astation.parm = tokens[1].toString().trim();
                         double lat = Double.parseDouble(tokens[2]);
@@ -142,7 +142,7 @@ public class ReadPrecipStationList {
                         Coordinate latlon = new Coordinate();
                         latlon.x = lon;
                         latlon.y = lat;
-                        hrap_point = DailyQcUtils.getLatLontoHrap(latlon);
+                        hrap_point = dqc.getLatLontoHrap(latlon);
                         astation.hrap_x = (float) hrap_point.x;
                         astation.hrap_y = (float) hrap_point.y;
                         astation.name = tokens[6].toString().trim();
@@ -184,7 +184,7 @@ public class ReadPrecipStationList {
             if (in != null) {
                 int i = 0;
                 line = in.readLine();
-                while ((line != null) && i < stationCount) {
+                while ((line != null) && (i < stationCount)) {
                     ++rec_num;
                     record = line.split("\\s+", 4);
                     if (record.length != 4) {
@@ -204,7 +204,7 @@ public class ReadPrecipStationList {
                         if ((record[1].substring(0, 2).compareTo(
                                 stations.get(i).parm.substring(0, 2)) == 0)
                                 && (record[1].equals(stations.get(i).parm))) {
-                            Station statn = dc.new Station();
+                            Station statn = new Station();
                             statn = stations.get(i);
                             statn.xadd = Integer.parseInt(record[2]);
                             statn.yadd = Integer.parseInt(record[3]);
@@ -234,11 +234,11 @@ public class ReadPrecipStationList {
          * will include a list of the indexes of the closest gages.
          */
         int i = 0;
-        int qcn = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+        int qcn = dqc.mpe_dqc_max_precip_neighbors;
         double sorted[] = new double[qcn];
         double dist;
-        Station stati = dc.new Station();
-        Station statm = dc.new Station();
+        Station stati = new Station();
+        Station statm = new Station();
         stati.index = new short[qcn];
         statm.index = new short[qcn];
 
@@ -261,8 +261,8 @@ public class ReadPrecipStationList {
                     statm.index = new short[qcn];
                 }
                 dist1 = stati.lat - statm.lat;
-                dist2 = ((stati.lon - statm.lon)
-                        * Math.cos(stati.lat + statm.lat) / 2 * conv);
+                dist2 = ((((stati.lon - statm.lon) * Math.cos(stati.lat
+                        + statm.lat)) / 2) * conv);
                 dist = Math.pow(dist1, 2) + Math.pow(dist2, 2);
 
                 for (int l = 0; l < qcn; l++) {

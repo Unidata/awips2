@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.mpe.ui.actions;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Shell;
@@ -30,16 +28,11 @@ import com.raytheon.viz.mpe.util.BadTValues;
 import com.raytheon.viz.mpe.util.BadValues;
 import com.raytheon.viz.mpe.util.CheckConsistency;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
 import com.raytheon.viz.mpe.util.EstDailyStations;
 import com.raytheon.viz.mpe.util.EstDailyTStations;
 import com.raytheon.viz.mpe.util.EstPartStations;
 import com.raytheon.viz.mpe.util.QCStations;
 import com.raytheon.viz.mpe.util.QCTStations;
-import com.raytheon.viz.mpe.util.ReadPrecipStationList;
-import com.raytheon.viz.mpe.util.ReadTemperatureStationList;
 
 /**
  * TODO Add Description
@@ -59,40 +52,42 @@ import com.raytheon.viz.mpe.util.ReadTemperatureStationList;
  */
 
 public class ScreeningOptions {
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     OtherPrecipOptions op = new OtherPrecipOptions();
 
     public void screening_Options(int client_data) {
 
-        int pcpn_day = DailyQcUtils.pcpn_day;
-        Pdata[] pdata = DailyQcUtils.pdata;
-        Tdata[] tdata = DailyQcUtils.tdata;
+        int pcpn_day = dqc.pcpn_day;
+//        Pdata[] pdata = DailyQcUtils.pdata;
+//        Tdata[] tdata = DailyQcUtils.tdata;
 
-        ReadPrecipStationList rp = new ReadPrecipStationList();
-        ReadTemperatureStationList rt = new ReadTemperatureStationList();
-        int num_temp_stations = rt.getNumTstations();
-        int num_precip_stations = rp.getNumPstations();
+//        ReadPrecipStationList rp = new ReadPrecipStationList();
+//        ReadTemperatureStationList rt = new ReadTemperatureStationList();
+        int num_temp_stations = dqc.temperature_stations.size();
+        int num_precip_stations = dqc.precip_stations.size();
 
-        ArrayList<Station> precip_stations = DailyQcUtils.precip_stations;
-        ArrayList<Station> temp_stations = DailyQcUtils.temperature_stations;
+//        ArrayList<Station> precip_stations = DailyQcUtils.precip_stations;
+//        ArrayList<Station> temp_stations = DailyQcUtils.temperature_stations;
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
         Cursor prevCursor = shell.getCursor();
 
         if (client_data == 0) {
-            pdata[pcpn_day].stddev = 5.0f;
+            dqc.pdata[pcpn_day].stddev = 5.0f;
         } else if (client_data == 1) {
-            pdata[pcpn_day].stddev = 3.0f;
+            dqc.pdata[pcpn_day].stddev = 3.0f;
         } else if (client_data == 2) {
-            pdata[pcpn_day].stddev = 1.0f;
+            dqc.pdata[pcpn_day].stddev = 1.0f;
         }
 
         if (client_data == 0) {
-            tdata[pcpn_day].stddev = 15.0f;
+            dqc.tdata[pcpn_day].stddev = 15.0f;
         } else if (client_data == 1) {
-            tdata[pcpn_day].stddev = 10.0f;
+            dqc.tdata[pcpn_day].stddev = 10.0f;
         } else if (client_data == 2) {
-            tdata[pcpn_day].stddev = 5.0f;
+            dqc.tdata[pcpn_day].stddev = 5.0f;
         }
 
         shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
@@ -103,36 +98,36 @@ public class ScreeningOptions {
          */
 
         if (pcpn_day == 0
-                && (DailyQcUtils.curHr00_06 == 1
-                        || DailyQcUtils.curHr06_12 == 1 || DailyQcUtils.curHr18_00 == 1)) {
+                && (dqc.curHr00_06 == 1
+                        || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
         } else {
             EstDailyStations ed = new EstDailyStations();
-            ed.estimate_daily_stations(pcpn_day, precip_stations,
+            ed.estimate_daily_stations(pcpn_day, dqc.precip_stations,
                     num_precip_stations);
 
             EstPartStations ep = new EstPartStations();
-            ep.estimate_partial_stations(pcpn_day, precip_stations,
+            ep.estimate_partial_stations(pcpn_day, dqc.precip_stations,
                     num_precip_stations);
         }
         QCStations qcs = new QCStations();
-        qcs.quality_control_stations(pcpn_day, precip_stations,
+        qcs.quality_control_stations(pcpn_day, dqc.precip_stations,
                 num_precip_stations);
 
         CheckConsistency cc = new CheckConsistency();
-        cc.check_consistency(pcpn_day, precip_stations, num_precip_stations);
+        cc.check_consistency(pcpn_day, dqc.precip_stations, num_precip_stations);
 
         BadValues bv = new BadValues();
-        bv.restore_bad_values(pcpn_day, precip_stations, num_precip_stations);
+        bv.restore_bad_values(pcpn_day, dqc.precip_stations, num_precip_stations);
 
         EstDailyTStations edt = new EstDailyTStations();
-        edt.estimate_daily_tstations(pcpn_day, temp_stations, num_temp_stations);
+        edt.estimate_daily_tstations(pcpn_day, dqc.temperature_stations, num_temp_stations);
 
         QCTStations qct = new QCTStations();
-        qct.quality_control_tstations(pcpn_day, temp_stations,
+        qct.quality_control_tstations(pcpn_day, dqc.temperature_stations,
                 num_temp_stations);
 
         BadTValues btv = new BadTValues();
-        btv.restore_bad_tvalues(pcpn_day, temp_stations, num_temp_stations);
+        btv.restore_bad_tvalues(pcpn_day, dqc.temperature_stations, num_temp_stations);
 
         shell.setCursor(prevCursor);
         op.refresh_exposure();
