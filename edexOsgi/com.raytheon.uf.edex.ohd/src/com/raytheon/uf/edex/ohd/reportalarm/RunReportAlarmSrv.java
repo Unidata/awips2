@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -30,6 +31,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.plugin.text.db.TextDB;
+import com.raytheon.uf.edex.plugin.text.dbsrv.impl.AlarmAlertUtil;
 
 /**
  * Provides SHEF with the ability to generate alert/alarms report products and
@@ -44,6 +46,7 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2014  #2783     dgilling     Initial creation
+ * Dec 15, 2014  16736  mgamazaychikov  Add call to sendProductAlarmAlert.
  * 
  * </pre>
  * 
@@ -149,6 +152,12 @@ public final class RunReportAlarmSrv {
         TextDB textdb = new TextDB();
         long statusCode = textdb.writeProduct(productId, productText, true,
                 null);
+        // Set the current time and send product alarm alert.
+        Date d = new Date(System.currentTimeMillis());
+        d.setTime(statusCode);
+        AlarmAlertUtil.sendProductAlarmAlert(productId,
+                String.valueOf(d.getTime()),
+                true);
 
         if (statusCode != Long.MIN_VALUE) {
             statusHandler.info("Product successfully sent");

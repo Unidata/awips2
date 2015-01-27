@@ -41,30 +41,32 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  */
 
 public class GageQcSelect {
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     OtherPrecipOptions op = new OtherPrecipOptions();
 
-    int dflag[] = DailyQcUtils.dflag;
-
-    int funct[] = DailyQcUtils.funct;
-
-    int qflag[] = DailyQcUtils.qflag;
+//    int dflag[] = DailyQcUtils.dflag;
+//
+//    int funct[] = DailyQcUtils.funct;
+//
+//    int qflag[] = DailyQcUtils.qflag;
 
     public void source_Select(int client_data) {
         int i;
 
-        int maxts = DailyQcUtils.tsmax;
+        int maxts = dqc.tsmax;
 
-        dflag[client_data] = -dflag[client_data];
+        dqc.dflag[client_data] = -dqc.dflag[client_data];
         // dflag[client_data] = 1;
 
         if (client_data == maxts + 1) {
 
-            if (dflag[maxts + 1] == 1) {
+            if (dqc.dflag[maxts + 1] == 1) {
 
                 for (i = 1; i < maxts + 2; i++) {
 
-                    dflag[i] = 1;
+                    dqc.dflag[i] = 1;
                     if (MPEDisplayManager.getCurrent().isQpf() == true) {
                         QcPrecipOptionsDialog.tsbuttons[i].setSelection(true);
                     } else if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
@@ -76,7 +78,7 @@ public class GageQcSelect {
 
                 for (i = 1; i < maxts + 2; i++) {
 
-                    dflag[i] = -1;
+                    dqc.dflag[i] = -1;
                     if (MPEDisplayManager.getCurrent().isQpf() == true) {
                         QcPrecipOptionsDialog.tsbuttons[i].setSelection(false);
                     } else if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
@@ -96,17 +98,17 @@ public class GageQcSelect {
 
         int i;
 
-        i = funct[client_data];
+        i = dqc.funct[client_data];
 
-        qflag[i] = -qflag[i];
+        dqc.qflag[i] = -dqc.qflag[i];
 
         if (i == 9) {
 
-            if (qflag[9] == 1) {
+            if (dqc.qflag[9] == 1) {
 
                 for (i = 0; i < 9; i++) {
 
-                    qflag[funct[i]] = 1;
+                    dqc.qflag[dqc.funct[i]] = 1;
                     if (MPEDisplayManager.getCurrent().isQpf() == true) {
                         QcPrecipOptionsDialog.qsbuttons[i].setSelection(true);
                     } else if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
@@ -120,7 +122,7 @@ public class GageQcSelect {
 
                 for (i = 0; i < 9; i++) {
 
-                    qflag[funct[i]] = -1;
+                    dqc.qflag[dqc.funct[i]] = -1;
                     if (MPEDisplayManager.getCurrent().isQpf() == true) {
                         QcPrecipOptionsDialog.qsbuttons[i].setSelection(false);
                     } else if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
@@ -157,13 +159,13 @@ public class GageQcSelect {
 
         int i;
 
-        i = funct[client_data];
+        i = dqc.funct[client_data];
 
-        qflag[i] = -qflag[i];
+        dqc.qflag[i] = -dqc.qflag[i];
 
         if (i == 9) {
 
-            if (qflag[9] == 1) {
+            if (dqc.qflag[9] == 1) {
 
                 for (i = 0; i < 9; i++) {
 
@@ -171,7 +173,7 @@ public class GageQcSelect {
                         continue;
                     }
 
-                    qflag[funct[i]] = 1;
+                    dqc.qflag[dqc.funct[i]] = 1;
                     QcTempOptionsDialog.qsbuttons[i].setSelection(true);
                 }
 
@@ -185,7 +187,7 @@ public class GageQcSelect {
                         continue;
                     }
 
-                    qflag[funct[i]] = -1;
+                    dqc.qflag[dqc.funct[i]] = -1;
                     QcTempOptionsDialog.qsbuttons[i].setSelection(false);
                 }
 
@@ -199,21 +201,21 @@ public class GageQcSelect {
 
         if (data == 2) {
 
-            DailyQcUtils.gage_char[0] = 1;
-            DailyQcUtils.gage_char[1] = 1;
+            dqc.gage_char[0] = 1;
+            dqc.gage_char[1] = 1;
 
         }
 
         else if (data == 0) {
-            DailyQcUtils.gage_char[0] = 1;
-            DailyQcUtils.gage_char[1] = -1;
+            dqc.gage_char[0] = 1;
+            dqc.gage_char[1] = -1;
 
         }
 
         else if (data == 1) {
 
-            DailyQcUtils.gage_char[0] = -1;
-            DailyQcUtils.gage_char[1] = 1;
+            dqc.gage_char[0] = -1;
+            dqc.gage_char[1] = 1;
 
         }
         op.refresh_exposure();
@@ -221,7 +223,7 @@ public class GageQcSelect {
 
     public void change_Plot(int i) {
 
-        DailyQcUtils.plot_view = i;
+        dqc.plot_view = i;
         op.refresh_exposure();
         return;
     }
