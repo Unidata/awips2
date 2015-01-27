@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 04/19/13     #1949      rjpeter     Normalized GFE Database.
  * 06/20/13     #2127      rjpeter     Set session to read only.
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 01/07/15      629    mgamazaychikov Add getAllLocks method.
  * </pre>
  * 
  * @author bphillip
@@ -185,6 +186,57 @@ public class GFELockDao extends CoreDao {
             if (s != null) {
                 try {
                     s.close();
+                } catch (Exception e) {
+                    logger.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<ParmID, LockTable> getAllLocks() throws DataAccessLayerException{
+        Map<ParmID, LockTable> lockMap = new HashMap<ParmID, LockTable>();
+        Session sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getSession();
+            sess.setDefaultReadOnly(true);
+            tx = sess.beginTransaction();
+
+            Query query = sess
+                    .createQuery("FROM Lock");
+            List<Lock> locks = query.list();
+            tx.commit();
+
+            // populate Lock table
+            for (Lock lock : locks) {
+                WsId wid  = lock.getWsId();
+                ParmID pid = lock.getParmId();
+                LockTable lockTable = lockMap.get(pid);
+                if (lockTable == null) {
+                    lockTable = new LockTable(pid, new ArrayList<Lock>(), wid);
+                    lockMap.put(pid, lockTable);
+                }
+                lockTable.addLock(lock);
+            }
+            return lockMap;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to look up locks ", e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
                 } catch (Exception e) {
                     logger.error(
                             "Error occurred closing database session", e);

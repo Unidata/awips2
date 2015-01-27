@@ -46,6 +46,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
 
 public class OtherFreezeOptions {
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     private static final int MAX_GAGEQC_DAYS = 10;
 
     int time_pos = 0;
@@ -54,8 +56,8 @@ public class OtherFreezeOptions {
 
     public void set_freeze_arrow_sensitivity() {
 
-        int num_qc_days = DailyQcUtils.qcDays;
-        int pcp_flag = DailyQcUtils.pcp_flag;
+        int num_qc_days = dqc.qcDays;
+        int pcp_flag = dqc.pcp_flag;
         Button up_arrow = QcFreezeOptionsDialog.upTimeBtn;
         Button down_arrow = QcFreezeOptionsDialog.dnTimeBtn;
 
@@ -70,7 +72,7 @@ public class OtherFreezeOptions {
             }
 
             /* determine the up arrow status */
-            if (DailyQcUtils.curHr18_00 == 1) {
+            if (dqc.curHr18_00 == 1) {
                 if (pcp_flag - 3 <= 0) {
                     /* Grey out the up arrow. */
                     up_arrow.setEnabled(false);
@@ -80,7 +82,7 @@ public class OtherFreezeOptions {
                 }
             }
 
-            else if (DailyQcUtils.curHr00_06 == 1) {
+            else if (dqc.curHr00_06 == 1) {
                 if (pcp_flag - 2 <= 0) {
                     /* Grey out the up arrow. */
                     up_arrow.setEnabled(false);
@@ -88,7 +90,7 @@ public class OtherFreezeOptions {
                     /* Make sure the up arrow is available. */
                     up_arrow.setEnabled(true);
                 }
-            } else if (DailyQcUtils.curHr06_12 == 1) {
+            } else if (dqc.curHr06_12 == 1) {
                 if (pcp_flag - 1 <= 0) {
                     /* Grey out the up arrow. */
                     up_arrow.setEnabled(false);
@@ -132,23 +134,23 @@ public class OtherFreezeOptions {
 
         /* backward or forward */
         if (data == 0) {
-            DailyQcUtils.pcp_flag--;
+            dqc.pcp_flag--;
         } else if (data == 1) {
-            DailyQcUtils.pcp_flag++;
+            dqc.pcp_flag++;
         }
 
-        if (DailyQcUtils.pcp_flag < 0) {
-            DailyQcUtils.pcp_flag = 0;
+        if (dqc.pcp_flag < 0) {
+            dqc.pcp_flag = 0;
         }
 
-        if (DailyQcUtils.pcp_flag >= MAX_GAGEQC_DAYS * 4) {
-            DailyQcUtils.pcp_flag = (MAX_GAGEQC_DAYS * 4) - 1;
+        if (dqc.pcp_flag >= MAX_GAGEQC_DAYS * 4) {
+            dqc.pcp_flag = (MAX_GAGEQC_DAYS * 4) - 1;
         }
 
-        DailyQcUtils.pcpn_day = DailyQcUtils.pcp_flag / 4;
+        dqc.pcpn_day = dqc.pcp_flag / 4;
 
-        DailyQcUtils.pcpn_time = 3 - (DailyQcUtils.pcp_flag - DailyQcUtils.pcpn_day * 4);
-        time_pos = 100 + DailyQcUtils.pcp_flag;
+        dqc.pcpn_time = 3 - (dqc.pcp_flag - dqc.pcpn_day * 4);
+        time_pos = 100 + dqc.pcp_flag;
 
         QcFreezeOptionsDialog.dataSet.clear();
         QcFreezeOptionsDialog.dataSet.addAll(QcFreezeOptionsDialog.dataType);
@@ -156,7 +158,7 @@ public class OtherFreezeOptions {
         QcFreezeOptionsDialog.dataDispCbo
                 .setItems(QcFreezeOptionsDialog.dataSet.toArray(a));
 
-        if (DailyQcUtils.pcp_in_use[time_pos] == -1) {
+        if (dqc.pcp_in_use[time_pos] == -1) {
             QcFreezeOptionsDialog.dataSet.clear();
             QcFreezeOptionsDialog.dataSet.add(0,
                     QcFreezeOptionsDialog.dataType.get(0));
@@ -167,50 +169,50 @@ public class OtherFreezeOptions {
                     .setItems(QcFreezeOptionsDialog.dataSet.toArray(a));
         }
 
-        if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.pcp_in_use[time_pos] == -1) {
+        if (dqc.points_flag == 1
+                && dqc.pcp_in_use[time_pos] == -1) {
             i = 0;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1
-                && DailyQcUtils.contour_flag == -1) {
+        } else if (dqc.points_flag == 1
+                && dqc.grids_flag == -1 && dqc.map_flag == -1
+                && dqc.contour_flag == -1) {
             i = 0;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+        } else if (dqc.points_flag == -1
+                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
             i = 1;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+        } else if (dqc.points_flag == -1
+                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
             i = 2;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+        } else if (dqc.points_flag == 1
+                && dqc.grids_flag == 1 && dqc.map_flag == -1) {
             i = 3;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+        } else if (dqc.points_flag == 1
+                && dqc.grids_flag == -1 && dqc.map_flag == 1) {
             i = 4;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.contour_flag == 1) {
+        } else if (dqc.points_flag == -1
+                && dqc.contour_flag == 1) {
             i = 5;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.contour_flag == 1) {
+        } else if (dqc.points_flag == 1
+                && dqc.contour_flag == 1) {
             i = 6;
-        } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1) {
+        } else if (dqc.points_flag == -1
+                && dqc.grids_flag == -1 && dqc.map_flag == -1) {
             i = 7;
         }
 
         QcFreezeOptionsDialog.dataDispCbo.select(i);
 
-        if (DailyQcUtils.pcp_in_use[time_pos] == -1
-                && DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] != 0) {
+        if (dqc.pcp_in_use[time_pos] == -1
+                && dqc.zdata[dqc.pcpn_day].used[dqc.pcpn_time] != 0) {
             QcFreezeOptionsDialog.renderGridsBtn.setEnabled(true);
         } else {
             QcFreezeOptionsDialog.renderGridsBtn.setEnabled(false);
         }
 
         Calendar tget = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        long offset = (DailyQcUtils.pcpn_day * 86400);
-        tget.setTime(DailyQcUtils.btime.getTime());
+        long offset = (dqc.pcpn_day * 86400);
+        tget.setTime(dqc.btime.getTime());
         tget.add(Calendar.SECOND, (int) -offset);
-        DailyQcUtils.isom = tget.get(Calendar.MONTH);
+        dqc.isom = tget.get(Calendar.MONTH);
 
         /*
          * Set the sensitivity of the freeze time step arrows based on the

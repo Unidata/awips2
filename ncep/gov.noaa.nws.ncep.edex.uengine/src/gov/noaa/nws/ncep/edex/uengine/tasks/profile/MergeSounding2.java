@@ -238,7 +238,7 @@ public class MergeSounding2 implements ISerializableObject {
                         sndata.clear();
                         sndata.add(sl);
                         // System.out
-                        // .println("return manatory level without merging!");
+                        // .println("return mandatory level without merging!");
                         // printOut(sndata);
                         return sndata;
                     }
