@@ -622,19 +622,19 @@
                    </reference>
                 </visibleWhen>
              </command>
-             <command
-                   commandId="gov.noaa.nws.ncep.viz.rsc.timeseries.view"
-                   icon="icons/aodt.gif"
-                   id="gov.noaa.nws.ncep.viz.rsc.timeseries.view"
-                   label="timeseries"
+              <command
+                   commandId="gov.noaa.nws.ncep.viz.rtkp.actions.GeoMagRTKpAction"
+                   id="gov.noaa.nws.ncep.viz.rtkp.rtkp"
+                   icon="icons/rtkp.gif"
+                   label="Real-time Kp Monitor"
                    style="push"
-                   tooltip="KTable">
+                   tooltip="Real-time Kp Monitor">
                 <visibleWhen>
                    <reference
                          definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
                    </reference>
                 </visibleWhen>
-             </command>
+                </command>
              <!--command
                    commandId="com.raytheon.viz.ui.actions.notImplemented"
                    icon="icons/aodt.gif"
