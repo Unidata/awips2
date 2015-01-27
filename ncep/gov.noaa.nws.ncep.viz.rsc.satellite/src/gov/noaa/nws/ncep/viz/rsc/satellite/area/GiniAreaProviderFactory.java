@@ -17,9 +17,6 @@ import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -56,14 +53,12 @@ public class GiniAreaProviderFactory implements INcAreaProviderFactory {
 				reqConstraints.put( "creatingEntity", new RequestConstraint( satAndArea[0]) );		
 				reqConstraints.put( "sectorID", new RequestConstraint( satAndArea[1]) );
 				
-				LayerProperty prop = new LayerProperty();
-				prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-				prop.setEntryQueryParameters( reqConstraints, false);
-				prop.setNumberOfImages(1); // just need 1 record to get the coverage
-				
-				String script = ScriptCreator.createScript(prop);
+		        DbQueryRequest request = new DbQueryRequest();
+		        request.setConstraints(reqConstraints);
+		      
+		        DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
 		
-				Object[] satRecList = Connector.getInstance().connect( script, null, 10000 );
+				Object[] satRecList =  ((Map<String, Object>)response.getResults().get(0)).values().toArray();
 		
 				// NOTE: It would be nice to query the mcidas_area_names and/or mcidas_spatial
 				// directly so that we don't have to depend on data being in the db, but
