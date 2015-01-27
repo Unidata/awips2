@@ -179,7 +179,7 @@ public class ProductManageDialog extends ProductDialog {
      * Sets the title of the dialog.
      */
     public void setTitle() {
-        shell.setText("Product Center");
+        shell.setText("Activity Center");
     }
 
     /**
@@ -319,7 +319,7 @@ public class ProductManageDialog extends ProductDialog {
         titleComp.setLayout(gl0);
 
         Label prds = new Label(titleComp, SWT.NONE);
-        prds.setText("Products:");
+        prds.setText("Activities:");
 
         /*
          * if ( !compact ) { Button multiSaveBtn = new Button( titleComp,
@@ -745,12 +745,8 @@ public class ProductManageDialog extends ProductDialog {
 
             if (!compact) {
                 Button clrBtn = new Button(layersComp, SWT.PUSH);
-                if (lyr.isMonoColor()) {
-                    clrBtn.setText("M/F");
-                } else {
-                    clrBtn.setText("A/F");
-                }
-
+                clrBtn.setText(getDisplayString(lyr.isMonoColor(),
+                        lyr.isFilled()));
                 setButtonColor(clrBtn, lyr.getColor());
                 clrBtn.setData(ii);
 
@@ -852,12 +848,8 @@ public class ProductManageDialog extends ProductDialog {
     protected void updateDisplayAttr(boolean mono, Color clr, boolean fill) {
 
         if (colorModeBtnInUse >= 0) {
-
-            if (mono) {
-                colorModeBtns.get(colorModeBtnInUse).setText("M/F");
-            } else {
-                colorModeBtns.get(colorModeBtnInUse).setText("A/F");
-            }
+            colorModeBtns.get(colorModeBtnInUse).setText(
+                    getDisplayString(mono, fill));
 
             layerList.get(colorModeBtnInUse).setMonoColor(mono);
             layerList.get(colorModeBtnInUse).setColor(clr);
@@ -2186,6 +2178,27 @@ public class ProductManageDialog extends ProductDialog {
      */
     protected void exit() {
         exitProductManage();
+    }
+
+    /*
+     * Build a string based on given Mono color and fill flags..
+     */
+    private String getDisplayString(boolean monoClr, boolean fill) {
+        String dispStr = "";
+        if (monoClr) {
+            if (fill)
+                dispStr += "M/F ";
+            else
+                dispStr += "M/N";
+
+        } else {
+            if (fill)
+                dispStr += "A/F ";
+            else
+                dispStr += "A/N ";
+        }
+
+        return dispStr;
     }
 
 }
