@@ -27,6 +27,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    2014-10-27      3600          nabowle        Initial modification. Convert to DAF.
+#    2014-12-18      3600          nabowle        Use new getAvailableLevels() to speed up retrieval.
 #
 
 import argparse
@@ -102,20 +103,37 @@ def main():
             if timeRange:
                 tr = timeRange
             else:
-                tr = []
+                tr = None
             lines = set()
-            radars = DataAccessLayer.getGridData(req, tr)
-            for radar in radars:
-                line = ""
-                if user_args.outputDate:
-                    line = str(radar.getDataTime()) + ".0"
-                    if user_args.outputAngle:
-                        line += " "
-                if user_args.outputAngle == "true":
-                    line += "%.1f"%float(radar.getLocationName().split("_")[1])
-                elif user_args.outputAngle == "primary":
-                    line += radar.getLevel()[0:3] #Trim "TILT"
-                lines.add(line)
+
+            if user_args.outputAngle:
+                levels = DataAccessLayer.getAvailableLevels(req)
+                for level in levels:
+                    line = ""
+                    req.setLevels(level)
+                    if user_args.outputDate:
+                        times = DataAccessLayer.getAvailableTimes(req)
+                        for time in times:
+                            if not tr or tr.contains(time.getValidPeriod()):
+                                line = str(time) + ".0"
+                                line += " "
+                                if user_args.outputAngle == "true":
+                                    line += "%.1f"%level.getLeveltwovalue()
+                                else:
+                                    line += "%.1f"%level.getLevelonevalue()
+                                lines.add(line)
+                    else:
+                        if not tr or data_in_time_range(req, tr):
+                            if user_args.outputAngle == "true":
+                                line = "%.1f"%level.getLeveltwovalue()
+                            else:
+                                line = "%.1f"%level.getLevelonevalue()
+                        lines.add(line)
+            else : # just output time
+                times = DataAccessLayer.getAvailableTimes(req)
+                for time in times:
+                    if not tr or tr.contains(time.getValidPeriod()):
+                        lines.add(str(time) + ".0")
             msg = "\n".join(lines)
         else: #retrieve available product codes
             unfiltered = DataAccessLayer.getAvailableParameters(req)
@@ -158,6 +176,11 @@ def create_request(user_args):
         level = Level()
         level.setLevelonevalue(user_args.angle)
         req.setLevels(level)
+    # Indicate that when providing or requesting levels, the Levelonevalue
+    # is the primaryElevationAngle and the Leveltwovalue value is the
+    # trueElevationAngle
+    req.addIdentifier("level.one.field", "primaryElevationAngle")
+    req.addIdentifier("level.two.field", "trueElevationAngle")
 
     return req
 
