@@ -9,7 +9,7 @@
 Name: awips2-pgadmin3
 Summary: AWIPS II pgadmin3 Distribution
 Version: %{_pgadmin3_version}
-Release: 1.el6
+Release: %{_component_version}.%{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}

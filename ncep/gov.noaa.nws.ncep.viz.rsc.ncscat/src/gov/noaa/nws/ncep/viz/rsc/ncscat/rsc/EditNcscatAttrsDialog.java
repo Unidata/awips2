@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.ncscat.rsc;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatMode;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.AbstractEditResourceAttrsDialog;

@@ -15,6 +15,7 @@ import gov.noaa.nws.ncep.viz.common.preferences.GraphicsAreaPreferences;
 import gov.noaa.nws.ncep.viz.common.ui.HILORelativeMinAndMaxLocator;
 import gov.noaa.nws.ncep.viz.common.ui.ModelListInfo;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
+import gov.noaa.nws.ncep.viz.common.util.CommonDateFormatUtil;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
@@ -2924,7 +2925,7 @@ public class NcgridResource extends
         // modelname = modelname + ":" + gridRscData.getEventName();
         // }
         // }
-        titleInfoStr = modelname
+        titleInfoStr = modelname + " "
                 + replaceTitleSpecialCharacters(titleStr, cTime);
         if (shrttlStr != null) {
             titleInfoStr = titleInfoStr + " | "
@@ -2941,139 +2942,119 @@ public class NcgridResource extends
      * location ? Day of the week flag
      */
     private String replaceTitleSpecialCharacters(String title, DataTime cTime) {
-        String titleStr = title;
-        boolean daywk = false, daywkF = false, daywkV = false;
-        int pos, posV = -1, posF = -1;
+        StringBuilder titleBuilder = new StringBuilder(title);
+        int pos, posV, posF;
 
         DataTime currFrameTm = (DataTime) getCurrentFrameTime();
 
         /*
          * check '!' and remove it for now ???
          */
-        if ((pos = titleStr.indexOf('!')) > 0) {
-            titleStr = titleStr.substring(0, pos);
+        if ((pos = titleBuilder.indexOf("!")) > 0) {
+            titleBuilder = titleBuilder.delete(pos, titleBuilder.length());
         }
         /*
-         * check '?' flag for day of week
+         * get '~'/'^' position and decide which one to use.
          */
-        if ((pos = titleStr.indexOf('?')) >= 0) {
-            if (pos == 0) {
-                titleStr = titleStr.substring(1, titleStr.length());
-            } else {
-                titleStr = titleStr.substring(0, pos - 1)
-                        + titleStr.substring(pos + 1, titleStr.length());
-            }
-            daywk = true;
-        }
-        /*
-         * get '~'/'^' position and decide where to add day of week
-         */
-        posF = titleStr.indexOf('^');
-        posV = titleStr.indexOf('~');
-        if (daywk) {
-            if (posF >= 0 || posV >= 0) {
-                if (posF <= posV && posF >= 0) {
-                    daywkF = true;
-                } else if (posF < 0) {
-                    daywkV = true;
-                } else if (posV >= 0) {
-                    daywkV = true;
-                } else {
-                    daywkF = true;
+        if (((posF = titleBuilder.indexOf("^")) >= 0)
+                | ((posV = titleBuilder.indexOf("~")) >= 0)) {
+            Calendar cal;
+            String timestampFormat;
+            /*
+             * The time will be placed where the furthest ~ or ^ is positioned
+             */
+            pos = (posF > posV ? posF : posV);
+            /*
+             * The time to use will be which ever one comes latest in the title
+             * string. *EXCEPT* if the ~ is the first character in which case
+             * the valid time is used.
+             */
+            if (posF > posV && posV != 0) {
+                cal = cTime.getRefTimeAsCalendar();
+                timestampFormat = "%02d%02d%02d/%02d%02dF%s";
+                /*
+                 * Legacy behavior will put the forcast time at the next
+                 * position after the ^ when there is both ~ and ^ the ^ is
+                 * after the ~ and the ~ is not the first character. We must add
+                 * a space at the end if the ^ is the last character in the
+                 * title.
+                 */
+                if (posF >= 0 && posV > 0) {
+                    if (++pos == titleBuilder.length()) {
+                        titleBuilder.append(" ");
+                    }
                 }
-            }
-        }
-        /*
-         * check '-' flag for valid date/time
-         */
-        if (posV >= 0) {
-            String validTmStr;
-            Calendar cal = currFrameTm.getValidTime();
-            int vTm = cTime.getFcstTime() / 3600;
-            String tmStr = String.format("%02d%02d%02d/%02d%02dV%03d",
-                    (cal.get(Calendar.YEAR) % 100),
-                    (cal.get(Calendar.MONTH) + 1),
-                    cal.get(Calendar.DAY_OF_MONTH),
-                    cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE),
-                    vTm);
-            if (daywkV) {
-                validTmStr = String.format(
-                        "%s %s",
-                        cal.getDisplayName(Calendar.DAY_OF_WEEK,
-                                Calendar.SHORT, Locale.ENGLISH).toUpperCase(),
-                        tmStr);
             } else {
-                validTmStr = tmStr;
+                cal = currFrameTm.getValidTime();
+                timestampFormat = "%02d%02d%02d/%02d%02dV%s";
             }
-            titleStr = titleStr.substring(0, posV) + " "
-                    + titleStr.substring(posV + 1, titleStr.length()) + " "
-                    + validTmStr;
-        }
-        posF = titleStr.indexOf('^');
-        /*
-         * check '^' flag for forecast date/time
-         */
-        if (posF >= 0) {
-            Calendar cal = cTime.getRefTimeAsCalendar();
-            int vTm = cTime.getFcstTime() / 3600;
-            String fscTmStr = String.format("%02d%02d%02d/%02d%02dF%03d",
+            String forecastTime = CommonDateFormatUtil
+                    .getForecastTimeString(cTime.getFcstTime());
+
+            /*
+             * check '?' flag for day of week
+             */
+            if (titleBuilder.indexOf("?") >= 0) {
+                deleteWildcard(titleBuilder, "?");
+                String dayOfWeek = cal.getDisplayName(Calendar.DAY_OF_WEEK,
+                        Calendar.SHORT, Locale.ENGLISH).toUpperCase()
+                        + " ";
+                titleBuilder.insert(pos, dayOfWeek);
+                pos = pos + dayOfWeek.length();
+            }
+            titleBuilder.insert(pos, String.format(timestampFormat,
                     (cal.get(Calendar.YEAR) % 100),
                     (cal.get(Calendar.MONTH) + 1),
                     cal.get(Calendar.DAY_OF_MONTH),
                     cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE),
-                    vTm);
-            if (daywkF) {
-                // Calendar cal1 = Calendar.getInstance(
-                // TimeZone.getTimeZone("GMT") );
-                cal.setTime(currFrameTm.getRefTime());
-                fscTmStr = String.format(
-                        "%s %s",
-                        cal.getDisplayName(Calendar.DAY_OF_WEEK,
-                                Calendar.SHORT, Locale.ENGLISH).toUpperCase(),
-                        fscTmStr);
-            }
-            titleStr = titleStr.substring(0, posF) + " "
-                    + titleStr.substring(posF + 1, titleStr.length()) + " "
-                    + fscTmStr;
+                    forecastTime));
+
+            deleteWildcard(titleBuilder, "^");
+            deleteWildcard(titleBuilder, "~");
         }
         /*
          * check '@' for Vertical level
          */
-        if ((pos = titleStr.indexOf('@')) >= 0) {
-            titleStr = titleStr.substring(0, pos) + gridRscData.getGlevel()
-                    + " " + getVerticalLevelUnits(gridRscData.getGvcord())
-                    + titleStr.substring(pos + 1, titleStr.length());
+        if ((pos = titleBuilder.indexOf("@")) >= 0) {
+            deleteWildcard(titleBuilder, "@");
+            titleBuilder.insert(pos, gridRscData.getGlevel() + " "
+                    + getVerticalLevelUnits(gridRscData.getGvcord()));
         }
         /*
          * check '_' for Grid function
          */
-        if ((pos = titleStr.indexOf('_')) >= 0) {
-            titleStr = titleStr.substring(0, pos)
-                    + gridRscData.getGdpfun().toUpperCase()
-                    + titleStr.substring(pos + 1, titleStr.length());
+        if ((pos = titleBuilder.indexOf("_")) >= 0) {
+            deleteWildcard(titleBuilder, "_");
+            titleBuilder.insert(pos, gridRscData.getGdpfun().toUpperCase());
         }
         /*
          * check '$' for Nonzero scaling factor
          */
-        if ((pos = titleStr.indexOf('$')) >= 0) {
+        if ((pos = titleBuilder.indexOf("$")) >= 0) {
+            deleteWildcard(titleBuilder, "$");
             if (gridRscData.getScale().compareTo("0") != 0) {
-                titleStr = titleStr.substring(0, pos) + "(*10**"
-                        + gridRscData.getScale() + ")"
-                        + titleStr.substring(pos + 1, titleStr.length());
-            } else {
-                titleStr = titleStr.substring(0, pos - 1)
-                        + titleStr.substring(pos + 1, titleStr.length());
+                titleBuilder.insert(pos, "(*10**" + gridRscData.getScale()
+                        + ")");
             }
         }
         /*
          * check '#' for Grid point location
          */
-        if ((pos = titleStr.indexOf('#')) >= 0) {
-            titleStr = titleStr.substring(0, pos - 1)
-                    + titleStr.substring(pos + 1, titleStr.length());
+        if ((pos = titleBuilder.indexOf("#")) >= 0) {
+            deleteWildcard(titleBuilder, "#");
         }
 
-        return titleStr;
+        return titleBuilder.toString();
+    }
+
+    /*
+     * Utility method to delete wildcard characters
+     */
+    private void deleteWildcard(StringBuilder charSeq, String wildcard) {
+        int startIndex = charSeq.indexOf(wildcard);
+        if (startIndex >= 0) {
+            charSeq.delete(startIndex, startIndex + wildcard.length());
+        }
     }
 
     /*

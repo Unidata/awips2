@@ -154,6 +154,14 @@ public class TextDisplayElement implements IDisplayable {
                 target.drawShadedRect(box, bg, 1.0, null);
             }
 
+            /*
+             * TTR 741 (10/2014) - Note, for single-line text, we could match it
+             * to Raytheon's text style. For multi-line text, we cannot match it
+             * to Raytheon's since it may add box, overline, underline to each
+             * line of text, not one single box, overline, or underline - so we
+             * may need to develop a new drawing method or ask Raytheon to
+             * provide support in GlTarget.
+             */
             switch (displayType) {
 
             case NORMAL:
@@ -161,19 +169,40 @@ public class TextDisplayElement implements IDisplayable {
                 break;
 
             case BOX:
-                dstring.textStyle = TextStyle.BOXED;
+                // dstring.textStyle = TextStyle.BOXED;
+                if (dstring.getText().length > 1) {
+                    target.drawRect(box, dstring.getColors()[0], 1.0f, 1.0);
+                } else {
+                    dstring.textStyle = TextStyle.BOXED;
+                }
                 // target.drawRect(box, dstring.getColors()[0], 1.0f, 1.0);
                 break;
 
             case OVERLINE:
-                dstring.textStyle = TextStyle.OVERLINE;
+                // dstring.textStyle = TextStyle.OVERLINE;
+                if (dstring.getText().length > 1) {
+                    target.drawLine(box.getMinX(), box.getMinY(), 0.0,
+                            box.getMaxX(), box.getMinY(), 0.0,
+                            dstring.getColors()[0], 1.0f);
+                } else {
+
+                    dstring.textStyle = TextStyle.OVERLINE;
+                }
                 // target.drawLine(box.getMinX(), box.getMinY(), 0.0,
                 // box.getMaxX(), box.getMinY(), 0.0,
                 // dstring.getColors()[0], 1.0f);
                 break;
 
             case UNDERLINE:
-                dstring.textStyle = TextStyle.UNDERLINE;
+                // dstring.textStyle = TextStyle.UNDERLINE;
+                if (dstring.getText().length > 1) {
+                    target.drawLine(box.getMinX(), box.getMaxY(), 0.0,
+                            box.getMaxX(), box.getMaxY(), 0.0,
+                            dstring.getColors()[0], 1.0f);
+
+                } else {
+                    dstring.textStyle = TextStyle.UNDERLINE;
+                }
                 // target.drawLine(box.getMinX(), box.getMaxY(), 0.0,
                 // box.getMaxX(), box.getMaxY(), 0.0,
                 // dstring.getColors()[0], 1.0f);

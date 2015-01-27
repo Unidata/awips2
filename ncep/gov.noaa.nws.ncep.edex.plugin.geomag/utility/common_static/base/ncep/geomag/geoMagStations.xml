@@ -3,8 +3,9 @@
     <geoMagStation>
             <stationCode>BOU</stationCode>
             <provider>USGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>0</kpStation> 
+            <kStation>1</kStation>               
             <source name="direct" priority="101"/> 
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -36,8 +37,9 @@
     <geoMagStation>
             <stationCode>SIT</stationCode>
             <provider>USGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation> 
+            <kStation>1</kStation>                
             <source name="direct" priority="101"/> 
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -69,8 +71,9 @@
     <geoMagStation>
             <stationCode>NEW</stationCode>
             <provider>USGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>0</kpStation>   
+            <kStation>1</kStation>              
             <source name="direct" priority="101"/> 
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -102,8 +105,9 @@
     <geoMagStation>
             <stationCode>FRN</stationCode>
             <provider>USGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>0</kpStation> 
+            <kStation>1</kStation>              
             <source name="direct" priority="101"/> 
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -135,8 +139,9 @@
     <geoMagStation>
             <stationCode>FRD</stationCode>
             <provider>USGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation>   
+            <kStation>1</kStation>         
             <source name="direct" priority="101"/> 
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -168,8 +173,9 @@
     <geoMagStation>
             <stationCode>MEA</stationCode>
             <provider>USGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>                           
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation> 
+            <kStation>1</kStation>                           
             <source name="direct" priority="101"/> 
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -201,8 +207,9 @@
     <geoMagStation>
             <stationCode>OTT</stationCode>
             <provider>USGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>                           
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation>      
+            <kStation>1</kStation>                       
             <source name="direct" priority="101"/> 
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -234,8 +241,9 @@
     <geoMagStation>
             <stationCode>HAD</stationCode>
             <provider>USGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>                          
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation> 
+            <kStation>1</kStation>                         
             <source name="direct" priority="101"/> 
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -267,8 +275,9 @@
     <geoMagStation>
             <stationCode>CL2</stationCode>
             <provider>USGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>                          
+            <processKQDC>1</processKQDC>
+            <kpStation>0</kpStation>    
+            <kStation>1</kStation>                       
             <source name="direct" priority="101"/> 
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -300,14 +309,15 @@
     <geoMagStation>
             <stationCode>HAD</stationCode>
             <provider>BGS</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation>    
+            <kStation>1</kStation>          
             <source name="direct" priority="101"/> 
             <dataOrder>HDZF</dataOrder>    
             <location latitude="51.0" longitude="355.517"/>
             <rawDataFormat>
                  <dataFormat conversionRequired="true">
-                 	<regex>^(\d{4})\s*(\d{3})\s(\d{2})\s*(\d{2})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)</regex>
+                 	<regex>^(\d{4})\s*(\d{3})\s*(\d{2})\s*(\d{2})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)</regex>
                   	<group id="1" name="obsYear"/>
                     <group id="2" name="obsDayOfYear"/>
                     <group id="3" name="obsHour"/>
@@ -321,8 +331,9 @@
     <geoMagStation>
             <stationCode>CNB</stationCode>
             <provider>GA</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation>      
+            <kStation>1</kStation>          
             <source name="direct" priority="101"/>
             <dataOrder>XYZF</dataOrder>    
             <location latitude="-35.32" longitude="149.36"/>
@@ -342,8 +353,9 @@
     <geoMagStation>
             <stationCode>NGK</stationCode>
             <provider>GFZ</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation> 
+            <kStation>1</kStation>               
             <source name="direct" priority="101"/>
             <dataOrder>XYZF</dataOrder>    
             <location latitude="52.072" longitude="12.675"/>
@@ -363,8 +375,9 @@
     <geoMagStation>
             <stationCode>WNG</stationCode>
             <provider>GFZ</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation>  
+            <kStation>1</kStation>             
             <source name="direct" priority="101"/>
             <dataOrder>XYZF</dataOrder>    
             <location latitude="53.743" longitude="9.073"/>
@@ -384,8 +397,9 @@
     <geoMagStation>
             <stationCode>CL2</stationCode>
             <provider>IPGP</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>0</kpStation>     
+            <kStation>1</kStation>          
             <source name="direct" priority="101"/>
             <source name="magworm" priority="102"/>
             <source name="domsat" priority="103"/>
@@ -417,8 +431,9 @@
     <geoMagStation>
             <stationCode>OTT</stationCode>
             <provider>NRCAN</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation>  
+            <kStation>1</kStation>             
             <source name="direct" priority="101"/>           
             <source name="domsat" priority="103"/>
             <dataOrder>XYZF</dataOrder>    
@@ -439,8 +454,9 @@
     <geoMagStation>
             <stationCode>MEA</stationCode>
             <provider>NRCAN</provider>
-            <processKQDC>true</processKQDC>
-            <kpStation>true</kpStation>             
+            <processKQDC>1</processKQDC>
+            <kpStation>1</kpStation>    
+            <kStation>1</kStation>          
             <source name="direct" priority="101"/>           
             <source name="domsat" priority="103"/>
             <dataOrder>XYZF</dataOrder>    
@@ -461,8 +477,9 @@
     <geoMagStation>
             <stationCode>JEJ</stationCode>
             <provider>KOREA</provider>
-            <processKQDC>false</processKQDC>
-            <kpStation>false</kpStation>             
+            <processKQDC>0</processKQDC>
+            <kpStation>0</kpStation> 
+            <kStation>1</kStation>              
             <source name="direct" priority="101"/>           
             <dataOrder>XYZF</dataOrder>    
             <location latitude="33.427" longitude="126.296"/>

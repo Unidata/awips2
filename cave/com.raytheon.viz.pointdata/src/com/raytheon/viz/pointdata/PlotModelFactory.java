@@ -93,6 +93,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * Mar 21, 2014  2868     njensen     Refactored python usage to PythonJobCoordinator
  * Jun 06, 2014  2061     bsteffen    Rename and add support for data formats in sampling.
  * Aug 07, 2014  3478     bclement    removed PointDataDescription.Type.Double
+ * Dec 16, 2014 16193     kshrestha   Updated range limits
  * 
  * </pre>
  * 
@@ -1096,7 +1097,9 @@ public class PlotModelFactory {
 
         if (element.lookup != null && sValue != null) {
             String lu = null;
-            lu = element.lookup.lookup(sValue);
+            if (!sValue.equals("?")){
+               lu = element.lookup.lookup(sValue);
+            }
             if (lu != null) {
                 sValue = lu.trim();
             }
@@ -1119,8 +1122,6 @@ public class PlotModelFactory {
         case LONG:
             Number value = ob.getNumber(element.parameter);
             if (value != null && value.doubleValue() != -9999.0) {
-                if (value.doubleValue() >= lowerLimit
-                        && value.doubleValue() <= upperLimit) {
                     double displayValue = 0.0;
                     if (element.unit != null) {
                         if (element.converter == null) {
@@ -1139,16 +1140,18 @@ public class PlotModelFactory {
                     } else {
                         displayValue = value.doubleValue();
                     }
-                    if (element.format != null) {
-                        StringBuilder sb = new StringBuilder();
-                        Formatter testing = new Formatter(sb);
-                        testing.format(element.format, displayValue);
-                        sValue = sb.toString();
-                        testing.close();
-                    } else {
-                        sValue = Double.toString(displayValue);
+                    
+                    if (isValidValue(displayValue)){
+                       if (element.format != null) {
+                          StringBuilder sb = new StringBuilder();
+                          Formatter testing = new Formatter(sb);
+                          testing.format(element.format, displayValue);
+                          sValue = sb.toString();
+                          testing.close();
+                        } else {
+                            sValue = Double.toString(displayValue);
+                        }
                     }
-                }
             }
             break;
         case STRING:
@@ -1157,14 +1160,18 @@ public class PlotModelFactory {
         default:
             element.plotNode.setNodeValue(" ");
         }
-        if (element.lookup != null) {
-            sValue = element.lookup.lookup(sValue);
+        if (element.lookup != null && sValue != null) {
+            String lu = null;
+            lu = element.lookup.lookup(sValue);
+            if (!lu.equals(""))
+                sValue = lu;
         }
         if (sValue != null) {
             element.plotNode.setNodeValue(sValue.substring(element.trim));
             return !sValue.trim().isEmpty();
         } else if (plotMissingData) {
             element.plotNode.setNodeValue("m");
+            setPlotMissingData(false);
             return true;
         } else {
             element.plotNode.setNodeValue(" ");
