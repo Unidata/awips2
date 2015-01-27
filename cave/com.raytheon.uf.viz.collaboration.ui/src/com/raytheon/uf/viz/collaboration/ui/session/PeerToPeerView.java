@@ -32,7 +32,6 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.jivesoftware.smack.packet.Presence.Type;
@@ -49,10 +48,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
-import com.raytheon.uf.viz.collaboration.ui.ColorInfoMap.ColorInfo;
-import com.raytheon.uf.viz.collaboration.ui.UserColorConfigManager;
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
+import com.raytheon.uf.viz.collaboration.ui.colors.UserColorConfigManager;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
 import com.raytheon.uf.viz.core.sounds.SoundUtil;
@@ -77,6 +76,8 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Dec 08, 2014 3709       mapeters    move color change actions to menu bar.
  * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s as fields, 
  *                                     dispose them.
+ * Jan 09, 2015 3709       bclement    color config manager API changes
+ * Jan 13, 2015 3709       bclement    ChangeTextColorAction API changes
  * 
  * </pre>
  * 
@@ -92,24 +93,21 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.PeerToPeerView";
 
-    private static final Color DEFAULT_USER_FOREGROUND_COLOR = Display
-            .getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
-
-    private static final Color DEFAULT_PEER_FOREGROUND_COLOR = Display
-            .getCurrent().getSystemColor(SWT.COLOR_RED);
-
     private static final Color BLACK = Display.getCurrent().getSystemColor(
             SWT.COLOR_BLACK);
+
+    private static final Color WHITE = Display.getCurrent().getSystemColor(
+            SWT.COLOR_WHITE);
 
     private IUser peer;
 
     private boolean online = true;
 
-    private static UserColorConfigManager colorConfigManager;
+    private static UserColorConfigManager colorManager;
 
-    private ChangeTextColorAction userColorAction;
+    private ChangeTextColorAction<IUser> userColorAction;
 
-    private ChangeTextColorAction peerColorAction;
+    private ChangeTextColorAction<IUser> peerColorAction;
 
     public PeerToPeerView() {
         super();
@@ -221,48 +219,40 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         if (connection == null) {
             return;
         }
-        Color color = null;
+        Color foreground;
+        Color background;
         if (userId == null) {
-            color = BLACK;
-        } else if (!userId.equals(connection.getUser())) {
-            color = DEFAULT_PEER_FOREGROUND_COLOR;
+            foreground = BLACK;
+            background = WHITE;
         } else {
-            color = DEFAULT_USER_FOREGROUND_COLOR;
+            UserColorInfo colors = colorManager.getColorForUser(userId);
+            foreground = getColorFromRGB(colors.getForeground());
+            background = getColorFromRGB(colors.getBackground());
         }
-        styleAndAppendText(sb, offset, name, userId, ranges, color);
+        styleAndAppendText(sb, offset, name, userId, ranges, foreground,
+                background);
     };
 
     @Override
     public void styleAndAppendText(StringBuilder sb, int offset, String name,
-            IUser userId, List<StyleRange> ranges, Color color) {
-        Color fgColor = color;
-        Color bgColor = null;
-
-        if (userId != null) {
-            // get user colors from config manager
-            ColorInfo userColor = colorConfigManager.getColor(userId
-                    .getName());
-            if (userColor != null) {
-                fgColor = getColorFromRGB(userColor.getColor(SWT.FOREGROUND));
-                bgColor = getColorFromRGB(userColor.getColor(SWT.BACKGROUND));
-            }
-        }
+            IUser userId, List<StyleRange> ranges, Color foreground,
+            Color background) {
 
         StyleRange range = new StyleRange(messagesText.getCharCount(),
-                sb.length(), fgColor, null, SWT.NORMAL);
+                sb.length(), foreground, null, SWT.NORMAL);
         ranges.add(range);
         range = new StyleRange(messagesText.getCharCount() + offset,
                 (userId != null ? name.length() + 1 : sb.length() - offset),
-                fgColor, null, SWT.BOLD);
+                foreground, null, SWT.BOLD);
         ranges.add(range);
         messagesText.append(sb.toString());
-        
+
         for (StyleRange newRange : ranges) {
             messagesText.setStyleRange(newRange);
         }
-        
+
         int lineNumber = messagesText.getLineCount() - 1;
-        messagesText.setLineBackground(lineNumber, 1, bgColor);
+        messagesText.setLineBackground(lineNumber, 1, background);
         messagesText.setTopIndex(lineNumber);
     }
 
@@ -329,7 +319,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
     @Override
     protected void initComponents(Composite parent) {
         super.initComponents(parent);
-        colorConfigManager = new UserColorConfigManager();
+        colorManager = UserColorConfigManager.getInstance();
 
         // unfortunately this code cannot be a part of createToolbarButton
         // because I cannot instantiate the ACI until after the messagesText
@@ -398,12 +388,9 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
      */
     private void createDropDownMenu() {
         IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
-        String myName = CollaborationConnection.getConnection().getUser()
-                .getName();
-        RGB defaultUserForeground = DEFAULT_USER_FOREGROUND_COLOR.getRGB();
-        userColorAction = ChangeTextColorAction
-                .createChangeUserTextColorAction(myName, true,
-                        defaultUserForeground, colorConfigManager);
+        UserId myUser = CollaborationConnection.getConnection().getUser();
+        userColorAction = new ChangeTextColorAction<IUser>(myUser, true, true,
+                false, colorManager);
         mgr.add(userColorAction);
     }
 
@@ -412,11 +399,8 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
      */
     public void addChangePeerColorAction() {
         IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
-        String peerName = peer.getName();
-        RGB defaultPeerForeground = DEFAULT_PEER_FOREGROUND_COLOR.getRGB();
-        peerColorAction = ChangeTextColorAction
-                .createChangeUserTextColorAction(peerName, true,
-                        defaultPeerForeground, colorConfigManager);
+        peerColorAction = new ChangeTextColorAction<IUser>(peer, false, true,
+                false, colorManager);
         mgr.add(peerColorAction);
     }
 }
