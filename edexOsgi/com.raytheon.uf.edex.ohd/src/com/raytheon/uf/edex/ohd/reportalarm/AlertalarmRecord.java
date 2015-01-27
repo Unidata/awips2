@@ -42,9 +42,10 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 15, 2011 9377       jnjanga     Initial creation
+ * October 20, 2014 DR DIM#17259  deng   fix false alert/alarm are generated with
+ *                                       NEW_OR_INCREASED mode
  * Jan 07, 2015 3692       bclement    no longer a singleton
- * 
- * 
+
  * </pre>
  * 
  * @author jnjanga
