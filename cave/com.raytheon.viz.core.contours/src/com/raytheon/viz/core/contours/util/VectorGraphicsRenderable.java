@@ -63,6 +63,8 @@ import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
  * May 27, 2011           bsteffen    Initial creation
  * Aug 27, 2013  2287     randerso    Refactored to allow subclassing
  * Sep 23, 2013  2363     bsteffen    Add more configuration options.
+ * Jan 13, 2015  3966     bsteffen    Limit the number of flags on barbs.
+ * 
  * 
  * </pre>
  * 
@@ -246,8 +248,25 @@ public class VectorGraphicsRenderable {
         int n10 = calcSpd / 10;
         calcSpd = calcSpd - 10 * n10;
         int n5 = calcSpd / 5;
+        /*
+         * Rendering too many flags results in unacceptable rendering
+         * performance(freezes). Since real atmospheric conditions can never
+         * generate that much wind we want to limit it too a reasonablish number
+         * of flags. To make it somewhat configurable the number of flags is
+         * limited to 10 times the number of flags that fit on the staff size
+         * specified in the config. 10 was chosen arbitrarily, displays with
+         * that many flags are already unusable but still render with good
+         * enough performance.
+         */
+        if (n50 * add * 2 > size * 10) {
+            throw new IllegalArgumentException(
+                    "Unable to render a wind barb because magnitude is too great("
+                            + magnitude + ").");
+        }
+
         double sx = ((n50 + n50 + n10 + n5 + 2)) * add;
         double staff = Math.max(size, sx);
+
 
         // DRAW STAFF
         double ix2 = plotLoc.x + dix * size * config.getOffsetRatio();

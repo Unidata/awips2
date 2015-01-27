@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.roles;
 
-import org.eclipse.swt.graphics.RGB;
-
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -33,6 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.ColorPopulator;
 import com.raytheon.uf.viz.collaboration.display.data.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
 import com.raytheon.uf.viz.collaboration.display.editor.ActivateRemoteDisplay;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -57,6 +56,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Feb 13, 2014 2751       njensen     Renamed container to displayContainer
  * Mar 06, 2014 2848       bclement    removed check for self from participantChanged
  * Jan 06, 2014 3933       bclement    added check for ability to share editor on startup
+ * Jan 13, 2015 3709       bclement    SessionColorManager API changes
  * 
  * </pre>
  * 
@@ -99,12 +99,13 @@ public class DataProviderEventController extends
                 SessionColorManager scm = SharedDisplaySessionMgr
                         .getSessionContainer(session.getSessionId())
                         .getColorManager();
-                RGB color = scm.getColorForUser(event.getParticipant());
+                UserColorInfo color = scm.getColorForUser(event
+                        .getParticipant());
 
                 ColorChangeEvent cce = new ColorChangeEvent(
-                        event.getParticipant(), color);
+                        event.getParticipant(), color.getForeground());
                 session.sendObjectToPeer(event.getParticipant(),
-                        new ColorPopulator(scm.getColors()));
+                        new ColorPopulator(scm.getForegroundColors()));
                 session.sendObjectToVenue(cce);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
