@@ -29,6 +29,7 @@ SOFTWARE HISTORY
 Date            Ticket#        Engineer    Description
 ------------    ----------     ----------- --------------------------
 Jul 09, 2008    1222           jelkins     Split command line loader from class
+Jan 26, 2015    4033           randerso    Fix logging broken by #3685
 
 @author: jelkins
 """
@@ -46,12 +47,20 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request impo
 SCRIPT_DIR = abspath(dirname(argv[0]))
 
 # ---- Setup Logging ----------------------------------------------------------
-LOG_CONF  = join(SCRIPT_DIR,"preferences","logging.conf")
+import logging
+from time import strftime, gmtime
+timeStamp = strftime("%Y%m%d", gmtime())
+logFile = '/awips2/edex/logs/configureTextProducts-'+timeStamp+'.log'
 
-import logging.config 
-logging.config.fileConfig(LOG_CONF)
-
-LOG = logging.getLogger(basename(argv[0]))
+LOG = logging.getLogger("configureTextProducts")
+LOG.setLevel(logging.DEBUG)
+handler = logging.FileHandler(logFile)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(levelname)-5s %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s")
+handler.setFormatter(formatter)
+for h in LOG.handlers:
+    LOG.removeHandler(h)
+LOG.addHandler(handler)
 
 class ConfigureTextProducts:
     """Command Line Interface for the TextProductsGenerator
