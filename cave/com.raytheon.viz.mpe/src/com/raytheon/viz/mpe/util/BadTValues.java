@@ -51,10 +51,11 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
 
 public class BadTValues {
     BufferedReader in = null;
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     public void read_bad_tvalues(String tpointd, int m) {
 
-        Bad_Daily_Values bad_tvalues[] = DailyQcUtils.bad_tvalues;
+        Bad_Daily_Values bad_tvalues[] = dqc.bad_tvalues;
         int i;
         Scanner s = null;
 
@@ -103,7 +104,7 @@ public class BadTValues {
     }
 
     public void purge_bad_tvalues(int iday) {
-        Bad_Daily_Values bad_tvalues[] = DailyQcUtils.bad_tvalues;
+        Bad_Daily_Values bad_tvalues[] = dqc.bad_tvalues;
         int i, k;
 
         for (k = 0; k < 6; k++) {
@@ -122,7 +123,7 @@ public class BadTValues {
     public int get_bad_tvalues(int iday, int iquart)
 
     {
-        Bad_Daily_Values bad_tvalues[] = DailyQcUtils.bad_tvalues;
+        Bad_Daily_Values bad_tvalues[] = dqc.bad_tvalues;
         ReadTemperatureStationList rt = new ReadTemperatureStationList();
         int i, j, h;
 
@@ -138,14 +139,14 @@ public class BadTValues {
 
             for (j = 0; j < rt.getNumTstations(); j++) {
 
-                if (bad_tvalues[i].hb5.equals(DailyQcUtils.temperature_stations
+                if (bad_tvalues[i].hb5.equals(dqc.temperature_stations
                         .get(j).hb5)
-                        && bad_tvalues[i].parm.charAt(4) == DailyQcUtils.temperature_stations
+                        && bad_tvalues[i].parm.charAt(4) == dqc.temperature_stations
                                 .get(j).parm.charAt(4)) {
 
-                    if (DailyQcUtils.tdata[iday].tstn[j].tlevel2[iquart].qual == 5
-                            && bad_tvalues[i].fvalue != DailyQcUtils.tdata[iday].tstn[j].tlevel1[iquart].data
-                            && DailyQcUtils.tdata[iday].tstn[j].tlevel1[iquart].data >= 0) {
+                    if (dqc.tdata[iday].tstn[j].tlevel2[iquart].qual == 5
+                            && bad_tvalues[i].fvalue != dqc.tdata[iday].tstn[j].tlevel1[iquart].data
+                            && dqc.tdata[iday].tstn[j].tlevel1[iquart].data >= 0) {
 
                         /* eliminate all bad values for current month */
                         for (h = 0; h < 6000; h++) {
@@ -171,8 +172,8 @@ public class BadTValues {
 
                     else {
 
-                        DailyQcUtils.tdata[iday].tstn[j].tlevel2[iquart].qual = 1;
-                        DailyQcUtils.tdata[iday].tstn[j].tlevel2[iquart].data = bad_tvalues[i].fvalue;
+                        dqc.tdata[iday].tstn[j].tlevel2[iquart].qual = 1;
+                        dqc.tdata[iday].tstn[j].tlevel2[iquart].data = bad_tvalues[i].fvalue;
                     }
                 }
             }
@@ -186,7 +187,7 @@ public class BadTValues {
         int i;
         File bfile = new File(fname);
         BufferedWriter out = null;
-        Bad_Daily_Values bad_tvalues[] = DailyQcUtils.bad_tvalues;
+        Bad_Daily_Values bad_tvalues[] = dqc.bad_tvalues;
 
         try {
             out = new BufferedWriter(new FileWriter(bfile));
@@ -232,7 +233,7 @@ public class BadTValues {
     public void update_bad_tvalues(int iday) {
         int i, j, h, k;
         char parm[] = new char[10];
-        Bad_Daily_Values bad_tvalues[] = DailyQcUtils.bad_tvalues;
+        Bad_Daily_Values bad_tvalues[] = dqc.bad_tvalues;
         ReadTemperatureStationList rt = new ReadTemperatureStationList();
 
         for (i = 0; i < 6000; i++) {
@@ -252,7 +253,7 @@ public class BadTValues {
 
             for (k = 0; k < 6; k++) {
 
-                if (DailyQcUtils.tdata[iday].tstn[j].tlevel2[k].qual != 1) {
+                if (dqc.tdata[iday].tstn[j].tlevel2[k].qual != 1) {
                     continue;
                 }
 
@@ -264,12 +265,12 @@ public class BadTValues {
 
                     bad_tvalues[h].used = 1;
 
-                    bad_tvalues[h].fvalue = DailyQcUtils.tdata[iday].tstn[j].tlevel1[k].data;
+                    bad_tvalues[h].fvalue = dqc.tdata[iday].tstn[j].tlevel1[k].data;
 
-                    bad_tvalues[h].hb5 = DailyQcUtils.temperature_stations
+                    bad_tvalues[h].hb5 = dqc.temperature_stations
                             .get(j).hb5;
 
-                    parm = DailyQcUtils.temperature_stations.get(j).parm
+                    parm = dqc.temperature_stations.get(j).parm
                             .toCharArray();
 
                     if (k < 4) {
@@ -302,24 +303,24 @@ public class BadTValues {
 
             for (i = 0; i < 6000; i++) {
 
-                if (DailyQcUtils.bad_tvalues[i].used == 0) {
+                if (dqc.bad_tvalues[i].used == 0) {
                     continue;
                 }
 
-                if (DailyQcUtils.bad_tvalues[i].day != iday
-                        || DailyQcUtils.bad_tvalues[i].quart != k) {
+                if (dqc.bad_tvalues[i].day != iday
+                        || dqc.bad_tvalues[i].quart != k) {
                     continue;
                 }
 
                 for (j = 0; j < max_tstations; j++) {
 
-                    if ((DailyQcUtils.bad_tvalues[i].hb5
-                            .equalsIgnoreCase(temperature_stations.get(j).hb5) && DailyQcUtils.bad_tvalues[i].parm
+                    if ((dqc.bad_tvalues[i].hb5
+                            .equalsIgnoreCase(temperature_stations.get(j).hb5) && dqc.bad_tvalues[i].parm
                             .charAt(4) == temperature_stations.get(j).parm
                             .charAt(4))) {
 
-                        DailyQcUtils.tdata[iday].tstn[j].tlevel2[k].data = DailyQcUtils.bad_tvalues[i].fvalue;
-                        DailyQcUtils.tdata[iday].tstn[j].tlevel2[k].qual = 1;
+                        dqc.tdata[iday].tstn[j].tlevel2[k].data = dqc.bad_tvalues[i].fvalue;
+                        dqc.tdata[iday].tstn[j].tlevel2[k].qual = 1;
 
                         break;
 
@@ -337,7 +338,7 @@ public class BadTValues {
     public int is_tbad(int iday, int iquart, String hb5, String parm)
 
     {
-        Bad_Daily_Values bad_tvalues[] = DailyQcUtils.bad_tvalues;
+        Bad_Daily_Values bad_tvalues[] = dqc.bad_tvalues;
         ReadTemperatureStationList rt = new ReadTemperatureStationList();
         int i, j;
 
@@ -368,8 +369,8 @@ public class BadTValues {
     public void post_bad_tvalues(int iday) {
 
         int i, j, k;
-        Bad_Daily_Values bad_tvalues[] = DailyQcUtils.bad_tvalues;
-        Tdata tdata[] = DailyQcUtils.tdata;
+        Bad_Daily_Values bad_tvalues[] = dqc.bad_tvalues;
+        Tdata tdata[] = dqc.tdata;
         ReadTemperatureStationList rt = new ReadTemperatureStationList();
 
         for (k = 0; k < 6; k++) {
@@ -387,8 +388,8 @@ public class BadTValues {
                 for (j = 0; j < rt.getNumTstations(); j++) {
 
                     if ((bad_tvalues[i].hb5
-                            .equals(DailyQcUtils.temperature_stations.get(j).hb5))
-                            && bad_tvalues[i].parm.charAt(4) == DailyQcUtils.temperature_stations
+                            .equals(dqc.temperature_stations.get(j).hb5))
+                            && bad_tvalues[i].parm.charAt(4) == dqc.temperature_stations
                                     .get(j).parm.charAt(4)) {
 
                         if (tdata[iday].tstn[j].tlevel2[k].data == bad_tvalues[i].fvalue) {

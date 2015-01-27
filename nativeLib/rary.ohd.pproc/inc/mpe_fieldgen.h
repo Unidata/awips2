@@ -12,7 +12,7 @@
 *   DATE         PROGRAMMER        DESCRIPTION/REASON
 *  9/15/2006     P Tilles          added lid to structure gage_radar_pair_struct
 *  August 2008   P Tilles          added arrays for Q2
-*
+*  12/12/2014    C Gobs			   added include "DAARadar.h"
 ********************************************************************************
 */
 
@@ -37,6 +37,7 @@
 #include "get_os_system.h"
 #include "convert_hrap.h"    /* Hrap to LatLon Conversion utilities */
 #include "time_convert.h"
+#include "DAARadar.h"
 #include "HourlyPC.h"
 #include "mpe_write_xmrg.h"
 

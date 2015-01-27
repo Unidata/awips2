@@ -2,7 +2,8 @@
  * 
  * Ncscat Decoder
  * 
- * This java class decodes Ascat quikscat (NESDIS File) raw data. 
+ * This Java class decodes ocean winds scatterometer/radiometer (NESDIS File) raw data.
+ *  
  * HISTORY
  *
  * Date     	Author		Description
@@ -10,6 +11,7 @@
  * 11/2009		Uma Josyula		Initial creation
  * 01/2011		B. Hebbard 		Handle ambiguity variants
  * 07/2012		B. Hebbard 		Handle OSCAT / OSCAT_HI
+ * 10/2014      B. Hebbard      Get reportType from NcscatMode, instead of if-then-else'ing over hardcode integer lengths
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -67,7 +69,7 @@ public class NcscatDecoder extends AbstractDecoder {
         NcscatProcessing sProcess = new NcscatProcessing();
         sProcess.setInputFileName(plugin);
         messageData = sProcess.separate(data);
-        recLength = NcscatProcessing.getRecordLength();
+        recLength = sProcess.getRecordLength();
         if (messageData != null) {
 
             record = new NcscatRecord();
@@ -76,38 +78,7 @@ public class NcscatDecoder extends AbstractDecoder {
             record.setEndTime(sProcess.getEndTime());
             record.setRecordLength(recLength);
             record.setDataTime(new DataTime(sProcess.getStartTime()));
-
-            if (record.getRecordLength() == 688) {
-
-                if (plugin.equalsIgnoreCase("oscat")) {
-                    record.setReportType("oscat-hi");
-                } else {
-                    record.setReportType("quikscat");
-                }
-            } else if (record.getRecordLength() == 1372) {
-                record.setReportType("quikscat-hi");
-            } else if (record.getRecordLength() == 382) {
-
-                if (plugin.equalsIgnoreCase("ascatx")) {
-
-                    record.setReportType("Exasct");
-                } else {
-
-                    record.setReportType("ascat");
-                }
-            } else if (record.getRecordLength() == 742) {
-
-                if (plugin.equalsIgnoreCase("ascatx")) {
-
-                    record.setReportType("Exasct-hi");
-                } else {
-                    record.setReportType("ascat-hi");
-                }
-            } else if (record.getRecordLength() == 328) {
-                record.setReportType("oscat");
-            } else if (record.getRecordLength() == 715) {
-                record.setReportType("wscat");
-            }
+            record.setReportType(sProcess.getNcscatMode().getReportType());
 
             // If this is an (numbered) 'ambiguity' variant, add suffix to
             // reportType
@@ -178,20 +149,16 @@ public class NcscatDecoder extends AbstractDecoder {
             }
             // TODO: Review this temporary fix by BH to see if a broader
             // refactor might be better.
+
             // Problem: Without the added 'else' below, non-local variable
-            // "plugin" will
-            // retain its previous value if the pattern matcher fails above;
-            // this will happen
-            // if the file suffix/extension (after the ".") is shorter than 5
-            // characters.
-            // Scenario: A file with suffix ".ascatx" is ingested, then later a
-            // ".qsct" file.
+            // "plugin" will retain its previous value if the pattern matcher
+            // fails above; this will happen if the file suffix/extension (after
+            // the ".") is shorter than 5 characters. Scenario: A file with
+            // suffix ".ascatx" is ingested, then later a ".qsct" file.
             // Variable "plugin" will be set to "ascatx" by the first, but will
-            // retain this
-            // same value for the second; logic in NcscatProcessing.doSeparate()
-            // will as a
-            // result interpret the big-endian ".qsct" data as little endian
-            // format.
+            // retain this same value for the second; logic in
+            // NcscatProcessing.doSeparate() will as a result interpret the
+            // big-endian ".qsct" data as little endian format.
             // Alternate (better): Could make "plugin" local to this method
             else {
                 plugin = "";
@@ -200,20 +167,14 @@ public class NcscatDecoder extends AbstractDecoder {
             // NcscatProcessing
 
             // Handle ambiguity variants: In addition to files containing the
-            // primary
-            // (greatest likelihood) wind vector solutions, for some data types
-            // we also
-            // receive (typically 2 or 4) 'ambiguity' variants for the same
-            // point locations,
-            // but with (lesser likelihood) solutions. Since these cannot be
-            // distinguished
-            // from the primary files based on data format/content alone, we
-            // look for a
-            // (prearranged) telltale pattern somewhere in the file name. If
-            // found, we
-            // remember the indicated ambiguity number, for later tagging of the
-            // database
-            // record.
+            // primary (greatest likelihood) wind vector solutions, for some
+            // data types we also receive (typically 2 or 4) 'ambiguity'
+            // variants for the same point locations, but with (lesser
+            // likelihood) solutions. Since these cannot be distinguished from
+            // the primary files based on data format/content alone, we
+            // look for a (prearranged) telltale pattern somewhere in the file
+            // name. If found, we remember the indicated ambiguity number, for
+            // later tagging of the database record.
             pattern = Pattern.compile("ambig([1-9])");
             matcher = pattern.matcher(fileName);
             if (matcher.find()) {
