@@ -55,6 +55,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class MapFreezingGagesGrid {
 
+    private final DailyQcUtils dqc = DailyQcUtils.getInstance();
+
     public boolean map_freeze_gages_to_grid(int smonth, int emonth,
             Hrap_Grid hrap_grid, String hrap_zgage_file, String currentQcArea,
             ArrayList<Station> freezing_stations,
@@ -62,10 +64,9 @@ public class MapFreezingGagesGrid {
             int numPstations) {
 
         int newflag = 0;
-        DailyQcUtils du = new DailyQcUtils();
         File gagefile = new File(hrap_zgage_file);
-        File stationfile = new File(du.getStationListPath(currentQcArea));
-        float sorted[] = new float[DailyQcUtils.mpe_dqc_max_precip_neighbors];
+        File stationfile = new File(dqc.getStationListPath(currentQcArea));
+        float sorted[] = new float[dqc.mpe_dqc_max_precip_neighbors];
         final float conv = .0174f;
         float dist, dist1, dist2;
         int i, k, l, m, h;
@@ -79,14 +80,13 @@ public class MapFreezingGagesGrid {
         BufferedReader in = null;
         BufferedWriter out = null;
         Coordinate irap = new Coordinate();
-        DailyQcUtils.QCHRAP hrap = new QCHRAP();
+        QCHRAP hrap = new QCHRAP();
         Date sf = SimulatedTime.getSystemTime().getTime();
-        DailyQcUtils dc = new DailyQcUtils();
         // for (l = 0; l < 30; l++) {
         // sorted[l] = 9999999;
         // }
 
-        if (iir == 0 || gagefile.length() == 0) {
+        if ((iir == 0) || (gagefile.length() == 0)) {
             if (gagefile.length() == 0) {
                 gagefile.delete();
             }
@@ -113,9 +113,10 @@ public class MapFreezingGagesGrid {
                  * file are not equal of if the size of the HRAP forecast area
                  * has changed, then recreate the grid file.
                  */
-                if (ts.before(sf) || oxor != hrap_grid.hrap_minx
-                        || oyor != hrap_grid.hrap_miny
-                        || omaxx != hrap_grid.maxi || omaxy != hrap_grid.maxj) {
+                if (ts.before(sf) || (oxor != hrap_grid.hrap_minx)
+                        || (oyor != hrap_grid.hrap_miny)
+                        || (omaxx != hrap_grid.maxi)
+                        || (omaxy != hrap_grid.maxj)) {
                     newflag = 1;
                 }
 
@@ -145,9 +146,9 @@ public class MapFreezingGagesGrid {
              */
             try {
                 out = new BufferedWriter(new FileWriter(hrap_zgage_file));
-                String header = sf.getTime() / 1000 + " " + hrap_grid.hrap_minx
-                        + " " + hrap_grid.hrap_miny + " " + hrap_grid.maxi
-                        + " " + hrap_grid.maxj;
+                String header = (sf.getTime() / 1000) + " "
+                        + hrap_grid.hrap_minx + " " + hrap_grid.hrap_miny + " "
+                        + hrap_grid.maxi + " " + hrap_grid.maxj;
                 out.write(header);
                 out.newLine();
                 irap = new Coordinate();
@@ -159,7 +160,7 @@ public class MapFreezingGagesGrid {
                         irap.x = hrap_grid.hrap_minx + i;
                         irap.y = hrap_grid.hrap_miny + k;
 
-                        ci = DailyQcUtils.getHraptoLatLon(irap);
+                        ci = dqc.getHraptoLatLon(irap);
                         hrap.x = (float) ci.x;
                         hrap.y = (float) ci.y;
 
@@ -168,7 +169,7 @@ public class MapFreezingGagesGrid {
                             Station zstation = freezing_stations.get(m);
                             dist1 = hrap.y - zstation.lat;
                             dist2 = (float) ((hrap.x - zstation.lon) * Math
-                                    .cos((hrap.y + zstation.lat) / 2 * conv));
+                                    .cos(((hrap.y + zstation.lat) / 2) * conv));
 
                             dist = (float) (Math.pow(dist1, 2) + Math.pow(
                                     dist2, 2));
@@ -261,7 +262,7 @@ public class MapFreezingGagesGrid {
          * Update the precip station list to contain the nearest freezing level
          * stations.
          */
-        Station station = dc.new Station();
+        Station station = new Station();
 
         for (i = 0; i < numPstations; i++) {
             station = precip_stations.get(i);

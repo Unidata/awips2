@@ -26,6 +26,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    2014-10-15      3598          nabowle        Initial creation. Extracted common code from a2rdmdl*.py
+#    2014-12-15      3598          nabowle        Fix retrieval when fcst is 0.
 #
 
 import argparse
@@ -93,7 +94,8 @@ def do_request(user_args):
             daterange = TimeRange(beginDate, endDate)
 
 # convert hours to seconds because DataTime does the reverse
-    time = DataTime(dt, int(fcst)*3600, daterange) 
+    time = DataTime(dt, int(fcst)*3600, daterange)
+    
 
     req = DataAccessLayer.newDataRequest("grid")
     req.setParameters(varAbrev)
@@ -107,7 +109,15 @@ def do_request(user_args):
     if user_args.lvlTwo is not None:
         req.addIdentifier("info.level.leveltwovalue", numpy.float64(user_args.lvlTwo))
 
-    grids = DataAccessLayer.getGridData(req, [time])
+    times = [time]
+
+# If fcst is 0, also query for times with FCST_USED flag
+    if fcst == '0':
+        time = DataTime(dt, int(fcst)*3600, daterange)
+        time.utilityFlags.add("FCST_USED")
+        times.append(time)
+
+    grids = DataAccessLayer.getGridData(req, times)
 
     if not grids:
 #        print "Data not available"

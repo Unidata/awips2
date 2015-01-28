@@ -22,10 +22,9 @@ package com.raytheon.uf.viz.monitor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
@@ -43,7 +42,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
-import com.raytheon.uf.viz.monitor.data.MonitoringArea;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
@@ -62,6 +60,7 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  * Feb 04, 2014 2757       skorolev    Added filter for removed stations
  * May 08, 2014 3086       skorolev    Added current site definition.
  * Sep 04, 2014 3220       skorolev    Removed cwa and monitorUsefrom vals.
+ * Jan 08, 2015 3220       skorolev    Added zones parameter to processURI.
  * 
  * </pre>
  * 
@@ -187,45 +186,29 @@ public abstract class ObsMonitor extends Monitor {
      * 
      * @param dataURI
      * @param filtered
+     * @param zones
      */
-    public void processURI(String dataURI, AlertMessage filtered) {
+    public void processURI(String dataURI, AlertMessage filtered,
+            final List<String> zones) {
         try {
             Map<String, RequestConstraint> constraints = RequestConstraint
                     .toConstraintMapping(DataURIUtil.createDataURIMap(dataURI));
             FSSObsRecord[] pdos = requestFSSObs(constraints, null);
             if (pdos.length > 0 && pdos[0].getTimeObs() != null) {
                 final FSSObsRecord objectToSend = pdos[0];
-                try {
-                    Display.getDefault().asyncExec(new Runnable() {
-                        public void run() {
-                            try {
-                                // Filter removed stations
-                                ArrayList<String> zones = MonitoringArea
-                                        .getZoneIds(objectToSend
-                                                .getPlatformId());
-                                if (!zones.isEmpty()) {
-                                    ObReport result = GenerateFSSObReport
-                                            .generateObReport(objectToSend);
-                                    statusHandler
-                                            .handle(Priority.INFO,
-                                                    "New FSSrecord ===> "
-                                                            + objectToSend
-                                                                    .getDataURI());
-                                    process(result);
-                                }
-                            } catch (Exception e) {
-                                statusHandler
-                                        .handle(Priority.PROBLEM,
-                                                "An error has occured processing the incoming messages.",
-                                                e);
-                            }
-                        }
-                    });
-                } catch (Exception e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "An error has occured processing incoming dataURIs.",
-                                    e);
+                if (!zones.isEmpty()) {
+                    ObReport result = GenerateFSSObReport
+                            .generateObReport(objectToSend);
+                    statusHandler.handle(Priority.INFO, "New FSSrecord ===> "
+                            + objectToSend.getDataURI());
+                    try {
+                        process(result);
+                    } catch (Exception e) {
+                        statusHandler
+                                .handle(Priority.PROBLEM,
+                                        "An error has occured processing the incoming messages.",
+                                        e);
+                    }
                 }
             }
         } catch (final Exception e) {
@@ -237,10 +220,10 @@ public abstract class ObsMonitor extends Monitor {
     /**
      * Process products at startup
      * 
-     * @param monitorName
+     * @param zones
      * 
      */
-    public void processProductAtStartup(String monitorName) {
+    public void processProductAtStartup(List<String> zones) {
 
         /**
          * Assume this number for MaxNumObsTimes is larger enough to cover data
@@ -275,8 +258,6 @@ public abstract class ObsMonitor extends Monitor {
                 FSSObsRecord[] obsRecords = requestFSSObs(vals, selectedTimes);
                 for (FSSObsRecord objectToSend : obsRecords) {
                     // Filter removed stations
-                    ArrayList<String> zones = MonitoringArea
-                            .getZoneIds(objectToSend.getPlatformId());
                     if (!zones.isEmpty()) {
                         ObReport result = GenerateFSSObReport
                                 .generateObReport(objectToSend);
@@ -286,7 +267,7 @@ public abstract class ObsMonitor extends Monitor {
             }
         } catch (DataCubeException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "No data in database at startup.  " + monitorName);
+                    "No data in database at startup.");
         }
     }
 
