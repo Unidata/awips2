@@ -102,6 +102,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 12/09/2013    2367      dgilling    Instantiate ProcedureJobPool here.
  * 05/22/2014    3110      randerso    Attach router to edex.alerts.gfe earlier
  * 09/09/2014    3592      randerso    Added call to SampleSetManager.dispose()
+ * 10/30/2014    3775      randerso    Added parmCacheInit to initStatus
  * 
  * </pre>
  * 
@@ -223,7 +224,7 @@ public class DataManager {
         NotificationManagerJob.addObserver("edex.alerts.gfe", this.router);
 
         this.parmManager = new ParmManager(this);
-        GFEParmCacheInitJob cacheJob = new GFEParmCacheInitJob(this.parmManager);
+        GFEParmCacheInitJob cacheJob = new GFEParmCacheInitJob(this);
         cacheJob.setSystem(true);
         cacheJob.schedule();
         this.refManager = new ReferenceSetManager(this);

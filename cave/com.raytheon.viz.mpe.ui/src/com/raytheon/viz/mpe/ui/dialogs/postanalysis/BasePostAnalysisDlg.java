@@ -26,7 +26,6 @@ import java.util.TimeZone;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
@@ -406,15 +405,15 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
      * 
      * @param gc
      */
-    private void drawCanvas(GC gc)
-    {
-    	getColorLegendMgr().paintLegend(gc);
-    	
-    //    gc.setAntialias(SWT.ON);
-    //    gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-
-    //    gc.fillRectangle(0, 0, canvasWidth, canvasHeight);
-    }
+//    private void drawCanvas(GC gc)
+//    {
+//    	getColorLegendMgr().paintLegend(gc);
+//    	
+//    //    gc.setAntialias(SWT.ON);
+//    //    gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+//
+//    //    gc.fillRectangle(0, 0, canvasWidth, canvasHeight);
+//    }
 
     /**
      * Create custom menu items for the control menu.
@@ -449,8 +448,9 @@ public abstract class BasePostAnalysisDlg extends CaveSWTDialog {
 	{
 		NamedColorUseSet namedColorUseSet1 = getNamedColorUseSet1();
     	NamedColorUseSet namedColorUseSet2 =  getNamedColorUseSet2();
+    	PostAnalysisManager pm = new PostAnalysisManager();
 	
-    	Date selectedDateTime = PostAnalysisManager.getSelectedDate();
+    	Date selectedDateTime = pm.getSelectedDate();
     	
     	String dateTimeString = "ending at " + getDateTimeStringFromLongTime(selectedDateTime.getTime());
     	

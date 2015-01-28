@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bufrncwf Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.ncwf;singleton:=true
 Bundle-Version: 1.14.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.ncwf.Activator
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.dataplugin,
@@ -37,8 +36,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.opengis.referencing.crs,
  org.osgi.framework
 Bundle-ActivationPolicy: lazy
-Export-Package: com.raytheon.uf.viz.ncwf,
- com.raytheon.uf.viz.ncwf.rsc
+Export-Package: com.raytheon.uf.viz.ncwf.rsc
 Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.viz.core,
  com.raytheon.uf.common.dataplugin.bufrncwf

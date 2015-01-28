@@ -28,6 +28,7 @@ import java.util.zip.DataFormatException;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
@@ -40,6 +41,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 13, 2014 2536       bclement    Initial creation, moved from TimeTools
+ * Nov 10, 2014 3549       njensen     Improve logging of findDataTime()
  * 
  * </pre>
  * 
@@ -47,7 +49,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * @version 1.0
  */
 public class WMOTimeParser {
-    
+
     private static final IUFStatusHandler logger = UFStatus
             .getHandler(WMOTimeParser.class);
 
@@ -201,8 +203,8 @@ public class WMOTimeParser {
         try {
             issueTime = findCurrentTime(ddhhmm, fileName);
         } catch (DataFormatException e) {
-            logger.info(" Error in processing MND time; return current time ");
-            issueTime = null;
+            logger.handle(Priority.WARN,
+                    "Error in processing MND time; return current time", e);
         }
         return issueTime;
     }
