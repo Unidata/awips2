@@ -7,7 +7,7 @@
          point="org.eclipse.ui.commands">
       <command
             id="gov.noaa.gsd.viz.ensemble.activate.layer"
-            name="Ensembles Tool">
+            name="Ensemble Tool">
       </command>
    </extension>
 
@@ -35,9 +35,9 @@
                   commandId="gov.noaa.gsd.viz.ensemble.activate.layer"
                   icon="icons/EnsembleTool.gif"
                   id="gov.noaa.gsd.viz.ensemble.tool.viewer"
-                  label="Ensembles"
+                  label="Ensemble Tool"
                   style="push"
-                  tooltip="Ensemble Tools">                  
+                  tooltip="Ensemble Tool">                  
             </command>
              <separator
                    name="gov.noaa.gsd.viz.ensemble.separator_post"
