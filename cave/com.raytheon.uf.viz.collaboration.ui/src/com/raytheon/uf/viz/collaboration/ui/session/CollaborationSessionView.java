@@ -33,11 +33,8 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.IPartListener;
@@ -54,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.ColorPopulator;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.LeaderChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
@@ -65,6 +63,7 @@ import com.raytheon.uf.viz.collaboration.display.data.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer.IDisplayContainerChangedListener;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
 import com.raytheon.uf.viz.collaboration.display.rsc.SelfAddingSystemResourceListener;
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingEvent;
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingEvent.CollaborationEventType;
@@ -73,6 +72,8 @@ import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDr
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingToolLayer;
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingUIManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction.ChangeTextColorCallback;
 import com.raytheon.uf.viz.core.ContextManager;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
@@ -106,6 +107,9 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Apr 15, 2014 2822       bclement    only allow transfer leader if participant is using shared display
  * May 05, 2014 3076       bclement    added clear all action
  * Jun 30, 2014 1798       bclement    added disableCurrentLayer()
+ * Dev 02, 2014 3709       mapeters    added {@link #initComponents()} override
+ * Jan 09, 2015 3709       bclement    now uses ForegroundColorDlg for consistency
+ * Jan 13, 2015 3709       bclement    now uses ChangeTextColorAction for consistency
  * 
  * </pre>
  * 
@@ -128,8 +132,6 @@ public class CollaborationSessionView extends SessionView implements
             updateToolItems();
         }
     };
-
-    private Action colorChangeAction;
 
     private Action leaderChangeAction;
 
@@ -238,28 +240,6 @@ public class CollaborationSessionView extends SessionView implements
     protected void createActions() {
         super.createActions();
         Bundle bundle = Activator.getDefault().getBundle();
-        colorChangeAction = new Action("Change Color...",
-                IconUtil.getImageDescriptor(bundle, "change_color.gif")) {
-            @Override
-            public void run() {
-                ColorDialog dlg = new ColorDialog(Display.getCurrent()
-                        .getActiveShell());
-                RGB rgb = dlg.open();
-                if (rgb != null) {
-                    IStructuredSelection selection = (IStructuredSelection) usersTable
-                            .getSelection();
-                    VenueParticipant entry = (VenueParticipant) selection
-                            .getFirstElement();
-                    ColorChangeEvent event = new ColorChangeEvent(entry, rgb);
-                    try {
-                        session.sendObjectToVenue(event);
-                    } catch (CollaborationException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Unable to send color change to venue", e);
-                    }
-                }
-            }
-        };
 
         leaderChangeAction = new Action("Transfer Leadership",
                 IconUtil.getImageDescriptor(bundle, "leader_transfer.gif")) {
@@ -594,7 +574,7 @@ public class CollaborationSessionView extends SessionView implements
                 || session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
             if (session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
                 manager.add(new Separator());
-                manager.add(colorChangeAction);
+
                 IStructuredSelection selection = (IStructuredSelection) usersTable
                         .getSelection();
                 VenueParticipant entry = (VenueParticipant) selection
@@ -604,6 +584,55 @@ public class CollaborationSessionView extends SessionView implements
                     manager.add(leaderChangeAction);
                 }
             }
+        }
+    }
+
+    /**
+     * Callback used in the change color action. Gets the new color from the
+     * dialog and sends a color change event to the session
+     */
+    private final ChangeTextColorCallback sendColorEventCallback = new ChangeTextColorCallback() {
+        @Override
+        public void newColor(IUser user, UserColorInfo colors) {
+            IStructuredSelection selection = (IStructuredSelection) usersTable
+                    .getSelection();
+            VenueParticipant entry = (VenueParticipant) selection
+                    .getFirstElement();
+            ColorChangeEvent event = new ColorChangeEvent(entry,
+                    colors.getForeground());
+            try {
+                session.sendObjectToVenue(event);
+            } catch (CollaborationException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to send color change to venue", e);
+            }
+        }
+    };
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#addColorAction
+     * (org.eclipse.jface.action.IMenuManager,
+     * com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant,
+     * boolean)
+     */
+    @Override
+    protected void addColorAction(IMenuManager manager, VenueParticipant user,
+            boolean me) {
+        if (session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
+            String colorActionKey = user.getFQName();
+
+            ChangeTextColorAction<VenueParticipant> userColorAction = userColorActions
+                    .get(colorActionKey);
+            if (userColorAction == null) {
+                userColorAction = new ChangeTextColorAction<VenueParticipant>(
+                        user, me, me, true, colorManager);
+                userColorAction.setActionCallback(sendColorEventCallback);
+                userColorActions.put(colorActionKey, userColorAction);
+            }
+            manager.add(userColorAction);
         }
     }
 

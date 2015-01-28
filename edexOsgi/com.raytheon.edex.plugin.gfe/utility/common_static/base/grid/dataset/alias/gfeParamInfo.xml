@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <aliasList caseSensitive="true" namespace="gfeParamInfo">
+    <alias base="GFS217">gfs20km</alias>
+    <alias base="GFS215">gfs20km</alias>
+    <alias base="GFS20-PAC">gfs20km</alias>
+    <alias base="GFS20-PRICO">gfs20km</alias>
     <alias base="estofsUS">ESTOFS</alias>
     <alias base="estofsPR">ESTOFS</alias>
     <alias base="GLERL">glerl</alias>
@@ -210,4 +214,18 @@
     <alias base="NAHwave15">NAHwave15</alias>
     <alias base="NAHwave10">NAHwave10</alias>
     <alias base="NAHwave4">NAHwave4</alias>
+    <alias base="nwpsCG1">nwpsCG1</alias>
+    <alias base="nwpsTrkngCG0">nwpsTrkngCG0</alias>
+    <alias base="FFG-ALR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-FWR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-KRF">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-MSR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-ORN">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-PTR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-RHA">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-RSA">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-STR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-TAR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-TIR">RFCFFG_ParameterInfo</alias>
+    <alias base="FFG-TUA">RFCFFG_ParameterInfo</alias>
 </aliasList>
