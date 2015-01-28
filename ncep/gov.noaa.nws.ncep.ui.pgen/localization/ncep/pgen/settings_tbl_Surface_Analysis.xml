@@ -803,7 +803,7 @@
                     <Color red="255" green="255" blue="0" alpha="255"/>
                     <Point Lat="39.35390746604257" Lon="-73.2133975036754"/>
                 </Vector>
-                <Track skipFactorTextString="0" setTimeButtonSelected="true" pgenType="STORM_TRACK" pgenCategory="Track" lineWidth="1.0" intervalTimeTextString="01:00" intervalComboSelectedIndex="2" initialMarker="FILLED_DIAMOND" initialLinePattern="LINE_SOLID" fontStyleComboSelectedIndex="2" fontSizeComboSelectedIndex="2" fontSize="14.0" fontNameComboSelectedIndex="0" fontName="Courier" extrapMarker="FILLED_TRIANGLE" extrapLinePattern="LINE_SOLID" extraPointTimeDisplayOptionName="SKIP_FACTOR">
+                <Track skipFactorTextString="0" setTimeButtonSelected="true" pgenType="STORM_TRACK" pgenCategory="Track" lineWidth="1.0" intervalTimeTextString="00:30" intervalComboSelectedIndex="2" initialMarker="FILLED_DIAMOND" initialLinePattern="LINE_SOLID" fontStyleComboSelectedIndex="1" fontStyle="BOLD" fontSizeComboSelectedIndex="2" fontSize="14.0" fontNameComboSelectedIndex="0" fontName="Courier" extrapMarker="FILLED_TRIANGLE" extrapLinePattern="LINE_SOLID" extraPointTimeDisplayOptionName="SKIP_FACTOR">
                     <initialColor>
                         <Color red="255" green="0" blue="0" alpha="255"/>
                     </initialColor>

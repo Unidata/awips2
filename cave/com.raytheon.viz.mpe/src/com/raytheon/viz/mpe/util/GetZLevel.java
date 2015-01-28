@@ -41,6 +41,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 public class GetZLevel {
 
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     public void get_zlevel(int j, ArrayList<Station> precip_stations,
             ArrayList<Station> freezing_stations, int max_stations,
             int max_zstations) {
@@ -53,7 +55,7 @@ public class GetZLevel {
         if (max_zstations == 0) {
             for (m = 0; m < max_stations; m++) {
                 for (h = 0; h < 4; h++) {
-                    DailyQcUtils.pdata[j].stn[m].frzlvl[h] = -99;
+                    dqc.pdata[j].stn[m].frzlvl[h] = -99;
                 }
             }
             return;
@@ -94,19 +96,19 @@ public class GetZLevel {
 
                     /* dont estimate unless good or forced good */
 
-                    if (DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].qual != 0
-                            && DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].qual != 8
-                            && DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].qual != 3
-                            && DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].qual != 0
-                            && DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].qual != 8
-                            && DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].qual != 3) {
+                    if (dqc.zdata[j1].zstn[i].zlevel2[h1].qual != 0
+                            && dqc.zdata[j1].zstn[i].zlevel2[h1].qual != 8
+                            && dqc.zdata[j1].zstn[i].zlevel2[h1].qual != 3
+                            && dqc.zdata[j2].zstn[i].zlevel2[h2].qual != 0
+                            && dqc.zdata[j2].zstn[i].zlevel2[h2].qual != 8
+                            && dqc.zdata[j2].zstn[i].zlevel2[h2].qual != 3) {
                         continue;
                     }
 
                     /* dont use missing stations */
 
-                    if (DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].data < 0
-                            || DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].data < 0) {
+                    if (dqc.zdata[j1].zstn[i].zlevel2[h1].data < 0
+                            || dqc.zdata[j2].zstn[i].zlevel2[h2].data < 0) {
                         continue;
                     }
 
@@ -121,7 +123,7 @@ public class GetZLevel {
                         testdist = .0001;
                     }
 
-                    padj = (DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].data + DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].data) / 2;
+                    padj = (dqc.zdata[j1].zstn[i].zlevel2[h1].data + dqc.zdata[j2].zstn[i].zlevel2[h2].data) / 2;
                     fdist = 1 / testdist + fdist;
                     fdata = padj / testdist + fdata;
                     l++;
@@ -133,19 +135,19 @@ public class GetZLevel {
                     l = 0;
                     for (i = 0; i < max_zstations; i++) {
 
-                        if (DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].qual != 0
-                                && DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].qual != 8
-                                && DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].qual != 3
-                                && DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].qual != 0
-                                && DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].qual != 8
-                                && DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].qual != 3) {
+                        if (dqc.zdata[j1].zstn[i].zlevel2[h1].qual != 0
+                                && dqc.zdata[j1].zstn[i].zlevel2[h1].qual != 8
+                                && dqc.zdata[j1].zstn[i].zlevel2[h1].qual != 3
+                                && dqc.zdata[j2].zstn[i].zlevel2[h2].qual != 0
+                                && dqc.zdata[j2].zstn[i].zlevel2[h2].qual != 8
+                                && dqc.zdata[j2].zstn[i].zlevel2[h2].qual != 3) {
                             continue;
                         }
 
                         /* dont use missing stations */
 
-                        if (DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].data < 0
-                                || DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].data < 0) {
+                        if (dqc.zdata[j1].zstn[i].zlevel2[h1].data < 0
+                                || dqc.zdata[j2].zstn[i].zlevel2[h2].data < 0) {
                             continue;
                         }
 
@@ -162,7 +164,7 @@ public class GetZLevel {
                             testdist = .0001;
                         }
 
-                        padj = (DailyQcUtils.zdata[j1].zstn[i].zlevel2[h1].data + DailyQcUtils.zdata[j2].zstn[i].zlevel2[h2].data) / 2;
+                        padj = (dqc.zdata[j1].zstn[i].zlevel2[h1].data + dqc.zdata[j2].zstn[i].zlevel2[h2].data) / 2;
 
                         fdist = 1 / testdist + fdist;
                         fdata = padj / testdist + fdata;
@@ -175,7 +177,7 @@ public class GetZLevel {
                 } else {
                     fvalue = fdata / fdist * 1000;
                 }
-                DailyQcUtils.pdata[j].stn[m].frzlvl[h] = (int) fvalue;
+                dqc.pdata[j].stn[m].frzlvl[h] = (int) fvalue;
             }
         }
     }
