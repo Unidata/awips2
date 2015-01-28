@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -49,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Deleted unnecessary parameter in addArea method.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
+ * Nov 21, 2014 3841      skorolev     Corrected handleAddNewAction method.
  * 
  * </pre>
  * 
@@ -234,9 +234,12 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         addBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+                String areaId = idTF.getText();
                 String latString = centroidLatTF.getText();
                 String lonString = centroidLonTF.getText();
-                handleAddNewAction(latString, lonString);
+                if (macDlg.formIsValid(areaId, latString, lonString)) {
+                    handleAddNewAction(areaId, latString, lonString);
+                }
             }
         });
 
@@ -256,61 +259,32 @@ public class AddNewZoneDlg extends CaveSWTDialog {
     /**
      * Adds a new zone.
      * 
+     * @param areaId
      * @param latString
      * @param lonString
+     * @throws NumberFormatException
      */
-    private void handleAddNewAction(String latString, String lonString) {
-        String areaId = idTF.getText();
-        if (areaId.equals("") || areaId.length() != 6
-                || (areaId.charAt(2) != 'C' && areaId.charAt(2) != 'Z')) {
-            displayInputErrorMsg("Invalid Area ID = '" + areaId
-                    + "' entered. Please enter a correctly formatted Area ID.");
-            return;
-        }
+    private void handleAddNewAction(String areaId, String latString,
+            String lonString) throws NumberFormatException {
         if (macDlg.isExistingZone(areaId)) {
-            displayInputErrorMsg("The Area ID, "
+            macDlg.displayInputErrorMsg("The Area ID, "
                     + areaId
                     + ", is already in your Monitoring Area or among your Additional Zones.");
             return;
         }
-        if (latString == null || latString.isEmpty() || lonString == null
-                || lonString.isEmpty()) {
-            macDlg.latLonErrorMsg(latString, lonString);
-            return;
-        } else {
-            try {
-                double lat = Double.parseDouble(latString.trim());
-                double lon = Double.parseDouble(lonString.trim());
-                ZoneType type = ZoneType.REGULAR;
-                if (appName != AppName.SNOW) {
-                    if (marineZoneRdo.getSelection()) {
-                        type = ZoneType.MARITIME;
-                    }
-                }
-                if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
-                    macDlg.latLonErrorMsg(latString, lonString);
-                    return;
-                }
-                macDlg.configMgr.addArea(areaId, lat, lon, type);
-                macDlg.addNewZoneAction(areaId, centroidLatTF.getText(),
-                        centroidLonTF.getText());
-            } catch (NumberFormatException e) {
-                macDlg.latLonErrorMsg(latString, lonString);
-                return;
+        double lat = Double.parseDouble(latString.trim());
+        double lon = Double.parseDouble(lonString.trim());
+        ZoneType type = ZoneType.REGULAR;
+        if (appName != AppName.SNOW) {
+            if (marineZoneRdo.getSelection() || idTF.getText().charAt(2) == 'Z') {
+                type = ZoneType.MARITIME;
             }
         }
-    }
-
-    /**
-     * Displays Input Error Message
-     * 
-     * @param msg
-     */
-    private void displayInputErrorMsg(String msg) {
-        MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION
-                | SWT.OK);
-        messageBox.setText("Invalid input");
-        messageBox.setMessage(msg);
-        messageBox.open();
+        if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
+            macDlg.latLonErrorMsg(latString, lonString);
+            return;
+        }
+        macDlg.configMgr.addArea(areaId, lat, lon, type);
+        macDlg.addZoneToMA(areaId);
     }
 }

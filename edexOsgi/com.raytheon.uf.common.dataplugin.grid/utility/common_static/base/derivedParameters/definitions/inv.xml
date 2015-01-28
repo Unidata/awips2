@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// Calculates the difference in m from the agl Height of the MaxTw level
+	// and the Freezing Level. Positive valued for inverted conditions.
+	//
+	
+	
+	AWIPS 1 format
+	INV | |N |Height of MaxTw above FrzLvl |ft| CONTOUR,IMAGE,OTHER|Layer|      *Difference,Layer|zAGL,MaxTW|zAGL,FrzLvl
+	
+	
+	abbreviation: |INV| 
+	Notused1: | | 
+	Notused2: |N | 
+	name: |Height of MaxTw above FrzLvl | 
+	FIELD: |ft| 
+	FIELD: |CONTOUR,IMAGE,OTHER| 
+	FIELD: |Layer| 
+	FIELD: |zAGL,MaxTW| 
+	FIELD: |zAGL,FrzLvl| 
+	
+	
+	NEW FILE - INV.xml
+ -->
+<DerivedParameter unit="ft" name="Height of MaxTw above FrzLvl" abbreviation="INV" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Difference">
+        <Field level="MaxTW" abbreviation="zAGL"/>
+        <Field level="FrzLvl" abbreviation="zAGL"/>
+    </Method>
+</DerivedParameter>

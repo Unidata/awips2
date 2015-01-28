@@ -108,7 +108,6 @@
 		
 		<!-- set executable permissions - start.sh. -->
 		<chmod file="${edex.root.directory}/bin/start.sh" perm="ugo+rx" />
-        <chmod file="${edex.root.directory}/bin/yajsw/scripts/wrapperCapture.sh" perm="ugo+rx" />
 	</target>
 
 	<target name="deploy.esb-data">
