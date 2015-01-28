@@ -216,6 +216,8 @@
     <alias base="NAHwave4">NAHwave4</alias>
     <alias base="ETSS">ETSS</alias>
     <alias base="ETSS-AK">ETSS</alias>
+    <alias base="nwpsCG1">nwpsCG1</alias>
+    <alias base="nwpsTrkngCG0">nwpsTrkngCG0</alias>
     <alias base="FFG-ALR">RFCFFG_ParameterInfo</alias>
     <alias base="FFG-FWR">RFCFFG_ParameterInfo</alias>
     <alias base="FFG-KRF">RFCFFG_ParameterInfo</alias>
