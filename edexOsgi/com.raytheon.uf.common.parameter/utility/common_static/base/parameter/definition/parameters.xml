@@ -559,4 +559,24 @@
 		<abbreviation>TKE</abbreviation>
 		<unit>J/kg</unit>
 	</parameter>
+	<parameter>
+		<name>Geometric Depth Below Sea Surface</name>
+		<abbreviation>WDEPTH</abbreviation>
+		<unit>m</unit>
+	</parameter>
+	<parameter>
+		<name>Deviation Of Sea Level from Mean</name>
+		<abbreviation>DSLM</abbreviation>
+		<unit>m</unit>
+	</parameter>
+	<parameter>
+		<name>Surface Current Speed</name>
+		<abbreviation>SPC</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+	<parameter>
+		<name>Surface Current Direction</name>
+		<abbreviation>DIRC</abbreviation>
+		<unit>degree</unit>
+	</parameter>
 </parameterList>
