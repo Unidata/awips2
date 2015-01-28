@@ -66,6 +66,26 @@
         <dt>3</dt>
     </info>
     <info>
+        <title>GFS20-CONUS</title>
+        <datasetId>GFS215</datasetId>
+        <dt>3</dt>
+    </info>
+    <info>
+        <title>GFS20-AK</title>
+        <datasetId>GFS217</datasetId>
+        <dt>3</dt>
+    </info>
+    <info>
+        <title>GFS20-PAC</title>
+        <dataset>GFS-PAC-20KM</dataset>
+        <dt>3</dt>
+    </info>
+    <info>
+        <title>GFS20-PRICO</title>
+        <dataset>GFS-PRICO-20KM</dataset>
+        <dt>3</dt>
+    </info>
+    <info>
         <title>gfsLR</title>
         <datasetId>mrfNH</datasetId>
         <dt>12</dt>
