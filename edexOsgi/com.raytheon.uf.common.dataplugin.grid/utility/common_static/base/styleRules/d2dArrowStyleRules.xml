@@ -138,7 +138,8 @@
 			<parameter>BARO</parameter>
 		</paramLevelMatches>
 		<arrowStyle>
-			<displayUnits>m/min</displayUnits>
+			<displayUnits>cm/sec</displayUnits>
+            <scale>0.20</scale>
 		</arrowStyle>
 	</styleRule>
 </styleRuleset>
