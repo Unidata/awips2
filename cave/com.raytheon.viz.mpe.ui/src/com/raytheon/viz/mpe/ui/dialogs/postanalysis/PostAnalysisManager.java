@@ -58,6 +58,8 @@ public class PostAnalysisManager
 	private XmrgFile.XmrgHeader xmrgHeader = null;
 	private boolean misbin[][] = getMisBin();
 	
+	private DailyQcUtils dqc = DailyQcUtils.getInstance();
+	
 	private static final double MISSING_VALUE = -9999.0;
 
 	private static final double MM_PER_INCH = 25.4;
@@ -86,14 +88,14 @@ public class PostAnalysisManager
 			
 	}
 	
-	public static Date getSelectedDate()
+	public Date getSelectedDate()
 	{	
-		  Date date = DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time;
+		  Date date = dqc.pdata[dqc.pcpn_day].data_time;
 		   
 		  return date;
 	}
 
-	public static String getSelectedDateString()
+	public String getSelectedDateString()
 	{
 		String header = "postAnalysisManager.getSelectedDateString(): ";
 		
@@ -114,7 +116,7 @@ public class PostAnalysisManager
 
 	}
 	
-	public static String get24HourGageOnlyFilePath()
+	public String get24HourGageOnlyFilePath()
     {
     	  String filePath = null;
           final String mpe_grid_precip_dir_tok = "mpe_grid_precip_dir";
@@ -122,9 +124,9 @@ public class PostAnalysisManager
     	
     	  String mpe_grid_precip_dir = ad.getToken(mpe_grid_precip_dir_tok);
     	  
-    	  String currentQcArea = DailyQcUtils.currentQcArea;
+    	  String currentQcArea = dqc.currentQcArea;
     	  
-    	  String dateString = PostAnalysisManager.getSelectedDateString();
+    	  String dateString = getSelectedDateString();
     	    
     //	  String dateString = "20140112";
     	  
@@ -230,7 +232,7 @@ public class PostAnalysisManager
 
 		String[] fileNameArray = fileDirectory.list();
 		
-		int precipDay = DailyQcUtils.pcpn_day;
+		int precipDay = dqc.pcpn_day;
 		
 		
 		List<String> filteredFileNameList = filterFileNames(precipDay, fileNameArray);
@@ -268,9 +270,9 @@ public class PostAnalysisManager
 		return endTime;
 	}
 	
-	public static double[][] get24HourTotalPrecip(int height, int width, double scaleFactor)
+	public double[][] get24HourTotalPrecip(int height, int width, double scaleFactor)
 	{
-		Date endDate = PostAnalysisManager.getSelectedDate();
+		Date endDate = getSelectedDate();
 		//    System.out.println("PostAnalysisManager.getEndTime() = " + endDate);
 		double missingValue = -999.0;
 
@@ -350,8 +352,8 @@ public class PostAnalysisManager
 		double distanceSquared;
 		double nearestDistanceSquared = 9999999.0;
 
-		int XOR = DailyQcUtils.getHrap_grid().hrap_minx;
-		int YOR = DailyQcUtils.getHrap_grid().hrap_miny;
+		int XOR = dqc.getHrap_grid().hrap_minx;
+		int YOR = dqc.getHrap_grid().hrap_miny;
 		
 		// Find the distance to the nearest precip station from this HRAP 
 		// bin at [i][j] 
@@ -387,7 +389,7 @@ public class PostAnalysisManager
     {
 		String header = "PostAnalysisManager.create3DGridArray(): ";
     	
-    	Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+    	Hrap_Grid hrap_grid = dqc.getHrap_grid();
     	int maxI = hrap_grid.maxi;
 		int maxJ = hrap_grid.maxj;
 		
@@ -406,7 +408,7 @@ public class PostAnalysisManager
     {
 		//String header = "PostAnalysisManager.create2DGridArray(): ";
     	
-    	Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+    	Hrap_Grid hrap_grid = dqc.getHrap_grid();
     	int maxCols = hrap_grid.maxi;
 		int maxRows = hrap_grid.maxj;
 		
@@ -990,7 +992,7 @@ public class PostAnalysisManager
 			 }
 */
 		
-		Hrap_Grid grid = DailyQcUtils.getHrap_grid();
+		Hrap_Grid grid = dqc.getHrap_grid();
 		
 		int maxJ = grid.maxj;
 		int maxI = grid.maxi;
@@ -1247,8 +1249,8 @@ public class PostAnalysisManager
 	
 	{	
 		String header = "PostAnalysisManager.mergeData(): ";
-		int MAXX = DailyQcUtils.getHrap_grid().maxi;
-		int MAXY = DailyQcUtils.getHrap_grid().maxj;
+		int MAXX = dqc.getHrap_grid().maxi;
+		int MAXY = dqc.getHrap_grid().maxj;
 		
 		double  logRHat;
 		int     i, j;
@@ -1256,10 +1258,10 @@ public class PostAnalysisManager
 		double  weightingFactor;
 		int     precipStationCount;	
 		
-		List<Station> precipStationList = DailyQcUtils.precip_stations;
+//		List<Station> precipStationList = dqc.precip_stations;
 		
 		
-		precipStationCount = precipStationList.size(); 
+		precipStationCount = dqc.precip_stations.size(); 
 	
 		logRHat = Math.log((double) rhat);
 		
@@ -1314,7 +1316,7 @@ public class PostAnalysisManager
 						//System.out.println(header + "merge section");
 						
 						weightingFactor = computeObservedWeight (i, j, logRHat,
-								precipStationList, precipStationCount, estimatedScale);
+								dqc.precip_stations, precipStationCount, estimatedScale);
 										
 						double mergedValueInInches = weightingFactor * gageOnlyGridValueInInches + 
 						(1.0 - weightingFactor) * qpeInches;

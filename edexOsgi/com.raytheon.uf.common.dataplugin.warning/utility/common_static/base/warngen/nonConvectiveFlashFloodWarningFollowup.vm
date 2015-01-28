@@ -11,12 +11,24 @@
 ##      Phil Kurimski  -- SEP 17 2013 FFW Emerg    ##
 ##      Mike Rega      -- JAN 18 2014 14.2.1       ##
 ##                        added Alaska GP changes  ##
-#####################################################
+##      Evan Bookbinder -- Oct 24 2014 Fixed floodSeverity code
+##########################################################
 ##
 #parse("config.vm")
 #set($headline = "")
 ## set reportType2 to a default value in case nothing is selected for site specific
 #set($reportType2 = "THE FAILURE OF")
+#if(${list.contains(${bullets}, "sev3")} || ${list.contains(${bullets}, "ffwEmergency")})
+	#set($sev = "3")
+#elseif(${list.contains(${bullets}, "sev1")})
+	#set($sev = "1")
+#elseif(${list.contains(${bullets}, "sev2")})
+	#set($sev = "2")
+#elseif(${list.contains(${bullets}, "sevUnk")})
+	#set($sev = "U")	
+#else
+	#set($sev = "0")
+#end
 #####################################################################
 ## set variables to be used in site specific dam break selections
 #####################################################################
@@ -44,7 +56,6 @@
         #set($headline = "FOR A GLACIAL DAMMED LAKE OUTBURST ")
 	#set($reportType1 = "A GLACIER DAMMED LAKE AT !** **! IS RAPIDLY RELEASING LARGE QUANTITIES OF IMPOUNDED WATER RESULTING IN FLASH FLOODING !** **!")
 ### GP end
-###	#set($reportType1 = "A GLACIER AT !** **! HAS MELTED...RELEASING LARGE QUANTITIES OF IMPOUNDED WATER AND CAUSING FLASH FLOODING !** **!")
 #elseif(${list.contains(${bullets}, "icejam")})
 	#set($ic = "IJ")
 	#set($hycType = "ICE JAM FLOODING")
@@ -139,7 +150,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.FF.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
-/00000.${floodseverity}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+/00000.${sev}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
 ${area.name}##
 #if(${includeStateAbbreviation}==true)
@@ -228,10 +239,10 @@ THIS IS A TEST MESSAGE.##
 #if(${list.contains(${bullets}, "public")})
   #set($report = "THE PUBLIC REPORTED ${reportType1}") 
 #end
-### added by GP
 #if(${list.contains(${bullets}, "onlyGauge")})
   #set($report = "GAUGES INDICATED ${reportType1}") 
 #end
+### added by GP
 #if(${list.contains(${bullets}, "CAP")})
   #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
 #end
@@ -497,14 +508,20 @@ THIS IS A TEST MESSAGE.##
 #if(${list.contains(${bullets}, "public")})
   #set($report = "THE PUBLIC REPORTED ${reportType1}") 
 #end
-### added by GP
 #if(${list.contains(${bullets}, "onlyGauge")})
   #set($report = "GAUGES INDICATED ${reportType1}") 
 #end
+## added by GP
 #if(${list.contains(${bullets}, "CAP")})
   #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
 #end
-### GP end
+#if(${list.contains(${bullets}, "alaskaVoc")})
+  #set($report = "THE ALASKA VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "cascadeVoc")})
+  #set($report = "THE CASCADES VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+## GP end
 
 ## Storm current location description
 #if(${productClass}=="T")
@@ -740,14 +757,20 @@ THIS IS A TEST MESSAGE.##
 #if(${list.contains(${bullets}, "public")})
   #set($report = "THE PUBLIC REPORTED ${reportType1}") 
 #end
-### added by GP
 #if(${list.contains(${bullets}, "onlyGauge")})
   #set($report = "GAUGES INDICATED ${reportType1}") 
 #end
+## added by GP
 #if(${list.contains(${bullets}, "CAP")})
   #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
 #end
-### GP end
+#if(${list.contains(${bullets}, "alaskaVoc")})
+  #set($report = "THE ALASKA VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "cascadeVoc")})
+  #set($report = "THE CASCADES VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+## GP end
 
 ## Storm current location description
 #if(${productClass}=="T")
