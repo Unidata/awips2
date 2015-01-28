@@ -30,7 +30,6 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -40,6 +39,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -267,7 +267,7 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
 
     private Cursor selectionModeCursor = null;
 
-    private Cursor toggleVisibilityModeCursor = null;
+    private Cursor normalCursor = null;
 
     private Cursor waitCursor = null;
 
@@ -447,13 +447,13 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
         selectionModeCursor = owner.getDisplay().getSystemCursor(
                 SWT.CURSOR_HAND);
 
-        toggleVisibilityModeCursor = owner.getDisplay().getSystemCursor(
-                SWT.CURSOR_ARROW);
+        normalCursor = owner.getDisplay().getSystemCursor(SWT.CURSOR_ARROW);
 
         waitCursor = owner.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
 
         ensembleTree.addKeyListener(new EnsembleTreeKeyListener());
-        ensembleTree.setCursor(toggleVisibilityModeCursor);
+
+        updateCursor(normalCursor);
 
     }
 
@@ -1524,7 +1524,7 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
 
             if ((e.keyCode & SWT.CTRL) == SWT.CTRL) {
                 CTRL_KEY_DEPRESSED = true;
-                ensembleTree.setCursor(selectionModeCursor);
+                updateCursor(selectionModeCursor);
             }
         }
 
@@ -1533,7 +1533,7 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
 
             if ((e.keyCode & SWT.CTRL) == SWT.CTRL) {
                 CTRL_KEY_DEPRESSED = false;
-                ensembleTree.setCursor(toggleVisibilityModeCursor);
+                updateCursor(normalCursor);
             }
         }
 
@@ -1554,7 +1554,7 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
             // menu for either ensemble products or
             // individual grid products ...
 
-            // if the enesemble tool isn't open then ignore
+            // if the ensemble tool isn't open then ignore
             // user mouse clicks ...
             if (!EnsembleToolManager.getInstance().isReady()) {
                 return;
@@ -1600,17 +1600,14 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
 
                                 public void handleEvent(Event event) {
 
-                                    final Cursor currCursor = ensembleTree
-                                            .getCursor();
-
                                     VizApp.runAsync(new Runnable() {
 
                                         @Override
                                         public void run() {
 
-                                            ensembleTree.setCursor(waitCursor);
+                                            updateCursor(waitCursor);
                                             startAddERFLayer(mousedEnsembleName);
-                                            ensembleTree.setCursor(currCursor);
+                                            updateCursor(normalCursor);
 
                                         }
                                     });
@@ -1632,17 +1629,14 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
                             new Listener() {
                                 public void handleEvent(Event event) {
 
-                                    final Cursor currCursor = ensembleTree
-                                            .getCursor();
-
                                     VizApp.runAsync(new Runnable() {
 
                                         @Override
                                         public void run() {
 
-                                            ensembleTree.setCursor(waitCursor);
+                                            updateCursor(waitCursor);
                                             updateColorsOnResource(mousedEnsembleName);
-                                            ensembleTree.setCursor(currCursor);
+                                            updateCursor(normalCursor);
 
                                         }
                                     });
@@ -1666,21 +1660,16 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
 
                                     if (proceed) {
 
-                                        final Cursor currCursor = ensembleTree
-                                                .getCursor();
-
                                         VizApp.runAsync(new Runnable() {
 
                                             @Override
                                             public void run() {
-                                                ensembleTree
-                                                        .setCursor(waitCursor);
+                                                updateCursor(waitCursor);
                                                 EnsembleToolManager
                                                         .getInstance()
                                                         .unloadResourcesByName(
                                                                 item.getText());
-                                                ensembleTree
-                                                        .setCursor(currCursor);
+                                                updateCursor(normalCursor);
                                             }
                                         });
 
@@ -1699,19 +1688,16 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
 
                                 public void handleEvent(Event event) {
 
-                                    final Cursor currCursor = ensembleTree
-                                            .getCursor();
-
                                     VizApp.runAsync(new Runnable() {
 
                                         @Override
                                         public void run() {
 
-                                            ensembleTree.setCursor(waitCursor);
+                                            updateCursor(waitCursor);
                                             setItemVisible(item,
                                                     toggleVisibilityMenuItem
                                                             .getSelection());
-                                            ensembleTree.setCursor(currCursor);
+                                            updateCursor(normalCursor);
 
                                         }
                                     });
@@ -1977,21 +1963,19 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
                     // of all the resources in one ensemble
                 } else if (mousedItem instanceof GenericResourceHolder) {
 
-                    final Cursor currCursor = ensembleTree.getCursor();
-
                     VizApp.runAsync(new Runnable() {
 
                         @Override
                         public void run() {
 
-                            ensembleTree.setCursor(waitCursor);
+                            updateCursor(waitCursor);
                             toggleItemVisible(userClickedTreeItem);
 
                             // if this was the last item to be toggled off,
                             // for example, in an ensemble group, then you
                             // need to toggle the parent tree item off also
                             matchParentToChildrenVisibility(userClickedTreeItem);
-                            ensembleTree.setCursor(currCursor);
+                            updateCursor(normalCursor);
                         }
 
                     });
@@ -2014,12 +1998,11 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
         final List<GenericResourceHolder> children = getEnsembleMemberGenericResources(ensembleName);
 
         // TODO: poor-man's way of knowing what type of flavor this ensemble is
-        if (ensembleName.toLowerCase().indexOf("gfsensemble") >= 0) {
+        if ((ensembleName.indexOf("GEFS") >= 0)
+                || (ensembleName.indexOf("GFS Ensemble") >= 0)) {
             updateGEFSEnsembleColors(ensembleName, children);
-        } else if (ensembleName.toLowerCase().indexOf("sref") >= 0) {
+        } else if (ensembleName.indexOf("SREF") >= 0) {
             updateSREFColors(ensembleName, children);
-        } else {
-            return;
         }
 
     }
@@ -2027,40 +2010,35 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
     private void updateSREFColors(String ensembleName,
             final List<GenericResourceHolder> children) {
 
-        final Cursor currCursor = ensembleTree.getCursor();
-
-        VizApp.runAsync(new Runnable() {
+        VizApp.runSync(new Runnable() {
 
             @Override
             public void run() {
 
-                ensembleTree.setCursor(waitCursor);
+                updateCursor(waitCursor);
 
                 EnsembleSREFColorChooser cd = new EnsembleSREFColorChooser(
                         owner.getShell());
-                cd.create();
-                int result = cd.open();
-                if (result != IDialogConstants.OK_ID) {
-                    return;
-                }
-
-                Color currColor = null;
-                for (GenericResourceHolder gRsc : children) {
-                    if (gRsc instanceof GridResourceHolder) {
-                        AbstractVizResource<?, ?> rsc = gRsc.getRsc();
-                        String ensId = gRsc.getEnsembleIdRaw();
-                        if ((ensId != null) && (ensId.length() > 1)) {
-                            currColor = ChosenSREFColors.getInstance()
-                                    .getGradientByEnsembleId(ensId);
-                            rsc.getCapability(ColorableCapability.class)
-                                    .setColor(currColor.getRGB());
-                            rsc.issueRefresh();
+                cd.setBlockOnOpen(true);
+                if (cd.open() == Window.OK) {
+                    Color currColor = null;
+                    for (GenericResourceHolder gRsc : children) {
+                        if (gRsc instanceof GridResourceHolder) {
+                            AbstractVizResource<?, ?> rsc = gRsc.getRsc();
+                            String ensId = gRsc.getEnsembleIdRaw();
+                            if ((ensId != null) && (ensId.length() > 1)) {
+                                currColor = ChosenSREFColors.getInstance()
+                                        .getGradientByEnsembleId(ensId);
+                                rsc.getCapability(ColorableCapability.class)
+                                        .setColor(currColor.getRGB());
+                                rsc.issueRefresh();
+                            }
                         }
                     }
+                    ensemblesTreeViewer.refresh();
                 }
-                ensemblesTreeViewer.refresh();
 
-                ensembleTree.setCursor(currCursor);
+                updateCursor(normalCursor);
 
             }
         });
@@ -2070,46 +2048,43 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
     private void updateGEFSEnsembleColors(String ensembleName,
             final List<GenericResourceHolder> children) {
 
-        final Cursor currCursor = ensembleTree.getCursor();
-
-        VizApp.runAsync(new Runnable() {
+        VizApp.runSync(new Runnable() {
 
             @Override
             public void run() {
 
-                ensembleTree.setCursor(waitCursor);
+                updateCursor(waitCursor);
 
                 EnsembleGEFSColorChooser cd = new EnsembleGEFSColorChooser(
                         owner.getShell());
-                cd.create();
-                int result = cd.open();
-                if (result != IDialogConstants.OK_ID) {
-                    return;
-                }
+                cd.setBlockOnOpen(true);
+                if (cd.open() == Window.OK) {
 
-                Color currColor = null;
-                int count = 0;
-                for (GenericResourceHolder gRsc : children) {
-                    if (gRsc instanceof GridResourceHolder) {
-                        count++;
-                        AbstractVizResource<?, ?> rsc = gRsc.getRsc();
-                        if (count == 1) {
-                            currentEnsembleRsc = rsc;
-                        }
-                        String ensId = gRsc.getEnsembleIdRaw();
-                        if ((ensId != null) && (ensId.length() > 1)) {
-                            currColor = ChosenGEFSColors.getInstance()
-                                    .getGradientByEnsembleId(ensId);
-                            rsc.getCapability(ColorableCapability.class)
-                                    .setColor(currColor.getRGB());
-                            rsc.getCapability(OutlineCapability.class);
-                            rsc.issueRefresh();
+                    // EditorUtil.getActiveEditor().
+                    Color currColor = null;
+                    int count = 0;
+                    for (GenericResourceHolder gRsc : children) {
+                        if (gRsc instanceof GridResourceHolder) {
+                            count++;
+                            AbstractVizResource<?, ?> rsc = gRsc.getRsc();
+                            if (count == 1) {
+                                currentEnsembleRsc = rsc;
+                            }
+                            String ensId = gRsc.getEnsembleIdRaw();
+                            if ((ensId != null) && (ensId.length() > 1)) {
+                                currColor = ChosenGEFSColors.getInstance()
+                                        .getGradientByEnsembleId(ensId);
+                                rsc.getCapability(ColorableCapability.class)
+                                        .setColor(currColor.getRGB());
+                                rsc.getCapability(OutlineCapability.class);
+                                rsc.issueRefresh();
+                            }
                         }
                     }
+                    ensemblesTreeViewer.refresh();
                 }
-                ensemblesTreeViewer.refresh();
 
-                ensembleTree.setCursor(currCursor);
+                updateCursor(normalCursor);
             }
 
         });
@@ -3514,6 +3489,10 @@ public class EnsembleToolViewer extends ViewPart implements IRefreshListener {
                 }
             });
         }
+    }
+
+    private void updateCursor(Cursor c) {
+        ensembleTree.setCursor(c);
     }
 
 }
