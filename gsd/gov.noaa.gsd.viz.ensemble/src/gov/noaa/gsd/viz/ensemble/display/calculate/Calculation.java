@@ -24,8 +24,8 @@ public enum Calculation {
     COMBINED_ENS_REL_FREQ("Combined ERF"), //
     DIFFERENCE("Diff"), //
     ENSEMBLE_RELATIVE_FREQUENCY("Ens Rel Freq"), //
-    HISTOGRAM_SAMPLING("Histogram sampling"), //
-    HISTOGRAM_TEXT("Histogram text"), //
+    HISTOGRAM_SAMPLING("Sampling"), //
+    HISTOGRAM_TEXT("Histogram Sampling"), //
     MAX("Max"), //
     MEAN("Mean"), //
     MIN("Min"), //
