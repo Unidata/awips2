@@ -17,6 +17,7 @@
 	 Evan Bookbinder 2-18-2014 corrected supercell CTA typo & added DSSEvents & 2014 IBW impacts
      Evan Bookbinder 2-27-2014 parseStrings for Tornado Emergency and Default CTAs
      Evan Bookbinder 9-5-2014 fixed parseStrings for law enf CTA
+     Evan Bookbinder 10-24-2014 fixed parseString for SqLn embedded TOR
 	                
 -->
 <!--
@@ -210,8 +211,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...EXPECT DAMAGE TO MOBILE HOMES"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="dopplerTOR" bulletText="Doppler radar indicated" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
-  <bullet bulletName="dopplerSquallTOR" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;SQUALL LINE&quot;"/>
+  <bullet bulletName="dopplerTOR" bulletText="Doppler radar indicated" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE&quot;"/>
+  <bullet bulletName="dopplerSquallTOR" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE&quot;"/>
   <bullet bulletName="confirmedDopplerTOR" bulletText="Confirmed tornado (TDS sig - OBSERVED Tag)" bulletGroup="group1" parseString="SOURCE...RADAR CONFIRMED"/>
   <bullet bulletName="spotterTOR" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;-FUNNEL CLOUD&quot;"/>
   <bullet bulletName="lawEnforcementTOR" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
@@ -245,7 +246,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00IN"/>
   <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="4.25IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** ADDITIONAL REPORTS ********" bulletType="title"/>
   <bullet bulletName="addlTorInfo" bulletText="Select to include additional tornado/damage information..."/>
@@ -299,7 +300,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="radioset3" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="radioset3" parseString="3.00IN"/>
   <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="radioset3" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="radioset3" parseString="4.25IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
   <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
@@ -347,8 +348,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="landspoutTornado" bulletText="LANDSPOUT/VERY WEAK TORNADO" bulletGroup="headline" parseString="IMPACT...EXPECT DAMAGE TO MOBILE HOMES"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="dopplerTOR" bulletText="Doppler radar indicated" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
-  <bullet bulletName="dopplerSquallTOR" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;SQUALL LINE&quot;"/>
+  <bullet bulletName="dopplerTOR" bulletText="Doppler radar indicated" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE&quot;"/>
+  <bullet bulletName="dopplerSquallTOR" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE&quot;"/>
   <bullet bulletName="confirmedDopplerTOR" bulletText="Confirmed tornado (TDS sig - OBSERVED Tag)" bulletGroup="group1" parseString="SOURCE...RADAR CONFIRMED"/>
   <bullet bulletName="spotterTOR" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;-FUNNEL CLOUD&quot;"/>
   <bullet bulletName="lawEnforcementTOR" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
@@ -382,7 +383,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00IN"/>
   <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="4.25IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** ADDITIONAL REPORTS ********" bulletType="title"/>
   <bullet bulletName="addlTorInfo" bulletText="Select to include additional tornado/damage information..."/>
@@ -435,7 +436,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="radioset3" parseString="2.75IN"/>
   <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="radioset3" parseString="3.00IN"/>
   <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="radioset3" parseString="4.00IN"/>
-  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="toggle3" parseString="4.25IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="radioset3" parseString="4.25IN"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** TORNADO TAG ********" bulletType="title"/>
   <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>

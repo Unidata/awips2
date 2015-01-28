@@ -45,8 +45,10 @@ import com.raytheon.uf.common.dataplugin.grid.dataquery.GridQueryAssembler;
 import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapper;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.util.mapping.Mapper;
@@ -67,6 +69,7 @@ import com.raytheon.uf.common.util.mapping.Mapper;
  * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * Oct 16, 2014  3598     nabowle     Accept level identifiers.
+ * Oct 21, 2014  3755     nabowle     Add getAvailable levels and parameters.
  *
  *
  * </pre>
@@ -321,4 +324,33 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
         return getAvailableLocationNames(request, GridConstants.DATASET_ID);
     }
 
+    /**
+     * Get the available levels.
+     */
+    @Override
+    public Level[] getAvailableLevels(IDataRequest request) {
+        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
+        dbQueryRequest.setDistinct(Boolean.TRUE);
+        dbQueryRequest.addRequestField(GridConstants.LEVEL);
+
+        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                dbQueryRequest, request.toString());
+        return dbQueryResponse
+                .getFieldObjects(GridConstants.LEVEL, Level.class);
+    }
+
+    /**
+     * Get the available parameter abbreviations.
+     */
+    @Override
+    public String[] getAvailableParameters(IDataRequest request) {
+        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
+        dbQueryRequest.setDistinct(Boolean.TRUE);
+        dbQueryRequest.addRequestField(GridConstants.PARAMETER_ABBREVIATION);
+
+        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                dbQueryRequest, request.toString());
+        return dbQueryResponse.getFieldObjects(
+                GridConstants.PARAMETER_ABBREVIATION, String.class);
+    }
 }

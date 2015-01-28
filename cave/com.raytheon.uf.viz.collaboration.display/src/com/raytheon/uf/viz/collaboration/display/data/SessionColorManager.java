@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.display.data;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -46,6 +47,7 @@ import com.raytheon.viz.core.ColorUtil;
  * Mar 06, 2014 2848       bclement    synchronized color access
  * Jul 02, 2014 1255       bclement    collaboration specific RGB presets
  *                                      falls back to ColorUtil resource color presets
+ * Jan 13, 2015 3709       bclement    implements IColorManager, uses UserColorInfo
  * 
  * </pre>
  * 
@@ -53,94 +55,129 @@ import com.raytheon.viz.core.ColorUtil;
  * @version 1.0
  */
 
-public class SessionColorManager {
+public class SessionColorManager implements IColorManager<VenueParticipant> {
 
     public static final String SESSION_COLOR_PREFERENCE_KEY = "collaborationParticipantColor";
 
-    private final Map<VenueParticipant, RGB> colors = new HashMap<VenueParticipant, RGB>();
+    protected final Map<VenueParticipant, UserColorInfo> colors = new HashMap<>();
 
-    private static final RGB[] rgbPresets;
+    private static final RGB[] foregroundPresets;
 
     static {
         HierarchicalPreferenceStore prefs = (HierarchicalPreferenceStore) Activator
                 .getDefault().getPreferenceStore();
         String[] names = prefs.getStringArray(SESSION_COLOR_PREFERENCE_KEY);
         if (names.length > 0) {
-            rgbPresets = new RGB[names.length];
+            foregroundPresets = new RGB[names.length];
             int i = 0;
             for (String name : names) {
-                rgbPresets[i++] = RGBColors.getRGBColor(name);
+                foregroundPresets[i++] = RGBColors.getRGBColor(name);
             }
         } else {
-            rgbPresets = ColorUtil.getResourceColorPresets();
+            foregroundPresets = ColorUtil.getResourceColorPresets();
         }
     }
 
     /**
-     * Get a map of venue participants to their assigned colors used for
+     * Get a map of venue participants to their assigned foreground colors
      * 
      * @return
      */
-    public Map<VenueParticipant, RGB> getColors() {
+    public Map<VenueParticipant, RGB> getForegroundColors() {
+        /*
+         * TODO the foreground specific methods are required since the shared
+         * display protocol doesn't support changing the background color as
+         * this would cause compatibility issues.
+         */
         Map<VenueParticipant, RGB> rval;
         synchronized (colors) {
-            rval = new HashMap<VenueParticipant, RGB>(colors);
+            rval = new HashMap<VenueParticipant, RGB>(colors.size());
+            for (Entry<VenueParticipant, UserColorInfo> entry : colors
+                    .entrySet()) {
+                rval.put(entry.getKey(), entry.getValue().getForeground());
+            }
         }
         return rval;
     }
 
     /**
-     * Clear color assignments and repopulate with supplied map
+     * Reassign foreground colors specified by map
      * 
      * @param map
      */
-    public void setColors(Map<VenueParticipant, RGB> map) {
+    public void setForegroundColors(Map<VenueParticipant, RGB> map) {
         synchronized (colors) {
-            colors.clear();
-            colors.putAll(map);
+            for (Entry<VenueParticipant, RGB> entry : map.entrySet()) {
+                VenueParticipant participant = entry.getKey();
+                UserColorInfo colorInfo = getColorInternal(participant);
+                RGB foreground = entry.getValue();
+                if (colorInfo != null) {
+                    colorInfo.setForeground(foreground);
+                } else {
+                    setColorInternal(participant, new UserColorInfo(foreground));
+                }
+            }
         }
     }
 
-    /**
-     * Get participant's assigned color
-     * 
-     * @param user
-     * @return
-     */
-    public RGB getColorForUser(VenueParticipant user) {
-        RGB rval;
-        synchronized (colors) {
-            rval = colors.get(user);
-            if (rval == null) {
+    @Override
+    public UserColorInfo getColorForUser(VenueParticipant user) {
+        UserColorInfo rval;
+        rval = getColorInternal(user);
+        if (rval == null) {
+            synchronized (colors) {
                 int count = colors.size();
-                if (rgbPresets.length <= count) {
-                    count = count % rgbPresets.length;
+                if (foregroundPresets.length <= count) {
+                    count = count % foregroundPresets.length;
                 }
-                rval = rgbPresets[count];
-                colors.put(user, rval);
+                rval = new UserColorInfo(foregroundPresets[count]);
+                setColorInternal(user, rval);
             }
         }
         return rval;
     }
 
     /**
-     * Assign color to participant
-     * 
-     * @param id
-     * @param rgb
+     * @param user
+     * @return null if user isn't found
      */
-    public void setColorForUser(VenueParticipant id, RGB rgb) {
-        synchronized (colors) {
-            colors.put(id, rgb);
+    protected UserColorInfo getColorInternal(VenueParticipant user) {
+        UserColorInfo rval = null;
+        if (user != null) {
+            synchronized (colors) {
+                rval = colors.get(user);
+            }
         }
+        return rval;
     }
 
     /**
-     * Clear color assignments
+     * @param user
+     * @param color
      */
+    protected void setColorInternal(VenueParticipant user, UserColorInfo color) {
+        synchronized (colors) {
+            colors.put(user, color);
+        }
+    }
+
+    @Override
+    public void setColorForUser(VenueParticipant user, UserColorInfo color) {
+        setColorInternal(user, color);
+    }
+
+    @Override
     public void clearColors() {
         synchronized (colors) {
             colors.clear();
         }
     }
+
+    @Override
+    public String getDescription(VenueParticipant user) {
+        return "Color changes will apply to the user " + user.getName()
+                + " only in the " + user.getRoom() + " room. "
+                + "\nColor changes will be discarded when you leave the room.";
+    }
+
 }
