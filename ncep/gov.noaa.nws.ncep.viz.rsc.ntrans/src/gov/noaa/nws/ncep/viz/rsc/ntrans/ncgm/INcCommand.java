@@ -19,13 +19,17 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
+ * INcCommand: Interface implemented by selected CGM command classes that have
+ * been extended to allow themselves to contribute to an AWIPS II image.
+ * 
  * @author bhebbard
  * 
  */
 
 public interface INcCommand {
 
-    public void paint(IGraphicsTarget target, PaintProperties paintProps,
-            IDescriptor descriptor, ImageBuilder ib) throws VizException;
+    public abstract void contributeToPaintableImage(ImageBuilder ib,
+            IGraphicsTarget target, PaintProperties paintProps,
+            IDescriptor descriptor) throws VizException;
 
 }

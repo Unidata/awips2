@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	TP6hr_std  | |N|6hr Precip Ensemble Std Dev |in       |CONTOUR,IMAGE,OTHER| |   *StdDev|TP6hr_perts
+	
+	
+	varId: |TP6hr_std| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N| 
+	varName: |6hr Precip Ensemble Std Dev | 
+	units: |in| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: ||							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |StdDev| 
+	varId: |TP6hr_perts| 
+	
+	
+	AWIPS II NEW FILE - TP6hr_std.xml
+ -->
+<DerivedParameter unit="mm" name="6hr Precip Ensemble Std Dev" abbreviation="TP6hr_std" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="StdDev">
+        <Field abbreviation="TP6hr_perts"/>
+    </Method>
+</DerivedParameter>

@@ -3,3 +3,4 @@
 plotModel=@PlotModels/bufrmosLAMP/standard.xml
 plotDensity=10
 conditionalFilter=
+legendString=LAMPMOS Standard View
