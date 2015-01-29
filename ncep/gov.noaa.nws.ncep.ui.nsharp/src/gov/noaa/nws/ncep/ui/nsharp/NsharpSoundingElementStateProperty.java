@@ -19,6 +19,9 @@ import java.util.List;
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 04/23/2012	229			Chin Chen	Initial coding
+ * 01/27/2015   DR#17006,
+ *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
+ *                                      in Volume Browser
  *
  * </pre>
  * 
@@ -37,9 +40,10 @@ public class NsharpSoundingElementStateProperty {
 	private int compColorIndex;
 	private List<NcSoundingLayer> sndLyLst;
 	private List<NcSoundingLayer> sndLyLstBk;
+	private boolean goodData = true; //#5929
 	public NsharpSoundingElementStateProperty(String elementDescription,
 			String stnDescription, 
-			String timeDescription,  NsharpStationInfo stnInfo, List<NcSoundingLayer> sndLyLst) {
+			String timeDescription,  NsharpStationInfo stnInfo, List<NcSoundingLayer> sndLyLst, boolean goodData) {
 		super();
 		this.elementDescription = elementDescription;
 		//this.elementState = elementState;
@@ -49,6 +53,7 @@ public class NsharpSoundingElementStateProperty {
 		this.sndType =  stnInfo.getSndType();
 		this.compColorIndex = NsharpConstants.LINE_COMP1;;
 		this.sndLyLst = sndLyLst;
+		this.goodData = goodData; //#5929
 		sndLyLstBk= new ArrayList<NcSoundingLayer>(sndLyLst.size());
 		for(NcSoundingLayer ly : sndLyLst){
 			try {
@@ -133,6 +138,14 @@ public class NsharpSoundingElementStateProperty {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public boolean isGoodData() {
+		return goodData;
+	}
+
+	public void setGoodData(boolean goodData) {
+		this.goodData = goodData;
 	}
 	
 }
