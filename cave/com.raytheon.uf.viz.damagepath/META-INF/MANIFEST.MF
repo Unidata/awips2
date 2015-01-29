@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Damage Path
+Bundle-SymbolicName: com.raytheon.uf.viz.damagepath
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.6",
+ com.raytheon.uf.viz.drawing;bundle-version="1.14.0",
+ com.raytheon.uf.common.time;bundle-version="1.14.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.2"
+Export-Package: com.raytheon.uf.viz.damagepath
