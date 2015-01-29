@@ -115,8 +115,9 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingWireframeShape;
  *                                    {@link IGraphicsTarget} methods.
  * Jul 28, 2014  3429     mapeters    Updated deprecated drawLine() calls.
  * Aug 07, 2014  3492     mapeters    Updated deprecated createWireframeShape() calls
- *                                    and removed unused setUseBuiltinColorbar(), 
+ *                                    and removed unused setUseBuiltinColorbar(),
  *                                    drawFilledCircle(), and buildColorMap() methods.
+ * Jan 26, 2015  3974     njensen     Updated createShadedShape() calls
  * 
  * </pre>
  * 
@@ -134,7 +135,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
 
     private RGB backgroundColor = new RGB(0, 0, 0);
 
-    private GraphicsExtensionManager extensionManager;
+    private final GraphicsExtensionManager extensionManager;
 
     private Rectangle bounds;
 
@@ -156,6 +157,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *             {@link #initializeRaster(IRenderedImageCallback)}. Other
      *             image construction methods should be done through extensions
      */
+    @Override
     @Deprecated
     public IImage initializeRaster(IDataPreparer preparer,
             ColorMapParameters optionalParams) {
@@ -249,6 +251,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * com.raytheon.uf.viz.core.drawables.IFont.FontType, float,
      * com.raytheon.uf.viz.core.drawables.IFont.Style[])} should be used instead
      */
+    @Override
     @Deprecated
     public IFont initializeFont(File fontFile, float size, Style[] styles) {
         return initializeFont(fontFile, FontType.TRUETYPE, size, styles);
@@ -260,7 +263,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @param size
      * @param styles
      * @return
-     * @see 
+     * @see
      *      com.raytheon.uf.viz.core.IGraphicsTarget#initializeFont(java.io.File,
      *      com.raytheon.uf.viz.core.drawables.IFont.FontType float,
      *      com.raytheon.uf.viz.core.drawables.IFont.Style[])
@@ -682,6 +685,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated: Use {@link #drawCircle(DrawableCircle...)}
      */
+    @Override
     @Deprecated
     public void drawArc(double x1, double y1, double z1, double radius,
             RGB color, float width, int startAzimuth, int endAzimuth,
@@ -879,11 +883,18 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *              {@link #createShadedShape(boolean, GeneralGridGeometry, boolean)}
      *              instead
      */
+    @Override
     @Deprecated
     public IShadedShape createShadedShape(boolean mutable,
             IDescriptor descriptor, boolean tesselate) {
         return createShadedShape(mutable, descriptor.getGridGeometry(),
                 tesselate);
+    }
+
+    @Override
+    public IShadedShape createShadedShape(boolean mutable,
+            GeneralGridGeometry targetGeometry) {
+        return createShadedShape(mutable, targetGeometry, true);
     }
 
     /**
@@ -905,6 +916,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
                 CreateShadedShapeEvent.class, shape);
         event.setTargetGeometry(targetGeometry);
         event.setMutable(mutable);
+        // TODO remove tesselate from event in backwards compatible way
         event.setTesselate(tesselate);
         dispatch(event);
         return shape;
@@ -1061,6 +1073,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated Should not be used for anything
      */
+    @Override
     @Deprecated
     public String getViewType() {
         return VizConstants.VIEW_2D;
@@ -1136,6 +1149,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated Use {@link #drawStrings(DrawableString...)}
      */
+    @Override
     @Deprecated
     public void drawString(IFont font, String text, double x, double y,
             double z, TextStyle textStyle, RGB color,
@@ -1155,6 +1169,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated Use {@link #drawStrings(DrawableString...)}
      */
+    @Override
     @Deprecated
     public void drawString(IFont font, String text, double x, double y,
             double z, TextStyle textStyle, RGB color,
@@ -1172,6 +1187,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated Use {@link #drawStrings(DrawableString...)}
      */
+    @Override
     @Deprecated
     public void drawStrings(IFont font, String[] text, double x, double y,
             double z, TextStyle textStyle, RGB[] colors,
@@ -1189,6 +1205,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated Use {@link #getStringsBounds(DrawableString)}
      */
+    @Override
     @Deprecated
     public Rectangle2D getStringBounds(IFont font, String text) {
         DrawableString params = new DrawableString(text, null);
@@ -1199,6 +1216,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated Use {@link #getStringsBounds(DrawableString)}
      */
+    @Override
     @Deprecated
     public Rectangle2D getStringBounds(IFont font, String[] text,
             TextStyle style) {
@@ -1211,6 +1229,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated Use {@link #drawCircle(DrawableCircle...)}
      */
+    @Override
     @Deprecated
     public void drawCircle(double x1, double y1, double z1, double radius,
             RGB color, float width) throws VizException {
@@ -1225,6 +1244,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated Use {@link #drawLine(DrawableLine...)}
      */
+    @Override
     @Deprecated
     public void drawLine(double x1, double y1, double z1, double x2, double y2,
             double z2, RGB color, float width, LineStyle lineStyle)
@@ -1241,6 +1261,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @deprecated Use {@link #drawLine(DrawableLine...)}
      */
+    @Override
     @Deprecated
     public void drawLine(double x1, double y1, double z1, double x2, double y2,
             double z2, RGB color, float width) throws VizException {
