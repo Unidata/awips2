@@ -11,6 +11,10 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 05/02/2012	229			Chin Chen	Initial coding for multiple display panes implementation
+ * 01/13/2015   DR#17008,
+ *              task#5930   Chin Chen   NSHARP Hodograph Does Not Loop in D2D Lite Configuration
+ *                                      moved "setFrameCoordinator()" to NsharpAbstractPaneDescriptor,
+ *                                      so it can be used by other descriptor
  *
  * </pre>
  * 
@@ -29,8 +33,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.datastructure.LoopProperties;
-import com.raytheon.uf.viz.core.drawables.FrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
 import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
@@ -54,69 +56,7 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
 		setTimeMatcher(new D2DTimeMatcher());
 		setFrameCoordinator();
 	}
-    
-    private void setFrameCoordinator() {
-    	frameCoordinator = new FrameCoordinator(this) {
-			@Override
-			/*
-			 * Chin Note: this function handles keyboard up/down/left/right arrow keys for station and time line stepping.
-			 */
-            public void changeFrame(
-                    IFrameCoordinator.FrameChangeOperation operation,
-                    IFrameCoordinator.FrameChangeMode mode) {
-				//NsharpEditor editor = NsharpEditor.getActiveNsharpEditor() ;
-				//if(editor== null || editor.getRscHandler()==null)
-				//	return;
-				if(rscHandler == null)
-					return;
-				//System.out.println("NsharpSkewTPaneDescriptor changeFrame(operation) called  op="+operation+" mode"+mode);
-				if(mode == IFrameCoordinator.FrameChangeMode.SPACE_ONLY){
-					//up/down arrow keys for stepping stations
-					//editor.getRscHandler().setSteppingStnIdList(operation);
-					rscHandler.setSteppingStnIdList(operation);
-				} else if(mode == IFrameCoordinator.FrameChangeMode.TIME_ONLY || mode == IFrameCoordinator.FrameChangeMode.TIME_AND_SPACE){
-					//left/right arrow keys for stepping time lines
-					//editor.getRscHandler().setSteppingTimeLine(operation, mode);
-					rscHandler.setSteppingTimeLine(operation, mode);
-				}
-            }
-			/*
-			 * (non-Javadoc)
-			 * @see com.raytheon.uf.viz.core.drawables.FrameCoordinator#changeFrame(com.raytheon.uf.viz.core.datastructure.LoopProperties)
-			 * This function handling nsharp looping. 
-			 * Chin: 12.8.1: let skewtPaneDescriptor handle looping. All other pane descriptor will do nothing. Otherwise, we will looping X times faster when we
-	    	 *  have X number of panes configured and each pane move frame once.
-			 * 
-			 */
-			@Override
-			public void changeFrame(LoopProperties loopProperties) {
-				if(rscHandler == null)
-					return;
-				long waitTime = Long.MAX_VALUE;
-				//System.out.println("NsharpSkewTPaneDescriptor changeFrame(loop) called, loopDirection= "+loopDirection + " fwd="+loopProperties.getFwdFrameTime()+
-				//		" back="+loopProperties.getRevFrameTime() + " 1st dt="+loopProperties.getFirstFrameDwell()+ " lasDt="+loopProperties.getLastFrameDwell());
-				if(loopProperties.getMode() == LoopProperties.LoopMode.Forward || loopProperties.getMode() == LoopProperties.LoopMode.Cycle)
-					waitTime = loopProperties.getFwdFrameTime();
-				else
-					waitTime = loopProperties.getRevFrameTime();
-				int frameSize= rscHandler.getTimeElementListSize();
-				int curFrameIndex = rscHandler.getCurrentTimeElementListIndex();
-				if(curFrameIndex == 0)
-					waitTime = loopProperties.getFirstFrameDwell();
-				else if(curFrameIndex == frameSize-1)
-					waitTime = loopProperties.getLastFrameDwell();
-
-				loopProperties.drawAfterWait(waitTime);
-
-				if (loopProperties.isShouldDraw()) {
-					rscHandler.setLoopingDataTimeLine(loopProperties);
-
-				}
-			}
-			
-		};
-    }
-	public NsharpSkewTPaneResource getSkewtResource() {
+    public NsharpSkewTPaneResource getSkewtResource() {
         List<NsharpSkewTPaneResource> list = resourceList
                 .getResourcesByTypeAsType(NsharpSkewTPaneResource.class);
         if (list != null && !list.isEmpty()) {
