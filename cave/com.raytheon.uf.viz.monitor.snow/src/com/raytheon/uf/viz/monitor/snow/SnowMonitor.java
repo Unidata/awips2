@@ -22,9 +22,7 @@ package com.raytheon.uf.viz.monitor.snow;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.widgets.Shell;
@@ -39,7 +37,6 @@ import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
 import com.raytheon.uf.viz.monitor.ObsMonitor;
-import com.raytheon.uf.viz.monitor.data.MonitoringArea;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
@@ -74,6 +71,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Oct 16, 2014 3220       skorolev    Corrected snowConfig assignment.
+ * Dec 11, 2014 3220       skorolev    Moved refreshing of table in the UI thread.
+ * Jan 08, 2015 3220       skorolev    Replaced MonitoringArea with snowAreaConfig.
  * 
  * </pre>
  * 
@@ -97,7 +96,7 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
     private SnowMonitoringAreaConfigDlg areaDialog = null;
 
     /** SNOW configuration manager **/
-    private FSSObsMonitorConfigurationManager snowConfig = null;
+    private FSSObsMonitorConfigurationManager snowAreaConfig = null;
 
     /**
      * This object contains all observation data necessary for the table dialogs
@@ -128,8 +127,7 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
      */
     private SnowMonitor() {
         pluginPatterns.add(snowPattern);
-        snowConfig = FSSObsMonitorConfigurationManager.getSnowObsManager();
-        updateMonitoringArea();
+        snowAreaConfig = FSSObsMonitorConfigurationManager.getSnowObsManager();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SNOW);
         obData.setThresholdMgr(SnowThresholdMgr.getInstance());
@@ -144,7 +142,8 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
     public static synchronized SnowMonitor getInstance() {
         if (monitor == null) {
             monitor = new SnowMonitor();
-            monitor.processProductAtStartup("snow");
+            List<String> zones = monitor.snowAreaConfig.getAreaList();
+            monitor.processProductAtStartup(zones);
             monitor.fireMonitorEvent(monitor);
         }
         return monitor;
@@ -237,7 +236,8 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
     @Override
     public void processProductMessage(final AlertMessage filtered) {
         if (snowPattern.matcher(filtered.dataURI).matches()) {
-            processURI(filtered.dataURI, filtered);
+            List<String> zones = snowAreaConfig.getAreaList();
+            processURI(filtered.dataURI, filtered, zones);
         }
     }
 
@@ -252,23 +252,6 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
         public int compare(Date o1, Date o2) {
             return o1.compareTo(o2);
         }
-    }
-
-    /**
-     * Reads Table Configuration.
-     * 
-     * Method that reads the table configuration and updates the zone monitor
-     * threshold map
-     * 
-     */
-    public void updateMonitoringArea() {
-        Map<String, List<String>> zones = new HashMap<String, List<String>>();
-        // create zones and station list
-        for (String zone : snowConfig.getAreaList()) {
-            List<String> stations = snowConfig.getAreaStations(zone);
-            zones.put(zone, stations);
-        }
-        MonitoringArea.setPlatformMap(zones);
     }
 
     /*
@@ -303,8 +286,7 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
      */
     @Override
     public void configUpdate(IMonitorConfigurationEvent me) {
-        snowConfig = (FSSObsMonitorConfigurationManager) me.getSource();
-        updateMonitoringArea();
+        snowAreaConfig = (FSSObsMonitorConfigurationManager) me.getSource();
         if (zoneDialog != null && !zoneDialog.isDisposed()) {
             zoneDialog.refreshZoneTableData(obData);
             fireMonitorEvent(zoneDialog.getClass().getName());
@@ -418,12 +400,21 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
     }
 
     /**
-     * Gets Zone Dialog.
+     * Gets SNOW Zone Dialog.
      * 
      * @return zoneDialog
      */
     public SnowZoneTableDlg getZoneDialog() {
         return zoneDialog;
+    }
+
+    /**
+     * Gets SNOW Area configuration dialog
+     * 
+     * @return
+     */
+    public SnowMonitoringAreaConfigDlg getAreaDialog() {
+        return areaDialog;
     }
 
     /**

@@ -94,8 +94,8 @@ public class GeoMagAvgDao extends CoreDao {
 
     public int purgeDataByRefTime(Date refTime) throws DataAccessLayerException {
         DatabaseQuery deleteStmt = new DatabaseQuery(this.daoClass);
-        // add 30 minutes to get hourly average reference time
-        Date avgTime = new Date(refTime.getTime() + (30 * 60000));
+        // subtract 30 minutes to get hourly average reference time
+        Date avgTime = new Date(refTime.getTime() - (30 * 60000));
         deleteStmt.addQueryParam("avgTime", avgTime);
         return this.deleteByCriteria(deleteStmt);
     }

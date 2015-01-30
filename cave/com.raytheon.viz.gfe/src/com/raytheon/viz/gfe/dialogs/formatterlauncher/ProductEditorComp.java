@@ -160,6 +160,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 03/25/2014   #2884      randerso    Added xxxid to check for disabling editor
  * 05/12/2014  16195       zhao        Modified widgetSelected() for "Auto Wrap" option widget
  * 10/20/2014   #3685      randerso    Made conversion to upper case conditional on product id
+ * 12/01/2014  #624        zhao        Modified saveFile()
+ * 12/16/2014  #14946      ryu         Modified updateIssueExpireTimes() so issuance time is displayed
+ *                                     for the local time zones for each segment.
  * 
  * </pre>
  * 
@@ -2011,15 +2014,18 @@ public class ProductEditorComp extends Composite implements
                 ProductDataStruct pds = textComp.getProductDataStruct();
 
                 if (pds != null) {
+                    String officeTimeZone = dm.getParmManager()
+                            .compositeGridLocation()
+       	                    .getTimeZone();
                     int numSegments = pds.getSegmentsArray().size();
                     SimpleDateFormat fmt = new SimpleDateFormat(longLocalFmtStr);
                     fmt.setTimeZone(localTimeZone);
-                    String issueTime = fmt.format(now).toUpperCase();
+                    String officeIssueTime = fmt.format(now).toUpperCase();
 
                     for (int i = 0; i < numSegments; i++) {
                         textComp.startUpdate();
-                        HashMap<String, TextIndexPoints> segMap = textComp
-                                .getProductDataStruct().getSegmentsArray()
+                        HashMap<String, TextIndexPoints> segMap = pds
+                                .getSegmentsArray()
                                 .get(i).getSementMap();
 
                         TextIndexPoints tip = segMap.get("purgeT");
@@ -2040,9 +2046,32 @@ public class ProductEditorComp extends Composite implements
                         // vtecs are fixed length and this is variable length,
                         // which ensures we only need to reParse() once per
                         // segment
+                        List<String> zones = decodeUGCs(pds.getSegmentsArray().get(i));
+                        List<String> timeZones = dm.getTextProductMgr()
+                                .getTimeZones(zones,
+                                              officeTimeZone);
+
+                        StringBuilder sb = new StringBuilder();
+                        for (String tz : timeZones) {
+                            String issueTime;
+                            if (tz.equals(officeTimeZone)) {
+                                issueTime = officeIssueTime;
+                            } else {
+                                fmt.setTimeZone(TimeZone.getTimeZone(tz));
+                                issueTime = fmt.format(now).toUpperCase();
+                            }
+                            if (sb.length() > 0) {
+                                sb.append(" /");
+                                sb.append(issueTime);
+                                sb.append("/");
+                            } else {
+                                sb.append(issueTime);
+                            }
+                        }
+
                         tip = segMap.get("nwstime");
                         if (tip != null) {
-                            textComp.replaceText(tip, issueTime);
+                            textComp.replaceText(tip, sb.toString());
                         }
                         textComp.endUpdate();
                     }
@@ -2225,10 +2254,22 @@ public class ProductEditorComp extends Composite implements
      * Save the current text in the product editor to a file.
      */
     private void saveFile() {
-        String fname = getDir();
+        
+        String fname = null;
+        if ( productDefinition.get("outputFile") != null ) {
+            fname = getDefString("outputFile"); 
+            if ( fname.equals(EMPTY) ) {
+                return;
+            }
+        } else {
+            return;
+        }
+        fname = fixfname(fname);
+        
         FileDialog fd = new FileDialog(parent.getShell(), SWT.SAVE);
         fd.setText("Save As");
-        fd.setFilterPath(fname);
+        String filePath = (new File(fname)).getParentFile().getPath();
+        fd.setFilterPath(filePath);
         fd.setFileName(guessFilename());
         fname = fd.open();
 
