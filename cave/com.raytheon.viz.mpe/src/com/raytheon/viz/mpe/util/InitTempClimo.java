@@ -114,11 +114,11 @@ public class InitTempClimo {
                         /* Increment the station array index. */
                         ++index;
                     } else {
-                        Station nstation = dc.new Station();
+                        Station nstation = new Station();
                         nstation = temperature_stations.get(index);
 
-                        if (tokens[1].charAt(5) == 'X'
-                                || tokens[1].charAt(5) == 'N') {
+                        if ((tokens[1].charAt(5) == 'X')
+                                || (tokens[1].charAt(5) == 'N')) {
                             if (tokens[1].charAt(5) == 'X') {
                                 /*
                                  * Copy the max temperature information into the
@@ -161,15 +161,15 @@ public class InitTempClimo {
                     /* Increment the station array index. */
                     ++index;
                 } else {
-                    Station nstation = dc.new Station();
+                    Station nstation = new Station();
                     nstation = temperature_stations.get(index);
                     /*
                      * Is the extremum code 'Maximum'? Of temperature,
                      * precipitation and freezing level, temperature is the only
                      * one described with an extremum code of maximum.
                      */
-                    if (tokens[1].charAt(5) == 'X'
-                            || tokens[1].charAt(5) == 'N') {
+                    if ((tokens[1].charAt(5) == 'X')
+                            || (tokens[1].charAt(5) == 'N')) {
                         if (tokens[1].charAt(5) == 'X') {
                             /*
                              * Copy the max temperature information into the
@@ -246,11 +246,11 @@ public class InitTempClimo {
                         /* Increment the station array index. */
                         ++index;
                     } else {
-                        Station nstation = dc.new Station();
+                        Station nstation = new Station();
                         nstation = temperature_stations.get(index);
 
-                        if (tokens[1].charAt(5) == 'X'
-                                || tokens[1].charAt(5) == 'N') {
+                        if ((tokens[1].charAt(5) == 'X')
+                                || (tokens[1].charAt(5) == 'N')) {
                             if (tokens[1].charAt(5) == 'X') {
                                 /*
                                  * Copy the max temperature information into the
@@ -303,13 +303,13 @@ public class InitTempClimo {
                     /* Increment the station array index. */
                     ++index;
                 } else {
-                    if ((tokens[1].charAt(5) == 'X')
-                            && (temperature_stations.get(index).max[0] < 0)
-                            || (tokens[1].charAt(5) == 'N' && temperature_stations
-                                    .get(index).min[0] < 0)
+                    if (((tokens[1].charAt(5) == 'X') && (temperature_stations
+                            .get(index).max[0] < 0))
+                            || ((tokens[1].charAt(5) == 'N') && (temperature_stations
+                                    .get(index).min[0] < 0))
                             || temperature_stations.get(index).cparm.substring(
                                     0, 5).equalsIgnoreCase("TAIPB")) {
-                        Station nstation = dc.new Station();
+                        Station nstation = new Station();
                         nstation = temperature_stations.get(index);
                         /*
                          * Is the extremum code 'Maximum'? Of temperature,

@@ -53,7 +53,6 @@ import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -82,9 +81,13 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.ChangeTextColorAction.ChangeTextColorCallback;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
+import com.raytheon.uf.viz.collaboration.ui.colors.PersistentSessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.sounds.SoundUtil;
@@ -115,6 +118,12 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  *                                     negative weights - set to zero if negative.
  * Jun 17, 2014 3078       bclement    added private chat to menu and double click
  * Jul 03, 2014 3342       bclement    added count to participants label
+ * Nov 26, 2014 3709       mapeters    added styleAndAppendText() taking fg and bg colors, 
+ *                                     use parent's colors map.
+ * Dec 02, 2014 3709       mapeters    added color actions for group chats without shared display.
+ * Dec 12, 2014 3709       mapeters    Store {@link ChangeTextColorAction}s in map, dispose them.
+ * Jan 09, 2015 3709       bclement    color config manager API changes
+ * Jan 12, 2015 3709       bclement    unified color management into SessionColorManager
  * 
  * </pre>
  * 
@@ -148,7 +157,17 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
 
     protected SessionColorManager colorManager;
 
-    protected Map<RGB, Color> mappedColors;
+    protected Map<String, ChangeTextColorAction<VenueParticipant>> userColorActions = new HashMap<>();
+
+    /*
+     * callback used to refresh participant list when the user adds/changes a
+     * custom color configuration for a participant
+     */
+    protected final ChangeTextColorCallback refreshCallback = new ChangeTextColorCallback() {
+        public void newColor(IUser user, UserColorInfo colors) {
+            refreshParticipantList();
+        }
+    };
 
     public SessionView() {
         super();
@@ -159,7 +178,6 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         super.createPartControl(parent);
         createActions();
         createContextMenu();
-        mappedColors = new HashMap<RGB, Color>();
     }
 
     /*
@@ -221,9 +239,26 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         IStructuredSelection selection = (IStructuredSelection) usersTable
                 .getSelection();
         VenueParticipant entry = (VenueParticipant) selection.getFirstElement();
-        if (!entry.isSameUser(session.getUserID())) {
+        boolean me = entry.isSameUser(session.getUserID());
+        if (!me) {
             manager.add(new PeerToPeerChatAction(entry));
         }
+        addColorAction(manager, entry, me);
+    }
+
+    protected void addColorAction(IMenuManager manager, VenueParticipant user,
+            boolean me) {
+        String colorActionKey = user.getFQName();
+
+        ChangeTextColorAction<VenueParticipant> userColorAction = userColorActions
+                .get(colorActionKey);
+        if (userColorAction == null) {
+            userColorAction = new ChangeTextColorAction<VenueParticipant>(user,
+                    me, me, false, colorManager);
+            userColorAction.setActionCallback(refreshCallback);
+            userColorActions.put(colorActionKey, userColorAction);
+        }
+        manager.add(userColorAction);
     }
 
     @Subscribe
@@ -242,7 +277,13 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     }
 
     protected void initColorManager() {
-        colorManager = new SessionColorManager();
+        IVenue venue = session.getVenue();
+        if (venue.isPersistent()) {
+            colorManager = PersistentSessionColorManager
+                    .getManagerForRoom(venue.getId());
+        } else {
+            colorManager = new SessionColorManager();
+        }
     }
 
     protected void createUsersComp(final Composite parent) {
@@ -344,7 +385,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         usersTable.getTable().setLayout(layout);
         usersTable.getTable().setLayoutData(data);
 
-        ParticipantsLabelProvider labelProvider = new ParticipantsLabelProvider();
+        ParticipantsLabelProvider labelProvider = createParticipantsLabelProvider();
         setParticipantValues(labelProvider);
         usersTable.setContentProvider(ArrayContentProvider.getInstance());
 
@@ -395,9 +436,13 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         ((GridData) usersComp.getLayoutData()).exclude = true;
     }
 
+    protected ParticipantsLabelProvider createParticipantsLabelProvider() {
+        return new ParticipantsLabelProvider();
+    }
+
     protected void setParticipantValues(ParticipantsLabelProvider labelProvider) {
         labelProvider.setSessionId(sessionId);
-        labelProvider.setManager(colorManager);
+        labelProvider.setSessionColorManager(colorManager);
     }
 
     @Override
@@ -408,14 +453,11 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         disposeArrow(downArrow);
         disposeArrow(rightArrow);
 
-        if (mappedColors != null) {
-            for (Color col : mappedColors.values()) {
-                col.dispose();
+        if (userColorActions != null) {
+            for (ChangeTextColorAction<?> userColorAction : userColorActions
+                    .values()) {
+                userColorAction.dispose();
             }
-            mappedColors.clear();
-        }
-        if (colorManager != null) {
-            colorManager.clearColors();
         }
 
         // clean up event handlers
@@ -470,13 +512,10 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, VenueParticipant userId, String subject,
             List<StyleRange> ranges) {
-        RGB rgb = colorManager.getColorForUser(userId);
-        if (mappedColors.get(rgb) == null) {
-            Color col = new Color(Display.getCurrent(), rgb);
-            mappedColors.put(rgb, col);
-        }
+        UserColorInfo colors = colorManager.getColorForUser(userId);
         styleAndAppendText(sb, offset, name, userId, ranges,
-                mappedColors.get(rgb));
+                getColorFromRGB(colors.getForeground()),
+                getColorFromRGB(colors.getBackground()), subject);
     }
 
     /*
@@ -490,23 +529,28 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, VenueParticipant userId, List<StyleRange> ranges,
-            Color color) {
-        StyleRange range = new StyleRange(messagesText.getCharCount(), offset,
-                color, null, SWT.NORMAL);
+            Color foreground, Color background) {
+        styleAndAppendText(sb, offset, name, userId, ranges, foreground,
+                background, null);
+    }
+
+    protected void styleAndAppendText(StringBuilder sb, int offset,
+            String name, VenueParticipant userId, List<StyleRange> ranges,
+            Color fgColor, Color bgColor, String subject) {
+        StyleRange range = new StyleRange(messagesText.getCharCount(),
+                sb.length(), fgColor, null, SWT.NORMAL);
         ranges.add(range);
-        if (userId != null) {
-            range = new StyleRange(messagesText.getCharCount() + offset,
-                    name.length() + 1, color, null, SWT.BOLD);
-        } else {
-            range = new StyleRange(messagesText.getCharCount() + offset,
-                    sb.length() - offset, color, null, SWT.BOLD);
-        }
+        range = new StyleRange(messagesText.getCharCount() + offset,
+                (userId != null ? name.length() + 1 : sb.length() - offset),
+                fgColor, null, SWT.BOLD);
         ranges.add(range);
         messagesText.append(sb.toString());
         for (StyleRange newRange : ranges) {
             messagesText.setStyleRange(newRange);
         }
-        messagesText.setTopIndex(messagesText.getLineCount() - 1);
+        int lineNumber = messagesText.getLineCount() - 1;
+        messagesText.setLineBackground(lineNumber, 1, bgColor);
+        messagesText.setTopIndex(lineNumber);
     }
 
     public String getRoom() {

@@ -25,6 +25,10 @@ import LogStream, pprint
 from fips2cities import *
 from zones2cities import *
 
+from LockingFile import File
+from com.raytheon.uf.common.localization import PathManagerFactory
+from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
+
 #
 #  Creates area dictionary specific to a site.  Somewhat ported from AWIPS-I.
 #  
@@ -311,6 +315,193 @@ AreaDictionary = \
     finally:
         if fh is not None:
             os.close(fh)
+
+
+def createTCVAreaDictionary(outputDir, mapDict, siteID):
+    tcvAreaDictionaryContents = \
+"""
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# TCV_AreaDictionary
+#   TCV_AreaDictionary file
+#
+# Author: GFE Installation Script
+# ----------------------------------------------------------------------------
+
+# Here is an example TCVAreaDictionary for just a single zone and with comments
+# to talk about the structure of the dictionary.
+#
+# TCV_AreaDictionary = {
+#     # Zone
+#     'FLZ173': {
+#         # A list of location names.
+#         'locationsAffected': [
+#             "Miami Beach",
+#             "Downtown Miami",
+#         ],
+#         
+#         # Potential impacts statements can be overriden here; anything not
+#         # overriden here will use the generic potential impacts statements
+#         'potentialImpactsStatements': {
+#             # Section name: "Wind", "Storm Surge", "Flooding Rain" or "Tornado"
+#             "Wind": {
+#                 # Threat level: "None", "Low", "Mod", "High" or "Extreme"
+#                 "Extreme": [
+#                     # Each string will be on its own line
+#                     "Widespread power outages with some areas experiencing long-term outages",
+#                     "Many bridges and access routes connecting barrier islands impassable",
+#                     "Structural category to sturdy buildings with some having complete wall and roof failures",
+#                     "Complete destruction of mobile homes",
+#                     "Numerous roads impassable from large debris",
+#                     
+#                 ],
+#             },
+#         },
+#         
+#         # Additional information that will be displayed at the end of the segment
+#         # The structure is a list containing strings and/or lists. Strings in the
+#         # same list will be idented the same amount. Introducing a list, idents the
+#         # text until it ends. For example:
+#         #
+#         # 'infoSection': [
+#         #     "This will be at tab level 0",
+#         #     [
+#         #         "A new list was introduced so this is at tab level 1",
+#         #         [
+#         #             "Yet another list so this is tab level 2",
+#         #             "Still at tab level 2 here",
+#         #         ],
+#         #         "We are back at tab level 1 because we ended the list",
+#         #     ],
+#         #     "We ended the other list and are back at tab level 0 now",
+#         # ]
+#         'infoSection': [
+#             "LOCAL EVACUATION AND SHELTERING: MIAMI-DADE COUNTY EMERGENCY MANAGEMENT",
+#             [
+#                 "HTTP://WWW.MIAMIDADE.GOV/EMERGENCY/",
+#             ],
+#             "FAMILY EMERGENCY PLANS: FEDERAL EMERGENCY MANAGEMENT AGENCY",
+#             [
+#                 "HTTP://READY.GOV/",
+#             ],
+#             "LOCAL WEATHER CONDITIONS AND FORECASTS: NWS MIAMI FLORIDA",
+#             [
+#                 "HTTP://WWW.SRH.NOAA.GOV/MFL/",
+#             ],
+#         ],
+#     },
+# }
+
+TCV_AreaDictionary = {
+"""
+    
+    zoneSkeletonContents = {
+            'locationsAffected' : [],
+            'potentialImpactsStatements' : {},
+            'infoSection' : [],
+        }
+    
+    existingTCVAreaDictionary = {}
+    try:
+        with open(outputDir + "/TCVAreaDictionary.py", "r") as existingFile:
+            contents = existingFile.read()
+            exec(contents)
+        
+        # TCV_AreaDictionary comes from the existing TCVAreaDictionary when it is exec'ed
+        existingTCVAreaDictionary = TCV_AreaDictionary
+    except Exception:
+        pass
+    
+    for zone in _getZones(siteID):
+        tcvAreaDictionaryContents += "    '" + zone + "': {\n"
+        
+        # Don't clobber existing dictionary entries
+        if zone in existingTCVAreaDictionary:
+            # Add new entries
+            for key in zoneSkeletonContents:
+                if key not in existingTCVAreaDictionary[zone]:
+                    existingTCVAreaDictionary[zone][key] = zoneSkeletonContents[key]
+            
+            # Remove entries that are no longer needed
+            existingKeys = existingTCVAreaDictionary[zone].keys()
+            for key in existingKeys:
+                if key not in zoneSkeletonContents:
+                    existingTCVAreaDictionary[zone].pop(key)
+            
+            tcvAreaDictionaryContents += _formatDictionary(existingTCVAreaDictionary[zone], tabLevel = 2)
+        else:
+            tcvAreaDictionaryContents += _formatDictionary(zoneSkeletonContents, tabLevel = 2)
+        
+        tcvAreaDictionaryContents += "    },\n\n"
+    
+    tcvAreaDictionaryContents += "}\n"
+    
+    with open(outputDir + "/TCVAreaDictionary.py", "w") as file:
+        file.write(tcvAreaDictionaryContents)
+    
+def _getZones(siteID):
+    editAreasFilename = "gfe/combinations/EditAreas_PublicZones_" + \
+                        siteID + ".py"
+    zonesKey = "Zones_" + siteID
+    
+    editAreasFileContents = _getFileContents(LocalizationType.CAVE_STATIC,
+                                             LocalizationLevel.CONFIGURED,
+                                             siteID,
+                                             editAreasFilename)
+    exec(editAreasFileContents)
+    
+    # EASourceMap comes from the EditAreas file
+    return EASourceMap[zonesKey]
+    
+def _getFileContents(loctype, loclevel, locname, filename):
+    pathManager = PathManagerFactory.getPathManager()
+    context = pathManager.getContext(loctype, loclevel)
+    context.setContextName(locname)
+    localizationFile = pathManager.getLocalizationFile(context, filename)
+    with  File(localizationFile.getFile(), filename, 'r') as pythonFile:
+        fileContents = pythonFile.read()
+    
+    return fileContents
+
+def _formatDictionary(dictionary, tabLevel, output=""):
+    TAB = " " * 4
+    
+    for key in dictionary:
+        output += TAB*tabLevel + repr(key) + ": "
+        
+        value = dictionary[key]
+        if type(value) is dict:
+            output += "{\n"
+            output = _formatDictionary(value, tabLevel+1, output)
+            output += TAB*tabLevel + "},\n"
+        elif type(value) is list:
+            output += "[\n"
+            output = _formatList(value, tabLevel+1, output)
+            output += TAB*tabLevel + "],\n"
+        else:
+            output += repr(value) + ",\n"
+    
+    return output
+    
+def _formatList(theList, tabLevel, output=""):
+    TAB = " " * 4
+    
+    for value in theList:
+        if type(value) is dict:
+            output += TAB*tabLevel + "{\n"
+            output = _formatDictionary(value, tabLevel+1, output)
+            output += TAB*tabLevel + "},\n"
+        elif type(value) is list:
+            output += TAB*tabLevel + "[\n"
+            output = _formatList(value, tabLevel+1, output)
+            output += TAB*tabLevel + "],\n"
+        else:
+            output += TAB*tabLevel + repr(value) + ",\n"
+    
+    return output
 
 
 # Utility to create the city location dictionary

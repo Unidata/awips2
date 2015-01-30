@@ -32,7 +32,6 @@ import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
 
 /**
  * Creates netCDF output files for MPE/DQC QPE data.
@@ -81,6 +80,8 @@ public class WriteDQCNetCDFGrids {
     static Variable cdf_grid_id;
 
     AppsDefaults apps_defaults = AppsDefaults.getInstance();
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     static NetcdfFileWriteable ncfile;
 
@@ -113,8 +114,8 @@ public class WriteDQCNetCDFGrids {
     public void write_dqc_netcdf_grids(String fname_nc, int pnum,
             int num_period_qc, int dtype, CommonGridAttributes grid,
             float[][] dataArray) {
-
-        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
+        
+//        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
         // Pcp pcp = DailyQcUtils.pcp;
         String databaseid = "";
         String grid_filename = "";
@@ -133,8 +134,8 @@ public class WriteDQCNetCDFGrids {
 
         if (gcount == 1) {
 
-            mxx = hrap_grid.maxi;
-            mxy = hrap_grid.maxj;
+            mxx = dqc.getHrap_grid().maxi;
+            mxy = dqc.getHrap_grid().maxj;
 
             count[0] = num_period_qc;
             count[1] = mxy;
