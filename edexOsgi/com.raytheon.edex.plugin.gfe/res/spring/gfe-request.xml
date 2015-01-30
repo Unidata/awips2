@@ -417,8 +417,13 @@
     <bean id="sbLockMgr" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ServiceBackupLockManager"
         factory-method="getInstance"/>
 
-    <bean id="productPurger" class="com.raytheon.uf.common.dataplugin.gfe.util.FilePurger">
-        <constructor-arg value="/awips2/GFESuite/products"/> <!--  directory to be purged -->
+    <bean id="productIscPurger" class="com.raytheon.uf.common.dataplugin.gfe.util.FilePurger">
+        <constructor-arg value="/awips2/GFESuite/products/ISC"/> <!--  directory to be purged -->
+        <constructor-arg value="2419200000"/> <!-- purge age: 28 days in milliseconds -->
+    </bean>
+
+    <bean id="productAtblPurger" class="com.raytheon.uf.common.dataplugin.gfe.util.FilePurger">
+        <constructor-arg value="/awips2/GFESuite/products/ATBL"/> <!--  directory to be purged -->
         <constructor-arg value="2419200000"/> <!-- purge age: 28 days in milliseconds -->
     </bean>
 
@@ -426,7 +431,8 @@
 
         <endpoint id="exportDigitalDataCron" uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}"/>
         <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.gfe.logs.cron}"/>
-        <endpoint id="gfeProductPurgeCron" uri="clusteredquartz://gfe/purgeGfeProducts/?cron=${purge.gfe.products.cron}"/>
+        <endpoint id="gfeProductIscPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsIsc/?cron=${purge.gfe.products.isc.cron}"/>
+        <endpoint id="gfeProductAtblPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsAtbl/?cron=${purge.gfe.products.atbl.cron}"/>
         <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
         <endpoint id="iscSendLauncher" uri="quartz://iscSendThread?trigger.repeatCount=0&amp;trigger.repeatInterval=1"/>
         <endpoint id="gfeClearOrphanedLocksCron" uri="clusteredquartz://gfe/clearGfeOrhpanedLocks/?cron=${clear.gfe.orphaned.locks.cron}"/>
@@ -468,14 +474,30 @@
             </doTry>
         </route>
         
-        <route id="purgeGfeProducts"> 
-            <from uri="gfeProductPurgeCron"/> 
-            <to uri="jms-generic:queue:purgeGfeProductWork"/> 
+        <route id="purgeGfeProductsIsc"> 
+            <from uri="gfeProductIscPurgeCron"/> 
+            <to uri="jms-generic:queue:purgeGfeProductIscWork"/> 
         </route> 
-        <route id="purgeGfeProductWork"> 
-            <from uri="jms-generic:queue:purgeGfeProductWork"/> 
+        <route id="purgeGfeProductIscWork"> 
+            <from uri="jms-generic:queue:purgeGfeProductIscWork"/> 
             <doTry> 
-                <bean ref="productPurger" method="purge"/> 
+                <bean ref="productIscPurger" method="purge"/> 
+                <doCatch> 
+                    <exception>java.lang.Throwable</exception> 
+                    <to 
+                        uri="log:svcBackup?level=ERROR"/> 
+                </doCatch> 
+            </doTry> 
+        </route>
+        
+        <route id="purgeGfeProductsAtbl"> 
+            <from uri="gfeProductAtblPurgeCron"/> 
+            <to uri="jms-generic:queue:purgeGfeProductAtblWork"/> 
+        </route> 
+        <route id="purgeGfeProductAtblWork"> 
+            <from uri="jms-generic:queue:purgeGfeProductAtblWork"/> 
+            <doTry> 
+                <bean ref="productAtblPurger" method="purge"/> 
                 <doCatch> 
                     <exception>java.lang.Throwable</exception> 
                     <to 
