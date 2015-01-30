@@ -32,7 +32,6 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Pcp;
 
 /**
@@ -55,34 +54,34 @@ public class ReadQPFGrids {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ReadQPFGrids.class);
+    
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-    Hrap_Grid hrap_grid;
+//    Hrap_Grid hrap_grid;
 
-    Pcp pcp = DailyQcUtils.pcp;
+//    Pcp pcp = DailyQcUtils.pcp;
 
     BufferedReader in = null;
 
     public int read_qpf_grids(int num, String dbuf) {
 
-    	System.out.println("ReadQPFGrids.read_qpf_grids(): num = " + num);
-    	
         int i, j;
-        hrap_grid = DailyQcUtils.getHrap_grid();
+//        hrap_grid = DailyQcUtils.getHrap_grid();
         String kbuf = "";
         // int minhrapi, minhrapj, maxhrapi, maxhrapj;
         // int ghrapi, ghrapj;
         // int ii, jj;
-        int gmini, gminj, gmaxi, gmaxj;
+        int gmaxi, gmaxj;
         int iflag;
         int fe = 0;
         File tb = new File(dbuf);
 
-        pcp.value = new int[hrap_grid.maxi][hrap_grid.maxj];
+        dqc.pcp.value = new int[dqc.getHrap_grid().maxi][dqc.getHrap_grid().maxj];
 
         // for (j = (hrap_grid.maxj - hrap_grid.hrap_miny) - 1; j >= 0; j--) {
-        for (i = 0; i < (hrap_grid.maxi); i++) {
-            for (j = 0; j < (hrap_grid.maxj); j++) {
-                pcp.value[i][j] = 0;
+        for (i = 0; i < (dqc.getHrap_grid().maxi); i++) {
+            for (j = 0; j < (dqc.getHrap_grid().maxj); j++) {
+                dqc.pcp.value[i][j] = 0;
             }
         }
 
@@ -106,8 +105,6 @@ public class ReadQPFGrids {
 
             kbuf = in.readLine().trim();
             Scanner s = new Scanner(kbuf);
-            gmini = (int) s.nextDouble();
-            gminj = (int) s.nextDouble();
             gmaxi = (int) s.nextDouble();
             gmaxj = (int) s.nextDouble();
             if (s.hasNextDouble()) {
@@ -144,7 +141,7 @@ public class ReadQPFGrids {
                     if (s.hasNextInt() == true) {
                         lo = s.nextInt();
                     }
-                    pcp.value[i][j] = lo;
+                    dqc.pcp.value[i][j] = lo;
 
                     // }
                 }
@@ -154,9 +151,9 @@ public class ReadQPFGrids {
 
             /* copy to internal file */
 
-            write_file("pcp", num, pcp);
+            write_file("pcp", num, dqc.pcp);
 
-            DailyQcUtils.pcp_in_use[num] = 1;
+            dqc.pcp_in_use[num] = 1;
 
             return 1;
 
@@ -183,8 +180,8 @@ public class ReadQPFGrids {
         String scratchdir = "";
         int i, j;
         String fname = "";
-        int pid = DailyQcUtils.pid;
-        hrap_grid = DailyQcUtils.getHrap_grid();
+        int pid = dqc.pid;
+//        hrap_grid = DailyQcUtils.getHrap_grid();
         File wf;
 
         scratchdir = AppsDefaults.getInstance().getToken("mpe_scratch_dir");
@@ -199,9 +196,9 @@ public class ReadQPFGrids {
             out = new BufferedWriter(new FileWriter(fname));
             StringBuffer sb = new StringBuffer();
             // for (j = hrap_grid.maxj - hrap_grid.hrap_miny - 1; j >= 0; j--) {
-            for (i = 0; i < hrap_grid.maxi; i++) {
+            for (i = 0; i < dqc.getHrap_grid().maxi; i++) {
                 sb.setLength(0);
-                for (j = 0; j < hrap_grid.maxj; j++) {
+                for (j = 0; j < dqc.getHrap_grid().maxj; j++) {
                     sb.append(" " + pcp.value[i][j]);
                 }
                 out.write(sb.toString());

@@ -42,6 +42,10 @@ import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.services.RegistryServiceException;
 import com.raytheon.uf.common.security.encryption.AESEncryptor;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.ClusterIdUtil;
 import com.raytheon.uf.edex.registry.ebxml.RegistryUsers;
 import com.raytheon.uf.edex.registry.ebxml.dao.PersonDao;
 import com.raytheon.uf.edex.registry.ebxml.services.RegistryRESTServices;
@@ -61,6 +65,7 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * ------------ ----------  ----------- --------------------------
  * 7/10/2014    1717        bphillip    Initial creation
  * 7/24/2014    1712        bphillip    No longer singleton
+ * 1/06/2015    3918        dhladky     Fixed issue where clients can't start without central registry.
  * </pre>
  * 
  * @author bphillip
@@ -87,10 +92,26 @@ public class CredentialCache {
     public static final boolean centralRegistry = System.getProperty(
             "edex.run.mode").equals("centralRegistry");
 
+    /** States whether this node will join the federation */
+    public static final boolean isFederationEnabled = Boolean
+            .getBoolean("ebxml.registry.federation.enabled");
+
     /** Address of the central registry */
     private static final String CENTRAL_REGISTRY_ADDRESS = "https://"
             + (System.getProperty("ncf.host")) + ":"
             + (System.getProperty("ebxml.registry.webserver.port"));
+    
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CredentialCache.class);
+    
+    /** used in non federated standalone environment */
+    private static final String DEFAULT_USER = "DEFAULT_USER_"+ClusterIdUtil.getId();
+    
+    /** used in non federated standalone environment */
+    private static final String DEFAULT_PASSWORD = "DEFAULT_PASSWORD_"+ClusterIdUtil.getId();
+    
+    /** used in non federated standalone environment */
+    private static final String DEFAULT_ROLE = "DEFAULT_ROLE_"+ClusterIdUtil.getId();
 
     /** Cache holding users' credentials */
     private LoadingCache<String, String[]> credentialCache = CacheBuilder
@@ -105,8 +126,10 @@ public class CredentialCache {
                                 @Override
                                 public String[] doInTransaction(
                                         TransactionStatus status) {
+                                    String localUserName = userName;
                                     PersonType user = null;
-
+                                    String password = null;
+                                    String role = null;
                                     /*
                                      * If we are the central registry, directly
                                      * query the registry
@@ -114,53 +137,82 @@ public class CredentialCache {
                                     if (centralRegistry) {
                                         user = personDao.getById(userName
                                                 + RegistryUsers.USER_SUFFIX);
-                                    }
-                                    /*
-                                     * If we are not the central registry, query
-                                     * the central registry to get the user's
-                                     * information
-                                     */
-                                    else {
-                                        try {
-                                            user = restServices
-                                                    .getRegistryObject(
-                                                            CENTRAL_REGISTRY_ADDRESS,
-                                                            userName
-                                                                    + RegistryUsers.USER_SUFFIX);
-                                        } catch (Exception e) {
-                                            throw new WebServiceException(
-                                                    "Error contacting central registry!",
-                                                    e);
+                                    } else {                                
+                                        // This is a case required if you are
+                                        // connected to a central registry.
+                                        if (isFederationEnabled) {
+
+                                            /*
+                                             * If we are not the central
+                                             * registry, query the central
+                                             * registry to get the user's
+                                             * information
+                                             */
+                                            try {
+                                                user = restServices
+                                                        .getRegistryObject(
+                                                                CENTRAL_REGISTRY_ADDRESS,
+                                                                userName
+                                                                        + RegistryUsers.USER_SUFFIX);
+                                            } catch (Exception e) {
+                                                throw new WebServiceException(
+                                                        "Error contacting central registry!",
+                                                        e);
+                                            }
                                         }
                                     }
-                                    /*
-                                     * User not found means unauthorized
-                                     */
-                                    if (user == null) {
-                                        throw new WebServiceException("User ["
-                                                + userName + " Not authorized!");
+                                    
+                                    if (isFederationEnabled) {
+                                        /*
+                                         * User not found in federation mode means unauthorized
+                                         */
+                                        if (user == null) {
+                                            throw new WebServiceException(
+                                                    "User ["
+                                                            + userName
+                                                            + " Not authorized!");
+
+                                        } else {
+                                            /*
+                                             * Put the user name, password, and
+                                             * role in the return array. Decrypt
+                                             * the password.
+                                             */
+                                            localUserName = user
+                                                    .getSlotValue(RegistryUsers.USER_SLOT_NAME);
+                                            try {
+                                                password = encryption.decrypt(
+                                                        securityConfig
+                                                                .getEncryptionKey(),
+                                                        (String) user
+                                                                .getSlotValue(RegistryUsers.PASSWORD_SLOT_NAME));
+                                            } catch (Exception e) {
+                                                throw new RegistryServiceException(
+                                                        "Error decrypting password!",
+                                                        e);
+                                            }
+                                            role = user
+                                                    .getSlotValue(RegistryUsers.ROLE_SLOT_NAME);
+                                        }
+                                    } else {
+                                        /*
+                                         * This is a case where you are not
+                                         * connected to a central registry
+                                         * (Standalone server and edge
+                                         * condition), use defaults.
+                                         */
+
+                                        statusHandler
+                                                .handle(Priority.INFO,
+                                                        "Federation not enabled! Proceeding with default user, pass, and role!");
+                                        localUserName = DEFAULT_USER;
+                                        password = DEFAULT_PASSWORD;
+                                        role = DEFAULT_ROLE;
+
                                     }
-                                    /*
-                                     * Put the user name, password, and role in
-                                     * the return array. Decrypt the password.
-                                     */
-                                    String userName = user
-                                            .getSlotValue(RegistryUsers.USER_SLOT_NAME);
-                                    String password = null;
-                                    try {
-                                        password = encryption.decrypt(
-                                                securityConfig
-                                                        .getEncryptionKey(),
-                                                (String) user
-                                                        .getSlotValue(RegistryUsers.PASSWORD_SLOT_NAME));
-                                    } catch (Exception e) {
-                                        throw new RegistryServiceException(
-                                                "Error decrypting password!", e);
-                                    }
-                                    String role = user
-                                            .getSlotValue(RegistryUsers.ROLE_SLOT_NAME);
-                                    return new String[] { userName, password,
-                                            role };
+
+                                    return new String[] { localUserName,
+                                            password, role };
                                 }
                             });
                 }

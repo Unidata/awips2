@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 01Mar2010    4765       MW Fegan    Moved from GFE plug-in.
  * 09/24/2014   #16693     lshi        filter out swear words in spelling check
  * 10/23/2014   #3685      randerso    Changes to support mixed case
+ * 10/30/2014   #16693     lshi        Add more swear words to the filter
  * 
  * </pre>
  * 
@@ -87,7 +88,9 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 
  */
 public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
-    private static java.util.List<String> swearWords = Arrays.asList("ASSHOLE");
+	private static java.util.List<String> swearWords = Arrays.asList("ASSHOLE", "ASSHOLE'S", "ASSHOLES",
+			"BITCH", "BITCH'S", "BITCHES", "LEPROSY", "GAYEST",
+			"SHIT", "PISS", "PISSED","PISSER","PISSES","PISSING","TITS");
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SpellCheckDlg.class);

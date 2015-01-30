@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.viz.gfe.core.IParmManager;
+import com.raytheon.viz.gfe.core.DataManager;
 
 /**
  * Job for initializing a cache in memory of all available parms.
@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.core.IParmManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2011            njensen     Initial creation
+ * Oct 30, 2014  #3775     randerso    Added parmCacheInit to initStatus
  * 
  * </pre>
  * 
@@ -45,11 +46,11 @@ import com.raytheon.viz.gfe.core.IParmManager;
 
 public class GFEParmCacheInitJob extends Job {
 
-    private IParmManager parmMgr;
+    private DataManager dataMgr;
 
-    public GFEParmCacheInitJob(IParmManager pm) {
+    public GFEParmCacheInitJob(DataManager dataMgr) {
         super("Parm Cache Initialization");
-        this.parmMgr = pm;
+        this.dataMgr = dataMgr;
     }
 
     /*
@@ -61,7 +62,8 @@ public class GFEParmCacheInitJob extends Job {
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         long t0 = System.currentTimeMillis();
-        this.parmMgr.getAllAvailableParms();
+        this.dataMgr.getParmManager().getAllAvailableParms();
+        this.dataMgr.getInitStatus().setParmCacheInitDone(true);
         System.out.println("GFEParmCacheInitJob took: "
                 + (System.currentTimeMillis() - t0) + "ms");
 
