@@ -59,7 +59,8 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * ------------	----------	-----------	--------------------------
  * 12/14		R5413		B. Yin   	Added IPartListener2 and IRenderableDisplayChangedListener
  * 										to make the swapping in D2D work
- * 12/14		R5413		B. Yin		Added exception handling, perspective id, and endSession. 
+ * 12/14		R5413		B. Yin		Added exception handling, perspective id, and endSession.
+ * 01/15        R5413       B. Yin      Added closePalette method. 
  * 
  */
 
@@ -467,6 +468,17 @@ public class PgenSession implements IPartListener2,
     
     public void endSession(){
         instance = null;
+    }
+    
+    public void closePalette(){
+        if ( palette != null ){
+            if ( PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getActivePage() != null ){
+                PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getActivePage().hideView(palette);
+                removePalette();
+            }
+        }
     }
 
 }
