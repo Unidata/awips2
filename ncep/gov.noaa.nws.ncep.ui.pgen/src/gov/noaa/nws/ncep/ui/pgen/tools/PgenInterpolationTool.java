@@ -43,6 +43,7 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 11/12		#?			J. Wu		Added GFA
  * 07/13		#?			J. Wu		Interpolate GFA's top/bottom
+ * 01/15        R5413       B. Yin      Clear status when de-activate.
  * </pre>
  * 
  * @author	S. Gilbert
@@ -76,7 +77,20 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
     	verifySymbol =  new Symbol(null, new Color[] { new Color(255,0,0) }, 1.0f, 1.0, 
     			false, null, "Marker", "FILLED_BOX" );
     }
-       
+  
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.tools.AbstractModalTool#deactivateTool()
+     */
+    // @Override
+    public void deactivateTool() {
+        
+        status = SELECT_STATUS.START;
+        super.deactivateTool();
+
+    }
+    
     /**
      * Creates and returns the current mouse handler.
      * @return
