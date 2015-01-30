@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +36,10 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.RGB;
@@ -44,8 +49,13 @@ import org.eclipse.ui.commands.ICommandService;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.colormap.Color;
+import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -60,13 +70,17 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
+import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
+import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 import com.raytheon.viz.mpe.MPECommandConstants;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
+import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarLoc;
 import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.IDisplayFieldChangedListener;
@@ -97,7 +111,9 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Feb 12, 2013  15773    snaples      Updated addPoints to display PC gages when token is set to use PC data.
  * Mar 14, 2013  1457     mpduff       Fixed various bugs.
  * Apr 19, 2013  1920     mpduff       Fixed gage color contrast, add e to display value of manually edited gages.
- * 
+ * Dec 12, 2014  15689    cgobs        Fixed problem with mismatched color set for Color by value color scale (RM 15689 = DIM 17541
+ * Dec 12, 2014  16748    cgobs        Fixed problem with missing "d" for disagged gages (RM 16748 = DIM 17606).
+ *                                     
  * </pre>
  * 
  * @author mschenke
@@ -106,6 +122,8 @@ import com.vividsolutions.jts.index.strtree.STRtree;
 
 public class MPEGageResource extends AbstractMPEInputResource implements
         IDisplayFieldChangedListener {
+
+    public static final String APPLICATION_NAME = "hmapmpe";
 
     private static final String GAGE_TRIANGLES = "GAGETRIANGLES%sz";
 
@@ -126,6 +144,9 @@ public class MPEGageResource extends AbstractMPEInputResource implements
     private final double MILLICVT = 25.4;
 
     private ColorMapParameters parameters;
+    private Colorvalue[] colorvalueArray;
+    private  float[] thresholdArray;
+    private RGB[] rgbArray;
 
     private Display7x7Dialog dialog;
 
@@ -425,6 +446,15 @@ public class MPEGageResource extends AbstractMPEInputResource implements
                         if (gageData.isManedit()) {
                             gageValue = gageValue.concat("e");
                         }
+                    
+                        // if gageData is  result of running disagg in DailyQC
+                        // (time-distributed)
+                        // append a "d" to the gage value
+                        if (gageData.isTd()) {
+                            gageValue = gageValue.concat("d");
+                        }
+                    
+                        
                         DrawableString string = new DrawableString(
                                 new String[] { gageValue, gageId, }, gageColor);
                         string.font = font;
@@ -530,34 +560,212 @@ public class MPEGageResource extends AbstractMPEInputResource implements
             }
         }
     }
-
-    private RGB getColorByValue(float gval) {
-        float value = gval;
-
+    
+    public RGB getColorByValue(float value) {
+        
         if (value == -999.0) {
             value = -9999.0f;
         }
-        Color color = parameters.getColorByValue(value);
-        return new RGB((int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
+        
+        int colorIndex = getColorIndex(value, thresholdArray);
+        
+        
+   //     System.out.println("getColorByValue(): colorIndex = " + colorIndex);
+        return rgbArray[colorIndex];
+
+    }
+  
+    
+    private int getColorIndex(float value, float[] threshholdValueArray) {
+      
+ 
+        int index = -1;
+        
+        if (threshholdValueArray == null)
+        {
+            index = -1;
+        }
+      
+        else if (value == threshholdValueArray[0])
+        {
+            index = 0;
+        }
+        
+        else if (value == threshholdValueArray[1])
+        {
+            index = 1;
+        }
+        
+        else
+        {
+            index = threshholdValueArray.length-1;
+            for (int i  = 2 ; i < threshholdValueArray.length-1; i++)
+            {
+
+
+                if (value < threshholdValueArray[i+1])
+                {
+                    index = i;
+                    break;       
+                }
+            }
+
+        }
+        
+        return index;
+    }
+    
+    private void loadColors() {
+        
+       loadColorData(
+                "PRECIP_ACCUM",//color value use
+                1, //duration in hours
+                NonSI.INCH, //original data  units
+                NonSI.INCH); //display units
+       
+        return;
+ 
+    }
+    
+    public void loadColorData(String cvUse,
+            int durationInHrs, Unit<?> dataUnit, Unit<?> displayUnit)
+    {
+
+
+        String header =  "MPEGageResource.getColorvalueArray(): ";
+
+        if (durationInHrs == 0) {
+            durationInHrs = 1;
+        }
+
+        MPEDisplayManager displayMgr =  MPEDisplayManager.getCurrent();
+        List<NamedColorUseSet> pColorSetGroup = displayMgr.getColorSetGroup();
+
+        ColorMapParameters params = new ColorMapParameters();
+        params.setFormatString("0.00");
+        params.setDisplayUnit(displayUnit);
+    
+
+        Colorvalue[] colorSet = GetColorValues.get_colorvalues(
+                LocalizationManager.getContextName(LocalizationLevel.USER),
+                APPLICATION_NAME, cvUse, durationInHrs * 60 * 60, "E",
+                pColorSetGroup).toArray(new Colorvalue[0]);
+
+        int numColors = colorSet.length;
+        thresholdArray = new float[numColors];
+        rgbArray = new RGB[numColors];
+
+        for (int i = 0; i < numColors; ++i) {
+            
+            Colorvalue cv = colorSet[i];
+            String colorName = cv.getColorname().getColorName();
+            RGB rgb = RGBColors.getRGBColor(colorName);
+        
+
+            float threshold = (float) cv.getId().getThresholdValue();
+
+            thresholdArray[i] = threshold;
+            rgbArray[i] = rgb;        
+           // System.out.printf(header + "threshold = %f, color = %s\n", threshold, colorName);
+
+        }
+
+
+        return;    
+    }
+    
+    /**
+     * Constructs a new {@link ColorMapParameters} object for the given
+     * parameters
+     * 
+     * @param cvUse
+     * @param durationInHrs
+     * @param dataUnit
+     * @param displayUnit
+     * @return
+     */
+    public static ColorMapParameters createColorMap(String cvUse,
+            int durationInHrs, Unit<?> dataUnit, Unit<?> displayUnit) {
+        
+        
+        String header =  "MPEGageResource.createColorMap(): ";
+        
+        if (durationInHrs == 0) {
+            durationInHrs = 1;
+        }
+        
+        MPEDisplayManager displayMgr =  MPEDisplayManager.getCurrent();
+        List<NamedColorUseSet> pColorSetGroup = displayMgr.getColorSetGroup();
+        
+        ColorMapParameters params = new ColorMapParameters();
+        params.setFormatString("0.00");
+        params.setDisplayUnit(displayUnit);
+        params.setDataUnit(dataUnit);
+
+        UnitConverter displayToData = params.getDisplayToDataConverter();
+        UnitConverter dataToDisplay = params.getDataToDisplayConverter();
+
+        DataMappingPreferences dm = new DataMappingPreferences();
+
+        Colorvalue[] colorSet = GetColorValues.get_colorvalues(
+                LocalizationManager.getContextName(LocalizationLevel.USER),
+                APPLICATION_NAME, cvUse, durationInHrs * 60 * 60, "E",
+                pColorSetGroup).toArray(new Colorvalue[0]);
+
+     
+        DecimalFormat format = new DecimalFormat(params.getFormatString());
+
+        int numColors = colorSet.length;
+        float[] red = new float[numColors];
+        float[] green = new float[numColors];
+        float[] blue = new float[numColors];
+
+        for (int i = 0; i < numColors; ++i) {
+            Colorvalue cv = colorSet[i];
+            String colorName = cv.getColorname().getColorName();
+            RGB rgb = RGBColors.getRGBColor(cv.getColorname().getColorName());
+            red[i] = rgb.red / 255f;
+            green[i] = rgb.green / 255f;
+            blue[i] = rgb.blue / 255f;
+
+            double threshold = cv.getId().getThresholdValue();
+            
+            
+            System.out.printf(header + "threshold = %f, color = %s\n", threshold, colorName);
+            
+            DataMappingEntry entry = new DataMappingEntry();
+            if (threshold == -9999.0 || threshold == -8888.0) {
+                entry.setDisplayValue(threshold);
+                entry.setOperator("<");
+                entry.setLabel("");
+            } else {
+                // Convert display to data, cast to int, convert back to display
+                entry.setDisplayValue(dataToDisplay.convert((int) displayToData
+                        .convert(threshold)));
+            }
+            entry.setPixelValue((double) i);
+
+            dm.addEntry(entry);
+        }
+
+        DataMappingEntry entry = new DataMappingEntry();
+        entry.setDisplayValue(Double.MAX_VALUE);
+        entry.setPixelValue((double) (numColors - 1));
+        entry.setLabel("");
+        dm.addEntry(entry);
+
+        params.setColorMap(new ColorMap(cvUse, red, green, blue));
+        params.setDataMapping(dm);
+        params.setDataMin(0);
+        params.setDataMax(numColors - 1);
+        params.setColorMapMin(params.getDataMin());
+        params.setColorMapMax(params.getDataMax());
+
+        
+
+        return params;
     }
 
-    private void loadColors() {
-        MPEFieldResource displayedResource = displayMgr
-                .getDisplayedFieldResource();
-        if (displayedResource != null) {
-            parameters = displayedResource.getCapability(
-                    ColorMapCapability.class).getColorMapParameters();
-        } else {
-            DisplayFieldData displayedData = displayMgr.getDisplayFieldType();
-            parameters = MPEDisplayManager
-                    .createColorMap(displayedData.getCv_use(), displayedData
-                            .getCv_duration(), MPEFieldResourceData
-                            .getDataUnitsForField(displayedData),
-                            MPEFieldResourceData
-                                    .getDisplayUnitsForField(displayedData));
-        }
-    }
 
     /**
      * Inspect method called when moused over while inspect is enabled
@@ -658,4 +866,7 @@ public class MPEGageResource extends AbstractMPEInputResource implements
         reloadGages();
         issueRefresh();
     }
+    
+    
+    
 }

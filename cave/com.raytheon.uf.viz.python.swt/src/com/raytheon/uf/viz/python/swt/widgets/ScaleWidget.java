@@ -40,6 +40,8 @@ import org.eclipse.swt.widgets.Scale;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jun 4, 2008	1164			jelkins	Initial creation
+ * Dec 11, 2014 638    mgamazaychikov   Add isFloat to explicitly specify the type of return value
+ *                                      be either Float or Integer.
  * 
  * </pre>
  * 
@@ -64,6 +66,8 @@ public class ScaleWidget extends Widget {
     private int precision;
 
     private DecimalFormat format;
+
+    private boolean isFloat = false;
 
     /**
      * Class constructor specifying this scale's label.
@@ -126,7 +130,12 @@ public class ScaleWidget extends Widget {
         scale.setPageIncrement(1);
 
         if (getValue() == null) {
-        	setValue(new Float(minValue));
+            if (isFloat()) {
+                setValue(new Float(minValue));
+            }
+            else {
+                setValue(new Integer((int)minValue));
+            }
         }
 
         setInitialScaleValue(((Number) (getValue())).floatValue());
@@ -140,7 +149,12 @@ public class ScaleWidget extends Widget {
                 float value = getScaleValue();
 
                 label.setText(format.format(value));
-                setValue(new Float(value));
+                if (isFloat()) {
+                    setValue(new Float(value));
+                }
+                else {
+                    setValue(new Integer((int)value));
+                }
             }
         });
 
@@ -241,4 +255,11 @@ public class ScaleWidget extends Widget {
         this.precision = precision;
     }
 
+    public boolean isFloat() {
+        return isFloat;
+    }
+
+    public void setFloat(boolean isFloat) {
+        this.isFloat = isFloat;
+    }
 }
