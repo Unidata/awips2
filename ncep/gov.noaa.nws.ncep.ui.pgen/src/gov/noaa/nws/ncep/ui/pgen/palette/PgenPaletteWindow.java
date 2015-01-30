@@ -112,6 +112,7 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
  * 08/13		TTR696/774	J. Wu		Reset title/Close product manage dialog.
  * 11/13		#1081		B. Yin		Get selected DE to change front/line type.
  * 12/14        R5413       B. Yin      Removed unused variables, loops.
+ * 01/15        R5413       B. Yin      Set perspective ID and editor for PGEN session.
  * 
  * </pre>
  * 
@@ -391,8 +392,15 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
          * the PgenSession
          */
         PgenResource current = PgenUtil.findPgenResource(null);
-        if (current != null)
+        if (current != null) {
             PgenSession.getInstance().setResource(current);
+            PgenUtil.setSelectingMode();
+            
+            AbstractEditor actEditor = PgenUtil.getActiveEditor();
+            if ( actEditor != null && !PgenSession.getInstance().getEditors().contains(actEditor)){
+                PgenSession.getInstance().getEditors().add(actEditor);
+            }
+        }
 
     }
 
