@@ -44,6 +44,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.Image;
@@ -55,6 +60,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
@@ -73,6 +79,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @author sgilbert
  * 
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 public class PgenResourceData extends AbstractResourceData implements
         CommandStackListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -745,6 +753,8 @@ public class PgenResourceData extends AbstractResourceData implements
     public synchronized void cleanup(BufferedImage paneImage) {
 
         closeDialogs();
+        PgenSession.getInstance().closePalette();
+
         numberOfResources--;
         if (numberOfResources != 0){
             return; // not ready yet
@@ -767,10 +777,12 @@ public class PgenResourceData extends AbstractResourceData implements
             storeAllProducts();
         // saveProducts(autoSaveFilename, multiSave);
 
-        if (PgenUtil.getPgenMode() == PgenMode.SINGLE)
+        if (PgenUtil.getPgenMode() == PgenMode.SINGLE){
             PgenUtil.resetResourceData();
+        }
+        
         deactivatePgenTools();
-
+        
     }
 
     /**
