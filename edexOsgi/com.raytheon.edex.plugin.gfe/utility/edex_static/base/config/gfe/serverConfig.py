@@ -42,9 +42,11 @@
 #    04/17/2014          #2934     dgilling       Remove alias for TPCSurgeProb D2D database.
 #    05/09/2014          #3148     randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
 #    06/20/2014          #3230     rferrel        Added URMA25.
-#
 #    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS 
 #    07/09/2014          #3146     randerso       Removed unused import
+#    07/10/2014                    swhite         Add surge and tropical threat WEs and their dependencies
+#    01/08/2015          #15035    lshi           add site WNJ
+#    12/03/2014          #3866     rferrel        Added GFS20
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -163,7 +165,7 @@ VWaveDir = ("VWaveDir", SCALAR, "m/s", "V WaveDir Comp", 0.50, -0.50, 3, NO)
 LkSfcT = ("LkSfcT", SCALAR, "C", "Lake Surface T", 40.0, -2.0, 1, NO)
 SnowMap = ("SnowMap", SCALAR, "in", "Snowfall Map", 20.0, 0.0, 1, YES)
 WaveDir = ("WaveDir", VECTOR, "m/s", "Wave Direction", 5.0, 0.0, 2, NO)
-StormTotalQPF = ('StormTotalQPF', SCALAR, 'in', 'Storm Total QPF (in)', 10.0, 0.0, 2, YES)
+StormTotalQPF = ('StormTotalQPF', SCALAR, 'in', 'Storm Total QPF (in)', 10.0, 0.0, 2, NO)
 SeasonTotalSnow = ('SeasonTotalSnow', SCALAR, 'in', 'Season Total Snow (in)', 150.0, 0.0, 2, YES)
 
 # Marine Weather Elements
@@ -174,7 +176,6 @@ WaveHeight = ("WaveHeight", SCALAR, "ft", "Total Wave Height",
 Swell = ("Swell", VECTOR, "ft", "Primary Swell", 100.0, 0.0, 0, NO)
 Swell2 = ("Swell2", VECTOR, "ft", "Secondary Swell", 100.0, 0.0, 0, NO)
 Period = ("Period", SCALAR, "sec", "Primary Period", 20.0, 0.0, 0, NO)
-Period2 = ("Period2", SCALAR, "sec", "Secondary Period", 20.0, 0.0, 0, NO)
 WindGust = ("WindGust", SCALAR, "kts", "Wind Gust", 125.0, 0.0, 0, NO)
 IceCoverage = ("IceCoverage", SCALAR, "%", "Ice Coverage Amount",
   100.0, 0.0, 0, NO)
@@ -188,6 +189,53 @@ WindWaveHgt = ("WindWaveHgt", SCALAR, "ft", "Significant wave height of wind wav
   30.0, 0.0, 0, NO)
 WindWavePeriod = ("WindWavePeriod", SCALAR, "sec.", "Wind wave peak period", 20.0, 0.0, 0, NO)
 WindWaveDir = ("WindWaveDir", VECTOR, "degree", "Direction of wind waves", 100.0, 0.0, 0, NO)
+
+NWPSwind = ("NWPSwind", VECTOR, "kts", "NWPSwind", 150.0, 0.0, 0, NO)
+SwanSwell = ("SwanSwell", SCALAR, "ft", "Total Significant Swell Height", 40.0, 0.0, 2, NO)
+
+#Smart Init Grids - for partitioned wave groups
+Wave_1 = ("Wave_1", VECTOR, "ft", "Wave_1", 50.0, 0.0, 2, NO)
+Wave_2 = ("Wave_2", VECTOR, "ft", "Wave_2", 50.0, 0.0, 2, NO)
+Wave_3 = ("Wave_3", VECTOR, "ft", "Wave_3", 50.0, 0.0, 2, NO)
+Wave_4 = ("Wave_4", VECTOR, "ft", "Wave_4", 50.0, 0.0, 2, NO)
+Wave_5 = ("Wave_5", VECTOR, "ft", "Wave_5", 50.0, 0.0, 2, NO)
+Wave_6 = ("Wave_6", VECTOR, "ft", "Wave_6", 50.0, 0.0, 2, NO)
+Wave_7 = ("Wave_7", VECTOR, "ft", "Wave_7", 50.0, 0.0, 2, NO)
+Wave_8 = ("Wave_8", VECTOR, "ft", "Wave_8", 50.0, 0.0, 2, NO)
+Wave_9 = ("Wave_9", VECTOR, "ft", "Wave_9", 50.0, 0.0, 2, NO)
+
+#Fcst Grids - for partitioned wave groups
+Wave1 = ("Wave1", VECTOR, "ft", "WAVE1", 50.0, 0.0, 1, NO)
+Wave2 = ("Wave2", VECTOR, "ft", "WAVE2", 50.0, 0.0, 1, NO)
+Wave3 = ("Wave3", VECTOR, "ft", "WAVE3", 50.0, 0.0, 1, NO)
+Wave4 = ("Wave4", VECTOR, "ft", "WAVE4", 50.0, 0.0, 1, NO)
+Wave5 = ("Wave5", VECTOR, "ft", "WAVE5", 50.0, 0.0, 1, NO)
+Wave6 = ("Wave6", VECTOR, "ft", "WAVE6", 50.0, 0.0, 1, NO)
+Wave7 = ("Wave7", VECTOR, "ft", "Wave7", 50.0, 0.0, 0, NO)
+Wave8 = ("Wave8", VECTOR, "ft", "Wave8", 35.0, 0.0, 0, NO)
+Wave9 = ("Wave9", VECTOR, "ft", "Wave9", 35.0, 0.0, 0, NO)
+
+#Smart Init Grids - for partitioned wave groups
+Period_1 = ("Period_1", SCALAR, "sec", "Period_1", 30.0, 1.0, 0, NO)
+Period_2 = ("Period_2", SCALAR, "sec", "Period_2", 30.0, 1.0, 0, NO)
+Period_3 = ("Period_3", SCALAR, "sec", "Period_3", 30.0, 1.0, 0, NO)
+Period_4 = ("Period_4", SCALAR, "sec", "Period_4", 30.0, 1.0, 0, NO)
+Period_5 = ("Period_5", SCALAR, "sec", "Period_5", 30.0, 0.0, 0, NO)
+Period_6 = ("Period_6", SCALAR, "sec", "Period_6", 30.0, 0.0, 0, NO)
+Period_7 = ("Period_7", SCALAR, "sec", "Period_7", 30.0, 0.0, 0, NO)
+Period_8 = ("Period_8", SCALAR, "sec", "Period_8", 30.0, 0.0, 0, NO)
+Period_9 = ("Period_9", SCALAR, "sec", "Period_9", 30.0, 0.0, 0, NO)
+
+#Fcst Grids - for partitioned wave groups
+Period1 = ("Period1", SCALAR, "sec", "Period1", 25.0, 0.0, 1, NO)
+Period2 = ("Period2", SCALAR, "sec", "Period2", 25.0, 0.0, 1, NO)
+Period3 = ("Period3", SCALAR, "sec", "Period3", 25.0, 0.0, 1, NO)
+Period4 = ("Period4", SCALAR, "sec", "Period4", 25.0, 0.0, 1, NO)
+Period5 = ("Period5", SCALAR, "sec", "Period5", 25.0, 0.0, 1, NO)
+Period6 = ("Period6", SCALAR, "sec", "Period6", 25.0, 0.0, 1, NO)
+Period7 = ("Period7", SCALAR, "sec", "Period7", 25.0, 0.0, 0, NO)
+Period8 = ("Period8", SCALAR, "sec", "Period8", 25.0, 0.0, 0, NO)
+Period9 = ("Period9", SCALAR, "sec", "Period9", 25.0, 0.0, 0, NO)
 
 # Fire Weather Weather Elements
 LAL = ("LAL", SCALAR, "cat", "Lightning Activity Level", 6.0, 1.0, 0, NO)
@@ -288,9 +336,31 @@ pwsN64 = ("pwsN64", SCALAR, "%", "Night64WSI PROB", 100.0, 0.0, 0, NO)
 pws34int = ("pws34int", SCALAR, "%", "34WSIntPROB", 100.0, 0.0, 0, NO)
 pws64int = ("pws64int", SCALAR, "%", "64WSIntPROB", 100.0, 0.0, 0, NO)
 
-# Surge parms for HLS
-SurgeHtPlusTide = ("SurgeHtPlusTide", SCALAR, "ft", "SurgeHtPlusTide", 50.0, -100.0, 2, NO)
-SurgeHtPlusTideWTopo = ("SurgeHtPlusTideWTopo", SCALAR, "ft", "SurgeHtPlusTideWTopo", 50.0, -100.0, 2, NO)
+# Surge parms for HLS/TCV
+InundationMax = ("InundationMax", SCALAR, "ft", "Max Inundation", 30.0, -100.0, 1, NO)
+InundationTiming = ("InundationTiming", SCALAR, "ft", "Incremental Inundation", 30.0, -100.0, 1, NO)
+SurgeHtPlusTideMSL = ("SurgeHtPlusTideMSL", SCALAR, "ft", "Surge above MSL", 30.0, -100.0, 1, NO)
+SurgeHtPlusTideMLLW = ("SurgeHtPlusTideMLLW", SCALAR, "ft", "Surge above MLLW", 30.0, -100.0, 1, NO)
+SurgeHtPlusTideMHHW = ("SurgeHtPlusTideMHHW", SCALAR, "ft", "Surge above MHHW", 30.0, -100.0, 1, NO)
+SurgeHtPlusTideNAVD = ("SurgeHtPlusTideNAVD", SCALAR, "ft", "Surge above NAVD88", 30.0, -100.0, 1, NO)
+
+# parms for storm surge collaboration
+SShazardKeys = [("<None>",""), ("SS.A", "STORM SURGE WATCH"), ("SS.W", "STORM SURGE WARNING")]
+ProposedSS = ("ProposedSS", DISCRETE, "w/w/a", "Proposed StormSurge Hazards", YES, SShazardKeys, 7)
+tempProposedSS = ("tempProposedSS", DISCRETE, "w/w/a", "Temp Proposed StormSurge Hazards",
+              YES, SShazardKeys, 4)
+InitialSS = ("InitialSS", DISCRETE, "w/w/a", "Initial StormSurge Hazards",
+              YES, SShazardKeys, 4)
+DiffSS = ("DiffSS", SCALAR, "None", "Difference StormSurge Hazards", 2.0, -1.0, 0, NO)
+
+# parms for tropical cyclone threat graphics
+Threat4Keys = [("None","None to Little"), ("Elevated","Elevated"), ("Mod", "Moderate"), ("High", "High"), ("Extreme","Extreme"),]
+
+FloodingRainThreat = ("FloodingRainThreat", DISCRETE, "Cat", "Flooding Rain Threat", NO, Threat4Keys,2)
+StormSurgeThreat = ("StormSurgeThreat", DISCRETE, "Cat", "Storm Surge Threat", NO, Threat4Keys,2)
+WindThreat = ("WindThreat", DISCRETE, "Cat", "Wind Threat", NO, Threat4Keys,2)
+TornadoThreat = ("TornadoThreat", DISCRETE, "Cat", "Tornado Threat", NO, Threat4Keys,2)
+QPFtoFFGRatio = ("QPFtoFFGRatio", SCALAR, "1", "QPF to FFG Ratio", 8.0, 0.0, 0, NO) 
 
 # Hazards
 HazardKeys = []
@@ -441,23 +511,23 @@ HAZE = ('H', 'Haze',
           [INTEN_NONE],
           [PRIMARY, MENTION])
 BLWGSNOW = ('BS', 'Blowing Snow',
-          [AREAS,PATCHY,DEFN],
+          [PATCHY, AREAS, DEFN],
           [INTEN_NONE],
           [PRIMARY, MENTION])
 BLWGSAND = ('BN', 'Blowing Sand',
-          [AREAS,PATCHY,DEFN],
+          [PATCHY, AREAS, DEFN],
           [INTEN_NONE],
           [PRIMARY, MENTION])
 SMOKE = ('K', 'Smoke',
-          [AREAS, PATCHY, DEFN],
+          [PATCHY, AREAS, DEFN],
           [INTEN_NONE],
           [PRIMARY, MENTION])
 BLWGDUST = ('BD', 'Blowing Dust',
-          [AREAS,PATCHY,DEFN],
+          [PATCHY, AREAS, DEFN],
           [INTEN_NONE],
           [PRIMARY, MENTION])
 FROST = ('FR','Frost',
-          [AREAS, PATCHY, WIDE],
+          [PATCHY, AREAS, WIDE],
           [INTEN_NONE],
           [PRIMARY, MENTION, OUTLYNG])
 FRZSPRAY = ('ZY','Freezing Spray',
@@ -645,8 +715,8 @@ NDFD_Oceanic_10K = ('NDFD_Oceanic_10km', MERCATOR,
 
 #  Add a new domain for NHC purposes
 GridForNHA = ('GridForNHA', LAMBERT_CONFORMAL,
-      (-102.551, 16.6069), (-50.5524, 47.3806),
-      (-95.0, 35.0), 35.0, 35.0, (1, 1), (1729,1601), 0.0, 0.0, 0.0)
+      (-103.929, 20.164), (-50.8894, 42.9545),
+      (-95.0, 35.0), 35.0, 35.0, (1, 1), (1833,1241), 0.0, 0.0, 0.0)
 
 # list of all projections
 allProjections = [Grid201, Grid202, Grid203, Grid204, Grid205, Grid206,
@@ -831,7 +901,7 @@ SITES = {
     'TIR' : ([220, 171], (59.0, 25.0), (13.0, 12.0), 'EST5EDT', Grid211, "rfc"),
     'TUA' : ([281, 168], (39.0, 22.0), (18.0, 10.0), 'CST6CDT', Grid211, "rfc"),
 
-#Special Sites - Updated NHC and OPC domains in OB9.3
+#Special Sites - Added Hawaiian High Seas domain 
     'US' : ([267, 159], (18.0, 9.5), (67.0, 40.0), 'EDT5EDT', Grid211, "other"),
     'FSL' : ([161, 145], (38.50, 27.00), (10.0, 9.0), 'MST7MDT', Grid211, "other"),
 #    'NH1' : ([667, 461], (69.5, 4.5), (52.03125, 35.9375), 'EST5EDT', Grid204, "wfo"),
@@ -840,6 +910,8 @@ SITES = {
     'NH2' : ([1188, 363], (1328.0, 365.0), (1187.0, 362.0), 'EST5EDT', NDFD_Oceanic_10K, "wfo"),
     'ONA' : ([244, 383], (68.9375, 19.5625), (15.1875, 23.875), 'EST5EDT', Grid211, "wfo"),
     'ONP' : ([396, 415], (8.1875, 21.5625), (24.6875, 25.875), 'PST8PDT', Grid211, "wfo"),
+    'HPA' : ([899, 671], (284.0, 30.0), (898.0, 670.0), 'Pacific/Honolulu', NDFD_Oceanic_10K, "wfo"),
+    'WNJ' : ([301, 346], (1000.0, 475.0), (300.0, 345.0), 'CST6CDT', NDFD_Oceanic_10K, "wfo"),
 
 #Ice Desk for AFC
     'AICE' : ([560, 340], (9.0, 11.0), (29.0, 19.0), 'America/Anchorage',
@@ -857,8 +929,9 @@ SITES = {
     
 #National Centers
     'HAK' : ( [825,553], ( 1.0, 1.0), (103.0, 69.0), 'EST5EDT', Grid214AK, "nc"),
-    'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),                
-    'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
+    'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),
+    #'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
+    'NHA' : ([1833,1241], (41.5,5.0), (54.0,40.5), 'EST5EDT', Grid211, "nc"),
 }
 
 
@@ -974,6 +1047,8 @@ ISC         = ('ISC',          GRID,   '', YES, NO,  1, 12)
 LAPS        = ('LAPS',         GRID,   '', YES, NO,  1, 30)
 SAT         = ('SAT',          GRID,   '', YES, NO,  1, 12)
 ESTOFS      = ('ESTOFS',       GRID,   '', NO,  NO,  2, 0)
+nwpsTrkngCG0 = ('nwpsTrkngCG0',GRID,   '', NO,  NO,  2, 0)
+nwpsCG1     = ('nwpsCG1',      GRID,   '', NO,  NO,  2, 0)
 HPCGuide    = ('HPCGuide',     GRID,   '', NO,  NO,  2, 0)
 NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
 NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
@@ -1065,6 +1140,8 @@ if SID in ALASKA_SITES:
                  'AKwave10',
                  'AKwave4',
                  'GlobalWave',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
 #                 ('AK-RTMA','RTMA'),
                  ('AK-RTMA3','RTMA'),  # Only have one RTMA
                  ('AK-NamDNG5','NamDNG5'),
@@ -1082,6 +1159,7 @@ if SID in ALASKA_SITES:
                  'AKHwave10',
                  'AKHwave4',
                  'GLOBHwave',
+                 ('GFS217', 'GFS20'),
                ]
 
 # Hawaii OCONUS
@@ -1104,6 +1182,9 @@ elif SID == "HFO":
                  'WPHwave10',
                  'NPHwave4',
                  'GLOBHwave',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
+                 ('GFS20-PAC', 'GFS20'),
                ]
 
 # San Juan OCONUS
@@ -1131,7 +1212,10 @@ elif SID == "SJU":
                  'NAHwave15',
                  'NAHwave10',
                  'NAHwave4',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'GLOBHwave',
+                 ('GFS20-PRICO', 'GFS20'),
                ]
 
 # Guam OCONUS
@@ -1144,6 +1228,9 @@ elif SID == "GUM":
                  'RTOFS-Guam',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
+                 ('GFS20-PAC', 'GFS20'),
                ]
 
 #CONUS sites
@@ -1183,6 +1270,8 @@ elif SID in CONUS_EAST_SITES:
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
                  ('OPCWave182', 'OPCTAFBSW'),
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'MOSGuide',
                  'RTMA',
                  'NamDNG5',
@@ -1204,6 +1293,19 @@ elif SID in CONUS_EAST_SITES:
                  'WPHwave10',
                  'GLOBHwave',
                  'URMA25',
+                 ('GFS215', 'GFS20'),
+                 ('FFG-ALR', 'FFGALR'),
+                 ('FFG-FWR', 'FFGFWR'),
+                 ('FFG-KRF', 'FFGKRF'),
+                 ('FFG-MSR', 'FFGMSR'),
+                 ('FFG-ORN', 'FFGORN'),
+                 ('FFG-PTR', 'FFGPTR'),
+                 ('FFG-RHA', 'FFGRHA'),
+                 ('FFG-RSA', 'FFGRSA'),
+                 ('FFG-STR', 'FFGSTR'),
+                 ('FFG-TAR', 'FFGTAR'),
+                 ('FFG-TIR', 'FFGTIR'),
+                 ('FFG-TUA', 'FFGTUA'),
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1223,6 +1325,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
+                 ('HRRR', 'HRRR'),
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
@@ -1243,6 +1346,8 @@ else:   #######DCS3501 WEST_CONUS
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
                  ('OPCWave182', 'OPCTAFBSW'),
+                 ('nwpsCG1', 'nwpsCG1'),
+                 ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  'MOSGuide',
                  'RTMA',
                  'NamDNG5',
@@ -1263,6 +1368,19 @@ else:   #######DCS3501 WEST_CONUS
                  'WPHwave10',
                  'GLOBHwave',
                  'URMA25',
+                 ('GFS215', 'GFS20'),
+                 ('FFG-ALR', 'FFGALR'),
+                 ('FFG-FWR', 'FFGFWR'),
+                 ('FFG-KRF', 'FFGKRF'),
+                 ('FFG-MSR', 'FFGMSR'),
+                 ('FFG-ORN', 'FFGORN'),
+                 ('FFG-PTR', 'FFGPTR'),
+                 ('FFG-RHA', 'FFGRHA'),
+                 ('FFG-RSA', 'FFGRSA'),
+                 ('FFG-STR', 'FFGSTR'),
+                 ('FFG-TAR', 'FFGTAR'),
+                 ('FFG-TIR', 'FFGTIR'),
+                 ('FFG-TUA', 'FFGTUA'),
                ]
 
 if SID in GreatLake_SITES:
@@ -1291,6 +1409,7 @@ elif SID == "HFO":
 elif SID == "SJU":
     NETCDFDIRS = [('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
                   ]
     
 
@@ -1304,6 +1423,7 @@ elif SID in CONUS_EAST_SITES:
                   ('/awips2/edex/data/gfe/climo/NCDC'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
                   ]
         
 
@@ -1312,6 +1432,7 @@ else:   #######DCS3501 WEST_CONUS
                   ('/awips2/edex/data/gfe/climo/NCDC'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
                   ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
+                  ('/awips2/edex/data/gfe/topo/VDATUMS','VDATUMS'),
                   ]
     
 
@@ -1405,6 +1526,8 @@ elif SID in ALASKA_SITES:
         "DGEX" : ['DGEX'],
 #        "GWW" : ["GWW"],
 #        "OPCTAFBNW" : ['OPCTAFBNW'],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "AKMOSGuide" : ['MOSGuide'],
@@ -1424,6 +1547,8 @@ elif SID == "HFO":
 #        "gfsLR" : ["gfsLR"],
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
 
 # San Juan OCONUS
@@ -1456,6 +1581,8 @@ elif SID == "SJU":
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "ESTOFS" : ["ESTOFS"],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
 
 # Guam OCONUS
@@ -1466,6 +1593,8 @@ elif SID == "GUM":
 #        "gfsLR" : ["gfsLR"],
 #        "GlobalWave" : ["GlobalWave"],
         "RTMA": ['RTMA'],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
 
 #CONUS sites
@@ -1502,6 +1631,8 @@ else:
 #        "WNAwave4" : ["WNAwave4"],
 #        "ENPwave": ["ENPwave"],
         "ESTOFS" : ["ESTOFS"],
+        "nwpsCG1" : ['nwpsCG1'],
+        "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
         }
 
 #initialization skip certain model runs
@@ -1604,7 +1735,7 @@ TRANSMIT_SCRIPT = GFESUITE_HOME + '/bin/gfe_msg_send -s %SUBJECT -a %ADDRESSES -
 # to the ISC database that is your own office type.  The format of this
 # entry is a list of tuples.  The tuple is a list of weather elements
 # objects (such as Temp and not "T"), and an office type, such as "rfc".
-EXTRA_ISC_PARMS = [([QPF], 'rfc'), ([QPF], 'wfo')]
+EXTRA_ISC_PARMS = [([QPF,FloodingRainThreat], 'rfc'), ([QPF,FloodingRainThreat], 'wfo'), ([ProposedSS,Hazards,InundationMax,InundationTiming,SurgeHtPlusTideMSL,SurgeHtPlusTideMLLW,SurgeHtPlusTideMHHW,SurgeHtPlusTideNAVD], 'nc'),([ProposedSS,Hazards,InundationMax,InundationTiming,SurgeHtPlusTideMSL,SurgeHtPlusTideMLLW,SurgeHtPlusTideMHHW,SurgeHtPlusTideNAVD], 'wfo')]
 
 #---------------------------------------------------------------------------
 #
@@ -1643,7 +1774,10 @@ localRTMAParms = []
 localNamDNG5Parms = []
 localSREFParms = []
 localTPCProbParms = []
-localHRRRParms = localESTOFSParms = localISCExtraParms = []
+localHRRRParms = localESTOFSParms = []
+localnwpsCG1Parms = []
+localnwpsTrkngCG0Parms = [] 
+localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
@@ -1657,6 +1791,8 @@ if not BASELINE and siteImport('localConfig'):
         myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
 
     localESTOFSParms = getattr(localConfig, 'parmsESTOFS', localESTOFSParms)
+    localnwpsCG1Parms = getattr(localConfig, 'parmsnwpsCG1', localnwpsCG1Parms)
+    localnwpsTrkngCG0Parms = getattr(localConfig, 'parmsnwpsTrkngCG0', localnwpsTrkngCG0Parms)
     localParms = getattr(localConfig, 'parms', localParms)
     localNAM12Parms = getattr(localConfig, 'parmsNAM12', localNAM12Parms)
     localOPCWavEParms = getattr(localConfig, 'parmsOPCWavE', localOPCWavEParms)
@@ -1782,30 +1918,38 @@ MOS_MODEL = [([Temp, Td, Wind, Weather, Sky], TC1),
              ([SnowAmt, PoP], LTMOS), ([QPF], TC6NG)]
 
 # Fcst and official database parameter groupings
-OFFICIALDBS = [([Temp, Td, Wind, Weather, Sky, FzLevel, SnowLevel], TC1),
+OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC1),
           ([HeatIndex, WindChill, RH, SnowAmt, CWR, QPF], TC1),
           ([PoP, Ttrend, RHtrend, Wind20ft], TC1),
           ([MinT], MinTTC), ([MaxT], MaxTTC),
           ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
-          ([WaveHeight, SurfHeight, WindGust, Swell, Swell2, Period, Period2], TC1),
+          ([WaveHeight, SurfHeight, WindGust, Swell, Swell2, Period], TC3NG),
+          ([WindWaveHeight, SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Period1, Period2, Period3, Period4, Period5, Period6, Period7, Period8, Period9], TC3NG),
           ([VentRate, LAL, Haines, MixHgt, FreeWind, TransWind], TC1),
-          ([WindWaveHeight, DSI, Stability, MarineLayer], TC1),
+          ([DSI, Stability, MarineLayer], TC1),
           ([HrsOfSun, InvBurnOffTemp], LT24),
           ([IceAcc, IceCoverage, Hazards], TC1),
           ([Wetflag], FireWx1300TC),
           ([StormTotalSnow], TC1),
           # Tropical parms
-          ([prob34, prob50, prob64], TC1),
-          ([pws34,pws50,pws64,SurgeHtPlusTide,SurgeHtPlusTideWTopo], TC1),
+          ([prob34, prob50, prob64,pws34,pws50,pws64,], TC1),
+          ([InundationMax,SurgeHtPlusTideMSL,SurgeHtPlusTideMLLW,SurgeHtPlusTideMHHW,SurgeHtPlusTideNAVD], TC1),
+          ([ProposedSS,DiffSS,tempProposedSS,InitialSS], TC1),
+          ([WindThreat,StormSurgeThreat,FloodingRainThreat,TornadoThreat], TC1),
           ([pwsD34,pwsD64], PWSDTC),
           ([pwsN34,pwsN64], PWSNTC),
-          ([pws34int,pws64int], TC6NG),
+          ([pws34int,pws64int,InundationTiming,QPFtoFFGRatio], TC6NG),
           # DR20541 and 20482
           ([PoP12hr], TC12NG),
           ([QPF6hr, SnowAmt6hr], TC6NG),
           ([cape], LT6NG),
           ([ApparentT, HeatIndex, WindChill, UWaveDir, VWaveDir, LkSfcT, SnowMap, WaveDir, SnowRatio, StormTotalQPF], TC1),
           ]
+
+# NWPS
+nwpsCG1_MODEL = [([SwanSwell, Period, WaveHeight, WindWaveHeight, Wind], TC3NG)]
+
+nwpsTrkngCG0_MODEL = [([Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Period1, Period2, Period3, Period4, Period5, Period6,Period7, Period8, Period9 ], TC3NG)]
 
 # Global Wave Watch III, WNAWAVE, AKWAVE Model database parameter groupings
 WAVEPARMS = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
@@ -1925,6 +2069,8 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (AKwave4, WAVEPARMS + localAKwave4Parms),
              (EPwave10, WAVEPARMS + localEPwave10Parms),
              (ESTOFS, ESTOFSPARMS + localESTOFSParms),
+             (nwpsCG1, nwpsCG1_MODEL + localnwpsCG1Parms),
+             (nwpsTrkngCG0, nwpsTrkngCG0_MODEL + localnwpsTrkngCG0Parms),
              (GlobalWave, WAVEPARMS + localGlobalWaveParms),
              (GLWM, GLWMPARMS + localGLWMParms),            #####DCS3499
              (HIRESWarw, STD3_MODEL + localHIRESWarwParms), #####DCS3501
