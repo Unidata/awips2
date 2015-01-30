@@ -46,7 +46,6 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -60,7 +59,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
@@ -75,10 +73,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Contains all the PGEN Products, layers, and Elements behind the PgenResource.
  * Also holds the command manager to undo/redo changes to the data in the
  * productlist
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date       	Ticket#		Engineer	Description
+ * ------------	----------	-----------	--------------------------
+ * 01/15		#5413		B. Yin   	Close PGEN palette in cleanup
+ * 
+ * </pre>
  * 
  * @author sgilbert
- * 
  */
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class PgenResourceData extends AbstractResourceData implements
