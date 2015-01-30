@@ -99,6 +99,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 08/15/2012         1053 jkorman     Added capability to save/restore user
  * print settings.
  * 10/12/2012         1229 rferrel    Made dialog non-blocking.
+ * 12/09/2014   ASM #11982 D. Friedman Fix print-to-file
  * 
  * </pre>
  * 
@@ -650,8 +651,8 @@ public class PrintDialog extends CaveSWTDialog {
         } else if (this.fileRadioButton.getSelection()) {
             printerSettings.selectedPrinter = this.printToFileData;
             printerSettings.selectedPrinter.printToFile = true;
-            printerSettings.selectedPrinter.fileName = "file://"
-                    + this.destinationFileText.getText();
+            printerSettings.selectedPrinter.fileName =
+                    this.destinationFileText.getText();
         }
         printerSettings.selectedPrinter.copyCount = this.copiesSpinner
                 .getSelection();

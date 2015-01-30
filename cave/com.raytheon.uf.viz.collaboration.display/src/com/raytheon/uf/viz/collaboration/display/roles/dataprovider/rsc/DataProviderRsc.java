@@ -29,6 +29,7 @@ import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.display.data.UserColorInfo;
 import com.raytheon.uf.viz.collaboration.display.editor.ReprojectRemoteDisplay;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -60,6 +61,7 @@ import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
  * Mar 06, 2014  2848     bclement    get subject dynamically from session
  * May 16, 2014  3163     bsteffen    Remove references to deprecated
  *                                    {@link DrawableString} field.
+ * Jan 13, 2015  3709     bclement    SessionColorManager API changes
  * 
  * </pre>
  * 
@@ -103,10 +105,12 @@ public class DataProviderRsc extends
         }
         target.clearClippingPlane();
         IExtent extent = paintProps.getView().getExtent();
-        RGB color = colorManager.getColorForUser(session.getUserID());
-        target.drawRect(extent, color, 3.0f, 1.0f);
+        UserColorInfo colors = colorManager
+                .getColorForUser(session.getUserID());
+        RGB foreground = colors.getForeground();
+        target.drawRect(extent, foreground, 3.0f, 1.0f);
 
-        DrawableString string = new DrawableString(getName(), color);
+        DrawableString string = new DrawableString(getName(), foreground);
         string.horizontalAlignment = HorizontalAlignment.CENTER;
         string.verticallAlignment = VerticalAlignment.BOTTOM;
         string.setCoordinates(extent.getMinX() + extent.getWidth() / 2,

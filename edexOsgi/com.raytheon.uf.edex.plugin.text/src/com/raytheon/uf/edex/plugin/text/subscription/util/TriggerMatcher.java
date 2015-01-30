@@ -35,6 +35,7 @@ import com.raytheon.uf.common.dataplugin.text.db.SubscriptionRecord;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 22, 2014 2536       bclement     Initial creation
+ * 12.13.14     DR 14638   dhuffman     Cut whitespace.
  * 
  * </pre>
  * 
@@ -81,16 +82,20 @@ public class TriggerMatcher {
             // 3)+"NNNXXX" +
             // " -- trigger.substring(0, 3)+\"NNN\"+trigger.substring(6)="+trigger.substring(0,
             // 3)+"NNN"+trigger.substring(6));
-            retVal = (trigger.equalsIgnoreCase(recordTrigger))
-                    || ((trigger.substring(0, 6) + "XXX")
-                            .equalsIgnoreCase(recordTrigger))
-                    || (("CCC" + trigger.substring(3, 6) + "XXX")
-                            .equalsIgnoreCase(recordTrigger))
-                    || ((trigger.substring(0, 3) + "NNNXXX")
-                            .equalsIgnoreCase(recordTrigger))
-                    || ((trigger.substring(0, 3) + "NNN" + trigger.substring(6))
-                            .equalsIgnoreCase(recordTrigger) || (recordTrigger
-                            .startsWith(trigger)));
+            
+            // Below, "subscriptionTrigger" is data from the subscription database table.
+            String subscriptionTrigger = recordTrigger.replaceAll("\\s+$", "");
+            String requestTrigger = trigger.replaceAll("\\s+$", "");
+            retVal = (requestTrigger.equalsIgnoreCase(subscriptionTrigger))
+                    || ((requestTrigger.substring(0, 6) + "XXX")
+                            .equalsIgnoreCase(subscriptionTrigger))
+                    || (("CCC" + requestTrigger.substring(3, 6) + "XXX")
+                            .equalsIgnoreCase(subscriptionTrigger))
+                    || ((requestTrigger.substring(0, 3) + "NNNXXX")
+                            .equalsIgnoreCase(subscriptionTrigger))
+                    || ((requestTrigger.substring(0, 3) + "NNN" + requestTrigger.substring(6))
+                            .equalsIgnoreCase(subscriptionTrigger) || (subscriptionTrigger
+                            .startsWith(requestTrigger)));
         } else {
             String pattern = recordTrigger.replaceAll("\\*", ".+");
             retVal = trigger.matches(pattern);

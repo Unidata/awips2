@@ -33,6 +33,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 31, 2009            snaples     Initial creation
+ * Dec 22, 2014  #16952    lbousaidi   fixed the eratic estimate values. 
  * 
  * </pre>
  * 
@@ -44,14 +45,16 @@ public class EstMissingStations {
 
     /* j is the day number. */
 
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     public void estimate_missing_stations(int j,
             ArrayList<Station> precip_stations, int max_stations, Pdata[] pdata) {
 
-        int mpe_dqc_max_precip_neighbors = DailyQcUtils.mpe_dqc_max_precip_neighbors;
-        int mpe_dqc_min_good_stations = DailyQcUtils.mpe_dqc_min_good_stations;
-        int isom = DailyQcUtils.isom;
-        int isohyets_used = DailyQcUtils.isohyets_used;
-        int method = DailyQcUtils.method;
+        int mpe_dqc_max_precip_neighbors = dqc.mpe_dqc_max_precip_neighbors;
+        int mpe_dqc_min_good_stations = dqc.mpe_dqc_min_good_stations;
+        int isom = dqc.isom;
+        int isohyets_used = dqc.isohyets_used;
+        int method = dqc.method;
         int m, i, h, l, ii;
         double lat1, lon1, fdist, fdata, lat, lon, testdist, isoh = 0., isoh1 = 0., padj, distlon;
         double fvalue[] = new double[4];
@@ -145,10 +148,10 @@ public class EstMissingStations {
                     } else {
                         padj = pdata[j].stn[i].frain[h].data;
                     }
-
-                    fdist = 1 / (testdist + fdist);
-                    fdata = padj / (testdist + fdata);
-
+                    
+                    fdist += 1 / testdist;
+                    fdata += padj / testdist;
+                    
                     l++;
 
                 }
