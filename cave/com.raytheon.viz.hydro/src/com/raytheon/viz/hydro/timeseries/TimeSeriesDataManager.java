@@ -72,7 +72,9 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Feb  22 2013 14676      lbousaidi   check when producttime is null
  * Mar 25, 2013  1781      mpduff      Constrain time series table query with a start time.
  * May 12  2014  16705     lbousaidi   update revision and shef_qual_code in edit routine.
- * </pre>
+ * Dec 14, 2014  16388     xwei        updated the insertion of rejecteddata table. 
+ * 
+</pre>
  * 
  * @author dhladky
  * @version 1.0
@@ -946,11 +948,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
         for (ForecastData dr : deleteList) {
 
             int probability = -1;
-            int revision = 0;
-            if (dr.getTs().toUpperCase().startsWith("F")
-                    || dr.getTs().toUpperCase().startsWith("C")) {
+            int revision = 1;
+            
+            if ( dr.getTs().toUpperCase().startsWith("F") || dr.getTs().toUpperCase().startsWith("C") ) {
                 probability = 0;
-                revision = 1;
             }
 
             Date productTime = dr.getProductTime();
@@ -1195,36 +1196,6 @@ public class TimeSeriesDataManager extends HydroDataManager {
             }
 
             sql.setWhereClause(where.toString());
-
-            if (data.getValue() == HydroConstants.MISSING_VALUE) {
-                DataRecord dr = new DataRecord();
-                Date productTime = data.getProductTime();
-                if (productTime == null) {
-                    productTime = now;
-                }
-
-                dr.setDur(data.getDur());
-                dr.setExt(data.getExtremum().toUpperCase());
-                dr.setLid(data.getLid());
-                dr.setObsTime(data.getObsTime());
-                dr.setPe(data.getPe().toUpperCase());
-                dr.setPostingTime(now);
-                dr.setQualityCode(TimeSeriesUtil.DEFAULT_QC_VALUE);
-                dr.setRevision(data.getRevision());
-                dr.setShefQualCode("M");
-                dr.setTs(data.getTs().toUpperCase());
-                dr.setValue(data.getPreviousValue());
-                dr.setProductTime(productTime);
-                dr.setProductId(data.getProductID());
-                if (data.getValidTime() != null) {
-                    dr.setValidTime(data.getValidTime());
-                    dr.setBasisTime(dateFormat.format(data.getBasisTime()));
-                } else {
-                    dr.setValidTime(data.getObsTime());
-                }
-
-                insertRejectedData(dr);
-            }
 
             AppsDefaults ad = AppsDefaults.getInstance();
             boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN,
