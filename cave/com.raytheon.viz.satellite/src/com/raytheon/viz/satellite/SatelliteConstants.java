@@ -32,6 +32,7 @@ import java.util.HashMap;
  * ------------	----------	-----------	--------------------------
  * 02/26/09                 jsanchez    Initial Creation.
  * 03/16/09           800   jsanchez    Updated legend.
+ * 12/16/14         15196   kshrestha   Converted Millimeters to Inches for Total Precip Water 
  * 
  * </pre>
  */
@@ -71,7 +72,7 @@ public class SatelliteConstants {
 	
     private static final String SOUNDER_BASED_DERIVED_LI_LEGEND = "GOES Sounder DPI Lifted Index ( C )";
 	
-    private static final String SOUNDER_BASED_DERIVED_PW_LEGEND = "Total Precip Water (mm)";
+    private static final String SOUNDER_BASED_DERIVED_PW_LEGEND = "Total Precip Water (in)";
 	
     private static final String SOUNDER_BASED_DERIVED_SFC_SKIN_LEGEND = "GOES Sounder DPI Skin Temperature ( C )";
 	

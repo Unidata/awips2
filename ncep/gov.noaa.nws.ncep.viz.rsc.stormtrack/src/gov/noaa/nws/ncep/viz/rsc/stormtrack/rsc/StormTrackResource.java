@@ -7,37 +7,10 @@
  */
 package gov.noaa.nws.ncep.viz.rsc.stormtrack.rsc;
 
-import java.awt.geom.Rectangle2D;
-import java.text.SimpleDateFormat;
-
-import java.util.HashMap;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.TreeSet;
-
-import javax.measure.unit.NonSI;
-
 import gov.noaa.nws.ncep.common.dataplugin.stormtrack.StormTrackRecord;
-import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
-import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
-
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.time.DataTime;
-
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -45,14 +18,32 @@ import gov.noaa.nws.ncep.viz.rsc.stormtrack.rsc.StormTrackResourceData.ModelDisp
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeSet;
+
+import javax.measure.unit.NonSI;
+
+import org.eclipse.swt.graphics.RGB;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -60,15 +51,10 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
-
-import org.eclipse.swt.graphics.RGB;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateList;
 
@@ -95,6 +81,7 @@ import com.vividsolutions.jts.geom.CoordinateList;
  * 10/15/2012     858      Greg Hull   add options to display forecastHour, modelName, windSpeed and cycloneId
  * 10/20/2012     858      Greg Hull   change query to handle the ENS_CYC_FCST version of this resource
  * 12/19/2012    #960     Greg Hull    override propertiesChanged() to update colorBar.
+ * 12/19/2014      ?      B. Yin       Remove ScriptCreator, use Thrift Client.
  *                                             
  * @author sgilbert
  *</pre>
@@ -273,20 +260,13 @@ implements INatlCntrsResource{
 				reqConstr = new RequestConstraint( modelNamesString.toString(), ConstraintType.IN );
 				
 				metadataMap.put( "model", reqConstr );
-
-				LayerProperty prop = new LayerProperty();
-				prop.setDesiredProduct( ResourceType.PLAN_VIEW);
-
-				prop.setEntryQueryParameters( metadataMap, false );
-				prop.setNumberOfImages(100000); // TODO: max # records ?? should we cap
-				// this ?
-				String script = null;
-				script = ScriptCreator.createScript(prop);
-
-				if (script == null)
-					return;
-
-				Object[] pdoList = Connector.getInstance().connect(script, null, 120000);
+                
+                DbQueryRequest request = new DbQueryRequest();
+                request.setConstraints(metadataMap);
+              
+                DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
+        
+                Object[] pdoList =  ((Map<String, Object>)response.getResults().get(0)).values().toArray();
 
 				// This could really be considered an error. If the limit is reached then this probably 
 				// took too long and the calling resource should be making its own query for data.

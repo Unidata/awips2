@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Feb 11, 2014 2751       njensen     Added leaderChanged() and listeners
  * Mar 07, 2014 2848       bclement    made colorManager final, added modifyColors() listeners
  * Mar 18, 2014 2895       njensen     Improved javadoc
+ * Jan 13, 2015 3709       bclement    SessionColorManager API changes
  * 
  * </pre>
  * 
@@ -72,7 +73,13 @@ public class SessionContainer {
     /** subscribes to events related to the session based on role **/
     private IRoleEventController roleEventController;
 
-    private final SessionColorManager colorManager = new SessionColorManager();
+    private final SessionColorManager colorManager = new SessionColorManager() {
+        @Override
+        public String getDescription(VenueParticipant user) {
+            return super.getDescription(user)
+                    + "\nColor changes will be seen by all participants in the session.";
+        }
+    };
 
     private IRemoteDisplayContainer displayContainer;
 
@@ -178,12 +185,13 @@ public class SessionContainer {
 
     @Subscribe
     public void modifyColors(ColorPopulator populator) {
-        colorManager.setColors(populator.getColors());
+        colorManager.setForegroundColors(populator.getColors());
     }
 
     @Subscribe
     public void modifyColors(ColorChangeEvent event) {
-        colorManager.setColorForUser(event.getUserName(), event.getColor());
+        UserColorInfo color = new UserColorInfo(event.getColor());
+        colorManager.setColorForUser(event.getUserName(), color);
     }
 
     /**

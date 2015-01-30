@@ -37,10 +37,12 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 03, 2008            njensen      Initial creation
- * Jul 10, 2009  #2590     njensen      Added multiple site support
+ * Oct 03, 2008            njensen     Initial creation
+ * Jul 10, 2009  #2590     njensen     Added multiple site support
  * May 12, 2014  #3157     dgilling     Re-factor based on AbstractWatchNotifierSrv.
- * Jun 10, 2014  #3268     dgilling     Re-factor based on AbstractWatchNotifierSrv.
+ * Jun 10, 2014  #3268     dgilling    Re-factor based on AbstractWatchNotifierSrv.
+ * Oct 08, 2014  #4953     randerso    Refactored AbstractWatchNotifierSrv to allow 
+ *                                     subclasses to handle all watches if desired.
  * </pre>
  * 
  * @author njensen
@@ -50,8 +52,6 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 public final class SPCWatchSrv extends AbstractWatchNotifierSrv {
 
     private static final String SPC_WATCH_TYPE = "SPC";
-
-    private static final String SPC_SUPPORTED_PIL = "WOU";
 
     private static final String DEFAULT_SPC_SITE = "KNHC";
 
@@ -71,8 +71,11 @@ public final class SPCWatchSrv extends AbstractWatchNotifierSrv {
         phenTextMap = Collections.unmodifiableMap(phenTextMapTemp);
     }
 
+    /**
+     * Constructor
+     */
     public SPCWatchSrv() {
-        super(SPC_WATCH_TYPE, SPC_SUPPORTED_PIL);
+        super(SPC_WATCH_TYPE);
     }
 
     /*

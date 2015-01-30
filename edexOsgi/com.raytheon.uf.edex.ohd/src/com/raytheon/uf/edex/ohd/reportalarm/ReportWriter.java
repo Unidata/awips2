@@ -25,6 +25,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -40,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Counties;
 import com.raytheon.uf.common.dataplugin.shef.tables.CountiesId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Datalimits;
 import com.raytheon.uf.common.dataplugin.shef.tables.DatalimitsId;
+import com.raytheon.uf.common.dataplugin.shef.tables.Descrip;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hsa;
 import com.raytheon.uf.common.dataplugin.shef.tables.Location;
 import com.raytheon.uf.common.dataplugin.shef.tables.Network;
@@ -47,6 +50,8 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Rfc;
 import com.raytheon.uf.common.dataplugin.shef.tables.State;
 import com.raytheon.uf.common.dataplugin.shef.tables.Timezone;
 import com.raytheon.uf.common.dataplugin.shef.tables.Wfo;
+import com.raytheon.uf.common.dataplugin.shef.tables.Riverstat;
+import com.raytheon.uf.common.dataplugin.shef.tables.Shefpe;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -54,6 +59,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+
 
 /**
  * 
@@ -67,6 +73,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Sep 05, 2013  16539     wkwock       Fix RECENT, NEAR_NOW,FRESH,and NEW_OR_INCREASED modes
  * Feb 13, 2014  #2783     dgilling     Refactored to support running as part
  *                                      of an EDEX service.
+ * Oct 20, 2014  DIM#16799 deng         missing forecast report for FRESH mode
+ * Oct 20, 2014  DIM#17605 deng         mismatch report format between A1 and A2
  * 
  * </pre>
  * 
@@ -90,6 +98,8 @@ class ReportWriter {
 
     private Date endTime;
 
+    private String[] limitThreshold;
+
     /**
      * Constructor
      * 
@@ -98,6 +108,7 @@ class ReportWriter {
      */
     ReportWriter(ReportOptions opt, Date now) {
         this.reportData = new StringBuilder();
+        this.limitThreshold = new String[] {"","","","","","","",""};
         this.opt = opt;
         this.now = now;
         Calendar cal = Calendar.getInstance();
@@ -151,84 +162,9 @@ class ReportWriter {
         writeNewline();
         writeNewline();
 
-        write("CREATED AT :  " + now.toString());
-
+        // start to change for mismatch between A1 and A2, make sure the now is GMtime
+        write("CREATED " + opt.getProductId() + " AT :  " + now.toString());
         writeNewline();
-        write("PRODUCT ID :  " + opt.getProductId());
-        writeNewline();
-
-        // write a phrase describing the report mode.
-        // the modes which consider the action_time are:
-        // UNREPORTED, FRESH, NEW_OR_INCREASED.
-        // The ones that don't consider it are:
-        // ALL, RECENT, NEAREST, NEAR_NOW, LATEST_MAXFCST
-
-        write("REPORT MODE:  " + opt.getMode().toString());
-        write(" (see end of report for mode description).");
-        writeNewline();
-
-        // note which class of data is being considered via the filter
-        write("DATA FILTER:  ");
-
-        EnumSet<FilterOption> flags = opt.getFilter();
-        if (CollectionUtil.isNullOrEmpty(flags)) {
-            writeln("All alerts/alarms considered (i.e. no filter).");
-        } else {
-            write("Only considering ");
-            if (flags.contains(FilterOption.OBSERVED)
-                    && !flags.contains(FilterOption.FORECAST)) {
-                write(FilterOption.OBSERVED.name().toLowerCase());
-            } else if (!flags.contains(FilterOption.OBSERVED)
-                    && flags.contains(FilterOption.FORECAST)) {
-                write(FilterOption.FORECAST.name().toLowerCase());
-            }
-
-            if (flags.contains(FilterOption.RATE_OF_CHANGE)) {
-                write(" " + FilterOption.RATE_OF_CHANGE.name().toLowerCase());
-            }
-
-            if (flags.contains(FilterOption.UPPER_LIMIT)) {
-                write(" " + FilterOption.UPPER_LIMIT.name().toLowerCase());
-            }
-            if (flags.contains(FilterOption.LOWER_LIMIT)) {
-                write(" " + FilterOption.LOWER_LIMIT.name().toLowerCase());
-            }
-            if (flags.contains(FilterOption.DIFF_LIMIT)) {
-                write(" " + FilterOption.DIFF_LIMIT.name().toLowerCase());
-            }
-
-            if (flags.contains(FilterOption.ALERTS)
-                    && !flags.contains(FilterOption.ALARMS)) {
-                write(" " + FilterOption.ALERTS.name().toLowerCase());
-            } else if (!flags.contains(FilterOption.ALERTS)
-                    && flags.contains(FilterOption.ALARMS)) {
-                write(" " + FilterOption.ALARMS.name().toLowerCase());
-            } else {
-                write(" " + FilterOption.ALERTS.name().toLowerCase() + " and "
-                        + FilterOption.ALARMS.name().toLowerCase());
-            }
-
-            writeNewline();
-        }
-
-        write("PE FILTER  : ");
-        if (opt.getPEfilter() == null) {
-            writeln(" All Physical Elements are considered (i.e. no filter).");
-
-        } else {
-            write(" Only considering ");
-            writeln(opt.getPEfilter() + " physical element data");
-        }
-
-        if (opt.getMode() == ReportMode.RECENT
-                || opt.getMode() == ReportMode.NEAR_NOW
-                || opt.getMode() == ReportMode.FRESH
-                || opt.getMode() == ReportMode.NEW_OR_INCREASED) {
-            write("NUM MINUTES: " + opt.getMinutes());
-        }
-
-        writeNewline();
-        writeln("--------------------------------------------------------------------");
     }
 
     private void writeReportTrailer() {
@@ -268,6 +204,71 @@ class ReportWriter {
                         + reportMode + " MODE)");
             }
             writeln("\n-------------------------------------------------------------------");
+
+            /* add to match A1 format*/
+
+            write("DATA FILTER:  ");
+
+            EnumSet<FilterOption> flags = opt.getFilter();
+            if (CollectionUtil.isNullOrEmpty(flags)) {
+                writeln("All alerts/alarms considered (i.e. no filter).");
+            } else {
+                write("Only considering ");
+                if (flags.contains(FilterOption.OBSERVED)
+                        && !flags.contains(FilterOption.FORECAST)) {
+                    write(FilterOption.OBSERVED.name().toLowerCase());
+                } else if (!flags.contains(FilterOption.OBSERVED)
+                        && flags.contains(FilterOption.FORECAST)) {
+                    write(FilterOption.FORECAST.name().toLowerCase());
+                }
+
+                if (flags.contains(FilterOption.RATE_OF_CHANGE)) {
+                    write(" " + FilterOption.RATE_OF_CHANGE.name().toLowerCase());
+                }
+
+                if (flags.contains(FilterOption.UPPER_LIMIT)) {
+                    write(" " + FilterOption.UPPER_LIMIT.name().toLowerCase());
+                }
+                if (flags.contains(FilterOption.LOWER_LIMIT)) {
+                    write(" " + FilterOption.LOWER_LIMIT.name().toLowerCase());
+                }
+                if (flags.contains(FilterOption.DIFF_LIMIT)) {
+                    write(" " + FilterOption.DIFF_LIMIT.name().toLowerCase());
+                }
+
+                if (flags.contains(FilterOption.ALERTS)
+                        && !flags.contains(FilterOption.ALARMS)) {
+                    write(" " + FilterOption.ALERTS.name().toLowerCase());
+                } else if (!flags.contains(FilterOption.ALERTS)
+                        && flags.contains(FilterOption.ALARMS)) {
+                    write(" " + FilterOption.ALARMS.name().toLowerCase());
+                } else {
+                    write(" " + FilterOption.ALERTS.name().toLowerCase() + " and "
+                            + FilterOption.ALARMS.name().toLowerCase());
+                }
+
+                writeNewline();
+            }
+
+            write("PE FILTER  : ");
+            if (opt.getPEfilter() == null) {
+                writeln(" All Physical Elements are considered (i.e. no filter).");
+
+            } else {
+                write(" Only considering ");
+                writeln(opt.getPEfilter() + " physical element data");
+            }
+
+            if (opt.getMode() == ReportMode.RECENT
+                    || opt.getMode() == ReportMode.NEAR_NOW
+                    || opt.getMode() == ReportMode.FRESH
+                    || opt.getMode() == ReportMode.NEW_OR_INCREASED) {
+                write("NUM MINUTES: " + opt.getMinutes());
+            }
+
+            writeNewline();
+            writeln("--------------------------------------------------------------------");
+
             writeln("Limits: shown above are the alert threshold/alarm threshold.");
             writeln("Info grouped by location, physical element, type-source and check type.");
             writeln("Upper, lower, diff and rate-of-change (roc) limits are shown for each group.");
@@ -345,6 +346,13 @@ class ReportWriter {
      * @throws Exception
      */
     private void writeGroup(List<Alertalarmval> grpData) throws Exception {
+
+    /* determine this grpData is observed or forecast, if forecast, need to reserve the order */
+
+        char grpTs0 = grpData.get(0).getId().getTs().charAt(0);
+        if (grpTs0 != 'R' && grpTs0 != 'P') {
+            Collections.reverse(grpData);
+        }
         if (hasDataToReport(grpData)) {
             /* write the alert-alarm group header */
             writeGroupHeader(grpData);
@@ -392,10 +400,9 @@ class ReportWriter {
      */
     private void writeGroupReport(List<Alertalarmval> grpData) throws Exception {
 
-        Alertalarmval maxfcst = findMaxfcst(grpData);
-        Alertalarmval latestReport = findLatestAction(grpData);
         Date posttime = null;
         double latestValue = -88888.;
+        Boolean maxFcstActionTimeNullFlag = false;
 
         /*
          * processing starts with the first record for this group if processing
@@ -406,9 +413,10 @@ class ReportWriter {
          */
 
         char grpTs0 = grpData.get(0).getId().getTs().charAt(0);
-        if (grpTs0 != 'R' && grpTs0 != 'P') {
-            Collections.reverse(grpData);
-        }
+
+        /* consider the reverse order for forecast, move to after  modify 09/12/2014 */
+        Alertalarmval maxfcst = findMaxfcst(grpData);
+        Alertalarmval latestReport = findLatestAction(grpData);
 
         /*
          * now loop on the data for this group and write the data records
@@ -498,7 +506,6 @@ class ReportWriter {
              * value
              */
             for (Alertalarmval aav : grpData) {
-
                 if ((grpTs0 == 'R' || grpTs0 == 'P')) {
                     Date validtime = aav.getId().getValidtime();
                     Calendar cal = Calendar.getInstance();
@@ -514,9 +521,15 @@ class ReportWriter {
                 }
             }
             if (grpTs0 == 'F' || grpTs0 == 'C') {
-                if (maxfcst != null
-                        && isNotNull(maxfcst.getActionTime().getTime())) {
-                    if (maxfcst.getActionTime().before(startTime)) {
+                if (maxfcst != null) {
+
+                   if (isNull(maxfcst.getActionTime().getTime())) {
+                       maxFcstActionTimeNullFlag = true;
+                    }
+                    else
+                       maxFcstActionTimeNullFlag = false;
+
+                    if (maxFcstActionTimeNullFlag == true || maxfcst.getActionTime().before(startTime)) {
                         writeAAval(maxfcst);
                         updateDatabase(maxfcst);
                         alarmCount++;
@@ -536,7 +549,8 @@ class ReportWriter {
                     cal.setTimeInMillis(0);
                 }
 
-                if (isNull(aav.getActionTime().getTime())) {
+                if (isNull(aav.getActionTime().getTime()))
+                {
                     posttime = aav.getPostingtime();
                     /*
                      * if the record was posted after the last posted report
@@ -544,6 +558,7 @@ class ReportWriter {
                      * has a higher value than the last posted record's value
                      * (i.e. the report is 'increased'), then report it.
                      */
+
                     cal.add(Calendar.MINUTE, opt.getMinutes());
 
                     if (posttime.after(cal.getTime())
@@ -586,10 +601,11 @@ class ReportWriter {
             return true;
         }
 
-        Alertalarmval latestReport = findLatestAction(grpData);
-        Alertalarmval maxfcstVal = findMaxfcst(grpData);
         Date posttime = null;
         double latestValue = -88888.;
+
+        Alertalarmval maxfcstVal = findMaxfcst(grpData);
+        Alertalarmval latestReport = findLatestAction(grpData);
 
         // The following mode are more restrictive
         for (Alertalarmval aav : grpData) {
@@ -637,6 +653,9 @@ class ReportWriter {
                             return true;
                         }
                     }
+                    else if (maxfcstVal != null && isNull(maxfcstVal.getActionTime().getTime())) {
+                        return true;
+                    }
                 }
                 break;
 
@@ -650,7 +669,8 @@ class ReportWriter {
                     cal.setTimeInMillis(0);
                 }
 
-                if (isNull(aav.getActionTime().getTime())) {
+                if (isNull(aav.getActionTime().getTime()))
+                {
                     posttime = aav.getPostingtime();
                     /*
                      * if the record was posted after the last posted report
@@ -658,15 +678,15 @@ class ReportWriter {
                      * has a higher value than the last posted record's value
                      * (i.e. the report is 'increased'), then report it.
                      */
+
                     cal.add(Calendar.MINUTE, opt.getMinutes());
 
-                    if (posttime.after(cal.getTime())) {
+                    if (posttime.after(cal.getTime()))  {
                         return true;
                     } else if (aav.getValue() > latestValue) {
                         return true;
                     }
                 }
-
                 break;
 
             default:
@@ -684,26 +704,72 @@ class ReportWriter {
      */
     private void writeAAval(Alertalarmval aav) throws Exception {
         String[] devb = buildString(aav);
+
         String durInfo = devb[0];
         String exInfo = devb[1];
         String validInfo = devb[2];
-        String basisInfo = devb[3];
+        String tsInfo = devb[3];
+        String peInfo = devb[4];
         String line = null;
         String fmtSpecifier = null;
+
         ArrayList<Object> args = new ArrayList<Object>();
-        args.add(aav.getId().getAaCheck());
-        args.add(aav.getId().getAaCateg());
-        args.add(validInfo);
+        args.add(tsInfo);
+        args.add(peInfo);
         args.add(aav.getValue());
-        args.add(basisInfo);
+        args.add(validInfo);
+      /*  args.add(aav.getId().getAaCheck());
+        args.add(aav.getId().getAaCateg());*/
+
         if (aav.getId().getAaCheck().equals(ShefConstants.UPPER_CHECKSTR)) {
-            fmtSpecifier = "  %s > %s  %s %7.1f %s";
+              args.add(aav.getId().getAaCheck());
+              args.add(aav.getId().getAaCateg());
+            if (aav.getId().getAaCateg().equals(ShefConstants.ALARM_CATEGSTR)) {
+                args.add(limitThreshold[1]);
+            } else {
+                args.add(limitThreshold[0]);
+            }
+
+            fmtSpecifier = "%s %s %7.1f at %s > %s %s %s";
         } else if (aav.getId().getAaCheck()
                 .equals(ShefConstants.LOWER_CHECKSTR)) {
-            fmtSpecifier = "  %s < %s  %s %7.1f %s";
+            args.add(aav.getId().getAaCheck());
+            args.add(aav.getId().getAaCateg());
+
+           if (aav.getId().getAaCateg().equals(ShefConstants.ALARM_CATEGSTR)) {
+                args.add(limitThreshold[3]);
+            } else {
+                args.add(limitThreshold[2]);
+            }
+
+            fmtSpecifier = "%s %s %7.1f at %s < %s %s %s";
+        } else  if (aav.getId().getAaCheck().equals(ShefConstants.ROC_CHECKSTR)){
+                args.add(4, aav.getSupplValue());
+                args.add(aav.getId().getAaCateg());
+            if (aav.getId().getAaCateg().equals(ShefConstants.ALARM_CATEGSTR)) {
+                args.add(limitThreshold[5]);
+            } else {
+                args.add(limitThreshold[4]);
+            }
+
+            fmtSpecifier = "%s %s %7.1f at %s Chg=%7.1f/hr > %s %s/hr";
+
         } else {
-            fmtSpecifier = "  %s > %s  %s %7.1f (value = %7.1f) %s";
-            args.add(3, aav.getSupplValue());
+            args.add(0,"Obs");
+            args.add(1,peInfo);
+            args.add(2, aav.getSupplValue());
+            args.add(3,aav.getValue());
+            args.add(4, validInfo);
+            args.add(5, aav.getId().getAaCheck());
+            args.add(6, aav.getId().getAaCateg());
+
+            if (aav.getId().getAaCateg().equals(ShefConstants.ALARM_CATEGSTR)) {
+                args.add(7, limitThreshold[7]);
+            } else {
+                args.add(7, limitThreshold[6]);
+            }
+            fmtSpecifier = "%s %s %7.1f  Fcst %7.1f at %s > %s %s %s";
+
         }
 
         statusHandler.debug("fmt=" + fmtSpecifier);
@@ -711,11 +777,12 @@ class ReportWriter {
 
         line = String.format(fmtSpecifier, args.toArray());
         write(line);
+
         if (durInfo.length() > 0 || exInfo.length() > 0) {
-            writeln(durInfo + exInfo);
-        } else {
-            writeNewline();
+            writeln("(" + "dur=" + durInfo + Constants.SPACE + "extr=" + exInfo + Constants.SPACE + ")");
         }
+        writeNewline();
+
     }
 
     /**
@@ -726,21 +793,21 @@ class ReportWriter {
      * @throws Exception
      */
     private String[] buildString(Alertalarmval aav) throws Exception {
-        String[] devbStr = new String[4];
+        String[] devbStr = new String[5];
 
         /* build a presentable string for the duration code value */
         short dur = aav.getId().getDur();
         if (dur != 0) {
             Object[] durData = getShefDurInfo(dur);
             if (durData == null) {
-                devbStr[0] = "Duration=" + dur;
+                devbStr[0] = Short.toString(dur);
             } else {
-                Object[] aDurData = (Object[]) durData[0];
-                devbStr[0] = (String) aDurData[2] + Constants.SPACE;
+               Object[] aDurData = (Object[]) durData[0];
+                devbStr[0] = (String) aDurData[1];
             }
 
         } else {
-            devbStr[0] = Constants.SPACE;
+            devbStr[0] = "";
         }
 
         /* build a presentable string for the extremum code value */
@@ -748,34 +815,48 @@ class ReportWriter {
         if (!ex.equals("Z")) {
             Object[] exData = getShefExInfo(ex);
             if (exData == null) {
-                devbStr[1] = "Extremum=" + ex;
+                devbStr[1] = ex;
             } else {
-                devbStr[1] = (String) exData[1] + Constants.SPACE;
+                Object[] aExData = (Object[]) exData[0];
+                devbStr[1] = (String) aExData[0];
             }
         } else {
-            devbStr[1] = Constants.SPACE;
+            devbStr[1] = "";
         }
 
         /*
          * convert the valid time for use in the update statement and for
          * presenting the time in the output
          */
-        devbStr[2] = TimeUtil.formatToSqlTimestamp(aav.getId().getValidtime());
+        String validTimeStr = aav.getId().getValidtime().toString();
+        devbStr[2] = validTimeStr.substring(0,3) + "-" + validTimeStr.substring(4, 7) +
+                     validTimeStr.substring(8, 10) +"-" + validTimeStr.substring(11, 16);
 
         /*
-         * if forecast or contingency data, then show the basis time in a
-         * presentable fashion. also convert the basis time for use in the
-         * update statement later.
+         * if forecast or contingency data, then show "Fcst", otherwise show "Obs"
          */
 
         char ts0 = aav.getId().getTs().charAt(0);
         if (ts0 == 'F' || ts0 == 'C') {
-            String basisStr = TimeUtil.formatToSqlTimestamp(aav.getId()
-                    .getBasistime());
-            devbStr[3] = "fcast " + basisStr;
+            devbStr[3] = "Fcst";
         } else {
-            devbStr[3] = Constants.SPACE;
+            devbStr[3] = "Obs";
         }
+
+        /* build the pe name string */
+
+        Shefpe peinfo = getShefPeInfo(aav.getId().getPe());
+
+        String peNameStr = null;
+
+          if (peinfo == null) {
+              peNameStr = "UndefinedName";
+          }
+          else {
+              peNameStr = peinfo.getName();
+          }
+
+          devbStr[4] = peNameStr;
 
         return devbStr;
     }
@@ -795,13 +876,40 @@ class ReportWriter {
 
         State state = getStateInfo(loc.getCounties().getId().getState());
 
+        // get stream name from RiverStat table
+        Riverstat rs = getRiverStatInfo(lid);
+        String streamStr = null;
+        if (rs == null || rs.getStream() == null)
+            streamStr = "";
+        else
+            streamStr = rs.getStream() + Constants.SPACE;
+
+        //get proximity field from Descrip table
+        String proximityStr = getDescripInfo(lid);
+
         // get a description for this physical element
         String pe = grpData.get(0).getId().getPe();
-        String peInfo = getShefPeInfo(pe);
+        Shefpe peinfo = getShefPeInfo(pe);
+
+      //  String peNameStr = null;
+        String engunitStr = null;
+
+        if (peinfo == null) {
+        //    peNameStr = "UndefinedName";
+            pe = "UndefinedName";
+            engunitStr = "";
+        }
+        else {
+          //  peNameStr = peinfo.getName();
+            engunitStr = Constants.SPACE + peinfo.getEngUnit();
+        }
+
 
         // make a description of the type portion of the type-source field
-        String typeInfo = null;
+
         String ts = grpData.get(0).getId().getTs();
+
+        String typeInfo = null;
         String ts1StChr = ts.substring(0, 1).toUpperCase();
         if (ts1StChr.equals("C")) {
             typeInfo = "Contingengy";
@@ -815,69 +923,101 @@ class ReportWriter {
 
         // write header lines to the file for this group
         writeNewline();
-        write(loc.getName() + Constants.SPACE + "(" + loc.getLid() + ")"
+
+        /* match A1 latest format */
+
+        if (!streamStr.equalsIgnoreCase("") && proximityStr != null)
+            write(streamStr + proximityStr + loc.getName()  + Constants.SPACE +
+                "(" + loc.getLid() + ")"
                 + Constants.SPACE + loc.getCounties().getId().getCounty()
-                + " County," + Constants.SPACE + state.getName());
-        writeNewline();
-        writeNewline();
-        write(peInfo + Constants.SPACE + typeInfo + Constants.SPACE + "(" + pe
-                + Constants.SPACE + ts + ")");
+                + " County," + Constants.SPACE + state.getState() + Constants.SPACE + "(" +
+                pe + Constants.SPACE + ts + engunitStr + ")");
+        else if (loc.getName() != null)
+            write(loc.getName()  + Constants.SPACE +
+                    "(" + loc.getLid() + ")"
+                    + Constants.SPACE + loc.getCounties().getId().getCounty()
+                    + " County," + Constants.SPACE + state.getState() + Constants.SPACE + "(" +
+                    pe + Constants.SPACE + ts + engunitStr + ")");
+        else
+            write("(" + loc.getLid() + ")"
+                    + Constants.SPACE + loc.getCounties().getId().getCounty()
+                    + " County," + Constants.SPACE + state.getState() + Constants.SPACE + "(" +
+                    pe + Constants.SPACE + ts + engunitStr + ")");
+
         writeNewline();
 
         Datalimits limits = getDatalimits(grpData);
+
         if (limits != null) {
 
-            StringBuilder lim = new StringBuilder("Limits: Upper limit Value=");
+            StringBuilder lim = new StringBuilder("Limits: Upper ");
             if (limits.getAlertUpperLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlertUpperLimit()));
+                limitThreshold[0] = Double.toString(limits.getAlertUpperLimit());
             } else {
                 lim.append("undef");
+                limitThreshold[0] = "-";
             }
             lim.append("/");
             if (limits.getAlarmUpperLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlarmUpperLimit()));
+                limitThreshold[1] = Double.toString(limits.getAlarmUpperLimit());
             } else {
                 lim.append("undef");
+                limitThreshold[1] = "-";
             }
 
-            lim.append("  Lower limit Value=");
+            lim.append("; Lower ");
             if (limits.getAlertLowerLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlertLowerLimit()));
+                limitThreshold[2] = Double.toString(limits.getAlertLowerLimit());
             } else {
                 lim.append("undef");
+                limitThreshold[2] = "-";
             }
             lim.append("/");
             if (limits.getAlarmLowerLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlarmLowerLimit()));
+                limitThreshold[3] = Double.toString(limits.getAlarmLowerLimit());
             } else {
                 lim.append("undef");
+                limitThreshold[3] = "-";
             }
 
-            lim.append("  Diff limit Value=");
-            if (limits.getAlertDiffLimit() != Constants.MISSING_VALUE_DOUBLE) {
-                lim.append(String.format("%.1f", limits.getAlertDiffLimit()));
-            } else {
-                lim.append("undef");
-            }
-            lim.append("/");
-            if (limits.getAlarmDiffLimit() != Constants.MISSING_VALUE_DOUBLE) {
-                lim.append(String.format("%.1f", limits.getAlarmDiffLimit()));
-            } else {
-                lim.append("undef");
-            }
-
-            lim.append("  ROC=");
+            lim.append("; Chg ");
             if (limits.getAlertRocLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlertRocLimit()));
+                limitThreshold[4] = Double.toString(limits.getAlertRocLimit());
             } else {
                 lim.append("undef");
+                limitThreshold[4] = "-";
             }
             lim.append("/");
             if (limits.getAlarmRocLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlarmRocLimit()));
+                limitThreshold[5] = Double.toString(limits.getAlarmRocLimit());
             } else {
                 lim.append("undef");
+                limitThreshold[5] = "-";
             }
+
+            lim.append("; ObsFcstDiff ");
+            if (limits.getAlertDiffLimit() != Constants.MISSING_VALUE_DOUBLE) {
+                lim.append(String.format("%.1f", limits.getAlertDiffLimit()));
+                limitThreshold[6] = Double.toString(limits.getAlertDiffLimit());
+            } else {
+                lim.append("undef");
+                limitThreshold[6] = "-";
+            }
+            lim.append("/");
+            if (limits.getAlarmDiffLimit() != Constants.MISSING_VALUE_DOUBLE) {
+                lim.append(String.format("%.1f", limits.getAlarmDiffLimit()));
+                limitThreshold[7] = Double.toString(limits.getAlarmDiffLimit());
+            } else {
+                lim.append("undef");
+                limitThreshold[7] = "-";
+            }
+
 
             if (opt.getVerbose()) {
                 writeln(lim.toString());
@@ -954,6 +1094,7 @@ class ReportWriter {
                 }
             }
             maxfsct = fcstvalues.first();
+
         }
         return fcstvalues.isEmpty() ? null : fcstvalues.first();
     }
@@ -968,14 +1109,15 @@ class ReportWriter {
      */
     private void updateDatabase(Alertalarmval aav) throws Exception {
         String nowAnsi = TimeUtil.formatToSqlTimestamp(now);
+        String nowToAction = nowAnsi.substring(0, 19);
         String validAnsi = TimeUtil.formatToSqlTimestamp(aav.getId()
                 .getValidtime());
         String basisAnsi = TimeUtil.formatToSqlTimestamp(aav.getId()
                 .getBasistime());
 
         StringBuilder query = new StringBuilder();
-        query.append(" UPDATE alertalarmval SET action_time ='");
-        query.append(nowAnsi + "' ");
+        query.append(" UPDATE alertalarmval SET action_time ='");  
+        query.append(nowToAction + "' ");
         query.append("WHERE lid='" + aav.getId().getLid() + "' ");
         query.append("AND pe='" + aav.getId().getPe() + "' ");
         query.append("AND dur=" + aav.getId().getDur() + Constants.SPACE);
@@ -1026,6 +1168,7 @@ class ReportWriter {
         try {
             dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
             limData = dao.executeSQLQuery(query);
+
             if (limData != null && limData.length > 0) {
                 for (Object lr : limData) {
                     limRow = (Object[]) lr;
@@ -1039,27 +1182,29 @@ class ReportWriter {
                     if (dateWithin) {
                         locRangeFound = true;
                         copyThresholds(limits, limRow, locRangeFound);
+                        break;
                     }
                 }
+            }
 
-                if (!locRangeFound) {
-                    query = "SELECT * FROM datalimits WHERE pe='" + pe
+            if (!locRangeFound) {
+                query = "SELECT * FROM datalimits WHERE pe='" + pe
                             + "' AND dur=" + dur;
-                    limData = dao.executeSQLQuery(query);
-                    if (limData != null && limData.length > 0) {
-                        for (Object lr : limData) {
-                            limRow = (Object[]) lr;
-                            String mds = (String) limRow[2];
-                            String mde = (String) limRow[3];
-                            limits = new Datalimits();
-                            limitsId = new DatalimitsId(pe, dur, mds);
-                            limits.setId(limitsId);
-                            flushDataLimitsObj(limits);
-                            dateWithin = checkDateRange(validtime, mds, mde);
-                            if (dateWithin) {
-                                copyThresholds(limits, limRow, locRangeFound);
-                                break;
-                            }
+
+                limData = dao.executeSQLQuery(query);
+                if (limData != null && limData.length > 0) {
+                    for (Object lr : limData) {
+                        limRow = (Object[]) lr;
+                        String mds = (String) limRow[2];
+                        String mde = (String) limRow[3];
+                        limits = new Datalimits();
+                        limitsId = new DatalimitsId(pe, dur, mds);
+                        limits.setId(limitsId);
+                        flushDataLimitsObj(limits);
+                        dateWithin = checkDateRange(validtime, mds, mde);
+                        if (dateWithin) {
+                            copyThresholds(limits, limRow, locRangeFound);
+                            break;
                         }
                     }
                 }
@@ -1414,7 +1559,7 @@ class ReportWriter {
      * @return - a shefpe row
      * @throws Exception
      */
-    private String getShefPeInfo(String pe) throws Exception {
+    private Shefpe getShefPeInfo(String pe) throws Exception {
         Object[] peData = null;
         CoreDao dao = null;
         Object[] peInfo = null;
@@ -1433,11 +1578,21 @@ class ReportWriter {
             throw e;
         }
 
-        if (peInfo == null) {
+        /*if (peInfo == null) {
             return "UndefinedName";
+        }*/
+
+        Shefpe peRecord = new Shefpe();
+
+        if (peInfo != null) {
+            peRecord.setName((String) peInfo[1]);
+            peRecord.setEngUnit((String) peInfo[2]);
+        } else {
+            peRecord = null;
         }
 
-        return (String) peInfo[1];
+
+        return peRecord;
     }
 
     /**
@@ -1474,10 +1629,100 @@ class ReportWriter {
     }
 
     /**
+     * Query the riverstat table and obtain stream name for the given location id
+     *
+     *
+     * @param pe
+     *            - the location id
+     *
+     * @return - riverstat
+     * @throws Exception
+     */
+    private Riverstat getRiverStatInfo(String lid) throws Exception {
+        Object[] rsData = null;
+        CoreDao dao = null;
+        Object[] rsInfo = null;
+        final String query = "SELECT * FROM riverstat WHERE lid='" + lid + "'";
+        try {
+            dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
+            rsData = dao.executeSQLQuery(query);
+            if (rsData != null && rsData.length > 0) {
+                rsInfo = (Object[]) rsData[0];
+            }
+        } catch (Exception e) {
+            statusHandler
+                    .error(" - PostgresSQL error retrieving stream name info for "
+                            + lid);
+            statusHandler.error("Query = [" + query + "]");
+            throw e;
+        }
+
+       Riverstat rsRecord = new Riverstat();
+       if (rsInfo != null) {
+           rsRecord.setStream((String) rsInfo[20]);
+       } else
+           rsRecord = null;
+
+       return rsRecord;
+    }
+
+    /**
+     * Query the descrip table and obtain proximity field for the given location id
+     *
+     *
+     * @param pe
+     *            - the location id
+     *
+     * @return - descrip
+     * @throws Exception
+     */
+  
+    private String getDescripInfo(String lid) throws Exception {
+        Object[] dcData = null;
+        CoreDao dao = null;
+        Object[] dcInfo = null;
+        String proximityStr = null;
+        final String query = "SELECT * FROM descrip WHERE lid='" + lid + "'";
+        try {
+            dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
+            dcData = dao.executeSQLQuery(query);
+            if (dcData != null && dcData.length > 0) {
+                statusHandler.debug("In getDescriptionInfo1 - query is select * from descript where lid is " + lid);
+                dcInfo = (Object[]) dcData[0];
+                if (dcInfo == null)
+                {
+                    proximityStr = "";
+                }
+                else
+                {
+                    proximityStr = (String) dcInfo[5] + Constants.SPACE;
+                }
+            }
+        } catch (Exception e) {
+            statusHandler
+                    .error(" - PostgresSQL error retrieving descrip info for "
+                            + lid);
+            statusHandler.error("Query = [" + query + "]");
+            throw e;
+
+        }
+
+        return proximityStr;
+    }
+
+
+    /**
      * @return - the alarm count
      */
     public int getAlarmCount() {
         return alarmCount;
+    }
+    /**
+     *
+     * @return threshold
+     */
+    public String getLimitThreshold() {
+        return limitThreshold.toString();
     }
 
     /**
