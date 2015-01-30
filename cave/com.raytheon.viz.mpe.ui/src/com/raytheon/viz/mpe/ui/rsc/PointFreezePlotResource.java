@@ -80,14 +80,16 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul  8, 2009	 2589		snaples 	Initial creation
- * Mar  3, 2014  2804       mschenke    Set back up clipping pane
- * Jul 24, 2014  3429       mapeters    Updated deprecated drawLine() calls.
- * Aug 11, 2014  3504       mapeters    Replaced deprecated IODataPreparer
- *                                      instances with IRenderedImageCallback.
- *                                      and removed unused modifyStation() method.
+ * Date         Ticket#    Engineer     Description
+ * ------------ ---------- -----------  --------------------------
+ * Jul  8, 2009 2589       snaples      Initial creation
+ * Mar  3, 2014 2804       mschenke     Set back up clipping pane
+ * Jul 24, 2014 3429       mapeters     Updated deprecated drawLine() calls.
+ * Aug 11, 2014 3504       mapeters     Replaced deprecated IODataPreparer
+ *                                       instances with IRenderedImageCallback.
+ *                                       and removed unused modifyStation() method.
+ * Nov 26, 2014 16889      snaples      Daily QC does not display SNOTEL data.
+ * Dec  3, 2014 16889      snaples      Fixed colorvalue_use warning and cleaned up some code.
  * </pre>
  * 
  * @author snaples
@@ -121,6 +123,8 @@ public class PointFreezePlotResource extends
             "White" };
 
     private Hashtable<String, Ztn> zdataMap;
+
+    private final DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     /**
      * Constructor.
@@ -158,8 +162,8 @@ public class PointFreezePlotResource extends
         dataMap = new Hashtable<String, Station>();
         zdataMap = new Hashtable<String, Ztn>();
         strTree = new STRtree();
-        Station gageData = new DailyQcUtils().new Station();
-        ArrayList<Station> station = DailyQcUtils.freezing_stations;
+        Station gageData = new Station();
+        ArrayList<Station> station = dqc.freezing_stations;
 
         if (!station.isEmpty()) {
             int i = 0;
@@ -176,8 +180,7 @@ public class PointFreezePlotResource extends
                 kv.append(":");
                 kv.append(pm);
                 dataMap.put(kv.toString(), gageData);
-                zdataMap.put(kv.toString(),
-                        DailyQcUtils.zdata[DailyQcUtils.pcpn_day].zstn[i]);
+                zdataMap.put(kv.toString(), dqc.zdata[dqc.pcpn_day].zstn[i]);
 
                 /* Create a small envelope around the point */
                 Coordinate p1 = new Coordinate(xy.x + .02, xy.y + .02);
@@ -188,7 +191,7 @@ public class PointFreezePlotResource extends
                 data.add("STATION: "
                         + gageData.hb5
                         + " VALUE: "
-                        + DailyQcUtils.zdata[DailyQcUtils.pcpn_day].zstn[i].zlevel2[DailyQcUtils.pcpn_time].data);
+                        + dqc.zdata[dqc.pcpn_day].zstn[i].zlevel2[dqc.pcpn_time].data);
                 strTree.insert(env, data);
                 i++;
             }
@@ -253,17 +256,16 @@ public class PointFreezePlotResource extends
      */
     private void drawPlotInfo(Coordinate c, String key, Station station,
             IGraphicsTarget target, PaintProperties paintProps, RGB color,
-            IFont font)
-            throws VizException {
+            IFont font) throws VizException {
 
-        if (MPEDisplayManager.getCurrent().isZflag() == true
-                && (DailyQcUtils.points_flag == 1)) {
-            int type = DailyQcUtils.plot_view;
+        if ((MPEDisplayManager.getCurrent().isZflag() == true)
+                && (dqc.points_flag == 1)) {
+            int type = dqc.plot_view;
             int i = 0;
             int m = 0;
             float freezing_reverse_filter_value = 0;
             float freezing_filter_value = 0;
-            int find_station_flag = DailyQcUtils.find_station_flag;
+            int find_station_flag = dqc.find_station_flag;
             String mbuf = "";
             String tbuf = "";
 
@@ -276,9 +278,9 @@ public class PointFreezePlotResource extends
             // sets current color to White
             color = RGBColors.getRGBColor(color_map_a[8]);
 
-            if (DailyQcUtils.points_flag == 1
-                    && QcFreezeOptionsDialog.isOpen == true
-                    && MPEDisplayManager.getCurrent().isZflag() == true) {
+            if ((dqc.points_flag == 1)
+                    && (QcFreezeOptionsDialog.isOpen == true)
+                    && (MPEDisplayManager.getCurrent().isZflag() == true)) {
 
                 freezing_reverse_filter_value = QcFreezeOptionsDialog
                         .getPointFilterReverseValue();
@@ -288,24 +290,24 @@ public class PointFreezePlotResource extends
             } else {
                 return;
             }
-            if ((zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data < freezing_filter_value)
-                    && (zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data >= 0.0)) {
+            if ((zdataMap.get(key).zlevel2[dqc.pcpn_time].data < freezing_filter_value)
+                    && (zdataMap.get(key).zlevel2[dqc.pcpn_time].data >= 0.0)) {
                 return;
             }
 
-            if ((zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data > freezing_reverse_filter_value)
-                    && (zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data < 20.0)) {
+            if ((zdataMap.get(key).zlevel2[dqc.pcpn_time].data > freezing_reverse_filter_value)
+                    && (zdataMap.get(key).zlevel2[dqc.pcpn_time].data < 20.0)) {
                 return;
             }
 
             /* locate station in data stream */
             if ((type == 4)
-                    && (zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data == -1)) {
+                    && (zdataMap.get(key).zlevel2[dqc.pcpn_time].data == -1)) {
                 return;
 
             }
             if ((type == 4)
-                    && DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] == 0) {
+                    && (dqc.zdata[dqc.pcpn_day].used[dqc.pcpn_time] == 0)) {
                 return;
             }
 
@@ -333,13 +335,13 @@ public class PointFreezePlotResource extends
                 tbuf = station.name;
 
             } else if (type == 4) {
-                if (DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] == 0) {
+                if (dqc.zdata[dqc.pcpn_day].used[dqc.pcpn_time] == 0) {
                     return;
                 }
 
                 mbuf = "";
                 mbuf = String.format("%5.2f",
-                        zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].data);
+                        zdataMap.get(key).zlevel2[dqc.pcpn_time].data);
 
                 mbuf = mbuf.trim();
                 tbuf = "";
@@ -347,9 +349,9 @@ public class PointFreezePlotResource extends
 
             }
 
-            m = zdataMap.get(key).zlevel2[DailyQcUtils.pcpn_time].qual;
+            m = zdataMap.get(key).zlevel2[dqc.pcpn_time].qual;
 
-            if (m <= 9 && m >= 0) {
+            if ((m <= 9) && (m >= 0)) {
                 color = RGBColors.getRGBColor(color_map_a[m]);
             }
 
@@ -366,10 +368,10 @@ public class PointFreezePlotResource extends
                     * scale;
             double padding = .5 * scale;
             int text_width = (int) (tbuf.length() * .95);
-            double textSpace = textHeight + padding * scale * .5;
+            double textSpace = textHeight + (padding * scale * .5);
             int temp = 0;
             Coordinate valCoor = new Coordinate(centerpixels[0]
-                    + this.getScaleWidth() / 3, centerpixels[1]
+                    + (this.getScaleWidth() / 3), centerpixels[1]
                     - this.getScaleHeight());
             if (xadd < 0) {
                 xc = (int) (valCoor.x - text_width);
@@ -384,7 +386,7 @@ public class PointFreezePlotResource extends
             }
 
             double xLoc = xc + (.75 * padding) + (text_width * scale);
-            double yLoc = yc + (temp + .75) * textSpace;
+            double yLoc = yc + ((temp + .75) * textSpace);
             string.setText(tbuf, color);
             string.setCoordinates(xLoc, yLoc);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
@@ -455,7 +457,7 @@ public class PointFreezePlotResource extends
         // Fonts are shared and cached, get from factory
         IFont font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
-        if (DailyQcUtils.points_flag == 1 && displayMgr.isZflag() == true) {
+        if ((dqc.points_flag == 1) && (displayMgr.isZflag() == true)) {
             Iterator<String> iter = dataMap.keySet().iterator();
 
             while (iter.hasNext()) {
@@ -507,8 +509,7 @@ public class PointFreezePlotResource extends
     }
 
     private void drawQCLegend(IGraphicsTarget target,
-            PaintProperties paintProps, IFont font)
-            throws VizException {
+            PaintProperties paintProps, IFont font) throws VizException {
         // TODO this screen location code is borrowed from MPELegendResource...
         // should it be put into a shared class, possibly a paint
         // properties method?
@@ -521,29 +522,29 @@ public class PointFreezePlotResource extends
         double padding = 3.2 * scale;
         double textSpace = textHeight + padding;
         double cmapHeight = textHeight * 1.25;
-        double legendHeight = cmapHeight + 2.0 * textSpace + 2.0 * padding;
+        double legendHeight = cmapHeight + (2.0 * textSpace) + (2.0 * padding);
         double y1 = screenExtent.getMinY() + legendHeight;
         double x1 = screenExtent.getMinX() + padding;
         RGB color = null;
         String label = "";
-        int[] funct = DailyQcUtils.funct;
+        int[] funct = dqc.funct;
         int temp = 0;
 
         DrawableLine[] lines = new DrawableLine[4];
         for (int i = 0; i < typename.length; i++) {
-            if (i != 0 && i != 6 && i != 7 && i != 3) {
+            if ((i != 0) && (i != 6) && (i != 7) && (i != 3)) {
                 continue;
             }
             color = RGBColors.getRGBColor(color_map_a[funct[i]]);
             lines[temp] = new DrawableLine();
-            lines[temp].setCoordinates(x1, y1 + temp * textSpace);
-            lines[temp].addPoint(x1 + (2.5 * padding), y1 + temp * textSpace);
+            lines[temp].setCoordinates(x1, y1 + (temp * textSpace));
+            lines[temp].addPoint(x1 + (2.5 * padding), y1 + (temp * textSpace));
             lines[temp].basics.color = color;
             lines[temp].width = 35;
             label = typename[i];
             color = RGBColors.getRGBColor(color_map_n[15]);
             double xLoc = x1 + (4 * padding);
-            double yLoc = y1 + (temp + .5) * textSpace;
+            double yLoc = y1 + ((temp + .5) * textSpace);
             string.setText(label, color);
             string.setCoordinates(xLoc, yLoc);
             string.horizontalAlignment = HorizontalAlignment.LEFT;

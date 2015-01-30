@@ -37,6 +37,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
+import org.hibernate.type.SerializationException;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
@@ -45,7 +46,6 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
@@ -61,12 +61,12 @@ import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.topo.TiledTopoSource;
 import com.raytheon.uf.common.util.RunProcess;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -77,17 +77,18 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Sep 27, 2010 6394        bphillip    Initial creation
- * Oct 08, 2010 6394        bphillip    Rewrote sections for optimal reading and
- *                                      writing performance
- * Sep 19, 2011 10955       rferrel     Use RunProcess
- * Apr 18, 2012 14694       D. Friedman Fixes for static topography generation
- * May 09, 2012 14939       D. Friedman Fix errors in DR 14694
- * Jan 14, 2013 1469        bkowal      Removed the hdf5 data directory
- * Feb 12, 2013 1608        randerso    Changed to call deleteDatasets
- * Aug 06, 2013 2235        bsteffen    Added Caching version of TopoQuery.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 27, 2010  6394     bphillip    Initial creation
+ * Oct 08, 2010  6394     bphillip    Rewrote sections for optimal reading and
+ *                                    writing performance
+ * Sep 19, 2011  10955    rferrel     Use RunProcess
+ * Apr 18, 2012  14694    D. Friedman Fixes for static topography generation
+ * May 09, 2012  14939    D. Friedman Fix errors in DR 14694
+ * Jan 14, 2013  1469     bkowal      Removed the hdf5 data directory
+ * Feb 12, 2013  1608     randerso    Changed to call deleteDatasets
+ * Aug 06, 2013  2235     bsteffen    Added Caching version of TopoQuery.
+ * Aug 06, 2013  3805     bsteffen    Add timing to logging.
  * 
  * </pre>
  * 
@@ -250,9 +251,7 @@ public class StaticTopoData {
                     splitPacific();
                 }
             } finally {
-                if (ct != null) {
-                    ClusterLockUtils.unlock(ct, false);
-                }
+                ClusterLockUtils.unlock(ct, false);
             }
 
             initAttributes();
@@ -409,16 +408,16 @@ public class StaticTopoData {
             SerializationException {
         if (coverage.getNx() < 0 || coverage.getNy() < 0) {
             statusHandler.handle(Priority.PROBLEM, coverage.getName()
-                    + " is not applicable to " + SiteUtil.getSite()
+                    + " is not applicable to " + EDEXUtil.getEdexSite()
                     + ". Skipping.");
             return;
         }
+        long startTimeMillis = System.currentTimeMillis();
         GridGeometry2D inGeom = MapUtil.getGridGeometry(coverage);
 
         // Gets the location data and extracts it from the static topo file
         float[] finalData = null;
-        finalData = getTopoData(inGeom, coverage.getCrs(), coverage.getNx(),
-                coverage.getNy());
+        finalData = getTopoData(inGeom);
 
         // Create an HDF5 data record and store it
         FloatDataRecord outRecord = new FloatDataRecord(STOPO_DATASET,
@@ -427,11 +426,10 @@ public class StaticTopoData {
                         inGeom.getGridRange().getHigh(1) + 1 });
         siteDataStore.addDataRecord(outRecord, sp);
         siteDataStore.store(StoreOp.REPLACE);
-
-        statusHandler
-                .handle(Priority.INFO,
-                        "Stopo data successfully initialized for "
-                                + coverage.getName());
+        long endTimeMillis = System.currentTimeMillis();
+        statusHandler.handle(Priority.INFO,
+                "Stopo data successfully initialized for " + coverage.getName()
+                        + " in " + (endTimeMillis - startTimeMillis) + "ms");
     }
 
     /**
@@ -472,7 +470,6 @@ public class StaticTopoData {
      * @param modelName
      *            The model to check
      * @return True if the data exists, else false
-     * @throws GribException
      */
     private boolean topoExists(GridCoverage coverage) {
 
@@ -498,8 +495,6 @@ public class StaticTopoData {
      * @param modelName
      *            The site for which to get the static topo data
      * @return The static topo data
-     * @throws GribException
-     *             If an error occurs while retrieving the topo data
      */
     public FloatDataRecord getStopoData(GridCoverage coverage) {
         if (!topoExists(coverage)) {
@@ -526,14 +521,9 @@ public class StaticTopoData {
      * 
      * @param inGeom
      *            The geometry of the data to be requested
-     * @param inCrs
-     *            The coordinate reference system of the desired data
      * @return A float array containing the extracted topo data
-     * @throws GribException
-     *             If the data cannot be extracted
      */
-    private float[] getTopoData(GridGeometry2D inGeom,
-            CoordinateReferenceSystem inCrs, int coverageNx, int coverageNy) {
+    private float[] getTopoData(GridGeometry2D inGeom) {
         FloatBufferWrapper finalDataWrapper = null;
         BilinearInterpolation interp = new BilinearInterpolation();
         interp.setMissingThreshold(0.0001f);
@@ -692,8 +682,6 @@ public class StaticTopoData {
      * @throws TransformException
      * @throws MismatchedDimensionException
      * @throws FactoryException
-     * @throws GribException
-     *             If the geometry cannot be created
      */
     private GridGeometry2D createGridGeometry(CoordinateReferenceSystem crs,
             Coordinate llCoord, Coordinate urCoord, int nx, int ny)
