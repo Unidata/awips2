@@ -25,8 +25,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.monitor.fog.FogMonitor;
 import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
-import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The Fog Monitor Action
@@ -42,6 +42,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 08, 2014 3086       skorolev   Added CloseCallback to dialog.
  * Sep 16, 2014 2757       skorolev   Added test of dialog on dispose.
  * Sep 19, 2014 3220       skorolev   Added check on dispose.
+ * Jan 08, 2015 3220       skorolev   Used area type for launchDialog.
  * 
  * </pre>
  * 
@@ -65,19 +66,13 @@ public class FogAreaConfigAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (areaDialog == null || areaDialog.isDisposed()) {
+        FogMonitor fog = FogMonitor.getInstance();
+
+        if (fog.getAreaDialog() == null || fog.getAreaDialog().isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            areaDialog = new FogMonitoringAreaConfigDlg(shell,
-                    "Fog Monitor Area Configuration");
-            areaDialog.setCloseCallback(new ICloseCallback() {
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    areaDialog = null;
-                }
-            });
+            fog.launchDialog("area", shell);
         }
-        areaDialog.open();
         return null;
     }
 }

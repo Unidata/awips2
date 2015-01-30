@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean class="com.raytheon.uf.common.status.logback.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="satellite" />
+        <constructor-arg value="Ingest.Gini.*" />
+    </bean>
+
+	<bean id="giniDecoder" class="com.raytheon.uf.edex.plugin.satellite.gini.GiniSatelliteDecoder" />
+	
+	<bean id="giniDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="satellite.gini" />
+		<constructor-arg value="jms-durable:queue:Ingest.Gini" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
+	</bean>
+
+	<camelContext id="gini-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<!-- Begin Gini routes -->
+		<route id="giniIngestRoute">
+			<from uri="jms-durable:queue:Ingest.Gini"/>
+			<setHeader headerName="pluginName">
+				<constant>satellite</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="giniDecoder" method="decode" />
+					<to uri="direct-vm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:gini?level=ERROR"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+	</camelContext>
+</beans>

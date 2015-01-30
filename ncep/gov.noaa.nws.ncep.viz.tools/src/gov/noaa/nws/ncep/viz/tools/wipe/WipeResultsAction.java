@@ -20,6 +20,7 @@ import org.eclipse.ui.PlatformUI;
 
 //import gov.noaa.nws.ncep.viz.overlays.resources.*;
 import gov.noaa.nws.ncep.viz.resources.*;
+import gov.noaa.nws.ncep.viz.resources.groupresource.GroupResourceData;
 import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
@@ -43,6 +44,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 05/10        #265        G. Hull     test for AbstractNatlCntrsRequestableResourceData to
  *                                      remove PGEN dependency
  * 02/13        #972        G. Hull     setDisplayModified flag
+ * 09/14        ?           B. Yin      Removed GroupResource 
  *
  * </pre>
  * 
@@ -122,7 +124,8 @@ public class WipeResultsAction extends AbstractHandler {
     	if(ard == null)
     		return false;
     	
-    	if( ard instanceof AbstractNatlCntrsRequestableResourceData  ) 
+    	if( ard instanceof AbstractNatlCntrsRequestableResourceData  ||
+    	        ard instanceof GroupResourceData  ) 
     		return true;
     	else
     		return false;    	
