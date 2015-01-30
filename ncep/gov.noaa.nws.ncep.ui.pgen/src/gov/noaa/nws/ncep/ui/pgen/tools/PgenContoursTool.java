@@ -197,6 +197,7 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
 
                 if (button == 1) {
                     drawContourMinmax(loc);
+                    ((ContoursAttrDlg) attrDlg).updateSymbolAttrOnGUI(loc);
                 } else if (button == 3) {
 
                     points.clear();

@@ -52,9 +52,10 @@
              <command
                    commandId="com.raytheon.viz.ui.actions.titleAction"
                    label="------ RAOB ------" id="RAOB">
-             </command>  
+             </command>
+             <separator name="RAOBMenuMiddle" visible="false"/>  
              <separator name="RAOBMenuEnd" visible="false"/>          
           </menu>
-	</menuContribution>
+    </menuContribution>
 </extension>
 </plugin>
