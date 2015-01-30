@@ -3,3 +3,4 @@
 plotModel=@PlotModels/obs/standard2.xml
 plotDensity=10
 conditionalFilter=
+legendString=METAR Standard2

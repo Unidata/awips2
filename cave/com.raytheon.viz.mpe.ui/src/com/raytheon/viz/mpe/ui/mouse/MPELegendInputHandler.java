@@ -68,7 +68,7 @@ public class MPELegendInputHandler extends InputAdapter {
         if ((mouseButton == 1 || mouseButton == 3)
                 && (MPEDisplayManager.getCurrent().isGroupedt() == false)
                 && pe.contains(v[0], v[1])
-                && (DrawDQCStations.grids_flag == 1 || DrawDQCStations.map_flag == 1)) {
+                && (DrawDQCStations.getInstance().grids_flag == 1 || DrawDQCStations.getInstance().map_flag == 1)) {
             return execute(x, y, true);
 
         }
