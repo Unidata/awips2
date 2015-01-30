@@ -32,6 +32,19 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
+/**
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date       	Ticket#		Engineer	Description
+ * ------------	----------	-----------	--------------------------
+ * 01/15		#5413		B. Yin   	Added meesage box if PGEN is running in another perspective
+ *
+ * </pre>
+ * 
+ * @author ?
+ */
+
 public class PgenPaletteAction extends AbstractHandler {
 
 	@SuppressWarnings("restriction")
