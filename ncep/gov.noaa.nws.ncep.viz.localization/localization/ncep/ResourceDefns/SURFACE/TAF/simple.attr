@@ -3,3 +3,4 @@
 plotModel=@PlotModels/nctaf/simple.xml
 plotDensity=10
 conditionalFilter=
+legendString=TAF Simple View

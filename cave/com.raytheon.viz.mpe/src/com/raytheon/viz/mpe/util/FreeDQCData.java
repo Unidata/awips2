@@ -44,23 +44,25 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
 
 public class FreeDQCData {
 
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     public void free_dqc_data() {
 
         // Do nothing right now
 
-        DailyQcUtils.pdata = new Pdata[0];
-        DailyQcUtils.tdata = new Tdata[0];
-        DailyQcUtils.zdata = new Zdata[0];
+        dqc.pdata = new Pdata[0];
+        dqc.tdata = new Tdata[0];
+        dqc.zdata = new Zdata[0];
 
         MeanMonthlyPrecip mmp = new MeanMonthlyPrecip();
         mmp.setIsoh(null);
         MeanMonthlyTemp mmt = new MeanMonthlyTemp();
         mmt.setMaxmin(null);
-        DailyQcUtils.setHrap_grid(new Hrap_Grid());
-        DailyQcUtils.pcp = new Pcp();
-        DailyQcUtils.spf = new Pcp();
-        DailyQcUtils.tpf = new Pcp();
-        DailyQcUtils.mean_areal_precip_global = new Maps[0];
+        dqc.setHrap_grid(new Hrap_Grid());
+        dqc.pcp = new Pcp();
+        dqc.spf = new Pcp();
+        dqc.tpf = new Pcp();
+        dqc.mean_areal_precip_global = new Maps[0];
 
     }
 

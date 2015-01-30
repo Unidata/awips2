@@ -141,15 +141,14 @@
             </xsl:element> 
         </xsl:if>
 
-        <xsl:if test="contains( @issueType, 'CAN' ) or not(string-length($freqSevStatement) > 1)">
+<!--        <xsl:if test="contains( @issueType, 'CAN' ) or not(string-length($freqSevStatement) > 1)">
             <xsl:value-of select="$newline"/>
-<!--        <xsl:if test="string-length($airTag) > 1">
+        <xsl:if test="string-length($airTag) > 1">
             <xsl:element name="line">
                 <xsl:value-of select="$newline"/><xsl:value-of select="normalize-space($airTag)"/>.</xsl:element>
         </xsl:if>
--->
         </xsl:if>
-        
+-->        
         <!--  Add the attention line(s) -->
         <xsl:call-template name="GetAttentionLine">
             <xsl:with-param name="status"><xsl:value-of select="@issueType"/></xsl:with-param>

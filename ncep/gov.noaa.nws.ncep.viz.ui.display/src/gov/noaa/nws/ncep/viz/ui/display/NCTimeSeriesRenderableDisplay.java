@@ -51,6 +51,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/21/2014   #1136      qzhou       Initial creation
+ * 07/28/2014   R4078      sgurung     Added code changes to support loading TimeSeriesResource in a new window.
+ * 
  * 
  * </pre>
  * 
@@ -148,9 +150,9 @@ public class NCTimeSeriesRenderableDisplay extends AbstractXyRenderableDisplay
     // TODO? if null then set to the descriptors gridGeom??
     @Override
     public NCTimeSeriesDescriptor getDescriptor() {
-        if (super.getDescriptor() instanceof NCTimeSeriesDescriptor) {
+        if (super.getDescriptor() instanceof NCTimeSeriesDescriptor) {       
             return (NCTimeSeriesDescriptor) super.getDescriptor();
-        } else {
+        } else {          
             super.getDescriptor();
         }
 
@@ -254,11 +256,20 @@ public class NCTimeSeriesRenderableDisplay extends AbstractXyRenderableDisplay
     @Override
     public void notifyAdd(ResourcePair rp) throws VizException {
 
-        // TODO : any checks on the type of resource here.
-        AbstractNcPaneManager pm = NcEditorUtil
-                .getNcPaneManager((AbstractEditor) container);
-        if (pm != null) {
-            pm.setDisplayAvailable(false);
+        if (container != null) {
+            if (container instanceof AbstractEditor) {
+                // TODO : any checks on the type of resource here.
+                AbstractNcPaneManager pm = NcEditorUtil
+                        .getNcPaneManager((AbstractEditor) container);
+                if (pm != null) {
+                    pm.setDisplayAvailable(false);
+                }
+            } else {
+                AbstractNcPaneManager pm = (AbstractNcPaneManager) getPaneManager();
+                if (pm != null) {
+                    pm.setDisplayAvailable(false);
+                }
+            }
         }
     }
 
