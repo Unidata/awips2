@@ -146,7 +146,9 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * 07/14                    Chin Chen     In latlonToPixel(), make sure not to add null pixel to its return pixel array
  * 08/14          TTR962      J. Wu       Add replaceWithDate to format output file with DD, MM, YYYY, HH.
  * 12/14		R5413		B. Yin		  Add a listener for D2D swapping pane 
- * </pre>
+ * 12/14		R5413		B. Yin		  Check null in findResource
+ * 
+</pre>
  * 
  * @author
  * @version 1
