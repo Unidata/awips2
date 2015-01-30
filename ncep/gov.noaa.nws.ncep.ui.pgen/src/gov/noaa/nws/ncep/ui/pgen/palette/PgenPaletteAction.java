@@ -9,6 +9,7 @@
 package gov.noaa.nws.ncep.ui.pgen.palette;
 
 import gov.noaa.nws.ncep.ui.pgen.PGenRuntimeException;
+import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -28,6 +29,8 @@ import org.eclipse.ui.internal.WorkbenchPage;
 import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 public class PgenPaletteAction extends AbstractHandler {
 
@@ -46,6 +49,26 @@ public class PgenPaletteAction extends AbstractHandler {
             mb.setMessage( "Please start NCP first to initialize PGEN data!");
             mb.open();
             return null;
+        }
+	    
+	    AbstractVizPerspectiveManager pMngr = VizPerspectiveListener.getCurrentPerspectiveManager();
+        if ( pMngr != null && pMngr.getPerspectiveId() != PgenSession.getInstance().getPerspectiveId() ){
+            
+            if (PgenSession.getInstance().getPgenPalette() == null  ){
+                //if PGEN palette is closed
+                PgenSession.getInstance().setPerspectiveId(pMngr.getPerspectiveId() );
+            }
+            else {
+                // if PGEN palette is open in another perspective
+                Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
+                MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING
+                        | SWT.OK);
+
+                int idxLastDot = PgenSession.getInstance().getPerspectiveId().lastIndexOf('.');
+                mb.setMessage( "A PGEN session is alreadly running in perspective " + PgenSession.getInstance().getPerspectiveId().substring(++idxLastDot) + "!");
+                mb.open();
+                return null;
+            }
         }
 	    
 		/*
