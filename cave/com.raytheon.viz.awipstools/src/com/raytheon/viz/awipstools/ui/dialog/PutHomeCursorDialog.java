@@ -23,8 +23,13 @@ import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -77,6 +82,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Apr 21, 2014  3041     lvenable    Added dispose check to runAsync call and cleaned up
  *                                    code.  Wrote ticket #3047 for common_obs_spatial
  *                                    for the city/state issues.
+ * Nov 11, 2014  3401     rferrel     Add Enter key events.
  * 
  * </pre>
  * 
@@ -149,6 +155,25 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
     /** Close button. */
     private Button closeBtn;
 
+    /** verify listener force entry to upper case. */
+    private VerifyListener verifyToUpperCase = new VerifyListener() {
+
+        @Override
+        public void verifyText(VerifyEvent e) {
+            e.text = e.text.toUpperCase();
+        }
+    };
+
+    /** Performs update when Enter key is pressed. */
+    private KeyListener keyListenerUpdate = new KeyAdapter() {
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+                updateStation();
+            }
+        }
+    };
+
     /**
      * Constructor.
      * 
@@ -170,7 +195,6 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
 
     @Override
     protected Object constructShellLayoutData() {
-        // TODO Auto-generated method stub
         return super.constructShellLayoutData();
     }
 
@@ -289,6 +313,8 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
         stationTextField = new Text(controlsComp, SWT.BORDER);
         GridData data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         stationTextField.setLayoutData(data);
+        stationTextField.addKeyListener(keyListenerUpdate);
+        stationTextField.addVerifyListener(verifyToUpperCase);
 
         // Add a separator line.
         addSeparator(controlsComp);
@@ -308,6 +334,8 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
         cityTextField = new Text(controlsComp, SWT.BORDER);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         cityTextField.setLayoutData(gd);
+        cityTextField.addKeyListener(keyListenerUpdate);
+        cityTextField.addVerifyListener(verifyToUpperCase);
 
         stateLabel = new Label(controlsComp, SWT.NONE);
         stateLabel.setText("State:");
@@ -317,6 +345,8 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
         stateTextField = new Text(controlsComp, SWT.BORDER);
         stateTextField.setTextLimit(2);
         stateTextField.setLayoutData(gd);
+        stateTextField.addKeyListener(keyListenerUpdate);
+        stateTextField.addVerifyListener(verifyToUpperCase);
 
         // Add a separator line.
         addSeparator(controlsComp);
@@ -345,10 +375,12 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
         lonTextField = new Text(controlsComp, SWT.BORDER);
         lonTextField.setLayoutData(new GridData(80, SWT.DEFAULT));
         lonTextField.setLayoutData(gd);
+        lonTextField.addKeyListener(keyListenerUpdate);
 
         Coordinate point = PointsDataManager.getInstance().getHome();
         lonTextField.setText(String.valueOf(point.x));
         latTextField.setText(String.valueOf(point.y));
+        latTextField.addKeyListener(keyListenerUpdate);
 
         // Add a separator line.
         addSeparator(controlsComp);

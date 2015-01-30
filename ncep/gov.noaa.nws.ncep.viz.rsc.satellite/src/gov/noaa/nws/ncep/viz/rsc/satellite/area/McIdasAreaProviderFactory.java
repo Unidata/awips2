@@ -1,45 +1,31 @@
 package gov.noaa.nws.ncep.viz.rsc.satellite.area;
 
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
+import gov.noaa.nws.ncep.viz.common.area.AreaName;
+import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.INcAreaProviderFactory;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.operation.transform.ConcatenatedTransform;
-import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.geospatial.BoundaryTool;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.vividsolutions.jts.geom.Polygon;
-
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
-import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
-import gov.noaa.nws.ncep.viz.common.area.AreaName;
-import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider;
-import gov.noaa.nws.ncep.viz.common.area.INcAreaProviderFactory;
-import gov.noaa.nws.ncep.viz.common.area.PredefinedAreaFactory;
-import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 
 public class McIdasAreaProviderFactory implements INcAreaProviderFactory {
 
@@ -72,14 +58,12 @@ public class McIdasAreaProviderFactory implements INcAreaProviderFactory {
 				reqConstraints.put( "satelliteName", new RequestConstraint( satAndArea[0]) );		
 				reqConstraints.put( "areaName", new RequestConstraint( satAndArea[1]) );
 				
-				LayerProperty prop = new LayerProperty();
-				prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-				prop.setEntryQueryParameters( reqConstraints, false);
-				prop.setNumberOfImages(1); // just need 1 record to get the coverage
-				
-				String script = ScriptCreator.createScript(prop);
-		
-				Object[] satRecList = Connector.getInstance().connect( script, null, 10000 );
+                DbQueryRequest request = new DbQueryRequest();
+                request.setConstraints(reqConstraints);
+              
+                DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
+        
+                Object[] satRecList =  ((Map<String, Object>)response.getResults().get(0)).values().toArray();
 		
 				// NOTE: It would be nice to query the mcidas_area_names and/or mcidas_spatial
 				// directly so that we don't have to depend on data being in the db, but

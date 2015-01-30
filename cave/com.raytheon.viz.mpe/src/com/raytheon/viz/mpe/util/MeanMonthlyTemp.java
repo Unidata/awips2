@@ -56,6 +56,8 @@ public class MeanMonthlyTemp {
 
     int MinY;
 
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     ColorMapParameters cmc = new ColorMapParameters();
 
     private static MaxMin maxmin;
@@ -70,7 +72,7 @@ public class MeanMonthlyTemp {
     public boolean read_mean_monthly_temp(String mpe_prism_dir,
             String mpe_rfc_name, int smonth, int emonth) {
         System.out.println("Starting mmt: ");
-        if (DailyQcUtils.init_maxmin == -1) {
+        if (dqc.init_maxmin == -1) {
             maxmin = new MaxMin();
             MaxX = MPEDataManager.getInstance().getHRAPExtent().width;
             MaxY = MPEDataManager.getInstance().getHRAPExtent().height;
@@ -110,8 +112,8 @@ public class MeanMonthlyTemp {
                 String mon = mon_name[k];
 
                 /* Create the max temp PRISM filename. */
-                String pfile = DailyQcUtils.mpe_prism_dir + "/prism_max_temp_"
-                        + DailyQcUtils.mpe_rfc_name + "_" + mon;
+                String pfile = dqc.mpe_prism_dir + "/prism_max_temp_"
+                        + dqc.mpe_rfc_name + "_" + mon;
 
                 /* read in data file */
                 /* i is longitude j is latitude */
@@ -173,8 +175,8 @@ public class MeanMonthlyTemp {
                 String mon = mon_name[k];
 
                 /* Create the min temp PRISM filename. */
-                String pfile = DailyQcUtils.mpe_prism_dir + "/prism_min_temp_"
-                        + DailyQcUtils.mpe_rfc_name + "_" + mon;
+                String pfile = dqc.mpe_prism_dir + "/prism_min_temp_"
+                        + dqc.mpe_rfc_name + "_" + mon;
 
                 /* read in data file */
                 /* i is longitude j is latitude */
@@ -227,9 +229,9 @@ public class MeanMonthlyTemp {
                 }
             }
 
-            DailyQcUtils.init_maxmin = 1;
+            dqc.init_maxmin = 1;
         }
-        DailyQcUtils.maxmin_used = 1;
+        dqc.maxmin_used = 1;
         System.out.println("Finished mmt: ");
         return true;
     }
@@ -277,7 +279,7 @@ public class MeanMonthlyTemp {
      *            the maxmin to set
      */
     public void setMaxmin(MaxMin maxmin) {
-        MeanMonthlyTemp.maxmin = maxmin;
+        this.maxmin = maxmin;
     }
 
     public int is_good(int k, int smonth, int emonth) {

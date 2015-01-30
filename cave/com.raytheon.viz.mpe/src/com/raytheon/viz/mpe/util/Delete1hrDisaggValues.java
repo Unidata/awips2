@@ -79,20 +79,21 @@ import com.raytheon.viz.mpe.util.Disagg6Hr.Values_6hr;
 
 public class Delete1hrDisaggValues {
 
+    DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
     public void delete1hrDisaggValues() {
         Values_1hr[] disaggValues = Disagg6Hr.disaggValues;
         BufferedWriter disagg_log_fd = Disagg6Hr.disagg_log_fd;
         String[] obsdate = Disagg6Hr.obsdate;
         Date[] obsdate_date_t = Disagg6Hr.obsdate_date_t;
         Values_6hr[] values6hr = Disagg6Hr.values6hr;
-        int num_days_to_qc = DailyQcUtils.qcDays;
+//        int num_days_to_qc = dqc.qcDays;
         int num_disagg_stations = Disagg6Hr.num_disagg_stations;
 
         String ts = "";
         String where = "";
         int i, j, jj;
         int index = -1;
-        int ret = 0;
 
         Hourlypp hourlyPP;
         HourlyppId hourlyPPId;
@@ -122,14 +123,14 @@ public class Delete1hrDisaggValues {
 
             out.write("\nIn delete1hrDisaggValues\n");
 
-            for (j = 0; j < num_days_to_qc + 1; j++) {
+            for (j = 0; j < dqc.qcDays + 1; j++) {
 
                 out.write("\n");
                 out.write(String.format(" \t Day %d\n", j));
                 hourlyPPId.setObsdate(obsdate_date_t[j]);
 
                 jj = j;
-                if (j == num_days_to_qc) {
+                if (j == dqc.qcDays) {
                     jj = jj - 1;
                 }
 
@@ -198,7 +199,7 @@ public class Delete1hrDisaggValues {
                         out.write(String.format("%s\n", where));
                         out.write("\n");
 
-                        ret = deleteHourlyPP(where);
+                        deleteHourlyPP(where);
 
                     } else {
                         /*----------------------------------------------*/
