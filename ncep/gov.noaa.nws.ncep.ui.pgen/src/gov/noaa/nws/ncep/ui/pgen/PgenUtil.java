@@ -2078,9 +2078,9 @@ public class PgenUtil {
         ResourceList rscList = disp.getDescriptor().getResourceList();
 
         for (ResourcePair rp : rscList) {
-            AbstractVizResource rsc = rp.getResource();
+            AbstractVizResource<?, ?> rsc = rp.getResource();
 
-            if (rsc.getClass() == rscClass) {
+            if ( rsc != null && rsc.getClass() == rscClass) {
                 return rsc;
             }
         }
