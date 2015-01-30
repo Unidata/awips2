@@ -51,4 +51,14 @@
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/planes/planviewtime-timeseries/pres/600-1050mb.xml" />
     </contribute>
+
+    <contribute xsi:type="toolbarSubMenu" menuText="100mb Layers">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/planes/planviewtime-timeseries/pres/100mbLayers.xml" />
+    </contribute>
+
+    <contribute xsi:type="toolbarSubMenu" menuText="50mb Layers">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/planes/planviewtime-timeseries/pres/50mbLayers.xml" />
+    </contribute>
 </menuTemplate>

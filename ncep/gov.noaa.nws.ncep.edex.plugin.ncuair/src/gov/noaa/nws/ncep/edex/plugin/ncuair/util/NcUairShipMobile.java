@@ -10,7 +10,8 @@
  * 03/2010      210				L. Lin     	Initial coding
  * 09/2011      457             S. Gurung   Renamed H5 to Nc and h5 to nc
  * 09/02/2014                   Chin Chen   fix surface height missing on some stations issue
- * 
+ * 10/2014                      T. Lee      Updated catch-all phrases for stnID 
+ *
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -336,7 +337,7 @@ public class NcUairShipMobile {
      */
     public static void Dropsonde(String report) {
 
-        final String DROP = "61616 (AF|NOAA|NASA)(\\d{1,3}) (.*) OB (\\d{2}) 62626";
+        final String DROP = "61616 (AF|NOAA|NA)(\\d{1,3}) (.*) OB (\\d{2}) 62626";
         Pattern dropPattern = Pattern.compile(DROP, Pattern.DOTALL);
         Matcher dropMatcher = dropPattern.matcher(report);
 
@@ -354,6 +355,10 @@ public class NcUairShipMobile {
                     + dropMatcher.group(2);
             stnId = dropMatcher.group(1) + dropMatcher.group(2)
                     + dropMatcher.group(4);
+        } else {
+            System.out.println(" New dropsonde station found");
+            stationNumber = "99999";
+            stnId = "NEW_DROP";
         }
         // Chin: sfcElevSolution start
         // if (drop2Matcher.find()) {

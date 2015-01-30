@@ -36,6 +36,7 @@ import org.apache.camel.Processor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 21, 2014    3026    mpduff      Initial creation
+ * Nov 18, 2014    3026    mpduff      Changed regex pattern to match filename.
  * 
  * </pre>
  * 
@@ -46,7 +47,7 @@ import org.apache.camel.Processor;
 public class HpeGribFileNameProcessor implements Processor {
     /** Filename pattern to match for HPE grib files */
     private static final Pattern FILENAME_PATTERN = Pattern
-            .compile("^([A-Za-z]*MOSAIC[0-9]*z)\\.grib$");
+            .compile("^ZETA98_([A-Za-z0-9]*MOSAIC[A-Za-z0-9]*z)_.*\\.grib$");
 
     @Override
     public void process(Exchange exchange) throws Exception {
@@ -54,7 +55,7 @@ public class HpeGribFileNameProcessor implements Processor {
                 "CamelFileNameOnly");
         Matcher matcher = FILENAME_PATTERN.matcher(fileName);
         if (matcher.matches()) {
-            // Take the text before the last "."
+            // Take the text before the "_"
             String productName = matcher.group(1);
             exchange.getIn().setHeader("secondaryid", productName);
         }

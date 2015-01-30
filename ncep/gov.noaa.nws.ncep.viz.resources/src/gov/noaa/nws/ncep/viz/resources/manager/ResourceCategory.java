@@ -19,6 +19,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
  *  02/13/13      #972      Greg Hull   Created
  *  03/06/13      #958      Greg Hull   Added SpaceRscCategory
  *  05/15/2014    #1131     Quan Zhou   Added resource category GraphRscCategory.
+ *  09/10/2014   rm4705     B. Hebbard  Added NtransRscCategory
  * </pre>
  * 
  * @author
@@ -76,6 +77,9 @@ public class ResourceCategory implements Comparable<ResourceCategory> {
 
     public static ResourceCategory GraphRscCategory = createCategory(
             "TIMESERIES", 860);
+
+    public static ResourceCategory NtransRscCategory = createCategory("NTRANS",
+            870);
 
     private static int nextCatOrder = OverlayRscCategory.order + 100;
 

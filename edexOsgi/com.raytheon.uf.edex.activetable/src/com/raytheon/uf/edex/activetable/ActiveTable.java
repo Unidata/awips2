@@ -34,7 +34,6 @@ import jep.JepException;
 import org.apache.log4j.Logger;
 
 import com.raytheon.edex.site.SiteUtil;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.MergeResult;
@@ -94,6 +93,13 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Jun 17, 2014    3296    randerso    Cached PythonScript. Moved active table 
  *                                     backup and purging to a separate thread.
  *                                     Added performance logging
+ * Nov 14, 2014    4953    randerso    Moved dumpProductToTempFile into PracticeVtecDecoder
+ *                                     since it had no reason to be in this class
+ * Dec 30, 2014    16942   ryu         Fix update of records for sites other than
+ *                                     the home site and its neighbors. 
+ *                                     Pass issuance site id to getActiveTable() 
+ *                                     in updateActiveTable() so records will
+ *                                     be updated correctly.
  * 
  * </pre>
  * 
@@ -288,11 +294,13 @@ public class ActiveTable {
                 mode = ActiveTableMode.OPERATIONAL;
             }
 
+            String issueSiteId = newRecords.get(0).getOfficeid();
+
             IPerformanceStatusHandler perfStat = PerformanceStatus
                     .getHandler("ActiveTable");
             ITimer timer = TimeUtil.getTimer();
             timer.start();
-            List<ActiveTableRecord> activeTable = getActiveTable(siteId, mode);
+            List<ActiveTableRecord> activeTable = getActiveTable(issueSiteId, mode);
             timer.stop();
             perfStat.logDuration("getActiveTable", timer.getElapsedTime());
 
@@ -624,19 +632,6 @@ public class ActiveTable {
                 + GetNextEtnUtil.getEtnClusterLockName(requestedSiteId,
                         ActiveTableMode.PRACTICE) + "';";
         dao.executeNativeSql(sql);
-    }
-
-    /**
-     * Dump product text to temp file
-     * 
-     * @param productText
-     *            product text
-     * @return the temp file
-     */
-    public static File dumpProductToTempFile(String productText) {
-        File file = Util.createTempFile(productText.getBytes(), "vtec");
-        file.deleteOnExit();
-        return file;
     }
 
     /**
