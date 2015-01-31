@@ -27,6 +27,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    03/20/14        #2933         randerso       Changed PRDDIR and LOGDIR to use
 #                                                  Backup site's configuration 
+#    01/30/15        #17081         lshi          Added backup vtec
 ##############################################################################
 
 import_file=${1}
@@ -175,6 +176,9 @@ log_msg 80
 cp -r GFEconfig/edex_static/site/smartinit ${edex_site_si_dest}
 log_msg 90
 cp -r GFEconfig/cave_static/site/* ${cave_site_dest}
+# DR 17081
+log_msg 91
+cp -r GFEconfig/common_static/site/vtec ${common_site_dest}
 log_msg 93
 # DR 16464
 cp -a GFEConfig/site/rsync_parms.${SITE_CAPS} ${rsync_parms_dest}.${SITE_CAPS}
