@@ -17,7 +17,9 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  *                                      bigsharp version 2013Jun12
  * 12/03/2014   DR#16884    Chin Chen   fixed issue, NSHARP crashes if user loops a product and 
  *                                      then clicks WINTER/FIRE buttons in Toolbar
- *
+ * 01/27/2015   DR#17006,
+ *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
+ *                                      in Volume Browser
  * </pre>
  * 
  * @author Chin Chen
@@ -1896,7 +1898,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
             PaintProperties paintProps) throws VizException {
         super.paintInternal(target, paintProps);
         // defineCharHeight(font10);
-        if (rscHandler == null || rscHandler.getSoundingLys() == null)
+        if (rscHandler == null || rscHandler.getSoundingLys() == null || !rscHandler.isGoodData())//#5929
             return;
         this.font10.setSmoothing(false);
         this.font10.setScaleFont(false);
