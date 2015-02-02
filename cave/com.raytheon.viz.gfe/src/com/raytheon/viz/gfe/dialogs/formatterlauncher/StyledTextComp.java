@@ -60,6 +60,7 @@ import org.eclipse.swt.widgets.Listener;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.ProductEditorLogger;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.RGBColors;
@@ -84,6 +85,9 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 29 AUG 2013  #2250      dgilling    Better error handling for parseProductText().
  * 04 SEP 2013  16534      ryu         Fixed word wrap to not insert duplicate text; refactor.
  * 20 DEC 2013  16854      ryu         Force re-parsing of text on type change.
+ * 28 JAN 2015  4018       randerso    Code cleanup. Fixed reparsing when framing codes are cut
+ *                                     or pasted instead of just typed over.
+ *                                     Added logging of text changes to help diagnose future issues.
  * 
  * </pre>
  * 
@@ -124,7 +128,7 @@ public class StyledTextComp extends Composite {
     /**
      * Parent composite.
      */
-    private Composite parent;
+    private ProductEditorComp parent;
 
     /**
      * Styled text editor.
@@ -157,7 +161,7 @@ public class StyledTextComp extends Composite {
 
     private boolean autoWrapMode;
 
-    private int wrapColumn = 80; // TODO: get from external
+    private int wrapColumn;
 
     private boolean dirty = false;
 
@@ -174,6 +178,8 @@ public class StyledTextComp extends Composite {
     protected Color lockColor;
 
     private boolean updatingForCor = false;
+
+    private ProductEditorLogger peLog;
 
     private static final String NORM_SEP = "^\\s*$";
 
@@ -197,11 +203,18 @@ public class StyledTextComp extends Composite {
      * 
      * @param parent
      *            Parent composite.
+     * @param wrapMode
+     * @param wrapColumn
      */
-    public StyledTextComp(Composite parent) {
+    public StyledTextComp(ProductEditorComp parent, int wrapColumn,
+            boolean wrapMode) {
         super(parent, SWT.BORDER);
 
         this.parent = parent;
+        this.wrapColumn = wrapColumn;
+        this.autoWrapMode = wrapMode;
+
+        this.peLog = new ProductEditorLogger(parent.getProductName());
 
         init();
     }
@@ -294,6 +307,7 @@ public class StyledTextComp extends Composite {
 
             @Override
             public void modifyText(ExtendedModifyEvent event) {
+                logTextChange(event);
                 updateTextStyle(event);
                 checkAutoWrap(event);
 
@@ -362,7 +376,7 @@ public class StyledTextComp extends Composite {
         /*
          * Lock the ci block text.
          */
-        HashMap<String, TextIndexPoints> ciMap = prodDataStruct.getCiMap();
+        Map<String, TextIndexPoints> ciMap = prodDataStruct.getCiMap();
         TextIndexPoints ciBlockTip = ciMap.get("ciblock");
 
         if (ciBlockTip != null) {
@@ -374,7 +388,7 @@ public class StyledTextComp extends Composite {
         /*
          * Lock the mnd text.
          */
-        HashMap<String, TextIndexPoints> mndMap = prodDataStruct.getMndMap();
+        Map<String, TextIndexPoints> mndMap = prodDataStruct.getMndMap();
         TextIndexPoints mndTip = mndMap.get("mnd");
 
         if (mndTip != null) {
@@ -502,11 +516,11 @@ public class StyledTextComp extends Composite {
      *             If python throws an Error trying to parse the product.
      */
     private void parseProductText(String productText) throws JepException {
-        HashMap<String, Object> fmtResult = TextFmtParserUtil
+        Map<String, Object> fmtResult = TextFmtParserUtil
                 .parseText(productText);
         prodDataStruct = new ProductDataStruct(fmtResult, productText);
 
-        prodDataStruct.printData();
+        // prodDataStruct.printData();
     }
 
     public void patchMND(String tag) {
@@ -565,7 +579,7 @@ public class StyledTextComp extends Composite {
         }
 
         // Find the code and the pit
-        TextIndexPoints ff = prodDataStruct.getFunnyFiled();
+        TextIndexPoints ff = prodDataStruct.getFunnyField();
         TextIndexPoints pit = prodDataStruct.getPIT();
 
         if (ff == null) {
@@ -620,7 +634,7 @@ public class StyledTextComp extends Composite {
     }
 
     private void makeCorrections() {
-        ((ProductEditorComp) parent).setPTypeCategory(PTypeCategory.COR);
+        parent.setPTypeCategory(PTypeCategory.COR);
         List<SegmentData> segs = prodDataStruct.getSegmentsArray();
         for (SegmentData seg : segs) {
             if (seg.getSementMap().keySet().contains("vtec")) {
@@ -642,8 +656,7 @@ public class StyledTextComp extends Composite {
             int offset = textEditorST.getCaretOffset();
             Pattern codePattern = Pattern.compile("\\.([A-Z]{3})\\.");
             for (SegmentData segData : segs) {
-                HashMap<String, TextIndexPoints> segMap = segData
-                        .getSementMap();
+                Map<String, TextIndexPoints> segMap = segData.getSementMap();
                 TextIndexPoints tipUgc = segMap.get("ugc");
                 int start = prodDataStruct.positionToOffset(tipUgc
                         .getStartIndex());
@@ -697,8 +710,10 @@ public class StyledTextComp extends Composite {
     }
 
     /**
-     * Handle the verify key event. This event fires after a change has been
-     * made to the control (after the text has been updated, for example)
+     * Handle the verify key event. Sent when the text is about to be modified.
+     * A verify event occurs after the user has done something to modify the
+     * text (typically typed a key), but before the text is modified. The doit
+     * field in the verify event indicates whether or not to modify the text.
      * 
      * @param event
      *            Verify event that was fired.
@@ -754,10 +769,6 @@ public class StyledTextComp extends Composite {
                     + event.length + 1);
             StyleRange startRange = textEditorST.getStyleRangeAtOffset(start);
             StyleRange endRange = textEditorST.getStyleRangeAtOffset(end);
-            // StyleRange startRange = textEditorST
-            // .getStyleRangeAtOffset(event.start - 1);
-            // StyleRange endRange = textEditorST
-            // .getStyleRangeAtOffset(event.start + event.length + 1);
 
             // if it's in a framing code, turn it red
             if ((startRange != null) && (endRange != null)
@@ -773,13 +784,14 @@ public class StyledTextComp extends Composite {
 
             // framing code was deleted, need to turn it black
             boolean framingCodeChange = false;
-            if (("*").equals(event.replacedText)
-                    || ("|").equals(event.replacedText)) {
+            if (event.replacedText.contains("*")
+                    || event.replacedText.contains("|")) {
                 framingCodeChange = true;
             }
             // framing code was added, need to turn it red
-            char newText = textEditorST.getText().charAt(event.start);
-            if ((newText == '*') || (newText == '|')) {
+            String newText = textEditorST.getText().substring(event.start,
+                    event.start + event.length);
+            if (newText.contains("*") || newText.contains("|")) {
                 framingCodeChange = true;
             }
 
@@ -1530,4 +1542,17 @@ public class StyledTextComp extends Composite {
         return new int[] { startIndex, endIndex, text.length() };
     }
 
+    protected void logTextChange(ExtendedModifyEvent event) {
+        StyledText st = ((StyledText) event.widget);
+        String oldText = event.replacedText;
+        String newText = "";
+        if (event.length > 0) {
+            newText = st.getText(event.start, (event.start + event.length) - 1);
+        }
+
+        if (!newText.equals(oldText)) {
+            peLog.logEdit(event.start, oldText, newText);
+        }
+
+    }
 }
