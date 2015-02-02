@@ -79,7 +79,8 @@ public class SymbolCirclePart extends SymbolPart {
 	 * Gets the coordinates defining the line path
 	 * @return the line path
 	 */
-	public Coordinate[] getPath() {
+	@Override
+    public Coordinate[] getPath() {
 		if ( pathNeedsUpdate ) updatePath();
 		return path;
 	}
@@ -88,7 +89,8 @@ public class SymbolCirclePart extends SymbolPart {
 	 * Gets whether area defined by line path should be filled
 	 * @return the filled flag
 	 */
-	public boolean isFilled() {
+	@Override
+    public boolean isFilled() {
 		return filled;
 	}
 
@@ -143,7 +145,7 @@ public class SymbolCirclePart extends SymbolPart {
 		int numpts = 16;
 		path = new Coordinate[numpts];
 		
-		double increment = 360.0 / (double)numpts;
+		double increment = 360.0 / numpts;
 		double angle = 0.0;
 		for (int j=0; j<numpts; j++) {
 			x = center.x + ( radius * Math.cos(Math.toRadians(angle)) );
