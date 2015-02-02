@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="gov.noaa.nws.ncep.staticdataprovider.StaticDataProvider" enabled="true">
+
+        <implementation
+                class="gov.noaa.nws.ncep.staticdataprovider.StaticDataProvider" />
+        <service>
+                <provide interface="gov.noaa.nws.ncep.common.staticdata.IStaticDataProvider" />
+        </service>
+</component>

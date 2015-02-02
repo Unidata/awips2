@@ -162,10 +162,6 @@ public class PgenOutlookSetCont extends AbstractPgenDrawingTool{
 			}
 			else if ( button == 3 ) {
 
-				drawingLayer.removeSelected();
-				PgenUtil.loadOutlookDrawingTool();
-				dec = null;
-				
 				return true;
 
 			}
@@ -176,7 +172,26 @@ public class PgenOutlookSetCont extends AbstractPgenDrawingTool{
 			}
 
 		}
+		   
+	    /*
+	     * overrides the function in selecting tool
+	     */
+	    @Override
+	    public boolean handleMouseUp(int x, int y, int button){
+	        if ( !drawingLayer.isEditable() || shiftDown ) return false;
 
+	        if (button == 3) {
+
+                drawingLayer.removeSelected();
+                PgenUtil.loadOutlookDrawingTool();
+                dec = null;
+                
+	            return true;
+	        }
+	        else {
+	            return false;
+	        }
+	    }
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
         	if ( !isResourceEditable() ) return false;
