@@ -163,7 +163,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 12/01/2014  #624        zhao        Modified saveFile()
  * 12/16/2014  #14946      ryu         Modified updateIssueExpireTimes() so issuance time is displayed
  *                                     for the local time zones for each segment.
- * 
+ * 01/28/2015  #4018       randerso    Code cleanup.
  * </pre>
  * 
  * @author lvenable
@@ -957,10 +957,7 @@ public class ProductEditorComp extends Composite implements
      */
     private void createTextControl() {
 
-        textComp = new StyledTextComp(this);
-        textComp.setWrapColumn(wrapColumn);
-
-        textComp.setAutoWrapMode(wrapMode);
+        textComp = new StyledTextComp(this, wrapColumn, wrapMode);
 
         createEditorPopupMenu();
 
