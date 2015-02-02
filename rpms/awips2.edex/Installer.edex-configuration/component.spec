@@ -7,7 +7,7 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: %{_build_root}
-BuildArch: noarch
+#BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -41,20 +41,58 @@ mkdir -p %{_build_root}/awips2/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
+mkdir -p %{_build_root}/awips2/edex/logs
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p %{_build_root}/awips2/edex/webapps
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
-DEPLOY_SCRIPT="build.edex/deploy-common/deploy-esb-configuration.xml"
+DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb-configuration.xml"
 
 # use deploy-install to deploy edex-configuration.
 pushd . > /dev/null
 cd %{_baseline_workspace}
 /awips2/ant/bin/ant -f ${DEPLOY_SCRIPT} \
    -Desb.overwrite=true \
-   -Desb.directory=%{_baseline_workspace}/build.edex/esb \
+   -Desb.directory=%{_baseline_workspace}/deploy.edex.awips2/esb \
    -Dedex.root.directory=${RPM_BUILD_ROOT}/awips2/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
 popd > /dev/null
+
+DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb.xml"
+
+BUILD_ARCH="%{_build_arch}"
+if [ "${BUILD_ARCH}" = "i386" ]; then
+   BUILD_ARCH="x86"
+fi
+
+# use deploy-install to deploy edex.
+pushd . > /dev/null
+cd %{_baseline_workspace}
+/awips2/ant/bin/ant -f ${DEPLOY_SCRIPT} \
+   -Ddeploy.data=true -Ddeploy.web=true \
+   -Desb.overwrite=true \
+   -Desb.directory=%{_baseline_workspace}/deploy.edex.awips2/esb \
+   -Dedex.root.directory=${RPM_BUILD_ROOT}/awips2/edex \
+   -Dbasedir=%{_baseline_workspace}/deploy.edex.awips2 \
+   -Dbasedirectories=%{_baseline_workspace} \
+   -Darchitecture=${BUILD_ARCH}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+popd > /dev/null
+
+# remove any .gitignore files
+# currently, the ebxml webapp includes a .gitignore file
+/usr/bin/find ${RPM_BUILD_ROOT}/awips2/edex -name .gitignore -exec rm -f {} \;
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 %pre
 
@@ -126,5 +164,17 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/edex
-%dir /awips2/edex/bin
+%dir /awips2/edex/bin/*
+%dir /awips2/edex/conf
+/awips2/edex/conf/*
+%dir /awips2/edex/data
+/awips2/edex/data/*
+%dir /awips2/edex/etc
+/awips2/edex/etc/*
+%dir /awips2/edex/lib
+/awips2/edex/lib/*
+%dir /awips2/edex/logs
+%dir /awips2/edex/webapps
 %config(noreplace) /awips2/edex/bin/setup.env
+%defattr(755,awips,fxalpha,755)
+/awips2/edex/bin/*.sh
