@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
@@ -110,6 +111,8 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
  * 01/10		?		    S. Gilbert  Initial Creation.
  * 08/13		TTR696/774	J. Wu		Reset title/Close product manage dialog.
  * 11/13		#1081		B. Yin		Get selected DE to change front/line type.
+ * 12/14        R5413       B. Yin      Removed unused variables, loops.
+ * 01/15        R5413       B. Yin      Set perspective ID and editor for PGEN session.
  * 
  * </pre>
  * 
@@ -203,6 +206,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
     private IContextActivation pgenContextActivation;
 
     private AbstractEditor currentIsMultiPane = null;
+    
+    public static final String CATEGORY_ANY = "Any";
 
     /**
      * Constructor
@@ -306,14 +311,6 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         super.dispose();
 
         /*
-         * remove product manage/layer dialog
-         */
-        PgenResource pgen = PgenSession.getInstance().getPgenResource();
-        if (pgen != null) {
-            pgen.closeDialogs();
-        }
-
-        /*
          * remove this palette from Pgen Session
          */
         PgenSession.getInstance().removePalette();
@@ -395,8 +392,15 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
          * the PgenSession
          */
         PgenResource current = PgenUtil.findPgenResource(null);
-        if (current != null)
+        if (current != null) {
             PgenSession.getInstance().setResource(current);
+            PgenUtil.setSelectingMode();
+            
+            AbstractEditor actEditor = PgenUtil.getActiveEditor();
+            if ( actEditor != null && !PgenSession.getInstance().getEditors().contains(actEditor)){
+                PgenSession.getInstance().getEditors().add(actEditor);
+            }
+        }
 
     }
 
@@ -603,6 +607,16 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 
         IEditorPart editor = VizWorkbenchManager.getInstance()
                 .getActiveEditor();
+        
+        //Set perspective ID in session
+        if ( PgenSession.getInstance().getPerspectiveId() == null ||
+                PgenSession.getInstance().getPerspectiveId().isEmpty()){
+            AbstractVizPerspectiveManager pMngr = VizPerspectiveListener.getCurrentPerspectiveManager();
+            if ( pMngr != null ){
+                PgenSession.getInstance().setPerspectiveId(pMngr.getPerspectiveId());
+            }
+        }
+        
         if (editor instanceof AbstractEditor) {// && ((NCMapEditor)
                                                // editor).getApplicationName().equals("NA")
                                                // ) {
@@ -867,14 +881,28 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         // if ( part instanceof NCMapEditor &&((NCMapEditor)
         // part).getApplicationName().equals("NA")) {
 
-        if (PgenUtil.isNatlCntrsEditor(part)) {
+        if (PgenUtil.isNatlCntrsEditor(part) || part instanceof VizMapEditor) {
 
+            //Prevent PGEN going to another perspective
+            AbstractVizPerspectiveManager pMngr = VizPerspectiveListener.getCurrentPerspectiveManager();
+            if ( pMngr != null && pMngr.getPerspectiveId() != PgenSession.getInstance().getPerspectiveId() ){
+                return;
+            }
+            
             PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor) part);
-            if ((rsc == null) && (PgenUtil.getPgenMode() == PgenMode.SINGLE))
+
+            // if ( PgenSession.getInstance().getPgenResource().getDescriptor()
+            // != )
+
+            if ((rsc == null) && (PgenUtil.getPgenMode() == PgenMode.SINGLE)) {
                 rsc = PgenUtil.createNewResource();
-            if (rsc != null)
+            }
+
+            if (rsc != null) {
                 rsc.setCatFilter(new CategoryFilter(
-                        (currentCategory == null) ? "Any" : currentCategory));
+                        (currentCategory == null) ? CATEGORY_ANY : currentCategory));
+            }
+
             PgenSession.getInstance().setResource(rsc);
 
             AbstractEditor editor = (AbstractEditor) part;
@@ -885,9 +913,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
                 PgenUtil.addSelectedPaneChangedListener(editor, this);
             }
             activatePGENContext();
-        }
-
-        else if (part instanceof PgenPaletteWindow) {
+        } else if (part instanceof PgenPaletteWindow) {
             activatePGENContext();
 
             // found NCMapEditor
@@ -926,7 +952,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         // );
         partActivated(partRef);
 
-        if (PgenUtil.isNatlCntrsEditor(part)) {
+        if (PgenUtil.isNatlCntrsEditor(part) || part instanceof VizMapEditor) {
             AbstractEditor editor = (AbstractEditor) part;
             PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor) part);
 
@@ -966,17 +992,12 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
                 if (VizPerspectiveListener.getCurrentPerspectiveManager() == null)
                     return; // workbench probably closing
 
-                AbstractEditor[] editors = UiUtil.getEditors(PlatformUI
-                        .getWorkbench().getActiveWorkbenchWindow(),
-                        VizPerspectiveListener.getCurrentPerspectiveManager()
-                                .getPerspectiveId());
-                /*
-                 * UiUtil.getEditors returns active editor first. Run through
-                 * list in reverse so that active editor is processed last.
-                 */
-                for (int i = editors.length - 1; i >= 0; i--) {
-                    unloadPgenResource(editors[i]);
+                for (AbstractEditor editor : PgenSession.getInstance()
+                        .getEditors()) {
+                    unloadPgenResource(editor);
                 }
+                
+                PgenSession.getInstance().endSession();
             }
 
             // if ( currentIsMultiPane != null )
@@ -1055,11 +1076,12 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         // System.out.println("Something Hidden: "+part.getClass().getCanonicalName()
         // );
 
-        if (PgenUtil.isNatlCntrsEditor(part)) {
+        if (PgenUtil.isNatlCntrsEditor(part) || part instanceof VizMapEditor) {
             PgenResource pgen = PgenUtil
                     .findPgenResource((AbstractEditor) part);
             if (pgen != null) {
                 pgen.closeDialogs();
+                pgen.deactivatePgenTools();
             }
         }
     }
@@ -1402,5 +1424,14 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
      */
     public String getCurrentObject() {
         return currentObject;
+    }
+
+    /*
+     * Sets the category and its icon.
+     */
+    public void setCurrentCategory(String currentCategory) {
+        this.resetIcon(this.currentCategory);
+        this.currentCategory = currentCategory;
+        this.setActiveIcon(currentCategory);
     }
 }
