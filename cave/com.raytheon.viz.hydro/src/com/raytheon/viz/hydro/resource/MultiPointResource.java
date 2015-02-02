@@ -128,6 +128,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Jan 30, 2013 15646       wkwock      Fix middle button drag map incorrect
  * Feb 05, 2013 1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * Feb 18, 2014 2596        mpduff      Check for null coordinates.
+ * Feb 02, 2015 4075        ccody       Added getSelectedGage for HS issue #3961
  * 
  * </pre>
  * 
@@ -1407,6 +1408,16 @@ public class MultiPointResource extends
                 + gage.getExtremum();
 
         return pedtsep;
+    }
+
+    /**
+     * Return the selected (GageData).
+     * 
+     * @return The selected Gage or null
+     */
+    public GageData getSelectedGage() {
+
+        return (manager.getCurrentData());
     }
 
     /**
