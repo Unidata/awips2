@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 15, 2012            bgonzale     Initial creation
+ * Dec 10, 2014	R5413		byin		Added dispose method.
  * 
  * </pre>
  * 
@@ -117,5 +118,14 @@ public class PgenResourceGhost {
      */
     public void setGhostLine(AbstractDrawableComponent ghost) {
         this.component = ghost;
+    }
+
+	/*
+	 * Release resources held by the ghost elements.
+	 */
+    public void dispose() {
+        for (AbstractElementContainer aec : componentMap.values()) {
+            aec.dispose();
+        }
     }
 }
