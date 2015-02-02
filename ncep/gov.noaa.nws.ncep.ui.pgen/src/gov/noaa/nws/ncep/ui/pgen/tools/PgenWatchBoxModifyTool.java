@@ -133,29 +133,11 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
         	}
         	// clean up
         	else if ( button == 3 ) {
-            	
-            	// Close the attribute dialog and do the cleanup.
-            	if ( PgenWatchBoxModifyTool.this.attrDlg != null ) {
-            		PgenWatchBoxModifyTool.this.attrDlg.close();
-            	}
-
-            	PgenWatchBoxModifyTool.this.attrDlg = null;
-            	
-        		drawingLayer.removeGhostLine();
-        		ptSelected = false;
-            	drawingLayer.removeSelected();
-      	        mapEditor.refresh();
-        		PgenUtil.setSelectingMode();
-
             	return true;
-            	
             }
             else{
-            	
                	return false;
-               	
             }
-        	
         }
         
 	    /*
@@ -230,55 +212,76 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseUp(int x, int y, int button) {
-        	firstDown = null;
-        	if ( !isResourceEditable() ) return false;
+            firstDown = null;
+            if ( !isResourceEditable() ) return false;
 
-        	// Finish the editing
-    		if (button == 1 && drawingLayer != null ){
-    			
-          	   	// Create a copy of the currently editing watch box
-    			WatchBox el = (WatchBox) drawingLayer.getSelectedDE();
+            // Finish the editing
+            if (button == 1 && drawingLayer != null ){
 
-    			if ( el != null ){
-    				
-	    			WatchBox newEl = (WatchBox)el.copy();			
+                // Create a copy of the currently editing watch box
+                WatchBox el = (WatchBox) drawingLayer.getSelectedDE();
 
-    				if ( ptSelected ) {
+                if ( el != null ){
 
-    					ptSelected = false;
-    					
-    					// re-snap the new watch box
-    					resnapWatchBox( mapEditor, (WatchBox)ghostEl, newEl );
-    			    	((WatchBoxAttrDlg)PgenWatchBoxModifyTool.this.attrDlg).setWatchBox(newEl);
-    			    	WatchInfoDlg infoDlg = ((WatchBoxAttrDlg)PgenWatchBoxModifyTool.this.attrDlg).getWatchInfoDlg();
-    			    	if ( infoDlg != null && infoDlg.getShell()!= null ){
-    			    		if ( ! infoDlg.isCountyLock()){
-    			    			newEl.clearCntyList();
-    			    			infoDlg.clearCwaPane();
-    			    		}
-    			    		infoDlg.setStatesWFOs();
-    			    	}
-    			    	
-    			    	// Replace the selected watch box with this new watch box
-    					drawingLayer.replaceElement(el, newEl);
-    					
-    					// Set this new element as the currently selected element 
-    					// Collections do not need to reset.
-    					if ( !(drawingLayer.getSelectedComp() instanceof DECollection )){
-    						drawingLayer.setSelected(newEl);
-    					}
+                    WatchBox newEl = (WatchBox)el.copy();			
 
-    					drawingLayer.removeGhostLine();
+                    if ( ptSelected ) {
 
-					}
-    				
-    				mapEditor.refresh();
+                        ptSelected = false;
 
-    			}
-    		}
-        	
-            return true;
-            
+                        // re-snap the new watch box
+                        resnapWatchBox( mapEditor, (WatchBox)ghostEl, newEl );
+                        ((WatchBoxAttrDlg)PgenWatchBoxModifyTool.this.attrDlg).setWatchBox(newEl);
+                        WatchInfoDlg infoDlg = ((WatchBoxAttrDlg)PgenWatchBoxModifyTool.this.attrDlg).getWatchInfoDlg();
+                        if ( infoDlg != null && infoDlg.getShell()!= null ){
+                            if ( ! infoDlg.isCountyLock()){
+                                newEl.clearCntyList();
+                                infoDlg.clearCwaPane();
+                            }
+                            infoDlg.setStatesWFOs();
+                        }
+
+                        // Replace the selected watch box with this new watch box
+                        drawingLayer.replaceElement(el, newEl);
+
+                        // Set this new element as the currently selected element 
+                        // Collections do not need to reset.
+                        if ( !(drawingLayer.getSelectedComp() instanceof DECollection )){
+                            drawingLayer.setSelected(newEl);
+                        }
+
+                        drawingLayer.removeGhostLine();
+
+                    }
+
+                    mapEditor.refresh();
+
+                }
+                return true;
+            }
+            else if ( button == 3 ) {
+
+                // Close the attribute dialog and do the cleanup.
+                if ( PgenWatchBoxModifyTool.this.attrDlg != null ) {
+                    PgenWatchBoxModifyTool.this.attrDlg.close();
+                }
+
+                PgenWatchBoxModifyTool.this.attrDlg = null;
+
+                drawingLayer.removeGhostLine();
+                ptSelected = false;
+                drawingLayer.removeSelected();
+                mapEditor.refresh();
+                PgenUtil.setSelectingMode();
+
+                return true;
+
+            }
+            else{
+
+                return false;
+
+            }
         }
 
 	}
