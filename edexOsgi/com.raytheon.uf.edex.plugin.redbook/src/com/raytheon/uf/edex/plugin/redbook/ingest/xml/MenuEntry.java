@@ -39,6 +39,7 @@ import javax.xml.bind.annotation.XmlElements;
  * ------------ ---------- ----------- --------------------------
  * Mar 12, 2014    2855    mpduff      Initial creation
  * Mar 19, 2014    2860    mpduff      Added DataUri.
+ * Jan 28, 2015    4030    mpduff      Added addMenuEntry method.
  * 
  * </pre>
  * 
@@ -208,7 +209,7 @@ public class MenuEntry {
      * @param menuEntryList
      *            the menuEntryList to set
      */
-    public void setMenuEntryyList(List<MenuEntry> menuEntryList) {
+    public void setMenuEntryList(List<MenuEntry> menuEntryList) {
         this.menuEntryList = menuEntryList;
     }
 
@@ -225,6 +226,18 @@ public class MenuEntry {
      */
     public void setDataUri(String dataUri) {
         this.dataUri = dataUri;
+    }
+
+    /**
+     * Add a {@link MenuEntry}
+     * 
+     * @param entry
+     */
+    public void addMenuEntry(MenuEntry entry) {
+        if (this.menuEntryList == null) {
+            menuEntryList = new ArrayList<MenuEntry>();
+        }
+        menuEntryList.add(entry);
     }
 
     /*
