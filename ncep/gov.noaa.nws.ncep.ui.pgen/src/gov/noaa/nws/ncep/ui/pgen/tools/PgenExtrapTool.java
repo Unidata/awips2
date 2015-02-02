@@ -36,49 +36,49 @@ import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
  * @author	J. Wu
  */
 public class PgenExtrapTool extends AbstractPgenDrawingTool {
-	 
+
     /**
      * Input handler for mouse events.
      */ 
     public PgenExtrapTool(){
-    	
-    	super();
-    	
+
+        super();
+
     }
-       
+
     /**
      * Returns the current mouse handler.
      * @return
      */   
     public IInputHandler getMouseHandler() {	
- 
-    	if ( this.mouseHandler == null ) {
-    	
-    	    this.mouseHandler = new PgenExtrapHandler();
-    	
+
+        if ( this.mouseHandler == null ) {
+
+            this.mouseHandler = new PgenExtrapHandler();
+
         }
 
         return this.mouseHandler;
-        
-   }
-        
-    
+
+    }
+
+
     /**
      * Implements input handler for mouse events.
      * @author jwu
      *
      */       
     public class PgenExtrapHandler extends InputHandlerDefaultImpl {
-    	    	
-    	private boolean preempt;
-    	
-    	/**
-    	 * Current extrapolation dialog.
-    	 */
-    	private PgenExtrapDlg extrapDlg = null;
-    	   	
-    	private OperationFilter extrapFilter = new OperationFilter( Operation.EXTRAPOLATE );
-    	
+
+        private boolean preempt;
+
+        /**
+         * Current extrapolation dialog.
+         */
+        private PgenExtrapDlg extrapDlg = null;
+
+        private OperationFilter extrapFilter = new OperationFilter( Operation.EXTRAPOLATE );
+
         /*
          * (non-Javadoc)
          * 
@@ -87,86 +87,102 @@ public class PgenExtrapTool extends AbstractPgenDrawingTool {
          */
         @Override	   	
         public boolean handleMouseDown( int anX, int aY, int button ) { 
-        	if ( !isResourceEditable() ) return false;
+            if ( !isResourceEditable() ) return false;
 
-        	preempt = false;
-        	
-        	//  Check if mouse is in geographic extent
-        	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null || shiftDown ) return false;
-        	       	        	
-        	if ( button == 1 ) {
+            preempt = false;
+
+            //  Check if mouse is in geographic extent
+            Coordinate loc = mapEditor.translateClick(anX, aY);
+            if ( loc == null || shiftDown ) return false;
+
+            if ( button == 1 ) {
 
                 if ( drawingLayer.getSelectedComp() == null ) { 
-        		    
-        			// Get the nearest element and set it as the selected element.
-        			AbstractDrawableComponent elSelected = drawingLayer.getNearestComponent( loc, extrapFilter, true );
-        			drawingLayer.setSelected( elSelected ); 
-        			if ( elSelected != null ) preempt = true;
-        			
-        		}
-        		else {
-        			
-        			extrapDlg = (PgenExtrapDlg)attrDlg;
-        			
-            	    AbstractDrawableComponent elem = drawingLayer.getSelectedComp();
-        			               	           	        
-            	    AbstractDrawableComponent newDE = PgenToolUtils.extrapElement( elem, 
-            	    		                    extrapDlg.getDirection(), extrapDlg.getDistance() );
 
-            	    boolean getNewDE = true;
-            	    if ( newDE instanceof WatchBox ){
-            			getNewDE = PgenWatchBoxModifyTool.resnapWatchBox(mapEditor, (WatchBox)newDE, (WatchBox)newDE);
-            	    }
-            			
-            	    if ( getNewDE ){
-            	    	if ( extrapDlg.isCopy() ) {
-            	    		drawingLayer.addElement( newDE );
-            	    	}
-            	    	else {      				 
-            	    		drawingLayer.replaceElement( drawingLayer.getSelectedComp(), newDE );        			
-            	    	}
-            	    }
-           	    
-            	    drawingLayer.removeSelected();
-            	    
-        		}
-        	    
-                mapEditor.refresh();               
-    		    
-                return preempt;	
-       		                
-            }
-            else if ( button == 3 ) {
-	            	            
-            	if ( drawingLayer.getSelectedComp() != null ) {
-            		
-                	drawingLayer.removeSelected();
-          	        mapEditor.refresh();       		
-                               	
+                    // Get the nearest element and set it as the selected element.
+                    AbstractDrawableComponent elSelected = drawingLayer.getNearestComponent( loc, extrapFilter, true );
+                    drawingLayer.setSelected( elSelected ); 
+                    if ( elSelected != null ) preempt = true;
+
                 }
                 else {
-      		        		
-        		    // set selecting mode
-        		    PgenUtil.setSelectingMode();            		
-              
+
+                    extrapDlg = (PgenExtrapDlg)attrDlg;
+
+                    AbstractDrawableComponent elem = drawingLayer.getSelectedComp();
+
+                    AbstractDrawableComponent newDE = PgenToolUtils.extrapElement( elem, 
+                            extrapDlg.getDirection(), extrapDlg.getDistance() );
+
+                    boolean getNewDE = true;
+                    if ( newDE instanceof WatchBox ){
+                        getNewDE = PgenWatchBoxModifyTool.resnapWatchBox(mapEditor, (WatchBox)newDE, (WatchBox)newDE);
+                    }
+
+                    if ( getNewDE ){
+                        if ( extrapDlg.isCopy() ) {
+                            drawingLayer.addElement( newDE );
+                        }
+                        else {      				 
+                            drawingLayer.replaceElement( drawingLayer.getSelectedComp(), newDE );        			
+                        }
+                    }
+
+                    drawingLayer.removeSelected();
+
                 }
-            	    
-            	return true;          
-            
+
+                mapEditor.refresh();               
+
+                return preempt;	
+
+            }
+            else if ( button == 3 ) {
+
+                return true;          
+
             }           	
             else {            	
-               	return false;               	          
+                return false;               	          
             }
-        	
+
         }
 
-		@Override
-		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			if ( !isResourceEditable() || shiftDown ) return false;
-			else return preempt;
-		}
+        @Override
+        public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+            if ( !isResourceEditable() || shiftDown ) return false;
+            else return preempt;
+        }
 
+        /*
+         * overrides the function in selecting tool
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button){
+            if (!isResourceEditable())
+                return false;
+
+            if (button == 3) {
+
+                if ( drawingLayer.getSelectedComp() != null ) {
+
+                    drawingLayer.removeSelected();
+                    mapEditor.refresh();            
+
+                }
+                else {
+
+                    // set selecting mode
+                    PgenUtil.setSelectingMode();                    
+
+                }
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
 
     }
 
