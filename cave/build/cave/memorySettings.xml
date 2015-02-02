@@ -175,11 +175,11 @@
 		
 			<ini-substitutions>
 				<max-memory>
-					<value>256M</value>
+					<value>384M</value>
 				</max-memory>
 			
 				<max-perm>
-					<value>64M</value>
+					<value>96M</value>
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
