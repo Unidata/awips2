@@ -1,5 +1,5 @@
 <project name="deploy.esb" default="main">	
-	<import file="deploy-web.xml" />
+	<!-- <import file="deploy-web.xml" /> -->
 	
 	<target name="main">		
 		<!-- on a developer machine, the following directories should
