@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.graphics.Point;
@@ -35,6 +36,7 @@ import org.eclipse.swt.graphics.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05 Jan 2008  1784       lvenable    Initial creation
+ * 28 Jan 2015  4018       randerso    Code cleanup
  * 
  * </pre>
  * 
@@ -51,12 +53,12 @@ public class ProductDataStruct {
     /**
      * HashMap of ci text index points.
      */
-    private HashMap<String, TextIndexPoints> ci;
+    private Map<String, TextIndexPoints> ci;
 
     /**
      * HashMap of mnd text index points.
      */
-    private HashMap<String, TextIndexPoints> mnd;
+    private Map<String, TextIndexPoints> mnd;
 
     /**
      * Array of segment data.
@@ -66,7 +68,7 @@ public class ProductDataStruct {
     /**
      * Parsed map containing the parsed product text.
      */
-    private HashMap<String, Object> parsedMap;
+    private Map<String, Object> parsedMap;
 
     /**
      * A String array containing the product text. Each element in the array is
@@ -89,8 +91,7 @@ public class ProductDataStruct {
      * @param productText
      *            Product text.
      */
-    public ProductDataStruct(HashMap<String, Object> parsedMap,
-            String productText) {
+    public ProductDataStruct(Map<String, Object> parsedMap, String productText) {
         this.parsedMap = parsedMap;
 
         this.productText = productText;
@@ -121,21 +122,20 @@ public class ProductDataStruct {
             return;
         }
 
-        if (parsedMap.get("frames") instanceof List == false) {
+        if ((parsedMap.get("frames") instanceof List) == false) {
             return;
         }
 
         frames = new ArrayList<TextIndexPoints>();
 
-        List<?> parseFrames = (List<?>) parsedMap.get("frames");
+        List<Map<String, List<List<Integer>>>> parseFrames = (List<Map<String, List<List<Integer>>>>) parsedMap
+                .get("frames");
 
-        for (Object object : parseFrames) {
-            HashMap frameMap = (HashMap) object;
-
+        for (Map<String, List<List<Integer>>> frameMap : parseFrames) {
             Set<String> keys = frameMap.keySet();
 
             for (String key : keys) {
-                List<?> frameIndexes = (List<?>) frameMap.get(key);
+                List<List<Integer>> frameIndexes = frameMap.get(key);
 
                 TextIndexPoints tip = createTextIndexPoints(frameIndexes);
 
@@ -156,15 +156,16 @@ public class ProductDataStruct {
             return;
         }
 
-        List<?> tmpArray;
+        List<List<Integer>> tmpArray;
         TextIndexPoints tip;
 
-        HashMap parsedCi = (HashMap) parsedMap.get("ci");
+        Map<String, List<List<Integer>>> parsedCi = (Map<String, List<List<Integer>>>) parsedMap
+                .get("ci");
 
         Set<String> keys = parsedCi.keySet();
 
         for (String key : keys) {
-            tmpArray = (List<?>) parsedCi.get(key);
+            tmpArray = parsedCi.get(key);
             tip = createTextIndexPoints(tmpArray);
             ci.put(key, tip);
         }
@@ -181,19 +182,18 @@ public class ProductDataStruct {
             return;
         }
 
-        List<?> tmpArray;
+        List<List<Integer>> tmpArray;
         TextIndexPoints tip;
 
-        HashMap parsedMnd = (HashMap) parsedMap.get("mnd");
+        Map<String, List<List<Integer>>> parsedMnd = (Map<String, List<List<Integer>>>) parsedMap
+                .get("mnd");
 
         Set<String> keys = parsedMnd.keySet();
 
         for (String key : keys) {
-            tmpArray = (List<?>) parsedMnd.get(key);
+            tmpArray = parsedMnd.get(key);
             tip = createTextIndexPoints(tmpArray);
 
-            // TODO : remove
-            // System.out.println("mnd key = " + key + "\t\t" + tip.getText());
             mnd.put(key, tip);
         }
     }
@@ -210,36 +210,36 @@ public class ProductDataStruct {
         }
 
         TextIndexPoints tip;
-        List<?> tmpArray;
+        List<List<Integer>> tmpArray;
 
         // Get the Array of segments from the parsed map.
-        List<?> parsedSegs = (List<?>) parsedMap.get("segs");
+        List<Map<String, Object>> parsedSegs = (List<Map<String, Object>>) parsedMap
+                .get("segs");
 
         // Loop through each segment.
-        for (Object seg : parsedSegs) {
-
-            HashMap curSegMap = (HashMap) seg;
+        for (Map<String, Object> curSegMap : parsedSegs) {
 
             Set<String> keys = curSegMap.keySet();
 
             SegmentData segData = new SegmentData();
 
             for (String key : keys) {
-                if (key.compareTo("headInfo") == 0) {
-                    List<?> headInfoArray = (List<?>) curSegMap.get(key);
+                if (key.equals("headInfo")) {
+                    List<Map<String, List<List<Integer>>>> headInfoArray = (List<Map<String, List<List<Integer>>>>) curSegMap
+                            .get(key);
 
                     for (Object hiObj : headInfoArray) {
-                        HashMap headInfoMap = (HashMap) hiObj;
+                        Map<String, List<List<Integer>>> headInfoMap = (Map<String, List<List<Integer>>>) hiObj;
 
                         Set<String> headInfoKeys = headInfoMap.keySet();
                         for (String hiKey : headInfoKeys) {
-                            tmpArray = (List<?>) headInfoMap.get(hiKey);
+                            tmpArray = headInfoMap.get(hiKey);
                             tip = createTextIndexPoints(tmpArray);
                             segData.addToHeadInfoMap(hiKey, tip);
                         }
                     }
                 } else {
-                    tmpArray = (List<?>) curSegMap.get(key);
+                    tmpArray = (List<List<Integer>>) curSegMap.get(key);
                     tip = createTextIndexPoints(tmpArray);
                     segData.addToSegmentMap(key, tip);
                 }
@@ -256,19 +256,18 @@ public class ProductDataStruct {
      *            Array of indexes.
      * @return TextIndexPoint data.
      */
-    @SuppressWarnings("unchecked")
-    private TextIndexPoints createTextIndexPoints(List tmpArray) {
+    private TextIndexPoints createTextIndexPoints(List<List<Integer>> tmpArray) {
         TextIndexPoints tip = new TextIndexPoints();
 
         // Get the starting index
-        List<?> startPoints = (List<?>) tmpArray.get(0);
-        int startLine = ((Integer) startPoints.get(0)) - 1;
-        int startCol = (Integer) startPoints.get(1);
+        List<Integer> startPoints = tmpArray.get(0);
+        int startLine = (startPoints.get(0)) - 1;
+        int startCol = startPoints.get(1);
 
         // Get the ending index
-        List<?> endPoints = (List<?>) tmpArray.get(1);
-        int endLine = ((Integer) endPoints.get(0)) - 1;
-        int endCol = ((Integer) endPoints.get(1));
+        List<Integer> endPoints = tmpArray.get(1);
+        int endLine = (endPoints.get(0)) - 1;
+        int endCol = (endPoints.get(1));
 
         String text = getIndexString(startLine, startCol, endLine, endCol);
 
@@ -320,7 +319,7 @@ public class ProductDataStruct {
             } else {
 
                 int endColOffset = 0;
-                if (endCol - 1 == productTextArray[i].length()) {
+                if ((endCol - 1) == productTextArray[i].length()) {
                     endColOffset = -1;
                 }
 
@@ -363,7 +362,7 @@ public class ProductDataStruct {
      * 
      * @return The CI map.
      */
-    public HashMap<String, TextIndexPoints> getCiMap() {
+    public Map<String, TextIndexPoints> getCiMap() {
         return ci;
     }
 
@@ -372,7 +371,7 @@ public class ProductDataStruct {
      * 
      * @return The MND map.
      */
-    public HashMap<String, TextIndexPoints> getMndMap() {
+    public Map<String, TextIndexPoints> getMndMap() {
         return mnd;
     }
 
@@ -412,72 +411,70 @@ public class ProductDataStruct {
      */
     @SuppressWarnings("unused")
     public void printData() {
-        // System.out.println("**** PRINT START ********************************");
-        // System.out.println("****");
+        System.out.println("**** PRINT START ********************************");
+        System.out.println("****");
 
         /*
          * Print the Frames information.
          */
-        // System.out.println("");
-        // System.out.println("--- frames");
+        System.out.println("");
+        System.out.println("--- frames");
         for (TextIndexPoints frameData : frames) {
-            // System.out.println("frame text = " + frameData.getText());
+            System.out.println("frame text = " + frameData.getText());
         }
 
         /*
          * Print the CI information.
          */
-        // System.out.println("");
-        // System.out.println("--- ci");
+        System.out.println("");
+        System.out.println("--- ci");
         Set<String> ciKeys = ci.keySet();
 
         for (String key : ciKeys) {
-            // System.out.println("key = " + key);
-            // System.out.println("text = " + ci.get(key).getText());
+            System.out.println("key = " + key);
+            System.out.println("text = " + ci.get(key).getText());
         }
 
         /*
          * Print the MND information.
          */
-        // System.out.println("");
-        // System.out.println("--- mnd");
+        System.out.println("");
+        System.out.println("--- mnd");
         Set<String> mndKeys = mnd.keySet();
 
         for (String key : mndKeys) {
-            // System.out.println("key = " + key);
-            // System.out.println("text = " + mnd.get(key).getText());
+            System.out.println("key = " + key);
+            System.out.println("text = " + mnd.get(key).getText());
         }
 
         /*
          * Print the Segments information.
          */
-        // System.out.println("");
-        // System.out.println("--- segments");
+        System.out.println("");
+        System.out.println("--- segments");
         for (SegmentData segData : segments) {
-            // System.out.println("++++++ segment map");
-            HashMap<String, TextIndexPoints> segMap = segData.getSementMap();
+            System.out.println("++++++ segment map");
+            Map<String, TextIndexPoints> segMap = segData.getSementMap();
 
             Set<String> segMapKeys = segMap.keySet();
             for (String segMapKey : segMapKeys) {
-                // TextIndexPoints tip = segMap.get(segMapKey);
-                // System.out.println("SegMapKey = " + segMapKey);
-                // System.out.println("Text = " +
-                // segMap.get(segMapKey).getText());
+                TextIndexPoints tip = segMap.get(segMapKey);
+                System.out.println("SegMapKey = " + segMapKey);
+                System.out.println("Text = " + segMap.get(segMapKey).getText());
             }
 
-            // System.out.println("++++++ headinfo map");
-            HashMap<String, TextIndexPoints> headInfoMap = segData
-                    .getHeadInfoMap();
+            System.out.println("++++++ headinfo map");
+            Map<String, TextIndexPoints> headInfoMap = segData.getHeadInfoMap();
 
             Set<String> headInfoKeys = headInfoMap.keySet();
             for (String headInfoKey : headInfoKeys) {
-                // System.out.println("headInfoKey = " + headInfoKey);
-                // System.out.println("Text = "
-                // + headInfoMap.get(headInfoKey).getText());
+                System.out.println("headInfoKey = " + headInfoKey);
+                System.out.println("Text = "
+                        + headInfoMap.get(headInfoKey).getText());
             }
         }
 
-        // System.out.println("**** PRINT END **********************************");
+        System.out.println("**** PRINT END **********************************");
     }
 
     public String getWmoId() {
@@ -505,7 +502,7 @@ public class ProductDataStruct {
         return mnd.get("pline");
     }
 
-    public TextIndexPoints getFunnyFiled() {
+    public TextIndexPoints getFunnyField() {
         return ci.get("funnyfield");
     }
 
@@ -535,8 +532,9 @@ public class ProductDataStruct {
         int column = 0;
         for (line = 0; line < productTextArray.length; line++) {
             int llen = productTextArray[line].length() + 1;
-            if (offset < llen)
+            if (offset < llen) {
                 break;
+            }
             offset -= llen;
         }
         column = offset;
