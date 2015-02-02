@@ -8,8 +8,8 @@
 
 package gov.noaa.nws.ncep.ui.pgen.file;
 
-import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmWindQuarters;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmWindQuarters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +20,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import com.raytheon.uf.common.geospatial.adapter.CoordAdapter;
-import com.vividsolutions.jts.geom.Coordinate;
 
 
 /**
