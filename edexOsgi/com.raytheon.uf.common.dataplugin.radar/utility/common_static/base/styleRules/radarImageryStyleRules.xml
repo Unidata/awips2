@@ -545,11 +545,38 @@
 		<paramLevelMatches>
 			<parameter>164</parameter>
 			<parameter>165</parameter>
-			<parameter>177</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>*1</displayUnits>
 			<defaultColormap>Radar/DualPol/Hydrometeor Class</defaultColormap>
+			<dataMapping>
+				<entry displayValue='0' pixelValue='8' label='' />
+				<entry displayValue='1' pixelValue='24' label='BI' sample='Biological' />
+				<entry displayValue='2' pixelValue='40' label='GC' sample='Clutter' />
+				<entry displayValue='3' pixelValue='56' label='IC' sample='Ice Crystals' />
+				<entry displayValue='4' pixelValue='72' label='DS' sample='Dry Snow' />
+				<entry displayValue='5' pixelValue='88' label='WS' sample='Wet Snow' />
+				<entry displayValue='6' pixelValue='104' label='RA' sample='Rain' />
+				<entry displayValue='7' pixelValue='120' label='HR' sample='Heavy Rain' />
+				<entry displayValue='8' pixelValue='136' label='BD' sample='Big Drops' />
+				<entry displayValue='9' pixelValue='152' label='GR' sample='Graupel' />
+				<entry displayValue='10' pixelValue='168' label='HA' sample='Hail-Rain' />
+				<entry displayValue='11' pixelValue='184' label='LH' sample='Large Hail' />
+				<entry displayValue='12' pixelValue='200' label='GH' sample='Giant Hail' />
+				<entry displayValue='13' pixelValue='216' label='' sample='TBD' />
+				<entry displayValue='14' pixelValue='232' label='UK' sample='Unknown' />
+				<entry displayValue='16' pixelValue='248' label='RF' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>177</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>*1</displayUnits>
+			<defaultColormap>Radar/DualPol/Hybrid Hydrometeor Class</defaultColormap>
 			<dataMapping>
 				<entry displayValue='0' pixelValue='8' label='' />
 				<entry displayValue='1' pixelValue='24' label='BI' sample='Biological' />
