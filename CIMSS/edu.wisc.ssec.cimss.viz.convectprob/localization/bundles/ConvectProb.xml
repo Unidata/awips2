@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        Affiliate_Name:________Cooperative Institute for Meteorological Satellite Studies
+        Affiliate_Address:_____1225 W. Dayton St.
+        _______________________Madison, WI 53706
+    -->
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+                                <colorMapParameters colorMapName="prob_severe"/>
+                            </capability>
+                            <capability xsi:type="colorableCapability" colorAsString="#FFFFFF"/>
+                        </capabilities>
+                        <resourceType>PLAN_VIEW</resourceType>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                    </properties>
+                    <resourceData xsi:type="convectProbResourceData"
+                        isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" retrieveData="true" 
+                        showObjectId="false">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="convectprob" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>
