@@ -17,6 +17,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * 01/27/2015   DR#17006,
  *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
  *                                      in Volume Browser
+ * 02/03/2015   DR#17084    Chin Chen   Model soundings being interpolated below the surface for elevated sites                                     
  *
  * </pre>
  * 
@@ -38,6 +39,7 @@ import gov.noaa.nws.ncep.ui.nsharp.background.NsharpSkewTPaneBackground;
 import gov.noaa.nws.ncep.ui.nsharp.background.NsharpTurbulencePaneBackground;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative;
+import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative.NsharpLibrary;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative.NsharpLibrary._lplvalues;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative.NsharpLibrary._parcel;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNativeConstants;
@@ -1256,32 +1258,40 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
         double p_mb = c.y;
         double temp = c.x;
         float htFt, htM, relh = -1;
-        String curStrFormat, curStrFormat1;
+        String curStrFormat, curStrFormat1, htMStr, htFtStr;
         String curStr, curStr1;// , curStr2,curStr3;
         VerticalAlignment vAli;
         HorizontalAlignment hAli;
 
         // curStr3 = rscHandler.getPickedStnInfoStr()+"\n";
-
-        htM = nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib
+        //Chin, DR17084   
+        if(soundingLys.get(0).getGeoHeight() <0){
+        	htMStr="M";
+        	htFtStr="M";
+        }
+        else {
+        	htM = nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib
                 .ihght((float) p_mb));
-        htFt = nsharpNative.nsharpLib.mtof(htM);
+        	htFt = nsharpNative.nsharpLib.mtof(htM);
+        	htMStr = Integer.toString(Math.round(htM));
+        	htFtStr = Integer.toString(Math.round(htFt));
+        }
         if (nsharpNative.nsharpLib.itemp((float) p_mb) > -9998.0
                 && nsharpNative.nsharpLib.idwpt((float) p_mb) > -9998.0) {
             FloatByReference parm = new FloatByReference(0);
             relh = nsharpNative.nsharpLib.relh((float) p_mb, parm);
-            curStrFormat = "%4.0f/%.0fkt %4.0fmb  %5.0fft/%.0fm agl  %2.0f%%\n";
+            curStrFormat = "%4.0f/%.0fkt %4.0fmb  %sft/%sm agl  %2.0f%%\n";
             curStr = String.format(curStrFormat,
                     nsharpNative.nsharpLib.iwdir((float) p_mb),
-                    nsharpNative.nsharpLib.iwspd((float) p_mb), p_mb, htFt,
-                    htM, relh);
+                    nsharpNative.nsharpLib.iwspd((float) p_mb), p_mb, htFtStr,
+                    htMStr, relh);
         } else {
-            curStrFormat = "%4.0f/%.0fkt %4.0fmb  %5.0fft/%.0fm agl\n";
+            curStrFormat = "%4.0f/%.0fkt %4.0fmb  %sft/%sm agl\n";
             curStr = String
                     .format(curStrFormat,
                             nsharpNative.nsharpLib.iwdir((float) p_mb),
                             nsharpNative.nsharpLib.iwspd((float) p_mb), p_mb,
-                            htFt, htM);
+                            htFtStr, htMStr);
         }
         /*
          * curStrFormat1 = "%s/%s %4.1f/%4.1f%cC  %4.0f/%.0f kt\n"; curStr1 =
@@ -2695,11 +2705,11 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
         // Chin 08/04/2014, fixed surface height plotting bug
         // also fixed to draw height mraker based on AGL (i.e. above surface
         // level)
-        int sfcIndex = nsharpNative.nsharpLib.sfc();
+        int sfcIndex = 0; ////DR#17084 nnsharpNative.nsharpLib.sfc();
         int sfcAsl = 0;
-        if (sfcIndex >= 0
-                && sfcIndex < soundingLys.size()
-                && soundingLys.get(sfcIndex).getGeoHeight() != NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA) {
+        if (//DR#17084 sfcIndex >= 0
+        		//DR#17084    && sfcIndex < soundingLys.size()
+            soundingLys.get(sfcIndex).getGeoHeight() != NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA) {
             double y = world.mapY(NsharpWxMath.getSkewTXY(
                     soundingLys.get(sfcIndex).getPressure(), 0).y);
             try {
