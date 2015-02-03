@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.core.datastructure.LoopProperties;
  * Jan 20, 2014  2312     bsteffen    Initial creation
  * Mar 10, 2014  2867     bsteffen    Better frame range validation.
  * Oct 28, 2014  3767     bsteffen    Change default name to screenCapture.png
+ * Dec 4, 2014   DR16713  jgerth      Support for date/time selection
  * 
  * </pre>
  * 
@@ -46,6 +47,10 @@ import com.raytheon.uf.viz.core.datastructure.LoopProperties;
  */
 
 public class ImageExportOptions {
+
+    public static enum DateTimeSelection {
+        DATETIME, SEQUENTIAL;
+    }
 
     public static enum FrameSelection {
         ALL, CURRENT, USER;
@@ -86,6 +91,8 @@ public class ImageExportOptions {
 
     private FrameSelection frameSelection = FrameSelection.CURRENT;
 
+    private DateTimeSelection dateTimeSelection = DateTimeSelection.SEQUENTIAL;
+
     private int firstFrameIndex = 0;
 
     private int lastFrameIndex = 0;
@@ -117,6 +124,14 @@ public class ImageExportOptions {
 
     public void setImageFormat(ImageFormat imageFormat) {
         this.imageFormat = imageFormat;
+    }
+
+    public DateTimeSelection getDateTimeSelection() {
+        return dateTimeSelection;
+    }
+
+    public void setDateTimeSelection(DateTimeSelection dts) {
+        this.dateTimeSelection = dts;
     }
 
     public FrameSelection getFrameSelection() {
