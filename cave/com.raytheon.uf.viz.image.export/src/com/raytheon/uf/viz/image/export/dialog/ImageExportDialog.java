@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.image.export.options.ImageExportOptions;
+import com.raytheon.uf.viz.image.export.options.ImageExportOptions.DateTimeSelection;
 import com.raytheon.uf.viz.image.export.options.ImageExportOptions.FrameSelection;
 import com.raytheon.uf.viz.image.export.options.ImageExportOptions.ImageFormat;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -56,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 10, 2014  2867     bsteffen    Better frame range validation.
  * Oct 28, 2014  3767     bsteffen    Automatically change filename if selected
  *                                    format does not support all options.
+ * Dec 4, 2014   DR16713  jgerth      Support for date/time selection
  * 
  * </pre>
  * 
@@ -68,6 +70,8 @@ public class ImageExportDialog extends CaveSWTDialog {
     protected ImageExportOptions options;
 
     protected Text locationText;
+
+    protected Button datetimeButton;
 
     protected Button selectedFramesButton;
 
@@ -134,6 +138,13 @@ public class ImageExportDialog extends CaveSWTDialog {
                 selectDestinationFile();
             }
         });
+        datetimeButton = new Button(group, SWT.CHECK);
+        datetimeButton.setLayoutData(gridData);
+        datetimeButton.setText("Include date and time in file name");
+        datetimeButton
+                .setSelection(options.getDateTimeSelection() == DateTimeSelection.DATETIME);
+        datetimeButton
+                .setToolTipText("Append the date and time to the file name when Animate is not selected.");
     }
 
     protected void initializeFramesGroup(Group group) {
@@ -211,6 +222,9 @@ public class ImageExportDialog extends CaveSWTDialog {
                 frameDelayText.setEnabled(animatedButton.getSelection());
                 firstFrameDwellText.setEnabled(animatedButton.getSelection());
                 lastFrameDwellText.setEnabled(animatedButton.getSelection());
+
+                datetimeButton.setEnabled(!animatedButton.getSelection());
+                datetimeButton.setSelection(false);
             }
         });
         gridData = new GridData();
@@ -363,6 +377,9 @@ public class ImageExportDialog extends CaveSWTDialog {
             }
         } else {
             options.setImageFormat(ImageFormat.SEQUENCE);
+        }
+        if (datetimeButton.getSelection()) {
+            options.setDateTimeSelection(DateTimeSelection.DATETIME);
         }
         if (validate()) {
             setReturnValue(options);
