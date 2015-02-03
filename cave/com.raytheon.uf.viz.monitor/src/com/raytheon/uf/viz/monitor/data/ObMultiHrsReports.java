@@ -55,7 +55,9 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Jan 25, 2010  4281, 3888, 3877 wkwock/zhao added getHistTableData method
  * Oct.31, 2012  1297       skorolev    Clean code.
  * Jan.29, 2013 15654       zhao       add Wind Chill calculation for SNOW 
- * Jan 27, 2015  3220       skorolev   Updated getStationTableData method.Replaced MonitoringArea with cfgMgr.Added multiHrsTabData - Table data cache.
+ * Jan 27, 2015  3220       skorolev   Updated getStationTableData method.Replaced MonitoringArea with cfgMgr.
+ *                                     Added multiHrsTabData - Table data cache.
+ * Feb 04, 2015  3841       skorolev   Corrected getEmptyZoneTableData method.
  * 
  * </pre>
  * 
@@ -245,6 +247,8 @@ public class ObMultiHrsReports {
         } else {
             tabData = hourReports.getZoneTableData();
         }
+        // update data cache
+        multiHrsReports.put(nominalTime, hourReports);
         // update cache with empty table data
         if (multiHrsTabData.replace(nominalTime, tabData) == null) {
             multiHrsTabData.put(nominalTime, tabData);
