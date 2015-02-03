@@ -3,16 +3,35 @@
 	<contribute xsi:type="subMenu" menuText="${icao}"
 		id="${icao}RadarASR11UnitStatus">
 		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
-			menuText="${icao} Z" id="${icao}ASR11Reflectivity\">
+			menuText="Reflectivity (Z)" id="${icao}ASR11Reflectivity\">
 			<substitute key="icao" value="${icao}" />
 			<substitute key="product" value="550" />
 			<substitute key="elevation" value="0.0--360.0" />
 		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="One Hour Precip (OHP)" id="${icao}ASR11OneHourPrecipOHP">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="78" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="Storm Total Precip (STP)" id="${icao}ASR11StormTotalPrecipSTP">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="80" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="Hybrid Scan Refl (DHR)" id="${icao}ASR11HybridScanReflDHR">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="32" />
+			<substitute key="elevation" value="0.0--0.0" />
+		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarXY.xml"
-			id="${icao}ASR11UnitStatus" editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor" menuText="ASR-11 Unit Status">
+			id="${icao}ASR11UnitStatus" editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor"
+			menuText="ASR-11 Unit Status">
 			<substitute key="icao" value="${icao}" />
 			<substitute key="product" value="2" />
-			<substitute key="insetMap" value="false"/>
+			<substitute key="insetMap" value="false" />
 		</contribute>
 	</contribute>
 </menuTemplate>
