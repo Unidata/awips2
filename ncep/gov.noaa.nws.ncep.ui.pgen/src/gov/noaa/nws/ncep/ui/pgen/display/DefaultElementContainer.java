@@ -74,8 +74,13 @@ public class DefaultElementContainer extends AbstractElementContainer {
          * the active layer so DiaplayProperties' "filled" should be true while
          * "monoColor" should be false (using the element's color).
          */
-        if (needsCreate && dprops == null) {
+        if (dprops == null) {
             dprops = new DisplayProperties(false, null, true);
+        }
+
+        if (needsCreate) {
+            dprops.setLayerMonoColor(false);
+            dprops.setLayerFilled(true);
         }
 
         // For normal drawing........
