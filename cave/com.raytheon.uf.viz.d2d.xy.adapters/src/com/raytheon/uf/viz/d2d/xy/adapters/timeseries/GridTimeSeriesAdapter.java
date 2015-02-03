@@ -68,6 +68,7 @@ import com.raytheon.viz.core.graphing.xy.XYWindImageData;
  * May 07, 2010           bsteffen    Initial creation
  * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * Jun 18, 2014  3242     njensen     Overrode getEnsembleId()
+ * Nov 19, 2014  5056     jing        Added get arbitrary record
  * 
  * </pre>
  * 
@@ -324,7 +325,7 @@ public class GridTimeSeriesAdapter extends
                     dataPoint = new XYData(time, value);
                 }
             }
-            if (dataPoint != null){
+            if (dataPoint != null) {
                 data.add(dataPoint);
             }
         }
@@ -355,5 +356,21 @@ public class GridTimeSeriesAdapter extends
     @Override
     public String getEnsembleId() {
         return ensembleId;
+    }
+
+    /**
+     * This method gets an arbitrary record from the cache.
+     * 
+     * @return - A grid record.
+     */
+    public GridRecord getArbitraryRecord() {
+
+        synchronized (cache) {
+            if (cache.keySet().isEmpty()) {
+                return null;
+            } else {
+                return (GridRecord) cache.keySet().toArray()[0];
+            }
+        }
     }
 }
