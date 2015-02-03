@@ -337,7 +337,7 @@ public class SaveBestEstimate {
             Rwresult pRWResultNode = pRWResultHead.get(0);
 
             /* Update the elements in the RWResult node. */
-            pRWResultNode.setMapxFieldType(fldtype);
+            pRWResultNode.setMapxFieldType(fldtype.toLowerCase());
             pRWResultNode.setAutoSave(asave);
             pRWResultNode.setDrawPrecip(drpr);
             pRWResultNode.setLastSaveTime(SimulatedTime.getSystemTime()
