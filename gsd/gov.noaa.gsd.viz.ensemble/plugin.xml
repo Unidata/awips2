@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="gov.noaa.gsd.viz.ensemble.activate.layer"
+            name="Ensemble Tool">
+      </command>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="gov.noaa.gsd.viz.ensemble.navigator.action.EnsembleToolLayerManagerAction"
+            commandId="gov.noaa.gsd.viz.ensemble.activate.layer">
+      </handler>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+
+<!--
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar id="ensemblesToolbar">
+            <visibleWhen>
+                <reference
+                    definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+            </visibleWhen>
+            <command
+                  commandId="gov.noaa.gsd.viz.ensemble.activate.layer"
+                  icon="icons/EnsembleTool.gif"
+                  id="gov.noaa.gsd.viz.ensemble.tool.viewer"
+                  label="Ensemble Tool"
+                  style="push"
+                  tooltip="Ensemble Tool">                  
+            </command>
+             <separator
+                   name="gov.noaa.gsd.viz.ensemble.separator_post"
+                   visible="true">
+             </separator>
+          </toolbar>
+      </menuContribution>
+-->
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:tools">
+         <command
+               commandId="gov.noaa.gsd.viz.ensemble.activate.layer"
+               style="push">
+         </command>
+      </menuContribution>
+         
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            class="gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer"
+            fastViewWidthRatio="0.26"
+            icon="icons/ensemble-tool-3.gif"
+            id="gov.noaa.gsd.viz.ensemble.tool.viewer"
+            name="Ensemble Tool"
+            restorable="false">
+      </view>
+   </extension>
+   <extension
+         point="com.raytheon.viz.ui.displayCustomizer">
+      <displayCustomizer
+            customizer="gov.noaa.gsd.viz.ensemble.display.control.EnsembleToolDisplayCustomizer"
+            perspective="D2D">
+      </displayCustomizer>
+   </extension>
+
+</plugin>
