@@ -133,6 +133,8 @@ logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "E
 # Apr 28, 2014  3084     bsteffen    Use full grid for looking up parameter aliases.
 # Aug 15, 2014  15699    MPorricelli Import GridUtil and update reference 
 #                                    to GRID_FILL_VALUE 
+# Dec 15, 2014  DR16509  Matt Foster Changes in _decodePdsSection to accommodate
+#                                    EKDMOS
 #
 class GribDecoder():
 
@@ -565,17 +567,23 @@ class GribDecoder():
                 #numMissingValues = pdsTemplate[22]
                 #statisticalProcess = pdsTemplate[23]
 
-            elif pdsTemplateNumber == 10:
+            elif pdsTemplateNumber == 6 or pdsTemplateNumber == 10:
+                # pdsTemplate 6 and 10 are used for percentile-based variables
+                # 6 is for instantaneous variables, 10 is for those that span
+                # a time range
                 parameterAbbreviation = parameterAbbreviation + str(pdsTemplate[15]) + "pct"
                 gribDict['parameterName'] = str(pdsTemplate[15]) +"th percentile " + gribDict['parameterName']
-                gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 16)
-
-                #numTimeRanges = pdsTemplate[22]
-                #numMissingValues = pdsTemplate[23]
-                #statisticalProcess = pdsTemplate[24]
                 
-                typeOfTimeInterval = pdsTemplate[25]
-                durationSecs =  self._convertToSeconds(pdsTemplate[27], pdsTemplate[26])
+                if pdsTemplateNumber == 10:
+                    # Add time range information for pdsTemplate 10
+                    gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 16)
+    
+                    #numTimeRanges = pdsTemplate[22]
+                    #numMissingValues = pdsTemplate[23]
+                    #statisticalProcess = pdsTemplate[24]
+                    
+                    typeOfTimeInterval = pdsTemplate[25]
+                    durationSecs =  self._convertToSeconds(pdsTemplate[27], pdsTemplate[26])
                 
 
             if durationSecs is not None:

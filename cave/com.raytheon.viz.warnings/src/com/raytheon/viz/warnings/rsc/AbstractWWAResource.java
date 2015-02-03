@@ -87,6 +87,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Mar 10, 2014   2832   njensen        Moved duplicated subclass's disposeInternal() logic here
  * Aug 14, 2014   3523   mapeters       Updated deprecated {@link DrawableString#textStyle} 
  *                                      assignments.
+ * Dec 5, 2014   DR14944 jgerth         Only set outline width when there is no existing capability
  * 
  * </pre>
  * 
@@ -177,7 +178,9 @@ public abstract class AbstractWWAResource extends
         super(data, props);
         this.recordsToLoad = new ArrayList<AbstractWarningRecord>();
         resourceData.addChangeListener(this);
-        getCapability(OutlineCapability.class).setOutlineWidth(2);
+        if (!hasCapability(OutlineCapability.class)) {
+            getCapability(OutlineCapability.class).setOutlineWidth(2);
+        }
         color = getCapability((ColorableCapability.class)).getColor();
         this.entryMap = new ConcurrentHashMap<String, WarningEntry>();
     }
