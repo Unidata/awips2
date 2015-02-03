@@ -2055,7 +2055,7 @@ ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
 
 # GFSLAMPGrid
-parmsGFSLAMPGrid=[([Temp, Td, serverConfig.Vis, ClgHgt],TC1)]
+GFSLAMPGridPARMS=[([Temp, Td, Vis, ClgHgt],TC1)]
 
 #---------------------------------------------------------------------------
 # Databases for a site.
