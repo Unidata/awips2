@@ -56,7 +56,9 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Nov 10, 2012 1297       skorolev     Added initiateProdArray
  * Dec 7,  2012 1351       skorolev     Changes for non-blocking dialogs.
  * Apr 28, 2014 3086       skorolev     Updated getConfigMgr method.
- * Jan 27, 2015 3220       skorolev     Removed "site". Added check on dispose.Corrected configMgr assignment.Added table cache update.
+ * Jan 27, 2015 3220       skorolev     Removed "site". Added check on dispose.Corrected configMgr assignment.
+ *                                      Added table cache update.
+ * Feb 04, 2015 3841       skorolev     Corrected notify method for empty table update.
  * 
  * </pre>
  * 
@@ -153,10 +155,10 @@ public class SSZoneTableDlg extends ZoneTableDlg {
 
         if (me.getSource() instanceof SafeSeasMonitor) {
             SafeSeasMonitor monitor = (SafeSeasMonitor) me.getSource();
+            ObMultiHrsReports obData = monitor.getObData();
             Date date = monitor.getDialogTime();
             if (date != null) {
                 Date nominalTime = date;
-                ObMultiHrsReports obData = monitor.getObData();
                 if (!isLinkedToFrame()) {
                     nominalTime = obData.getLatestNominalTime();
                 }
@@ -165,6 +167,8 @@ public class SSZoneTableDlg extends ZoneTableDlg {
                 obData.setFogAlgCellType(monitor.getAlgCellTypes(fogAlgThreats));
                 this.updateTableDlg(monitor.getObData().getObHourReports(
                         nominalTime));
+            } else {
+                this.updateZoneTable(obData.getLatestNominalTime());
             }
         }
     }
