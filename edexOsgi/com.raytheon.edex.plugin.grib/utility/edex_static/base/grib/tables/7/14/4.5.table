@@ -13,7 +13,7 @@
 212:212:Low Cloud Bottom Level::LCBL
 213:213:Low Cloud Top Level::LCTL
 214:214:Low Cloud Layer::LCLY
-215:215:Cloud Ceiling::CEIL
+215:215:Cloud Ceiling::CLG
 220:220:Planetary Boundary Layer:: PLBL 	
 221:221:Layer Between Two Hybrid Levels::NONE
 222:222:Middle Cloud Bottom Level::MCBL
