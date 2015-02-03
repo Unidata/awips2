@@ -131,6 +131,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 28, 2014  2791     bsteffen    Switch all data to use data source.
  * Aug 21, 2014  DR 17313 jgerth      Implements ImageProvider
  * Oct 07, 2014  3668     bclement    Renamed requestJob to requestRunner
+ * Dec 09, 2014  5056     jing        Added data access interfaces
  * 
  * </pre>
  * 
@@ -150,7 +151,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     private static final double VECTOR_DENSITY_FACTOR = 1.875;
 
     private static final int IMAGE_TILE_SIZE = 1024;
-    
+
     public static final String INTERROGATE_VALUE = "value";
 
     public static final String INTERROGATE_UNIT = "unit";
@@ -643,7 +644,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     public abstract List<GeneralGridData> getData(DataTime time,
             List<PluginDataObject> pdos) throws VizException;
 
-    protected List<GeneralGridData> requestData(DataTime time) {
+    public List<GeneralGridData> requestData(DataTime time) {
         synchronized (requestRunner) {
             List<GeneralGridData> data = this.dataMap.get(time);
             if (data == null) {
@@ -968,25 +969,29 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         return new ArrayList<PluginDataObject>(list);
     }
 
-    public Collection<DrawableImage> getImages(IGraphicsTarget target, PaintProperties paintProps) throws VizException {
+    public Collection<DrawableImage> getImages(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
         if (getCapability(DisplayTypeCapability.class).getDisplayType() != DisplayType.IMAGE) {
-            throw new VizException("Grid resource not configured for image rendering");
+            throw new VizException(
+                    "Grid resource not configured for image rendering");
         }
-        Collection<IRenderable> renderables = getOrCreateRenderables(target, paintProps);
+        Collection<IRenderable> renderables = getOrCreateRenderables(target,
+                paintProps);
         if (renderables.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<DrawableImage> images = new ArrayList<DrawableImage>();
         for (IRenderable renderable : renderables) {
-            images.addAll(((TileSetRenderable)renderable).getImagesToRender(target, paintProps));
+            images.addAll(((TileSetRenderable) renderable).getImagesToRender(
+                    target, paintProps));
         }
         return images;
     }
 
     protected Collection<IRenderable> getOrCreateRenderables(
             IGraphicsTarget target, PaintProperties paintProps)
-                    throws VizException {
+            throws VizException {
         DataTime time = paintProps.getDataTime();
         if (time == null) {
             time = getTimeForResource();
