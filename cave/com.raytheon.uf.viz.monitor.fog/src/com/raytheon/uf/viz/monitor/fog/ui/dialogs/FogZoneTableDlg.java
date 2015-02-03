@@ -58,8 +58,9 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Dec 03, 2012 15216/15639 zhao fixed a bug related to Link-to-Frame 
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs.
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
- * Jan 27, 2015 3220       skorolev    Removed "site".Added check on dispose.Corrected configMgr assignment.Added table cache update.
- * 
+ * Jan 27, 2015 3220       skorolev    Removed "site".Added check on dispose.Corrected configMgr assignment.
+ *                                     Added table cache update.
+ * Feb 04, 2015 3841       skorolev    Corrected notify method for empty table update.
  * </pre>
  * 
  * @author ?
@@ -148,12 +149,11 @@ public class FogZoneTableDlg extends ZoneTableDlg {
         // The algorithm output.
 
         if (me.getSource() instanceof FogMonitor) {
-
             FogMonitor fog = (FogMonitor) me.getSource();
+            ObMultiHrsReports obData = fog.getObData();
             Date date = fog.getDialogTime();
             if (date != null) {
                 Date nominalTime = date;
-                ObMultiHrsReports obData = fog.getObData();
                 if (!isLinkedToFrame()) {
                     nominalTime = obData.getLatestNominalTime();
                 }
@@ -162,6 +162,8 @@ public class FogZoneTableDlg extends ZoneTableDlg {
                         .getAlgorithmData(nominalTime));
                 obData.setFogAlgCellType(fogAlgCellType);
                 this.updateTableDlg(obData.getObHourReports(nominalTime));
+            } else {
+                this.updateZoneTable(obData.getLatestNominalTime());
             }
         }
     }
