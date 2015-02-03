@@ -8,5 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.6",
  com.raytheon.uf.viz.drawing;bundle-version="1.14.0",
  com.raytheon.uf.common.time;bundle-version="1.14.0",
- com.raytheon.uf.common.geospatial;bundle-version="1.14.2"
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.2",
+ com.raytheon.uf.common.json;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.viz.damagepath
