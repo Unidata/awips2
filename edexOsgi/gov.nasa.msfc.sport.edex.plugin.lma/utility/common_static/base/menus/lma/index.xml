@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuContributionFile>
+
+     <include installTo="menu:obs?after=LIGHTNINGPLACEHOLDER"
+             fileName="menus/lma/lma.xml"/>
+
+</menuContributionFile>
