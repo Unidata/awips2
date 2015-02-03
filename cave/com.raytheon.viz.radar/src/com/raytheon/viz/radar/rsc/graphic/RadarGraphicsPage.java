@@ -41,6 +41,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.HdaHailPacket.HdaHailPoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVector;
+import com.raytheon.uf.common.dataplugin.radar.level3.MBAPacket.MBAAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.MesocyclonePacket.MesocyclonePoint;
 import com.raytheon.uf.common.dataplugin.radar.level3.SCITDataPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.SCITDataPacket.SCITDataCell;
@@ -107,6 +108,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Aug 11, 2014  3504     mapeters    Replaced deprecated IODataPreparer
  *                                    instances with IRenderedImageCallback.
  * Sep 03, 2014  3574     njensen      Properly dispose objects
+ * Nov 06, 2014  16776    zwang        Handle AMDA product MBA
  * 
  * </pre>
  * 
@@ -441,6 +443,15 @@ public class RadarGraphicsPage implements IRenderable {
                             images.addAll(gfmImages);
                             stormData.setVisible(true);
                         }
+                    }
+                }
+                // MBA
+                else if (type == 196) {
+                    // Handle each Feature in the MBA Packet
+                    for (GenericDataComponent currComponent : stormData
+                            .getDisplayGenericPointData().get(type).values()) {
+                        // Handle Graphic portion
+                        drawMbaImage(currComponent);
                     }
                 }
             }
@@ -973,6 +984,50 @@ public class RadarGraphicsPage implements IRenderable {
         return images;
     }
 
+    // Handle MBA product
+    private void drawMbaImage(GenericDataComponent currPt)
+            throws VizException {
+ 
+        double x, y;
+        Coordinate point;
+
+        // Determine if the feature should be rendered
+        RadarDisplayControls currentSettings = RadarDisplayManager
+                .getInstance().getCurrentSettings();
+        
+        AreaComponent currFeature = (AreaComponent) currPt;
+        String cat = currFeature.getValue(MBAAttributeIDs.CATEGORY
+                .getName());
+        int catValue = cat.equals("") ? 0 : Integer.parseInt(cat);
+
+        // By default, do not show MBA Wind Shear
+        int minCat = 1;
+        if (currentSettings.isMbaShowWindShear())
+            minCat = 0;
+        
+        if (catValue >= minCat) {
+        
+            int numPoints = currFeature.getPoints().size();
+            Coordinate[] points = new Coordinate[numPoints];
+
+            // Draw Microburst cell
+            try {
+                for (int k = 0; k < numPoints; k++) {
+                    x = currFeature.getPoints().get(k).getCoordinate1();
+                    y = currFeature.getPoints().get(k).getCoordinate2();
+                    // convert xy to latlon
+                    point = referencedGfmCoord(x, y).asLatLon();
+                    points[k] = point;
+                }
+                wireframeShape.addLineSegment(points);
+            } catch (TransformException e) {
+                throw new VizException(e);
+            } catch (FactoryException e) {
+                throw new VizException(e);
+            }
+        }
+    }
+    
     private PlotObject getImage(HdaHailPoint currPt) throws VizException {
         PlotObject image = null;
 
