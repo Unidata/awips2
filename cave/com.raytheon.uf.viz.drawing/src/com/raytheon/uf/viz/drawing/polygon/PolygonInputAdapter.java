@@ -130,13 +130,14 @@ public class PolygonInputAdapter extends RscInputAdapter<PolygonLayer<?>> {
                 // user done dragging
                 blockOtherHandlers = isDragging();
                 if (draggedVertexIndex > -1) {
-                    dragVertex(draggedVertexIndex, x, y);
+                    int index = draggedVertexIndex;
                     draggedVertexIndex = -1;
+                    dragVertex(index, x, y);
                 } else if (draggingPolygon) {
                     int diffX = x - lastX;
                     int diffY = y - lastY;
-                    dragPolygon(diffX, diffY);
                     draggingPolygon = false;
+                    dragPolygon(diffX, diffY);
                 }
             }
         }
@@ -175,9 +176,9 @@ public class PolygonInputAdapter extends RscInputAdapter<PolygonLayer<?>> {
     /**
      * Checks if there is some kind of dragging operation related to the polygon
      * 
-     * @return
+     * @return if there is some kind of dragging operation currently going on
      */
-    protected boolean isDragging() {
+    public boolean isDragging() {
         return (draggedVertexIndex > -1 || draggingPolygon);
     }
 

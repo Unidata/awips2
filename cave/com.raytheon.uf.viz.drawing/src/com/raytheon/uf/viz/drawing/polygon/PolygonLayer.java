@@ -173,7 +173,6 @@ public class PolygonLayer<T extends AbstractResourceData> extends
      * @param coords
      */
     public void resetPolygon(Coordinate[] coords) {
-
         synchronized (shapeLock) {
             if (coords != null) {
                 polygon = PolygonUtil.FACTORY.createPolygon(coords);
