@@ -352,4 +352,15 @@
 			</list>
 		</constructor-arg>
 	</bean>
+    
+    <bean factory-bean="radarPacketFactory" factory-method="registerGenericPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.MBAPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>196</value>
+            </list>
+        </constructor-arg>
+    </bean>	
 </beans>
