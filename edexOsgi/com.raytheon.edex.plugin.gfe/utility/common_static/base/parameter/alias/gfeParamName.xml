@@ -7,6 +7,7 @@
   Jul 03, 2013    #2044    randerso    Removed mappings from tpXXX to tp_XXX for RFCQPF
   Mar 31, 2014    #2934    dgilling    Updated params for pSurge2.0/PHISH data.
   Jul 03, 2014  DR 14068   mfoster     Added parameters for 3km AK-RTMA
+  Dec 15, 2014  DR 14024   jwatson     Added parameters for 2.5km GFSLAMPGrid
  -->
 <aliasList caseSensitive="true" namespace="gfeParamName">
     <alias base="AV">av</alias>
@@ -132,6 +133,8 @@
     <alias base="Cigc1">cigc1</alias>
     <alias base="Cigc2">cigc2</alias>
     <alias base="Cigc3">cigc3</alias>
+    <alias base="CLGTN">clgtn</alias>
+    <alias base="CONVP">convp</alias>
     <alias base="CP2hr">cp2hr</alias>
     <alias base="CPVV">cpvv</alias>
     <alias base="CRAINc1">crainc1</alias>
@@ -221,6 +224,8 @@
     <alias base="Prob34">prob34</alias>
     <alias base="Prob50">prob50</alias>
     <alias base="Prob64">prob64</alias>
+    <alias base="PROCON">procon</alias>
+    <alias base="PROLGHT">prolght</alias>
     <alias base="PTAM">ptam</alias>
     <alias base="PTAN">ptan</alias>
     <alias base="PTA">pta</alias>
