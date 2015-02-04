@@ -99,6 +99,10 @@ public class PolygonLayer<T extends AbstractResourceData> extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        if (polygon == null) {
+            return;
+        }
+
         // prepare to create lines of the polygon
         LinearRing ring = (LinearRing) polygon.getExteriorRing();
         Coordinate[] c = polygon.getCoordinates();
