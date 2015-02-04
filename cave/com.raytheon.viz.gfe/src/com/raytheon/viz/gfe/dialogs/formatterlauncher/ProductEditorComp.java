@@ -163,6 +163,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 12/01/2014  #624        zhao        Modified saveFile()
  * 12/16/2014  #14946      ryu         Modified updateIssueExpireTimes() so issuance time is displayed
  *                                     for the local time zones for each segment.
+ * 02/04/2014  17039       ryu         Removed menu item related to the HighlighFramingCodes feature.
  * 
  * </pre>
  * 
@@ -280,8 +281,6 @@ public class ProductEditorComp extends Composite implements
     private Spinner hoursSpnr;
 
     private MenuItem autoWrapMI;
-
-    private MenuItem framingCodeMI;
 
     /**
      * Date & time formatter.
@@ -874,20 +873,6 @@ public class ProductEditorComp extends Composite implements
                 wrapMode = !wrapMode;
                 textComp.setAutoWrapMode(wrapMode);
             }
-        });
-
-        framingCodeMI = new MenuItem(menuToAddTo, SWT.CHECK);
-        framingCodeMI.setText("Highlight Framing Codes");
-        framingCodeMI.setSelection(Activator.getDefault().getPreferenceStore()
-                .getBoolean("HighlightFramingCodes"));
-        framingCodeMI.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                textComp.setFramingCodeState(framingCodeMI.getSelection());
-                textComp.reParse();
-            }
-
         });
 
         MenuItem wrapLengthMI = new MenuItem(menuToAddTo, SWT.PUSH);
