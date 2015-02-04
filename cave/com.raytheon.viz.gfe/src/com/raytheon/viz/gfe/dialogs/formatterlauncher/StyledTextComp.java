@@ -41,7 +41,6 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
@@ -84,6 +83,8 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 29 AUG 2013  #2250      dgilling    Better error handling for parseProductText().
  * 04 SEP 2013  16534      ryu         Fixed word wrap to not insert duplicate text; refactor.
  * 20 DEC 2013  16854      ryu         Force re-parsing of text on type change.
+ * 04 FEB 2015  17039      ryu         Removed HighlightFramingCodes feature which prevented 
+ *                                     editing of framing codes.
  * 
  * </pre>
  * 
@@ -147,9 +148,6 @@ public class StyledTextComp extends Composite {
      * Mouse listener.
      */
     private Listener mouseListener;
-
-    private boolean highlight = Activator.getDefault().getPreferenceStore()
-            .getBoolean("HighlightFramingCodes");
 
     private boolean newProduct = false;
 
@@ -275,13 +273,6 @@ public class StyledTextComp extends Composite {
         textEditorST.setLayoutData(gd);
         textEditorST.setBackground(bgColor);
         textEditorST.setForeground(fgColor);
-
-        textEditorST.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent ke) {
-                handleKeyRelease(ke);
-            }
-        });
 
         textEditorST.addVerifyListener(new VerifyListener() {
             @Override
@@ -790,27 +781,6 @@ public class StyledTextComp extends Composite {
     }
 
     /**
-     * Handle the key event when a key is released.
-     * 
-     * @param ke
-     *            Key event.
-     */
-    private void handleKeyRelease(KeyEvent ke) {
-        int offset = textEditorST.getCaretOffset();
-
-        StyleRange[] srArray = textEditorST.getStyleRanges(true);
-
-        for (int i = 0; i < srArray.length; i++) {
-            if (srArray[i].start <= offset
-                    && offset <= srArray[i].start + srArray[i].length) {
-                if (srArray[i].foreground == frameColor) {
-                    inFramingCode(srArray[i]);
-                }
-            }
-        }
-    }
-
-    /**
      * Check if there is selected text and if there is locked text in the
      * selected text.
      * 
@@ -849,18 +819,6 @@ public class StyledTextComp extends Composite {
     }
 
     /**
-     * Select the framing code and the text contained in the framing code.
-     * 
-     * @param sr
-     *            StyleRange.
-     */
-    private void inFramingCode(StyleRange sr) {
-        if (highlight) {
-            textEditorST.setSelection(sr.start, sr.start + sr.length);
-        }
-    }
-
-    /**
      * Check if the key being pressed is a "non-edit" key.
      * 
      * @param event
@@ -888,8 +846,6 @@ public class StyledTextComp extends Composite {
             public void handleEvent(Event e) {
                 if (e.type == SWT.MouseDown) {
                     handleMouseDown(e);
-                } else if (e.type == SWT.MouseUp) {
-                    handleMouseUp(e);
                 }
             }
         };
@@ -928,33 +884,6 @@ public class StyledTextComp extends Composite {
                 }
             }
         }
-    }
-
-    /**
-     * Handle the mouse up event
-     * 
-     * @param e
-     *            Event fired.
-     */
-    private void handleMouseUp(Event e) {
-        if (e.button == 1) {
-            int offset = textEditorST.getCaretOffset();
-
-            StyleRange[] sr = textEditorST.getStyleRanges(true);
-
-            for (int i = 0; i < sr.length; i++) {
-                if (sr[i].start <= offset
-                        && offset <= sr[i].start + sr[i].length) {
-                    if (sr[i].foreground == frameColor) {
-                        inFramingCode(sr[i]);
-                    }
-                }
-            }
-        }
-    }
-
-    public void setFramingCodeState(boolean highlight) {
-        this.highlight = highlight;
     }
 
     /**
