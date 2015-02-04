@@ -253,7 +253,7 @@ public class NdmMenuConverter {
         for (String line : productButtonKeys) {
             line = line.trim();
             // Skip comment lines
-            if (line.startsWith("#")) {
+            if (line.startsWith("#") || line.trim().length() == 0) {
                 continue;
             }
 
@@ -276,7 +276,7 @@ public class NdmMenuConverter {
         for (String line : dataKeys) {
             line = line.trim();
             // Skip comment lines
-            if (line.startsWith("#")) {
+            if (line.startsWith("#") || line.trim().length() == 0) {
                 continue;
             }
             String[] parts = line.split("\\|");
