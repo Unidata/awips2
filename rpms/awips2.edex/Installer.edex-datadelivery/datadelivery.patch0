@@ -1,5 +1,5 @@
-*** Installer.edex-component/component.spec	2015-02-02 15:31:30.696998251 -0600
---- Installer.edex-datadelivery/component.spec	2015-02-02 15:35:06.923609297 -0600
+*** Installer.edex-component/component.spec	2015-02-03 16:00:27.487303049 -0600
+--- Installer.edex-datadelivery/component.spec	2015-02-03 17:49:00.775069314 -0600
 ***************
 *** 6,13 ****
   %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
@@ -37,7 +37,7 @@
   requires: awips2-edex-base
   requires: awips2-python
 ***************
-*** 47,59 ****
+*** 47,56 ****
   if [ $? -ne 0 ]; then
      exit 1
   fi
@@ -48,10 +48,7 @@
   if [ $? -ne 0 ]; then
      exit 1
   fi
-  
-  #create a list of all files packaged for /awips2/edex/data/utility
-  UTILITY=/awips2/edex/data/utility
---- 47,77 ----
+--- 47,85 ----
   if [ $? -ne 0 ]; then
      exit 1
   fi
@@ -72,17 +69,25 @@
 + EDEX_DATADELIVERY="${INSTALLER_RPM}/awips2.edex/Installer.edex-datadelivery"
 + cp -v ${EDEX_DATADELIVERY}/scripts/init.d/* \
 +    %{_build_root}/etc/init.d
-  if [ $? -ne 0 ]; then
-     exit 1
-  fi
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
 + # rename the script to prevent naming conflicts during installation
 + pushd . > /dev/null 2>&1
 + cd %{_build_root}/etc/init.d
 + mv edexServiceList edexServiceList-datadelivery
 + popd > /dev/null 2>&1
-  
-  #create a list of all files packaged for /awips2/edex/data/utility
-  UTILITY=/awips2/edex/data/utility
++ 
++ #add central registry script
++ mkdir -p %{_build_root}/awips2/edex/bin/
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
++ 
++ cp -v %{_baseline_workspace}/deploy.edex-Data_Delivery/esb/bin/centralRegistryProviderCredentials.sh %{_build_root}/awips2/edex/bin/
+  if [ $? -ne 0 ]; then
+     exit 1
+  fi
 ***************
 *** 64,70 ****
   
@@ -92,7 +97,7 @@
   
   #change date stamp of utility files
   UTILITY=/awips2/edex/data/utility
---- 82,98 ----
+--- 93,109 ----
   
   %pre
   %post
@@ -112,7 +117,7 @@
   UTILITY=/awips2/edex/data/utility
 ***************
 *** 78,83 ****
---- 106,122 ----
+--- 117,133 ----
   fi
   
   %preun
@@ -132,9 +137,11 @@
   %clean
 ***************
 *** 88,90 ****
---- 127,131 ----
+--- 138,144 ----
   %dir /awips2
   %dir /awips2/edex
   /awips2/edex/*
++ %dir /awips2/edex/bin
++ %attr(744, -, -) /awips2/edex/bin/centralRegistryProviderCredentials.sh
 + 
 + %attr(744,root,root) /etc/init.d/*
