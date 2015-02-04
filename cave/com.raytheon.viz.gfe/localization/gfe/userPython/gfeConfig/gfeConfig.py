@@ -32,6 +32,7 @@
 #    11/20/2013      2488          randerso       Changed to use DejaVu fonts
 #    05/28/2014      2841          randerso       Added separate configurable limits for
 #                                                 text formatter and product script tasks
+#    02/04/2015      17039         ryu            Removed HighlightFramingCodes setting.
 
 GFESUITE_HOME = "/awips2/GFESuite"
 GFESUITE_PRDDIR = "/tmp/products"
@@ -758,10 +759,6 @@ QPF_SetValue_zoom = 10
 # either "Gaps" or "Edited", which refer to "By Gaps" and "Based on
 # Edited Data" on the dialog.  The default if not specified is "By Gaps".
 #InterpolateDialogMode = "Gaps"
-
-# In Formatter Launcher, whether to highlight framing codes and the
-# text enclosed by them in the text editor component.
-HighlightFramingCodes = no
 
 
 #------------------------------------------------------------------------
