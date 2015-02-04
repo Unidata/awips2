@@ -20,6 +20,12 @@
 package com.raytheon.uf.viz.damagepath;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.json.geo.GeoJsonUtil;
 import com.raytheon.uf.common.json.geo.GeoJsonUtilSimpleImpl;
@@ -69,6 +75,30 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
     private static final String PATH = DIR + IPathManager.SEPARATOR + FILE;
 
+    /*
+     * TODO: If we support multiple polygons in the future then the jobs will
+     * need to be smart enough to load/save different files.
+     */
+    private final Job loadJob = new Job("Loading Damage Path") {
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            LocalizationFile prevFile = getDamagePathFile();
+            if (prevFile.exists()) {
+                loadDamagePath(prevFile);
+            }
+            return Status.OK_STATUS;
+        }
+    };
+
+    private final Job saveJob = new Job("Saving Damage Path") {
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            LocalizationFile file = getDamagePathFile();
+            saveDamagePath(file);
+            return Status.OK_STATUS;
+        }
+    };
+
     public DamagePathLayer(T resourceData, LoadProperties loadProperties) {
         super(resourceData, loadProperties);
 
@@ -77,16 +107,20 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
                 .getLocalizationFile(getUserContext(), DIR);
         dir.addFileUpdatedObserver(this);
 
-        LocalizationFile prevFile = getDamagePathFile();
-        if (prevFile.exists()) {
-            loadDamagePath(prevFile);
-        }
+        loadJob.setSystem(true);
+        loadJob.schedule();
+        saveJob.setSystem(true);
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
-        if (polygon == null) {
+        LocalizationFile prevFile = getDamagePathFile();
+        if (polygon == null && !prevFile.exists()) {
+            /*
+             * only get here if there is no previous file, otherwise loadJob
+             * will load the polygon
+             */
             polygon = PolygonUtil.makeDefaultPolygon(getResourceContainer()
                     .getActiveDisplayPane().getRenderableDisplay());
         }
@@ -104,13 +138,6 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     @Override
     public String getName() {
         return NAME;
-    }
-
-    protected Polygon loadLocalizationPolygon(LocalizationFile file) {
-        /*
-         * TODO load from a localization file
-         */
-        return null;
     }
 
     protected Polygon loadStormTrackPolygon() {
@@ -152,15 +179,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
          */
         if ((prevPolygon == null && newPolygon != null)
                 || (newPolygon != null && !this.uiInput.isDragging())) {
-            LocalizationFile file = getDamagePathFile();
-            try (LocalizationFileOutputStream fos = file.openOutputStream()) {
-                GeoJsonUtil json = new GeoJsonUtilSimpleImpl();
-                json.serialize(this.getPolygon(), fos);
-                fos.closeAndSave();
-            } catch (Exception e) {
-                statusHandler.error(
-                        "Error saving damage path file " + file.getName(), e);
-            }
+            saveJob.schedule();
         }
     }
 
@@ -189,7 +208,6 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         try (LocalizationFileInputStream fis = file.openInputStream()) {
             GeoJsonUtil json = new GeoJsonUtilSimpleImpl();
             Polygon geometry = (Polygon) json.deserializeGeom(fis);
-            fis.close();
             /*
              * specifically call super.resetPolygon() cause this.resetPolygon()
              * will save the file and we don't want to do that or we could
@@ -202,6 +220,26 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         } catch (Exception e) {
             statusHandler.error(
                     "Error loading damage path file " + file.getName(), e);
+        }
+    }
+
+    protected void saveDamagePath(LocalizationFile file) {
+        LocalizationFileOutputStream fos = null;
+        try {
+            fos = file.openOutputStream();
+            GeoJsonUtil json = new GeoJsonUtilSimpleImpl();
+            json.serialize(this.getPolygon(), fos);
+            fos.closeAndSave();
+        } catch (Throwable t) {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+            statusHandler.error(
+                    "Error saving damage path file " + file.getName(), t);
         }
     }
 }
