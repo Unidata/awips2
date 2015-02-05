@@ -28,7 +28,6 @@
 		<name>LAPS</name>
 		<center>59</center>
 		<subcenter>0</subcenter>
-		<grid>400</grid>
 		<process>
 			<id>103</id>
 		</process>
