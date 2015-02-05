@@ -18,7 +18,8 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
  *                                      in Volume Browser
  * 02/03/2015   DR#17084    Chin Chen   Model soundings being interpolated below the surface for elevated sites                                     
- *
+ * 02/05/2015   DR16888     Chin Chen   fixed issue that "Comp(Src) button not functioning properly in NSHARP display"
+ *									    merged 12/11/2014 fixes at version 14.2.2 and check in again to 14.3.1
  * </pre>
  * 
  * @author Chin Chen
@@ -1876,7 +1877,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             	boolean overlayIsOn = rscHandler.isOverlayIsOn();
             	if (graphConfigProperty != null) {
             		if (graphConfigProperty.isTemp() == true && !compareStnIsOn
-            				&& !compareTmIsOn) {
+            				&& !compareTmIsOn && !compareSndIsOn) {
             			if (editGraphOn)
             				plotPressureTempEditPoints(target, world,
             						NsharpConstants.color_red, TEMP_TYPE,
@@ -1884,7 +1885,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             		}
             		// dew point curve
             		if (graphConfigProperty.isDewp() == true && !compareStnIsOn
-            				&& !compareTmIsOn) {
+            				&& !compareTmIsOn && !compareSndIsOn) {
             			if (editGraphOn)
             				plotPressureTempEditPoints(target, world,
             						NsharpConstants.color_green, DEWPOINT_TYPE,
@@ -1892,7 +1893,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             		}
             		// plot wet bulb trace
             		if (graphConfigProperty.isWetBulb() == true && rscHandler.isGoodData() //#5929
-            				&& !compareStnIsOn && !compareTmIsOn) {
+            				&& !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
             			NsharpLineProperty lp = linePropertyMap
             					.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_WETBULB]);
             			target.drawWireframeShape(wetBulbTraceRscShape,
@@ -1901,7 +1902,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             		}
             		// plot virtual temperature trace
             		if (graphConfigProperty.isVTemp() == true && rscHandler.isGoodData() //#5929
-            				&& !compareStnIsOn && !compareTmIsOn) {
+            				&& !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
             			NsharpLineProperty lp = linePropertyMap
             					.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_VIRTUAL_TEMP]);
             			target.drawWireframeShape(vtempTraceCurveRscShape,
@@ -1910,7 +1911,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             		}
             		// virtual temperature parcel trace curve
             		if (graphConfigProperty.isParcelTv() == true && rscHandler.isGoodData() //#5929
-            				&& !compareStnIsOn && !compareTmIsOn
+            				&& !compareStnIsOn && !compareTmIsOn && !compareSndIsOn
             				&& !overlayIsOn) {
             			if (soundingLys.size() > 0) {
             				NsharpLineProperty lp = linePropertyMap
@@ -1922,7 +1923,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             		}
 
             		if (graphConfigProperty.isDcape() == true && rscHandler.isGoodData() //#5929
-            				&& dacpeTraceRscShape != null && !compareStnIsOn
+            				&& dacpeTraceRscShape != null && !compareStnIsOn && !compareSndIsOn
             				&& !compareTmIsOn && !overlayIsOn) {
             			if (soundingLys.size() > 0) {
             				NsharpLineProperty lp = linePropertyMap
@@ -1934,7 +1935,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             			}
             		}
             		if (graphConfigProperty.isEffLayer() == true && rscHandler.isGoodData() //#5929
-            				&& !compareStnIsOn && !compareTmIsOn) {
+            				&& !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
             			// draw effective layer lines
             			// drawEffectiveLayerLines(target);
             			target.drawWireframeShape(effectiveLayerLineShape,
@@ -1943,7 +1944,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             		}
             		// cloud
             		if (graphConfigProperty.isCloud() == true && rscHandler.isGoodData() //#5929
-            				&& !compareStnIsOn && !compareTmIsOn) {
+            				&& !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
             			if (cloudFMShape != null)
             				target.drawShadedShape(cloudFMShape, 1f);
             			if (cloudFMLabelShape != null)
@@ -1954,7 +1955,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             				target.drawShadedShape(cloudCEShape, 1f);
             		}
             		if (graphConfigProperty.isOmega() == true
-            				&& !compareStnIsOn && !compareTmIsOn) {
+            				&& !compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
             			if (NsharpLoadDialog.getAccess() != null
             					&& (NsharpLoadDialog.getAccess()
             							.getActiveLoadSoundingType() == NsharpLoadDialog.MODEL_SND || NsharpLoadDialog
@@ -1966,7 +1967,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource {
             		}
             	} else {
             		// by default, draw everything
-            		if (!compareStnIsOn && !compareTmIsOn) {
+            		if (!compareStnIsOn && !compareTmIsOn && !compareSndIsOn) {
             			if (editGraphOn)
             				plotPressureTempEditPoints(target, world,
             						NsharpConstants.color_red, TEMP_TYPE,
