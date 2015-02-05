@@ -23,6 +23,7 @@
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 7, 2015  16954      cgobs      Fix for cv_use issue - using getFieldName() in certain parts.
+ * Feb 4, 2015  17094      cgobs      Fix for fieldType being too long for mapx_field_type column in RWResult table.
  * </pre>
  **/
 package com.raytheon.viz.mpe.ui.actions;
@@ -33,8 +34,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
@@ -337,6 +340,9 @@ public class SaveBestEstimate {
             Rwresult pRWResultNode = pRWResultHead.get(0);
 
             /* Update the elements in the RWResult node. */
+            
+            fldtype = checkAndModifyMapxFieldType(fldtype);
+            
             pRWResultNode.setMapxFieldType(fldtype.toLowerCase());
             pRWResultNode.setAutoSave(asave);
             pRWResultNode.setDrawPrecip(drpr);
@@ -358,5 +364,33 @@ public class SaveBestEstimate {
             pRWResultHead.clear();
         }
 
+    }
+
+    private static String checkAndModifyMapxFieldType(String fieldType) {
+       
+        // This method changes fieldType to lowercase.
+        // It also shortens fieldTypes as needed to fit into the mapx_field_type column in the RWResult table.
+        // Note: the mapx_field_type column is informational only.  It is not used by the code
+        // other than reading and writing from and to the database.
+        
+        String newFieldType = null;
+        String lowerCaseFieldType = fieldType.toLowerCase();
+        
+        final Map<String,String> conversionTable = new HashMap<String , String>();
+                
+        conversionTable.put("localfield1", "localfld1");
+        conversionTable.put("localfield2", "localfld2");
+        conversionTable.put("localfield3", "localfld3");
+        
+        conversionTable.put("avgrdmosaic", "avgrdmos");
+        conversionTable.put("maxrdmosaic", "maxrdmos");
+        
+        
+        newFieldType = conversionTable.get(lowerCaseFieldType);
+        if (newFieldType == null)
+        {
+            newFieldType = lowerCaseFieldType;
+        }
+        return newFieldType;
     }
 }
