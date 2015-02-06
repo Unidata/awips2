@@ -12,7 +12,7 @@ class GFSLAMPForecaster(Forecaster):
     def __init__(self): 
         Forecaster.__init__(self, "GFSLAMP","GFSLAMP") 
 
-    def calcClgHgt(self, cc_CLG):
+    def calcCigHgt(self, cc_CLG):
         ceil = cc_CLG * 3.280839
         ceil = where(less(cc_CLG, 0), -99., ceil)
         return ceil
