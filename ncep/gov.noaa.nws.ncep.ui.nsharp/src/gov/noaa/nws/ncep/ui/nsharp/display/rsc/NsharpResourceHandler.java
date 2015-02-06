@@ -18,6 +18,8 @@
  * 01/27/2015   DR#17006,
  *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
  *                                      in Volume Browser
+ * 02/03/2015   DR#17079    Chin Chen   Soundings listed out of order if frames go into new month
+ * 02/05/2015   DR16888     CHin Chen   merge 12/11/2014 fixes at version 14.2.2 and check in again to 14.3.1
  * </pre>
  * 
  * @author Chin Chen
@@ -581,12 +583,14 @@ public class NsharpResourceHandler {
              * The following code is to create a list of stns within the range
              * of user defined radius (minimum distance) to "current" station
              * and also has data loaded with same time line as "current" time
-             * line. Note that we have two time line formats, MM.DDVxxx(day)
-             * and MM.DD(day). A same time line is compared by MM.DD
-             * only. All qualified stations, including current station, found
-             * will be listed and used for SND comparison.
+             * line. Note that we have two time line formats, YYMMDD/HHVxxx(day)
+             * and YYMMDD/HH(day) saved in NsharpSoundingElementStateProperty.
+             *  A same time line is compared by "YYMMDD/HH" only. All qualified 
+             *  stations, including current station, found will be listed and used 
+             *  for SND comparison.
              */
-            String TIME_COMPARE_STRING = "MM.DD";
+            //DR#17079 
+            String TIME_COMPARE_STRING = "YYMMDD/HH";
             compSndSelectedElemList.clear();
             // CompSndSelectedElem curStnTimeIndexCouple = new
             // CompSndSelectedElem(currentStnElementListIndex,currentTimeElementListIndex,currentSndElementListIndex);
@@ -1074,13 +1078,14 @@ public class NsharpResourceHandler {
 
     private class NsharpOperationElementComparator implements
             Comparator<NsharpOperationElement> {
-        @Override
+    	
+		@Override
         public int compare(NsharpOperationElement o1, NsharpOperationElement o2) {
 
             String s1tok1 = "";// , s1tok2="";
             String s2tok1 = "";// , s2tok2="";
-            StringTokenizer st1 = new StringTokenizer(
-                    o1.getElementDescription());
+            String	o1Desc = o1.getElementDescription();
+            StringTokenizer st1 = new StringTokenizer(o1Desc);
             int tkCount1 = st1.countTokens();
             // System.out.println("ElementComparatorTimeLine o1="+o1.elementDescription+"c1 = "+tkCount1);
             if (tkCount1 >= 1) {
@@ -1090,8 +1095,8 @@ public class NsharpResourceHandler {
 
             }
             // System.out.println("t1="+s1tok1+" t2="+s2tok1);
-            StringTokenizer st2 = new StringTokenizer(
-                    o2.getElementDescription());
+            String 	o2Desc = o2.getElementDescription();
+            StringTokenizer st2 = new StringTokenizer(o2Desc);
             int tkCount2 = st2.countTokens();
             // System.out.println("ElementComparatorTimeLine o2="+o2.elementDescription+"c2 = "+tkCount2);
             if (tkCount2 >= 1) {
@@ -1890,21 +1895,22 @@ public class NsharpResourceHandler {
             Map<String, List<NcSoundingLayer>> soundMap,
             NsharpStationInfo stnInfo, boolean fromArchive) {
 
-        // // testing code // stnInfo.setStnId("KUKI");
-//         Set<String> keysettest = new HashSet<String>(soundMap.keySet());
-//         for (String key : keysettest) {
-//         List<NcSoundingLayer> sndLy = soundMap.remove(key); // String
-        // // newkey=
-//         String newkey =key.replace("NCUAIR", "gpduair"); // String newkey =
-        // String newkey= key.replace("NAMS", "SSS");
-//        String newkey = key.replace("130925/17(Wed)V017", "131001/00(Thu)V000");
- //        soundMap.put(newkey, sndLy);
-//         } 
+        /* 
+         * testing code : this is helpful code. do not remove.
+         *
+         Set<String> keysettest = new HashSet<String>(soundMap.keySet());
+         for (String key : keysettest) {
+         	List<NcSoundingLayer> sndLy = soundMap.remove(key);
+			 String newkey= key.replace("NAMS", "SSS");
+         	//String newkey = key.replace("130925", "150102");
+         	soundMap.put(newkey, sndLy);
+         } 
         // // stnInfo.setSndType(stnInfo.getSndType().replace("NCUAIR", //
         // // "gpduair")); // stnInfo.setSndType(stnInfo.getSndType().replace(
         // // "NAMS","SSS"));
-        // //
-
+		*
+		* END testing code 
+		*/
         if (stnInfo.getStnId() != null && stnInfo.getStnId().indexOf(" ") >= 0) {
             // take care stnId with SPACE case.
             String stnId = stnInfo.getStnId();
@@ -2022,10 +2028,18 @@ public class NsharpResourceHandler {
                 }
 
                 /*
-                 * As of 2014 April 9, current time description string is
+                 * Chin: 04092014, current time description string is
                  * defined as "YYMMDD/HH(DOW)" or "YYMMDD/HH(DOW)Vxxx". Convert
                  * them to "DD.HH(DOW)" or "DD.HHVxxx(DOW)" for GUI display.
                  */
+                /* 
+                 * Chin: 02032015
+                 * "DR17079: Soundings listed out of order if frames go into new month"
+                 * To fix DR17079, keep time line format as yymmdd/hh(day)Vxxx to be saved
+                 * in NsharpSoundingElementStateProperty.
+                 * We will convert display string while drawing.
+                 * This chunk code is to convert time line format from yymmdd/hh(day)Vxxx to dd.hh(day)Vxxx 
+                 *
                 timeLine = timeLine.substring(4); // get rid of YYMM
                 if (timeLine.contains("V")) {
                     String[] s1Str = timeLine.split("V"); // split
@@ -2042,6 +2056,9 @@ public class NsharpResourceHandler {
                                                                            // "DD/HHVxxx(DOW)"
                 }
                 timeLine = timeLine.replace("/", "."); // replace "/" with "."
+                * 
+                * end DR17079
+                */
             }
             // recreate stnId_timeLine_sndType
             stnId_timeLine_sndType = stnId + " " + timeLine + " " + sndType;
@@ -2657,7 +2674,10 @@ public class NsharpResourceHandler {
 
                 break;
             }
-
+            if (compareSndIsOn) {
+                handleUserPickNewTimeLine(currentTimeElementListIndex)  ;
+                return;
+            }
             curTimeLinePage = currentTimeElementListIndex / numTimeLinePerPage
                     + 1;
             setCurSndProfileProp();
@@ -2794,7 +2814,10 @@ public class NsharpResourceHandler {
                         // we should get out of here
                         break;
                     } else if (compareSndIsOn) {
-                        boolean found = false;
+                        handleUserPickNewTimeLine(targetIndex)  ;
+                        return;
+                        /*  DR16888 02052015
+                         *  boolean found = false;
                         if (currentStnElementListIndex >= 0
                                 && currentSndElementListIndex >= 0
                                 && stnTimeSndTable
@@ -2839,6 +2862,7 @@ public class NsharpResourceHandler {
                         // not
                         // we should get out of here
                         break;
+                        */
                     } else {
                         break;
                     }
