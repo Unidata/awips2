@@ -21,7 +21,7 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="menuItem" menuText="Temperature" key="T"
         indentText="false" />
-    contribute xsi:type="menuItem" menuText="Temp Anl Uncertainty"
+    <contribute xsi:type="menuItem" menuText="Temp Anl Uncertainty"
         key="Terranl"  indentText="true" />
     <contribute xsi:type="menuItem" menuText="Dewpoint" key="DpT"
         indentText="true" />
