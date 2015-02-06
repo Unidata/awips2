@@ -8,7 +8,7 @@
    	via openfire whenever a user logs in to openfire.
    </description>
    <author>bkowal</author>
-   <version>2.0.0</version>
+   <version>2.1.0</version>
    <date>8/08/2012</date>
    <minServerVersion>3.7.1</minServerVersion>
    
