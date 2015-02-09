@@ -45,11 +45,13 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 11, 2013            dgilling     Initial creation
- * May 22, 2013  #1759     dgilling     Ensure addSitePath() also adds base
- *                                      path.
- * May 31, 2013  #1759     dgilling     Ensure any site-specific paths are 
- *                                      always removed post-execution.
+ * Mar 11, 2013            dgilling    Initial creation
+ * May 22, 2013  #1759     dgilling    Ensure addSitePath() also adds base
+ *                                     path.
+ * May 31, 2013  #1759     dgilling    Ensure any site-specific paths are 
+ *                                     always removed post-execution.
+ * Dec 08, 2014  #4953     randerso    Updated Jep include path to allow use of
+ *                                     LocalizationSupport and TCVUtil
  * 
  * </pre>
  * 
@@ -82,6 +84,8 @@ public class IscScript extends PythonScript {
     private static String buildIncludePath() {
         return PyUtil.buildJepIncludePath(
                 GfePyIncludeUtil.getCommonPythonIncludePath(),
+                GfePyIncludeUtil.getCommonGfeIncludePath(),
+                GfePyIncludeUtil.getVtecIncludePath(),
                 GfePyIncludeUtil.getIscScriptsIncludePath());
     }
 

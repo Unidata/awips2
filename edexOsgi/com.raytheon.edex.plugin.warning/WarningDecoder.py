@@ -44,6 +44,7 @@
 # May 15, 2014  2536     bclement       moved WMO time parsing to WMOTimeParser
 # May 15, 2014  3157     dgilling       Update location of WclInfo class.
 # Jun 10, 2014  3268     dgilling       Update location of WclInfo class.
+# Dec 17, 2014  4953     randerso       Fixed decoding of non-VTEC from command line
 
 # </pre>
 #
@@ -114,10 +115,10 @@ class StdWarningDecoder():
         self._timeOffset = 0
         
         #decode the command line
-        if text is None and filePath is None:
+        if command is not None:
             self._decodeCommandLine()
             self._rawMessage = None
-            checkForWmo = False
+            checkForWmo = True
         else:                            
             self._rawMessage = text
             checkForWmo = True
