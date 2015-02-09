@@ -65,6 +65,7 @@ import com.raytheon.viz.grid.rsc.general.D2DGridResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 5, 2014    3026     mpduff      Initial creation
+ * Dec 16, 2014   3026     mpduff      Change location of text
  * 
  * </pre>
  * 
@@ -121,7 +122,7 @@ public class HpeLabelResource extends
                     .getResourcesByTypeAsType(D2DGridResource.class);
             if (!list.isEmpty()) {
                 double[] pixel = paintProps.getView().getDisplayCoords(
-                        new double[] { 125, 50 }, target);
+                        new double[] { 125, 100 }, target);
                 RGB color = getCapability(ColorableCapability.class).getColor();
                 for (D2DGridResource rsc : list) {
                     GridRecord currentGridRec = rsc.getCurrentGridRecord();
