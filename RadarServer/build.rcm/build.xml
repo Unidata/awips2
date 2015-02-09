@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-    <!--
+<!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
         
@@ -21,8 +21,20 @@
 <!DOCTYPE project [
 <!ENTITY substitute-targets   SYSTEM "substitute.xml">
 ]>
+
 <project name="RCMPackageBuilder" default="deploy" basedir=".">
-    <!--
+<property file="${basedir}/../../edexOsgi/build.edex/edex/common.properties" />
+
+	<path id="ant.classpath">
+		<fileset dir="${basedir}/../../edexOsgi/build.edex/lib/ant">
+			<include name="*.jar" />
+   		</fileset>
+	</path>
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+		classpath="${basedir}/../../edexOsgi/build.edex/lib/ant/ant-contrib-1.0b3.jar" />
+
+	<!--
         This build script expects the following projects to exist at the same
         level as this project's folder. com.raytheon.rcm.lib
         com.raytheon.rcm.server com.raytheon.rcm.server.mq
@@ -30,11 +42,14 @@
         built before running this script.
     -->
     &substitute-targets;
+	
 
+		
     <description>
         Builds a deployment of the RCM for packaging
     </description>
 
+	
     <!-- set global properties for this build -->
     <property environment="user" />
 
@@ -56,13 +71,42 @@
         </and>
     </condition>
     
-    <condition property="cots.dir" value="${basedir}/.." else="${basedir}/../../cots">
-        <available file="${basedir}/../org.springframework" />
-    </condition>
+	<property name="top.dir" value="${basedir}/../../.."/>
+	<property name="core_foss_lib.dir" value="${top.dir}/${core-foss.repo}/lib"/>
+	<property name="a2_foss_lib.dir" value="${top.dir}/${awips2-foss.repo}/lib"/>
+	<property name="core_common.dir" value="${top.dir}/${core.repo}/common/"/>	
 
-    <condition property="edexsrc.dir" value="${basedir}/.." else="${basedir}/../../edexOsgi">
-        <available file="${basedir}/../com.raytheon.uf.common.util" />
-    </condition>
+	<property name="tab" value="    "/>
+	<echo level="info" message=" "/>
+        <echo level="info" message="Deploy checks the following directories for source:"/>
+        <echo level="info" message=" "/>
+        <for list="${core.repositories}" param="repository.directory">
+            <sequential>
+                <echo level="info" message="${tab}@{repository.directory}" />
+                <if>
+                    <not>
+                        <available file="${top.dir}/@{repository.directory}" type="dir" />
+                    </not>
+                    <then>
+                        <echo level="error" message="${tab}@{repository.directory} does not exist!"/>
+                        <property name="missingDir"
+                          value="true" />
+                    </then>
+                </if>
+            </sequential>
+        </for>
+        <if>
+            <isset property="missingDir" />
+            <then>
+                <echo level="error" message=" "/>
+                <echo level="error" message="Edit core.repositories=${core.repositories} in common.properties, rename source directories or create a symlink!"/>
+                <echo level="error" message=" "/>
+                <fail message="Unable to locate source directories."/>
+            </then>
+        </if>
+    <echo level="info" message=" "/>
+	
+    <property name="edexsrc.dir" value="${basedir}/../../edexOsgi"/>
 
     <!-- Set default EDEX install location for copy filter -->
     <property name="def.edex.install.dir" value="/awips" />
@@ -85,7 +129,9 @@
         Deploy on top of existing deployment. Old files not removed nor is the
         configuration file changed.
     -->
-    <target name="re.deploy">
+
+	<target name="re.deploy">
+
         <mkdir dir="${deploy.dir}" />
         <mkdir dir="${deploy.dir}/bin" />
         <mkdir dir="${deploy.dir}/lib" />
@@ -125,25 +171,25 @@
         </chmod>
 
         <copy todir="${deploy.dir}/lib" flatten="true">
-            <fileset dir="${cots.dir}/org.apache.activemq" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.qpid" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.slf4j" includes="**/*.jar">
+            <fileset dir="${core_foss_lib.dir}/org.apache.activemq" includes="**/*.jar" />
+            <fileset dir="${core_foss_lib.dir}/org.apache.qpid" includes="**/*.jar" />
+            <fileset dir="${core_foss_lib.dir}/org.slf4j" includes="**/*.jar">
                 <include name="**/jcl-over-slf4j*.jar" />
                 <include name="**/jul-to-slf4j*.jar" />
                 <include name="**/slf4j-api*.jar" />
             </fileset>
-            <fileset dir="${cots.dir}/org.apache.commons.beanutils" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.commons.codec" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.commons.collections" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.commons.lang" includes="**/*.jar" />            
-            <fileset dir="${cots.dir}/ch.qos.logback" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/javax.jms" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.springframework">
+            <fileset dir="${core_foss_lib.dir}/org.apache.commons.beanutils" includes="**/*.jar" />
+            <fileset dir="${core_foss_lib.dir}/org.apache.commons.codec" includes="**/*.jar" />
+            <fileset dir="${core_foss_lib.dir}/org.apache.commons.collections" includes="**/*.jar" />
+            <fileset dir="${core_foss_lib.dir}/org.apache.commons.lang" includes="**/*.jar" />            
+            <fileset dir="${core_foss_lib.dir}/ch.qos.logback" includes="**/*.jar" />
+            <fileset dir="${core_foss_lib.dir}/javax.jms" includes="**/*.jar" />
+            <fileset dir="${core_foss_lib.dir}/org.springframework">
                 <include name="**/*spring*beans*.jar" />
                 <include name="**/*spring*context*.jar" />
             </fileset>
-            <fileset dir="${cots.dir}/org.itadaki.bzip2" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.quartz" includes="**/*.jar" />
+            <fileset dir="${a2_foss_lib.dir}/org.itadaki.bzip2" includes="**/*.jar" />
+            <fileset dir="${core_foss_lib.dir}/org.quartz" includes="**/*.jar" />
         </copy>
 
         <delete dir="bin" />
@@ -178,7 +224,7 @@
             <fileset dir="../com.raytheon.rcm.server/bin" includes="**/*.class" />
             <fileset dir="../com.raytheon.rcm.server.mq/bin" includes="**/*.class" />
             <fileset dir="../com.raytheon.rcm.server.mq/bin" includes="**/*.txt" />
-            <fileset dir="${edexsrc.dir}/com.raytheon.uf.common.util/bin" includes="**/*.class" />
+            <fileset dir="${core_common.dir}/com.raytheon.uf.common.util/bin" includes="**/*.class" />
         </copy>
     </target>
 
