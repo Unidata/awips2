@@ -88,7 +88,7 @@ public class ActiveTableSrv {
         timer.start();
         try {
             ActiveTable activeTable = threadLocalActiveTable.get();
-            if (records != null && records.size() > 0) {
+            if ((records != null) && (records.size() > 0)) {
                 activeTable.merge(ActiveTableRecord.transformFromWarnings(
                         records, ActiveTableMode.OPERATIONAL));
             }
@@ -111,7 +111,7 @@ public class ActiveTableSrv {
     public void practiceVtecArrived(List<AbstractWarningRecord> records,
             Headers headers) {
         int offsetSeconds = getOffsetTime((String) headers.get("drtstring"));
-        if (records != null && records.size() > 0) {
+        if ((records != null) && (records.size() > 0)) {
             ActiveTable activeTable = threadLocalActiveTable.get();
             try {
                 activeTable.merge(ActiveTableRecord.transformFromWarnings(

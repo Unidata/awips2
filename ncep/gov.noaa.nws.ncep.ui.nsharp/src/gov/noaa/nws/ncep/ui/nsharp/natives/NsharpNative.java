@@ -790,12 +790,12 @@ public class NsharpNative {
 
             @Override
             protected List getFieldOrder() {
-                return Arrays.asList(new String[] { "oprh", "layerDepth",
-                        "meanLayerRh", "meanLayerMixRat", "meanLayerPw",
-                        "meanLayerOmega", "initPhase", "tempProfile1",
-                        "tempProfile2", "tempProfile3", "wetbulbProfile1",
-                        "wetbulbProfile2", "wetbulbProfile3", "bestGuess1",
-                        "bestGuess2" });
+                return Arrays.asList(new String[] { "mopw", "oprh",
+                        "layerDepth", "meanLayerRh", "meanLayerMixRat",
+                        "meanLayerPw", "meanLayerOmega", "initPhase",
+                        "tempProfile1", "tempProfile2", "tempProfile3",
+                        "wetbulbProfile1", "wetbulbProfile2",
+                        "wetbulbProfile3", "bestGuess1", "bestGuess2" });
             }
 
         }
