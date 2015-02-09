@@ -368,7 +368,7 @@ public class Disagg6Hr {
                 values6hr = new Values_6hr[(dqc.qcDays * num_disagg_stations)];
 
                 for (int z = 0; z < (dqc.qcDays * num_disagg_stations); z++) {
-                    disagg_station_6hr[z] = new Station();
+                    disagg_station_6hr[z] = dqc.new Station();
                     disaggValues[z] = new Values_1hr();
                     values6hr[z] = new Values_6hr();
                 }
