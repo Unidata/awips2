@@ -185,7 +185,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
     private LocalizationContext getUserContext() {
         return PathManagerFactory.getPathManager().getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
     }
 
     protected LocalizationFile getDamagePathFile() {
