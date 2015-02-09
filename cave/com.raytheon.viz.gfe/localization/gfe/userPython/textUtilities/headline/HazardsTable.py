@@ -35,6 +35,7 @@
 #    02/05/14        2774          dgilling       Fix error logging statements in
 #                                                 __warnETNduplication() and
 #                                                 __highestETNActiveTable.
+#    02/05/15        4099          randerso       Fixed exception handling in __getActiveTable
 #
 
 
@@ -932,7 +933,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         except:
             self.log.exception("Unable to access VTEC Active Table: ")
-            raise Exception, s
+            raise
 
     def __createCityHazards(self):
         if not self.__accurateCities:
