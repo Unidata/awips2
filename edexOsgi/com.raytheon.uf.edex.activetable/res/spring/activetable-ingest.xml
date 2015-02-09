@@ -42,6 +42,7 @@
                     
                     <bean ref="practiceVtecDecoder" method="decode"/>
                     <bean ref="index" method="index"/>
+                    <bean ref="processUtil" method="log"/>
                     <multicast parallelProcessing="false">
                         <filter>
                             <simple>${header?.notifygfe.booleanValue}</simple>

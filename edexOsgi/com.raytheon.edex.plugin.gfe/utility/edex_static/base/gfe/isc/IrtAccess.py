@@ -24,20 +24,27 @@
 #
 # Author: mathewson
 # ----------------------------------------------------------------------------
-
+##
 #
 # This class provides interfaces to the ISC Routing Table Web Service.
 #
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    12/10/14        #4953         randerso       Cleaned up imports, 
+#                                                 improved spawning of shell cmd 
+#
+##
 
-import xml
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import socket
 import urllib, urllib2, time, os, copy, string
-import LogStream,JUtil
-
-import JUtil, iscUtil
-from java.util import ArrayList
+import LogStream
+import JUtil
+import iscUtil
 
 class IrtAccess():
 

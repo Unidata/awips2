@@ -516,24 +516,39 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                 nwsIntroUsed = 1
             if phraseCount == 0:
                 phraseCount = 1
-                hazardBodyPhrase = hazardBodyPhrase + " HAS ISSUED " + \
-                  hazNameA + forPhrase + \
-                  "...WHICH IS IN EFFECT" + endTimePhrase + ". "
+                if eachHazard['phen'] in ['HU', 'TR', 'TY']:
+                    hazardBodyPhrase = hazardBodyPhrase + " HAS ISSUED " + \
+                    hazNameA + ". "
+                else:
+                    hazardBodyPhrase = hazardBodyPhrase + " HAS ISSUED " + \
+                    hazNameA + forPhrase + \
+                    "...WHICH IS IN EFFECT" + endTimePhrase + ". "
             elif phraseCount == 1:
                 phraseCount = 2
                 if hdln != lastHdln:
-                    hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
-                      " HAS ALSO BEEN ISSUED. THIS " + hazName + forPhrase + \
-                      " IS IN EFFECT" + endTimePhrase + ". "
+                    if eachHazard['phen'] in ['HU', 'TR', 'TY']:
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
+                        " HAS ALSO BEEN ISSUED."
+                    else:    
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
+                        " HAS ALSO BEEN ISSUED. THIS " + hazName + forPhrase + \
+                        " IS IN EFFECT" + endTimePhrase + ". "
                 else:
-                    hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
-                      " HAS ALSO BEEN ISSUED" + endTimePhrase + ". "
+                    if eachHazard['phen'] in ['HU', 'TR', 'TY']:
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
+                        " HAS ALSO BEEN ISSUED."
+                    else:
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + forPhrase + \
+                        " HAS ALSO BEEN ISSUED" + endTimePhrase + ". "
             else:
-                hazardBodyPhrase = hazardBodyPhrase + "IN ADDITION..." + \
-                  hazNameA + forPhrase + " HAS BEEN ISSUED. THIS " + hazName + \
-                  " IS IN EFFECT" + endTimePhrase + ". "
-            lastHdln = hdln                                         
-            
+                if eachHazard['phen'] in ['HU', 'TR', 'TY']:
+                    hazardBodyPhrase = hazardBodyPhrase + "IN ADDITION..." + \
+                    hazNameA + " HAS BEEN ISSUED."
+                else:
+                    hazardBodyPhrase = hazardBodyPhrase + "IN ADDITION..." + \
+                    hazNameA + forPhrase + " HAS BEEN ISSUED. THIS " + hazName + \
+                    " IS IN EFFECT" + endTimePhrase + ". "
+            lastHdln = hdln              
         #
         # This is for the can hazards
         #

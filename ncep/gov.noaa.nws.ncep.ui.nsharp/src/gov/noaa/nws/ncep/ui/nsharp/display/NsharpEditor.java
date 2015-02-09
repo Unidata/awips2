@@ -18,6 +18,8 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
  * 06/14/2011   11-5        Chin Chen   migration
  * 03/11/2013   972         Greg Hull   rm paneNum and editorNum; rm AbstractNcEditor
  * 03/25/2013   972         Greg Hull   rm unused Add/RemoveListeners.
+ * 01/13/2015   DR#17008,
+ *              task#5930   Chin Chen   NSHARP Hodograph Does Not Loop in D2D Lite Configuration
  *
  * </pre>
  * 
@@ -178,7 +180,7 @@ public class NsharpEditor extends AbstractEditor implements
     private int futureHeightHint;
 
     private int futureWidthHint;
-
+    
     private String paneConfigurationName;
 
     private IRenderableDisplay[] displayArray;
@@ -1382,13 +1384,17 @@ public class NsharpEditor extends AbstractEditor implements
             DISPLAY_SPC_GRAPHS = -1;
         } else if (paneConfigurationName // d2dlite start
                 .equals(NsharpConstants.PANE_LITE_D2D_CFG_STR)) {
-            if (rscHandler != null
-                    && rscHandler.getCurrentGraphMode() == NsharpConstants.GRAPH_HODO) {
-                DISPLAY_HODO = 0;
+        	//5930
+        	NsharpPaletteWindow win = NsharpPaletteWindow.getInstance();
+            if (win != null &&
+                win.getCurrentGraphMode() == NsharpConstants.GRAPH_HODO) {
+            //#5930if (rscHandler != null
+             //       && rscHandler.getCurrentGraphMode() == NsharpConstants.GRAPH_HODO) {
+                DISPLAY_HODO = 0 ;
                 DISPLAY_TIMESTN = DISPLAY_HODO + 1;
                 DISPLAY_SKEWT = -1;
             } else {
-                DISPLAY_SKEWT = 0;
+                DISPLAY_SKEWT =  0;
                 DISPLAY_TIMESTN = DISPLAY_SKEWT + 1;
                 DISPLAY_HODO = -1;
             }
@@ -1459,8 +1465,12 @@ public class NsharpEditor extends AbstractEditor implements
             // d2dlite start
         } else if (paneConfigurationName
                 .equals(NsharpConstants.PANE_LITE_D2D_CFG_STR)) {
-            if (rscHandler != null
-                    && rscHandler.getCurrentGraphMode() == NsharpConstants.GRAPH_HODO) {
+        	//5930
+        	NsharpPaletteWindow win = NsharpPaletteWindow.getInstance();
+            if (win != null &&
+                win.getCurrentGraphMode() == NsharpConstants.GRAPH_HODO) {
+            //#5930 if (rscHandler != null
+                    //&& rscHandler.getCurrentGraphMode() == NsharpConstants.GRAPH_HODO) {
                 displayArray[DISPLAY_HODO] = new NsharpHodoPaneDisplay(
                         new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),
                         DISPLAY_HODO);
@@ -1610,9 +1620,11 @@ public class NsharpEditor extends AbstractEditor implements
         nsharpComp = new Composite[DISPLAY_TOTAL];
         displayPane = new VizDisplayPane[DISPLAY_TOTAL];
 
-        EditorInput edInput = new EditorInput(new NCLoopProperties(),
+        //EditorInput edInput = new EditorInput(new NsharpLoopProperties(),
+        //        displayArray);
+        //CHIN task#5930 use same loop properties
+        EditorInput edInput = new EditorInput(this.editorInput.getLoopProperties(),
                 displayArray);
-
         this.setInput(edInput);
         this.displaysToLoad = displayArray;
         for (IRenderableDisplay display : displayArray) {
@@ -2130,4 +2142,10 @@ public class NsharpEditor extends AbstractEditor implements
         // +
         // pane.toString()+" newRenderableDisplay="+newRenderableDisplay.toString());
     }
+
+	public String getPaneConfigurationName() {
+		return paneConfigurationName;
+	}
+
+    
 }
