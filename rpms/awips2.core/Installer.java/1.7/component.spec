@@ -177,7 +177,7 @@ rm -f %{_build_root}/awips2/java/bin/jmc
 # The licenses
 mkdir -p %{_build_root}/awips2/java/licenses
 LEGAL_DIR="%{_baseline_workspace}/rpms/legal"
-cp -v ${LEGAL_DIR}/*.txt ${LEGAL_DIR}/*.pdf \
+cp -v ${LEGAL_DIR}/*.pdf \
    %{_build_root}/awips2/java/licenses
 if [ $? -ne 0 ]; then
    exit 1
