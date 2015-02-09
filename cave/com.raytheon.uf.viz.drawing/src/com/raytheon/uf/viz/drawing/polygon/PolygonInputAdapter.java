@@ -322,4 +322,9 @@ public class PolygonInputAdapter extends RscInputAdapter<PolygonLayer<?>> {
         }
     }
 
+    @Override
+    protected boolean availableForInput() {
+        return rsc != null && rsc.polygon != null && super.availableForInput();
+    }
+
 }
