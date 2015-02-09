@@ -210,8 +210,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         Shell parent = this.getParent();
         Display display = parent.getDisplay();
         MPEDisplayManager displayMgr = MPEDisplayManager.getCurrent();
-        Date prevDate = displayMgr.getCurrentEditDate();
-        Date currDate = ChooseDataPeriodDialog.prevDate;
+        Date prevDate = ChooseDataPeriodDialog.getCurrentHydroEditDate();
+        Date currDate = ChooseDataPeriodDialog.prevHydDate;
         String QcArea = ChooseDataPeriodDialog.prevArea;
         AppsDefaults appDefaults = AppsDefaults.getInstance();
         DisplayFieldData df = displayMgr.getDisplayFieldType();
