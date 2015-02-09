@@ -83,7 +83,7 @@ public class ReadTemperatureStationList {
             e.printStackTrace();
         }
 
-        ReadTemperatureStationList.max_tstations = dqc.temperature_stations
+        max_tstations = dqc.temperature_stations
                 .size();
 
         return dqc.temperature_stations;
@@ -136,7 +136,7 @@ public class ReadTemperatureStationList {
                         tokens = null;
                     }
                     if ((tokens != null) && (tokens.length == 7)) {
-                        Station astation = new Station();
+                        Station astation = dqc.new Station();
                         astation.hb5 = tokens[0].toString().trim();
                         astation.parm = tokens[1].toString().trim();
                         double lat = Double.parseDouble(tokens[2].trim());
@@ -231,7 +231,7 @@ public class ReadTemperatureStationList {
                                         .substring(0, 2)))
                                 && (record[1]
                                         .equalsIgnoreCase(stations.get(i).parm))) {
-                            Station statn = new Station();
+                            Station statn = dqc.new Station();
                             statn = stations.get(i);
                             statn.xadd = Integer.parseInt(record[2].trim());
                             statn.yadd = Integer.parseInt(record[3].trim());
@@ -268,8 +268,8 @@ public class ReadTemperatureStationList {
         int qcn = dqc.mpe_dqc_max_temp_neighbors;
         double sorted[] = new double[qcn];
         double dist;
-        Station stati = new Station();
-        Station statm = new Station();
+        Station stati = dqc.new Station();
+        Station statm = dqc.new Station();
 
         for (i = 0; i < max_tstations; i++) {
             stati = stations.get(i);
