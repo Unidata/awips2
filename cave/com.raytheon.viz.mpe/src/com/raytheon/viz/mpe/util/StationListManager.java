@@ -197,7 +197,7 @@ public class StationListManager {
                             (stationTokens.length == 7) && // input is valid and
                             (inputLine.charAt(0) != '#')) // not a comment
                     {
-                        Station aStation = new Station();
+                        Station aStation = dqc.new Station();
                         aStation.hb5 = stationTokens[0].toString().trim(); // Location
                                                                            // ID
                         aStation.parm = stationTokens[1].toString().trim();
