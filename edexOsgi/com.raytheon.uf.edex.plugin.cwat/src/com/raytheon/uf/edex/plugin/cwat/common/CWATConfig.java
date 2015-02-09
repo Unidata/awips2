@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/02/2009   2037       dhladky     Initial Creation.
  * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
  * May 12, 2014 3133       njensen     Use LightningRetriever instead of ScanUtils
+ * Feb 09, 2105 3077       dhladky     Fixed underlying cache logic.
  * 
  * </pre>
  * 
@@ -566,27 +567,16 @@ public class CWATConfig {
 
                 int interval = TimeUtil.MINUTES_PER_DAY;
 
-                /*
-                 * FIXME the inner calls to ####Product.getGridProduct below
-                 * will always return null. The second parameter is supposed to
-                 * be the model (e.g. RUC130) but is passing in the parameter.
-                 * 
-                 * Despite this problem, the code continues to function without
-                 * exceptions because the call to
-                 * DATUtils.getMostRecentGridRecord() will see the null record
-                 * and then return the cached record, which was retrieved
-                 * correctly.
-                 */
                 u700 = DATUtils.getMostRecentGridRecord(interval,
-                        U700Product.getGridRecord(interval, U700Product.U700),
+                        U700Product.getGridRecord(interval, param700U.getModelName()),
                         param700U);
 
                 v700 = DATUtils.getMostRecentGridRecord(interval,
-                        V700Product.getGridRecord(interval, V700Product.V700),
+                        V700Product.getGridRecord(interval, param700V.getModelName()),
                         param700V);
 
                 u500 = DATUtils.getMostRecentGridRecord(interval,
-                        U500Product.getGridRecord(interval, U500Product.U500),
+                        U500Product.getGridRecord(interval, param500U.getModelName()),
                         param500U);
 
                 if (u700 != null && v700 != null && u500 != null) {
