@@ -55,9 +55,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -96,6 +96,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     Pass issuance site id to getActiveTable() 
  *                                     in updateActiveTable() so records will
  *                                     be updated correctly.
+ * Feb 05, 2015    4099    randerso    Fixed latest ETN query for year-end
  * 
  * </pre>
  * 
@@ -359,14 +360,14 @@ public class ActiveTable {
             PythonScript python = threadLocalPythonScript.get();
             try {
                 result = (MergeResult) python.execute("mergeFromJava", args);
-                } catch (JepException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error updating active table", e);
-                }
-        } catch (Exception e) {
+            } catch (JepException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error initializing active table python", e);
+                        "Error updating active table", e);
             }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error initializing active table python", e);
+        }
 
         return result;
     }
@@ -433,8 +434,8 @@ public class ActiveTable {
             if (latestEtn && currentTime != null) {
                 Calendar yearStart = Calendar.getInstance();
                 yearStart.set(currentTime.get(Calendar.YEAR), Calendar.JANUARY,
-                        0, 0, 0);
-                query.addQueryParam("startTime", yearStart, "greater_than");
+                        1, 0, 0);
+                query.addQueryParam("issueTime", yearStart, "greater_than");
                 query.addOrder("etn", false);
                 query.setMaxResults(1);
             }
