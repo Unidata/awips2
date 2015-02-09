@@ -1,35 +1,170 @@
-# Version 2014.11.21-0
+# Version 2014.12.17-0
+
 import GenericHazards
 import JsonSupport
+import LocalizationSupport
 import string, time, os, errno, re, types, copy, collections
 import LogStream, ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
+import pprint 
 
-try:  # See if this is the AWIPS I environment
-    import AFPS
-    from AFPS import AbsTime
-    from IFPDialog import Dialog
-    AWIPS_ENVIRON = "AWIPS1"
-except:  # Must be the AWIPS II environment
-    from AbsTime import *
-    from StartupDialog import IFPDialog as Dialog
-    from LockingFile import File
-    from com.raytheon.uf.common.localization import PathManagerFactory
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-    AWIPS_ENVIRON = "AWIPS2"
+from AbsTime import *
+from StartupDialog import IFPDialog as Dialog
+from LockingFile import File
+AWIPS_ENVIRON = "AWIPS2"
 
 class TextProduct(GenericHazards.TextProduct):
     Definition = copy.deepcopy(GenericHazards.TextProduct.Definition)
 
     def __init__(self):
         GenericHazards.TextProduct.__init__(self)
+        self._pp = pprint.PrettyPrinter()
 
-    ######################################################
-    #  Populate Product Parts for HLS and TCV
-    ######################################################
+    
+    ###############################################################
+    ###  Hazards and Additional Hazards
+    ###    allowedHazards is used for VTEC records and summary
+    ###      headlines
+    ###    allowedHeadlines are additional hazards reported in
+    ###      certain sections
+    ###############################################################
+    
+    ###############################################################
+    ### Initialization
+    ###############################################################
+    
+    ###############################################################
+    ### Analysis Lists, SampleAnalysis Overrides and other
+    ###   analysis related methods
+    ###############################################################
+    
+    ###############################################################
+    ### Product Parts Implementation
+    ###############################################################
+    
+    ###############################################################
+    ### Product Dictionary methods for creating, populating and
+    ###   formatting the product dictionary
+    ###############################################################
+    
+    ###############################################################
+    ### Sampling and Statistics related methods
+    ###############################################################
+    
+    ###############################################################
+    ### Area, Zone and Segment related methods
+    ###############################################################
+    
+    ###############################################################
+    ### Hazards related methods
+    ###############################################################
+    
+    ###############################################################
+    ### Time related methods
+    ###############################################################
+    
+    ###############################################################
+    ### Storm Information and TCP related methods
+    ###############################################################
+    
+    ###############################################################
+    ### Advisory related methods
+    ###############################################################
+    
+    ###############################################################
+    ### GUI related methods
+    ###############################################################
+    
+    
+    ###############################################################
+    ###  Hazards and Additional Hazards
+    
+    def allowedHazards(self):
+        tropicalActions = ["NEW", "EXA", "CAN", "CON"]
+        return [
+            ('HU.A',tropicalActions,'Hurricane'),
+            ('HU.W',tropicalActions,'Hurricane'),
+            ('SS.A',tropicalActions,'Surge'),
+            ('SS.W',tropicalActions,'Surge'),
+            ('TR.A',tropicalActions,'Tropical'),
+            ('TR.W',tropicalActions,'Tropical'),
+            ]
         
+    def allowedHeadlines(self):
+        allActions = ["NEW", "EXA", "EXB", "EXT", "CAN", "CON", "EXP"]
+        return [
+            ('FF.A', allActions, 'Flood'),        # FLASH FLOOD WATCH
+            ('FA.A', allActions, 'Flood'),        # FLOOD WATCH
+            ('TO.A', allActions, 'Convective'),   # TORNADO WATCH
+            ]
+    
+    ###############################################################
+    ### Initialization
+    
+    def _initializeVariables(self, argDict):
+        # Get variables
+        error = self._getVariables(argDict)
+        if error is not None:
+            return error
+    
+        self._backupFullStationID = self._fullStationID
+        self._argDict = argDict
+        
+        argDict["definition"] = self._definition
+        
+        self._initializeTimeVariables(argDict)
+        
+        self._initializeHazardsTable(argDict)
+        
+        error = self._initializeStormInformation()
+        if error is not None:
+            return error
+        
+        # Set up the areaDictionary for all to use
+        accessor = ModuleAccessor.ModuleAccessor()
+        self._areaDict = accessor.variable(self._areaDictionary, "AreaDictionary")
+        self._tpc = TextProductCommon()
+        self._tpc.setUp(self._areaDict)
+        
+        return None
+    
+    ###############################################################
+    ### Analysis Lists, SampleAnalysis Overrides and other
+    ###   analysis related methods
+    
+    def moderated_dict(self, parmHisto, timeRange, componentName):
+        """
+           Specifies the lower percentages and upper percentages of
+           data to be thrown out for moderated stats.
+        """
+        # COMMENT: This dictionary defines the low and high limit at which
+        # outliers will be removed when calculating moderated stats.
+        # By convention the first value listed is the percentage
+        # allowed for low values and second the percentage allowed
+        # for high values.
+
+        # Get Baseline thresholds
+        dict = SampleAnalysis.SampleAnalysis.moderated_dict(
+            self, parmHisto, timeRange, componentName)
+
+        #  Change thresholds
+        dict["Wind"] = (0, 15)
+        dict["WindGust"] = (0, 15)
+        dict["pws34int"] = (0, 5)
+        dict["pws64int"] = (0, 5)
+        dict["pwsD34"] = (0, 5)
+        dict["pwsN34"] = (0, 5)
+        dict["pwsD64"] = (0, 5)
+        dict["pwsN64"] = (0, 5)
+        dict["InundationMax"] = (0, 5)
+        dict["InundationTiming"] = (0, 5)
+        return dict
+    
+    ###############################################################
+    ### Product Parts Implementation
+    
     ################# Product Level
-          
+    
     def _wmoHeader(self, productDict, productSegmentGroup, arguments=None):
         headerDict = collections.OrderedDict()
         headerDict['TTAAii'] = self._wmoID
@@ -55,7 +190,193 @@ class TextProduct(GenericHazards.TextProduct):
         headerDict['issuedByString'] = self.getIssuedByString()
         headerDict['issuanceTimeDate'] = self._timeLabel
         productDict['productHeader'] = headerDict
+    
+    ################# Mixed Level
+    
+    def _ugcHeader(self, productDict, productSegmentGroup, productSegment):
+        productDict['ugcCodes'] = self._formatUGC_entries()
+        self._ugcHeader_value = self._tpc.formatUGCs(self._ugcs, self._expireTime)
+        productDict['ugcHeader'] = self._ugcHeader_value
+    
+    ################# Product Parts Processing
+    
+    def _processProductParts(self, productGenerator, productDict, productSegmentGroup, productParts):            
+        '''
+        @param productDict
+        @param productSegmentGroup
+        @param productParts
+        @return product dictionary created from the product parts
+        
+        Note that this method is called recursively such that a product part is allowed to be
+        a set of subParts specified as follows:
+          (subPartLabel, list of productParts for each subPart)
+        For example, we have
+          ('segments', [list of [segment product parts]])
 
+        # Product Dictionary
+        #   Contains information for all formats e.g.
+        #   partner XML, CAP, and Legacy text 
+        '''
+        
+        
+        if type(productParts) is types.DictType:
+            arguments = productParts.get('arguments')
+            partsList = productParts.get('partsList')
+        else:
+            partsList = productParts
+        
+        removedParts = []
+        for part in partsList:
+            if type(part) is types.TupleType:
+                # e.g. subPart == 'segments', subPartsLists == list of parts for each segment
+                subPart, subPartsLists = part
+                subParts = []
+                for subPartsList in subPartsLists:
+                    subDict = collections.OrderedDict()
+                    self._processProductParts(productGenerator, subDict, productSegmentGroup, subPartsList)
+                    subParts.append(subDict)
+                # e.g. productDict['segments'] = segment dictionaries
+                productDict[subPart] = subParts
+            else:
+                if part not in self._noOpParts():
+                    execString = 'productGenerator._'+part+'(productDict, productSegmentGroup, arguments)'
+                    exec execString
+                    if part not in productDict:
+                        removedParts.append(part)
+        
+        for part in removedParts:
+            self.debug_print("in _processProductParts - " + 
+                             "Removing product part = %s" % (part), 1)
+            partsList.remove(part)
+    
+    ################# Product Parts Helper Methods
+    
+    def _formatUGC_entries(self):
+        ugcCodeList = []
+        for ugc in self._ugcs:
+            areaDictEntry = self._areaDict.get(ugc)
+            if areaDictEntry is None:
+                # We are not localized correctly for the hazard
+                # So get the first dictionary entry
+                self.logger.info('Not Localized for the hazard area -- ugc' + ugc)
+                keys = self._areaDict.keys()
+                areaDictEntry = self._areaDict.get(keys[0])
+            ugcEntry = collections.OrderedDict()
+            ugcEntry['state'] = areaDictEntry.get('stateAbbr')
+            ugcEntry['type'] = self._getUgcInfo(ugc, 'type')
+            ugcEntry['number'] = self._getUgcInfo(ugc, 'number')
+            ugcEntry['text'] = ugc
+            ugcEntry['subArea'] = ''
+            ugcCodeList.append(ugcEntry)
+        return ugcCodeList
+    
+    def _getUgcInfo(self, ugc, part='type'):
+        if part == 'type':
+            if ugc[2] == 'C': 
+                return 'County'
+            else: 
+                return 'Zone'
+        if part == 'number':
+            return ugc[3:]
+    
+    ###############################################################
+    ### Product Dictionary methods for creating, populating and
+    ###   formatting the product dictionary
+    
+    def _createProductDictionary(self, segmentList):
+        # Create the product dictionary
+        productSegmentGroup = self._groupSegments(segmentList)
+
+        productDict = self._initializeProductDictionary(productSegmentGroup)
+        productParts = productSegmentGroup.get('productParts') 
+        productDict['productParts'] = productParts
+        self._processProductParts(self, productDict, productSegmentGroup, productParts)
+        
+        return productDict
+    
+    def _initializeProductDictionary(self, productSegmentGroup):
+        '''
+        Set up the Product Dictionary for the given Product consisting of a 
+        group of segments.
+        
+        Fill in the dictionary information for the product header.
+        
+        @param productSegmentGroup: holds meta information about the product
+        @return initialized product dictionary
+      
+        ***********
+        Example segmented product:
+        
+           WGUS63 KBOU 080400
+           FFABOU
+
+           URGENT - IMMEDIATE BROADCAST REQUESTED
+           FLOOD WATCH
+           NATIONAL WEATHER SERVICE DENVER CO
+           400 AM GMT TUE FEB 8 2011
+
+           Overview Headline
+           Overview
+
+        ***********
+        Example non-segmented product:
+           WGUS63 KBOU 080400
+           FFWBOU
+        
+        '''        
+        self._productID = productSegmentGroup.get('productID', 'NNN')
+        if self._areaName != '':
+            self._areaName = ' FOR ' + self._areaName + '\n'
+        self._geoType = productSegmentGroup.get('geoType')
+        self._mapType = productSegmentGroup.get('mapType')
+        self._productTimeZones = []
+        
+        # Fill in product dictionary information
+        productDict = collections.OrderedDict()
+        productDict['productID'] = self._productID
+        return productDict
+    
+    def _formatProductDictionary(self, formatterClass, productDict):
+        formatter = formatterClass(self)
+        product = formatter.execute(productDict)
+        
+        return product
+    
+    ###############################################################
+    ### Sampling and Statistics related methods
+    
+    def _getStatValue(self, statDict, element, method=None, dataType=None):
+        stats = statDict.get(element, None)
+        if stats is None: return None
+        if type(stats) is types.ListType:
+            stats = stats[0]
+            stats, tr = stats
+        if dataType==self.VECTOR():
+            stats, dir = stats
+        return self.getValue(stats, method)
+    
+    ###############################################################
+    ### Area, Zone and Segment related methods
+    
+    def _allAreas(self):
+        return self._inlandAreas() + self._coastalAreas()
+    
+    def _computeIntersectAreas(self, editAreas, argDict):
+        editAreaUtils = EditAreaUtils.EditAreaUtils()
+        editAreaUtils.setUp(None, argDict)
+        surgeEditArea = editAreaUtils.getEditArea("StormSurgeWW_EditArea", argDict)
+        intersectAreas =[]
+        for (_, editAreaLabel) in editAreas:
+            editArea = editAreaUtils.getEditArea(editAreaLabel, argDict)
+            intersectAreaLabel = "intersect_"+editAreaLabel
+            intersectArea = editAreaUtils.intersectAreas(intersectAreaLabel, editArea, surgeEditArea)
+            grid = intersectArea.getGrid()
+            if grid.isAnyBitsSet():
+                editAreaUtils.saveEditAreas([intersectArea])
+                intersectAreas.append((intersectAreaLabel, intersectAreaLabel))
+                
+        return intersectAreas
+    
     ###############################################################
     ### Hazards related methods
     
@@ -72,31 +393,60 @@ class TextProduct(GenericHazards.TextProduct):
 
         self._hazardsTable = self._getHazardsTable(argDict, self.filterMethod)
         argDict["hazards"] = self._hazardsTable
-
-    def _setVTECActiveTable(self, argDict):
-        dataMgr = argDict["dataMgr"]
-        gfeMode = dataMgr.getOpMode().name()
-            
-        if gfeMode == "PRACTICE":
-            argDict["vtecActiveTable"] = "PRACTICE"
-        else:
-            argDict["vtecActiveTable"] = "active"
-
-    def _getAllVTECRecords(self):
-        allRecords = []
-        for segment in self._segmentList:
-            vtecRecords = self._hazardsTable.getHazardList(segment)
-            allRecords += vtecRecords
-        
-        return allRecords
-
+    
+    def _getHazardsTable(self, argDict, filterMethod, editAreas=None):
+        # Set up edit areas as list of lists
+        # Need to check hazards against all edit areas in the CWA MAOR
+        argDict["combinations"]= [(self._allAreas(),"Region1")]
+        dfEditAreas = argDict["combinations"]
+        editAreas = []
+        for area, label in dfEditAreas:
+            if type(area) is types.ListType:
+                editAreas.append(area)
+            elif type(area) is types.TupleType: #LatLon
+                editAreas.append([self.__getLatLonAreaName(area)])
+            else:
+                editAreas.append([area])
+        # Get Product ID and other info for HazardsTable
+        pil = self._pil.upper()   #  Ensure PIL is in UPPERCASE
+        stationID4 = self._fullStationID
+        productCategory = pil[0:3]   #part of the pil
+        definition = argDict['definition']
+        sampleThreshold = definition.get("hazardSamplingThreshold", (10, None))
+        # Process the hazards
+        accurateCities = definition.get('accurateCities', 0)
+        cityRefData = []
+        import HazardsTable
+        hazards = HazardsTable.HazardsTable(
+          argDict["ifpClient"], editAreas, productCategory, filterMethod,
+          argDict["databaseID"],
+          stationID4, argDict["vtecActiveTable"], argDict["vtecMode"], sampleThreshold,
+          creationTime=argDict["creationTime"], accurateCities=accurateCities,
+          cityEditAreas=cityRefData, dataMgr=argDict['dataMgr'])
+        return hazards
+    
     def _ignoreActions(self):
         # Ignore hazards with these action codes in the overview headlines
         # NOTE: the VTEC and segments will still include them correctly.
         return ['CAN', 'UPG']
     
-    # In order to have the HazardsTable use the allowedHeadlines list,
-    # we need to supply a filterMethod that uses allowedHeadlines instead of allowedHazards
+    def _setVTECActiveTable(self, argDict):
+        dataMgr = argDict["dataMgr"]
+        gfeMode = dataMgr.getOpMode().name()
+        
+        self.debug_print("*" *100, 1)
+        self.debug_print("gfeMode = '%s'" % (gfeMode), 1)
+        self.debug_print("*" *100, 1)
+        
+        if gfeMode == "PRACTICE":
+            argDict["vtecActiveTable"] = "PRACTICE"
+        else:
+            argDict["vtecActiveTable"] = "active"
+    
+    def _getVtecRecords(self, segment, vtecEngine=None):
+        vtecRecords = self._hazardsTable.getHazardList(segment)
+        return vtecRecords
+    
     def _getAllowedHazardList(self, allowedHazardList=None):
         if allowedHazardList is None:
             allowedHazardList = self.allowedHazards()
@@ -107,7 +457,7 @@ class TextProduct(GenericHazards.TextProduct):
             else:
                 hazardList.append(h)
         return hazardList
-
+    
     def _altFilterMethod(self, hazardTable, allowedHazardsOnly=False):
         # Remove hazards not in allowedHeadlines list
         allowedHazardList = self._getAllowedHazardList(self.allowedHeadlines())
@@ -156,15 +506,16 @@ class TextProduct(GenericHazards.TextProduct):
             for area in hazard['id']:
                 hazDict.setdefault((hdln, phen, sig), []).append(area)
 
-        #self.debug_print("hazDict", hazDict
+        self.debug_print("hazDict = %s" % (self._pp.pformat(hazDict)), 1)
         hazardHdlns=[]
         huAreas = []
-#        self.debug_print("\nAdditional Hazard Headlines"
+        self.debug_print("Additional Hazard Headlines", 1)
         for key in hazDict.keys():
             hdln, phen, sig = key
             huAreas = huAreas + hazDict[key]
             hazardHdln = ((hdln, "NEW", phen,sig), hazDict[key], [],[],[])
-            #self.debug_print("   ", hazardHdln, hazDict[key]
+            self.debug_print("   %s" % (self._pp.pformat(hazardHdln)), 1)
+            self.debug_print("       %s" % (self._pp.pformat(hazDict[key])), 1)
             hazardHdlns.append(hazardHdln)
         return hazardHdlns, huAreas
     
@@ -187,14 +538,12 @@ class TextProduct(GenericHazards.TextProduct):
         #     Otherwise, they are ignored.
         #
         # E.g. hdlnList = self._checkHazard(hazardHdlns, [("FA","W")], returnList=True)
-        self.debug_print("_checkHazard hazardHdlns is %s" % (hazardHdlns), 1)
-        self.debug_print("_checkHazard phenSigList is %s" % (phenSigList), 1)
+        self.debug_print("_checkHazard hazardHdlns is %s" % (self._pp.pformat(hazardHdlns)), 1)
+        self.debug_print("_checkHazard phenSigList is %s" % (self._pp.pformat(phenSigList)), 1)
         chosen = []
         for key, landList, marineList, coastalList, inlandList in hazardHdlns:
-#            self.debug_print("what is mode?", mode
 
-            #  SARAH - we do not want to consider marine hazards in this product
-#             hazAreas = landList+marineList
+            #  We do not want to consider marine hazards in this product
             hazAreas = landList
             hazValue = (key, hazAreas)
             self.debug_print("hazValue is %s" % (repr(hazValue)), 1)
@@ -209,10 +558,9 @@ class TextProduct(GenericHazards.TextProduct):
                         # Check for land, marine, etc.
                         for checkAreaType in checkAreaTypes:
                             exec "testList = " + checkAreaType + "List"
-#                            self.debug_print("testList is", testList
+                            self.debug_print("testList is %s" % (testList), 1)
                             if testList != []:
                                 chosen.append(hazValue)
-#                                self.debug_print("chosen is ", chosen
                     elif checkAreas is not None:
                         acceptedAreas=[]
                         for hazArea in hazAreas:
@@ -224,46 +572,12 @@ class TextProduct(GenericHazards.TextProduct):
                         chosen.append(hazValue)
                     if not returnList and chosen!=[]: break
         
-        self.debug_print("MATT _checkHazard chosen = %s" % (repr(chosen)), 1)
+        self.debug_print("In _checkHazard chosen = %s" % 
+                         (self._pp.pformat(chosen)), 1)
         if not returnList:
             return chosen!=[]
         return chosen
     
-    def getVtecRecords(self, segment, vtecEngine=None):
-        vtecRecords = self._hazardsTable.getHazardList(segment)
-        return vtecRecords
-    
-    def _getHazardsTable(self, argDict, filterMethod, editAreas=None):
-        # Set up edit areas as list of lists
-        # Need to check hazards against all edit areas in the CWA MAOR
-        argDict["combinations"]= [(self._allAreas(),"Region1")]
-        dfEditAreas = argDict["combinations"]
-        editAreas = []
-        for area, label in dfEditAreas:
-            if type(area) is types.ListType:
-                editAreas.append(area)
-            elif type(area) is types.TupleType: #LatLon
-                editAreas.append([self.__getLatLonAreaName(area)])
-            else:
-                editAreas.append([area])
-        # Get Product ID and other info for HazardsTable
-        pil = self._pil.upper()   #  Ensure PIL is in UPPERCASE
-        stationID4 = self._fullStationID
-        productCategory = pil[0:3]   #part of the pil
-        definition = argDict['definition']
-        sampleThreshold = definition.get("hazardSamplingThreshold", (10, None))
-        # Process the hazards
-        accurateCities = definition.get('accurateCities', 0)
-        cityRefData = []
-        import HazardsTable
-        hazards = HazardsTable.HazardsTable(
-          argDict["ifpClient"], editAreas, productCategory, filterMethod,
-          argDict["databaseID"],
-          stationID4, argDict["vtecActiveTable"], argDict["vtecMode"], sampleThreshold,
-          creationTime=argDict["creationTime"], accurateCities=accurateCities,
-          cityEditAreas=cityRefData, dataMgr=argDict['dataMgr'])
-        return hazards
-
     ###############################################################
     ### Time related methods
     
@@ -278,7 +592,7 @@ class TextProduct(GenericHazards.TextProduct):
         self._expireTime = self._issueTime_secs + self._purgeTime*3600
         self._timeLabel = self.getCurrentTime(
             argDict, "%l%M %p %Z %a %b %e %Y", stripLeading=1)
-
+    
     def _determineTimeRanges(self, argDict):
         # Set up the time range for 0-120 hours
 
@@ -298,12 +612,15 @@ class TextProduct(GenericHazards.TextProduct):
         trList = []
         self._periodList = []
         for index, tr in enumerate(subRanges):
-            # self.debug_print(tr)
+            self.debug_print("In _determineTimeRanges -> tr = %s" % 
+                             (self._pp.pformat(tr)), 1)
             trList.append((tr, "Label"))
             
             if index == 0:
                 startTime = tr.startTime()
                 localtime = time.localtime(startTime.unixTime())
+                
+                # Determine the number of hours to the next 6AM or 6PM period
                 if localtime.tm_hour < 6:
                     periodLength = 6 - localtime.tm_hour
                 elif localtime.tm_hour >= 6 and localtime.tm_hour < 18:
@@ -311,6 +628,8 @@ class TextProduct(GenericHazards.TextProduct):
                 else:
                     periodLength = 30 - localtime.tm_hour
                 
+                # Don't allow the first period to be less than 3 hours long;
+                # instead just start with the next period
                 if periodLength < 3:
                     periodStart = startTime + periodLength*3600
                     period = self.makeTimeRange(periodStart, periodStart+12*3600)
@@ -318,10 +637,13 @@ class TextProduct(GenericHazards.TextProduct):
                     period = self.makeTimeRange(startTime, startTime+periodLength*3600)
                 
                 self._periodList.append(period)
+                
                 for i in range(1,10):
                     startTime = period.endTime() # Start where the last period leaves off
                     period = self.makeTimeRange(startTime, startTime+12*3600)
                     self._periodList.append(period)
+        self.debug_print("final periodList =\n\n%s\n" % 
+                         (self._pp.pformat(self._periodList)), 1)
         self._timeRangeList = trList
     
     def _calculateStartTime(self, localCreationTime):
@@ -330,21 +652,21 @@ class TextProduct(GenericHazards.TextProduct):
         day = localCreationTime[2]
         hour = localCreationTime[3]
         
-        #  If we are more than halfway though a 3 hr period
-        if hour % 3 > 1:
-            adjust = 3      #  move on to the next 3 hr block
+        #  Define a variable to control which resolution we want
+        resolution = self._resolution()          #  6 is also a valid option
+        
+        #  If we are more than halfway though a block we would want
+        if hour % resolution > resolution / 2:
+            adjust = resolution      #  move on to the next block
         else:
             adjust = 0
 
-#         if hour % 6 > 3:
-#             adjust = 6      #  move on to the next 6 hr block
-#         else:
-#             adjust = 0
-#         self.debug_print("MATT: _calculateStartTime %d   adjust = %d" % (hour % 6, adjust)
+        self.debug_print("In _calculateStartTime %d   adjust = %d" % 
+                         (hour % resolution, adjust), 1)
         
-        #  Now "truncate" to a 6-hourly boundary and compute startTime in local Time.
-#         hour =  int( (hour/6) * 6) + adjust
-        hour =  int( (hour/3) * 3) + adjust
+        #  Now "truncate" to a block boundary and compute startTime in local time.
+#         hour =  int( (hour/3) * 3) + adjust
+        hour =  int( (hour/resolution) * resolution) + adjust
         if hour > 23:
             hour -= 24
         elif hour < 0:
@@ -363,7 +685,7 @@ class TextProduct(GenericHazards.TextProduct):
         #     DAY + MORNING / AFTERNOON / EVENING / OVERNIGHT.
         # If wholePeriod, format FROM ... TO...
 
-        self.debug_print("MATT Format period wholePeriod = %s, period = %s, useEndTime =%s" %
+        self.debug_print("Format period wholePeriod = %s, period = %s, useEndTime =%s" %
                          (str(wholePeriod), str(period), str(useEndTime)), 1)
         if period is None:
             return ""
@@ -372,10 +694,10 @@ class TextProduct(GenericHazards.TextProduct):
         else:
             startTime = period.startTime()
         result = self._getTimeDesc(startTime, resolution, shiftToLocal)
-        self.debug_print("MATT result = '%s'" % (result), 1)
+        self.debug_print("_getTimeDesc result = '%s'" % (result), 1)
         if wholePeriod:
             endResult = self._getTimeDesc(period.endTime(), resolution, shiftToLocal)
-            self.debug_print("MATT endResult = '%s'" % (endResult), 1)
+            self.debug_print("_getTimeDesc endResult = '%s'" % (endResult), 1)
             if result != endResult:
                 result=result + " TO "+ endResult 
         return result
@@ -445,69 +767,6 @@ class TextProduct(GenericHazards.TextProduct):
             else: partOfDay = "evening"
         return prevDay, partOfDay
     
-    ###############################################################
-    ### Sampling and Statistics related methods
-    
-    def moderated_dict(self, parmHisto, timeRange, componentName):
-        """
-           Specifies the lower percentages and upper percentages of
-           data to be thrown out for moderated stats.
-        """
-        # COMMENT: This dictionary defines the low and high limit at which
-        # outliers will be removed when calculating moderated stats.
-        # By convention the first value listed is the percentage
-        # allowed for low values and second the percentage allowed
-        # for high values.
-
-        # Get Baseline thresholds
-        dict = SampleAnalysis.SampleAnalysis.moderated_dict(
-            self, parmHisto, timeRange, componentName)
-
-        #  Change thresholds
-        dict["Wind"] = (0, 15)
-        dict["WindGust"] = (0, 15)
-        dict["pws34int"] = (0, 5)
-        dict["pws64int"] = (0, 5)
-        dict["pwsD34"] = (0, 5)
-        dict["pwsN34"] = (0, 5)
-        dict["pwsD64"] = (0, 5)
-        dict["pwsN64"] = (0, 5)
-        dict["InundationMax"] = (0, 5)
-        dict["InundationTiming"] = (0, 5)
-        return dict
-    
-    def _getStatValue(self, statDict, element, method=None, dataType=None):
-        stats = statDict.get(element, None)
-        if stats is None: return None
-        if type(stats) is types.ListType:
-            stats = stats[0]
-            stats, tr = stats
-        if dataType==self.VECTOR():
-            stats, dir = stats
-        return self.getValue(stats, method)
-    
-    ###############################################################
-    ### Area, Zone and Segment related methods
-    
-    def _allAreas(self):
-        return self._inlandAreas() + self._coastalAreas()
-    
-    def _computeIntersectAreas(self, editAreas, argDict):
-        editAreaUtils = EditAreaUtils.EditAreaUtils()
-        editAreaUtils.setUp(None, argDict)
-        surgeEditArea = editAreaUtils.getEditArea("StormSurgeWW_EditArea", argDict)
-        intersectAreas =[]
-        for (_, editAreaLabel) in editAreas:
-            editArea = editAreaUtils.getEditArea(editAreaLabel, argDict)
-            intersectAreaLabel = "intersect_"+editAreaLabel
-            intersectArea = editAreaUtils.intersectAreas(intersectAreaLabel, editArea, surgeEditArea)
-            grid = intersectArea.getGrid()
-            if grid.isAnyBitsSet():
-                editAreaUtils.saveEditAreas([intersectArea])
-                intersectAreas.append((intersectAreaLabel, intersectAreaLabel))
-                
-        return intersectAreas
-
     ###############################################################
     ### Storm Information and TCP related methods
     
@@ -758,16 +1017,21 @@ NEXT COMPLETE ADVISORY...500 AM EDT.
  
 $$
 FORECASTER STEWART"""
-
+    
     ###############################################################
     ### Advisory related methods
-
+    
+    def _initializeAdvisories(self):
+        self._currentAdvisory = dict()
+        self._currentAdvisory['ZoneData'] = dict()
+        self._loadLastTwoAdvisories()
+    
     def _synchronizeAdvisories(self):
-        pathManager = PathManagerFactory.getPathManager()
-        context = pathManager.getContextForSite(LocalizationType.CAVE_STATIC, self._site)
-        
+       
         # Retrieving a directory causes synching to occur
-        file = pathManager.getLocalizationFile(context, self._getAdvisoryPath()).getFile()
+        file = LocalizationSupport.getLocalizationFile(LocalizationSupport.CAVE_STATIC, 
+                                                       LocalizationSupport.SITE, self._site,
+                                                       self._getAdvisoryPath()).getFile()
         
         return file
     
@@ -783,17 +1047,22 @@ FORECASTER STEWART"""
         
         return path
     
-    def _loadLastTwoAdvisories(self):
+    def _getStormAdvisoryNames(self):
         advisoryDirectoryPath = self._getLocalAdvisoryDirectoryPath()
         filenames = os.listdir(advisoryDirectoryPath)
         allAdvisories = filter(lambda filename: filename[-5:] == ".json", filenames)
         
-        self.debug_print("allAdvisories = %s" % (repr(allAdvisories)))
+        self.debug_print("allAdvisories = %s" % (self._pp.pformat(allAdvisories)))
         
         stormAdvisories = filter(lambda filename: self._getStormNameFromTCP() in filename,
                                  allAdvisories)
         stormAdvisories = map(lambda filename: filename[:-5], stormAdvisories)
-        self.debug_print("stormAdvisories = %s" % (repr(stormAdvisories)))
+        self.debug_print("stormAdvisories = %s" % (self._pp.pformat(stormAdvisories)))
+        
+        return stormAdvisories
+    
+    def _loadLastTwoAdvisories(self):
+        stormAdvisories = self._getStormAdvisoryNames()
         
         #  We need to reverse the order of the advisories so the latest 
         #  advisories come first in this list
@@ -813,8 +1082,8 @@ FORECASTER STEWART"""
         else:   #  Must be the HLS
             lastTwoAdvisories = stormAdvisories[:2]
         
-        self.debug_print("MATT DEBUG: last two advisories = %s" % 
-                         (repr(lastTwoAdvisories)), 1)
+        self.debug_print("DEBUG: last two advisories = %s" % 
+                         (self._pp.pformat(lastTwoAdvisories)), 1)
         self._previousAdvisory = None
         if len(lastTwoAdvisories) >= 1:
             self._previousAdvisory = self._loadAdvisory(lastTwoAdvisories[0])
@@ -828,12 +1097,12 @@ FORECASTER STEWART"""
         fileName = self._getAdvisoryFilename(advisoryName)
          
         try:
-            pythonDict = JsonSupport.loadFromJson(LocalizationType.CAVE_STATIC,
+            pythonDict = JsonSupport.loadFromJson(LocalizationSupport.CAVE_STATIC,
                                              self._site,
                                              fileName)
             
-            self.debug_print("SARAH: File contents for %s:" % (fileName), 1)
-            self.debug_print(repr(pythonDict), 1)
+            self.debug_print("File contents for %s:" % (fileName), 1)
+            self.debug_print(self._pp.pformat(pythonDict), 1)
              
             # Only use transmitted advisories
             if pythonDict["Transmitted"] == False and advisoryName != "pending":
@@ -841,8 +1110,7 @@ FORECASTER STEWART"""
             else:
                 return pythonDict
         except Exception, e:
-            self.debug_print("SARAH Load Exception for %s : %s" % 
-                             (fileName, e), 1)
+            self.debug_print("Load Exception for %s : %s" % (fileName, e), 1)
             return None
         
     def _getAdvisoryPath(self):
@@ -857,7 +1125,7 @@ FORECASTER STEWART"""
         advisoryFilename = os.path.join(self._getAdvisoryPath(),
                            advisoryName+".json")
         return advisoryFilename
-
+    
     ###############################################################
     ### GUI related methods
 
@@ -899,48 +1167,7 @@ FORECASTER STEWART"""
             "headers": ("blue", ("Helvetica", 14, "bold")),
             "instructions": (None, ("Helvetica", 12, "italic")),
             }
-    
-    ###############################################################
-    ### TCV Statistics
-    
-    def threatKeyOrder(self):
-        return [None, "None", "Elevated", "Mod", "High", "Extreme"]
-    
-    def allowedHazards(self):
-        tropicalActions = ["NEW", "EXA", "CAN", "CON"]
-        return [
-            ('HU.A',tropicalActions,'Hurricane'),
-            ('HU.W',tropicalActions,'Hurricane'),
-            ('SS.A',tropicalActions,'Surge'),
-            ('SS.W',tropicalActions,'Surge'),
-            ('TR.A',tropicalActions,'Tropical'),
-            ('TR.W',tropicalActions,'Tropical'),
-            ]
-        
-    def allowedHeadlines(self):
-        allActions = ["NEW", "EXA", "EXB", "EXT", "CAN", "CON", "EXP"]
-        return [
-            ('FF.A', allActions, 'Flood'),        # FLASH FLOOD WATCH
-            ('FA.A', allActions, 'Flood'),        # FLOOD WATCH
-            ('TO.A', allActions, 'Convective'),   # TORNADO WATCH
-            ]
-    
-    def _initializeAdvisories(self):
-        self._currentAdvisory = dict()
-        self._currentAdvisory['ZoneData'] = dict()
-        self._loadLastTwoAdvisories()
-    
-    def _initializeSegmentZoneData(self, segment):
-        # The current advisory will be populated when setting a section's stats
-        self._currentAdvisory['ZoneData'][segment] = {
-            "WindThreat":            None,
-            "WindForecast":          None,
-            "StormSurgeThreat":      None,
-            "StormSurgeForecast":    None,
-            "FloodingRainThreat":    None,
-            "FloodingRainForecast":  None,
-            "TornadoThreat":         None,
-        }
+
 
 import Tkinter
 class Common_Dialog(Dialog):
@@ -950,6 +1177,7 @@ class Common_Dialog(Dialog):
         self._varDict = {}         # all end results must be saved here
         self._infoDict = infoDict
         self._parent = parent
+        self._pp = pprint.PrettyPrinter()
         Dialog.__init__(self, parent=None, title=title)
             
     def getVarDict(self):

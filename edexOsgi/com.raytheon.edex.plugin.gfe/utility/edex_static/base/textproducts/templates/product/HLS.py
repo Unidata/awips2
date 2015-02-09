@@ -1,4 +1,4 @@
-#  Version 2014.11.24-0
+#  Version 2015.1.6-0
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -6,6 +6,7 @@ import ModuleAccessor, SampleAnalysis, EditAreaUtils
 import math
 import Tkinter
 import numpy
+import LocalizationSupport
 
 from AbsTime import *
 from StartupDialog import IFPDialog as Dialog
@@ -52,6 +53,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
 
     #  Add options for debugging
     Definition["debug"] = {
+                          #TextProduct
                           "__init__": 0,
                           "_inlandAreas": 0,
                           "_coastalAreas": 0,
@@ -60,15 +62,16 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_localReferencePoints": 0,
                           "_localReferencePoints_defaults": 0,
                           "_referencePointLimit": 0,
+                          "_productParts_HLS": 0,
                           "_analysisList_HLS": 0,
                           "_analysisList_HLS_WholeDomain": 0,
                           "_intersectAnalysisList_HLS": 0,
-                          "_productParts_HLS": 0,
-                          "_impactsKeyFunction": 0,
-                          "_ugcHeader": 0,
+                          "generateForecast": 0,
+                          "_initializeVariables": 0,
+                          "_initializeHeadlines": 0,
+                          "_initializeSamplingDict": 0,
+                          "_noOpParts": 0,
                           "_areaList": 0,
-                          "_formatUGC_entries": 0,
-                          "_getUgcInfo": 0,
                           "_summaryHeadlines": 0,
                           "_changesHazards": 0,
                           "_currentHazards": 0,
@@ -84,81 +87,66 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_otherPreparednessActions": 0,
                           "_additionalSourcesInfo": 0,
                           "_nextUpdate": 0,
+                          "_impactsKeyFunction": 0,
                           "_getPotentialImpactsStatements": 0,
                           "_impactCategoryToThreatLevel": 0,
-                          "generateForecast": 0,
                           "_determineHazardStates": 0,
                           "_sampleHLSData": 0,
-                          "_createWholeDomainEditArea": 0,
-                          "_sampleMostSignificantDiscreteValue": 0,
+                          "_sampleTCVAdvisory": 0,
                           "_sampleRankedDiscreteValue": 0,
+                          "_sampleMostSignificantDiscreteValue": 0,
                           "_getDominantThreatLevel": 0,
                           "_getHighestThreat": 0,
                           "_getLowestThreat": 0,
-                          "_initializeVariables": 0,
-                          "_initializeHeadlines": 0,
-                          "_initializeSamplingDict": 0,
-                          "_sampleTCVAdvisory": 0,
                           "_setHazardImpactCategories": 0,
-                          "_grabHeadline": 0,
+                          "_createWholeDomainEditArea": 0,
+                          "_groupSegments": 0,
                           "_determineHazards": 0,
-                          "SituationOverview": 0,
+                          "_formatLocalTime": 0,
+                          "_getTimeZoneList": 0,
+                          "_grabHeadline": 0,
                           "_getStormInfo": 0,
                           "_grabStormInfo": 0,
                           "_decodeStormInfo": 0,
                           "_expandBearings": 0,
                           "_removeKM": 0,
                           "_cleanText": 0,
-                          "_formatLocalTime": 0,
-                          "_getTimeZoneList": 0,
                           "_calcLocalReferences": 0,
                           "_calcReference": 0,
                           "_distanceFromLatLon": 0,
                           "_bearing": 0,
                           "_dirInEnglish": 0,
-                          "_processProductParts": 0,
-                          "_noOpParts": 0,
-                          "_createProductDictionary": 0,
-                          "_formatProductDictionary": 0,
-                          "_groupSegments": 0,
-                          "_findNEWAssociatedWithUPG": 0,
-                          "_initializeProductDict": 0,
-                          "_initializeHazardsTable": 0,
-                          "_setVTECActiveTable": 0,
-                          "_allAreas": 0,
                           "_overview_list": 0,
                           "_displayGUI": 0,
                           "_frame": 0,
                           
-                          #  Legacy formatter class
-                          "execute": 0,
-                          "_processProductParts": 0,
-                          "_noOpParts": 0,
-                          "processWmoHeader": 0,
-                          "processProductHeader": 0,
-                          "formatIssueTime": 0,
-                          "processSummaryHeadlines": 0,
-                          "processHazards": 0,
-                          "_areaWords": 0,
-                          "processStormInformation": 0,
-                          "processSituationOverview": 0,
-                          "processHazardsSection": 0,
-                          "processSubParts": 0,
-                          
-                          #  HLSTCV_Common methods
+                          #HLSTCV_Common
+                          "allowedHazards": 0,
+                          "allowedHeadlines": 0,
+                          "_initializeVariables": 0,
+                          "moderated_dict": 0,
                           "_wmoHeader": 0,
                           "_productHeader": 0,
+                          "_ugcHeader": 0,
+                          "_processProductParts": 0,
+                          "_formatUGC_entries": 0,
+                          "_getUgcInfo": 0,
+                          "_createProductDictionary": 0,
+                          "_initializeProductDictionary": 0,
+                          "_formatProductDictionary": 0,
+                          "_getStatValue": 0,
+                          "_allAreas": 0,
+                          "_computeIntersectAreas": 0,
                           "_initializeHazardsTable": 0,
-                          "_setVTECActiveTable": 0,
-                          "_getAllVTECRecords": 0,
+                          "_getHazardsTable": 0,
                           "_ignoreActions": 0,
+                          "_setVTECActiveTable": 0,
+                          "_getVtecRecords": 0,
                           "_getAllowedHazardList": 0,
                           "_altFilterMethod": 0,
                           "_filterHazards": 0,
                           "_getAdditionalHazards": 0,
                           "_checkHazard": 0,
-                          "getVtecRecords": 0,
-                          "_getHazardsTable": 0,
                           "_initializeTimeVariables": 0,
                           "_determineTimeRanges": 0,
                           "_calculateStartTime": 0,
@@ -166,10 +154,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_formatPeriod": 0,
                           "_getTimeDesc": 0,
                           "_getPartOfDay": 0,
-                          "moderated_dict": 0,
-                          "_getStatValue": 0,
-                          "_allAreas": 0,
-                          "_computeIntersectAreas": 0,
                           "_initializeStormInformation": 0,
                           "_parseTCP": 0,
                           "_getStormTypeFromTCP": 0,
@@ -179,22 +163,26 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_getStormNumberStringFromTCP": 0,
                           "_useTestTCP": 0,
                           "_testTCP": 0,
+                          "_initializeAdvisories": 0,
                           "_synchronizeAdvisories": 0,
                           "_getLocalAdvisoryDirectoryPath": 0,
+                          "_getStormAdvisoryNames": 0,
                           "_loadLastTwoAdvisories": 0,
                           "_loadAdvisory": 0,
                           "_getAdvisoryPath": 0,
-                          "_getLocalizationFile": 0,
                           "_getAdvisoryFilename": 0,
                           "_processVariableList": 0,
                           "_GUI_sizing_dict": 0,
                           "_GUI1_configDict": 0,
                           "_font_GUI_dict": 0,
-                          "threatKeyOrder": 0,
-                          "allowedHazards": 0,
-                          "allowedHeadlines": 0,
-                          "_initializeAdvisories": 0,
-                          "_initializeSegmentZoneData": 0,
+                          
+                          #Overview_Dialog
+                          "body": 0,
+                          "_makeStep3": 0,
+                          "_makeButtons": 0,
+                          "okCB": 0,
+                          
+                          #Common_Dialog
                           "getVarDict": 0,
                           "_makeRadioOrCheckList": 0,
                           "_makeEntry": 0,
@@ -204,6 +192,21 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_setVarDict": 0,
                           "status": 0,
                           "buttonbox": 0,
+                          
+                          #LegacyFormatter
+                          "execute": 0,
+                          "_processProductParts": 0,
+                          "processWmoHeader": 0,
+                          "processProductHeader": 0,
+                          "processSummaryHeadlines": 0,
+                          "processHazards": 0,
+                          "_areaWords": 0,
+                          "processStormInformation": 0,
+                          "processSituationOverview": 0,
+                          "processHazardsSection": 0,
+                          "processSubParts": 0,
+                          
+                          #TextProductCommon
                           "setUp": 0,
                           "hazardTimeZones": 0,
                           "getExpireTime": 0,
@@ -228,10 +231,20 @@ class TextProduct(HLSTCV_Common.TextProduct):
     #####################################################################
     #####################################################################
     ### Organization of Formatter Code
-
+    
     ###############################################################
     ###  MUST OVERRIDE DEFINITIONS !!!
-    ###    _inlandAreas, _coastalAreas, _cwa
+    ###    _inlandAreas, _coastalAreas, _cwa, _cwa_descriptor,
+    ###    _localReferencePoints, _localReferencePoints_defaults
+    ###############################################################
+    
+    ###############################################################
+    ###  Optional Overrides
+    ###    _referencePointLimit
+    ###############################################################
+    
+    ###############################################################
+    ### HLS Product and Segment Parts Definition
     ###############################################################
     
     ###############################################################
@@ -240,29 +253,23 @@ class TextProduct(HLSTCV_Common.TextProduct):
     ###############################################################
     
     ###############################################################
-    ###  Hazards and Additional Hazards
-    ###    allowedHazards is used for VTEC records and summary
-    ###      headlines
-    ###    allowedHeadlines are additional hazards reported in
-    ###      certain sections
-    ###############################################################
-    
-    ###############################################################
-    ### HLS Product and Segment Parts Definition
-    ###############################################################
-
-    ###############################################################
     #  CODE
     ###############################################################
     ###  High level flow of formatter
-    ###    generateForecast, initializeVariables,
-    ###    determineSegments, determineTimeRanges, sampleData,
-    ###    createProductDictionary, formatProductDictionary,
-    ###    archiveCurrentAdvisory...
+    ###    generateForecast, _initializeVariables,
+    ###    _loadLastTwoAdvisories, _determineTimeRanges,
+    ###    _initializeSamplingDict, _sampleTCVAdvisory,
+    ###    _sampleHLSData, _determineHazardStates,
+    ###    _setHazardImpactCategories, _createProductDictionary,
+    ###    _formatProductDictionary
     ###############################################################
     
     ###############################################################
-    ### Product Dictionary methods
+    ### Product Parts Implementation
+    ###############################################################
+    
+    ###############################################################
+    ### Sampling and Statistics related methods
     ###############################################################
     
     ###############################################################
@@ -274,10 +281,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
     ###############################################################
     
     ###############################################################
-    ### Sampling and Statistics related methods
-    ###############################################################
-    
-    ###############################################################
     ### Time related methods
     ###############################################################
     
@@ -286,26 +289,22 @@ class TextProduct(HLSTCV_Common.TextProduct):
     ###############################################################
     
     ###############################################################
-    ### Advisory related methods
-    ###############################################################
-    
-    ###############################################################
     ### GUI related methods
     ###############################################################
-
-
+    
+    
     ###############################################################
     ###  MUST OVERRIDE DEFINITIONS !!!
     
     def _inlandAreas(self):
         return [
-#             "FLZ063", "FLZ066", "FLZ067", "FLZ068", "FLZ070",
-#             "FLZ071", "FLZ072", "FLZ073", "FLZ074",
+             #"FLZ063", "FLZ066", "FLZ067", "FLZ068", "FLZ070",
+             #"FLZ071", "FLZ072", "FLZ073", "FLZ074",
             ]
     
     def _coastalAreas(self):
         return [
-#             "FLZ069", "FLZ075", "FLZ168", "FLZ172", "FLZ173", "FLZ174",
+             #"FLZ069", "FLZ075", "FLZ168", "FLZ172", "FLZ173", "FLZ174",
             ]
     
     def _cwa(self):
@@ -337,6 +336,46 @@ class TextProduct(HLSTCV_Common.TextProduct):
         # Give the number of reference points allowed to be chosen
         # Also give a label (e.g. "two") for the GUI
         return (2, "two")
+    
+    ###############################################################
+    ### HLS Product and Segment Parts Definition
+    
+    def _productParts_HLS(self, segment_vtecRecords_tuples):
+        partsList = [
+            'wmoHeader',
+            'ugcHeader',
+            'productHeader',
+            'areaList',
+            'summaryHeadlines',
+            'newInformationHeader',
+            'changesHazards',
+            'currentHazards',
+            'stormInformation',
+            'situationOverview',
+            'sigPotentialImpacts',
+            ]
+        
+        if self._ImpactsAnticipated:
+            includedImpacts = sorted(self._IncludedImpacts, key=self._impactsKeyFunction)
+            for ((_, sectionName), _) in includedImpacts:
+                self.debug_print("adding section = '%s'" % (sectionName), 1)
+                partsList.append(sectionName)
+        
+        partsList.append('preparednessSection')
+        
+        if self._ImpactsAnticipated:
+            partsList.append('evacuationStatements')
+            partsList.append('otherPreparednessActions')
+            partsList.append('additionalSourcesInfo')
+        
+        partsList.append('nextUpdate')
+        partsList.append('endProduct')
+        
+        self.debug_print("Product Parts partsList =\n\n%s\n" % (self._pp.pformat(partsList)), 1)
+        
+        return {
+            'partsList': partsList
+            }
     
     ###############################################################
     ### Analysis Lists, SampleAnalysis Overrides and other
@@ -379,101 +418,119 @@ class TextProduct(HLSTCV_Common.TextProduct):
             ]
 
         return analysisList
-
+    
     ###############################################################
-    ### TCV Product and Segment Parts Definition
+    ###  High level flow of formatter
     
-    def _productParts_HLS(self, segment_vtecRecords_tuples):
-        partsList = [
-            'wmoHeader',
-            'ugcHeader',
-            'productHeader',
-            'areaList',
-            'summaryHeadlines',
-            'newInformationHeader',
-            'changesHazards',
-            'currentHazards',
-            'stormInformation',
-            'situationOverview',
-            'sigPotentialImpacts',
-            ]
+    def generateForecast(self, argDict):
+        # Generate Text Phrases for a list of edit areas
+
+        error = self._initializeVariables(argDict)
+        if error is not None:
+            return error
+        
+        if self._stormName is None or self._stormName.strip() == "":
+            return "Could not determine the storm name"
+        
+        self._loadLastTwoAdvisories()
+        if self._previousAdvisory is None and self._ImpactsAnticipated:
+            return "A TCV must be transmitted before an HLS can be run"
+        
+        # Determine time ranges
+        self._determineTimeRanges(argDict)
         
         if self._ImpactsAnticipated:
-            includedImpacts = sorted(self._IncludedImpacts, key=self._impactsKeyFunction)
-            for ((_, sectionName), _) in includedImpacts:
-                self.debug_print("SARAH: adding section = '%s'" % (sectionName), 1)
-                partsList.append(sectionName)
-        
-        partsList.append('preparednessSection')
-        
-        if self._ImpactsAnticipated:
-            partsList.append('evacuationStatements')
-            partsList.append('otherPreparednessActions')
-            partsList.append('additionalSourcesInfo')
-        
-        partsList.append('nextUpdate')
-        partsList.append('endProduct')
-        
-        return {
-            'partsList': partsList
-            }
+
+            # Sample the data
+            self._initializeSamplingDict()
+            self._sampleTCVAdvisory(self._previousAdvisory)
+            self._sampleHLSData(argDict)
+            
+            self._determineHazardStates()
     
-    def _impactsKeyFunction(self, optionIndexTuple):
-        ((_, _), indexStr) = optionIndexTuple
-        indexStr = indexStr.strip()
-        if len(indexStr) == 0:
-            return 9999
-        else:
-            return int(indexStr)
+            for threatName in ['WindThreat', 'StormSurgeThreat', 'FloodingRainThreat', 'TornadoThreat']:
+                self._setHazardImpactCategories(threatName)
     
-    def _ugcHeader(self, productDict, productSegmentGroup, productSegment):
-        self._ugcs = self._allAreas() 
-        productDict['ugcCodes'] = self._formatUGC_entries()
-        self._ugcHeader_value = self._tpc.formatUGCs(self._ugcs, self._expireTime)
-        productDict['ugcHeader'] = self._ugcHeader_value
+        # Create the product dictionary and format it to create the output
+        productDict = self._createProductDictionary(self._allAreas())
+        productOutput = self._formatProductDictionary(LegacyFormatter, productDict)
+
+        return productOutput
+    
+    def _initializeVariables(self, argDict):
+        error = HLSTCV_Common.TextProduct._initializeVariables(self, argDict)
+        if error is not None:
+            return error
+        
+        self._getStormInfo(argDict)
+        
+        self._initializeHeadlines()
+        
+        self._ugcs = sorted(self._allAreas())
+        
+        return None
+    
+    def _initializeHeadlines(self):
+        if self._MainHeadline == "Enter":
+            self._headlines = [self._MainHeadline_entry]
+        elif self._MainHeadline == "UsePrev":
+            self._prevHLS = self.getPreviousProduct(self._textdbPil)
+            self._headlines = [self._grabHeadline(self._prevHLS)]
+        elif self._MainHeadline == "UseTCP":
+            try:
+                self._headlines = [self._grabHeadline(self._TCP)]
+            except:
+                self._headlines = []
+    
+    def _initializeSamplingDict(self):
+        self._samplingDict = dict()
+        statsDict = dict()
+        statsDict['catastrophicThreshold'] = None
+        statsDict['decidingField'] = None
+        statsDict['inputThreatLow'] = None
+        statsDict['inputThreatHigh'] = None
+        statsDict['inputThreatDominant'] = None
+        statsDict['impactMin'] = None
+        statsDict['impactMax'] = None
+        statsDict['impactRange'] = None
+        
+        self._samplingDict['WindThreat'] = copy.copy(statsDict)
+        self._samplingDict['StormSurgeThreat'] = copy.copy(statsDict)
+        self._samplingDict['FloodingRainThreat'] = copy.copy(statsDict)
+        self._samplingDict['TornadoThreat'] = copy.copy(statsDict)
+        
+        self._samplingDict['WindThreat']['catastrophicThreshold'] = 137 # knots
+        self._samplingDict['StormSurgeThreat']['catastrophicThreshold'] = 14 # feet
+        self._samplingDict['FloodingRainThreat']['catastrophicThreshold'] = 3 # percent
+    
+    ###############################################################
+    ### Product Parts Implementation
+    
+    def _noOpParts(self):
+        '''
+        These represent product parts that should be skipped when calling product part methods.
+        They will be handled automatically by the formatters.
+        '''
+        return ['CR', 'endProduct', 'endSegment', 'doubleAmpersand', 'newInformationHeader', 'sigPotentialImpacts']
+    
+    ################# Product Level
     
     def _areaList(self, productDict, productSegmentGroup, productSegment):
         productDict['areaList'] = "This product covers " + self._cwa_descriptor()
-    
-    def _formatUGC_entries(self):
-        ugcCodeList = []
-        for ugc in self._ugcs:
-            areaDictEntry = self._areaDict.get(ugc)
-            if areaDictEntry is None:
-                # We are not localized correctly for the hazard
-                # So get the first dictionary entry
-                self.logger.info('Not Localized for the hazard area -- ugc' + ugc)
-                keys = self._areaDict.keys()
-                areaDictEntry = self._areaDict.get(keys[0])
-            ugcEntry = collections.OrderedDict()
-            ugcEntry['state'] = areaDictEntry.get('stateAbbr')
-            ugcEntry['type'] = self._getUgcInfo(ugc, 'type')
-            ugcEntry['number'] = self._getUgcInfo(ugc, 'number')
-            ugcEntry['text'] = ugc
-            ugcEntry['subArea'] = ''
-            ugcCodeList.append(ugcEntry)
-        return ugcCodeList
-
-    def _getUgcInfo(self, ugc, part='type'):
-        if part == 'type':
-            if ugc[2] == 'C': 
-                return 'County'
-            else: 
-                return 'Zone'
-        if part == 'number':
-            return ugc[3:]
     
     def _summaryHeadlines(self, productDict, productSegmentGroup, productSegment):
         productDict['summaryHeadlines'] = self._headlines
     
     def _changesHazards(self, productDict, productSegmentGroup, productSegment):
-        if not self._ImpactsAnticipated:
+        if (not self._ImpactsAnticipated) or \
+           (self._ImpactsAnticipated and self._GeneralOnsetTime == "recovery"):
             productDict['changesHazards'] = []
         else:
             productDict['changesHazards'] = self._changesHazardsList
     
     def _currentHazards(self, productDict, productSegmentGroup, productSegment):
-        if not self._ImpactsAnticipated:
+        if (not self._ImpactsAnticipated) or \
+           (self._ImpactsAnticipated and self._GeneralOnsetTime == "recovery"):
             productDict['currentHazards'] = []
         else:
             productDict['currentHazards'] = self._currentHazardsList
@@ -603,15 +660,17 @@ class TextProduct(HLSTCV_Common.TextProduct):
         elif len(impactParts) == 1:
             impactRangeRest = impactParts[0]
         
-        self.debug_print("MATT DEBUG: impactRange = '%s'  impactMax = '%s'   impactMin = '%s'" % (impactRange, impactMax, impactMin), 1)
+        self.debug_print("DEBUG: impactRange = '%s'  impactMax = '%s'   impactMin = '%s'" % 
+                         (impactRange, impactMax, impactMin), 1)
         #  If there are additional life-threatening surge areas
         if impactRange != impactMax and impactRange != impactMin:
             
             curPhrase = "Brace for %s%s damage across %s." % \
                 (lifeThreatening, impactRange, self._frame("ENTER AREA DESCRIPTION"))
             
-            self.debug_print("MATT DEBUG: curPhrase = '%s'" % (curPhrase), 1)
-            self.debug_print("MATT DEBUG: sectionDict['additionalImpactRange'] = '%s'" % (repr(sectionDict['additionalImpactRange'])), 1)
+            self.debug_print("DEBUG: curPhrase = '%s'" % (curPhrase), 1)
+            self.debug_print("DEBUG: sectionDict['additionalImpactRange'] = \n'%s'" %
+                             (sectionDict['additionalImpactRange']), 1)
             #  If this phrase is not already part of the additional impacts
             if curPhrase not in sectionDict['additionalImpactRange']:
                 
@@ -642,7 +701,8 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 #  Add it now
                 sectionDict['additionalImpactRange'].append(curPhrase)
         
-        self.debug_print("Final Surge sectionDict['additionalImpactRange'] = '%s'" % (sectionDict['additionalImpactRange']), 1) 
+        self.debug_print("Final Surge sectionDict['additionalImpactRange'] = '%s'" %
+                         (sectionDict['additionalImpactRange']), 1) 
         productDict['surgeSection'] = sectionDict
     
     def _floodingRainSection(self, productDict, productSegmentGroup, productSegment):
@@ -659,7 +719,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         inputThreatDominant = self._samplingDict['FloodingRainThreat']['inputThreatDominant']
         
         self.debug_print("In _floodingRainSection", 1)
-        self.debug_print("_samplingDict = %s" % (repr(self._samplingDict['FloodingRainThreat'])), 1)
+        self.debug_print("_samplingDict = \n\n%s\n" % (self._pp.pformat(self._samplingDict['FloodingRainThreat'])), 1)
         
         #  Test the simplest case first
         if impactMin == "none" and impactMax == "none":
@@ -839,13 +899,23 @@ class TextProduct(HLSTCV_Common.TextProduct):
                                         self._wfoCityState + \
                                         " around " + self._NextUpdate_entry.strip() + ", or sooner if conditions warrant."
     
+    ################# Product Parts Helper Methods
+    
+    def _impactsKeyFunction(self, optionIndexTuple):
+        ((_, _), indexStr) = optionIndexTuple
+        indexStr = indexStr.strip()
+        if len(indexStr) == 0:
+            return 9999
+        else:
+            return int(indexStr)
+    
     def _getPotentialImpactsStatements(self, elementName, maxThreat):
         import TCVDictionary
         potentialImpactStatements = TCVDictionary.PotentialImpactStatements
         statements = potentialImpactStatements[elementName][maxThreat]
         
         return statements
-
+    
     def _impactCategoryToThreatLevel(self, impactCategory):
         if impactCategory == "catastrophic" or impactCategory == "devastating":
             return "Extreme"
@@ -857,57 +927,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
             return "Elevated"
         else:
             return "None"
-
-    ###############################################################
-    ###  High level flow of formatter
-
-    def generateForecast(self, argDict):
-        # Generate Text Phrases for a list of edit areas
-
-        error = self._initializeVariables(argDict)
-        if error is not None:
-            return error
-        
-        # Determine time ranges
-        self._initializeTimeVariables(argDict)
-        self._determineTimeRanges(argDict)
-        
-        error = self._initializeStormInformation()
-        if error is not None:
-            return error
-        
-        self._getStormInfo(argDict)
-        if self._stormName is None or self._stormName.strip() == "":
-            return "Could not determine the storm name"
-        
-        self._loadLastTwoAdvisories()
-        if self._previousAdvisory is None and self._ImpactsAnticipated:
-            return "A TCV must be transmitted before an HLS can be run"
-        
-        self._initializeHeadlines()
- 
-        self._initializeHazardsTable(argDict)
-        
-        if self._ImpactsAnticipated:
-
-            self._determineHazardStates()
-            
-            # Sample the data
-            self._initializeSamplingDict()
-            
-            self._sampleTCVAdvisory(self._previousAdvisory)
-            
-            self._sampleHLSData(argDict)
-    
-            for threatName in ['WindThreat', 'StormSurgeThreat', 'FloodingRainThreat', 'TornadoThreat']:
-                self._setHazardImpactCategories(threatName)
-    
-        # Create the product dictionary and format it to create the output
-        productDict = self._createProductDictionary()
-        productOutput = self._formatProductDictionary(productDict)
-
-        return productOutput
-    
     
     def _determineHazardStates(self):
         self._currentHazardsList = []
@@ -919,16 +938,15 @@ class TextProduct(HLSTCV_Common.TextProduct):
         for key in keys:
             self.debug_print("%s : %s" % (key, self._previousAdvisory[key]), 1)
         for hazard in self._previousAdvisory["HazardsForHLS"]:
-            self.debug_print("SARAH DEBUG Hazard: %s" % (repr(hazard)), 1)
+            self.debug_print("DEBUG Hazard: %s" % (self._pp.pformat(hazard)), 1)
             if hazard['act'] != 'CON':
                 self._changesHazardsList.append(hazard)
-            if hazard['act'] != 'CAN':
+            if hazard['act'] not in ['CAN', "UPG"]:
                 self._currentHazardsList.append(hazard)
             
         self.debug_print("-"*80, 1)
         self.debug_print("self._changesHazardsList = %s" % (self._changesHazardsList), 1)
         self.debug_print("self._currentHazardsList = %s" % (self._currentHazardsList), 1)
-        
     
     ###############################################################
     ### Sampling and Statistics related methods
@@ -948,7 +966,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             
             self.debug_print("=" * 100, 1)
             self.debug_print("In _sampleHLSData for period %s (%s)" % \
-                             (period, repr(self._timeRangeList[period][0])), 1)
+                             (period, self._timeRangeList[period][0]), 1)
 
             statDict = statList[period]
             for threatName in ['WindThreat', 'FloodingRainThreat', 'TornadoThreat']:
@@ -960,9 +978,9 @@ class TextProduct(HLSTCV_Common.TextProduct):
             if decidingField is None or qpfToFfgRatio > decidingField:
                 self._samplingDict['FloodingRainThreat']['decidingField'] = qpfToFfgRatio
         
-        self.debug_print("SARAH: WindThreat = %s" % (self._samplingDict['WindThreat']['inputThreatDominant']), 1)
-        self.debug_print("SARAH: FloodingRainThreat = %s" % (self._samplingDict['FloodingRainThreat']['inputThreatDominant']), 1)
-        self.debug_print("SARAH: TornadoThreat = %s" % (self._samplingDict['TornadoThreat']['inputThreatDominant']), 1)
+        self.debug_print("WindThreat = %s" % (self._samplingDict['WindThreat']['inputThreatDominant']), 1)
+        self.debug_print("FloodingRainThreat = %s" % (self._samplingDict['FloodingRainThreat']['inputThreatDominant']), 1)
+        self.debug_print("TornadoThreat = %s" % (self._samplingDict['TornadoThreat']['inputThreatDominant']), 1)
         
         
         
@@ -1005,58 +1023,81 @@ class TextProduct(HLSTCV_Common.TextProduct):
             if decidingField is None or inundationMax > decidingField:
                 self._samplingDict['StormSurgeThreat']['decidingField'] = inundationMax
         
-        self.debug_print("SARAH: StormSurgeThreat = %s" % (self._samplingDict['StormSurgeThreat']['inputThreatDominant']), 1)
+        self.debug_print("StormSurgeThreat = %s" % (self._samplingDict['StormSurgeThreat']['inputThreatDominant']), 1)
     
-    def _createWholeDomainEditArea(self, argDict):
-        editAreaUtils = EditAreaUtils.EditAreaUtils()
-        editAreaUtils.setUp(None, argDict)
+    def _sampleTCVAdvisory(self, advisory):
+        self.debug_print("sampling TCV advisory!", 1)
+        for zone in advisory["ZoneData"]:
+            self.debug_print("-" * 60, 1)
+            self.debug_print("Looking at zone %s" % (zone), 1)
+            for key in advisory["ZoneData"][zone]:
+                if "Threat" not in key:
+                    continue
+                
+                self.debug_print("Looking at key '%s'" % (key), 1)
+                
+                threatLevel = advisory["ZoneData"][zone][key]
+                self.debug_print("   Threat level = %s" % (threatLevel), 1)
+                if self._samplingDict[key]['inputThreatLow'] is None:
+                    self._samplingDict[key]['inputThreatLow'] = threatLevel
+                if self._samplingDict[key]['inputThreatHigh'] is None:
+                    self._samplingDict[key]['inputThreatHigh'] = threatLevel
+                
+                lowThreat = self._samplingDict[key]['inputThreatLow']
+                highThreat = self._samplingDict[key]['inputThreatHigh']
+                threatOrder = self.mostSignificantDiscrete_keyOrder_dict(None, None, None)[key]
+                
+                if threatOrder.index(threatLevel) < threatOrder.index(lowThreat):
+                    lowThreat = threatLevel
+                if threatOrder.index(threatLevel) > threatOrder.index(highThreat):
+                    highThreat = threatLevel
+                
+                self.debug_print("   low threat = %s" % (lowThreat), 1)
+                self.debug_print("   high threat = %s" % (highThreat), 1)
+                
+                self._samplingDict[key]['inputThreatLow'] = lowThreat
+                self._samplingDict[key]['inputThreatHigh'] = highThreat
         
-        gridLoc = editAreaUtils.getGridLoc()
-        grid2Dbit = JavaGrid2DBit( gridLoc.gridSize().x, gridLoc.gridSize().y)
-        grid2Dbit.setAllValues(1)
-        
-        refID = ReferenceID("WholeDomain")
-        refData = ReferenceData(gridLoc, refID, grid2Dbit)
-        editAreaUtils.saveEditAreas([refData])
+        self.debug_print("Sampling dict =\n\n%s\n" % (self._pp.pformat(self._samplingDict)), 1)
+    
+    def _sampleRankedDiscreteValue(self, threatName, statDict):
+        self.debug_print("-" * 60, 1)
+        self.debug_print("_sampleRankedDiscreteValue statDict =\n\n%s\n" % (self._pp.pformat(statDict)), 1)
+        rankedThreatLevels = self.getStats(statDict, threatName + "__rankedDiscreteValue")
+        self.debug_print("sampling %s" % (threatName), 1)
+        self.debug_print("sampleData: rankedThreatLevels =\n\n%s\n" % (self._pp.pformat(rankedThreatLevels)), 1)
+        if rankedThreatLevels is not None:
+            dominantThreatLevel = self._getDominantThreatLevel(threatName, rankedThreatLevels)
+            self.debug_print("dominantThreatLevel = %s" % (dominantThreatLevel), 1)
+            
+            currentDominantThreatLevel = self._samplingDict[threatName]['inputThreatDominant']
+            self.debug_print("currentDominantThreatLevel = %s" % (currentDominantThreatLevel), 1)
+            self._samplingDict[threatName]['inputThreatDominant'] = self._getHighestThreat(threatName,
+                                                                                           dominantThreatLevel,
+                                                                                           currentDominantThreatLevel)
+            self.debug_print("new dominant = %s" % (self._samplingDict[threatName]['inputThreatDominant']), 1)
     
     def _sampleMostSignificantDiscreteValue(self, threatName, statDict):
-        self.debug_print("SARAH: _sampleMostSignificantDiscreteValue for %s" % (threatName), 1)
+        self.debug_print("_sampleMostSignificantDiscreteValue for %s" % (threatName), 1)
         threatLevel = self.getStats(statDict, threatName + "__mostSignificantDiscreteValue")
-        self.debug_print("SARAH: threatLevel = %s" % (threatLevel), 1)
+        self.debug_print("threatLevel = %s" % (threatLevel), 1)
         if threatLevel is not None:
             inputThreatLow = self._samplingDict[threatName]['inputThreatLow']
-            self.debug_print("SARAH: current inputThreatLow = %s" % (inputThreatLow), 1)
+            self.debug_print("current inputThreatLow = %s" % (inputThreatLow), 1)
             if inputThreatLow is None:
                 self._samplingDict[threatName]['inputThreatLow'] = threatLevel
             else:
                 self._samplingDict[threatName]['inputThreatLow'] = self._getLowestThreat(threatName,
                                                                                          threatLevel,
                                                                                          inputThreatLow)
-            self.debug_print("SARAH: new inputThreatLow = %s" % (self._samplingDict[threatName]['inputThreatLow']), 1)
+            self.debug_print("new inputThreatLow = %s" % (self._samplingDict[threatName]['inputThreatLow']), 1)
             
             inputThreatHigh = self._samplingDict[threatName]['inputThreatHigh']
-            self.debug_print("SARAH: current inputThreatHigh = %s" % (inputThreatHigh), 1)
+            self.debug_print("current inputThreatHigh = %s" % (inputThreatHigh), 1)
             self._samplingDict[threatName]['inputThreatHigh'] = self._getHighestThreat(threatName,
                                                                                        threatLevel,
                                                                                        inputThreatHigh)
-            self.debug_print("SARAH: new inputThreatHigh = %s" % (self._samplingDict[threatName]['inputThreatHigh']), 1)
-    
-    def _sampleRankedDiscreteValue(self, threatName, statDict):
-        self.debug_print("-" * 60, 1)
-        self.debug_print("_sampleRankedDiscreteValue statDict = %s" % (repr(statDict)), 1)
-        rankedThreatLevels = self.getStats(statDict, threatName + "__rankedDiscreteValue")
-        self.debug_print("SARAH: sampling %s" % (threatName), 1)
-        self.debug_print("SARAH: sampleData: rankedThreatLevels = %s" % (repr(rankedThreatLevels)), 1)
-        if rankedThreatLevels is not None:
-            dominantThreatLevel = self._getDominantThreatLevel(threatName, rankedThreatLevels)
-            self.debug_print("SARAH: dominantThreatLevel = %s" % (dominantThreatLevel), 1)
-            
-            currentDominantThreatLevel = self._samplingDict[threatName]['inputThreatDominant']
-            self.debug_print("SARAH: currentDominantThreatLevel = %s" % (currentDominantThreatLevel), 1)
-            self._samplingDict[threatName]['inputThreatDominant'] = self._getHighestThreat(threatName,
-                                                                                           dominantThreatLevel,
-                                                                                           currentDominantThreatLevel)
-            self.debug_print("SARAH: new dominant = %s" % (self._samplingDict[threatName]['inputThreatDominant']), 1)
+            self.debug_print("new inputThreatHigh = %s" % (self._samplingDict[threatName]['inputThreatHigh']), 1)
     
     def _getDominantThreatLevel(self, threatName, rankedThreatLevels):
         dominantLevelWithHighestRank = None
@@ -1101,93 +1142,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
         else:
             return threatLevel2
     
-    def _initializeVariables(self, argDict):
-        # Get variables
-        error = self._getVariables(argDict)
-        if error is not None:
-            return error
-    
-        self._backupFullStationID = self._fullStationID
-        self._argDict = argDict
-        
-        argDict["definition"] = self._definition
-        
-        # Set up the areaDictionary for all to use
-        accessor = ModuleAccessor.ModuleAccessor()
-        self._areaDict = accessor.variable(self._areaDictionary, "AreaDictionary")
-        self._tpc = HLSTCV_Common.TextProductCommon()
-        self._tpc.setUp(self._areaDict)
-        
-        return None
-    
-    def _initializeHeadlines(self):
-        if self._MainHeadline == "Enter":
-            self._headlines = [self._MainHeadline_entry]
-        elif self._MainHeadline == "UsePrev":
-            self._prevHLS = self.getPreviousProduct(self._textdbPil)
-            self._headlines = [self._grabHeadline(self._prevHLS)]
-        elif self._MainHeadline == "UseTCP":
-            try:
-                self._headlines = [self._grabHeadline(self._TCP)]
-            except:
-                self._headlines = []
-    
-    def _initializeSamplingDict(self):
-        self._samplingDict = dict()
-        statsDict = dict()
-        statsDict['catastrophicThreshold'] = None
-        statsDict['decidingField'] = None
-        statsDict['inputThreatLow'] = None
-        statsDict['inputThreatHigh'] = None
-        statsDict['inputThreatDominant'] = None
-        statsDict['impactMin'] = None
-        statsDict['impactMax'] = None
-        statsDict['impactRange'] = None
-        
-        self._samplingDict['WindThreat'] = copy.copy(statsDict)
-        self._samplingDict['StormSurgeThreat'] = copy.copy(statsDict)
-        self._samplingDict['FloodingRainThreat'] = copy.copy(statsDict)
-        self._samplingDict['TornadoThreat'] = copy.copy(statsDict)
-        
-        self._samplingDict['WindThreat']['catastrophicThreshold'] = 137 # knots
-        self._samplingDict['StormSurgeThreat']['catastrophicThreshold'] = 14 # feet
-        self._samplingDict['FloodingRainThreat']['catastrophicThreshold'] = 3 # percent
-    
-    def _sampleTCVAdvisory(self, advisory):
-        self.debug_print("SARAH: sampling TCV advisory!", 1)
-        for zone in advisory["ZoneData"]:
-            self.debug_print("-" * 60, 1)
-            self.debug_print("Looking at zone %s" % (zone), 1)
-            for key in advisory["ZoneData"][zone]:
-                if "Threat" not in key:
-                    continue
-                
-                self.debug_print("Looking at key '%s'" % (key), 1)
-                
-                threatLevel = advisory["ZoneData"][zone][key]
-                self.debug_print("   Threat level = %s" % (threatLevel), 1)
-                if self._samplingDict[key]['inputThreatLow'] is None:
-                    self._samplingDict[key]['inputThreatLow'] = threatLevel
-                if self._samplingDict[key]['inputThreatHigh'] is None:
-                    self._samplingDict[key]['inputThreatHigh'] = threatLevel
-                
-                lowThreat = self._samplingDict[key]['inputThreatLow']
-                highThreat = self._samplingDict[key]['inputThreatHigh']
-                threatOrder = self.mostSignificantDiscrete_keyOrder_dict(None, None, None)[key]
-                
-                if threatOrder.index(threatLevel) < threatOrder.index(lowThreat):
-                    lowThreat = threatLevel
-                if threatOrder.index(threatLevel) > threatOrder.index(highThreat):
-                    highThreat = threatLevel
-                
-                self.debug_print("   low threat = %s" % (lowThreat), 1)
-                self.debug_print("   high threat = %s" % (highThreat), 1)
-                
-                self._samplingDict[key]['inputThreatLow'] = lowThreat
-                self._samplingDict[key]['inputThreatHigh'] = highThreat
-        
-        self.debug_print("Sampling dict = %s" % (repr(self._samplingDict)), 1)
-    
     def _setHazardImpactCategories(self, threatName):
         inputThreatLow = self._samplingDict[threatName]['inputThreatLow']
         inputThreatHigh = self._samplingDict[threatName]['inputThreatHigh']
@@ -1196,7 +1150,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         catastrophicThreshold = self._samplingDict[threatName]['catastrophicThreshold']
 
         self.debug_print("-" * 60, 1)
-        self.debug_print("MATT DEBUG: _setHazardImpactCategories for %s" % (threatName), 1)
+        self.debug_print("DEBUG: _setHazardImpactCategories for %s" % (threatName), 1)
 
         impactMin = None
         impactMax = None
@@ -1240,7 +1194,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             impactRangeMax = "none"
 
         self.debug_print(
-            "MATT DEBUG: impactMin = '%s'  impactMax = '%s' impactRangeMax = '%s'" % \
+            "DEBUG: impactMin = '%s'  impactMax = '%s' impactRangeMax = '%s'" % \
             (impactMin, impactMax, impactRangeMax), 1)
         
         #  Determine dominant impact category for rest of CWA - No impact
@@ -1264,6 +1218,155 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._samplingDict[threatName]['impactMin'] = impactMin
         self._samplingDict[threatName]['impactMax'] = impactMax
         self._samplingDict[threatName]['impactRange'] = impactRange
+    
+    ###############################################################
+    ### Area, Zone and Segment related methods
+    
+    def _createWholeDomainEditArea(self, argDict):
+        editAreaUtils = EditAreaUtils.EditAreaUtils()
+        editAreaUtils.setUp(None, argDict)
+        
+        gridLoc = editAreaUtils.getGridLoc()
+        grid2Dbit = JavaGrid2DBit( gridLoc.gridSize().x, gridLoc.gridSize().y )
+        grid2Dbit.setAllValues(1)
+        
+        refID = ReferenceID("WholeDomain")
+        refData = ReferenceData(gridLoc, refID, grid2Dbit)
+        editAreaUtils.saveEditAreas([refData])
+    
+    def _groupSegments(self, segments):
+        '''
+         Group the segments into the products
+            return a list of productSegmentGroup dictionaries
+        '''
+     
+        segment_vtecRecords_tuples = []
+        for segment in segments:
+            vtecRecords = self._getVtecRecords(segment)
+            self.debug_print("vtecRecords =\n\n%s\n" % (self._pp.pformat(vtecRecords)))
+            segment_vtecRecords_tuples.append((segment, vtecRecords))
+        
+        productSegmentGroup = { 
+                       'productID' : 'HLS',
+                       'productName': self._productName,
+                       'geoType': 'area',
+                       'vtecEngine': self._hazardsTable,
+                       'mapType': 'publicZones',
+                       'segmented': True,
+                        'productParts': self._productParts_HLS(segment_vtecRecords_tuples),
+                       }
+
+        return productSegmentGroup
+    
+    ###############################################################
+    ### Hazards related methods
+    
+    def _determineHazards(self, segments):
+        # Return a list of hazards from the given segments in the form:
+        #    (key, landList, marineList, coastalList, inlandList)
+        #  where key is (hdln, act, phen, sig) and the lists show which areas
+        #    contain the hazard separated by category
+        hazAreaList = []
+        for segment in segments:
+            hazardTable = self._argDict["hazards"]
+            hazards = hazardTable.getHazardList(segment)
+            for hazard in hazards:
+                action = hazard['act']
+                hazAreaList.append((hazard, segment))
+        # Consolidate hazards (there could be multiple segments with the same phen/sig/act)
+        hazardDict = {}
+        hazardList = []
+        for hazard, segment in hazAreaList:
+            key = (hazard['hdln'], hazard['act'], hazard['phen'], hazard['sig'])
+            if key not in hazardDict.keys():
+                hazardDict[key] = segment
+                hazardList.append(key)
+            else:
+                hazardDict[key] = hazardDict[key]+segment
+
+        self.debug_print("hazardList =\n\n%s\n" % (self._pp.pformat(hazardList)), 1)
+        
+        return hazardList
+    
+    ###############################################################
+    ### Time related methods
+    
+    def _formatLocalTime(self, para, areas):
+        # Create a time string in local time
+        #  e.g.  2 AM EDT
+        # Get the Z time hour
+        timeSearch = re.compile("...([0-9]+) *(Z|UTC)...")
+        timeStr = timeSearch.search(para)
+
+##        gmtStr = para[timeStr.start():timeStr.end()]
+##        gmt = gmtStr.strip("...").replace("Z","")
+##        gmtHour = int(gmt)/100
+
+        #  This code could bomb in the unlikely event we don't find a UTC
+        #  time.  We should probably add some kind of default hour here,
+        #  keyed off the current hour, to prevent this.  (MHB)
+        try:
+            #  Convert the hour portion of the time string to an integer
+            gmtHour = int(timeStr.group(1)[:2])
+        except:
+            gmtHour = time.gmtime().tm_hour
+
+        gmtTR = self.createTimeRange(gmtHour, gmtHour+1, "Zulu")
+        gmtTime = gmtTR.startTime().unixTime()
+
+        # Now make a string for each time zone
+        zoneList = self._getTimeZoneList(areas)
+        timeStrs = []
+        timeDesc = ""
+        for timeZone in zoneList:
+            timeStr = self.formatTimeString(gmtTime, "%I %p %Z ", timeZone)
+            timeStr = string.replace(timeStr, "  ", " ")
+            timeStr = string.strip(timeStr)
+            timeStr = timeStr.lstrip("0")
+            if timeStr not in timeStrs:
+                if len(timeStrs) > 0:
+                    timeDesc += "...OR "
+                timeStrs.append(timeStr)
+                timeDesc += timeStr
+        return timeDesc
+    
+    def _getTimeZoneList(self, areaList):
+        # NOTE -- this code was taken from the middle of getAreaHeader
+        #  in Header.py -- it really should be put back in and used
+        #  in Header.py, but to avoid confusion, I'm repeating it here
+        # get this time zone
+        thisTimeZone = os.environ["TZ"]
+        zoneList = []
+        # check to see if we have any areas outside our time zone
+        for areaName in areaList:
+            if areaName in self._areaDict.keys():
+                entry = self._areaDict[areaName]
+                if not entry.has_key("ugcTimeZone"):   #add your site tz
+                    if thisTimeZone not in zoneList:
+                        zoneList.append(thisTimeZone)
+                    continue  # skip this entry
+                timeZoneList = entry["ugcTimeZone"]
+                if type(timeZoneList) is types.StringType:  # a single value
+                    timeZoneList = [timeZoneList]   # make it into a list
+                for timeZone in timeZoneList:
+                    if timeZone not in zoneList:
+                        zoneList.append(timeZone)
+        # if the resulting zoneList is empty, put in our time zone
+        if len(zoneList) == 0:
+            zoneList.append(thisTimeZone)
+        # if the resulting zoneList has our time zone in it, be sure it
+        # is the first one in the list
+        try:
+            index = zoneList.index(thisTimeZone)
+            if index != 0:
+                del zoneList[index]
+                zoneList.insert(0, thisTimeZone)
+        except:
+            pass
+        return zoneList
+    
+    ###############################################################
+    ### Storm Information and TCP related methods
     
     def _grabHeadline(self, text=''):
         #  Get first headline found in text and return it as a string
@@ -1300,79 +1403,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
             return ""       #  Changed to an null string instead of None
                             #  (MHB  04/08/2009)
     
-    def _determineHazards(self, segments):
-        # Return a list of hazards from the given segments in the form:
-        #    (key, landList, marineList, coastalList, inlandList)
-        #  where key is (hdln, act, phen, sig) and the lists show which areas
-        #    contain the hazard separated by category
-        hazAreaList = []
-        for segment in segments:
-            hazardTable = self._argDict["hazards"]
-            hazards = hazardTable.getHazardList(segment)
-            for hazard in hazards:
-                action = hazard['act']
-                hazAreaList.append((hazard, segment))
-        # Consolidate hazards (there could be multiple segments with the same phen/sig/act)
-        hazardDict = {}
-        hazardList = []
-        for hazard, segment in hazAreaList:
-            key = (hazard['hdln'], hazard['act'], hazard['phen'], hazard['sig'])
-            if key not in hazardDict.keys():
-                hazardDict[key] = segment
-                hazardList.append(key)
-            else:
-                hazardDict[key] = hazardDict[key]+segment
-
-        #self.debug_print("hazardList = %s" % (repr(hazardList)), 1)
-        
-        return hazardList
-    
-    def SituationOverview(self, title, info):
-        t = title
-        un = self._Uncertainty
-        ec = self._EventContext
-        if ec == "Abbreviated":
-            hdlns = info.hazardHdlns
-            #self.debug_print("*** Headlines ***")
-            reported = 0
-            for hazardHdln in hdlns:
-                key = hazardHdln
-                #self.debug_print("hazard = '%s'" % (hazardHdln), 1)
-                hdln, act, phen, sig = key
-                if phen == "HU" and sig == "S":
-                    continue
-                if act in self._ignoreActions():
-                    continue
-                if hdlns.index(hazardHdln) > 0:
-                    t+= " AND "
-                t+= "A " + hdln
-                reported += 1
-            if reported > 0:
-                if reported > 1: t+= " HAVE "
-                else:            t+= " HAS "
-                t+="NOW BEEN ISSUED. "
-            t+="A MORE DETAILED STATEMENT WILL FOLLOW SHORTLY.\n"
-
-        if ec in ["PreEvent","Watch","Warning"]:
-            if un=="High":
-                t+="IT IS VITAL THAT YOU DO NOT FOCUS ON THE EXACT FORECAST TRACK. "
-                t+="TO DO SO COULD RESULT IN BAD DECISIONS AND PLACE YOU OR THOSE YOU ARE "
-                t+="RESPONSIBLE FOR AT GREATER RISK. "
-            elif un == "Average":
-                t+="WHEN MAKING DECISIONS...DO NOT FOCUS ON THE EXACT FORECAST TRACK. "
-
-        if ec != "Abbreviated": t+=self._frame("Succinctly describe the expected evolution of the event for the CWA & MAOR; which hazards are of greater (or lesser) concern, forecast focus, etc.")+ "\n"
-
-        if ec in ["PreEvent", "Watch"]:
-            if info.anyLand:
-                t+="IT IS TOO EARLY TO PROVIDE EXACT WIND AND SURGE FORECAST VALUES FOR SPECIFIC LOCATIONS. "
-                damage = self._getCategoryDamage(info.maxWind_CWA_MAOR)
-                if damage.strip() != "":
-                    t+="A GENERAL CONCERN SHOULD BE FOR THE POSSIBILITY OF "+damage+" SOMEWHERE WITHIN "\
-                    + self._cwa_descriptor() + ". "
-
-        return t
-    
     def _getStormInfo(self, argDict):
         #  Get the Storm information
         self._stormType = "TROPICAL"
@@ -1390,7 +1420,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         # Storm intensity in mph and the stated intensity trend.
         self._stormIntensityTrend = "Storm Intensity " + stormDict.get("StormIntensity","")
         
-        self.debug_print("SARAH: BEGIN STORM INFORMATION", 1)
+        self.debug_print("BEGIN STORM INFORMATION", 1)
         self.debug_print("storm dict = %s" % (stormDict), 1)
         self.debug_print("storm name = %s" % (self._stormName), 1)
         self.debug_print("type = %s" % (self._stormType), 1)
@@ -1403,7 +1433,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self.debug_print("references = %s" % (self._stormLocalReferences), 1)
         self.debug_print("movement trend = %s" % (self._stormMovementTrend), 1)
         self.debug_print("intensity trend = %s" % (self._stormIntensityTrend), 1)
-        self.debug_print("SARAH: END STORM INFORMATION", 1)
+        self.debug_print("END STORM INFORMATION", 1)
     
     def _grabStormInfo(self, tcp):
         #  Get the storm information from the selected TCP
@@ -1528,7 +1558,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 #  Assume we only have one NHC reference point by default
                 nhcReference = dict["StormReference"]
 
-##                self.debug_print("referenceIndex = %s" % (referenceIndex), 1)
+                self.debug_print("referenceIndex = %s" % (referenceIndex), 1)
 
                 #  If we have more than one NHC reference point
                 if referenceIndex != -1:
@@ -1576,13 +1606,15 @@ class TextProduct(HLSTCV_Common.TextProduct):
 
             #  Display some debug info - if flag is set
             self.debug_print("storminfoSearch = '%s'" % (stormInfoSearch))
-##            self.debug_print(repr(stormInfoSearch.groups()), 1)
+            if stormInfoSearch is not None:
+                self.debug_print("\n\n%s\n" % 
+                                 (self._pp.pformat(stormInfoSearch.groups())), 1)
 
             #  If we found the storm info section of the product
             if stormInfoSearch is not None:
-#                for group in stormInfoSearch.groups():
-#                    self.debug_print('-'*50, 1)
-#                    self.debug_print("%s\n" % (group), 1)
+                for group in stormInfoSearch.groups():
+                    self.debug_print('-'*50, 1)
+                    self.debug_print("%s\n" % (group), 1)
 
                 #  Clean this section up a bit.  Keep each paragraph separate
                 #  by a single <CR>, but remove all others as well as extra
@@ -1614,7 +1646,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             #  If we cannot find the summary, try to find a "repeating" section
             if repeatInfo is None:
                 repeatInfo = re.search("(?is)(REPEATING.+?\.)\n *\n", tcp)
-##            self.debug_print(repr(repeatInfo), 1)
+            self.debug_print(self._pp.pformat(repeatInfo), 1)
 
             #  If we found the repeated storm information summary
             if repeatInfo is not None:
@@ -1634,7 +1666,8 @@ class TextProduct(HLSTCV_Common.TextProduct):
 
                     #  Display some debug info - if flag is set
                     self.debug_print("locationSearch = '%s'" % (locationSearch), 1)
-##                    self.debug_print(repr(locationSearch.groups()), 1)
+                    if locationSearch is not None:
+                        self.debug_print("\n\n%s\n" % (self._pp.pformat(locationSearch.groups())), 1)
 
                     #  If we found the storm location section of the product
                     if locationSearch is not None:
@@ -1693,18 +1726,18 @@ class TextProduct(HLSTCV_Common.TextProduct):
         #========================================================================
         #  Display final decoded information from TCP
 
-##        self.debug_print("*" *80, 1)
-##        self.debug_print("Final TCP Info...\n", 1)
-##        self.debug_print('dict["StormType"] = %s' % (dict["StormType"]), 1)
-##        self.debug_print('dict["StormName"] =  %s' % (dict["StormName"]), 1)
-##        self.debug_print('dict["StormTime"] =  %s' % (dict["StormTime"]), 1)
-##        self.debug_print('dict["StormLat"] =  %s' % (dict["StormLat"]), 1)
-##        self.debug_print('dict["StormLon"] =  %s' % (dict["StormLon"]), 1)
-##        self.debug_print('dict["StormReference"] =  %s' % (dict["StormReference"]), 1)
-##        self.debug_print('dict["StormIntensity"] =  %s' % (dict["StormIntensity"]), 1)
-##        self.debug_print('dict["StormMotion"] =  %s' % (dict["StormMotion"]), 1)
-##        self.debug_print('dict["StormInfo"] =  %s' % (dict["StormInfo"]), 1)
-##        self.debug_print('dict["StormCenter"] =  %s' % (dict["StormCenter"]), 1)
+        self.debug_print("*" *80, 1)
+        self.debug_print("Final TCP Info...\n", 1)
+        self.debug_print('dict["StormType"] = %s' % (dict["StormType"]), 1)
+        self.debug_print('dict["StormName"] =  %s' % (dict["StormName"]), 1)
+        self.debug_print('dict["StormTime"] =  %s' % (dict["StormTime"]), 1)
+        self.debug_print('dict["StormLat"] =  %s' % (dict["StormLat"]), 1)
+        self.debug_print('dict["StormLon"] =  %s' % (dict["StormLon"]), 1)
+        self.debug_print('dict["StormReference"] =  %s' % (dict["StormReference"]), 1)
+        self.debug_print('dict["StormIntensity"] =  %s' % (dict["StormIntensity"]), 1)
+        self.debug_print('dict["StormMotion"] =  %s' % (dict["StormMotion"]), 1)
+        self.debug_print('dict["StormInfo"] =  %s' % (dict["StormInfo"]), 1)
+        self.debug_print('dict["StormCenter"] =  %s' % (dict["StormCenter"]), 1)
 
         #  Return the dictionary will all the information we found in the TCP
         return dict
@@ -1717,7 +1750,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._stormReference = ""
         self._stormLocalReferences = ""
         para = stormDict.get("StormCenter", "")
-        # self.debug_print("para %d %s" % (len(para), para), 1)
+        self.debug_print("para %d %s" % (len(para), para), 1)
         if len(para)<= 0:
             return
 
@@ -1741,13 +1774,15 @@ class TextProduct(HLSTCV_Common.TextProduct):
 
         #  Try to find these patterns in the text
         coordPtnMatch = coordPtn.search(para)
-##        self.debug_print("+" * 90, 1)
-##        self.debug_print("coordinate search...", 1)
-##        self.debug_print(coordPtnMatch.groups(), 1)
+        self.debug_print("+" * 90, 1)
+        self.debug_print("coordinate search...", 1)
+        if coordPtnMatch is not None:
+            self.debug_print("\n\n%s|n" % (self._pp.pformat(coordPtnMatch.groups())), 1)
 
         refPtnMatch = refPtn.search(para)
-##        self.debug_print("reference search...", 1)
-##        self.debug_print(refPtnMatch.groups(), 1)
+        self.debug_print("reference search...", 1)
+        if refPtnMatch is not None:
+            self.debug_print("\n\n%s|n" % (self._pp.pformat(refPtnMatch.groups())), 1)
 
         #  If we found the coordinates we were after
         if coordPtnMatch is not None:
@@ -1791,12 +1826,12 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._stormLocalReferences = self._calcLocalReferences(
                 self._stormLat, self._stormLon)
 
-##        self.debug_print("stormLocalRefs = %s" % (self._stormLocalReferences), 1)
+        self.debug_print("stormLocalRefs = %s" % (self._stormLocalReferences), 1)
 
         #  Compare the NHC reference to the local references
         for localRef in self._stormLocalReferences:
 
-##            self.debug_print("self._stormReference = '%s', localRef = '%s'" % (self._stormReference, localRef), 1)
+            self.debug_print("self._stormReference = '%s', localRef = '%s'" % (self._stormReference, localRef), 1)
 
             #  Get the locations from these statements
             nhcRef = re.search('(?i)(north|south|east|west) of (.+)',
@@ -1804,7 +1839,11 @@ class TextProduct(HLSTCV_Common.TextProduct):
             testRef = re.search('(?i)(north|south|east|west) of (.+)',
                                localRef)
 
-##            self.debug_print("nhcRef = '%s'\ttestRef = '%s'" % (nhcRef.group(2), testRef.group(2)), 1)
+            if nhcRef is not None:
+                self.debug_print("nhcRef = '%s'" % (nhcRef.group(2)), 1)
+
+            if testRef is not None:
+                self.debug_print("testRef = '%s'" % (testRef.group(2)), 1)
 
             #  If we have a local reference that matches the national
             #  center reference
@@ -1835,7 +1874,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         text = text.replace(' NNW ', ' NORTH-NORTHWEST ')
         
         return text
-
+    
     #  Modified 12/15/2010 (MHB) - modified to recognize the new way NHC will
     #  present metric speeds.  Will continue to recognize the "old" way for
     #  testing purposes as well.
@@ -1843,7 +1882,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         # Remove references to KM e.g.
         #    420 KM... 100 KM/HR...
 
-#        self.debug_print("words = '%s'" % (words), 1)
+        self.debug_print("words = '%s'" % (words), 1)
 
         kmSearch = re.compile("\.\.\. *[0-9]+ +(KM|KM/HR?) *\.?\.?\.?")
 
@@ -1856,7 +1895,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         for doubleSpace in doubleSpaces:
             words = re.sub(doubleSpace, ' ', words)
 
-#        self.debug_print("\tfinal words = '%s'" % (words), 1)
+        self.debug_print("\tfinal words = '%s'" % (words), 1)
         return words
     
     def _cleanText(self, text=''):
@@ -1879,80 +1918,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
 
         #  Return the cleaned-up text
         return text
-    
-    def _formatLocalTime(self, para, areas):
-        # Create a time string in local time
-        #  e.g.  2 AM EDT
-        # Get the Z time hour
-        timeSearch = re.compile("...([0-9]+) *(Z|UTC)...")
-        timeStr = timeSearch.search(para)
-
-##        gmtStr = para[timeStr.start():timeStr.end()]
-##        gmt = gmtStr.strip("...").replace("Z","")
-##        gmtHour = int(gmt)/100
-
-        #  This code could bomb in the unlikely event we don't find a UTC
-        #  time.  We should probably add some kind of default hour here,
-        #  keyed off the current hour, to prevent this.  (MHB)
-        try:
-            #  Convert the hour portion of the time string to an integer
-            gmtHour = int(timeStr.group(1)[:2])
-        except:
-            gmtHour = time.gmtime().tm_hour
-
-        gmtTR = self.createTimeRange(gmtHour, gmtHour+1, "Zulu")
-        gmtTime = gmtTR.startTime().unixTime()
-
-        # Now make a string for each time zone
-        zoneList = self._getTimeZoneList(areas)
-        timeStrs = []
-        timeDesc = ""
-        for timeZone in zoneList:
-            timeStr = self.formatTimeString(gmtTime, "%I %p %Z ", timeZone)
-            timeStr = string.replace(timeStr, "  ", " ")
-            timeStr = string.strip(timeStr)
-            timeStr = timeStr.lstrip("0")
-            if timeStr not in timeStrs:
-                if len(timeStrs) > 0:
-                    timeDesc += "...OR "
-                timeStrs.append(timeStr)
-                timeDesc += timeStr
-        return timeDesc
-    
-    def _getTimeZoneList(self, areaList):
-        # NOTE -- this code was taken from the middle of getAreaHeader
-        #  in Header.py -- it really should be put back in and used
-        #  in Header.py, but to avoid confusion, I'm repeating it here
-        # get this time zone
-        thisTimeZone = os.environ["TZ"]
-        zoneList = []
-        # check to see if we have any areas outside our time zone
-        for areaName in areaList:
-            if areaName in self._areaDict.keys():
-                entry = self._areaDict[areaName]
-                if not entry.has_key("ugcTimeZone"):   #add your site tz
-                    if thisTimeZone not in zoneList:
-                        zoneList.append(thisTimeZone)
-                    continue  # skip this entry
-                timeZoneList = entry["ugcTimeZone"]
-                if type(timeZoneList) is types.StringType:  # a single value
-                    timeZoneList = [timeZoneList]   # make it into a list
-                for timeZone in timeZoneList:
-                    if timeZone not in zoneList:
-                        zoneList.append(timeZone)
-        # if the resulting zoneList is empty, put in our time zone
-        if len(zoneList) == 0:
-            zoneList.append(thisTimeZone)
-        # if the resulting zoneList has our time zone in it, be sure it
-        # is the first one in the list
-        try:
-            index = zoneList.index(thisTimeZone)
-            if index != 0:
-                del zoneList[index]
-                zoneList.insert(0, thisTimeZone)
-        except:
-            pass
-        return zoneList
     
     def _calcLocalReferences(self, lat0, lon0):
         localRefs = []
@@ -1981,9 +1946,9 @@ class TextProduct(HLSTCV_Common.TextProduct):
         direction = self._bearing(lat1, lon1, lat0, lon0)
         direction = self._dirInEnglish(direction)
         localRef ="ABOUT "+distMph_str+" MILES "+direction
-#         self.debug_print("localRef = %s" % (localRef), 1)
+        self.debug_print("localRef = %s" % (localRef), 1)
         return localRef
-
+    
     # Returns the distance from lat0, lon0 to lat1, lon1 in kilometers
     def _distanceFromLatLon(self, lat0, lon0, lat1, lon1):
         R = 6371.0
@@ -1993,7 +1958,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         lon1 = numpy.deg2rad(lon1)
         dist = math.acos(math.sin(lat0) * math.sin(lat1) + math.cos(lat0) * math.cos(lat1) * math.cos(lon1 - lon0)) * R
         return dist
-
+    
     def _bearing(self, lat0, lon0, lat1, lon1):
 
         dlat = numpy.deg2rad((lat0 - lat1))
@@ -2009,8 +1974,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         direction = direction % 360
 
         return direction
-
-
+    
     def _dirInEnglish(self, direction):
         dirList = ["North", "North-Northeast", "Northeast", "East-Northeast",
                    "East", "East-Southeast", "Southeast", "South-Southeast",
@@ -2021,213 +1985,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
             dirIndex = dirIndex - 16
         return dirList[dirIndex]
     
-    ######################################################
-    #  Product Part processing         
-    ######################################################
-   
-    def _processProductParts(self, productGenerator, productDict, productSegmentGroup, productParts):            
-        '''
-        @param productDict
-        @param productSegmentGroup
-        @param productParts
-        @return product dictionary created from the product parts
-        
-        Note that this method is called recursively such that a product part is allowed to be
-        a set of subParts specified as follows:
-          (subPartLabel, list of productParts for each subPart)
-        For example, we have
-          ('segments', [list of [segment product parts]])
-
-        # Product Dictionary
-        #   Contains information for all formats e.g.
-        #   partner XML, CAP, and Legacy text 
-        '''
-        
-        
-        if type(productParts) is types.DictType:
-            arguments = productParts.get('arguments')
-            partsList = productParts.get('partsList')
-        else:
-            partsList = productParts
-        
-        removedParts = []
-        for part in partsList:
-            if type(part) is types.TupleType:
-                # e.g. subPart == 'segments', subPartsLists == list of parts for each segment
-                subPart, subPartsLists = part
-                subParts = []
-                for subPartsList in subPartsLists:
-                    subDict = collections.OrderedDict()
-                    self._processProductParts(productGenerator, subDict, productSegmentGroup, subPartsList)
-                    subParts.append(subDict)
-                # e.g. productDict['segments'] = segment dictionaries
-                productDict[subPart] = subParts
-            else:
-                if part not in self._noOpParts():
-                    execString = 'productGenerator._'+part+'(productDict, productSegmentGroup, arguments)'
-                    exec execString
-                    if part not in productDict:
-                        removedParts.append(part)
-        
-        for part in removedParts:
-            self.debug_print("SARAH: Removing part = %s" % (part), 1)
-            partsList.remove(part)
-                    
-    def _noOpParts(self):
-        '''
-        These represent product parts that should be skipped when calling product part methods.
-        They will be handled automatically by the formatters.
-        '''
-        return ['CR', 'endProduct', 'endSegment', 'doubleAmpersand', 'newInformationHeader', 'sigPotentialImpacts']
-    
-    ###############################################################
-    ### Product Dictionary methods
-    
-    def _createProductDictionary(self):
-        # Create the product dictionary
-        productSegmentGroup = self._groupSegments(self._allAreas())
- 
-        productDict = self._initializeProductDict(productSegmentGroup)
-        productParts = productSegmentGroup.get('productParts') 
-        productDict['productParts'] = productParts
-        self._processProductParts(self, productDict, productSegmentGroup, productParts)
-#         self._wrapUpProductDict(productDict)
-          
-        return productDict
-     
-    def _formatProductDictionary(self, productDict):
-        legacyFormatter = LegacyFormatter(self)
-        product = legacyFormatter.execute(productDict)
-#         xmlFormatter = XMLFormatter(self)
-#         product = xmlFormatter.execute(productDict)
-         
-        return product
-
-    def _groupSegments(self, segments):
-        '''
-         Group the segments into the products
-            return a list of productSegmentGroup dictionaries
-        '''
-     
-        segment_vtecRecords_tuples = []
-        for segment in segments:
-            vtecRecords = self.getVtecRecords(segment)
-            for record in vtecRecords:
-                if record['act'] == "UPG":
-                    upgPhenSig = record['phen'] + "." + record['sig']
-                    newRecord = self._findNEWAssociatedWithUPG(upgPhenSig, vtecRecords)
-                    record['new_record'] = newRecord
-                self.debug_print("SARAH: vtecRecord = %s" % (repr(record)))
-            segment_vtecRecords_tuples.append((segment, vtecRecords))
-        
-        productSegmentGroup = { 
-                       'productID' : 'HLS',
-                       'productName': self._productName,
-                       'geoType': 'area',
-                       'vtecEngine': self._hazardsTable,
-                       'mapType': 'publicZones',
-                       'segmented': True,
-                        'productParts': self._productParts_HLS(segment_vtecRecords_tuples),
-                       }
-
-        return productSegmentGroup
-    
-    def _findNEWAssociatedWithUPG(self, upgPhenSig, vtecRecords):
-        import VTECTable
-        
-        possibleUpgrades = []
-        for upgradedTo, upgradedFrom in VTECTable.upgradeHazardsDict:
-            if upgPhenSig in upgradedFrom:
-                possibleUpgrades.append(upgradedTo)
-        
-        for record in vtecRecords:
-            if record['act'] == "NEW":
-                newPhenSig = record['phen'] + "." + record['sig']
-                if newPhenSig in possibleUpgrades:
-                    return record
-        
-        return None
-    
-    ######################################################
-    #  Product Dictionary -- General product information        
-    ######################################################
-
-    def _initializeProductDict(self, productSegmentGroup):
-        '''
-        Set up the Product Dictionary for the given Product consisting of a 
-        group of segments.
-        
-        Fill in the dictionary information for the product header.
-        
-        @param productSegmentGroup: holds meta information about the product
-        @return initialized product dictionary
-      
-        ***********
-        Example segmented product:
-        
-           WGUS63 KBOU 080400
-           FFABOU
-
-           URGENT - IMMEDIATE BROADCAST REQUESTED
-           FLOOD WATCH
-           NATIONAL WEATHER SERVICE DENVER CO
-           400 AM GMT TUE FEB 8 2011
-
-           Overview Headline
-           Overview
-
-        ***********
-        Example non-segmented product:
-           WGUS63 KBOU 080400
-           FFWBOU
-        
-        '''        
-        self._productID = productSegmentGroup.get('productID', 'NNN')
-        if self._areaName != '':
-            self._areaName = ' FOR ' + self._areaName + '\n'
-        self._geoType = productSegmentGroup.get('geoType')
-        self._mapType = productSegmentGroup.get('mapType')
-        self._productTimeZones = []
-        
-        # Fill in product dictionary information
-        productDict = collections.OrderedDict()
-        productDict['productID'] = self._productID
-        return productDict
-    
-    ###############################################################
-    ### Hazards related methods
-    
-    def _initializeHazardsTable(self, argDict):
-        import VTECMessageType
-        productID = self._pil[0:3]
-        vtecMode = VTECMessageType.getVTECMessageType(productID.upper())
-        argDict["vtecMode"] = vtecMode
-        
-        self._setVTECActiveTable(argDict)
-        
-        # Need to check hazards against all edit areas in the CWA MAOR
-        argDict["combinations"]= [(self._allAreas(),"Region1")]
-
-        self._hazardsTable = self._getHazardsTable(argDict, self.filterMethod)
-        argDict["hazards"] = self._hazardsTable
-    
-    def _setVTECActiveTable(self, argDict):
-        dataMgr = argDict["dataMgr"]
-        gfeMode = dataMgr.getOpMode().name()
-        
-        self.debug_print("*" *100, 1)
-        self.debug_print("gfeMode = '%s'" % (gfeMode), 1)
-        self.debug_print("*" *100, 1)
-        
-            
-        if gfeMode == "PRACTICE":
-            argDict["vtecActiveTable"] = "PRACTICE"
-        else:
-            argDict["vtecActiveTable"] = "active"
-    
-    def _allAreas(self):
-        return self._inlandAreas() + self._coastalAreas()
-    
     ###############################################################
     ### GUI related methods
     
@@ -2237,10 +1994,12 @@ class TextProduct(HLSTCV_Common.TextProduct):
             "name": "ImpactsAnticipated",
             "label": "Step 1. Potential Impacts Anticipated?",
             "options": [
-                ("Yes", True),
+                ("Yes (NOTE: Any case other than dispel rumors must\n"
+                 "have current TCP for storm in question)", True),
                 ("No (Dispel Rumors)", False),
                 ],
-            "default": "Yes",
+            "default": "Yes (NOTE: Any case other than dispel rumors must\n"
+                       "have current TCP for storm in question)",
             },
             {
             "name": "StormInfo",
@@ -2279,7 +2038,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                         ("Watch", 'check plans'),
                         ("Warning", 'complete preparations'),
                         ("Conditions/Ongoing", 'hunker down'),
-                        ("Recovery", 'recovery'),
+                        ("Recovery (After last TCV)", 'recovery'),
                         ],
             },
             {
@@ -2452,7 +2211,7 @@ class Overview_Dialog(HLSTCV_Common.Common_Dialog):
         # pull the data from the tkObject_dict before they get toasted
         tkObject_dict  = self._tkObject_dict
         overviewList = self._parent._overview_list()
-        print("SARAH: in okCB!")
+        print("in okCB!")
         for infoDict in overviewList:
             name = infoDict["name"]
             label = infoDict["label"]            
@@ -2471,7 +2230,7 @@ class Overview_Dialog(HLSTCV_Common.Common_Dialog):
                             checkList.append((options[i], svar.get()))
                     else:
                         if ivarList[i].get():
-                            print("SARAH: adding option = %s" % (repr(options[i])))
+                            print("adding option = %s" % (self._pp.pformat(options[i])))
                             checkList.append(options[i])
                 value = checkList
                 self._setVarDict(name, value)
@@ -2508,8 +2267,8 @@ class LegacyFormatter():
         @param productParts -- list of instances of the ProductPart class with information about how to format each product part
         @return text -- product string
         '''
-        text = ''
-        print("SARAH: productParts = %s" % (productParts))
+        text = ""
+        self._textProduct.debug_print("productParts = %s" % (productParts))
         for part in productParts:             
             valtype = type(part)
             if valtype is str:
@@ -2517,15 +2276,15 @@ class LegacyFormatter():
             elif valtype is tuple:
                 name = part[0]
                 infoDicts = part[1]
-                self.debug_print("SARAH: name = %s" % (str(name)), 1)
-                self.debug_print("SARAH: infoDicts = %s" % (repr(infoDicts)), 1)
+                self._textProduct.debug_print("name = %s" % (name), 1)
+                self._textProduct.debug_print("infoDicts =\n\n%s\n" % (self._pp.pformat(infoDicts)), 1)
                 newtext = self.processSubParts(productDict.get(name), infoDicts)
-                self.debug_print("SARAH: newtext type = %s" % (type(newtext)), 1)
-                self.debug_print("SARAH: newtext = %s" % (repr(newtext)), 1)
+                self._textProduct.debug_print("newtext type = %s" % (type(newtext)), 1)
+                self._textProduct.debug_print("newtext =\n\n%s\b" % (self._pp.pformat(newtext)), 1)
                 text += newtext
                 continue
             elif valtype is list:
-                self.debug_print('GOT HERE -- found list', 1)
+                self._textProduct.debug_print('GOT HERE -- found list', 1)
                 self._tpc.flush()
                 # TODO THIS SHOULD BE REMOVED AFTER THE REFACTOR OF HazardServicesProductGenerationHandler.JAVA
                 tup = (part[0], part[1])
@@ -2552,9 +2311,11 @@ class LegacyFormatter():
                 header = "New Information"
                 text += header + "\n" + "-"*len(header) + "\n\n"
             elif name == "changesHazards":
-                text += "* Changes to Watches and Warnings:\n" + self.processHazards(productDict['changesHazards'])
+                text += "* Changes to Watches and Warnings:\n" + \
+                        self.processHazards(productDict['changesHazards'], isChangesHazards=True)
             elif name == "currentHazards":
-                text += "* Current Watches and Warnings:\n" + self.processHazards(productDict['currentHazards'])
+                text += "* Current Watches and Warnings:\n" + \
+                        self.processHazards(productDict['currentHazards'], isChangesHazards=False)
             elif name == "stormInformation":
                 text += self.processStormInformation(productDict['stormInformation'])
             elif name == "situationOverview":
@@ -2607,8 +2368,8 @@ class LegacyFormatter():
                 text += '&&\n'
             elif name not in self._noOpParts():
                 textStr = productDict.get(name)
-                self.debug_print("SARAH: name = %s" % (name), 1)
-                self.debug_print("SARAH: textStr = '%s'" % (textStr), 1)
+                self._textProduct.debug_print("name = %s" % (name), 1)
+                self._textProduct.debug_print("textStr = '%s'" % (textStr), 1)
                 if textStr:
                     text += textStr + '\n'
         return text
@@ -2654,14 +2415,6 @@ class LegacyFormatter():
         
         return text
 
-    def formatIssueTime(self):  
-        text = ''  
-        sentTimeZ = self._tpc.getVal(self.productDict, 'sentTimeZ_datetime')
-        timeZones = self._tpc.getVal(self.productDict, 'timeZones')
-        for timeZone in timeZones:
-            text += self._tpc.formatDatetime(sentTimeZ, '%I%M %p %Z %a %e %b %Y', timeZone) + '\n'
-        return text
-
     def processSummaryHeadlines(self, headlinesList):
         if headlinesList in [[], [""]]:
             text = "**" + self._textProduct._frame("Enter headline here") + "**\n\n"
@@ -2675,26 +2428,36 @@ class LegacyFormatter():
         
         return text
     
-    def processHazards(self, hazardsList):
+    def processHazards(self, hazardsList, isChangesHazards):
         text = ""
         
         if len(hazardsList) == 0:
-            text = self.TAB + "- None\n"
+            if isChangesHazards and \
+               self._textProduct._ImpactsAnticipated and \
+               self._textProduct._GeneralOnsetTime == "recovery":
+                text = self.TAB + "- All watches and warnings have been canceled\n"
+            else:
+                text = self.TAB + "- None\n"
         for hazard in hazardsList:
             hazardText = ""
             if hazard['act'] == "CON":
                 hazardText = "A " + hazard['hdln'] + " remains in effect for " + self._areaWords(hazard['id'])
             elif hazard['act'] in ["NEW", "EXA"]:
-                hazardText = "A " + hazard['hdln'] + " has been issued for " + self._areaWords(hazard['id'])
-            elif hazard['act'] == "UPG":
-                if hazard['new_record'] is not None:
-                    hazardText = "A " + hazard['hdln'] + \
-                                 " has been upgraded to a " + hazard['new_record']['hdln'] + \
+                if isChangesHazards and hazard.has_key('upgradeFrom') and hazard['upgradeFrom'] is not None:
+                    import VTECTable
+                    upgradeRecord = hazard['upgradeFrom']
+                    hazardText = "A " + VTECTable.VTECTable[upgradeRecord['phensig']]['hdln'] + \
+                                 " has been upgraded to a " + hazard['hdln'] + \
                                  " for " + self._areaWords(hazard['id'])
                 else:
-                    hazardText = "A " + hazard['hdln'] + " has been upgraded for " + self._areaWords(hazard['id'])
+                    if isChangesHazards:
+                        hazardText = "A " + hazard['hdln'] + " has been issued for " + self._areaWords(hazard['id'])
+                    else:    
+                        hazardText = "A " + hazard['hdln'] + " is in effect for " + self._areaWords(hazard['id'])
             elif hazard['act'] == "CAN":
                 hazardText = "The " + hazard['hdln'] + " for " + self._areaWords(hazard['id']) + " has been cancelled"
+            else:
+                continue
             text += self._textProduct.indentText(hazardText,
                                                  indentFirstString = self.TAB + "- ",
                                                  indentNextString = self.TAB + "  ",
@@ -2775,11 +2538,11 @@ class LegacyFormatter():
             curAdditionalImpactText = ""
             count = 1
             
-            print("MATT DEBUG: %d sectionDict['additionalImpactRange'] = '%s'" % (len(sectionDict['additionalImpactRange']), sectionDict['additionalImpactRange']))
+            self._textProduct.debug_print("DEBUG: %d sectionDict['additionalImpactRange'] = '%s'" % (len(sectionDict['additionalImpactRange']), sectionDict['additionalImpactRange']))
             for additionalImpact in sectionDict['additionalImpactRange']:
                 
-                print("additionalImpact = '%s'" % (additionalImpact))
-                print("count = %d" % (count))
+                self._textProduct.debug_print("additionalImpact = '%s'" % (additionalImpact))
+                self._textProduct.debug_print("count = %d" % (count))
                 
                 curAdditionalImpactText += \
                     self._textProduct.indentText(additionalImpact, 
@@ -2789,7 +2552,7 @@ class LegacyFormatter():
                    len(curAdditionalImpactText) > 0:
                   curAdditionalImpactText +=  "\n"
                 
-                print("MATT DEBUG: curAdditionalImpactText ='%s'" % (curAdditionalImpactText))
+                self._textProduct.debug_print("DEBUG: curAdditionalImpactText ='%s'" % (curAdditionalImpactText))
 
                 count += 1
             
@@ -2797,7 +2560,7 @@ class LegacyFormatter():
             if additionalImpactRangeText.find(curAdditionalImpactText) == -1:
 
                 #  Add this additional impact text
-                print("Adding current impact. '%s'" % (curAdditionalImpactText))
+                self._textProduct.debug_print("Adding current impact. '%s'" % (curAdditionalImpactText))
                 additionalImpactRangeText += curAdditionalImpactText  
 
             text += additionalImpactRangeText
@@ -2814,11 +2577,11 @@ class LegacyFormatter():
         """
         text = '' 
         for i in range(len(subParts)):
-            print("SARAH: subpart subParts[i] = %s" % (subParts[i]))
-            print("SARAH: subpart infoDicts[i] = %s" % (infoDicts[i]))
+            self._textProduct.debug_print("subpart subParts[i] = %s" % (subParts[i]))
+            self._textProduct.debug_print("subpart infoDicts[i] = %s" % (infoDicts[i]))
             newtext = self._processProductParts(subParts[i], infoDicts[i].get('partsList'))
-            print("SARAH: subpart newtext type = %s" % (type(newtext)))
-            print("SARAH: subpart newtext = '%s'" % (repr(newtext)))
+            self._textProduct.debug_print("subpart newtext type = %s" % (type(newtext)))
+            self._textProduct.debug_print("subpart newtext = '%s'" % (self._pp.pformat(newtext)))
             text += newtext
         return text
 
