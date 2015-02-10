@@ -37,7 +37,7 @@ import java.util.HashMap;
  * 
  */
 public class SegmentData {
-    
+
     /**
      * Segment map.
      */
@@ -58,8 +58,11 @@ public class SegmentData {
 
     /**
      * Add entry into the segment map.
-     * @param key Map key.
-     * @param tip Text index point data.
+     * 
+     * @param key
+     *            Map key.
+     * @param tip
+     *            Text index point data.
      */
     public void addToSegmentMap(String key, TextIndexPoints tip) {
         segMap.put(key, tip);
@@ -67,8 +70,11 @@ public class SegmentData {
 
     /**
      * Add entry into the head info map.
-     * @param key Map key.
-     * @param tip Text index point data.
+     * 
+     * @param key
+     *            Map key.
+     * @param tip
+     *            Text index point data.
      */
     public void addToHeadInfoMap(String key, TextIndexPoints tip) {
         headInfoMap.put(key, tip);
@@ -76,7 +82,9 @@ public class SegmentData {
 
     /**
      * Get a text index point data from the segment map.
-     * @param key Map key.
+     * 
+     * @param key
+     *            Map key.
      * @return Segment text index point data.
      */
     public TextIndexPoints getSegmentDataIndexPoints(String key) {
@@ -85,7 +93,9 @@ public class SegmentData {
 
     /**
      * Get a text index point data from the head info map.
-     * @param key Map key.
+     * 
+     * @param key
+     *            Map key.
      * @return Segment text index point data.
      */
     public TextIndexPoints getHeadInfoDataIndexPoints(String key) {
@@ -94,6 +104,7 @@ public class SegmentData {
 
     /**
      * Get the segment map.
+     * 
      * @return The segment map.
      */
     public HashMap<String, TextIndexPoints> getSementMap() {
@@ -102,6 +113,7 @@ public class SegmentData {
 
     /**
      * Get the head info map.
+     * 
      * @return The head info map.
      */
     public HashMap<String, TextIndexPoints> getHeadInfoMap() {
