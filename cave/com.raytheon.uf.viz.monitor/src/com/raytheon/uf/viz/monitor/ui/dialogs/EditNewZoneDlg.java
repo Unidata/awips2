@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * Nov 10, 2014 3741      skorolev     Fixed configXML issue.
  * Nov 21, 2014 3841      skorolev     Content of ID field made an editable.
+ * Feb 03, 2015 3841      skorolev     Fixed deleteSelected method.
  * 
  * </pre>
  * 
@@ -358,9 +359,14 @@ public class EditNewZoneDlg extends CaveSWTDialog {
             }
             String area = zoneList.getItem(zoneList.getSelectionIndex());
             zoneList.remove(zoneList.getSelectionIndex());
-            idTF.setText("");
-            latTF.setText("");
-            lonTF.setText("");
+            zoneList.select(0);
+            if (zoneList.getItemCount() != 0) {
+                handleZoneSelection();
+            } else {
+                idTF.setText("");
+                latTF.setText("");
+                lonTF.setText("");
+            }
             if (macDlg.getMaZones().contains(area)) {
                 macDlg.getMaZones().remove(area);
                 macDlg.configMgr.removeArea(area);
