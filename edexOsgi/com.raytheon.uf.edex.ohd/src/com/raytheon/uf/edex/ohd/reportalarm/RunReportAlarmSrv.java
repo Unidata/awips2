@@ -150,19 +150,16 @@ public final class RunReportAlarmSrv {
     private static void saveProductToTextDb(final String productText,
             final String productId) throws Exception {
         TextDB textdb = new TextDB();
-        long statusCode = textdb.writeProduct(productId, productText, true,
+        long insertTime = textdb.writeProduct(productId, productText, true,
                 null);
-        // Set the current time and send product alarm alert.
-        Date d = new Date(System.currentTimeMillis());
-        d.setTime(statusCode);
-        AlarmAlertUtil.sendProductAlarmAlert(productId,
-                String.valueOf(d.getTime()),
-                true);
-
-        if (statusCode != Long.MIN_VALUE) {
-            statusHandler.info("Product successfully sent");
+        if (insertTime != Long.MIN_VALUE) {
+            // Set the write time and send product alarm alert.
+            Date d = new Date();
+            d.setTime(insertTime);
+            AlarmAlertUtil.sendProductAlarmAlert(productId, d, true);
+            statusHandler.info("Saved product to textdb successfully.");
         } else {
-            statusHandler.error("Product send error detected.");
+            statusHandler.error("Error detected saving product to textdb.");
         }
     }
 }
