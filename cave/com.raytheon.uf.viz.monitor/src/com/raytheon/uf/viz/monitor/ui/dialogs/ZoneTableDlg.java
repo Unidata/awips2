@@ -94,9 +94,8 @@ import com.vividsolutions.jts.io.ParseException;
  * Nov.11, 2012 1297      skorolev     new abstract initiateProdArray()
  * May 13, 2014 3133      njensen      Updated getting ObsHistType from configMgr
  * May 15, 2014 3086      skorolev     Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager.
- * Sep 15, 2014 3220      skorolev     Added refreshZoneTableData method.
- * Oct 17, 2014 3220      skorolev     Added condition into launchTrendPlot to avoid NPE.
  * Nov 03, 2014 3741      skorolev     Updated zoom procedures.
+ * Jan 27, 2015 3220      skorolev     Added refreshZoneTableData method.Added condition into launchTrendPlot to avoid NPE.Updated code for better performance.
  * 
  * </pre>
  * 
@@ -260,9 +259,6 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         this.site = LocalizationManager.getInstance().getCurrentSite();
         dFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         this.obData = obData;
-        // the zone table data of the latest nominal time:
-        zoneTblData = obData.getZoneTableData();
-        zoneTblData.sortData();
         nominalTime = obData.getLatestNominalTime();
     }
 
@@ -458,12 +454,16 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
          * their current values
          */
         setZoneSortColumnAndDirection();
-        zoneTblData = obData.getZoneTableData(date);
-        zoneTblData
-                .setSortColumnAndDirection(zoneSortColumn, zoneSortDirection);
-        zoneTblData.sortData();
-        zoneTable.setTableData(zoneTblData);
-        zoneTable.table.redraw();
+        // get tab cache data
+        zoneTblData = obData.getMultiHrsTabData().get(date);
+        // update table if there are tab data in cache
+        if (zoneTblData != null) {
+            zoneTblData.setSortColumnAndDirection(zoneSortColumn,
+                    zoneSortDirection);
+            zoneTblData.sortData();
+            zoneTable.setTableData(zoneTblData);
+            zoneTable.table.redraw();
+        }
     }
 
     /**
@@ -495,7 +495,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     /**
      * Sets Column and Sort Direction for Zone table.
      */
-    protected void setZoneSortColumnAndDirection() {
+    public void setZoneSortColumnAndDirection() {
         if (zoneTblData != null) {
             zoneSortColumn = zoneTblData.getSortColumn();
             zoneSortDirection = zoneTblData.getSortDirection();
@@ -605,6 +605,9 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      */
     @Override
     public void zoneTableAction(int rowNum) {
+
+        zoneTblData = obData.getZoneTableData(nominalTime);
+        zoneTblData.sortData();
         // set selectedZone to the selected zone
         selectedZone = zoneTblData.getTableRows().get(rowNum)
                 .getTableCellData(0).getCellText();
@@ -967,15 +970,5 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
             varName = name.substring(stInd + 1);
         }
         return varName;
-    }
-
-    /**
-     * Refreshes Zone Table.
-     * 
-     * @param obData
-     */
-    public void refreshZoneTableData(ObMultiHrsReports obData) {
-        obData.getObHourReports().updateZones();
-        this.updateTableDlg(obData.getObHourReports());
     }
 }
