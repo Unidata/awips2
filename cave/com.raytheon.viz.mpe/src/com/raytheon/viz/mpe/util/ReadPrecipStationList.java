@@ -73,8 +73,7 @@ public class ReadPrecipStationList {
             e.printStackTrace();
         }
 
-        ReadPrecipStationList.max_pstations = dqc.precip_stations
-                .size();
+        max_pstations = dqc.precip_stations.size();
 
         return dqc.precip_stations;
 
