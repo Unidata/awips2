@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.raytheon.rcm.config.Configuration;
+import com.raytheon.rcm.config.RadarConfig;
+import com.raytheon.rcm.server.StatusManager.RadarStatus;
 
 /**
  * 
@@ -43,6 +44,8 @@ import com.raytheon.rcm.config.Configuration;
  * Date          Ticket#    Engineer    Description
  * ------------- ---------- ----------- --------------------------
  * May 12, 2014  DR 16319   dhuffman    Initial creation.
+ * Feb 10, 2015  DR 17112   D. Friedman Only alarm on dedicated radars and
+ *                                      once per detected failure.
  * 
  * </pre>
  * 
@@ -56,18 +59,16 @@ public class RadarWatchdog extends Thread {
 
     protected static class GsmItem {
         protected String radarID;
-        protected int vcp;
-        protected long time;
-        protected long alarmTime;
-        protected long nextAlarmTime;
+        protected int trackedVcp;
+        protected int currentVcp;
+        protected boolean failed;
 
         protected GsmItem() {
         }
     }
 
     protected static class RadarItem {
-        protected String radarID;
-        protected String mnemonic;
+        protected boolean isNew;
         protected long time;
         protected long messageTime;
 
@@ -75,7 +76,10 @@ public class RadarWatchdog extends Thread {
         }
     }
 
-    private long startTime = 0;
+    protected static class WatchedRadar {
+
+    }
+
     private long shortestWait = 0;
     private static final long fudgeTime = 30;
 
@@ -84,13 +88,13 @@ public class RadarWatchdog extends Thread {
     private static Map<Integer, Integer> mapDuration = new ConcurrentHashMap<Integer, Integer>();
     private static List<String> mapMnemonicProducts = new ArrayList<String>();
 
-    protected Configuration configuration;
+    protected RadarServer radarServer;
     private static String configFileName = "radarWatchdog.txt";
 
-    protected RadarWatchdog(Configuration conf) {
+    protected RadarWatchdog(RadarServer radarServer) {
+        super("Watchdog");
         setDaemon(true);
-        startTime = System.currentTimeMillis();
-        configuration = conf;
+        this.radarServer = radarServer;
 
         loadConfigFile(configFileName);
 
@@ -102,112 +106,145 @@ public class RadarWatchdog extends Thread {
         }
     }
 
-    public GsmItem getGSMItem(final String radarID) {
-        return mapGSM.get(radarID);
-    }
-
-    public void putGSMItem(GsmItem gi) {
-        if (gi != null) {
-            mapGSM.put(gi.radarID, gi);
-        }
-    }
-
-    public RadarItem getRadarItem(final String Mnemonic, final String radarID) {
-        Map<String, RadarItem> mapRadar = mapMnemonic.get(Mnemonic);
-        if (mapRadar != null)
-            return mapRadar.get(radarID);
-        return null;
-    }
-
-    public void putRadarItem(RadarItem ri) {
-        if (ri != null) {
-            Map<String, RadarItem> mapRadar = mapMnemonic.get(ri.mnemonic);
-            if (mapRadar != null) {
-                mapRadar.put(ri.radarID, ri);
+    public synchronized void notifyGsm(String radarID, int vcp) {
+        GsmItem item = mapGSM.get(radarID);
+        if (item != null) {
+            item.currentVcp = vcp;
+            notifyWatchdog();
+        } else {
+            if (isTrackedRadar(radarID)) {
+                item = new GsmItem();
+                item.radarID = radarID;
+                item.currentVcp = vcp;
+                mapGSM.put(radarID, item);
+                notifyWatchdog();
             }
         }
     }
 
+    protected boolean isTrackedRadar(String radarID) {
+        RadarConfig rc = radarServer.getConfiguration().getConfigForRadar(radarID);
+        return rc != null && rc.isDedicated();
+    }
+
+    public synchronized void notifyRadarItem(String radarID, String mnemonic, long messageTime, long time) {
+        if (! isTrackedRadar(radarID))
+            return;
+
+        RadarItem ri = getRadarItem(mnemonic, radarID);
+        if (ri != null) {
+            ri.isNew = false;
+            ri.messageTime = messageTime;
+            ri.time = time;
+        }
+    }
+
+    private RadarItem getRadarItem(final String mnemonic, final String radarID) {
+        Map<String, RadarItem> mapRadar = mapMnemonic.get(mnemonic);
+        if (mapRadar != null) {
+            RadarItem ri = mapRadar.get(radarID);
+            if (ri == null) {
+                ri = new RadarItem();
+                ri.isNew = true;
+                mapRadar.put(radarID, ri);
+            }
+            return ri;
+        }
+        return null;
+    }
+
     @Override
     public void run() {
-        long currentTime = 0;
         shortestWait = 0;
         while (true) {
 
             try {
                 synchronized (semifore) {
                     semifore.wait(shortestWait < 800 ? 800 : shortestWait);
-                    currentTime = System.currentTimeMillis();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            patrol(currentTime);
+            patrol(System.currentTimeMillis());
 
         }
     }
 
-    private void patrol(long currentTime) {
+    private synchronized void patrol(long currentTime) {
         long duration = 0;
-        long adjustedTime = currentTime - fudgeTime;
-        shortestWait = 0;
+        long earliestCheckTime = 0;
         Iterator<GsmItem> git = mapGSM.values().iterator();
         while (git.hasNext()) {
             GsmItem gi = git.next();
-            if (mapDuration.get(gi.vcp) != null) {
-                duration = mapDuration.get(gi.vcp) * 1000;
 
-                Iterator<String> mnem = mapMnemonicProducts.iterator();
-                while (mnem.hasNext()) {
-                    String mn = mnem.next();
-                    Map<String, RadarItem> mapRadar = mapMnemonic.get(mn);
-                    if (mapRadar == null)
-                        continue;
-                    RadarItem ri = mapRadar.get(gi.radarID);
+            if (! isTrackedRadar(gi.radarID)) {
+                git.remove();
+                continue;
+            }
 
-                    if (ri == null) {
-                        if (duration + startTime < adjustedTime
-                                && gi.alarmTime != startTime) {
-                            alert(duration, gi, mn);
-                            gi.alarmTime = startTime;
-                            gi.nextAlarmTime = startTime + duration;
-                        }
+            /* There will be an alarm when the radar connection goes down, so
+             * do not do any additional alarming.
+             */
+            RadarStatus rs = radarServer.getStatusManager().getRadarStatus(gi.radarID);
+            if (rs != null && rs.getCurrentGSM() == null) {
+                gi.trackedVcp = 0;
+                continue;
+            }
 
-                        if (shortestWait < 1 || duration < shortestWait)
-                            shortestWait = duration;
-                    }
-
+            if (gi.currentVcp != gi.trackedVcp) {
+                for (String mn : mapMnemonicProducts) {
+                    RadarItem ri = getRadarItem(mn, gi.radarID);
                     if (ri != null) {
+                        ri.isNew = true;
+                    }
+                }
+                gi.trackedVcp = gi.currentVcp;
+            }
 
-                        if (ri.time + duration < adjustedTime) {
-                            if (ri.time <= gi.alarmTime
-                                    && gi.nextAlarmTime < currentTime) {
-                                alert(duration, gi, ri.mnemonic);
-                                gi.alarmTime = ri.time;
-                                gi.nextAlarmTime = currentTime + duration;
-                            }
-                            if (gi.nextAlarmTime < currentTime)
-                                gi.alarmTime = ri.time;
-                        }
+            if (mapDuration.get(gi.trackedVcp) != null) {
+                boolean allOk = true;
+                duration = (mapDuration.get(gi.trackedVcp) + fudgeTime) * 1000;
 
-                        if ((duration + ri.time) - adjustedTime < shortestWait
-                                && 1 <= (duration + ri.time) - adjustedTime)
-                            shortestWait = (duration + ri.time) - adjustedTime;
-                        if (shortestWait < 1)
-                            shortestWait = duration;
+                for (String mn : mapMnemonicProducts) {
+                    RadarItem ri = getRadarItem(mn, gi.radarID);
+                    if (ri == null) {
+                        continue;
                     }
 
+                    if (ri.isNew) {
+                        ri.isNew = false;
+                        ri.time = currentTime;
+                    } else {
+                        long diff = currentTime - ri.time;
+                        if (diff < duration) {
+                            long nextTime = ri.time + duration;
+                            if (earliestCheckTime == 0 || nextTime < earliestCheckTime) {
+                                earliestCheckTime = nextTime;
+                            }
+                        } else {
+                            allOk = false;
+                            alert(duration, gi, mn);
+                        }
+                    }
+                }
+                if (allOk) {
+                    gi.failed = false;
                 }
             }
         }
+
+        shortestWait = earliestCheckTime > 0 ? earliestCheckTime - currentTime : 0;
     }
 
     private void alert(final long duration, final GsmItem gi, final String mn) {
-        String AlertVizMessage = "Watchdog: Radar ";
-        AlertVizMessage += gi.radarID + " has not produced a '" + mn
-                + "' product in the last " + duration / 1000 + " seconds.";
-        RadarServerAvailable.sendNotification(gi.radarID, AlertVizMessage);
+        if (! gi.failed) {
+            gi.failed = true;
+            String AlertVizMessage = "Watchdog: Radar ";
+            AlertVizMessage += gi.radarID + " has not produced a '" + mn
+                    + "' product in the last " + duration / 1000 + " seconds.";
+            RadarServerAvailable.sendNotification(gi.radarID, AlertVizMessage);
+        }
     }
 
     public void notifyWatchdog() {
@@ -218,7 +255,8 @@ public class RadarWatchdog extends Thread {
 
     private boolean loadConfigFile(final String filename) {
         try {
-            InputStream inFile = configuration.getDropInData(filename);
+            InputStream inFile = radarServer.getConfiguration().
+                    getDropInData(filename);
             InputStreamReader reader = new InputStreamReader(inFile);
             BufferedReader in = new BufferedReader(reader);
             String line;
