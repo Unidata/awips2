@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 27, 2014 3667       skorolev    Cleaned code.
  * Nov 21, 2014 3841       skorolev    Corrected handleOkBtnSelection.
  * Dec 11, 2014 3220       skorolev    Removed unnecessary code.
+ * Feb 10, 2015 3886       skorolev     Changed confirmation message.
  * 
  * </pre>
  * 
@@ -84,7 +85,7 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     protected void handleOkBtnSelection() {
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.YES | SWT.NO,
-                    "SNOW Monitor Confirm Changes", "Save changes?");
+                    "Confirm Cofiguration Changes", "Save changes?");
             if (choice == SWT.YES) {
                 // Save the config xml file.
                 saveConfigs();

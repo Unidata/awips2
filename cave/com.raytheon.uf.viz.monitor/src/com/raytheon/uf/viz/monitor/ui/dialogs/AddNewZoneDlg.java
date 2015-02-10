@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 23, 2014 3054      skorolev     Deleted unnecessary parameter in addArea method.
  * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * Nov 21, 2014 3841      skorolev     Corrected handleAddNewAction method.
+ * Feb 10, 2015 3886      skorolev     Added fixed width for dialog.
  * 
  * </pre>
  * 
@@ -176,6 +177,7 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         textComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
+        gd.widthHint = 200;
         Label idLbl = new Label(textComp, SWT.RIGHT);
         idLbl.setText("Id (e.g. AMZ080):");
         idLbl.setLayoutData(gd);
