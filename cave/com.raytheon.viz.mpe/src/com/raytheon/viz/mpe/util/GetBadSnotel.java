@@ -41,6 +41,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 11, 2009            snaples     Initial creation
+ * Feb 5, 2015  17101      snaples     Updated max_stations to use size of dqc.precip_stations.
  * 
  * </pre>
  * 
@@ -68,8 +69,7 @@ public class GetBadSnotel {
         /* Retrieve the number of days to QC data for. */
         num_qc_days = dqc.qcDays;
 
-        ReadPrecipStationList pl = new ReadPrecipStationList();
-        int max_stations = pl.getNumPstations();
+        int max_stations = dqc.precip_stations.size();
 //        Pdata[] pdata = DailyQcUtils.pdata;
 
         for (j = 0; j < num_qc_days; j++) {
