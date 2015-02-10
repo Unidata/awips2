@@ -51,7 +51,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 16, 2014 3220       skorolev     Corrected getInstance() method.
  * Oct 27, 2014 3667       skorolev     Cleaned code.
  * Nov 21, 2014 3841       skorolev     Corrected handleOkBtnSelection.
- * Dec 11, 2014 3220       skorolev    Removed unnecessary code.
+ * Dec 11, 2014 3220       skorolev     Removed unnecessary code.
+ * Feb 03, 2015 3841       skorolev     Replaced resetParams with resetStatus.
  * 
  * </pre>
  * 
@@ -71,7 +72,6 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public FogMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.FOG);
-        FogMonitor.getInstance();
     }
 
     /*
@@ -110,7 +110,7 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                  * using new monitor area configuration
                  */
                 fireConfigUpdateEvent();
-                resetParams();
+                resetStatus();
             } else { // Return back to continue edit.
                 return;
             }
