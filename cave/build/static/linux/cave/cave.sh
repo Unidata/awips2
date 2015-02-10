@@ -33,7 +33,7 @@
 # Jul 10, 2014  #3363     bclement    logs command used to launch application to console logs
 # Oct 10, 2014  #3675     njensen     Logback now does console logging to ensure correct pid 
 # Oct 13, 2014  #3675     bclement    startup shutdown log includes both launching pid and placeholder
-#
+# Jan 28, 2015  #4018     randerso    Added a productEditor log file to changes in the GFE product editor
 #
 
 
@@ -218,6 +218,7 @@ curTime=`date +%Y%m%d_%H%M%S`
   export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_logs.log"
   export LOGFILE_CONSOLE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_console.log"
   export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_perf.log"
+  export LOGFILE_PRODUCT_EDITOR="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_%PID%_productEditor.log"
 
   # can we write to log directory
   if [ -w ${LOGDIR} ]; then
