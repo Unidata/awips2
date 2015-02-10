@@ -77,8 +77,7 @@ import com.raytheon.uf.edex.plugin.modelsounding.decoder.ModelSoundingDataAdapte
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Dec 02, 2013  2537     bsteffen    Remove dead/deprecated code.
  * May 14, 2014  2536     bclement    moved WMO Header to common
- * 
- * 
+ * Feb 09, 2015  4101     rjpeter     Pass key to ModelSoundingStorageContainer.
  * </pre>
  * 
  * @author jkorman
@@ -200,7 +199,8 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
                                 }
 
                                 container = new ModelSoundingStorageContainer(
-                                        PointDataContainer.build(pdd, PDC_SIZE));
+                                        PointDataContainer.build(pdd, PDC_SIZE),
+                                        pdcKey);
                             } else if (logger.isPriorityEnabled(Priority.DEBUG)) {
                                 logger.debug("Reusing Point Data Container: "
                                         + pdcKey);
