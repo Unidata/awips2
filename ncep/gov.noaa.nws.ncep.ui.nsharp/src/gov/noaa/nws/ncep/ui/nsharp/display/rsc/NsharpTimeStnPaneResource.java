@@ -11,6 +11,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 04/23/2012	229			Chin Chen	Initial coding
+ * 02/03/2015   DR#17079    Chin Chen   Soundings listed out of order if frames go into new month
  *
  * </pre>
  * 
@@ -244,6 +245,32 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource {
         target.clearClippingPlane();
 
     }
+    /*
+     * Chin 02032015 - DR17079
+     * currently time line description is YYMMDD/HHVxxx(day) or
+     * YYMMDD/HH(day) saved in NsharpSoundingElementStateProperty
+     * convert it to DD.HH for displaying
+     */
+    private String convertTimeLineForDisplay(String tl){
+    	String timeLine = tl;
+    	timeLine = timeLine.substring(4); // get rid of YYMM
+        if (timeLine.contains("V")) {
+            String[] s1Str = timeLine.split("V"); // split
+                                                  // DD/HH(DOW)Vxxx to
+                                                  // "DD/HH(DOW)" and
+                                                  // "xxx"
+            String[] s2Str = s1Str[0].split("\\("); // split
+                                                    // "DD/HH(DOW)" to
+                                                    // "DD/HH" and
+                                                    // "DOW)"
+            timeLine = s2Str[0] + "V" + s1Str[1] + "(" + s2Str[1]; // put
+                                                                   // together
+                                                                   // to
+                                                                   // "DD/HHVxxx(DOW)"
+        }
+        timeLine = timeLine.replace("/", "."); // replace "/" with "."
+        return timeLine;
+    }
 
     @SuppressWarnings("deprecation")
     private void drawNsharpTimelinBox(IGraphicsTarget target, Rectangle rect)
@@ -344,8 +371,8 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource {
                 x = x + xGap;
                 RGB tmLnColor = rscHandler.getElementColorMap().get(sta.name());
                 String tmDesStr = elm.getElementDescription();
-                // d2dlite - convert timeDesStr for GUI display
-
+                // DR17079: convert timeDesStr for GUI display
+                tmDesStr = convertTimeLineForDisplay(tmDesStr);
                 double tmX = x;
 
                 if (compareTmIsOn
