@@ -125,7 +125,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
+ * Date         Ticket#    Engineer    Description 
  * ------------ ---------- ----------- --------------------------
  * 18 APR 2008  ###        lvenable    Initial creation
  * 19 JAN 2010  4085       ryu         Save and load draft
@@ -163,7 +163,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 12/01/2014  #624        zhao        Modified saveFile()
  * 12/16/2014  #14946      ryu         Modified updateIssueExpireTimes() so issuance time is displayed
  *                                     for the local time zones for each segment.
- * 
+ * 01/28/2015  #4018       randerso    Code cleanup.
  * </pre>
  * 
  * @author lvenable
@@ -957,10 +957,7 @@ public class ProductEditorComp extends Composite implements
      */
     private void createTextControl() {
 
-        textComp = new StyledTextComp(this);
-        textComp.setWrapColumn(wrapColumn);
-
-        textComp.setAutoWrapMode(wrapMode);
+        textComp = new StyledTextComp(this, wrapColumn, wrapMode);
 
         createEditorPopupMenu();
 
@@ -2015,8 +2012,7 @@ public class ProductEditorComp extends Composite implements
 
                 if (pds != null) {
                     String officeTimeZone = dm.getParmManager()
-                            .compositeGridLocation()
-       	                    .getTimeZone();
+                            .compositeGridLocation().getTimeZone();
                     int numSegments = pds.getSegmentsArray().size();
                     SimpleDateFormat fmt = new SimpleDateFormat(longLocalFmtStr);
                     fmt.setTimeZone(localTimeZone);
@@ -2025,8 +2021,7 @@ public class ProductEditorComp extends Composite implements
                     for (int i = 0; i < numSegments; i++) {
                         textComp.startUpdate();
                         HashMap<String, TextIndexPoints> segMap = pds
-                                .getSegmentsArray()
-                                .get(i).getSementMap();
+                                .getSegmentsArray().get(i).getSementMap();
 
                         TextIndexPoints tip = segMap.get("purgeT");
                         if (tip != null) {
@@ -2046,10 +2041,10 @@ public class ProductEditorComp extends Composite implements
                         // vtecs are fixed length and this is variable length,
                         // which ensures we only need to reParse() once per
                         // segment
-                        List<String> zones = decodeUGCs(pds.getSegmentsArray().get(i));
+                        List<String> zones = decodeUGCs(pds.getSegmentsArray()
+                                .get(i));
                         List<String> timeZones = dm.getTextProductMgr()
-                                .getTimeZones(zones,
-                                              officeTimeZone);
+                                .getTimeZones(zones, officeTimeZone);
 
                         StringBuilder sb = new StringBuilder();
                         for (String tz : timeZones) {
@@ -2254,18 +2249,18 @@ public class ProductEditorComp extends Composite implements
      * Save the current text in the product editor to a file.
      */
     private void saveFile() {
-        
+
         String fname = null;
-        if ( productDefinition.get("outputFile") != null ) {
-            fname = getDefString("outputFile"); 
-            if ( fname.equals(EMPTY) ) {
+        if (productDefinition.get("outputFile") != null) {
+            fname = getDefString("outputFile");
+            if (fname.equals(EMPTY)) {
                 return;
             }
         } else {
             return;
         }
         fname = fixfname(fname);
-        
+
         FileDialog fd = new FileDialog(parent.getShell(), SWT.SAVE);
         fd.setText("Save As");
         String filePath = (new File(fname)).getParentFile().getPath();
