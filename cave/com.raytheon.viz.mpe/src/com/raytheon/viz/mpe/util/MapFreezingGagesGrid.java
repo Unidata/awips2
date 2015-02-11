@@ -262,7 +262,7 @@ public class MapFreezingGagesGrid {
          * Update the precip station list to contain the nearest freezing level
          * stations.
          */
-        Station station = new Station();
+        Station station = dqc.new Station();
 
         for (i = 0; i < numPstations; i++) {
             station = precip_stations.get(i);

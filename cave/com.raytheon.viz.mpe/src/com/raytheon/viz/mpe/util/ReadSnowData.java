@@ -86,6 +86,7 @@ public class ReadSnowData {
                 }
             }
             in = new BufferedReader(new FileReader(prece));
+            System.out.println("Reading Snow data from : " + prece);
 
 //            int p = 1;
 //            String sn = cbuf;
@@ -168,6 +169,7 @@ public class ReadSnowData {
                         dqc.pdata[i].stn[j].srain[kk].data = Float.parseFloat(qbuf);
 
                         dqc.pdata[i].stn[j].srain[kk].qual = 8;
+                        System.out.println("Loading Snow Data for Station "+ hb5 +" with value: "+ dqc.pdata[i].stn[j].srain[kk].data);
 
                         break;
 
