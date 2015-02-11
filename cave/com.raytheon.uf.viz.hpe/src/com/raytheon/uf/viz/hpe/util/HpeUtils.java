@@ -32,7 +32,8 @@ import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 6, 2014     3026    mpduff      Initial creation
+ * May 6, 2014     3026    mpduff      Initial creation.
+ * Jan 6, 2015     3026    mpduff      Added Bias HPE.
  * 
  * </pre>
  * 
@@ -42,6 +43,8 @@ import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 
 public class HpeUtils {
     private static final String HPE = "HPE";
+
+    private static final String BIAS_HPE = "BiasHPE";
 
     /**
      * Determine if this title represents an HPE model.
@@ -64,6 +67,7 @@ public class HpeUtils {
         if (title == null) {
             return false;
         }
-        return HPE.equals(title);
+
+        return HPE.equals(title) || BIAS_HPE.equals(title);
     }
 }
