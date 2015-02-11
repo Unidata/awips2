@@ -39,8 +39,10 @@ Export-Package: gov.noaa.nws.ncep.ui.pgen,
  gov.noaa.nws.ncep.ui.pgen.store,
  gov.noaa.nws.ncep.ui.pgen.tca,
  gov.noaa.nws.ncep.ui.pgen.tools
-Import-Package: com.raytheon.viz.core.contours.util,
+Import-Package: com.raytheon.uf.viz.core.maps.display,
+ com.raytheon.viz.core.contours.util,
  com.raytheon.viz.core.gl,
  com.raytheon.viz.core.gl.images,
  gov.noaa.nws.ncep.common.staticdata,
  javax.measure.unit
+Bundle-ClassPath: .
