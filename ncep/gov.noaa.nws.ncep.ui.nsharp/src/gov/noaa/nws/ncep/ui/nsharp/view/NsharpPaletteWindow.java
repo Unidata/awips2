@@ -1603,6 +1603,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
         } else {
             hailBtn.setEnabled(false);
         }
+        hailBtn.setEnabled(false); //Chin ::: temporarily disable HAIL button
         hailBtn.addListener(SWT.MouseUp, new Listener() {
             public void handleEvent(Event event) {
                 if (leftGraph != NsharpConstants.SPCGraph.HAIL

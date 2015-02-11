@@ -46,6 +46,8 @@ import com.raytheon.uf.edex.python.decoder.PythonDecoder;
  *                                    used for all practice VTEC products
  *                                    Changed to take in the SendPracticeProductRequest
  *                                    to simplify spring wiring
+ *                                    Changed to set the filepath when calling Python decoder
+ *                                    so _checkForVTEC will work
  * 
  * </pre>
  * 
@@ -103,7 +105,7 @@ public class PracticeVtecDecoder extends PythonDecoder {
 
         // create an argument map to run the decoder
         Map<String, Object> decoderArgs = new HashMap<String, Object>(4);
-        decoderArgs.put("filePath", null);
+        decoderArgs.put("filePath", file.getAbsolutePath());
         decoderArgs.put("command", sb.toString());
         return decode(decoderArgs);
 
