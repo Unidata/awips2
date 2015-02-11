@@ -10,6 +10,9 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 04/23/2012	229			Chin Chen	Initial coding
+ * 01/27/2015   DR#17006,
+ *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
+ *                                      in Volume Browser
  *
  * </pre>
  * 
@@ -127,7 +130,7 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			hodoWindRscShapeList.add(shNcolor);
 		}
 
-
+		float surfaceLevel = soundingLays.get(0).getGeoHeight(); //#5929
 		for (NcSoundingLayer layer : soundingLays){
 			if(layer.getPressure() < 100 || layer.getWindSpeed() <0)
 				continue;
@@ -138,15 +141,15 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 				double [][] lines = {{world.mapX(c0.x), world.mapY(c0.y)},{world
 					.mapX(c1.x), world.mapY(c1.y)}};
 				if(incolor == null){
-					if(layer.getGeoHeight() <nsharpNative.nsharpLib.msl(3000)){
-						//red
+					//use MSL here, so Converts height from (meters) AGL to MSL. #5929
+					if(layer.getGeoHeight() < (3000+surfaceLevel)){
 						shapeR.addLineSegment(lines);
 					}
-					else if(layer.getGeoHeight() < nsharpNative.nsharpLib.msl(6000))
+					else if(layer.getGeoHeight() <  (6000+surfaceLevel))
 						shapeG.addLineSegment(lines);
-					else if(layer.getGeoHeight() < nsharpNative.nsharpLib.msl(9000))
+					else if(layer.getGeoHeight() <  (9000+surfaceLevel))
 						shapeY.addLineSegment(lines);
-					else if(layer.getGeoHeight() < nsharpNative.nsharpLib.msl(12000))
+					else if(layer.getGeoHeight() < (12000+surfaceLevel))
 						shapeC.addLineSegment(lines);
 					else
 						shapeV.addLineSegment(lines);            	
@@ -177,6 +180,7 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			}
 			hodoWindRscShapeList.clear();
 		}
+		
 		world = hodoBackground.computeWorld();
 		boolean compareStnIsOn = rscHandler.isCompareStnIsOn();
 		int currentTimeListIndex = rscHandler.getCurrentTimeElementListIndex();
@@ -575,7 +579,7 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			return;
 		
 		hodoBackground.paintInternal(target, paintProps);
-		if((soundingLys != null) && (soundingLys.size()>= 4))
+		if((soundingLys != null) && (soundingLys.size()> 2) )
 		{
 			this.font10.setSmoothing(false);
 			this.font10.setScaleFont(false);
@@ -602,13 +606,11 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			} 
 			target.clearClippingPlane();
 			if(cursorInHodo){
-				
+
 				drawHodoDynamicData(target, currentZoomLevel);
 			}
-			
-
 		}
-		
+
 	}
 
 	@Override
