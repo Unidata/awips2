@@ -114,7 +114,7 @@ public class InitTempClimo {
                         /* Increment the station array index. */
                         ++index;
                     } else {
-                        Station nstation = new Station();
+                        Station nstation = dc.new Station();
                         nstation = temperature_stations.get(index);
 
                         if ((tokens[1].charAt(5) == 'X')
@@ -161,7 +161,7 @@ public class InitTempClimo {
                     /* Increment the station array index. */
                     ++index;
                 } else {
-                    Station nstation = new Station();
+                    Station nstation = dc.new Station();
                     nstation = temperature_stations.get(index);
                     /*
                      * Is the extremum code 'Maximum'? Of temperature,
@@ -246,7 +246,7 @@ public class InitTempClimo {
                         /* Increment the station array index. */
                         ++index;
                     } else {
-                        Station nstation = new Station();
+                        Station nstation = dc.new Station();
                         nstation = temperature_stations.get(index);
 
                         if ((tokens[1].charAt(5) == 'X')
@@ -309,7 +309,7 @@ public class InitTempClimo {
                                     .get(index).min[0] < 0))
                             || temperature_stations.get(index).cparm.substring(
                                     0, 5).equalsIgnoreCase("TAIPB")) {
-                        Station nstation = new Station();
+                        Station nstation = dc.new Station();
                         nstation = temperature_stations.get(index);
                         /*
                          * Is the extremum code 'Maximum'? Of temperature,

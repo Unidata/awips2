@@ -16,6 +16,14 @@
  * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jan 7, 2015  16954      cgobs      Fix for cv_use issue - using getFieldName() in certain parts.
+ * </pre>
  **/
 package com.raytheon.viz.mpe.ui.actions;
 
@@ -116,7 +124,7 @@ public class SaveBestEstimate {
 
         String rfc = MPEDataManager.getInstance().getRFC();
 
-        update_rwr_save(rfc, editDate, bestEstField.getCv_use());
+        update_rwr_save(rfc, editDate, bestEstField.getFieldName());
 
         XmrgFile xmrgFile = MPEDisplayManager.getXmrgFile(bestEstField,
                 editDate);

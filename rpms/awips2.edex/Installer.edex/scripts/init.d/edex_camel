@@ -64,6 +64,11 @@ getCamelAndWrapperPids() {
    if [ "$_camel_pid" != "" ]; then
       # grab wrapper pid from edex process, run throw awk to throw away leading white space
       _wrapper_pid=`ps --no-headers -p $_camel_pid -o ppid | awk '{print $1}'`
+      # if wrapper died, camel's parent will be 1, don't report that as the wrapper
+      if [ "$_wrapper_pid" == "1" ]
+      then
+          _wrapper_pid=""
+      fi
    else
       # camel not up, double check wrapper pid file
       pidfile=${EDEX_INSTALL}/bin/${1}.pid
@@ -138,7 +143,11 @@ stopEDEX() {
    savepid=$_wrapper_pid
    while [ "${_wrapper_pid}${_camel_pid}" != "" ]; do
       if [ "$_wrapper_pid" != "$savepid" ]; then
-         echo "WARNING: EDEX ${1} instance running under new pid, started by another user?"
+         # only display warning when other wrapper starts (not if wrapper died)
+         if [ -n "$_wrapper_pid" ]
+         then
+            echo "WARNING: EDEX ${1} instance running under new pid, started by another user?"
+         fi
          return 1
       fi
 
