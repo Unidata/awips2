@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -58,11 +58,11 @@ import com.raytheon.uf.common.util.StringUtil;
 /**
  * A data factory for getting gfe data from the metadata database. There are
  * currently not any required identifiers.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Feb 04, 2013           bsteffen    Initial creation
@@ -74,9 +74,10 @@ import com.raytheon.uf.common.util.StringUtil;
  * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
  * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
  * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
- * 
+ * Feb 10, 2015  2866     nabowle     Overwrite subgrid size estimation.
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  * @version 1.0
  */
@@ -202,6 +203,22 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
         }
 
         return constraints;
+    }
+
+    /**
+     * Estimates the subgrid memory size using the grid geometry's size because
+     * {@link #getDataSource(PluginDataObject, SubGridGeometryCalculator)} uses
+     * an {@link OffsetDataSource} that holds the full grid data in memory.
+     * 
+     * @param gridGeom
+     * @param subGrid
+     * @return
+     */
+    protected long estimateSubgridSize(GridGeometry2D gridGeom,
+            SubGridGeometryCalculator subGrid) {
+        long size = gridGeom.getGridRange().getSpan(0)
+                * gridGeom.getGridRange().getSpan(1);
+        return size;
     }
 
     @Override
