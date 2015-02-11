@@ -21,9 +21,9 @@ Packager: Bryan Kowal
 
 AutoReq: no
 BuildRequires: awips2-postgresql = 9.2.3-1.el6
-BuildRequires: postgresql = 8.4.13-1.el6_3
-BuildRequires: postgresql-devel = 8.4.13-1.el6_3
-BuildRequires: postgresql-libs = 8.4.13-1.el6_3
+BuildRequires: postgresql >= 8.4.13-1.el6_3
+BuildRequires: postgresql-devel >= 8.4.13-1.el6_3
+BuildRequires: postgresql-libs >= 8.4.13-1.el6_3
 BuildRequires: wxGTK >= 2.8.12-1
 BuildRequires: wxGTK-devel >= 2.8.12-1
 
