@@ -90,8 +90,9 @@ public class MeanMonthlyPrecip {
         displayUnit = NonSI.INCH;
         dataUnit = SI.MILLIMETER;
         cmc.setDisplayUnit(displayUnit);
+        cmc.setColorMapUnit(SI.MILLIMETER);
         cmc.setDataUnit(dataUnit);
-        UnitConverter dataToImage = cmc.getDataToImageConverter();
+        UnitConverter dataToImage = cmc.getColorMapToDisplayConverter();//cmc.getDataToImageConverter();
 
         /*
          * Loop over the months. Determine for which months PRISM data are
