@@ -43,9 +43,10 @@ from java.util import ArrayList
 #                                                 for iscMosaic, support changes
 #                                                 to IscReceiveSrv.
 #    01/24/14        2504          randerso       removed obsolete A1 comments 
-#    
-# 
+#    12/08/2014      4953          randerso       Added support for sending/receiving TCV files
+#                                                 Additional code cleanup
 #
+##
 
 iscDataRecLogger=None
 
@@ -92,9 +93,9 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
         ourMhsID = siteConfig.GFESUITE_MHSID
         
         # for most transactions, first attachment is the data file, 2nd file is the
-        # XML destinations.  The ISCREQUEST is unique with only 1 file being the
+        # XML destinations.  ISCREQUEST and GET_TCV_FILES have only 1 file being the
         # XML destinations.  We simulate two files naming them the same.
-        if SUBJECT == "ISCREQUEST":
+        if SUBJECT in ["ISCREQUEST", "GET_TCV_FILES"]:
             FILES.append(FILES[0])
         
         dataFile = FILES[0]  #first attachment is always the data file
@@ -157,78 +158,83 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
             logProblem("destinations packet missing from xml")
             return
         
-        # decode and print the source server (if present)
-        for addressE in destE:
-            if addressE.tag != "address":
-                continue
+        # Handle GET_TCV_FILES out side the loop as it needs to do it's own loop
+        if SUBJECT == 'GET_TCV_FILES':
+            IrtServer.getTCVFiles(ourMhsID, srcServer, destE)
+        else:
+            # decode and print the source server (if present)
+            for addressE in destE:
+                if addressE.tag != "address":
+                    continue
+            
+                destServer = irt.decodeXMLAddress(addressE)
+            
+                # find destination server information
+                mhsidDest=serverDest=portDest=protocolDest=None
+                for attrE in addressE.getchildren():
+                    if attrE.tag == "mhsid":
+                        mhsidDest = attrE.text
+                    elif attrE.tag == "server":
+                        serverDest = attrE.text
+                    elif attrE.tag == "port":
+                        portDest = attrE.text
+                    elif attrE.tag == "protocol":
+                        protocolDest = attrE.text
+                        
+                if destServer['mhsid'].upper() != ourMhsID.upper():
+                    logDebug(SUBJECT, 'Not our mhs of ' + ourMhsID + \
+                      ', so skipped:', irt.printServerInfo(destServer))
+                    continue   #this destination is for someone else.
+            
+                # transmit the data to the ifpServer
+                time2 = time.clock()
         
-            destServer = irt.decodeXMLAddress(addressE)
+                if SUBJECT == 'PUT_ACTIVE_TABLE':
+                    IrtServer.putVTECActiveTable(dataFile, None)
+                elif SUBJECT == 'PUT_ACTIVE_TABLE2':
+                    IrtServer.putVTECActiveTable(dataFile, xmlFileBuf)
+                elif SUBJECT == 'GET_ACTIVE_TABLE':
+                    IrtServer.getVTECActiveTable(dataFile, None)
+                elif SUBJECT == 'GET_ACTIVE_TABLE2':
+                    IrtServer.getVTECActiveTable(dateFile, xmlFileBuf) 
+                elif SUBJECT in ['ISCGRIDS', 'ISCGRIDS2']:
+                    args = {"siteID": siteConfig.GFESUITE_SITEID, 
+                            "userID": 'SITE', 
+                            "databaseID": siteConfig.GFESUITE_SITEID+"_GRID__ISC_00000000_0000",
+                            "parmsToProcess": [], 
+                            "blankOtherPeriods": True, 
+                            "startTime": None,
+                            "endTime": None, 
+                            "altMask": None,
+                            "replaceOnly": False, 
+                            "eraseFirst": False,
+                            "announce": "ISC: ", 
+                            "renameWE": True,
+                            "iscSends": False, 
+                            "inFiles": [dataFile],
+                            "ignoreMask": False, 
+                            "adjustTranslate": True,
+                            "deleteInput": True, 
+                            "parmsToIgnore": [],
+                            "gridDelay": 0.0, 
+                            "logFileName": None}                
+                    mosaic = iscMosaic.IscMosaic(args)
+                    mosaic.execute() 
         
-            # find destination server information
-            mhsidDest=serverDest=portDest=protocolDest=None
-            for attrE in addressE.getchildren():
-                if attrE.tag == "mhsid":
-                    mhsidDest = attrE.text
-                elif attrE.tag == "server":
-                    serverDest = attrE.text
-                elif attrE.tag == "port":
-                    portDest = attrE.text
-                elif attrE.tag == "protocol":
-                    protocolDest = attrE.text
-                    
-            if destServer['mhsid'].upper() != ourMhsID.upper():
-                logDebug(SUBJECT, 'Not our mhs of ' + ourMhsID + \
-                  ', so skipped:', irt.printServerInfo(destServer))
-                continue   #this destination is for someone else.
-        
-            # transmit the data to the ifpServer
-            with open(dataFile, "rb") as fp:
-                fpData = fp.read()
-            time2 = time.clock()
-    
-            if SUBJECT == 'PUT_ACTIVE_TABLE':
-                IrtServer.putVTECActiveTable(fpData, None)
-            elif SUBJECT == 'PUT_ACTIVE_TABLE2':
-                IrtServer.putVTECActiveTable(fpData, xmlFileBuf)
-            elif SUBJECT == 'GET_ACTIVE_TABLE':
-                IrtServer.getVTECActiveTable(fpData, None)
-            elif SUBJECT == 'GET_ACTIVE_TABLE2':
-                IrtServer.getVTECActiveTable(fpData, xmlFileBuf) 
-            elif SUBJECT in ['ISCGRIDS', 'ISCGRIDS2']:
-                args = {"siteID": siteConfig.GFESUITE_SITEID, 
-                        "userID": 'SITE', 
-                        "databaseID": siteConfig.GFESUITE_SITEID+"_GRID__ISC_00000000_0000",
-                        "parmsToProcess": [], 
-                        "blankOtherPeriods": True, 
-                        "startTime": None,
-                        "endTime": None, 
-                        "altMask": None,
-                        "replaceOnly": False, 
-                        "eraseFirst": False,
-                        "announce": "ISC: ", 
-                        "renameWE": True,
-                        "iscSends": False, 
-                        "inFiles": [dataFile],
-                        "ignoreMask": False, 
-                        "adjustTranslate": True,
-                        "deleteInput": True, 
-                        "parmsToIgnore": [],
-                        "gridDelay": 0.0, 
-                        "logFileName": None}                
-                mosaic = iscMosaic.IscMosaic(args)
-                mosaic.execute() 
-    
-            elif SUBJECT == 'ISCREQUEST':
-                IrtServer.serviceISCRequest(fpData)
-            else:
-                nosend = True
-                logProblem("unknown subject: ", SUBJECT)
-                continue
-            time3 = time.clock()
-            delta1 = time2-time1
-            delta2 = time3-time2
-            logEvent('Sent to:', 
-              irt.printServerInfo(destServer), "connectT=", delta1, "xmtT=", delta2)   
+                elif SUBJECT == 'ISCREQUEST':
+                    IrtServer.serviceISCRequest(dataFile)
+                elif SUBJECT == 'PUT_TCV_FILES':
+                    IrtServer.putTCVFiles(srcServer.get('site'), dataFile)
+                    pass
+                else:
+                    nosend = True
+                    logProblem("unknown subject: ", SUBJECT)
+                    continue
+                time3 = time.clock()
+                delta1 = time2-time1
+                delta2 = time3-time2
+                logEvent('Sent to:', 
+                  irt.printServerInfo(destServer), "connectT=", delta1, "xmtT=", delta2)   
     except:
         logProblem("iscDataRec failed!",traceback.format_exc())
     finally:    
