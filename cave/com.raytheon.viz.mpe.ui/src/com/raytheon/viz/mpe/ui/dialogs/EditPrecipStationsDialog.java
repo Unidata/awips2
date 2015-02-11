@@ -387,6 +387,7 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
         if (srain.data > -98) {
             if (time_pos == HOURS_24 && srain.data >= 0) {
                 snow = true;
+                System.out.println("Snow data is true for station.");
             }
         }
 
@@ -476,6 +477,7 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
                     "Snow water change is %5.2f in.", srain.data));
             if (time_pos == HOURS_24 && srain.data >= 0) {
                 snow = true;
+                System.out.println("Snow water change is available for " + selectedStation.hb5);
             }
 
         }
