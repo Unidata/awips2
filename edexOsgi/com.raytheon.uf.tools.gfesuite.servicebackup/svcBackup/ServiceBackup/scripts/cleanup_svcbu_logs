@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 if [ ${#AWIPS_HOME} = 0 ]
 then
         path_to_script=`readlink -f $0`
@@ -7,6 +8,12 @@ then
 fi
 
 . ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+if [ ${#IFPS_LOG} = 0 ]
+then
+    echo "ERROR: environment variable IFPS_LOG is undfined, exit."
+    exit 1
+fi
 
 find ${IFPS_LOG}/* -mtime +7 -exec rm -fr {} \; 2>/dev/null
 
