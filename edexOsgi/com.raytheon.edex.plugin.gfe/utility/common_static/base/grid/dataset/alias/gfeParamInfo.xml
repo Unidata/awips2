@@ -8,6 +8,7 @@
     <alias base="estofsUS">ESTOFS</alias>
     <alias base="estofsPR">ESTOFS</alias>
     <alias base="GLERL">glerl</alias>
+    <alias base="GLWN">GRLKwave</alias>
     <alias base="MPE-Local">localMPE</alias>
     <alias base="MPE-Mosaic">mosaicMPE</alias>
     <alias base="HPE">localHPE</alias>
