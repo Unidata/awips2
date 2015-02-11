@@ -783,8 +783,7 @@ public class RadarDecoder extends AbstractDecoder {
         if (alertMessage.getGridBoxAz() == 0
                 && alertMessage.getGridBoxRange() == 0
                 && alertMessage.getThresholdValue() == 0
-                && alertMessage.getExceedingValue() == 0
-                && (alertMessage.getAlertCategory() == 16 || alertMessage.getAlertCategory() == 25))
+                && alertMessage.getExceedingValue() == 0)
             return false;
 
         return true;

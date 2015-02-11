@@ -11,7 +11,7 @@ package com.raytheon.viz.mpe.ui;
  * ------------ ---------- ----------- --------------------------
  * Jun 9, 2011            rgeorge     Initial creation
  * Jun 30, 2014  17457    snaples     Updated getCv_use to return name
- * 
+ * Jan 7, 2015  16954      cgobs      Fix for cv_use issue - using getFieldName() in certain parts.
  * </pre>
  * 
  * @author rgeorge
@@ -56,7 +56,7 @@ public enum DisplayFieldData {
     mlqmosaic("mpe_mlqmosaic_dir", "Q2 MultiSensor Mosaic", 3600, "PRECIP_ACCUM"),
     
     //best estimate QPE
-    Xmrg("rfcwide_xmrg_dir", "Best Estimate QPE (in)"), //
+    Xmrg("rfcwide_xmrg_dir", "Best Estimate QPE (in)", 3600, "PRECIP_ACCUM" ), //
 
     p3lMosaic("rfcwide_p3lmosaic_dir",
             "P3 Local Bias Corrected Radar-Derived Precip (in)", 3600, "PRECIP_ACCUM"), //
@@ -146,11 +146,18 @@ public enum DisplayFieldData {
     	}
     }
     
+    public String getFieldName() {
+        return name().toUpperCase();
+    }
+    
+    
     /**
      * @return the cv_use
      */
     public String getCv_use() {
-        cv_use = name().toUpperCase();
+        if (cv_use == null) {
+            cv_use = getFieldName();
+        }
         return cv_use;
     }
 
