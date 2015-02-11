@@ -10,6 +10,9 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 04/23/2012	229			Chin Chen	Initial coding
+ * 01/27/2015   DR#17006,
+ *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
+ *                                      in Volume Browser
  *
  * </pre>
  * 
@@ -159,11 +162,14 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 			float x1 = verticalWindXOrig+ (verticalWindWidth/2);
 			target.drawLine(x1, verticalWindYOrig, 0, x1, verticalWindYOrig+verticalWindHeight, 0,
 					NsharpConstants.color_white, 1, LineStyle.DASHED);
-			target.drawWireframeShape(verticalWindLabelShape, NsharpConstants.color_white,
+			if(verticalWindLabelShape!=null) //#5929
+				target.drawWireframeShape(verticalWindLabelShape, NsharpConstants.color_white,
 					0.3F, commonLineStyle,font10);
-			target.drawWireframeShape(verticalWindRShape, NsharpConstants.color_red,
+			if(verticalWindRShape!=null)
+				target.drawWireframeShape(verticalWindRShape, NsharpConstants.color_red,
 					0.3F, commonLineStyle,font10);
-			target.drawWireframeShape(verticalWindSbShape, NsharpConstants.color_skyblue,
+			if(verticalWindSbShape!=null)
+				target.drawWireframeShape(verticalWindSbShape, NsharpConstants.color_skyblue,
 					0.3F, commonLineStyle,font10);
 			target.clearClippingPlane();
 		}
@@ -304,7 +310,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
         windBoxWindRscShapeList.add(shNcolor);
         
         
-       
+        float surfaceLevel = soundingLys.get(0).getGeoHeight(); //#5929
         //System.out.println("my wolrd minvY="+ myYViewMin+ " maxVY="+myYViewMax+ " YRange="+myYViewRange);
         for (NcSoundingLayer layer : soundingLys) {
         	float pressure = layer.getPressure();
@@ -321,13 +327,14 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
         		//System.out.println("Wind p="+pressure+" yP="+ windBoxY+ " ratio="+yRatio);
         		float geoHt = layer.getGeoHeight();
         		double [][] lines = {{windBoxX, windBoxY},{windBoxX + (spd) * xRatio,windBoxY}};
-        		if(geoHt <nsharpNative.nsharpLib.msl(3000))
+        		//use MSL here, so Converts height from (meters) AGL to MSL. #5929
+        		if(geoHt <  (3000+surfaceLevel))
         			shapeR.addLineSegment(lines);
-        		else if(geoHt < nsharpNative.nsharpLib.msl(6000))
+        		else if(geoHt  < (6000+surfaceLevel))
         			shapeG.addLineSegment(lines);
-        		else if(geoHt < nsharpNative.nsharpLib.msl(9000))
+        		else if(geoHt  < (9000+surfaceLevel))
         			shapeY.addLineSegment(lines);
-        		else if(geoHt < nsharpNative.nsharpLib.msl(12000))
+        		else if(geoHt  < (12000+surfaceLevel))
         			shapeC.addLineSegment(lines);
         		else
         			shapeV.addLineSegment(lines);
@@ -437,7 +444,6 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 		verticalWindLabelShape.compile();
 
 	}
-
 	/**
 	 * Create all wire frame shapes at one place.
 	 * Should be used only when a new resource is becoming Current active resource to be displayed.
@@ -447,23 +453,24 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 		if(target== null || rscHandler== null || inSidePane )
 			return;
 		//System.out.println("whitoPane="+this.toString()+" createAllWireFrameShapes called");
-		rscHandler.repopulateSndgData();
-		
-			disposeAllWireFrameShapes();
-			if(soundingLys != null){
-				NsharpGenericPaneBackground skewtBgd = rscHandler.getSkewtPaneRsc().getActiveBackground();
-		        if(skewtBgd!=null){
-		        	vpc = skewtBgd.getViewablePressureContainer(soundingLys);
-		        	vplc = skewtBgd.getViewablePressureLinesContainer();
-		        }
-				createRscOmegaShape();
-				createRscWindBoxWindShape();
-				createRscVerticalWindShape();
+		//rscHandler.repopulateSndgData();//#5929 TBD why need this?????
+
+		disposeAllWireFrameShapes();
+		if(soundingLys != null){
+			NsharpGenericPaneBackground skewtBgd = rscHandler.getSkewtPaneRsc().getActiveBackground();
+			if(skewtBgd!=null){
+				vpc = skewtBgd.getViewablePressureContainer(soundingLys);
+				vplc = skewtBgd.getViewablePressureLinesContainer();
 			}
-			//create static shape
-			createBkgOmegaShape();
-			createBkgWindBoxShape();
-		
+			createRscOmegaShape();
+			createRscWindBoxWindShape();
+			if(rscHandler.isGoodData())//#5929
+				createRscVerticalWindShape();
+		}
+		//create static shape
+		createBkgOmegaShape();
+		createBkgWindBoxShape();
+
 	}
 	public void createRscWireFrameShapes(){
 		//System.out.println("createRscWireFrameShapes called");
@@ -477,7 +484,8 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 		        }
 				createRscOmegaShape();
 				createRscWindBoxWindShape();
-				createRscVerticalWindShape();
+				if(rscHandler.isGoodData())//#5929
+					createRscVerticalWindShape();
 			}
 		}
 	}
