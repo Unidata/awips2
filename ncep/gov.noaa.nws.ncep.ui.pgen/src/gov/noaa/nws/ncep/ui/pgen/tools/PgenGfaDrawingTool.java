@@ -212,73 +212,7 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
             }
         	else if ( button == 3 ) {
 
-        		//exit drawing text mode
-        		if ( startGfaText ) {
-        			startGfaText = false;
-
-        			if ( ((Gfa)elem).getGfaTextCoordinate() == null ){
-        				//if right click before adding the text
-        				((Gfa)elem).setGfaTextCoordinate(loc);
-            			drawingLayer.addElement(elem);
-            			validateGfa( (Gfa)elem) ;
-            			mapEditor.refresh();
-        				points.clear();
-        			}
-        			else {
-        				//change to selecting mode to move points
-        				PgenUtil.setSelectingMode(elem);
-        				elem = null;
-        				return true;
-        			}
-        		}
-
-        		if ( points.size() == 0 ) {
-
-						closeAttrDlg(attrDlg); 
-						attrDlg = null; 
-						drawingLayer.removeSelected((Gfa)elem);
-						elem = null;
-						PgenUtil.setSelectingMode();
-					
-
-            	}
-            	else if ( points.size() < 2 ){
-                    removeClearRefresh();
-            	}
-            	else {
-            		//Use pgenType value to decide if the DrawableType should be TRACK or LINE
-
-            		if (drawableType == DrawableType.GFA && points.size() == 2 ) {
-            			removeClearRefresh();
-            	        return true;
-            		}
-            		if(!((GfaAttrDlg)attrDlg).validateRequiredFields()) return false;
-
-            		if(((IGfa)attrDlg).getGfaFcstHr().indexOf("-") > -1) {
-	            		// snap
-	        			points = SnapUtil.getSnapWithStation(points,SnapUtil.VOR_STATION_LIST,10,16);
-            		}
-            		
-            		// create a new DrawableElement.    
-            		elem = def.create( drawableType, (IAttribute)attrDlg,
-            				pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
-            		
-            		//set the hour filter
-            		if ( PgenFilterDlg.isFilterDlgOpen()){
-            			PgenFilterDlg.getInstance(null).setHourChkBox(((Gfa)elem).getForecastHours(), true);
-            		}
-            		
-            		//set from line
-            		String vorText = Gfa.buildVorText( (Gfa)elem );
-            		((Gfa)elem).setGfaVorText( vorText );           	    
-            		((GfaAttrDlg)attrDlg).setVorText( vorText );
-            		
-					startGfaText = true;
-					attrDlg.setAttrForDlg(attrDlg); // update the parameters in GfaAttrDlg
-		    				    		 
-					return true;
-            	}
-
+        
             	return true;
             }
         	else if ( button == 2 ){
@@ -404,6 +338,94 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
 			return false;
 		}
         
+	    /*
+         * overrides the function in selecting tool
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button){
+            if (!isResourceEditable() || shiftDown )
+                return false;
+
+            Coordinate loc = mapEditor.translateClick(x, y);
+            if ( loc == null ) return true;
+            
+            if (button == 3) {
+                //exit drawing text mode
+                if ( startGfaText ) {
+                    startGfaText = false;
+
+                    if ( ((Gfa)elem).getGfaTextCoordinate() == null ){
+                        //if right click before adding the text
+                        ((Gfa)elem).setGfaTextCoordinate(loc);
+                        drawingLayer.addElement(elem);
+                        validateGfa( (Gfa)elem) ;
+                        mapEditor.refresh();
+                        points.clear();
+                    }
+                    else {
+                        //change to selecting mode to move points
+                        PgenUtil.setSelectingMode(elem);
+                        elem = null;
+                        return true;
+                    }
+                }
+
+                if ( points.size() == 0 ) {
+
+                        closeAttrDlg(attrDlg); 
+                        attrDlg = null; 
+                        drawingLayer.removeSelected((Gfa)elem);
+                        elem = null;
+                        PgenUtil.setSelectingMode();
+                    
+
+                }
+                else if ( points.size() < 2 ){
+                    removeClearRefresh();
+                }
+                else {
+                    //Use pgenType value to decide if the DrawableType should be TRACK or LINE
+                    DrawableType drawableType = getDrawableType(pgenType); 
+
+                    if (drawableType == DrawableType.GFA && points.size() == 2 ) {
+                        removeClearRefresh();
+                        return true;
+                    }
+                    if(!((GfaAttrDlg)attrDlg).validateRequiredFields()) return false;
+
+                    if(((IGfa)attrDlg).getGfaFcstHr().indexOf("-") > -1) {
+                        // snap
+                        points = SnapUtil.getSnapWithStation(points,SnapUtil.VOR_STATION_LIST,10,16);
+                    }
+                    
+                    // create a new DrawableElement.    
+                    elem = def.create( drawableType, (IAttribute)attrDlg,
+                            pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
+                    
+                    //set the hour filter
+                    if ( PgenFilterDlg.isFilterDlgOpen()){
+                        PgenFilterDlg.getInstance(null).setHourChkBox(((Gfa)elem).getForecastHours(), true);
+                    }
+                    
+                    //set from line
+                    String vorText = Gfa.buildVorText( (Gfa)elem );
+                    ((Gfa)elem).setGfaVorText( vorText );                   
+                    ((GfaAttrDlg)attrDlg).setVorText( vorText );
+                    
+                    startGfaText = true;
+                    attrDlg.setAttrForDlg(attrDlg); // update the parameters in GfaAttrDlg
+                                         
+                    return true;
+                }
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+		
+		
         public void clearPoints(){
         	points.clear();
         }
