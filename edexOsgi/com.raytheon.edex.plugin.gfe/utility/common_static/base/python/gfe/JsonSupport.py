@@ -25,22 +25,22 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    11/10/14                      randerso       Initial Creation.
+#    11/10/2014                    randerso       Initial Creation.
+#    12/08/2014       #4953        randerso       Updated for changes to LocalizationSupport
 ##
 import json
 import LocalizationSupport
-
 import JUtil
 
 def loadFromJson(localizationType, siteID, fileName):
-    jsonString = LocalizationSupport.readFile(localizationType, siteID, fileName)
+    jsonString = LocalizationSupport.readFile(localizationType, LocalizationSupport.SITE, siteID, fileName)
     object = json.loads(jsonString)
     return object
     
 def saveToJson(localizationType, siteID, fileName, object):
     jsonString = json.dumps(object, sort_keys=True, 
                             indent=4, separators=(',', ': '))
-    LocalizationSupport.writeFile(localizationType, siteID, fileName, jsonString)
+    LocalizationSupport.writeFile(localizationType, LocalizationSupport.SITE, siteID, fileName, jsonString)
 
 def loadJsonFromJava(localizationType, siteID, fileName):
     object = loadFromJson(localizationType, siteID, fileName)
