@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
+import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -74,6 +75,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Ztn;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.strtree.STRtree;
+import com.raytheon.viz.mpe.ui.dialogs.EditFreezeStationsDialog;
+import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
 
 /**
  * MPEMultiple point resource.
@@ -113,6 +116,8 @@ public class PointFreezePlotResource extends
 
     private double scaleHeightValue = 0.0;
 
+    private Station gageData = null;
+
     private static final String[] color_map_a = { "Cyan1", "Salmon", "Orange1",
             "Yellow1", "Magenta1", "Green1", "Green4", "Gray74", "White",
             "Cyan1" };
@@ -123,6 +128,10 @@ public class PointFreezePlotResource extends
             "White" };
 
     private Hashtable<String, Ztn> zdataMap;
+
+    int pcpn_day = 0;
+
+    static int prevPcpnDay;
 
     private final DailyQcUtils dqc = DailyQcUtils.getInstance();
 
@@ -162,12 +171,13 @@ public class PointFreezePlotResource extends
         dataMap = new Hashtable<String, Station>();
         zdataMap = new Hashtable<String, Ztn>();
         strTree = new STRtree();
-        Station gageData = new Station();
-        ArrayList<Station> station = dqc.freezing_stations;
+        gageData = dqc.new Station();
+        prevPcpnDay = 0;
+//        ArrayList<Station> station = dqc.freezing_stations;
 
-        if (!station.isEmpty()) {
+        if (!dqc.freezing_stations.isEmpty()) {
             int i = 0;
-            for (ListIterator<Station> it = station.listIterator(); it
+            for (ListIterator<Station> it = dqc.freezing_stations.listIterator(); it
                     .hasNext();) {
                 gageData = it.next();
                 Coordinate xy = new Coordinate();
@@ -195,6 +205,7 @@ public class PointFreezePlotResource extends
                 strTree.insert(env, data);
                 i++;
             }
+            prevPcpnDay = dqc.pcpn_day;
         }
     }
 
