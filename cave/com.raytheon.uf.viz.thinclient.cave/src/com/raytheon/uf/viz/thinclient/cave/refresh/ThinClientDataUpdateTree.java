@@ -28,12 +28,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -62,6 +62,7 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * Dec 13, 2011            bsteffen     Initial creation
  * Feb 21, 2014 DR 16744   D. Friedman  Add radar/grid updates
  * Apr  1, 2014 DR 17220   D. Friedman Handle uninitialized grid inventory
+ * Dec 15, 2014 3923       bsteffen    Retrieve pdo for grid instead of dataURI.
  * 
  * </pre>
  * 
@@ -179,14 +180,14 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
         newQuery.put("insertTime", new RequestConstraint(time,
                 ConstraintType.GREATER_THAN));
         dbRequest.setConstraints(newQuery);
-        dbRequest.addRequestField("dataURI");
         DbQueryResponse response = null;
         try {
             response = (DbQueryResponse) ThriftClient.sendRequest(dbRequest);
-            for (String dataURI : response.getFieldObjects("dataURI",
-                    String.class)) {
+
+            for (PluginDataObject pdo : response
+                    .getEntityObjects(PluginDataObject.class)) {
                 AlertMessage am = new AlertMessage();
-                am.dataURI = dataURI;
+                am.dataURI = pdo.getDataURI();
                 am.decodedAlert = RecordFactory.getInstance().loadMapFromUri(
                         am.dataURI);
                 messages.add(am);
