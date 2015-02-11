@@ -58,8 +58,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public abstract class AbstractWatchNotifierSrv {
 
-    protected final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(getClass());
+    protected static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractWatchNotifierSrv.class);
 
     protected final String watchType;
 
