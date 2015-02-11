@@ -37,6 +37,8 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -70,10 +72,8 @@ import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
 import com.raytheon.viz.mpe.ui.dialogs.QcPrecipOptionsDialog;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Stn;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.strtree.STRtree;
@@ -132,6 +132,8 @@ public class PointPrecipPlotResource extends
     private Hashtable<String, Stn> pdataMap;
 
     private final DailyQcUtils dqc = DailyQcUtils.getInstance();
+    
+    static int prevPcpnDay;
 
     /**
      * Constructor.
@@ -148,6 +150,7 @@ public class PointPrecipPlotResource extends
     public PointPrecipPlotResource(PointPrecipResourceData resourceData,
             LoadProperties props) {
         super(resourceData, props);
+        prevPcpnDay = 0;
         df.setMaximumFractionDigits(2);
         df.setMaximumIntegerDigits(4);
     }
@@ -169,12 +172,13 @@ public class PointPrecipPlotResource extends
         dataMap = new Hashtable<String, Station>();
         pdataMap = new Hashtable<String, Stn>();
         strTree = new STRtree();
-        gageData = new Station();
-        ArrayList<Station> station = dqc.precip_stations;
-        if (!station.isEmpty()) {
+        gageData = dqc.new Station();
+
+                if (!station.isEmpty()) {
+
+        if (!dqc.precip_stations.isEmpty()) {
             int i = 0;
-            Pdata[] pdata = dqc.pdata;
-            for (ListIterator<Station> it = station.listIterator(); it
+            for (ListIterator<Station> it = dqc.precip_stations.listIterator(); it
                     .hasNext();) {
                 gageData = it.next();
                 Coordinate xy = new Coordinate();
@@ -187,7 +191,7 @@ public class PointPrecipPlotResource extends
                 kv.append(":");
                 kv.append(pm);
                 dataMap.put(kv.toString(), gageData);
-                pdataMap.put(kv.toString(), pdata[dqc.pcpn_day].stn[i]);
+                pdataMap.put(kv.toString(), DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i]);
 
                 /* Create a small envelope around the point */
                 Coordinate p1 = new Coordinate(xy.x + .02, xy.y + .02);
@@ -195,11 +199,14 @@ public class PointPrecipPlotResource extends
                 Envelope env = new Envelope(p1, p2);
                 ArrayList<Object> data = new ArrayList<Object>();
                 data.add(xy);
-                data.add("STATION: " + gageData.hb5 + " VALUE: "
-                        + pdata[dqc.pcpn_day].stn[i].frain[time_pos].data);
+                data.add("STATION: "
+                        + gageData.hb5
+                        + " VALUE: "
+                        + DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data);
                 strTree.insert(env, data);
                 i++;
             }
+            prevPcpnDay = DailyQcUtils.pcpn_day;
         }
         // target.setNeedsRefresh(true);
     }
@@ -265,26 +272,23 @@ public class PointPrecipPlotResource extends
             IFont font) throws VizException {
 
         if ((MPEDisplayManager.getCurrent().isQpf() == true)
-                && (dqc.points_flag == 1)) {
-            int type = dqc.plot_view;
+                && (DailyQcUtils.points_flag == 1)) {
+            int type = DailyQcUtils.plot_view;
             int i = 0;
             int m = 0;
             int dcmode = OtherPrecipOptions.dcmode;
             int tcmode = OtherPrecipOptions.tcmode;
             int dmvalue = dqc.dmvalue;
-            Ts ts[] = dqc.ts;
             int tsmax = dqc.tsmax;
             boolean frzlvl_flag = dqc.frzlvl_flag;
             int gage_char[] = dqc.gage_char;
             int find_station_flag = dqc.find_station_flag;
-            int dflag[] = dqc.dflag;
-            int qflag[] = dqc.qflag;
             String mbuf = "";
             String tbuf = "";
             String val = "";
 
             if (MPEDisplayManager.pcpn_time_step == 0) {
-                time_pos = dqc.pcpn_time;
+                time_pos = DailyQcUtils.pcpn_time;
             } else {
                 time_pos = 4;
             }
@@ -296,7 +300,7 @@ public class PointPrecipPlotResource extends
             double[] centerpixels = descriptor.worldToPixel(new double[] { c.x,
                     c.y });
             color = RGBColors.getRGBColor(color_map_n[15]);
-            if ((dqc.points_flag == 1)
+            if ((DailyQcUtils.points_flag == 1)
                     && (QcPrecipOptionsDialog.isOpen == true)
                     && (MPEDisplayManager.getCurrent().isQpf() == true)) {
             } else {
@@ -333,7 +337,7 @@ public class PointPrecipPlotResource extends
 
             for (m = 0; m < tsmax; m++) {
                 if (station.parm.substring(3, 5).equalsIgnoreCase(ts[m].abr)
-                        && (dflag[m + 1] == 1)) {
+                        && (DailyQcUtils.dflag[m + 1] == 1)) {
                     break;
                 }
             }
@@ -361,8 +365,8 @@ public class PointPrecipPlotResource extends
 
             /* locate station in data stream */
             if (((type == 4) || (type == 5))
-                    && (dqc.pdata[dqc.pcpn_day].used[time_pos] == 0)
-                    && (dqc.pdata[dqc.pcpn_day].level == 0)) {
+                    && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
+                    && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].level == 0)) {
                 return;
             }
             if (((type == 4) || (type == 5))
@@ -408,8 +412,8 @@ public class PointPrecipPlotResource extends
                 tbuf = station.name;
 
             } else if (type == 4) {
-                if ((dqc.pdata[dqc.pcpn_day].used[time_pos] == 0)
-                        && (dqc.pdata[dqc.pcpn_day].level == 0)) {
+                if ((DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
+                        && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].level == 0)) {
                     return;
 
                 }
@@ -433,8 +437,8 @@ public class PointPrecipPlotResource extends
                 tbuf = mbuf;
 
             } else if (type == 5) {
-                if ((dqc.pdata[dqc.pcpn_day].used[time_pos] == 0)
-                        && (dqc.pdata[dqc.pcpn_day].level == 0)) {
+                if ((DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
+                        && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].level == 0)) {
                     return;
 
                 }
@@ -699,7 +703,7 @@ public class PointPrecipPlotResource extends
         // Fonts are shared and cached, no need to init or dispose
         IFont font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
-        if ((dqc.points_flag == 1) && (displayMgr.isQpf() == true)) {
+        if ((DailyQcUtils.points_flag == 1) && (displayMgr.isQpf() == true)) {
             Iterator<String> iter = dataMap.keySet().iterator();
 
             while (iter.hasNext()) {
