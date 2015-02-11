@@ -278,6 +278,12 @@
             	input="${edex.component}"
             	regexp="com-raytheon-uf-(.+)-feature"
             	select="\1" />
+
+            <propertyregex property="edex.component"
+                override="true"
+                input="${edex.component}"
+                regexp="^(?:edu|gov)-.*(edex-.+)-feature"
+                select="\1" />
         	
         	<!-- Create the distribution directory. -->
         	<mkdir dir="${builder}/dist" />

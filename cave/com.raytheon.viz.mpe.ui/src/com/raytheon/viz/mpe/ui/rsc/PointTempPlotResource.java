@@ -118,6 +118,8 @@ public class PointTempPlotResource extends
 
     private double scaleHeightValue = 0.0;
 
+    private Station gageData = null;
+
     private static final String[] color_map_a = { "Cyan1", "Salmon", "Orange1",
             "Yellow1", "Magenta1", "Green1", "Green4", "Gray74", "White",
             "Cyan1" };
@@ -130,6 +132,10 @@ public class PointTempPlotResource extends
     private int time_pos = 0;
 
     private Hashtable<String, Ttn> tdataMap;
+
+    int pcpn_day = 0;
+
+    static int prevPcpnDay;
 
     private final DailyQcUtils dqc = DailyQcUtils.getInstance();
 
@@ -169,13 +175,14 @@ public class PointTempPlotResource extends
         dataMap = new Hashtable<String, Station>();
         tdataMap = new Hashtable<String, Ttn>();
         strTree = new STRtree();
-        Station gageData = new Station();
+        gageData = dqc.new Station();
         ArrayList<Station> station = dqc.temperature_stations;
         Tdata[] tdata = dqc.tdata;
+        prevPcpnDay = 0;
 
-        if (!station.isEmpty()) {
+        if (!dqc.temperature_stations.isEmpty()) {
             int i = 0;
-            for (ListIterator<Station> it = station.listIterator(); it
+            for (ListIterator<Station> it = dqc.temperature_stations.listIterator(); it
                     .hasNext();) {
                 gageData = it.next();
                 Coordinate xy = new Coordinate();
@@ -188,7 +195,7 @@ public class PointTempPlotResource extends
                 kv.append(":");
                 kv.append(pm);
                 dataMap.put(kv.toString(), gageData);
-                tdataMap.put(kv.toString(), tdata[dqc.pcpn_day].tstn[i]);
+                tdataMap.put(kv.toString(), dqc.tdata[dqc.pcpn_day].tstn[i]);
 
                 /* Create a small envelope around the point */
                 Coordinate p1 = new Coordinate(xy.x + .02, xy.y + .02);
@@ -197,10 +204,11 @@ public class PointTempPlotResource extends
                 ArrayList<Object> data = new ArrayList<Object>();
                 data.add(xy);
                 data.add("STATION: " + gageData.hb5 + " VALUE: "
-                        + tdata[dqc.pcpn_day].tstn[i].tlevel2[time_pos].data);
+                        + dqc.tdata[dqc.pcpn_day].tstn[i].tlevel2[time_pos].data);
                 strTree.insert(env, data);
                 i++;
             }
+            prevPcpnDay = dqc.pcpn_day;
         }
     }
 
