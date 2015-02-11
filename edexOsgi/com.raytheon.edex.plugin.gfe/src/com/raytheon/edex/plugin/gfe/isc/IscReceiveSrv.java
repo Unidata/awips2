@@ -56,9 +56,10 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 05, 2012   #361     dgilling     Initial creation
- * Mar 12, 2013   #1759    dgilling     Re-implement using IscScript.
- * Mar 14, 2013 1794       djohnson    Consolidate common FilenameFilter implementations.
+ * Mar 05, 2012   #361     dgilling    Initial creation
+ * Mar 12, 2013   #1759    dgilling    Re-implement using IscScript.
+ * Mar 14, 2013   #1794    djohnson    Consolidate common FilenameFilter implementations.
+ * Dec 10, 2014   #4953    randerso    Properly handle single file reception
  * 
  * </pre>
  * 
@@ -144,6 +145,7 @@ public class IscReceiveSrv {
             xmlFileName = incomingFiles[1];
         }
 
+        // TODO properly decode the xml
         final File incomingXMLFile = new File(xmlFileName);
         String fileContents = FileUtil.file2String(incomingXMLFile);
         Pattern siteTagRegEx = Pattern.compile("<site>(.*?)</site>");
@@ -186,18 +188,40 @@ public class IscReceiveSrv {
                     if (activeSites.contains(site)
                             && IFPServerConfigManager.getServerConfig(site)
                                     .requestISC()) {
-                        String newFileName = dataFileName + "." + site;
-                        String newXmlFileName = xmlFileName + "." + site;
-                        try {
-                            FileUtil.copyFile(new File(dataFileName), new File(
-                                    newFileName));
-                        } catch (IOException e) {
-                            statusHandler.error("Failed to copy: ["
-                                    + dataFileName + "] to " + newFileName
-                                    + ".  Unable to execute iscDataRec for "
-                                    + site, e);
-                            continue;
+                        String[] modifiedArgs = new String[args.length];
+                        System.arraycopy(args, 0, modifiedArgs, 0, args.length);
+
+                        if (dataFileName != null) {
+                            String newFileName = dataFileName + "." + site;
+                            try {
+                                FileUtil.copyFile(new File(dataFileName),
+                                        new File(newFileName));
+                            } catch (IOException e) {
+                                statusHandler
+                                        .error("Failed to copy: ["
+                                                + dataFileName
+                                                + "] to "
+                                                + newFileName
+                                                + ".  Unable to execute iscDataRec for "
+                                                + site, e);
+                                continue;
+                            }
+
+                            if (!new File(newFileName).exists()) {
+                                statusHandler
+                                        .error("Failed to copy: ["
+                                                + dataFileName
+                                                + "] to "
+                                                + newFileName
+                                                + ".  Unable to execute iscDataRec for "
+                                                + site);
+                                continue;
+                            }
+                            modifiedArgs[2] = modifiedArgs[2].replace(
+                                    dataFileName, newFileName);
                         }
+
+                        String newXmlFileName = xmlFileName + "." + site;
                         try {
                             FileUtil.copyFile(new File(xmlFileName), new File(
                                     newXmlFileName));
@@ -208,14 +232,6 @@ public class IscReceiveSrv {
                                     + site, e);
                             continue;
                         }
-                        if (!new File(newFileName).exists()) {
-                            statusHandler.error("Failed to copy: ["
-                                    + dataFileName + "] to " + newFileName
-                                    + ".  Unable to execute iscDataRec for "
-                                    + site);
-                            continue;
-                        }
-
                         if (!new File(newXmlFileName).exists()) {
                             statusHandler.error("Failed to copy: ["
                                     + xmlFileName + "] to " + newXmlFileName
@@ -224,24 +240,23 @@ public class IscReceiveSrv {
                             continue;
                         }
 
-                        String[] modifiedArgs = new String[args.length];
-                        System.arraycopy(args, 0, modifiedArgs, 0, args.length);
-                        modifiedArgs[2] = modifiedArgs[2].replace(dataFileName,
-                                newFileName);
                         modifiedArgs[2] = modifiedArgs[2].replace(xmlFileName,
                                 newXmlFileName);
                         siteMap.put(site, modifiedArgs);
                     }
                 }
             } finally {
-                File dataFile = new File(dataFileName);
-                File xmlFile = incomingXMLFile;
-
-                if (dataFile.exists()) {
-                    if (!dataFile.delete()) {
-                        statusHandler.error("Unable to delete " + dataFileName);
+                if (dataFileName != null) {
+                    File dataFile = new File(dataFileName);
+                    if (dataFile.exists()) {
+                        if (!dataFile.delete()) {
+                            statusHandler.error("Unable to delete "
+                                    + dataFileName);
+                        }
                     }
                 }
+
+                File xmlFile = incomingXMLFile;
                 if (xmlFile.exists()) {
                     if (!xmlFile.delete()) {
                         statusHandler.error("Unable to delete " + xmlFileName);
