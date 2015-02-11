@@ -83,6 +83,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.ui.cmenu.IContextMenuProvider;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
@@ -146,6 +147,9 @@ import com.vividsolutions.jts.geom.Point;
  * 09/14        TTR972      J. Wu       "Filled" object on the active layer should be 
  *                                      drawn as "filled" even if the "filled" flag for
  *                                      the layer is "false".
+ * 11/13        TTR 752     J. Wu       Add methods for CCFP text auto placement.
+ * 11/14		R5413		B. Yin		Display PGEN in side view in D2D
+ * 12/14        R5413       B. Yin      Added resetAllElements(), reset ghost, removed "Any".
  * </pre>
  * 
  * @author B. Yin
@@ -213,7 +217,7 @@ public class PgenResource extends
         selectedSymbol = new HashMap<AbstractDrawableComponent, Symbol>();
         displayMap = new ConcurrentHashMap<DrawableElement, AbstractElementContainer>();
         filters = new ElementFilterCollection();
-        setCatFilter(new CategoryFilter("any"));
+        setCatFilter(new CategoryFilter());
 
         // Register this new resource with the Session
         PgenSession.getInstance().setResource(this);
@@ -361,9 +365,10 @@ public class PgenResource extends
     public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         IDisplayPaneContainer editor = getResourceContainer();
-        if (editor instanceof AbstractEditor) {// && ((NCMapEditor)
-                                               // editor).getApplicationName().equals("NA")
-                                               // ) {
+
+        // Draw in main editor and side view (IMultiPaneEditor)
+        if (editor instanceof AbstractEditor
+                || editor instanceof IMultiPaneEditor) {
             DisplayElementFactory df = new DisplayElementFactory(target,
                     descriptor);
 
@@ -541,6 +546,8 @@ public class PgenResource extends
 
         if (this.ghost == null) {
             this.ghost = new PgenResourceGhost();
+        } else {
+            this.ghost.dispose();
         }
         // this.ghost = ghost;
         this.ghost.setGhostLine(ghost);
@@ -679,7 +686,8 @@ public class PgenResource extends
 
     private void drawSelected(IGraphicsTarget target, PaintProperties paintProps) {
 
-        if (!elSelected.isEmpty()) {
+        if (!elSelected.isEmpty()
+                && PgenSession.getInstance().getPgenPalette() != null) {
             DisplayElementFactory df = new DisplayElementFactory(target,
                     descriptor);
             List<IDisplayable> displayEls = new ArrayList<IDisplayable>();
@@ -1373,6 +1381,20 @@ public class PgenResource extends
         }
     }
 
+
+    /**
+     * Releases the resources held by all DEs to refresh all. 
+     * 
+     * @param adc
+     */
+    public void resetAllElements(){
+        for ( Product prd : this.resourceData.getProductList() ){
+            for ( Layer layer : prd.getLayers()) {
+                this.resetADC(layer);
+            }
+        }
+    }
+    
     /**
      * Finds the nearest element in the a DECollection to the input point.
      * 
@@ -1745,22 +1767,26 @@ public class PgenResource extends
     }
 
     /**
-     * De-activate all PGEN tools
+     * De-activate all PGEN tools for all perspectives
      */
     public void deactivatePgenTools() {
-        AbstractVizPerspectiveManager mgr = VizPerspectiveListener
-                .getCurrentPerspectiveManager();
-        if (mgr != null) {
-            Iterator<AbstractModalTool> it = mgr.getToolManager()
-                    .getSelectedModalTools().iterator();
-            while (it.hasNext()) {
-                AbstractModalTool tool = it.next();
-                if (tool != null && tool instanceof AbstractPgenTool) {
-                    tool.deactivate();
-                    it.remove();
+
+        for (String pid : VizPerspectiveListener.getManagedPerspectives()) {
+            AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+                    .getInstance().getPerspectiveManager(pid);
+            if (mgr != null) {
+                Iterator<AbstractModalTool> it = mgr.getToolManager()
+                        .getSelectedModalTools().iterator();
+                while (it.hasNext()) {
+                    AbstractModalTool tool = it.next();
+                    if (tool != null && tool instanceof AbstractPgenTool) {
+                        tool.deactivate();
+                        it.remove();
+                    }
                 }
             }
         }
+
     }
 
     /**
