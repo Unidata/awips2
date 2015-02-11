@@ -12,7 +12,8 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.edex.ndm;bundle-version="1.14.0",
  com.raytheon.uf.edex.menus;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.redbook;bundle-version="1.14.0"
+ com.raytheon.uf.common.dataplugin.redbook;bundle-version="1.14.0",
+ org.apache.commons.lang;bundle-version="2.3.0"
 Export-Package: com.raytheon.uf.edex.plugin.redbook,
  com.raytheon.uf.edex.plugin.redbook.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
