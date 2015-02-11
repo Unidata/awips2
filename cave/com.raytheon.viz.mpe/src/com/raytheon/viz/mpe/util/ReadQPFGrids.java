@@ -112,7 +112,7 @@ public class ReadQPFGrids {
             } else {
                 iflag = 0;
             }
-            for (i = 0; i < gmaxi; i++) {
+            for (i = 0; i < (dqc.getHrap_grid().maxi); i++) { 
 
                 if (iflag == 0) {
                     kbuf = in.readLine().trim();
@@ -130,7 +130,7 @@ public class ReadQPFGrids {
 
                 // if (ghrapi > minhrapi && ghrapi <= maxhrapi) {
 
-                for (j = 0; j < gmaxj; j++) {
+                for (j = 0; j < (dqc.getHrap_grid().maxj); j++) {
 
                     // ghrapj = gminj + j;
                     //
