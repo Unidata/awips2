@@ -156,7 +156,7 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
                     // Keep in multi-selecting mode
                     // PgenUtil.setSelectingMode();
                 }
-                return false;
+                return true;
 
             } else {
 
