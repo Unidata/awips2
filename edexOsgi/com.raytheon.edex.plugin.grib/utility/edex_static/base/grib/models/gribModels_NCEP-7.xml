@@ -291,6 +291,17 @@
         </process>
     </model>
     
+    <!-- Great Lakes (GLWN 2.5KM) -->
+    <model>
+        <name>GLWN</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>GL-GRID-2P5KM</grid>
+        <process>
+            <id>131</id>
+        </process>
+    </model>
+    
 	<model>
 		<name>WAFS</name>
 		<center>7</center>

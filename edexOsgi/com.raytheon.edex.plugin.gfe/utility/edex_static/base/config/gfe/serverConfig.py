@@ -49,7 +49,8 @@
 #    12/03/2014          #3866     rferrel        Added GFS20
 #    01/13/2015          #3955     randerso       Added definitions for NewTerrain database
 #                                                 Added Topo to ISCPARMS
-#    01/19/2015          #4014     dgilling       Added ETSS. 
+#    01/19/2015          #4014     dgilling       Added ETSS.
+#    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1262,7 +1263,6 @@ elif SID in CONUS_EAST_SITES:
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
 #DR3511                 'HPCdelta',
-                 'GLERL',
                  'WNAWAVE238',
                  'TPCSurgeProb',
                  'GlobalWave',
@@ -1339,7 +1339,6 @@ else:   #######DCS3501 WEST_CONUS
                  ('RFCqpf', 'RFCQPF'),
                  ('HRRR', 'HRRR'),
 #DR3511                 'HPCdelta',
-                 'GLERL',
                  'WNAWAVE238',
                  'TPCSurgeProb',
                  'GlobalWave',
@@ -1399,6 +1398,8 @@ else:   #######DCS3501 WEST_CONUS
 
 if SID in GreatLake_SITES:
     D2DMODELS.append(('GRLKwave', 'GLWM'))
+    D2DMODELS.append('GLERL')
+    D2DMODELS.append('GLWN')
 
 #---------------------------------------------------------------------------
 #
