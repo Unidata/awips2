@@ -45,7 +45,6 @@ import com.raytheon.viz.mpe.util.MakeRsel;
 import com.raytheon.viz.mpe.util.QCStations;
 import com.raytheon.viz.mpe.util.QCTStations;
 import com.raytheon.viz.mpe.util.ReadFreezingStationList;
-import com.raytheon.viz.mpe.util.ReadPrecipStationList;
 import com.raytheon.viz.mpe.util.ReadTemperatureStationList;
 import com.raytheon.viz.mpe.util.RenderPcp;
 import com.raytheon.viz.mpe.util.RenderT;
@@ -442,8 +441,8 @@ public class OtherPrecipOptions {
         MakeRsel mr = new MakeRsel();
 //        Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
         Calendar tmtime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        ReadPrecipStationList rp = new ReadPrecipStationList();
-        int num_stations = rp.getNumPstations();
+//        ReadPrecipStationList rp = new ReadPrecipStationList();
+        int num_stations = dqc.precip_stations.size();
         String s = appsDefaults.getToken(dqc_ending_6hour_obstime_tok);
         int dqc_ending_6hour_obstime = ((!(null == s)) ? Integer.parseInt(s)
                 : -1);
