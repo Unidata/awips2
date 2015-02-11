@@ -74,7 +74,7 @@ public class ReadPrecipStationList {
             e.printStackTrace();
         }
 
-        ReadPrecipStationList.max_pstations = dqc.precip_stations.size();
+        max_pstations = dqc.precip_stations.size();
 
         return dqc.precip_stations;
 
@@ -123,7 +123,7 @@ public class ReadPrecipStationList {
                         tokens = null;
                     }
                     if ((tokens != null) && (tokens.length == 7)) {
-                        Station astation = new Station();
+                        Station astation = dqc.new Station();
                         astation.hb5 = tokens[0].toString().trim();
                         astation.parm = tokens[1].toString().trim();
                         double lat = Double.parseDouble(tokens[2]);
@@ -204,7 +204,7 @@ public class ReadPrecipStationList {
                         if ((record[1].substring(0, 2).compareTo(
                                 stations.get(i).parm.substring(0, 2)) == 0)
                                 && (record[1].equals(stations.get(i).parm))) {
-                            Station statn = new Station();
+                            Station statn = dqc.new Station();
                             statn = stations.get(i);
                             statn.xadd = Integer.parseInt(record[2]);
                             statn.yadd = Integer.parseInt(record[3]);
@@ -237,8 +237,8 @@ public class ReadPrecipStationList {
         int qcn = dqc.mpe_dqc_max_precip_neighbors;
         double sorted[] = new double[qcn];
         double dist;
-        Station stati = new Station();
-        Station statm = new Station();
+        Station stati = dqc.new Station();
+        Station statm = dqc.new Station();
         stati.index = new short[qcn];
         statm.index = new short[qcn];
 
