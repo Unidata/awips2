@@ -181,82 +181,6 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool
                 return true;
 
             } else if (button == 3) {
-
-                if (points.size() == 0) {
-
-                    if (attrDlg.isAddLineMode()) {
-                        // add mode
-                        attrDlg.resetLabeledLineBtns();
-                    } else {
-                        // clean up
-                        closeAttrDlg(attrDlg, pgenType);
-                        attrDlg = null;
-                        PgenUtil.setSelectingMode();
-                    }
-
-                    labeledLine = null;
-
-                } else if (points.size() < 2) {
-
-                    drawingLayer.removeGhostLine();
-                    points.clear();
-
-                    mapEditor.refresh();
-
-                } else {
-
-                    // add the labeled line to PGEN resource
-                    if (attrDlg.isAddLineMode()) {
-                        elem = def.createLabeledLine(pgenCategory, pgenType,
-                                (IAttribute) attrDlg, points, null,
-                                drawingLayer.getActiveLayer());
-
-                        drawingLayer.addElement(elem);
-                        labeledLine = (LabeledLine) elem;
-                        AttrSettings.getInstance().setSettings(elem);
-                    }
-
-                    if ("CCFP_SIGMET".equals(pgenType)) {
-
-                        elem = def.createLabeledLine(pgenCategory, pgenType,
-                                (IAttribute) attrDlg, points, null,
-                                drawingLayer.getActiveLayer());
-
-                        drawingLayer.addElement(elem);
-                        labeledLine = (LabeledLine) elem;
-
-                        if (ccdlg.isAreaType()) {// avoid 2 Sigmet elements
-                                                 // issue
-                            // If auto placement is on, add label directly.
-                            if (!PgenUtil.getTextAutoPlacement()) {
-                                /*
-                                 * return true;avoid right click cause no
-                                 * showing issue
-                                 */
-                                ccfpTxtFlag = true;
-                                setAddingLabelHandler();
-                            } else {
-                                Text t = new Text();
-                                Label lbl = new Label(t);
-                                lbl.setParent(labeledLine);
-                                setCcfpText(
-                                        labeledLine,
-                                        ((gov.noaa.nws.ncep.ui.pgen.sigmet.Ccfp) labeledLine)
-                                                .getAreaLine(), t, lbl);
-
-                                labeledLine.addLabel(lbl);
-                            }
-                        }
-                    }
-
-                    drawingLayer.removeGhostLine();
-                    if (!ccfpTxtFlag)
-                        points.clear();
-
-                    mapEditor.refresh();
-
-                }
-
                 return true;
 
             } else if (button == 2) {
@@ -335,6 +259,98 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool
             points.clear();
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int, int)
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int mouseButton) {
+            if (  !isResourceEditable() || shiftDown ) return false;
+
+            if ( mouseButton == 3 ){
+                if (points.size() == 0) {
+
+                    if (attrDlg.isAddLineMode()) {
+                        // add mode
+                        attrDlg.resetLabeledLineBtns();
+                    } else {
+                        // clean up
+                        closeAttrDlg(attrDlg, pgenType);
+                        attrDlg = null;
+                        PgenUtil.setSelectingMode();
+                    }
+
+                    labeledLine = null;
+
+                } else if (points.size() < 2) {
+
+                    drawingLayer.removeGhostLine();
+                    points.clear();
+
+                    mapEditor.refresh();
+
+                } else {
+
+                    // add the labeled line to PGEN resource
+                    if (attrDlg.isAddLineMode()) {
+                        elem = def.createLabeledLine(pgenCategory, pgenType,
+                                (IAttribute) attrDlg, points, null,
+                                drawingLayer.getActiveLayer());
+
+                        drawingLayer.addElement(elem);
+                        labeledLine = (LabeledLine) elem;
+                        AttrSettings.getInstance().setSettings(elem);
+                    }
+
+                    if ("CCFP_SIGMET".equals(pgenType)) {
+
+                        elem = def.createLabeledLine(pgenCategory, pgenType,
+                                (IAttribute) attrDlg, points, null,
+                                drawingLayer.getActiveLayer());
+
+                        drawingLayer.addElement(elem);
+                        labeledLine = (LabeledLine) elem;
+
+                        if (ccdlg.isAreaType()) {// avoid 2 Sigmet elements
+                                                 // issue
+                            // If auto placement is on, add label directly.
+                            if (!PgenUtil.getTextAutoPlacement()) {
+                                /*
+                                 * return true;avoid right click cause no
+                                 * showing issue
+                                 */
+                                ccfpTxtFlag = true;
+                                setAddingLabelHandler();
+                            } else {
+                                Text t = new Text();
+                                Label lbl = new Label(t);
+                                lbl.setParent(labeledLine);
+                                setCcfpText(
+                                        labeledLine,
+                                        ((gov.noaa.nws.ncep.ui.pgen.sigmet.Ccfp) labeledLine)
+                                                .getAreaLine(), t, lbl);
+
+                                labeledLine.addLabel(lbl);
+                            }
+                        }
+                    }
+
+                    drawingLayer.removeGhostLine();
+                    if (!ccfpTxtFlag)
+                        points.clear();
+
+                    mapEditor.refresh();
+
+                }
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        
+        
         /**
          * Returns the Labeled Line in the current layer with input
          * type(Turb/Cloud).
