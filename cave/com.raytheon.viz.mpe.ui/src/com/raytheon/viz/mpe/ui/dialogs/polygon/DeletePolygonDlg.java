@@ -56,7 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     Polygon values will now be
  *                                     displayed for polygons with
  *                                     the "sub" action.
- * 
+ * Jan 7, 2015  16954      cgobs       Fix for cv_use issue - using getFieldName() in certain parts.
  * </pre>
  * 
  * @author mpduff
@@ -286,8 +286,8 @@ public class DeletePolygonDlg extends CaveSWTDialog {
 
         polygonListBox.removeAll();
 
-        String type = displayManager.getDisplayFieldType().getCv_use()
-                .toUpperCase();
+        String type = displayManager.getDisplayFieldType().getFieldName();
+        
         productTF.setText(type);
         polygonList = PolygonEditManager.getPolygonEdits(fieldData, editDate);
         recreatePolygonListBox();
@@ -314,7 +314,7 @@ public class DeletePolygonDlg extends CaveSWTDialog {
 
             PolygonEditAction action = data.getEditAction();
             if (action == PolygonEditAction.SUB) {
-                String value = data.getSubDrawSource().getCv_use();
+                String value = data.getSubDrawSource().getFieldName();
                 polygonListBox.add(String.format(format2, number, displayed,
                         persist, action.toPrettyName(), value));
             } else {
