@@ -9,5 +9,11 @@
             name="Export GeoJSON"
             sortID="3">
       </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.damagepath.ImportDamagePathAction"
+            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
+            name="Import GeoJSON"
+            sortID="4">
+      </contextualMenu>
    </extension>
 </plugin>
