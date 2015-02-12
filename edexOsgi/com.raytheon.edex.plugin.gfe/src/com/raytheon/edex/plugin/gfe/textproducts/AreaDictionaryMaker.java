@@ -61,6 +61,8 @@ import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
  * Oct 8, 2014   #4953     randerso    Added hooks for TCVAreaDictionary creation
  * Oct 10, 2014  #3685     randerso    Add code to generate the fips2cities and zones2cites
  *                                     python modules from the GIS database tables
+ * Dec 08, 2014  #4953     randerso    Updated Jep include path to allow use of
+ *                                     LocalizationSupport
  * 
  * </pre>
  * 
@@ -243,7 +245,9 @@ public class AreaDictionaryMaker {
 
         String includePath = PyUtil.buildJepIncludePath(true,
                 GfePyIncludeUtil.getCommonPythonIncludePath(),
+                GfePyIncludeUtil.getCommonGfeIncludePath(),
                 configDir.getPath(), scriptFile.getParent());
+
         Map<String, Object> argMap = new HashMap<String, Object>();
 
         LocalizationContext caveStaticConfig = pathMgr.getContext(

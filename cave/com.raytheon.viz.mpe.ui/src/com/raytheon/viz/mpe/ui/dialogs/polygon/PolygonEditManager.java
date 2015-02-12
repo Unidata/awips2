@@ -16,6 +16,14 @@
  * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jan 7, 2015  16954      cgobs      Fix for cv_use issue - using getFieldName() in certain parts.
+ * </pre>
  **/
 package com.raytheon.viz.mpe.ui.dialogs.polygon;
 
@@ -233,7 +241,7 @@ public class PolygonEditManager {
 
                 String polyEditStr = editAction.toPrettyName()
                         + " "
-                        + (subDrawSource != null ? subDrawSource.getCv_use()
+                        + (subDrawSource != null ? subDrawSource.getFieldName()
                                 : String.format("%6.2f", precipValue)) + " "
                         + editPoints.length + " " + (visible ? "1" : "0");
                 toUse.append(idx + " " + polyEditStr + "\n");
@@ -288,7 +296,7 @@ public class PolygonEditManager {
     }
 
     private static File getHourlyEditFile(DisplayFieldData fieldData, Date date) {
-        String fieldname = fieldData.getCv_use();
+        String fieldname = fieldData.getFieldName();
         String polygonDir = MPEDisplayManager.getPolygonEditDir();
 
         /* Build the polygon filename. */
@@ -299,7 +307,7 @@ public class PolygonEditManager {
 
     private static File getPersistentEditFile(DisplayFieldData fieldData,
             Date date) {
-        String fieldname = fieldData.getCv_use();
+        String fieldname = fieldData.getFieldName();
         String polygonDir = MPEDisplayManager.getPolygonEditDir();
         /* Build the persistent polygon filename. */
         String persistentFilename = String.format("%s/DrawPoly%s", polygonDir,
@@ -345,7 +353,7 @@ public class PolygonEditManager {
                         DisplayFieldData subData = null;
                         for (DisplayFieldData fieldData : DisplayFieldData
                                 .values()) {
-                            if (fieldData.getCv_use()
+                            if (fieldData.getFieldName()
                                     .equalsIgnoreCase(subCvUse)) {
                                 subData = fieldData;
                                 break;

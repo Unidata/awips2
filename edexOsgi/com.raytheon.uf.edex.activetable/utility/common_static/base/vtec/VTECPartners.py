@@ -57,7 +57,7 @@ VTEC_DECODER_SITES = []
 # The following list is a set of product categories (e.g., ZFP, WOU) that
 # when decoded, the text for each segment is captured.  The text is not
 # normally needed to be captured except for warning-style products.
-VTEC_CAPTURE_TEXT_CATEGORIES = ['WSW', 'NPW', 'RFW', 'FFA', 'CFW', 'MWS', 'HLS', 'MWW']
+VTEC_CAPTURE_TEXT_CATEGORIES = ['WSW', 'NPW', 'RFW', 'FFA', 'CFW', 'MWS', 'HLS', 'MWW', 'TCV']
 
 # Remapping of product pils.  This is required for certain VTEC events
 # if a hazard is created in one pil and then updated or cancelled in another
@@ -146,6 +146,7 @@ BackupDict = {
  'HFO': ('GUM', 'MTR'),
  'HGX': ('LCH', 'CRP'),
  'HNX': ('STO', 'SGX'),
+ 'HPA': ('HFO', 'NH1'),
  'HUN': ('JAN', 'BMX'),
  'ICT': ('TOP', 'DDC'),
  'ILM': ('CHS', 'MHX'),
@@ -181,9 +182,13 @@ BackupDict = {
  'MRX': ('OHX', 'FFC'),
  'MSO': ('TFX', 'GGW'),
  'MTR': ('LOX', 'EKA'),
+ 'NH1': ('NH2', 'ONP'),
+ 'NH2': ('NH1', 'ONA'),
  'OAX': ('GID', 'FSD'),
  'OHX': ('MRX', 'MEG'),
  'OKX': ('BOX', 'PHI'),
+ 'ONA': ('ONP', 'NH2'),
+ 'ONP': ('ONA', 'NH1'),
  'OTX': ('PDT', 'MSO'),
  'OUN': ('TSA', 'FWD'),
  'PAH': ('LMK', 'SGF'),
@@ -221,10 +226,16 @@ BackupDict = {
 def get4ID(id):
     if id in ['SJU']:
         return "TJSJ"
-    elif id in ['AFG', 'AJK', 'HFO', 'GUM']:
+    elif id in ['AFG', 'AJK', 'GUM']:
         return "P" + id
+    elif id in ['HFO', 'HPA']:
+        return "PHFO"
     elif id in ['AER', 'ALU']:
         return "PAFC"
+    elif id in ['NH1', 'NH2']:
+        return "KNHC"
+    elif id in ['ONA', 'ONP']:
+        return "KWBC"
     else:
         return "K" + id
 
