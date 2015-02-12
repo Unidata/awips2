@@ -32,8 +32,8 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * ------------ ---------- ----------- --------------------------
  * Jul 10, 2009 #2592      jelkins     Initial creation
  * Jan 4, 2010  #3960      jelkins     Perform inventory updates in separate thread
+ * Feb 12, 2015 4105       rferrel     Synchronize forecastTimeMap to prevent ConcurrentModificationException.
  * 
  * </pre>
  * 
@@ -166,16 +167,18 @@ public class ProductInventory extends Job {
         }
 
         // find the latest time
-        for (DataTime dataTime : productTimes) {
-            if (dataTime.getRefTime().after(latestForecastTime)) {
-                latestForecastTime = dataTime.getRefTime();
-            }
-            Integer newFcstTime = dataTime.getFcstTime();
-            if (!forecastTimeMap.containsKey(newFcstTime)) {
-                forecastTimeMap.put(newFcstTime, dataTime.getRefTime());
-            } else if (forecastTimeMap.get(newFcstTime).before(
-                    dataTime.getRefTime())) {
-                forecastTimeMap.put(newFcstTime, dataTime.getRefTime());
+        synchronized (forecastTimeMap) {
+            for (DataTime dataTime : productTimes) {
+                if (dataTime.getRefTime().after(latestForecastTime)) {
+                    latestForecastTime = dataTime.getRefTime();
+                }
+                Integer newFcstTime = dataTime.getFcstTime();
+                if (!forecastTimeMap.containsKey(newFcstTime)) {
+                    forecastTimeMap.put(newFcstTime, dataTime.getRefTime());
+                } else if (forecastTimeMap.get(newFcstTime).before(
+                        dataTime.getRefTime())) {
+                    forecastTimeMap.put(newFcstTime, dataTime.getRefTime());
+                }
             }
         }
 
@@ -185,13 +188,16 @@ public class ProductInventory extends Job {
 
     public List<String> getForecastTimes() {
 
-        List<String> list = new ArrayList<String>();
+        List<String> list = null;
 
-        for (Integer forcastHour : forecastTimeMap.keySet()) {
+        synchronized (forecastTimeMap) {
+            list = new ArrayList<String>(forecastTimeMap.size());
+            for (Integer forcastHour : forecastTimeMap.keySet()) {
 
-            list.add(getAWIPSDayHour(forecastTimeMap.get(forcastHour))
-                    .substring(0, 5) + " " + (forcastHour / 3600) + "HR");
+                list.add(getAWIPSDayHour(forecastTimeMap.get(forcastHour))
+                        .substring(0, 5) + " " + (forcastHour / 3600) + "HR");
 
+            }
         }
 
         return list;
@@ -208,11 +214,13 @@ public class ProductInventory extends Job {
     public String getInventoryStatusString() {
         StringBuilder sb = new StringBuilder();
 
-        for (Integer forcastHour : forecastTimeMap.keySet()) {
-            if (forecastTimeMap.get(forcastHour).equals(latestForecastTime)) {
-                sb.append("+");
-            } else {
-                sb.append("-");
+        synchronized (forecastTimeMap) {
+            for (Integer forcastHour : forecastTimeMap.keySet()) {
+                if (forecastTimeMap.get(forcastHour).equals(latestForecastTime)) {
+                    sb.append("+");
+                } else {
+                    sb.append("-");
+                }
             }
         }
 
