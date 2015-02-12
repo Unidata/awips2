@@ -89,7 +89,7 @@ public class PolygonLayer<T extends AbstractResourceData> extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         EditableManager.makeEditable(this,
-                this.getCapability(EditableCapability.class).isEditable());
+                getCapability(EditableCapability.class).isEditable());
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
             container.registerMouseHandler(uiInput);
@@ -163,11 +163,15 @@ public class PolygonLayer<T extends AbstractResourceData> extends
         }
 
         synchronized (shapeLock) {
-            wireframeShape.dispose();
-            shadedShape.dispose();
+            if (wireframeShape != null) {
+                wireframeShape.dispose();
+                wireframeShape = null;
+            }
+            if (shadedShape != null) {
+                shadedShape.dispose();
+                shadedShape = null;
+            }
         }
-
-        // FIXME the shaded shape gets messed up in collaboration
     }
 
     /**
