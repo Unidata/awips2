@@ -198,6 +198,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                      assignments.
  * Sep 23, 2014 3009        njensen     Overrode recycleInternal()
  * Nov 10, 2014 3026        dhladky     HPE BIAS displays.
+ * Dec 16, 2014   3026      mpduff      Change location of text
  * </pre>
  * 
  * @author dhladky
@@ -1495,7 +1496,7 @@ public class FFMPResource extends
     private void paintProductString(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         double[] pixel = paintProps.getView().getDisplayCoords(
-                new double[] { 110, 50 }, target);
+                new double[] { 110, 100 }, target);
         StringBuilder sb = new StringBuilder();
         if (isAutoRefresh || isQuery) {
             sb.append("FFMP ").append(df.format(getTime())).append(" hour ")
@@ -4171,8 +4172,9 @@ public class FFMPResource extends
     }
 
     /**
-     * This method creates the upper left legend text for HPE derived QPE sources.
-     * It is only used for HPE QPE sources.
+     * This method creates the upper left legend text for HPE derived QPE
+     * sources. It is only used for HPE QPE sources.
+     * 
      * @param date
      * @return
      */
@@ -4190,18 +4192,18 @@ public class FFMPResource extends
     }
 
     /**
-     * HPE source lookup job 
+     * HPE source lookup job
      * 
      * <pre>
-     *
+     * 
      * SOFTWARE HISTORY
-     *
+     * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Nov 11, 2014  3026       dhladky     Initial creation
-     *
+     * 
      * </pre>
-     *
+     * 
      * @author dhladky
      * @version 1.0
      */
