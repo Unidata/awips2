@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 27, 2014 3667       skorolev    Cleaned code.
  * Nov 21, 2014 3841       skorolev    Corrected handleOkBtnSelection.
  * Dec 11, 2014 3220       skorolev    Removed unnecessary code.
+ * Feb 03, 2015 3841       skorolev    Replaced resetParams with resetStatus.
  * Feb 10, 2015 3886       skorolev     Changed confirmation message.
  * 
  * 
@@ -73,7 +74,6 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public SSMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SAFESEAS);
-        SafeSeasMonitor.getInstance();
     }
 
     @Override
@@ -103,7 +103,7 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     }
                 }
                 fireConfigUpdateEvent();
-                resetParams();
+                resetStatus();
             } else { // Return back to continue edit.
                 return;
             }

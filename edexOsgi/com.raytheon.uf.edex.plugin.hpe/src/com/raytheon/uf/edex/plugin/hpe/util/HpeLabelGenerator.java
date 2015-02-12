@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.plugin.hpe.util.HpeEnums.HpeDataSource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2014   3026     mpduff      Initial creation
+ * Dec 16, 2014   3026     mpduff      Add default value if numPairs < npairBiasSelect
  * 
  * </pre>
  * 
@@ -172,7 +173,11 @@ public class HpeLabelGenerator {
                     sb.append(bias).append(SLASH)
                             .append((int) rec.getNumPairs());
                     sb.append(StringUtil.NEWLINE);
-
+                    return sb.toString();
+                } else {
+                    sb.append("1.00").append(SLASH)
+                            .append((int) rec.getNumPairs());
+                    sb.append(StringUtil.NEWLINE);
                     return sb.toString();
                 }
             }

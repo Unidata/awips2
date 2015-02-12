@@ -80,6 +80,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Nov 12, 2014 3650          skorolev     Added confirmation box for unsaved changes in the dialog.   
  * Dec 18, 2014 3841          skorolev     Added formIsValid method. Corrected addZoneStn method.
  * Feb 10, 2015 3886          skorolev     Expanded the confirmation window in the showMessage to encompass the entire title.
+ * Feb 03, 2015 3841          skorolev     Fixed saving problem for distance and time.
  * 
  * </pre>
  * 
@@ -1342,17 +1343,10 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Reset configuration parameters.
-     */
-    protected void resetParams() {
-        getValues();
-        resetStatus();
-    }
-
-    /**
      * Saving configuration parameters.
      */
     protected void saveConfigs() {
+        getValues();
         configMgr.saveConfigXml();
         configMgr.saveAdjacentAreaConfigXml();
     }

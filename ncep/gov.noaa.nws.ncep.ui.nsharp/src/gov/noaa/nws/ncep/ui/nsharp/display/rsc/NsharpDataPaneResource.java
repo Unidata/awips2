@@ -13,6 +13,9 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * 04/23/2012	229			Chin Chen	Initial coding
  * 04/23/2014               Chin Chen   Add d2d lite page  
  * 08/11/2014               Chin Chen   fix typo
+ * 01/27/2015   DR#17006,
+ *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
+ *                                      in Volume Browser
  *
  * </pre>
  * 
@@ -60,7 +63,8 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource {
                                                // number of this page. index 0
                                                // point to a dummy.
 
-    private static final String NO_DATA = "NO VALID DATA AVAILABLE";
+    private static final String NO_DATA = "NO VALID DATA AVAILABLE FOR THIS PAGE";
+    private static final String INSUFFICIENT_DATA = "INSUFFICIENT DATA FOR PARAMETERS COMPUTATION";
 
     // private double charHeight = NsharpConstants.CHAR_HEIGHT_;
     private double curY;
@@ -160,7 +164,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource {
             handleResize();
         }
 
-        if ((soundingLys != null) && (soundingLys.size() >= 4)) {
+        if ((soundingLys != null) && (rscHandler.isGoodData())) {//#5929
             this.defaultFont.setSmoothing(false);
             this.defaultFont.setScaleFont(false);
             // write to panels
@@ -186,6 +190,9 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource {
                     // " disPanel="+physicalPanelNum);
                 }
             }
+        }
+        else { //#5929
+        	drawInsuffDataMessage(target, panelRectArray[0]);
         }
     }
 
@@ -238,6 +245,28 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource {
 
         super.resetData(soundingLys, prevsoundingLys);
         currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
+    }
+    
+    @SuppressWarnings("deprecation") //#5929
+	private void drawInsuffDataMessage(IGraphicsTarget target, Rectangle rect)
+            throws VizException {
+    	IFont myfont;
+    	if (paneConfigurationName.equals(NsharpConstants.PANE_LITE_D2D_CFG_STR)) 
+            myfont = font9;
+         else 
+        	 myfont = font20;
+    	
+    	defineCharHeight(myfont);
+    	myfont.setSmoothing(false);
+    	myfont.setScaleFont(false);
+    	sumP1Visible = true;
+    	extent = new PixelExtent(rect);
+    	target.setupClippingPlane(extent);
+    	target.drawString(myfont,  INSUFFICIENT_DATA, rect.x,
+    			rect.y, 0.0, TextStyle.NORMAL, NsharpConstants.color_cyan,
+    			HorizontalAlignment.LEFT, VerticalAlignment.TOP, null);
+    	return;
+        
     }
 
     private void drawPanel(IGraphicsTarget target, int pageOrderNumber,
@@ -344,7 +373,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource {
         // if we can not Interpolates a temp with 700 mb pressure, then we dont
         // have enough raw data
         if ((nsharpNative.nsharpLib.qc(nsharpNative.nsharpLib.itemp(700.0F)) == 0)) {
-            target.drawString(myfont, "               " + NO_DATA, rect.x,
+            target.drawString(myfont,  NO_DATA, rect.x,
                     rect.y, 0.0, TextStyle.NORMAL, NsharpConstants.color_cyan,
                     HorizontalAlignment.LEFT, VerticalAlignment.TOP, null);
             return;
@@ -1053,7 +1082,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource {
         // if we can not Interpolates a temp with 700 mb pressure, then we dont
         // have enough raw data
         if (nsharpNative.nsharpLib.qc(nsharpNative.nsharpLib.itemp(700.0F)) == 0) {
-            target.drawString(myfont, "               " + NO_DATA, rect.x,
+            target.drawString(myfont,NO_DATA, rect.x,
                     rect.y, 0.0, TextStyle.NORMAL, NsharpConstants.color_cyan,
                     HorizontalAlignment.LEFT, VerticalAlignment.TOP, null);
             return;
@@ -3749,7 +3778,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource {
         // if we can not Interpolates a temp with 700 mb pressure, then we dont
         // have enough raw data
         if ((nsharpNative.nsharpLib.qc(nsharpNative.nsharpLib.itemp(700.0F)) == 0)) {
-            target.drawString(myfont, "               " + NO_DATA, rect.x,
+            target.drawString(myfont,  NO_DATA, rect.x,
                     rect.y, 0.0, TextStyle.NORMAL, NsharpConstants.color_cyan,
                     HorizontalAlignment.LEFT, VerticalAlignment.TOP, null);
             return;

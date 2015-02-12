@@ -81,6 +81,14 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+
+#create a list of all files packaged for /awips2/edex/data/utility
+UTILITY=/awips2/edex/data/utility
+if [ -d %{_build_root}/$UTILITY ]; then
+   cd %{_build_root}/$UTILITY
+   find . -type f > %{_build_root}/awips2/edex/util_filelist.%{name}.txt
+fi
+
 %pre
 %post
 # EDEX installed?
@@ -88,13 +96,26 @@ fi
 # when the plugins are for EDEX, we just leave
 # them on the filesystem; no action required.
 rpm -q awips2-edex > /dev/null 2>&1
-if [ $? -ne 0 ]; then
+retVal=$?
+if [ $retVal -ne 0 ]; then
    # hide the edex plugins
    pushd . > /dev/null 2>&1
    cd /awips2
    rm -rf .edex
    mv edex .edex
    popd > /dev/null 2>&1
+else if [ $retVal -eq 0 ]; then
+   #change date stamp of utility files
+   UTILITY=/awips2/edex/data/utility
+   UTIL_FILENAME=/awips2/edex/util_filelist.%{name}.txt
+   if [ -d $UTILITY ] && [ -f $UTIL_FILENAME ]; then
+     while read fileName
+     do
+      touch "$UTILITY/$fileName"
+     done < $UTIL_FILENAME
+     rm -f $UTIL_FILENAME
+   fi
+ fi
 fi
 
 # CAVE installed?
@@ -113,6 +134,8 @@ else
    mv cave .cave
    popd > /dev/null 2>&1
 fi
+
+
 
 %preun
 if [ -d /awips2/.cave ]; then
