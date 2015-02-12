@@ -120,6 +120,7 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     exception"  when loading contours and
  *                                     Image combo
  * Aug 20, 2013 2259       bsteffen    Delete old skewt plugin.
+ * Feb 12, 2015 4105       rferrel     Remove duplicate update of table item in addProduct.
  * </pre>
  * 
  * @author lvenable
@@ -1209,12 +1210,6 @@ public class ProductTableComp extends Composite {
 
             final TableItem ti = new TableItem(prodSelTable, SWT.NONE);
 
-            ti.setText(0, tblData.getTime());
-            ti.setText(1, tblData.getName());
-            ti.setFont(2, tiFont);
-            ti.setText(2, tblData.getProductInventory()
-                    .getInventoryStatusString());
-
             ti.addDisposeListener(new DisposeListener() {
 
                 @Override
@@ -1235,6 +1230,8 @@ public class ProductTableComp extends Composite {
                     try {
                         ti.setText(0, tblData.getProductInventory()
                                 .getLatestForecastTime());
+                        ti.setText(1, tblData.getName());
+                        ti.setFont(2, tiFont);
                         ti.setText(2, tblData.getProductInventory()
                                 .getInventoryStatusString());
                         updateScrollBar();
