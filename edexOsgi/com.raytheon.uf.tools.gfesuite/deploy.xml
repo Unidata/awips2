@@ -54,6 +54,7 @@
 	<property name="gfe.suite.home" value="${install.dir}" />
 	<property name="gfe.suite.bin" value="${install.dir}/bin" />
 	<property name="gfe.suite.hti" value="${install.dir}/hti" />
+	<property name="gfe.suite.nwps" value="${install.dir}/nwps" />
 
 	<!-- Create the copy filter -->	
 	<!-- filter set -->
@@ -68,8 +69,10 @@
 		<echo message="deploy.client=${deploy.client}" />
 		<mkdir dir="${gfe.suite.bin}"/>
 		<mkdir dir="${gfe.suite.hti}"/>
+		<mkdir dir="${gfe.suite.nwps}"/>
 		<antcall target="-deploy.cli.common"/>
 		<antcall target="-deploy.hti"/>
+		<antcall target="-deploy.nwps"/>
 		<antcall target="-deploy.svcBackup"/>
 		<!-- <antcall target="-deploy.cli.client"/> -->
 		<antcall target="-set.permissions"/>
@@ -97,6 +100,16 @@
 		<echo message="Copying in HTI files" />
 		<copy todir="${gfe.suite.hti}" overwrite="true">
 			<fileset dir="${basedir}/hti"/>
+			<filterset refid="installer.filter.set"/>
+		</copy>
+	</target>
+		
+	<target name="-deploy.nwps" 
+		description="Deploys NWPS software to a specific directory">
+		<!-- copy the CLI tools to the deploy directory -->
+		<echo message="Copying in NWPS files" />
+		<copy todir="${gfe.suite.nwps}" overwrite="true">
+			<fileset dir="${basedir}/nwps"/>
 			<filterset refid="installer.filter.set"/>
 		</copy>
 	</target>
