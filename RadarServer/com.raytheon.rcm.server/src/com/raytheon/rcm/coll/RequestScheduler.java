@@ -27,6 +27,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import com.raytheon.rcm.config.Configuration;
 import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.Util;
+import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.OtrEvent;
 import com.raytheon.rcm.event.RadarEventAdapter;
 import com.raytheon.rcm.event.RadarEventListener;
@@ -37,6 +38,19 @@ import com.raytheon.rcm.request.Request;
 import com.raytheon.rcm.server.Log;
 import com.raytheon.rcm.server.RadarServer;
 
+/**
+ * Represents the standard configuration model of the AWIPS 2 RadarServer.
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ...
+ * 2015-02-11   DR 17092   D. Friedman Handle NDM cronOTRs.xml updates.
+ * </pre>
+ *
+ */
 public class RequestScheduler extends RadarEventAdapter {
 
     // Quartz job detail properties
@@ -46,8 +60,6 @@ public class RequestScheduler extends RadarEventAdapter {
     private RadarServer radarServer;
     private OTRManager otrManager;
 
-    private CronOTRConfiguration cronConfig;
-    
     private Scheduler scheduler;
     
     private Random random = new Random();
@@ -70,16 +82,29 @@ public class RequestScheduler extends RadarEventAdapter {
                     OTRManager.class.getSimpleName());
             return;
         }
-        
+
+        loadConfiguration();
+    }
+
+    private synchronized void loadConfiguration() {
+        if (scheduler != null) {
+            try {
+                scheduler.shutdown();
+            } catch (SchedulerException e) {
+                Log.errorf("Error stopping cron-OTR scheduler: %s", e);
+            }
+        }
+
         try {
             scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
         } catch (SchedulerException e) {
-            Log.errorf("Failed to start cron-OTR scheduler: %s", e);            
+            Log.errorf("Failed to start cron-OTR scheduler: %s", e);
             scheduler = null;
         }
-        
+
         if (scheduler !=  null) {
+            CronOTRConfiguration cronConfig = null;
             InputStream ins = null;
             try {
                 ins = radarServer.getConfiguration().getDropInData("cronOTRs.xml");
@@ -91,7 +116,7 @@ public class RequestScheduler extends RadarEventAdapter {
             } catch (Exception e) {
                 Log.errorf("Error loading cron-OTR configuration: %s", e);
             }
-            
+
             if (cronConfig != null) {
                 int jobIndex = 1; // Used to generate unique JobDetail names
                 for (CronOTR cronOTR : cronConfig.cronOTRList) {
@@ -104,7 +129,7 @@ public class RequestScheduler extends RadarEventAdapter {
                                 cronOTR.getCron(), e);
                         continue;
                     }
-    
+
                     JobDetail jd = new JobDetail(name, null, CronOTRJob.class);
                     JobDataMap jdm = jd.getJobDataMap();
                     jdm.put(SCHEDULER, this);
@@ -112,10 +137,10 @@ public class RequestScheduler extends RadarEventAdapter {
                     try {
                         scheduler.scheduleJob(jd, trigger);
                     } catch (Exception e) {
-                        Log.errorf("Error schedule cron \"%s\": %s",
+                        Log.errorf("Error scheduling cron \"%s\": %s",
                                 cronOTR.getCron(), e);
                     }
-                    
+
                     jobIndex++;
                 }
             }
@@ -179,7 +204,13 @@ public class RequestScheduler extends RadarEventAdapter {
         
         runCron(cronOTR);
     }
-    
+
+    public void handleConfigEvent(ConfigEvent event) {
+        if (event.getCategory() == ConfigEvent.Category.CRON_OTRS) {
+            loadConfiguration();
+        }
+    }
+
     /**
      * This class declared public only so that it can be instantiated by
      * Quartz.
