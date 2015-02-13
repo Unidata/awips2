@@ -156,11 +156,12 @@ cd ../
 buildRPM "Installer.edex"
 buildRPM "Installer.edex-configuration"
 #buildRPM "Installer.edex-shapefiles"
-# build the edex-datadelivery rpm
-export COMPONENT_NAME="edex-datadelivery"
-patchDDSpecification
-buildRPM "Installer.edex-datadelivery"
-unset COMPONENT_NAME
+
+## build the edex-datadelivery rpm
+#export COMPONENT_NAME="edex-datadelivery"
+#patchDDSpecification
+#buildRPM "Installer.edex-datadelivery"
+#unset COMPONENT_NAME
 
 DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;
