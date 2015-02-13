@@ -1534,7 +1534,6 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
             pane_sel_btns[r][c] = new Button(pane_sel_comp, SWT.TOGGLE);
             pane_sel_btns[r][c].setText(pid.toString());
-
             pane_sel_btns[r][c].setData(pid);
             pane_sel_btns[r][c].addSelectionListener(new SelectionAdapter() {
                 public void widgetSelected(SelectionEvent e) {
@@ -2847,38 +2846,11 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
             List<ResourceSelection> origSeldRscsList = (List<ResourceSelection>) orig_sel_elems
                     .toList();
 
-            /*
-            if (groupListViewer.getSelection().isEmpty()
-                    || groupListViewer.getTable().getSelection()[0].getText()
-                            .equalsIgnoreCase(ungrpStr)) {
-                seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
-            } else {
-                seld_rscs_lviewer.setInput(rbdMngr
-                        .getResourcesInGroup(groupListViewer.getTable()
-                                .getSelection().length == 0 ? null
-                                : groupListViewer.getTable().getSelection()[0]
-                                        .getText()));
-            }
-            */
-            /*
-            NcDisplayType curDispType = rbdMngr.getRbdType();
-            try {
-                AbstractRBD<?> dfltRbd = NcMapRBD.getDefaultRBD(curDispType);
+            System.out.println("MID: seld_rscs_lviewer: " + seld_rscs_lviewer.getList().getItemCount());
 
-                rbdMngr.initFromRbdBundle(dfltRbd);
-
-            } catch (VizException e) {
-                MessageDialog errDlg = new MessageDialog(shell, "Error", null,
-                        e.getMessage(), MessageDialog.ERROR, new String[] { "OK" },
-                        0);
-                errDlg.open();
-
-                rbdMngr.init(curDispType);
-            }
-            */
-            // this is where list is reset to not include Locator...
-			
+            // this is where list is reset to default BaseOverlay (GeoPolitical) rather than default RBD (State/County boundaries)
             seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
+
             seld_rscs_lviewer.refresh(true);
 
             List<ResourceSelection> newSeldRscsList = new ArrayList<ResourceSelection>();
