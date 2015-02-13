@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -v
 # This script will build the AWIPS II Viz RPMs.
 
 # Build Variables:
@@ -22,7 +22,9 @@ fi
 function prepareBuildEnvironment()
 {
    if [ "${AWIPSII_TOP_DIR}" = "" ]; then
-      export AWIPSII_TOP_DIR="${VAR_AWIPSII_TOP_DIR}"
+      # /awips2/jenkins/buildspace/workspace/tmp/rpms_built_dir/
+      #export AWIPSII_TOP_DIR="${VAR_AWIPSII_TOP_DIR}"
+      export AWIPSII_TOP_DIR="${VAR_WORKSPACE}/tmp/rpms_built_dir"
    fi
 
    if [ "${WORKSPACE}" = "" ]; then
@@ -71,10 +73,10 @@ function setTargetArchitecture()
 }
 
 export TARGET_BUILD_ARCH=
-# If the architecture has not been specified, default to 32-bit.
+# If the architecture has not been specified, default to 64-bit.
 if [ "${CAVE_BUILD_ARCH}" = "" ]; then
-   export CAVE_BUILD_ARCH="x86"
-   echo "The Build Architecture was not specified ... defaulting to x86."
+   export CAVE_BUILD_ARCH="x86_64"
+   echo "The Build Architecture was not specified ... defaulting to x86_64."
 else
    echo "Building for architecture ... ${CAVE_BUILD_ARCH}."
 fi

@@ -112,6 +112,35 @@ if [ "${1}" = "-WA" ]; then
 	exit 0
 fi
 
+if [ "${1}" = "-python" ]; then
+   buildRPM "awips2-python"
+   buildRPM "awips2-python-cherrypy"
+   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-h5py"
+   buildRPM "awips2-python-jimporter"
+   buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-nose"
+   buildRPM "awips2-python-numpy"
+   buildRPM "awips2-python-pil"
+   buildRPM "awips2-python-pmw"
+   buildRPM "awips2-python-pupynere"
+   #buildRPM "awips2-python-qpid"
+   buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python-scipy"
+   buildRPM "awips2-python-tables"
+   buildRPM "awips2-python-thrift"
+   buildRPM "awips2-python-tpg"
+   buildRPM "awips2-python-ufpy"
+   buildRPM "awips2-python-werkzeug"
+   buildRPM "awips2-python-pygtk"
+   buildRPM "awips2-python-pycairo"
+   buildRPM "awips2-python-shapely"
+   buildRPM "awips2-notification"
+
+   exit 0
+fi
+
+
 if [ "${1}" = "-64bit" ]; then
    buildCAVE
    if [ $? -ne 0 ]; then
@@ -471,6 +500,24 @@ fi
 
 if [ "${1}" = "-cave" ]; then
    buildCAVEsingle
+fi
+
+if [ "${1}" = "-other" ]; then
+   buildRPM "awips2-yajsw"
+   #buildRPM "awips2-hydroapps-shared"
+   #buildRPM "awips2-tools"
+   #buildRPM "awips2-pypies"
+   #buildRPM "awips2-adapt-native"
+   #buildRPM "awips2-aviation-shared"
+   ##buildRPM "awips2-edex-environment"
+   #buildRPM "awips2-cli"
+   #buildRPM "awips2-data.gfe"
+   #buildRPM "awips2-data.hdf5-topo"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-groovy"
+   #buildRPM "awips2-httpd-pypies"
+   #buildRPM "awips2-localapps-environment"
 fi
 
 if [ "${1}" = "-viz" ]; then
