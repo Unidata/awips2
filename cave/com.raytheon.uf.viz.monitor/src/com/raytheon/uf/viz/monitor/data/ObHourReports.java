@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -45,8 +46,8 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Oct.29, 2012  1297       skorolev   Changed HashMap to Map
  * Oct.31, 2012  1297       skorolev   Cleaned code.
  * Sep 04, 2014  3220       skorolev   Added updateZones method.
- * Dec 18, 2014  3841       skorolev   Corrected updateZones method.
- * Jan 08, 2015  3220       skorolev   Replaced MonitoringArea with areaConfig.
+ * Dec 18, 2014  3841       skorolev   Corrected updateZones method. 
+ * Jan 27, 2015  3220       skorolev   Replaced MonitoringArea with areaConfig.Changed updateZones method.
  * 
  * </pre>
  * 
@@ -107,21 +108,15 @@ public class ObHourReports {
                 .getAreaByStationId(station);
         if (zones.size() == 0) {
             statusHandler
-                    .error("Error: station: "
+                    .info("Error: station: "
                             + station
                             + " is not associated with any zone in the monitoring area");
             return;
         }
-        boolean hasZone = false;
         for (String zone : zones) {
             if (hourReports.containsKey(zone)) {
-                hasZone = true;
                 hourReports.get(zone).addReport(report);
             }
-        }
-        if (hasZone == false) {
-            statusHandler
-                    .error("Error in addreport() of ObHourReports: unable to add obs report to data archive");
         }
     }
 
@@ -224,10 +219,12 @@ public class ObHourReports {
 
     /**
      * Updates zones in the Hour Reports
+     * 
+     * @param configMgr
      */
-    public void updateZones() {
+    public void updateZones(FSSObsMonitorConfigurationManager configMgr) {
         // Updated list of zones
-        List<String> updtZones = thresholdMgr.getAreaConfigMgr().getAreaList();
+        List<String> updtZones = configMgr.getAreaList();
         // remove zones
         hourReports.keySet().retainAll(updtZones);
         // add zones
