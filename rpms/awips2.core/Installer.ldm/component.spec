@@ -27,6 +27,7 @@ requires: compat-gcc-34-g77
 requires: gcc
 requires: gcc-c++
 requires: libxml2-devel
+requires: libtool
 provides: awips2-ldm
 provides: awips2-base-component
 
