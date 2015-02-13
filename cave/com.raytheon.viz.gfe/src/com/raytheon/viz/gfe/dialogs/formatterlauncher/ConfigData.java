@@ -26,7 +26,7 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 18 APR 2008  ###        lvenable    Initial creation 
+ * 18 APR 2008  ###        lvenable    Initial creation
  * 
  * </pre>
  * 
