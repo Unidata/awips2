@@ -45,18 +45,12 @@ echo WORKSPACE is ${WORKSPACE}
 # prepare the baseline
 pushd . > /dev/null 2>&1
 cd ${BASELINE}
-#if [ -d ${WORKSPACE} ]; then
-#   rm -rf ${WORKSPACE}
-#fi
-#mkdir -p ${WORKSPACE}
+RSYNC_DIRS=`cat $dir/rsync.dirs`
 
-rsync -ruql --delete --exclude-from=${dir}/excludes \
-   RadarServer/* cots/* edexOsgi/* cave/* ncep/* ost/* localization/* \
-   javaUtilities/* rpms pythonPackages nativeLib/* \
-   ${WORKSPACE}
+rsync -ruql --delete --exclude-from=${dir}/excludes ${RSYNC_DIRS} ${WORKSPACE}
 
-cp ${dir}/p2-build.xml.local ${WORKSPACE}/build/p2-build.xml
-cp ${dir}/edex_build.xml ${WORKSPACE}/build.edex/build.xml
+#cp ${dir}/p2-build.xml.local ${WORKSPACE}/build/p2-build.xml
+#cp ${dir}/edex_build.xml ${WORKSPACE}/build.edex/build.xml
 
 mkdir -p ${WORKSPACE}/build.edex/esb/logs
 mkdir -p ${WORKSPACE}/build.edex/esb/data/manual
@@ -88,15 +82,12 @@ cp -v ${dir}/buildEnvironment.sh .
 # check rpms/build/x86_64/build.sh for these groups
 #
 # PRIMARY GROUPS confirmed to work for Unidata 14.2.1
+/bin/bash build.sh ${1} > ${dir}/build${1}-${timestamp}.log
 #/bin/bash build.sh -edex > ${dir}/build-EDEX-${timestamp}.log
-/bin/bash build.sh -full > ${dir}/build-FULL-${timestamp}.log
+#/bin/bash build.sh -local > ${dir}/build-LOCAL-${timestamp}.log
 #/bin/bash build.sh -viz > ${dir}/build-VIZ-${timestamp}.log
-#/bin/bash build.sh -upc > ${dir}/build-UPC-${timestamp}.log
 #/bin/bash build.sh -ldm > ${dir}/build-LDM-${timestamp}.log
 #/bin/bash build.sh -httpd > ${dir}/build-LDM-${timestamp}.log
-
-
-
 #/bin/bash build.sh -postgres > ${dir}/build-${timestamp}.log
 #/bin/bash build.sh -qpid > ${dir}/build-QPID-${timestamp}.log
 #/bin/bash build.sh -python-qpid > ${dir}/build-${timestamp}.log
