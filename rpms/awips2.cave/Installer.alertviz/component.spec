@@ -139,10 +139,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2
 %dir /awips2/alertviz
 /awips2/alertviz/.eclipseproduct
-%docdir /awips2/alertviz/about_files
-%dir /awips2/alertviz/about_files
-/awips2/alertviz/about_files/*
-%doc /awips2/alertviz/about.html
 %dir /awips2/alertviz/alertvizEnvironment
 /awips2/alertviz/alertviz.ini
 %dir /awips2/alertviz/configuration
@@ -154,8 +150,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/alertviz/plugins/*
 
 %defattr(755,awips,fxalpha,755)
-/awips2/alertviz/alertviz
-/awips2/alertviz/*.so
 /awips2/alertviz/*.sh
 
 %attr(644,root,root) /etc/gdm/PostSession/awips2VisualizeUtility.sh
