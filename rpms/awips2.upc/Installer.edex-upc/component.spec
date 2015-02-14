@@ -15,7 +15,7 @@ Vendor: Unidata
 Packager: Michael James
 
 AutoReq: no
-PreReq: awips2-common-base
+PreReq: awips2-tools
 provides: awips2-edex-upc
 
 %description
