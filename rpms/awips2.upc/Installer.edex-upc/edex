@@ -50,7 +50,8 @@ nopts=${options[@]}
 # OS X
 #IP=`ifconfig  | grep -E 'inet.[0-9]' | grep -v '127.0.0.1' | awk '{ print $2}'`
 # Linux
-IP=`/sbin/ifconfig | grep "inet addr" | grep -v 127.0.0 |  awk '{ print $2 }' | cut -d: -f2`
+#IP=`/sbin/ifconfig | grep "inet addr" | grep -v 127.0.0 |  awk '{ print $2 }' | cut -d: -f2`
+IP=`hostname -I`
 
 # truncate
 IP_CIDR="${IP%.*}"
