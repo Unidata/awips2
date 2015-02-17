@@ -157,7 +157,7 @@ function importShapefiles()
    local site_directory="${edex_utility}/edex_static/site/%{_localization_site}"
    
    # determine if we include ffmp shapefiles
-   local ffmp_shp_directory="${site_directory}/shapefiles/FFMP"
+   local ffmp_shp_directory="/awips2/jenkins/buildspace/workspace/awipscm/awips2-static/shapefiles/FFMP"
    
    # if we do not, halt
    if [ ! -d ${ffmp_shp_directory} ]; then
