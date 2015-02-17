@@ -33,7 +33,6 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.FactoryException;
 
-import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.exception.EnvelopeProjectionException;
@@ -64,19 +63,19 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- *
+ * 
  * A data factory for getting radar data from the metadata database. There are
  * currently not any required identifiers.
- *
+ * 
  * Radar does not return subgrids for request envelopes like other gridded
  * types. Instead data for only icaos within the request envelope are returned
  * and all data for the product is used. This is done because subgridding radial
  * products is complex and this is not often what a caller actually wants.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 23, 2013           bsteffen    Initial creation
@@ -91,14 +90,14 @@ import com.vividsolutions.jts.geom.Envelope;
  *                                    optional identifiers to indicate what
  *                                    fields are used for the level one and two
  *                                    values.
- *
+ * Feb 13, 2015  4124     mapeters    Inherits IDataFactory.
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  * @version 1.0
  */
-public class RadarGridFactory extends AbstractGridDataPluginFactory implements
-        IDataFactory {
+public class RadarGridFactory extends AbstractGridDataPluginFactory {
 
     private static final String PRODUCT_CODE = "productCode";
 
@@ -180,7 +179,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
      * {@value #LEVEL_ONE} or {@value #LEVEL_TWO} identifiers, those fields will
      * be used. If {@value #LEVEL_ONE} is not specified, {@value #PRIMARY_ANGLE}
      * will be used.
-     *
+     * 
      * @param radarRecord
      *            The radar record.
      * @param request
@@ -227,8 +226,8 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
      * Theoretically two radial geometries could have the same name but
      * internally different angleData but this is very unlikely and the points
      * would be very nearly identical.
-     *
-     *
+     * 
+     * 
      * @param radarRecord
      *            a record.
      * @return A unique location name
@@ -345,7 +344,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     /**
      * Populate a DataSource from the raw data(byte or short) in the provided
      * record.
-     *
+     * 
      * @param radarRecord
      * @return a DataSource or null if the record is not populated or has no
      *         grid data.
@@ -599,7 +598,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     /**
      * Validates that, if specified, the {@value #LEVEL_ONE} and
      * {@value #LEVEL_TWO} identifier values are supported.
-     *
+     * 
      * @param request
      */
     private void validateLevelIdentifiers(IDataRequest request) {
@@ -617,21 +616,21 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     }
 
     /**
-     *
+     * 
      * This is used to convert data from bin,radial format to radial bin format.
-     *
+     * 
      * <pre>
-     *
+     * 
      * SOFTWARE HISTORY
-     *
+     * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Jan 25, 2013            bsteffen     Initial creation
      * Feb 14, 2013 1614       bsteffen    refactor data access framework to use
      *                                          single request.
-     *
+     * 
      * </pre>
-     *
+     * 
      * @author bsteffen
      * @version 1.0
      */
