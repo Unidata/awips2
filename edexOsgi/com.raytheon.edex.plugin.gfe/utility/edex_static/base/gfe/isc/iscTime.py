@@ -28,52 +28,9 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
-#    
-# 
+#    02/17/2015      4139          randerso       Removed timeFromComponents and dependent
+#                                                 functions in favor of calendar.timegm
 #
-
-
-# leap year routine
-def leapYear(year):
-    return (year % 4 == 0 and (year+100) % 400 != 0)
-
-# days in month routine
-def daysInMonth(month, year):
-    days = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ]
-
-    if month != 2:
-        return days[month-1]
-
-    # special February handling for leap years
-    if leapYear(year):
-        return days[1]+1
-    else:
-        return days[1]
-
-# convert to time from components
-# 0-year,1-month,2-day,3-hour,4-min,5-sec
-def timeFromComponents(timeTuple):
-    epochDays = 0
-    pyear = 1970
-    pmonth = 1  # startTime
-
-    while pyear != timeTuple[0]:
-        epochDays = epochDays + 365   # days in year
-        if leapYear(pyear):
-           epochDays = epochDays + 1    # account for leap year
-        pyear = pyear + 1
-
-    while pmonth != timeTuple[1]:
-        epochDays = epochDays + daysInMonth(pmonth, timeTuple[0])
-        pmonth = pmonth + 1
-
-    epochDays = epochDays + timeTuple[2] - 1;   # but not this day
-
-    epochTime = epochDays*86400 + \
-      timeTuple[3]*3600 + timeTuple[4]*60 + timeTuple[5]
-
-    return int(epochTime)
-
 
 # time range routines
 def containsT(tr, t):
