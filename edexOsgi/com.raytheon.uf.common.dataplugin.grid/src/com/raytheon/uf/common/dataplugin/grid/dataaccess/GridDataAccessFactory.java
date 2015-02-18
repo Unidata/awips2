@@ -32,7 +32,6 @@ import javax.measure.unit.Unit;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
@@ -55,11 +54,11 @@ import com.raytheon.uf.common.util.mapping.Mapper;
 
 /**
  * Data access factory for accessing data from the Grid plugin as grid types.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 17, 2013           bsteffen    Initial creation
@@ -70,16 +69,16 @@ import com.raytheon.uf.common.util.mapping.Mapper;
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * Oct 16, 2014  3598     nabowle     Accept level identifiers.
  * Oct 21, 2014  3755     nabowle     Add getAvailable levels and parameters.
- *
- *
+ * Feb 13, 2015  4124     mapeters    Inherits IDataFactory.
+ * 
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  * @version 1.0
  */
 
-public class GridDataAccessFactory extends AbstractGridDataPluginFactory
-        implements IDataFactory {
+public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
 
     private static final String NAMESPACE = "namespace";
 
@@ -183,7 +182,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
 
     /**
      * Check for possible level conflicts.
-     *
+     * 
      * @param levels
      *            The request levels. Assumed to not be null.
      * @param identifiers
@@ -211,7 +210,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
     /**
      * Copy all constraints from source to target. If target already contains a
      * constraint for a key then merge the values into target.
-     *
+     * 
      * @param target
      * @param source
      */
