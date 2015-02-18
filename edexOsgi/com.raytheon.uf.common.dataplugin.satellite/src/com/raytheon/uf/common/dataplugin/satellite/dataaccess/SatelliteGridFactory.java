@@ -30,7 +30,6 @@ import javax.measure.unit.UnitFormat;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
@@ -38,7 +37,9 @@ import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.numeric.source.DataSource;
 
 /**
@@ -58,14 +59,14 @@ import com.raytheon.uf.common.numeric.source.DataSource;
  * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
  * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
  * Sep 29, 2014  3596     nabowle     Always put creatingEntity in attributes.
+ * Feb 13, 2015  4124     mapeters    Overrode getAvailableParameters(), inherits IDataFactory.
  * 
  * </pre>
  * 
  * @author bkowal
  * @version 1.0
  */
-public class SatelliteGridFactory extends AbstractGridDataPluginFactory
-        implements IDataFactory {
+public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
 
     private static final String FIELD_CREATING_ENTITY = "creatingEntity";
 
@@ -127,7 +128,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
 
     /**
      * Builds the base constraint map based on the supplied grid request
-     *
+     * 
      * @param request
      *            the original grid request
      * @return the base constraint map
@@ -170,6 +171,21 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
         return getAvailableLocationNames(request, FIELD_SECTOR_ID);
+    }
+
+    /**
+     * Get the available parameters.
+     */
+    @Override
+    public String[] getAvailableParameters(IDataRequest request) {
+        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
+        dbQueryRequest.setDistinct(Boolean.TRUE);
+        dbQueryRequest.addRequestField(FIELD_PYHSICAL_ELEMENT);
+
+        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                dbQueryRequest, request.toString());
+        return dbQueryResponse.getFieldObjects(FIELD_PYHSICAL_ELEMENT,
+                String.class);
     }
 
 }
