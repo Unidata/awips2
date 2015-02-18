@@ -16,10 +16,17 @@
 #
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+# ----------------------------------------------------------------------------
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/17/2015      4139          randerso       Replaced call to iscTime.timeFromComponents
+#                                                 with call to calendar.timegm
 ##
 
 
-import os, stat, time, string, sys
+import os, stat, time, string, sys, calendar
 import iscTime, iscUtil, mergeGrid
 try:
     # dev environment
@@ -973,7 +980,7 @@ class IscMosaic:
         importError = True
         while importError:
             try:
-                intTime = time.strptime(timeStr, "%Y%m%d_%H%M")
+                timeTuple = time.strptime(timeStr, "%Y%m%d_%H%M")
                 importError = False
             except ImportError:
                 importError = True
@@ -981,7 +988,7 @@ class IscMosaic:
                 logger.exception("%s is not a valid time string.  Use YYYYMMDD_HHMM", timeStr)
                 raise Exception, "Bad date format YYYYMMDD_HHMM"
 
-        return iscTime.timeFromComponents(intTime)
+        return calendar.timegm(timeTuple)
 
     #---------------------------------------------------------------------
     # get netcdf input variables
