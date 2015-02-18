@@ -1,9 +1,7 @@
 <configuration debug="false" scan="false">
    <!-- general application log --> 
    <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
       <filter class="com.raytheon.uf.common.status.logback.InvertedThresholdFilter">
          <level>INFO</level>         
       </filter>
@@ -14,9 +12,7 @@
       <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
         <level>WARN</level>
       </filter> 
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender>
    
    <appender name="AlertVizAdminLogAppender" class="com.raytheon.uf.common.status.logback.EnvConfigurableRollingFileAppender">
@@ -33,9 +29,7 @@
          <maxFileSize>2GB</maxFileSize>
       </triggeringPolicy>
       <append>true</append>
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender> 
    
    <logger name="AlertVizAdminLogger" additivity="false">
