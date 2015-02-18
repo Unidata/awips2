@@ -92,7 +92,7 @@
  *	Jul. 2001  	R. Fulton		added mxpra limiting of projected rates
  *	Aug. 11, 2006 Shucai Guan 	finish conversion to C Language
  *  Mar., 2008  Guoxian Zhou    finish first operational version
- *
+ *  02/2015     JingtaoD        A2 OB14.4.1 DR#17123 - HPE Bias Source field
  ***********************************************************************/
 
 static void writeGrib(char * fileName, char * procFlag)
@@ -175,6 +175,7 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
     int i, j, iprj, isFilled;
 
     long irc;
+    int nobias_flag;
 
     int origRowSize = pGeoData->num_rows;
     int origColSize = pGeoData->num_cols;
@@ -508,11 +509,13 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
 
             if (strstr(mosaicID, "BDHR") != NULL)
             {
+            	nobias_flag = 0;
                 sprintf(procFlag, "%s%02d  ", biasedRateFilePrefix, k * 15);
                 sprintf(fileName, "%sM%d%sz", biasedRateFilePrefix, k * 15,
                         strDateTime);
             } else
             {
+            	nobias_flag = 1;
                 sprintf(procFlag, "%s%02d   ", rateFilePrefix, k * 15);
                 sprintf(fileName, "%sM%d%sz", rateFilePrefix, k * 15,
                         strDateTime);
@@ -587,8 +590,10 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
 
                 sprintf ( message , "\nSTATUS:  In Project, insert/update 1km mosaic nowcast into HPERadarResult table");
                 printLogMessage( message );
+                sprintf ( message, "nobias flag is %d", nobias_flag);
+                printLogMessage( message );
 
-                wrtodb_HPERadarResult(fileName, prdDateTime, pEMPEParams, radar_data_source);
+                wrtodb_HPERadarResult(fileName, prdDateTime, pEMPEParams, radar_data_source, nobias_flag);
 
             }
 
@@ -636,10 +641,12 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
     {
         if (strstr(mosaicID, "BDHR") != NULL)
         {
+        	nobias_flag = 0;
             sprintf(procFlag, "rfcwide ");
             sprintf(fileName, "%s4kmH%sz", biasedAccFilePrefix, strDateTime);
         } else
         {
+        	nobias_flag = 1;
             sprintf(procFlag, "rfcwide ");
             sprintf(fileName, "%s4kmH%sz", accFilePrefix, strDateTime);
         }
@@ -662,7 +669,7 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
             sprintf ( message , "\nSTATUS:  In Project, insert/update 4km mosaic nowcast into HPERadarResult table");
             printLogMessage( message );
 
-            wrtodb_HPERadarResult(fileName,  prdDateTime, pEMPEParams, radar_data_source);
+            wrtodb_HPERadarResult(fileName,  prdDateTime, pEMPEParams, radar_data_source, nobias_flag);
         }
 
     }
@@ -683,10 +690,12 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
 
     if (strstr(mosaicID, "BDHR") != NULL)
     {
+    	nobias_flag = 0;
         sprintf(procFlag, "BTP1H   ");
         sprintf(fileName, "%sH%sz", biasedAccFilePrefix, strDateTime);
     } else
     {
+    	nobias_flag = 1;
         sprintf(procFlag, "TP1H    ");
         sprintf(fileName, "%sH%sz", accFilePrefix, strDateTime);
     }
@@ -760,7 +769,7 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
         sprintf ( message , "\nSTATUS:  In Project, insert/update 1km mosaic nowcast into HPERadarResult table");
         printLogMessage( message );
 
-        wrtodb_HPERadarResult(fileName,  prdDateTime, pEMPEParams, radar_data_source);
+        wrtodb_HPERadarResult(fileName,  prdDateTime, pEMPEParams, radar_data_source, nobias_flag);
     }
 
     /*
