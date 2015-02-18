@@ -1,5 +1,8 @@
 package gov.noaa.gsd.viz.ensemble.display.control;
 
+import gov.noaa.gsd.viz.ensemble.display.rsc.GeneratedEnsembleGridResource;
+import gov.noaa.gsd.viz.ensemble.display.rsc.histogram.HistogramResource;
+import gov.noaa.gsd.viz.ensemble.display.rsc.timeseries.GeneratedTimeSeriesResource;
 import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolManager;
 
 import java.util.ArrayList;
@@ -108,6 +111,10 @@ public class EnsembleToolDisplayCustomizer implements
         private static long LAST_TIME = 0;
 
         /*
+         * TODO: This is a minimal working capability for batching large
+         * requests. We need to re-address this in the next release for a
+         * cleaner solution.
+         * 
          * Maximum wait period for batching; this value was chosen as the
          * minimum necessary wait time for a two-ensemble load (e.g. 500MB and
          * 850MB Heights). By waiting this long, both full products sets will
@@ -115,7 +122,7 @@ public class EnsembleToolDisplayCustomizer implements
          * machine).
          */
 
-        private final int ALLOW_FOR_BUNCHED_REQUESTS_PERIOD = 1800;
+        private final int ALLOW_FOR_BUNCHED_REQUESTS_PERIOD = 2500;
 
         // thread which acts upon batched requests
         private Thread forceReset = null;
@@ -145,24 +152,20 @@ public class EnsembleToolDisplayCustomizer implements
          *      approach will be improved in an upcoming DR
          */
         @Override
-        public synchronized void notifyRemove(ResourcePair rp)
-                throws VizException {
+        public void notifyRemove(ResourcePair rp) throws VizException {
             /**
-             * Pass,if the resource is not interested by ensemble tool
+             * Ignore the resource if not compatible with the ensemble tool
              * 
              */
-            if (!isCompatibleResource(rp)) {
-                return;
+            if (isCompatibleResource(rp) || isGeneratedResource(rp)) {
+                /**
+                 * Remove it from the resource manager and update GUI.
+                 */
+                if (getEditor() != null) {
+                    EnsembleResourceManager.getInstance()
+                            .syncRegisteredResource(getEditor());
+                }
             }
-            /**
-             * Remove it from the resource manager and update GUI Should notice
-             * GUI
-             */
-            if (getEditor() != null) {
-                EnsembleResourceManager.getInstance().syncRegisteredResource(
-                        getEditor());
-            }
-
         }
 
         /**
@@ -175,18 +178,39 @@ public class EnsembleToolDisplayCustomizer implements
         public void notifyAdd(ResourcePair rp) throws VizException {
 
             /**
-             * Return if the resource is not interested by ensemble tool
-             * 
+             * Ignore if this resource is not compatible with the ensemble tool
              */
             if (!isCompatibleResource(rp)) {
                 return;
             }
 
-            // add the resource pair to the staging list ...
-            rp.getResource().registerListener((IInitListener) this);
-            synchronized (batchedPairs) {
-                batchedPairs.add(rp);
+            /**
+             * Only buffer the resources which are ensemble members.
+             * 
+             * Otherwise, individual resources will get processed immediately.
+             */
+            String ensembleId = "";
+            if (rp.getResource() instanceof GridResource) {
+                ensembleId = ((GridResource<?>) (rp.getResource()))
+                        .getAnyGridRecord().getEnsembleId();
+            } else if (rp.getResource() instanceof TimeSeriesResource) {
+                ensembleId = ((TimeSeriesResource) (rp.getResource()))
+                        .getAdapter().getEnsembleId();
             }
+
+            if (ensembleId != null && ensembleId != "") {
+                // add the resource pair to the batching list ...
+                rp.getResource().registerListener((IInitListener) this);
+                synchronized (batchedPairs) {
+                    batchedPairs.add(rp);
+
+                }
+            } else {
+                // register immediately to the resource manager
+                EnsembleResourceManager.getInstance().registerResource(
+                        rp.getResource(), getEditor(), true);
+            }
+
         }
 
         /**
@@ -196,22 +220,24 @@ public class EnsembleToolDisplayCustomizer implements
          */
         private void addBatchedResourcesToManager() {
 
-            Iterator<ResourcePair> pairsIter = batchedPairs.iterator();
-            ResourcePair rp = null;
-
-            while (pairsIter.hasNext()) {
-
-                rp = pairsIter.next();
-                if (pairsIter.hasNext()) {
-                    EnsembleResourceManager.getInstance().registerResource(
-                            rp.getResource(), getEditor(), false);
-
-                } else {
-                    EnsembleResourceManager.getInstance().registerResource(
-                            rp.getResource(), getEditor(), true);
-                }
-            }
             synchronized (batchedPairs) {
+                Iterator<ResourcePair> pairsIter = null;
+
+                pairsIter = batchedPairs.iterator();
+                ResourcePair rp = null;
+
+                while (pairsIter.hasNext()) {
+
+                    rp = pairsIter.next();
+                    if (pairsIter.hasNext()) {
+                        EnsembleResourceManager.getInstance().registerResource(
+                                rp.getResource(), getEditor(), false);
+
+                    } else {
+                        EnsembleResourceManager.getInstance().registerResource(
+                                rp.getResource(), getEditor(), true);
+                    }
+                }
                 batchedPairs.clear();
             }
         }
@@ -229,10 +255,26 @@ public class EnsembleToolDisplayCustomizer implements
 
         private boolean isCompatibleResource(ResourcePair rp) {
             AbstractVizResource<?, ?> resource = rp.getResource();
-            if ((resource != null)
+            if ((resource != null && !isGeneratedResource(rp))
                     && ((resource instanceof GridResource) || (resource instanceof TimeSeriesResource))) {
                 return true;
             }
+            return false;
+        }
+
+        /**
+         * Check if the resource is interested by the ensemble tool.
+         * 
+         * @param rp
+         * @return
+         */
+        private boolean isGeneratedResource(ResourcePair rp) {
+            if (rp.getResource() instanceof HistogramResource
+                    || rp.getResource() instanceof GeneratedEnsembleGridResource
+                    || rp.getResource() instanceof GeneratedTimeSeriesResource) {
+                return true;
+            }
+
             return false;
         }
 
@@ -246,27 +288,19 @@ public class EnsembleToolDisplayCustomizer implements
         @Override
         public synchronized void inited(AbstractVizResource<?, ?> rsc) {
 
+            int wait_period = 0;
             /*
              * ensemble resources can come in a bunch ... wait for some time to
-             * pass to batch them ...
+             * pass to batch them ... also, give a couplpe of extra seconds to
+             * resources derived from the TimeSeries class.
              */
-            if (((LAST_TIME == 0) || ((System.currentTimeMillis() - LAST_TIME) > ALLOW_FOR_BUNCHED_REQUESTS_PERIOD))) {
+            if (rsc instanceof TimeSeriesResource) {
+                wait_period = ALLOW_FOR_BUNCHED_REQUESTS_PERIOD + 2000;
+            } else {
+                wait_period = ALLOW_FOR_BUNCHED_REQUESTS_PERIOD;
+            }
 
-                /*
-                 * TODO: this thread may be superstitious yet is being left here
-                 * until we can verify it is not needed. The very first time any
-                 * resource is inited we sleep for small period to allow other
-                 * similar threads (e.g. in other plug-ins) to have priority in
-                 * acting on the resource.
-                 */
-                if (LAST_TIME == 0) {
-                    // poor man's object.wait() for the very first time through
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                }
+            if (((LAST_TIME == 0) || ((System.currentTimeMillis() - LAST_TIME) > wait_period))) {
 
                 /**
                  * Register the resource in to the resource manager
@@ -280,12 +314,12 @@ public class EnsembleToolDisplayCustomizer implements
                         }
                         forceReset = null;
                         forceReset = new Thread(new ForceRefreshIfNecessary(
-                                ALLOW_FOR_BUNCHED_REQUESTS_PERIOD));
+                                wait_period));
                         forceReset.start();
                     }
                 } else {
                     forceReset = new Thread(new ForceRefreshIfNecessary(
-                            ALLOW_FOR_BUNCHED_REQUESTS_PERIOD));
+                            wait_period));
                     forceReset.start();
                 }
             } else {
