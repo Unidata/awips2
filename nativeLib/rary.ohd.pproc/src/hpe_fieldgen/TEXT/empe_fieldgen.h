@@ -11,6 +11,8 @@
 * MODIFICATION HISTORY:
 *   DATE         PROGRAMMER        DESCRIPTION/REASON
 *   07/2013      JingtaoD          add prototypes for dual pol proudcts DSA/DPR
+*   02/2015      JingtaoD          A2 OB14.4.1 DR#17123 - HPE Bias Source field
+*                                  update wrtodb_HPERadarResult()
 ********************************************************************************
 */
 
@@ -742,6 +744,7 @@ void read_daabiasdyn(const char *radar_id,
 void wrtodb_HPERadarResult(const char   * hpe_productname,
 		           const char   * producttime,
                            const empe_params_struct * pEMPEParams,
-			   const int    radar_data_source);
+			   const int    radar_data_source,
+			   const int    nobias_flag);
 
 #endif /* #ifndef MPE_FIELDGEN_H */
