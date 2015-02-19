@@ -70,6 +70,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonEval;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -107,7 +108,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Jan 21, 2014     #2720   randerso    Improve efficiency of merging polygons in edit area generation
  * Aug 27, 2014     #3563   randerso    Fix issue where edit areas are regenerated unnecessarily
  * Oct 20, 2014     #3685   randerso    Changed structure of editAreaAttrs to keep zones from different maps separated
- * 
+ * Feb 19, 2015     #4125   rjpeter     Fix jaxb performance issue
  * </pre>
  * 
  * @author randerso
@@ -577,6 +578,9 @@ public class MapManager {
         }
 
         if (areaDir.isDirectory() && areaDir.canWrite()) {
+            SingleTypeJAXBManager<ReferenceData> jaxbManager = ReferenceData
+                    .getJAXBManager();
+
             for (ReferenceData ref : data) {
                 ref.getPolygons(CoordinateType.LATLON);
                 File path = new File(FileUtil.join(areaDir.getAbsolutePath(),
@@ -586,8 +590,7 @@ public class MapManager {
                     // old one, write a warning to the log.
                     ReferenceData other = null;
                     try {
-                        other = ReferenceData.getJAXBManager()
-                                .unmarshalFromXmlFile(path);
+                        other = jaxbManager.unmarshalFromXmlFile(path);
                     } catch (Exception e) {
                         statusHandler.error("Error reading edit area file "
                                 + path.getAbsolutePath(), e);
@@ -604,7 +607,7 @@ public class MapManager {
                 } else {
                     // Write the new edit area file.
                     try {
-                        ReferenceData.getJAXBManager().marshalToXmlFile(ref,
+                        jaxbManager.marshalToXmlFile(ref,
                                 path.getAbsolutePath());
                     } catch (Exception e) {
                         statusHandler.error("Error writing edit area to file "
