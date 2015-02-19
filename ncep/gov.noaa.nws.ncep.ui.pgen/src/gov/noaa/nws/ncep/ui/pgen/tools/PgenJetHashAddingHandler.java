@@ -95,10 +95,6 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
     	}
     	else if ( button == 3 ) {
 
-    		drawingLayer.removeGhostLine();
-    		mapEditor.refresh();
-
-    		prevTool.resetMouseHandler();
     		return true;
 
     	}
@@ -109,7 +105,27 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
     	}
     	
     }
+    
+    /*
+     * overrides the function in selecting tool
+     */
+    @Override
+    public boolean handleMouseUp(int x, int y, int button){
+        if ( !drawingLayer.isEditable() || shiftDown ) return false;
 
+        if (button == 3) {
+            drawingLayer.removeGhostLine();
+            mapEditor.refresh();
+
+            prevTool.resetMouseHandler();     
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    
     /*
      * (non-Javadoc)
      * 
