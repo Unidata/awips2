@@ -33,6 +33,7 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
  * 12/13        TTR899      J. Wu       Set delObjFlag to false when any Pgen Action 
  *                                      button is clicked
  * 04/2014      TTR900      pswamy      R-click cannot return to SELECT from Rotate and DEL_OBJ
+ * 12/2014		R5413		B. Yin		Set PGEN tool in PGEN session
  * 
  * </pre>
  * 
@@ -80,7 +81,8 @@ public abstract class AbstractPgenTool extends AbstractModalTool {
 
         // Get a PGEN Resource
         drawingLayer = PgenSession.getInstance().getPgenResource();
-
+   
+        
         if (this instanceof PgenDeleteObj) {
             delObjFlag = true;
         } else if ((this instanceof PgenSelectingTool)
@@ -102,11 +104,14 @@ public abstract class AbstractPgenTool extends AbstractModalTool {
         }
 
         this.inputHandler = getMouseHandler();
-        if (this.inputHandler != null)
+        if (this.inputHandler != null){
             mapEditor.registerMouseHandler(this.inputHandler);
+        }
 
         // Turn off, so tool doesn't exihibit toggle behavior
         setEnabled(false);
+        
+        PgenSession.getInstance().setPgenTool(this);
     }
 
     abstract public IInputHandler getMouseHandler();
@@ -130,9 +135,11 @@ public abstract class AbstractPgenTool extends AbstractModalTool {
 
         }
 
-        if (mapEditor != null && this.inputHandler != null)
-            mapEditor.unregisterMouseHandler(this.inputHandler);
+        if (mapEditor != null && this.inputHandler != null){
+        	mapEditor.unregisterMouseHandler(this.inputHandler);
+		}
 
+        PgenSession.getInstance().setPgenTool(null);
     }
 
     /**
