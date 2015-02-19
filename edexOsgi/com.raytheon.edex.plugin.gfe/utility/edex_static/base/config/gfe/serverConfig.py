@@ -391,7 +391,7 @@ AstroTide = ("AstroTide", SCALAR, "ft", "Astro Tide", 20.0, -8.0, 1, NO)
 StormSurge = ("StormSurge", SCALAR, "ft", "Storm Surge", 30.0, -5.0, 1, NO)
 
 # Parm for Aviation/GFSLAMPGrid
-ClgHgt=("ClgHgt",SCALAR,"ft","Ceiling Height",25000.0,-100.0,0,NO)
+CigHgt=("CigHgt",SCALAR,"ft","Ceiling Height",25000.0,-100.0,0,NO)
 
 #---------------------------------------------------------------------------
 #
@@ -2055,7 +2055,7 @@ ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
 
 # GFSLAMPGrid
-GFSLAMPGridPARMS=[([Temp, Td, Vis, ClgHgt],TC1)]
+GFSLAMPGridPARMS=[([Temp, Td, Vis, CigHgt],TC1)]
 
 #---------------------------------------------------------------------------
 # Databases for a site.

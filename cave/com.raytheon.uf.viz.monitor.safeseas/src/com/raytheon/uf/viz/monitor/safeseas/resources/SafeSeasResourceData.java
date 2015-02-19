@@ -200,14 +200,6 @@ public class SafeSeasResourceData extends AbstractRequestableResourceData {
         return fogThreatSS;
     }
 
-    /** Get the SafeSeasMonitor monitor **/
-    protected SafeSeasMonitor getFogMonitor() {
-        if (monitor == null) {
-            monitor = SafeSeasMonitor.getInstance();
-        }
-        return monitor;
-    }
-
     /**
      * @return plotSource
      */
