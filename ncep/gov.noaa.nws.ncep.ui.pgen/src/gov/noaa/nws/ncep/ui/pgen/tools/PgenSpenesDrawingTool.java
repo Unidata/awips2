@@ -111,48 +111,13 @@ public class PgenSpenesDrawingTool extends AbstractPgenDrawingTool {
                 
             }
             else if ( button == 3 ) {
-            	
-            	if ( points.size() == 0 ) {
-            		
-            		if (attrDlg != null) attrDlg.close(); 
-            		attrDlg = null; 
-            		PgenUtil.setSelectingMode();
-
-            	}
-            	else if ( points.size() < 2 ){
-            		
-                    drawingLayer.removeGhostLine();
-                    points.clear();
-                    
-        	        mapEditor.refresh();
-        	        
-            	}
-            	else {
-
-            		// create a line    
-            		elem = def.create( DrawableType.SPENES, (IAttribute)attrDlg,
-            				pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
-
-            		attrDlg.setDrawableElement((DrawableElement)elem);
-            		//	AttrSettings.getInstance().setSettings((DrawableElement)elem);
-
-            		// add the product to PGEN resource
-            		drawingLayer.addElement( elem );
-
-            		//System.out.println(USState.statesInGeometry(((Spenes)elem).toJTSPolygon()));
-            		drawingLayer.removeGhostLine();
-        			points.clear();
-
-            		mapEditor.refresh();
-
-            	}
-
+            
             	return true;
             	
             }
         	else if ( button == 2 ){
         		
-        		return true;
+        		return false;
         		
         	}
             else{
@@ -202,6 +167,59 @@ public class PgenSpenesDrawingTool extends AbstractPgenDrawingTool {
         	if ( shiftDown ) return false;
         	return true;
         }
+        
+        
+        /*
+         * overrides the function in selecting tool
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button){
+            if ( !drawingLayer.isEditable() || shiftDown ) return false;
+
+            if (button == 3) {
+                
+                if ( points.size() == 0 ) {
+                    
+                    if (attrDlg != null) attrDlg.close(); 
+                    attrDlg = null; 
+                    PgenUtil.setSelectingMode();
+
+                }
+                else if ( points.size() < 2 ){
+                    
+                    drawingLayer.removeGhostLine();
+                    points.clear();
+                    
+                    mapEditor.refresh();
+                    
+                }
+                else {
+
+                    // create a line    
+                    elem = def.create( DrawableType.SPENES, (IAttribute)attrDlg,
+                            pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
+
+                    attrDlg.setDrawableElement((DrawableElement)elem);
+                    //  AttrSettings.getInstance().setSettings((DrawableElement)elem);
+
+                    // add the product to PGEN resource
+                    drawingLayer.addElement( elem );
+
+                    //System.out.println(USState.statesInGeometry(((Spenes)elem).toJTSPolygon()));
+                    drawingLayer.removeGhostLine();
+                    points.clear();
+
+                    mapEditor.refresh();
+
+                }
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        
         
         private void clearPoints(){
         	points.clear();
