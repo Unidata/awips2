@@ -413,6 +413,22 @@ public class PgenTcaTool extends AbstractPgenDrawingTool {
             // right mouse button pressed
             else if (button == 3) {
 
+                return true;
+
+            } else
+                return false;
+
+        }
+        
+        /*
+         * overrides the function in selecting tool
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button){
+            if ( !drawingLayer.isEditable() || shiftDown ) return false;
+
+            if (button == 3) {
+
                 switch (mode) {
 
                 case IDLE:
@@ -456,12 +472,12 @@ public class PgenTcaTool extends AbstractPgenDrawingTool {
                 }
 
                 return true;
-
-            } else
+            }
+            else {
                 return false;
-
+            }
         }
-
+        
         /*
          * (non-Javadoc)
          * 
