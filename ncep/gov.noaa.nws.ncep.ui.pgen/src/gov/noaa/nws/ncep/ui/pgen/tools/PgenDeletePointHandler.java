@@ -126,7 +126,9 @@ public class PgenDeletePointHandler extends PgenSelectHandler{
 			return true;
 
 		}
-
+		else if ( button == 3 ){
+		    return true;
+		}
 		else{
 
 			return false;
