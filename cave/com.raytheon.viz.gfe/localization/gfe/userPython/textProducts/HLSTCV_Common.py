@@ -1,4 +1,4 @@
-# Version 2014.12.17-0
+# Version 2015.2.10-1
 
 import GenericHazards
 import JsonSupport
@@ -19,7 +19,6 @@ class TextProduct(GenericHazards.TextProduct):
     def __init__(self):
         GenericHazards.TextProduct.__init__(self)
         self._pp = pprint.PrettyPrinter()
-
     
     ###############################################################
     ###  Hazards and Additional Hazards
@@ -106,9 +105,9 @@ class TextProduct(GenericHazards.TextProduct):
         error = self._getVariables(argDict)
         if error is not None:
             return error
-    
-        self._backupFullStationID = self._fullStationID
+        
         self._argDict = argDict
+        self._productID = self._pil[0:3].upper()
         
         argDict["definition"] = self._definition
         
@@ -123,6 +122,7 @@ class TextProduct(GenericHazards.TextProduct):
         # Set up the areaDictionary for all to use
         accessor = ModuleAccessor.ModuleAccessor()
         self._areaDict = accessor.variable(self._areaDictionary, "AreaDictionary")
+        
         self._tpc = TextProductCommon()
         self._tpc.setUp(self._areaDict)
         
@@ -168,7 +168,7 @@ class TextProduct(GenericHazards.TextProduct):
     def _wmoHeader(self, productDict, productSegmentGroup, arguments=None):
         headerDict = collections.OrderedDict()
         headerDict['TTAAii'] = self._wmoID
-        headerDict['originatingOffice'] = self._backupFullStationID  # Will be siteID if not in backup mode
+        headerDict['originatingOffice'] = self._fullStationID
         headerDict['productID'] = self._productID
         headerDict['siteID'] = self._site
         headerDict['fullStationID'] = self._fullStationID
@@ -180,6 +180,7 @@ class TextProduct(GenericHazards.TextProduct):
         headerDict['disclaimer'] = 'This XML wrapped text product should be considered COMPLETELY EXPERIMENTAL. The National Weather Service currently makes NO GUARANTEE WHATSOEVER that this product will continue to be supplied without interruption. The format of this product MAY CHANGE AT ANY TIME without notice.'
         headerDict['cityState'] = self._wfoCityState
         headerDict['stormNumber'] = self._getStormNumberStringFromTCP()
+        # Modify the product name to indicate test or experimental mode if necessary
         self._productName = self.checkTestMode(
                 self._argDict, productSegmentGroup.get('productName') + self._areaName)
         headerDict['productName'] = self._productName
@@ -194,13 +195,14 @@ class TextProduct(GenericHazards.TextProduct):
     ################# Mixed Level
     
     def _ugcHeader(self, productDict, productSegmentGroup, productSegment):
-        productDict['ugcCodes'] = self._formatUGC_entries()
-        self._ugcHeader_value = self._tpc.formatUGCs(self._ugcs, self._expireTime)
-        productDict['ugcHeader'] = self._ugcHeader_value
+        # The UGC header is the formatted list of UGCs along with an expire time
+        # For example: 'FLZ066>068-071-072-063-069-073>075-168-172>174-070-230515-'
+        ugcHeader = self._tpc.formatUGCs(self._ugcs, self._expireTime)
+        productDict['ugcHeader'] = ugcHeader
     
     ################# Product Parts Processing
     
-    def _processProductParts(self, productGenerator, productDict, productSegmentGroup, productParts):            
+    def _processProductParts(self, productGenerator, productDict, productSegmentGroup, productParts):
         '''
         @param productDict
         @param productSegmentGroup
@@ -249,46 +251,18 @@ class TextProduct(GenericHazards.TextProduct):
                              "Removing product part = %s" % (part), 1)
             partsList.remove(part)
     
-    ################# Product Parts Helper Methods
-    
-    def _formatUGC_entries(self):
-        ugcCodeList = []
-        for ugc in self._ugcs:
-            areaDictEntry = self._areaDict.get(ugc)
-            if areaDictEntry is None:
-                # We are not localized correctly for the hazard
-                # So get the first dictionary entry
-                self.logger.info('Not Localized for the hazard area -- ugc' + ugc)
-                keys = self._areaDict.keys()
-                areaDictEntry = self._areaDict.get(keys[0])
-            ugcEntry = collections.OrderedDict()
-            ugcEntry['state'] = areaDictEntry.get('stateAbbr')
-            ugcEntry['type'] = self._getUgcInfo(ugc, 'type')
-            ugcEntry['number'] = self._getUgcInfo(ugc, 'number')
-            ugcEntry['text'] = ugc
-            ugcEntry['subArea'] = ''
-            ugcCodeList.append(ugcEntry)
-        return ugcCodeList
-    
-    def _getUgcInfo(self, ugc, part='type'):
-        if part == 'type':
-            if ugc[2] == 'C': 
-                return 'County'
-            else: 
-                return 'Zone'
-        if part == 'number':
-            return ugc[3:]
-    
     ###############################################################
     ### Product Dictionary methods for creating, populating and
     ###   formatting the product dictionary
     
-    def _createProductDictionary(self, segmentList):
+    def _createProductDictionary(self, productPartsGenerator, segments, areProductPartsSegmented):
         # Create the product dictionary
-        productSegmentGroup = self._groupSegments(segmentList)
+        productSegmentGroup = self._groupSegments(productPartsGenerator,
+                                                  segments,
+                                                  areProductPartsSegmented)
 
         productDict = self._initializeProductDictionary(productSegmentGroup)
-        productParts = productSegmentGroup.get('productParts') 
+        productParts = productSegmentGroup.get('productParts')
         productDict['productParts'] = productParts
         self._processProductParts(self, productDict, productSegmentGroup, productParts)
         
@@ -323,13 +297,9 @@ class TextProduct(GenericHazards.TextProduct):
            WGUS63 KBOU 080400
            FFWBOU
         
-        '''        
-        self._productID = productSegmentGroup.get('productID', 'NNN')
+        '''
         if self._areaName != '':
             self._areaName = ' FOR ' + self._areaName + '\n'
-        self._geoType = productSegmentGroup.get('geoType')
-        self._mapType = productSegmentGroup.get('mapType')
-        self._productTimeZones = []
         
         # Fill in product dictionary information
         productDict = collections.OrderedDict()
@@ -346,14 +316,26 @@ class TextProduct(GenericHazards.TextProduct):
     ### Sampling and Statistics related methods
     
     def _getStatValue(self, statDict, element, method=None, dataType=None):
+        
+        self.debug_print("*"*90, 1)
+        self.debug_print("In _getStatValue looking for '%s'" % (element), 1)
+        self.debug_print("statDict =\n%s" % (pprint.pformat(statDict)), 1)
+        
         stats = statDict.get(element, None)
+        self.debug_print("stats =\n%s" % (pprint.pformat(stats)), 1)
+        
         if stats is None: return None
         if type(stats) is types.ListType:
             stats = stats[0]
             stats, tr = stats
         if dataType==self.VECTOR():
             stats, dir = stats
+
         return self.getValue(stats, method)
+
+    #  Define a class to handle missing statistics
+    class StatisticsException(Exception):
+        pass
     
     ###############################################################
     ### Area, Zone and Segment related methods
@@ -361,18 +343,47 @@ class TextProduct(GenericHazards.TextProduct):
     def _allAreas(self):
         return self._inlandAreas() + self._coastalAreas()
     
+    def _groupSegments(self, productPartsGenerator, segments, areProductPartsSegmented):
+        '''
+         Group the segments into the products. The TCV and HLS product generators
+         only create a single product each so there is only one product segment group.
+        '''
+        
+        segment_vtecRecords_tuples = self._getSegmentVTECRecordsTuples(segments)
+        
+        productSegmentGroup = { 
+                       'productID' : self._productID,
+                       'productName': self._productName,
+                       'geoType': 'area',
+                       'vtecEngine': self._hazardsTable,
+                       'mapType': 'publicZones',
+                       'segmented': areProductPartsSegmented,
+                       'productParts': productPartsGenerator(segment_vtecRecords_tuples),
+                       }
+
+        return productSegmentGroup
+    
+    def _getSegmentVTECRecordsTuples(self, segments):
+        segment_vtecRecords_tuples = []
+        for segment in segments:
+            vtecRecords = self._getVtecRecords(segment)
+            self.debug_print("vtecRecords for %s =\n\n%s\n" % (segment, self._pp.pformat(vtecRecords)))
+            segment_vtecRecords_tuples.append((segment, vtecRecords))
+        
+        return segment_vtecRecords_tuples
+    
     def _computeIntersectAreas(self, editAreas, argDict):
         editAreaUtils = EditAreaUtils.EditAreaUtils()
         editAreaUtils.setUp(None, argDict)
         surgeEditArea = editAreaUtils.getEditArea("StormSurgeWW_EditArea", argDict)
-        intersectAreas =[]
+        intersectAreas = []
         for (_, editAreaLabel) in editAreas:
             editArea = editAreaUtils.getEditArea(editAreaLabel, argDict)
             intersectAreaLabel = "intersect_"+editAreaLabel
             intersectArea = editAreaUtils.intersectAreas(intersectAreaLabel, editArea, surgeEditArea)
             grid = intersectArea.getGrid()
-            if grid.isAnyBitsSet():
-                editAreaUtils.saveEditAreas([intersectArea])
+            if grid.isAnyBitsSet(): # Make sure the intersection isn't empty
+                editAreaUtils.saveEditAreas([intersectArea]) # Register the new edit area with the system
                 intersectAreas.append((intersectAreaLabel, intersectAreaLabel))
                 
         return intersectAreas
@@ -382,8 +393,7 @@ class TextProduct(GenericHazards.TextProduct):
     
     def _initializeHazardsTable(self, argDict):
         import VTECMessageType
-        productID = self._pil[0:3]
-        vtecMode = VTECMessageType.getVTECMessageType(productID.upper())
+        vtecMode = VTECMessageType.getVTECMessageType(self._productID)
         argDict["vtecMode"] = vtecMode
         
         self._setVTECActiveTable(argDict)
@@ -394,10 +404,8 @@ class TextProduct(GenericHazards.TextProduct):
         self._hazardsTable = self._getHazardsTable(argDict, self.filterMethod)
         argDict["hazards"] = self._hazardsTable
     
-    def _getHazardsTable(self, argDict, filterMethod, editAreas=None):
+    def _getHazardsTable(self, argDict, filterMethod):
         # Set up edit areas as list of lists
-        # Need to check hazards against all edit areas in the CWA MAOR
-        argDict["combinations"]= [(self._allAreas(),"Region1")]
         dfEditAreas = argDict["combinations"]
         editAreas = []
         for area, label in dfEditAreas:
@@ -408,21 +416,19 @@ class TextProduct(GenericHazards.TextProduct):
             else:
                 editAreas.append([area])
         # Get Product ID and other info for HazardsTable
-        pil = self._pil.upper()   #  Ensure PIL is in UPPERCASE
         stationID4 = self._fullStationID
-        productCategory = pil[0:3]   #part of the pil
+        productCategory = self._productID
         definition = argDict['definition']
         sampleThreshold = definition.get("hazardSamplingThreshold", (10, None))
         # Process the hazards
         accurateCities = definition.get('accurateCities', 0)
-        cityRefData = []
         import HazardsTable
         hazards = HazardsTable.HazardsTable(
           argDict["ifpClient"], editAreas, productCategory, filterMethod,
           argDict["databaseID"],
           stationID4, argDict["vtecActiveTable"], argDict["vtecMode"], sampleThreshold,
           creationTime=argDict["creationTime"], accurateCities=accurateCities,
-          cityEditAreas=cityRefData, dataMgr=argDict['dataMgr'])
+          cityEditAreas=[], dataMgr=argDict['dataMgr'])
         return hazards
     
     def _ignoreActions(self):
@@ -443,11 +449,20 @@ class TextProduct(GenericHazards.TextProduct):
         else:
             argDict["vtecActiveTable"] = "active"
     
-    def _getVtecRecords(self, segment, vtecEngine=None):
+    def _getVtecRecords(self, segment):
         vtecRecords = self._hazardsTable.getHazardList(segment)
+        # Tropical hazards shouldn't ever have EXT and EXB actions since
+        # they are "until further notice"
+        for record in vtecRecords:
+            if record['act'] == "EXT":
+                record['act'] = "CON"
+            elif record['act'] == "EXB":
+                record['act'] = "EXA"
+        
         return vtecRecords
     
     def _getAllowedHazardList(self, allowedHazardList=None):
+        # Get the list of allowed phenSigs (ie. "HU.W")
         if allowedHazardList is None:
             allowedHazardList = self.allowedHazards()
         hazardList = []
@@ -588,8 +603,8 @@ class TextProduct(GenericHazards.TextProduct):
         
         self._ddhhmmTime = self.getCurrentTime(
             argDict, "%d%H%M", shiftToLocal=0, stripLeading=0)
-        self._currentTime = self._issueTime_secs
-        self._expireTime = self._issueTime_secs + self._purgeTime*3600
+        self._purgeHours = self._purgeTime
+        self._expireTime = self._issueTime_secs + self._purgeHours*3600
         self._timeLabel = self.getCurrentTime(
             argDict, "%l%M %p %Z %a %b %e %Y", stripLeading=1)
     
@@ -600,14 +615,13 @@ class TextProduct(GenericHazards.TextProduct):
         startTime = self._calculateStartTime(time.gmtime(self._issueTime_secs))
         self._timeRange = self.makeTimeRange(startTime, startTime+120*3600)
         
-        #  Create a time range to look from the current time back 12 hours
-        #  We will use this are to determine if we need to use "additional"
-        #  wording with rainfall
+        #  Create a time range to look from the current time back 12 hours.
+        #  We will use this to determine if we need to use "additional"
+        #  wording with rainfall for the TCV
         self._extraSampleTimeRange = self.makeTimeRange(startTime-12*3600, 
                                                         startTime)
 
-        # Determine the time range list, making sure they are on hour boundaries
-        #   w.r.t. midnight today according to the resolution
+        # Determine the time range list according to the resolution
         subRanges = self.divideRange(self._timeRange, self._resolution())
         trList = []
         self._periodList = []
@@ -617,6 +631,7 @@ class TextProduct(GenericHazards.TextProduct):
             trList.append((tr, "Label"))
             
             if index == 0:
+                # Create the 10 periods
                 startTime = tr.startTime()
                 localtime = time.localtime(startTime.unixTime())
                 
@@ -1027,8 +1042,9 @@ FORECASTER STEWART"""
         self._loadLastTwoAdvisories()
     
     def _synchronizeAdvisories(self):
-       
-        # Retrieving a directory causes synching to occur
+        # Retrieving a directory causes synching to occur.
+        # This code can throw an exception but don't catch it
+        # so that forecasters can be made aware of the issue.
         file = LocalizationSupport.getLocalizationFile(LocalizationSupport.CAVE_STATIC, 
                                                        LocalizationSupport.SITE, self._site,
                                                        self._getAdvisoryPath()).getFile()
@@ -1091,7 +1107,7 @@ FORECASTER STEWART"""
         self._previousPreviousAdvisory = None
         if len(lastTwoAdvisories) >= 2:
             self._previousPreviousAdvisory = self._loadAdvisory(lastTwoAdvisories[1])
-    
+
     def _loadAdvisory(self, advisoryName):
         self._synchronizeAdvisories()
         fileName = self._getAdvisoryFilename(advisoryName)
@@ -1370,10 +1386,10 @@ class TextProductCommon(DiscretePhrases.DiscretePhrases):
             if laterActive is not None:
                 expireTime = min(expireTime, laterActive)
             elif canExpFound and not activeFound:
-                expireTime = min(expireTime, issueTime+3600)  #1hr from now
+                expireTime = min(expireTime, issueTime+3600*1000)  #1hr from now
                 
         #ensure expireTime is not before issueTime, and is at least 1 hour
-        if expireTime - issueTime < 3600:
+        if expireTime - issueTime < 3600*1000:
             expireTime = issueTime + 3600*1000
 
         #round to next 'roundMinutes'
@@ -1449,7 +1465,9 @@ class TextProductCommon(DiscretePhrases.DiscretePhrases):
     def formatUGCs(self, ugcs, expireTime):
         '''
         Create ugc header with expire time
-        'COC123-112330-'        
+        Examples:
+        'COC123-112330-'
+        'FLZ066>068-071-072-063-069-073>075-168-172>174-070-230515-'
         '''
         ugcStr = self.makeUGCString(ugcs)
         ddhhmmTime = self.getFormattedTime(
@@ -1546,6 +1564,10 @@ class TextProductCommon(DiscretePhrases.DiscretePhrases):
     def makeUGCString(self, ugcs):
         '''
         Create the UGC string for product / segment headers.
+        
+        Examples:
+        FLZ173-
+        FLZ066>068-071-072-063-069-073>075-168-172>174-070-
         '''
         # if nothing in the list, return empty string
         if len(ugcs) == 0:
