@@ -35,6 +35,8 @@
 #    ------------    ----------    -----------    --------------------------
 #    01/14/2014      #2766         bkowal         Initial Creation.
 #    02/09/2015      #4120         reblum         Inherit straight from MasterInterface.
+#    02/19/2015      #4120         reblum         Reload all modules on reload to ensure
+#                                                 that all references to old modules are removed.
 #
 #
 #
@@ -72,6 +74,7 @@ class PythonOverriderInterface(MasterInterface.MasterInterface):
 
     def reloadModule(self, moduleName):
         if sys.modules.has_key(moduleName):
+            self.reloadModules()
             self.clearModuleAttributes(moduleName)
             self._importModule(moduleName)
 
