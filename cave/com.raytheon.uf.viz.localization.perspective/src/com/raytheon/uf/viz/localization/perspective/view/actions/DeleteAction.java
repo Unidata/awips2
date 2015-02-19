@@ -28,9 +28,9 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -44,7 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
 
 /**
- * Deletes the selected localation file
+ * Deletes the selected localization file
  * 
  * <pre>
  * 
@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInp
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 3, 2010            mschenke     Initial creation
+ * Feb 18, 2015 4132      mapeters     Fixed issue with deleting overrides.
  * 
  * </pre>
  * 
@@ -114,8 +115,14 @@ public class DeleteAction extends Action {
         List<IEditorReference> toClose = new ArrayList<IEditorReference>();
         // check for open editors and close them
         for (IEditorReference ref : page.getEditorReferences()) {
-            IEditorPart part = ref.getEditor(false);
-            IEditorInput input = part.getEditorInput();
+            IEditorInput input = null;
+            try {
+                input = ref.getEditorInput();
+            } catch (PartInitException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Failed to check if an editor for the deleted "
+                                + "file was open (in order to close it)", e);
+            }
             if (input instanceof LocalizationEditorInput) {
                 LocalizationFile editorFile = ((LocalizationEditorInput) input)
                         .getLocalizationFile();
