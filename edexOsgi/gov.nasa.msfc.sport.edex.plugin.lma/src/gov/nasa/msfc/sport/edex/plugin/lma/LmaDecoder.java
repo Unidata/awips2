@@ -23,8 +23,6 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import ucar.units.SI;
 
-import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -57,20 +55,6 @@ public class LmaDecoder {
     /** The level dao allows looking up of the levels. */
     public LevelDao levelDao;
     
-   /** The Lma Vars Dict helps to match up variables in the configuration files in the localization. This allows controls of what files to lookup
-  *    allows looking up of the Variables and names. */ 
-    private LMAVarsDict lmaVarsDict;
-    
-    /** The Param lookup  allows looking up of the parameters in the database. */
-    private ParameterLookup paramLookup;
-    
-    public LmaDecoder() throws DecoderException{
-       
-       paramLookup =  ParameterLookup.getInstance();
-
-       lmaVarsDict = LMAVarsDict.getInstance();
-    }
-    
     /**
      * Decode the LMA netcdf 3 files. These files contain gridded data at 17 vertical levels. The first level is the sum of all levels.
      *
@@ -81,6 +65,12 @@ public class LmaDecoder {
     public PluginDataObject[] decode(File fileInput) throws Exception {
         //Create an empty records to hold the data once decoded.
         GridRecord[] records  = null;
+        
+        /** The variable dictionary used to check which variables are supported by the ingest **/
+        LMAVarsDict lmaVarsDict = LMAVarsDict.getInstance();
+        
+        /** The Param lookup  allows looking up of the parameters in the database. */
+        ParameterLookup paramLookup = ParameterLookup.getInstance();
         
         //Open the netcdf file for reading.
         NetcdfFile file = NetcdfFile.open(fileInput.getAbsolutePath());

@@ -59,7 +59,7 @@
     
     <contribute xsi:type="command"
 		commandId="com.raytheon.viz.awipstools.lapstools"
-		menuText="LAPS tools..." />
+		menuText="LAPS tools..." id="lapsTools" />
     
     <contribute xsi:type="bundleItem" file="bundles/tools/Points.xml"
 		menuText="Points" id="pointsTool" timeQuery="false" />

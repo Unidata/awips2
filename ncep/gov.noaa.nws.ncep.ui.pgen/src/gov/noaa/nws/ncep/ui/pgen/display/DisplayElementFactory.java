@@ -140,13 +140,14 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 										this class
  * 11/13        TTR 752     J. Wu       added methods to compute an element's range record.
  * 12/13		#1089		B. Yin		Modify watch to display county list
- * 02/14        #2819       R. Anderson Removed unnecessary .clone() call
+ * 05/14        TTR 995     J. Wu       Make contour label auto-placement an option.
  * 05/14        TTR 995     J. Wu       Make contour label auto-placement an option.
  * 07/14        ?           B. Yin      Added support for dashed-line circle for TCM 12 feet sea.
  * 08/14		?			B. Yin		Fixed world wrap for TCM track and zero circle issues.
  * 08/14        TTR972      J. Wu       Draw filled object as filled only if either its layer's "filled" flag
  *                                      "true" or they are on the active layer,  .
  * 09/14        TTR750      J. Wu       Draw track label with specified font styles.
+ * 12/14		R5413		B. Yin		Dispose image and font in find*Ranges methods
  * </pre>
  * 
  * @author sgilbert
@@ -711,8 +712,9 @@ public class DisplayElementFactory {
                         iDescriptor, PointStyle.CROSS);
 
                 try {
-                    compiler.handle(cntyUnion, new RGB(colors[1].getRed(),
-                            colors[1].getGreen(), colors[1].getBlue()));
+                    compiler.handle((Geometry) cntyUnion.clone(),
+                            new RGB(colors[1].getRed(), colors[1].getGreen(),
+                                    colors[1].getBlue()));
 
                     if (elem.getFillPattern() != FillPattern.TRANSPARENCY
                             && elem.getFillPattern() != FillPattern.SOLID) {
@@ -1818,8 +1820,7 @@ public class DisplayElementFactory {
         double major = Math.sqrt((diff[0] * diff[0]) + (diff[1] * diff[1]));
         double minor = major * arc.getAxisRatio();
 
-        if (major / this.screenToExtent < 0.000001) { // ignore circles with
-                                                      // major = 0
+        if (major / this.screenToExtent < 0.000001) { // ignore circles with major = 0
             return slist;
         }
 
@@ -1890,6 +1891,7 @@ public class DisplayElementFactory {
         return slist;
     }
 
+    /**
     /**
      * Creates a list of IDisplayable Objects from an IArc object
      * 
@@ -5927,6 +5929,10 @@ public class DisplayElementFactory {
         List<Coordinate> textPos = new ArrayList<Coordinate>();
         textPos.add(new Coordinate(loc[0], loc[1]));
 
+        if ( font != null ){
+        	font.dispose();
+        }
+        
         return new PgenRangeRecord(rngBox, textPos, false);
     }
 
@@ -6000,6 +6006,10 @@ public class DisplayElementFactory {
         List<Coordinate> symPos = new ArrayList<Coordinate>();
         symPos.add(sym.getLocation());
 
+        if ( pic != null ){
+        	pic.dispose();
+        }
+        
         return new PgenRangeRecord(rngBox, symPos, false);
 
     }

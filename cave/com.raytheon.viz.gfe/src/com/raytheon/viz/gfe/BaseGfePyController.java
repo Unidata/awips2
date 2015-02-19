@@ -51,6 +51,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  * Oct 14, 2014  3676      njensen     Moved getNumpyResult(GridType) here and
  *                                      hardened it by separating jep.getValue()
  *                                      calls from python copying/casting to correct types
+ * Feb 05, 2015  4089      njensen     Replaced previous hardening with ensureResultType()
  * 
  * </pre>
  * 
@@ -116,11 +117,11 @@ public abstract class BaseGfePyController extends PythonScriptController {
     }
 
     /**
-     * Processes a module's varDict (variable list inputs), or sets the varDict
-     * to an empty dictionary if there is not a variable list
+     * Sets a module's varDict (variable list inputs), or sets the varDict to
+     * None if there is not a variable list
      * 
-     * @param moduleName
-     *            the name of the module to process the varDict for
+     * @param varDict
+     *            a string representation of a python dictionary
      * @throws JepException
      */
     public void setVarDict(String varDict) throws JepException {
@@ -203,59 +204,20 @@ public abstract class BaseGfePyController extends PythonScriptController {
 
         if (resultFound) {
             int xDim, yDim = 0;
-            /*
-             * correctType is just a memory optimization. A copy is made when we
-             * call getValue(numpyArray), but doing array.astype(dtype) or
-             * numpy.ascontiguousarray(array, dtype) will create yet another
-             * copy.
-             * 
-             * Note that if you attempt jep.getValue(array.astype(dtype)) or
-             * jep.getValue(numpy.ascontiguousarray(array, dtype)) you can
-             * potentially crash the JVM. jep.getValue(variable) should
-             * primarily retrieve variables that are globally scoped in the
-             * python interpreter as opposed to created on the fly.
-             */
-            boolean correctType = false;
+
+            // this will safely alter the result dtypes in place if necessary
+            ensureResultType(type);
+
             switch (type) {
             case SCALAR:
-                correctType = (boolean) jep.getValue(RESULT
-                        + ".dtype.name == 'float32'");
-                if (!correctType) {
-                    /*
-                     * the following line needs to be separate from
-                     * jep.getValue() to be stable
-                     */
-                    jep.eval(RESULT + " = numpy.ascontiguousarray(" + RESULT
-                            + ", numpy.float32)");
-                }
+                // don't make python func calls within a jep.getValue() call
                 float[] scalarData = (float[]) jep.getValue(RESULT);
                 xDim = (Integer) jep.getValue(RESULT + ".shape[1]");
                 yDim = (Integer) jep.getValue(RESULT + ".shape[0]");
                 result = new Grid2DFloat(xDim, yDim, scalarData);
                 break;
             case VECTOR:
-                correctType = (boolean) jep.getValue(RESULT
-                        + "[0].dtype.name == 'float32'");
-                if (!correctType) {
-                    /*
-                     * the following line needs to be separate from
-                     * jep.getValue() to be stable
-                     */
-                    jep.eval(RESULT + "[0] = numpy.ascontiguousarray(" + RESULT
-                            + "[0], numpy.float32)");
-                }
-
-                correctType = (boolean) jep.getValue(RESULT
-                        + "[1].dtype.name == 'float32'");
-                if (!correctType) {
-                    /*
-                     * the following line needs to be separate from
-                     * jep.getValue() to be stable
-                     */
-                    jep.eval(RESULT + "[1] = numpy.ascontiguousarray(" + RESULT
-                            + "[1], numpy.float32)");
-                }
-
+                // don't make python func calls within a jep.getValue() call
                 float[] mag = (float[]) jep.getValue(RESULT + "[0]");
                 float[] dir = (float[]) jep.getValue(RESULT + "[1]");
                 xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
@@ -267,17 +229,7 @@ public abstract class BaseGfePyController extends PythonScriptController {
                 break;
             case WEATHER:
             case DISCRETE:
-                correctType = (boolean) jep.getValue(RESULT
-                        + "[0].dtype.name == 'int8'");
-                if (!correctType) {
-                    /*
-                     * the following line needs to be separate from
-                     * jep.getValue() to be stable
-                     */
-                    jep.eval(RESULT + "[0] = numpy.ascontiguousarray(" + RESULT
-                            + "[0], numpy.int8)");
-                }
-
+                // don't make python func calls within a jep.getValue() call
                 byte[] bytes = (byte[]) jep.getValue(RESULT + "[0]");
                 String[] keys = (String[]) jep.getValue(RESULT + "[1]");
                 xDim = (Integer) jep.getValue(RESULT + "[0].shape[1]");
@@ -297,4 +249,39 @@ public abstract class BaseGfePyController extends PythonScriptController {
         return result;
     }
 
+    /**
+     * Checks that a result numpy array is of the correct dtype for the
+     * GridType, and if not, corrects the type to ensure it comes across to Java
+     * safely.
+     * 
+     * If the correct type is found, nothing is done and therefore memory and
+     * speed is saved over the alternative of always calling astype(dtype) or
+     * ascontiguousarray(array, dtype), both of which will create a copy of the
+     * array.
+     * 
+     * Note that if you attempt jep.getValue(array.astype(dtype)) or
+     * jep.getValue(numpy.ascontiguousarray(array, dtype)) you can potentially
+     * crash the JVM. jep.getValue(variable) should primarily retrieve variables
+     * that are globally scoped in the python interpreter as opposed to created
+     * on the fly.
+     * 
+     * @param type
+     */
+    protected void ensureResultType(GridType type) throws JepException {
+        String safeType = null;
+        switch (type) {
+        case SCALAR:
+        case VECTOR:
+            safeType = "'float32'";
+            break;
+        case DISCRETE:
+        case WEATHER:
+            safeType = "'int8'";
+            break;
+        }
+        String safetyCheck = RESULT + " = " + "NumpyJavaEnforcer.checkdTypes("
+                + RESULT + ", " + safeType + ")";
+        jep.eval("import NumpyJavaEnforcer");
+        jep.eval(safetyCheck);
+    }
 }

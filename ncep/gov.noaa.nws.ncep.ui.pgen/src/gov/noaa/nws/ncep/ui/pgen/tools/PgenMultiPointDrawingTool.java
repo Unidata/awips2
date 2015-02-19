@@ -198,72 +198,7 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
                 
             }
             else if ( button == 3 ) {
-            	
-            	if ( points.size() == 0 ) {
-            		
-            		closeAttrDlg(attrDlg, pgenType); 
-            		attrDlg = null; 
-            		PgenUtil.setSelectingMode();
-
-            	}
-            	else if ( points.size() < 2 ){
-            		
-                    drawingLayer.removeGhostLine();
-                    points.clear();
-                    
-        	        mapEditor.refresh();
-        	        
-            	}
-            	else {
-            		//Use pgenType value to decide if the DrawableType should be TRACK or LINE
-            		DrawableType drawableType = getDrawableType(pgenType); 
-//            		log.debug("PgenMultiPointDrawingTool, before call def.create, drawableType=" + drawableType + ", pgenType="+pgenType);
-
-            		/*if(drawableType == DrawableType.CONV_SIGMET && ("NCON_SIGMET".equals(pgenType))) //"CONV_SIGMET".equals(pgenType)||
-            			points = SnapUtil.getSnapWithStation(points, SnapUtil.VOR_STATION_LIST, 10, 8);*/
-            		
-            		// create a new DrawableElement.    
-            		elem = def.create( drawableType, (IAttribute)attrDlg,
-            				pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
-            		
-            		attrDlg.setDrawableElement((DrawableElement)elem);
-            		AttrSettings.getInstance().setSettings((DrawableElement)elem);
-
-            		if("CCFP_SIGMET".equals(pgenType)){//avoid 2 Sigmet elements issue
-            			ccfpTxtFlag = true; 
-            			return true;//avoid right click cause no showing issue            		
-
-            		}
-            		else if ( elem != null && elem.getPgenCategory().equalsIgnoreCase("Front")
-            	 			&& ((FrontAttrDlg)attrDlg).labelEnabled()){
-                		
-                  		DECollection dec = new DECollection("labeledFront");
-                		dec.setPgenCategory(pgenCategory);
-                		dec.setPgenType(pgenType);
-                		dec.addElement(elem);
-                		drawingLayer.addElement(dec);
-            	 		
-                		PgenUtil.setDrawingTextMode( true, ((FrontAttrDlg)attrDlg).useFrontColor(), "", dec );
-                		elem = null;
-                	}else{            		
-            			// add the product to PGEN resource
-            			drawingLayer.addElement( elem );
-            		}
-            		
-            	
-            		if(isTrackElement(drawableType)) {                    			
-            			displayTrackExtrapPointInfoDlg((TrackAttrDlg)attrDlg,	(Track)elem);   
-            		}
-
-            		drawingLayer.removeGhostLine();
-            		
-            		if( ! ccfpTxtFlag)
-            			points.clear();
-
-            		mapEditor.refresh();
-
-            	}
-            	
+            
             	return true;
             	
             }
@@ -280,6 +215,87 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
         	
         }
         
+        /*
+         * overrides the function in selecting tool
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button){
+            if ( !drawingLayer.isEditable() || shiftDown ) return false;
+
+            if (button == 3) {
+                
+                if ( points.size() == 0 ) {
+                    
+                    closeAttrDlg(attrDlg, pgenType); 
+                    attrDlg = null; 
+                    PgenUtil.setSelectingMode();
+
+                }
+                else if ( points.size() < 2 ){
+                    
+                    drawingLayer.removeGhostLine();
+                    points.clear();
+                    
+                    mapEditor.refresh();
+                    
+                }
+                else {
+                    //Use pgenType value to decide if the DrawableType should be TRACK or LINE
+                    DrawableType drawableType = getDrawableType(pgenType); 
+//                  log.debug("PgenMultiPointDrawingTool, before call def.create, drawableType=" + drawableType + ", pgenType="+pgenType);
+
+                    /*if(drawableType == DrawableType.CONV_SIGMET && ("NCON_SIGMET".equals(pgenType))) //"CONV_SIGMET".equals(pgenType)||
+                        points = SnapUtil.getSnapWithStation(points, SnapUtil.VOR_STATION_LIST, 10, 8);*/
+                    
+                    // create a new DrawableElement.    
+                    elem = def.create( drawableType, (IAttribute)attrDlg,
+                            pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
+                    
+                    attrDlg.setDrawableElement((DrawableElement)elem);
+                    AttrSettings.getInstance().setSettings((DrawableElement)elem);
+
+                    if("CCFP_SIGMET".equals(pgenType)){//avoid 2 Sigmet elements issue
+                        ccfpTxtFlag = true; 
+                        return true;//avoid right click cause no showing issue                  
+
+                    }
+                    else if ( elem != null && elem.getPgenCategory().equalsIgnoreCase("Front")
+                            && ((FrontAttrDlg)attrDlg).labelEnabled()){
+                        
+                        DECollection dec = new DECollection("labeledFront");
+                        dec.setPgenCategory(pgenCategory);
+                        dec.setPgenType(pgenType);
+                        dec.addElement(elem);
+                        drawingLayer.addElement(dec);
+                        
+                        PgenUtil.setDrawingTextMode( true, ((FrontAttrDlg)attrDlg).useFrontColor(), "", dec );
+                        elem = null;
+                    }else{                  
+                        // add the product to PGEN resource
+                        drawingLayer.addElement( elem );
+                    }
+                    
+                
+                    if(isTrackElement(drawableType)) {                              
+                        displayTrackExtrapPointInfoDlg((TrackAttrDlg)attrDlg,   (Track)elem);   
+                    }
+
+                    drawingLayer.removeGhostLine();
+                    
+                    if( ! ccfpTxtFlag)
+                        points.clear();
+
+                    mapEditor.refresh();
+
+                }
+                
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+               
         @Override
         public boolean handleMouseDownMove(int aX, int aY, int button) {
         	if (  !isResourceEditable() || shiftDown ) return false;
