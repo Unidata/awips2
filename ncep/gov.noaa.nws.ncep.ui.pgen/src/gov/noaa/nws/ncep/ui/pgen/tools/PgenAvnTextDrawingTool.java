@@ -115,12 +115,7 @@ public class PgenAvnTextDrawingTool extends AbstractPgenDrawingTool {
             }
             else if ( button == 3 ) {
             	
-            	//  The following methods are called when the tool is deactivated
-            	//  and are not needed here
-            	//drawingLayer.removeGhostLine();
-    	        //mapEditor.refresh();
-        		//attrDlg.close();
-    	        PgenUtil.setSelectingMode();
+            
     	        
             	return true;
             	
@@ -168,6 +163,26 @@ public class PgenAvnTextDrawingTool extends AbstractPgenDrawingTool {
 			if ( shiftDown || !isResourceEditable()) return false;
 			else return true;
 		}
+		
+		/*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int, int)
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int mouseButton) {
+           if ( !isResourceEditable()|| shiftDown ) return false;
+           
+            // prevent the click going through to other handlers
+            // in case adding labels to symbols or fronts.
+           if ( mouseButton == 3 ) {
+               PgenUtil.setSelectingMode();
+               return true;
+           }
+           else {
+               return false;
+           }
+        }
 
     }
     
