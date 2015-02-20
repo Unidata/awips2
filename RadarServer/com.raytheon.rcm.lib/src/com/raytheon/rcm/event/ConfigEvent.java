@@ -37,13 +37,16 @@ import com.raytheon.rcm.config.RadarConfig;
  * 2009-04-22   #1693      D. Friedman Initial checkin
  * ...
  * 2014-02-03   DR 14762   D. Friedman Add Category enum
+ * 2015-02-11   DR 17092   D. Friedman Handle NDM cronOTRs.xml updates.
  * </pre>
  *
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ConfigEvent {
-    public static enum Category { GLOBAL_CONFIG, RADAR_CONFIG, PROD_DISTRIBUTION, NATIONAL_RPS_LISTS }
+    public static enum Category {
+        GLOBAL_CONFIG, RADAR_CONFIG, PROD_DISTRIBUTION, NATIONAL_RPS_LISTS, CRON_OTRS
+    }
 
 	private String radarID; // null indicates global configuration change.
 	private RadarConfig oldConfig;
