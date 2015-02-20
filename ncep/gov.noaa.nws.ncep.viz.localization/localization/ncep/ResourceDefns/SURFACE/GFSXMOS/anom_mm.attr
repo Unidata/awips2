@@ -1,6 +1,0 @@
-! Attributes for the GFSXMOS resource with "anon_mm" plot model
-!
-plotModel=@PlotModels/bufrmosMRF/anom_mm.xml
-plotDensity=10
-conditionalFilter=
-legendString=GFSXMOS Day/Night Temperature Anomaly (F)

@@ -49,14 +49,11 @@
 #
 export PRODUCT_ID=CCCCQPEBIN
 
-export FXA_HOME=/awips/fxa
-
 #
 #  Set up the D2D environment...
-. $FXA_HOME/readenv.sh
 
 RUN_FROM_DIR=`dirname $0`
-. $RUN_FROM_DIR/../../../set_hydro_env
+. $RUN_FROM_DIR/../../set_hydro_env
 export GAQ_LOG_DIR=$(get_apps_defaults gaq_log_dir)
 export MPE_SEND_QPE_TO_SBN=$(get_apps_defaults mpe_send_qpe_to_sbn)
 export MPE_SAVE_GRIB=$(get_apps_defaults mpe_save_grib)
