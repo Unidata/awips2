@@ -19,7 +19,7 @@
 # further licensing information.
 ##
 export INIT_MEM=128 # in Meg
-export MAX_MEM=2048 # in Meg
+export MAX_MEM=2144 # in Meg
 
 export SERIALIZE_POOL_MAX_SIZE=24
 export SERIALIZE_STREAM_INIT_SIZE_MB=2

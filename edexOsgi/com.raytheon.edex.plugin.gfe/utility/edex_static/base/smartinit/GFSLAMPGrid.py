@@ -8,17 +8,17 @@
 ################################################################################
 #  Import existing model database initialization parameters
 from Init import *
-class GFSLAMPForecaster(Forecaster): 
+class GFSLAMPGridForecaster(Forecaster): 
     def __init__(self): 
-        Forecaster.__init__(self, "GFSLAMP","GFSLAMP") 
+        Forecaster.__init__(self, "GFSLAMPGrid","GFSLAMPGrid") 
 
-    def calcClgHgt(self, cc_CLG):
-        ceil = cc_CLG * 3.280839
+    def calcCigHgt(self, cc_CLG):
+        ceil = cc_CLG / 0.3048 
         ceil = where(less(cc_CLG, 0), -99., ceil)
         return ceil
 
     def calcVis(self, vis_SFC):
-        return (vis_SFC * 3.2808) / 5279.85564
+        return (vis_SFC / 0.3048 / 5280.0)
 
     def calcT(self, t_FHAG2):
         return self.KtoF(t_FHAG2)
@@ -30,4 +30,4 @@ class GFSLAMPForecaster(Forecaster):
 #  Set this file up to run with SmartInitialization
 
 def main(): 
-    GFSLAMPForecaster().run() 
+    GFSLAMPGridForecaster().run() 
