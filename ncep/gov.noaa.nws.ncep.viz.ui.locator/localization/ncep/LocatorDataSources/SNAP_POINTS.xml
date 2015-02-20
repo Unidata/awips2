@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<LocatorDataSource>
-    <sourceName>SNAP_POINTS</sourceName>
-    <sourceType>POINT</sourceType>
-    <dbName>ncep</dbName>
-    <dbTableName>stns.snap</dbTableName>
-	<dbFieldName>station_name</dbFieldName> 	
-	<loadWithoutPartitioning>true</loadWithoutPartitioning>
-</LocatorDataSource>
