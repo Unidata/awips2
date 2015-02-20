@@ -1,9 +1,0 @@
-color= RGB {255,0,0}
-markerState=MARKER_PLUS_TEXT
-markerType=PLUS_SIGN
-markerSize=1
-markerWidth=1
-markerTextSize=MEDIUM
-! the distance in km of the screen width when the symbols/labels will be displayed.
-maxSymbolDisplayWidth=40000
-maxLabelDisplayWidth=3000
