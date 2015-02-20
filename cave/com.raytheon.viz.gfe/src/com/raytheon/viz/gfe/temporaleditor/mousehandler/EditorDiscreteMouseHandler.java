@@ -34,12 +34,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState;
@@ -58,17 +57,24 @@ import com.raytheon.viz.gfe.temporaleditor.actions.SetDiscreteWxPickupTEAction;
  * MouseHandler to edit discrete data.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer      Description
- * ------------ ---------- ------------- --------------------------
- * May 28, 2009 #2159      Richard Peter Initial Creation.
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 28, 2009  #2159     rjpeter       Initial creation
+ * Feb 20, 2015  #4051     dgilling      Allow grids to be edited when there is
+ *                                       no active edit area.
+ * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
 public class EditorDiscreteMouseHandler extends MouseHandler {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(EditorDiscreteMouseHandler.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EditorDiscreteMouseHandler.class);
+
     private static final String SET_TO_COMMON_VALUES = "Set to Common Values";
 
     private static final String SET_TO_RECENT_VALUES = "Set to Recent Values";
@@ -98,8 +104,10 @@ public class EditorDiscreteMouseHandler extends MouseHandler {
 
                     if (parm.overlappingGrid(date) != null
                             && parm.isOkToEdit(tr)) {
-                        Grid2DBit gridArea = DataManager.getCurrentInstance()
-                                .getRefManager().getActiveRefSet().getGrid();
+                        Grid2DBit gridArea = TemporalEditorUtil
+                                .determinePointsToUse(DataManagerUIFactory
+                                        .getCurrentInstance().getRefManager()
+                                        .getActiveRefSet());
                         DataManager.getCurrentInstance().getParmOp()
                                 .clearUndoParmList();
 
