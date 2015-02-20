@@ -1,3 +1,0 @@
-s2s
-CHOP : CP
-CAT :  CA
