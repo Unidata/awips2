@@ -1,4 +1,0 @@
-s2s
-RIME : 1
-CLR :  2
-MXD :  3
