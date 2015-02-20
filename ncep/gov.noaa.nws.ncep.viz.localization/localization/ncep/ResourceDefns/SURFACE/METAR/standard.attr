@@ -1,6 +1,0 @@
-! Parameters and Attributes for the default METAR Resource
-!
-plotModel=@PlotModels/obs/standard.xml
-plotDensity=10
-conditionalFilter=
-legendString=METAR Standard
