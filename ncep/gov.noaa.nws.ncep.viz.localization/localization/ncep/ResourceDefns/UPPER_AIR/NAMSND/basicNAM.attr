@@ -1,6 +1,0 @@
-! Attributes for the NGM Model Sounding resource with "standard" plot model
-!
-levelKey=500
-plotModel=@PlotModels/modelsounding/basicNAM.xml
-plotDensity=10
-conditionalFilter=
