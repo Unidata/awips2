@@ -165,7 +165,6 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     for the local time zones for each segment.
  * 01/28/2015  #4018       randerso    Code cleanup.
  * 02/04/2014  17039       ryu         Removed menu item related to the HighlighFramingCodes feature.
- * 
  * </pre>
  * 
  * @author lvenable
