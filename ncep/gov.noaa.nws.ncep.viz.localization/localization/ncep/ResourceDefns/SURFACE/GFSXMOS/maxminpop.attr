@@ -1,6 +1,0 @@
-! Attributes for the GFSXMOS resource with "maxminpop" plot model
-!
-plotModel=@PlotModels/bufrmosMRF/maxminpop.xml
-plotDensity=10
-conditionalFilter=
-legendString=GFSXMOS Day/Night Temperature (F) and 24-hr POP Forecast

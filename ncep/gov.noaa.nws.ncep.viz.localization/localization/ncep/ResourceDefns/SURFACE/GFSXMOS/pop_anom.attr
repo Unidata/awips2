@@ -1,6 +1,0 @@
-! Attributes for the GFSXMOS resource with "pop_anom" plot model
-!
-plotModel=@PlotModels/bufrmosMRF/pop_anom.xml
-plotDensity=10
-conditionalFilter=
-legendString=GFSXMOS POP Forecast and Anomaly
