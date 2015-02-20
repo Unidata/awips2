@@ -37,8 +37,6 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -132,7 +130,7 @@ public class PointPrecipPlotResource extends
     private Hashtable<String, Stn> pdataMap;
 
     private final DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
+
     static int prevPcpnDay;
 
     /**
@@ -174,8 +172,6 @@ public class PointPrecipPlotResource extends
         strTree = new STRtree();
         gageData = dqc.new Station();
 
-                if (!station.isEmpty()) {
-
         if (!dqc.precip_stations.isEmpty()) {
             int i = 0;
             for (ListIterator<Station> it = dqc.precip_stations.listIterator(); it
@@ -191,7 +187,8 @@ public class PointPrecipPlotResource extends
                 kv.append(":");
                 kv.append(pm);
                 dataMap.put(kv.toString(), gageData);
-                pdataMap.put(kv.toString(), DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i]);
+                pdataMap.put(kv.toString(),
+                        DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i]);
 
                 /* Create a small envelope around the point */
                 Coordinate p1 = new Coordinate(xy.x + .02, xy.y + .02);
@@ -336,7 +333,8 @@ public class PointPrecipPlotResource extends
             }
 
             for (m = 0; m < tsmax; m++) {
-                if (station.parm.substring(3, 5).equalsIgnoreCase(ts[m].abr)
+                if (station.parm.substring(3, 5)
+                        .equalsIgnoreCase(dqc.ts[m].abr)
                         && (DailyQcUtils.dflag[m + 1] == 1)) {
                     break;
                 }
@@ -349,9 +347,9 @@ public class PointPrecipPlotResource extends
             for (m = 0; m < 9; m++) {
 
                 if ((m == pdataMap.get(key).frain[time_pos].qual)
-                        && (qflag[m] == 1)) {
+                        && (dqc.qflag[m] == 1)) {
                     break;
-                } else if ((m == 7) && (qflag[7] == 1)
+                } else if ((m == 7) && (dqc.qflag[7] == 1)
                         && (pdataMap.get(key).frain[time_pos].data == -99)
                         && (pdataMap.get(key).frain[time_pos].qual == -99)) {
                     break;

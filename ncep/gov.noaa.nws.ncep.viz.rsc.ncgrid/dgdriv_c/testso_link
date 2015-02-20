@@ -1,2 +1,0 @@
-
-gcc -rdynamic -g -o testso testso.c -ldl
