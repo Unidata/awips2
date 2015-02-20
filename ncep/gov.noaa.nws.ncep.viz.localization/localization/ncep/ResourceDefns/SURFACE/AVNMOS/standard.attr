@@ -1,5 +1,0 @@
-! Attributes for the AVNMOS resource with "standard" plot model
-plotModel=@PlotModels/bufrmosAVN/standard.xml
-plotDensity=10
-conditionalFilter=
-legendString=AVNMOS Standard
