@@ -1,5 +1,0 @@
-s2s
-OCN : 96
-ISO : 96
-INT : 97
-CON : 99
