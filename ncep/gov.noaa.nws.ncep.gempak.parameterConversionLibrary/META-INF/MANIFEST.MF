@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: ParameterConversionLibrary
-Bundle-SymbolicName: gov.noaa.nws.ncep.gempak.parameterConversionLibrary
-Bundle-Version: 1.0.0.qualifier
-Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: gov.noaa.nws.ncep.gempak.parameterconversionlibrary
-Import-Package: gov.noaa.nws.ncep.edex.common.sounding
