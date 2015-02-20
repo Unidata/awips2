@@ -1,7 +1,0 @@
-gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataProductInfo
-gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataLevel
-gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataParameter
-gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataProductContainer
-gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataStationProduct
-gov.noaa.nws.ncep.common.dataplugin.gpd.query.GenericPointDataReqMsg
-
