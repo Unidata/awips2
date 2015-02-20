@@ -1,6 +1,0 @@
-! Attributes for the GFSXMOS resource with "cli_all" plot model
-!
-plotModel=@PlotModels/bufrmosMRF/cli_all.xml
-plotDensity=10
-conditionalFilter=
-legendString=GFSXMOS Day/Night Temperature (F) and 24-hr Precip Anomaly
