@@ -108,7 +108,6 @@ public class PgenGfaFormatTool extends AbstractPgenDrawingTool {
 
             } else if (button == 3) {
 
-                PgenUtil.setSelectingMode();
                 return true;
 
             } else {
@@ -119,6 +118,24 @@ public class PgenGfaFormatTool extends AbstractPgenDrawingTool {
         @Override
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
             return false;
+        }
+        
+        /*
+         * overrides the function in selecting tool
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button){
+            if (!isResourceEditable())
+                return false;
+
+            if (button == 3) {
+
+                PgenUtil.setSelectingMode();
+                return true;
+            }
+            else {
+                return false;
+            }
         }
     }
 

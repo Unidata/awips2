@@ -172,38 +172,6 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     	}
     	else if ( button == 3 ) {
 
-    		if ( ghostLabel != null ){
-    			
-    			if(prevTool.getLabeledLine().getName().contains("CCFP_SIGMET")){  
-    				addCcfpLabel(loc, prevTool.getLabeledLine());
-    				cleanUp(); 
-    				return true;
-    			}
-    			else{	 
-    		
-    				if ( !pts.isEmpty()){
-    		//			addLabel( pts.get(pts.size()-1), prevTool.getLabeledLine() );
-    					addLabel( pts.get(pts.size()-1), (LabeledLine)lineSelected.getParent() );
-
-    				}
-    				else {
-    	    			lineSelected = null;
-    	    			ghostLabel = null;
-    	    			drawingLayer.removeGhostLine();
-    	    			mapEditor.refresh();
-    				}
-    			}
-    			pts.clear();
-    		}
-    		else {
-    			//clean up and exit
-    			lineSelected = null;
-    			drawingLayer.removeGhostLine();
-    			mapEditor.refresh();
-
-    			prevTool.resetMouseHandler();
-    			dlg.resetLabeledLineBtns();
-    		}
     		
     		return true;
 
@@ -296,8 +264,65 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     @Override
 	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
 		if ( !drawingLayer.isEditable()|| shiftDown ) return false;
-		else return true;	}
+		else return true;	
+	}
 
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int, int)
+     */
+    @Override
+    public boolean handleMouseUp(int x, int y, int mouseButton) {
+        if (  !drawingLayer.isEditable() || shiftDown ) return false;
+
+        //  Check if mouse is in geographic extent
+        Coordinate loc = mapEditor.translateClick(x, y);
+        if ( loc == null ) {
+            return true;
+        }
+        
+        if ( mouseButton == 3 ){
+            if ( ghostLabel != null ){
+
+                if(prevTool.getLabeledLine().getName().contains("CCFP_SIGMET")){  
+                    addCcfpLabel(loc, prevTool.getLabeledLine());
+                    cleanUp(); 
+                    return true;
+                }
+                else{    
+
+                    if ( !pts.isEmpty()){
+                        //          addLabel( pts.get(pts.size()-1), prevTool.getLabeledLine() );
+                        addLabel( pts.get(pts.size()-1), (LabeledLine)lineSelected.getParent() );
+
+                    }
+                    else {
+                        lineSelected = null;
+                        ghostLabel = null;
+                        drawingLayer.removeGhostLine();
+                        mapEditor.refresh();
+                    }
+                }
+                pts.clear();
+            }
+            else {
+                //clean up and exit
+                lineSelected = null;
+                drawingLayer.removeGhostLine();
+                mapEditor.refresh();
+
+                prevTool.resetMouseHandler();
+                dlg.resetLabeledLineBtns();
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
 	/**
      * Create label for line ln at location loc.
      * @param loc
