@@ -793,27 +793,6 @@ public class StyledTextComp extends Composite {
     }
 
     /**
-     * Handle the key event when a key is released.
-     * 
-     * @param ke
-     *            Key event.
-     */
-    private void handleKeyRelease(KeyEvent ke) {
-        int offset = textEditorST.getCaretOffset();
-
-        StyleRange[] srArray = textEditorST.getStyleRanges(true);
-
-        for (int i = 0; i < srArray.length; i++) {
-            if ((srArray[i].start <= offset)
-                    && (offset <= (srArray[i].start + srArray[i].length))) {
-                if (srArray[i].foreground == frameColor) {
-                    inFramingCode(srArray[i]);
-                }
-            }
-        }
-    }
-
-    /**
      * Check if there is selected text and if there is locked text in the
      * selected text.
      * 
@@ -918,33 +897,6 @@ public class StyledTextComp extends Composite {
                 }
             }
         }
-    }
-
-    /**
-     * Handle the mouse up event
-     * 
-     * @param e
-     *            Event fired.
-     */
-    private void handleMouseUp(Event e) {
-        if (e.button == 1) {
-            int offset = textEditorST.getCaretOffset();
-
-            StyleRange[] sr = textEditorST.getStyleRanges(true);
-
-            for (int i = 0; i < sr.length; i++) {
-                if ((sr[i].start <= offset)
-                        && (offset <= (sr[i].start + sr[i].length))) {
-                    if (sr[i].foreground == frameColor) {
-                        inFramingCode(sr[i]);
-                    }
-                }
-            }
-        }
-    }
-
-    public void setFramingCodeState(boolean highlight) {
-        this.highlight = highlight;
     }
 
     /**
