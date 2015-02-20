@@ -1,6 +1,0 @@
-! Attributes for the TAF resource with "standard" plot model
-!
-plotModel=@PlotModels/nctaf/standard.xml
-plotDensity=10
-conditionalFilter=
-legendString=TAF Standard View
