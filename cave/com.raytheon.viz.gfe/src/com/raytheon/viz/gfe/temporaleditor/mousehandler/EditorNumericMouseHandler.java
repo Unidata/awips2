@@ -34,11 +34,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.TEEditModeChangedMsg;
@@ -58,17 +57,24 @@ import com.raytheon.viz.gfe.temporaleditor.TimeSeries;
  * MouseHandler to resize temporal editor bars.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer      Description
- * ------------ ---------- ------------- --------------------------
- * May 28, 2009 #2159      Richard Peter Initial Creation.
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 28, 2009  #2159     rjpeter       Initial creation
+ * Feb 20, 2015  #4051     dgilling      Allow grids to be edited when there is
+ *                                       no active edit area.
+ * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
 public class EditorNumericMouseHandler extends MouseHandler {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(EditorNumericMouseHandler.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EditorNumericMouseHandler.class);
+
     private TimeRange lastEditedTr;
 
     private Parm parmInDrag;
@@ -115,8 +121,7 @@ public class EditorNumericMouseHandler extends MouseHandler {
                 }
                 parm.endParmEdit();
             } catch (GFEOperationFailedException exc) {
-                statusHandler.handle(Priority.PROBLEM, "Grid edit failed",
-                        exc);
+                statusHandler.handle(Priority.PROBLEM, "Grid edit failed", exc);
             }
         }
     }
@@ -156,8 +161,7 @@ public class EditorNumericMouseHandler extends MouseHandler {
                             .clearUndoParmList();
                 }
             } catch (GFEOperationFailedException exc) {
-                statusHandler.handle(Priority.PROBLEM, "Grid edit failed",
-                        exc);
+                statusHandler.handle(Priority.PROBLEM, "Grid edit failed", exc);
             }
         }
     }
@@ -192,8 +196,7 @@ public class EditorNumericMouseHandler extends MouseHandler {
                             newTR);
                 }
             } catch (GFEOperationFailedException exc) {
-                statusHandler.handle(Priority.PROBLEM, "Grid edit failed",
-                        exc);
+                statusHandler.handle(Priority.PROBLEM, "Grid edit failed", exc);
             }
         }
     }
@@ -227,8 +230,9 @@ public class EditorNumericMouseHandler extends MouseHandler {
             IGridData gridToChange) throws GFEOperationFailedException {
         TEMode teMode = Message.inquireLastMessage(TEEditModeChangedMsg.class)
                 .getMode();
-        Grid2DBit gridArea = DataManager.getCurrentInstance().getRefManager()
-                .getActiveRefSet().getGrid();
+        Grid2DBit gridArea = TemporalEditorUtil
+                .determinePointsToUse(DataManagerUIFactory.getCurrentInstance()
+                        .getRefManager().getActiveRefSet());
         float val = teBar.getScale().getValueForHeight(e.y);
         TimeSeries ts = teBar.getTimeSeriesForParm(parm);
 
@@ -279,8 +283,10 @@ public class EditorNumericMouseHandler extends MouseHandler {
                 .getMode();
 
         if (!teMode.equals(TEMode.RELATIVE)) {
-            Grid2DBit gridArea = DataManager.getCurrentInstance()
-                    .getRefManager().getActiveRefSet().getGrid();
+            Grid2DBit gridArea = TemporalEditorUtil
+                    .determinePointsToUse(DataManagerUIFactory
+                            .getCurrentInstance().getRefManager()
+                            .getActiveRefSet());
             float dir = teBar.getScale().getDirectionForHeight(e.y);
 
             VectorMode vectorMode = parm.getParmState().getVectorMode();

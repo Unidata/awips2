@@ -28,7 +28,11 @@ import org.eclipse.swt.graphics.Point;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
+import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
+import com.raytheon.viz.gfe.core.IReferenceSetManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.gridmanager.GridManager;
 import com.raytheon.viz.gfe.gridmanager.GridManagerUtil;
@@ -41,6 +45,10 @@ import com.raytheon.viz.gfe.gridmanager.GridManagerUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 30, 2009 2159       rjpeter     Initial creation.
+ * Feb 20, 2015 4051       dgilling    Added determinePointsToUse() to
+ *                                     allow TemporalEditor to edit with
+ *                                     no active edit area.
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -100,7 +108,7 @@ public class TemporalEditorUtil extends GridManagerUtil {
     public static Color getColorForValue(List<Color> colorList, float min,
             float max, float value) {
         int size = colorList.size() - 1;
-        float valPerIndex = (float) size / (max - min);
+        float valPerIndex = size / (max - min);
         int index = Math.round((value - min) * valPerIndex);
         return colorList.get(index);
     }
@@ -115,5 +123,19 @@ public class TemporalEditorUtil extends GridManagerUtil {
         DatabaseID dbId = pId.getDbId();
         return pId.getParmName() + " " + pId.getParmLevel() + " "
                 + dbId.getModelName() + " (" + dbId.getSiteId() + ")";
+    }
+
+    public static Grid2DBit determinePointsToUse(final ReferenceData refSet) {
+        Grid2DBit pointsToUse;
+
+        if (!refSet.isQuery() && !refSet.getGrid().isAnyBitsSet()) {
+            IReferenceSetManager refMgr = DataManagerUIFactory
+                    .getCurrentInstance().getRefManager();
+            pointsToUse = refMgr.fullRefSet().getGrid();
+        } else {
+            pointsToUse = refSet.getGrid();
+        }
+
+        return pointsToUse;
     }
 }
