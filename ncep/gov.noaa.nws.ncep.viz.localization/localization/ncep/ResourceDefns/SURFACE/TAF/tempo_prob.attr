@@ -1,6 +1,0 @@
-! Attributes for the TAF resource with "tempo_prob" plot model
-!
-plotModel=@PlotModels/nctaf/tempo_prob.xml
-plotDensity=10
-conditionalFilter=@PlotModels/ConditionalFilters/nctaf/taf_tempo_prob.xml
-legendString=TAF Weather Symbols
