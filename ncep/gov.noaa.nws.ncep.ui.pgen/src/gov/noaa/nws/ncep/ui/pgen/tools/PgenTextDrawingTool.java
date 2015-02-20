@@ -272,32 +272,6 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
             }
             else if ( button == 3 ) {
             	
-            	drawingLayer.removeGhostLine();
-    	        mapEditor.refresh();
- 
-        		if (addLabelToSymbol){
-        			addLabelToSymbol = false;
-        			usePrevColor = false;
-        			if ( prevElem.getName().equalsIgnoreCase("labeledSymbol") ){
-        				if ( prevElem.getPrimaryDE() instanceof Symbol ) {
-        					PgenUtil.setDrawingSymbolMode( prevElem.getPrimaryDE().getPgenCategory(), prevElem.getPgenType(), false, null );
-        				}        			
-        				else if ( prevElem.getPrimaryDE() instanceof  ComboSymbol ){
-        					PgenUtil.setDrawingSymbolMode( "Combo", prevElem.getPgenType(), false, null );
-        				}
-        			}            		
-        			else if (  prevElem instanceof DECollection && prevElem.getPgenCategory().equalsIgnoreCase("Front") ){
-        				PgenUtil.setDrawingFrontMode((Line)prevElem.getPrimaryDE());
-        			}
-        			else if ( prevElem.getName().equalsIgnoreCase(Outlook.OUTLOOK_LABELED_LINE)){
-        				PgenUtil.loadOutlookDrawingTool();
-        			}
-        			prevElem = null;
-        		}
-        		else {
-        			PgenUtil.setSelectingMode();
-        		}
-    	        
             	return true;
             	
             }
@@ -379,7 +353,56 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
 			if ( !isResourceEditable()|| shiftDown ) return false;
 			else return true;
 		}
- 
+		
+		/*
+	     * (non-Javadoc)
+	     * 
+	     * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int, int)
+	     */
+	    @Override
+	    public boolean handleMouseUp(int x, int y, int mouseButton) {
+           if ( !isResourceEditable()|| shiftDown ) return false;
+           
+	        // prevent the click going through to other handlers
+	        // in case adding labels to symbols or fronts.
+           if ( mouseButton == 3 ) {
+               
+               drawingLayer.removeGhostLine();
+               mapEditor.refresh();
+
+               if (addLabelToSymbol){
+                   addLabelToSymbol = false;
+                   usePrevColor = false;
+                   if ( prevElem.getName().equalsIgnoreCase("labeledSymbol") ){
+                       if ( prevElem.getPrimaryDE() instanceof Symbol ) {
+                           PgenUtil.setDrawingSymbolMode( prevElem.getPrimaryDE().getPgenCategory(), prevElem.getPgenType(), false, null );
+                       }                   
+                       else if ( prevElem.getPrimaryDE() instanceof  ComboSymbol ){
+                           PgenUtil.setDrawingSymbolMode( "Combo", prevElem.getPgenType(), false, null );
+                       }
+                   }                   
+                   else if (  prevElem instanceof DECollection && prevElem.getPgenCategory().equalsIgnoreCase("Front") ){
+                       PgenUtil.setDrawingFrontMode((Line)prevElem.getPrimaryDE());
+                   }
+                   else if ( prevElem.getName().equalsIgnoreCase(Outlook.OUTLOOK_LABELED_LINE)){
+                       PgenUtil.loadOutlookDrawingTool();
+                   }
+                   prevElem = null;
+               }
+               else {
+                   PgenUtil.setSelectingMode();
+               }
+               
+               return true;
+               
+           }
+           else{
+               
+               return false;
+               
+           }
+	    }
+
     }
     /**
      *	Check if a point is at right or left of the line.

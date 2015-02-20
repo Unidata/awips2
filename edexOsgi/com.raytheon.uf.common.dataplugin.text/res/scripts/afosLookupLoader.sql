@@ -266,6 +266,7 @@ insert into afoslookup (origin, ccc) values ('KJEF','STL');
 insert into afoslookup (origin, ccc) values ('KJFK','NYC');
 insert into afoslookup (origin, ccc) values ('KJKL','SDF');
 insert into afoslookup (origin, ccc) values ('KKCI','MKC');
+insert into afoslookup (origin, ccc) values ('KKEY','MIA');
 insert into afoslookup (origin, ccc) values ('KKRF','MKC');
 insert into afoslookup (origin, ccc) values ('KLAF','IND');
 insert into afoslookup (origin, ccc) values ('KLAN','ARB');
