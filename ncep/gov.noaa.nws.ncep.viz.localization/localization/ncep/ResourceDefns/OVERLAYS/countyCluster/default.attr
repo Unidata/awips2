@@ -1,9 +1,0 @@
-color= RGB {255,255,0}
-markerState=MARKER_PLUS_TEXT
-markerType=OCTAGON
-markerSize=1
-markerWidth=1
-markerTextSize=MEDIUM
-! the distance in km of the screen width when the symbols/labels will be displayed.
-maxSymbolDisplayWidth=10000
-maxLabelDisplayWidth=300
