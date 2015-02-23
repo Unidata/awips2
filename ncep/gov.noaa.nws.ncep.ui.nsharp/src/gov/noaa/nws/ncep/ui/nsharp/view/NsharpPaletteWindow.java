@@ -17,6 +17,7 @@
  * 01/13/2014               Chin Chen   TTR829- when interpolation, edit graph is allowed 
  * 01/22/2014	            Chin Chen   DR17003 issue:  NSHARP sounding display throws errors when swapping into main pane when show text is turned on.
  * 10/20/2014               Chin Chen   DR16864, D2D does not use unload button. Check to make sure not D2D instance before access unload button.                                      
+ * 02/04/2015   DR16888     Chin Chen   do not allow swap between Skewt and hodo when comparison is on, check in with DR17079
  * </pre>
  * 
  * @author Chin Chen
@@ -185,10 +186,13 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
         graphModeBtnSkew.setEnabled(true);
         graphModeBtnIcing.setEnabled(true);
         graphModeBtnTurb.setEnabled(true);
+        if(graphModeBtnHodo!=null)
+        	graphModeBtnHodo.setEnabled(true);
         if (currentGraphMode == NsharpConstants.GRAPH_SKEWT) {
             graphModeBtnSkew.setBackground(colorBlue);
             graphModeBtnTurb.setBackground(colorGrey);
             graphModeBtnIcing.setBackground(colorGrey);
+            if(graphModeBtnHodo!=null) graphModeBtnHodo.setBackground(colorGrey);
             graphEditBtn.setEnabled(true);
             dataEditBtn.setEnabled(true);
             compareTmBtn.setEnabled(true);
@@ -219,6 +223,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 compareStnBtn.setEnabled(false);
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
+                if(graphModeBtnHodo!=null) graphModeBtnHodo.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
                 if (!imD2d)
                     unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
@@ -232,6 +237,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
+                if(graphModeBtnHodo!=null) graphModeBtnHodo.setEnabled(false);
                 if (!imD2d)
                     unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
             } else if (compareSndIsOn) {
@@ -243,6 +249,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 overlayBtn.setEnabled(false);
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
+                if(graphModeBtnHodo!=null) graphModeBtnHodo.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
                 if (!imD2d)
                     unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
@@ -255,6 +262,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 overlayBtn.setEnabled(false);
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
+                if(graphModeBtnHodo!=null) graphModeBtnHodo.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
                 if (!imD2d)
                     unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
@@ -268,6 +276,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 interpBtn.setEnabled(false);
                 graphModeBtnIcing.setEnabled(false);
                 graphModeBtnTurb.setEnabled(false);
+                if(graphModeBtnHodo!=null) graphModeBtnHodo.setEnabled(false);
                 if (!imD2d)
                     unloadBtn.setEnabled(false); // FixMark:nearByStnCompSnd
             }
@@ -707,6 +716,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                 dataEditBtn.setEnabled(true);
                 graphModeBtnIcing.setEnabled(true);
                 graphModeBtnTurb.setEnabled(true);
+                if(graphModeBtnHodo!=null) graphModeBtnHodo.setEnabled(true);
                 graphEditBtn.setText(EDIT_GRAPH_OFF);
                 currentGraphMode = NsharpConstants.GRAPH_SKEWT;
                 NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
@@ -948,6 +958,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     dataEditBtn.setEnabled(false);
                     graphModeBtnTurb.setEnabled(false);
                     graphModeBtnIcing.setEnabled(false);
+                    if(graphModeBtnHodo!=null) graphModeBtnHodo.setEnabled(false);
                     interpBtn.setEnabled(false);
                     cfgBtn.setEnabled(false);
                     if (!imD2d)
@@ -962,6 +973,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     dataEditBtn.setEnabled(true);
                     graphModeBtnTurb.setEnabled(true);
                     graphModeBtnIcing.setEnabled(true);
+                    if(graphModeBtnHodo!=null) graphModeBtnHodo.setEnabled(true);
                     interpBtn.setEnabled(true);
                     cfgBtn.setEnabled(true);
                     if (!imD2d)
@@ -1006,6 +1018,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     dataEditBtn.setEnabled(false);
                     graphModeBtnTurb.setEnabled(false);
                     graphModeBtnIcing.setEnabled(false);
+                    if(graphModeBtnHodo!=null)graphModeBtnHodo.setEnabled(false);
                     interpBtn.setEnabled(false);
                     cfgBtn.setEnabled(false);
                     if (!imD2d)
@@ -1020,6 +1033,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     dataEditBtn.setEnabled(true);
                     graphModeBtnTurb.setEnabled(true);
                     graphModeBtnIcing.setEnabled(true);
+                    if(graphModeBtnHodo!=null)graphModeBtnHodo.setEnabled(true);
                     interpBtn.setEnabled(true);
                     cfgBtn.setEnabled(true);
                     if (!imD2d)
@@ -1066,6 +1080,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     dataEditBtn.setEnabled(false);
                     graphModeBtnTurb.setEnabled(false);
                     graphModeBtnIcing.setEnabled(false);
+                    if(graphModeBtnHodo!=null)graphModeBtnHodo.setEnabled(false);
                     interpBtn.setEnabled(false);
                     cfgBtn.setEnabled(false);
                     if (!imD2d)
@@ -1080,6 +1095,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     dataEditBtn.setEnabled(true);
                     graphModeBtnTurb.setEnabled(true);
                     graphModeBtnIcing.setEnabled(true);
+                    if(graphModeBtnHodo!=null)graphModeBtnHodo.setEnabled(true);
                     interpBtn.setEnabled(true);
                     cfgBtn.setEnabled(true);
                     if (!imD2d)
@@ -1124,6 +1140,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     dataEditBtn.setEnabled(false);
                     graphModeBtnTurb.setEnabled(false);
                     graphModeBtnIcing.setEnabled(false);
+                    if(graphModeBtnHodo!=null)graphModeBtnHodo.setEnabled(false);
                     interpBtn.setEnabled(false);
                     cfgBtn.setEnabled(false);
                     if (!imD2d)
@@ -1138,6 +1155,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
                     dataEditBtn.setEnabled(true);
                     graphModeBtnTurb.setEnabled(true);
                     graphModeBtnIcing.setEnabled(true);
+                    if(graphModeBtnHodo!=null)graphModeBtnHodo.setEnabled(true);
                     interpBtn.setEnabled(true);
                     cfgBtn.setEnabled(true);
                     if (!imD2d)
@@ -1603,6 +1621,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
         } else {
             hailBtn.setEnabled(false);
         }
+        hailBtn.setEnabled(false); //Chin ::: temporarily disable HAIL button
         hailBtn.addListener(SWT.MouseUp, new Listener() {
             public void handleEvent(Event event) {
                 if (leftGraph != NsharpConstants.SPCGraph.HAIL

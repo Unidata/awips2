@@ -18,6 +18,9 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * 										dataStore.retrieveGroups()
  * Oct 15, 2012 2473        bsteffen    Remove ncgrib
  * 03/2014		1116		T. Lee		Added DpD
+ * 01/2015      DR#16959    Chin Chen   Added DpT support to fix DR 16959 NSHARP freezes when loading a sounding from 
+ *                                      HiRes-ARW/NMM models
+ * 02/03/2015   DR#17084    Chin Chen   Model soundings being interpolated below the surface for elevated sites                                     
  * </pre>
  * 
  * @author Chin Chen
@@ -51,6 +54,7 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
+import com.raytheon.uf.common.topo.TopoQuery;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -66,12 +70,12 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 //import org.opengis.geometry.Envelope;
 
 public class MdlSoundingQuery {
-    private static final String D2DGRIB_TBL_NAME = "grid";
+    private static final String GRID_TBL_NAME = "grid";
 
-    private static String D2D_PARMS = "GH, uW, vW,T, DWPK, SPFH,OMEG, RH, DpD";
+    private static String GRID_PARMS = "GH, uW, vW,T, DWPK, SPFH,OMEG, RH, DpD, DpT";
 
-    private enum D2DParmNames {
-        GH, uW, vW, T, DWPK, SPFH, OMEG, RH, DpD
+    private enum GridParmNames {
+        GH, uW, vW, T, DWPK, SPFH, OMEG, RH, DpD, DpT
     };
 
     public static UnitConverter kelvinToCelsius = SI.KELVIN
@@ -415,7 +419,7 @@ public class MdlSoundingQuery {
     public static NcSoundingModel getMdls(String pluginName) {
         NcSoundingModel mdls = new NcSoundingModel();
         Object[] mdlName = null;
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridInfoRecord.class));
             String queryStr = new String(
                     "Select Distinct modelname FROM grib_models ORDER BY modelname");
@@ -437,7 +441,7 @@ public class MdlSoundingQuery {
 
         ISpatialObject spatialArea = null;
         MathTransform crsFromLatLon = null;
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
             DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
@@ -524,7 +528,7 @@ public class MdlSoundingQuery {
 
         ISpatialObject spatialArea = null;
         MathTransform crsFromLatLon = null;
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
             DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
@@ -583,7 +587,7 @@ public class MdlSoundingQuery {
     }
 
     /**
-     * Returns the value of surface pressure for a specified location, time, and
+     * Returns the value of surface layer for a specified location, time, and
      * model for grib or ncgrib data.
      * 
      * @param pnt
@@ -593,45 +597,145 @@ public class MdlSoundingQuery {
      * @param modelName
      *            the name of the model
      * @return surface pressure
+     * 
+     *  DR17084
      */
-    public static Float getModelSfcPressure(Point pnt, String refTime,
-            String validTime, String pluginName, String modelName) {
+    @SuppressWarnings("unchecked")
+	public static NcSoundingLayer getModelSfcLayer(Point pnt, String refTime,
+            String validTime, String pluginName, String modelName, Coordinate coordinate) {
 
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
-            CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
-            DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
-
-            query.addQueryParam(GridConstants.LEVEL_ONE, "0.0");
-            query.addQueryParam(GridConstants.LEVEL_TWO, "-999999.0");
-            query.addQueryParam(GridConstants.MASTER_LEVEL_NAME, "MSL");
-            query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "PMSL");
-            query.addQueryParam(GridConstants.DATASET_ID, modelName);
-            query.addQueryParam("dataTime.refTime", refTime);
-            query.addQueryParam("dataTime.validPeriod.start", validTime);
-
-            GridRecord rec = null;
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
+        	NcSoundingLayer soundingLy = new NcSoundingLayer();
+            TableQuery query;
             try {
-                List<GridRecord> recList = ((List<GridRecord>) dao
-                        .queryByCriteria(query));
-                if (recList.size() == 0) {
-                    return null;
-                } else {
-                    rec = recList.get(0);
-                    PointIn pointIn = new PointIn(pluginName, rec, pnt.x, pnt.y);
-                    try {
-                        float fdata = pointIn.getPointData();
-                        return new Float(fdata);
-                    } catch (PluginException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                        return null;
-                    }
-                }
+            	query = new TableQuery("metadata", GridRecord.class.getName());
+            	query.addParameter(GridConstants.LEVEL_ONE, "0.0");
+            	query.addParameter(GridConstants.LEVEL_TWO, "-999999.0");
+            	query.addParameter(GridConstants.MASTER_LEVEL_NAME, "SFC");
+            	query.addList(GridConstants.PARAMETER_ABBREVIATION, "P, GH");
+            	query.addParameter(GridConstants.DATASET_ID, modelName);
+            	query.addParameter("dataTime.refTime", refTime);
+            	query.addParameter("dataTime.validPeriod.start", validTime);
+            	List<GridRecord> recList = (List<GridRecord>) query.execute();
+            	boolean presureAvailable=false, heightAvailable=false;
+            	if (recList!=null && recList.size() > 0) {   		
+            		for(GridRecord rec:recList ){
+            			PointIn pointIn = new PointIn(pluginName, rec, pnt.x, pnt.y);                		
+            			try {
 
+            				float fdata = pointIn.getPointData();
+            				String parm = rec.getParameter().getAbbreviation();
+            				if(parm.equals("P")){
+            					soundingLy.setPressure(fdata/100);
+            					presureAvailable = true;
+            				} if(parm.equals("GH")){
+            					soundingLy.setGeoHeight(fdata);
+            					heightAvailable = true;
+            				} 
+            				//System.out.println("prm="+rec.getParameter().getAbbreviation()+" value="+fdata);
+
+            			} catch (PluginException e) {
+            				// TODO Auto-generated catch block
+            				e.printStackTrace();
+            				return null;
+            			}
+            		}
+            		recList.clear();
+            	}        	
+            	query = new TableQuery("metadata", GridRecord.class.getName());
+            	query.addParameter(GridConstants.LEVEL_ONE, "2.0");
+            	query.addParameter(GridConstants.LEVEL_TWO, "-999999.0");
+            	query.addParameter(GridConstants.MASTER_LEVEL_NAME, "FHAG");
+            	query.addList(GridConstants.PARAMETER_ABBREVIATION, "T, RH");
+            	query.addParameter(GridConstants.DATASET_ID, modelName);
+            	query.addParameter("dataTime.refTime", refTime);
+            	query.addParameter("dataTime.validPeriod.start", validTime);
+            	recList = (List<GridRecord>) query.execute();
+            	if (recList!=null && recList.size() > 0) {
+            		for(GridRecord rec:recList ){
+            			PointIn pointIn = new PointIn(pluginName, rec, pnt.x, pnt.y);                		
+            			try {
+
+            				float fdata = pointIn.getPointData();
+            				String parm = rec.getParameter().getAbbreviation();
+            				if(parm.equals("T")){
+            					soundingLy.setTemperature((float) kelvinToCelsius
+            							.convert(fdata));
+            				} if(parm.equals("RH")){
+            					soundingLy.setRelativeHumidity(fdata);
+            				} 
+            				//System.out.println("prm="+rec.getParameter().getAbbreviation()+" value="+fdata);
+
+            			} catch (PluginException e) {
+            				// TODO Auto-generated catch block
+            				e.printStackTrace();
+            				return null;
+            			}
+            		}
+            		recList.clear();
+            	} 
+
+            	query = new TableQuery("metadata", GridRecord.class.getName());
+            	query.addParameter(GridConstants.LEVEL_ONE, "10.0");
+            	query.addParameter(GridConstants.LEVEL_TWO, "-999999.0");
+            	query.addParameter(GridConstants.MASTER_LEVEL_NAME, "FHAG");
+            	query.addList(GridConstants.PARAMETER_ABBREVIATION, "vW, uW");
+            	query.addParameter(GridConstants.DATASET_ID, modelName);
+            	query.addParameter("dataTime.refTime", refTime);
+            	query.addParameter("dataTime.validPeriod.start", validTime);
+            	recList = (List<GridRecord>) query.execute();
+            	if (recList!=null && recList.size() > 0) {
+            		for(GridRecord rec:recList ){
+            			PointIn pointIn = new PointIn(pluginName, rec, pnt.x, pnt.y);                		
+            			try {
+
+            				float fdata = pointIn.getPointData();
+            				String parm = rec.getParameter().getAbbreviation();
+            				if(parm.equals("vW")){
+            					soundingLy.setWindV((float) metersPerSecondToKnots
+            							.convert(fdata));
+            				} if(parm.equals("uW")){
+            					soundingLy.setWindU((float) metersPerSecondToKnots
+            							.convert(fdata));
+            				} 
+            				//System.out.println("prm="+rec.getParameter().getAbbreviation()+" value="+fdata);
+
+            			} catch (PluginException e) {
+            				// TODO Auto-generated catch block
+            				e.printStackTrace();
+            				return null;
+            			}
+            		}
+            	} 
+            	if (presureAvailable==false || heightAvailable==false) {
+            		float surfaceElevation	= NcSoundingProfile.MISSING;
+            		TopoQuery topoQuery = TopoQuery.getInstance();
+            		if (topoQuery != null) {
+            			//System.out.println("Nsharp coordinate.x="+coordinate.x);
+            			surfaceElevation = (float) topoQuery
+            					.getHeight(coordinate);
+            			if(surfaceElevation >=0)
+            				soundingLy.setGeoHeight(surfaceElevation);
+            			else {
+                			if (presureAvailable==false)
+                				//no pressure and no height, no hope to continue.
+                				return null;             			
+                		}
+            		}
+            		else {
+            			if (presureAvailable==false)
+            				//no pressure and no height, no hope to continue.
+            				return null;             			
+            		}
+            	}
+            	return soundingLy;          
             } catch (DataAccessLayerException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return null;
+            	// TODO Auto-generated catch block
+            	e.printStackTrace();
+            	return null;
+            } catch (Exception e1) {
+            	// TODO Auto-generated catch block
+            	e1.printStackTrace();
             }
         }
         return null;
@@ -662,7 +766,7 @@ public class MdlSoundingQuery {
         List<NcSoundingProfile> soundingProfileList = new ArrayList<NcSoundingProfile>();
         List<float[]> fdataArrayList = new ArrayList<float[]>();
         // long t01 = System.currentTimeMillis();
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             List<GridRecord> recList = new ArrayList<GridRecord>();
             ;
             TableQuery query;
@@ -670,7 +774,7 @@ public class MdlSoundingQuery {
                 query = new TableQuery("metadata", GridRecord.class.getName());
                 query.addParameter(GridConstants.MASTER_LEVEL_NAME, "MB");
                 query.addParameter(GridConstants.DATASET_ID, modelName);
-                query.addList(GridConstants.PARAMETER_ABBREVIATION, D2D_PARMS);
+                query.addList(GridConstants.PARAMETER_ABBREVIATION, GRID_PARMS);
                 query.addParameter("dataTime.refTime", refTime);
                 query.addParameter("dataTime.validPeriod.start", validTime);
                 query.setSortBy(GridConstants.LEVEL_ONE, false);
@@ -707,7 +811,8 @@ public class MdlSoundingQuery {
                         float fdata = fdataArray[i];
                         if (rec1.getLevel().getLevelonevalue() == pressure) {
                             String prm = rec1.getParameter().getAbbreviation();
-                            switch (D2DParmNames.valueOf(prm)) {
+                            //System.out.println("prm="+prm+" value="+fdata);
+                            switch (GridParmNames.valueOf(prm)) {
                             case GH:
                                 soundingLy.setGeoHeight(fdata);
                                 break;
@@ -743,6 +848,15 @@ public class MdlSoundingQuery {
                             case DpD:
                                 soundingLy.setDpd(fdata);
                                 break;
+                            case DpT:
+                            	soundingLy.setDewpoint((float) kelvinToCelsius
+                                        .convert(fdata));
+                                break;
+                            case SPFH:
+                            	soundingLy.setSpecHumidity(fdata);
+                            	break;
+                            default: 
+                            	break;
                             }
                         }
                     }
@@ -754,23 +868,48 @@ public class MdlSoundingQuery {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                // System.out.println(" point coord.y="+coord.y+ " coord.x="+
+                //System.out.println(" point coord.y="+coord.y+ " coord.x="+
                 // coord.x);
                 pf.setStationLatitude(coord.y);
                 pf.setStationLongitude(coord.x);
-                // Float sfcPressure = getModelSfcPressure(pnt, refTime,
-                // validTime,
-                // pluginName, modelName);
-                // System.out.println("getModelSfcPressure took "+
-                // (System.currentTimeMillis()-t013) + " ms");
-                // /if (sfcPressure == null) {
-                pf.setSfcPress(-9999.f);
-                // }
-                // else {
-                // pf.setSfcPress(sfcPressure/100F);
-                // }
-                // System.out.println("surface pressure ="+pf.getSfcPress()+
-                // " lat= "+lat+ " lon="+lon);
+                // DR17084
+                NcSoundingLayer sfcLayer = getModelSfcLayer(pnt, refTime,
+                                     validTime,pluginName, modelName, coord);
+                if (sfcLayer != null) {
+                	if(sfcLayer.getPressure()== NcSoundingLayer.MISSING && 
+                			sfcLayer.getGeoHeight()!= NcSoundingLayer.MISSING){
+                		//surface layer does not have pressure, but surface height is available
+                		//see if we can interpolate surface pressure from upper and lower layer pressure
+                		for (int i = 0; i < soundLyList.size(); i++) {
+                			if (soundLyList.get(i).getGeoHeight() > sfcLayer.getGeoHeight()) {
+                				if (i > 0) {
+                					float p1 = soundLyList.get(i - 1).getPressure();
+                					float p2 = soundLyList.get(i).getPressure();
+                					float h1 = soundLyList.get(i - 1).getGeoHeight();
+                					float h2 = soundLyList.get(i).getGeoHeight();
+                					float h = sfcLayer.getGeoHeight();
+                					float p = p1 + (h - h1) * (p1 - p2) / (h1 - h2);
+                					sfcLayer.setPressure(p);
+                				}
+                				break;
+                			}
+                		}
+                	}
+                	if(sfcLayer.getPressure()!= NcSoundingLayer.MISSING){
+                		// cut sounding layer under ground, i.e. below surface layer
+                		for(int i=  soundLyList.size()-1; i>=0 ; i--){
+                			NcSoundingLayer ly = soundLyList.get(i);
+                			if(ly.getPressure() >= sfcLayer.getPressure()){
+                				soundLyList.remove(i);
+                			}
+                		}
+                		soundLyList.add(0, sfcLayer);
+                	}
+                	pf.setSfcPress(sfcLayer.getPressure());
+                	pf.setStationElevation(sfcLayer.getGeoHeight());
+                }
+                //System.out.println("surface pressure ="+pf.getSfcPress());
+                //end DR17084
                 // calculate dew point if necessary
                 MergeSounding ms = new MergeSounding();
                 // ms.spfhToDewpoint(layerList);
@@ -939,7 +1078,7 @@ public class MdlSoundingQuery {
             String pluginName, String modelName) {
 
         // List<?>vals = null;
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
             DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
             query.addDistinctParameter(GridConstants.LEVEL_ONE);
@@ -990,7 +1129,7 @@ public class MdlSoundingQuery {
 
         Point pnt = null;
 
-        if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+        if (pluginName.equalsIgnoreCase(GRID_TBL_NAME)) {
             CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
             DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 

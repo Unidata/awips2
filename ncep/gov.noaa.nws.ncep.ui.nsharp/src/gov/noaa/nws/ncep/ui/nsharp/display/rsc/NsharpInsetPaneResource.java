@@ -10,6 +10,9 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 04/23/2012	229			Chin Chen	Initial coding
+ * 01/27/2015   DR#17006,
+ *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
+ *                                      in Volume Browser
  *
  * </pre>
  * 
@@ -181,7 +184,7 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 		//Chin, since we only display 4 insets and their backgrounds have same size, only draws 4 backgrounds.
 		//psblWatchTypeBackground.paint(target, paintProps);
 		//thetaEPresureBackground.paint(target, paintProps);
-		if((soundingLys != null) && (soundingLys.size()>= 4))
+		if((soundingLys != null) && rscHandler.isGoodData()) //#5929)
 		{
 			this.font10.setSmoothing(false);
 			this.font10.setScaleFont(false);
@@ -294,7 +297,7 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 			return;
 		//System.out.println("createRscWireFrameShapes called");
 		disposeInsetWireFrameShapes();
-		if(soundingLys != null){
+		if(soundingLys != null && rscHandler.isGoodData()){ //#5929
 
 			WGraphics WGc=  thetaEPresureBackground.getWorld();		
 			createRscThetaEPressureShape(WGc);

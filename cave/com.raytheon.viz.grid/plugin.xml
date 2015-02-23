@@ -53,4 +53,21 @@
             name="Grid"
             category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
    </extension>
+     <extension
+           point="org.eclipse.ui.menus">
+        <menuContribution
+              locationURI="menu:org.eclipse.ui.main.menu?after=radar">
+           <menu
+                 id="mrms"
+                 label="MRMS">
+              <visibleWhen>
+                 <reference
+                       definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                 </reference>
+              </visibleWhen>
+
+              <separator name="MRMS_MENU_START" visible="false"/>
+           </menu>
+        </menuContribution>
+     </extension>
 </plugin>
