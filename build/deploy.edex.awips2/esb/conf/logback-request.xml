@@ -61,7 +61,9 @@
       <level value="DEBUG"/>
       <appender-ref ref="PerformanceLogAsync" />
    </logger>
-
+   <logger name="org.hibernate">
+      <level value="ERROR"/>
+   </logger> 
    <!-- default logging --> 
    <root> 
       <level value="INFO"/> 

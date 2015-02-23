@@ -8,17 +8,11 @@
    <logger name="com.mchange">
       <level value="ERROR"/>
    </logger>
-   <logger name="com.tc">
-      <level value="WARN"/>
-   </logger>
    <logger name="mx4j">
       <level value="ERROR"/>
    </logger>
    <logger name="org.apache">
       <level value="INFO"/>
-   </logger>
-   <logger name="org.apache.activemq.spring">
-      <level value="WARN"/>
    </logger>
    <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
       <level value="ERROR"/>
