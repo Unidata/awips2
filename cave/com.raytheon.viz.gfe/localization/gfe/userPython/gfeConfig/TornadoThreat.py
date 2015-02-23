@@ -53,7 +53,7 @@ Lakes_graphicColor = 'blue'
 # MAP BACKGROUNDS
 #MapBackgrounds_default = ['Counties','Marine_Zones_XXX','Interstates']
 MapBackgrounds_default = ['Zones_XXX','Marine_Zones_XXX','Interstates','States','Lakes']
-XXX_mask = "XXX_CWA"
+XXX_mask = "XXX"
 
 DefaultSamples = ['XXXTornadoThreat']
 # Customize FONT SIZES here
