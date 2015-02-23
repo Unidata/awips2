@@ -14,6 +14,12 @@
  * 01/13/2014               Chin Chen   TTR829- when interpolation, edit graph is allowed
  * 02/03/2014   1106        Chin Chen   Need to be able to use clicking on the Src,Time, or StnId to select display 
  * 08/12/2014               Chin Chen   fixed issue that "load archive file with wrong time line displayed"
+ * 12/04/2014   DR16888     Chin Chen   fixed issue that "Comp(Src) button not functioning properly in NSHARP display"
+ * 01/27/2015   DR#17006,
+ *              Task#5929   Chin Chen   NSHARP freezes when loading a sounding from MDCRS products 
+ *                                      in Volume Browser
+ * 02/03/2015   DR#17079    Chin Chen   Soundings listed out of order if frames go into new month
+ * 02/05/2015   DR16888     CHin Chen   merge 12/11/2014 fixes at version 14.2.2 and check in again to 14.3.1
  * </pre>
  * 
  * @author Chin Chen
@@ -160,6 +166,8 @@ public class NsharpResourceHandler {
 
     private int[] pageDisplayOrderNumberArray = new int[NsharpConstants.PAGE_MAX_NUMBER + 1];
 
+    //#5929
+    private boolean goodData=false;
     // index is the real page defined in NsharpConstants to be shown, value is
     // the order number of this page.
     // index 0 point to a dummy.
@@ -187,7 +195,7 @@ public class NsharpResourceHandler {
     private int currentSoundingLayerIndex = 0;
 
     private int hodoEditingSoundingLayerIndex = 0;
-
+    
     private boolean plotInteractiveTemp = false;
 
     private Coordinate interactiveTempPointCoordinate;
@@ -575,11 +583,14 @@ public class NsharpResourceHandler {
              * The following code is to create a list of stns within the range
              * of user defined radius (minimum distance) to "current" station
              * and also has data loaded with same time line as "current" time
-             * line. Note that we have two time line formats, yymmdd/hh(day)Vxxx
-             * and yymmdd/hh(day). A same time line is compared by yymmdd/hh
-             * only. All qualified stations, including current station, found
-             * will be listed and used for SND comparison.
+             * line. Note that we have two time line formats, YYMMDD/HHVxxx(day)
+             * and YYMMDD/HH(day) saved in NsharpSoundingElementStateProperty.
+             *  A same time line is compared by "YYMMDD/HH" only. All qualified 
+             *  stations, including current station, found will be listed and used 
+             *  for SND comparison.
              */
+            //DR#17079 
+            String TIME_COMPARE_STRING = "YYMMDD/HH";
             compSndSelectedElemList.clear();
             // CompSndSelectedElem curStnTimeIndexCouple = new
             // CompSndSelectedElem(currentStnElementListIndex,currentTimeElementListIndex,currentSndElementListIndex);
@@ -593,7 +604,12 @@ public class NsharpResourceHandler {
                     .get(currentSndElementListIndex).getStnInfo();
             gc.setStartingGeographicPoint(currentStnInfo.getLongitude(),
                     currentStnInfo.getLatitude());
-            int timeLineLengthToComp = "yymmdd/hh".length();
+            
+           // String curTimeString = timeElementList.get(currentTimeElementListIndex).getElementDescription();
+            
+            int timeLineLengthToComp = TIME_COMPARE_STRING.length();
+                    
+                    
             String currentTimeLineToComp = timeElementList
                     .get(currentTimeElementListIndex).getElementDescription()
                     .substring(0, timeLineLengthToComp);
@@ -974,6 +990,7 @@ public class NsharpResourceHandler {
             if (skewtPaneRsc != null)
                 skewtPaneRsc
                         .setCurrentSkewTEditMode(NsharpConstants.SKEWT_EDIT_MODE_EDITPOINT);
+            elem.setGoodData(checkDataIntegrity(soundingLys));//#5929
             resetData();
         }
 
@@ -986,7 +1003,12 @@ public class NsharpResourceHandler {
 
         // update active sounding layer and picked stn info
         // re-populate snd data to nsharp native code lib for later calculating
-        nsharpNative.populateSndgData(soundingLys);
+    	//#5929 dont populate sounding data if data is bad
+    	
+    	if(getCurSoundingElementStateProperty()!=null)
+    		goodData= getCurSoundingElementStateProperty().isGoodData();
+    	if(goodData)
+    		nsharpNative.populateSndgData(soundingLys);
 
         if (skewtPaneRsc != null)
             skewtPaneRsc.resetData(soundingLys, previousSoundingLys);
@@ -1006,7 +1028,7 @@ public class NsharpResourceHandler {
         // if soundingLys is null, then we stop here, after reset data.
         if (soundingLys == null)
             return;
-        if (soundingLys.size() > 0) {
+        if (soundingLys.size() > 0 && (goodData)) {
             // set initial hodohouseC
 
             // ----- set hodo circle at Bunkers Right, Chin according to TTR6065
@@ -1037,11 +1059,7 @@ public class NsharpResourceHandler {
              * that really meant to reset parcel type.
              */
         }
-        // Chin: TBD remove handle resize here to fix sizing issue when swapped
-        // nsharp from side pane back to main pane
-        // but, may cause other problem?
-        // if(skewtPaneRsc!=null)
-        // skewtPaneRsc.handleResize();
+        
         if (skewtPaneRsc != null)
             skewtPaneRsc.createRscWireFrameShapes();
         if (hodoPaneRsc != null)
@@ -1050,7 +1068,7 @@ public class NsharpResourceHandler {
             insetPaneRsc.createInsetWireFrameShapes();
         if (witoPaneRsc != null)
             witoPaneRsc.createAllWireFrameShapes();
-        if (spcGraphsPaneRsc != null) {
+        if (spcGraphsPaneRsc != null && (goodData) ){//#5929
             // Chin: SPC graphs performance concern, as it need to call get
             // info functions from bigSharo.so and cause long delay.
             // Therefore, do it once only when reset data.
@@ -1060,13 +1078,14 @@ public class NsharpResourceHandler {
 
     private class NsharpOperationElementComparator implements
             Comparator<NsharpOperationElement> {
-        @Override
+    	
+		@Override
         public int compare(NsharpOperationElement o1, NsharpOperationElement o2) {
 
             String s1tok1 = "";// , s1tok2="";
             String s2tok1 = "";// , s2tok2="";
-            StringTokenizer st1 = new StringTokenizer(
-                    o1.getElementDescription());
+            String	o1Desc = o1.getElementDescription();
+            StringTokenizer st1 = new StringTokenizer(o1Desc);
             int tkCount1 = st1.countTokens();
             // System.out.println("ElementComparatorTimeLine o1="+o1.elementDescription+"c1 = "+tkCount1);
             if (tkCount1 >= 1) {
@@ -1076,8 +1095,8 @@ public class NsharpResourceHandler {
 
             }
             // System.out.println("t1="+s1tok1+" t2="+s2tok1);
-            StringTokenizer st2 = new StringTokenizer(
-                    o2.getElementDescription());
+            String 	o2Desc = o2.getElementDescription();
+            StringTokenizer st2 = new StringTokenizer(o2Desc);
             int tkCount2 = st2.countTokens();
             // System.out.println("ElementComparatorTimeLine o2="+o2.elementDescription+"c2 = "+tkCount2);
             if (tkCount2 >= 1) {
@@ -1170,7 +1189,7 @@ public class NsharpResourceHandler {
 
     private void addElementToTableAndLists(String stnId_timeLine_sndType,
             String stnId, String tmLine, String sndType,
-            NsharpStationInfo stnInfo, List<NcSoundingLayer> sndLyLst) {
+            NsharpStationInfo stnInfo, List<NcSoundingLayer> sndLyLst, boolean goodData) {
         // System.out.println("stn to be added "+ stnId + " timeline "+tmLine);
         NsharpSoundingElementStateProperty newSndPropElem = null;
         int tmIndex = getIndexFromElementList(tmLine, timeElementList);
@@ -1190,7 +1209,7 @@ public class NsharpResourceHandler {
                 // NsharpSoundingElementStateProperty object
                 newSndPropElem = new NsharpSoundingElementStateProperty(
                         stnId_timeLine_sndType, stnId, tmLine, stnInfo,
-                        sndLyLst);
+                        sndLyLst,goodData); //#5929
                 stnTimeSndTable.get(stnIndex).get(tmIndex)
                         .set(sndTpyeIndex, newSndPropElem);
             }
@@ -1207,7 +1226,7 @@ public class NsharpResourceHandler {
                 // NsharpSoundingElementStateProperty object
                 newSndPropElem = new NsharpSoundingElementStateProperty(
                         stnId_timeLine_sndType, stnId, tmLine, stnInfo,
-                        sndLyLst);
+                        sndLyLst,goodData);
                 stnTimeSndTable.get(currentStnElementListIndex)
                         .get(currentTimeElementListIndex)
                         .set(currentSndElementListIndex, newSndPropElem);
@@ -1224,7 +1243,7 @@ public class NsharpResourceHandler {
                     // NsharpSoundingElementStateProperty object
                     newSndPropElem = new NsharpSoundingElementStateProperty(
                             stnId_timeLine_sndType, stnId, tmLine, stnInfo,
-                            sndLyLst);
+                            sndLyLst,goodData);
                     stnTimeSndTable.get(currentStnElementListIndex)
                             .get(currentTimeElementListIndex)
                             .set(currentSndElementListIndex, newSndPropElem);
@@ -1246,7 +1265,7 @@ public class NsharpResourceHandler {
                     // NsharpSoundingElementStateProperty object
                     newSndPropElem = new NsharpSoundingElementStateProperty(
                             stnId_timeLine_sndType, stnId, tmLine, stnInfo,
-                            sndLyLst);
+                            sndLyLst,goodData);
                     stnTimeSndTable.get(currentStnElementListIndex)
                             .get(currentTimeElementListIndex)
                             .set(currentSndElementListIndex, newSndPropElem);
@@ -1267,7 +1286,7 @@ public class NsharpResourceHandler {
                     // NsharpSoundingElementStateProperty object
                     newSndPropElem = new NsharpSoundingElementStateProperty(
                             stnId_timeLine_sndType, stnId, tmLine, stnInfo,
-                            sndLyLst);
+                            sndLyLst,goodData);
                     stnTimeSndTable.get(currentStnElementListIndex)
                             .get(currentTimeElementListIndex)
                             .set(currentSndElementListIndex, newSndPropElem);
@@ -1289,7 +1308,7 @@ public class NsharpResourceHandler {
                     // NsharpSoundingElementStateProperty object
                     newSndPropElem = new NsharpSoundingElementStateProperty(
                             stnId_timeLine_sndType, stnId, tmLine, stnInfo,
-                            sndLyLst);
+                            sndLyLst,goodData);
                     stnTimeSndTable.get(currentStnElementListIndex)
                             .get(currentTimeElementListIndex)
                             .set(currentSndElementListIndex, newSndPropElem);
@@ -1314,7 +1333,7 @@ public class NsharpResourceHandler {
                     // NsharpSoundingElementStateProperty object
                     newSndPropElem = new NsharpSoundingElementStateProperty(
                             stnId_timeLine_sndType, stnId, tmLine, stnInfo,
-                            sndLyLst);
+                            sndLyLst,goodData);
                     stnTimeSndTable.get(currentStnElementListIndex)
                             .get(currentTimeElementListIndex)
                             .set(currentSndElementListIndex, newSndPropElem);
@@ -1350,7 +1369,7 @@ public class NsharpResourceHandler {
                                     // one new loaded sounding data
                                     newSndPropElem = new NsharpSoundingElementStateProperty(
                                             stnId_timeLine_sndType, stnId,
-                                            tmLine, stnInfo, sndLyLst);
+                                            tmLine, stnInfo, sndLyLst,goodData);
 
                                     sndlistForTm.add(newSndPropElem);
                                 } else {
@@ -1398,7 +1417,7 @@ public class NsharpResourceHandler {
 
                         newSndPropElem = new NsharpSoundingElementStateProperty(
                                 stnId_timeLine_sndType, stnId, tmLine, stnInfo,
-                                sndLyLst);
+                                sndLyLst,goodData);
                         newList.add(newSndPropElem);
                         newListList.add(newList);
                         stnTimeSndTable.add(newListList);
@@ -1855,27 +1874,43 @@ public class NsharpResourceHandler {
      * 
      * }
      */
+    //task#5929
+    private boolean checkDataIntegrity(List<NcSoundingLayer> sndLayers){
+    	boolean gooddata = false;
+    	int numberOfTemp=0;
+    	int numberOfGoodDewPt=0;
+    	for(NcSoundingLayer layer: sndLayers){
+    		if(layer.getTemperature() > -999)
+    			numberOfTemp++;
+    		if(layer.getDewpoint() > -999)
+    			numberOfGoodDewPt++;
+    	}
+    	if(numberOfGoodDewPt >= 2 && numberOfTemp>=2)
+    		gooddata=true;
+    	return gooddata;
+    }
 
     // This api peforms real load data function
     private void addRsc(boolean displayNewData,
             Map<String, List<NcSoundingLayer>> soundMap,
             NsharpStationInfo stnInfo, boolean fromArchive) {
 
-        // // testing code // stnInfo.setStnId("KUKI");
-        // Set<String> keysettest = new HashSet<String>(soundMap.keySet());
-        // for (String key : keysettest) {
-        // List<NcSoundingLayer> sndLy = soundMap.remove(key); // String
-        // // newkey=
-        // // key.replace("NCUAIR", "gpduair"); // String newkey =
-        // // key.replace("NAMS", "SSS");
-        // String newkey = key.replace("140303/12", "120109/12");
-        // soundMap.put(newkey, sndLy);
-        // } //
+        /* 
+         * testing code : this is helpful code. do not remove.
+         *
+         Set<String> keysettest = new HashSet<String>(soundMap.keySet());
+         for (String key : keysettest) {
+         	List<NcSoundingLayer> sndLy = soundMap.remove(key);
+			 String newkey= key.replace("NAMS", "SSS");
+         	//String newkey = key.replace("130925", "150102");
+         	soundMap.put(newkey, sndLy);
+         } 
         // // stnInfo.setSndType(stnInfo.getSndType().replace("NCUAIR", //
         // // "gpduair")); // stnInfo.setSndType(stnInfo.getSndType().replace(
         // // "NAMS","SSS"));
-        // //
-
+		*
+		* END testing code 
+		*/
         if (stnInfo.getStnId() != null && stnInfo.getStnId().indexOf(" ") >= 0) {
             // take care stnId with SPACE case.
             String stnId = stnInfo.getStnId();
@@ -1924,9 +1959,15 @@ public class NsharpResourceHandler {
             // based on this KEY string format "KGRI 100616/03(Wed)Vxxx GFSSND"
             String stnId, sndType, timeLine, timeLine_sndType, stnId_timeLine_sndType;
             List<NcSoundingLayer> sndLyLst;
+            
             try {
                 stnId_timeLine_sndType = tempTimeLineArr[i].toString();
+                if(stnId_timeLine_sndType.equals("N/A"))
+                {
+                	continue;
+                }
                 sndLyLst = soundMap.get(stnId_timeLine_sndType);
+              
                 stnId = stnId_timeLine_sndType.substring(0,
                         stnId_timeLine_sndType.indexOf(" "));
                 timeLine_sndType = stnId_timeLine_sndType
@@ -1987,10 +2028,18 @@ public class NsharpResourceHandler {
                 }
 
                 /*
-                 * As of 2014 April 9, current time description string is
+                 * Chin: 04092014, current time description string is
                  * defined as "YYMMDD/HH(DOW)" or "YYMMDD/HH(DOW)Vxxx". Convert
                  * them to "DD.HH(DOW)" or "DD.HHVxxx(DOW)" for GUI display.
                  */
+                /* 
+                 * Chin: 02032015
+                 * "DR17079: Soundings listed out of order if frames go into new month"
+                 * To fix DR17079, keep time line format as yymmdd/hh(day)Vxxx to be saved
+                 * in NsharpSoundingElementStateProperty.
+                 * We will convert display string while drawing.
+                 * This chunk code is to convert time line format from yymmdd/hh(day)Vxxx to dd.hh(day)Vxxx 
+                 *
                 timeLine = timeLine.substring(4); // get rid of YYMM
                 if (timeLine.contains("V")) {
                     String[] s1Str = timeLine.split("V"); // split
@@ -2007,6 +2056,9 @@ public class NsharpResourceHandler {
                                                                            // "DD/HHVxxx(DOW)"
                 }
                 timeLine = timeLine.replace("/", "."); // replace "/" with "."
+                * 
+                * end DR17079
+                */
             }
             // recreate stnId_timeLine_sndType
             stnId_timeLine_sndType = stnId + " " + timeLine + " " + sndType;
@@ -2015,8 +2067,10 @@ public class NsharpResourceHandler {
             // No more needed? timeLine = timeLine.replace(" ", "-"); //fixed
             // DR15325 - sorting time line issue in D2D
             // add time line to stnTimeTable and set its index
+          //task#5929
+            boolean goodData = checkDataIntegrity( sndLyLst);
             addElementToTableAndLists(stnId_timeLine_sndType, stnId, timeLine,
-                    sndType, stnInfo, sndLyLst);
+                    sndType, stnInfo, sndLyLst, goodData);
         }
         if (displayNewData) {
             // Set default parcel trace data
@@ -2620,7 +2674,10 @@ public class NsharpResourceHandler {
 
                 break;
             }
-
+            if (compareSndIsOn) {
+                handleUserPickNewTimeLine(currentTimeElementListIndex)  ;
+                return;
+            }
             curTimeLinePage = currentTimeElementListIndex / numTimeLinePerPage
                     + 1;
             setCurSndProfileProp();
@@ -2757,7 +2814,10 @@ public class NsharpResourceHandler {
                         // we should get out of here
                         break;
                     } else if (compareSndIsOn) {
-                        boolean found = false;
+                        handleUserPickNewTimeLine(targetIndex)  ;
+                        return;
+                        /*  DR16888 02052015
+                         *  boolean found = false;
                         if (currentStnElementListIndex >= 0
                                 && currentSndElementListIndex >= 0
                                 && stnTimeSndTable
@@ -2802,6 +2862,7 @@ public class NsharpResourceHandler {
                         // not
                         // we should get out of here
                         break;
+                        */
                     } else {
                         break;
                     }
@@ -4027,7 +4088,13 @@ public class NsharpResourceHandler {
         // re-populate snd data to nsharp native code lib for later calculating
         Collections.sort(soundingLys,
                 NsharpDataHandling.reversePressureHeightWindComparator());
-        nsharpNative.populateSndgData(soundingLys);
+        //#5929
+        goodData = checkDataIntegrity( soundingLys);
+        if(getCurSoundingElementStateProperty()!=null){
+        	getCurSoundingElementStateProperty().setGoodData(goodData);
+        }
+        if(goodData)
+        	nsharpNative.populateSndgData(soundingLys);
         // get storm motion wind data after populate sounding from NsharpLib
         // refresh test area if it is shown now
         NsharpShowTextDialog textarea = NsharpShowTextDialog.getAccess();
@@ -4053,6 +4120,13 @@ public class NsharpResourceHandler {
         }
         if (dataPaneRsc != null)
             dataPaneRsc.setSoundingLys(soundingLys);
+        
+        if (spcGraphsPaneRsc != null && (goodData) ){//#5929
+            // Chin: SPC graphs performance concern, as it need to call get
+            // info functions from bigSharo.so and cause long delay.
+            // Therefore, do it once only when reset data.
+            spcGraphsPaneRsc.getSpcGraphsInfo();
+        }
     }
 
     public void addNewLayer(float tp, float dp, float ws, float wd,
@@ -4070,7 +4144,13 @@ public class NsharpResourceHandler {
         // re-populate snd data to nsharp native code lib for later calculating
         Collections.sort(soundingLys,
                 NsharpDataHandling.reversePressureHeightWindComparator());
-        nsharpNative.populateSndgData(soundingLys);
+      //#5929
+        goodData = checkDataIntegrity( soundingLys);
+        if(getCurSoundingElementStateProperty()!=null){
+        	getCurSoundingElementStateProperty().setGoodData(goodData);
+        }
+        if(goodData)
+        	nsharpNative.populateSndgData(soundingLys);
         // get storm motion wind data after populate sounding from NsharpLib
         // refresh text area if it is shown now
         NsharpShowTextDialog textarea = NsharpShowTextDialog.getAccess();
@@ -4096,6 +4176,12 @@ public class NsharpResourceHandler {
         }
         if (dataPaneRsc != null)
             dataPaneRsc.setSoundingLys(soundingLys);
+        if (spcGraphsPaneRsc != null && (goodData) ){//#5929
+            // Chin: SPC graphs performance concern, as it need to call get
+            // info functions from bigSharo.so and cause long delay.
+            // Therefore, do it once only when reset data.
+            spcGraphsPaneRsc.getSpcGraphsInfo();
+        }
     }
 
     public void setGraphConfigProperty(NsharpGraphProperty graphConfigProperty) {
@@ -4424,4 +4510,9 @@ public class NsharpResourceHandler {
         refreshPane();
         return true;
     }
+    //#5929
+	public boolean isGoodData() {
+		return goodData;
+	}
+
 }

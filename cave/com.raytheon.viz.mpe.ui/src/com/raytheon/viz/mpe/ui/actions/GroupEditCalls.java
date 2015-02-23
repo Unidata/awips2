@@ -43,6 +43,7 @@ import com.raytheon.viz.mpe.util.ReadTemperatureStationList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 31, 2009            snaples     Initial creation
+ * Feb 5, 2015  17101      snaples     Updated max_stations to use size of dqc.precip_stations.
  * 
  * </pre>
  * 
@@ -72,13 +73,9 @@ public class GroupEditCalls {
 
     int pcpn_time = dqc.pcpn_time;
 
-    ReadPrecipStationList rp = new ReadPrecipStationList();
+    int max_stations = dqc.precip_stations.size();
 
-    ReadTemperatureStationList rt = new ReadTemperatureStationList();
-
-    int max_stations = rp.getNumPstations();
-
-    int max_tstations = rt.getNumTstations();
+    int max_tstations = dqc.temperature_stations.size();
 
     public void apply_group()
 
