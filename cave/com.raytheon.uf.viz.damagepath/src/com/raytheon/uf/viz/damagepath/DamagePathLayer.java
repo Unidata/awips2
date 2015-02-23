@@ -104,7 +104,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
         // listen for changes to the directory
         LocalizationFile dir = PathManagerFactory.getPathManager()
-                .getLocalizationFile(getUserContext(), DIR);
+                .getLocalizationFile(getContext(), DIR);
         dir.addFileUpdatedObserver(this);
 
         loadJob.setSystem(true);
@@ -129,7 +129,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     @Override
     protected void disposeInternal() {
         LocalizationFile dir = PathManagerFactory.getPathManager()
-                .getLocalizationFile(getUserContext(), DIR);
+                .getLocalizationFile(getContext(), DIR);
         dir.removeFileUpdatedObserver(this);
 
         super.disposeInternal();
@@ -183,13 +183,13 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         }
     }
 
-    private LocalizationContext getUserContext() {
+    private LocalizationContext getContext() {
         return PathManagerFactory.getPathManager().getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
     }
 
     protected LocalizationFile getDamagePathFile() {
-        LocalizationContext ctx = getUserContext();
+        LocalizationContext ctx = getContext();
         return PathManagerFactory.getPathManager().getLocalizationFile(ctx,
                 PATH);
     }
