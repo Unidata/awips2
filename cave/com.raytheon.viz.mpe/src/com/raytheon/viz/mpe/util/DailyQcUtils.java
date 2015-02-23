@@ -85,7 +85,7 @@ public class DailyQcUtils {
 
     private String lastQcArea = "";
 
-    public String currentQcArea;
+    public static String currentQcArea;
 
     private Date currDate;
 
@@ -101,7 +101,7 @@ public class DailyQcUtils {
 
     public int init_maxmin = -1;
 
-    public int pcp_in_use[] = new int[500];
+    public static int pcp_in_use[] = new int[500];
 
     boolean newarea = false;
 
@@ -171,13 +171,13 @@ public class DailyQcUtils {
 
     public int method = 2;
 
-    public boolean wfo_all = false;
+    public static boolean wfo_all = false;
 
     public boolean render_all = true;
 
     public int wfo_orig;
 
-    public int[] wfo_in_use = new int[20];
+    public static int[] wfo_in_use = new int[20];
 
     public String[] tag = new String[20];
 
@@ -261,39 +261,39 @@ public class DailyQcUtils {
 
     public String mpe_show_missing_gage;
 
-    public int isom = -1;
+    public static int isom = -1;
 
-    public int old_isom = -1;
+    public static int old_isom = -1;
 
-    public ArrayList<Station> precip_stations = new ArrayList<Station>();
+    public static ArrayList<Station> precip_stations = new ArrayList<Station>();
 
-    public ArrayList<Station> temperature_stations = new ArrayList<Station>();
+    public static ArrayList<Station> temperature_stations = new ArrayList<Station>();
 
-    public ArrayList<Station> freezing_stations = new ArrayList<Station>();
+    public static ArrayList<Station> freezing_stations = new ArrayList<Station>();
 
-    public Pdata pdata[];
+    public static Pdata pdata[];
 
-    public Tdata tdata[];
+    public static Tdata tdata[];
 
-    public Zdata zdata[];
+    public static Zdata zdata[];
 
-    private Hrap_Grid hrap_grid = new Hrap_Grid();
+    private static Hrap_Grid hrap_grid = new Hrap_Grid();
 
     // public static Hrap_Grid hrap_tgrid = new Hrap_Grid();
 
     public static String type = "QME  ";
 
-    public Ts[] ts;
+    public static Ts[] ts;
 
-    public int tsmax = 0;
+    public static int tsmax = 0;
 
     public Maps mean_areal_precip_global[];
 
-    public Pcp pcp = new Pcp();
+    public static Pcp pcp = new Pcp();
 
-    public Pcp spf = new Pcp();
+    public static Pcp spf = new Pcp();
 
-    public Pcp tpf = new Pcp();
+    public static Pcp tpf = new Pcp();
 
     public Bad_Daily_Values bad_values[];
 
@@ -443,15 +443,15 @@ public class DailyQcUtils {
 
     public static int hrgt12z = -1;
 
-    public int[] dflag = new int[10];
+    public static int[] dflag = new int[10];
 
-    public int[] qflag = new int[10];
+    public static int[] qflag = new int[10];
 
     public float pxtemp = 1.0f;
 
     public int dmvalue = (int) (1.0 * 100 * 3.28 / .55);
 
-    public int elevation_filter_value = 0;
+    public static int elevation_filter_value = 0;
 
     public int temperature_filter_value = -50;
 
@@ -474,27 +474,27 @@ public class DailyQcUtils {
     /* Function which associates the Gage QC edit levels with a value. */
     public int funct[] = { 8, 0, 6, 2, 3, 4, 5, 1, 7, 9 };
 
-    public int gage_char[] = new int[2];
+    public static int gage_char[] = new int[2];
 
-    public int plot_view = 0;
+    public static int plot_view = 0;
 
     public boolean frzlvl_flag = true;
 
     public int find_station_flag = -1;
 
-    public int pcpn_time = 0;
+    public static int pcpn_time = 0;
 
-    public int pcp_flag = -1;
+    public static int pcp_flag = -1;
 
-    public int pcpn_day = 0;
+    public static int pcpn_day = 0;
 
-    public int contour_flag = -1;
+    public static int contour_flag = -1;
 
-    public int points_flag = 1;
+    public static int points_flag = 1;
 
-    public int grids_flag = -1;
+    public static int grids_flag = -1;
 
-    public int map_flag = -1;
+    public static int map_flag = -1;
 
     static int curHrMinSec = -1;
 
@@ -903,7 +903,7 @@ public class DailyQcUtils {
         return retval;
     }
 
-    public int getEnding6HourObsTime() {
+    public static int getEnding6HourObsTime() {
         String s = appsDefaults.getToken(dqc_ending_6hour_obstime_tok);
         int value = ((!(null == s)) ? Integer.parseInt(s) : -1);
 
@@ -917,6 +917,9 @@ public class DailyQcUtils {
             String currntQcArea, int days, boolean autoqc) {
         currentQcArea = currntQcArea;
         currDate = currentDate;
+        if (prevDate == null){
+            prevDate = currDate;
+        }
         selDate = prevDate;
         auto_dailyqc_flag = autoqc;
         qcDays = MPEDataManager.getInstance().getDQCDays();
@@ -1045,7 +1048,7 @@ public class DailyQcUtils {
          */
         Calendar currentTime = Calendar
                 .getInstance(TimeZone.getTimeZone("GMT"));
-        
+//        btime.set(Calendar.DAY_OF_MONTH, hydro_curDay);
         emonth = btime.get(Calendar.MONTH);
         Calendar otime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         otime.setTime(btime.getTime());
@@ -2127,7 +2130,7 @@ public class DailyQcUtils {
     /**
      * @return the hrap_grid
      */
-    public Hrap_Grid getHrap_grid() {
+    public static Hrap_Grid getHrap_grid() {
         return hrap_grid;
     }
 
