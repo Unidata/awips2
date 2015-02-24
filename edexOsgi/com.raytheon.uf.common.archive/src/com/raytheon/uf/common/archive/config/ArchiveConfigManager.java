@@ -21,9 +21,9 @@ package com.raytheon.uf.common.archive.config;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.FieldPosition;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -59,7 +59,6 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFileInputStream;
 import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -98,6 +97,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Apr 01, 2014 2862       rferrel     Moved purge only routines to ArchivePurgeManager.
  * Apr 29, 2014 3036       rferrel     Check for missing archive root directories.
  * May 22, 2014 3181       rferrel     Add check for valid array index.
+ * Feb 24, 2015 3978       njensen     Changed to use abstract InputStream
+ * 
  * </pre>
  * 
  * @author rferrel
@@ -910,7 +911,7 @@ public class ArchiveConfigManager {
             LocalizationFile lFile) throws IOException, LocalizationException,
             DataBindingException {
         ArchiveConfig archiveConfig = null;
-        LocalizationFileInputStream stream = null;
+        InputStream stream = null;
         try {
             stream = lFile.openInputStream();
             archiveConfig = JAXB.unmarshal(stream, ArchiveConfig.class);
@@ -954,7 +955,7 @@ public class ArchiveConfigManager {
         LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
                 ARCHIVE_DIR + "/" + fileName);
         if (lFile.exists()) {
-            FileInputStream stream = null;
+            InputStream stream = null;
             try {
                 stream = lFile.openInputStream();
                 selections = unmarshallSelectionStream(stream);
@@ -1069,7 +1070,7 @@ public class ArchiveConfigManager {
      * @return selectConfig
      * @throws IOException
      */
-    private SelectConfig unmarshallSelectionStream(FileInputStream stream)
+    private SelectConfig unmarshallSelectionStream(InputStream stream)
             throws IOException {
         SelectConfig selections = null;
         try {
