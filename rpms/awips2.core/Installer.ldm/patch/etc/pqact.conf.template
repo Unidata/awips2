@@ -442,6 +442,12 @@ IDS|DDPLUS	^(M[A-Z]{3}[0-9]{2}) ([KPTMC].{3}) (..)(..)(..)
 IDS|DDPLUS	^(T[BCHPRTWXY][A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
+IDS|DDPLUS	^(SE[A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+IDS|DDPLUS	^(WE[CHP][A-Z][0-9]{2}) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
 # summaries
 #IDS|DDPLUS	^(A.{5}) (.{4}) (..)(..)(..)
 #	FILE	-overwrite -log -close -edex	/data_store/summaries/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
