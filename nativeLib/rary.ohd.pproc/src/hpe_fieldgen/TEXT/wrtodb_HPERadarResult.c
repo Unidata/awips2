@@ -12,7 +12,7 @@
 * MACHINE:
 * MODIFICATION HISTORY:
 *   MODULE #        DATE         PROGRAMMER        DESCRIPTION/REASON
-*         
+* 02/2015     JingtaoD          A2 OB14.4.1 DR#17123 - HPE Bias Source field
 ********************************************************************************
 */
 
@@ -55,19 +55,20 @@
 void wrtodb_HPERadarResult(const char               * hpe_productname,
 		                   const char               * producttime,
                            const empe_params_struct * pEMPEParams,
-			               const int                radar_data_source)
+			               const int                radar_data_source,
+			               const int                nobias_flag)
 {
   
    HPERadarResult hperadarresult_struct;
  
    const char * HPE_BIAS_SOURCE_TOKEN = "hpe_bias_source";
-   static int first = 1 ;
+   static int first = 0 ;
    static char bias_source[6] = "RFC";  // RFC or LOCAL, default to RFC
    char strTokenValue[6] = {'\0'} ; 
 
    /* retrieve token HPE_BIAS_SOURCE_TOKEN,  it can be LOCAL or RFC */
 
-   if(first == 1)
+   if(first == 0)
    {
       if(hpe_fieldgen_getAppsDefaults(HPE_BIAS_SOURCE_TOKEN, strTokenValue) != -1)
         {
@@ -97,12 +98,19 @@ void wrtodb_HPERadarResult(const char               * hpe_productname,
             hpe_fieldgen_printMessage( message );
         }
 
-        first = 0;
+        first = 1;
     } 
+
+
     
    /* Initialize the product name. and assign value */
    /*hperadarresult_struct.hpe_productname [ PRESET_DESCR_LEN + 1 ] = '\0';*/
    strncpy(hperadarresult_struct.hpe_productname, hpe_productname, PRESET_DESCR_LEN);
+   sprintf ( message, "STATUS: the hpe productname is %s", hpe_productname);
+   hpe_fieldgen_printMessage( message );
+
+   sprintf ( message, "STATUS: the nobias_flag is %d", nobias_flag);
+   hpe_fieldgen_printMessage( message );
 
    /* assign producttime */
    yearsec_ansi_to_dt(producttime, &hperadarresult_struct.producttime);
@@ -114,7 +122,7 @@ void wrtodb_HPERadarResult(const char               * hpe_productname,
    /* Initialize the bias source . and assign value */
    hperadarresult_struct.bias_source[BIAS_LEN + 1] = '\0';
    
-   if (pEMPEParams->blnMeanFieldBias == 0 && pEMPEParams->blnDHRMeanFieldBias == 0)
+   if (nobias_flag == 1)
 	   strcpy(hperadarresult_struct.bias_source, "NO BIAS");
    else   //EBMOSAIC or BDHRMOSAIC 
    {
