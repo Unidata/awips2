@@ -8,7 +8,7 @@
 	<property name="build.ws"
 		value="gtk" />
 	<property name="build.arch"
-		value="x86" />
+		value="x86_64" />
 	<property name="lightning"
 		value="false" />
 	
@@ -98,26 +98,26 @@
             <param name="feature"
                 value="com.raytheon.uf.edex.registry.client.feature" />
         </antcall>
-        <antcall target="build">
+        <!-- <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.datadelivery.client.feature" />
-        </antcall>
+        </antcall> -->
         <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.registry.feature" />
         </antcall>
-        <antcall target="build">
+        <!-- <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.datadelivery.core.feature" />
         </antcall>
         <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.datadelivery.feature" />
-        </antcall>
-        <antcall target="build">
+        </antcall> -->
+        <!-- <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.dataprovideragent.feature" />
-        </antcall>
+        </antcall> -->
         <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.remote.script.feature" />
