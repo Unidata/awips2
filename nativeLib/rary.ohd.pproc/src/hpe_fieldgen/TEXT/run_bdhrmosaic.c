@@ -71,6 +71,7 @@
 * Date        Developer         Action
 * 10/24/2006  Guoxian Zhou      Modified from run_bmosaic.c
 * 07/2013     JingtaoD          dual pol
+* 02/2015     JingtaoD          A2 OB14.4.1 DR#17123 - HPE Bias Source field
 ***********************************************************************/
 
 static double ** Mosaic = NULL;
@@ -114,8 +115,13 @@ void runBDHRMosaic(const run_date_struct   * pRunDate ,
     static int first = 1 ;
     struct tm * pRunTime = NULL ;
     long int irc ;
+    int nobias_flag;
+
+    /*for BDHR product, there is bias applied */
+    nobias_flag = 0;
 
     int status = 0 ;
+
 
     /*
      * strDateTime string should be in format: yyyymmddHHMM
@@ -235,7 +241,7 @@ void runBDHRMosaic(const run_date_struct   * pRunDate ,
     sprintf ( message , "\nSTATUS:  In BDHRMOSAIC, insert/update HPERadarResult table");
     printLogMessage( message );
 
-    wrtodb_HPERadarResult(fileName, prdDateTime, pEMPEParams, dualpol_used);
+    wrtodb_HPERadarResult(fileName, prdDateTime, pEMPEParams, dualpol_used, nobias_flag);
     
 
     sprintf ( message , "\nSTATUS:  In BDHRMOSAIC, complete insert/update HPERadarResult table");
