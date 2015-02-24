@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
  *    ------------ ----------  ----------- --------------------------
  *    Jul 21, 2010 4891        skorolev    Initial Creation.
  *    Sep 11, 2013 2277        mschenke    Got rid of ScriptCreator references
+ *    Feb 24, 2015 3220        dhladky     removed misnamed un-needed method.
  * </pre>
  * 
  * @author skorolev
@@ -198,14 +199,6 @@ public class SafeSeasResourceData extends AbstractRequestableResourceData {
                     .getAlgorithmXML());
         }
         return fogThreatSS;
-    }
-
-    /** Get the SafeSeasMonitor monitor **/
-    protected SafeSeasMonitor getFogMonitor() {
-        if (monitor == null) {
-            monitor = SafeSeasMonitor.getInstance();
-        }
-        return monitor;
     }
 
     /**
