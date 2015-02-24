@@ -101,6 +101,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Dec 13, 2013 2555        rjpeter     Added processByCriteria and fixed Generics warnings.
  * Jan 23, 2014 2555        rjpeter     Updated processByCriteria to be a row at a time using ScrollableResults.
  * Apr 23, 2014 2726        rjpeter     Updated processByCriteria to throw exceptions back up to caller.
+ * Feb 23, 2015 4127        dgilling    Added bulkSaveOrUpdateAndDelete().
  * </pre>
  * 
  * @author bphillip
@@ -1142,5 +1143,27 @@ public class CoreDao extends HibernateDaoSupport {
         } else {
             return getSessionFactory().getClassMetadata(daoClass);
         }
+    }
+
+    /**
+     * Updates/saves a set of records and deletes a set of records in the
+     * database in a single transaction.
+     * 
+     * @param updates
+     *            Records to update or add.
+     * @param deletes
+     *            Records to delete.
+     */
+    public void bulkSaveOrUpdateAndDelete(
+            final Collection<? extends Object> updates,
+            final Collection<? extends Object> deletes) {
+        txTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus status) {
+                HibernateTemplate ht = getHibernateTemplate();
+                ht.saveOrUpdateAll(updates);
+                ht.deleteAll(deletes);
+            }
+        });
     }
 }
