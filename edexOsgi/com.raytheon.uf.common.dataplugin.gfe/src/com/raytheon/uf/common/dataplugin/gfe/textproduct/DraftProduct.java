@@ -20,9 +20,9 @@
 package com.raytheon.uf.common.dataplugin.gfe.textproduct;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -44,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2010            randerso    Initial creation
  * Mar 26, 2014  #2884     randerso    Code clean up
+ * Feb 24, 2015   3978     njensen     Changed to use abstract InputStream
  * 
  * </pre>
  * 
@@ -117,7 +118,7 @@ public class DraftProduct {
             throws SerializationException {
 
         byte[] bytes = null;
-        FileInputStream in = null;
+        InputStream in = null;
         try {
             File file = lf.getFile(true);
             in = lf.openInputStream();
