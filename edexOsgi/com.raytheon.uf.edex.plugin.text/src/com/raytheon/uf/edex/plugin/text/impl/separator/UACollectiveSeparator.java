@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * Apr 02, 2014 2652       skorolev    Corrected a removing of excess control characters.
  * May 14, 2014 2536       bclement    moved WMO Header to common
  * Dec 03, 2014 ASM #16859 D. Friedman Use CharBuffer instead of StringBuilder.
+ * Feb 17, 2014 ASM #17125 D. Friedman Fix parsing of type and date fields.
  * </pre>
  * 
  * @author jkorman
@@ -423,12 +424,18 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
         }
         // Check for USUS80 or 90 formatted messages and decode
         else if (dataDes.endsWith("80") || dataDes.endsWith("90")) {
+            /* // A1 logic.  It is not clear what this was for.
             if (checkCharNum(buffer.charAt(0))) {
                 buffer.get();
             } else {
                 stationNum.append(assignTextSegment(buffer, CSPC));
             }
+            */
 
+            if (! checkCharNum(buffer.charAt(0))) {
+                buffer.get();
+            }
+            stationNum.append(assignTextSegment(buffer, CSPC));
             getTextSegment(buffer, parsedMsg, CSEP);
         } else {
             // Otherwise it's standard format so decode
@@ -442,18 +449,19 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                 // to be used as the station number instead of the third, so the
                 // length of a string between spaces is now used to determine a
                 // valid field.
+                CharBuffer stationSearchBuffer = buffer.duplicate();
                 int x = 0;
-                while (x < 2 && buffer.length() > 0) {
-                    int len = buffer.length();
-                    if (safeStrpbrk(buffer, CSPC)) {
-                        if (len - buffer.length() >= 4) {
+                while (x < 2 && stationSearchBuffer.length() > 0) {
+                    int len = stationSearchBuffer.length();
+                    if (safeStrpbrk(stationSearchBuffer, CSPC)) {
+                        if (len - stationSearchBuffer.length() >= 4) {
                             x++;
                         }
-                        buffer.get();
+                        stationSearchBuffer.get();
                     }
                 }
 
-                stationNum.append(assignTextSegment(buffer, CSPC));
+                stationNum.append(assignTextSegment(stationSearchBuffer, CSPC));
             }
 
             getTextSegment(buffer, parsedMsg, CSEP);
