@@ -19,6 +19,7 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
+Requires: netcdf
 provides: awips2-postgresql
 provides: awips2-base-component
 
