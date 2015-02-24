@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.damagepath;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -36,7 +37,6 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFileInputStream;
 import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -205,9 +205,9 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     }
 
     protected void loadDamagePath(LocalizationFile file) {
-        try (LocalizationFileInputStream fis = file.openInputStream()) {
+        try (InputStream is = file.openInputStream()) {
             GeoJsonUtil json = new GeoJsonUtilSimpleImpl();
-            Polygon geometry = (Polygon) json.deserializeGeom(fis);
+            Polygon geometry = (Polygon) json.deserializeGeom(is);
             /*
              * specifically call super.resetPolygon() cause this.resetPolygon()
              * will save the file and we don't want to do that or we could
