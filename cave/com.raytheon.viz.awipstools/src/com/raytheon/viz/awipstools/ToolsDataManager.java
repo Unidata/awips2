@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,7 +51,6 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFileInputStream;
 import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -86,7 +86,8 @@ import com.vividsolutions.jts.geom.LineString;
  * 07-11-12     #875       rferrel     Move points to PointsDataManager.
  * 01-29-14     DR 16351   D. Friedman Fix updates to storm track from preferences.
  * 04-02-14     DR 16351   D. Friedman Fix updates to storm track from preferences. (backport from 14.2.2)
- * 06-03-24     3191       njensen     Improved saving/loading storm track data
+ * Jun 03, 2014 3191       njensen     Improved saving/loading storm track data
+ * Feb 24, 2015 3978       njensen     Changed to use abstract InputStream
  * 
  * </pre>
  * 
@@ -122,25 +123,25 @@ public class ToolsDataManager implements ILocalizationFileObserver {
 
     private Map<String, LineString> baselines;
 
-    private ListenerList baselineListeners = new ListenerList();
+    private final ListenerList baselineListeners = new ListenerList();
 
-    private PointsDataManager pointsManager;
+    private final PointsDataManager pointsManager;
 
     private Collection<RangeRing> rangeRings;
 
     private StormTrackData stormData;
 
-    private ListenerList stormListeners = new ListenerList();
+    private final ListenerList stormListeners = new ListenerList();
 
-    private Object stormLock = new Object();
+    private final Object stormLock = new Object();
 
     private boolean stormTrackDirty = false;
 
-    private LocalizationFile userToolsDir;
+    private final LocalizationFile userToolsDir;
 
-    private IPathManager pathMgr;
+    private final IPathManager pathMgr;
 
-    private BlockingQueue<String> baselineStoreQueue = new LinkedBlockingQueue<String>();
+    private final BlockingQueue<String> baselineStoreQueue = new LinkedBlockingQueue<String>();
 
     public static synchronized ToolsDataManager getInstance() {
         if (theManager == null) {
@@ -252,7 +253,7 @@ public class ToolsDataManager implements ILocalizationFileObserver {
                 userToolsDir.getContext(), userToolsDir.getName()
                         + IPathManager.SEPARATOR + STORM_TRACK_FILE);
         if (f.exists()) {
-            LocalizationFileInputStream is = null;
+            InputStream is = null;
             try {
                 is = f.openInputStream();
                 stormData = JAXB.unmarshal(is, StormTrackData.class);
@@ -380,7 +381,7 @@ public class ToolsDataManager implements ILocalizationFileObserver {
         }
     }
 
-    private Job baselineStoreJob = new Job("Storing Baselines") {
+    private final Job baselineStoreJob = new Job("Storing Baselines") {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
