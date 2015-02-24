@@ -67,6 +67,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * May 13 2014  3133      njensen    getStationType returns String instead of ObsHistType
  * May 15 2014  3086      skorolev   Renamed from MonitorConfigurationManager. Replaces three separate area configuration managers with one.
  * Sep 04 2014  3220      skorolev   Added fileUpdated method.
+ * Feb 24 2015  3220      dhladky    Made sure config file is read in on change.
  * 
  * </pre>
  * 
@@ -917,6 +918,7 @@ public class FSSObsMonitorConfigurationManager implements
     public void fileUpdated(FileUpdatedMessage message) {
         if (message.getFileName().equals(getConfigFileName())) {
             try {
+                readConfigXml();
                 // inform listeners
                 for (MonitorConfigListener fl : listeners) {
                     fl.configChanged(new MonitorConfigEvent(this));
