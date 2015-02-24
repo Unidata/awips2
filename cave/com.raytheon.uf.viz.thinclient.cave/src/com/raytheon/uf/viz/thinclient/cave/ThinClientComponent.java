@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.personalities.awips.CAVE;
  * Nov 14, 2013 2361       njensen     Remove initializeSerialization()
  * Nov 06, 2014  3356      njensen     Always initialize ILocalizationAdapter   
  *                                      in case cache preference is not enabled
+ * Feb 23, 2015  4164      dlovely     Call AlertViz initialize.
  * 
  * </pre>
  * 
@@ -211,6 +212,7 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
             // JMS Enabled, register product alerts
             registerProductAlerts();
         }
+        initializeAlertViz();
     }
 
     @Override
