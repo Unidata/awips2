@@ -75,6 +75,14 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
     private static final String PATH = DIR + IPathManager.SEPARATOR + FILE;
 
+    /**
+     * JVM property to specify the localization level to attempt to save/load
+     * with. Falls back to USER if not defined.
+     */
+    private static final LocalizationLevel LEVEL_TO_USE = LocalizationLevel
+            .valueOf(System.getProperty("damage.path.localization.level",
+                    LocalizationLevel.USER.name()));
+
     /*
      * TODO: If we support multiple polygons in the future then the jobs will
      * need to be smart enough to load/save different files.
@@ -185,7 +193,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
     private LocalizationContext getContext() {
         return PathManagerFactory.getPathManager().getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LEVEL_TO_USE);
     }
 
     protected LocalizationFile getDamagePathFile() {
