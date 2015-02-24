@@ -48,10 +48,28 @@ nopts=${options[@]}
 # Construct IP subnet
 #
 # OS X
+
 #IP=`ifconfig  | grep -E 'inet.[0-9]' | grep -v '127.0.0.1' | awk '{ print $2}'`
+
 # Linux
+# Simple solution
+#IP=`hostname -I`
+
+# For multiple IP addresses we need to account for non-routable IPs
 #IP=`/sbin/ifconfig | grep "inet addr" | grep -v 127.0.0 |  awk '{ print $2 }' | cut -d: -f2`
-IP=`hostname -I`
+IP=`/sbin/ifconfig eth0 | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
+
+if [[ $IP =~ ^10\..* || $IP =~ ^192\.168.* ]] # non-routable IP range
+then
+  IP=`/sbin/ifconfig eth1 | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
+elif [[ $IP =~ ^172\..* ]]
+then
+  IPb=`echo $IP | cut -d"." -f2`
+  if [[ $IPb -gt 15 && $IPb -lt 32 ]] # non-routable 172.16 to 172.32 range
+  then
+    IP=`/sbin/ifconfig eth1 | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
+  fi
+fi
 
 # truncate
 IP_CIDR="${IP%.*}"
