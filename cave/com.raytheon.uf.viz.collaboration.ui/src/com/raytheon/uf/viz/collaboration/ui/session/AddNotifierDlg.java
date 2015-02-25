@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -69,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 05, 2014    2632    mpduff      Changed task set to map of user->task.
  * Mar 27, 2014    2632    mpduff      Sorted users in combo box, changed how Add action works.
  * Jun 12, 2014    3269    mpduff      Changed to use the unsaved values upon open.
+ * Feb 25, 2015    4154    mapeters    Added null check in constructor, removed editFlag field.
  * 
  * </pre>
  * 
@@ -82,10 +82,10 @@ public class AddNotifierDlg extends CaveSWTDialog {
     private final String[] userIds;
 
     /** Map of buttons to Notifiers */
-    private final Map<Button, Notifier> buttonMap = new HashMap<Button, Notifier>();
+    private final Map<Button, Notifier> buttonMap = new HashMap<>();
 
     /** Set of NotifierTask objects */
-    private Map<String, NotifierTask> taskMap = new HashMap<String, NotifierTask>();
+    private Map<String, NotifierTask> taskMap;
 
     /** The user select Combo box */
     private Combo userCbo;
@@ -102,28 +102,28 @@ public class AddNotifierDlg extends CaveSWTDialog {
     /** Close callback */
     private final ICloseCallback callback;
 
-    /** Flag for dialog mode, edit or new */
-    private boolean editFlag;
-
     /**
      * Constructor.
      * 
      * @param parent
      * @param userIds
+     * @param editFlag
+     *            Flag for dialog mode (edit or new)
+     * @param taskMap
      * @param callback
      */
-    public AddNotifierDlg(Shell parent, String[] userIds, boolean editFlag, Map<String, NotifierTask> taskMap,
-            ICloseCallback callback) {
+    public AddNotifierDlg(Shell parent, String[] userIds, boolean editFlag,
+            Map<String, NotifierTask> taskMap, ICloseCallback callback) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         if (editFlag) {
-        	setText("Edit Notifier");
+            setText("Edit Notifier");
         } else {
-        	setText("Add Notifier");
+            setText("Add Notifier");
         }
         this.userIds = userIds;
         this.callback = callback;
-        this.editFlag = editFlag;
-        this.taskMap = taskMap;
+        this.taskMap = taskMap == null ? new HashMap<String, NotifierTask>()
+                : taskMap;
     }
 
     public AddNotifierDlg(Shell parent, String[] userIds) {
@@ -319,7 +319,7 @@ public class AddNotifierDlg extends CaveSWTDialog {
 
         GridData btnData = new GridData(75, SWT.DEFAULT);
         Button okBtn = new Button(comp, SWT.PUSH);
-      	okBtn.setText("OK");
+        okBtn.setText("OK");
         okBtn.setLayoutData(btnData);
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
