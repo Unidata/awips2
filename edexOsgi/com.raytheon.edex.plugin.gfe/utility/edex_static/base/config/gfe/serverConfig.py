@@ -50,6 +50,7 @@
 #    01/13/2015          #3955     randerso       Added definitions for NewTerrain database
 #                                                 Added Topo to ISCPARMS
 #    01/19/2015          #4014     dgilling       Added ETSS. 
+#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1230,14 +1231,13 @@ elif SID == "SJU":
 
 # Guam OCONUS
 elif SID == "GUM":
-    D2DMODELS = [('MRF204', 'gfsLR'),
-                 ('AVN225', 'GFS75'),
-                 'GWW233',
+    D2DMODELS = [('AVN225', 'GFS75'),
                  'GlobalWave',
                  ('TPCWindProb', 'TPCProb'),
                  'RTOFS-Guam',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('Guam-RTMA','RTMA'),
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  ('GFS20-PAC', 'GFS20'),
