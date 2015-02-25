@@ -154,6 +154,11 @@
 		<abbreviation>HCDC</abbreviation>
 		<unit>%</unit>
 	</parameter>
+        <parameter>
+                <name>Height of Planetary Boundary Layer</name>
+                <abbreviation>HPBL</abbreviation>
+                <unit>m</unit>
+        </parameter>
 	<parameter>
 		<name>Humidity Mixing Ratio</name>
 		<abbreviation>MIXR</abbreviation>
