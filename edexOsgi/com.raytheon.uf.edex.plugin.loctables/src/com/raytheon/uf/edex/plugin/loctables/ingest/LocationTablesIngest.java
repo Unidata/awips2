@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.edex.ndm.ingest.IDataSetIngester;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.edex.plugin.loctables.util.CommonObsSpatialBuilder;
@@ -55,7 +56,6 @@ import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationStoreStrategy;
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * Apr 28, 2014   3086     skorolev    Updated setupLocalFiles method
  * Sep 04, 2014   3220     skorolev    Removed parameter currentSite from FSSObs configuration managers.
- * Oct 17, 2014   3220     skorolev    Corrected FSSObsMonitorConfigurationManager instances.
  * 
  * </pre>
  * 
@@ -128,9 +128,12 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
     private void setupLocalFiles() {
         List<FSSObsMonitorConfigurationManager> monitors = new ArrayList<FSSObsMonitorConfigurationManager>();
 
-        monitors.add(FSSObsMonitorConfigurationManager.getSsObsManager());
-        monitors.add(FSSObsMonitorConfigurationManager.getFogObsManager());
-        monitors.add(FSSObsMonitorConfigurationManager.getSnowObsManager());
+        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.fog
+                .name()));
+        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.ss
+                .name()));
+        monitors.add(FSSObsMonitorConfigurationManager.getInstance(MonName.snow
+                .name()));
     }
 
     /**
