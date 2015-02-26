@@ -139,12 +139,23 @@
 
 			<var name="destination.directory" value="${edex.root.directory}/lib/plugins" />
 			<mkdir dir="${destination.directory}" />
-			<processPlugins includes.file="${includes.directory}/plugins.includes" plugin.type="plugins" plugin.directories="${basedirectories}" destination.directory="${destination.directory}" />
-			<processPlugins includes.file="${includes.directory}/core.includes" plugin.type="core" plugin.directories="${basedirectories}" destination.directory="${destination.directory}" />
+			<if>
+				<isset property="optionaldirectories" />
+				<then>
+					<var name="allDir" value="${basedirectories};${optionaldirectories}" />
+					<processPlugins includes.file="${includes.directory}/plugins.includes" plugin.type="plugins" plugin.directories="${allDir}" destination.directory="${destination.directory}" />
+					<processPlugins includes.file="${includes.directory}/core.includes" plugin.type="core" plugin.directories="${allDir}" destination.directory="${destination.directory}" />
+				</then>
+				<else>
+					<processPlugins includes.file="${includes.directory}/plugins.includes" plugin.type="plugins" plugin.directories="${basedirectories}" destination.directory="${destination.directory}" />
+					<processPlugins includes.file="${includes.directory}/core.includes" plugin.type="core" plugin.directories="${basedirectories}" destination.directory="${destination.directory}" />
+				</else>
+			</if>
+
+
 
 			<var name="destination.directory" value="${edex.root.directory}/lib/dependencies" />
 			<mkdir dir="${destination.directory}" />
-
 			<if>
 				<isset property="optionaldirectories" />
 				<then>
