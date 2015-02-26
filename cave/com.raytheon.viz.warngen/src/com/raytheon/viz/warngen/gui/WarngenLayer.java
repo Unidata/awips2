@@ -154,24 +154,24 @@ import com.vividsolutions.jts.io.WKTReader;
  * 02/01/2012   DR 14491   D. Friedman Load/unload only the maps not already loaded
  * 02/28/2012   DR 13596   Qinglu Lin  Call GisUtil.restoreAlaskaLon() in figurePoint().
  * 03/19/2012   DR 14690   Qinglu Lin  While newHatchedArea==null, handle the polygon differently
- *                                     for initial warning and followup (CON); and 
+ *                                     for initial warning and followup (CON); and
  *                                     convert ratio to percentage while doing comparison.
- * 10/29/2012   DR 15479   Qinglu Lin  Added code to call removeDuplicateCoordinate() 
+ * 10/29/2012   DR 15479   Qinglu Lin  Added code to call removeDuplicateCoordinate()
  *                                     in redrawBoxFromHatched().
  * 11/02/2012   DR 15455   Qinglu Lin  Added setWarningAction(), called redrawBoxFromTrack() while
- *                                     warningAction is neither null nor WarningAction.NEW, removed 
- *                                     some code from redrawBoxFromHatched().                                    
+ *                                     warningAction is neither null nor WarningAction.NEW, removed
+ *                                     some code from redrawBoxFromHatched().
  * 11/15/2012   DR 15430   D. Friedman Use correct county/zone in createGeometryForWatches.
  * 11/29/2012   DR 15571   Qinglu Lin  Called compuateCurrentStormCenter() in getStormLocations();
- *                                     For CON, CAN, and COR, calculate Coordinate array, cc, specifically in 
+ *                                     For CON, CAN, and COR, calculate Coordinate array, cc, specifically in
  *                                     getStormLocations().
  * 12/10/2012   DR 15571   Qinglu Lin  Change warningAction's initialization from null to WarningAction.NEW, and add code
  *                                     in getStormLocations() for handling case when warningAction equals WarningAction.NEW;
  * 12/13/2012   DR 15559   Qinglu Lin  Added code to call WarngenUIState's adjustPolygon().
- * 12/17/2012   DR 15571   Qinglu Lin  For hydro products,futurePoints is null. Resolved an issue caused by trying to get 
+ * 12/17/2012   DR 15571   Qinglu Lin  For hydro products,futurePoints is null. Resolved an issue caused by trying to get
  *                                     Coordinate[] from futurePoints.
  * 12/18/2012   DR 15571   Qinglu Lin  Resolved coordinate issue in TML line caused by clicking Restart button.
- * 01/24/2013   DR 15723   Qinglu Lin  Added initRemovedGids() and updated updateWarnedAreas() to prevent the removed 
+ * 01/24/2013   DR 15723   Qinglu Lin  Added initRemovedGids() and updated updateWarnedAreas() to prevent the removed
  *                                     counties from being re-hatched.
  * 03/06/2013   DR 15831   D. Friedman Use area inclusion filter in followups.
  * 03/28/2013   DR 15973   Qinglu Lin  Added adjustVertex() and applied it invalid polygon.
@@ -207,12 +207,12 @@ import com.vividsolutions.jts.io.WKTReader;
  * 12/17/2013  DR 16567    Qinglu Lin  Added findLargestGeometry() and findLargestQuadrant(), and updated
  *                                     populateStrings() and paintText().
  * 01/09/2014  DR 16974    D. Friedman Improve followup redraw-from-hatched-area polygons.
- * 02/07/2014  DR16090 m.gamazaychikov Added GeomMetaDataUpdateNotificationObserver class to get notification 
+ * 02/07/2014  DR16090 m.gamazaychikov Added GeomMetaDataUpdateNotificationObserver class to get notification
  *                                     when geometry file get updated to re-read them in.
  * 02/19/2014  2819        randerso    Removed unnecessary .clone() call
- * 03/17/2014  DR 16309    Qinglu Lin  Updated getWarningAreaFromPolygon(); changed searchCountyGeospatialDataAccessor) to  
+ * 03/17/2014  DR 16309    Qinglu Lin  Updated getWarningAreaFromPolygon(); changed searchCountyGeospatialDataAccessor) to
  *                                     searchGeospatialDataAccessor() and updated it; changed getCountyGeospatialDataAcessor()
- *                                     to getGeospatialDataAcessor(); changed getAllCountyUgcs() to getAllUgcs(); changed 
+ *                                     to getGeospatialDataAcessor(); changed getAllCountyUgcs() to getAllUgcs(); changed
  *                                     getUgcsForWatches() to getUgcsForCountyWatches().
  * 04/15/2014  DR 17247    D. Friedman Rework error handling in AreaHatcher.
  * 04/23/2014  DR 16356    Qinglu Lin  Updated initializeState() and added reset().
@@ -221,7 +221,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 06/23/2014  DR16322 m.gamazaychikov Fix Warngen unloading previously loaded maps.
  * 07/01/2014  DR 17450    D. Friedman Use list of templates from backup site.
  * 07/24/2014  3429        mapeters    Updated deprecated drawLine() calls.
- * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
+ * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(),
  *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
  * 08/01/2014  3471        mapeters    Updated deprecated createShadedShape() calls.
  * 08/20/2014  3353        rferrel     Generating Geo Spatial data set no longer on the UI thread.
@@ -1297,10 +1297,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
                              * ignored.
                              */
                             ignoreNotifications.add(currKey);
-                            GenerateGeoDataSetDialog genDialog = new GenerateGeoDataSetDialog(
-                                    PlatformUI.getWorkbench()
-                                            .getActiveWorkbenchWindow()
-                                            .getShell(), site, gmd);
+                            GenerateGeoDataSetDialog genDialog = null;
+
+                            if (dialog != null && dialog.isDisposed() == false) {
+                                genDialog = new GenerateGeoDataSetDialog(
+                                        dialog.getShell(), site, gmd, true);
+                            } else {
+                                genDialog = new GenerateGeoDataSetDialog(
+                                        PlatformUI.getWorkbench()
+                                                .getActiveWorkbenchWindow()
+                                                .getShell(), site, gmd, false);
+                            }
 
                             // Assume this is a blocking dialog.
                             genDialog.open();
