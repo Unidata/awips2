@@ -47,6 +47,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                     added serialization adapter, removed setters.
  * 08/06/13       #1571    randerso    Added hibernate annotations, javadoc cleanup
  * 10/22/2013     #2361    njensen     Remove ISerializableObject
+ * 02/17/2015     #4139    randerso    Fix expandTRToQuantum to work with pre-epoch times.
  * 
  * </pre>
  * 
@@ -139,9 +140,11 @@ public class TimeConstraints {
         }
 
         long secSinceMidnight = absTime.getTime() % TimeUtil.MILLIS_PER_DAY;
+        if (secSinceMidnight < 0) {
+            secSinceMidnight += TimeUtil.MILLIS_PER_DAY;
+        }
 
-        long midnight = (absTime.getTime() / TimeUtil.MILLIS_PER_DAY)
-                * TimeUtil.MILLIS_PER_DAY;
+        long midnight = absTime.getTime() - secSinceMidnight;
 
         int tStart = startTime - repeatInterval;
 

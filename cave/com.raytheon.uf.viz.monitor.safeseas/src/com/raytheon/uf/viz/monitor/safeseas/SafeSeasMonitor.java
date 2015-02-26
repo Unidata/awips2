@@ -37,6 +37,7 @@ import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -48,6 +49,7 @@ import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
 import com.raytheon.uf.viz.monitor.ObsMonitor;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
+import com.raytheon.uf.viz.monitor.data.MonitoringArea;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.uf.viz.monitor.data.TableCellData;
@@ -59,6 +61,8 @@ import com.raytheon.uf.viz.monitor.safeseas.listeners.ISSResourceListener;
 import com.raytheon.uf.viz.monitor.safeseas.threshold.SSThresholdMgr;
 import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSMonitoringAreaConfigDlg;
 import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSZoneTableDlg;
+import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
+import com.raytheon.uf.viz.monitor.util.MonitorThresholdConfiguration;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.vividsolutions.jts.geom.Geometry;
@@ -81,9 +85,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct 26, 2012 1280       skorolev    Clean code and made changes for non-blocking dialog
  * Oct 30, 2012 1297       skorolev    Changed HashMap to Map
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
- * Jan 27, 2015 3220       skorolev    Removed local getMonitorAreaConfig method.Updated configUpdate method and added updateMonitoringArea.
- *                                     Corrected ssAreaConfig assignment. Moved refreshing of table in the UI thread.
- *                                     Replaced MonitoringArea with ssAreaConfig.Updated code for better performance.
+ * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
+ * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * 
  * </pre>
  * 
@@ -107,7 +110,13 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     private SSMonitoringAreaConfigDlg areaDialog = null;
 
     /** configuration manager **/
-    private static FSSObsMonitorConfigurationManager ssAreaConfig = null;
+    private FSSObsMonitorConfigurationManager ssAreaConfig = null;
+
+    /**
+     * This object contains all observation data necessary for the table dialogs
+     * and trending plots
+     */
+    private ObMultiHrsReports obData;
 
     /** table data for the zone table **/
     private final TableData zoneTableData = new TableData(
@@ -125,6 +134,9 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
 
     /** List of SAFESEAS resource listeners **/
     private final List<ISSResourceListener> safeSeasResources = new ArrayList<ISSResourceListener>();
+
+    /** Time which Zone/County dialog shows. **/
+    private Date dialogTime = null;
 
     /** list of coordinates for each zone **/
     private Map<String, Geometry> zoneGeometries = null;
@@ -149,10 +161,14 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      */
     private SafeSeasMonitor() {
         pluginPatterns.add(ssPattern);
-        ssAreaConfig = FSSObsMonitorConfigurationManager.getSsObsManager();
+        ssAreaConfig = new FSSObsMonitorConfigurationManager(MonName.ss.name());
+        updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SAFESEAS);
         obData.setThresholdMgr(SSThresholdMgr.getInstance());
+        obData.getZoneTableData();
+        readTableConfig(MonitorThresholdConfiguration.SAFESEAS_THRESHOLD_CONFIG);
+
     }
 
     /**
@@ -161,9 +177,11 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     public static synchronized SafeSeasMonitor getInstance() {
         if (monitor == null) {
             monitor = new SafeSeasMonitor();
+            // Pre-populate dialog with an observation (METAR) for KOMA
             monitor.createDataStructures();
             monitor.getAdjAreas();
-            monitor.processProductAtStartup(ssAreaConfig);
+            monitor.processProductAtStartup("ss");
+            monitor.fireMonitorEvent(monitor);
         }
         return monitor;
     }
@@ -198,21 +216,26 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      */
     public void launchDialog(String type, Shell shell) {
         if (type.equals("zone")) {
-            zoneDialog = new SSZoneTableDlg(shell, obData);
-            addMonitorListener(zoneDialog);
-            zoneDialog.addMonitorControlListener(this);
+            if (zoneDialog == null) {
+                zoneDialog = new SSZoneTableDlg(shell, obData);
+                addMonitorListener(zoneDialog);
+                zoneDialog.addMonitorControlListener(this);
+                fireMonitorEvent(zoneDialog.getClass().getName());
+            }
             zoneDialog.open();
         } else if (type.equals("area")) {
-            areaDialog = new SSMonitoringAreaConfigDlg(shell,
-                    "SAFESEAS Monitor Area Configuration");
-            areaDialog.setCloseCallback(new ICloseCallback() {
+            if (areaDialog == null) {
+                areaDialog = new SSMonitoringAreaConfigDlg(shell,
+                        "Safe Seas Monitor Area Configuration");
+                areaDialog.setCloseCallback(new ICloseCallback() {
 
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    areaDialog = null;
-                }
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        areaDialog = null;
+                    }
 
-            });
+                });
+            }
             areaDialog.open();
         }
     }
@@ -251,7 +274,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     @Override
     public void processProductMessage(final AlertMessage filtered) {
         if (ssPattern.matcher(filtered.dataURI).matches()) {
-            processURI(filtered.dataURI, filtered, ssAreaConfig);
+            processURI(filtered.dataURI, filtered);
         }
     }
 
@@ -272,6 +295,31 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
             stationRowData.setTableCellData(i + 1, trd.getTableCellData(i));
         }
         stationTableData.addReplaceDataRow(stationRowData);
+    }
+
+    /**
+     * Reads Table Configuration.
+     * 
+     * Method that reads the table configuration and updates the zone monitor
+     * threshold map
+     * 
+     * @param file
+     *            -- the xml configuration filename
+     */
+    public void readTableConfig(String file) {
+        Map<String, List<String>> zones = new HashMap<String, List<String>>();
+        // create zones and station list
+        try {
+            for (String zone : ssAreaConfig.getAreaList()) {
+                List<String> stations = ssAreaConfig.getAreaStations(zone);
+                zones.put(zone, stations);
+            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.CRITICAL,
+                    "SafeSeas failed to load configuration..."
+                            + this.getClass().getName(), e);
+        }
+        MonitoringArea.setPlatformMap(zones);
     }
 
     /*
@@ -307,9 +355,9 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     @Override
     public void configUpdate(IMonitorConfigurationEvent me) {
         ssAreaConfig = (FSSObsMonitorConfigurationManager) me.getSource();
-        obData.getObHourReports().updateZones(ssAreaConfig);
+        updateMonitoringArea();
         if (zoneDialog != null && !zoneDialog.isDisposed()) {
-            obData.updateTableCache();
+            zoneDialog.refreshZoneTableData(obData);
             fireMonitorEvent(zoneDialog.getClass().getName());
         }
     }
@@ -365,8 +413,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     @Override
     protected void process(ObReport result) throws Exception {
         obData.addReport(result);
-        // update table cache
-        obData.getZoneTableData(result.getRefHour());
         fireMonitorEvent(this);
     }
 
@@ -375,16 +421,28 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      * 
      * @param dialogTime
      */
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.monitor.ObsMonitor#updateDialogTime(java.util.Date)
-     */
     @Override
     public void updateDialogTime(Date dialogTime) {
         this.dialogTime = dialogTime;
         fireMonitorEvent(zoneDialog.getClass().getName());
+    }
+
+    /**
+     * Gets Dialog Time.
+     * 
+     * @return dialogTime
+     */
+    public Date getDialogTime() {
+        return dialogTime;
+    }
+
+    /**
+     * Sets the dialogTime
+     * 
+     * @param dialogTime
+     */
+    public void setDialogTime(Date dialogTime) {
+        this.dialogTime = dialogTime;
     }
 
     /**
@@ -432,6 +490,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      */
     @Override
     public ArrayList<Date> getTimeOrderedKeys(IMonitor monitor, String type) {
+        // Not used
         return null;
     }
 
@@ -485,7 +544,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
             algData = algorithmData.get(time);
         } else {
             // by default is nothing in the Fog column
-            for (String zone : ssAreaConfig.getAreaList()) {
+            for (String zone : MonitoringArea.getPlatformMap().keySet()) {
                 algData.put(zone, FOG_THREAT.GRAY);
             }
         }
@@ -524,6 +583,15 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
             type = CellType.R;
         }
         return type;
+    }
+
+    /**
+     * Gets zone dialog
+     * 
+     * @return zoneDialog
+     */
+    public ZoneTableDlg getDialog() {
+        return zoneDialog;
     }
 
     /**
@@ -602,11 +670,20 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     }
 
     /**
-     * Gets SAFESEAS Area configuration dialog
+     * Reads Table Configuration.
      * 
-     * @return
+     * Method that reads the table configuration and updates the zone monitor
+     * threshold map
+     * 
      */
-    public SSMonitoringAreaConfigDlg getAreaDialog() {
-        return areaDialog;
+    public void updateMonitoringArea() {
+        Map<String, List<String>> zones = new HashMap<String, List<String>>();
+        // create zones and station list
+        for (String zone : ssAreaConfig.getAreaList()) {
+            List<String> stations = ssAreaConfig.getAreaStations(zone);
+            zones.put(zone, stations);
+        }
+        MonitoringArea.setPlatformMap(zones);
     }
+
 }
