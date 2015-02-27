@@ -23,19 +23,18 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
  * Interface used for sending status of transmitted products.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 22, 2010 #2861      lvenable     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
-public interface ITransmissionState
-{
+public interface ITransmissionState {
     void setTransmissionState(ConfigData.productStateEnum state);
 }

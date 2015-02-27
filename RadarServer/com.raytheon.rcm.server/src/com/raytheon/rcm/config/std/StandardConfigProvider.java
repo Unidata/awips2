@@ -40,6 +40,8 @@ import com.raytheon.rcm.config.LinkType;
 import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.StandardProductDistInfoDB;
 import com.raytheon.rcm.config.awips1.Awips1ConfigProvider;
+import com.raytheon.rcm.event.ConfigEvent;
+import com.raytheon.rcm.event.RadarEventListener;
 import com.raytheon.rcm.server.Log;
 
 
@@ -54,6 +56,7 @@ import com.raytheon.rcm.server.Log;
  * ------------ ---------- ----------- --------------------------
  * ...
  * 2014-02-03   DR 14762   D. Friedman Handle updated NDM config files.
+ * 2015-02-11   DR 17092   D. Friedman Handle NDM cronOTRs.xml updates.
  * </pre>
  *
  */
@@ -62,6 +65,7 @@ public class StandardConfigProvider implements ConfigurationProvider {
     private static String WSR_88D_PROD_LIST_NAME = "prodList.txt";
     private static String TDWR__PROD_LIST_NAME = "tdwrProdList.txt";
     private static String WMO_SITE_INFO_NAME = "wmoSiteInfo.txt";
+    private static String CRON_OTRS_NAME = "cronOTRs.xml";
 
 	private static JAXBContext jaxbContext;
 	private static Unmarshaller u;
@@ -266,6 +270,12 @@ public class StandardConfigProvider implements ConfigurationProvider {
             loadProdListDB();
         } else if (WMO_SITE_INFO_NAME.equals(name)) {
             updateRegionCode();
+        } else if (CRON_OTRS_NAME.equals(name)) {
+            RadarEventListener target = config.getConfigurationEventTarget();
+            if (target != null) {
+                ConfigEvent ev = new ConfigEvent(ConfigEvent.Category.CRON_OTRS);
+                target.handleConfigEvent(ev);
+            }
         } else if (Pattern.matches("^rps-.*OP.*$", name)) {
             config.notifyNationalRpsLists();
         } else {

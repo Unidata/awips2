@@ -1,7 +1,0 @@
-! Parameters and Attributes for the default METAR Resource
-!
-legendString=Mobile Land Synop
-plotModel=@PlotModels/sfcobs/synop_standard.xml
-reportType=1002
-plotDensity=15
-conditionalFilter=
