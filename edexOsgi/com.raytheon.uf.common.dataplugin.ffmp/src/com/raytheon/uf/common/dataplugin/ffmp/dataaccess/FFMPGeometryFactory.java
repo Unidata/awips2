@@ -76,6 +76,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jun 24, 2014 3170       mnash       Get the accumulated time if multiple times are requested
  * Jul 14, 2014 3184       njensen     Overrode getAvailableLevels()
  * Jul 30, 2014 3184       njensen     Overrode required and optional identifiers
+ * Feb 27, 2015 4180       mapeters    Overrode getAvailableParameters().
  * 
  * </pre>
  * 
@@ -359,13 +360,40 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                 + domain + "';";
 
         List<Object[]> results = DatabaseQueryUtil.executeDatabaseQuery(
-                QUERY_MODE.MODE_SQLQUERY, sql, "metadata", "ffmp");
+                QUERY_MODE.MODE_SQLQUERY, sql, "metadata", PLUGIN_NAME);
 
         for (Object[] oa : results) {
             pfafList.add((String) oa[0]);
         }
 
-        return pfafList.toArray(new String[pfafList.size()]);
+        return pfafList.toArray(new String[0]);
+    }
+
+    @Override
+    public String[] getAvailableParameters(IDataRequest request) {
+        StringBuilder sqlQuery = new StringBuilder("select distinct ")
+                .append(SOURCE_NAME).append(" from ").append(PLUGIN_NAME);
+
+        String keyWord = " where ";
+        for (Map.Entry<String, Object> entry : request.getIdentifiers()
+                .entrySet()) {
+            String key = entry.getKey();
+            String value = (String) entry.getValue();
+            sqlQuery.append(keyWord).append(key).append(" = '").append(value)
+                    .append("'");
+            keyWord = " and ";
+        }
+        sqlQuery.append(";");
+
+        List<Object[]> results = DatabaseQueryUtil.executeDatabaseQuery(
+                QUERY_MODE.MODE_SQLQUERY, sqlQuery.toString(), "metadata",
+                PLUGIN_NAME);
+
+        List<String> params = new ArrayList<>(results.size());
+        for (Object[] r : results) {
+            params.add((String) r[0]);
+        }
+        return params.toArray(new String[0]);
     }
 
     @Override
