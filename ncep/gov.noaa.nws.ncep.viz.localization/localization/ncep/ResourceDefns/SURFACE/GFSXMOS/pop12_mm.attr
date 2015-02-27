@@ -1,6 +1,0 @@
-! Attributes for the GFSXMOS resource with "pop12_mm" plot model
-!
-plotModel=@PlotModels/bufrmosMRF/pop12_mm.xml
-plotDensity=10
-conditionalFilter=
-legendString=GFSXMOS 12-hr POP Forecast
