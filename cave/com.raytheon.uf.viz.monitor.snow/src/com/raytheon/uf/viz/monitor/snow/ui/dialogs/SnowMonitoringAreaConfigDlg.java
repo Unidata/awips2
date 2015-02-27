@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 27, 2014 3667       skorolev    Cleaned code.
  * Nov 21, 2014 3841       skorolev    Corrected handleOkBtnSelection.
  * Dec 11, 2014 3220       skorolev    Removed unnecessary code.
+ * Feb 03, 2015 3841       skorolev    Replaced resetParams with resetStatus.
  * 
  * </pre>
  * 
@@ -71,7 +72,6 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public SnowMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SNOW);
-        SnowMonitor.getInstance();
     }
 
     /*
@@ -111,7 +111,7 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     }
                 }
                 fireConfigUpdateEvent();
-                resetParams();
+                resetStatus();
             } else { // Return back to continue edit.
                 return;
             }
