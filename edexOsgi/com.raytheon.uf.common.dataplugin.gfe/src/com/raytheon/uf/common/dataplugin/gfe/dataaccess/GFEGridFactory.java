@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
@@ -58,11 +57,11 @@ import com.raytheon.uf.common.util.StringUtil;
 /**
  * A data factory for getting gfe data from the metadata database. There are
  * currently not any required identifiers.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Feb 04, 2013           bsteffen    Initial creation
@@ -75,15 +74,16 @@ import com.raytheon.uf.common.util.StringUtil;
  * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
  * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
  * Feb 10, 2015  2866     nabowle     Overwrite subgrid size estimation.
- *
+ * Feb 26, 2015  4179     mapeters    Overrode getAvailableParameters(), added 
+ *                                    getAvailableValues(), inherits IDataFactory.
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  * @version 1.0
  */
 
-public class GFEGridFactory extends AbstractGridDataPluginFactory implements
-        IDataFactory {
+public class GFEGridFactory extends AbstractGridDataPluginFactory {
 
     public static final String MODEL_TIME = "modelTime";
 
@@ -214,6 +214,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
      * @param subGrid
      * @return
      */
+    @Override
     protected long estimateSubgridSize(GridGeometry2D gridGeom,
             SubGridGeometryCalculator subGrid) {
         long size = gridGeom.getGridRange().getSpan(0)
@@ -284,14 +285,31 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
 
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
+        return getAvailableValues(request, GFEDataAccessUtil.SITE_ID);
+    }
+
+    @Override
+    public String[] getAvailableParameters(IDataRequest request) {
+        return getAvailableValues(request, GFEDataAccessUtil.PARM_NAME);
+    }
+
+    /**
+     * Get the available values of the desired field.
+     * 
+     * @param request
+     * @param requestField
+     *            the field whose values are being retrieved
+     * @return the available values
+     */
+    private String[] getAvailableValues(IDataRequest request,
+            String requestField) {
         DbQueryRequest dbRequest = buildDbQueryRequest(request);
-        dbRequest.addRequestField(GFEDataAccessUtil.SITE_ID);
+        dbRequest.addRequestField(requestField);
         dbRequest.setDistinct(true);
-        DbQueryResponse dbResonse = executeDbQueryRequest(dbRequest,
+        DbQueryResponse dbResponse = executeDbQueryRequest(dbRequest,
                 request.toString());
 
-        return dbResonse.getFieldObjects(GFEDataAccessUtil.SITE_ID,
-                String.class);
+        return dbResponse.getFieldObjects(requestField, String.class);
     }
 
     private GFERecord asGFERecord(Object obj) {
@@ -302,5 +320,4 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
 
         return (GFERecord) obj;
     }
-
 }
