@@ -91,6 +91,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *                                    fields are used for the level one and two
  *                                    values.
  * Feb 13, 2015  4124     mapeters    Inherits IDataFactory.
+ * Feb 27, 2015  4179     mapeters    Use AbstractDataPluginFactory.getAvailableValues().
  * 
  * </pre>
  * 
@@ -503,7 +504,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory {
 
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
-        return getAvailableLocationNames(request, ICAO);
+        return getAvailableValues(request, ICAO, String.class);
     }
 
     /**

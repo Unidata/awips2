@@ -42,10 +42,8 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
 import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
@@ -76,6 +74,8 @@ import com.raytheon.uf.common.util.StringUtil;
  * Feb 10, 2015  2866     nabowle     Overwrite subgrid size estimation.
  * Feb 26, 2015  4179     mapeters    Overrode getAvailableParameters(), added 
  *                                    getAvailableValues(), inherits IDataFactory.
+ * Feb 27, 2015  4179     mapeters    Promoted getAvailableValues() to
+ *                                    AbstractDataPluginFactory.
  * 
  * </pre>
  * 
@@ -285,31 +285,14 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory {
 
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
-        return getAvailableValues(request, GFEDataAccessUtil.SITE_ID);
+        return getAvailableValues(request, GFEDataAccessUtil.SITE_ID,
+                String.class);
     }
 
     @Override
     public String[] getAvailableParameters(IDataRequest request) {
-        return getAvailableValues(request, GFEDataAccessUtil.PARM_NAME);
-    }
-
-    /**
-     * Get the available values of the desired field.
-     * 
-     * @param request
-     * @param requestField
-     *            the field whose values are being retrieved
-     * @return the available values
-     */
-    private String[] getAvailableValues(IDataRequest request,
-            String requestField) {
-        DbQueryRequest dbRequest = buildDbQueryRequest(request);
-        dbRequest.addRequestField(requestField);
-        dbRequest.setDistinct(true);
-        DbQueryResponse dbResponse = executeDbQueryRequest(dbRequest,
-                request.toString());
-
-        return dbResponse.getFieldObjects(requestField, String.class);
+        return getAvailableValues(request, GFEDataAccessUtil.PARM_NAME,
+                String.class);
     }
 
     private GFERecord asGFERecord(Object obj) {
