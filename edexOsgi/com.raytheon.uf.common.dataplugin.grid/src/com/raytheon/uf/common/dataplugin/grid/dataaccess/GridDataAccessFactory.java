@@ -61,7 +61,6 @@ import com.raytheon.uf.common.dataplugin.grid.dataquery.GridQueryAssembler;
 import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapper;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
@@ -98,6 +97,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Oct 21, 2014  3755     nabowle     Add getAvailable levels and parameters.
  * Feb 13, 2015  4124     mapeters    Inherits IDataFactory.
  * Feb 23, 2015  4016     bsteffen    Add support for geometry requests.
+ * Feb 27, 2015  4179     mapeters    Use AbstractDataPluginFactory.getAvailableValues().
  * 
  * </pre>
  * 
@@ -347,7 +347,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
 
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
-        return getAvailableLocationNames(request, GridConstants.DATASET_ID);
+        return getAvailableValues(request, GridConstants.DATASET_ID,
+                String.class);
     }
 
     /**
@@ -355,14 +356,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
      */
     @Override
     public Level[] getAvailableLevels(IDataRequest request) {
-        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
-        dbQueryRequest.setDistinct(Boolean.TRUE);
-        dbQueryRequest.addRequestField(GridConstants.LEVEL);
-
-        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
-                dbQueryRequest, request.toString());
-        return dbQueryResponse
-                .getFieldObjects(GridConstants.LEVEL, Level.class);
+        return getAvailableValues(request, GridConstants.LEVEL, Level.class);
     }
 
     /**
@@ -370,13 +364,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
      */
     @Override
     public String[] getAvailableParameters(IDataRequest request) {
-        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
-        dbQueryRequest.setDistinct(Boolean.TRUE);
-        dbQueryRequest.addRequestField(GridConstants.PARAMETER_ABBREVIATION);
-
-        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
-                dbQueryRequest, request.toString());
-        return dbQueryResponse.getFieldObjects(
+        return getAvailableValues(request,
                 GridConstants.PARAMETER_ABBREVIATION, String.class);
     }
 
@@ -442,8 +430,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
     /**
      * Get geometry data for a single point.
      */
-    private IGeometryData getGeometryData(Point point,
-            GridGeometryKey key, Set<GridRecord> records) {
+    private IGeometryData getGeometryData(Point point, GridGeometryKey key,
+            Set<GridRecord> records) {
         DefaultGeometryData data = key.toGeometryData();
         DirectPosition2D llPoint = findResponsePoint(key.getGridCoverage(),
                 point.x, point.y);
@@ -495,8 +483,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
      * DefaultGeometryDatas must be the same as the order of the data returned
      * from the provided request.
      */
-    private static void populateGeometryData(
-            Set<GridRecord> records, Request request, DefaultGeometryData[] data) {
+    private static void populateGeometryData(Set<GridRecord> records,
+            Request request, DefaultGeometryData[] data) {
         for (GridRecord record : records) {
             try {
                 Parameter parameter = record.getParameter();
