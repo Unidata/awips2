@@ -140,8 +140,4 @@
          id="gov.nasa.msfc.sport.edex.sportlma.feature"
          version="0.0.0"/>
 
-   <includes
-         id="edu.wisc.ssec.cimss.edex.convectprob.feature"
-         version="0.0.0"/>
-
 </feature>
