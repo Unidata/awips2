@@ -304,7 +304,7 @@ public class RscBundleDisplayMngr {
     }
 
     // the maximum number of rows & columns
-    private NcPaneLayout maxLayout = new NcPaneLayout(6, 6);
+    private NcPaneLayout maxLayout = new NcPaneLayout(3,3);
 
     // an RBD must be one of these display types and all resources in the RBD
     // must be compatible
@@ -1259,6 +1259,8 @@ public class RscBundleDisplayMngr {
         for (int ii = 0; ii < selectedPaneData.seldResources.size(); ii++) {
             if (!(selectedPaneData.seldResources.get(ii).getResourceData() instanceof GroupResourceData)) {
                 sels.add(selectedPaneData.seldResources.get(ii));
+                System.out.println("selectedPaneData.seldResources.get(" + ii + ")" + selectedPaneData.seldResources.get(ii));
+
             }
         }
         return (ResourceSelection[]) sels.toArray(new ResourceSelection[sels

@@ -22,7 +22,11 @@ Packager: Bryan Kowal
 AutoReq: no
 Requires: awips2-qpid-lib
 requires: awips2-python
-requires: awips2-python
+requires: compat-gcc-34-g77
+requires: gcc
+requires: gcc-c++
+requires: libxml2-devel
+requires: libtool
 provides: awips2-ldm
 provides: awips2-base-component
 
@@ -138,11 +142,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-/bin/cp init.d/* %{_build_root}/etc/init.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
 %pre
 if [ -d /tmp/ldm ]; then
    rm -rf /tmp/ldm
@@ -160,17 +159,11 @@ _ldm_dir=/usr/local/ldm
 _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
 _myHost=`hostname`
 _myHost=`echo ${_myHost} | cut -f1 -d'-'`
-
-# Remove old ldm dir
-rm -rf ${_ldm_root_dir}
-
 pushd . > /dev/null 2>&1
-cp ${_ldm_dir}/SOURCES/%{_ldm_src_tar} ${_ldm_dir}
+cd ${_ldm_dir}/SOURCES
 # unpack the ldm source
-#/bin/tar -xf %{_ldm_src_tar} \
-#   -C ${_ldm_dir}
-cd ${_ldm_dir}
-gunzip -c %{_ldm_src_tar} | pax -r '-s:/:/src/:'
+/bin/tar -xf %{_ldm_src_tar} \
+   -C ${_ldm_dir}
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -199,7 +192,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --with-retrans --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
+su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
    > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
@@ -225,8 +218,6 @@ fi
 popd > /dev/null 2>&1
 
 # unpack bin, decoders, and etc.
-pushd . > /dev/null 2>&1
-cd ${_ldm_dir}/SOURCES
 _PATCH_DIRS=( 'bin' 'decoders' 'etc' )
 for patchDir in ${_PATCH_DIRS[*]};
 do
@@ -249,27 +240,6 @@ pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/etc
 if [ $? -ne 0 ]; then
    exit 1
-fi
-if [ ! -f pqact.conf.template ]; then
-   echo "ERROR: pqact.conf.template does not exist."
-   exit 1
-fi
-if [ ! -f pqact.conf.dev ]; then
-   echo "ERROR: pqact.conf.dev does not exist."
-   exit 1
-fi
-
-cp pqact.conf.template pqact.conf
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-if [ ${_myHost} != "cpsbn1" -a ${_myHost} != "cpsbn2" -a ${_myHost} != "dx1" -a ${_myHost} != "dx2" ] ; then
-   cat pqact.conf.dev >> pqact.conf
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Unable to merge pqact.conf.dev and pqact.conf."
-      exit 1
-   fi
 fi
 popd > /dev/null 2>&1
 
@@ -344,70 +314,7 @@ if [ ! -d .ssh ] &&
    scp -qrp /tmp/ldm/.ssh /usr/local/ldm
 fi
 
-for _file in $( ls /tmp/ldm/etc/pqact.conf.* | grep -wE "pqact.conf.[a-z]{3,4}" | grep -v pqact.conf.dev | xargs ) ;
-do
-   if [[ ! -f /usr/local/ldm/etc/${_file} ]]; then
-      scp -qp ${_file} /usr/local/ldm/etc/
-   fi
-done
-#if a remote CP site, copy over the filtered data configuration
-if [ ${_myHost} == "dx1" -o ${_myHost} == "dx2" ] ; then
-   case $SITE_IDENTIFIER in gum|hfo|pbp|vrh)
-      echo -e "\nInstalling ldmd.conf for $SITE_IDENTIFIER."
-      if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn1:/usr/local/ldm/etc/ldmd.conf
-      then
-         echo "ERROR: Failed copy of ldmd.conf to cpsbn1"
-      fi
-
-      if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn2:/usr/local/ldm/etc/ldmd.conf
-      then
-         echo "ERROR: Failed copy of ldmd.conf to cpsbn2"
-      fi
-      ;;
-   esac
-fi
-
-# remove the extra configuration files
-rm -f /usr/local/ldm/etc/ldmd.conf.*
-
 /sbin/ldconfig
-
-# create route-eth1, if it does not already exist.
-if [ ${_myHost} == "cpsbn1" -o ${_myHost} == "cpsbn2" ] ; then
-   if [ ! -f /etc/sysconfig/network-scripts/route-eth1 ]; then
-      _route_eth1=/etc/sysconfig/network-scripts/route-eth1
-
-      touch ${_route_eth1}
-      echo "ADDRESS0=224.0.1.1" > ${_route_eth1}
-      echo "NETMASK0=255.255.255.255" >> ${_route_eth1}
-      echo "ADDRESS1=224.0.1.2" >> ${_route_eth1}
-      echo "NETMASK1=255.255.255.255" >> ${_route_eth1}
-      echo "ADDRESS2=224.0.1.3" >> ${_route_eth1}
-      echo "NETMASK2=255.255.255.255" >> ${_route_eth1}
-      echo "ADDRESS3=224.0.1.4" >> ${_route_eth1}
-      echo "NETMASK3=255.255.255.255" >> ${_route_eth1}
-      echo "ADDRESS4=224.0.1.5" >> ${_route_eth1}
-      echo "NETMASK4=255.255.255.255" >> ${_route_eth1}
-      echo "ADDRESS5=224.0.1.6" >> ${_route_eth1}
-      echo "NETMASK5=255.255.255.255" >> ${_route_eth1}
-
-      # restart networking
-      /sbin/service network restart
-   fi
-   
-   # check for some AWIPS specific links for the CP devices
-   for _dirs in data logs ; do
-      if [[ -h /usr/local/ldm/${_dirs} && $(readlink /usr/local/ldm/${_dirs}) != "/data/ldm/${_dirs}" ]] ; then
-         if ! rm -f /usr/local/ldm/${_dirs} ; then
-            echo "ERROR: Failed to remove /usr/local/ldm/${_dirs}"
-         else
-            if ! ln -s /data/ldm/${_dirs} /usr/local/ldm/${_dirs} ; then
-               echo "ERROR: Failed to create link from /usr/local/ldm/${_dirs} --> /data/ldm/${_dirs}"
-            fi
-         fi
-      fi
-   done
-fi
 
 rm -rf /tmp/ldm
 
@@ -416,6 +323,8 @@ rm -rf /tmp/ldm
 if [ $? -ne 0 ]; then
    exit 1
 fi
+sed -i 's/EDEX_HOSTNAME/'${_myHost}'/' ${_ldm_dir}/etc/ldmd.conf
+sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
 
 %preun
 %postun
@@ -431,6 +340,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /usr/local/ldm/SOURCES/*
 
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
+%attr(755,root,root) /etc/profile.d/awipsLDM.sh
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log
-%attr(755,root,root) /etc/init.d/ldmcp

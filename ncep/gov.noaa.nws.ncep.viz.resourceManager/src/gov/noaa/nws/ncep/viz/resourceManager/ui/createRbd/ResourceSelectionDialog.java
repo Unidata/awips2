@@ -79,7 +79,7 @@ public class ResourceSelectionDialog extends Dialog {
 
         shell = new Shell(parent, style);
         shell.setText(title);
-        // shell.setSize( 800, 520 ); // pack later
+        shell.setSize( 800, 520 ); // pack later
 
         GridLayout mainLayout = new GridLayout(1, true);
         mainLayout.marginHeight = 1;
@@ -145,10 +145,11 @@ public class ResourceSelectionDialog extends Dialog {
             shell.setSize(1000, 300);
         }
 
-        shell.pack();
+        //shell.pack();
         if (dispType == NcDisplayType.NTRANS_DISPLAY) {
             shell.setSize(1000, 600);
         }
+        shell.setSize(1000, 600);
         shell.open();
 
         while (!shell.isDisposed()) {

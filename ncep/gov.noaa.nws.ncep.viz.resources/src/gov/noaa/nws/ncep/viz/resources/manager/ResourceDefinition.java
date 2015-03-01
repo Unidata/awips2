@@ -99,6 +99,9 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
     private String resourceDefnName;
 
     @XmlElement
+    private String resourceMapName; // resource map name defined in each resource file
+    
+    @XmlElement
     @XmlJavaTypeAdapter(ResourceCategory.ResourceCategoryAdapter.class)
     private ResourceCategory resourceCategory;
 
@@ -344,6 +347,10 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
 
     public String getResourceDefnName() {
         return resourceDefnName;
+    }
+    
+    public String getMapName() {
+        return resourceMapName;
     }
 
     public Boolean getAddToURICatalog() {
