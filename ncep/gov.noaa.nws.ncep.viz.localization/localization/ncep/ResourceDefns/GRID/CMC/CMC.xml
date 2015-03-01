@@ -4,7 +4,7 @@
     <resourceDefnName>CMC</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=cmc
+GDFILE=CMC-REG
 pluginName=grid
     </resourceParameters>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
@@ -14,6 +14,6 @@ pluginName=grid
     <frameSpan>60</frameSpan>
     <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
     <dfltFrameCount>999</dfltFrameCount>
-    <dfltTimeRange>384</dfltTimeRange>
+    <dfltTimeRange>96</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
 </ResourceDefinition>
