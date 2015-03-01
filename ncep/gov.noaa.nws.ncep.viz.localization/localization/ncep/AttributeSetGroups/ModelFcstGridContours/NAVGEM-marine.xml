@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NAVGEM</resource>
     <attrSetGroupName>marine</attrSetGroupName>
-    <attrSetNames>1000mb_hght_absv,850mb_hght_absv,pmsl_1000-850_thk_global,pmsl_and_bl_wind_nogaps</attrSetNames>
+    <attrSetNames>1000mb_hght_absv,850mb_hght_absv,pmsl_1000-850_thk_global,pmsl_and_bl_wind_navgem</attrSetNames>
 </AttributeSetGroup>
