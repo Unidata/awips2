@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resourceDefnName>BWX1224</resourceDefnName>
+    <resourceMapName>BWUS1224</resourceMapName>
     <resourceCategory>OVERLAY</resourceCategory>
 	<resourceParameters>
 dbName=ncep
 tableName=bounds.bwx1224
 labelField=name
-mapName=BWUS1224 </resourceParameters>    
+mapName=BWUS1224</resourceParameters>    
     <rscImplementation>DbOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
