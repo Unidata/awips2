@@ -35,6 +35,10 @@
 		<substitute key="modelName" value="${RAPmodel}"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
+		menuText="HRRR" id="hrrrstdenv" useReferenceTime="true">
+		<substitute key="modelName" value="${HRRRmodel}"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
 		menuText="NAM12" id="nam12stdenv" useReferenceTime="true">
 		<substitute key="modelName" value="${NAM12model}"/>
 	</contribute>
