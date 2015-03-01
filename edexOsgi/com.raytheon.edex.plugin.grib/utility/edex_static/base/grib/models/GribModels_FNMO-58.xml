@@ -10,6 +10,100 @@
 
 <gribModelSet>
 
+	<!-- Unidata Additions -->
+
+	<model>
+		<name>NAVGEM</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>720361001</grid>
+		<process>
+			<id>18</id>
+		</process>
+	</model>
+
+	<model>
+		<name>COAMPS-EU</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>301186</grid>
+		<process>
+			<id>22</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-CA</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>301161</grid>
+		<process>
+			<id>27</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-EP</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>231156</grid>
+		<process>
+			<id>60</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-WA</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>191176</grid>
+		<process>
+			<id>63</id>
+		</process>
+	</model>
+
+	<model>
+		<name>FNMOC-WW3</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>360181</grid>
+		<process>
+			<id>110</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>FNMOC-WW3-EU</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>301186</grid>
+		<process>
+			<id>111</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>FNMOC-FAROP</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>360181001</grid>
+		<process>
+			<id>135</id>
+		</process>
+	</model>
+	<model>
+		<name>FNMOC-NCODA</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>1440721</grid>
+		<process>
+			<id>78</id>
+		</process>
+	</model>
+
+
+	<!-- END Unidata Additions -->
+	
 	<!-- SUBCENTER 20 -->
 
 	<model>
@@ -118,7 +212,7 @@
 	</model>
 
 	<model>
-		<name>fnmocWave</name>
+		<name>FNMOC-WW3</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
 		<grid>2291</grid>
