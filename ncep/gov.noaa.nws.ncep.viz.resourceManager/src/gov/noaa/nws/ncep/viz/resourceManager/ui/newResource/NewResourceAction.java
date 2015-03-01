@@ -143,9 +143,9 @@ public class NewResourceAction extends AbstractHandler {
    									shell, "No Data", null, 
    									"There is no data available for this resource.",
    									MessageDialog.INFORMATION, new String[]{"Ok"}, 0);
-   							msgDlg.open();
-   							rscSelDlg.close();
-   							return;
+   							//msgDlg.open();
+   							//rscSelDlg.close();
+   							//return;
    						}
    					
    	   					// if no timeline is set then use the selected resource as the dominant 

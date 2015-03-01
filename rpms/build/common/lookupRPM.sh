@@ -26,6 +26,7 @@ function lookupRPM()
    awips2_core_dir="${rpms_dir}/awips2.core"
    awips2_edex_dir="${rpms_dir}/awips2.edex"
    awips2_qpid_dir="${rpms_dir}/awips2.qpid"
+   awips2_upc_dir="${rpms_dir}/awips2.upc"
    python_site__dir="${rpms_dir}/python.site-packages"
 
    installer_dir="${rpms_dir}/../installers/RPMs"
@@ -225,6 +226,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-ldm" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ldm"
+      return 0
+   fi
+   if [ "${1}" = "awips2-edex-upc" ]; then
+      export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.edex-upc"
       return 0
    fi
    if [ "${1}" = "awips2-postgres" ]; then

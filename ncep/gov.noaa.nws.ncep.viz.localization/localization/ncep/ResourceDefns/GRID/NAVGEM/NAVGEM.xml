@@ -4,7 +4,7 @@
     <resourceDefnName>NAVGEM</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=nogaps
+GDFILE=NAVGEM
 pluginName=grid
     </resourceParameters>
     <rscImplementation>ModelFcstGridContours</rscImplementation>

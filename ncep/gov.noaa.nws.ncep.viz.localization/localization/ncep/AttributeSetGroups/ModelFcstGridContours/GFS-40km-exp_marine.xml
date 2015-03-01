@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>GFS-40km</resource>
+    <attrSetGroupName>exp_marine</attrSetGroupName>
+    <attrSetNames>1000-850thk_only,500_vort_only,marine_fronts,pmsl_1000-500thk,pmsl_1000-850thk_global,pmsl_only,bl_winds_only_global</attrSetNames>
+</AttributeSetGroup>
