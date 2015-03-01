@@ -78,7 +78,7 @@ import com.raytheon.viz.ui.panes.VizDisplayPane;
  */
 public class NcDisplayMngr {
 
-    public static final String CaveTitle = "CAVE";
+    public static final String CaveTitle = "AWIPS II";
 
     // We could maintain an active list or map of all the open Editors and
     // reference but instead just have some methods to get all the open editors
