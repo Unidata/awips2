@@ -71,6 +71,7 @@
 * Date        Developer         Action
 * 08/16/2007  Guoxian Zhou      first version 
 * 07/2013     JingtaoD          dual pol
+* 02/2015     JingtaoD          A2 OB14.4.1 DR#17123 - HPE Bias Source field
 ***********************************************************************/
 
 static double  ** origLocBias = NULL;
@@ -102,7 +103,8 @@ int applyLocalBias(const time_t tRunTime ,
     struct tm * pRunTime = NULL ;
 
     static int first = 0;
-    char prefix[10] = {'\0'};
+
+    char prefix[20] = {'\0'};
 
     int i, j ;
 
@@ -128,7 +130,7 @@ int applyLocalBias(const time_t tRunTime ,
 	    {
 	      strcpy(prefix, "LOCBIASDP");
 	      sprintf ( message , "STATUS: using dual pol local bias.") ;
-              printMessage( message );
+          hpe_fieldgen_printMessage( message );
             }		
 	
 	}
@@ -138,7 +140,7 @@ int applyLocalBias(const time_t tRunTime ,
             {
         	sprintf ( message , "WARNING: token \"%s\" not available"
                 	  " - using mean field bias.", LOCBIAS_DIR_TOKEN) ;
-        	printMessage( message );
+        	hpe_fieldgen_printMessage( message );
 
         	return 0;
 
@@ -147,7 +149,7 @@ int applyLocalBias(const time_t tRunTime ,
 	    {
 	       strcpy(prefix, "LOCBIAS");
 	       sprintf ( message , "STATUS: using single pol local bias.") ;
-              printMessage( message );
+           hpe_fieldgen_printMessage( message );
 	    }
 	}
 
@@ -161,7 +163,7 @@ int applyLocalBias(const time_t tRunTime ,
                      "%Y%m%d%H", pRunTime);
         
             sprintf(fileName, "%s/%s%sz", localBiasDir, prefix, strDateTime ); 
-	        sprintf(message, "STATUS: local bias file name is %s.", fileName);
+	        sprintf(message, "STATUS: in apply_local_bias-local bias file name is %s.", fileName);
 	        hpe_fieldgen_printMessage( message );
 	    
     
