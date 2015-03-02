@@ -81,6 +81,7 @@
 *                               first try to find the DSA product from dsaradar
 *                               table and calculate the 1 hour precipitation. if
 *                               not able to get DSA product, then use DSP product
+* 02/2015     JingtaoD          A2 OB14.4.1 DR#17123 - HPE Bias Source field
 ***********************************************************************/
 
 extern short  ** radarMiscBins ;
@@ -195,6 +196,10 @@ void runERMosaic(const run_date_struct * pRunDate,
     int  dualpol_meanbias_flag[MAX_RADAR_NUM];
     int  sp_meanbias_flag[MAX_RADAR_NUM];
     int  dualpol_data_avail[MAX_RADAR_NUM];
+    int nobias_flag;
+
+    /*ERMOSAIC product has no bias applied */
+    nobias_flag = 1;
     
     /* initialize no dualpol MFB and no dual pol product avialble for each radar */
     for (i = 0; i < MAX_RADAR_NUM; i++)
@@ -970,7 +975,7 @@ void runERMosaic(const run_date_struct * pRunDate,
     printLogMessage( message );
     
     if(blnMosaic[ermosaic] == 1)
-       wrtodb_HPERadarResult(ermosaic_fileName,  prdDateTime, pEMPEParams, dualpol_used);
+       wrtodb_HPERadarResult(ermosaic_fileName,  prdDateTime, pEMPEParams, dualpol_used, nobias_flag);
     
     sprintf ( message , "\nSTATUS:  In ERMOSAIC, complete insert/update HPERadarResult table");
     printLogMessage( message );

@@ -73,7 +73,7 @@
 * April 2005  Guoxian Zhou      converted to C Language 
 * 10/05/2006  Guoxian Zhou      Modified for empe version 
 * 08/08/2007  Guoxian Zhou      add option to use local bias data 
-*
+* 02/2015     JingtaoD          A2 OB14.4.1 DR#17123 - HPE Bias Source field
 ***********************************************************************/
 extern int dualpol_used;
 
@@ -113,8 +113,12 @@ void runEBMosaic(const run_date_struct   * pRunDate ,
     static int first = 1 ;
     struct tm * pRunTime = NULL ;
     long int irc ;
+    int nobias_flag;
 
     int status = 0 ;
+
+    /* for EBMOSAIC, there is bias applied */
+    nobias_flag = 0;
 
     /*      
      * strDateTime string should be in format: yyyymmddHHMM
@@ -225,7 +229,7 @@ void runEBMosaic(const run_date_struct   * pRunDate ,
     sprintf ( message , "\nSTATUS:  In EBMOSAIC, insert/update HPERadarResult table");
     printLogMessage( message );
 
-    wrtodb_HPERadarResult(fileName, prdDateTime, pEMPEParams, dualpol_used);
+    wrtodb_HPERadarResult(fileName, prdDateTime, pEMPEParams, dualpol_used, nobias_flag);
 
     sprintf ( message , "\nSTATUS:  In EBMOSAIC, complete insert/update HPERadarResult table");
     printLogMessage( message );
