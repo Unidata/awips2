@@ -86,9 +86,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Changes for non-blocking CoopAgencyOfficeDlg.
  *                                     Changes for non-blocking CopyNewLocationDlg.
  *                                     Changes for non-blocking CountyStateDlg.
- * 08 Jan 2015 15695, 15488 djingtao    fix the save/update text field with apostrophe, repleace the single
+ * 08 Jan 2015 15695, 15488 djingtao   fix the save/update text field with apostrophe, repleace the single
  *                                     apostrophe to two single apostrophe before save/update to database.  
- * 02 Feb 2015 13372        djingtao    change the GMT time to local time for "revise" field                                                                  
+ * 02 Feb 2015 13372        djingtao   change the GMT time to local time for "revise" field                                                                  
  * 
  * 
  * </pre>
