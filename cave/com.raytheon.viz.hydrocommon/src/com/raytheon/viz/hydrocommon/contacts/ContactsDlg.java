@@ -60,7 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Feb 13, 2013 15794       wkwock      Make Sequence number goes up to 99
  * Jul 10, 2013 2088        rferrel     Make dialog non-blocking.
  * Feb 03, 2015 16883       djingtao    Contact "New" button causes record to be written to the db
- * 
+ * Feb 03, 2015 14147       djingtao    "Sequence" number in Contact
  * </pre>
  * 
  * @author lvenable
