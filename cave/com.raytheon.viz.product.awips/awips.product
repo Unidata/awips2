@@ -33,7 +33,7 @@
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=98</vmArgs>
       <vmArgsLin>-Xmx1280M -XX:MaxDirectMemorySize=2G</vmArgsLin>
-      <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx768M</vmArgsWin>
+      <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx1536M</vmArgsWin>
    </launcherArgs>
 
    <windowImages/>
