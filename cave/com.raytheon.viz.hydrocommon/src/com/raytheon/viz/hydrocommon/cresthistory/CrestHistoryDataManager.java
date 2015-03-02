@@ -30,7 +30,7 @@ package com.raytheon.viz.hydrocommon.cresthistory;
  * ------------   ----------  ----------- --------------------------
  * Dec 11, 2008   1628  dhladky  initial
  * Nov 04, 2010   5518	lbousaid	added all/above/bellow flag to
- * 									getRiverCrestData
+ * 								getRiverCrestData
  * Jan 09, 2015  16698  JingtaoD    Crest History failed validation dialog pops up when OK button clicked
  * 
  * </pre>
