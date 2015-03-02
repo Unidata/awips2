@@ -78,7 +78,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 16,2012  14797       wkwock      Change lat/lon from hour minute sec to decimal.
  * Jun 11,2013  2088        rferrel     Make dialog non-blocking.
  *                                      Changes for non-blocking FcstPointGroupDlg.
- * Feb.02, 2015 #13372      djingtao    change from GMT time to local time for "Revise" field                                      
+ * Feb.02, 2015 #13372      djingtao    Change from GMT time to local time for "Revise" field                                      
  * 
  * </pre>
  * 
