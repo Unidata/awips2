@@ -1,0 +1,6 @@
+../awips2-foss/lib/* ../awips2-core-foss/lib/*
+../awips2-core/common/* ../awips2-core/edex/* ../awips2-core/features/* ../awips2-core/viz/*
+../awips2-ohd/lib/* ../awips2-ohd/edex/* ../awips2-ohd/features/* ../awips2-ohd/apps/* 
+../awips2-build-server/*
+RadarServer/ edexOsgi/ cave/ ncep/ ost/ localization/* 
+javaUtilities/* rpms pythonPackages nativeLib/* 
