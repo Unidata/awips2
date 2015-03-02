@@ -37,9 +37,7 @@ import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.numeric.source.DataSource;
 
 /**
@@ -60,6 +58,7 @@ import com.raytheon.uf.common.numeric.source.DataSource;
  * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
  * Sep 29, 2014  3596     nabowle     Always put creatingEntity in attributes.
  * Feb 13, 2015  4124     mapeters    Overrode getAvailableParameters(), inherits IDataFactory.
+ * Feb 27, 2015  4179     mapeters    Use AbstractDataPluginFactory.getAvailableValues().
  * 
  * </pre>
  * 
@@ -170,7 +169,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
 
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
-        return getAvailableLocationNames(request, FIELD_SECTOR_ID);
+        return getAvailableValues(request, FIELD_SECTOR_ID, String.class);
     }
 
     /**
@@ -178,14 +177,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
      */
     @Override
     public String[] getAvailableParameters(IDataRequest request) {
-        DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
-        dbQueryRequest.setDistinct(Boolean.TRUE);
-        dbQueryRequest.addRequestField(FIELD_PYHSICAL_ELEMENT);
-
-        DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
-                dbQueryRequest, request.toString());
-        return dbQueryResponse.getFieldObjects(FIELD_PYHSICAL_ELEMENT,
-                String.class);
+        return getAvailableValues(request, FIELD_PYHSICAL_ELEMENT, String.class);
     }
 
 }
