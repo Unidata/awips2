@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -68,6 +69,7 @@ import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
 import com.raytheon.uf.viz.core.procedures.AlterBundleFactory;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.procedures.IAlterBundleContributor;
@@ -78,6 +80,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureComm.BundlePair;
 import com.raytheon.viz.ui.HistoryList;
+import com.raytheon.viz.ui.IRenameablePart;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.actions.SaveBundle;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -85,13 +88,13 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
- *
+ * 
  * Dialog for loading or modifying procedures.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                                     Initial Creation
@@ -104,8 +107,10 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Jun 7, 2013  2074       mnash       Remove resource if doesn't instantiate correctly
  * Aug 11, 2014 3480       bclement    added info logging when procedure is loaded
  * Jan 06, 2015 3879       nabowle     Disallow copy-in when the view is empty.
+ * Mar 02, 2015 4204       njensen     Copy In uses tab name if applicable
+ * 
  * </pre>
- *
+ * 
  * @author unknown
  * @version 1.0
  */
@@ -338,7 +343,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
             /*
              * (non-Javadoc)
-             *
+             * 
              * @see
              * com.raytheon.viz.ui.dialogs.procedure.ProcedureComm.ICopyOutListener
              * #copyOut(com.raytheon.viz.ui.dialogs.procedure.ProcedureComm.
@@ -569,7 +574,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                     InputDialog id = new InputDialog(shell,
                             "Enter Bundle Name", "Enter bundle name:", b.name,
                             null);
-                    if (InputDialog.OK == id.open()) {
+                    if (Window.OK == id.open()) {
                         String newName = id.getValue();
 
                         if (newName != null
@@ -742,7 +747,16 @@ public class ProcedureDlg extends CaveSWTDialog {
                     }
 
                     BundlePair bp = new BundlePair();
-                    bp.name = HistoryList.getInstance().getLabels()[0];
+                    if (!IRenameablePart.DEFAULT_PART_NAME.equals(b.getName())
+                            && b.getDisplays()[0] instanceof MapRenderableDisplay) {
+                        /*
+                         * This is a horrible hack to get a renamed editor's
+                         * name instead of the default of Map.
+                         */
+                        bp.name = b.getName();
+                    } else {
+                        bp.name = HistoryList.getInstance().getLabels()[0];
+                    }
                     bp.xml = sb;
                     bundles.add(bp);
                     resyncProcedureAndList();
@@ -1083,9 +1097,9 @@ public class ProcedureDlg extends CaveSWTDialog {
     /**
      * If there is a procedure dialog open for the given filename, return it,
      * otherwise null.
-     *
+     * 
      * @param fileName
-     * @return
+     * @return the dialog if it's open for for the filename
      */
     public static ProcedureDlg getDialog(String fileName) {
         synchronized (ProcedureDlg.openDialogs) {
@@ -1096,7 +1110,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     /**
      * Get the ProcedureDlg for the given fileName and display it.
-     *
+     * 
      * @param fileName
      * @param p
      * @param parent

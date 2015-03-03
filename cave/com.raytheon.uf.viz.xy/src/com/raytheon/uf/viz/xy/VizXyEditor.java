@@ -43,7 +43,8 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 8, 2009            mschenke     Initial creation
+ * Oct 08, 2009            mschenke     Initial creation
+ * Mar 02, 2015  4204      njensen      Overrode setPartName()
  * 
  * </pre>
  * 
@@ -149,6 +150,11 @@ public class VizXyEditor extends VizMultiPaneEditor implements
         // Graphs must set color for their pane and their inset pane
         super.setColor(mode, newColor);
         setColor(getPaneManager().getInsetPanes(), newColor);
+    }
+
+    @Override
+    public void setPartName(String partName) {
+        super.setPartName(partName);
     }
 
 }
