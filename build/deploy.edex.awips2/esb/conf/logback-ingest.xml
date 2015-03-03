@@ -85,11 +85,6 @@
       <appender-ref ref="purge"/>
    </appender>
 
-   <logger name="PerformanceLogger" additivity="false">
-      <level value="DEBUG"/>
-      <appender-ref ref="PerformanceLogAsync" />
-   </logger>
-
    <include file="${edex.home}/conf/logback-edex-loggers.xml" />
    <include file="${edex.home}/conf/logback-edex-limited-loggers.xml"/>
    <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml"/>
