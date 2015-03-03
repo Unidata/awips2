@@ -91,7 +91,7 @@ public class DailyQcUtils {
 
     private Date selDate;
 
-    public int qcDays;
+    public static int qcDays;
 
     public int firstTok = 1;
 
@@ -185,7 +185,7 @@ public class DailyQcUtils {
 
     private String mpe_dqc_warningpopup_val = "";
 
-    public String mpe_gridmasks;
+    public static String mpe_gridmasks;
 
     public String mpe_rfc_name;
 
@@ -225,15 +225,15 @@ public class DailyQcUtils {
 
     public String mpe_dev_temperature_dir;
 
-    public String mpe_station_list_dir;
+    public static String mpe_station_list_dir;
 
     public String mpe_climo_list_dir;
 
     public String mpe_prism_dir;
 
-    public int mpe_dqc_max_precip_neighbors;
+    public static int mpe_dqc_max_precip_neighbors;
 
-    public int mpe_dqc_max_temp_neighbors;
+    public static int mpe_dqc_max_temp_neighbors;
 
     public float mpe_dqc_precip_deviation;
 
@@ -301,13 +301,13 @@ public class DailyQcUtils {
 
     public int pid = newPid();
 
-    public int emonth;
+    public static int emonth;
 
-    public int smonth;
+    public static int smonth;
 
     private int max_basins;
 
-    public Calendar btime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    public static Calendar btime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
     /* Define timefile file extensions. */
     public String timefile[][] = {
