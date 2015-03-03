@@ -83,6 +83,7 @@ import com.raytheon.viz.satellite.inventory.DerivedSatelliteRecord;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.raytheon.viz.awipstools.IToolChangedListener;
 
 /**
  * Provides satellite raster rendering support
@@ -123,6 +124,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  Jun 12, 2014  3238      bsteffen    Implement Interrogatable
  *  Aug 21, 2014  DR 17313  jgerth      Set no data value if no data mapping
  *  Oct 15, 2014  3681      bsteffen    create renderable in interrogate if necessary.
+ *  Mar 3, 2015   DCS 14960 jgerth      Retrieve legend from style rules if available
  * 
  * </pre>
  * 
@@ -131,7 +133,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class SatResource extends
         AbstractPluginDataObjectResource<SatResourceData, IMapDescriptor>
-        implements ImageProvider, Interrogatable {
+        implements ImageProvider, Interrogatable, IToolChangedListener {
 
     /**
      * String id to look for satellite-provided data values
@@ -338,6 +340,7 @@ public class SatResource extends
         match.setLevels(Arrays.asList((Level) level));
         match.setCreatingEntityNames(Arrays.asList(record.getCreatingEntity()));
         Unit<?> unit = SatDataRetriever.getRecordUnit(record);
+        String lg = null;
         try {
             StyleRule sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, match);
@@ -364,10 +367,10 @@ public class SatResource extends
                     unit);
 
             sampleRange = preferences.getSamplePrefs();
-            String lg = preferences.getLegend();
+            lg = preferences.getLegend();
             // test, so legend is not over written with empty string
-            if (lg != null && !lg.trim().isEmpty()) {
-                legend = lg;
+            if (lg != null && lg.trim().isEmpty()) {
+                lg = null;
             }
         } catch (StyleException e) {
             throw new VizException(e.getLocalizedMessage(), e);
@@ -402,7 +405,11 @@ public class SatResource extends
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
 
-        this.legend = getLegend(record);
+        if (lg != null) {
+            this.legend = lg;
+        } else {
+            this.legend = getLegend(record);
+        }
     }
 
     @Override
@@ -648,4 +655,8 @@ public class SatResource extends
         return result;
     }
 
+    @Override
+    public void toolChanged() {
+        issueRefresh();
+    }
 }
