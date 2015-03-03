@@ -68,7 +68,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 06/13/13     #2044      randerso    Converted from singleton to instance per 
  *                                     site managed by IFPServer
  * 10/07/2014   #3684      randerso    Restructured IFPServer start up
- * 01/07/15      629    mgamazaychikov Add getAllLocks method.
+ * 03/03/15      629    mgamazaychikov Add getAllLocks method.
  * </pre>
  * 
  * @author bphillip
@@ -909,19 +909,15 @@ public class LockManager {
         }
     }
 
-    public ServerResponse <?> getAllLocks() {
-        ServerResponse<List<LockTable>> sr = new ServerResponse<List<LockTable>>();
+    public List<Lock> getAllLocks(String siteId) throws GfeException {
+        List<Lock> lt = new ArrayList<Lock>();
         try {
-            List<LockTable> payLoad = null;
-            Map<ParmID, LockTable> lockMap = dao.getAllLocks();
-            payLoad = new ArrayList<LockTable>(lockMap.size());
-            payLoad.addAll(lockMap.values());
-            sr.setPayload(payLoad);
+            lt = dao.getAllLocks(siteId);
         } catch (Exception e) {
-            sr.addMessage("Error getting lock tables for");
-            sr.setPayload(new ArrayList<LockTable>(0));
+            throw new GfeException("Error getting lock tables for site "
+                    + this.siteId + ": " + e.getMessage());
         }
-
-        return sr;
+        return lt;
     }
+
 }
