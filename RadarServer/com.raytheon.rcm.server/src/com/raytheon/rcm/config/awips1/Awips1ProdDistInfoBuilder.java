@@ -143,12 +143,13 @@ public class Awips1ProdDistInfoBuilder {
 	// 	Because the radar ingest system uses zero as the value that stands for the
 	// 	null tilt, any bin including 0.0 must have 0.0 as the primary tilt.
 	// ... not sure if this applies to us
+	// 02/27/2015 DR17099   zwang    For TLAS, the first elev 0.8 should match to 0.5
 
 	// Sequence of (group-rep1, min1, max1, group-rep2, min2, max2, ...)
 	protected static int[] angleGroups = { 
 			0, 0, 3,
-			5, 4, 7,
-			9, 8, 11,
+			5, 4, 8,
+			9, 9, 11,
 			15, 12, 16,
 			18, 17, 20,
 			24, 21, 26,
