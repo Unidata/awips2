@@ -74,9 +74,10 @@
 * Date        Developer     Action
 * 8/13/2006   Guoxian Zhou  Build operational version
 * 07/2013     Jingtao Deng  Modify for adding dual pol producat DPR
- *                           first try to find the DPR product from dprradar
- *                           table and calculate the rain rate. if
- *                           not able to get DPR product, then use DHR product
+*                           first try to find the DPR product from dprradar
+*                           table and calculate the rain rate. if
+*                           not able to get DPR product, then use DHR product
+* 02/2015     JingtaoD      A2 OB14.4.1 DR#17123 - HPE Bias Source field
 ***********************************************************************/
 
 extern short  ** radarMiscBins ;
@@ -164,6 +165,10 @@ void runDHRMosaic(const run_date_struct * pRunDate,
     int  dualpol_meanbias_flag[MAX_RADAR_NUM];
     int  sp_meanbias_flag[MAX_RADAR_NUM];
     int dualpol_data_avail[MAX_RADAR_NUM];
+    int nobias_flag;
+
+    /* for DHR product, there is no bias applied */
+    nobias_flag = 1;
     
     /* initialize no dualpol MFB and no dual pol product avialble for each radar */
     for (i = 0; i < MAX_RADAR_NUM; i++)
@@ -652,7 +657,7 @@ void runDHRMosaic(const run_date_struct * pRunDate,
     sprintf ( message , "\nSTATUS:  In DHRMOSAIC, insert/update HPERadarResult table");
     printLogMessage( message );
     
-    wrtodb_HPERadarResult(dhrmosaic_fileName, prdDateTime, pEMPEParams, dualpol_used);
+    wrtodb_HPERadarResult(dhrmosaic_fileName, prdDateTime, pEMPEParams, dualpol_used, nobias_flag);
 
     sprintf ( message , "\nSTATUS:  In DHRMOSAIC, complete insert/update HPERadarResult table");
     printLogMessage( message );
