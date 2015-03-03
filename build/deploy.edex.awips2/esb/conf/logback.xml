@@ -4,7 +4,7 @@
    <!-- Simple default logback. -->
    <include file="${edex.home}/conf/logback-edex-loggers.xml" />
    <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
-   
+
    <!-- default logging --> 
    <root> 
       <level value="INFO"/> 
