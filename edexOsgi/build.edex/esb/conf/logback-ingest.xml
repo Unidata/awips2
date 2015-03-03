@@ -71,7 +71,7 @@
    </appender> 
 
    <!-- activeTableChange log --> 
-   <appender name="activeTableLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+   <appender name="activeTableChangeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
          <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-activeTableChange-%d{yyyyMMdd}.log</fileNamePattern>
          <maxHistory>30</maxHistory>
