@@ -70,6 +70,7 @@ import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
 import com.raytheon.viz.mpe.ui.dialogs.QcPrecipOptionsDialog;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
+import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Stn;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -125,6 +126,10 @@ public class PointPrecipPlotResource extends
             "Blue", "Blue", "Yellow", "Yellow", "Yellow2", "VioletRed", "Red",
             "White" };
 
+    Pdata pdata[];
+
+    ArrayList<Station> station;
+    
     private int time_pos = 0;
 
     private Hashtable<String, Stn> pdataMap;
@@ -148,6 +153,8 @@ public class PointPrecipPlotResource extends
     public PointPrecipPlotResource(PointPrecipResourceData resourceData,
             LoadProperties props) {
         super(resourceData, props);
+        pdata = DailyQcUtils.pdata;
+        station = DailyQcUtils.precip_stations;
         prevPcpnDay = 0;
         df.setMaximumFractionDigits(2);
         df.setMaximumIntegerDigits(4);
@@ -172,9 +179,9 @@ public class PointPrecipPlotResource extends
         strTree = new STRtree();
         gageData = dqc.new Station();
 
-        if (!dqc.precip_stations.isEmpty()) {
+        if (!DailyQcUtils.precip_stations.isEmpty()) {
             int i = 0;
-            for (ListIterator<Station> it = dqc.precip_stations.listIterator(); it
+            for (ListIterator<Station> it = DailyQcUtils.precip_stations.listIterator(); it
                     .hasNext();) {
                 gageData = it.next();
                 Coordinate xy = new Coordinate();
@@ -188,7 +195,7 @@ public class PointPrecipPlotResource extends
                 kv.append(pm);
                 dataMap.put(kv.toString(), gageData);
                 pdataMap.put(kv.toString(),
-                        DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i]);
+                        pdata[DailyQcUtils.pcpn_day].stn[i]);
 
                 /* Create a small envelope around the point */
                 Coordinate p1 = new Coordinate(xy.x + .02, xy.y + .02);
@@ -199,7 +206,7 @@ public class PointPrecipPlotResource extends
                 data.add("STATION: "
                         + gageData.hb5
                         + " VALUE: "
-                        + DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data);
+                        + pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data);
                 strTree.insert(env, data);
                 i++;
             }
@@ -276,9 +283,9 @@ public class PointPrecipPlotResource extends
             int dcmode = OtherPrecipOptions.dcmode;
             int tcmode = OtherPrecipOptions.tcmode;
             int dmvalue = dqc.dmvalue;
-            int tsmax = dqc.tsmax;
+            int tsmax = DailyQcUtils.tsmax;
             boolean frzlvl_flag = dqc.frzlvl_flag;
-            int gage_char[] = dqc.gage_char;
+            int gage_char[] = DailyQcUtils.gage_char;
             int find_station_flag = dqc.find_station_flag;
             String mbuf = "";
             String tbuf = "";
@@ -304,7 +311,7 @@ public class PointPrecipPlotResource extends
                 return;
             }
             if ((station.elev >= 0)
-                    && (station.elev < dqc.elevation_filter_value)) {
+                    && (station.elev < DailyQcUtils.elevation_filter_value)) {
                 return;
             }
 
@@ -334,7 +341,7 @@ public class PointPrecipPlotResource extends
 
             for (m = 0; m < tsmax; m++) {
                 if (station.parm.substring(3, 5)
-                        .equalsIgnoreCase(dqc.ts[m].abr)
+                        .equalsIgnoreCase(DailyQcUtils.ts[m].abr)
                         && (DailyQcUtils.dflag[m + 1] == 1)) {
                     break;
                 }
@@ -347,9 +354,9 @@ public class PointPrecipPlotResource extends
             for (m = 0; m < 9; m++) {
 
                 if ((m == pdataMap.get(key).frain[time_pos].qual)
-                        && (dqc.qflag[m] == 1)) {
+                        && (DailyQcUtils.qflag[m] == 1)) {
                     break;
-                } else if ((m == 7) && (dqc.qflag[7] == 1)
+                } else if ((m == 7) && (DailyQcUtils.qflag[7] == 1)
                         && (pdataMap.get(key).frain[time_pos].data == -99)
                         && (pdataMap.get(key).frain[time_pos].qual == -99)) {
                     break;
@@ -363,8 +370,8 @@ public class PointPrecipPlotResource extends
 
             /* locate station in data stream */
             if (((type == 4) || (type == 5))
-                    && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
-                    && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].level == 0)) {
+                    && (pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
+                    && (pdata[DailyQcUtils.pcpn_day].level == 0)) {
                 return;
             }
             if (((type == 4) || (type == 5))
@@ -410,8 +417,8 @@ public class PointPrecipPlotResource extends
                 tbuf = station.name;
 
             } else if (type == 4) {
-                if ((DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
-                        && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].level == 0)) {
+                if ((pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
+                        && (pdata[DailyQcUtils.pcpn_day].level == 0)) {
                     return;
 
                 }
@@ -435,8 +442,8 @@ public class PointPrecipPlotResource extends
                 tbuf = mbuf;
 
             } else if (type == 5) {
-                if ((DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
-                        && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].level == 0)) {
+                if ((pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
+                        && (pdata[DailyQcUtils.pcpn_day].level == 0)) {
                     return;
 
                 }

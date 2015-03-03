@@ -38,6 +38,7 @@ import com.raytheon.viz.mpe.util.Disagg6Hr.Values_6hr;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2009            snaples     Initial creation
+ * Mar  2, 2015  15660     snaples     Fixed issue with writing to file after stream was closed.
  * 
  * </pre>
  * 
@@ -47,16 +48,14 @@ import com.raytheon.viz.mpe.util.Disagg6Hr.Values_6hr;
 
 public class Write1hrVals6HrGages {
     
-    private DailyQcUtils dqc = DailyQcUtils.getInstance();
-
     public void write1hrValuesFor6hrGages() {
 
         Values_1hr[] disaggValues = Disagg6Hr.disaggValues;
-        BufferedWriter disagg_log_fd = Disagg6Hr.disagg_log_fd;
+        BufferedWriter disagg_log_fd = Disagg6Hr.getDisagg_log_fd();
         String[] obsdate = Disagg6Hr.obsdate;
         Date[] obsdate_date_t = Disagg6Hr.obsdate_date_t;
         Values_6hr[] values6hr = Disagg6Hr.values6hr;
-        int num_days_to_qc = dqc.qcDays;
+        int num_days_to_qc = DailyQcUtils.qcDays;
         int num_disagg_stations = Disagg6Hr.num_disagg_stations;
 
         String ts = "";
@@ -71,8 +70,6 @@ public class Write1hrVals6HrGages {
         ts = "PZ";
 
         try {
-            // out = new BufferedWriter(new FileWriter(disagg_log_fd));
-
             /*-----------------------------------------*/
             /* populate the HourlyPP structure */
             /*-----------------------------------------*/
@@ -273,20 +270,8 @@ public class Write1hrVals6HrGages {
                 } /* end for (i=0;i<num_disagg_stations;i++) */
 
             } /* end for (j=0;j<num_days_to_qc+1;j++) */
-            // out.close();
-
         } catch (IOException e) {
             return;
         }
-        // finally {
-        // try {
-        // if (out != null) {
-        // out.close();
-        // }
-        //
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
-        // }
     }
 }
