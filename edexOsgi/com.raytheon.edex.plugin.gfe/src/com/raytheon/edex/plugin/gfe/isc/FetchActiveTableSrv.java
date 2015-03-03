@@ -292,7 +292,10 @@ public final class FetchActiveTableSrv implements IContextStateProcessor {
         jobExecutor = Executors.newScheduledThreadPool(1);
 
         for (IFPServer ifpServer : IFPServer.getActiveServers()) {
-            activateSite(ifpServer.getSiteId(), ifpServer.getConfig());
+            IFPServerConfig config = ifpServer.getConfig();
+            if ((config.requestISC()) && (config.tableFetchTime() > 0)) {
+                activateSite(ifpServer.getSiteId(), config);
+            }
         }
     }
 
