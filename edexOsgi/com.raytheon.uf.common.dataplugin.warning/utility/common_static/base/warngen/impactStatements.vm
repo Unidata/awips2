@@ -6,8 +6,9 @@
 ##         EDITED EVAN BOOKBINDER 2-25-13 FOR IBW 2013        ##
 ## EDITED PHIL KURIMSKI 5-20-13 FOR UPDATED IMPACT STATEMENTS ##
 ## EDITED PHIL KURIMSKI 9-17-13 FOR SMW IMPACT STATEMENTS     ##
-## EDITED EvAN BOOKBINDER 2-18-14 FOR 2014 IMPACT STATEMENTS  ##
+## EDITED EVAN BOOKBINDER 2-18-14 FOR 2014 IMPACT STATEMENTS  ##
 ## EDITED PHIL KURIMSKI 6-26-15 FIXED CONSID IMPCT VARIABLE   ##
+## EDITED PHIL KURIMSKI 2-19-15 UPDATED SMW IMPACT STATEMENTS ##
 ################################################################
 ##
 ################################################################
@@ -114,7 +115,63 @@
 ################################################################
 ## Finally create the Impact Statements for the SMW template
 ################################################################
-#set($smwimpact = "OVERTURNED AND CAPSIZED BOATS.")
+###################################################
+## HANDLE HAIL POSSIBILITIES ######################
+###################################################
+#set($smwHailImpact = "")
+#set($hailAppend = "")
+#if($hailTag == ">.75")
+	#set($smwHailImpact = "LARGE HAIL COULD RESULT IN STRUCTURAL DAMAGE.")
+	#set($hailAppend = " AND HAIL")
+#end
+#if($hailTag == ">2.0")
+	#set($smwHailImpact = "LARGE HAIL COULD RESULT IN PERSONAL INJURY AND SIGNIFICANT STRUCTURAL DAMAGE.")
+	#set($hailAppend = " AND HAIL")
+#end
+###################################################
+## HANDLE WIND POSSIBILITIES ######################
+###################################################
+#set($smwWindImpact = "")
+#if(${windTag} == ">34" || ${windTag} == "40" || ${windTag} == "49")
+	#set($smwWindImpact = "SMALL CRAFT COULD BE DAMAGED IN BRIEFLY HIGHER WINDS AND SUDDENLY HIGHER WAVES.")
+#end
+## If winds are 50 knots or greater do not include hail impact statement
+#if(${windTag} == "50" || ${windTag} == "65")
+	#set($smwWindImpact = "BOATS COULD SUFFER SIGNIFICANT STRUCTURAL DAMAGE IN HIGH WINDS${hailAppend}. SMALL CRAFT COULD CAPSIZE IN SUDDENLY HIGHER WAVES.")
+	#set($smwHailImpact = "")
+#end
+###################################################
+## HANDLE WATERSPOUTS #############################
+###################################################
+#set($smwWaterspoutImpact = "")
+#if(${list.contains(${bullets}, "thunderstorm")})
+	#set($extraImpact = "EASILY OVERTURN BOATS AND ")
+#else
+	#set($extraImpact = "")
+#end
+#if(${list.contains(${bullets}, "sightedSpout")} || ${list.contains(${bullets}, "possibleSpout")})
+	#set($smwWaterspoutImpact = "WATERSPOUTS CAN ${extraImpact}CREATE LOCALLY HAZARDOUS SEAS.")
+#end
+##########################################################
+## Merge the Hail...Wind and Waterspout Impact Statements
+##########################################################
+#if($smwWindImpact.length() > 0 && $smwHailImpact.length() > 0 && $smwWaterspoutImpact.length() > 0)
+#set($smwimpact = "${smwWaterspoutImpact} ${smwWindImpact} ${smwHailImpact}")
+#elseif($smwWindImpact.length() > 0 && $smwHailImpact.length() > 0)
+#set($smwimpact = "${smwWindImpact} ${smwHailImpact}")
+#elseif($smwWindImpact.length() > 0 && $smwWaterspoutImpact.length() > 0)
+#set($smwimpact = "${smwWaterspoutImpact} ${smwWindImpact}")
+#elseif($smwHailImpact.length() > 0 && $smwWaterspoutImpact.length() > 0)
+#set($smwimpact = "${smwWaterspoutImpact} ${smwHailImpact}")
+#elseif($smwWaterspoutImpact.length() > 0)
+#set($smwimpact = "${smwWaterspoutImpact}")
+#elseif($smwWindImpact.length() > 0)
+#set($smwimpact = "${smwWindImpact}")
+#elseif($smwHailImpact.length() > 0)
+#set($smwimpact = "${smwHailImpact}")
+#else
+#set($smwimpact = "!**YOU DID NOT SELECT ANY THREATS WORTHY OF SMW CRITERIA. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING!**!")
+#end
 ############################################################################
 ## End of File
 ############################################################################
