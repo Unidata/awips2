@@ -31,7 +31,7 @@
 229:229:Seamless Hybrid Scan Reflectivity (SHSR):dBZ:SeamlessHSR
 230:230:Radar Quality Index (RQI)::RadarQualityIndex
 231:231:QPE - Radar Only (1 hr. accum.):mm:RadarOnlyQPE01H
-232:232:QPE - Radar Only (3 hr. accum.):RadarOnlyQPE03H
+232:232:QPE - Radar Only (3 hr. accum.):mm:RadarOnlyQPE03H
 233:233:QPE - Radar Only (6 hr. accum.):mm:RadarOnlyQPE06H
 234:234:QPE - Radar Only (12 hr. accum.):mm:RadarOnlyQPE12H
 235:235:QPE - Radar Only (24 hr. accum.):mm:RadarOnlyQPE24H
