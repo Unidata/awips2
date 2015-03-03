@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2009            snaples     Initial creation
+ * Mar 2, 2015  15660      snaples     Fixed the disagg logging and corrected the procedure.
  * 
  * </pre>
  * 
@@ -114,7 +115,7 @@ public class Disagg6Hr {
 
     public static int disagg_maxx, disagg_maxy;
 
-    Calendar station_list_time_stamp_6hr;
+    Date station_list_time_stamp_6hr;
 
     public static int ret_neighbors = -1;
 
@@ -143,9 +144,9 @@ public class Disagg6Hr {
 
     public static Date end_time_temp;
 
-    // int num_days_to_qc;
+    int num_days_to_qc;
 
-    Date btim = dqc.btime.getTime();
+    Date btim = DailyQcUtils.btime.getTime();
 
     Values_1hr valuesReadIn;
 
@@ -155,7 +156,7 @@ public class Disagg6Hr {
 
     static int first = 0;
 
-    int mpe_dqc_max_precip_neighbors = dqc.mpe_dqc_max_precip_neighbors;
+    int mpe_dqc_max_precip_neighbors = DailyQcUtils.mpe_dqc_max_precip_neighbors;
 
     DisaggGridMethod dgm = new DisaggGridMethod();
 
@@ -228,34 +229,36 @@ public class Disagg6Hr {
         }
     }
 
-    public void disagg6hr() {
+    public void disagg6hr() throws IOException {
         long start_time, end_time;
         String logdir;
-        String station_list_dir = dqc.mpe_station_list_dir;
+        String station_list_dir = DailyQcUtils.mpe_station_list_dir;
         String disagg_log_file;
-        String gridmask_dir = dqc.mpe_gridmasks;
+        String gridmask_dir = DailyQcUtils.mpe_gridmasks;
         String station_list_file;
         String mpe_disagg_execute;
-        // char buf[] = new char[10];
         String buf = "";
         String cval6hr = "";
 
+        station_list_time_stamp_6hr = SimulatedTime.getSystemTime().getTime();
         Date currentTime = SimulatedTime.getSystemTime().getTime();
         String datestring = "";
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         final SimpleDateFormat ddf = new SimpleDateFormat("yyyyMMddHHMM");
         ddf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        int max_stations = dqc.precip_stations.size();
+        int max_stations = DailyQcUtils.precip_stations.size();
         ArrayList<Station> station = new ArrayList<Station>();
+        station = DailyQcUtils.precip_stations;
+        num_days_to_qc = DailyQcUtils.qcDays;
 
         int ier, k = 0, j, i, ii;
-        int emonth = dqc.emonth;
-        int smonth = dqc.smonth;
+        int emonth = DailyQcUtils.emonth;
+        int smonth = DailyQcUtils.smonth;
         MeanMonthlyPrecip mmp = new MeanMonthlyPrecip();
         Isoh isoh = mmp.getIsoh();
-        String area_val_local = dqc.currentQcArea;
-        Pdata pdata[] = dqc.pdata;
+        String area_val_local = DailyQcUtils.currentQcArea;
+        Pdata pdata[] = DailyQcUtils.pdata;
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
         QCHRAP hrap_point = new QCHRAP();
@@ -265,9 +268,7 @@ public class Disagg6Hr {
 
         start_time = tt.getTime();
 
-        // num_days_to_qc = DailyQcUtils.qcDays;
 
-        // station = DailyQcUtils.precip_stations;
 
         currentTime.getTime();
         datestring = ddf.format(currentTime);
@@ -281,6 +282,10 @@ public class Disagg6Hr {
         neighbor_list_file = String.format("%s/%s_disagg_1hr_neighbors",
                 gridmask_dir, area_val_local);
         disagg_stations_fd = station_list_file;
+        BufferedReader in = null;
+        BufferedWriter out = null;
+        FileWriter fd_log = null; 
+        
 
         /*---------------------------------------------*/
         /* First time only: */
@@ -309,27 +314,43 @@ public class Disagg6Hr {
             disagg_log_file = String
                     .format("%s/disagg_%sz", logdir, datestring);
 
-            // BufferedWriter disagg_log_fd = null;
-            BufferedReader in = null;
             try {
 
                 in = new BufferedReader(new FileReader(disagg_stations_fd));
-                disagg_log_fd = new BufferedWriter(new FileWriter(
-                        disagg_log_file));
-
+                fd_log = new FileWriter(disagg_log_file);
+                out = new BufferedWriter(fd_log);
+                disagg_log_fd = out;
                 disagg_log_fd.write("\t\t-- 6hr to 1hr Disaggregation -- \n");
                 disagg_log_fd.write("\t\t-- Version AWIPS II 11.9.0-1 -- \n");
                 disagg_log_fd.write("hydrologic day = 12z - 12z\n");
 
                 first = 1;
-
-                disagg_method = appsDefaults.getToken("mpe_disagg_method");
+            } catch (IOException e) {
+                statusHandler.handle(Priority.WARN,
+                        "Warning: Could not open disagg log file...\n"
+                                + "exiting from disagg routine..mpe_editor continuing...\n",
+                        e);
+                e.printStackTrace();
+                return;
+              }
+        } // first block
+        logdir = appsDefaults.getToken("mpe_editor_logs_dir");
+        disagg_log_file = String.format("%s/disagg_%sz", logdir, datestring);
+        disagg_method = appsDefaults.getToken("mpe_disagg_method");
 
                 delete_values = appsDefaults.getToken("mpe_disagg_delete_1hr");
+                if(delete_values == null){
+                    delete_values = "on";
+                }
 
-                disagg_log_fd.write(String.format(
-                        "6hr disagg station list file name: %s\n",
-                        station_list_file));
+                try {
+                    disagg_log_fd.write(String.format(
+                            "6hr disagg station list file name: %s\n",
+                            station_list_file));
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
 
                 xor = (int) MPEDataManager.getInstance().getHRAPExtent()
                         .getMinX();
@@ -345,15 +366,23 @@ public class Disagg6Hr {
                 endtime_disagg = btim;
                 Calendar nt = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 nt.setTime(endtime_disagg);
-                nt.add(Calendar.SECOND, -(dqc.qcDays * 86400));
+                nt.add(Calendar.SECOND, -(num_days_to_qc * 86400));
                 starttime_disagg = nt.getTime();
                 end_time_temp = endtime_disagg;
 
-                disagg_log_fd.write(String.format(
-                        " endtime = %10.0f  starttime = %10.0f\n",
-                        (float) endtime_disagg.getTime(),
-                        (float) starttime_disagg.getTime()));
+                try {
+                    disagg_log_fd.write(String.format(
+                            " endtime = %10.0f  starttime = %10.0f\n",
+                            (float) endtime_disagg.getTime(),
+                            (float) starttime_disagg.getTime()));
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
 
+                if(in == null){
+                    in = new BufferedReader(new FileReader(disagg_stations_fd));
+                }
                 buf = in.readLine();
                 num_disagg_stations = Integer.parseInt(buf);
                 if (num_disagg_stations <= 0) {
@@ -363,11 +392,11 @@ public class Disagg6Hr {
                     return;
                 }
 
-                disagg_station_6hr = new Station[(dqc.qcDays * num_disagg_stations)];
-                disaggValues = new Values_1hr[(dqc.qcDays * num_disagg_stations)];
-                values6hr = new Values_6hr[(dqc.qcDays * num_disagg_stations)];
+                disagg_station_6hr = new Station[(num_days_to_qc * num_disagg_stations)];
+                disaggValues = new Values_1hr[(num_days_to_qc * num_disagg_stations)];
+                values6hr = new Values_6hr[(num_days_to_qc * num_disagg_stations)];
 
-                for (int z = 0; z < (dqc.qcDays * num_disagg_stations); z++) {
+                for (int z = 0; z < (num_days_to_qc * num_disagg_stations); z++) {
                     disagg_station_6hr[z] = dqc.new Station();
                     disaggValues[z] = new Values_1hr();
                     values6hr[z] = new Values_6hr();
@@ -378,12 +407,12 @@ public class Disagg6Hr {
                     dist_6hr_to_1hr[z] = new Dist();
                 }
 
-                obsdate = new String[(dqc.qcDays + 1)];
-                obsdate_date_t = new Date[dqc.qcDays + 1];
+                obsdate = new String[(num_days_to_qc + 1)];
+                obsdate_date_t = new Date[num_days_to_qc + 1];
 
                 disagg_log_fd.write(" 6hr Disagg Station List\n");
 
-                for (j = 0; j < dqc.qcDays; j++) {
+                for (j = 0; j < num_days_to_qc; j++) {
                     for (i = 0; i < num_disagg_stations; i++) {
                         index = (j * num_disagg_stations) + i;
 
@@ -405,15 +434,9 @@ public class Disagg6Hr {
                         disagg_station_6hr[index].parm = "";
                         disagg_station_6hr[index].cparm = "";
 
-                        // char[] kbuf = new char[200];
                         if (j == 0) {
-                            // int p = in.read(kbuf, 0, 80);
-                            //
-                            // if (p <= 0) {
                             if (in.ready()) {
                                 buf = in.readLine();
-                                // break;
-                                // }
                             }
 
                             Scanner s = new Scanner(buf);
@@ -432,7 +455,7 @@ public class Disagg6Hr {
                                     ll);
                             Coordinate gridCell = null;
                             try {
-                                try {
+//                                try {
                                     gridCell = rc
                                             .asGridCell(
                                                     com.raytheon.uf.common.hydro.spatial.HRAP
@@ -445,8 +468,7 @@ public class Disagg6Hr {
                                 } catch (FactoryException e) {
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();
-                                }
-                            } catch (Exception e) {
+                                } catch (Exception e) {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
@@ -476,17 +498,17 @@ public class Disagg6Hr {
 
                                 }
 
-                                if ((((int) hrap_point.x - xor) < maxx)
-                                        && (((int) hrap_point.y - yor) < maxy)
-                                        && (((int) hrap_point.x - xor) >= 0)
-                                        && (((int) hrap_point.y - yor) >= 0)) {
+                                if ((((int) hrap_point.x) < maxx)
+                                        && (((int) hrap_point.y) < maxy)
+                                        && (((int) hrap_point.x >= xor))
+                                        && (((int) hrap_point.y >= yor))) {
                                     disagg_station_6hr[i].isoh[k] = isoh.value[k][(int) hrap_point.y
                                             - yor][(int) hrap_point.x - xor];
 
                                 }
 
                             }
-
+                            s.close();
                         } else {
                             values6hr[index].hrapx_local = values6hr[i].hrapx_local;
                             values6hr[index].hrapy_local = values6hr[i].hrapy_local;
@@ -558,16 +580,16 @@ public class Disagg6Hr {
 
                 }
 
-                obsdate[dqc.qcDays] = "";
+                obsdate[num_days_to_qc] = "";
 
                 // note that end_time_temp is not being decremented
                 // as in the above loop because it will be decremented
                 // one extra time in the loop already.
-                obsdate[dqc.qcDays] = sdf.format(end_time_temp);
+                obsdate[num_days_to_qc] = sdf.format(end_time_temp);
                 disagg_log_fd.write(String.format(
-                        "datestring for disagg day %d = %s\n", dqc.qcDays,
-                        obsdate[dqc.qcDays]));
-                obsdate_date_t[dqc.qcDays] = end_time_temp;
+                        "datestring for disagg day %d = %s\n", num_days_to_qc,
+                        obsdate[num_days_to_qc]));
+                obsdate_date_t[num_days_to_qc] = end_time_temp;
 
                 /* print 6hr values to log */
                 disagg_log_fd.write("\n");
@@ -577,7 +599,7 @@ public class Disagg6Hr {
                 index = -1;
 
                 for (i = 0; i < num_disagg_stations; i++) {
-                    for (j = 0; j < dqc.qcDays; j++) {
+                    for (j = 0; j < num_days_to_qc; j++) {
                         index = (j * num_disagg_stations) + i;
 
                         if (values6hr[index].ID
@@ -665,18 +687,13 @@ public class Disagg6Hr {
                     long stm = st.lastModified();
                     Date std = SimulatedTime.getSystemTime().getTime();
                     std.setTime(stm);
-                    station_list_time_stamp_6hr.setTime(std);
+                    station_list_time_stamp_6hr.setTime(std.getTime());
                     st = new File(neighbor_list_file);
                     ret_neighbors = (int) st.lastModified();
-                    // disagg_log_fd.close();
                     c1n.compute1hrStationList();
                     c1n.read1hrGageVals();
-
                 }
-                // disagg_log_fd = new BufferedWriter(new FileWriter(
-                // disagg_log_file));
                 disagg_log_fd.write("---------------------\n");
-                // disagg_log_fd.close();
 
                 /*---------------------------------------------*/
                 /* disagg 6hr to 1hr values */
@@ -727,31 +744,9 @@ public class Disagg6Hr {
 
                 disagg_log_fd.close();
                 in.close();
-                // return;
-            } catch (IOException e) {
-                statusHandler
-                        .handle(Priority.WARN,
-                                "Warning: Could not open disagg log file...\n"
-                                        + "exiting from disagg routine..mpe_editor continuing...\n",
-                                e);
-                e.printStackTrace();
-                return;
+            } 
 
-            } finally {
-                try {
-                    if (disagg_log_fd != null) {
-                        disagg_log_fd.close();
-                    }
-                    if (in != null) {
-                        in.close();
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-    // here
-
+    public static BufferedWriter getDisagg_log_fd() {
+        return disagg_log_fd;
+    } // here
 }

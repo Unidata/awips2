@@ -36,6 +36,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 23, 2009            snaples     Initial creation
+ * Mar 2, 2015  15660      snaples     Fixed issue with if statement testing CPARM and checking for both values to be true, broken logic.
  * 
  * </pre>
  * 
@@ -133,8 +134,8 @@ public class InitPrecipClimo {
                     continue;
                 }
 
-                if (tokens[1].equalsIgnoreCase("PPMPBCM")
-                        && tokens[1].equalsIgnoreCase("PPMRZCM")) {
+                if (!(tokens[1].equalsIgnoreCase("PPMPBCM"))
+                        && !(tokens[1].equalsIgnoreCase("PPMRZCM"))) {
                     line = in.readLine();
                     ++record_count;
                     continue;
