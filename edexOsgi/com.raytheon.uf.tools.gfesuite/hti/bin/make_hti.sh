@@ -5,7 +5,7 @@
 # Shell Used: BASH shell
 # Original Author(s): Douglas.Gaer@noaa.gov
 # File Creation Date: 01/27/2009
-# Date Last Modified: 10/20/2014
+# Date Last Modified: 02/20/2015
 #
 # Contributors:
 # Joe Maloney (MFL), Pablo Santos (MFL)
@@ -33,6 +33,9 @@
 # History:
 # 20 OCT 2014 - jcm - created from make_ghls.sh, broke out of webapps
 #                     package.  Renamed make_hti.sh.
+# 20 FEB 2015 - jcm - modified ifpIMAGE line to use ssh -x px2f; fixed
+#                     LOG_FILE at end of script; corrected $site variable
+#                     for kml rsync.
 #
 ########################################################################
 #  CHECK TO SEE IF SITE ID WAS PASSED AS ARGUMENT
@@ -84,7 +87,7 @@ fi
 # Log file header
 echo " " >> $LOG_FILE
 echo "####################################################################################" >> $LOG_FILE
-echo "# Starting Make_HTI Script....                                                    #" >> $LOG_FILE
+echo "# Starting Make_HTI Script....                                                     #" >> $LOG_FILE
 echo "####################################################################################" >> $LOG_FILE
 chmod 666 $LOG_FILE
 
@@ -112,7 +115,7 @@ for PARM in $PARMS
 do
      # NOTE: cannot run ifpIMAGE on dx3/dx4 - must ssh to a px
      echo "Creating ${PARM} image..." >> $LOG_FILE
-     ssh px1 "unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}"
+     ssh -x px2f "unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}"
      convert ${PRODUCTdir}/${SITE}${PARM}.png -resize 104x148 ${PRODUCTdir}/${SITE}${PARM}_sm.png
 done
     
@@ -120,8 +123,7 @@ rm -f ${PRODUCTdir}/*.info
     
 # Generate KML automatically via runProcedure
 echo "Running KML procedure." >> $LOG_FILE
-#ssh px1 "unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML -c gfeConfig"
-ssh px1 "unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML2015 -c gfeConfig"
+ssh -x px2f "unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML -c gfeConfig"
 
 # Create legends for KML
 ${HTI_HOME}/bin/kml_legend.sh
@@ -139,7 +141,7 @@ echo "/usr/bin/ssh -o stricthostkeychecking=no -x ${LDADuser}@${LDADserver} ${CM
 /usr/bin/ssh -o stricthostkeychecking=no -x ${LDADuser}@${LDADserver} ${CMD}
 
 echo "Copying KML.TXT files to NWSHQ Web farm ${NWSHQ_RSYNCSERVER}" >> $LOG_FILE
-CMD="/usr/bin/rsync -av --force --progress --stats ${LDAD_DATA}/*.txt ${NWSHQ_RSYNCSERVER}::ghls_includes/${siteid}"
+CMD="/usr/bin/rsync -av --force --progress --stats ${LDAD_DATA}/*.txt ${NWSHQ_RSYNCSERVER}::ghls_includes/${site}"
 echo "/usr/bin/ssh -o stricthostkeychecking=no -x ${LDADuser}@${LDADserver} ${CMD}" >> $LOG_FILE
 /usr/bin/ssh -o stricthostkeychecking=no -x ${LDADuser}@${LDADserver} "${CMD}"
 echo "Copy to ${NWSHQ_RSYNCSERVER} complete" >> $LOG_FILE
@@ -193,7 +195,7 @@ else
     echo "**** ${HTI_HOME}/etc/sitevars.${site}" >> $LOG_FILE
 fi
 
-echo "Script complete at $(date)"  >> ${LOGfile}
-echo " "  >> ${LOGfile}
+echo "Script complete at $(date)"  >> ${LOG_FILE}
+echo " "  >> ${LOG_FILE}
 exit 0
 ########################################################################
