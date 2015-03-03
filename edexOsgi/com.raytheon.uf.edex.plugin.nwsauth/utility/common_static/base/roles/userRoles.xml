@@ -97,6 +97,9 @@
    
    <permission id="com.raytheon.localization.site/common_static/mixedCase"/>
    
+   <permission id="com.raytheon.localization.site/common_static/hazardServices"/>
+   <permission id="com.raytheon.localization.site/common_static/hazardServices/settings"/>
+   
    <!-- TODO Localization permissions should be able to be plugin contributed.
         Improve code in the generically [poorly] named FileManager to support
         that concept and then split them. -->
@@ -137,6 +140,8 @@
       <userPermission>com.raytheon.localization.site/common_static/archiver/purger/retention</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/archiver/purger/case</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/damagepath</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/hazardServices</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/hazardServices/settings</userPermission>
    </user>
 </nwsRoleData>
 
