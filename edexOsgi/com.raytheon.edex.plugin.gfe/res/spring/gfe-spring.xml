@@ -6,6 +6,9 @@
         <constructor-arg value="smartInit" />
         <constructor-arg value="smartInit.*" />
     </bean>
+    
+    <bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
+        depends-on="commonTimeRegistered, gfeDbRegistered, levelFactoryInitialized" />
 
     <bean id="smartInitQueue" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue" factory-method="createQueue"/>
 

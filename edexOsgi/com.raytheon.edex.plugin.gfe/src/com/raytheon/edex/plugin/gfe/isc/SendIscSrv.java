@@ -29,7 +29,6 @@ import java.util.Map;
 
 import jep.JepException;
 
-import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
@@ -59,6 +58,8 @@ import com.raytheon.uf.edex.core.EdexTimerBasedThread;
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2011            dgilling    Initial creation
  * May 19, 2014 2726       rjpeter     Integrate IscSendJob for graceful shutdown.
+ * Feb 26, 2015 4128       dgilling    Switch to IFPServer.getActiveSites().
+ * 
  * </pre>
  * 
  * @author dgilling
@@ -128,8 +129,7 @@ public class SendIscSrv extends EdexTimerBasedThread {
             String xmlDest = request.getXmlDest();
             String siteId = id.getDbId().getSiteId();
 
-            if (!GFESiteActivation.getInstance().getActiveSites()
-                    .contains(siteId)) {
+            if (!IFPServer.getActiveSites().contains(siteId)) {
                 statusHandler.warn("Attempted to send " + id
                         + " for deactivated site " + siteId + ".");
                 return;
