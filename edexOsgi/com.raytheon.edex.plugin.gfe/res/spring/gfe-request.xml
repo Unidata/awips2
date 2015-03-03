@@ -235,7 +235,6 @@
         <property name="provider" ref="brokerConnectionsProvider" />
     </bean>
 
-
     <!-- Service Backup Handlers -->
 
     <bean id="GetPrimarySiteHandler" class="com.raytheon.uf.edex.site.handlers.GetPrimarySiteHandler"/>
