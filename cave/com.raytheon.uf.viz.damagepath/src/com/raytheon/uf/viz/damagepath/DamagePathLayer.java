@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.damagepath;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -36,7 +37,6 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFileInputStream;
 import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -75,6 +75,14 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
     private static final String PATH = DIR + IPathManager.SEPARATOR + FILE;
 
+    /**
+     * JVM property to specify the localization level to attempt to save/load
+     * with. Falls back to USER if not defined.
+     */
+    private static final LocalizationLevel LEVEL_TO_USE = LocalizationLevel
+            .valueOf(System.getProperty("damage.path.localization.level",
+                    LocalizationLevel.USER.name()));
+
     /*
      * TODO: If we support multiple polygons in the future then the jobs will
      * need to be smart enough to load/save different files.
@@ -104,7 +112,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
 
         // listen for changes to the directory
         LocalizationFile dir = PathManagerFactory.getPathManager()
-                .getLocalizationFile(getUserContext(), DIR);
+                .getLocalizationFile(getContext(), DIR);
         dir.addFileUpdatedObserver(this);
 
         loadJob.setSystem(true);
@@ -129,7 +137,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     @Override
     protected void disposeInternal() {
         LocalizationFile dir = PathManagerFactory.getPathManager()
-                .getLocalizationFile(getUserContext(), DIR);
+                .getLocalizationFile(getContext(), DIR);
         dir.removeFileUpdatedObserver(this);
 
         super.disposeInternal();
@@ -183,13 +191,13 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
         }
     }
 
-    private LocalizationContext getUserContext() {
+    private LocalizationContext getContext() {
         return PathManagerFactory.getPathManager().getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LEVEL_TO_USE);
     }
 
     protected LocalizationFile getDamagePathFile() {
-        LocalizationContext ctx = getUserContext();
+        LocalizationContext ctx = getContext();
         return PathManagerFactory.getPathManager().getLocalizationFile(ctx,
                 PATH);
     }
@@ -205,9 +213,9 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
     }
 
     protected void loadDamagePath(LocalizationFile file) {
-        try (LocalizationFileInputStream fis = file.openInputStream()) {
+        try (InputStream is = file.openInputStream()) {
             GeoJsonUtil json = new GeoJsonUtilSimpleImpl();
-            Polygon geometry = (Polygon) json.deserializeGeom(fis);
+            Polygon geometry = (Polygon) json.deserializeGeom(is);
             /*
              * specifically call super.resetPolygon() cause this.resetPolygon()
              * will save the file and we don't want to do that or we could

@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Display;
  * ------------ ---------- ----------- --------------------------
  * 05 Oct 2008             lvenable    Initial creation.
  * 02 Apr 2009             lvenable    TTR fixes.
+ * 02 Mar 2015  3856       lvenable    Cancel the job if the timer is being canceled.
  * 
  * </pre>
  * 
@@ -45,12 +46,12 @@ public class AlertTimer {
     /**
      * Callback called when the timer fires or when the timer is finished.
      */
-    private ITimerAction actionCB;
+    private final ITimerAction actionCB;
 
     /**
      * Parent display.
      */
-    private Display parentDisplay;
+    private final Display parentDisplay;
 
     /**
      * Time in milliseconds between executions.
@@ -74,7 +75,7 @@ public class AlertTimer {
      */
     private boolean blinkText;
 
-    private Job job = new Job("AlertTimer") {
+    private final Job job = new Job("AlertTimer") {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
@@ -87,6 +88,7 @@ public class AlertTimer {
 
                 if (isRunning) {
                     parentDisplay.syncExec(new Runnable() {
+                        @Override
                         public void run() {
                             actionCB.timerAction(blinkText);
                         }
@@ -224,13 +226,14 @@ public class AlertTimer {
      * Setting alertPopupDlg Cancel the timer.
      */
     public void cancelTimer() {
-        // only synchronize on cancelling the timer, don't do the syncExec in
+        // only synchronize on canceling the timer, don't do the syncExec in
         // the sync block.
         boolean cancel = false;
         synchronized (this) {
             if (isRunning) {
                 isRunning = false;
                 cancel = true;
+                job.cancel();
             }
         }
 
@@ -240,6 +243,7 @@ public class AlertTimer {
             }
 
             parentDisplay.syncExec(new Runnable() {
+                @Override
                 public void run() {
                     actionCB.timerCompleted();
                 }
