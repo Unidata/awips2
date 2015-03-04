@@ -50,6 +50,7 @@ import com.raytheon.uf.common.util.RunProcess;
  * 						 			   to shefdecode_input
  * Sep 19, 2011 10955      rferrel     Use RunProcess
  * Mar 02, 2015 14538      J Wei       Shef file created by XDat will not be over written
+ * Mar 04, 2015 116        J Wei       Shef file created by XDat will not be deleted
  * 
  * </pre>
  * 
@@ -198,11 +199,6 @@ public class XdatShefUtil {
                 statusHandler.handle(Priority.ERROR, msg);
             }
 
-            boolean status = shefFile.delete();
-            if (status == false) {
-                String msg = "ERROR: Removing shef file.";
-                statusHandler.handle(Priority.ERROR, msg);
-            }
         }
         
     }
