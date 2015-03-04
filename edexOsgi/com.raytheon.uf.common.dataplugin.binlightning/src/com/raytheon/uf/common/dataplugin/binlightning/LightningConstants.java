@@ -31,6 +31,7 @@ package com.raytheon.uf.common.dataplugin.binlightning;
  * May 30, 2014 3226       bclement     Initial creation
  * Jul 07, 2014 3333       bclement     added SOURCE
  * Jan 22, 2014 2949       nabowle      Add default and unknown source values.
+ * Feb 27, 2015 4181       mapeters     Added AVAILABLE_PARAMETERS.
  * 
  * </pre>
  * 
@@ -68,6 +69,13 @@ public class LightningConstants {
     public static final String HEIGHT_DATASET = "height";
 
     public static final String SENSOR_COUNT_DATASET = "sensorCount";
+
+    // List of above metadata/HDF5 parameters
+
+    public static final String[] AVAILABLE_PARAMETERS = { SOURCE, TIME_DATASET,
+            LAT_DATASET, LON_DATASET, INTENSITY_DATASET, MSG_TYPE_DATASET,
+            STRIKE_TYPE_DATASET, PULSE_COUNT_DATSET, PULSE_INDEX_DATASET,
+            PULSE_TYPE_DATASET, HEIGHT_DATASET, SENSOR_COUNT_DATASET };
 
     // Field values
 

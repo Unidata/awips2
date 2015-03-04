@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.dataplugin.warning.gis;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +67,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Oct 22, 2013   2361     njensen     Use JAXBManager for XML
  * Jun 17, 2014  DR 17390  Qinglu Lin  Updated getMetaDataMap() for lonField and latField.
  * Aug 21, 2014   3353     rferrel     Generating Geo Spatial data set no longer on the UI thread.
+ * Feb 24, 2015   3978     njensen     Use openInputStream() for reading file contents
  * 
  * </pre>
  * 
@@ -292,9 +295,13 @@ public class GeospatialFactory {
                 + fileName);
 
         if (lf.exists()) {
-            byte[] data = lf.read();
-            return SerializationUtil.transformFromThrift(
-                    GeospatialDataSet.class, data);
+            try (InputStream is = lf.openInputStream()) {
+                return SerializationUtil.transformFromThrift(
+                        GeospatialDataSet.class, is);
+            } catch (IOException e) {
+                throw new SerializationException("Error reading file "
+                        + lf.getName(), e);
+            }
         } else {
             System.out.println("Attempted to load: " + lf.getName()
                     + " for site " + site + ", but file does not exist.");
