@@ -73,6 +73,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Feb 06, 2014  2672     bsteffen    Add envelope support
  * Jul 07, 2014  3333     bclement    now uses lightning constants
  * Jul 30, 2014  3184     njensen     Removed getValidIdentifiers()
+ * Feb 27, 2015  4181     mapeters    Overrode getAvailableParameters().
  * 
  * </pre>
  * 
@@ -107,6 +108,11 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
     public String[] getAvailableLocationNames(IDataRequest request) {
         throw new IncompatibleRequestException(this.getClass()
                 + " does not support location names");
+    }
+
+    @Override
+    public String[] getAvailableParameters(IDataRequest request) {
+        return LightningConstants.AVAILABLE_PARAMETERS;
     }
 
     /*

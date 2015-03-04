@@ -1,233 +1,105 @@
 <configuration debug="false" scan="true">
-   <!-- general application log --> 
-   <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender>
-
-   <appender name="asyncConsole" class="ch.qos.logback.classic.AsyncAppender">            
-      <appender-ref ref="console" />
-   </appender> 
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
    
-   <!-- hibernate log -->
-   <appender name="HibernateLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-hibernate-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n %nopex</pattern> 
-      </encoder>
-   </appender>
-
    <!-- shef log --> 
    <appender name="shef" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-shef-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+         <name>shef</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender> 
-
 
    <!-- activeTableChange log --> 
    <appender name="activeTableChangeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-activeTableChange-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+         <name>activeTableChange</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender> 
    
    <appender name="activeTableChangeLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
       <appender-ref ref="activeTableChangeLog" />
    </appender> 
 
-   <logger name="ActiveTableChange" additivity="false">
-      <level value="DEBUG"/>
-      <appender-ref ref="activeTableChangeLogAsync" />
-   </logger>
-      
    <!-- Purge log --> 
    <appender name="purge" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-purge-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+         <name>purge</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender> 
    
    <!-- RouteFailedLog log --> 
    <appender name="RouteFailedLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-unrecognized-files-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+         <name>unrecognized-files</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender> 
 
    <!-- ShefPerformanceLog log --> 
    <appender name="ShefPerfLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-shef-performance-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+         <name>shef-performance</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender> 
 
    <!-- Gen Areal FFG log --> 
    <appender name="GenArealFFG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-gen_areal_ffg-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>      
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+         <name>gen_areal_ffg</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender>
    
    <!-- Gen Areal QPE log --> 
    <appender name="GenArealQPE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-gen_areal_qpe-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-   
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+         <name>gen_areal_qpe</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender> 
    
    <!-- Trigger log --> 
    <appender name="FailedTriggerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-trigger-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+         <name>trigger</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender>
    
    <!-- ohd log --> 
    <appender name="OhdLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-ohd-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.StdTimeBasedRollingPolicy">
+         <name>ohd</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.status.logback.UFStdEncoder"/> 
    </appender>
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
-      <maxHistory>30</maxHistory>
-      <patternLayout>%-5p %d [%t] %c{0}: %m%n</patternLayout>
-      <fileNameBase>${edex.home}/logs/edex-${edex.run.mode}-%s{name}-%d{yyyyMMdd}.log</fileNameBase>
       <defaultAppenderName>asyncConsole</defaultAppenderName>
       <appender-ref ref="asyncConsole"/>
       <appender-ref ref="shef"/>
       <appender-ref ref="purge"/>
    </appender>
 
-   <appender name="PerformanceLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-performance-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender>
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+   <include file="${edex.home}/conf/logback-edex-limited-loggers.xml"/>
+   <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml"/>
 
-   <appender name="PerformanceLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
-      <appender-ref ref="PerformanceLog" />
-   </appender> 
-
-   <logger name="PerformanceLogger" additivity="false">
+   <logger name="ActiveTableChange" additivity="false">
       <level value="DEBUG"/>
-      <appender-ref ref="PerformanceLogAsync" />
+      <appender-ref ref="activeTableChangeLogAsync" />
    </logger>
-
-   <logger name="com.raytheon">
-      <level value="INFO"/>
-   </logger>
+      
    <logger name="com.raytheon.edex.plugin.shef" additivity="false">
       <level value="INFO"/>
       <appender-ref ref="shef" />
    </logger>
-   <logger name="com.raytheon.edex.services.ArchiveSrv">
-      <level value="WARN"/>
-   </logger>
-   <logger name="com.raytheon.edex.services.NotifySrv">
-      <level value="WARN"/>
-   </logger>
-
-   <!-- used by c3p0 -->
-   <logger name="com.mchange">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="com.tc">
-      <level value="WARN"/>
-   </logger>
-   <logger name="mx4j">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="org.apache">
-      <level value="INFO"/>
-   </logger>
-   <logger name="org.apache.activemq.spring">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="org.apache.camel.core.xml">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.qpid">
-      <level value="INFO"/>
-   </logger>
-   <logger name="org.apache.qpid.client.BasicMessageProducer_0_10">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.apache.xbean.spring">
-      <level value="WARN"/>
-   </logger>
-   <logger name="org.quartz">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="org.springframework">
-      <level value="ERROR"/>
-   </logger>
-   <logger name="org.hibernate" additivity="false">
-      <level value="ERROR"/>
-      <appender-ref ref="HibernateLog" />
-   </logger>
-   <logger name="org.geotools">
-      <level value="WARN"/>
-   </logger>
-   
-   <logger name="com.raytheon.uf.edex.purgesrv" additivity="false">
+ 
+ <logger name="com.raytheon.uf.edex.purgesrv" additivity="false">
    		<level value="INFO"/>
    		<appender-ref ref="purge"/>
    </logger>
