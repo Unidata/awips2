@@ -196,7 +196,7 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                 elif SUBJECT == 'GET_ACTIVE_TABLE':
                     IrtServer.getVTECActiveTable(dataFile, None)
                 elif SUBJECT == 'GET_ACTIVE_TABLE2':
-                    IrtServer.getVTECActiveTable(dateFile, xmlFileBuf) 
+                    IrtServer.getVTECActiveTable(dataFile, xmlFileBuf) 
                 elif SUBJECT in ['ISCGRIDS', 'ISCGRIDS2']:
                     args = {"siteID": siteConfig.GFESUITE_SITEID, 
                             "userID": 'SITE', 
