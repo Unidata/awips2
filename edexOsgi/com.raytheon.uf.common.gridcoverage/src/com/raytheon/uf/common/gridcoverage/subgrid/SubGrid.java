@@ -20,15 +20,15 @@
 package com.raytheon.uf.common.gridcoverage.subgrid;
 
 /**
- * A sub grid definition
+ * A sub grid definition.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 08, 2009 3177       rjpeter     Initial creation
- * 
+ * Oct 08, 2009 3177       rjpeter     Initial creation.
+ * Mar 04, 2015 3959       rjpeter     Made grid based only.
  * </pre>
  * 
  * @author rjpeter
@@ -48,17 +48,16 @@ public class SubGrid {
     /** the height of the sub grid */
     private int nY;
 
-    /** lower left latitude of the subgrid area */
-    private double lowerLeftLat;
+    public SubGrid() {
 
-    /** lower left longitude of the subgrid area */
-    private double lowerLeftLon;
+    }
 
-    /** upper right latitude of the subgrid area */
-    private double upperRightLat;
-
-    /** upper right longitude of the subgrid area */
-    private double upperRightLon;
+    public SubGrid(int upperLeftX, int upperLeftY, int nX, int nY) {
+        this.upperLeftX = upperLeftX;
+        this.upperLeftY = upperLeftY;
+        this.nX = nX;
+        this.nY = nY;
+    }
 
     public int getUpperLeftX() {
         return upperLeftX;
@@ -92,36 +91,17 @@ public class SubGrid {
         nY = ny;
     }
 
-    public double getLowerLeftLat() {
-        return lowerLeftLat;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder rval = new StringBuilder(40);
+        rval.append("SubGrid[upperLeftX=").append(upperLeftX)
+                .append(", upperLeftY=").append(upperLeftY).append(", nX=")
+                .append(nX).append(", nY=").append(nY).append("]");
+        return super.toString();
     }
-
-    public void setLowerLeftLat(double lowerLeftLat) {
-        this.lowerLeftLat = lowerLeftLat;
-    }
-
-    public double getLowerLeftLon() {
-        return lowerLeftLon;
-    }
-
-    public void setLowerLeftLon(double lowerLeftLon) {
-        this.lowerLeftLon = lowerLeftLon;
-    }
-
-    public double getUpperRightLat() {
-        return upperRightLat;
-    }
-
-    public void setUpperRightLat(double upperRightLat) {
-        this.upperRightLat = upperRightLat;
-    }
-
-    public double getUpperRightLon() {
-        return upperRightLon;
-    }
-
-    public void setUpperRightLon(double upperRightLon) {
-        this.upperRightLon = upperRightLon;
-    }
-
 }
