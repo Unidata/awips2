@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.util.AffineTransformation;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2015  3974      njensen     Initial creation
+ * Mar 04, 2015  4194      njensen     Block other input on middle click drag on edges
  * 
  * </pre>
  * 
@@ -66,6 +67,9 @@ public class PolygonInputAdapter extends RscInputAdapter<PolygonLayer<?>> {
 
     /** is the entire polygon being dragged */
     protected boolean draggingPolygon = false;
+
+    /** is the mouse middle clicking on a vertex or edge */
+    protected boolean middleClicking = false;
 
     public PolygonInputAdapter(PolygonLayer<?> layer) {
         super(layer);
@@ -95,6 +99,7 @@ public class PolygonInputAdapter extends RscInputAdapter<PolygonLayer<?>> {
                     addVertex(x, y);
                     blockOtherHandlers = true;
                 }
+                middleClicking = blockOtherHandlers;
             }
         }
         return blockOtherHandlers;
@@ -117,6 +122,13 @@ public class PolygonInputAdapter extends RscInputAdapter<PolygonLayer<?>> {
                         dragPolygon(diffX, diffY);
                     }
                 }
+            } else if (mouseButton == 2) {
+                /*
+                 * this can occur if the user meant to middle click and then
+                 * accidentally dragged a bit, so let's treat it as just a
+                 * middle click if it originally was on an edge or vertex
+                 */
+                blockOtherHandlers = middleClicking;
             }
         }
         return blockOtherHandlers;
@@ -139,6 +151,8 @@ public class PolygonInputAdapter extends RscInputAdapter<PolygonLayer<?>> {
                     draggingPolygon = false;
                     dragPolygon(diffX, diffY);
                 }
+            } else if (mouseButton == 2) {
+                middleClicking = false;
             }
         }
 
