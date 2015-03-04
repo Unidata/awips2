@@ -57,10 +57,6 @@
       <appender-ref ref="ThriftSrvRequestLogAsync" />
    </logger>
 
-   <logger name="PerformanceLogger" additivity="false">
-      <level value="DEBUG"/>
-      <appender-ref ref="PerformanceLogAsync" />
-   </logger>
    <logger name="org.hibernate">
       <level value="ERROR"/>
    </logger> 
