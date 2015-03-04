@@ -30,11 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
-import com.raytheon.uf.common.gridcoverage.subgrid.TrimUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Defines a Lat/Lon grid coverage. This class is generally used to describe
@@ -49,6 +45,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 4/7/09       1994        bphillip    Initial Creation
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
  * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
+ * Mar 04, 2015 3959        rjpeter     Update for grid based subgridding.
  * </pre>
  * 
  * @author bphillip
@@ -59,9 +56,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class LatLonGridCoverage extends GridCoverage {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(LatLonGridCoverage.class);
-
     private static final long serialVersionUID = 8371251040172233074L;
 
     /** The name of the projection */
@@ -128,37 +122,9 @@ public class LatLonGridCoverage extends GridCoverage {
     }
 
     @Override
-    public GridCoverage trim(SubGrid subGrid) {
+    protected GridCoverage cloneImplCrsParameters(SubGrid subGrid) {
         LatLonGridCoverage rval = new LatLonGridCoverage();
-        rval.description = this.description;
-        rval.dx = this.dx;
-        rval.dy = this.dy;
-        rval.spacingUnit = this.spacingUnit;
-
-        try {
-            if (spacingUnit.equals("degree")) {
-                TrimUtil.trimLatLonSpace(getLowerLeftLat(), getLowerLeftLon(),
-                        subGrid, this.nx, this.ny, this.dx, this.dy);
-
-                rval.firstGridPointCorner = Corner.LowerLeft;
-                rval.lo1 = subGrid.getLowerLeftLon();
-                rval.la1 = subGrid.getLowerLeftLat();
-                rval.nx = subGrid.getNX();
-                rval.ny = subGrid.getNY();
-                rval.setName(SUBGRID_TOKEN + this.getId());
-            } else {
-                throw new GridCoverageException(
-                        "SubGridding a lat/lon grid not in lat lon spacing is unimplemented");
-            }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error creating sub grid definition for grid [" + this.name
-                            + "]", e);
-            rval = null;
-        }
-
         return rval;
-
     }
 
     @Override

@@ -79,6 +79,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.ArraysUtil;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
 /**
@@ -99,7 +100,7 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Oct 15, 2013  2473     bsteffen    Removed deprecated and unused code.
  * Jul 30, 2014  3469     bsteffen    Improve logging of invalid files.
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
- * 
+ * Mar 05, 2015  3959     rjpeter     Added world wrap check to subGrid.
  * </pre>
  * 
  * @author bphillip
@@ -456,7 +457,8 @@ public class Grib1Decoder extends AbstractDecoder {
             float[][] dataArray = this.resizeDataTo2D(data,
                     gridCoverage.getNx(), gridCoverage.getNy());
             dataArray = this.subGrid(dataArray, subGrid.getUpperLeftX(),
-                    subGrid.getUpperLeftY(), subGrid.getNX(), subGrid.getNY());
+                    subGrid.getUpperLeftY(), subGrid.getNX(), subGrid.getNY(),
+                    gridCoverage);
             data = this.resizeDataTo1D(dataArray, subGrid.getNY(),
                     subGrid.getNX());
             retVal.setMessageData(data);
@@ -607,17 +609,27 @@ public class Grib1Decoder extends AbstractDecoder {
      *            The number of columns in the sub-grid
      * @param rowCount
      *            The number of rows in the sub-grid
+     * @param coverage
+     *            The parent coverage
      * @return The sub-grid of data
      */
     private float[][] subGrid(float[][] data, int startColumn, int startRow,
-            int columnCount, int rowCount) {
+            int columnCount, int rowCount, GridCoverage coverage) {
         float[][] newGrid = new float[rowCount][columnCount];
 
         // sub grid might wrap around a world wide grid, double check bounds
         int endRow = startRow + rowCount;
         int endColumn = startColumn + columnCount;
+        int wrapCount = -1;
         if (endColumn > data[0].length) {
-            endColumn = data[0].length;
+            wrapCount = coverage.getWorldWrapCount();
+
+            if (wrapCount > 0) {
+                /* account for grids that already wrap in the incoming data */
+                endColumn = wrapCount;
+            } else {
+                endColumn = data[0].length;
+            }
         }
         // determine remaining col count for world wide grids
         columnCount -= endColumn - startColumn;
@@ -632,8 +644,15 @@ public class Grib1Decoder extends AbstractDecoder {
             }
 
             // handle grid wrap for world wide grids
-            for (int column = 0; column < columnCount; column++, newGridColumn++) {
-                newGrid[newGridRow][newGridColumn] = data[row][column];
+            if (columnCount > 0 && wrapCount > 0) {
+                for (int column = 0; column < columnCount; column++, newGridColumn++) {
+                    newGrid[newGridRow][newGridColumn] = data[row][column];
+                }
+            } else {
+                for (int column = 0; column < columnCount; column++, newGridColumn++) {
+                    newGrid[newGridRow][newGridColumn] = GridUtil.GRID_FILL_VALUE;
+                }
+
             }
         }
 
