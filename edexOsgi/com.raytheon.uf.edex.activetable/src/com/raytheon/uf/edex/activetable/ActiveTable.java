@@ -100,6 +100,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     Pass issuance site id to getActiveTable() 
  *                                     in updateActiveTable() so records will
  *                                     be updated correctly.
+ * Mar 04, 2015    4129    randerso    Pass active table change logger to ingestAt and/or MergeVTEC
  * 
  * </pre>
  * 
@@ -300,7 +301,8 @@ public class ActiveTable {
                     .getHandler("ActiveTable");
             ITimer timer = TimeUtil.getTimer();
             timer.start();
-            List<ActiveTableRecord> activeTable = getActiveTable(issueSiteId, mode);
+            List<ActiveTableRecord> activeTable = getActiveTable(issueSiteId,
+                    mode);
             timer.stop();
             perfStat.logDuration("getActiveTable", timer.getElapsedTime());
 
@@ -589,6 +591,7 @@ public class ActiveTable {
                 args.put("newRecords", newRecords);
                 args.put("drt", timeOffset);
                 args.put("makeBackups", makeBackup);
+                args.put("atChangeLog", changeLog);
                 if (runIngestAT) {
                     args.put("xmlIncoming", xmlSource);
                 }
