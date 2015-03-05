@@ -40,7 +40,7 @@ VariableList = [("Product to\ndecode:", [], "check",
                 ("Product to\n decode:", [], "check",
                  ["PREAT1", "PREAT2", "PREAT3", "PREAT4", "PREAT5",
                   "PREEP1", "PREEP2", "PREEP3", "PREEP4", "PREEP5"]),
-                ("Background\nModel:", "Fcst", "radio", ["GFS0p5degGbl", "UKMET", "ECMWFHiRes", "Fcst"]),
+#                ("Background\nModel:", "Fcst", "radio", ["GFS0p5degGbl", "UKMET", "ECMWFHiRes", "Fcst"]),
                 ("Number of Pie Slices?", "16", "radio", ["4", "8", "12", "16", "24"]),
                 ("Eye Diameter:", 0, "scale", [0, 100], 1),
                 ("34 knot radius at 3 days (NM):", 100, "scale", [0, 1000], 10),
@@ -1205,6 +1205,7 @@ class Procedure (SmartScript.SmartScript):
     def getBackgroundGrids(self, modelName):
         bgDict = {}
 
+        modelName = "Fcst"
         siteID = self.getSiteID()
         if modelName == "Fcst":
             level = "SFC"
@@ -1706,7 +1707,7 @@ class Procedure (SmartScript.SmartScript):
         # get the ID for this site
         siteID = self.getSiteID()
             
-        bgModelName = varDict["Background\nModel:"]
+        bgModelName = "Fcst"
         self.day3Radius = varDict["34 knot radius at 3 days (NM):"]
         self.day4Radius = varDict["34 knot radius at 4 days (NM):"]
         self.day5Radius = varDict["34 knot radius at 5 days (NM):"]
