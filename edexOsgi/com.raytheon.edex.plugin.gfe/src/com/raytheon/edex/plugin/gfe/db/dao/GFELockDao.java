@@ -34,6 +34,7 @@ import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+//import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.Lock;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.message.WsId;
@@ -53,7 +54,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 04/19/13     #1949      rjpeter     Normalized GFE Database.
  * 06/20/13     #2127      rjpeter     Set session to read only.
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
- * 01/07/15      629    mgamazaychikov Add getAllLocks method.
+ * 03/03/15      629    mgamazaychikov Add getAllLocks method.
  * </pre>
  * 
  * @author bphillip
@@ -195,8 +196,8 @@ public class GFELockDao extends CoreDao {
     }
 
     @SuppressWarnings("unchecked")
-    public Map<ParmID, LockTable> getAllLocks() throws DataAccessLayerException{
-        Map<ParmID, LockTable> lockMap = new HashMap<ParmID, LockTable>();
+    public List<Lock> getAllLocks(final String siteId)
+            throws DataAccessLayerException {
         Session sess = null;
         Transaction tx = null;
 
@@ -204,24 +205,12 @@ public class GFELockDao extends CoreDao {
             sess = getSession();
             sess.setDefaultReadOnly(true);
             tx = sess.beginTransaction();
-
             Query query = sess
-                    .createQuery("FROM Lock");
+                    .createQuery("FROM Lock WHERE parmId in (SELECT id FROM ParmID WHERE dbId in (SELECT id FROM DatabaseID WHERE siteId = ?))");
+            query.setParameter(0, siteId);
             List<Lock> locks = query.list();
             tx.commit();
-
-            // populate Lock table
-            for (Lock lock : locks) {
-                WsId wid  = lock.getWsId();
-                ParmID pid = lock.getParmId();
-                LockTable lockTable = lockMap.get(pid);
-                if (lockTable == null) {
-                    lockTable = new LockTable(pid, new ArrayList<Lock>(), wid);
-                    lockMap.put(pid, lockTable);
-                }
-                lockTable.addLock(lock);
-            }
-            return lockMap;
+            return locks;
         } catch (Exception e) {
             if (tx != null) {
                 try {
@@ -230,16 +219,13 @@ public class GFELockDao extends CoreDao {
                     logger.error("Error occurred rolling back transaction", e1);
                 }
             }
-
-            throw new DataAccessLayerException(
-                    "Unable to look up locks ", e);
+            throw new DataAccessLayerException("Unable to look up locks for site " + siteId, e);
         } finally {
             if (sess != null) {
                 try {
                     sess.close();
                 } catch (Exception e) {
-                    logger.error(
-                            "Error occurred closing database session", e);
+                    logger.error("Error occurred closing database session", e);
                 }
             }
         }

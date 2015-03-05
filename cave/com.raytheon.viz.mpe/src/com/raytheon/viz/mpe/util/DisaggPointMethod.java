@@ -71,7 +71,7 @@ public class DisaggPointMethod {
 
     double[][] totals_1hr;
 
-    int mpe_dqc_max_precip_neighbors = dqc.mpe_dqc_max_precip_neighbors;
+    int mpe_dqc_max_precip_neighbors = DailyQcUtils.mpe_dqc_max_precip_neighbors;
 
     Dist[] dist_6hr_to_1hr = Disagg6Hr.dist_6hr_to_1hr;
 
@@ -99,7 +99,7 @@ public class DisaggPointMethod {
         float stotal = 0.f;
         int num_missing_periods = 0;
         int num_disagg_stations = Disagg6Hr.num_disagg_stations;
-        int num_days_to_qc = dqc.qcDays;
+        int num_days_to_qc = DailyQcUtils.qcDays;
 //        int num_1hrs_reported = 0;
         boolean go_to_next_neighbor = false;
         boolean next_6hr_station = false;
