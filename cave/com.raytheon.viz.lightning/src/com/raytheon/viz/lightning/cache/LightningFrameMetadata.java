@@ -36,6 +36,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 9, 2014  3333      bclement     moved from LightningResource
+ * Mar 05, 2015 4233       bsteffen     include source in cache key.
  * 
  * </pre>
  * 
@@ -43,6 +44,8 @@ import com.raytheon.uf.common.time.DataTime;
  * @version 1.0
  */
 public class LightningFrameMetadata {
+
+    private final String source;
 
     private final BinOffset offset;
 
@@ -52,7 +55,9 @@ public class LightningFrameMetadata {
 
     private final List<BinLightningRecord> processed = new ArrayList<BinLightningRecord>();
 
-    public LightningFrameMetadata(DataTime frameTime, BinOffset offset) {
+    public LightningFrameMetadata(String source, DataTime frameTime,
+            BinOffset offset) {
+        this.source = source;
         this.frameTime = frameTime;
         this.offset = offset;
     }
@@ -92,6 +97,7 @@ public class LightningFrameMetadata {
         result = prime * result
                 + ((frameTime == null) ? 0 : frameTime.hashCode());
         result = prime * result + ((offset == null) ? 0 : offset.hashCode());
+        result = prime * result + ((source == null) ? 0 : source.hashCode());
         return result;
     }
 
@@ -113,6 +119,11 @@ public class LightningFrameMetadata {
             if (other.offset != null)
                 return false;
         } else if (!offset.equals(other.offset))
+            return false;
+        if (source == null) {
+            if (other.source != null)
+                return false;
+        } else if (!source.equals(other.source))
             return false;
         return true;
     }

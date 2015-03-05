@@ -45,7 +45,7 @@
         </contribute>
     </contribute>
     <contribute xsi:type="subMenu" menuText="Total Lightning Grid" id="entlnGridSubmenu">
-        <contribute xsi:type="subinclude" fileName="menus/lightning/gridLightningMenuItems.xml">
+        <contribute xsi:type="subinclude" fileName="menus/lightning/gridTotalLightningMenuItems.xml">
             <substitute key="source" value="ENTLN"/>
         </contribute>
     </contribute>
