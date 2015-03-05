@@ -35,6 +35,7 @@ import jep.JepException;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.exception.GfeMissingConfigurationException;
+import com.raytheon.edex.plugin.gfe.isc.FetchActiveTableSrv;
 import com.raytheon.edex.plugin.gfe.isc.IRTManager;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.site.SiteUtil;
@@ -92,6 +93,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  *                                     Sent activation failure message to alertViz
  * Oct 07, 2014  #3684    randerso     Restructured IFPServer start up
  * Dec 10, 2014  #4953    randerso     Added requestTCVFiles call at site activation
+ * Feb 25, 2015  #4128    dgilling     Simplify activation of active table sharing.
  * 
  * </pre>
  * 
@@ -109,25 +111,33 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     private static final int LOCK_TASK_TIMEOUT = 180000;
 
-    private static GFESiteActivation instance = new GFESiteActivation();
+    private boolean intialized;
 
-    private boolean intialized = false;
+    private final ExecutorService postActivationTaskExecutor;
 
-    private final ExecutorService postActivationTaskExecutor = MoreExecutors
-            .getExitingExecutorService((ThreadPoolExecutor) Executors
-                    .newCachedThreadPool());
+    private final FetchActiveTableSrv fetchAtSrv;
 
     /**
-     * @return the singleton instance
+     * Default constructor. Builds a GFESiteActivation instance with no
+     * associated {@code FetchActiveTableSrv} instance.
      */
-    public static GFESiteActivation getInstance() {
-        return instance;
+    public GFESiteActivation() {
+        this(null);
     }
 
     /**
-     * private constructor for singleton class
+     * Builds a GFESiteActivation instance with an associated
+     * {@code FetchActiveTableSrv} instance. Should only be used on request JVM.
+     * 
+     * @param fetchAtSrv
+     *            {@code FetchActiveTableSrv} instance
      */
-    private GFESiteActivation() {
+    public GFESiteActivation(final FetchActiveTableSrv fetchAtSrv) {
+        this.intialized = false;
+        this.postActivationTaskExecutor = MoreExecutors
+                .getExitingExecutorService((ThreadPoolExecutor) Executors
+                        .newCachedThreadPool());
+        this.fetchAtSrv = fetchAtSrv;
     }
 
     @Override
@@ -322,7 +332,6 @@ public class GFESiteActivation implements ISiteActivationListener {
 
         // Doesn't need to be cluster locked
         statusHandler.info("Checking ISC configuration...");
-        boolean isIscActivated = false;
         if (config.requestISC()) {
             String host = InetAddress.getLocalHost().getCanonicalHostName();
             String gfeHost = config.getServerHost();
@@ -337,14 +346,27 @@ public class GFESiteActivation implements ISiteActivationListener {
                 statusHandler.info("Enabling ISC...");
                 try {
                     IRTManager.getInstance().enableISC(siteID, config);
-                    isIscActivated = true;
 
-                    // wait until EDEX is up and running to request TCV files
                     final IFPServerConfig configRef = config;
+
+                    if (configRef.tableFetchTime() > 0) {
+                        Runnable activateTableSharing = new Runnable() {
+
+                            @Override
+                            public void run() {
+                                EDEXUtil.waitForRunning();
+                                fetchAtSrv.activateSite(siteID, configRef);
+                            }
+                        };
+                        postActivationTaskExecutor.submit(activateTableSharing);
+                    }
+
                     Runnable requestTCV = new Runnable() {
 
                         @Override
                         public void run() {
+                            // wait until EDEX is up and running to request TCV
+                            // files
                             EDEXUtil.waitForRunning();
 
                             requestTCVFiles(siteID, configRef);
@@ -365,45 +387,6 @@ public class GFESiteActivation implements ISiteActivationListener {
 
         } else {
             statusHandler.info("ISC is not enabled.");
-        }
-
-        // doesn't need to be cluster locked
-        final IFPServerConfig configRef = config;
-
-        if ((config.tableFetchTime() > 0) && isIscActivated) {
-            Runnable activateFetchAT = new Runnable() {
-
-                @Override
-                public void run() {
-                    EDEXUtil.waitForRunning();
-
-                    Map<String, Object> fetchATConfig = new HashMap<String, Object>();
-                    fetchATConfig.put("siteId", configRef.getSiteID().get(0));
-                    fetchATConfig.put("interval", configRef.tableFetchTime());
-                    fetchATConfig.put("ancf", configRef
-                            .iscRoutingTableAddress().get("ANCF"));
-                    fetchATConfig.put("bncf", configRef
-                            .iscRoutingTableAddress().get("BNCF"));
-                    fetchATConfig.put("serverHost", configRef.getServerHost());
-                    fetchATConfig.put("port", configRef.getRpcPort());
-                    fetchATConfig.put("protocolV",
-                            configRef.getProtocolVersion());
-                    fetchATConfig.put("mhsid", configRef.getMhsid());
-                    fetchATConfig.put("transmitScript",
-                            configRef.transmitScript());
-
-                    try {
-                        EDEXUtil.getMessageProducer().sendAsyncUri(
-                                "jms-generic:queue:gfeSiteActivated",
-                                fetchATConfig);
-                    } catch (EdexException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Could not activate active table sharing for site: "
-                                        + siteID, e);
-                    }
-                }
-            };
-            postActivationTaskExecutor.submit(activateFetchAT);
         }
 
         statusHandler.info("Adding " + siteID + " to active sites list.");

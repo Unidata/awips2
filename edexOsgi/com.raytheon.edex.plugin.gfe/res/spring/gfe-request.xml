@@ -3,6 +3,11 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
+    <bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
+        depends-on="commonTimeRegistered, gfeDbRegistered, levelFactoryInitialized">
+        <constructor-arg ref="fetchATSrv" />
+    </bean>
+    
     <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register">
         <constructor-arg ref="gfeSiteActivation"/>
     </bean>
@@ -582,5 +587,24 @@
 
     <bean factory-bean="contextManager" factory-method="registerClusteredContext">
         <constructor-arg ref="clusteredGfeIscRoutes"/>
+    </bean>
+    
+    <!-- Active Table Sharing Definitions -->
+    <bean id="fetchATSrv" class="com.raytheon.edex.plugin.gfe.isc.FetchActiveTableSrv" />
+    
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="activeTableSharingRoutes"/>
+        <constructor-arg ref="fetchATSrv"/>
+    </bean>
+    
+    <camelContext id="activeTableSharingRoutes" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <route id="activateFetchATSrv">
+            <from uri="timer://activateActiveTableSharing?repeatCount=1"/>
+            <bean ref="fetchATSrv" method="activateService"/>
+        </route>
+    </camelContext>
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="activeTableSharingRoutes"/>
     </bean>
 </beans>
