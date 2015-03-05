@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -33,7 +35,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
@@ -50,7 +51,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -85,6 +86,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 06, 2014  2649      dgilling    Make ETN assignment process optional.
  * Feb 17, 2014  2774      dgilling    Merge changes from 14.1 baseline to 14.2.
  * Nov 14, 2014  4953      randerso    Cleaned up practice product requests
+ * Feb 26, 2015  4126      randerso    Ensure transmit/store is properly cancelled if dialog is closed
+ *                                     Code cleanup
  * 
  * </pre>
  * 
@@ -92,22 +95,23 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  * 
  */
-public class StoreTransmitDlg extends CaveSWTDialog implements
-        IStoreTransmitProduct {
+public class StoreTransmitDlg extends CaveSWTDialog {
+    private static final int COUNT_DOWN_SECONDS = 5;
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(StoreTransmitDlg.class);
 
     private static int SEQ_NUMBER = 0;
 
     /**
-     * PRoduct ID text control.
+     * Product ID text control.
      */
-    private Text productIdTF;
+    private Text productIdText;
 
     /**
      * Count down progress label.
      */
-    private Label progressLbl;
+    private Label progressLabel;
 
     /**
      * Count down text string.
@@ -117,13 +121,7 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
     /**
      * Count down progress bar.
      */
-    private ProgressBar progBar;
-
-    /**
-     * Thread used to count down the store/transmit. A separate thread is needed
-     * so updates can be made to the display with user interruption.
-     */
-    private StoreTransmitCountdownThread countdownThread;
+    private ProgressBar progressBar;
 
     /**
      * Label image that will display the Store/Transmit image.
@@ -149,6 +147,10 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
     private final String pid;
 
     private final boolean updateVtec;
+
+    private String countdownFormat;
+
+    private boolean isCancelled;
 
     /**
      * @param parent
@@ -177,33 +179,28 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         this.productText = editor.getProductText();
         this.pid = pid;
         this.updateVtec = updateVtec;
+        CAVEMode opMode = CAVEMode.getMode();
+        String title = null;
+        if (isStoreDialog) {
+            countdownFormat = "Store in %s seconds...";
+            countdownText = "Store Countdown";
+            title = "Store in AWIPS TextDB";
+        } else {
+            countdownFormat = "Transmit in %s seconds...";
+            countdownText = "Transmit Countdown";
+            title = "Transmit to AWIPS *WAN*";
+        }
+
+        if (!opMode.equals(CAVEMode.OPERATIONAL)) {
+            countdownFormat = "Simulated " + countdownFormat;
+            countdownText = "Simulated " + countdownText;
+            title += " (" + opMode.name() + " MODE)";
+        }
+        setText(title);
     }
 
     @Override
     protected void initializeComponents(Shell shell) {
-        String title = null;
-        CAVEMode opMode = CAVEMode.getMode();
-        if (opMode.equals(CAVEMode.OPERATIONAL)) {
-            if (isStoreDialog == true) {
-                title = "Store in AWIPS TextDB";
-                countdownText = "Store Countdown";
-            } else {
-                title = "Transmit to AWIPS *WAN*";
-                countdownText = "Transmit Countdown";
-            }
-        } else {
-
-            if (isStoreDialog == true) {
-                title = "Store in AWIPS TextDB";
-                countdownText = "Simulated Store Countdown";
-            } else {
-                title = "Store Transmit to AWIPS *WAN*";
-                countdownText = "Simulated Transmit Countdown";
-            }
-            title += " (" + opMode.name() + " MODE)";
-
-        }
-        shell.setText(title);
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
@@ -214,19 +211,26 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
 
         // Initialize all of the controls and layouts
         initializeComponents();
+
+        shell.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                doCancel();
+            }
+        });
     }
 
     @Override
     protected void preOpened() {
         super.preOpened();
-        productIdTF.insert(pid);
+        productIdText.insert(pid);
     }
 
     /**
      * Initialize the controls on the display.
      */
     private void initializeComponents() {
-        if (isStoreDialog == true) {
+        if (isStoreDialog) {
             labelImg = parentEditor.getImageRegistry().get("yieldsign");
         } else {
             labelImg = parentEditor.getImageRegistry().get("stopsign");
@@ -234,11 +238,6 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
 
         createMainControls();
         createBottomButtons();
-
-        Display display = shell.getParent().getDisplay();
-
-        countdownThread = new StoreTransmitCountdownThread(display, progBar,
-                progressLbl, countdownText, this, isStoreDialog);
     }
 
     /**
@@ -258,19 +257,19 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         productIdLbl.setText("AWIPS Product ID:");
 
         GridData gd = new GridData(200, SWT.DEFAULT);
-        productIdTF = new Text(leftComp, SWT.BORDER);
-        productIdTF.setLayoutData(gd);
+        productIdText = new Text(leftComp, SWT.BORDER);
+        productIdText.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        progressLbl = new Label(leftComp, SWT.CENTER);
-        progressLbl.setText(countdownText);
-        progressLbl.setLayoutData(gd);
+        progressLabel = new Label(leftComp, SWT.CENTER);
+        progressLabel.setText(countdownText);
+        progressLabel.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        progBar = new ProgressBar(leftComp, SWT.SMOOTH);
-        progBar.setMinimum(0);
-        progBar.setMaximum(5);
-        progBar.setLayoutData(gd);
+        progressBar = new ProgressBar(leftComp, SWT.SMOOTH);
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(COUNT_DOWN_SECONDS);
+        progressBar.setLayoutData(gd);
 
         // -------------------------------------
         // Create the right side image control
@@ -300,30 +299,35 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         buttons.setLayout(new GridLayout(2, true));
 
         gd = new GridData(150, SWT.DEFAULT);
-        final Button actionBtn = new Button(buttons, SWT.PUSH);
+        final Button actionButton = new Button(buttons, SWT.PUSH);
 
         CAVEMode opMode = CAVEMode.getMode();
         if (opMode.equals(CAVEMode.OPERATIONAL)) {
-            if (isStoreDialog == true) {
-                actionBtn.setText("Store");
+            if (isStoreDialog) {
+                actionButton.setText("Store");
             } else {
-                actionBtn.setText("Transmit");
+                actionButton.setText("Transmit");
             }
-        } else if (isStoreDialog == true) {
-            actionBtn.setText("Simulated Store");
+        } else if (isStoreDialog) {
+            actionButton.setText("Simulated Store");
         } else {
-            actionBtn.setText("Simulated Transmit");
+            actionButton.setText("Simulated Transmit");
         }
 
-        actionBtn.setLayoutData(gd);
-        actionBtn.addSelectionListener(new SelectionAdapter() {
+        actionButton.setLayoutData(gd);
+        actionButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 // Disable the store button.
-                actionBtn.setEnabled(false);
+                actionButton.setEnabled(false);
+                progressLabel.setText(String.format(countdownFormat,
+                        COUNT_DOWN_SECONDS));
+                progressLabel.setBackground(progressLabel.getDisplay()
+                        .getSystemColor(SWT.COLOR_RED));
+                progressLabel.setForeground(progressLabel.getDisplay()
+                        .getSystemColor(SWT.COLOR_WHITE));
 
-                // Start the countdown thread.
-                countdownThread.start();
+                countDown();
             }
         });
 
@@ -334,19 +338,6 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (countdownThread != null) {
-                    if (countdownThread.isDone() == false) {
-                        countdownThread.cancelThread();
-                        progressLbl.setText(countdownText);
-                        Display display = shell.getParent().getDisplay();
-                        progressLbl.setBackground(display
-                                .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-                        progressLbl.setForeground(display
-                                .getSystemColor(SWT.COLOR_BLACK));
-                    }
-                }
-
-                setReturnValue(null);
                 close();
             }
         });
@@ -355,11 +346,9 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
     /**
      * Method to store or transmit the product.
      */
-    @Override
     public void storeTransmitProduct() {
         // Store/Transmit the product...
-
-        if (!countdownThread.threadCancelled()) {
+        if (!this.isCancelled) {
             try {
                 if (updateVtec) {
                     // With GFE VTEC products, it's possible to have multiple
@@ -433,111 +422,103 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
                             etnCache);
                 }
 
-                VizApp.runSync(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        String pid = productIdTF.getText();
-                        if (parentEditor.isTestVTEC()) {
-                            if (isStoreDialog) {
-                                parentEditor.devStore(pid.substring(3));
-                            } else {
-                                parentEditor.devStore(pid.substring(4));
-                                transmitProduct(true);
-                            }
-                        } else {
-                            if (isStoreDialog) {
-                                TextDBUtil.storeProduct(pid, productText,
-                                        parentEditor.isTestVTEC());
-                            } else {
-                                transmitProduct(false);
-                            }
-                        }
+                String pid = productIdText.getText();
+                if (parentEditor.isTestVTEC()) {
+                    if (isStoreDialog) {
+                        parentEditor.devStore(pid.substring(3));
+                    } else {
+                        parentEditor.devStore(pid.substring(4));
+                        transmitProduct(true);
                     }
-
-                });
+                } else {
+                    if (isStoreDialog) {
+                        TextDBUtil.storeProduct(pid, productText,
+                                parentEditor.isTestVTEC());
+                    } else {
+                        transmitProduct(false);
+                    }
+                }
             } catch (VizException e) {
                 statusHandler.handle(Priority.CRITICAL,
                         "Error preparing product for transmission.", e);
-                VizApp.runAsync(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        sendTransmissionStatus(ConfigData.productStateEnum.Failed);
-                        StoreTransmitDlg.this.parentEditor.revive();
-                    }
-                });
+                sendTransmissionStatus(ConfigData.productStateEnum.Failed);
+                StoreTransmitDlg.this.parentEditor.revive();
             }
         }
 
-        // The asyncExec call is used to dispose of the shell since it is
-        // called outside the GUI thread (count down thread).
-        VizApp.runAsync(new Runnable() {
-
-            @Override
-            public void run() {
-                close();
-            }
-        });
+        close();
     }
 
     private Integer getNextEtn(VtecObject vtec) throws VizException {
         GetNextEtnResponse serverResponse = GFEVtecUtil.getNextEtn(
                 vtec.getOffice(), vtec.getPhensig(), true, true);
         if (!serverResponse.isOkay()) {
-            final VtecObject vtecToFix = vtec;
-            final boolean[] exitLoopContainer = { false };
-            final Exception[] exceptionContainer = { null };
-            final GetNextEtnResponse[] responseContainer = { serverResponse };
+            boolean exitLoop = false;
+            Exception exception = null;
 
             do {
-                getDisplay().syncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        GetNextEtnResponse serverResponse = responseContainer[0];
-                        ETNConfirmationDialog dlg = new ETNConfirmationDialog(
-                                getShell(), serverResponse);
-                        if (dlg.open() == ETNConfirmationDialog.OK) {
-                            int etn = dlg.getProposedEtn();
-                            statusHandler.info(String.format(
-                                    "User confirmed ETN for %s: %04d",
-                                    serverResponse.getPhensig(), etn));
-                            try {
-                                GetNextEtnResponse followupResp = GFEVtecUtil
-                                        .getNextEtn(vtecToFix.getOffice(),
-                                                vtecToFix.getPhensig(), true,
-                                                true, true, etn);
-                                responseContainer[0] = followupResp;
-                            } catch (VizException e) {
-                                exceptionContainer[0] = e;
-                                exitLoopContainer[0] = true;
-                            }
-                        } else {
-                            statusHandler.info(
-                                    "User declined to fix ETN for %s",
-                                    serverResponse.getPhensig());
-                            exitLoopContainer[0] = true;
-                        }
+                ETNConfirmationDialog dlg = new ETNConfirmationDialog(
+                        getShell(), serverResponse);
+                if (dlg.open() == ETNConfirmationDialog.OK) {
+                    int etn = dlg.getProposedEtn();
+                    statusHandler.info(String.format(
+                            "User confirmed ETN for %s: %04d",
+                            serverResponse.getPhensig(), etn));
+                    try {
+                        GetNextEtnResponse followupResp = GFEVtecUtil
+                                .getNextEtn(vtec.getOffice(),
+                                        vtec.getPhensig(), true, true, true,
+                                        etn);
+                        serverResponse = followupResp;
+                    } catch (VizException e) {
+                        exception = e;
+                        exitLoop = true;
                     }
-                });
-            } while (!responseContainer[0].isOkay() && !exitLoopContainer[0]);
+                } else {
+                    statusHandler.info("User declined to fix ETN for %s",
+                            serverResponse.getPhensig());
+                    exitLoop = true;
+                }
+            } while (!serverResponse.isOkay() && !exitLoop);
 
-            if (!responseContainer[0].isOkay()) {
+            if (!serverResponse.isOkay()) {
                 String msg = "Unable to set ETN for phensig "
-                        + responseContainer[0].getPhensig() + "\nStatus: "
-                        + responseContainer[0].toString();
-                Exception e = exceptionContainer[0];
+                        + serverResponse.getPhensig() + "\nStatus: "
+                        + serverResponse.toString();
+                Exception e = exception;
                 if (e == null) {
                     throw new VizException(msg);
                 } else {
                     throw new VizException(msg, e);
                 }
-            } else {
-                serverResponse = responseContainer[0];
             }
         }
 
         return serverResponse.getNextEtn();
+    }
+
+    private void countDown() {
+        getShell().getDisplay().timerExec(1000, new Runnable() {
+            @Override
+            public void run() {
+                bumpCounter();
+            }
+        });
+    }
+
+    private void bumpCounter() {
+        if (!progressBar.isDisposed()) {
+            // Increment the progress bar
+            int count = progressBar.getSelection() + 1;
+            if (count < COUNT_DOWN_SECONDS) {
+                progressBar.setSelection(count);
+                progressLabel.setText(String.format(countdownFormat,
+                        (COUNT_DOWN_SECONDS - count)));
+                countDown();
+            } else {
+                storeTransmitProduct();
+            }
+        }
     }
 
     /**
@@ -566,13 +547,13 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
             OfficialUserProduct oup = new OfficialUserProduct();
             // make sure the awipsWanPil is exactly 10 characters space-padded
             // long
-            String awipsWanPil = String.format("%-10s", productIdTF.getText()
+            String awipsWanPil = String.format("%-10s", productIdText.getText()
                     .trim());
             oup.setAwipsWanPil(awipsWanPil);
             oup.setProductText(productText);
 
             String tempName = awipsWanPil + "-" + SEQ_NUMBER + "-"
-                    + (System.currentTimeMillis() / 1000);
+                    + (System.currentTimeMillis() / TimeUtil.MILLIS_PER_SECOND);
             oup.setFilename(tempName);
 
             String type = parentEditor.getProductType();
@@ -590,8 +571,8 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
 
         try {
             Object response = ThriftClient.sendRequest(req);
-            // TODO need a response on the other one? it's going
-            // async....
+            // TODO need a response on the other one?
+            // it's going async....
             if (response instanceof OUPResponse) {
                 OUPResponse resp = (OUPResponse) response;
                 Priority p = null;
@@ -646,8 +627,13 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
     }
 
     private void sendTransmissionStatus(ConfigData.productStateEnum status) {
-        if (isStoreDialog == false) {
+        if (!isStoreDialog) {
             transmissionCB.setTransmissionState(status);
         }
+    }
+
+    private void doCancel() {
+        this.isCancelled = true;
+        storeTransmitProduct();
     }
 }
