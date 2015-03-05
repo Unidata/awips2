@@ -22,8 +22,11 @@ package com.raytheon.uf.viz.hpe.rsc;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -32,6 +35,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.plugin.hpe.data.HpeLabelKey;
 import com.raytheon.uf.common.plugin.hpe.request.HpeLabelDataRequest;
 import com.raytheon.uf.common.plugin.hpe.request.HpeLabelDataResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -66,6 +70,7 @@ import com.raytheon.viz.grid.rsc.general.D2DGridResource;
  * ------------ ---------- ----------- --------------------------
  * May 5, 2014    3026     mpduff      Initial creation
  * Dec 16, 2014   3026     mpduff      Change location of text
+ * Feb 13, 2015   4121     mpduff      Change label caching.
  * 
  * </pre>
  * 
@@ -80,8 +85,8 @@ public class HpeLabelResource extends
     private final IUFStatusHandler logger = UFStatus
             .getHandler(HpeLabelResource.class);
 
-    private final Map<Date, String> hpeTextCache = Collections
-            .synchronizedMap(new HashMap<Date, String>());
+    private final Map<HpeLabelKey, String> hpeTextCache = Collections
+            .synchronizedMap(new HashMap<HpeLabelKey, String>());
 
     private DrawableString drawableString = null;
 
@@ -98,7 +103,16 @@ public class HpeLabelResource extends
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.DATA_REMOVE) {
             if (object instanceof DataTime) {
-                hpeTextCache.remove(((DataTime) object).getRefTime());
+                Set<Entry<HpeLabelKey, String>> entrySet = hpeTextCache
+                        .entrySet();
+                Iterator<Entry<HpeLabelKey, String>> iter = entrySet.iterator();
+                while (iter.hasNext()) {
+                    Entry<HpeLabelKey, String> entry = iter.next();
+                    HpeLabelKey key = entry.getKey();
+                    if (key.getDate().equals(((DataTime) object).getRefTime())) {
+                        iter.remove();
+                    }
+                }
             }
         }
     }
@@ -163,7 +177,8 @@ public class HpeLabelResource extends
     }
 
     private String getText(Date date, String productId) {
-        String text = hpeTextCache.get(date);
+        HpeLabelKey key = new HpeLabelKey(productId, date);
+        String text = hpeTextCache.get(key);
         if (text == null) {
             dataJob.scheduleRetrieval(date, productId);
         }
@@ -214,7 +229,8 @@ public class HpeLabelResource extends
                         .sendRequest(req);
                 Map<Date, String> data = response.getData();
                 for (Date d : data.keySet()) {
-                    hpeTextCache.put(d, data.get(d));
+                    HpeLabelKey key = new HpeLabelKey(productId, d);
+                    hpeTextCache.put(key, data.get(d));
                 }
             } catch (VizException e) {
                 statusHandler.error(e.getLocalizedMessage(), e);
