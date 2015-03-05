@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.monitor.fog.threshold;
 import java.util.ArrayList;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
@@ -41,7 +42,6 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogMonitor;
  * Feb 03, 2014 #2757      skorolev     Fixed reInitialize()
  * May 20, 2014  3086      skorolev     Cleaned code.
  * Sep 04, 2014  3220      skorolev     Removed "site".
- * Oct 16, 2014  3220      skorolev     Corrected areaConfigMgr assignment.
  * 
  * </pre>
  * 
@@ -61,7 +61,8 @@ public class FogThresholdMgr extends AbstractThresholdMgr {
         super("DefaultFogDisplayThresholds.xml",
                 "DefaultFogMonitorThresholds.xml", AppName.FOG.name()
                         .toLowerCase());
-        areaConfigMgr = FSSObsMonitorConfigurationManager.getFogObsManager();
+        areaConfigMgr = new FSSObsMonitorConfigurationManager(
+                MonName.fog.name());
         init();
     }
 
@@ -74,6 +75,7 @@ public class FogThresholdMgr extends AbstractThresholdMgr {
         if (classInstance == null) {
             classInstance = new FogThresholdMgr();
         }
+
         return classInstance;
     }
 
@@ -116,4 +118,20 @@ public class FogThresholdMgr extends AbstractThresholdMgr {
         }
         return threshKeys;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr#
+     * getMonitorAreaConfigInstance()
+     */
+    @Override
+    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
+        if (areaConfigMgr == null) {
+            areaConfigMgr = new FSSObsMonitorConfigurationManager(
+                    MonName.fog.name());
+        }
+        return areaConfigMgr;
+    }
+
 }

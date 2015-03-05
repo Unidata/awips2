@@ -108,6 +108,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * May 14, 2014 3061       bclement    added better checks for when to send invite/session payloads
  * Jun 16, 2014 3288       bclement    feed venue configuration changes
  * Jun 17, 2014 3078       bclement    peer to peer communication uses private chat
+ * Feb 12, 2015 4117       bclement    fixed 14.3/14.4 peer-to-peer messaging
  * 
  * </pre>
  * 
@@ -232,10 +233,6 @@ public class SharedDisplaySession extends VenueSession implements
         if (obj == null) {
             return;
         }
-        /*
-         * TODO it would be nice to use MUC private chat for this, but it would
-         * break backwards compatibility
-         */
         boolean doSend = true;
         if (hasRole(SharedDisplayRole.DATA_PROVIDER)
                 && !isSharedDisplayClient(participant)) {
@@ -248,9 +245,20 @@ public class SharedDisplaySession extends VenueSession implements
             doSend = false;
         }
         if (doSend) {
+            String to;
+            /*
+             * clients older than 14.4 expect peer to peer messages sent
+             * directly to the user ID. When all clients are 14.4 or above it
+             * will be safe to always send to the room handle.
+             */
+            if (participant.hasActualUserId()) {
+                to = participant.getUserid().getFQName();
+            } else {
+                to = participant.getFQName();
+            }
             SessionPayload payload = new SessionPayload(PayloadType.Command,
                     obj);
-            Message msg = new Message(participant.getFQName(), Type.normal);
+            Message msg = new Message(to, Type.normal);
             msg.addExtension(payload);
             msg.setFrom(conn.getUser());
             msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
