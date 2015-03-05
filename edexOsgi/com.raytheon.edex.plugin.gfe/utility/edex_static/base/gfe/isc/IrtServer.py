@@ -24,6 +24,7 @@ import LogStream, tempfile, os, sys, JUtil, subprocess, traceback, errno
 import time, copy, string, iscUtil
 
 from com.raytheon.edex.plugin.gfe.isc import IRTManager
+from subprocess import CalledProcessError
 
 
 #
@@ -47,6 +48,7 @@ from com.raytheon.edex.plugin.gfe.isc import IRTManager
 #                                                 registration with IRT.
 #    12/08/2014      4953          randerso       Added support for sending/receiving TCV files
 #                                                 Additional code clean up
+#    03/05/2015      4129          randerso       Fix exception handling on subprocess calls
 #
 ##
 PURGE_AGE = 30 * 24 * 60 * 60  # 30 days in seconds
@@ -157,9 +159,11 @@ def getVTECActiveTable(dataFile, xmlPacket):
         args.append(fnameXML)
     try:
         output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+        logEvent("sendAT command output: ", output)
+    except subprocess.CalledProcessError as e:
+        logProblem("sendAT returned error code: ", e.returncode, e.output)
     except:
         logProblem("Error executing sendAT: ", traceback.format_exc())
-    logEvent("sendAT command output: ", output)
 
 #when we receive a requested active table from another site, this function
 #is called from iscDataRec
@@ -191,9 +195,11 @@ def putVTECActiveTable(dataFile, xmlPacket):
         args.append(fnameXML)
     try:
         output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+        logEvent("ingestAT command output: ", output)
+    except subprocess.CalledProcessError as e:
+        logProblem("ingestAT returned error code: ", e.returncode, e.output)
     except:
         logProblem("Error executing ingestAT: ", traceback.format_exc())
-    logEvent("ingesAT command output: ", output)
 
 def putTCVFiles(siteID, tarFile):
     import LocalizationSupport
