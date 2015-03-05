@@ -100,6 +100,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/07/2013	16664	mgamazaychikov	Added padProdDesignatorText method
  * 11/21/2013   16633   mgamazaychikov  Improved consistency between AFOS PIL and WMO Heading fields.
  * 08May2014    16041       kshrestha   Save unofficial text products from text editor.
+ * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
  * 
  * </pre>
  * 
@@ -441,12 +442,20 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                             textProd.getCccid());
                 }
                 if (null == CCCcode) {
-                    CCCcode = "";
+                    wsfoIdTF.setText(textProd.getCccid()); 
+                } else {
+                    wsfoIdTF.setText(CCCcode);
                 }
-                wsfoIdTF.setText(CCCcode);
             } else {
                 wsfoIdTF.setText(textProd.getCccid());
             }
+            
+            if(textProd.getProduct() != null) {
+                if(textProd.getProduct().startsWith("ZCZC")) {
+                    wsfoIdTF.setText(textProd.getCccid());
+                }
+            }
+            
             prodCatTF.setText(textProd.getNnnid());
             prodDesignatorTF.setText(textProd.getXxxid());
         }
