@@ -319,7 +319,9 @@ public final class FetchActiveTableSrv implements IContextStateProcessor {
         statusHandler.info("Shutting down FetchATSrv...");
 
         activeServiceInstance = false;
-        jobExecutor.shutdown();
+        if (jobExecutor != null) {
+            jobExecutor.shutdown();
+        }
     }
 
     /*
