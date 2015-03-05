@@ -81,6 +81,7 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
+import com.raytheon.uf.common.plugin.hpe.data.HpeLabelKey;
 import com.raytheon.uf.common.plugin.hpe.request.HpeLabelDataRequest;
 import com.raytheon.uf.common.plugin.hpe.request.HpeLabelDataResponse;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
@@ -91,7 +92,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -198,7 +198,8 @@ import com.vividsolutions.jts.geom.Point;
  *                                      assignments.
  * Sep 23, 2014 3009        njensen     Overrode recycleInternal()
  * Nov 10, 2014 3026        dhladky     HPE BIAS displays.
- * Dec 16, 2014   3026      mpduff      Change location of text
+ * Dec 16, 2014   3026      mpduff      Change location of text.
+ * Feb 13, 2015   4121      mpduff      Change label caching.
  * </pre>
  * 
  * @author dhladky
@@ -267,6 +268,9 @@ public class FFMPResource extends
 
     /** HPE Constant */
     private static final String HPE = "HPE";
+
+    /** BiasHPE Constant */
+    private static final String BHPE = "BHPE";
 
     /** the stream cross hatched area **/
     private IWireframeShape streamOutlineShape = null;
@@ -424,6 +428,8 @@ public class FFMPResource extends
 
     private DrawableString basinLocatorString = null;
 
+    private DrawableString hpeLabelString = null;
+
     private RGB basinTraceColor = null;
 
     private RGB basinBoundaryColor = null;
@@ -440,8 +446,12 @@ public class FFMPResource extends
     private boolean restoreTable = false;
 
     /** HPE bias source legend cache */
-    private final Map<Date, String> hpeLegendMap = Collections
-            .synchronizedMap(new HashMap<Date, String>());
+    private final Map<HpeLabelKey, String> hpeLegendMap = Collections
+            .synchronizedMap(new HashMap<HpeLabelKey, String>());
+
+    /** Lookup of Date to product ids displaying for that date */
+    private final Map<Date, List<String>> hpeCacheLookup = Collections
+            .synchronizedMap(new HashMap<Date, List<String>>());
 
     /** Flag denoting data as HPE */
     private boolean isHpe;
@@ -538,11 +548,30 @@ public class FFMPResource extends
                 PluginDataObject[] pdos = (PluginDataObject[]) object;
                 for (PluginDataObject pdo : pdos) {
                     FFMPRecord ffmpRec = (FFMPRecord) pdo;
-                    hpeLegendMap.remove(ffmpRec.getDataTime().getRefTime());
+                    Date date = ffmpRec.getDataTime().getRefTime();
+                    removeHpeLabels(date);
                 }
             } else if (object instanceof DataTime) {
                 DataTime dt = (DataTime) object;
-                hpeLegendMap.remove(dt.getRefTime());
+                removeHpeLabels(dt.getRefTime());
+            }
+        }
+    }
+
+    /**
+     * Remove the labels in the cache for the given time and product.
+     * 
+     * @param date
+     *            The time to remove
+     * @param productId
+     *            The product to remove
+     */
+    private void removeHpeLabels(Date date) {
+        List<String> products = hpeCacheLookup.remove(date);
+        if (products != null) {
+            for (String product : products) {
+                HpeLabelKey key = new HpeLabelKey(product, date);
+                hpeLegendMap.remove(key);
             }
         }
     }
@@ -1253,12 +1282,19 @@ public class FFMPResource extends
                 basinLocatorString.horizontalAlignment = HorizontalAlignment.CENTER;
                 basinLocatorString.verticallAlignment = VerticalAlignment.MIDDLE;
                 basinLocatorString.addTextStyle(TextStyle.BLANKED);
+
+                hpeLabelString = new DrawableString("", getCapability(
+                        ColorableCapability.class).getColor());
+                hpeLabelString.font = font;
+                hpeLabelString.horizontalAlignment = HorizontalAlignment.CENTER;
+                hpeLabelString.verticallAlignment = VerticalAlignment.TOP;
+
             }
         });
 
         // Set flag for HPE data
-        isHpe = resourceData.siteKey.equalsIgnoreCase(HPE)
-                || resourceData.siteKey.equalsIgnoreCase("BHPE");
+        isHpe = resourceData.dataKey.equalsIgnoreCase(HPE)
+                || resourceData.dataKey.equalsIgnoreCase(BHPE);
     }
 
     /**
@@ -1479,6 +1515,24 @@ public class FFMPResource extends
                 paintUpAndDownStream(aTarget, paintProps);
             }
 
+            // draw hpe strings if HPE
+            if (isHpe) {
+                // Paint the HPE bias source text if HPE
+                String text = getHpeText(paintTime.getRefTime());
+
+                if (text != null && text.trim().length() > 0) {
+                    double[] pixel = paintProps.getView().getDisplayCoords(
+                            new double[] { 110, 120 }, aTarget);
+                    hpeLabelString
+                            .setText(text,
+                                    getCapability(ColorableCapability.class)
+                                            .getColor());
+                    hpeLabelString.setCoordinates(pixel[0], pixel[1]);
+                    aTarget.drawStrings(hpeLabelString);
+
+                }
+            }
+
             // always reset
             isQuery = false;
         } finally {
@@ -1501,15 +1555,6 @@ public class FFMPResource extends
         if (isAutoRefresh || isQuery) {
             sb.append("FFMP ").append(df.format(getTime())).append(" hour ")
                     .append(FFMPRecord.getFieldLongDescription(getField()));
-        }
-
-        // Paint the HPE bias source text if HPE
-        if (isHpe && qpeRecord != null) {
-            String text = getText(paintTime.getRefTime());
-            if (text != null) {
-                sb.append(StringUtil.NEWLINE);
-                sb.append(text);
-            }
         }
 
         fieldDescString.setText(sb.toString(),
@@ -4178,14 +4223,44 @@ public class FFMPResource extends
      * @param date
      * @return
      */
-    private String getText(Date date) {
-        String text = hpeLegendMap.get(date);
+    private String getHpeText(Date date) {
+        List<String> products = hpeCacheLookup.get(date);
+        if (products == null) {
+            products = new ArrayList<String>(0);
+        }
+        HpeLabelKey key = new HpeLabelKey();
+        key.setDate(date);
+        for (String product : products) {
+            key.setProductName(product);
+        }
+        String text = hpeLegendMap.get(key);
         if (text == null) {
-            FFMPRecord hpeQpeRecord = getQpeRecord();
+            String wfo = null;
+            String siteKey = null;
+            String dataKey = null;
+            String sourceName = null;
+
+            if (qpeRecord != null) {
+                wfo = qpeRecord.getWfo();
+                siteKey = qpeRecord.getSiteKey();
+                dataKey = qpeRecord.getDataKey();
+                sourceName = qpeRecord.getSourceName();
+            } else if (qpfRecord != null) {
+                wfo = qpfRecord.getWfo();
+                siteKey = qpfRecord.getSiteKey();
+                dataKey = qpfRecord.getDataKey();
+                sourceName = qpfRecord.getSourceName();
+            } else {
+                return "";
+            }
             String productId = monitor.getProductID(paintTime.getRefTime(),
-                    hpeQpeRecord.getWfo(), hpeQpeRecord.getSiteKey(),
-                    hpeQpeRecord.getDataKey(), hpeQpeRecord.getSourceName());
+                    wfo, siteKey, dataKey, sourceName);
             dataJob.scheduleRetrieval(date, productId);
+            statusHandler.info("Loading product " + productId);
+        }
+
+        if (text == null) {
+            text = "";
         }
 
         return text;
@@ -4237,7 +4312,12 @@ public class FFMPResource extends
                         .sendRequest(req);
                 Map<Date, String> data = response.getData();
                 for (Date d : data.keySet()) {
-                    hpeLegendMap.put(d, data.get(d));
+                    HpeLabelKey key = new HpeLabelKey(productId, d);
+                    hpeLegendMap.put(key, data.get(d));
+                    if (!hpeCacheLookup.containsKey(d)) {
+                        hpeCacheLookup.put(d, new ArrayList<String>());
+                    }
+                    hpeCacheLookup.get(d).add(productId);
                 }
             } catch (VizException e) {
                 statusHandler.error(e.getLocalizedMessage(), e);
