@@ -343,6 +343,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 11Sep2014   3580         mapeters    Replaced SerializationTuil usage with JAXBManager, 
  *                                      removed IQueryTransport usage (no longer exists).
  * 20Oct2014   3685         randerso    Made conversion to upper case conditional on product id
+ * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
  * 
  * </pre>
  * 
@@ -5738,7 +5739,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
          * DR15610 - Make sure that if the first line of the text product is not
          * a WMO heading it is treated as part of the text body.
          */
-        String[] pieces = textEditor.getText().split("\r*\n", 2);
+        String[] pieces = null;
+        if(textEditor.getText().startsWith("ZCZC"))
+            pieces = textEditor.getText().split("\r*\n", 1);
+        else
+            pieces = textEditor.getText().split("\r*\n", 2);
+        
         if (pieces.length > 1) {
             pieces[0] += "\n"; // WMOHeader expects this
         }
