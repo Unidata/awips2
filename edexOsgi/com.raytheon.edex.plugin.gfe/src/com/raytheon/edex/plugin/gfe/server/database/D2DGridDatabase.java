@@ -139,7 +139,7 @@ public class D2DGridDatabase extends VGridDatabase {
     public static DatabaseID getDbId(String d2dModelName, Date modelTime,
             IFPServerConfig config) {
         String gfeModelName = config.gfeModelNameMapping(d2dModelName);
-        if ((gfeModelName == null) || gfeModelName.isEmpty()) {
+        if (gfeModelName == null) {
             return null;
         }
         return new DatabaseID(getSiteID(config), DataType.GRID, "D2D",
@@ -392,8 +392,6 @@ public class D2DGridDatabase extends VGridDatabase {
             throws GfeException {
         RemapGrid remap = this.remap.get(awipsGrid.getId());
         if (remap == null) {
-            String gfeModelName = dbId.getModelName();
-            String d2dModelName = this.config.d2dModelNameMapping(gfeModelName);
             GridLocation inputLoc = new GridLocation(d2dModelName, awipsGrid);
             inputLoc.setSiteId(d2dModelName);
             Rectangle subdomain = NetCDFUtils.getSubGridDims(inputLoc,
@@ -855,9 +853,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
         float fillV = Float.MAX_VALUE;
         ParameterInfo atts = GridParamInfoLookup.getInstance()
-                .getParameterInfo(
-                        config.d2dModelNameMapping(parmId.getDbId()
-                                .getModelName()), parmId.getParmName());
+                .getParameterInfo(d2dModelName, parmId.getParmName());
         if (atts != null) {
             fillV = atts.getFillValue();
         }
