@@ -55,6 +55,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  * 07/09/09     #2590      njensen     No longer singleton
  * 06/24/13     #2044      randerso    Renamed satdirs to satdata to match serverConfig.py
  * 08/14/2013   #1571      randerso    Changed to use ProjectionType enum
+ * 03/05/2015   #4169      randerso    Changed model name mappings to return null if no mapping
  * 
  * </pre>
  * 
@@ -88,9 +89,9 @@ public class IFPServerConfig {
 
     private Map<String, List<Integer>> _initSkips;
 
-    private Map<String, Integer> _desiredDbVersions, _gridPurgeAge;
+    private final Map<String, Integer> _desiredDbVersions, _gridPurgeAge;
 
-    private Map<String, GridDbConfig> _gridDbConfig;
+    private final Map<String, GridDbConfig> _gridDbConfig;
 
     private String _prdDir;
 
@@ -343,9 +344,8 @@ public class IFPServerConfig {
      * @return
      */
     public String gfeModelNameMapping(final String d2dModelName) {
-        // now handle the mapping of directory to optional model name
-        String mapping = _d2dModels.get(d2dModelName);
-        return mapping == null ? "" : mapping;
+        // get corresponding GFE model name for D2D model
+        return _d2dModels.get(d2dModelName);
     }
 
     /**
@@ -356,9 +356,8 @@ public class IFPServerConfig {
      * @return
      */
     public String d2dModelNameMapping(final String gfeModelName) {
-        // now handle the mapping of directory to optional model name
-        String mapping = gfeModels.get(gfeModelName);
-        return mapping == null ? "" : mapping;
+        // get corresponding D2D model name for GFE model
+        return gfeModels.get(gfeModelName);
     }
 
     /**
