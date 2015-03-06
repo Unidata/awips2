@@ -146,6 +146,8 @@ if [ -d /awips2/.edex ]; then
    rm -rf /awips2/.edex
 fi
 
+chmod 775 /awips2/edex/data/manual
+
 %preun
 if [ "${1}" = "1" ]; then
    exit 0
@@ -174,7 +176,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/logs
 %dir /awips2/edex/webapps
 
-%attr(775,awips,fxalpha) /awips2/edex/data/manual
 
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/edex/bin
