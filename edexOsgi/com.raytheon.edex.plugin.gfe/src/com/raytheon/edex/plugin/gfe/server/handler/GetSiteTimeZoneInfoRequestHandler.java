@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetSiteTimeZoneInfoRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2011            dgilling     Initial creation
+ * Feb 26, 2015  #4128     dgilling     Switch to IFPServer.getActiveSites().
  * 
  * </pre>
  * 
@@ -61,7 +62,7 @@ public class GetSiteTimeZoneInfoRequestHandler implements
             GetSiteTimeZoneInfoRequest request) throws Exception {
         ServerResponse<Map<String, String>> sr = new ServerResponse<Map<String, String>>();
 
-        Set<String> sites = GFESiteActivation.getInstance().getActiveSites();
+        Set<String> sites = IFPServer.getActiveSites();
         Map<String, String> siteWithTimeZone = new HashMap<String, String>();
         for (String site : sites) {
             // getTimeZones() seems to only ever return a 1 sized List

@@ -121,18 +121,18 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Apr 27, 2011 #9250       bkowal      getStyle and getName are now used to
  *                                       get the style and name associated with
  *                                       a FontData object.
- *  Apr 16, 2012 #14515      Qinglu Lin  Added return at the beginning of changeTemplate() 
+ *  Apr 16, 2012 #14515      Qinglu Lin  Added return at the beginning of changeTemplate()
  *                                       if the newly selected product is same as current one.
- *  Jul 10, 2012 #15099      Qinglu Lin  Add updatePolygon() and apply it in xxxSelected methods. 
+ *  Jul 10, 2012 #15099      Qinglu Lin  Add updatePolygon() and apply it in xxxSelected methods.
  *  Jul 26, 2012 #15227      Qinglu Lin  Added removeDuplicateVertices(), removeOverlaidSegments(),
  *                                       adjustLatLon(), etc.
  *  Sep 05, 2012 DR 15261    D. Friedman Prevent additional counties from being selected for EXPs
  *  Sep 27, 2012 #1196       rferrel     Refactored to use non-blocking dialogs
  *  Oct 03, 2012 DR 15426    Qinglu Lin  Unlock WarnGen GUI for COR, implemented in corSelected();
  *                                       but lock immediate cause, implemented in individual template.
- *  Nov 02, 2012 DR 15455    Qinglu Lin  Added warngenLayer.setWarningAction() in resetPressed() 
+ *  Nov 02, 2012 DR 15455    Qinglu Lin  Added warngenLayer.setWarningAction() in resetPressed()
  *                                       and in updateListSelected().
- *  Dec 20, 2012 DR 15537    Qinglu Lin  Changed the assigned value to trackEditable from false 
+ *  Dec 20, 2012 DR 15537    Qinglu Lin  Changed the assigned value to trackEditable from false
  *                                       to true in boxSelected().
  *  Jan 24, 2013 DR 15723    Qinglu Lin  Invoked WarngenLayer's initRemovedGids().
  *  Feb  7, 2013 DR 15799    Qinglu Lin  Added setPolygonLocked(false) to conSelected(), newSelected(); added
@@ -158,6 +158,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  May 09, 2014 DR16694 m.gamazaychikov Fixed disabled duration menu after creating text for a COR SVS.
  *  Jul 01, 2014 DR 17450    D. Friedman Use list of templates from backup site.
  *  Jul 21, 2014 3419        jsanchez    Created a hidden button to make recreating polygons easier.
+ *  Feb 26, 2015 3353        rjpeter     Fixed NPE on clear.
  * </pre>
  * 
  * @author chammack
@@ -172,7 +173,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      * This flag allows a hidden button to appear to help recreating warning
      * polygons that had issues in the feed.
      */
-    private boolean debug = false;
+    private final boolean debug = false;
 
     private static final int BULLET_WIDTH = 390;
 
@@ -181,7 +182,7 @@ public class WarngenDialog extends CaveSWTDialog implements
     private static final int FONT_HEIGHT = 9;
 
     private class TemplateRunnerInitJob extends Job {
-        private String site;
+        private final String site;
 
         public TemplateRunnerInitJob() {
             super("Template Runner Initialization");
@@ -1132,16 +1133,18 @@ public class WarngenDialog extends CaveSWTDialog implements
 
         if ((followupData != null)
                 && (WarningAction.valueOf(followupData.getAct()) == WarningAction.NEW)) {
-            if (!redrawFromWarned())
+            if (!redrawFromWarned()) {
                 return;
+            }
         }
 
         if (((followupData == null) || ((WarningAction.valueOf(followupData
                 .getAct()) == WarningAction.CON) && warngenLayer
                 .conWarnAreaChanged(followupData)))
                 && !polygonLocked && !trackLocked) {
-            if (!redrawFromWarned())
+            if (!redrawFromWarned()) {
                 return;
+            }
         }
 
         // Need to check again because redraw may have failed.
@@ -1313,7 +1316,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer.resetState();
         warngenLayer.getStormTrackState().duration = ((DurationData) durationList
                 .getData(durationList.getItem(durationList.getSelectionIndex()))).minutes;
-        durationList.setEnabled(warngenLayer.getConfiguration().isEnableDuration());
+        durationList.setEnabled(warngenLayer.getConfiguration()
+                .isEnableDuration());
         if (lineOfStorms.getSelection()) {
             selectLineOfStorms();
         } else {
@@ -1587,7 +1591,9 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer.setOldWarningPolygon(null);
         warngenLayer.resetInitialFrame();
         warngenLayer.setTemplateName(templateName);
-        warngenLayer.state.followupData = null;
+        if (warngenLayer.state != null) {
+            warngenLayer.state.followupData = null;
+        }
         warngenLayer.getStormTrackState().endTime = null;
         damBreakInstruct = null;
         extEndTime = null;
