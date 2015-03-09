@@ -2503,7 +2503,12 @@ public class SaveLevel2Data {
         }
 
         Disagg6Hr d6h = new Disagg6Hr();
-        d6h.disagg6hr();
+        try {
+            d6h.disagg6hr();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         /* Free DailyQC resources. */
 
