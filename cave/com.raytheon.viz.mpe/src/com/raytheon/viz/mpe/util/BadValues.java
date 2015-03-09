@@ -41,6 +41,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2009            snaples     Initial creation
+ * Feb 5, 2015   17101    snaples     Fixed issue with writing zero length bad values file.
  * 
  * </pre>
  * 
@@ -51,8 +52,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 public class BadValues {
     BufferedReader in = null;
     DailyQcUtils dqc = DailyQcUtils.getInstance();
-    ReadPrecipStationList rp = new ReadPrecipStationList();
-    private int max_stations = rp.getNumPstations();
+    private int max_stations = dqc.precip_stations.size();
 
     
     public void read_bad_values(String precd, int m) {
@@ -194,7 +194,7 @@ public class BadValues {
                     // ier=sprintf(ibuf,"%s %s %d %f\n",bad_values[i].hb5,bad_values[i].parm,
                     // bad_values[i].quart,bad_values[i].fvalue);
 
-                    ibuf = String.format("%s %s %d %f", bad_values[i].hb5,
+                    ibuf = String.format("%s %s %d %4.2f", bad_values[i].hb5,
                             bad_values[i].parm, bad_values[i].quart,
                             bad_values[i].fvalue);
                     out.write(ibuf);
