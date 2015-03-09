@@ -99,7 +99,7 @@
                    style="push">
              </command>
              <command
-                   commandId="com.raytheon.viz.ui.actions.saveScreen"
+                   commandId="com.raytheon.uf.viz.image.export.save"
                    label="Save Screenshot"
                    mnemonic="S"
                    style="push">
@@ -130,7 +130,7 @@
                    visible="true">
              </separator>
              <command
-                   commandId="com.raytheon.viz.ui.actions.printScreenAction"
+                   commandId="ccom.raytheon.uf.viz.image.export.print"
                    label="Print"
                    style="push"
                    mnemonic="P">
@@ -616,6 +616,18 @@
                      </reference>
                   </visibleWhen>
                </command>
+               <command
+                   commandId="gov.noaa.nws.ncep.viz.rtkp.actions.GeoMagRTKpAction"
+                   id="gov.noaa.nws.ncep.viz.rtkp.rtkp"
+                   label="RTKP"
+                   style="push"
+                   tooltip="Real-time Kp Monitor">
+                <visibleWhen>
+                   <reference
+                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                   </reference>
+                </visibleWhen>
+                </command>
 	        </toolbar>
          </menuContribution>
          <menuContribution
