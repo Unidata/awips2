@@ -86,6 +86,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    Jul 22, 2014  3419       jsanchez    Cleaned up converFeAreaToPartList.
  *    Sep 14, 2014 ASM #641    dhuffman    Filtered out cases where Areas do not match Zones by using
  *                                         refactored WarngenLayer::filterArea.
+ *    Mar  9, 2014 ASM #17190  D. Friedman Use fipsField and areaField for unique area ID.
  * </pre>
  * 
  * @author chammack
@@ -191,8 +192,7 @@ public class Area {
             }
         }
 
-        List<String> uniqueFips = new ArrayList<String>();
-        List<String> uniqueCountyname = new ArrayList<String>();
+        List<String> uniqueAreaIDs = new ArrayList<String>();
         List<AffectedAreas> areas = new ArrayList<AffectedAreas>();
         for (GeospatialData regionFeature : countyMap.values()) {
             Geometry regionGeom = regionFeature.geometry;
@@ -272,14 +272,15 @@ public class Area {
 
                 area.points = pointList.toArray(new String[pointList.size()]);
             }
-            String countyName = (String) regionFeature.attributes
-                    .get("COUNTYNAME");
-            if (uniqueFips.contains(area.fips) == false
-                    || !uniqueCountyname.contains(countyName)) {
-                uniqueFips.add(area.fips);
-                if (countyName != null) {
-                    uniqueCountyname.add(countyName);
-                }
+            /*
+             * Usually, the fipsField value is a unique identifier, but in some
+             * cases there are multiple areas that have the same value. These
+             * areas have different names, so we make that part of the unique
+             * ID.
+             */
+            String areaID = area.fips + ':' + area.name;
+            if (uniqueAreaIDs.contains(areaID) == false) {
+                uniqueAreaIDs.add(areaID);
                 areas.add(area);
             }
         }
