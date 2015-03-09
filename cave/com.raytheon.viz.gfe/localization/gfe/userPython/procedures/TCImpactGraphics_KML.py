@@ -213,7 +213,7 @@ class Procedure (SmartScript.SmartScript):
             elif threatWEName == "FloodingRainThreat":
                 editArea = self.getEditArea("MFL")
             elif threatWEName == "TornadoThreat":
-                editArea = self.getEditArea("MFL_CWA")
+                editArea = self.getEditArea("MFL")
             else:
                 editArea = self.getEditArea("Marinezones")         
 
