@@ -1,34 +1,8 @@
 #! /bin/ksh
 # purge_mpe_files
 # This script purges mpe (Multi-sensor-Precipitation Estimator)files
-# History: Deng, Jingtao   August 09, 2001
-#          modified by P. Tilles 4/22/2002
-#            - removed stage3 directories
-#            - added jpeg, netCDF, grib directories
-#          modified by P. Tilles 10/2002
-#            - added DISAGG_LOG_DIR purge
-#          modified by P. Tilles 9/2003 
-#            - added LIGHTNING_LOG_DIR purge
-#          March 9 2004  -  added purge of mlmosaic files - pst
-#          March 25 2004 -  added purge of lsatpre files - pst
-#                        -  removed delete from satel_precip dir
-#          March 30 2004 -  added purge of state var files
-#                            for local bias corr satellite - pst
-#          May 5, 2006  - Modified to fix mistakes made in logic
-#                         to purge MAXRMOSAIC, AVGRMOSAIC, and
-#                         P3LMOSAIC fields.  Added logic to purge
-#                         GAGETRIANGLES.
-#          May 5, 2006 -  Modified to purge DailyQC files.
-#          Nov 17, 2006 - Modified to purge sbn grib and sbn qpe directories.
-#          May 2007     - Added SRG related fields (3 new fields)
-#                       - added "-type f" to all find commands
-#                       - added directories for RFC bias transfer RFC bias fields
-#          Sep 2007     - removed stray "i" from delete on FREEZEGRID directory
-#          Nov 2007     - added purge of disagg logs from mpe_editor dir
-#                       - changed purge of mpe_fieldgen logs to purge filenames mpe_*
-#          Dec 2007     - removed purge of old disagg logs from old disagg app
-#          Jan 2008     - added purge of DailyQC freezing level preprocessor logs.
 #          April 2014   - add purge dualpol products
+#          March 2015   - added purge of localfield directories and auto_dailyqc logs
 
 # This allows you to run this script from outside of ./whfs/bin
 RUN_FROM_DIR=`dirname $0`
@@ -50,6 +24,7 @@ export PPROC_LOG=$(get_apps_defaults pproc_log)
 # Define directories for MPE data.
 MPELOGS=$MPE_LOG_DIR          
 MPEEDITLOGS=$PPROC_LOG/mpe_editor
+AUTODQCLOGDIR=$MPEEDITLOGS
 RFCBIASLOGS=$PPROC_LOG/process_bias_message
 GAQLOGS=$GAQ_LOG_DIR
 
@@ -90,6 +65,10 @@ MPEMDMOSAIC=$RFCWIDE_OUTPUT_DIR/mdmosaic
 MPEMLDMOSAIC=$RFCWIDE_OUTPUT_DIR/mldmosaic
 MPEAVGRDMOSAIC=$RFCWIDE_OUTPUT_DIR/avgrdmosaic
 MPEMAXRDMOSAIC=$RFCWIDE_OUTPUT_DIR/maxrdmosaic
+
+LOCALFIELD1DIR=$RFCWIDE_OUTPUT_DIR/localfield1
+LOCALFIELD2DIR=$RFCWIDE_OUTPUT_DIR/localfield2
+LOCALFIELD3DIR=$RFCWIDE_OUTPUT_DIR/localfield3
 
 MPERFCBMOSAIC=$RFCWIDE_OUTPUT_DIR/rfcbmosaic
 MPERFCMMOSAIC=$RFCWIDE_OUTPUT_DIR/rfcmmosaic
@@ -330,6 +309,37 @@ find $MPESRDMOSAIC  -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
 >> $fnm
 find $MPESRDGMOSAIC -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
 >> $fnm
+
+# purge LOCALFIELD directories
+
+if [[ -d $LOCALFIELD1DIR ]]
+   then
+     find $LOCALFIELD1DIR -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+     >> $fnm
+   fi
+
+if [[ -d $LOCALFIELD2DIR ]]
+   then
+     find $LOCALFIELD2DIR -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+     >> $fnm
+   fi
+
+if [[ -d $LOCALFIELD3DIR ]]
+   then
+     find $LOCALFIELD3DIR -name '*z' -type f -mtime +1 -print -exec rm {} \;  \
+     >> $fnm
+   fi
+
+# purge auto_dailyQC log files
+
+echo " " >> $fnm
+echo "   auto_dailyqc log files   " >> $fnm
+
+if [[ -d $AUTODQCLOGDIR ]]
+   then
+     find $AUTODQCLOGDIR -name 'auto_dailyqc*' -type f -mtime +10 -print -exec rm {} \;  \
+     >> $fnm
+   fi
 
 Dte=`date -u`
 echo "End   purge_mpe_files at:  " $Dte >> $fnm
