@@ -130,7 +130,7 @@
                    visible="true">
              </separator>
              <command
-                   commandId="ccom.raytheon.uf.viz.image.export.print"
+                   commandId="com.raytheon.uf.viz.image.export.print"
                    label="Print"
                    style="push"
                    mnemonic="P">
