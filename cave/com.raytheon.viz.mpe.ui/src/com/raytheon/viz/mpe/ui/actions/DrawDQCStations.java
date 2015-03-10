@@ -64,6 +64,9 @@ import com.raytheon.viz.mpe.ui.rsc.PointPrecipResourceData;
 import com.raytheon.viz.mpe.ui.rsc.PointTempPlotResource;
 import com.raytheon.viz.mpe.ui.rsc.PointTempResourceData;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
+import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
+import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
+import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
 
 /**
  * TODO Add Description
@@ -121,13 +124,13 @@ public class DrawDQCStations {
 
     int pcpn_time = 0;
 
-//    Pdata pdata[] = dqc.pdata;
+    Pdata pdata[] = DailyQcUtils.pdata;
 
     int old_isom = 0;
 
-//    Tdata tdata[] = DailyQcUtils.tdata;
+    Tdata tdata[] = DailyQcUtils.tdata;
 
-//    Zdata zdata[] = DailyQcUtils.zdata;
+    Zdata zdata[] = DailyQcUtils.zdata;
 
     public static ColorMap colorMap = new ColorMap();
 
@@ -311,10 +314,10 @@ public class DrawDQCStations {
         grids_flag = DailyQcUtils.grids_flag;
         dflag = DailyQcUtils.dflag;
         pcpn_time = DailyQcUtils.pcpn_time;
-//      pdata = DailyQcUtils.pdata;
+        pdata = DailyQcUtils.pdata;
         old_isom = DailyQcUtils.old_isom;
-//      tdata = DailyQcUtils.tdata;
-//      zdata = DailyQcUtils.zdata;
+        tdata = DailyQcUtils.tdata;
+        zdata = DailyQcUtils.zdata;
 
         /*
          * get the token dqc_preprocessor_basetime, the default value is 12Z
@@ -732,10 +735,10 @@ public class DrawDQCStations {
 
             /* Precipitation period is always 12z-12z. */
             if ((pcpn_time < 2) && (pcpn_time_step == 0)) {
-                ltime.setTime(DailyQcUtils.pdata[pcpn_day].data_time);
+                ltime.setTime(pdata[pcpn_day].data_time);
                 ltime.add(Calendar.SECOND, -86400);
             } else {
-                ltime.setTime(DailyQcUtils.pdata[pcpn_day].data_time);
+                ltime.setTime(pdata[pcpn_day].data_time);
             }
 
             tbuf.append("Precipitation ");
@@ -785,18 +788,18 @@ public class DrawDQCStations {
                 tbuf.append(" ending at 12z");
             }
 
-            if (DailyQcUtils.pdata[pcpn_day].level == 1) {
+            if (pdata[pcpn_day].level == 1) {
                 tbuf.append(" - Level 1");
-            } else if (DailyQcUtils.pdata[pcpn_day].level == 2) {
+            } else if (pdata[pcpn_day].level == 2) {
                 tbuf.append(" - Level 2");
             }
 
-            if (DailyQcUtils.pdata[pcpn_day].used[ptime_pos] == 4) {
+            if (pdata[pcpn_day].used[ptime_pos] == 4) {
                 tbuf.append(" Saved");
-            } else if ((DailyQcUtils.pdata[pcpn_day].used[ptime_pos] == 3)
-                    || (DailyQcUtils.pdata[pcpn_day].used[ptime_pos] == 2)) {
+            } else if ((pdata[pcpn_day].used[ptime_pos] == 3)
+                    || (pdata[pcpn_day].used[ptime_pos] == 2)) {
                 tbuf.append(" Modified");
-            } else if (DailyQcUtils.pdata[pcpn_day].used[ptime_pos] == 1) {
+            } else if (pdata[pcpn_day].used[ptime_pos] == 1) {
                 tbuf.append(" Not Modified");
             } else {
                 tbuf.append(" - No Data");
@@ -811,19 +814,19 @@ public class DrawDQCStations {
             if (dqcEndingObsTime == 12) {
                 /* Times: 18, 00, 06, 12 */
                 if (pcpn_time < 1) {
-                    ltime.setTime(DailyQcUtils.zdata[pcpn_day].data_time);
+                    ltime.setTime(zdata[pcpn_day].data_time);
                     ltime.add(Calendar.SECOND, -86400);
                 } else {
-                    ltime.setTime(DailyQcUtils.zdata[pcpn_day].data_time);
+                    ltime.setTime(zdata[pcpn_day].data_time);
                 }
 
             } else {
                 /* Times 12, 18, 00, 06 */
                 if (pcpn_time < 2) {
-                    ltime.setTime(DailyQcUtils.zdata[pcpn_day].data_time);
+                    ltime.setTime(zdata[pcpn_day].data_time);
                     ltime.add(Calendar.SECOND, -86400);
                 } else {
-                    ltime.setTime(DailyQcUtils.zdata[pcpn_day].data_time);
+                    ltime.setTime(zdata[pcpn_day].data_time);
                 }
             }
 
@@ -883,20 +886,20 @@ public class DrawDQCStations {
 
             }
 
-            if (DailyQcUtils.zdata[pcpn_day].level[ptime_pos] == 1) {
+            if (zdata[pcpn_day].level[ptime_pos] == 1) {
                 tbuf.append(" - Level 1");
-            } else if (DailyQcUtils.zdata[pcpn_day].level[ptime_pos] == 2) {
+            } else if (zdata[pcpn_day].level[ptime_pos] == 2) {
                 tbuf.append(" - Level 2");
             }
 
-            if (DailyQcUtils.zdata[pcpn_day].used[ptime_pos] == 6) {
+            if (zdata[pcpn_day].used[ptime_pos] == 6) {
                 tbuf.append(" Calculated");
-            } else if (DailyQcUtils.zdata[pcpn_day].used[ptime_pos] == 4) {
+            } else if (zdata[pcpn_day].used[ptime_pos] == 4) {
                 tbuf.append(" Saved");
-            } else if ((DailyQcUtils.zdata[pcpn_day].used[ptime_pos] == 3)
-                    || (DailyQcUtils.zdata[pcpn_day].used[ptime_pos] == 2)) {
+            } else if ((zdata[pcpn_day].used[ptime_pos] == 3)
+                    || (zdata[pcpn_day].used[ptime_pos] == 2)) {
                 tbuf.append(" Modified");
-            } else if (DailyQcUtils.zdata[pcpn_day].used[ptime_pos] == 1) {
+            } else if (zdata[pcpn_day].used[ptime_pos] == 1) {
                 tbuf.append(" Not Modified");
             } else {
                 tbuf.append(" - No Data");
@@ -916,18 +919,18 @@ public class DrawDQCStations {
 
             if (dqcEndingObsTime == 12) {
                 if ((pcpn_time < 1) && (pcpn_time_step == 0)) {
-                    ltime.setTime(DailyQcUtils.tdata[pcpn_day].data_time);
+                    ltime.setTime(tdata[pcpn_day].data_time);
                     ltime.add(Calendar.SECOND, -86400);
                 } else {
-                    ltime.setTime(DailyQcUtils.tdata[pcpn_day].data_time);
+                    ltime.setTime(tdata[pcpn_day].data_time);
                 }
 
             } else {
                 if ((pcpn_time < 2) && (pcpn_time_step == 0)) {
-                    ltime.setTime(DailyQcUtils.tdata[pcpn_day].data_time);
+                    ltime.setTime(tdata[pcpn_day].data_time);
                     ltime.add(Calendar.SECOND, -86400);
                 } else {
-                    ltime.setTime(DailyQcUtils.tdata[pcpn_day].data_time);
+                    ltime.setTime(tdata[pcpn_day].data_time);
                 }
             }
 
@@ -995,18 +998,18 @@ public class DrawDQCStations {
                 tbuf.append(" ending at 12z");
             }
 
-            if (DailyQcUtils.tdata[pcpn_day].level[ptime_pos] == 1) {
+            if (tdata[pcpn_day].level[ptime_pos] == 1) {
                 tbuf.append(" - Level 1");
-            } else if (DailyQcUtils.tdata[pcpn_day].level[ptime_pos] == 2) {
+            } else if (tdata[pcpn_day].level[ptime_pos] == 2) {
                 tbuf.append(" - Level 2");
             }
 
-            if (DailyQcUtils.tdata[pcpn_day].used[ptime_pos] == 4) {
+            if (tdata[pcpn_day].used[ptime_pos] == 4) {
                 tbuf.append(" Saved");
-            } else if ((DailyQcUtils.tdata[pcpn_day].used[ptime_pos] == 3)
-                    || (DailyQcUtils.tdata[pcpn_day].used[ptime_pos] == 2)) {
+            } else if ((tdata[pcpn_day].used[ptime_pos] == 3)
+                    || (tdata[pcpn_day].used[ptime_pos] == 2)) {
                 tbuf.append(" Modified");
-            } else if (DailyQcUtils.tdata[pcpn_day].used[ptime_pos] == 1) {
+            } else if (tdata[pcpn_day].used[ptime_pos] == 1) {
                 tbuf.append(" Not Modified");
             } else {
                 tbuf.append(" - No Data");
