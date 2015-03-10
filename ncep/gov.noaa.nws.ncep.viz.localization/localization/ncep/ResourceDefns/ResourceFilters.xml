@@ -870,4 +870,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="DayNightTerminator">
 <filters>Misc</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="DGEX_US">
+<filters>CONUS</filters>
+</ResourceDefinitionFilter>
 </ResourceDefinitionFilters>
