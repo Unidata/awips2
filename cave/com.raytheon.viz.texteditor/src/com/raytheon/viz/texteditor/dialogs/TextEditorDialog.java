@@ -344,6 +344,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  *                                      removed IQueryTransport usage (no longer exists).
  * 20Oct2014   3685         randerso    Made conversion to upper case conditional on product id
  * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
+ * 10Mar2015   RM 14866     kshrestha   Disable QC GUI pop up for TextWS
  * 
  * </pre>
  * 
@@ -4959,24 +4960,29 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (!verifyRequiredFields()) {
             return;
         }
-        StdTextProduct prod = getStdTextProduct();
-        String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
-        SendConfirmationMsg sendMsg = new SendConfirmationMsg(resend, afosId,
-                prod.getNnnid());
 
-        WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
-                sendMsg.getTitle(), sendMsg.getProductMessage(),
-                sendMsg.getModeMessage());
-        wgcd.setCloseCallback(new ICloseCallback() {
+        if (isWarnGenDlg == true){
+            StdTextProduct prod = getStdTextProduct();
+            String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
+            SendConfirmationMsg sendMsg = new SendConfirmationMsg(resend, afosId,
+                    prod.getNnnid());
 
-            @Override
-            public void dialogClosed(Object returnValue) {
-                if (Boolean.TRUE.equals(returnValue)) {
-                    checkEmergencyProduct(resend);
+            WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
+                    sendMsg.getTitle(), sendMsg.getProductMessage(),
+                    sendMsg.getModeMessage());
+            wgcd.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (Boolean.TRUE.equals(returnValue)) {
+                        checkEmergencyProduct(resend);
+                    }
                 }
-            }
-        });
-        wgcd.open();
+            });
+            wgcd.open();
+        } else {
+            checkEmergencyProduct(resend);
+        }
     }
 
     /**
