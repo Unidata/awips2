@@ -53,6 +53,7 @@ import com.raytheon.viz.mpe.core.MPEProcessGrib;
 import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.dialogs.polygon.PolygonEditManager;
 
 /**
  * 
@@ -69,6 +70,7 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager;
  * 
  * Apr29, 2014  16308      lbousaidi    transmit RFC Bias when an hour
  *                                      MPE is saved via the GUI.
+ * Mar 10, 2015 14554      snaples      Added check to remove Best Estimate polygons after saving.
  * </pre>
  * 
  * @author mschenke
@@ -282,6 +284,10 @@ public class SaveBestEstimate {
                 }
 
 
+        }
+        File qpePolyFile = PolygonEditManager.getHourlyEditFile(bestEstField, editDate);
+        if(qpePolyFile.exists()){
+            qpePolyFile.delete();
         }
         MPEDisplayManager.getCurrent().setSavedData(true);
     }
