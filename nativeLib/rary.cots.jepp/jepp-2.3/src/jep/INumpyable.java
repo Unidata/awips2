@@ -1,6 +1,6 @@
 /*****************************************************************************************
  * COPYRIGHT (c), 2006-2008, RAYTHEON COMPANY
- * ALL RIGHTS RESERVED, An Unpublished Work 
+ * ALL RIGHTS RESERVED, An Unpublished Work
  *
  * RAYTHEON PROPRIETARY
  * If the end user is not the U.S. Government or any agency thereof, use
@@ -21,7 +21,12 @@ package jep;
 
 /**
  * Interface representing a Java object that can be transformed into a numpy
- * array.  
+ * array.
+ * 
+ * Only supports one and two dimensional arrays at this time.  Use python code
+ * to make arrays of more dimensions as necessary.
+ * 
+ * TODO rename to Numpyable
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -43,7 +48,7 @@ public interface INumpyable {
      * e.g. {float[], float[]}.  The result in python will then be a python
      * list, e.g. [numpy.ndarray(dtype=float32), numpy.ndarray(dtype=float32)].
      * 
-     * @return
+     * @return an array of arrays
      */
     public Object[] getNumpy();
 
