@@ -65,6 +65,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * Mar 7, 2013  15657      lbousaidi   fixed DQC slider and added listener to the Keys
  *                                     when pressed.
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
+ * Mar 10, 2015 14575      snaples     Added additional status flag.
  * </pre>
  * 
  * @author snaples
@@ -277,6 +278,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
 
         shell.open();
         displayMgr.setQpf(true);
+        DailyQcUtils.qpf_flag = true;
         isOpen = true;
         isfinished = false;
         ddq = DrawDQCStations.getInstance();
@@ -285,12 +287,14 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         while (!shell.isDisposed()) {
             if (dqc_good == 0) {
                 displayMgr.setQpf(false);
+                DailyQcUtils.qpf_flag = false;
                 isOpen = false;
                 ddq.destroy();
                 shell.dispose();
             }
             if (isOpen == false) {
                 displayMgr.setQpf(false);
+                DailyQcUtils.qpf_flag = false;
                 ddq.destroy();
                 shell.dispose();
             }
@@ -300,6 +304,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         }
         ddq.destroy();
         displayMgr.setQpf(false);
+        DailyQcUtils.qpf_flag = false;
         isfinished = true;
         isOpen = false;
         font.dispose();

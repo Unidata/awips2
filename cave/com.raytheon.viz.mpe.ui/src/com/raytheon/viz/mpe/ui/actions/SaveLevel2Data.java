@@ -77,6 +77,7 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  * Sep 19, 2011 10955      rferrel     Use RunProcess
  * Nov 06, 2012 15481      wkwock      Fix save 6 hours precipitation files
  * May 02, 2013 15956      wkwock      Fix incorrect contents in precip_LLL_grid_yyyymmdd.nc file
+ * Mar 10, 2015 14575      snaples     Added status check to make sure that we close everything before exiting.
  * 
  * </pre>
  * 
@@ -497,9 +498,9 @@ public class SaveLevel2Data {
         // logMessage("\nSTATUS: 2) type value in type/source in level2 file is ##%s##\n",type);
         save_isom = dqc.isom;
 
-        MPEDisplayManager mpd = MPEDisplayManager.getCurrent();
+//        MPEDisplayManager mpd = MPEDisplayManager.getCurrent();
 
-        if ((mpd.isQpf() == true || mpd.isMaxmin() == true || mpd.isZflag() == true)
+        if ((DailyQcUtils.qpf_flag == true || DailyQcUtils.maxmin_flag == true || DailyQcUtils.z_flag == true)
                 && dqc.pcpn_day == 0
                 && (dqc.curHr18_00 == 1
                         || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
@@ -514,7 +515,7 @@ public class SaveLevel2Data {
              * 06-12z
              */
 
-            if (mpd.isQpf() == true) {
+            if (DailyQcUtils.qpf_flag == true) {
                 if (dqc.curHr18_00 == 1) {
                     dqc.pdata[dqc.pcpn_day].used[1] = 0;
                     dqc.pdata[dqc.pcpn_day].used[2] = 0;
@@ -530,7 +531,7 @@ public class SaveLevel2Data {
                 }
             }
 
-            else if (mpd.isZflag() == true) {
+            else if (DailyQcUtils.z_flag == true) {
                 if (dqc.curHr18_00 == 1) {
                     dqc.zdata[dqc.pcpn_day].used[1] = 0;
                     dqc.zdata[dqc.pcpn_day].used[2] = 0;
@@ -547,7 +548,7 @@ public class SaveLevel2Data {
 
             }
 
-            else if (mpd.isMaxmin() == true) {
+            else if (DailyQcUtils.maxmin_flag == true) {
                 if (dqc.curHr18_00 == 1) {
                     dqc.tdata[dqc.pcpn_day].used[1] = 0;
                     dqc.tdata[dqc.pcpn_day].used[2] = 0;
@@ -2422,11 +2423,12 @@ public class SaveLevel2Data {
 
         int pcpn_day = dqc.pcpn_day;
 
-        if (MPEDisplayManager.getCurrent().isQpf() == true
-                || MPEDisplayManager.getCurrent().isZflag() == true
-                || MPEDisplayManager.getCurrent().isMaxmin() == true) {
+        if (DailyQcUtils.qpf_flag == true
+                || DailyQcUtils.z_flag == true
+                || DailyQcUtils.maxmin_flag == true) 
+        {
 
-            if (MPEDisplayManager.getCurrent().isQpf() == true) {
+            if (DailyQcUtils.qpf_flag == true) {
                 QcPrecipOptionsDialog.dataSet.clear();
                 QcPrecipOptionsDialog.dataSet
                         .addAll(QcPrecipOptionsDialog.dataType);
@@ -2439,13 +2441,13 @@ public class SaveLevel2Data {
 
             }
 
-            else if (MPEDisplayManager.getCurrent().isZflag() == true) {
+            else if (DailyQcUtils.z_flag == true) {
                 QcFreezeOptionsDialog.dataSet.clear();
                 QcFreezeOptionsDialog.dataSet
                         .addAll(QcPrecipOptionsDialog.dataType);
 
                 time_pos = 100 + pcp_flag;
-            } else if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
+            } else if (DailyQcUtils.maxmin_flag == true) {
                 QcTempOptionsDialog.dataSet.clear();
                 QcTempOptionsDialog.dataSet
                         .addAll(QcPrecipOptionsDialog.dataType);
@@ -2496,7 +2498,7 @@ public class SaveLevel2Data {
                 k = 5;
             }
 
-            if (MPEDisplayManager.getCurrent().isQpf() == true
+            if (DailyQcUtils.qpf_flag == true
                     && QcPrecipOptionsDialog.isOpen == true) {
                 QcPrecipOptionsDialog.selectDataSetVal(k);
             }
