@@ -434,8 +434,8 @@ HDS	^(SF(US|PA)41) ([A-Z]{4}) (..)(..)(..)
 
 # WMO Heading for Earth Networks Total Lightning
 
-HDS	^(SF(US|PA)42) ([A-Z]{4}) (..)(..)(..)
-	FILE	-overwrite -log -edex -close    /data_store/entlightning/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).nldn.%Y%m%d%H
+NGRID	^(SFPA42) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -edex -close    /data_store/entlightning/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).%Y%m%d%H
 
 # AWIPS1:	TEXT	^[ABCFMNRSUVW]......[KPTMC]	/text/NO_STORE
 #		TEXT	^[ABCFMNRSUVW].....[KPTMC]	/text/NO_STORE
