@@ -4,8 +4,8 @@
 %define __prelink_undo_cmd %{nil}
 Name: awips2-edex-upc
 Summary: AWIPS II UPC EDEX Tools
-Version: 14.4.1
-Release: 1
+Version: %{_component_version}
+Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A
