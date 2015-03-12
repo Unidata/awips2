@@ -756,16 +756,19 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-12km">
 <filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-5km">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="NAM-5km">
 <filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-40km">
 <filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-90km">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="NAM-90km">
 <filters>CONUS,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-ARW-East">
+<filters>NCEP</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="ESTOFS">
 <filters>NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="Hawaii-WRF-ARW">
@@ -774,10 +777,16 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSLAMPTstorm">
 <filters>NCEP</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="RCM">
+<filters>NCEP</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA-2p5km">
 <filters>Analysis,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA">
+<filters>Analysis,NCEP</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-RTMA">
 <filters>Analysis,NCEP</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NIDS">
