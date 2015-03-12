@@ -30,6 +30,12 @@ class Procedure (SmartScript.SmartScript):
         SmartScript.SmartScript.__init__(self, dbss)
 
     def execute(self, editArea, timeRange, varDict):
+        mutableID = self.mutableID()
+        topoDbId = self.findDatabase("EditTopo_Topo")
+        if mutableID != topoDbId:
+            DisplayMessageDialog.openError("Invalid Mutable Database", "You must be using the NewTerrain GFE configuration to run this procedure.\nPlease restart CAVE and select the NewTerrain GFE configuraion")
+            return
+            
         newTerrainDbId = self.findDatabase("EditTopo_NewTerrain")
 
         newTerrainParm = self.getParm(newTerrainDbId, "NewTerrain", "SFC")
@@ -58,7 +64,6 @@ class Procedure (SmartScript.SmartScript):
             oldTerrainParm.saveParameter(True)
             oldTerrainParm.setMutable(False)
 
-        topoDbId = self.findDatabase("EditTopo_Topo")
         self.setActiveElement(topoDbId, "Topo", "SFC", TimeRange.allTimes())
 
     def getTerrainGrid(self):
