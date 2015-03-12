@@ -23,15 +23,20 @@ VariableList = []
 import SmartScript
 import TimeRange
 import numpy
-## For documentation on the available commands,
-##   see the SmartScript Utility, which can be viewed from
-##   the Edit Actions Dialog Utilities window
+
+from com.raytheon.viz.gfe.ui.runtimeui import DisplayMessageDialog
 
 class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
         SmartScript.SmartScript.__init__(self, dbss)
 
     def execute(self, editArea, timeRange, varDict):
+        mutableID = self.mutableID()
+        topoDbId = self.findDatabase("EditTopo_Topo")
+        if mutableID != topoDbId:
+            DisplayMessageDialog.openError("Invalid Mutable Database", "You must be using the NewTerrain GFE configuration to run this procedure.\nPlease restart CAVE and select the NewTerrain GFE configuraion")
+            return
+            
         newTerrainDbId = self.findDatabase("EditTopo_NewTerrain")
             
         newTerrain = self.getGrids(newTerrainDbId, "NewTerrain", "SFC", timeRange, mode="First")
@@ -42,16 +47,16 @@ class Procedure (SmartScript.SmartScript):
 
         self.unloadWEs(newTerrainDbId, [("newTerrainDiff", "SFC"),("oldTerrainDiff", "SFC")])
 
-        delta = newTerrain - topo
+        delta = topo - newTerrain
         maxVal = numpy.nanmax(delta)
         minVal = numpy.nanmin(delta)
         maxDelta = max(abs(maxVal), abs(minVal))
         self.createGrid(newTerrainDbId, "newTerrainDiff", "SCALAR", delta, TimeRange.allTimes(), 
-                        "NewTerrain - Topo", (0,60,60), 0, -maxDelta, maxDelta, "ft", defaultColorTable="GFE/Delta")
+                        "NewTerrain - Topo", (0,60,60), 1, -maxDelta, maxDelta, "ft", defaultColorTable="GFE/Delta")
 
-        delta = oldTerrain - topo
+        delta = topo - oldTerrain
         maxVal = numpy.nanmax(delta)
         minVal = numpy.nanmin(delta)
         maxDelta = max(1.0, abs(maxVal), abs(minVal))
         self.createGrid(newTerrainDbId, "oldTerrainDiff", "SCALAR", delta, TimeRange.allTimes(), 
-                        "OldTerrain - Topo", (0,60,60), 0, -maxDelta, maxDelta, "ft", defaultColorTable="GFE/Delta")
+                        "OldTerrain - Topo", (0,60,60), 1, -maxDelta, maxDelta, "ft", defaultColorTable="GFE/Delta")
