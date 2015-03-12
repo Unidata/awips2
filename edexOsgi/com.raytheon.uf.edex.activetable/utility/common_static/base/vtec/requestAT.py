@@ -29,6 +29,7 @@
 #    02/06/13        1447          dgilling       Initial Creation.
 #    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency
 #    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
+#    03/10/2015      #4129         randerso       Refactored server selection code into a reusable method
 # 
 #
 
@@ -37,7 +38,7 @@ import os
 import sys
 import tempfile
 import time
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree
 
 import IrtAccess
 import siteConfig
@@ -115,125 +116,23 @@ def execute_request_at(serverHost, serverPort, serverProtocol, mhsid, siteID, an
         buf = cPickle.dumps(data)
         fp.write(buf)
     
-    #--------------------------------------------------------------------
-    # Assemble XML source/destination document
-    #--------------------------------------------------------------------
-    msgSendDest = []   #list of mhs sites to send request
+    sourceServer = {'mhsid'   : mhsid, 
+                    'host'    : serverHost, 
+                    'port'    : serverPort,
+                    'protocol': serverProtocol, 
+                    'site'    : siteID}
 
-    irt = IrtAccess.IrtAccess(ancf, bncf)
-    iscE = ET.Element('isc')
-    # this is the requestor of the data
-    sourceServer = {'mhsid': mhsid, 'host': serverHost, 'port': serverPort,
-      'protocol': serverProtocol, 'site': siteID}
-    irt.addSourceXML(iscE, sourceServer)
-    logger.info("Requesting Server: " + irt.printServerInfo(sourceServer))
-
-    # who is running the domains requested?
-    sites = VTECPartners.VTEC_TABLE_REQUEST_SITES
-    if not sites:
-        logger.error('No sites defined for VTEC_TABLE_REQUEST_SITES')
-        sys.exit(1)
-
-    status, xml = irt.getServers(sites)
-    if not status:
-        logger.error('Failure to getServers from IRT')
-        sys.exit(1)
-
-    # decode the XML
-    try:
-        serverTree = ET.ElementTree(ET.XML(xml))
-        serversE = serverTree.getroot()
-    except:
-        logger.exception("Malformed XML on getServers()")
-        sys.exit(1)
-
-    if serversE.tag != "servers":
-        logger.error("Servers packet missing from web server")
-        sys.exit(1)
-
-    # process each requested domain returned to us
-    chosenServers = []
-    matchingServers = []
-    for domainE in serversE:
-        if domainE.tag != "domain":
-            continue
-        servers = []  #list of servers for this domain
-
-        # decode each server in the domain
-        for addressE in domainE.getchildren():
-            info = irt.decodeXMLAddress(addressE)
-            if info is None:
-                continue   #not address tag
-            servers.append(info)
-            matchingServers.append(info)
-
-        # server search list in priority.  The px3 entries are used for
-        # dual domain for AFC.
-        hp = [('dx4','98000000'),('px3', '98000000'), ('dx4','98000001'),
-          ('px3', '98000001')]
-
-        # choose one server from this domain, find first dx4, 98000000
-        # try to use one with the same mhsidDest as the site, which
-        # would be the primary operational GFE. Note that the px3 entries
-        # are for AFC.
-        found = False
-        for matchServer, matchPort in hp:
-            for server in servers:
-                if server['host'][0:3] == matchServer and \
-                  server['port'] == matchPort and server['mhsid'] == siteID:
-                    chosenServers.append(server)
-                    if server['mhsid'] not in msgSendDest:
-                        msgSendDest.append(server['mhsid'])
-                    found = True
-                    break
-
-        # find first dx4, 98000000, but perhaps a different mhsid
-        # this is probably not the primary operational GFE
-        if not found:
-            for matchServer, matchPort in hp:
-                for server in servers:
-                    if server['host'][0:3] == matchServer and \
-                      server['port'] == matchPort:
-                        chosenServers.append(server)
-                        if server['mhsid'] not in msgSendDest:
-                            msgSendDest.append(server['mhsid'])
-                        found = True
-                        break
-
-        # if didn't find standard one, then take the first one, but don't
-        # take ourselves unless we are the only one.
-        if not found and servers:
-            for server in servers:
-                if server['mhsid'] != mhsid and server['host'] != serverHost \
-                  and server['port'] != serverPort and \
-                  server['mhsid'] != siteID:
-                    chosenServers.append(server)
-                    if server['mhsid'] not in msgSendDest:
-                        msgSendDest.append(server['mhsid'])
-                    found = True
-            if not found:
-                chosenServers.append(servers[0])
-                if servers[0]['mhsid'] not in msgSendDest:
-                    msgSendDest.append(servers[0]['mhsid'])
-
-    # Display the set of matching servers
-    s = "Matching Servers:"
-    for x in matchingServers:
-        s += "\n" + irt.printServerInfo(x)
-    logger.info(s)
-
-    # Display the chosen set of servers
-    s = "Chosen Servers:"
-    for x in chosenServers:
-        s += "\n" + irt.printServerInfo(x)
-    logger.info(s)
-
-    irt.addDestinationXML(iscE, chosenServers)
+    destSites = VTECPartners.VTEC_TABLE_REQUEST_SITES
+    if not destSites:
+        raise Exception('No destSites defined for VTEC_TABLE_REQUEST_SITES')
+    
+    irt = IrtAccess.IrtAccess(ancf, bncf, logger=logger)
+    msgSendDest, xml = irt.createDestinationXML(destSites, sourceServer)
 
     # create the XML file
     with tempfile.NamedTemporaryFile(suffix='.xml', dir=tempdir, delete=False) as fd:
         fnameXML = fd.name
-        fd.write(ET.tostring(iscE))
+        fd.write(ElementTree.tostring(xml))
 
     #--------------------------------------------------------------------
     # Now send the message
