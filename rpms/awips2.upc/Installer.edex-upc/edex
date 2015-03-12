@@ -57,7 +57,16 @@ nopts=${options[@]}
 
 # For multiple IP addresses we need to account for non-routable IPs
 #IP=`/sbin/ifconfig | grep "inet addr" | grep -v 127.0.0 |  awk '{ print $2 }' | cut -d: -f2`
-IP=`/sbin/ifconfig eth0 | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
+
+ethdev=`ip link show| grep ^[0-9]| awk '{ print $2}'`
+
+if [[ $ethdev =~ eth0 ]]; then
+  usedev=eth0
+elif [[ $ethdev =~ wlan0 ]]; then
+  usedev=wlan0
+fi
+
+IP=`/sbin/ifconfig $usedev | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
 
 if [[ $IP =~ ^10\..* || $IP =~ ^192\.168.* ]] # non-routable IP range
 then
