@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="http://www.example.org/productType">
-    <resourceDefnName>RAP-13km</resourceDefnName>
+    <resourceDefnName>Hawaii-WRF-ARW</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
@@ -13,7 +13,7 @@
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
     <resourceParameters>
 pluginName=grid
-GDFILE=RAP-13km
+GDFILE=Hawaii-WRF-ARW
 
 </resourceParameters>
     <inventoryEnabled>true</inventoryEnabled>
