@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resource>LocalRadar</resource>
-    <attrSetGroupName>Echo Tops</attrSetGroupName>
-    <attrSetNames>EET,NET</attrSetNames>
+    <attrSetGroupName>Reflectivity</attrSetGroupName>
+    <attrSetNames>DHR,N0Q,N0R,N0Z,NCR</attrSetNames>
 </AttributeSetGroup>
