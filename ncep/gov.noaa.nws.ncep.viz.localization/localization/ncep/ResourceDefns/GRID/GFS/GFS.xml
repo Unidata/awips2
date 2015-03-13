@@ -4,7 +4,7 @@
     <resourceDefnName>GFS</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=GFS
+GDFILE=GFS-1p0
 pluginName=grid
     </resourceParameters>
     <rscImplementation>ModelFcstGridContours</rscImplementation>

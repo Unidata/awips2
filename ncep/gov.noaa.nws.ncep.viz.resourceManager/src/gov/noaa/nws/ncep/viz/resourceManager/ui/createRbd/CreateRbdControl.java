@@ -969,7 +969,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                         selectUngroupedGrp();
                         seld_rscs_lviewer.setInput(rbdMngr
                                 .getUngroupedResources());
-                        setGroupButtons();
+                        //setGroupButtons();
                         return;
                     }
 
@@ -990,7 +990,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                                                 : groupListViewer.getTable()
                                                         .getSelection()[0]
                                                         .getText()));
-                                setGroupButtons();
+                                //setGroupButtons();
 
                                 return;
 
@@ -1011,7 +1011,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                     // groupListViewer.getTable().setSelection(curGrp);
                     // } else {
                     addResourceGroup(txt.getText());
-                    setGroupButtons();
+                    //setGroupButtons();
                     txt.setText("");
                     // }
                 }
@@ -1116,7 +1116,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                                             .getText()));
                 }
 
-                setGroupButtons();
+                //setGroupButtons();
 
                 // System.out.println("Group: "
                 // + groupListViewer.getList().getSelection()[0]);
@@ -1269,7 +1269,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                     curGrp = -1;
                 }
 
-                setGroupButtons();
+                //setGroupButtons();
             }
 
         });
@@ -1289,7 +1289,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
                         seld_rscs_lviewer.setInput(rbdMngr
                                 .getUngroupedResources());
-                        setGroupButtons();
+                        //setGroupButtons();
 
                         nameTxt.setText("");
                     }
@@ -1313,11 +1313,11 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                         .getFirstElement();
                 if (sel != null) {
                     rbdMngr.moveUpGrp(sel.getResourcePair());
-                    groupListViewer.setInput(rbdMngr.getGroupResources());
-                    groupListViewer.refresh();
-                    groupListViewer.setSelection(isel);
-                    curGrp = groupListViewer.getTable().getSelectionIndex();
-                    setGroupButtons();
+                    //groupListViewer.setInput(rbdMngr.getGroupResources());
+                    //groupListViewer.refresh();
+                    //groupListViewer.setSelection(isel);
+                    //curGrp = groupListViewer.getTable().getSelectionIndex();
+                    //setGroupButtons();
                 }
             }
         });
@@ -1337,13 +1337,13 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                 ResourceSelection sel = (ResourceSelection) isel
                         .getFirstElement();
                 if (sel != null) {
-                    rbdMngr.moveDownGrp(sel.getResourcePair());
-                    groupListViewer.setInput(rbdMngr.getGroupResources());
-                    groupListViewer.setSelection(isel);
+                    //rbdMngr.moveDownGrp(sel.getResourcePair());
+                    //groupListViewer.setInput(rbdMngr.getGroupResources());
+                    //groupListViewer.setSelection(isel);
 
-                    groupListViewer.refresh();
-                    curGrp = groupListViewer.getTable().getSelectionIndex();
-                    setGroupButtons();
+                    //groupListViewer.refresh();
+                    //curGrp = groupListViewer.getTable().getSelectionIndex();
+                    //setGroupButtons();
                 }
             }
         });
@@ -1366,7 +1366,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                     groupListViewer.refresh();
                     selectUngroupedGrp();
                     seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
-                    setGroupButtons();
+                    //setGroupButtons();
                     curGrp = -1;
 
                 } else {
@@ -1406,10 +1406,10 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
         selectUngroupedGrp();
 
-        setGroupButtons();
+        //setGroupButtons();
 
-        groupGrp.pack();
-        groupGrp.setVisible(true);
+        //groupGrp.pack();
+        //groupGrp.setVisible(true);
     }
 
     private void createPaneLayoutGroup() {
@@ -1811,6 +1811,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                             ResourceSelection sel = (ResourceSelection) sel_elems
                                     .getFirstElement();
 
+                            /*
                             if (sel != null
                                     && ((GroupResourceData) sel
                                             .getResourcePair()
@@ -1818,6 +1819,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                                             .equalsIgnoreCase(ungrpStr)) {
                                 sel = null;
                             }
+                            */
 
                             if (!rbdMngr.addSelectedResource(rbt, sel)) {
                                 if (sel != null) {
@@ -2827,10 +2829,10 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         updateGUI();
 
         curGrp = -1;
-        groupListViewer.setInput(rbdMngr.getGroupResources());
+        //groupListViewer.setInput(rbdMngr.getGroupResources());
         seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
         seld_rscs_lviewer.refresh();
-        setGroupButtons();
+        //setGroupButtons();
 
     }
 
@@ -3309,7 +3311,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                 this.selectUngroupedGrp();
             }
             */
-            this.selectUngroupedGrp();
+            //this.selectUngroupedGrp();
 
         } catch (VizException e) {
             rbdMngr.init(curDispType);
@@ -3663,6 +3665,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
     private void setGroupButtons() {
 
+    	/*
         if (groupListViewer.getTable().getSelectionCount() <= 0
                 || groupListViewer.getTable().getSelection()[0].getText()
                         .equalsIgnoreCase(ungrpStr)) {
@@ -3698,6 +3701,8 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                 delGrpBtn.setEnabled(true);
             }
         }
+        */
+
 
         // set the color button
         ResourceSelection sel = getGroupResourceSelection();
