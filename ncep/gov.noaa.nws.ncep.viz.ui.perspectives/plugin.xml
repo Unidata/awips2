@@ -456,23 +456,10 @@
             <toolbar
                   id="NC-1">
                <command
-                     commandId="gov.noaa.nws.ncep.viz.ui.newResource"
-                     icon="icons/plus.png"
-                     label="Data"
-                     mode="FORCE_TEXT"
-                     style="push"
-                     tooltip="Load">
-                  <visibleWhen>
-                     <reference
-                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                     </reference>
-                  </visibleWhen>
-               </command>
-               <command
                      commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
                      icon="icons/plus.png"
                      id="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                     label="Bundle"
+                     label="Data Bundle"
                      mode="FORCE_TEXT"
                      style="push"
                      tooltip="Load">
