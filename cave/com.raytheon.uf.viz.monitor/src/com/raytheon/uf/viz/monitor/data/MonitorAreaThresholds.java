@@ -20,10 +20,8 @@
 package com.raytheon.uf.viz.monitor.data;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.ChosenAppKey;
 import com.raytheon.uf.common.monitor.data.ObConst.ThreatLevel;
@@ -42,7 +40,6 @@ import com.raytheon.uf.common.monitor.data.ObConst.VarName;
  * Feb 17, 2009 1999       grichard    Initial creation.
  * 3/16/2009    2047       grichard    Add threat monitoring routines.
  * Dec 24, 2009 3424       zhao        added getDualValuedThresholdMap and getSingleValuedThresholdMap
- * Jan 12, 2015 3220       skorolev    Replaced MonitoringArea with areaConfig.
  * 
  * </pre>
  * 
@@ -71,6 +68,56 @@ public final class MonitorAreaThresholds {
      * 
      * @param report
      *            -- the observation report
+     * @param varName
+     *            -- the variable name within the report
+     * @return -- the threat level
+     */
+    public static ObConst.ThreatLevel getThreatLevel(ObReport report,
+            VarName varName) {
+
+        ThreatLevel threatLevel = ThreatLevel.GRAY;
+        ThreatLevel temp = ThreatLevel.GRAY;
+        float varValue = ObConst.MISSING;
+
+        try {
+            varValue = getReportVarValue(report, varName);
+
+            String zoneId = report.getZoneId();
+            // TEMPORARILY USE DEFAULT ZONE ID, NAMELY, DEFAULT STATION.
+            zoneId = ObConst.DEFAULT_STATION_NAME;
+            if (report.isStationary()) {
+                if (MonitoringArea.listZonesToPlatform(report.getPlatformId())
+                        .isEmpty()) {
+                    // use the default zone if there are no zones
+                    temp = getZoneThreatLevel(zoneId, varName, varValue);
+                    if (temp.ordinal() < threatLevel.ordinal()) {
+                        threatLevel = temp;
+                    }
+                } else {
+                    for (String z : MonitoringArea.listZonesToPlatform(report
+                            .getPlatformId())) {
+                        temp = getZoneThreatLevel(z, varName, varValue);
+                        if (temp.ordinal() < threatLevel.ordinal()) {
+                            threatLevel = temp;
+                        }
+                    }
+                }
+            } else {
+                temp = getZoneThreatLevel(zoneId, varName, varValue);
+            }
+        } catch (Exception e) {
+            // return the default threat level
+        }
+
+        return threatLevel;
+    }
+
+    /**
+     * This method receives an observation report and a variable name, and
+     * returns the threat level of that single variable.
+     * 
+     * @param report
+     *            -- the observation report
      * @param chosenAppKey
      *            -- the application key
      * @return -- the threat level
@@ -80,13 +127,12 @@ public final class MonitorAreaThresholds {
 
         ThreatLevel threatLevel = ThreatLevel.GRAY;
         ThreatLevel temp = ThreatLevel.GRAY;
-        String station = report.getPlatformId();
+
         try {
             if (report.isStationary()) {
                 if (chosenAppKey == ChosenAppKey.SAFESEAS) {
-                    List<String> ssZones = FSSObsMonitorConfigurationManager
-                            .getSsObsManager().getAreaByStationId(station);
-                    if (ssZones.isEmpty()) {
+                    if (MonitoringArea.listZonesToPlatform(
+                            report.getPlatformId()).isEmpty()) {
                         // use the default zone if there are no zones
                         for (VarName v : VarName.values()) {
                             if (v == VarName.TEMPERATURE
@@ -104,7 +150,8 @@ public final class MonitorAreaThresholds {
                             }
                         }
                     } else {
-                        for (String z : ssZones) {
+                        for (String z : MonitoringArea
+                                .listZonesToPlatform(report.getPlatformId())) {
                             for (VarName v : VarName.values()) {
                                 if (v == VarName.TEMPERATURE
                                         || v == VarName.WIND_CHILL
@@ -122,9 +169,8 @@ public final class MonitorAreaThresholds {
                         }
                     }
                 } else if (chosenAppKey == ChosenAppKey.SNOW) {
-                    List<String> snowZones = FSSObsMonitorConfigurationManager
-                            .getSnowObsManager().getAreaByStationId(station);
-                    if (snowZones.isEmpty()) {
+                    if (MonitoringArea.listZonesToPlatform(
+                            report.getPlatformId()).isEmpty()) {
                         // use the default zone if there are no zones
                         for (VarName v : VarName.values()) {
                             if (v == VarName.PRIM_SWELL_HT) {
@@ -139,7 +185,8 @@ public final class MonitorAreaThresholds {
                         }
 
                     } else {
-                        for (String z : snowZones) {
+                        for (String z : MonitoringArea
+                                .listZonesToPlatform(report.getPlatformId())) {
                             for (VarName v : VarName.values()) {
                                 if (v == VarName.PRIM_SWELL_HT) {
                                     break;
@@ -152,10 +199,9 @@ public final class MonitorAreaThresholds {
                             }
                         }
                     }
-                } else {// chosenAppKey = FOG
-                    List<String> fogZones = FSSObsMonitorConfigurationManager
-                            .getFogObsManager().getAreaByStationId(station);
-                    if (fogZones.isEmpty()) {
+                } else {
+                    if (MonitoringArea.listZonesToPlatform(
+                            report.getPlatformId()).isEmpty()) {
                         // use the default zone if there are no zones
                         temp = getZoneThreatLevel(ObConst.DEFAULT_STATION_NAME,
                                 VarName.PRES_WX, report.getPresentWx());
@@ -163,21 +209,20 @@ public final class MonitorAreaThresholds {
                             threatLevel = temp;
                         }
                         temp = getZoneThreatLevel(ObConst.DEFAULT_STATION_NAME,
-                                VarName.VISIBILITY,
-                                getReportVarValue(report, VarName.VISIBILITY));
+                                VarName.VISIBILITY, getReportVarValue(report,
+                                        VarName.VISIBILITY));
                         if (temp.ordinal() < threatLevel.ordinal()) {
                             threatLevel = temp;
                         }
                     } else {
-                        for (String z : fogZones) {
+                        for (String z : MonitoringArea
+                                .listZonesToPlatform(report.getPlatformId())) {
                             temp = getZoneThreatLevel(z, VarName.PRES_WX,
                                     report.getPresentWx());
                             if (temp.ordinal() < threatLevel.ordinal()) {
                                 threatLevel = temp;
                             }
-                            temp = getZoneThreatLevel(
-                                    z,
-                                    VarName.VISIBILITY,
+                            temp = getZoneThreatLevel(z, VarName.VISIBILITY,
                                     getReportVarValue(report,
                                             VarName.VISIBILITY));
                             if (temp.ordinal() < threatLevel.ordinal()) {
@@ -186,7 +231,6 @@ public final class MonitorAreaThresholds {
                         }
                     }
                 }
-                // report is not Stationary
             } else {
                 if (chosenAppKey == ChosenAppKey.SAFESEAS) {
                     String zoneId = report.getZoneId();
@@ -199,8 +243,8 @@ public final class MonitorAreaThresholds {
                         } else if (v == VarName.STATIONARY) {
                             break;
                         }
-                        temp = getZoneThreatLevel(zoneId, v,
-                                getReportVarValue(report, v));
+                        temp = getZoneThreatLevel(zoneId, v, getReportVarValue(
+                                report, v));
                         if (temp.ordinal() < threatLevel.ordinal()) {
                             threatLevel = temp;
                         }
@@ -213,13 +257,13 @@ public final class MonitorAreaThresholds {
                         if (v == VarName.PRIM_SWELL_HT) {
                             break;
                         }
-                        temp = getZoneThreatLevel(zoneId, v,
-                                getReportVarValue(report, v));
+                        temp = getZoneThreatLevel(zoneId, v, getReportVarValue(
+                                report, v));
                         if (temp.ordinal() < threatLevel.ordinal()) {
                             threatLevel = temp;
                         }
                     }
-                } else {// chosenAppKey = FOG
+                } else {
                     String zoneId = report.getZoneId();
                     // TEMPORARILY USE DEFAULT ZONE ID, NAMELY, DEFAULT STATION.
                     zoneId = ObConst.DEFAULT_STATION_NAME;
@@ -561,44 +605,32 @@ public final class MonitorAreaThresholds {
         }
         return result;
     }
-
+    
     /**
      * [Dec 24, 2009, zhao]
-     * 
-     * @param zone
-     *            the zone ID
-     * @param varName
-     *            enumerated-type variable name
-     * @return single-valued threshold map, or null if the variable name is
-     *         invalid or if the map contains no mapping for the key
+     * @param zone the zone ID
+     * @param varName enumerated-type variable name
+     * @return single-valued threshold map, or null if the variable 
+     * name is invalid or if the map contains no mapping for the key
      */
-    public static Map<ObConst.ThreatLevel, Float> getSingleValuedThresholdMap(
-            String zone, ObConst.VarName varName) {
-        if (varName == VarName.WIND_DIR || varName == VarName.PRIM_SWELL_DIR
-                || varName == VarName.SEC_SWELL_DIR) {
-            return null;
-        }
-        return zoneMonitorThresholds.get(zone).getSingleValuedThresholdMap(
-                varName);
+    public static Map<ObConst.ThreatLevel,Float> getSingleValuedThresholdMap(String zone, ObConst.VarName varName) {
+    	if (varName == VarName.WIND_DIR || varName == VarName.PRIM_SWELL_DIR || varName == VarName.SEC_SWELL_DIR ) {
+    		return null;
+    	}
+    	return zoneMonitorThresholds.get(zone).getSingleValuedThresholdMap(varName);
     }
-
+    
     /**
      * [Dec 24, 2009, zhao]
-     * 
-     * @param zone
-     *            the zone ID
-     * @param varName
-     *            enumerated-type variable name
-     * @return duel-valued threshold map, or null if the variable name is
-     *         invalid or if the map contains no mapping for the key
+     * @param zone the zone ID
+     * @param varName enumerated-type variable name 
+     * @return duel-valued threshold map, or null if the variable 
+     * name is invalid or if the map contains no mapping for the key
      */
-    public static Map<ObConst.ThreatLevel, Float[]> getDualValuedThresholdMap(
-            String zone, ObConst.VarName varName) {
-        if (varName != VarName.WIND_DIR || varName != VarName.PRIM_SWELL_DIR
-                || varName != VarName.SEC_SWELL_DIR) {
-            return null;
-        }
-        return zoneMonitorThresholds.get(zone).getDualValuedThresholdMap(
-                varName);
+    public static Map<ObConst.ThreatLevel,Float[]> getDualValuedThresholdMap(String zone, ObConst.VarName varName) {
+    	if (varName != VarName.WIND_DIR || varName != VarName.PRIM_SWELL_DIR || varName != VarName.SEC_SWELL_DIR ) {
+    		return null;
+    	}
+    	return zoneMonitorThresholds.get(zone).getDualValuedThresholdMap(varName);
     }
 }

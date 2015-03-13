@@ -20,9 +20,6 @@
 
 package com.raytheon.uf.common.gridcoverage;
 
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -32,6 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.geotools.geometry.DirectPosition2D;
+import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -39,12 +37,9 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
-import com.raytheon.uf.common.gridcoverage.subgrid.TrimUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Defines a Mercator grid coverage. This class is generally used to describe
@@ -59,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 4/7/09       1994        bphillip    Initial Creation
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
  * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
+ * Mar 04, 2015 3959        rjpeter     Update for grid based subgridding.
  * </pre>
  * 
  * @author bphillip
@@ -69,9 +65,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class MercatorGridCoverage extends GridCoverage {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(MercatorGridCoverage.class);
-
     private static final long serialVersionUID = 3140441023975157052L;
 
     /** The name of the projection */
@@ -215,57 +208,20 @@ public class MercatorGridCoverage extends GridCoverage {
     }
 
     @Override
-    public GridCoverage trim(SubGrid subGrid) {
+    protected GridCoverage cloneImplCrsParameters(SubGrid subGrid) {
         MercatorGridCoverage rval = new MercatorGridCoverage();
-        rval.description = this.description;
-        rval.dx = this.dx;
-        rval.dy = this.dy;
-        rval.spacingUnit = this.spacingUnit;
         rval.latin = this.latin;
         rval.majorAxis = this.majorAxis;
         rval.minorAxis = this.minorAxis;
 
-        try {
-            Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
-            if (spacingUnitObj.isCompatible(SI.METRE)) {
-                UnitConverter converter = spacingUnitObj
-                        .getConverterTo(SI.METRE);
-                double dxMeter = converter.convert(dx);
-                double dyMeter = converter.convert(dy);
-                MathTransform fromLatLon = MapUtil
-                        .getTransformFromLatLon(getCrs());
-                MathTransform toLatLon = fromLatLon.inverse();
+        /* grid space is 0,0 for upper left */
+        Coordinate upperRight = new Coordinate(subGrid.getUpperLeftX()
+                + subGrid.getNX() - 1, subGrid.getUpperLeftY());
+        upperRight = MapUtil.gridCoordinateToLatLon(upperRight,
+                PixelOrientation.CENTER, this);
 
-                try {
-                    TrimUtil.trimMeterSpace(getLowerLeftLat(),
-                            getLowerLeftLon(), subGrid, this.nx, this.ny,
-                            dxMeter, dyMeter, fromLatLon, toLatLon, true);
-                } catch (GridCoverageException e) {
-                    statusHandler.handle(Priority.WARN, "Grid coverage ["
-                            + this.getName() + "] not applicable to this site");
-                    return null;
-                }
-
-                rval.firstGridPointCorner = Corner.LowerLeft;
-                rval.lo1 = subGrid.getLowerLeftLon();
-                rval.la1 = subGrid.getLowerLeftLat();
-                rval.lo2 = subGrid.getUpperRightLon();
-                rval.la2 = subGrid.getUpperRightLat();
-                rval.nx = subGrid.getNX();
-                rval.ny = subGrid.getNY();
-                rval.setName(SUBGRID_TOKEN + this.getId());
-            } else {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error creating sub grid definition [" + this.name
-                                + "], units are not compatible with meter ["
-                                + spacingUnit + "]");
-                rval = null;
-            }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error creating sub grid definition", e);
-            rval = null;
-        }
+        rval.lo2 = upperRight.x;
+        rval.la2 = upperRight.y;
 
         return rval;
     }

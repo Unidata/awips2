@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Display;
  * 05 Oct 2008             lvenable    Initial creation.
  * 02 Apr 2009             lvenable    TTR fixes.
  * 02 Mar 2015  3856       lvenable    Cancel the job if the timer is being canceled.
+ * 09 Mar 2015  3856       lvenable    Cleaned up the cancel logic.
  * 
  * </pre>
  * 
@@ -226,22 +227,17 @@ public class AlertTimer {
      * Setting alertPopupDlg Cancel the timer.
      */
     public void cancelTimer() {
+
         // only synchronize on canceling the timer, don't do the syncExec in
         // the sync block.
-        boolean cancel = false;
         synchronized (this) {
             if (isRunning) {
                 isRunning = false;
-                cancel = true;
                 job.cancel();
             }
         }
 
-        if (cancel) {
-            if (parentDisplay.isDisposed() == true) {
-                return;
-            }
-
+        if (parentDisplay.isDisposed() == false) {
             parentDisplay.syncExec(new Runnable() {
                 @Override
                 public void run() {

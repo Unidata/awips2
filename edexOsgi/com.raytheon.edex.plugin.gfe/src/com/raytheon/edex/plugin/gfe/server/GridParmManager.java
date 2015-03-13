@@ -136,6 +136,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     Send DBInvChangeNotifications at site activation so new D2D data
  *                                     ingested while deactivated gets recognized
  * 10/27/2014   #3766      randerso    Fixed return type and javadoc for createNewDb
+ * 03/05/2015   #4169      randerso    Fix error handling in getDatabase
  * 
  * </pre>
  * 
@@ -162,15 +163,15 @@ public class GridParmManager {
 
     private static int COMMIT_GRIDS_TIMEOUT = 10000;
 
-    private String siteID;
+    private final String siteID;
 
-    private IFPServerConfig config;
+    private final IFPServerConfig config;
 
-    private LockManager lockMgr;
+    private final LockManager lockMgr;
 
-    private TopoDatabaseManager topoMgr;
+    private final TopoDatabaseManager topoMgr;
 
-    private Map<DatabaseID, GridDatabase> dbMap = new ConcurrentHashMap<DatabaseID, GridDatabase>();
+    private final Map<DatabaseID, GridDatabase> dbMap = new ConcurrentHashMap<DatabaseID, GridDatabase>();
 
     /**
      * Construct a GridParmManager
@@ -879,8 +880,13 @@ public class GridParmManager {
             if (dbId.getDbType().equals("D2D")) {
                 String d2dModelName = config.d2dModelNameMapping(dbId
                         .getModelName());
-                db = D2DGridDatabase.getDatabase(config, d2dModelName,
-                        dbId.getModelDate());
+                if (d2dModelName != null) {
+                    db = D2DGridDatabase.getDatabase(config, d2dModelName,
+                            dbId.getModelDate());
+                } else {
+                    statusHandler.error("No D2D Mapping for model name: "
+                            + dbId.getModelName());
+                }
             } else {
                 ServerResponse<GridDatabase> status = createDB(dbId);
                 if (status.isOkay()) {
@@ -1473,8 +1479,8 @@ public class GridParmManager {
 
     private void createDbNotification(List<DatabaseID> additions,
             List<DatabaseID> deletions) {
-        if ((additions != null && !additions.isEmpty())
-                || (deletions != null && !deletions.isEmpty())) {
+        if (((additions != null) && !additions.isEmpty())
+                || ((deletions != null) && !deletions.isEmpty())) {
             DBInvChangeNotification notify = new DBInvChangeNotification(
                     additions, deletions, siteID);
             SendNotifications.send(notify);
