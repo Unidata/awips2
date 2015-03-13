@@ -92,6 +92,10 @@ import com.raytheon.uf.viz.core.VizApp;
  * 03 May 2011  9101       cjeanbap    Pass a clone object into AlertVizPython class.
  * 31 May 2011  8058       cjeanbap    Kill sound based on TextMsgBox id.
  * 17 Jan 2012  27         rferrel     Refactored to allow override of createTrayMenuItems
+ * 09 Mar 2015  3856       lvenable    Added a check to determine if the timer is running before
+ *                                     changing the icon on the timer action.  If it isn't running
+ *                                     then set the icon to the default image.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -221,7 +225,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     private ConfigContext configContext;
 
     private Configuration prevConfigFile;
-    
+
     private Integer exitStatus = IApplication.EXIT_OK;
 
     /**
@@ -320,6 +324,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         alertMessageDlg = new AlertMessageDlg(shell, this, showAlertDlg,
                 configData, audioMgr);
         display.asyncExec(new Runnable() {
+            @Override
             public void run() {
                 alertMessageDlg.open();
             }
@@ -361,6 +366,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
         // Right click action
         trayItem.addMenuDetectListener(new MenuDetectListener() {
+            @Override
             public void menuDetected(MenuDetectEvent de) {
                 trayItemMenu.setVisible(true);
             }
@@ -526,7 +532,11 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             blinkCount = 0;
         }
 
-        trayItem.setImage(blinkImages[blinkCount]);
+        if (this.trayAlertTimer.timerIsRunning()) {
+            trayItem.setImage(blinkImages[blinkCount]);
+        } else {
+            trayItem.setImage(alertVizImg);
+        }
     }
 
     /**
@@ -548,6 +558,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         }
     }
 
+    @Override
     public void cancelAudio(int numTextMsgBoxId) {
         audioMgr.stopTimer(numTextMsgBoxId);
     }
@@ -637,7 +648,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
                     && (statMsg.getDetails().contains("Error")
                             || statMsg.getDetails().contains("Exception")
                             || statMsg.getDetails().contains("Throwable") || Container
-                            .hasMissing(statMsg))) {
+                                .hasMissing(statMsg))) {
                 Source source = configData.lookupSource("GDN_ADMIN");
                 RGB backgroundRBG = null;
                 if (source == null || source.getConfigurationItem() == null) {
@@ -815,9 +826,9 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     }
 
     public Integer getExitStatus() {
-    	return exitStatus;
+        return exitStatus;
     }
-    
+
     /**
      * This is the button click event for the alertPopupDialog. This function is
      * called when "Hide Dialog" is clicked.
@@ -833,13 +844,13 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     @Override
     public void restart() {
         if (runningStandalone) {
-        	// Must use EXIT_RELAUNCH. EXIT_RESTART causes the
-        	// executable to do a restart without returning to
-        	// the shell/bat script. This fails. Any other value
-        	// such as Integer(1) the executable attempts to bring
-        	// up an error screen before exiting with the error code.
-        	exitStatus = IApplication.EXIT_RELAUNCH;
-        	display.dispose();
+            // Must use EXIT_RELAUNCH. EXIT_RESTART causes the
+            // executable to do a restart without returning to
+            // the shell/bat script. This fails. Any other value
+            // such as Integer(1) the executable attempts to bring
+            // up an error screen before exiting with the error code.
+            exitStatus = IApplication.EXIT_RELAUNCH;
+            display.dispose();
         }
     }
 

@@ -26,9 +26,6 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.metadata.spatial.PixelOrientation;
-
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.grid.GridPathProvider;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -39,7 +36,6 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
@@ -50,7 +46,6 @@ import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Convenience class for requesting grid data. This class provides automatic
@@ -66,7 +61,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 14, 2013  1469     bkowal       No longer needs to retrieve the location
  *                                     of the hdf5 data directory.
  * Dec 16, 2013  2574     bsteffen     Fixed bugs in setRequestArea.
- * 
+ * Mar 04, 2015  3959     rjpeter      Update for grid based subgridding.
  * </pre>
  * 
  * @author bsteffen
@@ -128,20 +123,22 @@ public class GridDataRetriever {
     public boolean setWorldWrapColumns(int worldWrapColumns)
             throws GridCoverageException {
         GridCoverage dataLoc = record.getLocation();
-        GridGeometry2D dataGeom = dataLoc.getGridGeometry();
-        int wrapX = GridGeometryWrapChecker.checkForWrapping(dataGeom);
-        if (wrapX != -1) {
+        int wrapX = GridGeometryWrapChecker.checkForWrapping(dataLoc
+                .getGridGeometry());
+
+        if (wrapX != GridGeometryWrapChecker.NO_WRAP) {
             int newX = wrapX + worldWrapColumns;
+
             if (newX == dataLoc.getNx()) {
                 this.request = Request.ALL;
-            } else if (newX < dataLoc.getNx()) {
-                Coordinate upperRight = new Coordinate(newX - 1, 0);
-                upperRight = MapUtil.gridCoordinateToLatLon(upperRight,
-                        PixelOrientation.CENTER, dataLoc);
-                setRequestArea(dataLoc.getLowerLeftLon(),
-                        dataLoc.getLowerLeftLat(), upperRight.x, upperRight.y);
             } else {
-                this.request = Request.ALL;
+                /*
+                 * Let subgridding handle getting the full grid in case grid
+                 * stored stored with world wrap columns.
+                 */
+                setRequestArea(wrapX, dataLoc.getNy());
+                this.worldWrapColumns = worldWrapColumns;
+
                 if (dataLoc instanceof LatLonGridCoverage) {
                     LatLonGridCoverage newLoc = new LatLonGridCoverage(
                             (LatLonGridCoverage) dataLoc);
@@ -170,8 +167,8 @@ public class GridDataRetriever {
                 requestCoverage.setNx(newX);
                 requestCoverage.setGridGeometry(null);
                 requestCoverage.initialize();
-                this.worldWrapColumns = newX - dataLoc.getNx();
             }
+
             return true;
         } else {
             return false;
@@ -180,29 +177,22 @@ public class GridDataRetriever {
 
     /**
      * Set the requested area to be a subgrid of the total area. This uses the
-     * trim functionality of GridCoverage to generate an area which has corners
-     * at the provided latitude and longitude.
+     * trim functionality of GridCoverage to generate an area based on the
+     * passed nx/ny.
      * 
-     * @param lon1
-     * @param lat1
-     * @param lon2
-     * @param lat2
-     * @throws GridDataRetrievalException
-     * @throws GridCoverageException
+     * @param nx
+     * @param ny
      */
-    protected void setRequestArea(double lon1, double lat1, double lon2,
-            double lat2) throws GridCoverageException {
+    protected void setRequestArea(int nx, int ny) {
         SubGrid subGrid = new SubGrid();
-        subGrid.setLowerLeftLat(Math.min(lat1, lat2));
-        subGrid.setLowerLeftLon(Math.min(lon1, lon1));
-        subGrid.setUpperRightLat(Math.max(lat1, lat2));
-        subGrid.setUpperRightLon(Math.max(lon2, lon2));
-        requestCoverage = record.getLocation().trim(subGrid);
+        // leave UL point as 0,0
+        subGrid.setNX(nx);
+        subGrid.setNY(ny);
+        record.getLocation().trim(subGrid);
         int[] minIndex = { subGrid.getUpperLeftX(), subGrid.getUpperLeftY() };
         int[] maxIndex = { subGrid.getUpperLeftX() + subGrid.getNX(),
                 subGrid.getUpperLeftY() + subGrid.getNY() };
         request = Request.buildSlab(minIndex, maxIndex);
-        requestCoverage.initialize();
     }
 
     /**

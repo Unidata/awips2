@@ -45,6 +45,7 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
@@ -124,7 +125,9 @@ import com.raytheon.viz.awipstools.IToolChangedListener;
  *  Jun 12, 2014  3238      bsteffen    Implement Interrogatable
  *  Aug 21, 2014  DR 17313  jgerth      Set no data value if no data mapping
  *  Oct 15, 2014  3681      bsteffen    create renderable in interrogate if necessary.
+ *  Feb 17, 2015  4135      bsteffen    Set no data value for derived products.
  *  Mar 3, 2015   DCS 14960 jgerth      Retrieve legend from style rules if available
+ * 
  * 
  * </pre>
  * 
@@ -399,8 +402,19 @@ public class SatResource extends
         if (persisted != null) {
             colorMapParameters.applyPersistedParameters(persisted);
         }
-        if (colorMapParameters.getDataMapping() == null)
-        	colorMapParameters.setNoDataValue(0);
+        if (colorMapParameters.getDataMapping() == null) {
+            if (unit instanceof GenericPixel) {
+                /**
+                 * Generic Pixel only comes from derived parameter which used
+                 * signed data so 0 is valid but -128 is used as a no data
+                 * value.
+                 */
+                colorMapParameters.setNoDataValue(Byte.MIN_VALUE);
+            } else {
+                colorMapParameters.setNoDataValue(0);
+            }
+
+        }
 
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);

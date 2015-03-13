@@ -25,7 +25,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.viz.monitor.snow.SnowMonitor;
+import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The Snow Area Action
@@ -50,6 +51,11 @@ import com.raytheon.uf.viz.monitor.snow.SnowMonitor;
 
 public class SnowAreaConfigAction extends AbstractHandler {
 
+    /**
+     * SNOW Monitoring Area Configuration Dialog.
+     */
+    private SnowMonitoringAreaConfigDlg configDlg;
+
     /*
      * (non-Javadoc)
      * 
@@ -59,12 +65,19 @@ public class SnowAreaConfigAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        SnowMonitor snow = SnowMonitor.getInstance();
-        if (snow.getAreaDialog() == null || snow.getAreaDialog().isDisposed()) {
+        if (configDlg == null || configDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            snow.launchDialog("area", shell);
+            configDlg = new SnowMonitoringAreaConfigDlg(shell,
+                    "SNOW Monitor Area Configuration");
+            configDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    configDlg = null;
+                }
+            });
         }
+        configDlg.open();
         return null;
     }
 }

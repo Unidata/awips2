@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2009            snaples     Initial creation
+ * Mar  2, 2015  15660     snaples     Fixed issues with the file writing and creating the new files.
  * 
  * </pre>
  * 
@@ -107,19 +108,19 @@ public class Compute1HrNeighborList {
     
     DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-    Station[] disagg_station_6hr = Disagg6Hr.disagg_station_6hr;
+    Station[] disagg_station_6hr = null;
 
-    Dist[] dist_6hr_to_1hr = Disagg6Hr.dist_6hr_to_1hr;
+    Dist[] dist_6hr_to_1hr = null; 
 
     public static Values_1hr[] valuesReadIn = null;
 
     BufferedWriter disagg_log_fd = Disagg6Hr.disagg_log_fd;
 
-    Date station_list_time_stamp_6hr;
+    Date station_list_time_stamp_6hr = new Date();
 
     String disagg_1hr_neighbors_fd = Disagg6Hr.disagg_1hr_neighbors_fd;
 
-    String neighbor_list_file = Disagg6Hr.neighbor_list_file;
+    String neighbor_list_file = null; 
 
     int ret_neighbors = Disagg6Hr.ret_neighbors;
 
@@ -139,9 +140,7 @@ public class Compute1HrNeighborList {
 
     public static Station[] disagg_station_1hr;
 
-//    int num_days_to_qc = DailyQcUtils.qcDays;
-
-//    static int mpe_dqc_max_precip_neighbors = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+    int mpe_dqc_max_precip_neighbors = DailyQcUtils.mpe_dqc_max_precip_neighbors;
 
     public Compute1HrNeighborList() {
         // default constructor
@@ -159,17 +158,20 @@ public class Compute1HrNeighborList {
 
         MeanMonthlyPrecip mmp = new MeanMonthlyPrecip();
         Isoh isoh = mmp.getIsoh();
-        int smonth = dqc.smonth;
-        int emonth = dqc.emonth;
+        int smonth = DailyQcUtils.smonth;
+        int emonth = DailyQcUtils.emonth;
 
         String hb5 = "";
         double dist1, dist2, dist;
-        double[] sorted = new double[dqc.mpe_dqc_max_precip_neighbors];
+        double[] sorted = new double[mpe_dqc_max_precip_neighbors];
         int ind, h, i, ier, l, m, k;
-        char[] kbuf = new char[200];
         QCHRAP hrap_point = new QCHRAP();
         float lat, lon;
         double conv = .0174533;
+        disagg_station_6hr = Disagg6Hr.disagg_station_6hr;
+        dist_6hr_to_1hr = Disagg6Hr.dist_6hr_to_1hr;
+        neighbor_list_file = Disagg6Hr.neighbor_list_file;
+        int num_disagg_stations = Disagg6Hr.num_disagg_stations;
 
         int file_error = 0;
         String area_id;
@@ -189,11 +191,10 @@ public class Compute1HrNeighborList {
         disagg_1hr_stations_dir = appsDefaults.getToken("mpe_station_list_dir");
         area_id = appsDefaults.getToken("mpe_site_id");
         BufferedReader in = null;
-        BufferedWriter out = disagg_log_fd;
+        BufferedWriter out = Disagg6Hr.getDisagg_log_fd();
         BufferedWriter out2 = null;
 
         try {
-            // out = new BufferedWriter(new FileWriter(disagg_log_fd));
 
             if (area_id.length() > 0) {
                 disagg_1hr_stations_path = String.format("%s/%s%s",
@@ -210,7 +211,8 @@ public class Compute1HrNeighborList {
             }
 
             /* Read the record containing the number of hourly stations. */
-            int p = in.read(kbuf, 0, 200);
+            String hstat = in.readLine().trim();
+            int p = hstat.length();
 
             if (p == -1) {
                 out.write("could not read number of hourly stations from file\n");
@@ -219,10 +221,9 @@ public class Compute1HrNeighborList {
 
             }
 
-            ier = Integer.parseInt(kbuf.toString());
-            num_records = ier;
+            num_records = Integer.parseInt(hstat);
 
-            if (ier < 1) {
+            if (num_records < 1) {
                 out.write("could not read number of hourly stations from file\n");
                 in.close();
                 return;
@@ -249,7 +250,7 @@ public class Compute1HrNeighborList {
             /* Read the PPH stations. */
             i = 0;
             for (ind = 0; ind < num_records; ++ind) {
-                String pp = in.readLine();
+                String pp = in.readLine().trim();
 
                 if (pp == null) {
                     out.write(String
@@ -266,10 +267,10 @@ public class Compute1HrNeighborList {
                 lon = s.nextFloat();
 
                 // ier=sscanf(kbuf,"%s %s %f %f ",hb5, temp_str, &lat, &lon);
-
+                disagg_station_1hr[i] = new DailyQcUtils().new Station();
                 disagg_station_1hr[i].isoh = new float[24];
                 disagg_station_1hr[i].hb5 = "";
-                disagg_station_1hr[i].index = new short[dqc.mpe_dqc_max_precip_neighbors];
+                disagg_station_1hr[i].index = new short[DailyQcUtils.mpe_dqc_max_precip_neighbors];
                 disagg_station_1hr[i].parm = "";
                 disagg_station_1hr[i].cparm = "";
 
@@ -295,7 +296,11 @@ public class Compute1HrNeighborList {
 
                 disagg_station_1hr[i].hb5 = hb5;
                 disagg_station_1hr[i].lat = lat;
-                disagg_station_1hr[i].lon = lon;
+                float testlon = lon;
+                if (testlon > 0) {
+                    testlon = testlon * -1;
+                }
+                disagg_station_1hr[i].lon = testlon;
 
                 /*
                  * Set elev to 1 ft. The value of 0 creates problems with
@@ -345,10 +350,10 @@ public class Compute1HrNeighborList {
 
                     }
 
-                    if (((int) hrap_point.x - xor) < maxx
-                            && ((int) hrap_point.y - yor) < maxy
-                            && ((int) hrap_point.x - xor) >= 0
-                            && ((int) hrap_point.y - yor) >= 0) {
+                    if (((int) hrap_point.x < maxx)
+                            && ((int) hrap_point.y < maxy)
+                            && ((int) hrap_point.x >= xor)
+                            && ((int) hrap_point.y >=yor)) {
                         disagg_station_1hr[i].isoh[k] = isoh.value[k][(int) hrap_point.y
                                 - yor][(int) hrap_point.x - xor];
 
@@ -357,7 +362,7 @@ public class Compute1HrNeighborList {
                 }
 
                 i++;
-
+                s.close();
             }
 
             num_records = num_distinct_1hrs;
@@ -394,7 +399,7 @@ public class Compute1HrNeighborList {
 
                 }
 
-                if (dqc.mpe_dqc_max_precip_neighbors != num_previous_neighbors
+                if (mpe_dqc_max_precip_neighbors != num_previous_neighbors
                         || timestamp_previous_neighbors
                                 .before(station_list_time_stamp_6hr)) {
                     generate = 1;
@@ -402,11 +407,11 @@ public class Compute1HrNeighborList {
                 } else {
                     out.write(String.format(
                             "Reading %d nearest neighbor 1hr stations\n",
-                            dqc.mpe_dqc_max_precip_neighbors));
+                            mpe_dqc_max_precip_neighbors));
 
                     for (i = 0; i < Disagg6Hr.num_disagg_stations; i++) {
                         lines = in.readLine();
-                        for (l = 0; l < dqc.mpe_dqc_max_precip_neighbors; l++) {
+                        for (l = 0; l < mpe_dqc_max_precip_neighbors; l++) {
                             // read from neighbor list file
                             // read the 1hr station info for each 6hr station
                             lines = in.readLine();
@@ -438,6 +443,7 @@ public class Compute1HrNeighborList {
                     generate = 0;
 
                 }
+                s.close();
 
             } else {
                 generate = 1;
@@ -453,9 +459,9 @@ public class Compute1HrNeighborList {
                 // ---------------------------------------------------------------
                 out.write(String.format(
                         "Generating %d nearest neighbor 1hr stations\n",
-                        dqc.mpe_dqc_max_precip_neighbors));
+                        mpe_dqc_max_precip_neighbors));
                 for (i = 0; i < Disagg6Hr.num_disagg_stations; i++) {
-                    for (l = 0; l < dqc.mpe_dqc_max_precip_neighbors; l++) {
+                    for (l = 0; l < mpe_dqc_max_precip_neighbors; l++) {
                         sorted[l] = 9999999;
 
                     }
@@ -482,9 +488,9 @@ public class Compute1HrNeighborList {
                         // distance from the array.
                         // Note that the 'sorted' array is sorted literally!
 
-                        for (l = 0; l < dqc.mpe_dqc_max_precip_neighbors; l++) {
+                        for (l = 0; l < mpe_dqc_max_precip_neighbors; l++) {
                             if (dist < sorted[l]) {
-                                for (h = dqc.mpe_dqc_max_precip_neighbors - 1; h > l; h--) {
+                                for (h = mpe_dqc_max_precip_neighbors - 1; h > l; h--) {
                                     sorted[h] = sorted[h - 1];
                                     disagg_station_6hr[i].index[h] = disagg_station_6hr[i].index[h - 1];
 
@@ -516,7 +522,7 @@ public class Compute1HrNeighborList {
             out2 = new BufferedWriter(new FileWriter(neighbor_list_file));
             if (generate == 1) {
                 in.close();
-                out2.write(String.format("%d\n", dqc.mpe_dqc_max_precip_neighbors));
+                out2.write(String.format("%d\n", mpe_dqc_max_precip_neighbors));
                 File nlf = new File(neighbor_list_file);
                 station_list_time_stamp_6hr.setTime(nlf.lastModified());
                 out2.write(String.format("%d\n",
@@ -525,17 +531,17 @@ public class Compute1HrNeighborList {
             }
 
             /* print out list of 1hr nearest neighbor stations */
-            for (i = 0; i < Disagg6Hr.num_disagg_stations; i++) {
+            for (i = 0; i < num_disagg_stations; i++) {
                 out.write(String
                         .format("---%s---\n", disagg_station_6hr[i].hb5));
                 if (generate == 1) {
                     out2.write(String.format("%s\n", disagg_station_6hr[i].hb5));
                 }
 
-                for (l = 0; l < dqc.mpe_dqc_max_precip_neighbors; l++) {
+                for (l = 0; l < mpe_dqc_max_precip_neighbors; l++) {
 
                     temp_buf = String
-                            .format("%d\t%s\t%5.2f\t%5.2f\t%6.2lf",
+                            .format("%d\t%s\t%5.2f\t%5.2f\t%6.2f",
                                     disagg_station_6hr[i].index[l],
                                     disagg_station_1hr[disagg_station_6hr[i].index[l]].hb5,
                                     disagg_station_1hr[disagg_station_6hr[i].index[l]].lat,
@@ -548,7 +554,6 @@ public class Compute1HrNeighborList {
                     out.write(String.format("%s\n", temp_buf));
                 }
             }
-            out.close();
             out2.close();
 
         } catch (IOException e) {
@@ -557,9 +562,6 @@ public class Compute1HrNeighborList {
             e.printStackTrace();
         } finally {
             try {
-                if (out != null) {
-                    out.close();
-                }
                 if (out2 != null) {
                     out2.close();
                 }
@@ -588,25 +590,25 @@ public class Compute1HrNeighborList {
         int day = 0;
         int i, j, k;
         int num_disagg_stations = Disagg6Hr.num_disagg_stations;
-        int[] temp = new int[num_disagg_stations * dqc.mpe_dqc_max_precip_neighbors];
-        BufferedWriter out = disagg_log_fd;
+        int[] temp = new int[num_disagg_stations * mpe_dqc_max_precip_neighbors];
+        BufferedWriter out = Disagg6Hr.getDisagg_log_fd();
+        disagg_station_6hr = Disagg6Hr.disagg_station_6hr;
+        int qc_days = DailyQcUtils.qcDays;
 
         try {
-            // out = new BufferedWriter(new FileWriter(disagg_log_fd));
-
             out.write(" Reading 1hr Precip Gage Values \n");
 
             sorted_list_1hr = new int[num_disagg_stations
-                    * dqc.mpe_dqc_max_precip_neighbors];
+                    * mpe_dqc_max_precip_neighbors];
             /* sorted_list_1hr array is array of indexes of 1hr gages */
             /* defined in compute_1hr_station_list function */
 
-            for (i = 0; i < num_disagg_stations * dqc.mpe_dqc_max_precip_neighbors; i++) {
+            for (i = 0; i < num_disagg_stations * mpe_dqc_max_precip_neighbors; i++) {
                 sorted_list_1hr[i] = -1;
             }
             for (i = 0; i < num_disagg_stations; i++) {
-                for (j = 0; j < dqc.mpe_dqc_max_precip_neighbors; j++) {
-                    sorted_list_1hr[dqc.mpe_dqc_max_precip_neighbors * i + j] = disagg_station_6hr[i].index[j];
+                for (j = 0; j < mpe_dqc_max_precip_neighbors; j++) {
+                    sorted_list_1hr[mpe_dqc_max_precip_neighbors * i + j] = disagg_station_6hr[i].index[j];
                 }
             }
 
@@ -631,7 +633,7 @@ public class Compute1HrNeighborList {
                     .format(" number of non-duplicate 1hr nearest-neighbor stations = %d\n",
                             sorted_array_size));
 
-            valuesReadIn = new Values_1hr[dqc.qcDays * sorted_array_size];
+            valuesReadIn = new Values_1hr[qc_days * sorted_array_size];
 
             out.write(String.format(
                     "endtime_disagg = %10.0f  starttime_disagg = %10.0f\n",
@@ -665,7 +667,7 @@ public class Compute1HrNeighborList {
                                 .format("precip totalling routines found no data for gage %s and missing data substituted \n",
                                         disagg_station_1hr[sorted_list_1hr[i]].hb5));
                         end_time_temp = endtime_disagg;
-                        for (k = 0; k < dqc.qcDays; k++) {
+                        for (k = 0; k < qc_days; k++) {
                             valuesReadIn[k * sorted_array_size + i].index_in_1hr_list = sorted_list_1hr[i];
                             valuesReadIn[k * sorted_array_size + i].ID = disagg_station_1hr[sorted_list_1hr[i]].hb5;
                             for (j = 0; j < 24; j++) {
@@ -691,7 +693,7 @@ public class Compute1HrNeighborList {
                         end_time_temp = endtime_disagg;
                         Calendar nt = Calendar.getInstance(TimeZone
                                 .getTimeZone("GMT"));
-                        for (k = 0; k < dqc.qcDays; k++) {
+                        for (k = 0; k < qc_days; k++) {
                             valuesReadIn[k * sorted_array_size + i].ID = disagg_station_1hr[sorted_list_1hr[i]].hb5;
 
                             for (j = 0; j < 24; j++) {
@@ -720,17 +722,8 @@ public class Compute1HrNeighborList {
             } /* end for (i=0 ... */
 
             out.flush();
-            out.close();
         } catch (IOException e) {
             return;
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        } 
     }
 }

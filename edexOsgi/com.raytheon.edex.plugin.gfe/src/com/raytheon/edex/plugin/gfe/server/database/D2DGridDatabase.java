@@ -116,7 +116,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 05/22/2014   #3071       randerso    Improved error logging
  * 06/24/2014   #3317       randerso    Don't allow database to be created if it exceeds D2DDBVERSIONS and 
  *                                      should be purged.
- * Sep 09, 2014  3356       njensen     Remove CommunicationException
+ * 09/09/2014   #3356       njensen     Remove CommunicationException
+ * 03/05/2015   #4169       randerso    Fix error handling in getDatabase
  * 
  * </pre>
  * 
@@ -138,7 +139,7 @@ public class D2DGridDatabase extends VGridDatabase {
     public static DatabaseID getDbId(String d2dModelName, Date modelTime,
             IFPServerConfig config) {
         String gfeModelName = config.gfeModelNameMapping(d2dModelName);
-        if ((gfeModelName == null) || gfeModelName.isEmpty()) {
+        if (gfeModelName == null) {
             return null;
         }
         return new DatabaseID(getSiteID(config), DataType.GRID, "D2D",
@@ -178,15 +179,22 @@ public class D2DGridDatabase extends VGridDatabase {
     public static D2DGridDatabase getDatabase(IFPServerConfig config,
             String d2dModelName, Date refTime) {
         try {
-            GFED2DDao dao = new GFED2DDao();
-            int dbVersions = config.desiredDbVersions(getDbId(d2dModelName,
-                    refTime, config));
-            List<Date> result = dao.getModelRunTimes(d2dModelName, dbVersions);
+            DatabaseID dbId = getDbId(d2dModelName, refTime, config);
+            if ((dbId != null) && dbId.isValid()) {
+                GFED2DDao dao = new GFED2DDao();
+                int dbVersions = config.desiredDbVersions(dbId);
+                List<Date> result = dao.getModelRunTimes(d2dModelName,
+                        dbVersions);
 
-            if (result.contains(refTime)) {
-                D2DGridDatabase db = new D2DGridDatabase(config, d2dModelName,
-                        refTime);
-                return db;
+                if (result.contains(refTime)) {
+                    D2DGridDatabase db = new D2DGridDatabase(config,
+                            d2dModelName, refTime);
+                    return db;
+                }
+            } else {
+                statusHandler
+                        .error("No D2D database configuration found for model name: "
+                                + d2dModelName);
             }
             return null;
         } catch (Exception e) {
@@ -239,17 +247,17 @@ public class D2DGridDatabase extends VGridDatabase {
             .getHandler("GFE:");
 
     private class D2DParm {
-        private ParmID parmId;
+        private final ParmID parmId;
 
-        private GridParmInfo gpi;
+        private final GridParmInfo gpi;
 
-        private Map<Integer, TimeRange> fcstHrToTimeRange;
+        private final Map<Integer, TimeRange> fcstHrToTimeRange;
 
-        private Map<TimeRange, Integer> timeRangeToFcstHr;
+        private final Map<TimeRange, Integer> timeRangeToFcstHr;
 
-        private String[] components;
+        private final String[] components;
 
-        private Level level;
+        private final Level level;
 
         public D2DParm(ParmID parmId, GridParmInfo gpi,
                 Map<Integer, TimeRange> fcstHrToTimeRange, String... components) {
@@ -319,9 +327,9 @@ public class D2DGridDatabase extends VGridDatabase {
     /** The destination GridLocation (The local GFE grid coverage) */
     private GridLocation outputGloc;
 
-    private Map<ParmID, D2DParm> gfeParms = new HashMap<ParmID, D2DParm>();
+    private final Map<ParmID, D2DParm> gfeParms = new HashMap<ParmID, D2DParm>();
 
-    private Map<String, D2DParm> d2dParms = new HashMap<String, D2DParm>();
+    private final Map<String, D2DParm> d2dParms = new HashMap<String, D2DParm>();
 
     /**
      * Constructs a new D2DGridDatabase
@@ -384,8 +392,6 @@ public class D2DGridDatabase extends VGridDatabase {
             throws GfeException {
         RemapGrid remap = this.remap.get(awipsGrid.getId());
         if (remap == null) {
-            String gfeModelName = dbId.getModelName();
-            String d2dModelName = this.config.d2dModelNameMapping(gfeModelName);
             GridLocation inputLoc = new GridLocation(d2dModelName, awipsGrid);
             inputLoc.setSiteId(d2dModelName);
             Rectangle subdomain = NetCDFUtils.getSubGridDims(inputLoc,
@@ -847,9 +853,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
         float fillV = Float.MAX_VALUE;
         ParameterInfo atts = GridParamInfoLookup.getInstance()
-                .getParameterInfo(
-                        config.d2dModelNameMapping(parmId.getDbId()
-                                .getModelName()), parmId.getParmName());
+                .getParameterInfo(d2dModelName, parmId.getParmName());
         if (atts != null) {
             fillV = atts.getFillValue();
         }
