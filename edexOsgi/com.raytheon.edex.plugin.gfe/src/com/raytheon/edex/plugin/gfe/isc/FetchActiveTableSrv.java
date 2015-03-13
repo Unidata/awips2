@@ -30,12 +30,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.RunProcess;
-import com.raytheon.uf.edex.core.IContextStateProcessor;
+import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * Service that fetches neighboring sites' active table entries that are
@@ -53,6 +52,8 @@ import com.raytheon.uf.edex.core.IContextStateProcessor;
  *                                     fetching when site is deactivated.
  * Feb 26, 2015   #4128    dgilling    Moved to edex.gfe plugin, rewritten as
  *                                     IContextStateProcessor.
+ * Mar 11, 2015   #4128    dgilling    Ensure this service runs on same cluster
+ *                                     node as was registered with IRT.
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ import com.raytheon.uf.edex.core.IContextStateProcessor;
  * @version 1.0
  */
 
-public final class FetchActiveTableSrv implements IContextStateProcessor {
+public final class FetchActiveTableSrv implements IISCServiceBean {
 
     private static final class FetchATJobConfig {
 
@@ -165,31 +166,21 @@ public final class FetchActiveTableSrv implements IContextStateProcessor {
 
     private ScheduledExecutorService jobExecutor;
 
-    private volatile boolean activeServiceInstance;
-
     /**
      * Default constructor.
      */
     public FetchActiveTableSrv() {
-        this.activeServiceInstance = false;
         this.siteJobInstanceMap = new ConcurrentHashMap<String, ScheduledFuture<?>>();
     }
 
-    /**
-     * Dummy trigger method for the timer in the camel context this bean
-     * monitors. Ensures this bean properly fails over between cluster members
-     * as needed.
-     */
-    public void activateService() {
-        activeServiceInstance = true;
-    }
-
-    /**
-     * Removes a site's active table sharing job from the job pool.
+    /*
+     * (non-Javadoc)
      * 
-     * @param siteID
-     *            Site identifier for the site's job to stop.
+     * @see
+     * com.raytheon.edex.plugin.gfe.isc.IISCServiceBean#deactivateSite(java.
+     * lang.String)
      */
+    @Override
     public void deactivateSite(final String siteID) {
         ScheduledFuture<?> siteJob = siteJobInstanceMap.remove(siteID);
         if (siteJob != null) {
@@ -198,17 +189,19 @@ public final class FetchActiveTableSrv implements IContextStateProcessor {
         }
     }
 
-    /**
-     * Adds a site's active table sharing job to the job pool.
+    /*
+     * (non-Javadoc)
      * 
-     * @param siteID
-     *            Site identifier for the site's job to add to job pool.
-     * @param gfeConfig
-     *            {@code IFPServerConfig} for the site.
+     * @see
+     * com.raytheon.edex.plugin.gfe.isc.IISCServiceBean#activateSite(java.lang
+     * .String, com.raytheon.edex.plugin.gfe.config.IFPServerConfig)
      */
+    @Override
     public void activateSite(final String siteID,
             final IFPServerConfig gfeConfig) {
-        if (activeServiceInstance && (!siteJobInstanceMap.containsKey(siteID))) {
+        EDEXUtil.waitForRunning();
+        if ((gfeConfig.tableFetchTime() > 0)
+                && (!siteJobInstanceMap.containsKey(siteID))) {
             FetchATJobConfig jobConfig = new FetchATJobConfig(siteID, gfeConfig);
 
             statusHandler.info("Activating FetchAT for " + siteID);
@@ -226,6 +219,10 @@ public final class FetchActiveTableSrv implements IContextStateProcessor {
                         "Unable to submit fetchAT job for execution:", e);
                 siteJobInstanceMap.remove(siteID);
             }
+        } else {
+            statusHandler
+                    .info("Skipping activation of active table sharing for site "
+                            + siteID);
         }
     }
 
@@ -282,43 +279,23 @@ public final class FetchActiveTableSrv implements IContextStateProcessor {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.edex.core.IContextStateProcessor#preStart()
+     * @see com.raytheon.edex.plugin.gfe.isc.IISCServiceBean#startup()
      */
     @Override
-    public void preStart() {
+    public void startup() {
         statusHandler.info("Initializing FetchATSrv...");
 
-        activeServiceInstance = true;
         jobExecutor = Executors.newScheduledThreadPool(1);
-
-        for (IFPServer ifpServer : IFPServer.getActiveServers()) {
-            IFPServerConfig config = ifpServer.getConfig();
-            if ((config.requestISC()) && (config.tableFetchTime() > 0)) {
-                activateSite(ifpServer.getSiteId(), config);
-            }
-        }
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.edex.core.IContextStateProcessor#postStart()
+     * @see com.raytheon.edex.plugin.gfe.isc.IISCServiceBean#preShutdown()
      */
     @Override
-    public void postStart() {
-        // no op
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.edex.core.IContextStateProcessor#preStop()
-     */
-    @Override
-    public void preStop() {
+    public void preShutdown() {
         statusHandler.info("Shutting down FetchATSrv...");
-
-        activeServiceInstance = false;
         if (jobExecutor != null) {
             jobExecutor.shutdown();
         }
@@ -327,10 +304,10 @@ public final class FetchActiveTableSrv implements IContextStateProcessor {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.edex.core.IContextStateProcessor#postStop()
+     * @see com.raytheon.edex.plugin.gfe.isc.IISCServiceBean#postShutdown()
      */
     @Override
-    public void postStop() {
+    public void postShutdown() {
         jobExecutor = null;
         siteJobInstanceMap.clear();
     }
