@@ -1,5 +1,7 @@
 #!/bin/bash
-
+if [[ $USER != "awips" && $USER != 'root' ]]; then
+  return
+fi
 # Is awips2-psql Installed?
 rpm -q awips2-psql > /dev/null 2>&1
 RC=$?
