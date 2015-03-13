@@ -44,6 +44,10 @@
 		<istrue value="${client.build}"/>
 	</condition>
 	
+	<condition property="deploy.hti" value="yes">
+			<isfalse value="${client.build}"/>
+	</condition>
+	
 	<condition property="deploy.svcBackup" value="yes">
 		<and>
 			<isfalse value="${client.build}"/>
@@ -91,13 +95,12 @@
     	</copy>
 	</target>
 	
-	<target name="-deploy.hti" 
+	<target name="-deploy.hti" if="deploy.hti" 
 		description="Deploys HTI software to a specific directory">
 		<!-- copy the CLI tools to the deploy directory -->
 		<echo message="Copying in HTI files" />
 		<copy todir="${gfe.suite.hti}" overwrite="true">
 			<fileset dir="${basedir}/hti"/>
-			<filterset refid="installer.filter.set"/>
 		</copy>
 	</target>
 		
