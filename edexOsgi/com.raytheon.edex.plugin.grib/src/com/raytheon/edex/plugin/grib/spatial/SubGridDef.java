@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.geospatial.MapUtil;
 
 /**
- * A sub grid definition
+ * A sub grid definition.
  * 
  * <pre>
  * 
@@ -39,7 +39,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  * ------------- -------- ----------- --------------------------
  * Jun 25, 2010           rjpeter     Initial creation
  * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
- * 
+ * Mar 04, 2015  3959     rjpeter     Make nx/ny int.
  * </pre>
  * 
  * @author rjpeter
@@ -60,14 +60,14 @@ public class SubGridDef {
     private String referenceGrid;
 
     @XmlElement(required = true)
-    private double nx;
+    private int nx;
 
     @XmlElement(required = true)
-    private double ny;
-    
+    private int ny;
+
     @XmlElement
     private Boolean shiftWest;
-    
+
     // annotation on setter to enforce data constraints
     private Double centerLatitude;
 
@@ -82,19 +82,19 @@ public class SubGridDef {
         this.modelNames = modelNames;
     }
 
-    public double getNx() {
+    public int getNx() {
         return nx;
     }
 
-    public void setNx(double nx) {
+    public void setNx(int nx) {
         this.nx = nx;
     }
 
-    public double getNy() {
+    public int getNy() {
         return ny;
     }
 
-    public void setNy(double ny) {
+    public void setNy(int ny) {
         this.ny = ny;
     }
 
@@ -104,7 +104,8 @@ public class SubGridDef {
 
     public void setShiftWest(Boolean shiftWest) {
         this.shiftWest = shiftWest;
-    }    
+    }
+
     /**
      * a model may have more than one grid so use reference grid instead.
      * 
@@ -132,7 +133,7 @@ public class SubGridDef {
     public void setReferenceGrid(String referenceGrid) {
         this.referenceGrid = referenceGrid;
     }
-    
+
     public Double getCenterLatitude() {
         return centerLatitude;
     }

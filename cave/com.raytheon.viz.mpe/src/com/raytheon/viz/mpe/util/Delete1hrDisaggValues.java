@@ -70,6 +70,7 @@ import com.raytheon.viz.mpe.util.Disagg6Hr.Values_6hr;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 1, 2011            snaples     Initial creation
+ * Mar  2, 2015  15660    snaples     Fixed issues with null pointer on writing to closed file.
  * 
  * </pre>
  * 
@@ -79,15 +80,13 @@ import com.raytheon.viz.mpe.util.Disagg6Hr.Values_6hr;
 
 public class Delete1hrDisaggValues {
 
-    DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
     public void delete1hrDisaggValues() {
         Values_1hr[] disaggValues = Disagg6Hr.disaggValues;
-        BufferedWriter disagg_log_fd = Disagg6Hr.disagg_log_fd;
+        BufferedWriter disagg_log_fd = Disagg6Hr.getDisagg_log_fd();
         String[] obsdate = Disagg6Hr.obsdate;
         Date[] obsdate_date_t = Disagg6Hr.obsdate_date_t;
         Values_6hr[] values6hr = Disagg6Hr.values6hr;
-//        int num_days_to_qc = dqc.qcDays;
+        int num_days_to_qc = DailyQcUtils.qcDays;
         int num_disagg_stations = Disagg6Hr.num_disagg_stations;
 
         String ts = "";
@@ -102,8 +101,6 @@ public class Delete1hrDisaggValues {
         ts = "PZ";
 
         try {
-            // out = new BufferedWriter(new FileWriter(disagg_log_fd));
-
             /*-----------------------------------------*/
             /* populate the HourlyPP structure */
             /*-----------------------------------------*/
@@ -123,14 +120,14 @@ public class Delete1hrDisaggValues {
 
             out.write("\nIn delete1hrDisaggValues\n");
 
-            for (j = 0; j < dqc.qcDays + 1; j++) {
+            for (j = 0; j < num_days_to_qc + 1; j++) {
 
                 out.write("\n");
                 out.write(String.format(" \t Day %d\n", j));
                 hourlyPPId.setObsdate(obsdate_date_t[j]);
 
                 jj = j;
-                if (j == dqc.qcDays) {
+                if (j == num_days_to_qc) {
                     jj = jj - 1;
                 }
 
@@ -184,7 +181,6 @@ public class Delete1hrDisaggValues {
                         out.write("\n");
 
                         /* update record */
-
                         GagePPWrite.update_gage_rec(hourlyPP);
 
                     } else if (j == jj) {
@@ -230,7 +226,6 @@ public class Delete1hrDisaggValues {
                         out.write("\n");
 
                         /* update record */
-
                         GagePPWrite.update_gage_rec(hourlyPP);
 
                     }
@@ -240,18 +235,6 @@ public class Delete1hrDisaggValues {
         } catch (IOException e) {
             return;
         }
-        // finally {
-        // try {
-        // if (out != null) {
-        // out.close();
-        // }
-        //
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
-        //
-        // }
-
     }
 
     public int deleteHourlyPP(String where) {

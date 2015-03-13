@@ -30,7 +30,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
- * TODO Add Description
+ * Hidden Workbench Advisor
  * 
  * <pre>
  * 
@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 11, 2009            mschenke     Initial creation
+ * Mar 05, 2015  #4183     randerso     Fix exception handling in openWindows()
  * 
  * </pre>
  * 
@@ -49,7 +50,7 @@ public class HiddenWorkbenchAdvisor extends WorkbenchAdvisor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(HiddenWorkbenchAdvisor.class);
 
-    private AbstractAWIPSComponent component;
+    private final AbstractAWIPSComponent component;
 
     private String componentName;
 
@@ -80,13 +81,15 @@ public class HiddenWorkbenchAdvisor extends WorkbenchAdvisor {
     public boolean openWindows() {
         boolean rval = super.openWindows();
         VizApp.runAsync(new Runnable() {
+            @Override
             public void run() {
                 try {
                     component.startInternal(componentName);
-                    PlatformUI.getWorkbench().close();
                 } catch (Exception e) {
                     statusHandler.handle(Priority.CRITICAL,
                             "error running component", e);
+                } finally {
+                    PlatformUI.getWorkbench().close();
                 }
             }
         });

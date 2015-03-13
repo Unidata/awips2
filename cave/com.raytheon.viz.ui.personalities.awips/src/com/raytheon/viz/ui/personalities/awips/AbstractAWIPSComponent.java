@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.personalities.cave.component.CAVEApplication;
  * Aug 26, 2014  3356     njensen     Explicitly set localization adapter
  * Sep 10, 2014  3612     mschenke    Refactored to extend CAVEApplication
  * Jan 15, 2015  3947     mapeters    cleanup() doesn't throw Exception.
+ * Feb 23, 2015  4164     dlovely     Extracted AlertViz initialize.
  * 
  * </pre>
  * 
@@ -201,6 +202,13 @@ public abstract class AbstractAWIPSComponent extends CAVEApplication {
     @Override
     protected void initializeObservers() {
         super.initializeObservers();
+        initializeAlertViz();
+    }
+
+    /**
+     * Initialize AlertViz.
+     */
+    protected void initializeAlertViz() {
         // Setup AlertViz observer
         if ((getRuntimeModes() & ALERT_VIZ) != 0) {
             // Set up alertviz

@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
@@ -58,9 +59,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Dec 03, 2012 15216/15639 zhao fixed a bug related to Link-to-Frame 
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs.
  * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
- * Jan 27, 2015 3220       skorolev    Removed "site".Added check on dispose.Corrected configMgr assignment.
- *                                     Added table cache update.
- * Feb 04, 2015 3841       skorolev    Corrected notify method for empty table update.
+ * Sep 04, 2014 3220       skorolev    Removed "site". Added check on dispose.
+ * 
  * </pre>
  * 
  * @author ?
@@ -79,10 +79,6 @@ public class FogZoneTableDlg extends ZoneTableDlg {
      */
     public FogZoneTableDlg(Shell parent, ObMultiHrsReports obData) {
         super(parent, obData, CommonConfig.AppName.FOG);
-        configMgr = FSSObsMonitorConfigurationManager.getFogObsManager();
-        obData.updateTableCache();
-        zoneTblData = obData.getZoneTableData();
-        zoneTblData.sortData();
     }
 
     /**
@@ -149,11 +145,12 @@ public class FogZoneTableDlg extends ZoneTableDlg {
         // The algorithm output.
 
         if (me.getSource() instanceof FogMonitor) {
+
             FogMonitor fog = (FogMonitor) me.getSource();
-            ObMultiHrsReports obData = fog.getObData();
-            Date date = fog.getDialogTime();
+            Date date = fog.getDialogDate();
             if (date != null) {
                 Date nominalTime = date;
+                ObMultiHrsReports obData = fog.getObData();
                 if (!isLinkedToFrame()) {
                     nominalTime = obData.getLatestNominalTime();
                 }
@@ -162,11 +159,32 @@ public class FogZoneTableDlg extends ZoneTableDlg {
                         .getAlgorithmData(nominalTime));
                 obData.setFogAlgCellType(fogAlgCellType);
                 this.updateTableDlg(obData.getObHourReports(nominalTime));
-            } else {
-                this.updateZoneTable(obData.getLatestNominalTime());
             }
         }
     }
+
+    /**
+     * Jan 25, 2010, #4281, zhao, Modified to pass an ObMultiHrsReports object
+     * to table dialog
+     * 
+     * @Override public void notify(IMonitorEvent me) { if
+     *           (zoneTable.isDisposed()) return;
+     * 
+     *           if (me.getSource() instanceof FogMonitor) { FogMonitor monitor
+     *           = (FogMonitor)me.getSource();
+     *           this.updateTableDlg(monitor.getObData()); }
+     * 
+     *           //if (me.getSource() instanceof FogMonitor) { //
+     *           IMPORTANT!!!!!! For now we just grab the most recent time from
+     *           the OBSTable // When we have the CAVE rendering working we will
+     *           grab it from the CaveResource! // Date date = new Date(); //
+     *           FogMonitor fog = (FogMonitor)me.getSource(); //
+     *           FogDataGenerator fdg = new FogDataGenerator(); // TableData
+     *           tZoneTableData = fdg.generateZoneData(fog.getTableData(),
+     *           fog.getAlgorithmData(), date); //
+     *           updateZoneTable(tZoneTableData, fog.getStationTableData(),
+     *           date); //} }
+     */
 
     /*
      * (non-Javadoc)
@@ -275,5 +293,20 @@ public class FogZoneTableDlg extends ZoneTableDlg {
     @Override
     protected void shellDisposeAction() {
         // Not used
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
+     * getMonitorAreaConfigInstance()
+     */
+    @Override
+    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
+        if (configMgr == null || configMgr.isPopulated()) {
+            configMgr = new FSSObsMonitorConfigurationManager(
+                    MonName.fog.name());
+        }
+        return configMgr;
     }
 }

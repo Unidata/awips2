@@ -39,6 +39,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 26, 2015  3974      njensen     Initial creation
+ * Mar 04, 2015  4194      njensen     Fix removing first vertex of a LinearRing
  * 
  * </pre>
  * 
@@ -204,6 +205,15 @@ public class PolygonUtil {
             System.arraycopy(coords, index + 1, newLine, index, newLine.length
                     - index);
             if (isRing) {
+                if (index == 0) {
+                    /*
+                     * first point and last point in a ring always match, so if
+                     * we removed the first point we need to update the last to
+                     * be the new first point
+                     */
+                    newLine[newLine.length - 1] = new Coordinate(newLine[0].x,
+                            newLine[0].y, newLine[0].z);
+                }
                 return FACTORY.createLinearRing(newLine);
             } else {
                 return FACTORY.createLineString(newLine);

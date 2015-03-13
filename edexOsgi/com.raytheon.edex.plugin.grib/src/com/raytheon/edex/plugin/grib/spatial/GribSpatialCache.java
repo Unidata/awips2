@@ -21,6 +21,7 @@
 package com.raytheon.edex.plugin.grib.spatial;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,7 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     AWIPSI
  * Oct 15, 2013  2473     bsteffen     Rewrite deprecated code.
  * Jul 21, 2014  3373     bclement     JAXB managers only live during initializeGrids()
- * 
+ * Mar 04, 2015  3959     rjpeter      Update for grid based subgridding.
  * </pre>
  * 
  * @author bphillip
@@ -112,12 +113,12 @@ public class GribSpatialCache {
     /**
      * Map containing the subGrid coverage based on a subGridKey
      */
-    private Map<String, GridCoverage> subGridCoverageMap;
+    private final Map<String, GridCoverage> subGridCoverageMap;
 
     /**
      * Map containing the subGrid based on a the subGridKey
      */
-    private Map<String, SubGrid> definedSubGridMap;
+    private final Map<String, SubGrid> definedSubGridMap;
 
     /**
      * Map containing the subGrid definition based on a model name and the base
@@ -125,16 +126,10 @@ public class GribSpatialCache {
      */
     private Map<String, SubGridDef> subGridDefMap;
 
-    /**
-     * Map of coverage id to the number of columns in world wrap or -1 for no
-     * wrapping.
-     */
-    private Map<Integer, Integer> worldWrapMap;
-
     private FileDataList fileDataList;
 
     private long fileScanTime = 0;
-    
+
     boolean shiftSubGridWest = false;
 
     /**
@@ -158,7 +153,6 @@ public class GribSpatialCache {
         definedSubGridMap = new HashMap<String, SubGrid>();
         subGridCoverageMap = new HashMap<String, GridCoverage>();
         subGridDefMap = new HashMap<String, SubGridDef>();
-        worldWrapMap = new HashMap<Integer, Integer>();
         scanFiles();
     }
 
@@ -272,7 +266,7 @@ public class GribSpatialCache {
 
     /**
      * If a sub grid area is defined for this model than this will process that
-     * defintion and piopulate the subGridCoverageMap and definedSubGridMap.
+     * definition and populate the subGridCoverageMap and definedSubGridMap.
      * 
      * @param modelName
      * @param coverage
@@ -280,143 +274,166 @@ public class GribSpatialCache {
      */
     private boolean loadSubGrid(String modelName, GridCoverage coverage) {
         SubGridDef subGridDef = subGridDefMap.get(modelName);
-        if (subGridDef != null) {
-            String referenceGrid = subGridDef.getReferenceGrid();
-            if (referenceGrid == null) {
-                referenceGrid = GribModelLookup.getInstance()
-                        .getModelByName(subGridDef.getReferenceModel())
-                        .getGrid();
+        try {
+
+            if (subGridDef != null) {
+                String referenceGrid = subGridDef.getReferenceGrid();
                 if (referenceGrid == null) {
+                    referenceGrid = GribModelLookup.getInstance()
+                            .getModelByName(subGridDef.getReferenceModel())
+                            .getGrid();
+                    if (referenceGrid == null) {
+                        statusHandler
+                                .error("Failed to generate sub grid, Unable to determine coverage for referenceModel ["
+                                        + subGridDef.getReferenceModel() + "]");
+                        return false;
+                    }
+                }
+
+                GridCoverage referenceCoverage = getGridByName(referenceGrid
+                        .toString());
+                if (referenceCoverage == null) {
                     statusHandler
-                            .error("Failed to generate sub grid, Unable to determine coverage for referenceModel ["
-                            + subGridDef.getReferenceModel() + "]");
+                            .error("Failed to generate sub grid, Unable to determine coverage for referenceGrid ["
+                                    + referenceGrid + "]");
+                    return false;
+                }
+
+                Coordinate subGridCenterLatLon = new Coordinate(
+                        subGridDef.getCenterLongitude(),
+                        subGridDef.getCenterLatitude());
+
+                Coordinate subGridCenterGridCoord = MapUtil
+                        .latLonToGridCoordinate(subGridCenterLatLon,
+                                PixelOrientation.CENTER, referenceCoverage);
+
+                double shiftX = 0;
+                int nx = subGridDef.getNx();
+                int ny = subGridDef.getNy();
+
+                /*
+                 * Check whether 'shiftWest' flag is set in subgrid definition
+                 * xml file
+                 */
+                boolean shiftThisSubGridWest = this.shiftSubGridWest;
+                if (subGridDef.getShiftWest() != null) {
+                    shiftThisSubGridWest = subGridDef.getShiftWest();
+                }
+
+                if (shiftThisSubGridWest == true) {
+                    shiftX = nx / 5;
+                }
+
+                double xCenterPoint = subGridCenterGridCoord.x - shiftX;
+                double yCenterPoint = subGridCenterGridCoord.y;
+
+                double xDistance = nx / 2;
+                double yDistance = ny / 2;
+                int leftX = (int) (xCenterPoint - xDistance);
+                int upperY = (int) (yCenterPoint - yDistance);
+
+                /*
+                 * trim will handle all validation of the subgrid as well as any
+                 * shifting to get within boundary, this includes world wrap
+                 * checking.
+                 */
+                SubGrid subGrid = new SubGrid(leftX, upperY, nx, ny);
+                GridCoverage subGridCoverage = referenceCoverage.trim(subGrid);
+
+                if (!referenceCoverage.equals(coverage)) {
+                    /*
+                     * need to take reference subGrid and convert to subGrid in
+                     * original coverage
+                     */
+                    subGridCoverage.initialize();
+                    Coordinate[] origCoords = subGridCoverage.getGeometry()
+                            .getCoordinates();
+                    if (origCoords.length != 5) {
+                        throw new GridCoverageException(
+                                "Coverage geometry is not a quadrilateral, cannot create referenced subgrid");
+                    }
+                    Coordinate[] corners = new Coordinate[4];
+                    System.arraycopy(origCoords, 0, corners, 0, 4);
+                    MapUtil.latLonToGridCoordinate(corners,
+                            PixelOrientation.CENTER, coverage);
+
+                    /*
+                     * Don't depend on given corners to be in a specific
+                     * position. Can safely assume the lower 2 values are on the
+                     * same side.
+                     */
+                    double[] xCoords = new double[4];
+                    xCoords[0] = corners[0].x;
+                    xCoords[1] = corners[1].x;
+                    xCoords[2] = corners[2].x;
+                    xCoords[3] = corners[3].x;
+                    double[] yCoords = new double[4];
+                    yCoords[0] = corners[0].y;
+                    yCoords[1] = corners[1].y;
+                    yCoords[2] = corners[2].y;
+                    yCoords[3] = corners[3].y;
+                    Arrays.sort(xCoords);
+                    Arrays.sort(yCoords);
+
+                    /* Guarantee the subGrid is within the reference impl */
+                    leftX = (int) Math.ceil(xCoords[1]);
+                    upperY = (int) Math.ceil(yCoords[1]);
+                    int rightX = (int) Math.floor(xCoords[2]);
+                    int lowerY = (int) Math.floor(yCoords[2]);
+                    /* Add 1 for inclusive */
+                    nx = rightX - leftX + 1;
+                    ny = lowerY - upperY + 1;
+                    subGrid = new SubGrid(leftX, upperY, nx, ny);
+                    subGridCoverage = coverage.trim(subGrid);
+                }
+
+                insertSubGrib(modelName, coverage, subGridCoverage, subGrid);
+            } else {
+                int wrapCount = GridGeometryWrapChecker
+                        .checkForWrapping(coverage.getGridGeometry());
+
+                if ((wrapCount > 0) && (wrapCount < coverage.getNx())) {
+                    /*
+                     * make sure that there is data going around the world only
+                     * once, if the data starts another iteration around the
+                     * world, subgrid it to cut off the extra data. This mostly
+                     * hits to remove one redundant column.
+                     */
+                    SubGrid subGrid = new SubGrid(0, 0, wrapCount,
+                            coverage.getNy());
+                    GridCoverage subGridCoverage = coverage.trim(subGrid);
+                    insertSubGrib(modelName, coverage, subGridCoverage, subGrid);
+                } else {
                     return false;
                 }
             }
-
-            GridCoverage referenceCoverage = getGridByName(referenceGrid
-                    .toString());
-            if (referenceCoverage == null) {
-                statusHandler
-                        .error("Failed to generate sub grid, Unable to determine coverage for referenceGrid ["
-                        + referenceGrid + "]");
-                return false;
-            }
-
-            Coordinate subGridCenterLatLon = new Coordinate(
-                    subGridDef.getCenterLongitude(),
-                    subGridDef.getCenterLatitude());
-
-            Coordinate subGridCenterGridCoord = MapUtil.latLonToGridCoordinate(
-                    subGridCenterLatLon, PixelOrientation.CENTER,
-                    referenceCoverage);
-            
-            double shiftX = 0;
-            
-            // Check whether 'shiftWest' flag is set in subgrid definition xml file
-            boolean shiftThisSubGridWest = this.shiftSubGridWest;
-            if (subGridDef.getShiftWest() != null) {
-                shiftThisSubGridWest = subGridDef.getShiftWest();
-            }
-            
-            if (shiftThisSubGridWest == true) {
-            	shiftX = subGridDef.getNx() / 5;
-            }
-  
-            double xCenterPoint = subGridCenterGridCoord.x - shiftX;
-            double yCenterPoint = subGridCenterGridCoord.y;
-
-            double xDistance = subGridDef.getNx() / 2;
-            double yDistance = subGridDef.getNy() / 2;
-            Coordinate lowerLeftPosition = new Coordinate(xCenterPoint
-                    - xDistance, yCenterPoint + yDistance);
-            Coordinate upperRightPosition = new Coordinate(xCenterPoint
-                    + xDistance, yCenterPoint - yDistance);
-            
-            // If the western edge of the subgrid is placed west of the full grid boundary
-            // (possibly when westward shifting above was done) it will be shifted back 
-            // to within the boundary, but the eastern edge should be shifted back also, by 
-            // a proportional amount
-            if (lowerLeftPosition.x < 0) upperRightPosition.x -= lowerLeftPosition.x;
-
-            lowerLeftPosition = MapUtil.gridCoordinateToLatLon(
-                    lowerLeftPosition, PixelOrientation.CENTER,
-                    referenceCoverage);
-            upperRightPosition = MapUtil.gridCoordinateToLatLon(
-                    upperRightPosition, PixelOrientation.CENTER,
-                    referenceCoverage);
-
-            return trim(modelName, coverage, lowerLeftPosition, upperRightPosition);
-        } else {
-            Integer wrapCount = worldWrapMap.get(coverage.getId());
-            if (wrapCount == null) {
-                wrapCount = GridGeometryWrapChecker.checkForWrapping(coverage
-                        .getGridGeometry());
-                worldWrapMap.put(coverage.getId(), wrapCount);
-            }
-            if(wrapCount > 0 && wrapCount < coverage.getNx()){
-                // make sure that there is data going around the world only
-                // once, if the data starts another iteration around the world,
-                // subgrid it to cut off the extra data. This mostly hits to
-                // remove one redundant column.
-                Coordinate upperRightPosition = new Coordinate(wrapCount - 1, 0);
-                upperRightPosition = MapUtil.gridCoordinateToLatLon(upperRightPosition,
-                        PixelOrientation.CENTER, coverage);
-                try {
-                    Coordinate lowerLeftPosition = new Coordinate(
-                            coverage.getLowerLeftLon(),
-                            coverage.getLowerLeftLat());
-                    return trim(modelName, coverage, lowerLeftPosition,
-                            upperRightPosition);
-                } catch (GridCoverageException e) {
-                    statusHandler.error(
-                            "Failed to generate sub grid for world wide grid: "
-                                    + modelName, e);
-                    return false;
-                }
-            }else{
-                return false;
-            }
+        } catch (Exception e) {
+            statusHandler.error("Failed to generate sub grid for model "
+                    + modelName, e);
+            return false;
         }
+
+        return true;
     }
 
     /**
-     * Final step of subgrid generation, based off the two Coordinates generate
-     * a subgrid coverage, insert it into the db and add it to caches.
+     * Inserts the subGridCoverage into the database and adds it to the caches.
      * 
      * @param modelName
      * @param coverage
-     * @param lowerLeft
-     * @param upperRight
-     * @return true on success, false if something went wrong, so no subgrid is
-     *         available. This method will log errors and return false
+     * @param subGridCoverage
+     * @param subGrid
+     * @throws GridCoverageException
      */
-    private boolean trim(String modelName, GridCoverage coverage,
-            Coordinate lowerLeft, Coordinate upperRight) {
-        SubGrid subGrid = new SubGrid();
-        subGrid.setLowerLeftLon(lowerLeft.x);
-        subGrid.setLowerLeftLat(lowerLeft.y);
-        subGrid.setUpperRightLon(upperRight.x);
-        subGrid.setUpperRightLat(upperRight.y);
-
-        // verify numbers in -180 -> 180 range
-        subGrid.setLowerLeftLon(MapUtil.correctLon(subGrid.getLowerLeftLon()));
-        subGrid.setUpperRightLon(MapUtil.correctLon(subGrid.getUpperRightLon()));
-
-        GridCoverage subGridCoverage = coverage.trim(subGrid);
-
+    private void insertSubGrib(String modelName, GridCoverage coverage,
+            GridCoverage subGridCoverage, SubGrid subGrid)
+            throws GridCoverageException {
         if (subGridCoverage != null) {
-            try {
-                subGridCoverage = insert(subGridCoverage);
-            } catch (Exception e) {
-                statusHandler.error(e.getLocalizedMessage(), e);
-                return false;
-            }
+            subGridCoverage = insert(subGridCoverage);
             subGridCoverageMap.put(subGridKey(modelName, coverage),
                     subGridCoverage);
             definedSubGridMap.put(subGridKey(modelName, coverage), subGrid);
         }
-        return true;
     }
 
     /**
@@ -512,12 +529,11 @@ public class GribSpatialCache {
             ct = ClusterLockUtils.lock("grib", "spatialCache", 120000, true);
         } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
 
-
         try {
             for (FileData fd : fdl.getCoverageFileList()) {
                 try {
-                    GridCoverage grid = gridCovJaxb
-                            .unmarshalFromXmlFile(fd.getFilePath());
+                    GridCoverage grid = gridCovJaxb.unmarshalFromXmlFile(fd
+                            .getFilePath());
                     String name = grid.getName();
                     grid = insert(grid);
                     spatialNameMap.put(name, grid);
@@ -529,9 +545,8 @@ public class GribSpatialCache {
                     names.add(name);
                 } catch (Exception e) {
                     // Log error but do not throw exception
-                    statusHandler.error(
-                            "Unable to read default grids file: "
-                                    + fd.getFilePath(), e);
+                    statusHandler.error("Unable to read default grids file: "
+                            + fd.getFilePath(), e);
                 }
             }
             Coordinate defaultCenterPoint = null;
@@ -540,9 +555,8 @@ public class GribSpatialCache {
                 defaultCenterPoint = getDefaultSubGridCenterPoint();
             } catch (Exception e) {
                 statusHandler
-                        .error(
-                        "Failed to generate sub grid definitions.  Unable to lookup WFO Center Point",
-                        e);
+                        .error("Failed to generate sub grid definitions.  Unable to lookup WFO Center Point",
+                                e);
             }
             for (FileData fd : fdl.getSubGridFileList()) {
                 try {
@@ -556,9 +570,8 @@ public class GribSpatialCache {
                     }
                 } catch (Exception e) {
                     // Log error but do not throw exception
-                    statusHandler.error(
-                            "Unable to read default grids file: "
-                                    + fd.getFilePath(), e);
+                    statusHandler.error("Unable to read default grids file: "
+                            + fd.getFilePath(), e);
                 }
             }
             this.gridNameMap = gridNameMap;
@@ -572,8 +585,7 @@ public class GribSpatialCache {
         }
         long endTime = System.currentTimeMillis();
         statusHandler.info("Grib grid coverages initialized: "
-                + (endTime - startTime)
-                + "ms");
+                + (endTime - startTime) + "ms");
     }
 
     private GridCoverage insert(GridCoverage coverage)
@@ -626,15 +638,14 @@ public class GribSpatialCache {
                             defaultSubGridLocation.getCenterLatitude());
                     statusHandler
                             .info("Default sub grid location is overriden as ["
-                            + defaultCenterPoint.y + "/" + defaultCenterPoint.x
-                            + "]");
+                                    + defaultCenterPoint.y + "/"
+                                    + defaultCenterPoint.x + "]");
                 }
             } catch (Exception e) {
                 statusHandler.error(
                         "Unable to load default sub grid location from file: "
                                 + defaultSubGridLocationFile.getFile()
-                                        .getAbsolutePath(),
-                        e);
+                                        .getAbsolutePath(), e);
             }
         }
 
@@ -646,19 +657,21 @@ public class GribSpatialCache {
                     .handleRequest(centerPointRequest);
             statusHandler
                     .info("Default sub grid location is wfo center point ["
-                    + defaultCenterPoint.y + "/" + defaultCenterPoint.x + "]");
-            /* If we are getting the WFO center as the center point, it means that
-            // the site has not defined its own center in the site file
-            // defaultSubGridCenterPoint.xml (see previous If block).  
-            // Therefore, we will be shifting the domain westward to be similar to 
-            // AWIPSI default behavior, so set a flag here.  
-            // If the site *has* defined a center in defaultSubGridCenterPoint.xml, 
-            // we will use that as the true, intended center and will not shift the 
-            // domain further.
-            */
+                            + defaultCenterPoint.y + "/" + defaultCenterPoint.x
+                            + "]");
+            /*
+             * If we are getting the WFO center as the center point, it means
+             * that the site has not defined its own center in the site file
+             * defaultSubGridCenterPoint.xml (see previous If block). Therefore,
+             * we will be shifting the domain westward to be similar to AWIPSI
+             * default behavior, so set a flag here. If the site *has* defined a
+             * center in defaultSubGridCenterPoint.xml, we will use that as the
+             * true, intended center and will not shift the domain further.
+             */
             shiftSubGridWest = true;
+        } else {
+            shiftSubGridWest = false;
         }
-        else shiftSubGridWest = false;
 
         return defaultCenterPoint;
     }
