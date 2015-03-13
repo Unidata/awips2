@@ -358,6 +358,7 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
                     }
                 }
 
+                /*
                 VizApp.runAsync(new Runnable() {
                     @Override
                     public void run() {
@@ -368,6 +369,7 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
                         warnDlg.open();
                     }
                 });
+                */
             }
 
             // ResourceDefnsMngr.getInstance().createInventory();
