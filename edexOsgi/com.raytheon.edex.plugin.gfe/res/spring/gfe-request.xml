@@ -5,7 +5,7 @@
 
     <bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
         depends-on="commonTimeRegistered, gfeDbRegistered, levelFactoryInitialized">
-        <constructor-arg ref="fetchATSrv" />
+        <constructor-arg ref="iscProvider" />
     </bean>
     
     <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register">
@@ -588,22 +588,32 @@
         <constructor-arg ref="clusteredGfeIscRoutes"/>
     </bean>
     
-    <!-- Active Table Sharing Definitions -->
-    <bean id="fetchATSrv" class="com.raytheon.edex.plugin.gfe.isc.FetchActiveTableSrv" />
+    <!-- ISC Services Beans -->
+    <bean id="iscProvider" class="com.raytheon.edex.plugin.gfe.isc.IscServiceProvider" />
     
-    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
-        <constructor-arg ref="activeTableSharingRoutes"/>
+    <bean id="fetchATSrv" class="com.raytheon.edex.plugin.gfe.isc.FetchActiveTableSrv" />
+    <bean factory-bean="iscProvider" factory-method="addISCService">
         <constructor-arg ref="fetchATSrv"/>
     </bean>
     
-    <camelContext id="activeTableSharingRoutes" xmlns="http://camel.apache.org/schema/spring"
+    <bean id="requestTCVSrv" class="com.raytheon.edex.plugin.gfe.isc.RequestTCVSrv" />
+    <bean factory-bean="iscProvider" factory-method="addISCService">
+        <constructor-arg ref="requestTCVSrv"/>
+    </bean>
+    
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="clusteredIscBeans" />
+        <constructor-arg ref="iscProvider" />
+    </bean>
+    
+    <camelContext id="clusteredIscBeans" xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
-        <route id="activateFetchATSrv">
-            <from uri="timer://activateActiveTableSharing?repeatCount=1"/>
-            <bean ref="fetchATSrv" method="activateService"/>
+        <route id="activateISC">
+            <from uri="timer://activateISCServices?repeatCount=1"/>
+            <bean ref="iscProvider" method="activateInstance"/>
         </route>
     </camelContext>
     <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="activeTableSharingRoutes"/>
+        <constructor-arg ref="clusteredIscBeans"/>
     </bean>
 </beans>
