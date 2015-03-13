@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resource>LocalRadar</resource>
     <attrSetGroupName>VIL</attrSetGroupName>
-    <attrSetNames>VIL_4.00,VIL_1.00</attrSetNames>
+    <attrSetNames>DVL,VIL</attrSetNames>
 </AttributeSetGroup>
