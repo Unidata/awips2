@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -29,6 +30,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmStorageInfo;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.time.TimeRange;
@@ -52,7 +54,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Apr 23, 2013  #1949     rjpeter      Removed unused method.
  * Nov 20, 2013  #2331     randerso     Changed return type of getTopoData
  * Jan 15, 2015  #3955     randerso     Changed TopoDatabase to extend IFPGridDatabase
- *                                      to work with ISC for Standarad Terrain WA
+ *                                      to work with ISC for Standard Terrain WA
  * 
  * </pre>
  * 
@@ -68,6 +70,20 @@ public class TopoDatabase extends IFPGridDatabase {
             DataAccessLayerException {
         super(dbId, gridDbConfig);
         this.topoMgr = topoMgr;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase#
+     * applyProjectionAndDomainChanges(java.util.Map)
+     */
+    @Override
+    protected ServerResponse<?> applyProjectionAndDomainChanges(
+            Map<String, ParmStorageInfo> parmStorageInfoUser) {
+        // Domain changes are handled differently for TopoDatabse.
+        // See TopoDatbaseManager.createDiskCache()
+        return new ServerResponse<>();
     }
 
     /*
