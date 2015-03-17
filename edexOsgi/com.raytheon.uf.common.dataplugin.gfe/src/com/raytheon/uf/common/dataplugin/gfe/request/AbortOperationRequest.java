@@ -32,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2011            bphillip     Initial creation
+ * Feb 13, 2015  #4103     dgilling     Force use of site id.
  * 
  * </pre>
  * 
@@ -48,8 +49,9 @@ public class AbortOperationRequest extends AbstractGfeRequest {
     public AbortOperationRequest() {
     }
 
-    public AbortOperationRequest(String operation) {
+    public AbortOperationRequest(String operation, String siteID) {
         this.operation = operation;
+        this.siteID = siteID;
     }
 
     /**

@@ -27,7 +27,6 @@ import com.raytheon.uf.common.dataplugin.gfe.request.AbortOperationRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.ImportDigitalDataRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
-import com.raytheon.uf.common.dataplugin.gfe.server.notify.ServiceBackupMessageNotification;
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
@@ -49,7 +48,9 @@ import com.raytheon.viz.gfe.dialogs.sbu.ServiceBackupDlg;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 8, 2011            bphillip     Initial creation
+ * Aug 08, 2011            bphillip     Initial creation
+ * Feb 13, 2015  #4103     dgilling     Use site id in AbortOperationRequest.
+ * Mar 18, 2015  #4103     dgilling     Remove unnecessary primary site field.
  * 
  * </pre>
  * 
@@ -89,7 +90,7 @@ public class SvcbuImportDataJob extends ServiceBackupJob implements
     @Override
     public void run() {
         ImportDigitalDataRequest request = new ImportDigitalDataRequest(
-                primarySite, failedSite);
+                failedSite);
 
         try {
             VizApp.runAsync(new Runnable() {
@@ -129,7 +130,7 @@ public class SvcbuImportDataJob extends ServiceBackupJob implements
 
             if (aborted) {
                 AbortOperationRequest abortRequest = new AbortOperationRequest(
-                        "importGrids");
+                        "importGrids", failedSite);
                 try {
                     Object obj = ThriftClient.sendRequest(abortRequest);
                     if (obj instanceof ServerResponse) {
@@ -178,17 +179,24 @@ public class SvcbuImportDataJob extends ServiceBackupJob implements
                 ArrayList<GfeNotification> notifications = (ArrayList<GfeNotification>) msg
                         .getMessagePayload();
                 for (GfeNotification notification : notifications) {
-                    if (notification instanceof ServiceBackupMessageNotification) {
-                        ServiceBackupMessageNotification notify = (ServiceBackupMessageNotification) notification;
-                        if (notify.getMessage().equals("Import Data Complete!")) {
-                            complete = true;
-                        } else if (notify.getMessage().startsWith(
-                                "Error Processing Digital Data!")) {
-                            complete = true;
-                            failed = true;
-                            errorMsg = notify.getMessage();
-                        }
-                    }
+                    /*
+                     * FIXME: If we're going to continue to use this class, fix
+                     * this notificationArrived handler.
+                     */
+                    // if (notification instanceof
+                    // ServiceBackupMessageNotification) {
+                    // ServiceBackupMessageNotification notify =
+                    // (ServiceBackupMessageNotification) notification;
+                    // if (notify.getMessage().equals("Import Data Complete!"))
+                    // {
+                    // complete = true;
+                    // } else if (notify.getMessage().startsWith(
+                    // "Error Processing Digital Data!")) {
+                    // complete = true;
+                    // failed = true;
+                    // errorMsg = notify.getMessage();
+                    // }
+                    // }
                 }
             }
         } catch (NotificationException e) {

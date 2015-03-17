@@ -23,7 +23,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Request to request a failed site's configuration data via the MHS.
  * 
  * <pre>
  * 
@@ -34,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 04, 2011            bphillip     Initial creation
  * Mar 20, 2013   1447     dgilling     Add support for service backup
  *                                      troubleshooting mode from A1.
+ * Mar 18, 2015  #4103     dgilling     Remove unnecessary primary site field.
  * 
  * </pre>
  * 
@@ -42,10 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class ImportConfRequest extends AbstractGfeRequest {
-
-    @DynamicSerializeElement
-    private String primarySite;
+public final class ImportConfRequest extends AbstractGfeRequest {
 
     @DynamicSerializeElement
     private String failedSite;
@@ -57,26 +55,9 @@ public class ImportConfRequest extends AbstractGfeRequest {
 
     }
 
-    public ImportConfRequest(String primarySite, String failedSite,
-            boolean trMode) {
-        this.primarySite = primarySite;
+    public ImportConfRequest(String failedSite, boolean trMode) {
         this.failedSite = failedSite;
         this.trMode = trMode;
-    }
-
-    /**
-     * @return the primarySite
-     */
-    public String getPrimarySite() {
-        return primarySite;
-    }
-
-    /**
-     * @param primarySite
-     *            the primarySite to set
-     */
-    public void setPrimarySite(String primarySite) {
-        this.primarySite = primarySite;
     }
 
     /**
@@ -101,5 +82,4 @@ public class ImportConfRequest extends AbstractGfeRequest {
     public boolean isTrMode() {
         return trMode;
     }
-
 }

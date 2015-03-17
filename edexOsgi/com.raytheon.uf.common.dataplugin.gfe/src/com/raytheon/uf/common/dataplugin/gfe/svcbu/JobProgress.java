@@ -17,16 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
-
-import java.util.List;
-
-import com.raytheon.uf.common.dataplugin.gfe.request.GetSbLockFilesRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
-import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+package com.raytheon.uf.common.dataplugin.gfe.svcbu;
 
 /**
- * TODO Add Description
+ * Enum that represents the different states of a service backup operation.
  * 
  * <pre>
  * 
@@ -34,22 +28,15 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 10, 2011            bphillip     Initial creation
+ * Feb 24, 2015  #4103     dgilling     Initial creation
  * 
  * </pre>
  * 
- * @author bphillip
+ * @author dgilling
  * @version 1.0
  */
 
-public class GetSbLockFilesRequestHandler implements
-        IRequestHandler<GetSbLockFilesRequest> {
+public enum JobProgress {
 
-    @Override
-    public Object handleRequest(GetSbLockFilesRequest request) throws Exception {
-        ServerResponse<List<String>> sr = new ServerResponse<List<String>>();
-        sr.setPayload(ServiceBackupLockManager.getInstance().getLockFiles());
-        return sr;
-    }
-
+    UNKNOWN, IN_PROGRESS, SUCCESS, FAILED;
 }

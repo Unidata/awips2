@@ -24,14 +24,17 @@ import java.util.Random;
 import java.util.Timer;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.ExportGridsTask;
-import com.raytheon.edex.plugin.gfe.svcbackup.ServiceBackupNotificationManager;
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportGridsRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler for {@code ExportGridsRequest}. This handler will export the
+ * GFE grids for a site and leaves them in the GFESuite/exportgrids folder for
+ * the central server to download via rsync.
  * 
  * <pre>
  * 
@@ -42,6 +45,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Aug 04, 2011            bphillip     Initial creation
  * Apr 30, 2013  #1761     dgilling     Support changes made to 
  *                                      ExportGridsRequest.
+ * Mar 17, 2015  #4103     dgilling     Stop using ServiceBackupNotificationManager,
+ *                                      supoprt new Service Backup GUI.
  * 
  * </pre>
  * 
@@ -49,23 +54,29 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class ExportGridsRequestHandler implements
+public final class ExportGridsRequestHandler implements
         IRequestHandler<ExportGridsRequest> {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ExportGridsRequestHandler.class);
 
     private static Timer exportGridsTimer = new Timer(true);
 
     @Override
-    public Object handleRequest(ExportGridsRequest request) throws Exception {
-        ServerResponse<String> sr = new ServerResponse<String>();
+    public JobProgress handleRequest(final ExportGridsRequest request)
+            throws Exception {
+        JobProgress progress = JobProgress.SUCCESS;
 
-        SvcBackupUtil.execute("export_grids",
-                request.getMode().getCmdLineArg(), request.getSite()
-                        .toLowerCase());
+        try {
+            SvcBackupUtil.execute("export_grids", request.getMode()
+                    .getCmdLineArg(), request.getSite().toLowerCase());
+            statusHandler.info("Digital data successfully exported.");
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Error digital data for site " + request.getSite(), e);
+        }
 
-        ServiceBackupNotificationManager
-                .sendMessageNotification("Digital data successfully exported.");
-        ServiceBackupNotificationManager.sendProgressNotification(100);
-        return sr;
+        return progress;
     }
 
     public void exportGridsCron() throws Exception {
