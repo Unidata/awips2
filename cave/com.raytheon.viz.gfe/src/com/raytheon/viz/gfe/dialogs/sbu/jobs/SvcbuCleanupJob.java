@@ -33,6 +33,7 @@ import com.raytheon.viz.gfe.GFEServerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2011            bphillip     Initial creation
+ * Mar 18, 2015  #4103     dgilling     Remove unnecessary primary site field.
  * 
  * </pre>
  * 
@@ -59,8 +60,7 @@ public class SvcbuCleanupJob extends ServiceBackupJob {
      */
     @Override
     public void run() {
-        CleanupSvcBuRequest request = new CleanupSvcBuRequest(primarySite,
-                failedSite);
+        CleanupSvcBuRequest request = new CleanupSvcBuRequest(failedSite);
         try {
             makeRequest(request);
         } catch (GFEServerException e) {

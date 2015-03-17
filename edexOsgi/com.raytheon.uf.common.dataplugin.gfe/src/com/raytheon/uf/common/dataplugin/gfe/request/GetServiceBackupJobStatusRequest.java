@@ -17,14 +17,21 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.gfe.server.notify;
+package com.raytheon.uf.common.dataplugin.gfe.request;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * TODO Add Description
+ * Request to get service backup status by job/task for the specified site. If
+ * no site is specified, status for all sites currently in service backup mode
+ * are returned.
  * 
  * <pre>
  * 
@@ -32,7 +39,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 10, 2011            bphillip     Initial creation
+ * Feb 24, 2015  #4103     dgilling     Allow requestor to specify site IDs.
  * 
  * </pre>
  * 
@@ -41,33 +49,26 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class ServiceBackupProgressNotification extends GfeNotification
-        implements ISerializableObject {
+public class GetServiceBackupJobStatusRequest implements IServerRequest {
 
     @DynamicSerializeElement
-    private int progress;
+    private Collection<String> requestedSiteIds;
 
-    public ServiceBackupProgressNotification(){
-        
-    }
-    
-    public ServiceBackupProgressNotification(int progress) {
-        this.progress = progress;
+    public GetServiceBackupJobStatusRequest() {
+        this.requestedSiteIds = Collections.emptyList();
     }
 
-    /**
-     * @return the progress
-     */
-    public int getProgress() {
-        return progress;
+    public GetServiceBackupJobStatusRequest(String siteId,
+            String... moreSiteIds) {
+        this.requestedSiteIds = new HashSet<>(Arrays.asList(moreSiteIds));
+        this.requestedSiteIds.add(siteId);
     }
 
-    /**
-     * @param progress
-     *            the progress to set
-     */
-    public void setProgress(int progress) {
-        this.progress = progress;
+    public Collection<String> getRequestedSiteIds() {
+        return requestedSiteIds;
     }
 
+    public void setRequestedSiteIds(Collection<String> requestedSiteIds) {
+        this.requestedSiteIds = requestedSiteIds;
+    }
 }

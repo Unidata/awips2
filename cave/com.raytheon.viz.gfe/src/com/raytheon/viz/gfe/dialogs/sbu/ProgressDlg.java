@@ -31,8 +31,6 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
-import com.raytheon.uf.common.dataplugin.gfe.server.notify.ServiceBackupMessageNotification;
-import com.raytheon.uf.common.dataplugin.gfe.server.notify.ServiceBackupProgressNotification;
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
@@ -89,11 +87,13 @@ public class ProgressDlg extends CaveJFACEDialog implements
         newShell.setText("Progress Bar");
     }
 
+    @Override
     public int open() {
         NotificationManagerJob.addObserver(ServiceBackupDlg.NOTIFY_TOPIC, this);
         return super.open();
     }
 
+    @Override
     public boolean close() {
         NotificationManagerJob.removeObserver(ServiceBackupDlg.NOTIFY_TOPIC,
                 this);
@@ -181,13 +181,21 @@ public class ProgressDlg extends CaveJFACEDialog implements
                 ArrayList<GfeNotification> notifications = (ArrayList<GfeNotification>) msg
                         .getMessagePayload();
                 for (GfeNotification notification : notifications) {
-                    if (notification instanceof ServiceBackupMessageNotification) {
-                        ServiceBackupMessageNotification notify = (ServiceBackupMessageNotification) notification;
-                        updateMessage(notify.getMessage());
-                    } else if (notification instanceof ServiceBackupProgressNotification) {
-                        ServiceBackupProgressNotification notify = (ServiceBackupProgressNotification) notification;
-                        updateProgress(notify.getProgress());
-                    }
+                    /*
+                     * FIXME: If we're going to continue to use this dialog fix
+                     * this notificationArrived handler.
+                     */
+                    // if (notification instanceof
+                    // ServiceBackupMessageNotification) {
+                    // ServiceBackupMessageNotification notify =
+                    // (ServiceBackupMessageNotification) notification;
+                    // updateMessage(notify.getMessage());
+                    // } else if (notification instanceof
+                    // ServiceBackupProgressNotification) {
+                    // ServiceBackupProgressNotification notify =
+                    // (ServiceBackupProgressNotification) notification;
+                    // updateProgress(notify.getProgress());
+                    // }
                 }
             }
         } catch (NotificationException e) {

@@ -23,18 +23,20 @@ import java.io.File;
 
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
-import com.raytheon.edex.plugin.gfe.svcbackup.ServiceBackupNotificationManager;
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.request.CleanupSvcBuRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
- * TODO Add Description
+ * Request handler for {@code CleanupSvcBuRequest}. This handler will delete all
+ * data for the failed site from the local server.
  * 
  * <pre>
  * 
@@ -43,6 +45,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 10, 2011            bphillip     Initial creation
+ * Feb 12, 2015  #4103     dgilling     Move lock deletion to cleanup script.
  * 
  * </pre>
  * 
@@ -50,42 +53,50 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * @version 1.0
  */
 
-public class CleanupSvcBuRequestHandler implements
+public final class CleanupSvcBuRequestHandler implements
         IRequestHandler<CleanupSvcBuRequest> {
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CleanupSvcBuRequestHandler.class);
+
     @Override
-    public Object handleRequest(CleanupSvcBuRequest request) {
+    public JobProgress handleRequest(final CleanupSvcBuRequest request) {
+        JobProgress progress = JobProgress.SUCCESS;
 
-        ServerResponse<String> sr = new ServerResponse<String>();
-        SvcBackupUtil.removeLocks();
-        GFEDao dao = null;
         try {
-            dao = new GFEDao();
-            ServiceBackupNotificationManager
-                    .sendMessageNotification("Purging database for "
-                            + request.getFailedSite());
-            dao.purgeDatabaseForSite(request.getFailedSite());
-            ServiceBackupNotificationManager
-                    .sendMessageNotification("Purging HDF5 for "
-                            + request.getFailedSite());
-            purgeHDF5(request.getFailedSite());
-
-            ServiceBackupNotificationManager
-                    .sendMessageNotification("Running cleanup script for for "
-                            + request.getFailedSite());
-            SvcBackupUtil.execute("cleanup_svcbk", request.getPrimarySite()
-                    .toLowerCase(), request.getFailedSite().toLowerCase());
-        } catch (PluginException e) {
-            sr.addMessage("Error instantiating GFE dao! "
-                    + e.getLocalizedMessage());
-        } catch (DataAccessLayerException e) {
-            sr.addMessage("Error purging data for " + request.getFailedSite()
-                    + " " + e.getLocalizedMessage());
+            statusHandler.info("Running cleanup script for for "
+                    + request.getFailedSite());
+            SvcBackupUtil.execute("cleanup_svcbk", request.getFailedSite()
+                    .toLowerCase());
         } catch (Exception e) {
-            sr.addMessage("Error executing cleanup script! "
-                    + e.getLocalizedMessage());
+            statusHandler.error("Error executing cleanup script!", e);
+            progress = JobProgress.FAILED;
         }
-        return sr;
+
+        try {
+            statusHandler.info("Purging database for "
+                    + request.getFailedSite());
+            new GFEDao().purgeDatabaseForSite(request.getFailedSite());
+        } catch (DataAccessLayerException e) {
+            statusHandler.error(
+                    "Error purging GFE data for site "
+                            + request.getFailedSite(), e);
+            progress = JobProgress.FAILED;
+        } catch (PluginException e) {
+            statusHandler.error("Error instantiating GFEDao!", e);
+            progress = JobProgress.FAILED;
+        }
+
+        try {
+            statusHandler.info("Purging HDF5 for " + request.getFailedSite());
+            purgeHDF5(request.getFailedSite());
+        } catch (DataAccessLayerException e) {
+            statusHandler.error("Error purging GFE HDF5 data for site "
+                    + request.getFailedSite(), e);
+            progress = JobProgress.FAILED;
+        }
+
+        return progress;
     }
 
     private void purgeHDF5(String failedSite) throws DataAccessLayerException {

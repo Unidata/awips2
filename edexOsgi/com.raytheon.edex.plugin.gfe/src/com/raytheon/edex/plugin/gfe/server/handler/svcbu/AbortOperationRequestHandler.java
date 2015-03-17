@@ -19,7 +19,8 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.AbortOperationRequest;
@@ -36,6 +37,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2011            bphillip     Initial creation
+ * Feb 13, 2015  #4103     dgilling     Use site id.
  * 
  * </pre>
  * 
@@ -43,21 +45,21 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class AbortOperationRequestHandler implements
+public final class AbortOperationRequestHandler implements
         IRequestHandler<AbortOperationRequest> {
 
     @Override
-    public Object handleRequest(AbortOperationRequest request) throws Exception {
+    public ServerResponse<Object> handleRequest(AbortOperationRequest request)
+            throws Exception {
+        ServerResponse<Object> sr = new ServerResponse<>();
+        Path lockFilePath = SvcBackupUtil.getLockDir(request.getSiteID())
+                .resolve(request.getOperation());
 
-        ServerResponse<String> sr = new ServerResponse<String>();
-        File lockFile = new File(SvcBackupUtil.getLockDir() + "/"
-                + request.getOperation());
-        if (lockFile.exists()) {
-            if (!lockFile.delete()) {
-                sr.addMessage("Unable to delete lock file: "
-                        + request.getOperation());
-            }
+        if (!Files.deleteIfExists(lockFilePath)) {
+            sr.addMessage("Unable to delete lock file: "
+                    + request.getOperation());
         }
+
         return sr;
     }
 }

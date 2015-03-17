@@ -23,7 +23,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Request to delete all data for the specified site from the server. This
+ * includes GFE grids and all localization data. Should only be used when
+ * exiting service backup mode.
  * 
  * <pre>
  * 
@@ -32,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 10, 2011            bphillip     Initial creation
+ * Mar 18, 2015  #4103     dgilling     Remove unnecessary primary site field.
  * 
  * </pre>
  * 
@@ -40,34 +43,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class CleanupSvcBuRequest extends AbstractGfeRequest {
+public final class CleanupSvcBuRequest extends AbstractGfeRequest {
 
-    @DynamicSerializeElement
-    private String primarySite;
-    
     @DynamicSerializeElement
     private String failedSite;
 
     public CleanupSvcBuRequest() {
     }
 
-    public CleanupSvcBuRequest(String primarySite, String failedSite) {
-        this.primarySite = primarySite;
+    public CleanupSvcBuRequest(String failedSite) {
         this.failedSite = failedSite;
-    }
-
-    /**
-     * @return the primarySite
-     */
-    public String getPrimarySite() {
-        return primarySite;
-    }
-
-    /**
-     * @param primarySite the primarySite to set
-     */
-    public void setPrimarySite(String primarySite) {
-        this.primarySite = primarySite;
     }
 
     /**
@@ -78,11 +63,10 @@ public class CleanupSvcBuRequest extends AbstractGfeRequest {
     }
 
     /**
-     * @param failedSite the failedSite to set
+     * @param failedSite
+     *            the failedSite to set
      */
     public void setFailedSite(String failedSite) {
         this.failedSite = failedSite;
     }
-
-    
 }

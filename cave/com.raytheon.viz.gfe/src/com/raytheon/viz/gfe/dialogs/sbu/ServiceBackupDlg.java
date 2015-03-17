@@ -21,7 +21,11 @@ package com.raytheon.viz.gfe.dialogs.sbu;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -54,8 +58,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.dataplugin.gfe.request.GetKnownSitesRequest;
-import com.raytheon.uf.common.dataplugin.gfe.request.GetSbLockFilesRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.GetServiceBackupJobStatusRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.ServiceBackupJobStatus;
 import com.raytheon.uf.common.site.requests.GetActiveSitesRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -99,7 +104,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * May 01, 2013    1762    dgilling     Remove national center check.
  * Jul 22, 2013    1762    dgilling     Fix running as primary check.
  * Apr 14, 2014    2984    njensen      Moved help files to viz.gfe plugin
- * Jun 10,2014   DR-17401  lshi		
+ * Jun 10,2014   DR-17401  lshi
+ * Feb 17, 2015    4103    dgilling     Wire GUI to updated requests.
  * 
  * </pre>
  * 
@@ -167,15 +173,14 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
     private boolean authorized;
 
     private SVCBU_OP currentOperation = SVCBU_OP.no_backup;
-    
+
     private boolean isTerminated = false;
-    
 
     public boolean isTerminated() {
-		return isTerminated;
-	}
+        return isTerminated;
+    }
 
-	/**
+    /**
      * @param parentShell
      */
     public ServiceBackupDlg(Shell parentShell) {
@@ -183,13 +188,14 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         authorized = CheckPermissions.getAuthorization();
         this.site = LocalizationManager.getInstance().getCurrentSite();
         this.runningAsPrimary = CheckPermissions.runningAsPrimary(this.site);
-        
-    	if (!CheckPermissions.getPrimarySites().contains(this.site)) {
-        	displayMessage("You cannot run Service Backup as " + this.site + " - EXITING!!!");
-        	isTerminated = true;
-        	return;
+
+        if (!CheckPermissions.getPrimarySites().contains(this.site)) {
+            displayMessage("You cannot run Service Backup as " + this.site
+                    + " - EXITING!!!");
+            isTerminated = true;
+            return;
         }
-        
+
         if (!ServiceBackupJobManager.getInstance().isRunning()) {
             ServiceBackupJobManager.getInstance().start();
         }
@@ -244,7 +250,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
     @Override
     public boolean close() {
         updateJob.cancel();
-        return super.close();      
+        return super.close();
     }
 
     /*
@@ -495,7 +501,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
     }
 
     private void doImportConfig() {
-    	
+
         switch (currentOperation) {
         case svcbuMode:
             displayMessage("" + this.failedSite.toUpperCase()
@@ -551,7 +557,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
                 if (startGFE) {
                     jobManager.addJob(new SvcbuStartGfeJob(failedSite,
                             this.site));
-                }               
+                }
             }
         }
     }
@@ -779,7 +785,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
                 jobManager.addJob(new SvcbuExitJob(this, this.site));
             }
         }
-        
+
     }
 
     private void doClean(boolean showMessage) {
@@ -860,54 +866,73 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
 
     @SuppressWarnings("unchecked")
     private void doRefresh() {
-
-        GetSbLockFilesRequest request = new GetSbLockFilesRequest();
-        List<String> lockFiles = null;
+        /*
+         * FIXME: this code needs to be further modified to handle multiple
+         * sites performing service backup. For now the first site with a
+         * non-empty set of lock files is the one assumed to be in service
+         * backup.
+         */
+        Collection<ServiceBackupJobStatus> thisSitesLockFiles = Collections
+                .emptyList();
+        Collection<ServiceBackupJobStatus> failedSiteLockFiles = Collections
+                .emptyList();
+        String siteIdForLocks = "";
+        GetServiceBackupJobStatusRequest request = new GetServiceBackupJobStatusRequest();
         try {
-            ServerResponse<List<String>> response = (ServerResponse<List<String>>) ThriftClient
+            ServerResponse<Map<String, Collection<ServiceBackupJobStatus>>> response = (ServerResponse<Map<String, Collection<ServiceBackupJobStatus>>>) ThriftClient
                     .sendRequest(request);
-            lockFiles = response.getPayload();
+            Map<String, Collection<ServiceBackupJobStatus>> allSitesLockFiles = response
+                    .getPayload();
+            if (allSitesLockFiles != null && !allSitesLockFiles.isEmpty()) {
+                for (Entry<String, Collection<ServiceBackupJobStatus>> entry : allSitesLockFiles
+                        .entrySet()) {
+                    if (!entry.getValue().isEmpty()) {
+                        String siteID = entry.getKey();
+                        if (site.equalsIgnoreCase(siteID)) {
+                            thisSitesLockFiles = entry.getValue();
+                        } else if (failedSiteLockFiles.isEmpty()) {
+                            failedSiteLockFiles = entry.getValue();
+                            siteIdForLocks = siteID;
+
+                        }
+                    }
+                }
+            }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error processing site activation request", e);
 
         }
 
-        String theFailedSite = null;
-        if (this.failedSite != null) {
-            this.failedSite.toLowerCase();
-        }
-        boolean lock_file = lockFiles.contains(theFailedSite + "svcbuMode");
+        /*
+         * FIXME: lock file handling in this function is now completely broken
+         * with the move to using the ServiceBackupJobStatus class. Needs to
+         * check the names of the locks in the collection instead of the current
+         * contains() check.
+         */
+        boolean lock_file = (failedSiteLockFiles.contains("svcbuMode") && siteIdForLocks
+                .equalsIgnoreCase(failedSite));
         if (!lock_file) {
-            for (String file : lockFiles) {
-                if (file.contains("svcbuMode")) {
-                    this.failedSite = file.replace("svcbuMode", "")
-                            .toUpperCase();
-                    theFailedSite = this.failedSite.toLowerCase();
-                    lock_file = true;
-                    break;
-                } else {
-                    this.failedSite = null;
-                }
+            this.failedSite = null;
+
+            if (failedSiteLockFiles.contains("svcbuMode")) {
+                failedSite = siteIdForLocks;
+                lock_file = true;
             }
         }
-        if (lockFiles.isEmpty()) {
-            this.failedSite = null;
-        }
+
         boolean ghg_lock_file = false;
-        boolean wait_lock_file = lockFiles.contains(theFailedSite + "waitMode");
-        boolean export_lock_file = lockFiles.contains(this.site.toLowerCase()
-                + "exportGrids")
-                || lockFiles.contains(theFailedSite + "exportGridsCron");
-        boolean grd_lock_file = lockFiles.contains("importGrids")
-                || lockFiles.contains("procGrids");
-        boolean imp_lock_file = lockFiles.contains("importConfiguration");
-        boolean cs_lock_file = lockFiles.contains(theFailedSite
-                + "exportBksiteGridsCS");
-        boolean excon_lock_file = lockFiles.contains(this.site.toLowerCase()
-                + "exportConfig");
-        boolean bksite_lock_file = lockFiles.contains(this.site.toLowerCase()
-                + "exportBkSiteGrids");
+        boolean wait_lock_file = failedSiteLockFiles.contains("waitMode");
+        boolean export_lock_file = thisSitesLockFiles.contains("exportGrids")
+                || failedSiteLockFiles.contains("exportGridsCron");
+        boolean grd_lock_file = failedSiteLockFiles.contains("importGrids");
+        boolean imp_lock_file = failedSiteLockFiles
+                .contains("importConfiguration");
+        boolean cs_lock_file = failedSiteLockFiles
+                .contains("exportBksiteGridsCS");
+        boolean excon_lock_file = thisSitesLockFiles.contains("exportConfig");
+        boolean bksite_lock_file = thisSitesLockFiles
+                .contains("exportBkSiteGrids");
 
         if (ghg_lock_file) {
             updateBanner("CURRENTLY RUNNING\nEMERGENCY GFE", bigFont, black,
