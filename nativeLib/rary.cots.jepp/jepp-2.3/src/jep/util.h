@@ -53,6 +53,8 @@
         (*env)->ThrowNew(env, clazz, msg);          \
 }
 
+#define THROW_JEP_EXC(env, jepExc) { (*env)->Throw(env, jepExc); }
+
 // does the same thing as the function version, but
 // restores thread blocking first
 #define PROCESS_JAVA_EXCEPTION(env)             \
@@ -108,10 +110,8 @@ void release_utf_char(JNIEnv*, jstring, const char*);
 int process_py_exception(JNIEnv*, int);
 
 // added by njensen
-char *PyTraceback_AsString(PyObject*);
 static void initNumpy(void);
 static int numpyInited = 0;
-jstring javaStacktrace_tostring(JNIEnv*, jthrowable);
 jarray numpyToJavaArray(JNIEnv*, PyObject*, jclass);
 jarray pylistToJStringList(JNIEnv*, PyObject*);
 PyObject* javaToNumpyArray(JNIEnv*, jobject, npy_intp*);
@@ -135,8 +135,6 @@ jvalue convert_pyarg_jvalue(JNIEnv*, PyObject*, jclass, int, int);
 jvalue convert_pynumpyarg_jvalue(JNIEnv*, PyObject*, jclass, int, int);
 
 PyObject* tuplelist_getitem(PyObject*, PyObject*);
-
-int register_exceptions(JNIEnv*, jobject, jobject, jobjectArray);
 
 #define JBOOLEAN_ID 0
 #define JINT_ID     1
