@@ -75,11 +75,12 @@ public class TopoDatabase extends IFPGridDatabase {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase#
-     * applyProjectionAndDomainChanges(java.util.Map)
+     * @see
+     * com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase#remapAllGrids
+     * (java.util.Map)
      */
     @Override
-    protected ServerResponse<?> applyProjectionAndDomainChanges(
+    protected ServerResponse<?> remapAllGrids(
             Map<String, ParmStorageInfo> parmStorageInfoUser) {
         // Domain changes are handled differently for TopoDatabse.
         // See TopoDatbaseManager.createDiskCache()
