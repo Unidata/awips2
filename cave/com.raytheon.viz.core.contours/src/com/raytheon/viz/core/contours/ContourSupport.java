@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -51,7 +51,9 @@ import com.raytheon.uf.common.numeric.DataUtilities.MinMax;
 import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
 import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.numeric.source.OffsetDataSource;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.LabelingPreferences;
@@ -96,12 +98,14 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 09, 2012  14940    M.Porricelli Adjust arrow size for streamlines
  * Feb 15, 2013  1638     mschenke     Moved edex.common Util functions into
  *                                     common Util
- * Jun 26, 2013  1999     dgilling     Replace native fortran strmpak call 
+ * Jun 26, 2013  1999     dgilling     Replace native fortran strmpak call
  *                                     with java port.
  * Jul 18, 2013  2199     mschenke     Ensured contouring is only occurring
  *                                     over visible area
  * Jul 23, 2013  2157     dgilling     Remove legacy stream line drawing code.
  * Feb 27, 2014  2791     bsteffen     Switch from IDataRecord to DataSource
+ * Mar 17, 2015  4261     nabowle      Move performance logging to the
+ *                                     performance log.
  * 
  * </pre>
  * 
@@ -113,10 +117,13 @@ public class ContourSupport {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ContourSupport.class);
 
+    private static final transient IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("ContourSupport:");
+
     /*
      * By default contour any data source that is passed in. This is much more
      * efficient than copying the data and allows us to contour any DataSource.
-     * 
+     *
      * The downside is that FortConBuf accesses each data point multiple times
      * and it is possible that DataSources with lots of transformation will have
      * poor performance. Since different sources will exhibit different behavior
@@ -230,7 +237,7 @@ public class ContourSupport {
 
     /**
      * Create contours from provided parameters
-     * 
+     *
      * @param sources
      * @param level
      * @param extent
@@ -318,7 +325,7 @@ public class ContourSupport {
             subgridCache.put(key, env);
         }
         long tsg1 = System.currentTimeMillis();
-        System.out.println("calculate sub grid time: " + (tsg1 - tsg0));
+        perfLog.logDuration("Calculating sub grid", tsg1 - tsg0);
 
         // Step 3: Get the actual data
 
@@ -499,7 +506,7 @@ public class ContourSupport {
             }
 
             long t1 = System.currentTimeMillis();
-            System.out.println("Contouring took: " + (t1 - t0));
+            perfLog.logDuration("Contouring", t1 - t0);
 
             float contourValue = 0;
 
@@ -604,9 +611,9 @@ public class ContourSupport {
                     }
                 }
 
-                System.out.println("Min/Max process time: " + tMinMaxAccum);
-                System.out.println("label time: " + tLabelAccum);
-                System.out.println("transformation time: " + tTransformAccum);
+                perfLog.logDuration("Min/Max processing", tMinMaxAccum);
+                perfLog.logDuration("Labeling", tLabelAccum);
+                perfLog.logDuration("Transformation", tTransformAccum);
             } catch (Throwable e) {
                 throw new VizException("Error postprocessing contours", e);
             }
@@ -676,7 +683,7 @@ public class ContourSupport {
             statusHandler.handle(Priority.WARN,
                     "Cannot compute subgrid, contouring may be slow.", e);
             // Don't use a subgrid, just contour the complete image.
-            // This may result in doing way to much contouring which can be
+            // This may result in doing way too much contouring which can be
             // slow, but it is better than no contouring at all. It's also worth
             // noting that it gets slower as you zoom in and more contours are
             // generated, but as you zoom in it also becomes more likely you
@@ -687,13 +694,13 @@ public class ContourSupport {
             env.setRange(1, imageGridGeometry.getGridRange().getLow(1),
                     imageGridGeometry.getGridRange().getHigh(1));
         }
-        System.out.println("*** Subgrid: " + env);
+        statusHandler.handle(Priority.DEBUG, "Subgrid: " + env);
         return env;
     }
 
     /**
      * Create labels for a linestring
-     * 
+     *
      * @param shapeToAddTo
      * @param levelOffset
      * @param contourValue
@@ -978,7 +985,7 @@ public class ContourSupport {
             }
 
             long t1 = System.currentTimeMillis();
-            System.out.println("Contouring took: " + (t1 - t0));
+            perfLog.logDuration("Contouring", t1 - t0);
 
             double levelOffset = Math.pow(2, (level - 1));
 
@@ -1048,10 +1055,9 @@ public class ContourSupport {
                         }
                     }
                 }
-                System.out.println("Min/Max process time: " + tMinMaxAccum);
-                System.out.println("label time: " + tLabelAccum);
-                System.out.println("transformation time: " + tTransformAccum);
-
+                perfLog.logDuration("Min/Max processing", tMinMaxAccum);
+                perfLog.logDuration("Labeling", tLabelAccum);
+                perfLog.logDuration("Transformation", tTransformAccum);
             } catch (Exception e) {
                 throw new VizException("Error postprocessing contours", e);
             }
@@ -1162,7 +1168,7 @@ public class ContourSupport {
                 szX, szY, config);
 
         long t1 = System.currentTimeMillis();
-        System.out.println("Contouring took: " + (t1 - t0));
+        perfLog.logDuration("Contouring", t1 - t0);
 
         long tAccum = 0;
 
@@ -1190,7 +1196,7 @@ public class ContourSupport {
                 contourGroup.posValueShape.addLineSegment(valsArr);
             }
 
-            System.out.println("streamline transformation time: " + tAccum);
+            perfLog.logDuration("Streamline transformation", tAccum);
         } catch (Throwable e) {
             throw new VizException("Error postprocessing contours", e);
         }
@@ -1334,7 +1340,7 @@ public class ContourSupport {
      * Check the contour lines in a ContourContainer and split any lines that
      * need to wrap over the "seam" in the display crs. If changes are needed
      * the lines within contours are modified directly.
-     * 
+     *
      * @param contours
      *            container holding contour lines
      * @param descriptor
@@ -1397,7 +1403,6 @@ public class ContourSupport {
 
         long tZ1 = System.currentTimeMillis();
 
-        System.out.println("Time to process world wrap checking = "
-                + (tZ1 - tZ0) + "ms");
+        perfLog.logDuration("Checking world wrapping", tZ1 - tZ0);
     }
 }
