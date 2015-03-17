@@ -27,7 +27,6 @@ import com.raytheon.uf.common.dataplugin.gfe.request.AbortOperationRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.ImportConfRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
-import com.raytheon.uf.common.dataplugin.gfe.server.notify.ServiceBackupMessageNotification;
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
@@ -52,6 +51,8 @@ import com.raytheon.viz.gfe.dialogs.sbu.ServiceBackupDlg;
  * Aug 05, 2011            bphillip     Initial creation
  * Mar 20, 2013   1447     dgilling     Add support for service backup
  *                                      troubleshooting mode from A1.
+ * Feb 13, 2015  #4103     dgilling     Use site id in AbortOperationRequest.
+ * Mar 18, 2015  #4103     dgilling     Remove unnecessary primary site field.
  * 
  * </pre>
  * 
@@ -85,8 +86,7 @@ public class SvcbuImportConfJob extends ServiceBackupJob implements
 
     @Override
     public void run() {
-        ImportConfRequest request = new ImportConfRequest(primarySite,
-                failedSite, trMode);
+        ImportConfRequest request = new ImportConfRequest(failedSite, trMode);
         try {
             VizApp.runAsync(new Runnable() {
 
@@ -126,7 +126,7 @@ public class SvcbuImportConfJob extends ServiceBackupJob implements
 
             if (aborted) {
                 AbortOperationRequest abortRequest = new AbortOperationRequest(
-                        "importConfiguration");
+                        "importConfiguration", failedSite);
                 try {
                     Object obj = ThriftClient.sendRequest(abortRequest);
                     if (obj instanceof ServerResponse) {
@@ -175,18 +175,24 @@ public class SvcbuImportConfJob extends ServiceBackupJob implements
                 ArrayList<GfeNotification> notifications = (ArrayList<GfeNotification>) msg
                         .getMessagePayload();
                 for (GfeNotification notification : notifications) {
-                    if (notification instanceof ServiceBackupMessageNotification) {
-                        ServiceBackupMessageNotification notify = (ServiceBackupMessageNotification) notification;
-                        if (notify.getMessage().equals(
-                                "Import Configuration Complete!")) {
-                            complete = true;
-                        } else if (notify.getMessage().startsWith(
-                                "Error Processing Configuration Data!")) {
-                            complete = true;
-                            failed = true;
-                            errorMsg = notify.getMessage();
-                        }
-                    }
+                    /*
+                     * FIXME: If we're going to continue to use this class, fix
+                     * this notificationArrived handler.
+                     */
+                    // if (notification instanceof
+                    // ServiceBackupMessageNotification) {
+                    // ServiceBackupMessageNotification notify =
+                    // (ServiceBackupMessageNotification) notification;
+                    // if (notify.getMessage().equals(
+                    // "Import Configuration Complete!")) {
+                    // complete = true;
+                    // } else if (notify.getMessage().startsWith(
+                    // "Error Processing Configuration Data!")) {
+                    // complete = true;
+                    // failed = true;
+                    // errorMsg = notify.getMessage();
+                    // }
+                    // }
                 }
             }
         } catch (NotificationException e) {

@@ -19,14 +19,16 @@
  **/
 package com.raytheon.edex.plugin.gfe.svcbackup;
 
-import java.util.Date;
-import java.util.TimerTask;
-
-import com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuLogRequestHandler;
-import com.raytheon.uf.common.dataplugin.gfe.request.CleanupSvcBuLogRequest;
+import com.raytheon.uf.common.dataplugin.gfe.util.FilePurger;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
- * TODO Add Description
+ * Bean to purge outdated log files from service backup logs directory. Expected
+ * to be scheduled by camel using a cron job. Can set the number of days to
+ * retain logs via the setting purge.svcbu.logs.retention in
+ * com.raytheon.edex.plugin.gfe.properties.
  * 
  * <pre>
  * 
@@ -34,38 +36,38 @@ import com.raytheon.uf.common.dataplugin.gfe.request.CleanupSvcBuLogRequest;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 3, 2013             jdynina     Initial creation
+ * Jan 03, 2013            jdynina      Initial creation
+ * Feb 24, 2015  #4103     dgilling     Rewrite to use FilePurger.
  * 
  * </pre>
  * 
  * @author jdynina
  * @version 1.0
  */
+public final class SvcbuCleanupLogsTask {
 
-public class SvcbuCleanupLogsTask extends TimerTask {
+    private static final String DEFAULT_LOG_DIR = "/awips2/GFESuite/ServiceBackup/logs";
 
-    public SvcbuCleanupLogsTask(Date executionTime) {
-        ServiceBackupNotificationManager
-                .sendMessageNotification("Service backup log cleanup cron scheduled for execution at: "
-                        + executionTime);
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SvcbuCleanupLogsTask.class);
+
+    private final FilePurger logPurger;
+
+    public SvcbuCleanupLogsTask(int daysToRetain) {
+        long purgeAge = daysToRetain * TimeUtil.MILLIS_PER_DAY;
+        String logDirectory = SvcBackupUtil.getSvcBackupProperties()
+                .getProperty("IFPS_LOG", DEFAULT_LOG_DIR);
+        this.logPurger = new FilePurger(logDirectory, purgeAge);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.TimerTask#run()
-     */
-    @Override
     public void run() {
-        ServiceBackupNotificationManager
-                .sendMessageNotification("Cleanup service configuration logs cron started.");
+        statusHandler.info("Cleanup service backup logs cron started.");
+
         try {
-            new CleanupSvcBuLogRequestHandler()
-                    .handleRequest(new CleanupSvcBuLogRequest());
+            logPurger.purge();
         } catch (Exception e) {
-            ServiceBackupNotificationManager
-                    .sendErrorMessageNotification(
-                            "Cleanup service backup logs cron failed to execute.",
+            statusHandler
+                    .error("Cleanup service backup logs cron threw an unhandled exception.",
                             e);
         }
     }
