@@ -1,4 +1,4 @@
-#  Version 2015.1.6-0
+#  Version 2015.2.12-1
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -9,7 +9,6 @@ import numpy
 import LocalizationSupport
 
 from AbsTime import *
-from StartupDialog import IFPDialog as Dialog
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit as JavaGrid2DBit
 AWIPS_ENVIRON = "AWIPS2"
@@ -100,7 +99,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_getLowestThreat": 0,
                           "_setHazardImpactCategories": 0,
                           "_createWholeDomainEditArea": 0,
-                          "_groupSegments": 0,
                           "_determineHazards": 0,
                           "_formatLocalTime": 0,
                           "_getTimeZoneList": 0,
@@ -129,13 +127,13 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_productHeader": 0,
                           "_ugcHeader": 0,
                           "_processProductParts": 0,
-                          "_formatUGC_entries": 0,
-                          "_getUgcInfo": 0,
                           "_createProductDictionary": 0,
                           "_initializeProductDictionary": 0,
                           "_formatProductDictionary": 0,
                           "_getStatValue": 0,
                           "_allAreas": 0,
+                          "_groupSegments": 0,
+                          "_getSegmentVTECRecordsTuples": 0,
                           "_computeIntersectAreas": 0,
                           "_initializeHazardsTable": 0,
                           "_getHazardsTable": 0,
@@ -223,7 +221,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                         }
 
 #     Definition["debug"] = 1         #  turn on ALL debug messages
-#    Definition["debug"] = 0         #  turn off ALL debug messages
+    Definition["debug"] = 0         #  turn off ALL debug messages
     
     def __init__(self):
         HLSTCV_Common.TextProduct.__init__(self)
@@ -429,12 +427,15 @@ class TextProduct(HLSTCV_Common.TextProduct):
         if error is not None:
             return error
         
-        if self._stormName is None or self._stormName.strip() == "":
+        if self._stormName is None or self._stormName == "":
             return "Could not determine the storm name"
         
         self._loadLastTwoAdvisories()
         if self._previousAdvisory is None and self._ImpactsAnticipated:
             return "A TCV must be transmitted before an HLS can be run"
+        
+        if len(self._IncludedImpacts) == 0:
+            return "At least one potential impact section needs to be included."
         
         # Determine time ranges
         self._determineTimeRanges(argDict)
@@ -452,7 +453,9 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 self._setHazardImpactCategories(threatName)
     
         # Create the product dictionary and format it to create the output
-        productDict = self._createProductDictionary(self._allAreas())
+        productDict = self._createProductDictionary(self._productParts_HLS,
+                                                    self._allAreas(),
+                                                    areProductPartsSegmented=False)
         productOutput = self._formatProductDictionary(LegacyFormatter, productDict)
 
         return productOutput
@@ -493,6 +496,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         statsDict['impactMin'] = None
         statsDict['impactMax'] = None
         statsDict['impactRange'] = None
+        statsDict['impactRangeMax'] = None
         
         self._samplingDict['WindThreat'] = copy.copy(statsDict)
         self._samplingDict['StormSurgeThreat'] = copy.copy(statsDict)
@@ -553,35 +557,63 @@ class TextProduct(HLSTCV_Common.TextProduct):
         sectionDict['impactRange'] = ""
         sectionDict['impactLib'] = []
         sectionDict['additionalImpactRange'] = []
-        sectionDict['variedImpacts'] = False
         
         impactMin = self._samplingDict['WindThreat']['impactMin']
         impactMax = self._samplingDict['WindThreat']['impactMax']
         impactRange = self._samplingDict['WindThreat']['impactRange']
+        impactRangeMax = self._samplingDict['WindThreat']['impactRangeMax']
         inputThreatDominant = self._samplingDict['WindThreat']['inputThreatDominant']
         
         #  Test the simplest case first
         if impactMin == "none" and impactMax == "none":
             sectionDict['impactRange'] = impactRange
-            sectionDict['variedImpacts'] = None
             productDict['windSection'] = sectionDict
             return
         
+        qualifier = self._getImpactsQualifier(impactMax)
+        
         #  If there is only one impact across the entire CWA, and it is the max
         if impactMax != "none" and impactMin == impactMax and inputThreatDominant != "None":
-            sectionDict['impactRange'] = "Prepare for " + impactMax + " damage across " + self._cwa_descriptor() + "."
+            if self._GeneralOnsetTime == "check plans":
+                sectionDict['impactRange'] = "Prepare for " + qualifier + "wind having possible " + impactMax + " impacts across " + self._cwa_descriptor() + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "complete preparations":
+                sectionDict['impactRange'] = "Protect against " + qualifier + "wind having possible " + impactMax + " impacts across " + self._cwa_descriptor() + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "hunker down":
+                sectionDict['impactRange'] = "Potential impacts from the main wind event are now unfolding across " + self._cwa_descriptor() + ". Remain well sheltered from " + qualifier + "wind having " + self._frame("possible | additional") + " " + impactMax + " impacts. If realized, these impacts include:"
+            else:
+                sectionDict['impactRange'] = "Little to no additional wind impacts expected."
         #  Handle the case where the impacts are not the same across the entire CWA
         else:
-            sectionDict['variedImpacts'] = True
-            sectionDict['impactRange'] = "Prepare for " + impactMax + " damage " + self._frame("ENTER AREA DESCRIPTION") + "."
+            if self._GeneralOnsetTime == "check plans":
+                sectionDict['impactRange'] = "Prepare for " + qualifier + "wind having possible " + impactMax + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + ". Potential impacts in this area include:"
+            elif self._GeneralOnsetTime == "complete preparations":
+                sectionDict['impactRange'] = "Protect against " + qualifier + "wind having possible " + impactMax + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + ". Potential impacts in this area include:"
+            elif self._GeneralOnsetTime == "hunker down":
+                sectionDict['impactRange'] = "Potential impacts from the main wind event are now unfolding across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well sheltered from " + qualifier + "wind having " + self._frame("possible | additional") + " " + impactMax + " impacts. If realized, these impacts include:"
+            else:
+                sectionDict['impactRange'] = "Little to no additional wind impacts expected."
         
-        sectionDict['impactLib'] = self._getPotentialImpactsStatements("Wind", self._impactCategoryToThreatLevel(impactMax))
+        if self._GeneralOnsetTime != "recovery":
+            sectionDict['impactLib'] = self._getPotentialImpactsStatements("Wind", self._impactCategoryToThreatLevel(impactMax))
+        else:
+            sectionDict['impactLib'] = ["Community officials are now assessing the extent of actual wind impacts accordingly.",
+                                        "Emergency response teams are attending to casualty situations as needed.",
+                                        "Emergency work crews are restoring essential community infrastructure as necessary.",
+                                        "If you have an emergency dial 9 1 1.",
+                                        ]
         
         #  If there are additional areas
         if impactRange != impactMax:
+            qualifier = self._getImpactsQualifier(impactRangeMax)
             
-            curPhrase = "Prepare for %s damage across %s." % \
-                (impactRange, self._frame("ENTER AREA DESCRIPTION"))
+            if self._GeneralOnsetTime == "check plans":
+                curPhrase = "Also, prepare for " + qualifier + "wind having possible " + impactRange + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "complete preparations":
+                curPhrase = "Also, protect against " + qualifier + "wind having possible " + impactRange + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "hunker down":
+                curPhrase = "Potential impacts from the main wind event are also now unfolding across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well sheltered from " + qualifier + "wind having " + self._frame("possible | additional") + " " + impactRange + " impacts."
+            else:
+                curPhrase = "Little to no additional wind impacts expected."
             
             #  If this phrase is not already part of the additional impacts
             if curPhrase not in sectionDict['additionalImpactRange']:
@@ -614,12 +646,12 @@ class TextProduct(HLSTCV_Common.TextProduct):
         impactMin = self._samplingDict['StormSurgeThreat']['impactMin']
         impactMax = self._samplingDict['StormSurgeThreat']['impactMax']
         impactRange = self._samplingDict['StormSurgeThreat']['impactRange']
+        impactRangeMax = self._samplingDict['StormSurgeThreat']['impactRangeMax']
         inputThreatDominant = self._samplingDict['StormSurgeThreat']['inputThreatDominant']
         
         #  Test the simplest case first
         if impactMin == "none" and impactMax == "none":
             sectionDict['impactRange'] = impactRange
-            sectionDict['variedImpacts'] = None
             productDict['surgeSection'] = sectionDict
             return
         
@@ -628,14 +660,27 @@ class TextProduct(HLSTCV_Common.TextProduct):
         lifeThreatening = ""
         
         if impactMax in ["significant", "extensive", "devastating", "catastrophic"]:
-            lifeThreatening = "life-threatening storm surge and "
+            lifeThreatening = "life-threatening "
+        elif impactMax == "limited":
+            lifeThreatening = "locally hazardous "
         
-        sectionDict['impactRange'] = "Prepare for " + \
-                                     lifeThreatening + impactMax + \
-                                     " damage in surge prone areas of " + self._cwa_descriptor() + ", with the greatest impacts " + \
-                                     self._frame("ENTER AREA DESCRIPTION") + "."
+        if self._GeneralOnsetTime == "check plans":
+            sectionDict['impactRange'] = "Prepare for " + lifeThreatening + "surge having possible " + impactMax + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + ". Potential impacts in this area include:"
+        elif self._GeneralOnsetTime == "complete preparations":
+            sectionDict['impactRange'] = "Protect against " + lifeThreatening + "surge having possible " + impactMax + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + ". Potential impacts in this area include:"
+        elif self._GeneralOnsetTime == "hunker down":
+            sectionDict['impactRange'] = "Potential impacts from the main surge event are now unfolding across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well away from " + lifeThreatening + "surge having " + self._frame("possible | additional") + " " + impactMax + " impacts. If realized, these impacts include:"
+        else:
+            sectionDict['impactRange'] = "Little to no additional surge impacts expected."
         
-        sectionDict['impactLib'] = self._getPotentialImpactsStatements("Storm Surge", self._impactCategoryToThreatLevel(impactMax))
+        if self._GeneralOnsetTime != "recovery":
+            sectionDict['impactLib'] = self._getPotentialImpactsStatements("Storm Surge", self._impactCategoryToThreatLevel(impactMax))
+        else:
+            sectionDict['impactLib'] = ["Community officials are now assessing the extent of actual surge impacts accordingly.",
+                                        "Emergency response teams are attending to casualty situations as needed.",
+                                        "Emergency work crews are restoring essential community infrastructure as necessary.",
+                                        "If you have an emergency dial 9 1 1.",
+                                        ]
         
         #  Reexamine the impact range - we need to separate out "life-threatening" surge categories into a separate statement
         impactParts = impactRange.split(" ")
@@ -649,9 +694,11 @@ class TextProduct(HLSTCV_Common.TextProduct):
             if impactParts[0] in ["limited", "none"]:
                 #  Make a new range to report
                 impactRange = "significant"
+                impactRangeMax = impactRange
                 
                 if impactParts[2] != "significant":
                     impactRange += " to " + impactParts[2]
+                    impactRangeMax = impactParts[2]
                 
                 impactRangeRest = impactParts[0]
         
@@ -665,8 +712,21 @@ class TextProduct(HLSTCV_Common.TextProduct):
         #  If there are additional life-threatening surge areas
         if impactRange != impactMax and impactRange != impactMin:
             
-            curPhrase = "Brace for %s%s damage across %s." % \
-                (lifeThreatening, impactRange, self._frame("ENTER AREA DESCRIPTION"))
+            lifeThreatening = ""
+        
+            if impactRangeMax in ["significant", "extensive", "devastating", "catastrophic"]:
+                lifeThreatening = "life-threatening "
+            elif impactRangeMax == "limited":
+                lifeThreatening = "locally hazardous "
+            
+            if self._GeneralOnsetTime == "check plans":
+                curPhrase = "Also, prepare for " + lifeThreatening + "surge having possible " + impactRange + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "complete preparations":
+                curPhrase = "Also, protect against " + lifeThreatening + "surge having possible " + impactRange + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "hunker down":
+                curPhrase = "Potential impacts from the main surge event are also now unfolding across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well away from " + lifeThreatening + "surge having " + self._frame("possible | additional") + " " + impactRange + " impacts."
+            else:
+                curPhrase = "Little to no additional surge impacts expected."
             
             self.debug_print("DEBUG: curPhrase = '%s'" % (curPhrase), 1)
             self.debug_print("DEBUG: sectionDict['additionalImpactRange'] = \n'%s'" %
@@ -680,8 +740,16 @@ class TextProduct(HLSTCV_Common.TextProduct):
         #  If there are additional areas
         if impactRangeRest != impactMax:
             
-            curPhrase = "Prepare for %s damage from storm surge across %s." % \
-                (impactRangeRest, self._frame("ENTER AREA DESCRIPTION"))
+            lifeThreatening = "locally hazardous "
+            
+            if self._GeneralOnsetTime == "check plans":
+                curPhrase = "Also, prepare for " + lifeThreatening + "surge having possible " + impactRangeRest + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "complete preparations":
+                curPhrase = "Also, protect against " + lifeThreatening + "surge having possible " + impactRangeRest + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "hunker down":
+                curPhrase = "Potential impacts from the main surge event are also now unfolding across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well away from " + lifeThreatening + "surge having " + self._frame("possible | additional") + " " + impactRangeRest + " impacts."
+            else:
+                curPhrase = "Little to no additional surge impacts expected."
             
             #  If this phrase is not already part of the additional impacts
             if curPhrase not in sectionDict['additionalImpactRange']:
@@ -716,6 +784,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         impactMin = self._samplingDict['FloodingRainThreat']['impactMin']
         impactMax = self._samplingDict['FloodingRainThreat']['impactMax']
         impactRange = self._samplingDict['FloodingRainThreat']['impactRange']
+        impactRangeMax = self._samplingDict['FloodingRainThreat']['impactRangeMax']
         inputThreatDominant = self._samplingDict['FloodingRainThreat']['inputThreatDominant']
         
         self.debug_print("In _floodingRainSection", 1)
@@ -724,25 +793,68 @@ class TextProduct(HLSTCV_Common.TextProduct):
         #  Test the simplest case first
         if impactMin == "none" and impactMax == "none":
             sectionDict['impactRange'] = impactRange
-            sectionDict['variedImpacts'] = None
             productDict['floodingRainSection'] = sectionDict
             return
         
+        qualifier = ""
+        if impactMax in ["extensive", "devastating", "catastrophic"]:
+            qualifier = "life-threatening "
+        elif impactMax == "significant":
+            qualifier = "dangerous "
+        elif impactMax == "limited":
+            qualifier = "locally hazardous "
+        
         #  If there is only one impact across the entire CWA, and it is the max
         if impactMax != "none" and impactMin == impactMax and inputThreatDominant != "None":
-            sectionDict['impactRange'] = "Prepare for " + impactMax + " flooding across " + self._cwa_descriptor() + "."
+            if self._GeneralOnsetTime == "check plans":
+                sectionDict['impactRange'] = "Prepare for " + qualifier + "rainfall flooding having possible " + impactMax + " impacts across " + self._cwa_descriptor() + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "complete preparations":
+                sectionDict['impactRange'] = "Protect against " + qualifier + "rainfall flooding having possible " + impactMax + " impacts across " + self._cwa_descriptor() + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "hunker down":
+                sectionDict['impactRange'] = "Potential impacts from the flooding rain are still unfolding across " + self._cwa_descriptor() + ". Remain well guarded against " + qualifier + "flood waters having " + self._frame("possible | additional") + " " + impactMax + " impacts. If realized, these impacts include:"
+            else:
+                sectionDict['impactRange'] = "Additional impacts from flooding rain are still a concern across " + self._cwa_descriptor() + ". Remain well guarded against " + qualifier + "flood waters having further impacts of " + impactMax + " potential."
         #  Handle the case where the impacts are not the same across the entire CWA
         else:
-            sectionDict['variedImpacts'] = True
-            sectionDict['impactRange'] = "Prepare for " + impactMax + " flooding " + self._frame("ENTER AREA DESCRIPTION") + "."
+            if self._GeneralOnsetTime == "check plans":
+                sectionDict['impactRange'] = "Prepare for " + qualifier + "rainfall flooding having possible " + impactMax + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "complete preparations":
+                sectionDict['impactRange'] = "Protect against " + qualifier + "rainfall flooding having possible " + impactMax + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "hunker down":
+                sectionDict['impactRange'] = "Potential impacts from the flooding rain are still unfolding across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well guarded against " + qualifier + "flood waters having " + self._frame("possible | additional") + " " + impactMax + " impacts. If realized, these impacts include:"
+            else:
+                if impactMax != "none":
+                    sectionDict['impactRange'] = "Additional impacts from flooding rain are still a concern across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well guarded against " + qualifier + "flood waters having further impacts of " + impactMax + " potential."
+                else:
+                    sectionDict['impactRange'] = "Little to no additional impacts expected from flooding rain."
         
-        sectionDict['impactLib'] = self._getPotentialImpactsStatements("Flooding Rain", self._impactCategoryToThreatLevel(impactMax))
+        if self._GeneralOnsetTime != "recovery":
+            sectionDict['impactLib'] = self._getPotentialImpactsStatements("Flooding Rain", self._impactCategoryToThreatLevel(impactMax))
+        else:
+            sectionDict['impactLib'] = []
         
         #  If there are additional areas
         if impactRange != impactMax:
             
-            curPhrase = "Prepare for %s flooding impacts across %s." % \
-                (impactRange, self._frame("ENTER AREA DESCRIPTION"))
+            qualifier = ""
+            if impactRangeMax in ["extensive", "devastating", "catastrophic"]:
+                qualifier = "life-threatening "
+            elif impactRangeMax == "significant":
+                qualifier = "dangerous "
+            elif impactRangeMax == "limited":
+                qualifier = "locally hazardous "
+            
+            if self._GeneralOnsetTime == "check plans":
+                curPhrase = "Prepare for " + qualifier + "rainfall flooding having possible " + impactRange + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "complete preparations":
+                curPhrase = "Protect against " + qualifier + "rainfall flooding having possible " + impactRange + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "hunker down":
+                curPhrase = "Potential impacts from the flooding rain are still unfolding across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well guarded against " + qualifier + "flood waters having " + self._frame("possible | additional") + " " + impactRange + " impacts."
+            else:
+                if impactMax != "none":
+                    curPhrase = "Additional impacts from flooding rain are still a concern across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well guarded against " + qualifier + "flood waters having further impacts of " + impactRange + " potential."
+                else:
+                    curPhrase = "Little to no additional impacts expected from flooding rain."
             
             #  If this phrase is not already part of the additional impacts
             if curPhrase not in sectionDict['additionalImpactRange']:
@@ -775,12 +887,12 @@ class TextProduct(HLSTCV_Common.TextProduct):
         impactMin = self._samplingDict['TornadoThreat']['impactMin']
         impactMax = self._samplingDict['TornadoThreat']['impactMax']
         impactRange = self._samplingDict['TornadoThreat']['impactRange']
+        impactRangeMax = self._samplingDict['TornadoThreat']['impactRangeMax']
         inputThreatDominant = self._samplingDict['TornadoThreat']['inputThreatDominant']
         
         #  Test the simplest case first
         if impactMin == "none" and impactMax == "none":
             sectionDict['impactRange'] = impactRange
-            sectionDict['variedImpacts'] = None
             productDict['tornadoSection'] = sectionDict
             return
         
@@ -791,6 +903,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             impactMin = "devastating"
         if impactRange in ["devastating", "catastrophic"]:
             impactRange = "devastating"
+            impactRangeMax = impactRange
         
         #  If the max impact category is "catastrophic", and we lumped "devastating" in with it, ensure "devastating" is not
         #  leftover as the high end of the range
@@ -802,25 +915,67 @@ class TextProduct(HLSTCV_Common.TextProduct):
             if impactParts[0] != "extensive":
                 #  Force the upper end to be 1 category lower
                 impactRange.replace("devastating", "extensive")
+                impactRangeMax = "extensive"
             #  Otherwise, the impact is just "extensive"
             else:
                 impactRange = "extensive"
+                impactRangeMax = "extensive"
+        
+        qualifier = ""
+        if impactMax in ["extensive", "devastating"]:
+            qualifier = "particularly dangerous "
+        elif impactMax == "significant":
+            qualifier = "dangerous "
         
         #  If there is only one impact across the entire CWA, and it is the max
         if impactMax != "none" and impactMin == impactMax and inputThreatDominant != "None":
-            sectionDict['impactRange'] = "Prepare for " + impactMax + " damage across " + self._cwa_descriptor() + "."
+            if self._GeneralOnsetTime == "check plans":
+                sectionDict['impactRange'] = "Prepare for a " + qualifier + "tornado event having possible " + impactMax + " impacts across " + self._cwa_descriptor() + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "complete preparations":
+                sectionDict['impactRange'] = "Protect against a " + qualifier + "tornado event having possible " + impactMax + " impacts across " + self._cwa_descriptor() + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "hunker down":
+                sectionDict['impactRange'] = "Potential impacts from tornadoes are still unfolding across " + self._cwa_descriptor() + ". Remain well braced against a " + qualifier + "tornado event having " + self._frame("possible | additional") + " " + impactMax + " impacts. If realized, these impacts include:"
+            else:
+                sectionDict['impactRange'] = "Additional impacts from tornadoes are still a concern across " + self._cwa_descriptor() + ". Remain well braced against " + qualifier + "tornado event having further " + impactMax + " impact potential."
         #  Handle the case where the impacts are not the same across the entire CWA
         else:
-            sectionDict['variedImpacts'] = True
-            sectionDict['impactRange'] = "Prepare for " + impactMax + " damage " + self._frame("ENTER AREA DESCRIPTION") + "."
+            if self._GeneralOnsetTime == "check plans":
+                sectionDict['impactRange'] = "Prepare for a " + qualifier + "tornado event having possible " + impactMax + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "complete preparations":
+                sectionDict['impactRange'] = "Protect against a " + qualifier + "tornado event having possible " + impactMax + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + ". Potential impacts include:"
+            elif self._GeneralOnsetTime == "hunker down":
+                sectionDict['impactRange'] = "Potential impacts from tornadoes are still unfolding across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well braced against a " + qualifier + "tornado event having " + self._frame("possible | additional") + " " + impactMax + " impacts. If realized, these impacts include:"
+            else:
+                if impactMax != "none":
+                    sectionDict['impactRange'] = "Additional impacts from tornadoes are still a concern across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well braced against " + qualifier + "tornado event having further " + impactMax + " impact potential."
+                else:
+                    sectionDict['impactRange'] = "Little to no additional impacts expected from tornadoes."
         
-        sectionDict['impactLib'] = self._getPotentialImpactsStatements("Tornado", self._impactCategoryToThreatLevel(impactMax))
+        if self._GeneralOnsetTime != "recovery":
+            sectionDict['impactLib'] = self._getPotentialImpactsStatements("Tornado", self._impactCategoryToThreatLevel(impactMax))
+        else:
+            sectionDict['impactLib'] = []
         
         #  If there are additional areas
         if impactRange != impactMax:
             
-            curPhrase = "Prepare for %s damage across %s." % \
-                (impactRange, self._frame("ENTER AREA DESCRIPTION"))
+            qualifier = ""
+            if impactRangeMax in ["extensive", "devastating"]:
+                qualifier = "particularly dangerous "
+            elif impactRangeMax == "significant":
+                qualifier = "dangerous "
+            
+            if self._GeneralOnsetTime == "check plans":
+                curPhrase = "Prepare for a " + qualifier + "tornado event having possible " + impactRange + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "complete preparations":
+                curPhrase = "Protect against a " + qualifier + "tornado event having possible " + impactRange + " impacts across " + self._frame("ENTER AREA DESCRIPTION") + "."
+            elif self._GeneralOnsetTime == "hunker down":
+                curPhrase = "Potential impacts from tornadoes are still unfolding across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well braced against a " + qualifier + "tornado event having " + self._frame("possible | additional") + " " + impactRange + " impacts."
+            else:
+                if impactMax != "none":
+                    curPhrase = "Additional impacts from tornadoes are still a concern across " + self._frame("ENTER AREA DESCRIPTION") + ". Remain well braced against " + qualifier + "tornado event having further " + impactRange + " impact potential."
+                else:
+                    curPhrase = "Little to no additional impacts expected from tornadoes."
             
             #  If this phrase is not already part of the additional impacts
             if curPhrase not in sectionDict['additionalImpactRange']:
@@ -841,6 +996,17 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 sectionDict['additionalImpactRange'].append(curPhrase)
         
         productDict['tornadoSection'] = sectionDict
+    
+    def _getImpactsQualifier(self, impact):
+        qualifier = ""
+        if impact in ["extensive", "devastating", "catastrophic"]:
+            qualifier = "life-threatening "
+        elif impact == "significant":
+            qualifier = "dangerous "
+        elif impact == "limited":
+            qualifier = "hazardous "
+        
+        return qualifier
     
     def _coastalHazardsSection(self, productDict, productSegmentGroup, productSegment):
         productDict['coastalHazardsSection'] = self._frame("ENTER HERE A STATEMENT OF ANY ADDITIONAL HAZARDS OF CONCERN ALONG THE COAST SUCH AS RIP CURRENTS, HIGH WAVES, CONCERNS FOR BEACH EROSION ETC ETC IF NOT ALREADY DONE IN THE SURGE SECTION.")
@@ -1199,7 +1365,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         #  Determine dominant impact category for rest of CWA - No impact
         if impactMin == "none" and impactMax == "none":
-            impactRange = "No impacts are anticipated at this time across " + self._cwa_descriptor() + "."
+            impactRange = "Little to no " + self._frame("additional") + " impacts are anticipated at this time across " + self._cwa_descriptor() + "."
         #  Otherwise, at least some impact will be experienced across the CWA
         else:
             #  Do not permit the lowest category to be "None", if the highest category is also not "None"
@@ -1210,6 +1376,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             
             if impactMin == impactMax:
                 impactRange = impactMax
+                impactRangeMax = impactMax
             elif impactMin == impactRangeMax:
                 impactRange = impactRangeMax
             else:
@@ -1218,6 +1385,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._samplingDict[threatName]['impactMin'] = impactMin
         self._samplingDict[threatName]['impactMax'] = impactMax
         self._samplingDict[threatName]['impactRange'] = impactRange
+        self._samplingDict[threatName]['impactRangeMax'] = impactRangeMax
     
     ###############################################################
     ### Area, Zone and Segment related methods
@@ -1233,30 +1401,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
         refID = ReferenceID("WholeDomain")
         refData = ReferenceData(gridLoc, refID, grid2Dbit)
         editAreaUtils.saveEditAreas([refData])
-    
-    def _groupSegments(self, segments):
-        '''
-         Group the segments into the products
-            return a list of productSegmentGroup dictionaries
-        '''
-     
-        segment_vtecRecords_tuples = []
-        for segment in segments:
-            vtecRecords = self._getVtecRecords(segment)
-            self.debug_print("vtecRecords =\n\n%s\n" % (self._pp.pformat(vtecRecords)))
-            segment_vtecRecords_tuples.append((segment, vtecRecords))
-        
-        productSegmentGroup = { 
-                       'productID' : 'HLS',
-                       'productName': self._productName,
-                       'geoType': 'area',
-                       'vtecEngine': self._hazardsTable,
-                       'mapType': 'publicZones',
-                       'segmented': True,
-                        'productParts': self._productParts_HLS(segment_vtecRecords_tuples),
-                       }
-
-        return productSegmentGroup
     
     ###############################################################
     ### Hazards related methods
@@ -1393,7 +1537,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             headlineSearch[0] = re.sub("\.\.\.$", "", headlineSearch[0])
 
 #             #  Remove the first and last '**' - if they exist
-#             headlineSearch[0] = headlineSearch[0].sub("**", "").strip()
+            headlineSearch[0] = headlineSearch[0].replace("**", "").strip()
 
             #  Return the first cleaned-up headline string we found
             return self._cleanText(headlineSearch[0])
@@ -2321,7 +2465,7 @@ class LegacyFormatter():
             elif name == "situationOverview":
                 text += self.processSituationOverview(productDict['situationOverview'])
             elif name == "sigPotentialImpacts":
-                header = "Significant Potential Impacts"
+                header = "Potential Impacts"
                 text += header + "\n" + "-"*len(header) + "\n\n"
                 if not self._textProduct._ImpactsAnticipated:
                     text += "None\n\n"
@@ -2517,19 +2661,19 @@ class LegacyFormatter():
         text = "* " + sectionDict['title'] + ":\n"
         
         impactRangeText = sectionDict['impactRange']
-        if sectionDict['variedImpacts'] is not None:
-            if sectionDict['variedImpacts']:
-                impactRangeText += " In these areas, potential impacts include:"
-            else:
-                impactRangeText += " Potential impacts include:"
-        
         text += self._textProduct.indentText(impactRangeText, maxWidth=self._textProduct._lineLength)
         
+        if self._textProduct._GeneralOnsetTime == "recovery" and len(sectionDict['impactLib']) != 0:
+            text += "|*\n"
+            
         for impact in sectionDict['impactLib']:
             text += self._textProduct.indentText(impact,
                                                  indentFirstString = self.TAB + "- ",
                                                  indentNextString = self.TAB + "  ",
                                                  maxWidth=self._textProduct._lineLength)
+        
+        if self._textProduct._GeneralOnsetTime == "recovery" and len(sectionDict['impactLib']) != 0:
+            text += "*|\n"
         
         if len(sectionDict['additionalImpactRange']) != 0:
             text += "\n"

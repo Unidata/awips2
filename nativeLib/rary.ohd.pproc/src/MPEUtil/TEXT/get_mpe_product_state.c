@@ -30,6 +30,7 @@
 *                                                  new local fields to
 *                                                  mpe_qpe_fields and
 *                                                  mpe_qpe_dependencies 
+*                    2/4/2015      C Gobs          DR 17069 - mpe_generate_list - token value too short
 ********************************************************************************
 */
 #include <stdlib.h>
@@ -130,6 +131,7 @@ const static char * mpe_qpe_dependencies [ NUM_BEST_PRODUCTS ] =
 /* GageOnly Generation rule in case mpe_del_gage_zeros token is OFF. */
 const static char * gageonly_del_gages_off = "" ;
 
+#define MPE_GENERATE_LIST_REPLY_LEN 512
 
 /*******************************************************************************
 * MODULE NUMBER: 1
@@ -514,7 +516,7 @@ void get_mpe_product_state ( const char * product , const int * product_len ,
    char mpe_del_gage_zeros_reply [ MPE_PRODUCT_REPLY_LEN ] = { '\0' } ;
    char mpe_generate_areal_qpe_reply [ MPE_PRODUCT_REPLY_LEN ] = {'\0'};
    static char * mpe_generate_list_token = MPE_GENERATE_LIST_TOKEN ;
-   char mpe_generate_list_reply [ MPE_PRODUCT_REPLY_LEN ] = { '\0' } ;
+   char mpe_generate_list_reply [ MPE_GENERATE_LIST_REPLY_LEN ] = { '\0' } ;
    static char mpe_qpe_fieldtype [ BESTFIELD_LEN] = { '\0' } ;
    char * pChar = NULL ;
    char * pString = NULL ;
@@ -598,9 +600,10 @@ void get_mpe_product_state ( const char * product , const int * product_len ,
                                "empty.\n" , mpe_generate_list_token ) ;
          }
 
-         memset ( mpe_generate_list_reply , '\0' , MPE_PRODUCT_REPLY_LEN ) ;
+         memset ( mpe_generate_list_reply , '\0' , MPE_GENERATE_LIST_REPLY_LEN ) ;
       }
-      printf("get_mpe_product_state(): mpe_generate_list_reply = :%s: \n", mpe_generate_list_reply);
+      printf("get_mpe_product_state(): mpe_generate_list_reply = :%s: characters in mpe_generate_list_reply = %d  max = %d\n", mpe_generate_list_reply,
+    		  strlen(mpe_generate_list_reply), MPE_GENERATE_LIST_REPLY_LEN);
 
       /* Get the value of the mpe_del_gage_zeros token. */
       request_len = strlen ( mpe_del_gage_zeros_token ) ;

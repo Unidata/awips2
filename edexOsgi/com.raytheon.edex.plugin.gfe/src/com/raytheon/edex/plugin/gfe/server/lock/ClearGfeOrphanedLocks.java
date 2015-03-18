@@ -144,10 +144,10 @@ public class ClearGfeOrphanedLocks {
                 lockList = (List<Lock>) lockMgr.getAllLocks(siteId);
                 // find orphaned locks and break them
                 breakLocks(clients, lockList, lockMgr, siteId);
-                return;
             } catch (GfeException e) {
                 statusHandler.error("Error retrieving all locks", e);
             }
         }
+        return;
     }
 }
