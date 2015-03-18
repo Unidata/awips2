@@ -19,7 +19,6 @@
 package com.raytheon.uf.viz.alertviz.ui.dialogs;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -49,7 +48,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.alertviz.AlertVizPython;
 import com.raytheon.uf.viz.alertviz.AlertvizJob;
 import com.raytheon.uf.viz.alertviz.ConfigContext;
 import com.raytheon.uf.viz.alertviz.ConfigurationManager;
@@ -95,6 +93,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * 09 Mar 2015  3856       lvenable    Added a check to determine if the timer is running before
  *                                     changing the icon on the timer action.  If it isn't running
  *                                     then set the icon to the default image.
+ * 18 Mar 2015  4234       njensen     Remove reference to non-working python
  * 
  * </pre>
  * 
@@ -626,17 +625,6 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             Container.logInternal(Priority.ERROR, statMsg.getMessage() + "\n"
                     + statMsg.getDetails());
             return;
-        }
-
-        // Run python script (this is done early since this will not block)
-        if (amd.isPythonEnabled() == true) {
-            try {
-                AlertVizPython.enqueue(statMsg, amd.clone(), gConfig);
-            } catch (FileNotFoundException e) {
-                Container.logInternal(Priority.ERROR,
-                        "AlertVizualization: exception python script not found: "
-                                + amd.getPythonScript(), e);
-            }
         }
 
         boolean isGdnAdminMessage = statMsg.getCategory().equals("GDN_ADMIN")
