@@ -142,6 +142,11 @@
       <userPermission>com.raytheon.localization.site/common_static/damagepath</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/hazardServices</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/hazardServices/settings</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/hazardServices/hazardMetaData</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/python/events/productgen/products</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/python/events/productgen/formats</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/python/events/recommenders</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/python/textUtilities</userPermission>
    </user>
 </nwsRoleData>
 

@@ -41,6 +41,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * ------------ ---------- ----------- --------------------------
  * Dec 20, 2011            dgilling     Initial creation
  * Jul 08, 2014 3361       njensen      Only build include path once
+ * Mar 12, 2015 4246       randerso     Changes to support VCModules at base, site, and user levels
  * 
  * </pre>
  * 
@@ -74,10 +75,10 @@ public class VCModuleControllerFactory {
             throws JepException {
         synchronized (VCModuleController.class) {
             if (includePath == null) {
-            includePath = PyUtil.buildJepIncludePath(
-                GfePyIncludeUtil.getVCModUtilsIncludePath(),
-                GfePyIncludeUtil.getVCModulesIncludePath(),
-                GfePyIncludeUtil.getCommonPythonIncludePath());
+                includePath = PyUtil.buildJepIncludePath(GfePyIncludeUtil
+                        .getVCModUtilsIncludePath(), GfePyIncludeUtil
+                        .getVCModulesIncludePath(dataMgr.getSiteID()),
+                        GfePyIncludeUtil.getCommonPythonIncludePath());
             }
         }
 

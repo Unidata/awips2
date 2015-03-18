@@ -8,7 +8,8 @@
         <constructor-arg ref="fetchATSrv" />
     </bean>
     
-    <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register">
+    <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register"
+            depends-on="jepInit">
         <constructor-arg ref="gfeSiteActivation"/>
     </bean>
 

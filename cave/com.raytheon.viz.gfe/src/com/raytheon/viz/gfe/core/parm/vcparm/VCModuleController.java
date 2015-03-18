@@ -47,6 +47,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Jan 08, 2013  1486      dgilling     Support changes to BaseGfePyController.
  * Oct 14, 2014  3676      njensen      Removed decodeGD(GridType) since it was
  *                                       a copy of getNumpyResult()
+ * Mar 12, 2015  #4246     randerso     Changes to support VCModules at base, site, and user levels
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ public class VCModuleController extends BaseGfePyController {
      *            the Java classloader to use for importing Java classes inside
      *            python
      * @param dataMgr
-     *            TODO
+     *            the data manager for this gfe instance
      * @throws JepException
      */
     protected VCModuleController(String aFilePath, String anIncludePath,
@@ -80,7 +81,8 @@ public class VCModuleController extends BaseGfePyController {
         super(aFilePath, anIncludePath, aClassLoader, dataMgr, CLASS_NAME);
         this.tempGridNames = new ArrayList<String>();
 
-        String scriptPath = GfePyIncludeUtil.getVCModulesIncludePath();
+        String scriptPath = GfePyIncludeUtil.getVCModulesIncludePath(dataMgr
+                .getSiteID());
         jep.eval(INTERFACE + " = VCModuleInterface('" + scriptPath + "')");
     }
 
