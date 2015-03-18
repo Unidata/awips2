@@ -39,6 +39,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * ------------ ---------- ----------- --------------------------
  * Mar 07, 2014    2858    mpduff      Initial creation.
  * Mar 17, 2014    2855    mpduff      Renamed to RedbookMenusXML.java.
+ * Jan 28, 2015    4030    mpduff      Added addMenuEntry method.
  * 
  * </pre>
  * 
@@ -76,6 +77,10 @@ public class RedbookMenusXML {
      */
     public void setMenuEntryList(List<MenuEntry> menuEntryList) {
         this.menuEntryList = menuEntryList;
+    }
+
+    public void addMenuEntry(MenuEntry entry) {
+        menuEntryList.add(entry);
     }
 
     /*
