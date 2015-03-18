@@ -36,6 +36,7 @@
 #                                                 __warnETNduplication() and
 #                                                 __highestETNActiveTable.
 #    11/11/14        4953          randerso       Changed type of endTime from float to int
+#    02/05/15        4099          randerso       Fixed exception handling in __getActiveTable
 #
 
 
@@ -933,7 +934,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         except:
             self.log.exception("Unable to access VTEC Active Table: ")
-            raise Exception, s
+            raise
 
     def __createCityHazards(self):
         if not self.__accurateCities:
