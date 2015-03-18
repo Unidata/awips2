@@ -43,7 +43,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * December 2013 DCS 167    C. Gobs     Initial version
- * 
+ * February 2015            C. Gobs     Fixed issue with parsing unexpected file name formats in xmrg directory
  * </pre>
  * 
  * 
@@ -156,6 +156,7 @@ public class PostAnalysisManager
 			try
 			{
 				shiftedDate = utcSdf2.parse(timeString);
+				longTime = shiftedDate.getTime();
 			}
 			catch(ParseException e)
 			{
@@ -164,7 +165,7 @@ public class PostAnalysisManager
 
 		}
 
-		longTime = shiftedDate.getTime();
+		
 
 		return longTime;
 	}
