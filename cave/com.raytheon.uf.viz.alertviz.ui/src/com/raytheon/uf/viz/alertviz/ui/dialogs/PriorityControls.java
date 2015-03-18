@@ -43,7 +43,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.alertviz.AlertVizPython;
 import com.raytheon.uf.viz.alertviz.INeedsSaveListener;
 import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
 
@@ -63,7 +62,8 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  * 08 Sep 2012  13528     Xiaochuan    Run setNewConfig to update priorities
  * 									   setting.
  * 14 Dec 2012  4827	  Xiaochuan	   Set toolTip on changeActionBtn.
- * 	
+ * 18 Mar 2015  4234       njensen     Remove reference to dead code
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -74,7 +74,7 @@ public class PriorityControls {
     /**
      * Parent composite.
      */
-    private Composite parentComp;
+    private final Composite parentComp;
 
     /**
      * Canvas displaying the priority.
@@ -99,7 +99,7 @@ public class PriorityControls {
     /**
      * Priority number.
      */
-    private int priority = 0;;
+    private int priority = 0;
 
     /**
      * Text message check box.
@@ -144,7 +144,7 @@ public class PriorityControls {
     /**
      * Control font.
      */
-    private Font controlFont;
+    private final Font controlFont;
 
     /**
      * Canvas width.
@@ -169,11 +169,11 @@ public class PriorityControls {
     /**
      * Parent shell.
      */
-    private Shell parentShell;
+    private final Shell parentShell;
 
     private Button actionChk;
-    
-    private AlertVisConfigDlg configDialog;
+
+    private final AlertVisConfigDlg configDialog;
 
     /**
      * Button used to change the audio file.
@@ -184,7 +184,7 @@ public class PriorityControls {
 
     private FileSelectDlg audioDlg;
 
-    private INeedsSaveListener needsSaveListener;
+    private final INeedsSaveListener needsSaveListener;
 
     /**
      * Constructor.
@@ -197,12 +197,13 @@ public class PriorityControls {
      *            Priority number.
      */
     public PriorityControls(Shell parentShell, Composite parentComp,
-            int priority, INeedsSaveListener needsSaveListener, AlertVisConfigDlg configDialog ) {
+            int priority, INeedsSaveListener needsSaveListener,
+            AlertVisConfigDlg configDialog) {
         this.parentComp = parentComp;
         this.priority = priority;
         this.parentShell = parentShell;
         this.configDialog = configDialog;
-        
+
         createPriorityColor();
 
         this.controlFont = new Font(parentComp.getDisplay(), "Monospace", 10,
@@ -222,12 +223,14 @@ public class PriorityControls {
         priorityCanvas.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
         priorityCanvas.setLayoutData(gd);
         priorityCanvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent e) {
                 drawCanvas(e.gc);
             }
         });
 
         priorityCanvas.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent e) {
                 priorityColor.dispose();
                 controlFont.dispose();
@@ -247,6 +250,7 @@ public class PriorityControls {
         textChk = new Button(parentComp, SWT.CHECK);
         textChk.setLayoutData(gd);
         textChk.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 updateBlinkButton();
                 configDialog.setNewConfig();
@@ -266,8 +270,9 @@ public class PriorityControls {
         blinkChk.setEnabled(false);
         blinkChk.setLayoutData(gd);
         blinkChk.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
-            	alertMetadata.setBlink(blinkChk.getSelection());
+                alertMetadata.setBlink(blinkChk.getSelection());
                 configDialog.setNewConfig();
                 needsSaveListener.saveNeeded(true);
             }
@@ -284,6 +289,7 @@ public class PriorityControls {
         popupChk = new Button(parentComp, SWT.CHECK);
         popupChk.setLayoutData(gd);
         popupChk.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 alertMetadata.setPopup(popupChk.getSelection());
                 configDialog.setNewConfig();
@@ -310,8 +316,9 @@ public class PriorityControls {
         audioChk.setLayoutData(gd);
         audioChk.setToolTipText("");
         audioChk.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
-            	updateAudioChangeButton();
+                updateAudioChangeButton();
                 alertMetadata.setAudioEnabled(audioChk.getSelection());
                 configDialog.setNewConfig();
                 needsSaveListener.saveNeeded(true);
@@ -322,6 +329,7 @@ public class PriorityControls {
         changeAudioBtn.setText("...");
         changeAudioBtn.setToolTipText("Change audio file");
         changeAudioBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 selectAudioFile();
                 configDialog.setNewConfig();
@@ -346,6 +354,7 @@ public class PriorityControls {
         actionChk.setLayoutData(gd);
         actionChk.setToolTipText("Action File not available...");
         actionChk.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 updateActionChangeButton();
                 alertMetadata.setPythonEnabled(actionChk.getSelection());
@@ -358,6 +367,7 @@ public class PriorityControls {
         changeActionBtn.setText("...");
         changeActionBtn.setToolTipText("Change action file");
         changeActionBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 selectActionFile();
                 configDialog.setNewConfig();
@@ -377,6 +387,7 @@ public class PriorityControls {
         logChk = new Button(parentComp, SWT.CHECK);
         logChk.setLayoutData(gd);
         logChk.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 alertMetadata.setLog(logChk.getSelection());
                 configDialog.setNewConfig();
@@ -417,8 +428,9 @@ public class PriorityControls {
         changeTextColorBtn.setText("...");
         changeTextColorBtn.setToolTipText("Change foreground/background color");
         changeTextColorBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
-            	showColorDialog();
+                showColorDialog();
                 configDialog.setNewConfig();
 
             }
@@ -764,8 +776,8 @@ public class PriorityControls {
         filteredExtensions.put(".py~", ".py~");
 
         actionDlg = new FileSelectDlg(parentComp.getShell(),
-                SWT.APPLICATION_MODAL, AlertVizPython.ALERTVIZ_PYTHON_PATH,
-                new String[] { ".py", "*", "*.*" }, false, filteredExtensions);
+                SWT.APPLICATION_MODAL, "alertViz/python", new String[] { ".py",
+                        "*", "*.*" }, false, filteredExtensions);
 
         actionDlg.setSelectedFile(actionFile);
         Boolean retVal = (Boolean) actionDlg.open("Action Selection File",
@@ -784,7 +796,7 @@ public class PriorityControls {
                 saveNeeded = !selectedFileName.equals(actionFile);
                 alertMetadata.setPythonScript(selectedFileName);
                 changeActionBtn.setToolTipText(selectedFileName);
-                
+
             } else {
                 alertMetadata.setAudioFile(null);
                 alertMetadata.setAudioEnabled(false);
