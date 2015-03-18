@@ -28,7 +28,9 @@
 #    ------------    ----------    -----------    --------------------------
 #    02/13/13        1447          dgilling       Initial Creation.
 #    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency 
+#    03/04/2015      4129          randerso       Pass active table change logger through to MergeVtec.merge
 #
+##
 
 
 import os
@@ -48,7 +50,7 @@ def init_logging():
     logger = iscUtil.getLogger("ingestAT", logLevel=logging.INFO)
 
 
-def execute_ingest_at(incomingRecords, activeTable, atName, ztime, makeBackups, xmlIncoming):
+def execute_ingest_at(incomingRecords, activeTable, atName, ztime, makeBackups, xmlIncoming, atChangeLog):
     # log the source of this data
     if xmlIncoming is not None:
         irt = IrtAccess.IrtAccess("")
@@ -63,20 +65,20 @@ def execute_ingest_at(incomingRecords, activeTable, atName, ztime, makeBackups, 
     results = None        
     try:
         results = MergeVTEC.merge(activeTable, atName, incomingRecords, ztime, makeBackups,
-          logger)
+          logger, atChangeLog)
     except:
         logger.exception("MergeVTEC fail:")
     return results
 
 def runFromJava(activeTable, activeTableMode, newRecords, drt, makeBackups,
-                xmlIncoming):
+                xmlIncoming, atChangeLog=None):
     init_logging()
     
     logger.info('************* ingestAT ************************')
     startT = time.time()
     
     results = execute_ingest_at(newRecords, activeTable, activeTableMode, drt,
-                      makeBackups, xmlIncoming)
+                      makeBackups, xmlIncoming, atChangeLog=atChangeLog)
     
     #--------------------------------------------------------------------
     # Finish

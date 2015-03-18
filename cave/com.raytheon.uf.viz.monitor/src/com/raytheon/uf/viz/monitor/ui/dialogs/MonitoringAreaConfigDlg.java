@@ -78,6 +78,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 24, 2014 2757          skorolev     Fixed problem with adding and removing zones.
  * Oct 27, 2014 3667          skorolev     Corrected functionality of dialog. Cleaned code.
  * Nov 12, 2014 3650          skorolev     Added confirmation box for unsaved changes in the dialog.
+ * Mar 08, 2015 3888          dhladky      Restored threshold pop-up when adding new stations/zones.
  * 
  * </pre>
  * 
@@ -1476,12 +1477,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
      * Reset data status.
      */
     protected void resetStatus() {
-        if (!configMgr.getAddedZones().isEmpty()) {
-            configMgr.getAddedZones().clear();
-        }
-        if (!configMgr.getAddedStations().isEmpty()) {
-            configMgr.getAddedStations().clear();
-        }
+
         this.timeWindowChanged = false;
         this.maZonesRemoved = false;
         this.maStationsRemoved = false;

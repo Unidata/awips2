@@ -13,7 +13,7 @@
 		<property name="record" value="com.raytheon.uf.common.dataplugin.goessounding.GOESSounding" />
 	</bean>
 	
-	<bean factory-bean="pluginRegistry" factory-method="register">
+	<bean id="goessoundingRegistered" factory-bean="pluginRegistry" factory-method="register">
 		<constructor-arg value="goessounding"/>
 		<constructor-arg ref="goessoundingProperties"/>
 	</bean>
