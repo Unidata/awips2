@@ -32,6 +32,7 @@
 #    06/17/13        #3296         randerso       Moved active table backup and purging 
 #                                                 to a separate thread in java.
 #                                                 Added performance logging
+#    02/05/15        #4099         randerso       Changed log level of year-end issuance tweak
 #
 
 import time
@@ -122,7 +123,7 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                   if oldYear < newYear:
                       if (newR['act'] == "EXP" and newR['endTime'] == oldR['endTime']) or \
                         self.__overlaps((oldR['startTime'],oldR['endTime']), (newR['startTime'],newR['endTime'])):
-                          LogStream.logVerbose("Reset issuance time to last year:",
+                          LogStream.logEvent("Reset issuance time to last year:",
                             "\nNewRec: ", self.printEntry(newR),
                             "OldRec: ", self.printEntry(oldR))
                           newR['issueTime'] = lastYearIssueTime
