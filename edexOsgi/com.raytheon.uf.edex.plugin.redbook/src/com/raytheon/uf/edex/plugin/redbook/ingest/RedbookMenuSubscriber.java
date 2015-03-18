@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.plugin.redbook.menu.RedbookUaMenuUtil;
  * Mar 19, 2014    2857    mpduff      Implement NCO.
  * Mar 19, 2014    2859    mpduff      Implement MPC.
  * Mar 19, 2014    2860    mpduff      Implement Upper Air.
+ * Jan 28, 2015    4030    mpduff      Changed constants to public.
  * 
  * </pre>
  * 
@@ -60,22 +61,22 @@ public class RedbookMenuSubscriber implements INationalDatasetSubscriber {
             .getHandler(RedbookMenuSubscriber.class);
 
     /** Hazard menu file */
-    private static final String HAZARD_MENU_FILE = "RedbookHazardMenus.xml";
+    public static final String HAZARD_MENU_FILE = "RedbookHazardMenus.xml";
 
     /** HPC menu file */
-    private static final String HPC_MENU_FILE = "RedbookHPCMenus.xml";
+    public static final String HPC_MENU_FILE = "RedbookHPCMenus.xml";
 
     /** CPC menu file */
-    private static final String CPC_MENU_FILE = "RedbookCPCMenus.xml";
+    public static final String CPC_MENU_FILE = "RedbookCPCMenus.xml";
 
     /** MPC menu file */
-    private static final String MPC_MENU_FILE = "RedbookMPCMenus.xml";
+    public static final String MPC_MENU_FILE = "RedbookMPCMenus.xml";
 
     /** NCO menu file */
-    private static final String NCO_MENU_FILE = "RedbookNCOMenus.xml";
+    public static final String NCO_MENU_FILE = "RedbookNCOMenus.xml";
 
     /** Upper air menu file */
-    private static final String UA_MENU_FILE = "RedbookUAMenus.xml";
+    public static final String UA_MENU_FILE = "RedbookUAMenus.xml";
 
     /**
      * {@inheritDoc}
