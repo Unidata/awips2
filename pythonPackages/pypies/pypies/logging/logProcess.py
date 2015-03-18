@@ -33,15 +33,16 @@
 #    01/17/13        1490          bkowal        Retrieves the logging tcp port
 #                                                from configuration instead of
 #                                                using the default.
+#    Mar 11, 2015    4269          njensen       Fix to get around msg received as a
+#                                                string caused by fix for python bug 14436
 # 
 #
 
 
-import cPickle
+import cPickle, struct, ast
 import logging
 import logging.handlers
 import SocketServer
-import struct
 
 LOG_THRESHOLD = 0.3 # seconds
 
@@ -75,16 +76,16 @@ class LogRecordStreamHandler(SocketServer.StreamRequestHandler):
                 chunk = self.connection.recv(slen)
                 while len(chunk) < slen:
                     chunk = chunk + self.connection.recv(slen - len(chunk))
-                obj = self.unPickle(chunk)
-                msg = obj['msg']
-                if type(msg) is str:
-                    record = logging.makeLogRecord(obj)
-                    self.handleLogRecord(record)
-                else:
+                recordDict = cPickle.loads(chunk)
+                record = logging.makeLogRecord(recordDict)
+                # the msg in the record is always a string now, see
+                # http://bugs.python.org/issue14436
+                # this will attempt to force it to a dictionary
+                try:
+                    msg = ast.literal_eval(record.msg)                                    
                     self.statsThread.addRecord(msg)
                     timeDict = msg['time']                   
                     if timeDict['total'] > LOG_THRESHOLD:                    
-                        #obj['msg'] = 'Processed ' + msg['request'] + ' on ' + msg['file'] + ' in ' + ('%.3f' % msg['time']['total']) + ' seconds'
                         logMsg = 'Processed ' + msg['request'] + ' on ' + msg['file'] + '. Timing entries in seconds: '
                         addComma=False
                         for SECTION in self.SECTION_KEYS:
@@ -96,17 +97,16 @@ class LogRecordStreamHandler(SocketServer.StreamRequestHandler):
                                     addComma = True
                                 logMsg += ' ' + timeKey + ' ' + ('%.3f' % timeDict[timeKey])
                                 
-                        obj['msg'] = logMsg
-                        record = logging.makeLogRecord(obj)
+                        record.msg = logMsg
                         self.handleLogRecord(record)
+                except SyntaxError:
+                    # probably was just a string, we have a record, let's log it
+                    self.handleLogRecord(record)
             except Exception, e:
+                print "Unhandled exception in logProcess"
                 import sys, traceback, string
                 t, v, tb = sys.exc_info()
-                print string.join(traceback.format_exception(t, v, tb))     
-                
-
-    def unPickle(self, data):
-        return cPickle.loads(data)
+                print string.join(traceback.format_exception(t, v, tb))                     
 
     def handleLogRecord(self, record):        
         logCfg.getPypiesLogger().handle(record)

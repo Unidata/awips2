@@ -107,6 +107,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Feb 05, 2015    4099    randerso    Fixed latest ETN query for year-end
  * Feb 23, 2015    4127    dgilling    Use cluster locking to only allow 1 active
  *                                     table write at a time.
+ * Mar 04, 2015    4129    randerso    Pass active table change logger to ingestAt and/or MergeVTEC
  * 
  * </pre>
  * 
@@ -648,6 +649,7 @@ public class ActiveTable {
                 args.put("newRecords", newRecords);
                 args.put("drt", timeOffset);
                 args.put("makeBackups", makeBackup);
+                args.put("atChangeLog", changeLog);
                 if (runIngestAT) {
                     args.put("xmlIncoming", xmlSource);
                 }
