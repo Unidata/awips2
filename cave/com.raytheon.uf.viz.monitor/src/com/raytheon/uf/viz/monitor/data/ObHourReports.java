@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
@@ -47,6 +46,7 @@ import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
  * Oct.29, 2012  1297       skorolev   Changed HashMap to Map
  * Oct.31  2012  1297       skorolev   Cleaned code.
  * Sep 04  2014  3220       skorolev   Added updateZones method.
+ * Mar 17  2015  3888       dhladky    check for nulls
  * 
  * </pre>
  * 
@@ -227,8 +227,11 @@ public class ObHourReports {
                 List<String> stations = new CopyOnWriteArrayList<String>(
                         hourReports.get(zone).getZoneHourReports().keySet());
                 for (String stn : stations) {
-                    if (!zoneStationMap.get(zone).contains(stn)) {
-                        hourReports.get(zone).getZoneHourReports().remove(stn);
+                    if (zoneStationMap.get(zone) != null) {
+                        if (!zoneStationMap.get(zone).contains(stn)) {
+                            hourReports.get(zone).getZoneHourReports()
+                                    .remove(stn);
+                        }
                     }
                 }
                 if (!zoneStationMap.keySet().contains(zone)) {
@@ -241,14 +244,16 @@ public class ObHourReports {
             List<String> stations = new CopyOnWriteArrayList<String>(
                     zoneStationMap.get(zone));
             for (String stn : stations) {
-                if (!hourReports.get(zone).getZoneHourReports()
-                        .containsKey(stn)) {
-                    hourReports
-                            .get(zone)
-                            .getZoneHourReports()
-                            .put(stn,
-                                    new ObStnHourReports(nominalTime, zone,
-                                            stn, appName, thresholdMgr));
+                if (hourReports.get(zone) != null) {
+                    if (!hourReports.get(zone).getZoneHourReports()
+                            .containsKey(stn)) {
+                        hourReports
+                                .get(zone)
+                                .getZoneHourReports()
+                                .put(stn,
+                                        new ObStnHourReports(nominalTime, zone,
+                                                stn, appName, thresholdMgr));
+                    }
                 }
             }
             if (!hourReports.containsKey(zone)) {

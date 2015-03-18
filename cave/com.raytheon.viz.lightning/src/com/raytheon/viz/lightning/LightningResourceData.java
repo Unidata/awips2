@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -47,7 +48,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Feb 27, 2013 DCS 152    jgerth       Support for WWLLN and multiple sources
  * Jun 19, 2014  3214      bclement     added pulse and cloud flash support
  * Jul 07, 2014  3333       bclement    removed plotLightSource field
- * 
+ * Mar 05, 2015 4233       bsteffen     include source in cache key.
  * </pre>
  * 
  * @author chammack
@@ -206,6 +207,15 @@ public class LightningResourceData extends AbstractRequestableResourceData {
      */
     public void setCountPosition(int countPosition) {
         this.countPosition = countPosition;
+    }
+
+    public String getSource() {
+        if (metadataMap != null
+                && metadataMap.containsKey(LightningConstants.SOURCE)) {
+            return metadataMap.get(LightningConstants.SOURCE)
+                    .getConstraintValue();
+        }
+        return null;
     }
 
     /*
