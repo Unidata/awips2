@@ -53,7 +53,6 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------  ---------- ----------- --------------------------
  * Sept 25, 2008 1562       askripsky   Initial creation.
  * Nov 12, 2012  1298       rferrel     Changes for non-blocking dialog.
- * Mar 17, 2015  17217      ryu         Set smart product as the default type.
  * </pre>
  * 
  * @author askripsky
@@ -268,13 +267,13 @@ public class NewTextProductDialog extends CaveJFACEDialog {
         buttonComp.setLayout(new GridLayout());
         buttonComp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
 
-        smartTypeButton = new Button(buttonComp, SWT.RADIO);
-        smartTypeButton.setText("Smart");
         tableTypeButton = new Button(buttonComp, SWT.RADIO);
         tableTypeButton.setText("Table");
+        smartTypeButton = new Button(buttonComp, SWT.RADIO);
+        smartTypeButton.setText("Smart");
 
-        // Default to smart type
-        smartTypeButton.setSelection(true);
+        // Default to table type
+        tableTypeButton.setSelection(true);
     }
 
     private void initNameSelection() {
