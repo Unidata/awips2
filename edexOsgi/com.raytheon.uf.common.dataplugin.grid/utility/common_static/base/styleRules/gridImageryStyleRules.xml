@@ -1780,7 +1780,7 @@
 			<parameter>PLI</parameter>
 		</paramLevelMatches>
 		<imageStyle>
-			<displayUnits label="C">K</displayUnits>
+			<displayUnits>C</displayUnits>
 			<range scale="LINEAR">
 				<minValue>-15</minValue>
 				<maxValue>15</maxValue>
@@ -1800,7 +1800,7 @@
 			<parameter>BLI</parameter>
 		</paramLevelMatches>
 		<imageStyle>
-			<displayUnits label="C">K</displayUnits>
+			<displayUnits>C</displayUnits>
 			<range scale="LINEAR">
 				<minValue>-15</minValue>
 				<maxValue>15</maxValue>
