@@ -43,7 +43,7 @@ VariableList = [("DEFAULT: Typical. Should only be changed in coordination with 
                            "Higher (40% Exceedance; for well-behaved systems within 6 hours of the event)",
                            "Highest (50% Exceedance; for well-behaved systems at time of the event)"]),
                 ("Grid Smoothing?", "Yes", "radio", ["Yes","No"]),
-                ("Make grids from PHISH\n or ICS?\n", "PHISH", "radio", ["PHISH", "ISC"]),
+                ("Make grids from PHISH\n or ISC?\n", "PHISH", "radio", ["PHISH", "ISC"]),
                 ]
 
 class Procedure (SmartScript.SmartScript):
@@ -432,7 +432,7 @@ class Procedure (SmartScript.SmartScript):
         # List of elements       
         # See if we should copy from ISC. If so, do the copy and exit
         smoothThreatGrid = varDict["Grid Smoothing?"]
-        PHISHorISC = varDict["Make grids from PHISH\n or ICS?\n"] 
+        PHISHorISC = varDict["Make grids from PHISH\n or ISC?\n"] 
         #PHISHorISC = "PHISH"
         topodb = "NED"
         #topodb = varDict["Topographic Database?"]
