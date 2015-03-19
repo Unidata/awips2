@@ -129,6 +129,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Feb 05, 2013 1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * Feb 18, 2014 2596        mpduff      Check for null coordinates.
  * Feb 02, 2015 4075        ccody       Added getSelectedGage for HS issue #3961
+ * Mar 09, 2015 13998       lbousaidi   changed the dur display when it is null to match A1. 
  * 
  * </pre>
  * 
@@ -637,6 +638,9 @@ public class MultiPointResource extends
                 shefDurCode = "I";
             } else {
                 shefDurCode = PDCUtils.convertDur((int) gage.getDur());
+                if (shefDurCode ==null) {
+                	shefDurCode = "?";
+                }
             }
             String pe = gage.getPe() + shefDurCode + gage.getTs()
                     + gage.getExtremum();

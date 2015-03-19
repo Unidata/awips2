@@ -51,7 +51,7 @@ import com.raytheon.viz.hydrocommon.util.DurationUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2010 4564       mpduff      Initial creation
- * 
+ * Mar 09, 2015 13998      lbousaidi   Initialize minuteList 
  * 
  * </pre>
  * 
@@ -679,6 +679,9 @@ public class GetTotalPrecip {
 
         numMinutes = (int) ((endingTime.getTime() - startingTime.getTime()) / PDCConstants.MILLIS_PER_MINUTE);
         ArrayList<Integer> minuteList = new ArrayList<Integer>(numMinutes);
+        for (int i = 0 ; i < numMinutes; i++){
+              minuteList.add(0);
+        }
 
         precipTotal = computeRawPpTotal(ppDataList, startingTime, endingTime,
                 noAccumFlag, endingTimeMatch, minuteList);
