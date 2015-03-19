@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="Vis" name="Visibility" unit="m">
+  <Method levels="Surface" name="Alias">
+    <Field abbreviation="vis" level="2FHAG" />
+  </Method>
+  <Method levels="Surface" models="modelsounding" name="Alias">
+    <Field abbreviation="vsby" level="Station" />
+  </Method>
+  <Method levels="Surface" models="obs" name="Alias">
+    <Field abbreviation="visibility" level="Station" />
+  </Method>
+</DerivedParameter>

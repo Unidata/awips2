@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="dBZ" name="Column Max Refl" abbreviation="CXR" xmlns:ns2="group">
+<DerivedParameter unit="dBZ" name="Comp Refl" abbreviation="CXR" xmlns:ns2="group">
     <Method name="Alias" levels="Layer">
         <Field abbreviation="REFC"/>
     </Method>

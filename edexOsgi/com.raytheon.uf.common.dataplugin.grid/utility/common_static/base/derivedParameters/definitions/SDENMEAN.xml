@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="SDENMEAN" internal="false" isVector="false" name="HPC Mean Snow Density" unit="kg/m³">
+  <Method levels="Surface" name="Alias">
+    <Field abbreviation="SDEN" />
+  </Method>
+</DerivedParameter>

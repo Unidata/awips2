@@ -19,42 +19,35 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="menuItem" menuText="Wind" key="Wind"
-        indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Wind Speed"
-        key="wSp" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="WSp Anl Uncertainty"
-        key="wSpea" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Omega" key="PVV"
-        indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Geometric Vert Velocity"
-        key="GVV" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Mean 1hr Geometric Vert Velocity" 
-        key="GVV1hr"  indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Vert Velocity"
-        key="VV" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Wind Gust" key="Gust"
-        indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Gust Speed"
-        key="WGS" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Max Gust Speed" key="MaxWHRRR"
-        indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Wind Direction"
-        key="WD" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="WDir Anl Uncertainty"
-        key="WDea" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Wind Shear"
-        key="Shear" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Shear Mag" key="ShrMag"
-        indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Bulk Shear"
-        key="BlkShr" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Bulk Shear Mag"
-        key="BlkMag" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Cumulative Shr"
-        key="CumShr" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Norm Cumu Shr"
-        key="CumNrm" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="StrmMot" key="StrmMot"
-        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="10m Wind Speed Analysis Uncertainty" key="wSpea" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="10m Wind Dir Analysis Uncertainty" key="WDea" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Ageo Wind" key="ageoW" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Ageo Wind Speed" key="ageoWM"  indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Deformation (Total)" key="Tdef" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Deformation Vect" key="defV" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Geo Wind" key="geoW" indentText="false" />	
+	<contribute xsi:type="menuItem" menuText="Geo Wind Speed" key="geoWM"  indentText="true" />	
+	<contribute xsi:type="menuItem" menuText="Thermal Wind" key="tWind" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Wind (Total)" key="Wind" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="u Component of Wind" key="uW"  indentText="true" />
+	<contribute xsi:type="menuItem" menuText="v Component of Wind" key="vW"  indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Wind Direction" key="WD" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Wind Divergence" key="wDiv" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Mean Div" key="wDivxSM" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Wind Gust Speed" key="WGS" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Max Hourly Gust Speed" key="MaxWGS1hr" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Wind Gust (Barb)" key="Gust" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Wind Speed" key="wSp" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Max Hourly Sustained Wind Speed" key="MWSPD" indentText="true" />
+
+	<contribute xsi:type="titleImgItem" titleText="Wind Shear" displayImage="true" displayDashes="true"/>
+	<contribute xsi:type="menuItem" menuText="Bulk Shear Vecs" key="BlkShr" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Bulk Shear Mag" key="BlkMag" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Bulk Shear Vecs - Normalized" key="Shear" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Bulk Shear Nrml Mag" key="ShrMag" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Cumulative Shear" key="CumShr" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Norm Cumulative Shr" key="CumNrm" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="BRN" key="BRN" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="BRN Shear" key="BRNSHR" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="3-6 km icons &gt; 11kts" key="36SHRMi" indentText="false" />
 </menuTemplate>

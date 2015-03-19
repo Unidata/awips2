@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="CCP" internal="false" isVector="false" name="Cloud Cover" unit="%">
+  <Method name="Alias">
+    <Field abbreviation="TCC" />
+  </Method>
+  <Method name="Alias">
+    <Field abbreviation="CCOV" />
+  </Method>
+  <Method displayName="Total Cloud Cover" models="HPCGuide" name="Multiply">
+    <Field abbreviation="TCC" />
+    <ConstantField value="100.0" />
+  </Method>
+  <Method displayName="GOES Effective Cloud Amount" models="RTMA" name="Multiply">
+    <Field abbreviation="TCC" />
+    <ConstantField value="100.0" />
+  </Method>
+  <Method name="Multiply">
+    <Field abbreviation="TCC" />
+    <ConstantField value="100.0" />
+  </Method>
+  <Method levels="Surface" name="Mapping">
+    <Field abbreviation="clouds_bestCat" level="Station" />
+    <ConstantField value="0" />
+    <ConstantField value="0" />
+    <ConstantField value="8" />
+    <ConstantField value="1.0" />
+    <ConstantField value="12" />
+    <ConstantField value=".80" />
+    <ConstantField value="11" />
+    <ConstantField value=".30" />
+    <ConstantField value="13" />
+    <ConstantField value=".10" />
+  </Method>
+  <Method levels="Surface" models="modelsounding" name="Max">
+    <Field abbreviation="CCP" level="HiLyr" />
+    <Field abbreviation="CCP" level="MidLyr" />
+    <Field abbreviation="CCP" level="LowLyr" />
+  </Method>
+  <Method levels="LowLyr" models="modelsounding" name="Alias">
+    <Field abbreviation="lowCld" level="Station" />
+  </Method>
+  <Method levels="MidLyr" models="modelsounding" name="Alias">
+    <Field abbreviation="midCld" level="Station" />
+  </Method>
+  <Method levels="HiLyr" models="modelsounding" name="Alias">
+    <Field abbreviation="hiCld" level="Station" />
+  </Method>
+</DerivedParameter>

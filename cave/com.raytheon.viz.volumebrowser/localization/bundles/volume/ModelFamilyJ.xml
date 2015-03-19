@@ -42,7 +42,7 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 							</mapping>
 							<mapping key="info.level.masterLevel.name">
 								<!--not sure-->
-								<constraint constraintValue="SFC" constraintType="EQUALS"/>
+								<constraint constraintValue="MAXOMEGA" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
@@ -72,7 +72,7 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.leveltwovalue">
-								<constraint constraintValue="850" constraintType="EQUALS"/>
+								<constraint constraintValue="700" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
@@ -128,6 +128,7 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -190,11 +191,10 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.masterLevel.name">
-								<!--NOT SURE-->
-								<constraint constraintValue="SFC" constraintType="EQUALS"/>
+								<constraint constraintValue="TEMP" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="-15" constraintType="EQUALS"/>
+								<constraint constraintValue="258.149" constraintType="IN"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -205,6 +205,7 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -225,10 +226,10 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 							</mapping>
 							<mapping key="info.level.masterLevel.name">
 								<!--NOT SURE-->
-								<constraint constraintValue="SFC" constraintType="EQUALS"/>
+								<constraint constraintValue="TEMP" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="-15" constraintType="EQUALS"/>
+								<constraint constraintValue="258.149" constraintType="IN"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -257,7 +258,7 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="TP" constraintType="EQUALS"/>
+								<constraint constraintValue="${TP}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -309,10 +310,50 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 					</resourceData>
 				</resource>
 				
+				<!--|1.|Tdend,0-4kmAgl-->
+				<resource>
+					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+						<capabilities>
+							<capability xsi:type="outlineCapability" lineStyle="DASHED" outlineOn="true" outlineWidth="1"/>
+						</capabilities>
+						<resourceType>PLAN_VIEW</resourceType>
+					</loadProperties>
+					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+					</properties>
+					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+						<metadataMap>
+							<mapping key="info.parameter.abbreviation">
+								<constraint constraintValue="Tdend" constraintType="EQUALS"/>
+							</mapping>
+							<mapping key="info.datasetId">
+								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+							</mapping>
+							<mapping key="info.level.leveltwovalue">
+								<constraint constraintValue="4000.0" constraintType="EQUALS"/>
+							</mapping>
+							<mapping key="pluginName">
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
+							</mapping>
+							<mapping key="info.level.masterLevel.name">
+								<!--not sure-->
+								<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+							</mapping>
+							<mapping key="info.level.levelonevalue">
+								<constraint constraintValue="0.0" constraintType="EQUALS"/>
+							</mapping>
+						</metadataMap>
+						<alertParser xsi:type="dataCubeAlertMessageParser"/>
+					</resourceData>
+				</resource>
+				
+				
+				
 				<!--|21.|TP,Surface-->
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -323,7 +364,7 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="TP" constraintType="EQUALS"/>
+								<constraint constraintValue="${TP}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -346,11 +387,12 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
+						<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
@@ -375,16 +417,16 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 					</resourceData>
 				</resource>
 				
-				<!--|10.1|PTyp,Surface-->
-				<!--NOT SURE-->
+				<!--|11.1|PTyp,Surface\-->
+
 				<resource>
-					<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+					<loadProperties xsi:type="gridLoadProperties" displayType="ICON" loadWithoutData="false">
 						<capabilities>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
 						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
@@ -487,6 +529,7 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 				<resource>
 					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
+						<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="true" brightness="0.8" contrast="1.0"/>
 							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
 						</capabilities>
 						<resourceType>PLAN_VIEW</resourceType>
@@ -507,10 +550,10 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 							</mapping>
 							<mapping key="info.level.masterLevel.name">
 								<!--NOT SURE-->
-								<constraint constraintValue="SFC" constraintType="EQUALS"/>
+								<constraint constraintValue="TEMP" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="-15" constraintType="EQUALS"/>
+								<constraint constraintValue="258.149" constraintType="IN"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -541,10 +584,10 @@ ModFamJ| |N|Winter: Snow Growth Family| |OTHER | | \
 							</mapping>
 							<mapping key="info.level.masterLevel.name">
 								<!--NOT SURE-->
-								<constraint constraintValue="SFC" constraintType="EQUALS"/>
+								<constraint constraintValue="TEMP" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="info.level.levelonevalue">
-								<constraint constraintValue="-15" constraintType="EQUALS"/>
+								<constraint constraintValue="258.149" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser"/>
