@@ -83,11 +83,11 @@ import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Provides contouring wrapper.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer     Description
  * ------------- -------- ------------ ----------------------------------------
  * Oct 22, 2007           chammack     Initial Creation.
@@ -106,9 +106,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 27, 2014  2791     bsteffen     Switch from IDataRecord to DataSource
  * Mar 17, 2015  4261     nabowle      Move performance logging to the
  *                                     performance log.
- * 
+ * Mar 19, 2015  4292     nabowle      Add contour range using A1 configuration
+ *                                     rules.
+ *
  * </pre>
- * 
+ *
  * @author chammack
  * @version 1.0
  */
@@ -431,7 +433,7 @@ public class ContourSupport {
                     config.minMaxRadius = 7;
                 }
 
-                if (prefs.getContourLabeling().getValues() == null
+                if (contourLabeling.getValues() == null
                         && prefs.getContourLabeling().getIncrement() > 0.0) {
                     // interval provided
                     float initialInterval = prefs.getContourLabeling()
@@ -468,32 +470,46 @@ public class ContourSupport {
                     config.seed = controls;
 
                     contours = FortConBuf.contour(subgridSource, szX, szY, config);
-                } else if (prefs.getContourLabeling().getValues() != null) {
+                } else if (contourLabeling.getValues() != null) {
                     // explicit contouring values provided
+                    float[] vals = contourLabeling.getValues();
 
-                    // convert Float[] to float[]
-                    float[] vals = prefs.getContourLabeling().getValues();
-                    // the +0.1 makes it so numbers greater than 0.9 are rounded
-                    // up and all other numbers are rounded down. This seems to
-                    // make it match A1 betterwhen the density is 0.67 than
-                    // 2.98507 is rounded to 3 instead of 2
-                    int d = (int) (2 / ((level) * contourGroup.lastDensity) + 0.1);
-                    if (d > 1) {
-                        int myCount = (vals.length + d - 1) / d;
-                        float[] newVals = new float[myCount];
-                        int i, j;
-                        for (i = j = 0; j < myCount; i += d, j++) {
-                            newVals[j] = vals[i];
+                    /*
+                     * A contour range is specified by setting
+                     * numberOfContours=1000 and values={interval, minContour,
+                     * maxContour} based on AWIPS1 configuration rules.
+                     */
+                    if (vals.length == 2
+                            && contourLabeling.getNumberOfContours() == 1000) {
+                        // non-positive increments treated as 1 by ForConBuf
+                        vals = new float[] { contourLabeling.getIncrement(),
+                                vals[0], vals[1] };
+                    } else {
+                        /*
+                         * the +0.1 makes it so numbers greater than 0.9 are
+                         * rounded up and all other numbers are rounded down.
+                         * This seems to make it match A1 better when the
+                         * density is 0.67 than 2.98507 is rounded to 3 instead
+                         * of 2
+                         */
+                        int d = (int) (2 / ((level) * contourGroup.lastDensity) + 0.1);
+                        if (d > 1) {
+                            int myCount = (vals.length + d - 1) / d;
+                            float[] newVals = new float[myCount];
+                            int i, j;
+                            for (i = j = 0; j < myCount; i += d, j++) {
+                                newVals[j] = vals[i];
+                            }
+                            vals = newVals;
                         }
-                        vals = newVals;
-                    }
-                    if (prefs.getContourLabeling().isCreateNegativeValues()) {
-                        float[] newVals = new float[vals.length * 2];
-                        for (int i = 0; i < vals.length; i++) {
-                            newVals[vals.length + i] = vals[i];
-                            newVals[vals.length - i - 1] = -1 * vals[i];
+                        if (prefs.getContourLabeling().isCreateNegativeValues()) {
+                            float[] newVals = new float[vals.length * 2];
+                            for (int i = 0; i < vals.length; i++) {
+                                newVals[vals.length + i] = vals[i];
+                                newVals[vals.length - i - 1] = -1 * vals[i];
+                            }
+                            vals = newVals;
                         }
-                        vals = newVals;
                     }
                     config.seed = vals;
                     if (contourLabeling.getNumberOfContours() > 0) {
