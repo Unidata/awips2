@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="mm" name="Model Run Snow" abbreviation="SAmodel" internal="true">
+<DerivedParameter unit="mm" name="Model Run Snow via Thickness" abbreviation="SAmodel" internal="true">
     <Method name="ModelRun">
         <Field abbreviation="SA1hr"/>
     </Method>

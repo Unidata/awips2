@@ -31,4 +31,7 @@
     <Method name="Alias">
         <Field abbreviation="TPW"/>
     </Method>
+    <Method models="LAPS" name="Alias">
+    <Field abbreviation="tpw" />
+    </Method>
 </DerivedParameter>

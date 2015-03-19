@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="geoWM" name="Magnitude Gneo Wind" unit="m/s">
+<DerivedParameter abbreviation="geoWM" name="Magnitude Geo Wind" unit="m/s">
     <Method name="Magnitude">
 		<Field abbreviation="geoW"/>
 	</Method>

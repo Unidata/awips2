@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	RRtype ||N|Radar with PType |dbZ|CONTOUR,IMAGE,OTHER|Surface| \
+       *LinTrans,100MB|CSNOW,Surface|1.|CICEP,Surface|81.|CFRZR,Surface|161.|CRAIN,Surface|241.|\
+       *Test,150MB|RRtype,100MB|1.|321.|1.e37|321.|\
+       *Test,200MB,=REFC,=RR|RR,1kmAgl|1.|-1.e37|0.|0.|1.|0.|1.e37|RR,1kmAgl|\
+       *Test,200MB,!=RR|REFC,Layer|1.|-1.e37|0.|0.|1.|0.|1.e37|REFC,Layer|\
+       *Test,200MB,!=REFC|RR,1kmAgl|1.|-1.e37|0.|0.|1.|0.|1.e37|RR,1kmAgl|\
+       *Add,250MB|RRtype,150MB|RRtype,200MB|\
+       *Test,Surface|PTyp,Surface|1.|-1.e37|0.|-1.|1.|0.|321.|RRtype,250MB
+	
+-->
+<DerivedParameter unit="dBZ" name="Radar w/PType" abbreviation="RRtype" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="RRtype.execute1">
+        <Field abbreviation="CSNOW"/>
+        <Field abbreviation="CICEP"/>
+        <Field abbreviation="CFRZR"/>
+        <Field abbreviation="CRAIN"/>
+        <Field level="1kmAgl" abbreviation="RR"/>     
+    </Method>
+    <Method levels="Surface" name="RRtype.execute2">
+        <Field abbreviation="CSNOW"/>
+        <Field abbreviation="CICEP"/>
+        <Field abbreviation="CFRZR"/>
+        <Field abbreviation="CRAIN"/>
+        <Field level="Layer" abbreviation="CXR"/>       
+    </Method>
+</DerivedParameter>

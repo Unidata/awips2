@@ -19,54 +19,24 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="menuItem" menuText="Reflectivity"
-        key="RR" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Radial Vel"
-        key="RRV" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Tilt Angle"
-        key="TiltAng" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Col Max Refl"
-        key="CXR" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Spectrum Width"
-        key="BASSW" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Diff Refl" key="ZDR"
-        indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Corr Coeff"
-        key="COCO" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Spec Diff Phase"
-        key="KDP" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Hydrometeor Class"
-        key="HC" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Feature Strength"
-        key="sRank" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Feature Diameter"
-        key="diam" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Shear Mag"
-        key="RadarProductCode87" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Gate2Gate Shr"
-        key="g2gsh" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="FeatMot" key="FeatMot"
-        indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Divergence"
-        key="wDiv" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Derived Reflectivity"
-        key="REFD" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Derived Composite"
-        key="REFC" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="CAPPI"
-        key="REFD"  indentText="true" />
-    <contribute xsi:type="menuItem" menuText="MAX 1hr CAPPI"
-        key="MXREF"  indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Derived VIL"
-        key="VILIQ"  indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Derived Echo Top"
-        key="RETOP"  indentText="true" />
-    <contribute xsi:type="menuItem" menuText="CAPPI" key="REFD"
-        indentText="true" />
-    <contribute xsi:type="menuItem" menuText="MAX 1hr CAPPI"
-        key="MXREF" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Derived VIL"
-        key="VILIQ" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Derived Echo Top"
-        key="RETOP" indentText="true" />
+    <contribute xsi:type="titleImgItem" titleText="Dual-Pol" displayImage="false" displayDashes="true"/>
+	<contribute xsi:type="menuItem" menuText="Diff Refl" key="ZDR" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Corr Coeff" key="COCO" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Spec Diff Phase" key="KDP" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Hydrometeor Class" key="HC" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Feature Strength" key="sRank" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Feature Diameter" key="diam" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Echo Tops" key="MRETag" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="FeatMot" key="FeatMot" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Gate2Gate Shr" key="g2gsh" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Radial Vel" key="RRV" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Reflectivity" key="RR" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Max Hourly Derived Reflectivity" key="MREFD" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Composite Reflectivity" key="CXR" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Max Hourly Composite Reflectivity" key="MREFC" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Reflectivity w/PType" key="RRtype" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Shear Mag" key="RadarProductCode87"  indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Spectrum Width" key="BASSW" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Storm Motion" key="StrmMot" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Tilt Angle" key="TiltAng" indentText="false" />
 </menuTemplate>
