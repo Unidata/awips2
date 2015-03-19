@@ -25,6 +25,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.postanalysis.SummedHourlyMpeDlg;
 
 /**
@@ -37,7 +39,7 @@ import com.raytheon.viz.mpe.ui.dialogs.postanalysis.SummedHourlyMpeDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 12, 2011            lvenable     Initial creation
- * 
+ * Feb 26, 2015   9554     cgobs        Enable button based on mpe_post_analysis token and MPE 1-hr vs DQC mode
  * </pre>
  * 
  * @author lvenable
@@ -59,5 +61,26 @@ public class SummedHourlyMpeAction extends AbstractHandler {
         }
 
         return null;
+    }
+    
+    public boolean isEnabled()
+    {
+        
+        System.out.println("In SummedHourlyMpeAction.isEnabled()");
+        
+        AppsDefaults appsDefaults = AppsDefaults.getInstance();
+        boolean isPostAnalysisOnByToken = appsDefaults.getBoolean("mpe_post_analysis", false);
+        
+        
+        
+        MPEDisplayManager mgr = MPEDisplayManager.getCurrent();
+        boolean isDailyQCOn  = (mgr.isQpf() || mgr.isZflag() || mgr.isMaxmin());
+        
+        boolean isPostAnalysisAvailable = isDailyQCOn && isPostAnalysisOnByToken;
+        
+        return isPostAnalysisAvailable;
+        
+     
+      
     }
 }
