@@ -19,11 +19,8 @@
  **/
 package com.raytheon.viz.gfe.dialogs.sbu.jobs;
 
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.gfe.dialogs.sbu.ServiceBackupDlg;
-
 /**
- * TODO Add Description
+ * Interface for Service Backup Task Completion
  * 
  * <pre>
  * 
@@ -31,46 +28,13 @@ import com.raytheon.viz.gfe.dialogs.sbu.ServiceBackupDlg;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 11, 2011            bphillip     Initial creation
+ * Mar 18, 2015  #4300     randerso     Initial creation
  * 
  * </pre>
  * 
- * @author bphillip
+ * @author randerso
  * @version 1.0
  */
-
-public class SvcbuExitJob extends ServiceBackupJob {
-
-    private ServiceBackupDlg dialog;
-
-    /**
-     * @param name
-     */
-    public SvcbuExitJob(ServiceBackupDlg dialog, String primarySite) {
-        super("Exit Service Backup", primarySite);
-        this.dialog = dialog;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.dialogs.sbu.jobs.ServiceBackupJob#run()
-     */
-    @Override
-    public void run() {
-        VizApp.runAsync(new CloseSvcBuDialog(dialog));
-    }
-
-    private class CloseSvcBuDialog implements Runnable {
-
-        ServiceBackupDlg dialog;
-
-        public CloseSvcBuDialog(ServiceBackupDlg dialog) {
-            this.dialog = dialog;
-        }
-
-        public void run() {
-            this.dialog.close();
-        }
-    }
+public interface ITaskCompleteCallBack {
+    public void taskComplete(AbstractSbuTask task);
 }
