@@ -49,6 +49,8 @@ import com.raytheon.uf.common.util.RunProcess;
  * July 21, 2011 9210	   lbousaidi   changed the token xdat_shefdata_dir
  * 						 			   to shefdecode_input
  * Sep 19, 2011 10955      rferrel     Use RunProcess
+ * Mar 02, 2015 14538      J Wei       Shef file created by XDat will not be over written
+ * Mar 04, 2015 116        J Wei       Shef file created by XDat will not be deleted
  * 
  * </pre>
  * 
@@ -125,11 +127,6 @@ public class XdatShefUtil {
             startDateFormat = new SimpleDateFormat("yyyyMMdd", Locale.US);
             String post_date = startDateFormat.format(cal.getTime());
 
-            if ((send.compareTo("1") == 0)
-                    || (send.compareToIgnoreCase("yes") == 0)) {
-                sendAction = true;
-            }
-
             StringBuilder messageBuf = new StringBuilder();
             messageBuf.append(this.getShefHeader(timeStr));
             messageBuf.append(this.getShefComment());
@@ -148,11 +145,6 @@ public class XdatShefUtil {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             SimpleDateFormat dateFmt = new SimpleDateFormat("ddHHmm", Locale.US);
             String currentTime = dateFmt.format(cal.getTime());
-
-            if ((send.compareTo("1") == 0)
-                    || (send.compareToIgnoreCase("yes") == 0)) {
-                sendAction = true;
-            }
 
             StringBuilder messageBuf = new StringBuilder();
             messageBuf.append(this.getShefHeader(currentTime));
@@ -188,59 +180,27 @@ public class XdatShefUtil {
      * be called after the createFile method.
      */
     public void sendFile() {
-        if (sendAction) {
-            if (xmitCmd.length() == 0) {
-                String msg = "ERROR: xdat_xmit_cmd not specified. \n" + "File "
-                        + shefFile.getAbsolutePath() + " not sent";
-                statusHandler.handle(Priority.ERROR, msg);
-            } else {
-                String cmd = xmitCmd + " " + shefFile.getAbsolutePath();
-                try {
-                    // DR#10955
-                    RunProcess.getRunProcess().exec(cmd);
-                } catch (IOException e) {
-                    String msg = "ERROR:  Send Failed.";
-                    statusHandler.handle(Priority.ERROR, msg);
-                }
-
-                boolean status = shefFile.delete();
-                if (status == false) {
-                    String msg = "ERROR: Removing shef file.";
-                    statusHandler.handle(Priority.ERROR, msg);
-                }
-            }
-        } else {
-            boolean status = true;
-            File sd = new File(shefDir);
-            if (!sd.exists()) {
-                String msg = "ERROR: " + shefDir + " does not exist.  Check "
-                        + "the EDEX server for the directory";
-                statusHandler.handle(Priority.ERROR, msg);
-                status = false;
-            }
-
-            if (status) {
-                if (!sd.canWrite()) {
-                    String msg = "ERROR: "
-                            + shefDir
-                            + " does not have write "
-                            + "permissions.  Check the EDEX server for proper permissions.";
-                    statusHandler.handle(Priority.ERROR, msg);
-                    status = false;
-                }
-            }
-
-            if (status) {
-                status = shefFile.renameTo(new File(shefDir
-                        + File.separatorChar + shefFile.getName()));
-                if (status == false) {
-                    String msg = "ERROR: Error moving file to shef ingest: "
-                            + shefFile.getAbsolutePath() + ".  Check the EDEX "
-                            + "server for proper permissions.";
-                    statusHandler.handle(Priority.ERROR, msg);
-                }
-            }
+        
+    	if (!sendAction) {
+        	return;
         }
+           
+        if (xmitCmd.length() == 0) {
+        	String msg = "ERROR: xdat_xmit_cmd not specified. \n" + "File "
+                        + shefFile.getAbsolutePath() + " not sent";
+            statusHandler.handle(Priority.ERROR, msg);
+        } else {
+            String cmd = xmitCmd + " " + shefFile.getAbsolutePath();
+            try {
+            	// DR#10955
+                RunProcess.getRunProcess().exec(cmd);
+            } catch (IOException e) {
+                String msg = "ERROR:  Send Failed.";
+                statusHandler.handle(Priority.ERROR, msg);
+            }
+
+        }
+        
     }
 
     private void writeFile(String message) {
@@ -260,10 +220,42 @@ public class XdatShefUtil {
      * @return File object
      */
     private File getShefFile() {
+    	
+    	String aDir ="";
+    	
+    	if ( (send.compareTo("1") == 0) || (send.compareToIgnoreCase("yes") == 0) ) {
+            sendAction = true;
+            aDir = localDataDir;
+        }
+    	
+    	if ( (send.compareTo("0") == 0) || (send.compareToIgnoreCase("no") == 0) ) {
+            sendAction = false;
+            aDir = shefDir;
+            
+            File sd = new File(shefDir);
+            
+            if (!sd.exists()) {
+                String msg = "ERROR: " + shefDir + " does not exist.  Check "
+                        + "the EDEX server for the directory";
+                
+                statusHandler.handle(Priority.ERROR, msg);
+                return null;
+            }
+
+            if (!sd.canWrite()) {
+                    
+                String msg = "ERROR: " + shefDir + " does not have write " + "permissions.  " +
+                    		"Check the EDEX server for proper permissions.";
+                    
+                statusHandler.handle(Priority.ERROR, msg);
+                return null;    
+            }
+        }
+    	
         File xdatrrFile = null;
         int i = 0;
         for (i = 1; i < 100; i++) {
-            String fileName = localDataDir + "/xdatrr" + i;
+            String fileName = aDir + "/xdatrr" + i;
             xdatrrFile = new File(fileName);
             try {
                 if (xdatrrFile.createNewFile()) {
