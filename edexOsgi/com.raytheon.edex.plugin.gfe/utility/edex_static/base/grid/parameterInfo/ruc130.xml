@@ -2,6 +2,7 @@
 <!--
   Mar 20, 2013    #1774    randerso    Added forecast hours out to 18
   Jun 19, 2013    #2044    randerso    Updated to match model
+  Feb 24 20153    DCS14537 byin        Added HPBL for RUC13
  -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
@@ -727,6 +728,21 @@
     <levelsDesc>FHAG 6000</levelsDesc>
     <levels>
       <level>FHAG06000</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>hpbl</short_name>
+    <long_name>Height of Planetary Boundary Layer</long_name>
+    <units>m</units>
+    <udunits>meter</udunits>
+    <uiname>HPBL</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>4000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
 </gridParamInfo>
