@@ -19,13 +19,14 @@
 # further licensing information.
 ##
 ##############################################################################
-# TODO: ADD DESCRIPTION
+# Activate a site
 #
 #     SOFTWARE HISTORY
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/10/14        #3623         randerso       Initial Creation.
+#    03/19/15        #4300         randerso       Fixed comment
 ##############################################################################
 
 # this allows you to run this script from outside of ./bin
