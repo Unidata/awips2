@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.plugin.redbook.ingest.xml.RedbookMenusXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2015   4030     mpduff      Initial creation
+ * Mar 19, 2015   4310     mpduff      Some values must be trimmed.
  * 
  * </pre>
  * 
@@ -177,7 +178,9 @@ public class NdmMenuConverter {
                             subEntry.setKey(WMO);
 
                             for (String subPart : subParts) {
+                                subPart = subPart.trim();
                                 for (String key : dataKeyMap.keySet()) {
+                                    key = key.trim();
                                     if (key.startsWith(subPart)) {
                                         subValue.append(dataKeyMap.get(key))
                                                 .append(",");
