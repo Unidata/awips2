@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Ui Plug-in
+Bundle-Name: AlertViz UI Plugin
 Bundle-SymbolicName: com.raytheon.uf.viz.alertviz.ui
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.alertviz.ui.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,

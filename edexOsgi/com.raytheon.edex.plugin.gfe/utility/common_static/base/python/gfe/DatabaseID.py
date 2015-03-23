@@ -33,6 +33,7 @@ import JUtil
 #    04/10/08                      njensen       Initial Creation.
 #    04/02/10        4816          ryu           Add missing methods
 #    07/02/10        6350          ryu           Modified modelTime()
+#    03/12/2015      3955          randerso      Added __eq__ and __ne__
 #
 
 class DatabaseID(JUtil.JavaWrapperClass):
@@ -47,6 +48,15 @@ class DatabaseID(JUtil.JavaWrapperClass):
     
     def __repr__(self):
         return self.__str__()
+    
+    def __eq__(self, other):
+        try:
+            return self.toJavaObj().equals(other.toJavaObj())
+        except:
+            return False
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
    
     def format(self):
         return self.__dbid.getFormat()

@@ -32,7 +32,6 @@ __all__ = [
             'GetVtecAttributeResponse',
             'OperationalActiveTableRecord',
             'PracticeActiveTableRecord',
-            'PracticeProductOfftimeRequest',
             'SendPracticeProductRequest',
             'VTECChange',
             'VTECTableChangeNotification',
@@ -51,7 +50,6 @@ from GetVtecAttributeRequest import GetVtecAttributeRequest
 from GetVtecAttributeResponse import GetVtecAttributeResponse
 from OperationalActiveTableRecord import OperationalActiveTableRecord
 from PracticeActiveTableRecord import PracticeActiveTableRecord
-from PracticeProductOfftimeRequest import PracticeProductOfftimeRequest
 from SendPracticeProductRequest import SendPracticeProductRequest
 from VTECChange import VTECChange
 from VTECTableChangeNotification import VTECTableChangeNotification
