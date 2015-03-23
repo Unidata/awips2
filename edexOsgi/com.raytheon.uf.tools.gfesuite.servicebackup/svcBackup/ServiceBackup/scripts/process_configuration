@@ -14,7 +14,8 @@
 #    01/30/15        #17081        lshi           Added backup vtec
 #    02/13/15        #4103         dgilling       Consolidated process_configuration and
 #                                                 proc_receive_config into 1 script.
-#
+#    03/23/15        #4103         dgilling       Save off MHSID of failed site so to fix
+#                                                 export_grids_to_failed_site script.
 ##############################################################################
 
 
@@ -222,6 +223,12 @@ sed -i "s/$FAILED_SERVER/$BACKUP_SERVER/" ${failed_config}
 sed -i "s/$FAILED_LOGDIR/$BACKUP_LOGDIR/" ${failed_config}
 sed -i "s/$FAILED_PRDDIR/$BACKUP_PRDDIR/" ${failed_config}
 sed -i "s/98000000/$SVCBU_FAILED_SITE_PORT/" ${failed_config}
+
+# store originating MHS ID so grids can be correctly sent to failed site upon
+# exiting service backup mode
+FAILED_SRC_MHSID=`echo ${FAILED_MHSID} | sed "s/GFESUITE_MHSID/GFESUITE_SRC_MHSID/"`
+echo ${FAILED_SRC_MHSID} >> ${failed_config}
+
 
 # Cleanup
 rm -rf "${OUTPUT_DIR}/*"
