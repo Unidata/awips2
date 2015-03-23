@@ -1,15 +1,15 @@
 /* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 4 c-style: "K&R" -*- */
-/*
+/* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2008 Mike Johnson.
+   Copyright (c) 2004 - 2011 Mike Johnson.
 
    This file is licenced under the the zlib/libpng License.
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
    damages arising from the use of this software.
-
+   
    Permission is granted to anyone to use this software for any
    purpose, including commercial applications, and to alter it and
    redistribute it freely, subject to the following restrictions:
@@ -23,15 +23,8 @@
    must not be misrepresented as being the original software.
 
    3. This notice may not be removed or altered from any source
-   distribution.
-*/
-
-/*
-  August 2, 2012
-  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
-   Modifications marked and described by 'njensen'
-*/
-
+   distribution.   
+*/ 	
 
 // shut up the compiler
 #ifdef _POSIX_C_SOURCE
@@ -48,14 +41,11 @@ typedef struct {
     jobjectArray      initArray;    /* constructor array */
     int               initLen;      /* length of initArray */
     PyObject         *pyjobject;    /* pointer to parent */
-
-    int **constructorArgTypes; // added by njensen
-    int *numArgsPerConstructor; // added by njensen
+    int              *numArgsPerInit; /* pointer to init arg count */
 } PyJclass_Object;
 
 PyJclass_Object* pyjclass_new(JNIEnv*, PyObject*);
 PyObject* pyjclass_call(PyJclass_Object*, PyObject*, PyObject*);
 int pyjclass_check(PyObject*);
-extern long classCallCount;
 
 #endif // ndef pyjclass
