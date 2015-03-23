@@ -171,7 +171,5 @@ extern jclass JDOUBLE_ARRAY_TYPE;
 extern jclass JFLOAT_ARRAY_TYPE;
 extern jclass JBYTE_ARRAY_TYPE;
 
-extern long getjtypeCount;
-
 
 #endif // ifndef _Included_util

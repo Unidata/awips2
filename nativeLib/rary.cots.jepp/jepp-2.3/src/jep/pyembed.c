@@ -786,9 +786,6 @@ EXIT:
     return ret;
 }
 
-long classCallCount;
-long getjtypeCount;
-
 void pyembed_eval(JNIEnv *env,
                   intptr_t _jepThread,
                   char *str) {
@@ -811,14 +808,10 @@ void pyembed_eval(JNIEnv *env,
     if(process_py_exception(env, 1))
         goto EXIT;
 
-    classCallCount = 0;
-    getjtypeCount = 0;
     result = PyRun_String(str,  /* new ref */
                           Py_single_input,
                           jepThread->globals,
                           jepThread->globals);
-    //printf("pyjclass.pyjclass_call count: %i\n", classCallCount);
-    //printf("getjtype count: %i\n", getjtypeCount);
 
     // c programs inside some java environments may get buffered output
     fflush(stdout);

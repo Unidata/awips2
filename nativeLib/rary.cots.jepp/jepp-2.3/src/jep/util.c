@@ -1084,8 +1084,6 @@ int get_jtype(JNIEnv *env, jobject obj, jclass clazz) {
     jboolean equals = JNI_FALSE;
     jboolean array  = JNI_FALSE;
 
-    getjtypeCount = getjtypeCount + 1;
-
     // have to find the equals() method.
     if(objectEquals == 0 || objectIsArray == 0) {
         jobject super = NULL;
