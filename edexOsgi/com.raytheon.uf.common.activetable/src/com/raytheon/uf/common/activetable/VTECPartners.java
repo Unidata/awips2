@@ -63,6 +63,8 @@ import com.raytheon.uf.common.status.UFStatus;
  */
 
 public class VTECPartners {
+    // TODO: move this out of the common plugin since it only works on EDEX
+    // since it accesses EDEX_STATIC files
 
     private static final String CONFIG_PATH = "config" + File.separator + "gfe";
 

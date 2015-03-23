@@ -27,18 +27,18 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 
 /**
- * TODO Add Description
+ * Base class for GFE messages
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 24, 2009            randerso     Initial creation
+ * Aug 24, 2009            randerso    Initial creation
+ * Mar 19, 2015  #4300     randerso    Added exception handling
+ *                                     Fixed JavaDoc
  * 
  * </pre>
  * 
@@ -46,8 +46,20 @@ import com.raytheon.viz.gfe.constants.StatusConstants;
  * @version 1.0
  */
 public abstract class Message {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(Message.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(Message.class);
+
+    /**
+     * Message client interface
+     */
     public static interface IMessageClient {
+
+        /**
+         * Called when a message is received
+         * 
+         * @param message
+         *            the message
+         */
         public abstract void receiveMessage(Message message);
     }
 
@@ -68,6 +80,14 @@ public abstract class Message {
     private static Map<Class<? extends Message>, Message> lastSentMap = new java.util.concurrent.ConcurrentSkipListMap<Class<? extends Message>, Message>(
             objectComparator);
 
+    /**
+     * Register a client to receive one or more message classes
+     * 
+     * @param client
+     *            the message client to register
+     * @param msgClassList
+     *            the list of classes to register for
+     */
     public static void registerInterest(IMessageClient client,
             Class<? extends Message>... msgClassList) {
 
@@ -82,6 +102,14 @@ public abstract class Message {
         }
     }
 
+    /**
+     * Unregister a client from one or more message classes
+     * 
+     * @param client
+     *            the message client to unregister
+     * @param msgClassList
+     *            the list of classes to unregister from
+     */
     public static void unregisterInterest(IMessageClient client,
             Class<? extends Message>... msgClassList) {
 
@@ -93,6 +121,13 @@ public abstract class Message {
         }
     }
 
+    /**
+     * Get last sent message of a particular message class
+     * 
+     * @param msgClass
+     *            message class
+     * @return last message
+     */
     @SuppressWarnings("unchecked")
     public static <C extends Message> C inquireLastMessage(Class<C> msgClass) {
         try {
@@ -111,12 +146,21 @@ public abstract class Message {
         return (C) message;
     }
 
+    /**
+     * Send this message to all registered clients
+     */
     public void send() {
         lastSentMap.put(this.getClass(), this);
         Set<IMessageClient> clients = registeredMap.get(this.getClass());
         if (clients != null) {
             for (IMessageClient client : clients) {
-                client.receiveMessage(this);
+                try {
+                    client.receiveMessage(this);
+                } catch (Exception e) {
+                    statusHandler.error("Error sending "
+                            + this.getClass().getSimpleName() + " to "
+                            + client.getClass().toString(), e);
+                }
             }
         }
     }
