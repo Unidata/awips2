@@ -41,6 +41,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 16, 2013      #1759 dgilling    Move tests and autotests to GfeCavePyIncludeUtil.
  * Aug 22, 2014      #3500 bclement    added python path in getConfigIncludePath()
  * Nov 11, 2014      #4953 randerso    Changed COMMON_GFE to public
+ * Mar 12, 2015      #4246 randerso    Changes to support VCModules at base, site, and user levels
  * </pre>
  * 
  * @author njensen
@@ -359,9 +360,16 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
         return PATH_MANAGER.getLocalizationFile(ctx, GFE_CONFIG);
     }
 
-    public static String getVCModulesIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.BASE), VCMODULES);
+    public static String getVCModulesIncludePath(String siteId) {
+        String baseDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
+                VCMODULES);
+        String siteDir = getPath(PATH_MANAGER.getContextForSite(
+                LocalizationType.COMMON_STATIC, siteId), VCMODULES);
+        String userDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
+                VCMODULES);
+        return PyUtil.buildJepIncludePath(userDir, siteDir, baseDir);
     }
 
     public static String getVCModUtilsIncludePath() {

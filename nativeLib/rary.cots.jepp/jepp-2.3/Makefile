@@ -33,8 +33,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = i686-pc-linux-gnu
-host_triplet = i686-pc-linux-gnu
+build_triplet = x86_64-unknown-linux-gnu
+host_triplet = x86_64-unknown-linux-gnu
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(srcdir)/jep.lsm.in $(srcdir)/jep.spec.in \
@@ -78,21 +78,21 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/njensen/workspace/rary.cots.jepp/jepp-2.3/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /common/njensen/git/15.1/AWIPS2_baseline/nativeLib/rary.cots.jepp/jepp-2.3/missing --run aclocal-1.9
 ALLOCA = 
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /home/njensen/workspace/rary.cots.jepp/jepp-2.3/missing --run tar
+AMTAR = ${SHELL} /common/njensen/git/15.1/AWIPS2_baseline/nativeLib/rary.cots.jepp/jepp-2.3/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/njensen/workspace/rary.cots.jepp/jepp-2.3/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/njensen/workspace/rary.cots.jepp/jepp-2.3/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/njensen/workspace/rary.cots.jepp/jepp-2.3/missing --run automake-1.9
+AUTOCONF = ${SHELL} /common/njensen/git/15.1/AWIPS2_baseline/nativeLib/rary.cots.jepp/jepp-2.3/missing --run autoconf
+AUTOHEADER = ${SHELL} /common/njensen/git/15.1/AWIPS2_baseline/nativeLib/rary.cots.jepp/jepp-2.3/missing --run autoheader
+AUTOMAKE = ${SHELL} /common/njensen/git/15.1/AWIPS2_baseline/nativeLib/rary.cots.jepp/jepp-2.3/missing --run automake-1.9
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
 CPP = gcc -E
-CPPFLAGS =  -I/common/njensen/awips/java/include -I/common/njensen/awips/java/include/linux -I/common/njensen/awips/python/include/python2.6 -I/common/njensen/awips/python/lib/python2.6/site-packages/numpy/core/include
+CPPFLAGS =  -I/awips2/java/include -I/awips2/java/include/linux -Wno-long-double -I/awips2/python/include/python2.7
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
@@ -112,19 +112,19 @@ INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = ${SHELL} $(install_sh) -c -s
-ISODATE = 2010-01-21
-JAVAC = /common/njensen/awips/java/bin/javac
-JAVAH = /common/njensen/awips/java/bin/javah
+ISODATE = 2015-03-09
+JAVAC = /awips2/java/bin/javac
+JAVAH = /awips2/java/bin/javah
 JAVAX_SCRIPT_CLASSES = src/jep/JepScriptEngine.class src/jep/JepScriptEngineFactory.class
 JAVA_LDFLAGS = 
 JAVA_LIBS = 
 LDFLAGS = 
 LIBOBJS = 
-LIBS =  -L/common/njensen/awips/python/lib/python2.6/config -lpthread -ldl -lutil -lm -lpython2.6 
+LIBS =  -L/awips2/python/lib/python2.7/config -lpthread -ldl -lutil -lm -lpython2.7 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/njensen/workspace/rary.cots.jepp/jepp-2.3/missing --run makeinfo
+MAKEINFO = ${SHELL} /common/njensen/git/15.1/AWIPS2_baseline/nativeLib/rary.cots.jepp/jepp-2.3/missing --run makeinfo
 OBJEXT = o
 PACKAGE = jep
 PACKAGE_BUGREPORT = 
@@ -133,7 +133,7 @@ PACKAGE_STRING =
 PACKAGE_TARNAME = 
 PACKAGE_VERSION = 
 PATH_SEPARATOR = :
-PYTHON = /common/njensen/awips/python/bin/python
+PYTHON = /awips2/python/bin/python
 RANLIB = ranlib
 SET_MAKE = 
 SHELL = /bin/sh
@@ -155,21 +155,21 @@ am__quote =
 am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 bindir = ${exec_prefix}/bin
-build = i686-pc-linux-gnu
+build = x86_64-unknown-linux-gnu
 build_alias = 
-build_cpu = i686
+build_cpu = x86_64
 build_os = linux-gnu
-build_vendor = pc
+build_vendor = unknown
 datadir = ${prefix}/share
 exec_prefix = ${prefix}
-host = i686-pc-linux-gnu
+host = x86_64-unknown-linux-gnu
 host_alias = 
-host_cpu = i686
+host_cpu = x86_64
 host_os = linux-gnu
-host_vendor = pc
+host_vendor = unknown
 includedir = ${prefix}/include
 infodir = ${prefix}/info
-install_sh = /home/njensen/workspace/rary.cots.jepp/jepp-2.3/install-sh
+install_sh = /common/njensen/git/15.1/AWIPS2_baseline/nativeLib/rary.cots.jepp/jepp-2.3/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localstatedir = ${prefix}/var
@@ -178,14 +178,14 @@ mkdir_p = mkdir -p --
 oldincludedir = /usr/include
 prefix = /usr/local
 program_transform_name = s,x,x,
-python_configdir = /common/njensen/awips/python/lib/python2.6/config
-python_execprefix = /common/njensen/awips/python
-python_includespec = -I/common/njensen/awips/python/include/python2.6
-python_libspec = -L/common/njensen/awips/python/lib/python2.6/config -lpthread -ldl -lutil -lm -lpython2.6 
-python_moduledir = /common/njensen/awips/python/lib/python2.6/site-packages
-python_moduleexecdir = /common/njensen/awips/python/lib/python2.6/site-packages
-python_prefix = /common/njensen/awips/python
-python_version = 2.6
+python_configdir = /awips2/python/lib/python2.7/config
+python_execprefix = /awips2/python
+python_includespec = -I/awips2/python/include/python2.7
+python_libspec = -L/awips2/python/lib/python2.7/config -lpthread -ldl -lutil -lm -lpython2.7 
+python_moduledir = /awips2/python/lib/python2.7/site-packages
+python_moduleexecdir = /awips2/python/lib/python2.7/site-packages
+python_prefix = /awips2/python
+python_version = 2.7
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = ${prefix}/etc
@@ -202,6 +202,7 @@ EXTRA_DIST = python.m4 \
 	src/jep/pyjclass.h \
 	src/jep/pyjfield.h \
 	src/jep/Jep.java \
+        src/jep/INumpyable.java \
 	src/jep/Run.java \
 	src/jep/BSFJepEngine.java \
 	src/jep/JepException.java \
@@ -796,6 +797,9 @@ src/jep/JepScriptEngineFactory.class: src/jep/JepScriptEngineFactory.java
 src/jep/InvocationHandler.class: src/jep/InvocationHandler.java
 	$(JAVAC) ${JAVACOPT} src/jep/InvocationHandler.java
 
+src/jep/INumpyable.class: src/jep/INumpyable.java
+	$(JAVAC) ${JAVACOPT} src/jep/INumpyable.java
+
 src/jep/invocationhandler.h: src/jep/InvocationHandler.class
 	$(JAVAH) -o src/jep/invocationhandler.h -classpath src/ jep.InvocationHandler
 # make sure the timestamp gets updated because javac might not
@@ -812,6 +816,7 @@ jep.jar:  \
 	src/jep/python/PyModule.class \
 	src/jep/python/PyClass.class \
 	src/jep/Jep.class \
+	src/jep/INumpyable.class \
 	src/jep/JepException.class \
 	src/jep/Test.class \
 	src/jep/Run.class \

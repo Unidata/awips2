@@ -108,6 +108,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Aug 11, 2014 3480       bclement    added info logging when procedure is loaded
  * Jan 06, 2015 3879       nabowle     Disallow copy-in when the view is empty.
  * Mar 02, 2015 4204       njensen     Copy In uses tab name if applicable
+ * Mar 12, 2015 4204       njensen     Ensure renamed bundle goes into tab name on next load
  * 
  * </pre>
  * 
@@ -577,8 +578,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                     if (Window.OK == id.open()) {
                         String newName = id.getValue();
 
-                        if (newName != null
-                                && "".equals(newName.trim()) == false) {
+                        if (newName != null && !newName.trim().isEmpty()) {
                             b.name = newName;
                             resyncProcedureAndList();
                             saved = false;
@@ -857,12 +857,14 @@ public class ProcedureDlg extends CaveSWTDialog {
     }
 
     private void load() {
-        if (dataList.getSelectionIndex() < 0) {
+        int index = dataList.getSelectionIndex();
+        if (index < 0) {
             return;
         }
         try {
-            Bundle b = Bundle.unmarshalBundle(
-                    bundles.get(dataList.getSelectionIndex()).xml, null);
+            BundlePair selected = bundles.get(index);
+            Bundle b = Bundle.unmarshalBundle(selected.xml);
+            b.setName(selected.name);
             if (currentRdo.getSelection()) {
                 for (IAlterBundleContributor contributor : AlterBundleFactory
                         .getContributors()) {
