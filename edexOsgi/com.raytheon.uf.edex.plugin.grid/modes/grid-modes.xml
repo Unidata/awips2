@@ -31,6 +31,7 @@
 	<mode name="ingestGrib">
         <include>time-common.xml</include>
         <include>auth-common.xml</include>
+        <include>python-common.xml</include>
         <include>grib-decode.xml</include>
         <include>ncgrib-file-endpoint.xml</include>
         <include>grid-staticdata-process.xml</include>

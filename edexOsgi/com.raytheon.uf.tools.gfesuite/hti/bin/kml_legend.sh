@@ -12,6 +12,7 @@
 #                               and inland threats
 # UPDATED: 11 Sept 2014 - JCM - completed updates above
 # UPDATED: 20 Oct. 2014 - JCM - set up for 2015 season
+# UPDATED: 18 Feb. 2015 - JCM - added full path for logos.png
 #
 ########################################################################
 #  CONFIGURATION SECTION BELOW
@@ -41,7 +42,7 @@ convert -size 200x500 xc:black temp.png
 convert temp.png null: -matte -compose Clear -composite -compose Over transparent.png
 
 # insert the logos at the bottom
-composite -gravity south -geometry +0+0 logos.png transparent.png trans2.png
+composite -gravity south -geometry +0+0 ${HTI_HOME}/bin/logos.png transparent.png trans2.png
 
 # write the date onto the image
 DATE=`date +"Issued %F %H%MZ"`
@@ -81,7 +82,6 @@ convert trans2b.png -font Century-Schoolbook-Bold -pointsize 20 -fill black -ann
 convert trans2b.png -font Century-Schoolbook-Bold -pointsize 20 -fill black -annotate +5+250 "Threat" \
                     -annotate +5+230 "Wind" windthreatlegend.png
 
-#echo ${PRODUCTdir}
 chmod 666 *legend.png
 mv *legend.png ${PRODUCTdir}/
 

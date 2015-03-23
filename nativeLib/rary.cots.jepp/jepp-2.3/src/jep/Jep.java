@@ -2,6 +2,7 @@ package jep;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import jep.python.PyModule;
 import jep.python.PyObject;
@@ -43,13 +44,26 @@ import jep.python.PyObject;
  */
 
 /*
-  August 2, 2012
-  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
+  Modified by Raytheon (c) 2008-2015 Raytheon Company. All Rights Reserved.
    Modifications marked and described by 'njensen'
 */
 
 public final class Jep {
     
+    private static final String THREAD_WARN_START = "JEP WARNING: "
+            + "Unsafe reuse of thread ";
+
+    private static final String THREAD_WARN_END = " for another Python interpreter.\n"
+            + " Potential issues can occur if you reuse the thread that JEP was"
+            + " initialized on or have multiple Jep instances on the same thread.";
+
+    /**
+     * Tracks which thread the Jep library was initialized on. That thread
+     * initialized the main python interpreter that all other subinterpreters
+     * will be created from.
+     */
+    private static long initializerThread = -1L;
+      
     private boolean closed = false;
     private long    tstate = 0;
     // all calls must originate from same thread
@@ -59,7 +73,7 @@ public final class Jep {
     private ClassLoader classLoader = null;
     
     // eval() storage.
-    private StringBuffer evalLines   = null;
+    private StringBuilder evalLines   = null;
     private boolean      interactive = false;
     
     // windows requires this as unix newline...
@@ -70,7 +84,34 @@ public final class Jep {
      * crashes in userland if jep is closed.
      *
      */
-    private ArrayList<PyObject> pythonObjects = new ArrayList<PyObject>();
+    private final List<PyObject> pythonObjects = new ArrayList<PyObject>();
+    
+    /**
+     * Tracks if this thread has been used for an interpreter before.  Using
+     * different interpreter instances on the same thread is iffy at best.  If
+     * you make use of CPython extensions (e.g. numpy) that use the GIL, then
+     * this gets even more risky and can potentially deadlock.
+     */
+    private final static ThreadLocal<Boolean> threadUsed = new ThreadLocal<Boolean>(){
+        @Override
+        protected Boolean initialValue(){
+            return false;
+        }
+    };
+    
+    // added by njensen
+    /**
+     * Loads the jep library (e.g. libjep.so or jep.dll) and initializes the
+     * main python interpreter that all subinterpreters will be created from.
+     */
+    public static synchronized Class<Jep> pyInitialize() {
+        if (initializerThread < 0) {
+            System.loadLibrary("jep");
+            initializerThread = Thread.currentThread().getId();
+            threadUsed.set(true);
+        }
+        return Jep.class;
+    }
     
     
     // -------------------------------------------------- constructors
@@ -119,6 +160,19 @@ public final class Jep {
     public Jep(boolean interactive,
                String includePath,
                ClassLoader cl) throws JepException {
+        // added by njensen
+        if (initializerThread < 0) {
+            throw new JepException("Jep Library must be initialized first"
+                    + ", please call pyInitialize()");
+        }
+        if (threadUsed.get()) {
+            /*
+             * TODO: Consider throwing an exception here to not allow this
+             * scenario through as it can result in very-hard-to-diagnose bugs.
+             */
+            System.err.println(THREAD_WARN_START
+                    + Thread.currentThread().getName() + THREAD_WARN_END);
+        } // end of njensen adds
         
         if(cl == null)
             this.classLoader = this.getClass().getClassLoader();
@@ -127,6 +181,7 @@ public final class Jep {
         
         this.interactive = interactive;
         this.tstate = init(this.classLoader);
+        threadUsed.set(true);  // added by njensen
         this.thread = Thread.currentThread();
         
         // why write C code if you don't have to? :-)
@@ -142,13 +197,6 @@ public final class Jep {
                  File.pathSeparator + "')");
         }
     }
-    
-    
-    // load shared library
-    static {
-        System.loadLibrary("jep");
-    }
-    
     
     private native long init(ClassLoader classloader) throws JepException;
     
@@ -294,7 +342,7 @@ public final class Jep {
                 
                 // doesn't compile on it's own, append to eval
                 if(this.evalLines == null)
-                    this.evalLines = new StringBuffer();
+                    this.evalLines = new StringBuilder();
                 else
                     evalLines.append(LINE_SEP);
                 evalLines.append(str);
@@ -349,7 +397,7 @@ public final class Jep {
      * <pre>
      * Retrieves a python string object as a java array.
      *
-     * @param str a <code>String</code> 
+     * @param str a <code>String</code>
      * @return an <code>Object</code> array
      * @exception JepException if an error occurs
      */
@@ -370,7 +418,7 @@ public final class Jep {
      * <pre>
      * Retrieves a python string object as a java array.
      *
-     * @param str a <code>String</code> 
+     * @param str a <code>String</code>
      * @return an <code>Object</code> array
      * @exception JepException if an error occurs
      */
@@ -498,9 +546,12 @@ public final class Jep {
             throw new JepException("Jep has been closed.");
         isValidThread();
 
-	// njensen added all the instanceofs except Class
-	if (v instanceof Class) {
-            set(tstate, name, (Class) v);
+        /*
+         * njensen added all the instanceofs except Class and the else to ensure
+         * the correct python type in the interpreter
+         */
+        if (v instanceof Class) {
+            set(tstate, name, (Class<?>) v);
         } else if (v instanceof String) {
             set(name, ((String) v));
         } else if (v instanceof Float) {
@@ -520,14 +571,12 @@ public final class Jep {
         } else {
             set(tstate, name, v);
         }
-    
-    
     }
 
     private native void set(long tstate, String name, Object v)
         throws JepException;
 
-    private native void set(long tstate, String name, Class v)
+    private native void set(long tstate, String name, Class<?> v)
         throws JepException;
 
     /**
@@ -593,7 +642,7 @@ public final class Jep {
             throw new JepException("Jep has been closed.");
         isValidThread();
         
-        set(tstate, name, (int) v);
+        set(tstate, name, v);
     }
     
     private native void set(long tstate, String name, int v)
@@ -644,7 +693,7 @@ public final class Jep {
             throw new JepException("Jep has been closed.");
         isValidThread();
         
-        set(tstate, name, (int) b);
+        set(tstate, name, b);
     }
 
     
@@ -820,39 +869,48 @@ public final class Jep {
     private native void set(long tstate, String name, double[] v)
         throws JepException;
 
-    // added by njensen
-    public void setNumpy(String name, float[] v, int nx, int ny) throws JepException {
-	if(this.closed)
-	    throw new JepException("Jep has been closed.");
-	isValidThread();
+    /*
+     * added by njensen.
+     * TODO: rename all methods to setNumpy
+     * TODO: Add javadoc
+     * TODO: add support for short[], long[], and double[]
+     */
+    public void setNumpy(String name, float[] v, int nx, int ny)
+            throws JepException {
+        if (this.closed)
+            throw new JepException("Jep has been closed.");
+        isValidThread();
 
-	setNumeric(tstate, name, v, nx, ny);
+        setNumeric(tstate, name, v, nx, ny);
     }
 
-    private native void setNumeric(long tstate, String name, float[] v, int nx, int ny)
-	throws JepException;
+    private native void setNumeric(long tstate, String name, float[] v, int nx,
+            int ny) throws JepException;
+
+    public void setNumpy(String name, int[] v, int nx, int ny)
+            throws JepException {
+        if (this.closed)
+            throw new JepException("Jep has been closed.");
+        isValidThread();
+
+        setNumeric(tstate, name, v, nx, ny);
+    }
+
+    private native void setNumeric(long tstate, String name, int[] v, int nx,
+            int ny) throws JepException;
+
+    public void setNumpy(String name, byte[] v, int nx, int ny)
+            throws JepException {
+        if (this.closed)
+            throw new JepException("Jep has been closed.");
+        isValidThread();
+
+        setNumeric(tstate, name, v, nx, ny);
+    }
+
+    private native void setNumeric(long tstate, String name, byte[] v, int nx,
+            int ny) throws JepException;
     // end of added by njensen
-    public void setNumpy(String name, int[] v, int nx, int ny) throws JepException {
-        if(this.closed)
-            throw new JepException("Jep has been closed.");
-        isValidThread();
-
-        setNumeric(tstate, name, v, nx, ny);
-    }
-
-    private native void setNumeric(long tstate, String name, int[] v, int nx, int ny)
-        throws JepException;
-    
-    public void setNumpy(String name, byte[] v, int nx, int ny) throws JepException {
-        if(this.closed)
-            throw new JepException("Jep has been closed.");
-        isValidThread();
-
-        setNumeric(tstate, name, v, nx, ny);
-    }
-    
-    private native void setNumeric(long tstate, String name, byte[] v, int nx, int ny)
-    throws JepException;
 
 
 
@@ -892,6 +950,11 @@ public final class Jep {
         this.closed = true;
         this.close(tstate);
         this.tstate = 0;
+        /*
+         * added by njensen, untested on how safe this really is to allow
+         * reuse after the previous instance was closed
+         */
+        threadUsed.set(false);
     }
 
     private native void close(long tstate);
@@ -901,6 +964,7 @@ public final class Jep {
      * Describe <code>finalize</code> method here.
      *
      */
+    @Override
     protected void finalize() {
         this.close();
     }
