@@ -28,6 +28,7 @@
 # ------------ ---------- ----------- --------------------------
 # Feb 09, 2015  #4103     dgilling    Refactored to support multiple svcbu 
 #                                     sites.
+# Mar 23, 2015  #4103     dgilling    Fix script for dual-domain. 
 #
 ##
 
@@ -101,6 +102,10 @@ echo "Sending the gridded data to ${FAILED_CAPS_SITE}..."
 # Send the grids to the failed site
 cd ${OUTPUT_DIR}
 
+failed_config=${LOCALIZATION_PATH}/edex_static/site/${FAILED_CAPS_SITE}/config/gfe/siteConfig.py
+FAILED_MHSID=$(grep -E "GFESUITE_SRC_MHSID" ${failed_config})
+FAILED_MHSID=`echo ${FAILED_MHSID} | sed -r "s/^\s*GFESUITE_SRC_MHSID\s*=\s*(['\"])(.*?)\1\s*$/\2/"`
+
 # these lines are commented out for DR14441
 # A1 expects to receive a file in gz format
 # for now this change brings A2 in line with A1
@@ -108,10 +113,10 @@ cd ${OUTPUT_DIR}
 #
 # echo ${FAILED_SITE} > siteID.txt
 # tar cf Grd.tar ${FAILED_SITE}Grd.netcdf.gz siteID.txt
-# msgSendOutput=$($MSG_SEND_COMMAND -e ${OUTPUT_DIR}/Grd.tar -a ${FAILED_CAPS_SITE} -s $subj -c 25)
+# msgSendOutput=$($MSG_SEND_COMMAND -e ${OUTPUT_DIR}/Grd.tar -a ${FAILED_MHSID} -s $subj -c 25)
 
 # begin changes for 14441
-msgSendOutput=$($MSG_SEND_COMMAND -e ${FAILED_SITE}Grd.netcdf.gz -a ${FAILED_CAPS_SITE} -s $subj -c 25)
+msgSendOutput=$($MSG_SEND_COMMAND -e ${FAILED_SITE}Grd.netcdf.gz -a ${FAILED_MHSID} -s $subj -c 25)
 # end changes for 14441
 
 exitValue=$?
