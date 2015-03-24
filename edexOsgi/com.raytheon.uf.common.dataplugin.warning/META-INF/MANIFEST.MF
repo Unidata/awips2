@@ -9,6 +9,8 @@ Export-Package: com.raytheon.uf.common.dataplugin.warning,
  com.raytheon.uf.common.dataplugin.warning.config,
  com.raytheon.uf.common.dataplugin.warning.gis,
  com.raytheon.uf.common.dataplugin.warning.portions,
+ com.raytheon.uf.common.dataplugin.warning.request,
+ com.raytheon.uf.common.dataplugin.warning.response,
  com.raytheon.uf.common.dataplugin.warning.util
 Import-Package: com.raytheon.uf.common.time,
  javax.persistence,
