@@ -25,12 +25,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.FileLocator;
@@ -185,7 +186,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog implements
 
     private Combo exportConfigCombo;
 
-    private Map<String, ServiceBackupStatusDlg> statusDialogs;
+    private ConcurrentMap<String, ServiceBackupStatusDlg> statusDialogs;
 
     /**
      * Constructor
@@ -195,7 +196,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog implements
     public ServiceBackupDlg() throws GFEException {
         super(null);
         this.site = LocalizationManager.getInstance().getCurrentSite();
-        this.statusDialogs = new HashMap<String, ServiceBackupStatusDlg>();
+        this.statusDialogs = new ConcurrentHashMap<String, ServiceBackupStatusDlg>();
 
         Boolean isAuthorized = checkPermission("serviceBackup");
         if (!isAuthorized) {
@@ -501,7 +502,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog implements
         startGFECheckBox = new Button(startupOptionsComp, SWT.CHECK);
         layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         startGFECheckBox.setLayoutData(layoutData);
-        startGFECheckBox.setText("Automatically start GFE");
+        startGFECheckBox.setText("Automatically Start GFE");
         startGFECheckBox.setEnabled(false);
 
         importGridsButton = new Button(startupActionsGroup, SWT.PUSH);
@@ -773,15 +774,6 @@ public class ServiceBackupDlg extends CaveJFACEDialog implements
         Menu helpMenu = new Menu(shell, SWT.DROP_DOWN);
         help.setMenu(helpMenu);
 
-        MenuItem helpItem = new MenuItem(helpMenu, SWT.PUSH);
-        helpItem.setText("Help");
-        helpItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                openHelp("help/GfeServiceBackup/svcbu_help.html");
-            }
-        });
-
         MenuItem instructionsItem = new MenuItem(helpMenu, SWT.PUSH);
         instructionsItem.setText("Instructions");
         instructionsItem.addSelectionListener(new SelectionAdapter() {
@@ -790,16 +782,6 @@ public class ServiceBackupDlg extends CaveJFACEDialog implements
                 openHelp("help/GfeServiceBackup/svcbu_instructions.html");
             }
         });
-
-        MenuItem faqItem = new MenuItem(helpMenu, SWT.PUSH);
-        faqItem.setText("FAQ");
-        faqItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                openHelp("help/GfeServiceBackup/svcbu_faq.html");
-            }
-        });
-
     }
 
     private void updateDialog() {
@@ -1069,5 +1051,26 @@ public class ServiceBackupDlg extends CaveJFACEDialog implements
             statusHandler.handle(Priority.PROBLEM, "Error loading help "
                     + helpPath, e);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.Dialog#close()
+     */
+    @Override
+    public boolean close() {
+        boolean canClose = true;
+        for (ServiceBackupStatusDlg dlg : this.statusDialogs.values()) {
+            if (!dlg.close()) {
+                canClose = false;
+            }
+        }
+
+        if (canClose) {
+            return super.close();
+        }
+
+        return false;
     }
 }
