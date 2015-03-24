@@ -1,0 +1,17 @@
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="warningGeometryFactory" class="com.raytheon.uf.common.dataplugin.warning.dataaccess.WarningGeometryFactory" />
+    
+    <bean factory-bean="dataAccessRegistry" factory-method="register">
+        <constructor-arg value="warning"/>
+        <constructor-arg ref="warningGeometryFactory"/>
+    </bean>
+    
+    <bean factory-bean="dataAccessRegistry" factory-method="register">
+        <constructor-arg value="practicewarning"/>
+        <constructor-arg ref="warningGeometryFactory"/>
+    </bean>
+    
+</beans>

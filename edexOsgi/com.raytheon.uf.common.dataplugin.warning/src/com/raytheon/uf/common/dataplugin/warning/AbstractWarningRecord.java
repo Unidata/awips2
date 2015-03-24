@@ -236,8 +236,8 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     /**
      * Constructor to duplicate record.
      * 
-     * @param message
-     *            The text of the message
+     * @param old
+     *            The record to be duplicated
      */
     public AbstractWarningRecord(AbstractWarningRecord old) {
         this.setCountyheader(old.getCountyheader());
@@ -273,8 +273,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
      * 
      * @param uri
      *            The dataURI
-     * @param tableDef
-     *            The table definition associated with this class
      */
     public AbstractWarningRecord(String uri) {
         super(uri);
