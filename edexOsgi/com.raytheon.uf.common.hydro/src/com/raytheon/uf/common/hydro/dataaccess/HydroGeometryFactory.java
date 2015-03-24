@@ -23,11 +23,8 @@ import java.sql.Timestamp;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
-import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory;
-import com.raytheon.uf.common.dataaccess.impl.FactoryUtil;
-import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -54,6 +51,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Jul 14, 2014  3184     njensen     Overrode getAvailableLevels()
  * Jul 30, 2014  3184     njensen     Added optional identifiers
  * Feb 03, 2015  4009     mapeters    Moved getAvailableLevels() override to super
+ * Mar 18, 2015  4227     mapeters    Removed getAvailableTimes(), assembleGetTimes()
+ *                                    taking BinOffsets.
  * 
  * </pre>
  * 
@@ -78,25 +77,6 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
 
     public HydroGeometryFactory() {
         super(IHFS_DATABASE, REQUIRED, new String[] { COL_NAME_OPTION });
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
-     * #getAvailableTimes (com.raytheon.uf.common.dataaccess.geom.IDataRequest,
-     * com.raytheon.uf.common.time.BinOffset)
-     */
-    /*
-     * For now this will remain as a method override; maybe this is the standard
-     * way to retrieve the times based on a BinOffset when the database is
-     * accessed directly?
-     */
-    @Override
-    public DataTime[] getAvailableTimes(IDataRequest request,
-            BinOffset binOffset) throws TimeAgnosticDataException {
-        return FactoryUtil.getAvailableTimes(this, request, binOffset);
     }
 
     /*
@@ -141,19 +121,6 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
     @Override
     protected String assembleGetTimes(IDataRequest request, boolean refTimeOnly) {
         return HydroQueryAssembler.assembleGetTimes(request);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataaccess.impl.AbstractGeometryDatabaseFactory
-     * #assembleGetTimes (com.raytheon.uf.common.dataaccess.geom.IDataRequest,
-     * com.raytheon.uf.common.time.BinOffset)
-     */
-    @Override
-    protected String assembleGetTimes(IDataRequest request, BinOffset binOffset) {
-        return null;
     }
 
     /*
