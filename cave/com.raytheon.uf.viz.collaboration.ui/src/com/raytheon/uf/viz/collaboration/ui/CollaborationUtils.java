@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            mnash     Initial creation
  * Jan 15, 2014 2630       bclement    added mode map
+ * Mar 24, 2015 4265       mapeters    Get alert words from not only user localization level.
  * 
  * </pre>
  * 
@@ -88,7 +89,7 @@ public class CollaborationUtils {
     /**
      * Get an image associated with the node.
      * 
-     * @param node
+     * @param name
      * @return image
      */
     public static Image getNodeImage(String name) {
@@ -103,7 +104,7 @@ public class CollaborationUtils {
         LocalizationFile file = PathManagerFactory.getPathManager()
                 .getLocalizationFile(
                         context,
-                        "collaboration" + File.separator
+                        "collaboration" + IPathManager.SEPARATOR
                                 + "collaborationAliases.xml");
         if (file.exists()) {
             UserIdWrapper ids = JAXB.unmarshal(file.getFile(),
@@ -151,29 +152,40 @@ public class CollaborationUtils {
         return modeMap.get(status);
     }
 
-    public static List<AlertWord> getAlertWords() {
-        LocalizationFile file = null;
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        file = PathManagerFactory.getPathManager().getLocalizationFile(context,
-                "collaboration" + File.separator + "alertWords.xml");
-        if (file.exists() || file.getFile().exists()) {
-            AlertWordWrapper words = JAXB.unmarshal(file.getFile(),
-                    AlertWordWrapper.class);
-            if (words.getAlertWords() == null) {
-                return new ArrayList<AlertWord>();
-            }
+    /**
+     * Gets the alert words either from the lowest localization level or from
+     * only the user level (if specified).
+     * 
+     * @param userOnly
+     *            whether or not to only retrieve alert words from user level
+     * @return list of alert words
+     */
+    public static List<AlertWord> getAlertWords(boolean userOnly) {
+        LocalizationFile file = PathManagerFactory.getPathManager()
+                .getStaticLocalizationFile(
+                        LocalizationType.CAVE_STATIC,
+                        "collaboration" + IPathManager.SEPARATOR
+                                + "alertWords.xml");
+        if (file != null && (file.exists() || file.getFile().exists())) {
+            boolean userLocalized = file.getContext().getLocalizationLevel()
+                    .equals(LocalizationLevel.USER);
+            if (!userOnly || userLocalized) {
+                AlertWordWrapper words = JAXB.unmarshal(file.getFile(),
+                        AlertWordWrapper.class);
+                if (words.getAlertWords() == null) {
+                    return new ArrayList<AlertWord>();
+                }
 
-            List<AlertWord> alertWords = new ArrayList<AlertWord>();
-            for (int i = 0; i < words.getAlertWords().length; i++) {
-                alertWords.add(words.getAlertWords()[i]);
-            }
+                List<AlertWord> alertWords = new ArrayList<AlertWord>();
+                for (int i = 0; i < words.getAlertWords().length; i++) {
+                    alertWords.add(words.getAlertWords()[i]);
+                }
 
-            return alertWords;
+                return alertWords;
+            }
         }
 
-        return new ArrayList<AlertWord>();
+        return new ArrayList<AlertWord>(0);
     }
 
     public static void saveAlertWords(List<AlertWord> words) {
@@ -181,8 +193,8 @@ public class CollaborationUtils {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        file = PathManagerFactory.getPathManager().getLocalizationFile(context,
-                "collaboration" + File.separator + "alertWords.xml");
+        file = pm.getLocalizationFile(context, "collaboration"
+                + IPathManager.SEPARATOR + "alertWords.xml");
 
         // save the sound file in the correct place if not there
         for (AlertWord word : words) {
@@ -191,8 +203,8 @@ public class CollaborationUtils {
                 String[] dirs = soundPath.split(File.separator);
                 String filename = dirs[dirs.length - 1];
                 LocalizationFile lFile = pm.getLocalizationFile(context,
-                        "collaboration" + File.separator + "sounds"
-                                + File.separator + filename);
+                        "collaboration" + IPathManager.SEPARATOR + "sounds"
+                                + IPathManager.SEPARATOR + filename);
                 if (!lFile.exists()) {
                     File soundFile = new File(soundPath);
 

@@ -78,6 +78,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  *                                     dispose them.
  * Jan 09, 2015 3709       bclement    color config manager API changes
  * Jan 13, 2015 3709       bclement    ChangeTextColorAction API changes
+ * Mar 24, 2015 4265       mapeters    abstracted out common styleAndAppendText()
  * 
  * </pre>
  * 
@@ -213,7 +214,7 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
 
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, IUser userId, String subject, List<StyleRange> ranges) {
+            String name, IUser userId, List<StyleRange> ranges) {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
@@ -231,29 +232,6 @@ public class PeerToPeerView extends AbstractSessionView<IUser> implements
         }
         styleAndAppendText(sb, offset, name, userId, ranges, foreground,
                 background);
-    };
-
-    @Override
-    public void styleAndAppendText(StringBuilder sb, int offset, String name,
-            IUser userId, List<StyleRange> ranges, Color foreground,
-            Color background) {
-
-        StyleRange range = new StyleRange(messagesText.getCharCount(),
-                sb.length(), foreground, null, SWT.NORMAL);
-        ranges.add(range);
-        range = new StyleRange(messagesText.getCharCount() + offset,
-                (userId != null ? name.length() + 1 : sb.length() - offset),
-                foreground, null, SWT.BOLD);
-        ranges.add(range);
-        messagesText.append(sb.toString());
-
-        for (StyleRange newRange : ranges) {
-            messagesText.setStyleRange(newRange);
-        }
-
-        int lineNumber = messagesText.getLineCount() - 1;
-        messagesText.setLineBackground(lineNumber, 1, background);
-        messagesText.setTopIndex(lineNumber);
     }
 
     @Override

@@ -67,6 +67,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
  * ------------ ---------- ----------- --------------------------
  * May 17, 2012            mnash       Initial creation
  * Feb 24, 2014   2632     mpduf       Created CollaborationPreferencesAlertWordLabelProvider
+ * Mar 24, 2015   4265     mapeters    Account for altered CollaborationUtils.getAlertWords()
  * 
  * </pre>
  * 
@@ -253,7 +254,7 @@ public class CollaborationAlertWordsPreferencePage extends
                 fileEditor.setStringValue(word.getSoundPath());
             }
         });
-        viewer.setInput(CollaborationUtils.getAlertWords());
+        viewer.setInput(CollaborationUtils.getAlertWords(true));
     }
 
     @Override

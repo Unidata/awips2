@@ -100,6 +100,8 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Nov 26, 2014 3709       mapeters    Added {@link #getColorFromRGB()}.
  * Dec 08, 2014 3709       mapeters    Removed messagesTextMenuMgr.
  * Jan 13, 2015 3709       bclement    styleAndAppendText() takes foreground and background
+ * Mar 24, 2015 4265       mapeters    Implement common styleAndAppendText()s here, apply
+ *                                     most general StyleRange to text first.
  * </pre>
  * 
  * @author rferrel
@@ -450,8 +452,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
                         }
                     }
 
-                    styleAndAppendText(sb, offset, name, userId, subject,
-                            ranges);
+                    styleAndAppendText(sb, offset, name, userId, ranges);
                 }
 
                 // Archive the message
@@ -468,11 +469,31 @@ public abstract class AbstractSessionView<T extends IUser> extends
     }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
-            String name, T userId, String subject, List<StyleRange> ranges);
+            String name, T userId, List<StyleRange> ranges);
 
-    protected abstract void styleAndAppendText(StringBuilder sb, int offset,
+    protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, T userId, List<StyleRange> ranges, Color foreground,
-            Color background);
+            Color background) {
+        StyleRange range = new StyleRange(messagesText.getCharCount(),
+                sb.length(), foreground, null, SWT.NORMAL);
+        // This must go first to be overridden by other ranges (name bolding,
+        // alert words)
+        ranges.add(0, range);
+
+        range = new StyleRange(messagesText.getCharCount() + offset,
+                (userId != null ? name.length() + 1 : sb.length() - offset),
+                foreground, null, SWT.BOLD);
+        ranges.add(range);
+        messagesText.append(sb.toString());
+
+        for (StyleRange newRange : ranges) {
+            messagesText.setStyleRange(newRange);
+        }
+
+        int lineNumber = messagesText.getLineCount() - 1;
+        messagesText.setLineBackground(lineNumber, 1, background);
+        messagesText.setTopIndex(lineNumber);
+    }
 
     /**
      * Find keys words in body of message starting at offset.
@@ -483,7 +504,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
      */
     protected List<AlertWord> retrieveAlertWords() {
         if (alertWords == null) {
-            alertWords = CollaborationUtils.getAlertWords();
+            alertWords = CollaborationUtils.getAlertWords(false);
         }
         return alertWords;
     }
