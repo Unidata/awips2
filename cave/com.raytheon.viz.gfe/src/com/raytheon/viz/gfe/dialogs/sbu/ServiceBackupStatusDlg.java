@@ -53,7 +53,6 @@ import org.eclipse.ui.progress.UIJob;
 import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.dialogs.sbu.jobs.AbstractSbuTask;
 import com.raytheon.viz.gfe.dialogs.sbu.jobs.ServiceBackupTaskExecutor;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -140,7 +139,8 @@ public class ServiceBackupStatusDlg extends CaveJFACEDialog {
             public IStatus runInUIThread(IProgressMonitor monitor) {
                 if (!getShell().isDisposed()) {
                     doRefresh();
-                    if (executor.getJobStatus().equals(JobProgress.IN_PROGRESS)) {
+
+                    if (executor.isAlive()) {
                         this.schedule(1000);
                     } else {
                         getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
@@ -235,7 +235,6 @@ public class ServiceBackupStatusDlg extends CaveJFACEDialog {
                     Rectangle clientArea = child.getClientArea();
                     int delta = childBounds.height - clientArea.height;
                     y += delta;
-                    // x += delta;
                 }
             }
         }
@@ -314,7 +313,7 @@ public class ServiceBackupStatusDlg extends CaveJFACEDialog {
 
             Label time = new Label(statusGroup, SWT.HORIZONTAL);
             time.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-            time.setText("00:00:00");
+            time.setText("00:00:00 ");
 
             Label label = new Label(statusGroup, SWT.HORIZONTAL);
             label.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
@@ -375,7 +374,7 @@ public class ServiceBackupStatusDlg extends CaveJFACEDialog {
      */
     @Override
     public boolean close() {
-        if (executor.getJobStatus().equals(JobProgress.IN_PROGRESS)) {
+        if (executor.isAlive()) {
             MessageDialog
                     .openWarning(getShell(), this.site
                             + " Service Backup Status",
@@ -406,58 +405,52 @@ public class ServiceBackupStatusDlg extends CaveJFACEDialog {
     }
 
     private void updateStatus(final AbstractSbuTask task) {
-        VizApp.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                String key = task.getStatusFileName();
-                JobProgress jobProgress = task.getStatus();
+        String key = task.getStatusFileName();
+        JobProgress jobProgress = task.getStatus();
 
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-                Date statusTime = task.getStatusTime();
-                Label[] labels = controls.get(key);
-                if (labels != null) {
-                    Label statusIcon = labels[0];
-                    Label timeLabel = labels[1];
+        Date statusTime = task.getStatusTime();
+        Label[] labels = controls.get(key);
+        if (labels != null) {
+            Label statusIcon = labels[0];
+            Label timeLabel = labels[1];
 
-                    StatusIcons icon;
-                    switch (jobProgress) {
-                    case IN_PROGRESS:
-                        icon = StatusIcons.IN_PROGRESS;
-                        statusTime = new Date(System.currentTimeMillis()
-                                - statusTime.getTime());
-                        break;
-                    case SUCCESS:
-                        icon = StatusIcons.SUCCESS;
-                        break;
-                    case FAILED:
-                        icon = StatusIcons.FAILED;
-                        break;
+            StatusIcons icon;
+            switch (jobProgress) {
+            case IN_PROGRESS:
+                icon = StatusIcons.IN_PROGRESS;
+                statusTime = new Date(System.currentTimeMillis()
+                        - statusTime.getTime());
+                break;
+            case SUCCESS:
+                icon = StatusIcons.SUCCESS;
+                break;
+            case FAILED:
+                icon = StatusIcons.FAILED;
+                break;
 
-                    case UNKNOWN:
-                        icon = StatusIcons.NOT_STARTED;
-                        break;
+            case UNKNOWN:
+                icon = StatusIcons.NOT_STARTED;
+                break;
 
-                    default:
-                        statusHandler
-                                .error("Unknown JobProgress value received: "
-                                        + jobProgress.name());
-                        icon = StatusIcons.IN_PROGRESS;
-                    }
-                    if (!statusIcon.isDisposed()) {
-                        statusIcon.setForeground(statusIcon.getDisplay()
-                                .getSystemColor(icon.getColor()));
-                        statusIcon.setText(Character.toString(icon.getSymbol()));
-                        statusIcon.setToolTipText(icon.getToolTip());
-                    }
-
-                    if (!timeLabel.isDisposed()) {
-                        timeLabel.setText(sdf.format(statusTime));
-                    }
-                }
+            default:
+                statusHandler.error("Unknown JobProgress value received: "
+                        + jobProgress.name());
+                icon = StatusIcons.IN_PROGRESS;
             }
-        });
+            if (!statusIcon.isDisposed()) {
+                statusIcon.setForeground(statusIcon.getDisplay()
+                        .getSystemColor(icon.getColor()));
+                statusIcon.setText(Character.toString(icon.getSymbol()));
+                statusIcon.setToolTipText(icon.getToolTip());
+            }
+
+            if (!timeLabel.isDisposed()) {
+                timeLabel.setText(sdf.format(statusTime));
+            }
+        }
     }
 
     private void doRefresh() {
