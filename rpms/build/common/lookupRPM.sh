@@ -78,7 +78,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-qpid" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.qpid"
+      export RPM_SPECIFICATION="${installer_dir}/qpid-python-0.32"
       return 0
    fi
    if [ "${1}" = "awips2-python-scientific" ]; then
