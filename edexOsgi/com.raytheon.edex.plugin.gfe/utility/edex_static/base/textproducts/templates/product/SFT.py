@@ -44,7 +44,7 @@
 #                      (editAreaName, "REGIONLABEL\nCITYLABEL")
 #                      (editAreaName, "CITYLABEL")
 #
-#  productName      defines name of product e.g. "TABULAR STATE FORECAST"
+#  productName      defines name of product e.g. "Tabular State Forecast"
 #
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #
@@ -54,9 +54,9 @@
 #
 #  zoneCode         ZONE code for product header, such as "NYZ001>025"
 #
-#  stateName        State name for product header, such as "WESTERN NEW YORK"
+#  stateName        State name for product header, such as "Western New York"
 #
-#  wfoCityState     WFO location, such as "BUFFALO NY"
+#  wfoCityState     WFO location, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #  database               Source database for product. Can be "Official", 
@@ -164,12 +164,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                               ],
 
           # product identifiers
-          "productName": "TABULAR STATE FORECAST", # product name 
+          "productName": "Tabular State Forecast", # product name 
           "fullStationID": "<fullStationID>",  # full station identifier (4letter)
           "wmoID": "<wmoID>",        # WMO ID
           "pil": "<pil>",          # Product pil
           "zoneCode": "stZ000",      # Zone Code, such as "GAZ025-056"
-          "stateName": "<state>",   # Name of state, such as "GEORGIA"
+          "stateName": "<state>",   # Name of state, such as "Georgia"
           "wfoCityState": "<wfoCityState>",  # Location of WFO - city state
           "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
           "awipsWANPil": "<awipsWANPil>",   # Product ID for transmitting to AWIPS WAN.
@@ -360,7 +360,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                self._ddhhmmTime + "\n" + self._pil + "\n" +\
                self._zoneCode + "-" + self._ddhhmmTimeExpire + "-\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n" + \
                self._rowDescription() + "\n\n" + self._tableHeader() + "\n\n"
 

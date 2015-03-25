@@ -60,7 +60,7 @@ class TextProduct(GenericReport.TextProduct):
         "defaultEditAreas" : "Combinations_PNS_<site>",
 
         # product identifiers
-        "productName": "PUBLIC INFORMATION STATEMENT", # product name 
+        "productName": "Public Information Statement", # product name 
         "fullStationID" : "<fullStationID>",    # 4 letter station ID
         "wmoID" : "<wmoID>",                    # WMO code
         "wfoCityState" : "<wfoCityState>",      # Location of WFO
@@ -117,13 +117,13 @@ class TextProduct(GenericReport.TextProduct):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, self._productName)
         s =  productName + "\n" + \
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
         fcst = fcst + s.upper() 
         return fcst
 
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
-        fcst = fcst + "...PUBLIC INFORMATION STATEMENT...\n\n"
+        fcst = fcst + "...Public Information Statement...\n\n"
         fcst = fcst + "|* Information goes here *|\n\n"
         return fcst
 

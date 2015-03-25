@@ -71,6 +71,7 @@ import com.raytheon.uf.edex.database.tasks.SqlQueryTask;
  *                                      and textUtilities dirs.
  * Oct 20, 2014 #3685       randerso    Added code to generate SiteCFG.py from GIS database
  *                                      Cleaned up how protected file updates are returned
+ * Jan 23, 2015 #4027       randerso    Fixed python include path
  * 
  * </pre>
  * 
@@ -264,7 +265,7 @@ public class Configurator {
 
         String filePath = pathMgr.getFile(edexCx,
                 "textproducts" + File.separator + "Generator.py").getPath();
-        String commonPython = GfePyIncludeUtil.getCommonPythonIncludePath();
+        String commonPython = GfePyIncludeUtil.getCommonGfeIncludePath();
 
         Map<String, Object> argList = new HashMap<String, Object>();
         argList.put("siteId", siteID);

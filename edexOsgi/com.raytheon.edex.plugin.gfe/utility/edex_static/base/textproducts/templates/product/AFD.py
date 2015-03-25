@@ -62,7 +62,7 @@
 #                      "COZ035_pt".  If no such edit area exists, the system will simply
 #                      use the original edit area.
 #                      Note that Hazards will always be generated for the entire edit area.
-#   productName      defines name of product e.g. "ZONE FORECAST PRODUCT"
+#   productName      defines name of product e.g. "Zone Forecast Product"
 #   fullStationID    full station identifier (4letter, KSLC)
 #
 #   wmoID            WMO ID for product header, such as FOUS45
@@ -203,7 +203,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "outputFile": "{prddir}/TEXT/AFD_<MultiPil>.txt",
         "debug": 0,
 
-        "productName": "AREA FORECAST DISCUSSION", 
+        "productName": "Area Forecast Discussion", 
         "fullStationID" : "<fullStationID>",    # 4 letter station ID
         "wmoID" : "<wmoID>",                    # WMO code
         "wfoCityState" : "<wfoCityState>",      # Location of WFO
@@ -496,7 +496,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 ####################################################################
     def _getPreviousAFD(self, fcst, argDict, divider=0):
         # Initialize strings and lists:
-        WWABlockString = "." + self._wfoSiteID + " WATCHES/W"
+        WWABlockString = "." + self._wfoSiteID + " Watches/W"
         newAFD = []
 
         # Retrieve the previous AFD and store the list in AFD_old:
@@ -561,12 +561,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             issuance_dateTime = ""
             # Loop through the list to find the issuance time string.
             for index in xrange(start_index, end_index-1):
-                if prevAFD[index][:8] == "NATIONAL":   # next line has date time stamp
+                if prevAFD[index][:8] == "National":   # next line has date time stamp
                     issuance_dateTime = str(prevAFD[index+1])
                     break
             # Build issuance_DateTime string:
             # Strip off trailing newline...
-            issuance_dateTime = " /ISSUED " + issuance_dateTime[:-1] + "/ \n"
+            issuance_dateTime = " /issued " + issuance_dateTime[:-1] + "/ \n"
             # Eliminate double whitespace characters if present:
             issuance_dateTime = re.sub(r"  ", r" ", issuance_dateTime) # PATCH 12/7/04 bc
             fcst = fcst + self._getTopicDivider("PrevDisc") + issuance_dateTime + "\n" # PATCH 12/7/04 bc
@@ -631,7 +631,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         s = self._pil + "\n\n" + \
             productName + "\n" + \
-            "NATIONAL WEATHER SERVICE " + \
+            "National Weather Service " + \
             self._wfoCityState +"\n" + \
             issuedByString + \
             self._timeLabel + "\n\n"
@@ -688,13 +688,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         return {}    #use the two-letter ids for the marine areas
 
         # if you want descriptive names for the marine areas
-        #return {'AM': 'ATLANTIC COASTAL WATERS', 'GM': 'GULF OF MEXICO',
-        #  'LE': 'LAKE ERIE', 'LO': 'LAKE ONTARIO', 'LH': 'LAKE HURON',
-        #  'LC': 'LAKE ST CLAIR', 'LM': 'LAKE MICHIGAN', 'LS': 'LAKE SUPERIOR',
-        #  'PZ': 'PACIFIC COASTAL WATERS', 'PK': 'ALASKAN COASTAL WATERS',
-        #  'PH': 'HAWAIIAN COASTAL WATERS', 'PM': 'MARIANAS WATERS',
-        #  'AN': 'ATLANTIC COASTAL WATERS', 
-        #  'PS': 'AMERICAN SAMOA COASTAL WATERS', 'SL': 'ST LAWRENCE RIVER'}
+        #return {'AM': 'Atlantic coastal Waters', 'GM': 'Gulf of Mexico',
+        #  'LE': 'Lake Erie', 'LO': 'Lake Ontario', 'LH': 'Lake Huron',
+        #  'LC': 'Lake St Clair', 'LM': 'Lake Michigan', 'LS': 'Lake Superior',
+        #  'PZ': 'Pacific coastal waters', 'PK': 'Alaskan coastal waters',
+        #  'PH': 'Hawaiian coastal waters', 'PM': 'Marianas waters',
+        #  'AN': 'Atlantic coastal waters', 
+        #  'PS': 'American Samoa coastal waters', 'SL': 'St Lawrence River'}
 
 ####################################################################
 #   _makeHazardBlock:
@@ -704,7 +704,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _makeHazardBlock(self, fcst, argDict):
 
         fcst = fcst + "." + self._wfoSiteID + \
-               " WATCHES/WARNINGS/ADVISORIES...\n"
+               " Watches/Warnings/Advisories...\n"
 
         accessor = ModuleAccessor.ModuleAccessor()
         areaDict = accessor.variable(self._areaDictionary, "AreaDictionary")
