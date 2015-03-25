@@ -3,6 +3,8 @@
 
 PSQL="/awips2/psql/bin/psql"
 
+${PSQL} -U awips -d metadata -c "delete from ccfp where id in (select a.id from ccfp a, ccfp b where a.id < b.id and a.reftime = b.reftime and a.producttype = b.producttype and a.boxlat = b.boxlat and a.boxlong = b.boxlong)"
+
 # takes one arg: a table name
 # drops the datauri constraint and column if they exist
 function dropDatauri {
@@ -34,7 +36,7 @@ function dropDatauriAndAddConstraint {
 echo "INFO: Dropping ccfp dataURI columns."
 
 dropDatauriAndAddConstraint ccfp ccfp_reftime_producttype_boxlat_boxlong_key "(reftime, producttype, boxlat, boxlong)"
-${PSQL} -U awips -d metadata -c "DROP INDEX ccfp_reftimeindex;"
+${PSQL} -U awips -d metadata -c "DROP INDEX IF EXISTS ccfp_reftimeindex;"
 ${PSQL} -U awips -d metadata -c "CREATE INDEX ccfp_reftimeindex ON ccfp USING btree (reftime);"
 ${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE ccfp"
 
