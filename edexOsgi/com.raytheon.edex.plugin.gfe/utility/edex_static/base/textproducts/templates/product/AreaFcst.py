@@ -42,12 +42,12 @@
 #
 #  You must set the following:
 #
-#  productName      defines name of product e.g. "ZONE FORECAST PRODUCT"
+#  productName      defines name of product e.g. "Zone Forecast Product"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "SFTBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     City,state that the WFO is located in, such as "BUFFALO NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     City,state that the WFO is located in, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #
@@ -250,11 +250,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "editAreaSuffix": None,
 
         # product identifiers
-        "productName": "ZONE FORECAST PRODUCT", # product name 
+        "productName": "Zone Forecast Product", # product name 
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",                # WMO ID
         "pil": "<pil>",                    # Product pil
-        "areaName": "<state>",             # Name of state, such as "GEORGIA" -- optional
+        "areaName": "<state>",             # Name of state, such as "Georgia" -- optional
         "wfoCityState": "<wfoCityState>",  # Location of WFO - city,state
 
         "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
@@ -1174,7 +1174,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
 
         # The following lines insert a statement
@@ -1352,21 +1352,21 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
              1, narrativeDefPM),
             # For the early morning update, this produces:
             # Rest of Tonight:
-            # MONDAY
-            # MONDAY NIGHT
+            # Monday
+            # Monday night
             ("Early Morning Update", "issuanceHour", self.DAY(), 4,
              ".Rest of Tonight...", "early in the morning","late in the afternoon",
              0, narrativeDefPM), 
             # Alternative
             # For the early morning update, this produces:
-            # EARLY THIS MORNING:
+            # Early this morning:
             # Today
             # Tonight
             #("Evening Update", "issuanceHour", 24 + self.DAY(), 4,
             # ".Rest of Tonight...", "late in the night", "early in the evening",
             # 1, narrativeDefPM), 
             #("Early Morning Update", "issuanceHour", self.DAY(), 4,
-            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
+            # ".Early this morning...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefPM), 
             ]
 
@@ -1413,7 +1413,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         return fcst
     
     def _temp_pop_statement_header(self, argDict):
-        return  "SPOT TEMPERATURES AND PROBABILITIES OF MEASURABLE PRECIPITATION\nARE FOR "
+        return  "Spot temperatures and probabilities of measurable precipitation\nare for "
 
     # Western Region offices insert a special statement
     # at the top of the ZFP if there are any active flood watches or
@@ -1431,9 +1431,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         return fcst
 
     def _flood_statement_wording(self, argDict):
-        return "...FLOOD WATCHES AND/OR WARNINGS HAVE BEEN ISSUED FOR PORTIONS OF\n" \
-                        + "THE ZONE FORECAST AREA. PLEASE REFER TO THE LATEST FLOOD BULLETIN\n" \
-                        + "FOR DETAILS...\n\n"
+        return "...Flood watches and/or warnings have been issued for portions of\n" \
+                        + "the zone forecast area. Please refer to the latest flood bulletin\n" \
+                        + "for details...\n\n"
     
     # Returns a list of the Hazards allowed for this product in VTEC format.
     # These are sorted in priority order - most important first.

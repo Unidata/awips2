@@ -35,11 +35,11 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["mapNameForCombinations"] = "Marine_Zones_<site>_<MultiPil>" # Map background for creating Combinations
 
     # Header configuration items
-    Definition["productName"] = "MARINE WEATHER STATEMENT"  # name of product
+    Definition["productName"] = "Marine Weather Statement"  # name of product
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -54,7 +54,7 @@ class TextProduct(GenericHazards.TextProduct):
 
     #Definition["purgeTime"] = 6        # Maximum hours for expireTime from issueTime
     Definition["includeCities"] = 0    # Cities included in area header
-    Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
     Definition["lineLength"] = 66 # Zone names will be included in the area header
     #Definition["easPhrase"] = ""       # Optional EAS phrase to be include in product header
