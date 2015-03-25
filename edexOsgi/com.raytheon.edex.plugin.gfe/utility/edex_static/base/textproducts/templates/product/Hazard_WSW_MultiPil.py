@@ -54,7 +54,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -72,7 +72,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["accurateCities"] = 0  # All cities are included in header;
                                       # if 1, cities are based on grids
     Definition["cityLocation"] = "CityLocation" # City lat/lon dictionary to use
-    Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
     Definition["lineLength"] = 66 # Zone names will be included in the area header
     #Definition["easPhrase"] = ""       # Optional EAS phrase to be include in product header
@@ -114,24 +114,24 @@ class TextProduct(GenericHazards.TextProduct):
     ### Set the default bullets
     def _bulletDict(self):
         return {
-        "WS" : ("TIMING,MAIN IMPACT,OTHER IMPACTS"),         ## Winter Storm  
-        "WW" : ("TIMING,MAIN IMPACT,OTHER IMPACTS"),         ## Winter Weather
-        "LE" : ("TIMING,SNOW ACCUMULATIONS,OTHER IMPACTS"),  ## Lake Effect
-        "BZ" : ("TIMING,WINDS/VISIBILITY,SNOW ACCUMULATIONS"),## Blizzard
-        "ZR" : ("TIMING,ICE ACCUMULATIONS,OTHER IMPACTS"),   ## Freezing Rain
-        "IS" : ("TIMING,ICE ACCUMULATIONS,OTHER IMPACTS"),   ## Ice Storm
-        "WC" : ("WIND CHILL VALUES,OTHER IMPACTS"),          ## Wind Chill
+        "WS" : ("Timing,Main impact,Other impacts"),         ## Winter Storm  
+        "WW" : ("Timing,Main impact,Other impacts"),         ## Winter Weather
+        "LE" : ("Timing,Snow accumulations,Other impacts"),  ## Lake Effect
+        "BZ" : ("Timing,Winds/visibility,Snow accumulations"),## Blizzard
+        "ZR" : ("Timing,Ice accumulations,Other impacts"),   ## Freezing Rain
+        "IS" : ("Timing,Ice accumulations,Other impacts"),   ## Ice Storm
+        "WC" : ("Wind chill values,Other impacts"),          ## Wind Chill
         }
 
     def _bulletOrder(self):
         return [
-            "TIMING",
-            "WINDS/VISIBILITY",
-            "SNOW ACCUMULATIONS",
-            "ICE ACCUMULATIONS",
-            "WIND CHILL VALUES",
-            "MAIN IMPACT",
-            "OTHER IMPACTS",
+            "Timing",
+            "Winds/visibility",
+            "Snow accumulations",
+            "Ice accumulations",
+            "Wind chill values",
+            "Main impact",
+            "Other impacts",
             ]
 
     ###
