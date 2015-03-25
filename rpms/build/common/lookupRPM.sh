@@ -216,7 +216,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-java" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.java"
+      export RPM_SPECIFICATION="${installer_dir}/java-1.7"
       return 0
    fi
    if [ "${1}" = "awips2-groovy" ]; then

@@ -33,7 +33,7 @@ function buildJava()
 {
    pushd . > /dev/null 2>&1
 
-   cd ${WORKSPACE}/rpms/awips2.core/Installer.java
+   cd ${WORKSPACE}/installers/RPMs/java-1.7
    /bin/bash build.sh
    if [ $? -ne 0 ]; then
       return 1
