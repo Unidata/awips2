@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
@@ -102,6 +101,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Jan 13, 2015 3709       bclement    styleAndAppendText() takes foreground and background
  * Mar 24, 2015 4265       mapeters    Implement common styleAndAppendText()s here, apply
  *                                     most general StyleRange to text first.
+ * Mar 24, 2015 4316       mapeters    Display date of message if new day or user-preferred
  * </pre>
  * 
  * @author rferrel
@@ -112,9 +112,13 @@ public abstract class AbstractSessionView<T extends IUser> extends
         CaveFloatingView {
     private static final String SESSION_IMAGE_KEY = "sessionId.key";
 
-    private static ThreadLocal<SimpleDateFormat> dateFormatter = TimeUtil
+    private static ThreadLocal<SimpleDateFormat> timeFormatter = TimeUtil
             .buildThreadLocalSimpleDateFormat("HH:mm:ss",
-                    TimeZone.getTimeZone("GMT"));
+                    TimeUtil.GMT_TIME_ZONE);
+
+    private static ThreadLocal<SimpleDateFormat> dateFormatter = TimeUtil
+            .buildThreadLocalSimpleDateFormat("yyyy-MM-dd ",
+                    TimeUtil.GMT_TIME_ZONE);
 
     /**
      * Mapping of images used in the view so they are not constantly created and
@@ -144,6 +148,8 @@ public abstract class AbstractSessionView<T extends IUser> extends
     private SearchComposite searchComp;
 
     private Action searchAction;
+
+    private Date lastMessageDay;
 
     protected abstract String getSessionImageName();
 
@@ -348,7 +354,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 service.warnOfContentChange();
 
                 Date date = new Date(timestamp);
-                String time = dateFormatter.get().format(date);
+                String time = timeFormatter.get().format(date);
 
                 String name = getDisplayName(userId);
 
@@ -364,6 +370,13 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 if (messagesText.isDisposed() == false
                         && messagesText.getCharCount() != 0) {
                     sb.append("\n");
+                }
+
+                boolean newDay = storeAndCompareTimestamp(date);
+                if (Activator.getDefault().getPreferenceStore()
+                        .getBoolean("displayDate")
+                        || newDay) {
+                    time = dateFormatter.get().format(date) + time;
                 }
 
                 sb.append("(").append(time).append(") ");
@@ -650,7 +663,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
             @Override
             public void run() {
                 Date date = new Date();
-                String time = dateFormatter.get().format(date);
+                String time = timeFormatter.get().format(date);
                 builder.insert(0, "(" + time + ") : ");
 
                 // Update the messagesText with the StyleRange highlights
@@ -698,5 +711,23 @@ public abstract class AbstractSessionView<T extends IUser> extends
             colors.put(rgb, color);
         }
         return color;
+    }
+
+    /**
+     * Determines if the given date (of the current message) is a newer day
+     * compared to the stored date (of the last message) and replaces the stored
+     * date with the given date.
+     * 
+     * @param currentMessageDay
+     *            the date to compare with the stored date
+     * @return true if the message with the given date occurs on a new day from
+     *         the last message, false otherwise
+     */
+    private boolean storeAndCompareTimestamp(Date currentMessageDay) {
+        boolean newDay = lastMessageDay == null
+                || TimeUtil.isNewerDay(lastMessageDay, currentMessageDay,
+                        TimeUtil.GMT_TIME_ZONE);
+        this.lastMessageDay = currentMessageDay;
+        return newDay;
     }
 }
