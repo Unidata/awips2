@@ -15,5 +15,11 @@
             name="Import GeoJSON"
             sortID="4">
       </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.damagepath.ImportFromDistanceSpeedAction"
+            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
+            name="Import from Distance Speed Tool"
+            sortID="5">
+      </contextualMenu>
    </extension>
 </plugin>
