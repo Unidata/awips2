@@ -70,6 +70,7 @@
     <vbSource key="NAHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAHwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NationalBlend" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NPHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NPHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
