@@ -33,9 +33,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
- * {@code IQCCheck} implementation that utilizes the makes a thrift request to
- * decode the potential WarnGen product in the WarningDecoder to verify a
- * product will successfully decode.
+ * {@code IQCCheck} implementation that makes a thrift request to decode the
+ * potential WarnGen product with the WarningDecoder to verify a product will
+ * successfully decode.
  * 
  * <pre>
  * 
