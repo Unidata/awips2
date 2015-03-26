@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="Total Lightning">
+	<contribute xsi:type="titleItem" id="LMATitle" titleText="------ LMA Total Lightning ------"/>
 		<contribute xsi:type="subMenu" menuText="Standard Products">
 			<contribute xsi:type="subMenu" menuText="NALMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/NALMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="NALMA"/>
 					<substitute key="level" value="0"/>
@@ -11,7 +11,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Source Density" id="lma">
 					<dataURI>/grid/NALMA/%/%/lmamsd</dataURI>
 					<substitute key="network" value="NALMA"/>
 					<substitute key="level" value="0"/>
@@ -19,7 +19,7 @@
 					<substitute key="productType" value="lmamsd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/NALMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="NALMA"/>
 					<substitute key="level" value="0"/>
@@ -27,7 +27,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/NALMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="NALMA"/>
 					<substitute key="level" value="0"/>
@@ -35,7 +35,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/NALMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="NALMA"/>
 					<substitute key="level" value="0"/>
@@ -43,7 +43,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Rate of Change" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Rate of Change" id="lma">
 					<dataURI>/grid/NALMA/%/%/lmaroc</dataURI>
 					<substitute key="network" value="NALMA"/>
 					<substitute key="level" value="0"/>
@@ -53,7 +53,7 @@
 				</contribute>
 			</contribute>
 			<contribute xsi:type="subMenu" menuText="DCLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/DCLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="DCLMA"/>
 					<substitute key="level" value="0"/>
@@ -61,7 +61,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/DCLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="DCLMA"/>
 					<substitute key="level" value="0"/>
@@ -69,7 +69,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/DCLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="DCLMA"/>
 					<substitute key="level" value="0"/>
@@ -77,7 +77,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/DCLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="DCLMA"/>
 					<substitute key="level" value="0"/>
@@ -88,7 +88,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="KLDAR">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/KLDAR/%/%/lmasd</dataURI>
 					<substitute key="network" value="KLDAR"/>
 					<substitute key="level" value="0"/>
@@ -96,7 +96,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/KLDAR/%/%/lmafed</dataURI>
 					<substitute key="network" value="KLDAR"/>
 					<substitute key="level" value="0"/>
@@ -104,7 +104,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/KLDAR/%/%/lmafid</dataURI>
 					<substitute key="network" value="KLDAR"/>
 					<substitute key="level" value="0"/>
@@ -112,7 +112,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/KLDAR/%/%/lmamfd</dataURI>
 					<substitute key="network" value="KLDAR"/>
 					<substitute key="level" value="0"/>
@@ -123,7 +123,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="OKLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/OKLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="OKLMA"/>
 					<substitute key="level" value="0"/>
@@ -131,7 +131,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/OKLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="OKLMA"/>
 					<substitute key="level" value="0"/>
@@ -139,7 +139,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/OKLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="OKLMA"/>
 					<substitute key="level" value="0"/>
@@ -147,7 +147,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/OKLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="OKLMA"/>
 					<substitute key="level" value="0"/>
@@ -158,7 +158,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="COLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/COLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="COLMA"/>
 					<substitute key="level" value="0"/>
@@ -166,7 +166,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/COLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="COLMA"/>
 					<substitute key="level" value="0"/>
@@ -174,7 +174,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/COLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="COLMA"/>
 					<substitute key="level" value="0"/>
@@ -182,7 +182,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/COLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="COLMA"/>
 					<substitute key="level" value="0"/>
@@ -193,7 +193,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="HGLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/HGLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="HGLMA"/>
 					<substitute key="level" value="0"/>
@@ -201,7 +201,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/HGLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="HGLMA"/>
 					<substitute key="level" value="0"/>
@@ -209,7 +209,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/HGLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="HGLMA"/>
 					<substitute key="level" value="0"/>
@@ -217,7 +217,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/HGLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="HGLMA"/>
 					<substitute key="level" value="0"/>
@@ -228,7 +228,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="WTLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/WTLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="HGLMA"/>
 					<substitute key="level" value="0"/>
@@ -236,7 +236,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/WTLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="WTLMA"/>
 					<substitute key="level" value="0"/>
@@ -244,7 +244,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/WTLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="WTLMA"/>
 					<substitute key="level" value="0"/>
@@ -252,7 +252,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/WTLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="WTLMA"/>
 					<substitute key="level" value="0"/>
@@ -263,7 +263,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="CFLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/CFLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="HGLMA"/>
 					<substitute key="level" value="0"/>
@@ -271,7 +271,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/CFLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="CFLMA"/>
 					<substitute key="level" value="0"/>
@@ -279,7 +279,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/CFLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="CFLMA"/>
 					<substitute key="level" value="0"/>
@@ -287,7 +287,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/CFLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="CFLMA"/>
 					<substitute key="level" value="0"/>
@@ -298,7 +298,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="LLLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/LLLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="LLLMA"/>
 					<substitute key="level" value="0"/>
@@ -306,7 +306,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/LLLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="LLLMA"/>
 					<substitute key="level" value="0"/>
@@ -314,7 +314,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/LLLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="LLLMA"/>
 					<substitute key="level" value="0"/>
@@ -322,7 +322,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/LLLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="LLLMA"/>
 					<substitute key="level" value="0"/>
@@ -334,7 +334,7 @@
 			
 			
 			<contribute xsi:type="subMenu" menuText="KSCLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/KSCLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="KSCLMA"/>
 					<substitute key="level" value="0"/>
@@ -342,7 +342,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/KSCLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="KSCLMA"/>
 					<substitute key="level" value="0"/>
@@ -350,7 +350,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/KSCLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="KSCLMA"/>
 					<substitute key="level" value="0"/>
@@ -358,7 +358,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/KSCLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="KSCLMA"/>
 					<substitute key="level" value="0"/>
@@ -369,7 +369,7 @@
 			</contribute>
 			
 			 <contribute xsi:type="subMenu" menuText="NGLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/NGLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="NGLMA"/>
 					<substitute key="level" value="0"/>
@@ -377,7 +377,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/NGLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="NGLMA"/>
 					<substitute key="level" value="0"/>
@@ -385,7 +385,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/NGLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="NGLMA"/>
 					<substitute key="level" value="0"/>
@@ -393,7 +393,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/NGLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="NGLMA"/>
 					<substitute key="level" value="0"/>
@@ -404,7 +404,7 @@
 			</contribute>
 			 
 			 <contribute xsi:type="subMenu" menuText="ONLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/ONLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="ONLMA"/>
 					<substitute key="level" value="0"/>
@@ -412,7 +412,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/ONLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="ONLMA"/>
 					<substitute key="level" value="0"/>
@@ -420,7 +420,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/ONLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="ONLMA"/>
 					<substitute key="level" value="0"/>
@@ -428,7 +428,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/ONLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="ONLMA"/>
 					<substitute key="level" value="0"/>
@@ -439,7 +439,7 @@
 			</contribute>
 			
 			  <contribute xsi:type="subMenu" menuText="WILMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/WILMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="WILMA"/>
 					<substitute key="level" value="0"/>
@@ -447,7 +447,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/WILMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="WILMA"/>
 					<substitute key="level" value="0"/>
@@ -455,7 +455,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/WILMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="WILMA"/>
 					<substitute key="level" value="0"/>
@@ -463,7 +463,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/WILMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="WILMA"/>
 					<substitute key="level" value="0"/>
@@ -474,7 +474,7 @@
 			</contribute>
 			
 			  <contribute xsi:type="subMenu" menuText="WSLMA">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Source Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Source Density" id="lma">
 					<dataURI>/grid/WSLMA/%/%/lmasd</dataURI>
 					<substitute key="network" value="WSLMA"/>
 					<substitute key="level" value="0"/>
@@ -482,7 +482,7 @@
 					<substitute key="productType" value="lmasd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/WSLMA/%/%/lmafed</dataURI>
 					<substitute key="network" value="WSLMA"/>
 					<substitute key="level" value="0"/>
@@ -490,7 +490,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/WSLMA/%/%/lmafid</dataURI>
 					<substitute key="network" value="WSLMA"/>
 					<substitute key="level" value="0"/>
@@ -498,7 +498,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/WSLMA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="WSLMA"/>
 					<substitute key="level" value="0"/>
@@ -509,9 +509,9 @@
 			</contribute>
 			
 		</contribute>
-		<contribute xsi:type="subMenu" menuText="Psuedo-GLM Products">
+		<contribute xsi:type="subMenu" menuText="Pseudo-GLM Products">
 			<contribute xsi:type="subMenu" menuText="PGNA (North Alabama)">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/PGNA/%/%/lmafed</dataURI>
 					<substitute key="network" value="PGNA"/>
 					<substitute key="level" value="0"/>
@@ -519,7 +519,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/PGNA/%/%/lmafid</dataURI>
 					<substitute key="network" value="PGNA"/>
 					<substitute key="level" value="0"/>
@@ -527,7 +527,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Flash Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Flash Density" id="lma">
 					<dataURI>/grid/PGNA/%/%/lmamfd</dataURI>
 					<substitute key="network" value="PGNA"/>
 					<substitute key="level" value="0"/>
@@ -535,7 +535,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="30 minute Sum" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="30 minute Sum" id="lma">
 					<dataURI>/grid/PGNA/%/%/lmasum</dataURI>
 					<substitute key="network" value="PGNA"/>
 					<substitute key="level" value="0"/>
@@ -546,7 +546,7 @@
 			</contribute>
 		
 			<contribute xsi:type="subMenu" menuText="PGDC (Washington D.C.)">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/PGDC/%/%/lmafed</dataURI>
 					<substitute key="network" value="PGDC"/>
 					<substitute key="level" value="0"/>
@@ -554,7 +554,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/PGDC/%/%/lmafid</dataURI>
 					<substitute key="network" value="PGDC"/>
 					<substitute key="level" value="0"/>
@@ -562,7 +562,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Flash Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Flash Density" id="lma">
 					<dataURI>/grid/PGDC/%/%/lmamfd</dataURI>
 					<substitute key="network" value="PGDC"/>
 					<substitute key="level" value="0"/>
@@ -570,7 +570,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="30 minute Sum" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="30 minute Sum" id="lma">
 					<dataURI>/grid/PGDC/%/%/lmasum</dataURI>
 					<substitute key="network" value="PGDC"/>
 					<substitute key="level" value="0"/>
@@ -581,7 +581,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="PGSC (Kennedy Space Center)">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/PGSC/%/%/lmafed</dataURI>
 					<substitute key="network" value="PGSC"/>
 					<substitute key="level" value="0"/>
@@ -589,7 +589,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/PGSC/%/%/lmafid</dataURI>
 					<substitute key="network" value="PGSC"/>
 					<substitute key="level" value="0"/>
@@ -597,7 +597,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Flash Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Flash Density" id="lma">
 					<dataURI>/grid/PGSC/%/%/lmamfd</dataURI>
 					<substitute key="network" value="PGSC"/>
 					<substitute key="level" value="0"/>
@@ -605,7 +605,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="30 minute Sum" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="30 minute Sum" id="lma">
 					<dataURI>/grid/PGSC/%/%/lmasum</dataURI>
 					<substitute key="network" value="PGSC"/>
 					<substitute key="level" value="0"/>
@@ -616,7 +616,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="PGOK (Oklahoma)">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/PGOK/%/%/lmafed</dataURI>
 					<substitute key="network" value="PGOK"/>
 					<substitute key="level" value="0"/>
@@ -624,7 +624,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/PGOK/%/%/lmafid</dataURI>
 					<substitute key="network" value="PGOK"/>
 					<substitute key="level" value="0"/>
@@ -632,7 +632,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Flash Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Flash Density" id="lma">
 					<dataURI>/grid/PGOK/%/%/lmamfd</dataURI>
 					<substitute key="network" value="PGOK"/>
 					<substitute key="level" value="0"/>
@@ -640,7 +640,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="30 minute Sum" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="30 minute Sum" id="lma">
 					<dataURI>/grid/PGOK/%/%/lmasum</dataURI>
 					<substitute key="network" value="PGOK"/>
 					<substitute key="level" value="0"/>
@@ -651,7 +651,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="PGCO (Colorado)">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/PGCO/%/%/lmafed</dataURI>
 					<substitute key="network" value="PGCO"/>
 					<substitute key="level" value="0"/>
@@ -659,7 +659,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/PGCO/%/%/lmafid</dataURI>
 					<substitute key="network" value="PGCO"/>
 					<substitute key="level" value="0"/>
@@ -667,7 +667,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Flash Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Flash Density" id="lma">
 					<dataURI>/grid/PGCO/%/%/lmamfd</dataURI>
 					<substitute key="network" value="PGCO"/>
 					<substitute key="level" value="0"/>
@@ -675,7 +675,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="30 minute Sum" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="30 minute Sum" id="lma">
 					<dataURI>/grid/PGCO/%/%/lmasum</dataURI>
 					<substitute key="network" value="PGCO"/>
 					<substitute key="level" value="0"/>
@@ -686,7 +686,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="PGHG (Houston)">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/PGHG/%/%/lmafed</dataURI>
 					<substitute key="network" value="PGHG"/>
 					<substitute key="level" value="0"/>
@@ -694,7 +694,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/PGHG/%/%/lmafid</dataURI>
 					<substitute key="network" value="PGHG"/>
 					<substitute key="level" value="0"/>
@@ -702,7 +702,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Flash Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Flash Density" id="lma">
 					<dataURI>/grid/PGHG/%/%/lmamfd</dataURI>
 					<substitute key="network" value="PGHG"/>
 					<substitute key="level" value="0"/>
@@ -710,7 +710,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="30 minute Sum" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="30 minute Sum" id="lma">
 					<dataURI>/grid/PGHG/%/%/lmasum</dataURI>
 					<substitute key="network" value="PGHG"/>
 					<substitute key="level" value="0"/>
@@ -721,7 +721,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="PGWT (West Texas)">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/PGWT/%/%/lmafed</dataURI>
 					<substitute key="network" value="PGWT"/>
 					<substitute key="level" value="0"/>
@@ -729,7 +729,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/PGWT/%/%/lmafid</dataURI>
 					<substitute key="network" value="PGWT"/>
 					<substitute key="level" value="0"/>
@@ -737,7 +737,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Flash Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Flash Density" id="lma">
 					<dataURI>/grid/PGWT/%/%/lmamfd</dataURI>
 					<substitute key="network" value="PGWT"/>
 					<substitute key="level" value="0"/>
@@ -745,7 +745,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="30 minute Sum" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="30 minute Sum" id="lma">
 					<dataURI>/grid/PGWT/%/%/lmasum</dataURI>
 					<substitute key="network" value="PGWT"/>
 					<substitute key="level" value="0"/>
@@ -756,7 +756,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="PGCF (Central Florida)">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/PGCF/%/%/lmafed</dataURI>
 					<substitute key="network" value="PGCF"/>
 					<substitute key="level" value="0"/>
@@ -764,7 +764,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/PGCF/%/%/lmafid</dataURI>
 					<substitute key="network" value="PGCF"/>
 					<substitute key="level" value="0"/>
@@ -772,7 +772,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Flash Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Flash Density" id="lma">
 					<dataURI>/grid/PGCF/%/%/lmamfd</dataURI>
 					<substitute key="network" value="PGCF"/>
 					<substitute key="level" value="0"/>
@@ -780,7 +780,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="30 minute Sum" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="30 minute Sum" id="lma">
 					<dataURI>/grid/PGCF/%/%/lmasum</dataURI>
 					<substitute key="network" value="PGCF"/>
 					<substitute key="level" value="0"/>
@@ -791,7 +791,7 @@
 			</contribute>
 			
 			<contribute xsi:type="subMenu" menuText="PGLL (Langmuir Laboratory)">
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Extent Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Extent Density" id="lma">
 					<dataURI>/grid/PGLL/%/%/lmafed</dataURI>
 					<substitute key="network" value="PGLL"/>
 					<substitute key="level" value="0"/>
@@ -799,7 +799,7 @@
 					<substitute key="productType" value="lmafed"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Flash Initiation Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Flash Initiation Density" id="lma">
 					<dataURI>/grid/PGLL/%/%/lmafid</dataURI>
 					<substitute key="network" value="PGLL"/>
 					<substitute key="level" value="0"/>
@@ -807,7 +807,7 @@
 					<substitute key="productType" value="lmafid"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="Maximum Flash Density" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="Maximum Flash Density" id="lma">
 					<dataURI>/grid/PGLL/%/%/lmamfd</dataURI>
 					<substitute key="network" value="PGLL"/>
 					<substitute key="level" value="0"/>
@@ -815,7 +815,7 @@
 					<substitute key="productType" value="lmamfd"/>
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
-				<contribute xsi:type="bundleItem" file="bundles/lma.xml" menuText="30 minute Sum" id="lma">
+				<contribute xsi:type="bundleItem" file="bundles/Lma.xml" menuText="30 minute Sum" id="lma">
 					<dataURI>/grid/PGLL/%/%/lmasum</dataURI>
 					<substitute key="network" value="PGLL"/>
 					<substitute key="level" value="0"/>
@@ -824,8 +824,5 @@
 					<substitute key="colorMapName" value="lma/nalma"/>
 				</contribute>
 			</contribute>
-			
-			
 		</contribute>
-	</contribute>
 </menuTemplate>
