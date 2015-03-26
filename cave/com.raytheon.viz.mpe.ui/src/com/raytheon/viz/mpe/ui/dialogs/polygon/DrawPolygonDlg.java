@@ -65,7 +65,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Feb 2, 2014  16201      snaples      Added saved data flag support
  * Apr 28, 2014 16707      snaples     Added code to save and set location of dialog box when moved.
  * Jan 12, 2015 16993      snaples     Restored code for Substitute Field Combo box.
- * 
+ * Feb 26, 2015 17209      cgobs       Ensured that there is an initial selection of Substitution field, prevents empty selection.
  * 
  * </pre>
  * 
@@ -387,14 +387,20 @@ public class DrawPolygonDlg extends CaveSWTDialog {
   //      spaceLabel.setText("*****  ");
         
         int selectedFieldIndex = 0;
-        
+        boolean found = false;
         //find the index of the selected field
         for (selectedFieldIndex = 0; selectedFieldIndex < displayFieldDataArray.length; selectedFieldIndex++)
         {
             if (displayFieldDataArray[selectedFieldIndex] == subType)
             {
+                found = true;
                 break;
             }
+        }
+        
+        if (!found)
+        {
+            selectedFieldIndex = 0;
         }
         
         //create and initialize the display field type name array
@@ -411,27 +417,42 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         fieldTypeCombo.setTextLimit(35);
         fieldTypeCombo.setLayoutData(gd);
         fieldTypeCombo.setItems(displayTypeNameArray);
-        fieldTypeCombo.select(selectedFieldIndex);
+       // fieldTypeCombo.select(selectedFieldIndex);
         
         fieldTypeCombo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	String selectedFieldString = fieldTypeCombo.getText();
+                
+                setSubstitutionField();
+                
+//            	String selectedFieldString = fieldTypeCombo.getText();
+ 
  //           	System.out.println("DrawPolygon.createFieldCombo(): selectedFieldString =  " +
  //           						selectedFieldString);
             	
-            	subType = DisplayFieldData.fromDisplayNameString(selectedFieldString);
+ //           	subType = DisplayFieldData.fromDisplayNameString(selectedFieldString);
             	
  //           	if (subType != null)
-//            	{
- //           		System.out.println("DrawPolygon.createFieldCombo(): subType =  " +
- //           			subType.toString());
- //           	}
+ //          	{
+ //          		System.out.println("DrawPolygon.createFieldCombo(): subType =  " +
+ //          			subType.toString());
+ //          	}
           }
         });
-
+        
+        //select the substitution field
+        
+        fieldTypeCombo.select(selectedFieldIndex);
+        setSubstitutionField();
+       
     }
     
+    private void setSubstitutionField()
+    {
+        String selectedFieldString = fieldTypeCombo.getText();
+        subType = DisplayFieldData.fromDisplayNameString(selectedFieldString);
+        
+    }
     
 
     /**
