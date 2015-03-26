@@ -35,6 +35,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    12/10/14        #4953         randerso       Cleaned up imports, 
 #                                                 improved spawning of shell cmd 
+#    03/10/2015      #4129         randerso       Refactored server selection code into a reusable method
 #
 ##
 
@@ -49,12 +50,15 @@ import iscUtil
 class IrtAccess():
 
     #Constructor taking the web URL for the ISC Routing Table
-    def __init__(self, ancfURL=None, bncfURL=None):
+    def __init__(self, ancfURL=None, bncfURL=None, logger=None):
         self.__addrs = {}
         self.__addrs['ANCF'] = ancfURL
         self.__addrs['BNCF'] = bncfURL
         self.__registered = None   #flag to indicate whether we registered
-        self.__logger=iscUtil.getLogger("irtAccess","irtServer.log")
+        if logger is not None:
+            self.__logger=logger
+        else:
+            self.__logger=iscUtil.getLogger("irtAccess","irtServer.log")
 
     def logEvent(self,*msg):
         self.__logger.info(iscUtil.tupleToString(*msg))
@@ -527,3 +531,118 @@ class IrtAccess():
         s = "mhs=" + mhsid + ",host=" + host + ",port=" + port +\
           ",proto=" + protocol + ",site=" + site
         return s
+    
+    def createDestinationXML(self, destSites, requestingServer):
+        #--------------------------------------------------------------------
+        # Assemble XML source/destination document
+        #--------------------------------------------------------------------
+        iscE = ElementTree.Element('isc')
+        self.addSourceXML(iscE, requestingServer)
+        self.logEvent("Requesting Server:", self.printServerInfo(requestingServer))
+    
+        # who is running the domains requested?
+        status, xml = self.getServers(destSites)
+        if not status:
+            raise Exception('Failure to getServers from IRT')
+    
+        # decode the XML
+        try:
+            serverTree = ElementTree.ElementTree(ElementTree.XML(xml))
+            serversE = serverTree.getroot()
+        except:
+            self.logException("Malformed XML from getServers()")
+            raise
+    
+        if serversE.tag != "servers":
+            raise Exception("Servers packet missing from web server")
+    
+        # process each requested domain returned to us
+        msgSendDest = []
+        chosenServers = []
+        matchingServers = []
+        for domainE in serversE:
+            if domainE.tag != "domain":
+                continue
+            
+            domain = domainE.get('site')
+            servers = []  #list of servers for this domain
+    
+            # decode each server in the domain
+            for addressE in domainE.getchildren():
+                info = self.decodeXMLAddress(addressE)
+                if info is None:
+                    continue   #not address tag
+                servers.append(info)
+                matchingServers.append(info)
+    
+            # server search list in priority.  The px3 entries are used for
+            # dual domain for AFC.
+            hp = [('dx4','98000000'),('px3', '98000000'), ('dx4','98000001'),
+              ('px3', '98000001')]
+    
+            # choose one server from this domain, find first dx4, 98000000
+            # try to use one with the same mhsidDest as the site, which
+            # would be the primary operational GFE. Note that the px3 entries
+            # are for AFC.
+            found = False
+            for matchServer, matchPort in hp:
+                if found:
+                    break        
+                for server in servers:
+                    if server['host'][0:3] == matchServer and \
+                      server['port'] == matchPort and server['mhsid'] == domain:
+                        chosenServers.append(server)
+                        if server['mhsid'] not in msgSendDest:
+                            msgSendDest.append(server['mhsid'])
+                        found = True
+                        break
+    
+            # find first dx4, 98000000, but perhaps a different mhsid
+            # this is probably not the primary operational GFE
+            for matchServer, matchPort in hp:
+                if found:
+                    break        
+                    for server in servers:
+                        if server['host'][0:3] == matchServer and \
+                          server['port'] == matchPort:
+                            chosenServers.append(server)
+                            if server['mhsid'] not in msgSendDest:
+                                msgSendDest.append(server['mhsid'])
+                            found = True
+                            break
+    
+            # if didn't find standard one, then take the first one, but don't
+            # take ourselves unless we are the only one.
+            if not found and servers:
+                for server in servers:
+                    if server['mhsid'] != requestingServer['mhsid'] \
+                      and server['host'] != requestingServer['host'] \
+                      and server['port'] != requestingServer['port'] \
+                      and server['site'] != requestingServer['site']:
+                        chosenServers.append(server)
+                        if server['mhsid'] not in msgSendDest:
+                            msgSendDest.append(server['mhsid'])
+                        found = True
+                        break;
+                        
+                if not found:
+                    chosenServers.append(servers[0])
+                    if servers[0]['mhsid'] not in msgSendDest:
+                        msgSendDest.append(servers[0]['mhsid'])
+    
+
+        # Display the set of matching servers
+        s = "Matching Servers:"
+        for x in matchingServers:
+            s += "\n" + self.printServerInfo(x)
+        self.logEvent(s)
+    
+        # Display the chosen set of servers
+        s = "Chosen Servers:"
+        for x in chosenServers:
+            s += "\n" + self.printServerInfo(x)
+        self.logEvent(s)
+    
+        self.addDestinationXML(iscE, chosenServers)
+    
+        return msgSendDest, iscE
