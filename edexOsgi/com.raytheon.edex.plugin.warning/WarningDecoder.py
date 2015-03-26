@@ -45,6 +45,7 @@
 # Dec 17, 2014  4953     randerso       Fixed decoding of non-VTEC from command line
 # Mar 24, 2015  4320     dgilling       Fix NullPointerException in StdWarningDecoder.__init__()
 #                                       when decoding product not from a file.
+# Mar 26, 2015  4324     dgilling       Improve handling of all 0s time values in HVTEC strings.
 #
 #
 # @author rferrel
@@ -53,6 +54,7 @@
 
 import sys, os, time, re, string, getopt
 import copy
+import calendar
 import LogStream
 from ufpy import TimeUtil
 from com.raytheon.uf.edex.decodertools.time import TimeTools
@@ -91,6 +93,9 @@ SPEED_CONVERSION = {
                     "KTS": 1,
                     "KPH": 0.53996
                     }
+
+PHENSIGS_IGNORE_HVTEC = ["FL.A", "FF.A", "FA.Y", "FA.W", "FF.W"]
+
 
 class StdWarningDecoder():
 
@@ -832,11 +837,11 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         #Returns tuple of time, and allZeroFlag. Time is based on the 
         #two time strings.  If all zeros, then return allZeroValue
         if yymmdd == "000000" and hhmm == "0000":
-            return (allZeroValue, 1)
+            return (allZeroValue, True)
         else:
             timeString = yymmdd + hhmm
             timeTuple = time.strptime(timeString, "%y%m%d%H%M")
-            return (long(time.mktime(timeTuple) * 1000), 0)   #TZ is GMT0, mktime works
+            return (long(calendar.timegm(timeTuple) * 1000), False)
 
     def _expandVTEC(self, ugcstring, vtecStrings, segment, segmentText, cities,
                     purgeTime):
@@ -865,10 +870,7 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
               search.group(9), self._maxFutureTime * 1000)
             template['startTime'] = long(startTime)
             template['endTime'] = long(endTime)
-            if ufn:
-                template['ufn'] = True
-            else:
-                template['ufn'] = False
+            template['ufn'] = ufn
             template['officeid'] = search.group(2)
             template['purgeTime'] = long(self._dtgFromDDHHMM(purgeTime, self._issueTime)*1000)
             template['issueTime'] = long(self._issueTime * 1000)
@@ -914,9 +916,18 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                 template['floodSeverity'] = hsearch.group(2)
                 template['immediateCause'] = hsearch.group(3)
                 template['floodRecordStatus'] = hsearch.group(10)
-                template['floodBegin'] = long(self._calcTime(hsearch.group(4), hsearch.group(5), self._issueTime)[0])
-                template['floodCrest'] = long(self._calcTime(hsearch.group(6), hsearch.group(7), self._issueTime)[0])
-                template['floodEnd'] = long(self._calcTime(hsearch.group(8), hsearch.group(9), self._issueTime)[0])
+
+                if template['phensig'] in PHENSIGS_IGNORE_HVTEC:
+                    fakeBeginTime = None
+                    fakeEndTime = None
+                    fakeCrestTime = None
+                else:
+                    fakeBeginTime = template['issueTime']
+                    fakeEndTime = long(self._maxFutureTime * 1000)
+                    fakeCrestTime = fakeEndTime
+                template['floodBegin'] = self._calcTime(hsearch.group(4), hsearch.group(5), fakeBeginTime)[0]
+                template['floodCrest'] = self._calcTime(hsearch.group(6), hsearch.group(7), fakeCrestTime)[0]
+                template['floodEnd'] = self._calcTime(hsearch.group(8), hsearch.group(9), fakeEndTime)[0]
 
             records.append(template)
             #expand the template out by the ugcs
