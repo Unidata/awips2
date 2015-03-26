@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -49,17 +49,19 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * A layer for displaying and customizing a weather event's damage path.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2015  3974      njensen     Initial creation
- * 
+ * Mar 31, 2015  3977      nabowle     Reset polygon when initializing from the
+ *                                     localization file fails.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -93,6 +95,16 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
             LocalizationFile prevFile = getDamagePathFile();
             if (prevFile.exists()) {
                 loadDamagePath(prevFile);
+
+                // reset the polygon if the localization file is invalid.
+                if (getPolygon() == null) {
+                    statusHandler
+                            .error("The damage path file was invalid. The polygon has been reset.");
+                    polygon = PolygonUtil
+                            .makeDefaultPolygon(getResourceContainer()
+                                    .getActiveDisplayPane()
+                                    .getRenderableDisplay());
+                }
             }
             return Status.OK_STATUS;
         }
@@ -169,7 +181,7 @@ public class DamagePathLayer<T extends DamagePathResourceData> extends
          * TODO create a new InputAdapter that takes highest priority and blocks
          * other inputs. left clicking adds vertices, right click indicates the
          * last point on the polygon, then connect the first and last point.
-         * 
+         *
          * afterwards, remove and dispose of that input adapter
          */
         return null;

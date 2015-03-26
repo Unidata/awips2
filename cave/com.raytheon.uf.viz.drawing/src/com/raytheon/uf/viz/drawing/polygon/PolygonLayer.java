@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -48,17 +48,18 @@ import com.vividsolutions.jts.geom.Polygon;
  * A layer for displaying a filled polygon on a map and altering it through
  * mouse interactions. This layer only supports an exterior ring, ie a polygon
  * without holes/interior rings.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2015  3974      njensen     Initial creation
- * 
+ * Mar 31, 2015  3977      nabowle     Require non-empty coordinates in resetPolygon
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  * @param <T>
@@ -177,12 +178,12 @@ public class PolygonLayer<T extends AbstractResourceData> extends
     /**
      * Creates a new polygon based on the coordinates and makes that the
      * internal polygon.
-     * 
+     *
      * @param coords
      */
     public void resetPolygon(Coordinate[] coords) {
         synchronized (shapeLock) {
-            if (coords != null) {
+            if (coords != null && coords.length > 0) {
                 polygon = PolygonUtil.FACTORY.createPolygon(coords);
             }
             if (wireframeShape != null) {
