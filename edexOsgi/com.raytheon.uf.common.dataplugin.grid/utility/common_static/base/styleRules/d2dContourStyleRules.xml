@@ -661,7 +661,8 @@ kts|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 1
 -->  
 <styleRule>
   <paramLevelMatches>
-     <parameter>wSpea</parameter>   
+     <parameter>wSpea</parameter>
+     <parameter>WGSea</parameter>
   </paramLevelMatches>
   <contourStyle>
      <displayUnits>kts</displayUnits>
@@ -974,6 +975,14 @@ g/Kg/12hr|-43200| 0.0 | 4 | | | |8000F0FF|x| 8 | 1 2 5 10 20 50 100 200
     <contourLabeling labelSpacing="4" labelFormat="#">
       <increment>25</increment>
     </contourLabeling>
+  </contourStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+    <parameter>Perranl</parameter>
+  </paramLevelMatches>
+  <contourStyle>
+    <displayUnits>mb</displayUnits>
   </contourStyle>
 </styleRule>
 <!--
@@ -1423,6 +1432,16 @@ mi | 0.0006207 | 0 |  4 |  |   |..|8000F0FF| | 9 | .25 .5 1 2 3 5 10 20 50
      <contourLabeling labelSpacing="4">
         <values>.25 .5 1 2 3 5 10 20 50</values>
      </contourLabeling>
+  </contourStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Viserranl</parameter>
+     <singleLevel units="SURFACE" />
+     </paramLevelMatches>
+  <contourStyle>
+     <displayUnits>mi</displayUnits>
+     <displayFlags>NoPlane</displayFlags>
   </contourStyle>
 </styleRule>
 <!--  * CloudTop, EchoTop, ConvCloudTop, CloudBase, CloudCeiling, GH, zAGL

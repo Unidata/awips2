@@ -521,7 +521,12 @@
 		<keyValue>RTMA25</keyValue>
 		<versionsToKeep>24</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>	
+	</rule>
+	<rule>
+		<keyValue>URMA25</keyValue>
+		<versionsToKeep>24</versionsToKeep>
+		<modTimeToWait>00-00:15:00</modTimeToWait>
+	</rule>
 	<!-- Purge rule for AK-RTMA-3KM analysis -->
 	<rule>
 		<keyValue>AK-RTMA3</keyValue>
