@@ -193,6 +193,10 @@
          id="edu.wisc.ssec.cimss.viz.convectprob.feature"
          version="0.0.0"/>
 
+   <includes
+         id="com.raytheon.uf.viz.d2d.damagepath.feature"
+         version="0.0.0"/>
+
    <requires>
       <import feature="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>
    </requires>
