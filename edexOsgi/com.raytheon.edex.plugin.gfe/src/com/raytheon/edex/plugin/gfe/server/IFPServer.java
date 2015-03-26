@@ -30,7 +30,6 @@ import java.util.Set;
 import com.raytheon.edex.plugin.gfe.cache.gridlocations.GridLocationCache;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.db.dao.IscSendRecordDao;
-import com.raytheon.edex.plugin.gfe.isc.IRTManager;
 import com.raytheon.edex.plugin.gfe.reference.MapManager;
 import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
@@ -46,7 +45,6 @@ import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
@@ -63,6 +61,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * May 30, 2013  #2044     randerso    Initial creation
  * Nov 20, 2013  #2331     randerso    Added getTopoData method
  * Oct 07, 2014  #3684     randerso    Restructured IFPServer start up
+ * Mar 11, 2015  #4128     dgilling    Remove unregister from IRT to IRTManager.
  * 
  * </pre>
  * 
@@ -210,16 +209,11 @@ public class IFPServer {
     }
 
     private void dispose() {
-        if (config.requestISC()) {
-            IRTManager.getInstance().disableISC(config.getMhsid(), siteId);
-        }
-
         try {
             new IscSendRecordDao().deleteForSite(siteId);
         } catch (DataAccessLayerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Could not clear IscSendRecords for site " + siteId
-                            + " from queue.", e);
+            statusHandler.error("Could not clear IscSendRecords for site "
+                    + siteId + " from queue.", e);
         }
 
         // TODO necessary?

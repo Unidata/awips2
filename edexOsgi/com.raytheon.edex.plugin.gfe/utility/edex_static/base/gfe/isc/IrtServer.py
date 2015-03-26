@@ -24,6 +24,7 @@ import LogStream, tempfile, os, sys, JUtil, subprocess, traceback, errno
 import time, copy, string, iscUtil
 
 from com.raytheon.edex.plugin.gfe.isc import IRTManager
+from subprocess import CalledProcessError
 
 
 #
@@ -47,6 +48,8 @@ from com.raytheon.edex.plugin.gfe.isc import IRTManager
 #                                                 registration with IRT.
 #    12/08/2014      4953          randerso       Added support for sending/receiving TCV files
 #                                                 Additional code clean up
+#    03/05/2015      4129          randerso       Fix exception handling on subprocess calls
+#                                                 Fixed error when no TCV files were found
 #
 ##
 PURGE_AGE = 30 * 24 * 60 * 60  # 30 days in seconds
@@ -157,9 +160,11 @@ def getVTECActiveTable(dataFile, xmlPacket):
         args.append(fnameXML)
     try:
         output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+        logEvent("sendAT command output: ", output)
+    except subprocess.CalledProcessError as e:
+        logProblem("sendAT returned error code: ", e.returncode, e.output)
     except:
         logProblem("Error executing sendAT: ", traceback.format_exc())
-    logEvent("sendAT command output: ", output)
 
 #when we receive a requested active table from another site, this function
 #is called from iscDataRec
@@ -191,9 +196,11 @@ def putVTECActiveTable(dataFile, xmlPacket):
         args.append(fnameXML)
     try:
         output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+        logEvent("ingestAT command output: ", output)
+    except subprocess.CalledProcessError as e:
+        logProblem("ingestAT returned error code: ", e.returncode, e.output)
     except:
         logProblem("Error executing ingestAT: ", traceback.format_exc())
-    logEvent("ingesAT command output: ", output)
 
 def putTCVFiles(siteID, tarFile):
     import LocalizationSupport
@@ -313,21 +320,24 @@ def getTCVFiles(ourMhsID, srcServer, destE):
         fname = fp.name
         
     try:    
-        TCVUtil.packageTCVFiles(localSites, fname, getLogger())
+        if TCVUtil.packageTCVFiles(localSites, fname, getLogger()):
         
-        from xml.etree import ElementTree
-        from xml.etree.ElementTree import Element, SubElement
-        iscE = ElementTree.Element('isc')
-        irt.addSourceXML(iscE, destServer)
-        irt.addDestinationXML(iscE, [srcServer])
-
-        # create the XML file
-        with tempfile.NamedTemporaryFile(suffix='.xml', dir=tcvProductsDir, delete=False) as fd:
-            fnameXML = fd.name
-            fd.write(ElementTree.tostring(iscE))    
-
-        # send the files to srcServer
-        sendMHSMessage("PUT_TCV_FILES", srcServer['mhsid'], [fname, fnameXML])
+            from xml.etree import ElementTree
+            from xml.etree.ElementTree import Element, SubElement
+            iscE = ElementTree.Element('isc')
+            irt.addSourceXML(iscE, destServer)
+            irt.addDestinationXML(iscE, [srcServer])
+    
+            # create the XML file
+            with tempfile.NamedTemporaryFile(suffix='.xml', dir=tcvProductsDir, delete=False) as fd:
+                fnameXML = fd.name
+                fd.write(ElementTree.tostring(iscE))    
+    
+            # send the files to srcServer
+            sendMHSMessage("PUT_TCV_FILES", srcServer['mhsid'], [fname, fnameXML])
+        else:
+            logEvent('No TCV files to send')
+            
     except:
         logException('Error sending TCV files for ' + str(localSites))
 
@@ -502,14 +512,6 @@ def serviceISCRequest(dataFile):
     ServiceISCRequest.serviceRequest(JUtil.pyValToJavaObj(info['parms']),xmlDestinations,siteConfig.GFESUITE_SITEID)
    # ifpServer.serviceISCRequest(info['parms'], xmlDestinations)
    
-# get servers direct call for IRT
-def irtGetServers(ancfURL, bncfURL, iscWfosWanted):
-    import IrtAccess
-    irt = IrtAccess.IrtAccess(ancfURL, bncfURL)
-    xml = None
-    status, xml = irt.getServers(iscWfosWanted)
-    return xml
-
 def sendMHSMessage(subject, adressees, attachments, xmtScript=None):
     # Transmit the request -- do string substitution
     import siteConfig
