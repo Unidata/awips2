@@ -137,6 +137,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    the DHR with AWIPS1
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Nov 06, 2014  16776    zwang       Handle AMDA product
+ * Mar 25, 2015  4319     bsteffen    Add volume scan number.
  * 
  * </pre>
  * 
@@ -220,6 +221,18 @@ public class RadarRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Integer elevationNumber;
+
+    /**
+     * A number between 1 and 80 that can be used to correlate all records
+     * within a volume scan. This number increments(then wraps) for each volume
+     * scan from the RPG, all products within a volume scan will have the same
+     * volumeScanNumber and different elevationNumbers. A value of 0 is used for
+     * products where the volume scan number is not defined.
+     */
+    @Column
+    @DynamicSerializeElement
+    @XmlElement(nillable = false)
+    private int volumeScanNumber;
 
     @Column
     @DynamicSerializeElement
@@ -476,6 +489,14 @@ public class RadarRecord extends PersistablePluginDataObject implements
      */
     public void setElevationNumber(Integer elevationNumber) {
         this.elevationNumber = elevationNumber;
+    }
+
+    public int getVolumeScanNumber() {
+        return volumeScanNumber;
+    }
+
+    public void setVolumeScanNumber(int volumeScanNumber) {
+        this.volumeScanNumber = volumeScanNumber;
     }
 
     /**
