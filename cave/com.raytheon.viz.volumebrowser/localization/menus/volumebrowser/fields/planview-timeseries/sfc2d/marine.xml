@@ -71,4 +71,19 @@
         key="ETSRG" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Combined ET Surge and Tide Hgt"
         key="ETCWL" indentText="false" />
+    <!-- ECMWF wave guidance parameters: -->
+    <contribute xsi:type="menuItem" menuText="U-component stokes drift"
+        key="USSD" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="V-component stokes drift"
+        key="VSSD" indentText="false" />
+     <contribute xsi:type="menuItem" menuText="Period of Maximum Individual Wave Height" 
+        key="PMAXWH" indentText="false" />
+     <contribute xsi:type="menuItem" menuText="Maximum Individual Wave Height" 
+        key="MAXWH" indentText="false" />
+         <contribute xsi:type="menuItem" menuText="Mean wave period second moment" 
+        key="MP2" indentText="false" /> 
+            <contribute xsi:type="menuItem" menuText="Mean wave period second moment for wind waves" 
+        key="P2WW" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Mean wave period second moment for swell" 
+        key="P2PS" indentText="false" />
 </menuTemplate>
