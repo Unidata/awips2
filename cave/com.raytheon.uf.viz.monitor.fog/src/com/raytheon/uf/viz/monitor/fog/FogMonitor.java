@@ -329,7 +329,9 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     @Override
     public void nullifyMonitor() {
-        monitor.removeMonitorListener(zoneDialog);
+        if (zoneDialog != null) {
+            monitor.removeMonitorListener(zoneDialog);
+        }
         ProductAlertObserver.removeObserver(OBS, this);
         monitor = null;
     }
@@ -380,7 +382,9 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
                 }
             }
         } else {
-            monitor.nullifyMonitor();
+            if (monitor != null) {
+                monitor.nullifyMonitor();
+            }
         }
     }
 
