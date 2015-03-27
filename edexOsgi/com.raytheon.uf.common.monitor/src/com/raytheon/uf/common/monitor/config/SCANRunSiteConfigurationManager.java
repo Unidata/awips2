@@ -39,6 +39,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Aug 13, 2013 1742       dhladky     Concurrent mod exception on update fixed
  * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
  * Jan 20, 2015 3949       nabowle     Add lightning source.
+ * Mar 27, 2015 4260       dhladky     Updated default model.
  *
  * </pre>
  *
@@ -52,6 +53,9 @@ public class SCANRunSiteConfigurationManager implements
     /** Path to FFMP Source config. */
     private static final String CONFIG_FILE_NAME = "scan" + File.separatorChar
             + "SCANRunSiteConfig.xml";
+    
+    /** default model to set in XML **/
+    private static final String DEFAULT_MODEL = "HRRR";
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SCANRunSiteConfigurationManager.class);
@@ -287,7 +291,7 @@ public class SCANRunSiteConfigurationManager implements
          */
         List<String> localsites = RadarsInUseUtil.getSite(null,
                 RadarsInUseUtil.LOCAL_CONSTANT);
-        String modelDefault = "RUC130";
+        String modelDefault = DEFAULT_MODEL;
 
         configXml = new SCANSiteRunConfigXML();
 
