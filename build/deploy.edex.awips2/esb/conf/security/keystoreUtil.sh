@@ -1,7 +1,29 @@
 #!/bin/bash
+# rewrite from 16.1.1
 
 SETUP_ENV=/awips2/edex/bin/setup.env
 source $SETUP_ENV
+
+if [[ -z $JAR_LIB ]]
+then
+        JAR_LIB="/awips2/edex/lib"
+fi
+
+FIND_JAR_COMMAND="find $JAR_LIB -name *.jar"
+JAR_FOLDERS=`$FIND_JAR_COMMAND`
+
+#Recursively search all library directories for jar files and add them to the local classpath
+addSep=false
+for i in $JAR_FOLDERS;
+do
+        if [[ "$addSep" == true ]];
+        then
+                LOCAL_CLASSPATH=$LOCAL_CLASSPATH":"$i
+        else
+                LOCAL_CLASSPATH=$i
+                addSep=true
+        fi
+done
 
 JAVA_BIN=/awips2/java/jre/bin/java
 
@@ -12,31 +34,38 @@ publicKeyFile=PublicKey.cer
 keystore=keystore.jks
 truststore=truststore.jks
 
+orgUnit=
+org=
+loc=
+state=
+country=
+ext=
 keystorePw=
+truststorePw=
 keyPw=
 cn=
 encryptionKey=encrypt
-truststorePw=password
 
 function usage {
 	echo "Usage:"
 	echo -e "\t-h\t\tDisplays usage"
 	echo -e "\t-g\t\tGenerate keystore, truststore, and security properties file"
 	echo -e "\t-a [keyFile]\tAdds a public key to the trust store"
+	echo -e "\t-d [keyFile]\tDeletes a public key from the trust store"
 }
 
 function generateKeystores() {
 
 echo "Generating keystores"
 
-if [ -z $CLUSTER_ID ] 
+if [[ -z $CLUSTER_ID ]] 
 then
 	echo "CLUSTER_ID undefined. Determining from hostname..."
 	HOST=$(hostname -s)
 	CLUSTER_ID=${HOST:$(expr index "$HOST" -)} | tr '[:lower:]' '[:upper:]'
 fi
 
-if [ -z $CLUSTER_ID ] 
+if [[ -z $CLUSTER_ID ]] 
 then	
 	echo "CLUSTER_ID could not be determined from hostname. Using site as CLUSTER_ID"
 	CLUSTER_ID=$AW_SITE_IDENTIFIER
@@ -48,50 +77,49 @@ keyAlias=$CLUSTER_ID
 # Write the cluster ID to the setup.env file
 sed -i "s@^export CLUSTER_ID.*@export CLUSTER_ID=$CLUSTER_ID@g" $SETUP_ENV
 
-
-if [ ! -d "$securityDir" ]; then
+if [[ ! -d $securityDir ]]; then
    mkdir $securityDir
 fi
 
-if [ ! -d "$securityPropertiesDir" ]; then
+if [[ ! -d $securityPropertiesDir ]]; then
    mkdir -p $securityPropertiesDir
 fi
 
-while [ -z $keystorePw ];
+while [[ -z $keystorePw ]];
 do
 	echo -n "Enter desired password for keystore [$keystore]: "
 	read keystorePw
-	if [ -z $keystorePw ];
+	if [[ -z $keystorePw ]];
 	then
 		echo "Keystore password cannot be empty!"
 	fi
 done
 
-while [ -z $keyAlias ];
+while [[ -z $keyAlias ]];
 do
 	echo -n "Enter alias: "
 	read keyAlias
-	if [ -z $keyAlias ];
+	if [[ -z $keyAlias ]];
 	then
 		echo "Alias cannot be empty!"
 	fi
 done
 
-while [ -z $keyPw ];
+while [[ -z $keyPw ]];
 do
 	echo -n "Enter desired password for key [$keyAlias]: "
 	read keyPw
-	if [ -z $keyPw ];
+	if [[ -z $keyPw ]];
 	then
 		echo "Key password cannot be empty!"
 	fi
 done
 
-while [ -z $truststorePw ];
+while [[ -z $truststorePw ]];
 do
 	echo -n "Enter password for trust store [$truststore]: "
 	read truststorePw
-	if [ -z $truststorePw ];
+	if [[ -z $truststorePw ]];
 	then
 		echo "TrustStore password cannot be empty!"
 	fi
@@ -108,27 +136,92 @@ do
 	fi
 done
 
+while [[ -z $orgUnit ]];
+do
+	echo -n "Enter Organizational Unit for cert [(OU)]: "
+	read orgUnit
+	if [[ -z $orgUnit ]];
+	then
+		echo "Organizational Unit cannot be empty!"
+	fi
+done
+
+while [[ -z $org ]];
+do
+	echo -n "Organization for cert [(O)]: "
+	read org
+	if [[ -z $org ]];
+	then
+		echo "Organization cannot be empty!"
+	fi
+done
+
+while [[ -z $loc ]];
+do
+	echo -n "Location for cert (underscores for spaces please!) [(L)]: "
+	read loc
+	if [[ -z $loc ]];
+	then
+		echo "Location cannot be empty!"
+	fi
+done
+
+while [[ -z $state ]];
+do
+	echo -n "State for cert (2 letter ID) [(ST)]: "
+	read state
+	if [[ -z $state ]];
+	then
+		echo "State cannot be empty!"
+	fi
+done
+
+while [[ -z $country ]];
+do
+	echo -n "Country for cert (2 letter ID) [(C)]: "
+	read country
+	if [[ -z $country ]];
+	then
+		echo "Country cannot be empty!"
+	fi
+done
+
+while [[ -z $ext ]];
+do
+	echo "Subject Alternative Names (SAN): Comma Delimited!"
+	echo "for FQDN enter: dns:host1.mydomain.com,host2.mydomain.com, etc"
+	echo "for IP enter: ip:X.X.X.X,Y.Y.Y.Y, etc"
+	echo -n "[SAN]: "
+	read ext
+	if [[ -z $ext ]];
+	then
+		echo "Subject Alternative Names cannot be empty!"
+	fi
+done
+
+cn=$(hostname)
+
 echo "Generating keystore..."
 # get rid of an existing key with same name
-echo "Check to see if a key with this alias exists.....[$keyAlias]!"
+echo "Checking to see if a key with this alias exists in keystore.....[$keyAlias]!"
 keytool -delete -alias $keyAlias -keystore $securityDir/$keystore
 # create and add key
-keytool -genkeypair -alias $keyAlias -keypass $keyPw -keystore $keystore -storepass $keystorePw -validity 360 -dname "CN=$cn, OU=AWIPS, O=Raytheon, L=Silver Spring, ST=MD, C=US" -keyalg RSA 
+keytool -genkeypair -alias $keyAlias -keypass $keyPw -keystore $keystore -storepass $keystorePw -validity 360 -dname "CN=$cn, OU=$orgUnit, O=$org, L=$loc, ST=$state, C=$country" -keyalg RSA -ext san=$ext
 echo -n "Exporting public key..."
 exportOutput=`keytool -exportcert -alias $keyAlias -keystore $keystore -file $keyAlias$publicKeyFile -storepass $keystorePw 2>&1`
 echo "Done!"
-obfuscatedKeystorePassword=`$JAVA_BIN -cp /awips2/edex/lib/dependencies/org.apache.commons.codec/commons-codec-1.4.jar:/awips2/edex/lib/plugins/com.raytheon.uf.common.security.jar com.raytheon.uf.common.security.encryption.AESEncryptor encrypt $encryptionKey $keystorePw 2>&1`
-echo "Generating trust store..."
+obfuscatedKeystorePassword=`$JAVA_BIN -cp $LOCAL_CLASSPATH com.raytheon.uf.common.security.encryption.AESEncryptor encrypt $encryptionKey $keystorePw 2>&1`
 
-echo "Check to see if a trusted CA with this alias exists.....[$keyAlias]!"
+echo "Generating trust store..."
+echo "Checking to see if a trusted CA with this alias exists in truststore.....[$keyAlias]!"
 keytool -delete -alias $keyAlias -keystore $securityDir/$truststore
 keytool -genkey -alias tmp -keypass tempPass -dname CN=foo -keystore $truststore -storepass $truststorePw
 keytool -delete -alias tmp -keystore $truststore -storepass $truststorePw
 keytool -import -trustcacerts -file $keyAlias$publicKeyFile -alias $keyAlias -keystore $truststore -storepass $truststorePw
 
-jettyObscuredPassword=`$JAVA_BIN -cp /awips2/edex/lib/dependencies/org.eclipse.jetty/jetty-http-8.1.15.v20140411.jar:/awips2/edex/lib/dependencies/org.eclipse.jetty/jetty-util-8.1.15.v20140411.jar org.eclipse.jetty.util.security.Password $keystorePw 2>&1 | grep OBF`
+jettyObscuredPassword=`$JAVA_BIN -cp $LOCAL_CLASSPATH org.eclipse.jetty.util.security.Password $keystorePw 2>&1 | grep OBF`
 
-obfuscatedTruststorePassword=`$JAVA_BIN -cp /awips2/edex/lib/dependencies/org.apache.commons.codec/commons-codec-1.4.jar:/awips2/edex/lib/plugins/com.raytheon.uf.common.security.jar com.raytheon.uf.common.security.encryption.AESEncryptor encrypt $encryptionKey $truststorePw 2>&1`
+obfuscatedTruststorePassword=`$JAVA_BIN -cp $LOCAL_CLASSPATH com.raytheon.uf.common.security.encryption.AESEncryptor encrypt $encryptionKey $truststorePw 2>&1`
 
 
 echo -n "Generating security properties file..."
@@ -166,7 +259,7 @@ echo "Done!"
 
 echo "Keystores are located at $securityDir"
 echo "The public key for this server is located at $(pwd)/$keyAlias$publicKeyFile"
-echo "This file may be disseminated to other registry federation memebers who wish to interact with this server"
+echo "This file may be disseminated to other registry federation members who wish to interact with this server"
 
 }
 
@@ -185,10 +278,27 @@ do
 done
 
 # delete any existing cert in the truststore for this alias
-echo "Check to see if a certificate with this alias exists.....[$userAlias]!"
+echo "Checking to see if a certificate with this alias exists to replace.....[$userAlias]!"
 keytool -delete -alias $userAlias -keystore $securityDir/$truststore
 # add the cert as a Self Signed CA to truststore 
 keytool -import -trustcacerts -file $keyfile -alias $userAlias -keystore $securityDir/$truststore
+
+}
+
+function deleteKey() {
+echo "Deleting $keyfile from trust store..."
+
+userAlias=
+while [ -z $userAlias ];
+do
+	echo -n "Enter alias for [$keyfile]: "
+	read userAlias
+	if [ -z $userAlias ];
+	then
+		echo "Alias cannot be empty!"
+	fi
+done
+keytool -delete -alias $userAlias -keystore $securityDir/$truststore
 
 }
 
@@ -216,6 +326,20 @@ then
 		addKey
 	fi
 	exit 0
+elif [ "$1" = "-d" ]
+then
+	if [ $# -lt 2 ]
+	then
+		echo "No key file supplied"
+		usage
+	elif [ ! -e $securityDir/$truststore ]
+	then
+		echo "Trust store [$securityDir/$truststore] does not exist!"
+	else
+		keyfile=$2
+		deleteKey
+	fi
+	exit 0	
 elif [ "$1" = "-usage" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]
 then
 	usage
