@@ -59,7 +59,6 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -87,6 +86,7 @@ import com.raytheon.uf.viz.spellchecker.jobs.EnhancedSpellCheckJob;
  *                                   to site level localization.
  * Oct 01, 2014 3453       rblum     Allow MB3 click anywhere in the textbox
  *                                   to enable/disable spellcheck.
+ * Mar 27, 2015 4138       dhladky   Guava name change.
  * 
  * </pre>
  * 
@@ -239,7 +239,7 @@ public class SpellCheckTextViewer extends TextViewer implements
     @Override
     public void accept(SpellingProblem problem) {
         problems.add(problem);
-        Range<Integer> range = Ranges.range(problem.getOffset(),
+        Range<Integer> range = Range.range(problem.getOffset(),
                 BoundType.CLOSED, problem.getOffset() + problem.getLength(),
                 BoundType.CLOSED);
         ranges.put(range, problem);
