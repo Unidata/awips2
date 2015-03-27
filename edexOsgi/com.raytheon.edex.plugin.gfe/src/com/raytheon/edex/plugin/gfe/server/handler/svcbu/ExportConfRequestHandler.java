@@ -19,17 +19,20 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
-import com.raytheon.edex.plugin.gfe.svcbackup.ServiceBackupNotificationManager;
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportConfRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 
 /**
- * Exports configuration?
+ * Request handler for {@code ExportConfRequest}. This handler will export the
+ * local site's configuration data to the central server for use in a service
+ * backup scenario.
  * 
  * <pre>
  * 
@@ -37,7 +40,9 @@ import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip     Initial creation
+ * Mar 17, 2015  #4103     dgilling     Stop using ServiceBackupNotificationManager,
+ *                                      supoprt new Service Backup GUI.
  * 
  * </pre>
  * 
@@ -45,26 +50,35 @@ import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
  * @version 1.0
  */
 
-public class ExportConfRequestHandler extends
+public final class ExportConfRequestHandler extends
         AbstractPrivilegedRequestHandler<ExportConfRequest> {
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ExportConfRequestHandler.class);
+
     @Override
-    public Object handleRequest(ExportConfRequest request) throws Exception {
+    public JobProgress handleRequest(final ExportConfRequest request)
+            throws Exception {
         AuthorizationResponse response = authorized(request.getUser(), request);
-        ServerResponse<String> sr = new ServerResponse<String>();
-        if (response.isAuthorized()) {
+        if (!response.isAuthorized()) {
+            statusHandler.error("User " + request.getUser()
+                    + " is not export configuration for site "
+                    + request.getSite());
+            return JobProgress.FAILED;
+        }
+
+        try {
             SvcBackupUtil.execute("export_configuration", request.getSite()
                     .toLowerCase());
-            ServiceBackupNotificationManager
-                    .sendMessageNotification("Configuration successfully sent to central server");
-            ServiceBackupNotificationManager.sendProgressNotification(100);
-        } else {
-            ServiceBackupNotificationManager.sendMessageNotification("User "
-                    + request.getUser()
-                    + " is not authorized to perform this operation");
-            sr.addMessage(response.getResponseMessage());
+            statusHandler
+                    .info("Configuration successfully sent to central server");
+        } catch (Exception e) {
+            statusHandler.error("Error exporting configuration for site "
+                    + request.getSite(), e);
+            return JobProgress.FAILED;
         }
-        return sr;
+
+        return JobProgress.SUCCESS;
     }
 
     @Override

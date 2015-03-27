@@ -26,6 +26,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/05/14        4953          randerso       Initial Creation.
+#    03/10/2015      #4129         randerso       Refactored server selection code into a reusable method
 # 
 ##
 import os, errno, tempfile
@@ -44,135 +45,8 @@ def init_logging():
     import iscUtil
     import logging
     global logger
-    logger = iscUtil.getLogger("sendTCV", logLevel=logging.DEBUG)
+    logger = iscUtil.getLogger("sendTCV", logLevel=logging.INFO)
 
-
-def createDestinationXML(siteID, host, port, protocol, mhsid, ancf, bncf, logger):
-    #--------------------------------------------------------------------
-    # Assemble XML source/destination document
-    #--------------------------------------------------------------------
-    msgSendDest = []   #list of mhs sites to send request
-
-    irt = IrtAccess.IrtAccess(ancf, bncf)
-    iscE = ElementTree.Element('isc')
-    # this is the requestor of the data
-    sourceServer = {'mhsid'   : mhsid, 
-                    'host'    : host, 
-                    'port'    : port,
-                    'protocol': protocol, 
-                    'site'    : siteID}
-    irt.addSourceXML(iscE, sourceServer)
-    logger.info("Requesting Server: " + irt.printServerInfo(sourceServer))
-
-    # who is running the domains requested?
-    sites = VTECPartners.VTEC_TABLE_REQUEST_SITES
-    if not sites:
-        logger.error('No sites defined for VTEC_TABLE_REQUEST_SITES')
-        sys.exit(1)
-
-    status, xml = irt.getServers(sites)
-    if not status:
-        logger.error('Failure to getServers from IRT')
-        sys.exit(1)
-
-    # decode the XML
-    try:
-        serverTree = ElementTree.ElementTree(ElementTree.XML(xml))
-        serversE = serverTree.getroot()
-    except:
-        logger.exception("Malformed XML on getServers()")
-        sys.exit(1)
-
-    if serversE.tag != "servers":
-        logger.error("Servers packet missing from web server")
-        sys.exit(1)
-
-    # process each requested domain returned to us
-    chosenServers = []
-    matchingServers = []
-    for domainE in serversE:
-        if domainE.tag != "domain":
-            continue
-        servers = []  #list of servers for this domain
-
-        # decode each server in the domain
-        for addressE in domainE.getchildren():
-            info = irt.decodeXMLAddress(addressE)
-            if info is None:
-                continue   #not address tag
-            
-            # remove unneeded keys
-            for key in ['parms', 'area', 'domain']:
-                if info.has_key(key):
-                    del info[key]
-            
-            servers.append(info)
-            matchingServers.append(info)
-
-        # server search list in priority.  The px3 entries are used for
-        # dual domain for AFC.
-        hp = [('dx4','98000000'),('px3', '98000000'), ('dx4','98000001'),
-          ('px3', '98000001')]
-
-        # choose one server from this domain, find first dx4, 98000000
-        # try to use one with the same mhsidDest as the site, which
-        # would be the primary operational GFE. Note that the px3 entries
-        # are for AFC.
-        found = False
-        for matchServer, matchPort in hp:
-            for server in servers:
-                if server['host'][0:3] == matchServer and \
-                  server['port'] == matchPort and server['mhsid'] == siteID:
-                    if server['mhsid'] not in msgSendDest:
-                        chosenServers.append(server)
-                        msgSendDest.append(server['mhsid'])
-                    found = True
-                    break
-
-        # find first dx4, 98000000, but perhaps a different mhsid
-        # this is probably not the primary operational GFE
-        if not found:
-            for matchServer, matchPort in hp:
-                for server in servers:
-                    if server['host'][0:3] == matchServer and \
-                      server['port'] == matchPort:
-                        if server['mhsid'] not in msgSendDest:
-                            chosenServers.append(server)
-                            msgSendDest.append(server['mhsid'])
-                        found = True
-                        break
-
-        # if didn't find standard one, then take the first one, but don't
-        # take ourselves unless we are the only one.
-        if not found and servers:
-            for server in servers:
-                if server['mhsid'] != mhsid and server['host'] != host \
-                  and server['port'] != port and \
-                  server['mhsid'] != siteID:
-                    if server['mhsid'] not in msgSendDest:
-                        chosenServers.append(server)
-                        msgSendDest.append(server['mhsid'])
-                    found = True
-            if not found:
-                if servers[0]['mhsid'] not in msgSendDest:
-                    chosenServers.append(servers[0])
-                    msgSendDest.append(servers[0]['mhsid'])
-
-    # Display the set of matching servers
-    s = "Matching Servers:"
-    for x in matchingServers:
-        s += "\n" + irt.printServerInfo(x)
-    logger.info(s)
-
-    # Display the chosen set of servers
-    s = "Chosen Servers:"
-    for x in chosenServers:
-        s += "\n" + irt.printServerInfo(x)
-    logger.info(s)
-
-    irt.addDestinationXML(iscE, chosenServers)
-
-    return msgSendDest, iscE
 
 def runFromJava(siteID, config):
     import siteConfig
@@ -201,25 +75,37 @@ def runFromJava(siteID, config):
     with tempfile.NamedTemporaryFile(suffix='.sendtcv', dir=tcvProductsDir, delete=False) as fp:
         fname = fp.name
 
-    try:
-        TCVUtil.packageTCVFiles([siteID], fname, logger)
+    sourceServer = {'mhsid'   : mhsid, 
+                    'host'    : host, 
+                    'port'    : port,
+                    'protocol': protocol, 
+                    'site'    : siteID}
 
-        msgSendDest, xml = createDestinationXML(siteID, host, port, protocol, mhsid, ancf, bncf, logger)
-        
-        # create the XML file
-        with tempfile.NamedTemporaryFile(suffix='.xml', dir=tcvProductsDir, delete=False) as fd:
-            fnameXML = fd.name
-            fd.write(ElementTree.tostring(xml))    
-        
-        # don't send to ourselves
-        if mhsid in msgSendDest:
-            msgSendDest.remove(mhsid)
+    try:
+        if TCVUtil.packageTCVFiles([siteID], fname, logger):
+
+            destSites = VTECPartners.VTEC_TABLE_REQUEST_SITES
+            if not destSites:
+                raise Exception('No destSites defined for VTEC_TABLE_REQUEST_SITES')
+    
+            irt = IrtAccess.IrtAccess(ancf, bncf, logger=logger)
+            msgSendDest, xml = irt.createDestinationXML(destSites, sourceServer)
             
-        if len(msgSendDest) > 0:
-            # Now send the message
-            irt = IrtAccess.IrtAccess(ancf, bncf)
-            logger.debug("msgSendDest: "+ str(msgSendDest))
-            irt.transmitFiles("PUT_TCV_FILES", msgSendDest, mhsid, [fname, fnameXML], xmtScript)
+            # create the XML file
+            with tempfile.NamedTemporaryFile(suffix='.xml', dir=tcvProductsDir, delete=False) as fd:
+                fnameXML = fd.name
+                fd.write(ElementTree.tostring(xml))    
+            
+            # don't send to ourselves
+            if mhsid in msgSendDest:
+                msgSendDest.remove(mhsid)
+                
+            if len(msgSendDest) > 0:
+                # Now send the message
+                logger.debug("msgSendDest: "+ str(msgSendDest))
+                irt.transmitFiles("PUT_TCV_FILES", msgSendDest, mhsid, [fname, fnameXML], xmtScript)
+        else:
+            logger.info('No TCV files to send')
 
     except:
         logger.exception('Error sending TCV files for site: ' + siteID)

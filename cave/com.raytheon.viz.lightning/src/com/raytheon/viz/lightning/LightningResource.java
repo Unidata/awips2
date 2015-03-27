@@ -32,8 +32,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -92,6 +90,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  *                                          moved name formatting to static method
  *    Aug 04, 2014  3488       bclement    added sanity check for record bin range
  *    Aug 19, 2014  3542       bclement    fixed strike count clipping issue
+ *    Mar 05, 2015  4233       bsteffen    include source in cache key.
  * 
  * </pre>
  * 
@@ -111,7 +110,7 @@ public class LightningResource extends
     private boolean needsUpdate;
 
     private String resourceName;
-    
+
     private int posAdj;
 
     private IFont font;
@@ -222,11 +221,9 @@ public class LightningResource extends
             rval += modifier;
         }
 
-        HashMap<String, RequestConstraint> metadata = resourceData
-                .getMetadataMap();
-        if (metadata != null && metadata.containsKey(LightningConstants.SOURCE)) {
-            rval += metadata.get(LightningConstants.SOURCE)
-                    .getConstraintValue() + " ";
+        String source = resourceData.getSource();
+        if (source != null) {
+            rval += source + " ";
         }
         return rval;
     }
@@ -283,9 +280,10 @@ public class LightningResource extends
         int negCount = 0;
         int cloudCount = 0;
         int pulseCount = 0;
-        
-        if (magnification == 0.0) magnification=(float) 0.01;
-        
+
+        if (magnification == 0.0)
+            magnification = (float) 0.01;
+
         /*
          * we only want strikes that are visible so we have to filter any
          * strikes that aren't in both the clipping pane and the view
@@ -448,7 +446,8 @@ public class LightningResource extends
          * we know about, return without removing the time.
          */
         if (dataTimes.indexOf(dataTime) == dataTimes.size() - 1) {
-            CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap.get(dataTime);
+            CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap
+                    .get(dataTime);
             if (co != null) {
                 LightningFrameMetadata metadata = co.getMetadata();
                 synchronized (metadata) {
@@ -468,13 +467,12 @@ public class LightningResource extends
         Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
 
         for (BinLightningRecord obj : objs) {
-                long duration = obj.getDataTime().getValidPeriod()
-                        .getDuration();
-                if (duration > MAX_RECORD_BIN_MILLIS) {
-                    statusHandler.error("Record bin time larger than maximum "
-                            + "supported period. Skipping record: " + obj);
-                    continue;
-                }
+            long duration = obj.getDataTime().getValidPeriod().getDuration();
+            if (duration > MAX_RECORD_BIN_MILLIS) {
+                statusHandler.error("Record bin time larger than maximum "
+                        + "supported period. Skipping record: " + obj);
+                continue;
+            }
             DataTime time = new DataTime(obj.getStartTime());
             DataTime end = new DataTime(obj.getStopTime());
             time = this.getResourceData().getBinOffset()
@@ -518,7 +516,8 @@ public class LightningResource extends
                      * no local reference to cache object, create key and get
                      * cache object which may be new or from another resource
                      */
-                    LightningFrameMetadata key = new LightningFrameMetadata(dt,
+                    LightningFrameMetadata key = new LightningFrameMetadata(
+                            resourceData.getSource(), dt,
                             resourceData.getBinOffset());
                     co = CacheObject.newCacheObject(key, retriever);
                     cacheObjectMap.put(dt, co);
