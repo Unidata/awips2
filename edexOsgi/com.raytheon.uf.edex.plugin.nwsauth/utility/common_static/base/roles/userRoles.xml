@@ -99,7 +99,12 @@
    
    <permission id="com.raytheon.localization.site/common_static/hazardServices"/>
    <permission id="com.raytheon.localization.site/common_static/hazardServices/settings"/>
-   
+
+   <permission id="com.raytheon.localization.site/common_static/python/events/productgen/products"/>
+   <permission id="com.raytheon.localization.site/common_static/python/events/productgen/formats"/>
+   <permission id="com.raytheon.localization.site/common_static/python/events/recommenders"/>
+   <permission id="com.raytheon.localization.site/common_static/python/textUtilities"/>
+
    <!-- TODO Localization permissions should be able to be plugin contributed.
         Improve code in the generically [poorly] named FileManager to support
         that concept and then split them. -->
