@@ -47,6 +47,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 24, 2010            mnash     Initial creation
+ * Feb 11, 2015 14627      zwang     Remove the extra elevation 0.0
  * 
  * </pre>
  * 
@@ -116,10 +117,6 @@ public class TerminalRadarUtils {
 
                     for (Double y : mapSet.get("HAZ")) {
                         theMap.put(TiltAngleBin.getPrimaryElevationAngle(y), y);
-                    }
-                    // add the base case if necessary
-                    if (!theMap.containsKey(0.0)) {
-                        theMap.put(0.0, 0.0);
                     }
                     List<Double> list = new ArrayList<Double>(theMap.values());
                     Collections.sort(list);

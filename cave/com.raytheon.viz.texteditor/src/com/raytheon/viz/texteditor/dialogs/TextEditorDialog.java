@@ -344,7 +344,12 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 11Sep2014   3580         mapeters    Replaced SerializationTuil usage with JAXBManager, 
  *                                      removed IQueryTransport usage (no longer exists).
  * 20Oct2014   3685         randerso    Made conversion to upper case conditional on product id
+<<<<<<< HEAD
  * 15Feb2015   4001         dgilling    Ensure all fields are set in SendPracticeProductRequest.
+=======
+ * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
+ * 10Mar2015   RM 14866     kshrestha   Disable QC GUI pop up for TextWS
+>>>>>>> 9c7d466213eaac3a46fddf416967d00e3446bfee
  * 
  * </pre>
  * 
@@ -4960,24 +4965,29 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (!verifyRequiredFields()) {
             return;
         }
-        StdTextProduct prod = getStdTextProduct();
-        String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
-        SendConfirmationMsg sendMsg = new SendConfirmationMsg(resend, afosId,
-                prod.getNnnid());
 
-        WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
-                sendMsg.getTitle(), sendMsg.getProductMessage(),
-                sendMsg.getModeMessage());
-        wgcd.setCloseCallback(new ICloseCallback() {
+        if (isWarnGenDlg == true){
+            StdTextProduct prod = getStdTextProduct();
+            String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
+            SendConfirmationMsg sendMsg = new SendConfirmationMsg(resend, afosId,
+                    prod.getNnnid());
 
-            @Override
-            public void dialogClosed(Object returnValue) {
-                if (Boolean.TRUE.equals(returnValue)) {
-                    checkEmergencyProduct(resend);
+            WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
+                    sendMsg.getTitle(), sendMsg.getProductMessage(),
+                    sendMsg.getModeMessage());
+            wgcd.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (Boolean.TRUE.equals(returnValue)) {
+                        checkEmergencyProduct(resend);
+                    }
                 }
-            }
-        });
-        wgcd.open();
+            });
+            wgcd.open();
+        } else {
+            checkEmergencyProduct(resend);
+        }
     }
 
     /**
@@ -5743,7 +5753,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
          * DR15610 - Make sure that if the first line of the text product is not
          * a WMO heading it is treated as part of the text body.
          */
-        String[] pieces = textEditor.getText().split("\r*\n", 2);
+        String[] pieces = null;
+        if(textEditor.getText().startsWith("ZCZC"))
+            pieces = textEditor.getText().split("\r*\n", 1);
+        else
+            pieces = textEditor.getText().split("\r*\n", 2);
+        
         if (pieces.length > 1) {
             pieces[0] += "\n"; // WMOHeader expects this
         }
