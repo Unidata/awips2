@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -24,9 +23,7 @@ import os
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import IscDataRecRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
-from dynamicserialize import DynamicSerializationManager
-
-from ufpy import ThriftClient, ConfigFileUtil
+from ufpy import ThriftClient
 
 #
 # TODO: ADD DESCRIPTION
@@ -37,6 +34,8 @@ from ufpy import ThriftClient, ConfigFileUtil
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    10/26/10                      dgilling       Initial Creation.
+#    03/30/15         #4103        dgilling       Use shell script to call this script 
+#                                                 to configure env. variables.
 #    
 # 
 #
@@ -47,9 +46,9 @@ def main():
     
     try:
         iscDataRequest = createRequest()
-        thriftClient = ThriftClient.ThriftClient(connectionParams["SVCBU_HOST"], int(connectionParams["CDSPORT"]), "/services")
+        thriftClient = ThriftClient.ThriftClient(connectionParams[0], connectionParams[1], "/services")
         serverResponse = thriftClient.sendRequest(iscDataRequest)
-    except Exception, e:
+    except Exception as e:
         print "Unhandled exception thrown during iscDataRec processing: \n", str(e)
         sys.exit(1)
     
@@ -58,7 +57,7 @@ def main():
         sys.exit(1)
 
 def getConnectionParams():
-	return ConfigFileUtil.parseKeyValueFile(os.path.join(sys.path[0], "../ServiceBackup/configuration/svcbu.properties"))
+    return (str(os.environ["SVCBU_HOST"]), int(os.environ["CDSPORT"]))
 
 def createRequest():    
     obj = IscDataRecRequest()

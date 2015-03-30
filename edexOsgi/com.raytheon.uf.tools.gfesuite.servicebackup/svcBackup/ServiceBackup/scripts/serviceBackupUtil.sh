@@ -27,15 +27,22 @@
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
 # Feb 09, 2015  #4103     dgilling    Initial Creation.
+# Mar 27, 2015  #4103     dgilling    Support new location for svcbu.properties.
 #
 ##
 
-if [ ${#AWIPS_HOME} = 0 ]
+if [[ -z "${AWIPS_HOME}" ]]
 then
 	path_to_script=`readlink -f $0`
 	AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
 fi
-. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.properties
+
+. ${AWIPS_HOME}/edex/data/utility/edex_static/base/config/gfe/svcbu.properties
+SITE_SVCBU_OVERRIDE=${AWIPS_HOME}/edex/data/utility/edex_static/site/${AW_SITE_IDENTIFIER}/config/gfe/svcbu.properties
+if [[ -f ${SITE_SVCBU_OVERRIDE} ]]
+then
+	. ${SITE_SVCBU_OVERRIDE}
+fi
 
 
 function configureLogging()
