@@ -20,7 +20,6 @@
 
 package com.raytheon.edex.plugin.gfe.svcbackup;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -37,9 +36,15 @@ import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.request.AbstractGfePrivilegedRequest;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.RunProcess;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
@@ -68,6 +73,7 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * Feb 17, 2015 4103       dgilling    Add getLockDir for specific site, code 
  *                                     cleanup.
+ * Mar 27, 2015 4103       dgilling    Support new location for svcbu.properties.
  * 
  * </pre>
  * 
@@ -83,6 +89,9 @@ public class SvcBackupUtil {
     public static final String OPERATION_FAIL = "Failure";
 
     public static final String OPERATION_SUCCESS = "Success";
+
+    private static final String SVCBU_PROPS_PATH = FileUtil.join("config",
+            "gfe", "svcbu.properties");
 
     /** The logger instance */
     protected static transient Log logger = LogFactory
@@ -203,26 +212,31 @@ public class SvcBackupUtil {
 
     public static Properties getSvcBackupProperties() {
         Properties svcbuProperties = new Properties();
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(
-                    EDEXUtil.getEdexHome()
-                            + "/../GFESuite/ServiceBackup/configuration/svcbu.properties");
-            svcbuProperties.load(fis);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error reading svcbu.properties file!", e);
-            return null;
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error reading svcbu.properties file!", e);
-                }
+
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+
+        LocalizationFile basePropsFile = pathMgr.getLocalizationFile(pathMgr
+                .getContext(LocalizationType.EDEX_STATIC,
+                        LocalizationLevel.BASE), SVCBU_PROPS_PATH);
+        try (InputStream input = basePropsFile.openInputStream()) {
+            svcbuProperties.load(input);
+        } catch (IOException | LocalizationException e) {
+            statusHandler.error(
+                    "Unable to load BASE level svcbu.properties file.", e);
+        }
+
+        LocalizationFile sitePropsFile = pathMgr.getLocalizationFile(pathMgr
+                .getContextForSite(LocalizationType.EDEX_STATIC,
+                        EDEXUtil.getEdexSite()), SVCBU_PROPS_PATH);
+        if (sitePropsFile.exists()) {
+            try (InputStream input = sitePropsFile.openInputStream()) {
+                svcbuProperties.load(input);
+            } catch (IOException | LocalizationException e) {
+                statusHandler.error(
+                        "Unable to load SITE level svcbu.properties file.", e);
             }
         }
+
         return svcbuProperties;
     }
 

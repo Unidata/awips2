@@ -28,6 +28,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    05/10/11        8688          dgilling       Initial Creation.
 #    02/12/15        4103          dgilling       Pre-emptively determine site id.
+#    03/30/15        4103          dgilling       Support new location for svcbu.properties.
 #
 ##############################################################################
 
@@ -37,9 +38,17 @@ RUN_FROM_DIR=`dirname $path_to_script`
 
 BASE_AWIPS_DIR=`dirname $RUN_FROM_DIR`
 
+if [[ -z "${AWIPS_HOME}" ]]
+then
+	AWIPS_HOME=$(dirname $(dirname $BASE_AWIPS_DIR))
+fi
+
 # get the base environment
+source ${AWIPS_HOME}/edex/bin/setup.env
 source /awips2/GFESuite/bin/setup.env
 source /awips2/GFESuite/ServiceBackup/scripts/serviceBackupUtil.sh
+export SVCBU_HOST
+export CDSPORT
 
 # setup the environment needed to run the the Python
 export LD_LIBRARY_PATH=${PYTHON_INSTALL}/lib
