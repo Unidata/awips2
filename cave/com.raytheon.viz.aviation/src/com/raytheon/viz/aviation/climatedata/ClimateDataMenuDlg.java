@@ -101,6 +101,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 09, 2012 #1229      rferrel      Changes for non-blocking MetarDisplayDialog.
  * Oct 09, 2012 #1229      rferrel      Changes for non-blocking CigVisTrendDlg.
  * Oct 15, 2012 #1229      rferrel      Changes for non-blocking HelpUsageDlg.
+ * Mar 04, 2015 #15639     zhao         Added 'heightHint' to 'Idents' list so GUI won't become too large 
  * 
  * </pre>
  * 
@@ -615,6 +616,7 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
 
         gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
         gd.widthHint = 60;
+        gd.heightHint = 250; 
         identList = new List(identComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
         identList.setLayoutData(gd);
         identList.setFont(textFont);

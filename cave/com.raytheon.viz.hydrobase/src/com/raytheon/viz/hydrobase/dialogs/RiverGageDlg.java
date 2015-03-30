@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -77,6 +78,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 16,2012  14797       wkwock      Change lat/lon from hour minute sec to decimal.
  * Jun 11,2013  2088        rferrel     Make dialog non-blocking.
  *                                      Changes for non-blocking FcstPointGroupDlg.
+ * Feb.02, 2015 #13372      djingtao    Change from GMT time to local time for "Revise" field                                      
  * 
  * </pre>
  * 
@@ -1531,11 +1533,16 @@ public class RiverGageDlg extends CaveSWTDialog implements
      */
     private void updateRevisionDate() {
         // If the Revision Checkbox is checked, set the Revision Date to the
-        // current date
+        // current date in local time
         // Else load the date from the database
-        Date now = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
-        if (reviseChk.getSelection()) {
-            dateTF.setText(dateFormat.format(now));
+        //Date now = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
+        
+        Calendar now = Calendar.getInstance(Locale.getDefault());
+        String revise_str = new SimpleDateFormat("MM/dd/yyyy").format(now.getTime());
+        
+        if (reviseChk.getSelection()) { 
+            //dateTF.setText(dateFormat.format(now));
+        	dateTF.setText(revise_str);
         } else if (riverGageData != null) {
             dateTF.setText((riverGageData.getReviseDate() != null) ? dateFormat
                     .format(riverGageData.getReviseDate()) : "");

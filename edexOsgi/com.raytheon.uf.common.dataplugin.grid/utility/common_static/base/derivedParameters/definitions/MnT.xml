@@ -22,7 +22,7 @@
     <Method name="Alias" levels="Surface">
     	<Field abbreviation="MnT" level="2FHAG"/>
     </Method>
-    <Method name="Min" levels="Surface" models="RTMA">
+    <Method name="Min" levels="Surface" models="RTMA25">
     	<Field abbreviation="T24hr"/>
     </Method>
 </DerivedParameter>
