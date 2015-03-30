@@ -59,7 +59,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 10, 2008				lvenable	Initial creation
  * Feb 13, 2013 15794       wkwock      Make Sequence number goes up to 99
  * Jul 10, 2013 2088        rferrel     Make dialog non-blocking.
- * 
+ * Feb 03, 2015 16883       djingtao    Contact "New" button causes record to be written to the db
+ * Feb 03, 2015 14147       djingtao    "Sequence" number in Contact
  * </pre>
  * 
  * @author lvenable
@@ -391,7 +392,8 @@ public class ContactsDlg extends CaveSWTDialog {
         newBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 newContactFlag = true;
-                updateInsertContactData();
+              
+              //  updateInsertContactData();
                 clearInformationFields();
             }
         });
@@ -419,7 +421,18 @@ public class ContactsDlg extends CaveSWTDialog {
      * Clear the informations fields.
      */
     private void clearInformationFields() {
-        seqNumSpnr.setSelection(5);
+    	// get how many contacts in the Contacts List
+    	int contactNum = 0;
+    	try {
+    	    contactNum = ContactsDataManager.getInstance().getContactData(locationId).size();
+    	}  catch (VizException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to determine if contact exits: ", e);          
+    		
+    	}
+    	
+    	//seqNumSpnr.setSelection(1);
+    	seqNumSpnr.setSelection(contactNum + 1);
         contactNameTF.setText("");
         phoneTF.setText("");
         emailTF.setText("");
@@ -455,18 +468,13 @@ public class ContactsDlg extends CaveSWTDialog {
              * Check if the contact already exists.
              */
             if (contactExits == true) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                        | SWT.OK | SWT.CANCEL);
-                mb.setText("Insert");
-                mb.setMessage("The contact you want to insert already exists.\n"
-                        + "Do you wish to update the existing data?");
-                int result = mb.open();
-
-                if (result == SWT.CANCEL) {
-                    state = false;
-                } else {
-                    state = updateContact();
-                }
+                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
+                        | SWT.OK);
+                mb.setText("Error");
+                mb.setMessage("The contact you want to insert already exists.");
+                mb.open();
+                state = false;
+                
             } else {
                 state = insertNewContact();
             }
@@ -511,7 +519,7 @@ public class ContactsDlg extends CaveSWTDialog {
      * @return true when update successful
      */
     private boolean updateContact() {
-        try {
+      try {
             ContactsData data = new ContactsData();
             data.setLid(locationId);
             data.setContact(contactNameTF.getText().trim());

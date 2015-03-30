@@ -48,6 +48,8 @@ import org.eclipse.swt.graphics.RGB;
  * 29 NOV 2007  373        lvenable    Initial creation
  * 18 APR 2013  1790       rferrel     Cleanup method interfaces; 
  *                                      part of non-blocking dialogs.
+ * 26 Feb 2015 16777       cgobs       Fix code so that undo in color manager works
+ *                                     for missing and lessThanMin color-value pairs                                      
  * 
  * </pre>
  * 
@@ -104,7 +106,11 @@ public class ColorScaleSets {
     public void updateMissingColor(RGB rgb) {
         for (int i = 0; i < updatedColorSet.size(); ++i) {
             if (updatedColorSet.get(i).value.compareTo(ColorScaleData.MISSING) == 0) {
-                updatedColorSet.get(i).setColor(rgb);
+               // updatedColorSet.get(i).setColor(rgb);
+                
+                ColorScaleData newData = new ColorScaleData();
+                newData.missingScaleData(rgb);
+                updatedColorSet.set(i, newData);
                 break;
             }
         }
@@ -120,7 +126,12 @@ public class ColorScaleSets {
         for (int i = 0; i < updatedColorSet.size(); ++i) {
             if (updatedColorSet.get(i).value
                     .compareTo(ColorScaleData.LESS_THAN_MIN) == 0) {
-                updatedColorSet.get(i).setColor(rgb);
+                //updatedColorSet.get(i).setColor(rgb);
+                
+                ColorScaleData newData = new ColorScaleData();
+                newData.lessThanMinScaleData(rgb);
+                updatedColorSet.set(i, newData);
+                
                 break;
             }
         }

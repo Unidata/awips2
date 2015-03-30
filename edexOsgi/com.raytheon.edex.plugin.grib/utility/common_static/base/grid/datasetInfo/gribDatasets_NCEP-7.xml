@@ -387,8 +387,8 @@
         <dt>1</dt>
     </info>
     <info>
-        <title>RTMA-Mosaic</title>
-        <datasetId>RTMA-Mosaic</datasetId>
+        <title>RTMA</title>
+        <datasetId>RTMA25</datasetId>
         <dt>1</dt>
     </info>
     <info>
@@ -697,8 +697,8 @@
         <dt>1</dt>
     </info>
     <info>
-        <title>RTMA-Mosaic</title>
-        <datasetId>RTMA-Mosaic</datasetId>
+        <title>RTMA</title>
+        <datasetId>RTMA25</datasetId>
         <dt>1</dt>
     </info>
     <info>
@@ -827,7 +827,7 @@
         <dt>6</dt>
     </info>
     <info>
-        <title>HPCGuide-AK</title>
+        <title>AK-HPCGuide</title>
         <datasetId>HPCGuide-AK</datasetId>
         <dt>6</dt>
     </info>
