@@ -26,15 +26,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import jep.JepException;
 
 import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
-import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
@@ -57,23 +54,25 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 07/14/09     1995       bphillip    Initial creation
- * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
- * 06/13/13     2044       randerso    Refactored to use IFPServer
- * Sep 05, 2013 2307       dgilling    Use better PythonScript constructor.
- * Oct 16, 2013 2475       dgilling    Move logic previously in IrtServer.py
- *                                     into this class to avoid Jep memory leak.
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 14, 2009 1995       bphillip     Initial creation
+ * Mar 14, 2013 1794       djohnson     FileUtil.listFiles now returns List.
+ * Jun 13, 2013 2044       randerso     Refactored to use IFPServer
+ * Sep 05, 2013 2307       dgilling     Use better PythonScript constructor.
+ * Oct 16, 2013 2475       dgilling     Move logic previously in IrtServer.py
+ *                                      into this class to avoid Jep memory leak.
+ * Mar 11, 2015 4128       dgilling     Refactored to match refactored IRTManager.
+ * 
  * </pre>
  * 
  * @author bphillip
- * @version 1
+ * @version 1.0
  */
-public class GfeIRT extends Thread {
+public final class GfeIRT implements Runnable {
 
     /** The logger */
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GfeIRT.class);
 
     private static final String PYTHON_INSTANCE = "irt";
@@ -103,29 +102,32 @@ public class GfeIRT extends Thread {
     /** The Python script object */
     private PythonScript script;
 
-    /**
-     * Map of threads used to unregister sites from the IRT server upon shutdown
-     */
-    private static Map<String, Thread> shutdownHooks = new ConcurrentHashMap<String, Thread>();
+    private final IRTManager irtMgr;
+
+    private final String ancfUrl;
+
+    private final String bncfUrl;
 
     /**
      * Creates a new GfeIRT object for the provided site ID
      * 
-     * @param siteID
+     * @param siteid
      *            The site ID to create the GfeIRT object for
-     * @throws GfeConfigurationException
-     *             If the GFE configuration for the specified site could not be
-     *             loaded.
+     * @param config
+     * @param irtMgr
      */
-    public GfeIRT(String siteid, IFPServerConfig config)
-            throws GfeConfigurationException {
-        this.setDaemon(true);
+    public GfeIRT(String siteid, IFPServerConfig config, IRTManager irtMgr) {
         this.siteID = siteid;
         this.mhsID = config.getMhsid();
+
+        this.irtMgr = irtMgr;
 
         this.serverHost = config.getServerHost();
         this.serverPort = config.getRpcPort();
         this.serverProtocol = config.getProtocolVersion();
+
+        this.ancfUrl = config.iscRoutingTableAddress().get("ANCF");
+        this.bncfUrl = config.iscRoutingTableAddress().get("BNCF");
 
         GridLocation domain = config.dbDomain();
 
@@ -188,23 +190,10 @@ public class GfeIRT extends Thread {
             }
             config.setRequestedISCsites(this.iscWfosWanted);
         }
-
-        Thread hook = new Thread() {
-            @Override
-            public void run() {
-                statusHandler.info("Unregistering site [" + siteID
-                        + "] from IRT server...");
-                IRTManager.getInstance().disableISC(mhsID, siteID);
-                statusHandler.info("Site [" + siteID + "] unregistered!");
-            }
-        };
-        java.lang.Runtime.getRuntime().addShutdownHook(hook);
-        shutdownHooks.put(mhsID + siteID, hook);
     }
 
     @Override
     public void run() {
-
         try {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext cx = pathMgr.getContext(
@@ -215,30 +204,29 @@ public class GfeIRT extends Thread {
             String includePath = PyUtil.buildJepIncludePath(
                     GfePyIncludeUtil.getCommonPythonIncludePath(),
                     GfePyIncludeUtil.getIscScriptsIncludePath(),
-                    GfePyIncludeUtil.getGfeConfigIncludePath(this.siteID));
-            this.script = new PythonScript(scriptPath, includePath, getClass()
+                    GfePyIncludeUtil.getGfeConfigIncludePath(siteID));
+            script = new PythonScript(scriptPath, includePath, getClass()
                     .getClassLoader());
 
-            IFPServerConfig config = IFPServerConfigManager
-                    .getServerConfig(siteID);
             Map<String, Object> initArgs = new HashMap<String, Object>(2, 1f);
-            initArgs.put("ancfURL", config.iscRoutingTableAddress().get("ANCF"));
-            initArgs.put("bncfURL", config.iscRoutingTableAddress().get("BNCF"));
-            this.script.instantiatePythonClass(PYTHON_INSTANCE, "IrtAccess",
+            initArgs.put("ancfURL", ancfUrl);
+            initArgs.put("bncfURL", bncfUrl);
+            script.instantiatePythonClass(PYTHON_INSTANCE, "IrtAccess",
                     initArgs);
-        } catch (GfeConfigurationException e) {
-            throw new RuntimeException("Could not load GFE configuration", e);
         } catch (JepException e) {
-            throw new RuntimeException(
-                    "Could not instantiate IRT python script instance", e);
+            statusHandler.error(
+                    "Could not instantiate IRT python script instance for site "
+                            + siteID, e);
+            statusHandler.error("ISC is disabled for site " + siteID);
+            return;
         }
 
         try {
             // upon any overall failure, start thread over
-            while (IRTManager.getInstance().isRegistered(mhsID, siteID)) {
+            while (irtMgr.shouldRegister(siteID)) {
                 try {
                     // do initial registration, keep trying until successful
-                    while (IRTManager.getInstance().isRegistered(mhsID, siteID)) {
+                    while (irtMgr.shouldRegister(siteID)) {
                         statusHandler
                                 .info("performing initial IRT registration.");
 
@@ -259,11 +247,10 @@ public class GfeIRT extends Thread {
 
                         if (okay) {
                             break;
-                        } else if (!IRTManager.getInstance().isRegistered(
-                                mhsID, siteID)) {
+                        } else if (!irtMgr.shouldRegister(siteID)) {
                             break; // exit processing loop
                         } else {
-                            sleep(3 * TimeUtil.MILLIS_PER_SECOND);
+                            Thread.sleep(3 * TimeUtil.MILLIS_PER_SECOND);
                         }
                     }
 
@@ -271,8 +258,9 @@ public class GfeIRT extends Thread {
                     // for re-register every few seconds, check the StopIRT flag
                     // every few seconds
                     statusHandler.info("initial IRT registration complete.");
-                    while (IRTManager.getInstance().isRegistered(mhsID, siteID)) {
-                        sleep(3 * TimeUtil.MILLIS_PER_SECOND); // wait 3 seconds
+                    while (irtMgr.shouldRegister(siteID)) {
+                        Thread.sleep(3 * TimeUtil.MILLIS_PER_SECOND); // wait 3
+                                                                      // seconds
 
                         Boolean status1 = (Boolean) script.execute(
                                 "checkForReregister", PYTHON_INSTANCE, null);
@@ -299,25 +287,6 @@ public class GfeIRT extends Thread {
         } finally {
             if (script != null) {
                 script.dispose();
-            }
-        }
-    }
-
-    /**
-     * Removes the site's entry from the shutdown hook map
-     * 
-     * @param mhsid
-     *            The MHS ID of the site
-     * @param siteid
-     *            The Site ID of the site
-     */
-    public void removeShutdownHook(String mhsid, String siteid) {
-        if (shutdownHooks.containsKey(mhsid + siteid)) {
-            Thread hook = shutdownHooks.get(mhsid + siteid);
-            try {
-                Runtime.getRuntime().removeShutdownHook(hook);
-            } catch (IllegalStateException e) {
-                // Ignore. Shutdown in progress
             }
         }
     }
