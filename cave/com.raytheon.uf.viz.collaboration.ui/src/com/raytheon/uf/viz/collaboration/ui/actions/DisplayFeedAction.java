@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  *                                     to display messages.
  * Jun 16, 2014 3288       bclement    feed venue configuration changes
  * Oct 08, 2014 3705       bclement    moved venue joining code to CollaborationConnection
+ * Mar 10, 2015 4238       njensen     null check in getSessionId()
  * 
  * </pre>
  * 
@@ -109,12 +110,15 @@ public class DisplayFeedAction extends Action {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         String sessionId = null;
-        for (ISession session : connection.getSessions()) {
-            if (session instanceof IVenueSession) {
-                FeedVenueConfig config = FeedVenueConfigManager.getConfig();
-                if (((IVenueSession) session).getVenueName().equalsIgnoreCase(
-                        config.getName())) {
-                    sessionId = session.getSessionId();
+        // connection can be null in rare cases
+        if (connection != null) {
+            for (ISession session : connection.getSessions()) {
+                if (session instanceof IVenueSession) {
+                    FeedVenueConfig config = FeedVenueConfigManager.getConfig();
+                    if (((IVenueSession) session).getVenueName()
+                            .equalsIgnoreCase(config.getName())) {
+                        sessionId = session.getSessionId();
+                    }
                 }
             }
         }

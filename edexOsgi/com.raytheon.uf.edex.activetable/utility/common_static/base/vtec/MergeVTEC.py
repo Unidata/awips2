@@ -35,8 +35,10 @@
 #    01/24/14        #2504         randerso       change to use iscUtil.getLogger for consistency 
 #    03/25/14        #2884         randerso       Added xxxid to VTECChange
 #    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
+#    03/04/2015      #4129         randerso       Log the active table changes at info level 
+#                                                 in the active table change log
 #
-
+##
 
 import copy
 import cPickle
@@ -64,7 +66,7 @@ from com.raytheon.uf.common.activetable import VTECPartners as JavaVTECPartners
 class MergeVTEC(VTECTableUtil.VTECTableUtil):
 
     def __init__(self, activeTable, activeTableMode, newRecords, offsetSecs=0.0, 
-      makeBackups=True, logger=None):
+      makeBackups=True, logger=None, atChangeLog=None):
         # activeTable - current activeTable records
         # activeTableMode - which table is being modified--OPERATIONAL or PRACTICE
         # newRecords - records to merge in to activeTable
@@ -125,7 +127,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
         self._log.info("Other Table squeezed size: %d", len(otherTable))
 
         #merge the tables
-        updatedTable, toDelete, changes = self._mergeTable(activeTable, otherTable)
+        updatedTable, toDelete, changes = self._mergeTable(activeTable, otherTable, atChangeLog)
         self._log.info("Updated Active Table size: %d", len(updatedTable))
         updatedTable, tossRecordsMerged = vts.squeeze(updatedTable)
         self._log.info("Updated Active Table squeeze size: %d", 
@@ -161,7 +163,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
 
     # merges the active and other table together and returns the merged
     # table along with the list of changes that occurred.
-    def _mergeTable(self, activeTable, otherTable):
+    def _mergeTable(self, activeTable, otherTable, atChangeLog):
         changes = []
         purges = []
         compare = ['id', 'phen', 'sig', 'officeid', 'etn', 'pil']
@@ -342,30 +344,31 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                         changes.append(chgRec)
                     
         # log the changes
-        if len(missingEntriesAct):
-            self._log.debug("Active Missing entries added: %s",
-              self.printActiveTable(missingEntriesAct, 1))
-        if len(newReplaceEntriesAct):
-            self._log.debug("Active Replacement entries (new): %s",
-              self.printActiveTable(newReplaceEntriesAct, 1))
-        if len(oldReplaceEntriesAct):
-            self._log.debug("Active Entries Replaced (old): %s",
-              self.printActiveTable(oldReplaceEntriesAct, 1))
-        if len(missingEntriesPast):
-            self._log.debug("Past Missing entries added %s",
-              self.printActiveTable(missingEntriesPast, 1))
-        if len(newReplaceEntriesPast):
-            self._log.debug("Past Replacement entries (new): %s",
-              self.printActiveTable(newReplaceEntriesPast, 1))
-        if len(oldReplaceEntriesPast):
-            self._log.debug("Past Entries Replaced (old): %s",
-              self.printActiveTable(oldReplaceEntriesPast, 1))
-        if len(ignoredNewReplaceAct):
-            self._log.debug("Ignored Different Year Issuance (new): %s",
-              self.printActiveTable(ignoredNewReplaceAct, 1))
-            self._log.debug("Ignored Different Year Issuance (old): %s",
-              self.printActiveTable(ignoredOldReplaceAct, 1))
-        self._log.debug("Table Changes: %s", changes)
+        if atChangeLog is not None:
+            if len(missingEntriesAct):
+                atChangeLog.info("Active Missing entries added: " +
+                  self.printActiveTable(missingEntriesAct, 1))
+            if len(newReplaceEntriesAct):
+                atChangeLog.info("Active Replacement entries (new): " +
+                  self.printActiveTable(newReplaceEntriesAct, 1))
+            if len(oldReplaceEntriesAct):
+                atChangeLog.info("Active Entries Replaced (old): " +
+                  self.printActiveTable(oldReplaceEntriesAct, 1))
+            if len(missingEntriesPast):
+                atChangeLog.info("Past Missing entries added " +
+                  self.printActiveTable(missingEntriesPast, 1))
+            if len(newReplaceEntriesPast):
+                atChangeLog.info("Past Replacement entries (new): " +
+                  self.printActiveTable(newReplaceEntriesPast, 1))
+            if len(oldReplaceEntriesPast):
+                atChangeLog.info("Past Entries Replaced (old): " +
+                  self.printActiveTable(oldReplaceEntriesPast, 1))
+            if len(ignoredNewReplaceAct):
+                atChangeLog.info("Ignored Different Year Issuance (new): " +
+                  self.printActiveTable(ignoredNewReplaceAct, 1))
+                atChangeLog.info("Ignored Different Year Issuance (old): " +
+                  self.printActiveTable(ignoredOldReplaceAct, 1))
+            atChangeLog.info("Table Changes: " + str(changes))
         
         purges.extend(oldReplaceEntriesAct)
         purges.extend(oldReplaceEntriesPast)
@@ -411,7 +414,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
         return iscUtil.getLogger("MergeVTEC", logLevel=logging.INFO)
 
 def merge(activeTable, activeTableMode, newRecords, drt=0.0, makeBackups=True,
-      logger=None):
+      logger=None, atChangeLog=None):
     pyActive = []
     for i in range(activeTable.size()):
         pyActive.append(ActiveTableRecord.ActiveTableRecord(activeTable.get(i)))
@@ -420,7 +423,7 @@ def merge(activeTable, activeTableMode, newRecords, drt=0.0, makeBackups=True,
     for i in range(newRecords.size()):
         pyNew.append(ActiveTableRecord.ActiveTableRecord(newRecords.get(i)))
     
-    decoder = MergeVTEC(pyActive, activeTableMode, pyNew, drt, makeBackups, logger)
+    decoder = MergeVTEC(pyActive, activeTableMode, pyNew, drt, makeBackups, logger, atChangeLog)
     mergeResults = decoder.getMergeResults()
     decoder = None
     

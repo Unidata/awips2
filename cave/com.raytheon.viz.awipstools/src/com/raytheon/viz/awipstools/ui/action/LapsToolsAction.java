@@ -48,7 +48,7 @@ import com.raytheon.viz.ui.EditorUtil;
  * ------------ ---------- ----------- --------------------------
  * May 2009     #          bsteffen      Initial creation
  * Nov 2013     #          mccaslin      Only one GUI dialog at a time
- * Oct 2014     #          mccaslin      Improved error handeling 
+ * Oct 2014     #          mccaslin      Improved error handeling
  * 
  * </pre>
  * 
@@ -56,7 +56,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * @version 1.0
  */
 public class LapsToolsAction extends AbstractHandler {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(LapsToolsAction.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LapsToolsAction.class);
 
     /**
      * LAPS Tools dialog.
@@ -65,50 +66,49 @@ public class LapsToolsAction extends AbstractHandler {
 
     public static LAPSToolsDlg getLapsToolsDlg() {
         return lapsToolsDlg;
-    }  
+    }
 
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-           
+
         if (lapsToolsDlg == null) {
             try {
-				lapsToolsDlg = new LAPSToolsDlg(shell);
-				lapsToolsDlg.addListener(SWT.Dispose, new Listener() {
-					@Override
-					public void handleEvent(Event event) {
-						lapsToolsDlg = null;
-					}
-				});
-				
-				if (lapsToolsDlg.isLapsInstalled()) {
-					lapsToolsDlg.open();           
-				} else {
-					   String whatLapsIs ="LAPS data assimilation system, system requirements: " +
-							   "\n\to LAPS v2.0 installed" +
-							   "\n\to EDEX 'SITE' file containing LAPS domain, i.e. domain.xml" +
-					   		   "\n\n\n(Sorry LAPS does not work in the ADAM implementation of AWIPS.)";
-							   //Note: Go through the LAPS v2.0 Scripting Interface first, if you find that LAPS is not installed.
-					   
-			           MessageBox mb = new MessageBox(EditorUtil.getActiveEditor().getSite().getShell(), SWT.ICON_WARNING | SWT.OK);
-			           mb.setText("Cannot open LAPS V2.0 Tools GUI");
-			           mb.setMessage(whatLapsIs);
-			           mb.open();
-			           lapsToolsDlg = null;
+                lapsToolsDlg = new LAPSToolsDlg(shell);
+                lapsToolsDlg.addListener(SWT.Dispose, new Listener() {
+                    @Override
+                    public void handleEvent(Event event) {
+                        lapsToolsDlg = null;
+                    }
+                });
 
-			           //int val = mb.open();
-			           //if (val == SWT.OK) {
-			               // AlertViz Customization Update
-			        	   //return false;
-			           //}
+                if (lapsToolsDlg.isLapsInstalled()) {
+                    lapsToolsDlg.open();
+                } else {
+                    String whatLapsIs = "LAPS is not installed.           ";
+                    // Note: Go through the LAPS v2.0 Scripting Interface first,
+                    // if you find that LAPS is not installed.
 
-				}
+                    MessageBox mb = new MessageBox(EditorUtil.getActiveEditor()
+                            .getSite().getShell(), SWT.ICON_ERROR | SWT.OK);
+                    mb.setText("Cannot open the LAPS tool");
+                    mb.setMessage(whatLapsIs);
+                    mb.open();
+                    lapsToolsDlg = null;
 
-			} catch (VizException e) {
-	            statusHandler.handle(Priority.PROBLEM,
-	                    "Error: Cannot open LAPS V2.0 Tools GUI", e);
-			}
-  
+                    // int val = mb.open();
+                    // if (val == SWT.OK) {
+                    // AlertViz Customization Update
+                    // return false;
+                    // }
+
+                }
+
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error: Cannot open LAPS V2.0 Tools GUI", e);
+            }
+
         }
 
         return null;

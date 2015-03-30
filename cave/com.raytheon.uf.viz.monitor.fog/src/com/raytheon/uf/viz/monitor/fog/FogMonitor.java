@@ -90,6 +90,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 23, 2014 3356       njensen     Remove unnecessary import
+ * Mar 09, 2014 3888       dhladky     Stopped processing when dialogs are null or disposed.
  * 
  * 
  * </pre>
@@ -366,14 +367,20 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      */
     @Override
     protected void process(ObReport result) throws Exception {
-        obData.addReport(result);
-        String zone = findZone(result.getPlatformId());
-        if (zone != null) {
-            AreaContainer ac = getTableData().getArea(zone);
-            if (ac != null) {
-                ac.addReport(result.getObservationTime(), result);
-                fireMonitorEvent(this);
+
+        if (zoneDialog != null && !zoneDialog.isDisposed()) {
+
+            obData.addReport(result);
+            String zone = findZone(result.getPlatformId());
+            if (zone != null) {
+                AreaContainer ac = getTableData().getArea(zone);
+                if (ac != null) {
+                    ac.addReport(result.getObservationTime(), result);
+                    fireMonitorEvent(this);
+                }
             }
+        } else {
+            monitor.nullifyMonitor();
         }
     }
 
