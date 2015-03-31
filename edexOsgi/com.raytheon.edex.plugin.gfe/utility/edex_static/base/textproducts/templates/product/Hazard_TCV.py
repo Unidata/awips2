@@ -1,4 +1,4 @@
-# Version 2015.1.6-0
+# Version 2015.2.13-0
 
 import GenericHazards
 import JsonSupport
@@ -9,7 +9,6 @@ import math
 
 
 from AbsTime import *
-from StartupDialog import IFPDialog as Dialog
 AWIPS_ENVIRON = "AWIPS2"
 
 import HLSTCV_Common
@@ -78,8 +77,8 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_sampleData": 0,
                           "_getStats": 0,
                           "_determineSegments": 0,
+                          "_getRefinedHazardSegments": 0,
                           "_refineSegments": 0,
-                          "_groupSegments": 0,
                           "_makeSegmentEditAreas": 0,
                           "_findSegment": 0,
                           "_getAllVTECRecords": 0,
@@ -101,13 +100,13 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_productHeader": 0,
                           "_ugcHeader": 0,
                           "_processProductParts": 0,
-                          "_formatUGC_entries": 0,
-                          "_getUgcInfo": 0,
                           "_createProductDictionary": 0,
                           "_initializeProductDictionary": 0,
                           "_formatProductDictionary": 0,
                           "_getStatValue": 0,
                           "_allAreas": 0,
+                          "_groupSegments": 0,
+                          "_getSegmentVTECRecordsTuples": 0,
                           "_computeIntersectAreas": 0,
                           "_initializeHazardsTable": 0,
                           "_getHazardsTable": 0,
@@ -175,8 +174,10 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_isThreatDecreasing": 0,
                           "_isThreatIncreasing": 0,
                           "_advisoryHasValidKey": 0,
-                          "_isMagnitudeIncreasing": 1,
+                          "_isMagnitudeIncreasing": 0,
                           "_calculateThreatStatementTr": 0,
+                          "_pastWindHazardWasCAN": 0,
+                          "_pastSurgeThreatsNotNone": 0,
                           "_setThreatStatementsProductParts": 0,
                           "_getThreatStatements": 0,
                           "_potentialImpactsSummary": 0,
@@ -193,7 +194,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_threatTrend": 0,
                           "_threatStatements": 0,
                           "_impactsSubsection": 0,
-                          "_setStats": 1,
+                          "_setStats": 0,
                           
                           #WindSection
                           "_peakWind": 0,
@@ -205,11 +206,14 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           
                           #StormSurgeSection
                           "_peakSurge": 0,
-                          "_surgeWindow": 1,
+                          "_surgeWindow": 0,
                           
                           #FloodingRainSection
                           "_peakRain": 0,
                           "_rainRange": 0,
+                          
+                          #TornadoSection
+                          "_tornadoSituation": 0,
                           
                           #SectionCommonStats
                           "_initializeSegmentAdvisories": 0,
@@ -218,10 +222,12 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           
                           #WindSectionStats
                           "_updateStatsForPwsXXint": 0,
-                          "_updateStatsForPwsTXX": 1,
+                          "_updateStatsForPwsTXX": 0,
                           "_updateWindTimeInfo": 0,
-                          "_computeWindOnsetAndEnd": 1,
-                          "_createWindow": 1,
+                          "_computeWindOnsetAndEnd": 0,
+                          "_createWindow": 0,
+                          "_calculateUTCandLocalHourOffset": 0,
+                          "_isValidDayTime": 0,
                           
                           #Unique to each formatter, but common method name
                           "execute": 0,
@@ -261,7 +267,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "makeUGCString": 0,
                           "checkLastArrow": 0,
                           }
-#     Definition["debug"] = 1         #  turn on ALL debug messages
+#    Definition["debug"] = 1         #  turn on ALL debug messages
     Definition["debug"] = 0         #  turn off ALL debug messages
 
 
@@ -376,17 +382,19 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 'locationsAffected',
                 'fcstConfidence',
                 (windSection, self._windSection[segment].sectionParts(segment_vtecRecords_tuple)),
-                (floodingRainSection, self._floodingRainSection[segment].sectionParts(segment_vtecRecords_tuple)),
-                (tornadoSection, self._tornadoSection[segment].sectionParts(segment_vtecRecords_tuple)),
-                'infoSection',
-                'endSection'
                 ]
-
+        
         #  The storm surge section should never be inserted into 
         #  "inland" zones, since there will never be a surge impact.
         if segment not in self._inlandAreas():
-            partsList.insert(9, 
+            partsList.append(
                     (stormSurgeSection, self._stormSurgeSection[segment].sectionParts(segment_vtecRecords_tuple)))
+        
+        partsList.extend([
+                (floodingRainSection, self._floodingRainSection[segment].sectionParts(segment_vtecRecords_tuple)),
+                (tornadoSection, self._tornadoSection[segment].sectionParts(segment_vtecRecords_tuple)),
+                'infoSection',
+                'endSection'])
 
         return {
             'arguments': segment_vtecRecords_tuple,
@@ -401,11 +409,11 @@ class TextProduct(HLSTCV_Common.TextProduct):
         # Sample over 120 hours beginning at current time
         analysisList = [
             # Wind Section
-            ("Wind", self.vectorModeratedMax, [6]),
-            ("WindGust", self.moderatedMax, [6]),
+            ("Wind", self.vectorModeratedMax, [3]),
+            ("WindGust", self.moderatedMax, [3]),
             ("WindThreat", self.mostSignificantDiscreteValue),
-            ("pws34int", self.moderatedMax, [6]),
-            ("pws64int", self.moderatedMax, [6]),
+            ("pws34int", self.moderatedMax, [3]),
+            ("pws64int", self.moderatedMax, [3]),
             ("pwsD34", self.moderatedMax),
             ("pwsN34", self.moderatedMax),
             ("pwsD64", self.moderatedMax),
@@ -450,7 +458,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         if error is not None:
             return error
         
-        if self._stormName is None or self._stormName.strip() == "":
+        if self._stormName is None or self._stormName == "":
             return "Could not determine the storm name"
         
         self._segmentList = self._determineSegments()
@@ -465,7 +473,9 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._sampleData(argDict)
 
         # Create the product dictionary and format it to create the output
-        productDict = self._createProductDictionary(self._segmentList)
+        productDict = self._createProductDictionary(self._productParts_TCV,
+                                                    self._segmentList,
+                                                    areProductPartsSegmented=True)
         productOutput = self._formatProductDictionary(LegacyFormatter, productDict)
 
         self._archiveCurrentAdvisory()
@@ -507,54 +517,60 @@ class TextProduct(HLSTCV_Common.TextProduct):
         segment, vtecRecords = productSegment
         self.debug_print('setup_segment productSegment %s' % (self._pp.pformat(productSegment)), 1)
         # NOTE -- using _getVtecRecords to change to milliseconds
-        self._segmentVtecRecords = self._getVtecRecords(segment)
+        segmentVtecRecords = self._getVtecRecords(segment)
             
         # UGCs and Expire Time
         # Assume that the geoType is the same for all hazard events in the segment i.e. area or point
         self._ugcs = [segment]
         self._timeZones = self._tpc.hazardTimeZones(self._ugcs)
-        segmentDict['timeZones'] = self._timeZones  
-
-        for tz in self._timeZones:
-            if tz not in self._productTimeZones:
-                self._productTimeZones.append(tz)
-        self._purgeHours = self._purgeTime
+        
+        # In order to compute the expire time, the VTEC record times
+        # need to be in milliseconds.
+        recordsInMS = []
+        for record in segmentVtecRecords:
+            recordInMS = copy.copy(record)
+            
+            recordInMS["startTime"] = recordInMS["startTime"] * 1000
+            recordInMS["endTime"] = recordInMS["endTime"] * 1000
+            if recordInMS.has_key("purgeTime"):
+                recordInMS["purgeTime"] = recordInMS["purgeTime"] * 1000
+            if recordInMS.has_key("issueTime"):
+                recordInMS["issueTime"] = recordInMS["issueTime"] * 1000
+            
+            recordsInMS.append(recordInMS)
+        
+        # Get the expire time in milliseconds since the epoch
         self._expireTime = self._tpc.getExpireTime(
-                    self._issueTime_ms, self._purgeHours, self._segmentVtecRecords)
+                    self._issueTime_ms, self._purgeHours, recordsInMS)
+        # Then convert it to a date
         segmentDict['expireTime'] = self._convertToISO(self._expireTime)
-
-        # CAP Specific Fields        
-        segmentDict['status'] = 'Actual'
         
         # Don't show UPG headlines
         nonUPGrecords = []
-        for record in self._segmentVtecRecords:
+        for record in segmentVtecRecords:
             if record['act'] != "UPG":
                 nonUPGrecords.append(record)
-        self._summaryHeadlines_value, self._headlines = self._tpc.getHeadlinesAndSections(
+        self._summaryHeadlines_value, _ = self._tpc.getHeadlinesAndSections(
                     nonUPGrecords, self._productID, self._issueTime_secs)
-       
+        
     def _vtecRecords(self, segmentDict, productSegmentGroup, productSegment):
-       segment, vtecRecords = productSegment
-       records = []
-       for vtecRecord in vtecRecords:
-           vstr = None
-           vstr = vtecRecord["vtecstr"]
-           
-           self.debug_print("vtecRecord = %s" % (self._pp.pformat(vtecRecord)), 1)
-           
-           #  Post-process some VTEC codes which should not exist
-           vstr = vstr.replace(".EXT.", ".CON.")
-           vstr = vstr.replace(".EXB.", ".EXA.")
-           
-           if vtecRecord["phen"] == "SS":
-               # Temporary? Change the vtec mode for SS hazards to be experimental
-               vstr = vstr[0] + 'X' + vstr[2:]
-           records.append(vstr)
-       segmentDict['vtecRecords'] = records
-       
+        segment, vtecRecords = productSegment
+        records = []
+        for vtecRecord in vtecRecords:
+            vstr = vtecRecord["vtecstr"]
+            
+            self.debug_print("vtecRecord = %s" % (self._pp.pformat(vtecRecord)), 1)
+            
+            if vtecRecord["phen"] == "SS":
+                # Temporary? Change the vtec mode for SS hazards to be experimental
+                vstr = vstr[0] + 'X' + vstr[2:]
+                
+            self.debug_print("final vstr = %s" % vstr, 1)
+            records.append(vstr)
+        segmentDict['vtecRecords'] = records
+        
     def _areaList(self, segmentDict, productSegmentGroup, productSegment):
-         # Area String        
+        # Area String        
         segmentDict['areaList'] = self._tpc.formatUGC_names(self._ugcs)
     
     def _issuanceTimeDate(self, segmentDict, productSegmentGroup, productSegment):
@@ -562,13 +578,11 @@ class TextProduct(HLSTCV_Common.TextProduct):
     
     def _summaryHeadlines(self, segmentDict, productSegmentGroup, productSegment):
         segment, vtecRecords = productSegment
-        numRecords = len(vtecRecords)
         definitions = []
         hazardsFound = []
         
         for (phenSig, actions, name) in self.allowedHazards():
-            for i in range(numRecords):
-                vtecRecord = vtecRecords[i]
+            for vtecRecord in vtecRecords:
                 #  The 'phensig' in the VTEC record could contain an
                 #  ETN. As such, we need to strip the ETN before doing a
                 #  comparison with the allowedHazards.
@@ -598,7 +612,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         segmentDict['locationsAffected'] = []
         if segment in tcv_AreaDictionary:
-            segmentDict['locationsAffected'] += tcv_AreaDictionary[segment]["locationsAffected"]
+            segmentDict['locationsAffected'] = tcv_AreaDictionary[segment]["locationsAffected"]
     
     def _fcstConfidence(self, segmentDict, productSegmentGroup, productSegment):
         # TODO - Get this from the TCM product potentially? Not included until provided from NHC
@@ -622,26 +636,28 @@ class TextProduct(HLSTCV_Common.TextProduct):
     ################# Product Parts Helper Methods
     
     def _hazardDefinition(self, phenSig):
-        if phenSig == "HU.W":
-            return "A HURRICANE WARNING MEANS HURRICANE WIND CONDITIONS ARE " + \
-                   "EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
-        elif phenSig == "HU.A":
-            return "A HURRICANE WATCH MEANS HURRICANE WIND CONDITIONS ARE " + \
-                   "POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
-        if phenSig == "TR.W":
-            return "A TROPICAL STORM WARNING MEANS TROPICAL STORM WIND CONDITIONS ARE " + \
-                   "EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
-        elif phenSig == "TR.A":
-            return "A TROPICAL STORM WATCH MEANS TROPICAL STORM WIND CONDITIONS ARE " + \
-                   "POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
-        elif phenSig == "SS.W":
-            return "A STORM SURGE WARNING MEANS LIFE THREATENING INUNDATION LEVELS ARE " + \
-                   "EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
-        elif phenSig == "SS.A":
-            return "A STORM SURGE WATCH MEANS LIFE THREATENING INUNDATION LEVELS ARE " + \
-                   "POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
+        import VTECTable
+        
+        phen, sig = phenSig.split('.')
+        headline = VTECTable.VTECTable[phenSig]["hdln"]
+        
+        definition = "A " + headline + " MEANS "
+        
+        if phen == "HU":
+            definition += "HURRICANE WIND CONDITIONS"
+        elif phen == "TR":
+            definition += "TROPICAL STORM WIND CONDITIONS"
+        elif phen == "SS":
+            definition += "LIFE THREATENING INUNDATION LEVELS"
         else:
             return ""
+        
+        if sig == "W": # Warning
+            definition += " ARE EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
+        elif sig == "A": # Watch
+            definition += " ARE POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
+        
+        return definition
     
     ###############################################################
     ### Sampling and Statistics related methods
@@ -651,25 +667,46 @@ class TextProduct(HLSTCV_Common.TextProduct):
     
     def _sampleData(self, argDict):
         # Sample the data
+        self._createSamplers(argDict)
+        
+        # We need to preserve the ordering of the zones based off the zone combiner ordering
+        sortedAreas = sorted(self._allAreas(),
+                             key=lambda x: self._segmentList.index(x) if x in self._segmentList else 9999)
+        for segment in sortedAreas:
+            self._initializeSegmentZoneData(segment)
+
+            # We need stats for all zones to be saved in the advisory,
+            # regardless of whether or not it has a hazard in it. Getting
+            # the stats causes them to be added to the advisory.
+            windStats, stormSurgeStats, floodingRainStats, tornadoStats = \
+                self._getStats(self._argDict, segment, self._editAreaDict, self._timeRangeList)
+            
+            # Only show zones with hazards in the output
+            if segment in self._segmentList:
+                # These segment sections will be added to the product parts
+                self._windSection[segment] = WindSection(self, segment, windStats)
+                self._stormSurgeSection[segment] = StormSurgeSection(self, segment, stormSurgeStats)
+                self._floodingRainSection[segment] = FloodingRainSection(self, segment, floodingRainStats)
+                self._tornadoSection[segment] = TornadoSection(self, segment, tornadoStats)
+
+    def _createSamplers(self, argDict):
+        # Create the samplers used for sampling the data
         editAreas = self._makeSegmentEditAreas(argDict)
-        cwa = self._cwa()
-        editAreas.append((cwa, cwa))
 
         self._sampler = self.getSampler(argDict,
           (self._analysisList(), self._timeRangeList, editAreas))
         
+        # For storm surge, the edit areas are intersected with a special edit area
         intersectAreas = self._computeIntersectAreas(editAreas, argDict)
-        
         self._intersectSampler = self.getSampler(argDict,
           (self._intersectAnalysisList(), self._timeRangeList, intersectAreas))
-
 
         #  Make a sample period for the previous rainfall
         self._previousRainfallTR = [(self._extraSampleTimeRange, "PrevRainfall")]
         self._extraRainfallSampler = self.getSampler(argDict,
             (self._extraRainfallAnalysisList(),  self._previousRainfallTR, 
              editAreas))
-
+    
     def _getStats(self, argDict, segment, editAreaDict, timeRangeList):
         # Get statistics for this segment
         
@@ -680,11 +717,28 @@ class TextProduct(HLSTCV_Common.TextProduct):
                                     editArea)
         
         self.debug_print("*"*80, 1)
-        for index in range(len(timeRangeList)):
-            self.debug_print("editArea =" + editArea, 1)
-            self.debug_print("timeRangeList = %s" % (self._pp.pformat(timeRangeList[index])), 1)
-            self.debug_print("statList = %s" % (self._pp.pformat(statList[index])), 1)
-            self.debug_print("-"*40, 1)
+#         for index in range(len(timeRangeList)):
+        self.debug_print("editArea =" + editArea, 1)
+        self.debug_print("timeRangeList = %s" % (self._pp.pformat(timeRangeList)), 1)
+        self.debug_print("statList = %s" % (self._pp.pformat(statList)), 1)
+        self.debug_print("-"*40, 1)
+        
+        windStats = WindSectionStats(self, segment, statList, timeRangeList)
+        
+        # The surge section needs sampling done with an intersected edit area
+        if editArea in self._coastalAreas():
+            intersectEditArea = "intersect_"+editArea
+            intersectStatList = self.getStatList(self._intersectSampler,
+                                                 self._intersectAnalysisList(),
+                                                 timeRangeList,
+                                                 intersectEditArea)
+        else:
+            intersectStatList = "InlandArea"
+        
+        self.debug_print("intersectStatList = %s" % (self._pp.pformat(intersectStatList)), 1)
+        self.debug_print("-"*40, 1)
+
+        stormSurgeStats = StormSurgeSectionStats(self, segment, intersectStatList, timeRangeList)
 
         #  These stats are for handling the extra rainfall
         extraRainfallStatList = self.getStatList(self._extraRainfallSampler,
@@ -692,20 +746,10 @@ class TextProduct(HLSTCV_Common.TextProduct):
                                              self._previousRainfallTR,
                                              editArea)
          
-        windStats = WindSectionStats(self, segment, statList, timeRangeList)
         floodingRainStats = FloodingRainSectionStats(self, segment, 
                                statList, timeRangeList, 
                                extraRainfallStatList, self._previousRainfallTR)
         tornadoStats = TornadoSectionStats(self, segment, statList, timeRangeList)
-        
-        # The surge section needs sampling done with an intersected edit area
-        intersectEditArea = "intersect_"+editArea
-        intersectStatList = self.getStatList(self._intersectSampler,
-                                             self._intersectAnalysisList(),
-                                             timeRangeList,
-                                             intersectEditArea)
-        
-        stormSurgeStats = StormSurgeSectionStats(self, segment, intersectStatList, timeRangeList)
                 
         return (windStats, stormSurgeStats, floodingRainStats, tornadoStats)
     
@@ -715,34 +759,52 @@ class TextProduct(HLSTCV_Common.TextProduct):
     def _determineSegments(self):
         # Get the segments based on hazards "overlaid" with combinations file
 
-        # Get the segments resulting from Hazards
-        self.debug_print("Raw Analyzed %s" % (self._pp.pformat(self._hazardsTable.rawAnalyzedTable())), 1)
-        hazSegments = self.organizeHazards(self._hazardsTable.rawAnalyzedTable())
-        self.debug_print("Segments from HazardsTable organizeHazards %s" % (self._pp.pformat(hazSegments)), 1)
-
         # Get the forecaster entered combinations
         accessor = ModuleAccessor.ModuleAccessor()
         self.debug_print("self._defaultEditAreas = %s" % (self._pp.pformat(self._defaultEditAreas)), 1)
         combos = accessor.variable(self._defaultEditAreas, "Combinations")
+        # combos is a list of tuples. Each tuple is a grouping of zones (a list of zones, combo name).
         if combos is None:
             LogStream.logVerbose("COMBINATION FILE NOT FOUND: " + self._defaultEditAreas)
-            return [], None
+            return []
         self.debug_print("Segments from Zone Combiner = %s" % (self._pp.pformat(combos)), 1)
+        
         # "Overlay" the forecaster-entered combinations onto the segments
-        segmentList = self._refineSegments(hazSegments, combos)
-        self.debug_print("New segments = %s" % (self._pp.pformat(segmentList)), 1)
+        # so that the zones are ordered and grouped (as much as possible)
+        # as indicated in the zone combiner.
+        refinedHazardSegments = self._getRefinedHazardSegments(combos)
         
         # Instead of a segment being a group of zones, it will be just a single zone.
         # So collapse this list of lists down to a list of zones (aka. segments)
         segments = []
-        for segment in segmentList:
+        for segment in refinedHazardSegments:
             segments += segment
 
         return segments
     
+    def _getRefinedHazardSegments(self, combos):
+        # Get a list of list of zones that are ordered and grouped
+        # based off of hazards and the provided zone combinations.
+        
+        # Get the raw analyzed table (a list of VTEC records) and organize the hazards
+        # to get a list of lists of zones that have the same hazards
+        self.debug_print("Raw Analyzed %s" % (self._pp.pformat(self._hazardsTable.rawAnalyzedTable())), 1)
+        hazSegments = self.organizeHazards(self._hazardsTable.rawAnalyzedTable())
+        self.debug_print("Segments from HazardsTable organizeHazards %s" % (self._pp.pformat(hazSegments)), 1)
+        
+        # "Overlay" the forecaster-entered combinations onto the segments
+        # so that the zones are ordered and grouped (as much as possible)
+        # as indicated in the zone combiner.
+        refinedSegments = self._refineSegments(hazSegments, combos)
+        self.debug_print("New segments = %s" % (self._pp.pformat(refinedSegments)), 1)
+        
+        return refinedSegments
+    
     def _refineSegments(self, hazSegments, combos):
-        """Break down each segment further according to combos given.
-        Make sure the resulting segments follow the ordering of the combos.
+        """Reorder and regroup (as much as possible) the hazard segments
+           based off of the ordering and grouping in combos. Zones will
+           only be combined into groups if they share the same hazards
+           (regardless of whether they are grouped together in combos).
         """
         if combos == []:
             return hazSegments
@@ -759,6 +821,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             #   to use)
             self._segmentList = hazSegments
             self.debug_print("self._segmentList = %s" % (self._pp.pformat(self._segmentList)), 1)
+            self.debug_print("current combo = %s" % (self._pp.pformat(combo)), 1)
             segmentMapping = map(self._findSegment, combo)
             self.debug_print("   segmentMapping = %s" % (self._pp.pformat(segmentMapping)), 1)
 
@@ -782,6 +845,8 @@ class TextProduct(HLSTCV_Common.TextProduct):
                 segAreas = segmentDict[key]
                 newAreas = newAreas + segAreas
                 newSegments.append(segAreas)
+            self.debug_print("   newAreas = %s" % (self._pp.pformat(newAreas)), 1)
+            self.debug_print("   newSegments = %s" % (self._pp.pformat(newSegments)), 1)
         self.debug_print("   newSegments = %s" % (self._pp.pformat(newSegments)), 1)
         # Now add in the hazAreas that have not been accounted for
         #   in the combinations
@@ -792,50 +857,11 @@ class TextProduct(HLSTCV_Common.TextProduct):
                     newSeg.append(hazArea)
             if newSeg != []:
                 newSegments.append(newSeg)
+        self.debug_print("   final newSegments = %s" % (self._pp.pformat(newSegments)), 1)
         return newSegments
     
-    def _groupSegments(self, segmentsWithHazards):
-        '''
-         Group the segments into the products
-            return a list of productSegmentGroup dictionaries
-        '''
-        
-        segment_vtecRecords_tuples = []
-
-        # We need to preserve the ordering of the zones based off the zone combiner ordering
-        sortedAreas = sorted(self._allAreas(),
-                             key=lambda x: segmentsWithHazards.index(x) if x in segmentsWithHazards else 9999)
-        for segment in sortedAreas:
-            self._initializeSegmentZoneData(segment)
-
-            # We need stats for all zones to be saved in the advisory,
-            # regardless of whether or not it has a hazard in it
-            windStats, stormSurgeStats, floodingRainStats, tornadoStats = \
-                self._getStats(self._argDict, segment, self._editAreaDict, self._timeRangeList)
-            
-            # Only show zones with hazards in the output
-            if segment in segmentsWithHazards:
-                vtecRecords = self._getVtecRecords(segment)
-                segment_vtecRecords_tuples.append((segment, vtecRecords))
-                
-                self._windSection[segment] = WindSection(self, segment, windStats)
-                self._stormSurgeSection[segment] = StormSurgeSection(self, segment, stormSurgeStats)
-                self._floodingRainSection[segment] = FloodingRainSection(self, segment, floodingRainStats)
-                self._tornadoSection[segment] = TornadoSection(self, segment, tornadoStats)
-        
-        productSegmentGroup = { 
-                       'productID' : 'TCV',
-                       'productName': self._productName,
-                       'geoType': 'area',
-                       'vtecEngine': self._hazardsTable,
-                       'mapType': 'publicZones',
-                       'segmented': True,
-                       'productParts': self._productParts_TCV(segment_vtecRecords_tuples),
-                       }
-
-        return productSegmentGroup
-    
     def _makeSegmentEditAreas(self, argDict):
+        # Create the edit areas that will be sampled
         areasList = self._allAreas()
         self.debug_print("areasList = %s" % (self._pp.pformat(areasList)), 1)
         editAreas = []
@@ -846,6 +872,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         return editAreas
     
     def _findSegment(self, areaName):
+        # Determine which hazard group a zone belongs to
         for segment in self._segmentList:
             if areaName in segment:
                 return segment
@@ -856,34 +883,44 @@ class TextProduct(HLSTCV_Common.TextProduct):
     
     def _getAllVTECRecords(self):
         allRecords = []
+        # Only the segments in _segmentList contain hazards so no
+        # need to check everything in _allAreas()
         for segment in self._segmentList:
             allRecords += self._getVtecRecords(segment)
         
         return allRecords
     
     def _getHazardsForHLS(self):
+        # Get all the hazards so that the HLS will have access to them.
+        # Areas that share the same hazards are grouped together
+        # into a single hazard.
         hazardTable = self._argDict["hazards"]
         
-        
-        hazSegments = self.organizeHazards(hazardTable.rawAnalyzedTable())
-        self.debug_print("Segments from HazardsTable organizeHazards %s" % 
-                         (self._pp.pformat(hazSegments)), 1)
-        
+        # Create a single grouping of all zones. This will make it so that
+        # the hazards are grouped together as much as possible so that we
+        # don't repeat hazard information for zones in HLS.
         combos = [([self._allAreas()], "AllAreas")]
         
-        self.debug_print("Segments from Zone Combiner %s" % (self._pp.pformat(combos)), 1)
-        # "Overlay" the forecaster-entered combinations onto the segments
-        segmentList = self._refineSegments(hazSegments, combos)
-        self.debug_print("SegmentList from refineSegments = %s" % 
-                         (self._pp.pformat(segmentList)), 1)
+        # "Overlay" this group of all zones onto the segments
+        # so that we get as few groups of zones as possible.
+        refinedHazardSegments = self._getRefinedHazardSegments(combos)
         
         allHazards = []
-        for segment in segmentList:
+        for segment in refinedHazardSegments:
             hazardsList = hazardTable.getHazardList(segment)
             for hazard in hazardsList:
+                # If this is a correction, don't generate new hazards,
+                # use the previous ones
                 if hazard['act'] == 'COR':
                     return self._previousAdvisory["HazardsForHLS"]
                 else:
+                    # Tropical hazards shouldn't ever have EXT and EXB actions since
+                    # they are "until further notice"
+                    if hazard["act"] == "EXT":
+                        hazard["act"] = "CON"
+                    elif hazard["act"] == "EXB":
+                        hazard["act"] = "EXA"
+                    
                     allHazards.append(hazard)
         
         return allHazards
@@ -892,6 +929,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     ### Time related methods
 
     def _convertToISO(self, time_ms, local=None):
+        # Convert milliseconds since the epoch to a date
         import datetime
         dt = datetime.datetime.fromtimestamp(time_ms / 1000)
         if local:
@@ -908,7 +946,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     ### Advisory related methods
     
     def _initializeSegmentZoneData(self, segment):
-        # The current advisory will be populated when setting a section's stats
+        # The current advisory will be populated when getting a section's stats
         self._currentAdvisory['ZoneData'][segment] = {
             "WindThreat":            None,
             "WindForecast":          None,
@@ -918,6 +956,37 @@ class TextProduct(HLSTCV_Common.TextProduct):
             "FloodingRainForecast":  None,
             "TornadoThreat":         None,
         }
+    
+    def _getPreviousAdvisories(self):
+        stormAdvisories = self._getStormAdvisoryNames()
+        
+        self.debug_print("DEBUG: stormAdvisories = %s" % 
+                         (self._pp.pformat(stormAdvisories)), 1)
+        
+        previousAdvisories = []
+        
+        #  Get the current storm name from the TCP
+        curAdvisoryString = self._getStormNameFromTCP()
+        self.debug_print("DEBUG: curAdvisoryString = %s" % 
+                         (curAdvisoryString), 1)
+     
+        #  Filter out the advisories we wish to process further
+        for advisory in stormAdvisories:
+            
+            #  If this was an advisory for the current storm
+            if advisory.find(curAdvisoryString) != -1:
+
+                #  Load this advisory for this storm
+                curAdvisory = self._loadAdvisory(advisory)
+                
+                if curAdvisory is not None:
+                    previousAdvisories.append(curAdvisory)
+
+        
+        self.debug_print("DEBUG: previous advisories = %s" % 
+                         (self._pp.pformat(previousAdvisories)), 1)
+        
+        return previousAdvisories
     
     def _archiveCurrentAdvisory(self):
         ### Determine if all actions are canceled
@@ -935,41 +1004,27 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._currentAdvisory["AdvisoryNumber"] = self._getAdvisoryNumberStringFromTCP()
         self._currentAdvisory["HazardsForHLS"] = self._getHazardsForHLS()
         
-        
         self._saveAdvisory("pending", self._currentAdvisory)
     
     def _saveAdvisory(self, advisoryName, advisoryDict):
         self._synchronizeAdvisories()
         fileName = self._getAdvisoryFilename(advisoryName)
 
-#         print "*"*80
-#         print "advisoryDict = ", advisoryDict
-#         print "-"*80 + "\n"
-#         print type(advisoryDict["HazardsForHLS"])
-        newList = []
-        for item in advisoryDict["HazardsForHLS"]:
-#             print item, "\n"
-
-            #  Now handle the action code we should not have
-            if item["act"] == "EXT":
-                item["act"] = "CON"
-            elif item["act"] == "EXB":
-                item["act"] = "EXA"
-                
-            newList.append(item)
-        advisoryDict["HazardsForHLS"] = newList
+        self.debug_print("Saving %s to %s" % (advisoryName, fileName), 1)
+        self.debug_print("advisoryDict: %s" % (self._pp.pformat(advisoryDict)), 1)
          
         try:
             JsonSupport.saveToJson(LocalizationSupport.CAVE_STATIC,
                                    self._site,
                                    fileName,
                                    advisoryDict)
-            
-            self.debug_print("Wrote file contents for: %s" % (fileName), 1)
-            
-            self._synchronizeAdvisories()
         except Exception, e:
             self.debug_print("Save Exception for %s : %s" % (fileName, e), 1)
+        else: # No exceptions occurred
+            self.debug_print("Wrote file contents for: %s" % (fileName), 1)
+            
+            # Purposely allow this to throw
+            self._synchronizeAdvisories()
     
     ###############################################################
     ### GUI related methods
@@ -995,7 +1050,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             "default": "None",
             },
             ]
-        
+    
     def _displayGUI(self, infoDict=None):
         dialog = Overview_Dialog(self, "TCV", infoDict)
         status = dialog.status()
@@ -1100,7 +1155,7 @@ class Overview_Dialog(HLSTCV_Common.Common_Dialog):
                         
             if entryField is not None:
                 entryName = self._entryName(name)
-                self._setVarDict(entryName, tkObject_dict[entryName].get())                
+                self._setVarDict(entryName, tkObject_dict[entryName].get())
         # close window and set status "Ok"
         self._status = "Ok"
         self.withdraw()
@@ -1112,7 +1167,18 @@ class SectionCommon():
         self._textProduct = textProduct
         self._sectionHeaderName = sectionHeaderName
         self._segment = segment
+        self._tr = None
+        self.isThreatInAllAdvisories = False
         
+    def _isThreatInAllAdvisories(self, threatName):
+        previousAdvisories = self._textProduct._getPreviousAdvisories()
+        
+        for advisory in previousAdvisories:
+            if advisory["ZoneData"][self._segment][threatName] == "None":
+                return False
+        
+        return True
+    
     def _setProductPartValue(self, dictionary, productPartName, value):
         dictionary[self._sectionName + '._' + productPartName] = value
         
@@ -1139,7 +1205,7 @@ class SectionCommon():
                 threatLevel = "Moderate"
 
             self._setProductPartValue(segmentDict, 'lifePropertyThreatSummary',
-                                      "Threat to Life and Property: " + threatLevel)
+                                      "Current Threat to Life and Property: " + threatLevel)
 
     #  This new method will convert the single word threat trend into 
     #  an appropriate sentence 
@@ -1273,29 +1339,78 @@ class SectionCommon():
             self._textProduct.debug_print("the current advisory and/or previous advisory did not have key: %s" % (forecastKey), 1)
             return False
         
-    def _calculateThreatStatementTr(self, onsetHour, endHour, threatTrendValue):
-        tr = None
+    def _calculateThreatStatementTr(self, onsetHour, endHour, section):
+        tr = "default"
         
         self._textProduct.debug_print("onset hour = %s" % (onsetHour), 1)
         self._textProduct.debug_print("end hour = %s" % (endHour), 1)
-        self._textProduct.debug_print("threatTrendValue = %s" % 
-                         (threatTrendValue), 1)
         
-        if (onsetHour is not None) and \
-           (endHour is not None):
-    
+        if (onsetHour is not None):
             if onsetHour > 36:
                 tr = "check plans"
             elif onsetHour > 6:
                 tr = "complete preparations"
-            elif onsetHour <= 6 and endHour > 0:
+            elif (onsetHour <= 6) and (endHour is not None) and (endHour > 0):
                 tr = "hunker down"
-        elif (threatTrendValue is not None) and (threatTrendValue.upper() in ["DECREASING", "NEARLY STEADY"]):
-            tr = "recovery"
-        else:
-            tr = "nothing to see here"
-    
+        
+        self._textProduct.debug_print("tr is currently -> '%s'" % (tr), 1)
+
+        if tr == "default":
+            records = self._textProduct._getVtecRecords(self._segment)
+            for record in records:
+                if record["phen"] in ["HU", "TR"] and record["sig"] == "W":
+                    if record["act"] == "CAN":
+                        tr = "recovery"
+                        break
+                    # This is just for 2015
+                    elif record["act"] == "CON" and \
+                         section == "Surge" and \
+                         self._textProduct._currentAdvisory['ZoneData'][self._segment]["StormSurgeThreat"] == "None" and \
+                         self._pastSurgeThreatsNotNone():
+                        tr = "recovery"
+                        break
+                    
+            if tr == "default" and \
+               section == "Wind" and \
+               self._pastWindHazardWasCAN():
+                tr = "recovery"
+
         return tr
+    
+    def _pastWindHazardWasCAN(self):
+        previousAdvisories = self._textProduct._getPreviousAdvisories()
+        
+        #  If there are NOT any advisories to process - no need to continue
+        if len(previousAdvisories) == 0:
+            return False
+        
+        #  Look at all past advisories for this storm
+        for advisory in previousAdvisories:
+
+            for hazard in advisory["HazardsForHLS"]:
+                if self._segment in hazard["id"] and \
+                   hazard["phen"] in ["TR", "HU"] and \
+                   hazard["sig"] == "W" and \
+                   hazard["act"] == "CAN":
+                    return True
+        
+        return False
+    
+    def _pastSurgeThreatsNotNone(self):
+        previousAdvisories = self._textProduct._getPreviousAdvisories()
+        
+        #  If there are NOT any advisories to process - no need to continue
+        if len(previousAdvisories) == 0:
+            return False
+        
+        #  Look at all past advisories for this storm
+        for advisory in previousAdvisories:
+
+            #  We had a threat previously
+            if advisory["ZoneData"][self._segment]["StormSurgeThreat"] in ["Elevated", "Mod", "High", "Extreme"]:
+                return True
+        
+        return False
     
     def _setThreatStatementsProductParts(self, segmentDict, productSegment, tr):
         
@@ -1321,7 +1436,7 @@ class SectionCommon():
         with open("/awips2/cave/etc/gfe/userPython/utilities/TCVDictionary.py", 'r') as pythonFile:
             fileContents = pythonFile.read()
             exec(fileContents)
-          
+                   
         # ThreatStatements comes from TCVDictionary.py when it is exec'ed
         threatStatements = ThreatStatements
         
@@ -1345,6 +1460,12 @@ class SectionCommon():
             self._setProductPartValue(segmentDict, 'potentialImpactsSummary', summary)
     
     def _getPotentialImpactsSummaryText(self, maxThreat):
+        if self._tr is not None:
+            if self._tr == "hunker down":
+                return "Potential Impacts: Still Unfolding"
+            elif self._tr == "recovery":
+                return "Realized Impacts: Still Being Assessed"
+        
         if maxThreat == "Extreme":
             impactLevel = "Devastating to Catastrophic"
         elif maxThreat == "High":
@@ -1366,8 +1487,18 @@ class SectionCommon():
             self._setProductPartValue(segmentDict, 'potentialImpactsStatements', statements)
     
     def _getPotentialImpactsStatements(self, productSegment, elementName, maxThreat):
-        import TCVDictionary
+        if self._tr is not None:
+            specialStatements = self._specialImpactsStatements()
+            if self._tr in specialStatements.keys():
+                if self._tr == "default":
+                    return specialStatements[self._tr][maxThreat]
+                else:
+                    if self._tr == "recovery" and not self.isThreatInAllAdvisories:
+                        return []
+                    else:
+                        return specialStatements[self._tr]
         
+        import TCVDictionary
         potentialImpactStatements = TCVDictionary.PotentialImpactStatements
         statements = potentialImpactStatements[elementName][maxThreat]
         
@@ -1389,6 +1520,10 @@ class SectionCommon():
             pass
         
         return statements
+    
+    # Specific hazard sections can override this to provide special impacts statements
+    def _specialImpactsStatements(self):
+        return {}
     
     def _preparationStatement(self, severityString):
         preparationStatement = ""
@@ -1415,6 +1550,7 @@ class WindSection(SectionCommon):
         SectionCommon.__init__(self, textProduct, segment, "Wind")
         self._sectionName = 'windSection[\'' + segment + '\']'
         self._stats = stats
+        self.isThreatInAllAdvisories = self._isThreatInAllAdvisories("WindThreat")
         
     def sectionParts(self, segment_vtecRecords_tuple):
         parts = [
@@ -1512,57 +1648,69 @@ class WindSection(SectionCommon):
             self._setProductPartValue(segmentDict, 'threatSubsection', subsectionDict)
     
     def _threatTrend(self, segmentDict, productSegmentGroup, productSegment):
-        self._threatTrendValue = \
+        threatTrendValue = \
             self._getThreatTrendValue("Wind",
                                       magnitudeIncreaseThreshold=self._textProduct.mphToKt(15))
         
-        if self._threatTrendValue is not None:
+        if threatTrendValue is not None:
             #  Convert the threat trend to a sentence
             threatTrendSentence = \
-                self._getThreatTrendSentence("wind", self._threatTrendValue)
+                self._getThreatTrendSentence("wind", threatTrendValue)
 
             self._setProductPartValue(segmentDict, 'threatTrend',
                                       threatTrendSentence)
     
     def _threatStatements(self, segmentDict, productSegmentGroup, productSegment):
-        windTr = self._calculateThreatStatementTr(self._stats._onset34Hour,
-                                                  self._stats._end34Hour,
-                                                  self._threatTrendValue)
+        self._tr = self._calculateThreatStatementTr(self._stats._onset34Hour,
+                                                self._stats._end34Hour, "Wind")
         self._textProduct.debug_print("in _threatStatements tr = %s" % 
-                                      (self._textProduct._pp.pformat(windTr)), 1)
+                                      (self._textProduct._pp.pformat(self._tr)), 1)
         
         if not hasattr(self._textProduct, "_windThreatStatementsTr"):
             self._textProduct._windThreatStatementsTr = dict()
             
-        self._textProduct._windThreatStatementsTr[self._segment] = windTr
+        self._textProduct._windThreatStatementsTr[self._segment] = self._tr
         
         self._setThreatStatementsProductParts(segmentDict, productSegment, 
-                                              windTr)
-        
-#     def _impactsSubsection(self, segmentDict, productSegmentGroup, productSegment):
-#         subsectionDict = collections.OrderedDict()
-#         self._potentialImpactsSummary(subsectionDict, productSegmentGroup, productSegment)
-#         self._potentialImpactsStatements(subsectionDict, productSegmentGroup, productSegment)
-#         if len(subsectionDict) > 0:
-#             self._setProductPartValue(segmentDict, 'impactsSubsection', subsectionDict)
+                                              self._tr)
 
-    #  Modified to not include wind impacts during the "recovery" and 
-    #  "nothing to see here" phases of the tropical cyclone event
     def _impactsSubsection(self, segmentDict, productSegmentGroup, productSegment):
-
-        #  Compute time range to onset
-        try:
-            windTr = self._textProduct._windThreatStatementsTr[self._segment]
-        except:
-            windTr = self._calculateThreatStatementTr(self._stats._onset34Hour,
-                                                      self._stats._end34Hour,
-                                                      self._threatTrendValue)
-        
         subsectionDict = collections.OrderedDict()
         self._potentialImpactsSummary(subsectionDict, productSegmentGroup, productSegment)
         self._potentialImpactsStatements(subsectionDict, productSegmentGroup, productSegment)
         if len(subsectionDict) > 0:
             self._setProductPartValue(segmentDict, 'impactsSubsection', subsectionDict)
+    
+    def _specialImpactsStatements(self):
+        return {"hunker down": ["Potential impacts from the main wind event are still unfolding.",
+                                "The extent of realized impacts will depend on the actual strength, duration, and exposure of the wind as experienced at particular locations.",
+                                ],
+                "recovery": ["Little to no additional wind impacts expected. Community officials are now assessing the extent of actual wind impacts accordingly.",
+                             ],
+                "default": {"Extreme": ["If realized, major hurricane force wind can cause structural damage to sturdy buildings, some with complete roof and wall failures. Complete destruction of mobile homes. Damage greatly accentuated by large airborne projectiles. Locations may be uninhabitable for weeks or months.",
+                                        "Numerous large trees snapped or uprooted along with fences and roadway signs blown over.",
+                                        "Many roads impassable from large debris, and more within urban or heavily wooded places. Many bridges, causeways, and access routes impassable.",
+                                        "Widespread power and communication outages.",
+                                        ],
+                            "High": ["If realized, hurricane force wind can cause considerable roof damage to sturdy buildings, with some having window, door, and garage door failures leading to structural damage. Mobile homes severely damaged, with some destroyed.  Damage accentuated by airborne projectiles.  Locations may be uninhabitable for weeks.",
+                                     "Many large trees snapped or uprooted along with fences and roadway signs blown over.",
+                                     "Some roads impassable from large debris, and more within urban or heavily wooded places. Several bridges, causeways, and access routes impassable.",
+                                     "Large areas with power and communications outages.",
+                                     ],
+                            "Mod": ["If realized, strong tropical storm force wind can cause some damage to roofing and siding materials, along with damage to porches, awnings, carports, and sheds. A few buildings experiencing window, door, and garage door failures. Mobile homes damaged, especially if unanchored. Unsecured lightweight objects become dangerous projectiles.",
+                                         "Several large trees snapped or uprooted, but with greater numbers in places where trees are shallow rooted. Several fences and roadway signs blown over.",
+                                         "Some roads impassable from large debris, and more within urban or heavily wooded places. A few bridges, causeways, and access routes connecting barrier islands impassable.",
+                                         "Scattered power and communications outages, but more prevalent in areas with above ground lines.",
+                                         ],
+                            "Elevated": ["If realized, tropical storm force wind can cause damage to porches, awnings, carports, sheds, and unanchored mobile homes. Unsecured lightweight objects blown about.",
+                                         "Many large tree limbs broken off. A few trees snapped or uprooted, but with greater numbers in places where trees are shallow rooted. Some fences and roadway signs blown over.",
+                                         "A few roads impassable from debris, particularly within urban or heavily wooded places. Hazardous driving conditions on bridges and other elevated roadways.",
+                                         "Scattered power and communications outages.",
+                                         ],
+                            "None": ["Little to no potential impacts from wind.",
+                                     ]
+                            }
+                }
 
     ### Supporting functions
     def _moderatedMaxWindMph_categories(self):
@@ -1598,6 +1746,7 @@ class StormSurgeSection(SectionCommon):
         SectionCommon.__init__(self, textProduct, segment, "Storm Surge")
         self._sectionName = 'stormSurgeSection[\'' + segment + '\']'
         self._stats = stats
+        self.isThreatInAllAdvisories = self._isThreatInAllAdvisories("StormSurgeThreat")
         
     def sectionParts(self, segment_vtecRecords_tuple):
         parts = [
@@ -1696,24 +1845,23 @@ class StormSurgeSection(SectionCommon):
             SectionCommon._lifePropertyThreatSummary(self, segmentDict, productSegmentGroup, productSegment)
     
     def _threatTrend(self, segmentDict, productSegmentGroup, productSegment):
-        self._threatTrendValue = self._getThreatTrendValue("StormSurge", magnitudeIncreaseThreshold=4)
+        threatTrendValue = self._getThreatTrendValue("StormSurge", magnitudeIncreaseThreshold=4)
 
-        if self._threatTrendValue is not None:
+        if threatTrendValue is not None:
             #  Convert the threat trend to a sentence
             threatTrendSentence = \
-                self._getThreatTrendSentence("storm surge", self._threatTrendValue)
+                self._getThreatTrendSentence("storm surge", threatTrendValue)
 
             self._setProductPartValue(segmentDict, 'threatTrend',
                                       threatTrendSentence)
     
     def _threatStatements(self, segmentDict, productSegmentGroup, productSegment):
         self._textProduct.debug_print("Surge Threat Statements", 1)
-        surgeTr = self._calculateThreatStatementTr(self._stats._onsetSurgeHour,
-                                                   self._stats._endSurgeHour,
-                                                   self._threatTrendValue)
+        self._tr = self._calculateThreatStatementTr(self._stats._onsetSurgeHour,
+                                            self._stats._endSurgeHour, "Surge")
         
         self._setThreatStatementsProductParts(segmentDict, productSegment, 
-                                              surgeTr)
+                                              self._tr)
         
     def _impactsSubsection(self, segmentDict, productSegmentGroup, productSegment):
         subsectionDict = collections.OrderedDict()
@@ -1723,6 +1871,37 @@ class StormSurgeSection(SectionCommon):
             
         if len(subsectionDict) > 0:
             self._setProductPartValue(segmentDict, 'impactsSubsection', subsectionDict)
+    
+    def _specialImpactsStatements(self):
+        return {"hunker down": ["Potential impacts from the main surge event are still unfolding.",
+                                "The extent of realized impacts will depend on the actual height of storm surge moving onshore and the resulting depth of coastal flooding as experienced at particular locations.",
+                                ],
+                "recovery": ["Little to no additional surge impacts expected. Community officials are now assessing the extent of actual surge impacts accordingly.",
+                             ],
+                "default": {"Extreme": ["If realized, extreme storm surge flooding can cause widespread deep inundation accentuated by powerful battering waves. Structural damage to buildings, with many washing away. Damage greatly compounded from considerable floating debris. Locations may be uninhabitable for an extended period.",
+                                        "Near-shore escape routes and secondary roads washed out or severely flooded. Flood control systems and barriers may become stressed.",
+                                        "Extreme beach erosion. New shoreline cuts possible.",
+                                        "Massive damage to marinas, docks, boardwalks, and piers. Numerous small craft broken away from moorings with many lifted onshore and stranded.",
+                                        ],
+                            "High": ["If realized, major storm surge flooding can cause large areas of deep inundation accentuated by battering waves. Structural damage to buildings, with several washing away. Damage compounded by floating debris. Locations may be uninhabitable for an extended period.",
+                                     "Large sections of near-shore escape routes and secondary roads washed out or severely flooded. Flood control systems and barriers may become stressed.",
+                                     "Severe beach erosion with significant dune loss.",
+                                     "Major damage to marinas, docks, boardwalks, and piers. Many small craft broken away from moorings, especially in unprotected anchorages with some lifted onshore and stranded.",
+                                     ],
+                            "Mod": ["If realized, moderate storm surge flooding can cause areas of inundation accentuated by large waves. Damage to several buildings, mainly near the coast.",
+                                    "Sections of near-shore escape routes and secondary roads become weakened or washed out, especially in usually vulnerable low spots.",
+                                    "Major beach erosion with heavy surf breaching dunes. Strong and numerous rip currents.",
+                                    "Moderate damage to marinas, docks, boardwalks, and piers. Several small craft broken away from moorings, especially in unprotected anchorages.",
+                                    ],
+                            "Elevated": ["If realized, minor to moderate storm surge flooding can cause localized inundation mainly along immediate shorelines and in low-lying spots, or in areas farther inland near where higher surge waters move ashore.",
+                                         "Sections of near-shore roads and parking lots become overspread with surge water. Driving conditions dangerous in places where surge water covers the road.",
+                                         "Moderate beach erosion. Heavy surf also breaching dunes, mainly in usually vulnerable locations. Strong rip currents.",
+                                         "Minor to locally moderate damage to marinas, docks, boardwalks, and piers. A few small craft broken away from moorings.",
+                                         ],
+                            "None": ["Little to no potential impacts from storm surge.",
+                                     ]
+                            }
+                }
     
     def _potentialImpactsSummary(self, segmentDict, productSegmentGroup, productSegment):
         if not self._textProduct._PopulateSurge:
@@ -1741,6 +1920,7 @@ class FloodingRainSection(SectionCommon):
         SectionCommon.__init__(self, textProduct, segment, "Flooding Rain")
         self._sectionName = 'floodingRainSection[\'' + segment + '\']'
         self._stats = stats
+        self.isThreatInAllAdvisories = self._isThreatInAllAdvisories("FloodingRainThreat")
         
     def sectionParts(self, segment_vtecRecords_tuple):
         parts = [
@@ -1784,7 +1964,7 @@ class FloodingRainSection(SectionCommon):
     
     def _peakRain(self, segmentDict, productSegmentGroup, productSegment):
         if self._stats._sumAccum is not None:
-            words = self._rainRange(int(math.ceil(self._stats._sumAccum)))
+            words = self._rainRange(int(self._stats._sumAccum + 0.5))
             
             #  If we have previous rainfall
             if self._stats._prevAccum not in [0.0, None]:
@@ -1831,20 +2011,20 @@ class FloodingRainSection(SectionCommon):
             self._setProductPartValue(segmentDict, 'threatSubsection', subsectionDict)
     
     def _threatTrend(self, segmentDict, productSegmentGroup, productSegment):
-        self._threatTrendValue = self._getThreatTrendValue("FloodingRain", magnitudeIncreaseThreshold=4)
+        threatTrendValue = self._getThreatTrendValue("FloodingRain", magnitudeIncreaseThreshold=4)
 
-        if self._threatTrendValue is not None:
+        if threatTrendValue is not None:
             #  Convert the threat trend to a sentence
             threatTrendSentence = \
-                self._getThreatTrendSentence("flooding rain", self._threatTrendValue)
+                self._getThreatTrendSentence("flooding rain", threatTrendValue)
 
             self._setProductPartValue(segmentDict, 'threatTrend',
                                       threatTrendSentence)
     
     def _threatStatements(self, segmentDict, productSegmentGroup, productSegment):
-        tr = self._textProduct._windThreatStatementsTr[self._segment]
+        self._tr = self._textProduct._windThreatStatementsTr[self._segment]
         
-        self._setThreatStatementsProductParts(segmentDict, productSegment, tr)
+        self._setThreatStatementsProductParts(segmentDict, productSegment, self._tr)
         
     def _impactsSubsection(self, segmentDict, productSegmentGroup, productSegment):
         subsectionDict = collections.OrderedDict()
@@ -1852,12 +2032,40 @@ class FloodingRainSection(SectionCommon):
         self._potentialImpactsStatements(subsectionDict, productSegmentGroup, productSegment)
         if len(subsectionDict) > 0:
             self._setProductPartValue(segmentDict, 'impactsSubsection', subsectionDict)
+    
+    def _specialImpactsStatements(self):
+        return {"hunker down": ["Potential impacts from flooding rain are still unfolding.",
+                                "The extent of realized impacts will depend on actual rainfall amounts as received at particular locations.",
+                                ],
+                "recovery": ["For additional information on impacts being caused by flooding rain, refer to the local hazardous weather outlook or hurricane local statement.",
+                             ],
+                "default": {"Extreme": ["If realized, extreme rainfall flooding may prompt numerous evacuations and rescues.",
+                                        "Rivers and tributaries may overwhelmingly overflow their banks in many places with deep moving water. Small streams, creeks, canals, arroyos, and ditches may become raging rivers. In mountain areas, deadly runoff may rage down valleys while increasing susceptibility to rockslides and mudslides. Flood control systems and barriers may become stressed.",
+                                        "Flood waters can enter numerous structures within multiple communities, some structures becoming uninhabitable or washed away. Numerous places where flood waters may cover escape routes. Streets and parking lots become rivers of raging water with underpasses submerged. Driving conditions become very dangerous. Numerous road and bridge closures with some weakened or washed out.",
+                                        ],
+                            "High": ["If realized, major rainfall flooding may prompt many evacuations and rescues.",
+                                     "Rivers and tributaries may rapidly overflow their banks in multiple places. Small streams, creeks, canals, arroyos, and ditches may become dangerous rivers. In mountain areas, destructive runoff may run quickly down valleys while increasing susceptibility to rockslides and mudslides. Flood control systems and barriers may become stressed.",
+                                     "Flood waters can enter many structures within multiple communities, some structures becoming uninhabitable or washed away. Many places where flood waters may cover escape routes. Streets and parking lots become rivers of moving water with underpasses submerged. Driving conditions become dangerous. Many road and bridge closures with some weakened or washed out.",
+                                     ],
+                            "Mod": ["If realized, moderate rainfall flooding may prompt several evacuations and rescues.",
+                                    "Rivers and tributaries may quickly become swollen with swifter currents and overspill their banks in a few places, especially in usually vulnerable spots. Small streams, creeks, canals, arroyos, and ditches overflow.",
+                                    "Flood waters can enter some structures or weaken foundations. Several places may experience expanded areas of rapid inundation at underpasses, low-lying spots, and poor drainage areas. Some streets and parking lots take on moving water as storm drains and retention ponds overflow. Driving conditions become hazardous. Some road and bridge closures.",
+                                    ],
+                            "Elevated": ["If realized, localized rainfall flooding may prompt a few evacuations.",
+                                         "Rivers and tributaries may quickly rise with swifter currents. Small streams, creeks, canals, arroyos, and ditches may become swollen and overflow in spots.",
+                                         "Flood waters can enter a few structures, especially in usually vulnerable spots.  A few places where rapid ponding of water occurs at underpasses, low-lying spots, and poor drainage areas. Several storm drains and retention ponds become near-full and begin to overflow. Some brief road and bridge closures.",
+                                         ],
+                            "None": ["Little to no potential impacts from flooding rain.",
+                                     ]
+                            }
+                }
 
 class TornadoSection(SectionCommon):
     def __init__(self, textProduct, segment, stats):
         SectionCommon.__init__(self, textProduct, segment, "Tornado")
         self._sectionName = 'tornadoSection[\'' + segment + '\']'
         self._stats = stats
+        self.isThreatInAllAdvisories = self._isThreatInAllAdvisories("TornadoThreat")
         
     def sectionParts(self, segment_vtecRecords_tuple):
         parts = [
@@ -1872,11 +2080,12 @@ class TornadoSection(SectionCommon):
     def _forecastSubsection(self, segmentDict, productSegmentGroup, productSegment):
         subsectionDict = collections.OrderedDict()
         self._latestForecastSummary(subsectionDict, productSegmentGroup, productSegment)
+        self._tornadoSituation(subsectionDict, productSegmentGroup, productSegment)
         if len(subsectionDict) > 0:
             self._setProductPartValue(segmentDict, 'forecastSubsection', subsectionDict)
     
     def _latestForecastSummary(self, segmentDict, productSegmentGroup, productSegment):
-        summary = "There is no Tornado Watch in effect"
+        summary = ""
         segment, vtecRecords = productSegment
         
         headlines, _ = self._textProduct._getAdditionalHazards()
@@ -1891,9 +2100,26 @@ class TornadoSection(SectionCommon):
             # Make sure it is for our zone
             if self._segment in areaList:
                 summary = "Tornado Watch is in effect"
-        
+
         self._setProductPartValue(segmentDict, 'latestForecastSummary',
                                   "Latest Local Forecast: " + summary)
+ 
+    def _tornadoSituation(self, segmentDict, productSegmentGroup, productSegment):
+
+        #  Now add the bullet about tornado situation
+        if self._stats._maxThreat in ["Extreme", "High"]:
+            qualifier = "very favorable"
+        elif self._stats._maxThreat in ["Mod"]:
+            qualifier = "favorable"
+        elif self._stats._maxThreat in ["Elevated"]:
+            qualifier = "somewhat favorable"
+        else:
+            qualifier = "unfavorable"
+            
+        words = "Situation is %s for tornadoes" % (qualifier) 
+        
+        self._setProductPartValue(segmentDict, 'tornadoSituation', words)
+        
 
     def _threatSubsection(self, segmentDict, productSegmentGroup, productSegment):
         subsectionDict = collections.OrderedDict()
@@ -1904,21 +2130,21 @@ class TornadoSection(SectionCommon):
             self._setProductPartValue(segmentDict, 'threatSubsection', subsectionDict)
     
     def _threatTrend(self, segmentDict, productSegmentGroup, productSegment):
-        self._threatTrendValue = self._getThreatTrendValue("Tornado", 
+        threatTrendValue = self._getThreatTrendValue("Tornado", 
                                                 magnitudeIncreaseThreshold=None)
         
-        if self._threatTrendValue is not None:
+        if threatTrendValue is not None:
             #  Convert the threat trend to a sentence
             threatTrendSentence = \
-                self._getThreatTrendSentence("tornado", self._threatTrendValue)
+                self._getThreatTrendSentence("tornado", threatTrendValue)
 
             self._setProductPartValue(segmentDict, 'threatTrend',
                                       threatTrendSentence)
         
     def _threatStatements(self, segmentDict, productSegmentGroup, productSegment):
-        tr = self._textProduct._windThreatStatementsTr[self._segment]
+        self._tr = self._textProduct._windThreatStatementsTr[self._segment]
 
-        self._setThreatStatementsProductParts(segmentDict, productSegment, tr)
+        self._setThreatStatementsProductParts(segmentDict, productSegment, self._tr)
     
     def _impactsSubsection(self, segmentDict, productSegmentGroup, productSegment):
         subsectionDict = collections.OrderedDict()
@@ -1926,6 +2152,33 @@ class TornadoSection(SectionCommon):
         self._potentialImpactsStatements(subsectionDict, productSegmentGroup, productSegment)
         if len(subsectionDict) > 0:
             self._setProductPartValue(segmentDict, 'impactsSubsection', subsectionDict)
+    
+    def _specialImpactsStatements(self):
+        return {"hunker down": ["Potential impacts from tropical tornadoes are still unfolding.",
+                                "The extent of realized impacts will depend on the severity of actual tornado occurrence as experienced at particular locations.",
+                                ],
+                "recovery": ["For additional information on impacts being caused by tropical tornadoes, refer to the local hazardous weather outlook or hurricane local statement.",
+                             ],
+                "default": {"Extreme": ["The occurrence of an outbreak of tornadoes can greatly hinder the execution of other emergency activities during tropical events.",
+                                        "If realized, many places may experience tornado damage, with several spots of immense destruction, power loss, and communications failures.",
+                                        "Locations could realize sturdy buildings demolished, structures upon weak foundations swept away, mobile homes obliterated, large trees twisted and snapped with some debarked, vehicles lifted off the ground and thrown with distance, and small boats destroyed. Large and deadly projectiles can add considerably to the toll.",
+                                        ],
+                            "High": ["The occurrence of numerous tornadoes can greatly hinder the execution of other emergency activities during tropical events.",
+                                     "If realized, many places may experience tornado damage with a few spots of immense destruction, power loss, and communications failures.",
+                                     "Locations could realize roof and wall failures of sturdy buildings with some being leveled, structures upon weak foundations blown away, mobile homes obliterated, large trees twisted and snapped with forested trees uprooted, vehicles lifted off the ground and thrown, and small boats destroyed. Large and deadly projectiles can add to the toll.",
+                                     ],
+                            "Mod": ["The occurrence of scattered tornadoes can hinder the execution of other emergency activities during tropical events.",
+                                    "If realized, several places may experience tornado damage with a few spots of considerable damage, power loss, and communications failures.",
+                                    "Locations could realize roofs torn off frame houses, mobile homes demolished, boxcars overturned, large trees snapped or uprooted, vehicles tumbled, and small boats tossed about. Dangerous projectiles can add to the toll.",
+                                    ],
+                            "Elevated": ["The occurrence of isolated tornadoes can hinder the execution of other emergency activities during tropical events.",
+                                         "If realized, a few places may experience tornado damage, along with power and communications disruptions.",
+                                         "Locations could realize roofs peeled off buildings, chimneys toppled, mobile homes pushed off foundations or overturned, large tree tops and branches snapped off, shallow-rooted trees knocked over, moving vehicles blown off roads, and small boats pulled from moorings.",
+                                         ],
+                            "None": ["Little to no potential impacts from tropical tornadoes.",
+                                     ]
+                            }
+                }
 
 
 ###############################################################
@@ -1939,6 +2192,7 @@ class SectionCommonStats():
         self._initializeSegmentAdvisories()
         
         self._maxThreat = None
+
     
     def _initializeSegmentAdvisories(self):
         self._currentAdvisory = self._textProduct._currentAdvisory['ZoneData'][self._segment]
@@ -1957,7 +2211,8 @@ class SectionCommonStats():
     
     def _updateThreatStats(self, tr, statDict, threatGridName):
         self._textProduct.debug_print("statDict = '%s'" % (self._textProduct._pp.pformat(statDict)), 1)
-        threatLevel = self._textProduct.getStats(statDict, threatGridName)
+        
+        threatLevel = self._textProduct._getStatValue(statDict, threatGridName)
         if threatLevel is not None:
             threatLevels = self._textProduct._threatKeyOrder()
             self._textProduct.debug_print("updateThreatStats for %s" % (threatGridName), 1)
@@ -1970,7 +2225,7 @@ class SectionCommonStats():
     
     def _calculateHourOffset(self, targetTime):
         seconds = targetTime.unixTime() - self._textProduct._issueTime_secs
-        hour = int(round(seconds/60/60))
+        hour = int(round(seconds/60.0/60.0))
         if hour < 0:
             hour = 0
         
@@ -2025,6 +2280,8 @@ class WindSectionStats(SectionCommonStats):
             tr, _ = timeRangeList[index]
             statDict = statList[index]
             
+            self._textProduct.debug_print("\n\ntr = %s    statDict = %s" % (tr, statDict), 1)
+            
             for periodIndex, periodTr in enumerate(self._textProduct._periodList):
                 self._textProduct.debug_print("\n\nperiodIndex = %d    periodList tr = %s" % (periodIndex, repr(periodTr)), 1)
                 if (periodIndex == 0) and (tr.startTime().unixTime() < periodTr.startTime().unixTime()):
@@ -2034,6 +2291,9 @@ class WindSectionStats(SectionCommonStats):
                 elif periodTr.contains(tr.startTime()):
                     currentPeriod = periodIndex
                     break
+            
+            self._textProduct.debug_print("\n\ncurrentPeriod index = %s" % (currentPeriod), 1)
+            self._textProduct.debug_print("\n\ncurrentPeriod tr = %s" % (self._textProduct._periodList[currentPeriod]), 1)
 
             self._updateStatsForPwsXXint(tr, statDict, "pws34int", pws34intStats)
             self._updateStatsForPwsXXint(tr, statDict, "pws64int", pws64intStats)
@@ -2078,7 +2338,66 @@ class WindSectionStats(SectionCommonStats):
          
         self._currentAdvisory["WindThreat"] = self._maxThreat
         self._currentAdvisory["WindForecast"] = self._maxWind
+ 
+        #======================================================================
+        #  Let operator know if any required stats are missing
         
+        missingGridsList = []
+
+        self._textProduct.debug_print("+"*60, 1)
+        self._textProduct.debug_print("In WindSectionStats._setStats", 1)
+        self._textProduct.debug_print("pws34intStats.max = %s" % (pws34intStats.max), 1)
+        self._textProduct.debug_print("pws64intStats.max = %s" % (pws64intStats.max), 1)
+        self._textProduct.debug_print("pwsT34Stats.periodWithFirstCorrectGrid = %s" % (pwsT34Stats.periodWithFirstCorrectGrid), 1)
+#         self._textProduct.debug_print("pwsT34Stats.endTime = '%s'" % (pwsT34Stats.endTime), 1)
+        self._textProduct.debug_print("pwsT64Stats.periodWithFirstCorrectGrid = %s" % (pwsT64Stats.periodWithFirstCorrectGrid), 1)
+#         self._textProduct.debug_print("pwsT64Stats.endTime = '%s'" % (pwsT64Stats.endTime), 1)
+        self._textProduct.debug_print("self._maxWind = %s" % (self._maxWind), 1)
+        self._textProduct.debug_print("self._maxGust = %s" % (self._maxGust), 1)
+        self._textProduct.debug_print("self._maxThreat = %s" % (self._maxThreat), 1)
+        
+        #  Interval wind speed probabilities
+        if pws34intStats.max is None:
+            missingGridsList.append("pws34int")
+        
+        if pws64intStats.max is None:
+            missingGridsList.append("pws64int")
+        
+        #  Incremental wind speed probabilities
+        if pwsT34Stats.periodWithFirstCorrectGrid is None:
+            missingGridsList.append("PWSD34")
+            missingGridsList.append("PWSN34")
+        
+        if pwsT64Stats.periodWithFirstCorrectGrid is None:
+            missingGridsList.append("PWSD64")
+            missingGridsList.append("PWSN64")
+ 
+        #  Deterministic wind
+        if self._maxWind is None:
+            missingGridsList.append("Wind")
+        
+        #  Deterministic wind gust 
+        if self._maxGust is None:
+            missingGridsList.append("WindGust")
+        
+        #  Threat grid
+        if self._maxThreat is None:
+             missingGridsList.append("WindThreat")
+           
+        #  If there are any missing grids - let the user know
+        if len(missingGridsList) > 0:
+            msg = "\n\nSome grids are missing! Please check these grids " + \
+                  "before trying to run the formatter again:\n"
+            
+            for item in missingGridsList:
+                msg += "\n%s" % (item)
+            
+            msg += "\n\n"
+       
+            #  Throw a statistics exception
+            #  (no point in continuing until the grids are fixed)
+            raise self._textProduct.StatisticsException(msg)
+       
     def _updateStatsForPwsXXint(self, tr, statDict, gridName, pwsXXintStats):
         pwsXXint = self._textProduct._getStatValue(statDict, gridName, "Max")
         
@@ -2160,6 +2479,8 @@ class WindSectionStats(SectionCommonStats):
 
             maxPws = pwsNXX
 
+        #  These two statements will need to be reevaluated when this product is 
+        #  expanded to the Pacific basin (MHB - 02/03/2015)
         elif pwsDXX is not None and tr.startTime().hour in [21, 0, 3]:
             self._textProduct.debug_print("Wind Window Debug: pwsTXXStats DAY ignored", 1)
 
@@ -2174,6 +2495,11 @@ class WindSectionStats(SectionCommonStats):
                 period = period - 1 # We dropped the first grid so we are off-by-one
                 self._textProduct.debug_print("shifting period back 1...new period = %s" % 
                                  (period), 1)
+                
+            #  Just set the first correct period to period zero, if it hasn't
+            #  been set yet, so the missing grid check will not fail
+            if pwsTXXStats.periodWithFirstCorrectGrid is None:
+                pwsTXXStats.periodWithFirstCorrectGrid = 0
 
             if "64" in dayGridName:
                 index = threshold64index
@@ -2190,13 +2516,22 @@ class WindSectionStats(SectionCommonStats):
                 threshold = thresholds[period][index]
                 
             if maxPws > threshold:
-                pwsTXXStats.endTime = tr.endTime()
+                trEndTime = tr.endTime()
+                periodEndTime = self._textProduct._periodList[period].endTime()
+                
+                # Don't go past the end of the period
+                if trEndTime <= periodEndTime:
+                    pwsTXXStats.endTime = trEndTime
+                else:
+                    pwsTXXStats.endTime = periodEndTime
+                
                 self._textProduct.debug_print("Wind Window Debug: probability threshold = %s (period index %s)" % (threshold, period), 1)
                 self._textProduct.debug_print("Wind Window Debug: pwsTXXStats dayGridName = %s" % (dayGridName), 1)
                 self._textProduct.debug_print("Wind Window Debug: pwsTXXStats nightGridName = %s" % (nightGridName), 1)
                 self._textProduct.debug_print("Wind Window Debug: pwsTXXStats original tr = %s" % (self._textProduct._pp.pformat(tr)), 1)
                 self._textProduct.debug_print("Wind Window Debug: pwsTXXStats maxPws = %s" %(self._textProduct._pp.pformat(maxPws)), 1)
                 self._textProduct.debug_print("Wind Window Debug: pwsTXXStats endTime = %s" % (self._textProduct._pp.pformat(pwsTXXStats.endTime)), 1)
+                self._textProduct.debug_print("Wind Window Debug: period tr = %s" % (self._textProduct._pp.pformat(self._textProduct._periodList[period])), 1)
     
     def _updateWindTimeInfo(self, tr, wind, timeInfo, speed):
         if wind >= speed:
@@ -2360,6 +2695,8 @@ class WindSectionStats(SectionCommonStats):
             #  from its end
             if (trStartHour < utcNight) and (utcNight - trStartHour) > 1:
                 return True
+            elif trStartHour >= utcDay:
+                return True
 
         #  Handle "normal" case where "day" starts before "night" in UTC
         elif trStartHour >= utcDay and trStartHour < utcNight and \
@@ -2385,15 +2722,23 @@ class StormSurgeSectionStats(SectionCommonStats):
         phishEndTime = None
         possibleStop = 0
         
+        #  If this is an inland area, just move on
+        if statList == "InlandArea":
+            return
+        
         self._textProduct.debug_print("*"*100, 1)
         self._textProduct.debug_print("phishStartTime = %s   phishEndTime  = %s   possibleStop = %d" % 
                                       (str(phishStartTime), str(phishEndTime), possibleStop), 1)
         
+        self._textProduct.debug_print("%s" % (self._textProduct._pp.pformat(statList)), 1)
         for period in range(len(statList)):
             tr, _ = timeRangeList[period]
             statDict = statList[period]
+            self._textProduct.debug_print("tr = %s" % (self._textProduct._pp.pformat(tr)), 1)
+            self._textProduct.debug_print("statDict = %s" % (self._textProduct._pp.pformat(statDict)), 1)
         
             phishPeak = self._textProduct._getStatValue(statDict, "InundationMax", "Max")
+            self._textProduct.debug_print("%s phishPeak = %s" % (repr(tr), phishPeak), 1)
             if phishPeak is not None:
                 if self._inundationMax is None or phishPeak > self._inundationMax:
                     self._inundationMax = phishPeak
@@ -2462,6 +2807,51 @@ class StormSurgeSectionStats(SectionCommonStats):
             self._currentAdvisory["StormSurgeForecast"] = \
                     int(self._inundationMax * 10.0) / 10.0
 
+        #======================================================================
+        #  Let operator know if any required stats are missing - only if we
+        #  are populating the storm surge section
+        
+        if self._textProduct._PopulateSurge:
+
+            missingGridsList = []
+            
+            self._textProduct.debug_print("+"*60, 1)
+            self._textProduct.debug_print("In StormSurgeSectionStats._setStats", 1)
+            self._textProduct.debug_print("self._inundationMax = '%s'" % 
+                                          (self._inundationMax), 1)
+            self._textProduct.debug_print("self._onsetSurgeHour = '%s'" % 
+                                          (self._onsetSurgeHour), 1)
+            self._textProduct.debug_print("self._maxThreat = '%s'" % 
+                                          (self._maxThreat), 1)
+            
+            #  Max inundation
+            if self._inundationMax is None:
+                missingGridsList.append("InundationMax")
+                missingGridsList.append("InundationTiming")
+            
+            #  Inundation timing - only applies if any inundation forecast
+            if self._inundationMax >= 1 and self._onsetSurgeHour is None:
+                missingGridsList.append("InundationTiming")
+    
+            #  Threat grid
+            if self._maxThreat is None:
+                 missingGridsList.append("StormSurgeThreat")
+                       
+            #  If there are any missing grids - let the user know
+            if len(missingGridsList) > 0:
+                msg = "\n\nSome grids are missing! Please check these grids " + \
+                      "before trying to run the formatter again:\n"
+                
+                for item in missingGridsList:
+                    msg += "\n%s" % (item)
+                
+                msg += "\n\n"
+           
+                self._textProduct.debug_print("%s" % (self._textProduct._pp.pformat(dir (self))), 1)
+                #  Throw a statistics exception
+                #  (no point in continuing until the grids are fixed)
+                raise self._textProduct.StatisticsException(msg)
+
 
 class FloodingRainSectionStats(SectionCommonStats):
     def __init__(self, textProduct, segment, statList, timeRangeList, 
@@ -2479,15 +2869,13 @@ class FloodingRainSectionStats(SectionCommonStats):
             tr, _ = timeRangeList[period]
             statDict = statList[period]
         
-            stats = self._textProduct.getStats(statDict, "QPF")
-            if stats is not None:
-                for (value, tr) in stats:
-                    
-                    if value is not None:
-                        if self._sumAccum is None:
-                            self._sumAccum = value
-                        else:
-                            self._sumAccum += value
+            value = self._textProduct._getStatValue(statDict, "QPF")
+                     
+            if value is not None:
+                if self._sumAccum is None:
+                    self._sumAccum = value
+                else:
+                    self._sumAccum += value
             
             self._updateThreatStats(tr, statDict, "FloodingRainThreat")
         
@@ -2502,10 +2890,14 @@ class FloodingRainSectionStats(SectionCommonStats):
             tr, _ = timeRangeList[period]
             prevStatDict = extraRainfallStatList[period]
         
-            prevStats = self._textProduct.getStats(prevStatDict, "QPF")
+            prevStats = self._textProduct._getStatValue(prevStatDict, "QPF")
             self._textProduct.debug_print("prevStats = %s" % (prevStats), 1)
             if prevStats is not None:
-                self._prevAccum += prevStats
+                
+                if self._prevAccum is not None:
+                    self._prevAccum += prevStats
+                else:
+                    self._prevAccum = prevStats
             else:
                 self._prevAccum = 0.00
                     
@@ -2516,6 +2908,38 @@ class FloodingRainSectionStats(SectionCommonStats):
         else:
             #  Otherwise, do not consider this sgnificant rainfall
             self._currentAdvisory["PreviousRainfall"] = 0.00
+
+        #======================================================================
+        #  Let operator know if any required stats are missing
+        
+        missingGridsList = []
+        
+        self._textProduct.debug_print("+"*60, 1)
+        self._textProduct.debug_print("In FloodingRainSectionStats._setStats", 1)
+        self._textProduct.debug_print("self._sumAccum = '%s'" % (self._sumAccum), 1)
+        self._textProduct.debug_print("self._maxThreat = '%s'" % (self._maxThreat), 1)
+        
+        #  Rainfall forecast
+        if self._sumAccum is None:
+            missingGridsList.append("QPF")
+        
+        #  Threat grid
+        if self._maxThreat is None:
+             missingGridsList.append("FloodingRainThreat")
+                   
+        #  If there are any missing grids - let the user know
+        if len(missingGridsList) > 0:
+            msg = "\n\nSome grids are missing! Please check these grids " + \
+                  "before trying to run the formatter again:\n"
+            
+            for item in missingGridsList:
+                msg += "\n%s" % (item)
+            
+            msg += "\n\n"
+       
+            #  Throw a statistics exception
+            #  (no point in continuing until the grids are fixed)
+            raise self._textProduct.StatisticsException(msg)
 
 
 class TornadoSectionStats(SectionCommonStats):
@@ -2533,6 +2957,30 @@ class TornadoSectionStats(SectionCommonStats):
         
         self._currentAdvisory["TornadoThreat"] = self._maxThreat
 
+        #======================================================================
+        #  Let operator know if any required stats are missing
+        
+        missingGridsList = []
+        
+        self._textProduct.debug_print("+"*60, 1)
+        self._textProduct.debug_print("In TornadoSectionStats._setStats", 1)
+        self._textProduct.debug_print("self._maxThreat = '%s'" % (self._maxThreat), 1)
+
+        #  Threat grid
+        if self._maxThreat is None:
+             missingGridsList.append("TornadoThreat")
+                   
+        #  If there are any missing grids - let the user know
+        if len(missingGridsList) > 0:
+            msg = "\n\nSome grids are missing! Please check these grids " + \
+                  "before trying to run the formatter again:\n"
+            
+            for item in missingGridsList:
+                msg += "\n%s"  % (item) 
+       
+            #  Throw a statistics exception
+            #  (no point in continuing until the grids are fixed)
+            raise self._textProduct.StatisticsException(msg)
 
 
 from xml.etree.ElementTree import Element, SubElement, tostring, dump
@@ -2572,7 +3020,6 @@ class XMLFormatter():
                     'issuanceTimeDate',
                     
                 'segments',
-                    'ugcCodes',
                     'ugcHeader',
                     'vtecRecords',
                     'areaList',
@@ -2636,6 +3083,7 @@ class XMLFormatter():
                     'sectionHeader',
                     'forecastSubsection',
                         'latestForecastSummary',
+                        'tornadoSituation',
                     'threatSubsection',
                         'lifePropertyThreatSummary',
                         'threatStatements',

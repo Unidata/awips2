@@ -25,7 +25,7 @@ import java.util.Map;
 
 import jep.JepException;
 
-import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -45,6 +45,7 @@ import com.raytheon.uf.common.python.PythonScript;
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2011            bphillip     Initial creation
  * Sep 05, 2013  #2307     dgilling     Use better PythonScript constructor.
+ * Feb 26, 2015  #4128     dgilling     Switch to IFPServer.getActiveSites().
  * 
  * </pre>
  * 
@@ -62,7 +63,7 @@ public class LogPurger {
 
     public void purge() throws JepException {
 
-        for (String siteID : GFESiteActivation.getInstance().getActiveSites()) {
+        for (String siteID : IFPServer.getActiveSites()) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext cx = pathMgr.getContext(
                     LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
