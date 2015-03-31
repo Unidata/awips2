@@ -44,6 +44,8 @@ import com.raytheon.rcm.server.RadarWatchdog;
  * Date          Ticket#    Engineer    Description
  * ------------- ---------- ----------- --------------------------
  * May 12, 2014  DR 16319   dhuffman    Initial creation.
+ * Feb 10, 2015  DR 17112   D. Friedman Only alarm on dedicated radars and
+ *                                      once per detected failure.
  * 
  * </pre>
  * 
@@ -61,8 +63,8 @@ public class RadarWatchdogListener extends RadarEventAdapter {
         mnemonicMap.put("HSW", "SW");
     }
 
-    public RadarWatchdogListener(Configuration configuration) {
-        radarWatchdog = new RadarWatchdog(configuration);
+    public RadarWatchdogListener(RadarServer radarServer) {
+        radarWatchdog = new RadarWatchdog(radarServer);
         radarWatchdog.start();
     }
 
@@ -81,25 +83,14 @@ public class RadarWatchdogListener extends RadarEventAdapter {
                 }
 
                 if (gsm != null) {
-                    RadarWatchdog.GsmItem gi = new RadarWatchdog.GsmItem();
-                    gi.radarID = event.getRadarID();
-                    gi.vcp = gsm.vcp;
-                    gi.time = gsm.time.getTimeInMillis();
-
-                    RadarWatchdog.GsmItem oldgi = radarWatchdog
-                            .getGSMItem(gi.radarID);
-                    if (oldgi == null
-                            || (oldgi != null && oldgi.time <= gi.time)) {
-                        radarWatchdog.putGSMItem(gi);
-                    }
+                    radarWatchdog.notifyGsm(event.getRadarID(), gsm.vcp);
                 }
 
             } else if (16 <= messageCode) {
                 int mcode = 0;
                 PDB pdb = null;
-                RadarWatchdog.RadarItem ri = new RadarWatchdog.RadarItem();
                 mcode = Message.messageCodeOf(msg);
-                ri.messageTime = (Message.decodeHeader(msg).time)
+                long messageTime = (Message.decodeHeader(msg).time)
                         .getTimeInMillis();
 
                 RadarProduct rp = ProductInfo.getInstance().getPoductForCode(
@@ -107,10 +98,9 @@ public class RadarWatchdogListener extends RadarEventAdapter {
                 if (rp == null)
                     return;
 
-                ri.mnemonic = rp.mnemonic;
-                String newMnemonic = mnemonicMap.get(ri.mnemonic);
-                if (newMnemonic != null)
-                    ri.mnemonic = newMnemonic;
+                String mnemonic = mnemonicMap.get(rp.mnemonic);
+                if (mnemonic == null)
+                    mnemonic = rp.mnemonic;
 
                 try {
                     pdb = GraphicProduct.pdbOfMessage(msg);
@@ -120,17 +110,8 @@ public class RadarWatchdogListener extends RadarEventAdapter {
                 }
 
                 if (pdb != null) {
-                    ri.radarID = event.getRadarID();
-                    ri.time = System.currentTimeMillis();
-
-                    RadarWatchdog.RadarItem oldri = radarWatchdog.getRadarItem(
-                            ri.mnemonic, ri.radarID);
-
-                    if (oldri == null
-                            || (oldri != null && oldri.messageTime <= ri.messageTime)) {
-                        radarWatchdog.putRadarItem(ri);
-                        radarWatchdog.notifyWatchdog();
-                    }
+                    radarWatchdog.notifyRadarItem(event.getRadarID(), mnemonic,
+                            messageTime, System.currentTimeMillis());
                 }
             }
         }

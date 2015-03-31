@@ -160,7 +160,7 @@ public class BestEstimate1HrQpeDlg extends BasePostAnalysisDlg {
     	    applyGridAdjustments(adjustedGrid, biasRatioGrid, disaggGrid);
 
     	    float[] dataArray = paMgr.convertToSingleArray(adjustedGrid, false, true);
-    	    short[] shortArray= paMgr.convertToShortArray(dataArray, 100.0f);
+    	    short[] shortArray= paMgr.convertToShortArray(dataArray, 1.0f);
 
     	    XmrgFile file = new XmrgFile();  
 
