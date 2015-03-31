@@ -36,6 +36,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 23, 2009            snaples     Initial creation
+ * Feb 3, 2015  16993     snaples     Fixed if condition on cparm.
  * Mar 2, 2015  15660      snaples     Fixed issue with if statement testing CPARM and checking for both values to be true, broken logic.
  * 
  * </pre>

@@ -3250,6 +3250,25 @@
 			<id>0</id>
 		</process>
 	</model>
+        <model>
+                <name>EKDMOS</name>
+                <center>7</center>
+                <subcenter>14</subcenter>
+                <grid>184</grid>
+                <process>
+                        <id>114</id>
+                </process>
+        </model>
+        <model>
+                <name>EKDMOS-AK</name>
+                <center>7</center>
+                <subcenter>14</subcenter>
+                <grid>1023</grid>
+                <process>
+                        <id>114</id>
+                </process>
+        </model>
+
 
 	<!-- END SUBCENTER 14: NWS METEOROLOGICAL DEVELOPMENT LABORATORY -->
 

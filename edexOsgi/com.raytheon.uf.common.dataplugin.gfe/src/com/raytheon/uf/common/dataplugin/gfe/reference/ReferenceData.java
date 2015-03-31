@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.reference;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +38,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.adapter.JTSGeometryAdapter;
+import com.raytheon.uf.common.geospatial.adapter.GeometryAdapter;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -69,7 +71,7 @@ import com.vividsolutions.jts.geom.Polygonal;
  * ------------ ---------- ----------- --------------------------
  * 01/31/2008              randerso    Initial creation
  * 10/01/2013   2361       njensen     Added static JAXBManager
- * 
+ * 02/19/2015   4125       rjpeter     Updated to return a new pooled JAXBManager on request.
  * </pre>
  * 
  * @author randerso
@@ -85,8 +87,7 @@ public class ReferenceData {
 
     private static final GeometryFactory geometryFactory = new GeometryFactory();
 
-    private static final SingleTypeJAXBManager<ReferenceData> jaxb = SingleTypeJAXBManager
-            .createWithoutException(ReferenceData.class);
+    private static Reference<SingleTypeJAXBManager<ReferenceData>> jaxbRef = null;
 
     public enum RefType {
         NONE, QUERY, POLYGON, QUERY_POLYGON
@@ -102,7 +103,7 @@ public class ReferenceData {
     @DynamicSerializeElement
     private String query;
 
-    @XmlJavaTypeAdapter(value = JTSGeometryAdapter.class)
+    @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private MultiPolygon polygons;
 
@@ -113,12 +114,27 @@ public class ReferenceData {
     private CoordinateType coordType;
 
     /**
-     * Returns the JAXBManager that handles ReferenceData
+     * Returns the JAXBManager that handles ReferenceData.
      * 
      * @return
      */
     public static SingleTypeJAXBManager<ReferenceData> getJAXBManager() {
-        return jaxb;
+        // not worried about concurrency, two can be created without issue
+        SingleTypeJAXBManager<ReferenceData> rval = null;
+
+        if (jaxbRef != null) {
+            rval = jaxbRef.get();
+        }
+
+        if (rval == null) {
+            rval = SingleTypeJAXBManager.createWithoutException(true,
+                    ReferenceData.class);
+            if (rval != null) {
+                jaxbRef = new SoftReference<>(rval);
+            }
+        }
+
+        return rval;
     }
 
     /**
@@ -224,7 +240,7 @@ public class ReferenceData {
      * @return
      */
     public MultiPolygon getPolygons(CoordinateType coordType) {
-        if (grid != null && polygons == null) {
+        if ((grid != null) && (polygons == null)) {
             calcPolygons();
         }
         convertTo(coordType);
@@ -308,7 +324,7 @@ public class ReferenceData {
      * from these newly converted polygons and the current Reference ID.
      */
     private void convertToGrid() {
-        if (grid != null && polygons == null) {
+        if ((grid != null) && (polygons == null)) {
             coordType = CoordinateType.GRID;
             calcPolygons();
         }
@@ -339,7 +355,7 @@ public class ReferenceData {
      * ID.
      */
     private void convertToLatLon() {
-        if (grid != null && polygons == null) {
+        if ((grid != null) && (polygons == null)) {
             coordType = CoordinateType.GRID;
             calcPolygons();
         }
@@ -361,11 +377,11 @@ public class ReferenceData {
      * @return
      */
     public RefType refType() {
-        if (query != null && query.length() > 0 && polygons != null) {
+        if ((query != null) && (query.length() > 0) && (polygons != null)) {
             return RefType.QUERY_POLYGON;
-        } else if (query != null && query.length() > 0) {
+        } else if ((query != null) && (query.length() > 0)) {
             return RefType.QUERY;
-        } else if (polygons != null || grid != null) {
+        } else if ((polygons != null) || (grid != null)) {
             return RefType.POLYGON;
         }
 
@@ -378,7 +394,7 @@ public class ReferenceData {
      * @return
      */
     public boolean isQuery() {
-        return query != null && query.length() > 0;
+        return (query != null) && (query.length() > 0);
     }
 
     // no implementation found in C++ source
@@ -509,13 +525,13 @@ public class ReferenceData {
             int endcol = -1;
             while (endcol < cols) {
                 startcol = endcol + 1;
-                while (startcol < cols && !grid.getAsBoolean(startcol, row)) {
+                while ((startcol < cols) && !grid.getAsBoolean(startcol, row)) {
                     startcol++;
                 }
 
                 endcol = startcol + 1;
                 if (startcol < cols) {
-                    while (endcol < cols && grid.getAsBoolean(endcol, row)) {
+                    while ((endcol < cols) && grid.getAsBoolean(endcol, row)) {
                         endcol++;
                     }
 
@@ -674,11 +690,11 @@ public class ReferenceData {
         RefType type = refType();
         s.append(" Type: " + type);
 
-        if (type == RefType.POLYGON || type == RefType.QUERY_POLYGON) {
+        if ((type == RefType.POLYGON) || (type == RefType.QUERY_POLYGON)) {
             // s.append(" Polygons: " + polygons);
             s.append(" CoordType: " + coordType);
         }
-        if (type == RefType.QUERY || type == RefType.QUERY_POLYGON) {
+        if ((type == RefType.QUERY) || (type == RefType.QUERY_POLYGON)) {
             s.append(" Query: " + query);
         }
 
@@ -727,12 +743,13 @@ public class ReferenceData {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + (coordType == null ? 0 : coordType.hashCode());
-        result = prime * result + (gloc == null ? 0 : gloc.hashCode());
-        result = prime * result + (grid == null ? 0 : grid.hashCode());
-        result = prime * result + (polygons == null ? 0 : polygons.hashCode());
-        result = prime * result + (query == null ? 0 : query.hashCode());
+        result = (prime * result) + (gloc == null ? 0 : gloc.hashCode());
+        result = (prime * result) + (grid == null ? 0 : grid.hashCode());
+        result = (prime * result)
+                + (polygons == null ? 0 : polygons.hashCode());
+        result = (prime * result) + (query == null ? 0 : query.hashCode());
         return result;
     }
 

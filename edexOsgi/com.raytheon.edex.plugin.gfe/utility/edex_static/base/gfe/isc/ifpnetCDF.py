@@ -16,10 +16,19 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+# ----------------------------------------------------------------------------
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/17/2015      4139          randerso       Removed timeFromComponents and dependent
+#                                                 functions in favor of calendar.timegm
+#             
 ##
 
 
 import string, getopt, sys, time, gzip, os, LogStream, stat, traceback
+import calendar
 from collections import OrderedDict
 import numpy
 #import pupynere as NetCDF
@@ -215,51 +224,6 @@ def processParmList(argDict, db):
     return final
 
 ###-------------------------------------------------------------------------###
-# leap year routine
-def leapYear(year):
-    return (year % 4 == 0 and (year + 100) % 400 != 0)
-
-###-------------------------------------------------------------------------###
-# days in month routine
-def daysInMonth(month, year):
-    days = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ]
-
-    if month != 2:
-        return days[month - 1]
-
-    # special February handling for leap years
-    if leapYear(year):
-        return days[1] + 1
-    else:
-        return days[1]
-
-###-------------------------------------------------------------------------###
-# convert to time from components
-# 0-year,1-month,2-day,3-hour,4-min,5-sec
-def timeFromComponents(timeTuple):
-    epochDays = 0
-    pyear = 1970
-    pmonth = 1  # startTime
-
-    while pyear != timeTuple[0]:
-        epochDays = epochDays + 365   # days in year
-        if leapYear(pyear):
-           epochDays = epochDays + 1    # account for leap year
-        pyear = pyear + 1
-
-    while pmonth != timeTuple[1]:
-        epochDays = epochDays + daysInMonth(pmonth, timeTuple[0])
-        pmonth = pmonth + 1
-
-    epochDays = epochDays + timeTuple[2] - 1   # but not this day
-
-    epochTime = epochDays * 86400 + \
-      timeTuple[3] * 3600 + timeTuple[4] * 60 + timeTuple[5]
-
-    return int(epochTime)
-
-
-###-------------------------------------------------------------------------###
 ### Returns true if the specified time is contained within the timeRange
 def contains(timerange, time):
     if timerange[1] - timerange[0]:
@@ -296,14 +260,14 @@ def getIntTime(timeStr):
     "Create an Integer time from a string: YYYYMMDD_HHMM"
 
     try:
-        intTime = time.strptime(timeStr, "%Y%m%d_%H%M")
+        timeTuple = time.strptime(timeStr, "%Y%m%d_%H%M")
     except:
         logProblem(timeStr, \
           "is not a valid time string.  Use YYYYMMDD_HHMM",traceback.format_exc())
         s = timeStr + " is not a valid time string.  Use YYYYMMDD_HHMM"
         raise SyntaxError, s
         return
-    return timeFromComponents(intTime)
+    return calendar.timegm(timeTuple)
 
 ###-------------------------------------------------------------------------###
 ### Makes a TimeRange from the input string of the form YYYYMMDD_HHMM.

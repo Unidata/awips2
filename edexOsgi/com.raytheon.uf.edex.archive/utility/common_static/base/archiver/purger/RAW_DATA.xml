@@ -29,6 +29,7 @@
  * Dec 12, 2013 2624       rferrel     Document Julian time stamp.
  * May 14, 2014 2881       rferrel     Change retention times and data set modifications.
  * Aug 25, 2014 3537       rferrel     Fixed dirPattern in Category Local.
+ * Feb 02, 2015 4066       rferrel     Added lightning to Observation category.
  * 
  * @author rferrel
  * @version 1.0
@@ -208,7 +209,7 @@
         <name>Observation</name>
         <extRetentionHours>168</extRetentionHours>
         <dataSet>
-            <dirPattern>(airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|lsr|MAROB|maritime|metar|misc_sfc_obs|pirep|sfcobs|shef|svrwx|synoptic)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+            <dirPattern>(airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|entlightning|lsr|MAROB|maritime|metar|misc_sfc_obs|pirep|sfcobs|shef|svrwx|synoptic)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
         </dataSet>

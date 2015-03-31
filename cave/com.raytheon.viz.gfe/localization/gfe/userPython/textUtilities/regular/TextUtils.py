@@ -675,10 +675,11 @@ class  TextUtils:
     def getPreviousProduct(self, productID, searchString="", version=0):
         # gets a previous product from the AWIPS database
 
+        from com.raytheon.viz.gfe.core import DataManagerUIFactory
         from com.raytheon.viz.gfe.product import TextDBUtil
 
-        # DR 15703 - always retrieve operational products
-        opMode = True
+        # Redmine #17120 - return to pre-DR 15703 behavior.
+        opMode = DataManagerUIFactory.getCurrentInstance().getOpMode().name() == "OPERATIONAL"       
         previousProduct = TextDBUtil.retrieveProduct(productID, version, opMode)
         previousProduct = string.strip(previousProduct)
 
