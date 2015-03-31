@@ -347,7 +347,7 @@
 	<parameter>shWlt</parameter>
   </paramLevelMatches>
   <graphStyle>
-    <displayUnits label="C">K</displayUnits>
+    <displayUnits>C</displayUnits>
   </graphStyle>
 </styleRule>
 

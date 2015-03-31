@@ -51,7 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 20, 2014 3353       rferrel     Initial creation
- * 
+ * Feb 26, 2015 3353       rjpeter     Make modal optional.
  * </pre>
  * 
  * @author rferrel
@@ -71,9 +71,10 @@ public class GenerateGeoDataSetDialog extends CaveSWTDialog {
      * @param parentShell
      * @param site
      * @param gmd
+     * @param modal
      */
     protected GenerateGeoDataSetDialog(Shell parentShell, String site,
-            GeospatialMetadata gmd) {
+            GeospatialMetadata gmd, boolean modal) {
         /*
          * This needs to be a blocking dialog. The return value is used to
          * placed an entry in WarngenLayer's siteMap. Several layers of calls in
@@ -84,7 +85,8 @@ public class GenerateGeoDataSetDialog extends CaveSWTDialog {
          * way of being informed when the siteMap is updated. Also synchronize
          * on siteMap become more complicated.
          */
-        super(parentShell, SWT.PRIMARY_MODAL | SWT.BORDER, CAVE.NONE);
+        super(parentShell, (modal ? SWT.PRIMARY_MODAL : 0) | SWT.BORDER,
+                CAVE.NONE);
         this.site = site;
         this.gmd = gmd;
     }

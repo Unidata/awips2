@@ -3,7 +3,7 @@ package com.raytheon.uf.edex.plugin.fssobs;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.HashSet;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -23,7 +23,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 5, 2012  #1351      skorolev    Cleaned code
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Sep 04, 2014 3220       skorolev    Removed CWA from filter.
- * Oct 17, 2014 3220       skorolev    Replaced HashSet with Set.
  * 
  * </pre>
  * 
@@ -54,7 +53,7 @@ public class FSSObsURIFilter extends URIFilter {
     private String dataType;
 
     /** All filtered stations */
-    private Set<String> stations = null;
+    private HashSet<String> stations = null;
 
     /** Date format **/
     private static String datePattern = "yyyy-MM-dd_HH:mm:ss.S";
@@ -73,7 +72,7 @@ public class FSSObsURIFilter extends URIFilter {
      * @param stations
      *            for FSSObs filter
      */
-    public FSSObsURIFilter(String name, Set<String> stations) {
+    public FSSObsURIFilter(String name, HashSet<String> stations) {
         super(name);
         logger.info("FSSObsFilter " + name + " Filter construction...");
         setDataTypes(new String[] { "obs", "sfcobs", "ldadmesonet" });
