@@ -7,8 +7,7 @@ import sys, os, getopt, string
 import logging
 import traceback
 
-#import dynamicserialize.dstypes.com.raytheon.uf.common.activetable.SendPracticeProductRequest as SendPracticeProductRequest
-import dynamicserialize.dstypes.com.raytheon.uf.common.activetable.PracticeProductOfftimeRequest as PracticeProductOfftimeRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.activetable import SendPracticeProductRequest
 from ufpy import ThriftClient
 from ufpy import TimeUtil
 
@@ -26,7 +25,7 @@ class VTECDecoder(object):
         """
         thriftClient = ThriftClient.ThriftClient(self._host, self._port, '/services')
         
-        request = PracticeProductOfftimeRequest()
+        request = SendPracticeProductRequest()
         request.setProductText(self._getProduct())
         request.setDrtString(self._offtimeStr)
         request.setNotifyGFE(self._notifyGFE)

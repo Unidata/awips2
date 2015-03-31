@@ -2,7 +2,7 @@
 0:0:Surface Precipitation Type (SPT)::PrecipType
 1:1:Radar Precipitation Rate (SPR):mm/hr:PrecipRate
 2:2:QPE - Radar Only (1 hr. accum.):mm:RadarOnlyQPE01H
-3:3:QPE - Radar Only (3 hr. accum.):RadarOnlyQPE03H
+3:3:QPE - Radar Only (3 hr. accum.):mm:RadarOnlyQPE03H
 4:4:QPE - Radar Only (6 hr. accum.):mm:RadarOnlyQPE06H
 5:5:QPE - Radar Only (12 hr. accum.):mm:RadarOnlyQPE12H
 6:6:QPE - Radar Only (24 hr. accum.):mm:RadarOnlyQPE24H

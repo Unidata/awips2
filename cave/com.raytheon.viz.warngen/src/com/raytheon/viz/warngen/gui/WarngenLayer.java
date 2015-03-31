@@ -154,24 +154,24 @@ import com.vividsolutions.jts.io.WKTReader;
  * 02/01/2012   DR 14491   D. Friedman Load/unload only the maps not already loaded
  * 02/28/2012   DR 13596   Qinglu Lin  Call GisUtil.restoreAlaskaLon() in figurePoint().
  * 03/19/2012   DR 14690   Qinglu Lin  While newHatchedArea==null, handle the polygon differently
- *                                     for initial warning and followup (CON); and 
+ *                                     for initial warning and followup (CON); and
  *                                     convert ratio to percentage while doing comparison.
- * 10/29/2012   DR 15479   Qinglu Lin  Added code to call removeDuplicateCoordinate() 
+ * 10/29/2012   DR 15479   Qinglu Lin  Added code to call removeDuplicateCoordinate()
  *                                     in redrawBoxFromHatched().
  * 11/02/2012   DR 15455   Qinglu Lin  Added setWarningAction(), called redrawBoxFromTrack() while
- *                                     warningAction is neither null nor WarningAction.NEW, removed 
- *                                     some code from redrawBoxFromHatched().                                    
+ *                                     warningAction is neither null nor WarningAction.NEW, removed
+ *                                     some code from redrawBoxFromHatched().
  * 11/15/2012   DR 15430   D. Friedman Use correct county/zone in createGeometryForWatches.
  * 11/29/2012   DR 15571   Qinglu Lin  Called compuateCurrentStormCenter() in getStormLocations();
- *                                     For CON, CAN, and COR, calculate Coordinate array, cc, specifically in 
+ *                                     For CON, CAN, and COR, calculate Coordinate array, cc, specifically in
  *                                     getStormLocations().
  * 12/10/2012   DR 15571   Qinglu Lin  Change warningAction's initialization from null to WarningAction.NEW, and add code
  *                                     in getStormLocations() for handling case when warningAction equals WarningAction.NEW;
  * 12/13/2012   DR 15559   Qinglu Lin  Added code to call WarngenUIState's adjustPolygon().
- * 12/17/2012   DR 15571   Qinglu Lin  For hydro products,futurePoints is null. Resolved an issue caused by trying to get 
+ * 12/17/2012   DR 15571   Qinglu Lin  For hydro products,futurePoints is null. Resolved an issue caused by trying to get
  *                                     Coordinate[] from futurePoints.
  * 12/18/2012   DR 15571   Qinglu Lin  Resolved coordinate issue in TML line caused by clicking Restart button.
- * 01/24/2013   DR 15723   Qinglu Lin  Added initRemovedGids() and updated updateWarnedAreas() to prevent the removed 
+ * 01/24/2013   DR 15723   Qinglu Lin  Added initRemovedGids() and updated updateWarnedAreas() to prevent the removed
  *                                     counties from being re-hatched.
  * 03/06/2013   DR 15831   D. Friedman Use area inclusion filter in followups.
  * 03/28/2013   DR 15973   Qinglu Lin  Added adjustVertex() and applied it invalid polygon.
@@ -207,12 +207,12 @@ import com.vividsolutions.jts.io.WKTReader;
  * 12/17/2013  DR 16567    Qinglu Lin  Added findLargestGeometry() and findLargestQuadrant(), and updated
  *                                     populateStrings() and paintText().
  * 01/09/2014  DR 16974    D. Friedman Improve followup redraw-from-hatched-area polygons.
- * 02/07/2014  DR16090 m.gamazaychikov Added GeomMetaDataUpdateNotificationObserver class to get notification 
+ * 02/07/2014  DR16090 m.gamazaychikov Added GeomMetaDataUpdateNotificationObserver class to get notification
  *                                     when geometry file get updated to re-read them in.
  * 02/19/2014  2819        randerso    Removed unnecessary .clone() call
- * 03/17/2014  DR 16309    Qinglu Lin  Updated getWarningAreaFromPolygon(); changed searchCountyGeospatialDataAccessor) to  
+ * 03/17/2014  DR 16309    Qinglu Lin  Updated getWarningAreaFromPolygon(); changed searchCountyGeospatialDataAccessor) to
  *                                     searchGeospatialDataAccessor() and updated it; changed getCountyGeospatialDataAcessor()
- *                                     to getGeospatialDataAcessor(); changed getAllCountyUgcs() to getAllUgcs(); changed 
+ *                                     to getGeospatialDataAcessor(); changed getAllCountyUgcs() to getAllUgcs(); changed
  *                                     getUgcsForWatches() to getUgcsForCountyWatches().
  * 04/15/2014  DR 17247    D. Friedman Rework error handling in AreaHatcher.
  * 04/23/2014  DR 16356    Qinglu Lin  Updated initializeState() and added reset().
@@ -221,7 +221,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 06/23/2014  DR16322 m.gamazaychikov Fix Warngen unloading previously loaded maps.
  * 07/01/2014  DR 17450    D. Friedman Use list of templates from backup site.
  * 07/24/2014  3429        mapeters    Updated deprecated drawLine() calls.
- * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
+ * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(),
  *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
  * 08/01/2014  3471        mapeters    Updated deprecated createShadedShape() calls.
  * 08/20/2014  3353        rferrel     Generating Geo Spatial data set no longer on the UI thread.
@@ -233,6 +233,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 09/17/2014  ASM #15465  Qinglu Lin  get backupOfficeShort and backupOfficeLoc from backup WFO config.xml, and pop up AlertViz if
  *                                     any of them is missing.
  * 11/03/2014  3353        rferrel     Ignore GeoSpatialData notification when this is the instance layer will do an update.
+ * 02/25/2014  3353        rjpeter     Fix synchronized use case, updated to not create dialog before init is finished.
  * </pre>
  * 
  * @author mschenke
@@ -285,9 +286,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         public GeospatialDataAccessor(GeospatialDataList geoData,
                 AreaSourceConfiguration areaConfig) {
-            if ((geoData == null) || (areaConfig == null)) {
+            if (geoData == null) {
                 throw new IllegalArgumentException(
-                        "GeospatialDataAccessor must not be null");
+                        "GeospatialDataAccessor must have geospatial data, geoData is null.");
+            }
+            if (areaConfig == null) {
+                throw new IllegalArgumentException(
+                        "GeospatialDataAccessor must have area source configuration, areaConfig is null.");
             }
             this.geoData = geoData;
             this.areaConfig = areaConfig;
@@ -385,7 +390,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private class CustomMaps extends Job {
 
-        private Set<String> customMaps = new HashSet<String>();
+        private final Set<String> customMaps = new HashSet<>();
 
         private Set<String> mapsToLoad;
 
@@ -479,7 +484,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 this.warningArea = this.warningPolygon = null;
             }
 
-            if (warningArea != null && warningPolygon != null) {
+            if ((warningArea != null) && (warningPolygon != null)) {
                 Polygon inputWarningPolygon = warningPolygon;
                 Polygon outputHatchedArea = null;
                 Geometry outputHatchedWarningArea = null;
@@ -518,7 +523,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             adjustPolygon_counter += 1;
                         }
                         int counter = 0;
-                        if (!outputHatchedArea.isValid() && counter < 2) {
+                        if (!outputHatchedArea.isValid() && (counter < 2)) {
                             System.out
                                     .println("calling adjustVertex & alterVertexes: loop #"
                                             + counter);
@@ -541,7 +546,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             int inner_counter = 0;
                             System.out.println("");
                             while (!outputHatchedArea.isValid()
-                                    && inner_counter < 5) {
+                                    && (inner_counter < 5)) {
                                 System.out
                                         .println("    Calling alterVertexes #"
                                                 + inner_counter);
@@ -670,14 +675,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     Object payload = message.getMessagePayload();
                     if (payload instanceof GenerateGeospatialDataResult) {
                         GenerateGeospatialDataResult result = (GenerateGeospatialDataResult) payload;
-                        synchronized (warngenLayer.ignoreNotifications) {
+                        synchronized (siteMap) {
                             String curKey = result.getArea() + "."
                                     + result.getSite();
 
-                            if (warngenLayer.ignoreNotifications
-                                    .contains(curKey)) {
-                                warngenLayer.ignoreNotifications.remove(curKey);
-                            } else {
+                            if (warngenLayer.ignoreNotifications.remove(curKey) == false) {
                                 siteMap.remove(curKey);
                                 initWarngen = true;
                             }
@@ -1288,20 +1290,24 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         if (dataSet != null) {
                             updateGeoData(gData, dataSet, gmd, currKey, tq0);
                         } else {
-                            // This makes sure dialog exists and is open
-                            createDialog();
-
                             /*
                              * Add to list prior to opening the genDialog. That
                              * way if the notfication arrives prior to or after
                              * closing the genDialog the notfication will be
                              * ignored.
                              */
-                            synchronized (ignoreNotifications) {
-                                ignoreNotifications.add(currKey);
+                            ignoreNotifications.add(currKey);
+                            GenerateGeoDataSetDialog genDialog = null;
+
+                            if (dialog != null && dialog.isDisposed() == false) {
+                                genDialog = new GenerateGeoDataSetDialog(
+                                        dialog.getShell(), site, gmd, true);
+                            } else {
+                                genDialog = new GenerateGeoDataSetDialog(
+                                        PlatformUI.getWorkbench()
+                                                .getActiveWorkbenchWindow()
+                                                .getShell(), site, gmd, false);
                             }
-                            GenerateGeoDataSetDialog genDialog = new GenerateGeoDataSetDialog(
-                                    dialog.getShell(), site, gmd);
 
                             // Assume this is a blocking dialog.
                             genDialog.open();
@@ -1513,7 +1519,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         "Unable to load local WarnGen configuration.", e);
             }
         }
-        if (dc != null && dialogConfig != null) {
+        if ((dc != null) && (dialogConfig != null)) {
             dialogConfig.setDefaultTemplate(dc.getDefaultTemplate());
             dialogConfig.setMainWarngenProducts(dc.getMainWarngenProducts());
             dialogConfig.setOtherWarngenProducts(dc.getOtherWarngenProducts());
@@ -1523,12 +1529,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 boolean shortTag = false;
                 boolean locTag = false;
                 String infoType = null;
-                if (backupOfficeShort == null
-                        || backupOfficeShort.trim().length() == 0) {
+                if ((backupOfficeShort == null)
+                        || (backupOfficeShort.trim().isEmpty())) {
                     shortTag = true;
                 }
-                if (backupOfficeLoc == null
-                        || backupOfficeLoc.trim().length() == 0) {
+                if ((backupOfficeLoc == null)
+                        || (backupOfficeLoc.trim().isEmpty())) {
                     locTag = true;
                 }
                 if (shortTag && locTag) {
@@ -1654,8 +1660,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             throws Exception {
         Set<String> ugcs = new HashSet<String>();
         GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
-        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon)))
+        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon))) {
             ugcs.add(FipsUtil.getUgcFromFips(fips));
+        }
         return ugcs;
     }
 
@@ -1682,13 +1689,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
              * changed again? A ticket should be opened for this to be resolved.
              */
             String templateName;
-            if (type == GeoFeatureType.COUNTY)
+            if (type == GeoFeatureType.COUNTY) {
                 templateName = "tornadoWarning";
-            else if (type == GeoFeatureType.MARINE)
+            } else if (type == GeoFeatureType.MARINE) {
                 templateName = "specialMarineWarning";
-            else
+            } else {
                 throw new IllegalArgumentException(
                         "Unsupported geo feature type " + type);
+            }
             WarngenConfiguration config = WarngenConfiguration.loadConfig(
                     templateName, getLocalizedSite(), null);
             loadGeodataForConfiguration(config);
@@ -3369,7 +3377,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
             areaM = warningAreaM.getArea();
             geomIndex = i;
-            while (i + 1 < geomNum) {
+            while ((i + 1) < geomNum) {
                 warningAreaN = warningArea.getGeometryN(i + 1);
                 prefixN = GeometryUtil.getPrefix(warningAreaN.getUserData());
                 if (prefixN.equals(prefixM)) {
@@ -3404,7 +3412,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             warningAreaM = warningArea.getGeometryN(iter.next().intValue());
             prefixM = GeometryUtil.getPrefix(warningAreaM.getUserData());
             area = warningAreaM.getArea();
-            if (area < minArea || area / geomArea.get(prefixM) < threshold) {
+            if ((area < minArea)
+                    || ((area / geomArea.get(prefixM)) < threshold)) {
                 // Hatched area inside a county is small, move W toward to
                 // default centroid
                 centroid = movePopulatePt(gf, warningAreaM,
@@ -3423,7 +3432,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 geomN = gd.getGeometry();
                 CountyUserData cud = (CountyUserData) geomN.getUserData();
                 prefixN = cud.gid;
-                if (prefixN.length() > 0 && prefixM.length() > 0
+                if ((prefixN.length() > 0) && (prefixM.length() > 0)
                         && !prefixN.equals(prefixM)) {
                     if (GeometryUtil.contains(geomN, populatePtGeom)) {
                         // W is inside a county. Use default centroid of a
@@ -3436,7 +3445,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     }
                     loop = 1;
                     while (GeometryUtil.contains(geomN, populatePtGeom)
-                            && loop < maxLoop) {
+                            && (loop < maxLoop)) {
                         // W is still inside a county, move W to the largest
                         // quadrant
                         warningAreaM = findLargestQuadrant(gf, warningAreaM);
@@ -3460,8 +3469,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Point point, double weight) {
         Point centroid = geom.getCentroid();
         Coordinate coord = new Coordinate();
-        coord.x = centroid.getX() * weight + point.getX() * (1.0 - weight);
-        coord.y = centroid.getY() * weight + point.getY() * (1.0 - weight);
+        coord.x = (centroid.getX() * weight) + (point.getX() * (1.0 - weight));
+        coord.y = (centroid.getY() * weight) + (point.getY() * (1.0 - weight));
         return gf.createPoint(new Coordinate(coord.x, coord.y));
     }
 
@@ -3767,9 +3776,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 ;
             }
         }
-        if (null != intersections[index] && intersections[index].isValid())
+        if ((null != intersections[index]) && intersections[index].isValid()) {
             return intersections[index];
-        else {
+        } else {
             return geom;
         }
     }
