@@ -124,7 +124,7 @@ public class RadarServer implements RadarEventListener {
         addListener(new DedicatedRadarActivator(this));
         addListener(new RequestScheduler(this));
         addListener(new RadarServerAvailable(this));
-        addListener(new RadarWatchdogListener(configuration));
+        addListener(new RadarWatchdogListener(this));
     }
 
     public void addListener(RadarEventListener l) {

@@ -25,12 +25,10 @@ import java.util.Date;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
-import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
@@ -52,8 +50,6 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * May 23, 2012  14410      zhao       Modified getCellTypeForBlizWarn and getCellTypeForHsnowWarn modules
  * Feb 28, 2013  14410      zhao       Modified getCellTypeForBlizWarn
  * May 23, 2014  3086       skorolev   Corrected ObsHistType. Cleaned code.
- * Nov 21, 2014  3841       skorolev   Added coordinates in the hover text for a newly added zones.
- * Jan 08, 2015  3220       skorolev   Corrected code for Fog and SNOW table data.
  * 
  * </pre>
  * 
@@ -114,13 +110,9 @@ public final class TableUtil {
             isZone = true;
         }
 
-        String hoverText = "";
+        String hoverText = null;
         if (isZone) {
-            AreaIdXML zoneXML = FSSObsMonitorConfigurationManager
-                    .getFogObsManager().getAreaXml(zone);
-            if (zoneXML != null) {
-                hoverText = getZoneHoverText(zoneXML);
-            }
+            hoverText = getZoneHoverText(areaId);
         } else {
             hoverText = getStationHoverText(areaId);
         }
@@ -328,8 +320,7 @@ public final class TableUtil {
      *            dialog)
      * @param zone
      * @param report
-     * @param tm
-     *            Abstract Threshold Manager
+     * @param tm Abstract Threshold Manager
      * @param fogCellType
      * @return
      */
@@ -345,13 +336,9 @@ public final class TableUtil {
             isZone = true;
         }
 
-        String hoverText = "";
+        String hoverText = null;
         if (isZone) {
-            AreaIdXML zoneXML = FSSObsMonitorConfigurationManager
-                    .getSsObsManager().getAreaXml(zone);
-            if (zoneXML != null) {
-                hoverText = getZoneHoverText(zoneXML);
-            }
+            hoverText = getZoneHoverText(areaId);
         } else {
             hoverText = getStationHoverText(areaId);
         }
@@ -650,13 +637,9 @@ public final class TableUtil {
             isZone = true;
         }
 
-        String hoverText = "";
+        String hoverText = null;
         if (isZone) {
-            AreaIdXML zoneXML = FSSObsMonitorConfigurationManager
-                    .getSnowObsManager().getAreaXml(zone);
-            if (zoneXML != null) {
-                hoverText = getZoneHoverText(zoneXML);
-            }
+            hoverText = getZoneHoverText(areaId);
         } else {
             hoverText = getStationHoverText(areaId);
         }
@@ -901,9 +884,8 @@ public final class TableUtil {
      * @param zone
      * @return
      */
-    private static String getZoneHoverText(AreaIdXML zoneXML) {
+    private static String getZoneHoverText(String zone) {
 
-        String zone = zoneXML.getAreaId();
         ISpatialQuery sq = null;
         String sql = null;
         String hoverText = zone.substring(0, 2) + ", ";
@@ -931,11 +913,6 @@ public final class TableUtil {
                     hoverText += (String) res[0];
                 } else {
                     hoverText += (String) results[0].toString();
-                }
-            } else {
-                if (zoneXML.getCLat() != null) {
-                    hoverText += "(" + zoneXML.getCLat() + ", "
-                            + zoneXML.getCLon() + ")";
                 }
             }
         } catch (Exception e) {

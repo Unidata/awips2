@@ -26,6 +26,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/12/14        4953          randerso       Initial Creation.
+#    03/10/2015      #4129         randerso       Fixed error when no TCV files were found
 # 
 ##
 import glob, os, subprocess, time
@@ -69,11 +70,20 @@ def packageTCVFiles(siteList, fileName, logger):
     for siteID in siteList:
         tcvDir = os.path.join(siteID, "gfe", "tcvAdvisories")
 
+        found = False
         for fileType in ["*.json", "*.allCAN"]:
             path = os.path.join(tcvDir, fileType)
             if len(glob.glob(os.path.join(siteDir, path))) > 0:
                 cmd += " " + path
-        
-    logger.debug("cmd: '" + cmd + "'")
-    subprocess.check_call([cmd], shell=True)
+                found = True
+
+    if found:
+        logger.info("cmd: '" + cmd + "'")
+        try:
+            subprocess.check_call([cmd], shell=True)
+        except subprocess.CalledProcessError as e:
+            logger.error("cmd returned error code: ", e.returncode, e.output)        
+        except:
+            loggger.exception("cmd threw exception")
     
+    return found

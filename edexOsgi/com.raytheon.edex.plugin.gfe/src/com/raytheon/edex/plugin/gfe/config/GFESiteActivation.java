@@ -21,40 +21,22 @@ package com.raytheon.edex.plugin.gfe.config;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
-import jep.JepException;
-
-import com.google.common.util.concurrent.MoreExecutors;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.exception.GfeMissingConfigurationException;
-import com.raytheon.edex.plugin.gfe.isc.IRTManager;
+import com.raytheon.edex.plugin.gfe.isc.IscServiceProvider;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.python.PyUtil;
-import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONSTATUS;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONTYPE;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.activetable.ActiveTablePyIncludeUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -92,6 +74,8 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  *                                     Sent activation failure message to alertViz
  * Oct 07, 2014  #3684    randerso     Restructured IFPServer start up
  * Dec 10, 2014  #4953    randerso     Added requestTCVFiles call at site activation
+ * Feb 25, 2015  #4128    dgilling     Simplify activation of active table sharing.
+ * Mar 11, 2015  #4128    dgilling     Refactor activation and management of ISC services.
  * 
  * </pre>
  * 
@@ -109,25 +93,28 @@ public class GFESiteActivation implements ISiteActivationListener {
 
     private static final int LOCK_TASK_TIMEOUT = 180000;
 
-    private static GFESiteActivation instance = new GFESiteActivation();
+    private boolean intialized;
 
-    private boolean intialized = false;
-
-    private final ExecutorService postActivationTaskExecutor = MoreExecutors
-            .getExitingExecutorService((ThreadPoolExecutor) Executors
-                    .newCachedThreadPool());
+    private final IscServiceProvider iscServices;
 
     /**
-     * @return the singleton instance
+     * Default constructor. Builds a GFESiteActivation instance with no
+     * associated {@code FetchActiveTableSrv} instance.
      */
-    public static GFESiteActivation getInstance() {
-        return instance;
+    public GFESiteActivation() {
+        this(null);
     }
 
     /**
-     * private constructor for singleton class
+     * Builds a GFESiteActivation instance with an associated
+     * {@code IscServiceProvider} instance. Should only be used on request JVM.
+     * 
+     * @param iscServices
+     *            {@code IscServiceProvider} instance
      */
-    private GFESiteActivation() {
+    public GFESiteActivation(final IscServiceProvider iscServices) {
+        this.intialized = false;
+        this.iscServices = iscServices;
     }
 
     @Override
@@ -320,90 +307,8 @@ public class GFESiteActivation implements ISiteActivationListener {
             ClusterLockUtils.unlock(ct, false);
         }
 
-        // Doesn't need to be cluster locked
-        statusHandler.info("Checking ISC configuration...");
-        boolean isIscActivated = false;
-        if (config.requestISC()) {
-            String host = InetAddress.getLocalHost().getCanonicalHostName();
-            String gfeHost = config.getServerHost();
-            String hostNameToCompare = gfeHost;
-            if (gfeHost.endsWith("f")) {
-                hostNameToCompare = gfeHost.substring(0, gfeHost.length() - 1);
-            }
-            // TODO: specific to a host and jvm type, register it independently,
-            // but don't hard code request
-            if (host.contains(hostNameToCompare)
-                    && System.getProperty("edex.run.mode").equals("request")) {
-                statusHandler.info("Enabling ISC...");
-                try {
-                    IRTManager.getInstance().enableISC(siteID, config);
-                    isIscActivated = true;
-
-                    // wait until EDEX is up and running to request TCV files
-                    final IFPServerConfig configRef = config;
-                    Runnable requestTCV = new Runnable() {
-
-                        @Override
-                        public void run() {
-                            EDEXUtil.waitForRunning();
-
-                            requestTCVFiles(siteID, configRef);
-                        }
-                    };
-
-                    postActivationTaskExecutor.submit(requestTCV);
-
-                } catch (Exception e) {
-                    statusHandler
-                            .error("Error starting GFE ISC. ISC functionality will be unavailable!!",
-                                    e);
-                }
-            } else {
-                statusHandler
-                        .info("ISC Enabled but will use another EDEX instance");
-            }
-
-        } else {
-            statusHandler.info("ISC is not enabled.");
-        }
-
-        // doesn't need to be cluster locked
-        final IFPServerConfig configRef = config;
-
-        if ((config.tableFetchTime() > 0) && isIscActivated) {
-            Runnable activateFetchAT = new Runnable() {
-
-                @Override
-                public void run() {
-                    EDEXUtil.waitForRunning();
-
-                    Map<String, Object> fetchATConfig = new HashMap<String, Object>();
-                    fetchATConfig.put("siteId", configRef.getSiteID().get(0));
-                    fetchATConfig.put("interval", configRef.tableFetchTime());
-                    fetchATConfig.put("ancf", configRef
-                            .iscRoutingTableAddress().get("ANCF"));
-                    fetchATConfig.put("bncf", configRef
-                            .iscRoutingTableAddress().get("BNCF"));
-                    fetchATConfig.put("serverHost", configRef.getServerHost());
-                    fetchATConfig.put("port", configRef.getRpcPort());
-                    fetchATConfig.put("protocolV",
-                            configRef.getProtocolVersion());
-                    fetchATConfig.put("mhsid", configRef.getMhsid());
-                    fetchATConfig.put("transmitScript",
-                            configRef.transmitScript());
-
-                    try {
-                        EDEXUtil.getMessageProducer().sendAsyncUri(
-                                "jms-generic:queue:gfeSiteActivated",
-                                fetchATConfig);
-                    } catch (EdexException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Could not activate active table sharing for site: "
-                                        + siteID, e);
-                    }
-                }
-            };
-            postActivationTaskExecutor.submit(activateFetchAT);
+        if (iscServices != null) {
+            iscServices.activateSite(siteID, config);
         }
 
         statusHandler.info("Adding " + siteID + " to active sites list.");
@@ -438,6 +343,10 @@ public class GFESiteActivation implements ISiteActivationListener {
                                 "Activation task in progress by another EDEX instance.  Waiting...");
                 Thread.sleep(10000);
 
+            }
+
+            if (iscServices != null) {
+                iscServices.deactivateSite(siteID);
             }
 
             IFPServer.deactivateServer(siteID);
@@ -505,46 +414,4 @@ public class GFESiteActivation implements ISiteActivationListener {
         }
         return retVal;
     }
-
-    private void requestTCVFiles(String siteId, IFPServerConfig config) {
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext commonBaseCx = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        String scriptPath = pathMgr.getFile(commonBaseCx,
-                FileUtil.join(ActiveTablePyIncludeUtil.VTEC, "requestTCV.py"))
-                .getPath();
-
-        String pythonIncludePath = PyUtil.buildJepIncludePath(
-                ActiveTablePyIncludeUtil.getCommonPythonIncludePath(),
-                ActiveTablePyIncludeUtil.getCommonGfeIncludePath(),
-                ActiveTablePyIncludeUtil.getVtecIncludePath(siteId),
-                ActiveTablePyIncludeUtil.getGfeConfigIncludePath(siteId),
-                ActiveTablePyIncludeUtil.getIscScriptsIncludePath());
-
-        PythonScript script = null;
-        try {
-            script = new PythonScript(scriptPath, pythonIncludePath, this
-                    .getClass().getClassLoader());
-
-            try {
-                Map<String, Object> argMap = new HashMap<String, Object>();
-                argMap.put("siteID", siteId);
-                argMap.put("config", config);
-                script.execute("runFromJava", argMap);
-            } catch (JepException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error executing requestTCV.", e);
-            }
-        } catch (JepException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Unable to instantiate requestTCV python script object.",
-                            e);
-        } finally {
-            if (script != null) {
-                script.dispose();
-            }
-        }
-    }
-
 }
