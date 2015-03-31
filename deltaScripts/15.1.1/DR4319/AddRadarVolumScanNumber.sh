@@ -18,5 +18,6 @@ then
     echo "Failed to update radar table."
     exit 1
 fi
+/awips2/psql/bin/psql -U awips -d metadata -c "UPDATE radar SET volumescannumber=0 WHERE volumescannumber IS NULL;"
 
 echo "Done"
