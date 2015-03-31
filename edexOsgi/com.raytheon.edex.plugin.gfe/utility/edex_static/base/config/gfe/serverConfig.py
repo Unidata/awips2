@@ -47,6 +47,8 @@
 #    07/10/2014                    swhite         Add surge and tropical threat WEs and their dependencies
 #    01/08/2015          #15035    lshi           add site WNJ
 #    12/03/2014          #3866     rferrel        Added GFS20
+#    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
+#    03/31/2015          #17288    bhunder        Added Weather Params for RTMA
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -289,6 +291,10 @@ else:
 WSpdUnc =  ("WSpdUnc", SCALAR, "kts", "WSpd Anl Uncertainty", 12.0, 0.0, 0, NO)
 WDirUnc =  ("WDirUnc", SCALAR, "deg", "WDir Anl Uncertainty", 10.0, 0.0, 0, NO)
 VisUnc  =  ("VisUnc", SCALAR, "SM", "Vsby Anl Uncertainty", 10.0, 0.0, 2, NO)
+# DCS 17288
+PressUnc = ("PressUnc", SCALAR, "Pa", "Press Anl Uncertainty", 110000.0, 0.0, 2, NO)
+Pressure = ("Pressure", SCALAR, "Pa", "Pressure", 110000.0, 0.0, 2, NO)
+WGustUnc =  ("WGustUnc", SCALAR, "kts", "WGust Anl Uncertainty", 12.0, 0.0, 0, NO)
 
 # NamDNG5 parms
 QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 3.0, 0.0, 2, YES)
@@ -1236,6 +1242,8 @@ elif SID == "GUM":
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  ('GFS20-PAC', 'GFS20'),
+                 # DCS #17288
+                 ('Guam-RTMA', 'RTMA'),
                ]
 
 #CONUS sites
@@ -2020,16 +2028,17 @@ TPCTCM_MODEL = [([HiWind], TC3)]
 
 # RTMA database parameter groupings
 #if SID in ALASKA_SITES: - not sure if this is right
+# DCS17288
 if SID in ALASKA_SITES or SID in ["HFO", "SJU"]:
-    RTMAPARMS = [([Temp,Td,RH,Wind,Vis],TC1),
+    RTMAPARMS = [([Temp,Td,RH,Wind,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc],TC1)]
 else:
-    RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis],TC1),
+    RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis,Pressure,WindGust],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc,PressUnc,WGustUnc],TC1)]
 
 # NamDNG5 database parameter groupings
 NamDNG5PARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
