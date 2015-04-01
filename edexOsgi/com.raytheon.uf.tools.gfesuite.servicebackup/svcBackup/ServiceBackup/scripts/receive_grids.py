@@ -37,6 +37,7 @@ from ufpy import ThriftClient, ConfigFileUtil
 #    ------------    ----------    -----------    --------------------------
 #    08/04/11                      bphillip       Initial Creation.
 #    02/12/15         #4103        dgilling       Set site ID field.
+#    03/27/15         #4103        dgilling       Read connection values from environment.
 #    
 # 
 #
@@ -47,7 +48,7 @@ def main():
     
     try:
         receiveGridsRequest = createRequest()
-        thriftClient = ThriftClient.ThriftClient(connectionParams["SVCBU_HOST"], int(connectionParams["CDSPORT"]), "/services")
+        thriftClient = ThriftClient.ThriftClient(connectionParams[0], connectionParams[1], "/services")
         serverResponse = thriftClient.sendRequest(receiveGridsRequest)
     except Exception, e:
         print "Unhandled exception thrown during receive_grids processing: \n", str(e)
@@ -58,7 +59,7 @@ def main():
         sys.exit(1)
 
 def getConnectionParams():
-    return ConfigFileUtil.parseKeyValueFile("/awips2/GFESuite/ServiceBackup/configuration/svcbu.properties")
+    return (str(os.environ["SVCBU_HOST"]), int(os.environ["CDSPORT"]))
 
 def createRequest():
     print  sys.argv

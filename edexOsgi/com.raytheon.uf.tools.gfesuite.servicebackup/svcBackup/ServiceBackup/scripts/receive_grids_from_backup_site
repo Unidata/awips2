@@ -29,15 +29,18 @@
 #    ------------    ----------    -----------    --------------------------
 #    06/16/14        3276          randerso       Added -T to iscMosaic call
 #    02/12/15        4103          dgilling       Support multiple service backup sites.
+#    03/30/15        4103          dgilling       Support new location for svcbu.properties.
+#
 ##############################################################################
 
-if [ ${#AWIPS_HOME} = 0 ]
+if [[ -z "${AWIPS_HOME}" ]]
 then
         path_to_script=`readlink -f $0`
 		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
 fi
 
-. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+source ${AWIPS_HOME}/edex/bin/setup.env
+source ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
 source ${AWIPS_HOME}/GFESuite/ServiceBackup/scripts/serviceBackupUtil.sh
 
 # Create the log file

@@ -51,7 +51,10 @@
 #                                                 Added Topo to ISCPARMS
 #    01/19/2015          #4014     dgilling       Added ETSS.
 #    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
+#    01/19/2015          #4014     dgilling       Added ETSS. 
+#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
 #    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
+
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1232,14 +1235,13 @@ elif SID == "SJU":
 
 # Guam OCONUS
 elif SID == "GUM":
-    D2DMODELS = [('MRF204', 'gfsLR'),
-                 ('AVN225', 'GFS75'),
-                 'GWW233',
+    D2DMODELS = [('AVN225', 'GFS75'),
                  'GlobalWave',
                  ('TPCWindProb', 'TPCProb'),
                  'RTOFS-Guam',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('Guam-RTMA','RTMA'),
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  ('GFS20-PAC', 'GFS20'),

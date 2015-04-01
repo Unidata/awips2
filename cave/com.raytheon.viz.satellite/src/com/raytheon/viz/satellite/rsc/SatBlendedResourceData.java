@@ -78,6 +78,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * Jun 17, 2009  2493     jsanchez    Displayed both times in CONUS scale.
  * Apr 18, 2014  2947     bsteffen    Allow resources being blended to omit
  *                                    load properties.
+ * Mar 3, 2015  DCS 14960 jgerth      Slight modification to getName
  * 
  * </pre>
  * 
@@ -136,7 +137,7 @@ public class SatBlendedResourceData extends AbstractRequestableResourceData
                         if (rsc != null) {
                             if (s.length() == 0) {
                                 s = rsc.getName();
-                            } else if (!s.equals(rsc.getName())) {
+                            } else if (!s.contains(rsc.getName())) {
                                 s += " + " + rsc.getName();
                             }
                         }
