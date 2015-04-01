@@ -870,6 +870,7 @@
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>wSpea</parameter>
+			<parameter>WGSea</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>kts</displayUnits>
@@ -1711,6 +1712,7 @@
 		<paramLevelMatches>
 			<parameter>CPr</parameter>
 			<parameter>P</parameter>
+			<parameter>Perranl</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>mb</displayUnits>
@@ -2000,6 +2002,7 @@
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>Vis</parameter>
+			<parameter>Viserranl</parameter>
 			<singleLevel units="SURFACE" />
 		</paramLevelMatches>
 		<imageStyle>
