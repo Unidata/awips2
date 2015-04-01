@@ -87,20 +87,23 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.buffer.BufferParameters;
+import com.vividsolutions.jts.operation.valid.IsValidOp;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 /**
  * Creates edit areas for the currently selected WFO
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Apr 10, 2008		#1075	randerso	Initial creation
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 02, 2015     #1075   randerso    Initial creation
  * Jun 25, 2008     #1210   randerso    Modified to get directories from UtilityContext
  * Oct 13, 2008     #1607   njensen     Added genCombinationsFiles()
  * Sep 18, 2012     #1091   randerso    Changed to use Maps.py and localMaps.py
- * Mar 14, 2013 1794        djohnson    Consolidate common FilenameFilter implementations.
+ * Mar 14, 2013      1794   djohnson    Consolidate common FilenameFilter implementations.
  * Mar 28, 2013     #1837   dgilling    Better error reporting if a map table
  *                                      from localMaps.py could not be found,
  *                                      warnings clean up.
@@ -109,6 +112,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Aug 27, 2014     #3563   randerso    Fix issue where edit areas are regenerated unnecessarily
  * Oct 20, 2014     #3685   randerso    Changed structure of editAreaAttrs to keep zones from different maps separated
  * Feb 19, 2015     #4125   rjpeter     Fix jaxb performance issue
+ * Apr 01, 2015     #4353   dgilling    Improve logging of Geometry validation errors.
+ * 
  * </pre>
  * 
  * @author randerso
@@ -907,18 +912,12 @@ public class MapManager {
                     polygons = gf.createMultiPolygon(new Polygon[] {});
                 }
 
-                if (!polygons.isValid()) {
-                    String error = "Table: "
-                            + shapeSource.getTableName()
-                            + " edit area:"
-                            + ean
-                            + " contains invalid polygons. This edit area will be skipped.";
-                    for (int i = 0; i < polygons.getNumGeometries(); i++) {
-                        Geometry g = polygons.getGeometryN(i);
-                        if (!g.isValid()) {
-                            error += "\n" + g;
-                        }
-                    }
+                IsValidOp polygonValidator = new IsValidOp(polygons);
+                if (!polygonValidator.isValid()) {
+                    String error = String
+                            .format("Table: %s edit area: %s contains invalid polygons: %s. This edit area will be skipped.",
+                                    shapeSource.getTableName(), ean,
+                                    polygonValidator.getValidationError());
                     statusHandler.error(error);
                     continue;
                 }
