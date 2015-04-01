@@ -99,6 +99,7 @@
    
    <permission id="com.raytheon.localization.site/common_static/hazardServices"/>
    <permission id="com.raytheon.localization.site/common_static/hazardServices/settings"/>
+   <permission id="com.raytheon.localization.site/common_static/hazardServices/hazardMetaData"/>
 
    <permission id="com.raytheon.localization.site/common_static/python/events/productgen/products"/>
    <permission id="com.raytheon.localization.site/common_static/python/events/productgen/formats"/>
