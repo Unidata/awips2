@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants.HandleOpti
  * Feb  3, 2014 2699       bclement     added handle preferences
  * Oct  9, 2014 3711       mapeters     added chat lines preferences
  * Mar 24, 2015 4316       mapeters     added date display preferences
+ * Mar 31, 2015 4327       mapeters     added task bar notification preferences
  * 
  * </pre>
  * 
@@ -97,6 +98,12 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
         FieldEditor notifications = new BooleanFieldEditor("notifications",
                 "Show Chat Notification Popups", getFieldEditorParent());
         this.addField(notifications);
+
+        FieldEditor taskbarNotifications = new BooleanFieldEditor(
+                "chatRoomTaskbarNotifications",
+                "Notify System Task Bar For Chat Room Activity",
+                getFieldEditorParent());
+        this.addField(taskbarNotifications);
 
         FieldEditor autojoinColl = new BooleanFieldEditor(
                 CollabPrefConstants.AUTO_JOIN, "Join Discussion On Login",
