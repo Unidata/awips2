@@ -34,7 +34,7 @@ function dropDatauriAndAddConstraint {
 echo "INFO: Dropping taf dataURI columns."
 
 dropDatauriAndAddConstraint taf taf_reftime_stationid_corindicator_amdindicator_issuetimestring_key "(reftime, stationid, corindicator, amdindicator, issue_timestring)"
-${PSQL} -U awips -d metadata -c "DROP INDEX taf_reftimeindex;"
+${PSQL} -U awips -d metadata -c "DROP INDEX IF EXISTS taf_reftimeindex;"
 ${PSQL} -U awips -d metadata -c "CREATE INDEX taf_reftimeindex ON taf USING btree (reftime);"
 ${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE taf"
 
