@@ -45,25 +45,26 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Utility class for Damage Paths.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2015 3977       nabowle     Initial creation
  * Mar 26, 2015 3977       nabowle     Limit distance to avoid polar errors. Log
  *                                     skipped points.
- *
+ * Apr 01, 2015 3977       nabowle     rename the status handler.
+ * 
  * </pre>
- *
+ * 
  * @author nabowle
  * @version 1.0
  */
 public class DamagePathUtils {
 
-    private static final IUFStatusHandler STATUS_HANDLER = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DamagePathUtils.class);
 
     /** The unit for the uncertainty algorithm. */
@@ -115,7 +116,7 @@ public class DamagePathUtils {
                         .append(coord.coord.x).append(", ")
                         .append(coord.coord.y).append(") ");
             }
-            STATUS_HANDLER.info(sb.toString());
+            statusHandler.info(sb.toString());
         }
 
         /*
@@ -129,7 +130,7 @@ public class DamagePathUtils {
             } else {
                 suggestion = "Make sure the storm track is within range of the radar station.";
             }
-            STATUS_HANDLER
+            statusHandler
                     .warn("Could not create a Damage Path polygon for the storm track. "
                             + suggestion);
             return null;
