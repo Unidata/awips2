@@ -105,19 +105,19 @@ class TextProduct(Hazard_RFW_<MultiPil>.TextProduct):
     ### First bullet is the locationsBullet and must match Definition["locationsBullet"] below
     ### Modify according to other sections above
 
-##    Definition["WindRHBullets"] = ["AFFECTED AREA", "WIND", "HUMIDITY"]
-##    Definition["ThunderBullets"] = ["AFFECTED AREA", "THUNDERSTORMS", "OUTFLOW WINDS"]
-##    Definition["HainesBullets"] = ["AFFECTED AREA", "HAINES", "TEMPERATURES/HUMIDITY"]
-##    Definition["FireDangerBullets"] = ["AFFECTED AREA", "TIMING", "EXTREME GRASSLAND FIRE DANGER",\
-##               "WIND", "HUMIDITY"]
+##    Definition["WindRHBullets"] = ["Affected area", "Wind", "Humidity"]
+##    Definition["ThunderBullets"] = ["Affected area", "Thunderstorms", "Outflow winds"]
+##    Definition["HainesBullets"] = ["Affected area", "Haines", "Temperatures/humidity"]
+##    Definition["FireDangerBullets"] = ["Affected area", "Timing", "Extreme grassland fire danger",\
+##               "Wind", "Humidity"]
     ###
     ### Generic Bullets - Used if an RFW Type is not selected in the Initial GUI
     ### Product will put in these bullets as a generic guideline for the RFW
-    Definition["GenericBullets"] = ["AFFECTED AREA", "WIND", "HUMIDITY", "THUNDERSTORMS", "HIGHEST THREAT", "IMPACTS"]
+    Definition["GenericBullets"] = ["Affected area", "Wind", "Humidity", "Thunderstorms", "Highest threat", "Impacts"]
     
     ###
     ### Name for the Location Bullet - again, must match first bullet wording above
-    Definition["locationsBullet"] = "AFFECTED AREA"
+    Definition["locationsBullet"] = "Affected area"
     
     ### Geographical descriptor for headlines.
     ### Inserts zone numbers or a generic location into headlines
@@ -142,11 +142,11 @@ class TextProduct(Hazard_RFW_<MultiPil>.TextProduct):
     ### Text to insert below the last $$ of the product (WFO URL)
     ### Making no changes will leave default of no url text
     ### Single line example
-##    Definition["urlText"] = "HTTP://WEATHER.GOV/your_wfo"
+##    Definition["urlText"] = "http://weather.gov/your_wfo"
     ### 
     ### multiple line example
-##    Definition["urlText"] = "FOR MORE INFORMATION FROM NOAA/S NATIONAL WEATHER SERVICE VISIT...\n" + \
-##                            "HTTP://WEATHER.GOV/your_wfo (ALL LOWER CASE)"
+##    Definition["urlText"] = "For more information from NOAA/s National Weather Service visit...\n" + \
+##                            "http://weather.gov/your_wfo"
     ###
     ### End Configuration Section
     ######################################################################################################

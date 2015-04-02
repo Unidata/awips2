@@ -532,7 +532,7 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
         
 
     # Header support for Watch/Warning products
-    def getCityList(self, areaList, label="THIS INCLUDES THE CITIES OF", 
+    def getCityList(self, areaList, label="This includes the cities of", 
       lineLength=66, areaDictName="AreaDictionary", addPeriod = False,
       forceAlphaSort=False):
         # Returns a list of cities (from the AreaDictionary)
@@ -698,11 +698,11 @@ class Header(EditAreaUtils.EditAreaUtils, StringUtils.StringUtils):
             str = str.replace(str2, str1, count-1)
         return str
 
-    def getIssuedByString(self, words = "ISSUED BY NATIONAL WEATHER SERVICE "):
+    def getIssuedByString(self, words = "Issued by National Weather Service "):
         issuedByString = ""
         try:
             if self._issuedBy is not None:
-                issuedByString = "ISSUED BY NATIONAL WEATHER SERVICE " + \
+                issuedByString = "Issued by National Weather Service " + \
                         self.getSiteInfo("wfoCityState",self._issuedBy) + "\n"
         except:
             pass

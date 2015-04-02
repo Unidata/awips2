@@ -46,9 +46,9 @@ Definition = {}
 Definition['displayName'] = "SFT_<MultiPil>"
 
 Definition["defaultEditAreas"] = [
-       ("area1", "REGION1\nCITY1"),
-       ("area2", "REGION1\nCITY2"),
-       ("area3", "REGION2\nCITY3"),
+       ("area1", "Region1\nCity1"),
+       ("area2", "Region1\nCity2"),
+       ("area3", "Region2\nCity3"),
        ]
 
 # Header configuration items
@@ -56,7 +56,7 @@ Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4let
 Definition["wmoID"] = "<wmoID>"        # WMO ID
 Definition["pil"] = "<pil>"           # product pil
 Definition["zoneCode"] = "stZ000"     # Zone Code, such as "GAZ025-056"
-Definition["stateName"] = "<state>"   # Name of state, such as "GEORGIA"
+Definition["stateName"] = "<state>"   # Name of state, such as "Georgia"
 Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
 Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
 Definition["awipsWANPil"] = "<awipsWANPil>"   # Product ID for transmitting to AWIPS WAN.

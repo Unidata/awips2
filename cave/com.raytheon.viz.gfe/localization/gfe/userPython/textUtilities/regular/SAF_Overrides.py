@@ -54,7 +54,7 @@ Definition = {}
 ### SAF settings of baseline options: ###
 
 #Definition['displayName'] = "SAF"
-Definition["productName"] = "ZONE FORECAST PRODUCT"  # name of product
+Definition["productName"] = "Zone Forecast Prodact"  # name of product
 Definition["outputFile"] =  "{prddir}/TEXT/SAF.txt"
 Definition["extendedLabel"] = 1          # To include extended label
 Definition["includeEveningPeriod"] = 0   # To turn off evening period
@@ -302,7 +302,7 @@ class SAF_Overrides:
         # Get Synopsis from previous forecast
         #productID = "PDXCWFPQR"
         #synopsis = self.getPreviousProduct(productID, "SYNOPSIS")
-        #SynopsisHeading = ".SYNOPSIS FOR SOUTHERN WASHINGTON AND NORTHERN OREGON COAST..."
+        #SynopsisHeading = ".Synopsis for southern Washington and northern Oregon Coast..."
         #synopsis = re.sub(r'\n', r' ', synopsis)
         #synopsis = self.endline(synopsis, linelength=self._lineLength)
         #fcst = fcst + "-\n" + SynopsisHeading + "\n" + synopsis + "\n$$\n\n"
@@ -311,9 +311,9 @@ class SAF_Overrides:
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
         self.debug_print("")
         # This is the header for an edit area combination
-        #ERH fcst=fcst+"$$\nNOW FOR THE OFFICIAL NATIONAL "
-        fcst=fcst+"NOW FOR THE OFFICIAL NATIONAL "
-        fcst=fcst+"WEATHER SERVICE FORECAST\nFOR "+areaLabel+"\n\n"
+        #ERH fcst=fcst+"$$\nNow for the official National "
+        fcst=fcst+"Now for the official National "
+        fcst=fcst+"Weather Service forecast\nfor "+areaLabel+"\n\n"
         if self.allowedHazards() != []:
             self._hazards = argDict['hazards']
             self._combinations = argDict["combinations"]
@@ -336,13 +336,13 @@ class SAF_Overrides:
         self.debug_print("")
         if self._repeat1stPeriod == 1:
             # Clean up the area label to avoid possibly
-            # repeat "FORECAST FOR"
+            # repeat "forecast for"
             e=re.compile('.*forecast for',re.IGNORECASE)
-            intro = "AGAIN, THE FORECAST FOR " + \
+            intro = "again, the forecast for " + \
                     e.sub("",areaLabel).strip()
             # Now strip off any punctuation on the area label
             # and add the period label, ie, today, tonight
-            intro=intro.rstrip(",.") + " FOR " + \
+            intro=intro.rstrip(",.") + " for " + \
                    self._1stPeriodLabel + ", "
             # Wrap it up!
             text = self.endline(intro + self._1stPeriodFcst)
@@ -391,7 +391,7 @@ class SAF_Overrides:
         return finalFcst
     
     def setLabel(self, tree, component):
-        exLabel= "\n\nAND NOW THE EXTENDED FORECAST FOR THE RADIO LISTENING AREA.\n"
+        exLabel= "\n\nand now the extended forecast for the radio listening area.\n"
         component.set("words", exLabel)
         return self.DONE()
 
@@ -725,8 +725,8 @@ class SAF_Overrides:
             # Strip off any leading dots...
             self._1stPeriodLabel = self._1stPeriodLabel.lstrip(".")
 
-            if self._1stPeriodLabel[0:4] == "REST":
-                self._1stPeriodLabel = "THE " + self._1stPeriodLabel
+            if self._1stPeriodLabel[0:4] == "rest":
+                self._1stPeriodLabel = "The " + self._1stPeriodLabel
             #Now strip off any trailing punctuation on the label
             self._1stPeriodLabel = self._1stPeriodLabel.rstrip(",.")
             self._1stPeriodFcst = fcst
@@ -826,14 +826,14 @@ class SAF_Overrides:
              0, narrativeDefPM),
             # Alternative
             # For the early morning update, this produces:
-            # EARLY THIS MORNING:
+            # Early this morning:
             # Today
             # Tonight
             #("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
             # ".Rest of Tonight...", "late in the night", "early in the evening",
             # 1, narrativeDefPM),
             #("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
+            # ".Early this morning...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefPM),
             ]
     

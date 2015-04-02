@@ -44,7 +44,7 @@ class TextProduct(CivilEmerg.TextProduct):
     ## Edit Areas: Create Combinations file with edit area combinations.
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
     Definition["defaultEditAreas"] = "Combinations_TOE_<site>"
-    Definition["productName"] = "911 TELEPHONE OUTAGE EMERGENCY" # product name
+    Definition["productName"] = "911 Telephone Outage Emergency" # product name
     Definition["wmoID"] = "<wmoID>"                      # WMO code
     Definition["pil"] = "<pil>"                      # product pil
     Definition["textdbPil"] = "<textdbPil>"          # Product ID for storing to AWIPS text database.
@@ -55,7 +55,7 @@ class TextProduct(CivilEmerg.TextProduct):
 
 
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
-        fcst = fcst + "THE FOLLOWING MESSAGE IS TRANSMITTED" + \
-               " AT THE REQUEST OF THE " + self._source + "."                
+        fcst = fcst + "The following message is transmitted" + \
+               " at the request of the " + self._source + "."                
         return fcst
 

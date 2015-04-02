@@ -665,9 +665,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         fcst = fcst + self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n"
         if self._productType == "AFM":
-            productDescription = "AREA FORECAST MATRICES"
+            productDescription = "Area Forecast Matrices"
         else:
-            productDescription = "POINT FORECAST MATRICES"
+            productDescription = "Point Forecast Matrices"
 
         issuedByString = self.getIssuedByString()
         
@@ -676,7 +676,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
         fcst = fcst + self._pil + "\n\n"
         fcst = fcst + productName + "\n"
-        fcst = fcst + "NATIONAL WEATHER SERVICE "
+        fcst = fcst + "National Weather Service "
         fcst = fcst + self._wfoCityState +"\n"
         fcst = fcst + issuedByString 
         fcst = fcst + self._mndTimeLabel + "\n\n"
