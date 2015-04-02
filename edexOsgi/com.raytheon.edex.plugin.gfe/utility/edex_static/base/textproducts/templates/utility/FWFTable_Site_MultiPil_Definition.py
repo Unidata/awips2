@@ -68,11 +68,11 @@ if "<site>" == "AFG":
                                        "AKZ215","AKZ216","AKZ217","AKZ227"]
 
 # Header configuration items
-#Definition["productName"] = "FIRE WEATHER PLANNING FORECAST"  # name of product
+#Definition["productName"] = "Fire Weather Planning Forecast"  # name of product
 Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
 Definition["wmoID"] = "<wmoID>"        # WMO ID
 Definition["pil"] = "<pil>"          # product pil
-Definition["areaName"] = "<state>" # Name of state, such as "GEORGIA"
+Definition["areaName"] = "<state>" # Name of state, such as "Georgia"
 Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
 Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
 Definition["awipsWANPil"] = "<awipsWANPil>"   # Product ID for transmitting to AWIPS WAN.

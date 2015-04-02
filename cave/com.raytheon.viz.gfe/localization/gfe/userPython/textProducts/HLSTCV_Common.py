@@ -739,8 +739,8 @@ class TextProduct(GenericHazards.TextProduct):
 #             startTime = startTime - 24*3600
         todayFlag = currentTime.day == startTime.day
         if todayFlag:
-            if partOfDay.upper().find("MIDNIGHT")>0: todayWord = "tonight"
-            else: todayWord = "THIS"
+            if partOfDay.lower().find("midnight")>0: todayWord = "tonight"
+            else: todayWord = "this"
             weekday = todayWord
         else:
             weekday = labels["Weekday"][startTime.weekday()]
@@ -757,7 +757,7 @@ class TextProduct(GenericHazards.TextProduct):
             if hour < 3:
                 prevDay = True
                 partOfDay = "early <weekday> morning"
-#                 partOfDay = "AFTER MIDNIGHT"
+#                 partOfDay = "after midnight"
             elif hour < 6:
                 partOfDay = "early <weekday> morning"
             elif hour < 9:
@@ -775,7 +775,7 @@ class TextProduct(GenericHazards.TextProduct):
         else:
             if hour < 6:
                 prevDay = True
-#                 partOfDay = "AFTER MIDNIGHT"
+#                 partOfDay = "after midnight"
                 partOfDay = "early <weekday> morning"
             elif hour < 12: partOfDay = "morning"
             elif hour < 18: partOfDay =  "afternoon"

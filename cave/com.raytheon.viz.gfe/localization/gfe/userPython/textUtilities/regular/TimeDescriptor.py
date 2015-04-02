@@ -42,7 +42,7 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         TimeRangeUtils.TimeRangeUtils.__init__(self)
 
 ##    def getHolidayLabel(self, tr):
-##        return "HOLIDAY"
+##        return "holiday"
 
     def getCurrentTime(self, argDict=None, format="%I%M %p %Z %a %b %d %Y",
                         shiftToLocal=1, upperCase=0, stripLeading=1):
@@ -215,7 +215,7 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
                     label = labels["Tomorrow"]
                 try:
                     if self._productIssuance == "Next Day":       
-                        label = "TONIGHT"
+                        label = "Tonight"
                 except:
                     pass
                 return pre + label + post
@@ -401,14 +401,14 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
                     4 : "FRI",
                     5 : "SAT"
                 },
-                "Now": "NOW",
-                "Today":"TODAY",
-                "Tonight": "TONIGHT",
-                "Rest of Today":"REST OF TODAY",
-                "Rest of Tonight": "REST OF TONIGHT",
-                "Night": "NIGHT",
-                "Evening": "EVENING",
-                "Afternoon": "THIS AFTERNOON",
+                "Now": "Now",
+                "Today":"Today",
+                "Tonight": "Tonight",
+                "Rest of Today":"Rest of today",
+                "Rest of Tonight": "Rest of tonight",
+                "Night": "Night",
+                "Evening": "Evening",
+                "Afternoon": "This afternoon",
             },
             "Combo": {
                 "PrePunctuation": ".",
