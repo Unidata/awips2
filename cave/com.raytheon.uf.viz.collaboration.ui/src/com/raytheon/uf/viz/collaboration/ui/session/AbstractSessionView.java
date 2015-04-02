@@ -102,6 +102,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Mar 24, 2015 4265       mapeters    Implement common styleAndAppendText()s here, apply
  *                                     most general StyleRange to text first.
  * Mar 24, 2015 4316       mapeters    Display date of message if new day or user-preferred
+ * Mar 27, 2015 4327       mapeters    Added task bar notification for received messages
  * </pre>
  * 
  * @author rferrel
@@ -359,10 +360,18 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 String name = getDisplayName(userId);
 
                 UserId myUser = connection.getUser();
-                if (!myUser.isSameUser(userId)
-                        && Activator.getDefault().getPreferenceStore()
-                                .getBoolean("notifications")) {
-                    createNotifier(name, time, body);
+                if (!myUser.isSameUser(userId)) {
+                    // If user-preferred, notify with popup
+                    if (Activator.getDefault().getPreferenceStore()
+                            .getBoolean("notifications")) {
+                        createNotifier(name, time, body);
+                    }
+
+                    // Bold/flash task bar item for windows out of focus if
+                    // peer-to-peer chat or user-preferred for group chats
+                    if (shouldNotifyTaskbar()) {
+                        getSite().getShell().forceActive();
+                    }
                 }
 
                 StringBuilder sb = new StringBuilder();
@@ -479,6 +488,16 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 }
             }
         });
+    }
+
+    /**
+     * Determines if task bar notifications for new messages should be given in
+     * this room (always for peer-to-peer, otherwise depends on preferences).
+     * 
+     * @return whether or not to notify the task bar
+     */
+    protected boolean shouldNotifyTaskbar() {
+        return true;
     }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,

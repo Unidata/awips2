@@ -124,6 +124,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Jan 09, 2015 3709       bclement    color config manager API changes
  * Jan 12, 2015 3709       bclement    unified color management into SessionColorManager
  * Mar 24, 2015 4265       mapeters    abstracted out common styleAndAppendText()s
+ * Mar 31, 2015 4327       mapeters    added shouldNotifyTaskbar() override
  * 
  * </pre>
  * 
@@ -833,5 +834,17 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         if (enabled) {
             SoundUtil.playSound(getJoinFile());
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * shouldNotifyTaskbar()
+     */
+    @Override
+    protected boolean shouldNotifyTaskbar() {
+        return Activator.getDefault().getPreferenceStore()
+                .getBoolean("chatRoomTaskbarNotifications");
     }
 }
