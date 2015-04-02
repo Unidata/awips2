@@ -81,7 +81,7 @@ then
 	exit 1
 fi
 
-echo "IN_PROGRESS" > ${lock_file}
+echo "IN_PROGRESS" > ${lockFile}
 
 echo "Starting exporting grids..."
 
@@ -171,7 +171,7 @@ then
                NETCDF_SUCCESS=1
             else
                echo "ifpnetCDF failed. Export exits."
-               echo "FAILED" > ${lock_file}
+               echo "FAILED" > ${lockFile}
                exit 1
             fi
          fi
@@ -193,7 +193,7 @@ then
                NETCDF_SUCCESS=1
             else
 		       echo "ifpnetCDF failed. Export exits."
-               echo "FAILED" > ${lock_file}
+               echo "FAILED" > ${lockFile}
                exit 1
             fi
 	     fi	
@@ -214,7 +214,7 @@ else
 	        NETCDF_SUCCESS=1
 	     else
 	        echo "ifpnetCDF failed."
-	        echo "FAILED" > ${lock_file}
+	        echo "FAILED" > ${lockFile}
 	        exit 1
 	     fi
 	  fi
@@ -233,7 +233,7 @@ then
    rm -f ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf
 fi
 
-echo "SUCCESS" > ${lock_file}
+echo "SUCCESS" > ${lockFile}
 
 # Completed successfully
 echo "All done. Export Gridded data has completed"
