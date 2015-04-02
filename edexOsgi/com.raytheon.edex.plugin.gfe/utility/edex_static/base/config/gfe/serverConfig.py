@@ -47,6 +47,7 @@
 #    07/10/2014                    swhite         Add surge and tropical threat WEs and their dependencies
 #    01/08/2015          #15035    lshi           add site WNJ
 #    12/03/2014          #3866     rferrel        Added GFS20
+#    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -137,7 +138,7 @@ Weather = ("Wx", WEATHER, "wx", "Weather")
 IceAcc = ("IceAccum", SCALAR, "in", "Ice Accumulation", 12.0, 0.0, 1, YES)
 SnowAmt = ("SnowAmt", SCALAR, "in", "Snowfall amount", 20.0, 0.0, 1, YES)
 StormTotalSnow = ("StormTotalSnow", SCALAR, "in","Storm Total Snow", 50.0,
-                  0.0, 1, YES)
+                  0.0, 1, NO)
 PoP     = ("PoP", SCALAR, "%", "Prob of Precip", 100.0, 0.0, 0, NO)
 PoP6    = ("PoP6", SCALAR, "%", "Prob of Precip (6hr)", 100.0, 0.0, 0, NO)
 PoP12   = ("PoP12", SCALAR, "%", "Prob of Precip (12hr)", 100.0, 0.0, 0, NO)
@@ -156,17 +157,17 @@ QPF6hr = ("QPF6hr", SCALAR, "in", "6 hr Precipitation (in)", 5.0, 0.0, 2, YES)
 SnowAmt6hr = ("SnowAmt6hr", SCALAR, "in", "6 hr Snowfall", 30.0, 0.0, 1, YES)
 
 # Cobb SnowTool included. 
-SnowRatio = ('SnowRatio', SCALAR, '%', 'Snow Ratio', 40.0, 0.0, 1, YES)
+SnowRatio = ('SnowRatio', SCALAR, '%', 'Snow Ratio', 40.0, 0.0, 1, NO)
 #totalVV = ('totalVV', SCALAR, 'ubar/s', 'Total VV', 400.0, 0.0, 0, YES) 
 cape = ("cape", SCALAR, "1unit", "CAPE", 8000.0, 0.0, 1, NO)
 ApparentT = ("ApparentT", SCALAR, "F", "Apparent Temperature", 130.0, -120.0, 0, NO)
 UWaveDir = ("UWaveDir", SCALAR, "m/s", "U WaveDir Comp", 0.50, -0.50, 3, NO)
 VWaveDir = ("VWaveDir", SCALAR, "m/s", "V WaveDir Comp", 0.50, -0.50, 3, NO)
 LkSfcT = ("LkSfcT", SCALAR, "C", "Lake Surface T", 40.0, -2.0, 1, NO)
-SnowMap = ("SnowMap", SCALAR, "in", "Snowfall Map", 20.0, 0.0, 1, YES)
+SnowMap = ("SnowMap", SCALAR, "in", "Snowfall Map", 20.0, 0.0, 1, NO)
 WaveDir = ("WaveDir", VECTOR, "m/s", "Wave Direction", 5.0, 0.0, 2, NO)
 StormTotalQPF = ('StormTotalQPF', SCALAR, 'in', 'Storm Total QPF (in)', 10.0, 0.0, 2, NO)
-SeasonTotalSnow = ('SeasonTotalSnow', SCALAR, 'in', 'Season Total Snow (in)', 150.0, 0.0, 2, YES)
+SeasonTotalSnow = ('SeasonTotalSnow', SCALAR, 'in', 'Season Total Snow (in)', 150.0, 0.0, 2, NO)
 
 # Marine Weather Elements
 WindWaveHeight = ("WindWaveHgt", SCALAR, "ft", "Wind Wave Height",
@@ -246,7 +247,7 @@ Wind20ft =    ("Wind20ft", VECTOR, "kts", "20ft. Wind", 125.0, 0.0, 0, NO)
 FreeWind = ("FreeWind", VECTOR, "kts", "Free Air Wind", 125.0, 0.0, 0, NO)
 TransWind = ("TransWind", VECTOR, "kts", "Transport Wind", 125.0, 0.0, 0, NO)
 Stability = ("Stability",SCALAR,"cat","Stability", 6.0,1.0,0, NO)
-HrsOfSun = ("HrsOfSun",SCALAR,"hrs","Hours of Sun",24.0,0.0,1, YES)
+HrsOfSun = ("HrsOfSun",SCALAR,"hrs","Hours of Sun",24.0,0.0,1, NO)
 MarineLayer = ("MarineLayer",SCALAR,"ft","Depth of Marine Layer",
   20000.0,0.0,0,NO)
 InvBurnOffTemp = ("InvBurnOffTemp",SCALAR,"F","Inversion Burn-off Temperature",
