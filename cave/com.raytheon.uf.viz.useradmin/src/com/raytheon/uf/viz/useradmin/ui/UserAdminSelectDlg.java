@@ -54,11 +54,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Main User Administration Dialog.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2012            mpduff      Initial creation.
@@ -70,9 +70,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     is selected. Better enable/disable edit
  *                                     and delete buttons. Give delete dialogs
  *                                     a title.
- *
+ * Apr 02, 2015   4345     skorolev    Fixed dialog to expand vertically properly.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -109,7 +110,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            The parent shell
      */
@@ -119,6 +120,13 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         setText("User Admin");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         NwsRoleDataManager man = NwsRoleDataManager.getInstance();
@@ -232,7 +240,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
      */
     @Override
@@ -241,6 +249,11 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         super.preOpened();
     }
 
+    /**
+     * Creates Tabs.
+     * 
+     * @param tabFolder
+     */
     private void createTabs(TabFolder tabFolder) {
         String app = appCombo.getItem(appCombo.getSelectionIndex());
         userTab = new TabItem(tabFolder, SWT.NONE);
@@ -370,7 +383,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         roleComp.setLayoutData(gd);
         roleTab.setControl(roleComp);
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gl = new GridLayout(1, false);
         Composite listComp2 = new Composite(roleComp, SWT.NONE);
         listComp2.setLayout(gl);
@@ -379,7 +392,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         Label roleLabel = new Label(listComp2, SWT.NONE);
         roleLabel.setText("Defined Roles:");
 
-        listData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        listData = new GridData(SWT.FILL, SWT.FILL, true, true);
         listData.widthHint = 150;
         listData.heightHint = 175;
         roleList = new List(listComp2, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
@@ -450,13 +463,13 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
             }
         });
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gl = new GridLayout(1, false);
         Composite permComp = new Composite(roleComp, SWT.NONE);
         permComp.setLayout(gl);
         permComp.setLayoutData(gd);
 
-        listData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        listData = new GridData(SWT.FILL, SWT.FILL, true, true);
         listData.widthHint = 200;
         listData.heightHint = 175;
         Label l2 = new Label(permComp, SWT.NONE);
@@ -476,6 +489,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
 
     }
 
+    /**
+     * Populates Lists
+     */
     private void populateLists() {
         NwsRoleDataManager man = NwsRoleDataManager.getInstance();
         if (appCombo.isDisposed() || userList.isDisposed()
@@ -522,6 +538,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         populatePermissionList();
     }
 
+    /**
+     * Populates User Role List.
+     */
     private void populateUserRoleList() {
         NwsRoleDataManager man = NwsRoleDataManager.getInstance();
         if (appCombo.isDisposed() || userList.isDisposed()
@@ -548,6 +567,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Populates Permission List.
+     */
     private void populatePermissionList() {
         NwsRoleDataManager man = NwsRoleDataManager.getInstance();
         rolePermList.removeAll();
@@ -560,6 +582,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Opens Add New User dialog.
+     */
     private void handleNewUser() {
         NewDlg ad = new NewDlg(this.shell, "User", selectedApplication);
         ad.open();
@@ -567,6 +592,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         populateLists();
     }
 
+    /**
+     * Opens Delete User dialog.
+     */
     private void handleDeleteUser() {
         String user = userList.getItem(userList.getSelectionIndex());
 
@@ -586,6 +614,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         populateLists();
     }
 
+    /**
+     * Opens Edit Role dialog.
+     */
     private void handleEditRole() {
         String role = roleList.getItem(roleList.getSelectionIndex());
         ManageUserDlg mud = new ManageUserDlg(this.shell, "Role", role,
@@ -596,6 +627,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Opens Delete Role dialog.
+     */
     private void handleDeleteRole() {
         String role = roleList.getItem(roleList.getSelectionIndex());
 
@@ -615,6 +649,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         populateLists();
     }
 
+    /**
+     * Opens Add New Role dialog.
+     */
     private void handleNewRole() {
         NewDlg ad;
         if (selectedApplication.equalsIgnoreCase("Localization")) {
@@ -628,6 +665,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         populateLists();
     }
 
+    /**
+     * Opens Edit User dialog.
+     */
     private void handleEditUser() {
         String user = userList.getItem(userList.getSelectionIndex());
         ManageUserDlg mud = new ManageUserDlg(this.shell, "User", user,
@@ -638,6 +678,11 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Shows Permission context menu.
+     * 
+     * @param list
+     */
     private void showPermissionMenu(final List list) {
         if (list.getSelectionCount() > 0) {
             Menu menu = new Menu(shell, SWT.POP_UP);
@@ -688,6 +733,12 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Gets Role Details.
+     * 
+     * @param role
+     * @return
+     */
     private String getRoleDetails(RoleXML role) {
         StringBuilder details = new StringBuilder();
         details.append("Role: ").append(role.getRoleId());
@@ -703,6 +754,12 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         return details.toString();
     }
 
+    /**
+     * Gets Permission Details.
+     * 
+     * @param perm
+     * @return
+     */
     private String getPermissionDetails(PermissionXML perm) {
         StringBuilder details = new StringBuilder();
         details.append("Permission: ").append(perm.getId());
@@ -711,6 +768,9 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         return details.toString();
     }
 
+    /**
+     * Handle OK button.
+     */
     private void handleOK() {
         NwsRoleDataManager manager = NwsRoleDataManager.getInstance();
         manager.save(selectedApplication);
@@ -719,6 +779,13 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
 
     /**
      * {@inheritDoc}
+     */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.jms.notification.INotificationObserver#
+     * notificationArrived
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
