@@ -5740,17 +5740,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         int numberOfLinesOfHeaderText = 2;
         int afosNnnLimit = 2; // first three characters is AFOS NNN
         int afosXxxLimit = 5; // second three characters is AFOS XXX
+        String prodText = textEditor.getText();
 
+       if (!prodText.startsWith("ZCZC")) {
         /*
          * DR15610 - Make sure that if the first line of the text product is not
          * a WMO heading it is treated as part of the text body.
          */
-        String[] pieces = null;
-        if(textEditor.getText().startsWith("ZCZC"))
-            pieces = textEditor.getText().split("\r*\n", 1);
-        else
-            pieces = textEditor.getText().split("\r*\n", 2);
-        
+        String[] pieces = textEditor.getText().split("\r*\n", 2);
         if (pieces.length > 1) {
             pieces[0] += "\n"; // WMOHeader expects this
         }
@@ -5850,6 +5847,35 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 textEditor.setText("");
             }
         }
+       } else {
+           /**
+            * If the first word begins with "ZCZC", it is a two-line header at least,
+            * it is "ZCZC CCNNNXXX adr\r\r\nTTAA00 KCCC DDHHMM bbb\r\r\n"
+            */
+           int newLineIndex = prodText.indexOf("\n\n");
+           String first = prodText.substring(0, newLineIndex);
+
+           if (first.length() > 10 ) {
+              String rest = prodText.substring(newLineIndex+1);
+
+              headerTF.setText(first);
+              String cccnnnxxx = first.substring(5, 14);
+              setCurrentSiteId("");
+              setCurrentWmoId("");
+              setCurrentWsfoId(cccnnnxxx.substring(0, 3));
+              setCurrentProdCategory(cccnnnxxx.substring(3, 6));
+              setCurrentProdDesignator(cccnnnxxx.substring(6, 9));
+
+              try {
+                  textEditor.setText(rest.trim());
+                  textEditor.setEditable(true);
+                  textEditor.setEditable(false);
+               } catch (IllegalArgumentException e) {
+                  // There is no text product body, so set it to the empty string.
+                  textEditor.setText("");
+               }
+            }
+       }
     }
 
     /**
