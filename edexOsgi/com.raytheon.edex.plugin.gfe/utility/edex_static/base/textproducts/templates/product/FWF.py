@@ -37,12 +37,12 @@
 #  displayName      If not None, defines how product appears in GFE GUI
 #  defaultEditAreas defines edit areas, default is Combinations
 #
-#  productName      defines name of product e.g. "ZONE FORECAST PRODUCT"
+#  productName      defines name of product e.g. "Zone Forecast Product"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "SFTBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     WFO location, such as "BUFFALO NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     WFO location, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #  editAreaSuffix      default None. Allows for generating the body of the product for
@@ -86,8 +86,8 @@
 #   extendedLabel    If extendedLabel== 1, a label will be included for each
 #                    individual extended
 #   lightningPhrases    Set this to 1 if you want Lightning Activity
-#                       reported with phrases like "1-8 STRIKES", 
-#                       "9-15 STRIKES", etc.
+#                       reported with phrases like "1-8 strikes", 
+#                       "9-15 strikes", etc.
 #   windAdjustmentFactor    Winds are reported from the Wind20ft grid 
 #                           if available. Otherwise, the Wind grid is 
 #                           used with the magnitude multiplied
@@ -259,11 +259,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "editAreaSuffix": None,
         
         # product identifiers
-        "productName": "FIRE WEATHER PLANNING FORECAST", # product name 
+        "productName": "Fire Weather Planning Forecast", # product name 
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
-        "areaName": "<state>",             # Name of state, such as "GEORGIA" -- optional
+        "areaName": "<state>",             # Name of state, such as "Georgia" -- optional
         "wfoCityState": "<wfoCityState>",  # Location of WFO - city state
         
         "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
@@ -426,7 +426,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def untilPhrasing_flag_dict(self, tree, node):
         # If set to 1, "until" time descriptor phrasing will be used.
-        # E.g. "NORTH WINDS 20 MPH UNTIL 10 AM...THEN 35 MPH"
+        # E.g. "North winds 20 MPH until 10 AM...then 35 MPH"
         #
         # NOTE: Be sure to increase the temporal resolution by 
         # overriding "getFirePeriod_analysisList" from the FWF standard file.
@@ -674,7 +674,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             "phraseList":[],
             }
     def setLabel(self, tree, component):
-        component.set("words", "\n.FORECAST DAYS 3 THROUGH 7......\n")
+        component.set("words", "\n.Forecast days 3 through 7......\n")
         return self.DONE()
 
     def FireExtendedShortTerm(self):
@@ -862,7 +862,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
         
         # Put in a place holder for the headlines to be substituted in
@@ -870,7 +870,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         fcst = fcst + "<HEADLINES>"
         self._prodHeadlines = []
         
-        fcst = fcst + ".DISCUSSION..." + "\n\n\n\n\n"
+        fcst = fcst + ".Discussion..." + "\n\n\n\n\n"
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
@@ -909,12 +909,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _postProcessProduct(self, fcst, argDict):
         # Add one extended
         if self._summaryExtended == 1:
-            fcst = fcst + "\n.FORECAST DAYS 3 THROUGH 7...\n\n"
+            fcst = fcst + "\n.Forecast days 3 through 7...\n\n"
             extended = self.generateProduct("ExtendedNarrative",
                 argDict, area=self._summaryArea,
                 timeRange=self._extendedRange)
             fcst = fcst + extended
-        fcst = fcst + "\n.OUTLOOK\n\n\n$$\n"
+        fcst = fcst + "\n.Outlook\n\n\n$$\n"
 
         # Make summary headline string and substitute for "<HEADLINE>" placeholder
         headlineStr = ""
@@ -999,7 +999,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # ".Rest of Tonight...", "late in the night", "early in the evening",
             # 1, narrativeDefPM), 
             #("Early Morning Update", "issuanceHour", self.DAY(), 4,
-            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
+            # ".Early this morning...", "early in the morning", "late in the afternoon",
             # 1, narrativeDefPM), 
             ]
 

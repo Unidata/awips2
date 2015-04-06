@@ -37,6 +37,7 @@
 # Oct 20, 2014    #3685          randerso    Changed how SiteInfo is loaded.
 #                                            Fixed logging to log to a file
 #                                            Cleaned up how protected file updates are returned
+# Jan 23, 2015    #4027          randerso    Cleaned up import of SiteInfo
 #
 # @author: jelkins
 #
@@ -109,17 +110,7 @@ ProcessDirectories = [
   },
   ]
 
-# This will "load" SiteInfo in a more complicated way
-# than 'from SiteCFG import SiteInfo'.
-from LockingFile import File
-
-pathManager = PathManagerFactory.getPathManager()
-lf = pathManager.getStaticLocalizationFile(LocalizationType.COMMON_STATIC, "python/gfe/SiteCFG.py")
-with File(lf.getFile(), lf.getName(), 'r') as file:
-    fileContents = file.read()
-
-exec fileContents
-
+from SiteCFG import SiteInfo
 
 class Generator():
     """Generates site specific text products from base template files.
