@@ -36,6 +36,7 @@
 #20130624            1966 rferrel     The acars pattern changed to place files in the proper subdirectories.
 #                                     Name changes to reflect plugin names for modelsounding, goessounding, poessounding.
 #20140424            3068 dgilling    Add pattern for MetOp-B ASCAT T winds.
+#20140612            3230 rferrel     Add pattern for URMA.
 #20150202            4066 rferrel     Add pattern form Earth Networks Total Lightning: SFPA42
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
@@ -302,6 +303,11 @@ EXP	(.*ecmwf_decrypted.*)
 NGRID	^(E.[ABCDEFGHI].{1,3}) (KWBJ) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
+# URMA
+# Pattern provided by Joshua.Watson.
+NGRID	^(L.QA98) (KWBR) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/URMA/GRID184/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
 # AWIPS1:	GRID    ^[LM].[AB].*KWBS*              /Grid/SBN/rawGrib2
 # AWIPS1 OCONUS:	GRID    ^[LM].[ABCDE].*KWBS*              /Grid/SBN/rawGrib2
 # LMDA98 KWBS 160000 !grib2/ncep/WRF_EM/#130/201012160000F000/WXTZ/0 - NONE 
@@ -387,8 +393,8 @@ HDS	^(SF(US|PA)41) ([A-Z]{4}) (..)(..)(..)
 
 # WMO Heading for Earth Networks Total Lightning
 
-HDS	^(SF(US|PA)42) ([A-Z]{4}) (..)(..)(..)
-	FILE	-overwrite -log -edex -close    /data_store/entlightning/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).nldn.%Y%m%d%H
+NGRID	^(SFPA42) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -edex -close    /data_store/entlightning/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # AWIPS1:	TEXT	^[ABCFMNRSUVW]......[KPTMC]	/text/NO_STORE
 #		TEXT	^[ABCFMNRSUVW].....[KPTMC]	/text/NO_STORE
