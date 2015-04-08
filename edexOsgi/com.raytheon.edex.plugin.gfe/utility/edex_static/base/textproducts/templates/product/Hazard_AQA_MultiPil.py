@@ -55,11 +55,11 @@ class TextProduct(GenericHazards.TextProduct):
                                            "AKZ215","AKZ216","AKZ217","AKZ227"]
 
     # Header configuration items
-    Definition["productName"] = "AIR QUALITY ALERT"  # name of product
+    Definition["productName"] = "Air Quality Alert"  # name of product
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -74,7 +74,7 @@ class TextProduct(GenericHazards.TextProduct):
 
     Definition["purgeTime"] = 24       # Maximum hours for expireTime from issueTime
     Definition["includeCities"] = 1    # Cities included in area header
-    Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
     #Definition["easPhrase"] = ""       # Optional EAS phrase to be include in product header
     Definition["lineLength"] = 69
@@ -112,7 +112,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["alertCodes"] = ["Orange", "Red", "Purple"]
     Definition["alertCTAsDict"] = {
         "Orange": "Members of sensitive groups may experience health effects. The general public is not likely to be affected.",
-        "Red" : "Everyone may experience health effects. Members of sensitive groups may experience more serious health effects.",
+        "Red" : "Everyone may experience health effects. Members of sensitive groups May experience more serious health effects.",
         "Purple" : "Health alert: everyone may experience serious health effects.",
         }
 
@@ -162,7 +162,7 @@ class TextProduct(GenericHazards.TextProduct):
 
         # Placeholder for Agency Names to be filled in in _postProcessProduct
         #fcst = fcst + "@AGENCYNAMES" + "\n"
-        s = "RELAYED BY NATIONAL WEATHER SERVICE " + self._wfoCityState + "\n" +\
+        s = "Relayed by National Weather Service " + self._wfoCityState + "\n" +\
                issuedByString + self._timeLabel + "\n\n"
 
         fcst = fcst + s.upper()
@@ -178,12 +178,12 @@ class TextProduct(GenericHazards.TextProduct):
         #   Each can be one of these phraseTypes: 
         #      "EXPLICIT" will return words such as "5 PM"
         #      "FUZZY4" will return words such as "THIS EVENING"
-        #      "DAY_NIGHT_ONLY" use only weekday or weekday "NIGHT" e.g.
-        #         "SUNDAY" or "SUNDAY NIGHT" or "TODAY" or "TONIGHT"
+        #      "DAY_NIGHT_ONLY" use only weekday or weekday "Night" e.g.
+        #         "Sunday" or "Sunday night" or "Today" or "Tonight"
         #         Note: You will probably want to set both the
         #         startPhraseType and endPhraseType to DAY_NIGHT_ONLY to
         #         have this work correctly.
-        #      "NONE" will result in no words
+        #      "None" will result in no words
         #   OR a method which takes arguments:
         #        issueTime, eventTime, timeZone, and timeType
         #     and returns:
@@ -243,7 +243,7 @@ class TextProduct(GenericHazards.TextProduct):
                                 
         # If no valid AQA hazard grid, just return a placeholder
         if headlines == "":
-            return fcst + "|* STATEMENT TEXT *|"
+            return fcst + "|* Statement text *|"
 
         # If valid hazard grid, insert headline, agency attribution, and any default text
         else:

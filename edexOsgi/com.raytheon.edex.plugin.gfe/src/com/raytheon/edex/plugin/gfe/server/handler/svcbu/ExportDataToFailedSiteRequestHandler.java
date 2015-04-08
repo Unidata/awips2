@@ -21,11 +21,15 @@ package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportDataToFailedSiteRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler for {@code ExportDataToFailedSiteRequest}. This handler will
+ * export the GFE grids for a failed site running in service backup mode and
+ * send them directly to the failed site.
  * 
  * <pre>
  * 
@@ -33,7 +37,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip    Initial creation
+ * Mar 17, 2015  #4103     dgilling    Support new Service Backup GUI.
  * 
  * </pre>
  * 
@@ -41,16 +46,24 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class ExportDataToFailedSiteRequestHandler implements
+public final class ExportDataToFailedSiteRequestHandler implements
         IRequestHandler<ExportDataToFailedSiteRequest> {
 
-    @Override
-    public Object handleRequest(ExportDataToFailedSiteRequest request)
-            throws Exception {
-        ServerResponse<String> sr = new ServerResponse<String>();
-        SvcBackupUtil.execute("export_grids_to_failed_site", request.getFailedSite()
-                .toLowerCase(), request.getPrimarySite().toLowerCase());
-        return sr;
-    }
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ExportDataToFailedSiteRequestHandler.class);
 
+    @Override
+    public JobProgress handleRequest(final ExportDataToFailedSiteRequest request)
+            throws Exception {
+        try {
+            SvcBackupUtil.execute("export_grids_to_failed_site", request
+                    .getFailedSite().toLowerCase());
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Error running export_grids_to_failed_site for site "
+                            + request.getFailedSite(), e);
+            return JobProgress.FAILED;
+        }
+        return JobProgress.SUCCESS;
+    }
 }

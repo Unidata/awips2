@@ -51,7 +51,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
 import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
@@ -95,6 +94,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *      Jul 15, 2014     2954       njensen     Updated init() for MapScalesManager change
  *      Aug 25, 2014     3467       mapeters    Removed changing of editability from swapPanes().
  *      Mar 02, 2015     4204       njensen     Support for swapping part names
+ *      Apr 02, 2015     4204       njensen     Fix 4-panel swap of renamed parts
  * 
  * </pre>
  * 
@@ -365,7 +365,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
             }
 
             IDisplayPane[] editorPanes = theEditor.getDisplayPanes();
-            AbstractVizResource<?, ?> editableResource = null;
             // Set swapping so we don't get disposed, and find an editable
             // resource if there is one
             for (IDisplayPane dPane : editorPanes) {
@@ -477,6 +476,11 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                                 }
                             }
                         }
+                        /*
+                         * have to set part name again here cause addPane() or
+                         * removePane() may mess it up
+                         */
+                        theEditor.setPartName(viewName);
                     } else {
                         int min = Math.min(viewPaneCount, editorPaneCount);
                         for (int i = 0; i < min; ++i) {

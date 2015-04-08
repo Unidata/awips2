@@ -44,14 +44,14 @@ Definition = {}
 # REQUIRED CONFIGURATION ITEMS
 #Definition['displayName'] = None
 Definition['displayName'] = "FWS_<MultiPil>"
-#Definition["productName"] = "SPOT FORECAST"  # name of product
+#Definition["productName"] = "Spot Forecast"  # name of product
 Definition["statePil"] = "GTF"       # State Pil ID
 
 # Header configuration items
 Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
 Definition["wmoID"] = "<wmoID>"        # WMO ID
 Definition["pil"] = "<pil>"          # product pil
-Definition["areaName"] = "<state>" # Name of state, such as "GEORGIA"
+Definition["areaName"] = "<state>" # Name of state, such as "Georgia"
 Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city st
 Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
 Definition["awipsWANPil"] = "<awipsWANPil>"   # Product ID for transmitting to AWIPS WAN.
@@ -134,8 +134,8 @@ Definition["stqPil"] = "STQ<site>"   # STQ pil
 # Definitions to insert unrepresentativeness of the forecast
 # instructions for the user.
 #Definition["insertUnrepresentStatement"] = 0  # Use 1 for yes, 0 for no
-#Definition["unrepresentStatement"] = "IF CONDITIONS BECOME UNREPRESENTATIVE..." + \
-#                                     "CONTACT THE NATIONAL WEATHER\nSERVICE."
+#Definition["unrepresentStatement"] = "If conditions become unrepresentative..." + \
+#                                     "contact the National Weather\nService."
 
 #Definition["tempLocalEffects"] = 1   # Set to 1 to enable Temp and RH local effects AFTER
                                       # creating AboveElev and BelowElev edit areas
