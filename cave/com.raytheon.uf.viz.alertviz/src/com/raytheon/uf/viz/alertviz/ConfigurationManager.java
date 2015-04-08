@@ -61,9 +61,10 @@ import com.raytheon.uf.viz.alertviz.config.Source;
  * Apr 7, 2010            mschenke     Initial creation
  * Mar 16, 2011 6531       rferrel     Start up loads host dependent
  *                                     configuration file.
- * Aug 28 2012  13528	  Xiaochuan	   Using setNewConfiguration() to 
- * 									   re-set configuration data and
- * 									   run notifyListeners().  	 	  	                                  
+ * Aug 28 2012  13528     Xiaochuan    Using setNewConfiguration() to 
+ *                                     re-set configuration data and
+ *                                     run notifyListeners().
+ * Apr 07 2015  4346       rferrel     Created {@link #retrieveBaseConfiguration()}.
  * 
  * </pre>
  * 
@@ -75,13 +76,18 @@ public class ConfigurationManager {
             .getHandler(ConfigurationManager.class, "GDN_ADMIN", "GDN_ADMIN");
 
     public static final ConfigContext DEFAULT_BASE_CONFIG = new ConfigContext(
-            "Default", LocalizationLevel.BASE);
+            ConfigContext.DEFAULT_NAME, LocalizationLevel.BASE);
 
     public static final ConfigContext DEFAULT_SITE_CONFIG = new ConfigContext(
-            "Default", LocalizationLevel.SITE);
+            ConfigContext.DEFAULT_NAME, LocalizationLevel.SITE);
 
     public static final ConfigContext DEFAULT_WORKSTATION_CONFIG = new ConfigContext(
-            "Default", LocalizationLevel.WORKSTATION);
+            ConfigContext.DEFAULT_NAME, LocalizationLevel.WORKSTATION);
+
+    private static final String CONFIG_DIR = ConfigContext.ALERTVIZ_DIR
+            + IPathManager.SEPARATOR + ConfigContext.DEFAULT_SUBDIR;
+
+    private static final String[] EXTENSIONS = { ConfigContext.XML_EXT };
 
     private static ConfigurationManager instance = new ConfigurationManager();
 
@@ -147,7 +153,7 @@ public class ConfigurationManager {
             unmarshaller = null;
         }
         loadFromLocalization();
-        baseConfiguration = retrieveConfiguration(DEFAULT_BASE_CONFIG);
+        baseConfiguration = retrieveBaseConfiguration();
     }
 
     /**
@@ -202,20 +208,20 @@ public class ConfigurationManager {
             Configuration custom = getCustomConfiguration();
 
             if (custom != null) {
-            	if (baseConfiguration == null) {
-            		statusHandler.error("The base configuration "
-            			+ DEFAULT_BASE_CONFIG.getLocalizationFileName()
-            			+ " was not loaded.  Check your configuration.");
-            	}
-            	else {
-            		/*
-            		 * merge custom over base then overlay the current config on
-            		 * that result. preserve locking from the base configuration.
-            		 */
-            		Configuration baseCustom = baseConfiguration.mergeUnder(custom,
-            				true);
-            		currentConfig = baseCustom.overlayWith(currentConfig, true);
-            	}
+                if (baseConfiguration == null) {
+                    statusHandler.error("The base configuration "
+                            + DEFAULT_BASE_CONFIG.getLocalizationFileName()
+                            + " was not loaded.  Check your configuration.");
+                } else {
+                    /*
+                     * merge custom over base then overlay the current config on
+                     * that result. preserve locking from the base
+                     * configuration.
+                     */
+                    Configuration baseCustom = baseConfiguration.mergeUnder(
+                            custom, true);
+                    currentConfig = baseCustom.overlayWith(currentConfig, true);
+                }
             }
             configurationMap.put(current, currentConfig);
         } else if (DEFAULT_BASE_CONFIG.equals(current) == false) {
@@ -232,11 +238,11 @@ public class ConfigurationManager {
      */
     public boolean saveCurrentConfiguration(ConfigContext context,
             Configuration toSave) {
-    	
-    	if (saveToFile(context, toSave)) {
-    		setNewConfiguration(context, toSave);
-             
-    		return true;
+
+        if (saveToFile(context, toSave)) {
+            setNewConfiguration(context, toSave);
+
+            return true;
         }
         return false;
     }
@@ -247,11 +253,12 @@ public class ConfigurationManager {
      */
     public void setNewConfiguration(ConfigContext context,
             Configuration configData) {
-    	configurationMap.put(context, configData);
-    	current = context;
+        configurationMap.put(context, configData);
+        current = context;
         notifyListeners();
-          	
+
     }
+
     /**
      * Delete the configuration passed in
      * 
@@ -299,21 +306,34 @@ public class ConfigurationManager {
         listeners.remove(listener);
     }
 
+    /**
+     * Get files to display in the dialog.
+     */
     private void loadFromLocalization() {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext[] contexts = pm
                 .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC);
-        String[] extensions = { "xml" };
-        LocalizationFile[] files = pm.listFiles(contexts, "alertViz" + "/"
-                + "configurations", extensions, true, true); // Win32
+        LocalizationFile[] files = pm.listFiles(contexts, CONFIG_DIR,
+                EXTENSIONS, true, true); // Win32
+
         for (LocalizationFile file : files) {
-            String fileName = file.getName();
-            LocalizationContext locContext = file.getContext();
-            String name = fileName.substring(
-fileName.lastIndexOf("/") + 1, // win32
-                    fileName.lastIndexOf("."));
-            ConfigContext context = new ConfigContext(name, locContext);
-            configurationMap.put(context, null);
+            LocalizationContext fileContext = file.getContext();
+
+            /*
+             * Do not display BASE xml files that get merged into the
+             * baseConfiguration.
+             */
+            if ((fileContext.getLocalizationLevel() != LocalizationLevel.BASE)
+                    || ((fileContext.getLocalizationLevel() == LocalizationLevel.BASE) && DEFAULT_BASE_CONFIG
+                            .getLocalizationFileName().equals(file.getName()))) {
+                String fileName = file.getName();
+                LocalizationContext locContext = file.getContext();
+                String name = fileName.substring(
+                        fileName.lastIndexOf(IPathManager.SEPARATOR) + 1, // win32
+                        fileName.lastIndexOf("."));
+                ConfigContext context = new ConfigContext(name, locContext);
+                configurationMap.put(context, null);
+            }
         }
     }
 
@@ -339,7 +359,40 @@ fileName.lastIndexOf("/") + 1, // win32
 
     public Configuration retrieveConfiguration(ConfigContext configContext) {
         LocalizationFile file = getLocalizationFile(configContext);
+        if (DEFAULT_BASE_CONFIG.equals(configContext)) {
+            if (baseConfiguration == null) {
+                baseConfiguration = retrieveBaseConfiguration();
+            }
+            return baseConfiguration;
+        }
+
         return retrieveConfiguration(file);
+    }
+
+    /**
+     * Get base Default.xml and merge with any other base xml files.
+     * 
+     * @return configuration
+     */
+    private Configuration retrieveBaseConfiguration() {
+        LocalizationFile file = getLocalizationFile(DEFAULT_BASE_CONFIG);
+        Configuration configuration = retrieveConfiguration(file);
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+        LocalizationFile[] files = pm.listFiles(context, CONFIG_DIR,
+                EXTENSIONS, false, true);
+        for (LocalizationFile f : files) {
+            // Merge other base files with the default.
+            if (!DEFAULT_BASE_CONFIG.getLocalizationFileName().equals(
+                    f.getName())) {
+                Configuration fileConfig = retrieveConfiguration(f);
+                Configuration mergeConfig = configuration.mergeUnder(
+                        fileConfig, true);
+                configuration = mergeConfig.overlayWith(configuration, true);
+            }
+        }
+        return configuration;
     }
 
     public Configuration retrieveConfiguration(LocalizationFile file) {
@@ -397,7 +450,7 @@ fileName.lastIndexOf("/") + 1, // win32
 
     private void notifyListeners() {
         for (IConfigurationChangedListener listener : listeners) {
-        	listener.configurationChanged();
+            listener.configurationChanged();
         }
     }
 
@@ -464,8 +517,9 @@ fileName.lastIndexOf("/") + 1, // win32
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext ctx = pm.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.SITE);
-        LocalizationFile file = pm.getLocalizationFile(ctx, "alertViz"
-                + File.separator + "AlertVizForced.xml");
+        LocalizationFile file = pm.getLocalizationFile(ctx,
+                ConfigContext.ALERTVIZ_DIR + IPathManager.SEPARATOR
+                        + "AlertVizForced.xml");
         File actualFile = file.getFile();
         // Win32: JHB put in check for length
         if (actualFile != null && actualFile.exists()
@@ -536,7 +590,7 @@ fileName.lastIndexOf("/") + 1, // win32
     }
 
     public void resetCustomLocalization() {
-    	reloadCustomConfiguration = true;
+        reloadCustomConfiguration = true;
     }
 
     public static boolean isDefaultConfig(ConfigContext context) {
