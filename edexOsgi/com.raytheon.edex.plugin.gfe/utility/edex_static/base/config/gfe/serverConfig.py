@@ -54,7 +54,8 @@
 #    01/19/2015          #4014     dgilling       Added ETSS. 
 #    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
 #    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
-
+#    04/08/2015          #4383     dgilling       Define FireWX ISC configuration parameters.
+#
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1806,6 +1807,13 @@ localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
+AdditionalISCRouting = [ 
+   # Configure by adding entries to this list in the form of:
+   # ([WeatherElements],  ModelName, EditAreaPrefix)
+   # Example: 
+   # ([Hazards, LAL, CWR], "ISCFire", "FireWxAOR_"), 
+]
+
 if not BASELINE and siteImport('localConfig'):
     #ensure office type is set properly in localConfig SITES[]
     if len(SITES[GFESUITE_SITEID]) == 5:
@@ -2180,6 +2188,14 @@ ISCPARMS.append(([Topo], Persistent))
 DATABASES.append((Restore, RESTOREPARMS))
 DATABASES.append((ISC, ISCPARMS))
 
+for entry in AdditionalISCRouting:
+    (parmList, dbName, editAreaPrefix) = entry
+    parmList = list(parmList)
+    addedIscDbDefinition = (dbName, ) + ISC[1:]
+    addedIscParms = [(parmList, TC1)]
+    DATABASES.append((addedIscDbDefinition, addedIscParms))
+
+
 #---------------------------------------------------------------------------
 #
 #  General server configuration section
@@ -2260,5 +2276,6 @@ def doIt():
     IFPConfigServer.sendiscOnPublish = sendiscOnPublish
     IFPConfigServer.requestedISCparms = requestedISCparms
     IFPConfigServer.transmitScript = transmitScript
+    IFPConfigServer.iscRoutingConfig = doConfig.parseAdditionalISCRouting(AdditionalISCRouting)
 
 doIt()

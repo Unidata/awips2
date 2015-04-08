@@ -20,8 +20,10 @@
 package com.raytheon.edex.plugin.gfe.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,6 +58,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  * 06/24/13     #2044      randerso    Renamed satdirs to satdata to match serverConfig.py
  * 08/14/2013   #1571      randerso    Changed to use ProjectionType enum
  * 03/05/2015   #4169      randerso    Changed model name mappings to return null if no mapping
+ * 04/09/2015   #4383      dgilling    Support FireWx ISC.
  * 
  * </pre>
  * 
@@ -164,6 +167,8 @@ public class IFPServerConfig {
 
     private long _protocolVersion = 20080905;
 
+    private Collection<ISCRoutingConfig> iscRoutingConfig;
+
     private String convertToString(final DatabaseID id) {
         return id.getModelId();
     }
@@ -194,6 +199,7 @@ public class IFPServerConfig {
         _desiredDbVersions = new HashMap<String, Integer>();
         _gridPurgeAge = new HashMap<String, Integer>();
         _gridDbConfig = new HashMap<String, GridDbConfig>();
+        iscRoutingConfig = Collections.emptyList();
     }
 
     protected IFPServerConfig(final SimpleServerConfig config) {
@@ -554,6 +560,8 @@ public class IFPServerConfig {
                     DatabaseID.NO_MODEL_TIME);
             setDesiredDbVersions(dbid, versions);
         }
+
+        iscRoutingConfig = config.iscRoutingConfig;
     }
 
     /**
@@ -843,5 +851,13 @@ public class IFPServerConfig {
                 + _singletonDatabases + "\n" + "Official Databases: "
                 + _officialDatabases + "\n" + "Sites: " + _siteID + "\n"
                 + "TimeZones: " + _timeZones + "\n";
+    }
+
+    public Collection<String> alternateISCEditAreaMasks() {
+        Collection<String> retVal = new HashSet<>();
+        for (ISCRoutingConfig entry : iscRoutingConfig) {
+            retVal.add(entry.getEditAreaPrefix());
+        }
+        return retVal;
     }
 }
