@@ -444,18 +444,16 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                 if (null == CCCcode) {
                     wsfoIdTF.setText(textProd.getCccid()); 
                 } else {
-                    wsfoIdTF.setText(CCCcode);
+                    if (textProd.getProdId().getWmoid().isEmpty()
+                            && textProd.getProdId().getSite().isEmpty()) {
+                       wsfoIdTF.setText(textProd.getCccid());
+                    }
+                    else
+                      wsfoIdTF.setText(CCCcode);
                 }
             } else {
                 wsfoIdTF.setText(textProd.getCccid());
             }
-            
-            if(textProd.getProduct() != null) {
-                if(textProd.getProduct().startsWith("ZCZC")) {
-                    wsfoIdTF.setText(textProd.getCccid());
-                }
-            }
-            
             prodCatTF.setText(textProd.getNnnid());
             prodDesignatorTF.setText(textProd.getXxxid());
         }
