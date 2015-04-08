@@ -19,13 +19,17 @@
 # further licensing information.
 ##
 ##############################################################################
-# TODO: ADD DESCRIPTION
+# This script is triggered by MHS when the requested failed site's 
+# localization data is sent to the backup site.
 #
 #     SOFTWARE HISTORY
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/10/11        8688          dgilling       Initial Creation.
+#    02/12/15        4103          dgilling       Pre-emptively determine site id.
+#    03/30/15        4103          dgilling       Support new location for svcbu.properties.
+#
 ##############################################################################
 
 # this allows you to run this script from outside of ./bin
@@ -34,8 +38,17 @@ RUN_FROM_DIR=`dirname $path_to_script`
 
 BASE_AWIPS_DIR=`dirname $RUN_FROM_DIR`
 
+if [[ -z "${AWIPS_HOME}" ]]
+then
+	AWIPS_HOME=$(dirname $(dirname $BASE_AWIPS_DIR))
+fi
+
 # get the base environment
+source ${AWIPS_HOME}/edex/bin/setup.env
 source /awips2/GFESuite/bin/setup.env
+source /awips2/GFESuite/ServiceBackup/scripts/serviceBackupUtil.sh
+export SVCBU_HOST
+export CDSPORT
 
 # setup the environment needed to run the the Python
 export LD_LIBRARY_PATH=${PYTHON_INSTALL}/lib
@@ -45,6 +58,25 @@ export PYTHONPATH=${RUN_FROM_DIR}/src:$PYTHONPATH
 _PYTHON="${PYTHON_INSTALL}/bin/python"
 _MODULE="/awips2/GFESuite/ServiceBackup/scripts/receive_configuration.py"
 
-# quoting of '$@' is used to prevent command line interpretation 
-$_PYTHON $_MODULE -h localhost -r 9581 "$@"
+# Determine the 3 letter failed site id
+RECEIVED_FILE=${1}
+if [[ -f ${RECEIVED_FILE} ]]
+then
+	SITE_ID=$(getSiteIdFromTarFile "${RECEIVED_FILE}")
+    if [[ -z "${SITE_ID}" ]]
+    then
+    	#Still need to do this the old way for backward compatibility
+		echo "Using the old tar/cut method"
+		tar -tf ${RECEIVED_FILE} | while read line
+		do
+	    	SITE_ID=`echo $line | cut -d. -f2`
+	    	break
+		done
+	fi
+else
+    echo "Unable to locate ${RECEIVED_FILE}. Service backup exits now"
+    exit 1
+fi
+
+$_PYTHON $_MODULE -h localhost -r 9581 ${RECEIVED_FILE} ${SITE_ID}
 

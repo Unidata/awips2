@@ -78,7 +78,7 @@ class TextProduct(GenericReport.TextProduct):
         "defaultEditAreas" : "Combinations_ADR_<site>",
 
         # product identifiers
-        "productName": "ADMINISTRATIVE MESSAGE", # product name 
+        "productName": "Administrative Message", # product name 
         "fullStationID" : "<fullStationID>",    # 4 letter station ID
         "wmoID" : "<wmoID>",                    # WMO code
         "wfoCityState" : "<wfoCityState>",      # Location of WFO
@@ -93,7 +93,7 @@ class TextProduct(GenericReport.TextProduct):
         "language": "english",
         "lineLength": 66,   #Maximum line length
         "includeCities" : 0,    # Cities included in area header
-        "cityDescriptor" : "INCLUDING THE CITIES OF",
+        "cityDescriptor" : "Including the cities of",
         "includeZoneNames" : 0, # Zone names will be included in the area header
         "includeIssueTime" : 0,   # This should be set to zero
         "singleComboOnly" : 1, # Used for non-segmented products
@@ -142,7 +142,7 @@ class TextProduct(GenericReport.TextProduct):
         #
 
         try:
-            if self._eas == "NONE":
+            if self._eas == "None":
                 self._eas = ""
             else:
                 self._eas = self._eas + "\n"
@@ -158,14 +158,14 @@ class TextProduct(GenericReport.TextProduct):
         productName = self.checkTestMode(argDict, self._productName)
         fcst = fcst + self._eas + productName + "\n" +\
                source +\
-               "RELAYED BY NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "Relayed by National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
         return fcst
 
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
-        fcst = fcst + "...ADMINISTRATIVE MESSAGE...\n\n"
-        fcst = fcst + "THE FOLLOWING MESSAGE IS TRANSMITTED" + \
-               " AT THE REQUEST OF THE " + self._source + "." 
+        fcst = fcst + "...Administrative Message...\n\n"
+        fcst = fcst + "The following message is transmitted" + \
+               " at the request of the " + self._source + "." 
        
         if self._callToAction:
             fcst = self._makeCallToAction(fcst, editArea, areaLabel, argDict)
@@ -175,9 +175,9 @@ class TextProduct(GenericReport.TextProduct):
     def _makeCallToAction(self, fcst, editArea, areaLabel, argDict):
         ctaBodyPhrase = ""
         if self._callToAction:
-            ctaBodyPhrase = "\n\nPRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n" + \
+            ctaBodyPhrase = "\n\nPrecautionary/preparedness actions...\n\n" + \
                         ctaBodyPhrase + \
-                        "|* CALL TO ACTION GOES HERE *|\n\n" + \
+                        "|* Call to action goes here *|\n\n" + \
                         "\n\n&&\n\n"
         fcst = fcst + ctaBodyPhrase
         return fcst

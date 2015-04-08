@@ -1116,7 +1116,7 @@ public class IFPGridDatabase extends GridDatabase {
      * @param parmStorageInfoUser
      * @return ServerResponse containing status only
      */
-    protected ServerResponse<?> applyProjectionAndDomainChanges(
+    private ServerResponse<?> applyProjectionAndDomainChanges(
             Map<String, ParmStorageInfo> parmStorageInfoUser) {
         ServerResponse<?> sr = new ServerResponse<Object>();
 
@@ -1167,7 +1167,7 @@ public class IFPGridDatabase extends GridDatabase {
         return sr;
     }
 
-    private ServerResponse<?> remapAllGrids(
+    protected ServerResponse<?> remapAllGrids(
             Map<String, ParmStorageInfo> parmStorageInfoUser) {
         ServerResponse<?> sr = new ServerResponse<Object>();
 
@@ -1347,7 +1347,7 @@ public class IFPGridDatabase extends GridDatabase {
      * 
      * @return ServerResponse containing the user configuration
      */
-    protected ServerResponse<Map<String, ParmStorageInfo>> getUserConfiguration() {
+    private ServerResponse<Map<String, ParmStorageInfo>> getUserConfiguration() {
         ServerResponse<Map<String, ParmStorageInfo>> sr = new ServerResponse<Map<String, ParmStorageInfo>>();
         Map<String, ParmStorageInfo> parmStorageInfoUser = new HashMap<String, ParmStorageInfo>();
 

@@ -19,17 +19,18 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.util.Properties;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetGfeStartCmdRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler for {@code GetGfeStartCmdRequest}. Using the configuration
+ * file svcbu.properties, this determines the command needed to launch GFE as
+ * the failed site and returns it to the requester.
  * 
  * <pre>
  * 
@@ -37,7 +38,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 9, 2011            bphillip     Initial creation
+ * Aug 09, 2011            bphillip    Initial creation
+ * Feb 13, 2015  #4103     dgilling    Rewrite to stop using createGFEStartScript.
  * 
  * </pre>
  * 
@@ -45,35 +47,36 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class GetGfeStartCmdRequestHandler implements
+public final class GetGfeStartCmdRequestHandler implements
         IRequestHandler<GetGfeStartCmdRequest> {
 
-    @Override
-    public Object handleRequest(GetGfeStartCmdRequest request) throws Exception {
-        ServerResponse<String> sr = new ServerResponse<String>();
-        BufferedReader in = null;
-        try {
-            SvcBackupUtil.execute("createGFEStartScript", request.getSite());
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CleanupSvcBuRequestHandler.class);
 
-            String scriptFile = "/awips2/GFESuite/ServiceBackup/.launch_cave.sh";
-            in = new BufferedReader(new FileReader(scriptFile));
-            String str = null;
-            while ((str = in.readLine()) != null) {
-                sr.setPayload(str);
-            }
-            in.close();
-        } catch (Exception e) {
-            sr.addMessage("Error generating GFE launch script! "
-                    + e.getLocalizedMessage());
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    sr.addMessage("Error closing input stream!");
-                }
-            }
+    @Override
+    public String handleRequest(final GetGfeStartCmdRequest request)
+            throws Exception {
+        Properties svcbuProps = SvcBackupUtil.getSvcBackupProperties();
+
+        String svcbuUser = (svcbuProps.getProperty("SVCBU_USER") != null) ? svcbuProps
+                .getProperty("SVCBU_USER").trim() : "0";
+        String svcbuUserName = (svcbuProps.getProperty("SVCBU_USER_ID") != null) ? svcbuProps
+                .getProperty("SVCBU_USER_ID").trim() : "";
+
+        if (svcbuUser.equals("1") && svcbuUserName.isEmpty()) {
+            statusHandler
+                    .info("You do not have a user id configured for ServiceBackup");
+            statusHandler.info("GFE will start with your regular user id");
         }
-        return sr;
+
+        StringBuilder cmdLine = new StringBuilder(
+                svcbuProps.getProperty("CAVE_LAUNCH_SCRIPT"));
+        cmdLine.append(" -site ").append(request.getSite());
+        if ((svcbuUser.equals("1")) && (!svcbuUserName.isEmpty())) {
+            cmdLine.append(" -u ").append(svcbuUserName);
+        }
+        cmdLine.append(" -perspective GFE");
+
+        return cmdLine.toString();
     }
 }

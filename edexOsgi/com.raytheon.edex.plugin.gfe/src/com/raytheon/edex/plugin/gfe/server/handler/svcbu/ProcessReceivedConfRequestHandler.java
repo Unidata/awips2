@@ -19,15 +19,20 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
-import com.raytheon.edex.plugin.gfe.svcbackup.ServiceBackupNotificationManager;
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
-import com.raytheon.edex.site.SiteUtil;
+import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.request.ProcessReceivedConfRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.server.notify.ServiceBackupJobStatusNotification;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler for {@code ProcessReceivedConfRequest}. Triggered when MHS
+ * sends the requested configuration data from {@code ImportConfRequestHandler}
+ * to this server. Will call the service backup script process_configuration to
+ * validate and install the site's configuration data.
  * 
  * <pre>
  * 
@@ -35,7 +40,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip    Initial creation
+ * Feb 13, 2015  #4103     dgilling    Pass site id to process_configuration.
  * 
  * </pre>
  * 
@@ -43,27 +49,34 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class ProcessReceivedConfRequestHandler implements
+public final class ProcessReceivedConfRequestHandler implements
         IRequestHandler<ProcessReceivedConfRequest> {
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ProcessReceivedConfRequestHandler.class);
+
     @Override
-    public Object handleRequest(ProcessReceivedConfRequest request)
+    public JobProgress handleRequest(final ProcessReceivedConfRequest request)
             throws Exception {
-        ServerResponse<String> sr = new ServerResponse<String>();
         try {
-            SvcBackupUtil.execute("createGFEStartScript", SiteUtil.getSite().toLowerCase());
             SvcBackupUtil.execute("process_configuration",
-                    request.getReceivedConfFile());
-            ServiceBackupNotificationManager
-                    .sendMessageNotification("Import Configuration Complete!");
+                    request.getReceivedConfFile(), request.getSiteID());
+            statusHandler.info("Import Configuration Complete for site "
+                    + request.getSiteID());
         } catch (Exception e) {
-            sr.addMessage("Error processing received grids. "
-                    + e.getLocalizedMessage());
-            ServiceBackupNotificationManager.sendErrorMessageNotification(
-                    "Error Processing Configuration Data!", e);
+            statusHandler.error("Error Processing Configuration Data for site "
+                    + request.getSiteID(), e);
+            SendNotifications.send(new ServiceBackupJobStatusNotification(
+                    "importConfiguration", JobProgress.FAILED, request
+                            .getSiteID()));
+            return JobProgress.FAILED;
         }
 
-        return sr;
-    }
+        SendNotifications
+                .send(new ServiceBackupJobStatusNotification(
+                        "importConfiguration", JobProgress.SUCCESS, request
+                                .getSiteID()));
 
+        return JobProgress.SUCCESS;
+    }
 }

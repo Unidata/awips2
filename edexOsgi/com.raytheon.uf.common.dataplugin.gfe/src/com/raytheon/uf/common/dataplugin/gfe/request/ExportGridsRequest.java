@@ -23,7 +23,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Request to export the specified site's GFE grids for the central server's
+ * rsync process to download.
  * 
  * <pre>
  * 

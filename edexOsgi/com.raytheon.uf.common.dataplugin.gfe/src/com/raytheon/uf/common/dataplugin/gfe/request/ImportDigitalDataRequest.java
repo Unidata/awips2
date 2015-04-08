@@ -23,7 +23,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Request to request a failed site's GFE grids via the MHS.
  * 
  * <pre>
  * 
@@ -31,7 +31,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip     Initial creation
+ * Mar 18, 2015  #4103     dgilling     Remove unnecessary primary site field.
  * 
  * </pre>
  * 
@@ -40,9 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class ImportDigitalDataRequest extends AbstractGfeRequest {
-    @DynamicSerializeElement
-    private String primarySite;
+public final class ImportDigitalDataRequest extends AbstractGfeRequest {
 
     @DynamicSerializeElement
     private String failedSite;
@@ -51,24 +50,8 @@ public class ImportDigitalDataRequest extends AbstractGfeRequest {
 
     }
 
-    public ImportDigitalDataRequest(String primarySite, String failedSite) {
-        this.primarySite = primarySite;
+    public ImportDigitalDataRequest(String failedSite) {
         this.failedSite = failedSite;
-    }
-
-    /**
-     * @return the primarySite
-     */
-    public String getPrimarySite() {
-        return primarySite;
-    }
-
-    /**
-     * @param primarySite
-     *            the primarySite to set
-     */
-    public void setPrimarySite(String primarySite) {
-        this.primarySite = primarySite;
     }
 
     /**

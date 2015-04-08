@@ -2718,7 +2718,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
                 if minRH == None or rh < minRH:
                     minRH = rh
         if minRH is not None and minRH <= self.rh_threshold(tree, node):
-           words = "MINIMUM RH " + `int(minRH)` + " PERCENT"
+           words = "minimum RH " + `int(minRH)` + " percent"
         return self.setWords(node, words)
     
     # MultipleElementTable calls

@@ -21,11 +21,15 @@ package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.ImportDigitalDataRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler for {@code ImportDigitalDataRequest}. Causes an MHS request
+ * to be sent to have the GFE grids for the specified site to be sent to this
+ * server. Should be used only during service backup mode.
  * 
  * <pre>
  * 
@@ -33,7 +37,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip     Initial creation
+ * Mar 17, 2015   4103     dgilling     Support new Service Backup GUI.
  * 
  * </pre>
  * 
@@ -41,15 +46,26 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class ImportDigitalDataRequestHandler implements
+public final class ImportDigitalDataRequestHandler implements
         IRequestHandler<ImportDigitalDataRequest> {
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ImportDigitalDataRequestHandler.class);
+
     @Override
-    public Object handleRequest(ImportDigitalDataRequest request)
+    public JobProgress handleRequest(final ImportDigitalDataRequest request)
             throws Exception {
-        ServerResponse<String> sr = new ServerResponse<String>();
-        SvcBackupUtil.execute("request_grids", request.getPrimarySite()
-                .toLowerCase(), request.getFailedSite().toLowerCase());
-        return sr;
+        try {
+            statusHandler.info("Requesting GFE grids for site "
+                    + request.getFailedSite());
+            SvcBackupUtil.execute("request_grids", request.getFailedSite()
+                    .toLowerCase());
+        } catch (Exception e) {
+            statusHandler.error("Error executing request_grids for site "
+                    + request.getFailedSite(), e);
+            return JobProgress.FAILED;
+        }
+
+        return JobProgress.SUCCESS;
     }
 }
