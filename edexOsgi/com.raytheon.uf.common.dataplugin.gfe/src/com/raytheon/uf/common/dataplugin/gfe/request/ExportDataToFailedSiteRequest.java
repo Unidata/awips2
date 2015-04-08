@@ -23,7 +23,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Request to export the specified failed site's GFE grids and immediately send
+ * them directly to the failed site.
  * 
  * <pre>
  * 
@@ -31,7 +32,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip     Initial creation
+ * Mar 18, 2015  #4103     dgilling     Remove unnecessary primary site field.
  * 
  * </pre>
  * 
@@ -40,10 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class ExportDataToFailedSiteRequest extends AbstractGfeRequest {
-
-    @DynamicSerializeElement
-    private String primarySite;
+public final class ExportDataToFailedSiteRequest extends AbstractGfeRequest {
 
     @DynamicSerializeElement
     private String failedSite;
@@ -51,24 +50,8 @@ public class ExportDataToFailedSiteRequest extends AbstractGfeRequest {
     public ExportDataToFailedSiteRequest() {
     }
 
-    public ExportDataToFailedSiteRequest(String primarySite, String failedSite) {
-        this.primarySite = primarySite;
+    public ExportDataToFailedSiteRequest(String failedSite) {
         this.failedSite = failedSite;
-    }
-
-    /**
-     * @return the primarySite
-     */
-    public String getPrimarySite() {
-        return primarySite;
-    }
-
-    /**
-     * @param primarySite
-     *            the primarySite to set
-     */
-    public void setPrimarySite(String primarySite) {
-        this.primarySite = primarySite;
     }
 
     /**
@@ -85,5 +68,4 @@ public class ExportDataToFailedSiteRequest extends AbstractGfeRequest {
     public void setFailedSite(String failedSite) {
         this.failedSite = failedSite;
     }
-
 }

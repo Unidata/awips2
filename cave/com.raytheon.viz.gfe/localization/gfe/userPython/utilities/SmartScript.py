@@ -64,7 +64,7 @@
 #                                                 Fixed createTimeRange to correctly return time ranges relative to local
 #                                                 time regardless of setting of os.environ['TZ']
 #    Jan 13, 2015    3955          randerso       Added optional parameter to availableParms to specify desired databases.
-#                                                 Fixed createGrid to work with non-IFP databases (dbType not "")
+#                                                 Fixed createGrid to accept a DatabaseID for model
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -1051,7 +1051,7 @@ class SmartScript(BaseTool.BaseTool):
             timeRange = timeRange.toJavaObj()
 
         from com.raytheon.viz.gfe.procedures import ProcedureUtil
-        if varDict:
+        if varDict is not None:
             varDict = str(varDict)
 
         result = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, varDict)
@@ -1135,7 +1135,7 @@ class SmartScript(BaseTool.BaseTool):
             elif isinstance(model, DatabaseID.DatabaseID):
                 dbi = model
             else:
-                dbi = DatabaseID.databaseID(siteID + "_GRID_" + model + "_00000000_0000")
+                dbi = DatabaseID.databaseID(siteID + "_GRID__" + model + "_00000000_0000")
             pid = ParmID.ParmID(element, dbid=dbi).toJavaObj()
             # Grid Parm Info set up to use a default at first
             if elementType == "VECTOR":

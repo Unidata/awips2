@@ -35,7 +35,8 @@ import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
  * Oct 26, 2012 1287       rferrel     Change to force blocking of ServiceBackupDlg.
  * Mar 21, 2013 1447       dgilling    Fix dialog construction so this dialog
  *                                     is created as a top-level shell.
- * Jun 11, 2014 DR-17401    lshi                              
+ * Jun 11, 2014 DR-17401    lshi
+ * Mar 19, 2015 4300        randerso   Changes to support updated ServiceBackupDlg
  * 
  * </pre>
  * 
@@ -54,12 +55,9 @@ public class ServiceBackupComponent extends AbstractAWIPSComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        ServiceBackupDlg svcBuDlg = new ServiceBackupDlg(null);
-        if (!svcBuDlg.isTerminated())
-        {
-        	svcBuDlg.setBlockOnOpen(true);
-        	svcBuDlg.open();
-        }
+        ServiceBackupDlg svcBuDlg = new ServiceBackupDlg();
+        svcBuDlg.setBlockOnOpen(true);
+        svcBuDlg.open();
     }
 
     /*

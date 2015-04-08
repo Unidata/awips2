@@ -13,6 +13,9 @@
 #    05/16/13        #2009         dgilling       New backup structure: 
 #                                                 PRIMARY_SITES go to exportgrids/primary/
 #                                                 and all other go to exportgrids/backup/.
+#    02/12/15        #4103         dgilling       Refactored to support multiple service
+#                                                 backup sites.
+#
 ##############################################################################
 
 if [ ${#AWIPS_HOME} = 0 ]
@@ -29,34 +32,29 @@ fi
 #         $2 = wfo ID.
 #
 #
-if [ $# -ne 2 ]
-then
-   log_msg "Incorrect number of arguments\nCorrect usage: export_grids [-c|-m|-g] wfo"
-   exit 1
-fi
 
 . ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
-
-# Create the log file
-logdir=${IFPS_LOG}/`date +%Y%m%d`
-logfil=svcbu_export_grids_`date +%H%M`
-logfile=${logdir}/${logfil}
-[ ! -d ${logdir} ] && (umask 000;mkdir ${logdir})
-touch ${logdir}/${logfil}
-exec 1>${logdir}/${logfil} 2>&1
+source ${AWIPS_HOME}/GFESuite/ServiceBackup/scripts/serviceBackupUtil.sh
 
 SITE=`echo ${2} | tr '[A-Z]' '[a-z]'`
 CAPS_SITE=`echo ${2} | tr [a-z] [A-Z]`
 export SITE
 
-manuallockFile=${LOCK_DIR}/${SITE}exportGrids
-cronLockFile=${LOCK_DIR}/${SITE}exportGridscron
+# Create the log file
+configureLogging "svcbu_export_grids" ${SITE}
+
+if [ $# -ne 2 ]
+then
+   echo "Incorrect number of arguments\nCorrect usage: export_grids [-c|-m|-g] wfo"
+   exit 1
+fi
+
+manuallockFile=$(getLockFile "exportGrids" ${SITE})
+cronLockFile=$(getLockFile "exportGridscron" ${SITE})
 lockFile=${manuallockFile}
-LOGGER=log_msg
 
 if [ $1 = "-c" ]
 then
-   LOGGER=echo_msg
    lockFile=${cronLockFile}
 fi
 
@@ -64,31 +62,28 @@ fi
 #
 if [ $EXPORT_GRID -eq 0 ] 
 then
-   $LOGGER "You turned off the export grid option. Check EXPORT_GRID."
-   $LOGGER 100
+   echo "You turned off the export grid option. Check EXPORT_GRID."
    exit 1
 elif [ "$1" = "-c" ] && [ $EXPORT_GRID -ne 1 ]
 then
-   $LOGGER "Cannot execute grid export since you have disabled the cron job. Check EXPORT_GRID."
-   $LOGGER 100 
+   echo "Cannot execute grid export since you have disabled the cron job. Check EXPORT_GRID."
    exit 1
 elif [ -z "$EXPORT_GRID" ]
 then
-   $LOGGER "EXPORT_GRID not defined. Export grids failed"  
-   $LOGGER 100
+   echo "EXPORT_GRID not defined. Export grids failed"
    exit 1
 fi
 
-if [ -f ${manuallockFile} ]
+lock_status=$(isOperationInProgress "exportGrids" ${SITE})
+if [[ "${lock_status}" = "true" ]]
 then
-   $LOGGER Cannot export grids for ${CAPS_SITE}.  Export grids process already in progress!  Cron will not run this hour.
-   exit 1
+	echo "Cannot export grids for ${CAPS_SITE}.  Export grids process already in progress!  Cron will not run this hour."
+	exit 1
 fi
 
-touch ${lockFile}
+echo "IN_PROGRESS" > ${lockFile}
 
-$LOGGER "Starting exporting grids..."
-$LOGGER 0
+echo "Starting exporting grids..."
 
 #
 # If this is a non-wfo/non-rfc site, they may not have an edit area for clipping - handle it
@@ -104,8 +99,8 @@ fi
 starttime=`date -d "24 hours ago" +%Y%m%d`_`date -d "24 hours ago" +%H00`
 endtime=`date -d "+8 days 6 hours" +%Y%m%d`_`date -d "+8 days 6 hours" +%H00`
 #
-$LOGGER 25
-$LOGGER "Running ifpnetCDF..." 
+
+echo "Running ifpnetCDF..." 
 
 # Name of the database to use in ifpServer to grab grids from.
 # NOTE: SVCBU_DB must be defined in ifps-ccc.env file. Defaults to Official.
@@ -115,7 +110,7 @@ then
 else
    DB_NAME=${CAPS_SITE}_GRID__Official_00000000_0000
 fi
-$LOGGER ${DB_NAME}
+echo ${DB_NAME}
 
 # use PRIMARY_SITES setting to determine NETCDF_PATH
 IFS=',' read -ra PRI_SITES <<< "${PRIMARY_SITES}"
@@ -175,17 +170,16 @@ then
             if [ "$netcdf_error" != "" ]; then
                NETCDF_SUCCESS=1
             else
-               $LOGGER "ifpnetCDF failed. Export exits."
-               rm -f ${lockFile}
-               $LOGGER 100
+               echo "ifpnetCDF failed. Export exits."
+               echo "FAILED" > ${lockFile}
                exit 1
             fi
          fi
       fi
    else
-      $LOGGER "export_grids was not able to find ${IFPS_DATA}/svcbu_export_elements.${SITE} file."
-      $LOGGER "Without this file, ifpnetCDF will not know how to trim for needed weather elements."
-      $LOGGER "ifpnetCDF will run without doing any trimming."
+      echo "export_grids was not able to find ${IFPS_DATA}/svcbu_export_elements.${SITE} file."
+      echo "Without this file, ifpnetCDF will not know how to trim for needed weather elements."
+      echo "ifpnetCDF will run without doing any trimming."
       #Starting ifpnetCDF to pack the grids (netcdf file is stored in the IFPS_LOG dir)
       ${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h $SVCBU_HOST -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK}
       #check if the netcdf file is there;if not,exit
@@ -198,9 +192,8 @@ then
             if [ "$netcdf_error" != "" ]; then
                NETCDF_SUCCESS=1
             else
-		       $LOGGER "ifpnetCDF failed. Export exits."
-               rm -f ${lockFile}
-               $LOGGER 100
+		       echo "ifpnetCDF failed. Export exits."
+               echo "FAILED" > ${lockFile}
                exit 1
             fi
 	     fi	
@@ -220,9 +213,8 @@ else
 	     if [ "$netcdf_error" != "" ]; then
 	        NETCDF_SUCCESS=1
 	     else
-	        $LOGGER "ifpnetCDF failed."
-	        rm -f ${lockFile}
-	        $LOGGER 100
+	        echo "ifpnetCDF failed."
+	        echo "FAILED" > ${lockFile}
 	        exit 1
 	     fi
 	  fi
@@ -231,19 +223,18 @@ fi
 
 if [ $NETCDF_SUCCESS = 1 ] 
 then
-   $LOGGER "Copying ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf to ${NETCDF_PATH}/${SITE}Grd.netcdf"
+   echo "Copying ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf to ${NETCDF_PATH}/${SITE}Grd.netcdf"
    cp ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf ${NETCDF_PATH}/${SITE}Grd.netcdf
 fi
 
 if [ -f ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf ]
 then
-   $LOGGER "Removing ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf"
+   echo "Removing ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf"
    rm -f ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf
 fi
 
-rm -f ${lockFile}
-$LOGGER 100
+echo "SUCCESS" > ${lockFile}
 
 # Completed successfully
-$LOGGER "All done. Export Gridded data has completed"
+echo "All done. Export Gridded data has completed"
 exit 0

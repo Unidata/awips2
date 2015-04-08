@@ -41,11 +41,11 @@ class TextProduct(AreaFcst.TextProduct):
     #Definition["outputFile"] = "/awips/GFESuite/products/TEXT/ZFP.txt"
 
     # Header configuration items
-    #Definition["productName"] = "ZONE FORECAST PRODUCT"  # name of product
+    #Definition["productName"] = "Zone Forecast Product"  # name of product
     #Definition["fullStationID"] = "Kxxx"  # full station identifier (4letter)
     #Definition["wmoID"] = "FOUS45"        # WMO ID
     #Definition["pil"] = "ZFPxxx"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "stateName"  # Name of state, such as "Georgia"
     #Definition["wfoCity"] = "WfoCity"     # Location of WFO - city name
     #Definition["wfoState"] = "WfoState"   # Location of WFO - state name
 
@@ -318,33 +318,33 @@ class TextProduct(AreaFcst.TextProduct):
  
         return [
             ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
+             ".Today...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
+             ".Today...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
+             ".Rest of today...", "early in the morning", "late in the afternoon",
              1, seriesDefAM),
             ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning","late in the afternoon",
+             ".Rest of today...", "early in the morning","late in the afternoon",
              1, seriesDefAM),
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
+             ".Tonight...", "late in the night", "early in the evening",
              1, seriesDefPM),
             ("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
+             ".Tonight...", "late in the night", "early in the evening",
              1, seriesDefPM),
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","early in the evening",
+             ".Rest of tonight...", "early in the morning","early in the evening",
              1, seriesDefPM),
             # For the early morning update, this produces:
             # REST OF TONIGHT:
             # MONDAY
             # MONDAY NIGHT
             ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
+             ".Rest of tonight...", "early in the morning","late in the afternoon",
              0, seriesDefPM),
             # Alternative
             # For the early morning update, this produces:
@@ -352,10 +352,10 @@ class TextProduct(AreaFcst.TextProduct):
             # TODAY
             # TONIGHT
             #("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-            # ".REST OF TONIGHT...", "late in the night", "early in the evening",
+            # ".Rest of tonight...", "late in the night", "early in the evening",
             # 1, seriesDefPM),
             #("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-            # ".EARLY THIS MORNING...", "early in the morning", "late in the afternoon",
+            # ".Early this morning...", "early in the morning", "late in the afternoon",
             # 1, seriesDefPM),
             ]
 
@@ -550,7 +550,7 @@ class TextProduct(AreaFcst.TextProduct):
     def first_null_phrase_dict(self, tree, node):
         # Phrase to use if values THROUGHOUT the period or
         # in the first period are Null (i.e. below threshold OR NoWx)
-        # E.g.  LIGHT WINDS.    or    LIGHT WINDS BECOMING N 5 MPH.
+        # E.g.  light winds.    or    light winds becoming N 5 MPH.
         dict = TextRules.TextRules.first_null_phrase_dict(self, tree, node)
         #dict["Wind"] =  "light winds"
         #dict["Wind"] =  ""
@@ -559,7 +559,7 @@ class TextProduct(AreaFcst.TextProduct):
     def null_phrase_dict(self, tree, node):
         # Phrase to use for null values in subPhrases other than the first
         # Can be an empty string
-        #  E.g.  "NORTH WINDS 20 to 25 KNOTS BECOMING LIGHT"
+        #  E.g.  "north winds 20 to 25 Knots becoming light"
         dict = TextRules.TextRules.null_phrase_dict(self, tree, node)
         #dict["Wind"] =  "light"
         #dict["Wind"] =  ""
@@ -570,7 +570,7 @@ class TextProduct(AreaFcst.TextProduct):
 
     def untilPhrasing_flag_dict(self, tree, node):
         # If set to 1, "until" time descriptor phrasing will be used.
-        # E.g. "NORTH WINDS 20 MPH UNTIL 10 AM...THEN 35 MPH"
+        # E.g. "north winds 20 MPH until 10 AM...then 35 MPH"
         return {
             "otherwise": 0,
             #"Wind" : 1,
@@ -578,7 +578,7 @@ class TextProduct(AreaFcst.TextProduct):
 
     def onTheFly_untilPhrasing_flag_dict(self, tree, node):
         # If set to 1, "until" time descriptor phrasing will be used.
-        # E.g. "NORTH WINDS 20 MPH UNTIL 10 AM...THEN 35 MPH"
+        # E.g. "north winds 20 MPH until 10 AM...then 35 MPH"
         return {
             "otherwise": 0,
             #"Wind" : 1,
@@ -586,8 +586,8 @@ class TextProduct(AreaFcst.TextProduct):
  
     def untilPhrasing_format_dict(self, tree, node):
         # Format for "until" time descriptors.
-        # If "military": UNTIL 1000
-        # If "standard": UNTIL 10 AM
+        # If "military": until 1000
+        # If "standard": until 10 AM
         return {
             "otherwise": "military",
             #"Wind": "standard",

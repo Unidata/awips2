@@ -299,7 +299,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         int worldWrapCount = getWorldWrapCount();
 
         if (worldWrapCount != GridGeometryWrapChecker.NO_WRAP) {
-            /* Check eastern boundary */
+            /* Check western boundary */
             if (sgUlx < 0) {
                 /*
                  * All subGrid code wraps on the western boundary, offset sgUlx
@@ -317,9 +317,9 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
                 sgNx = worldWrapCount;
             }
         } else {
-            /* Check eastern boundary */
+            /* Check western boundary */
             if (sgUlx < 0) {
-                sgUlx += worldWrapCount;
+                sgUlx = 0;
             }
 
             if (sgUlx + sgNx > nx) {
@@ -340,6 +340,11 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
             }
         }
 
+        /* Check northern boundary */
+        if (sgUly < 0) {
+            sgUly = 0;
+        }
+
         /* validate sgUly and sgNy */
         if (sgUly + sgNy > ny) {
             /*
@@ -356,9 +361,6 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
                 sgNy += sgUly;
                 sgUly = 0;
             }
-        } else if (sgUly < 0) {
-            /* Move northern boundary */
-            sgUly = 0;
         }
 
         subGrid.setUpperLeftX(sgUlx);

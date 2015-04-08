@@ -27,131 +27,123 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    06/16/15        3276          randerso       Added -T to iscMosaic call
+#    06/16/14        3276          randerso       Added -T to iscMosaic call
+#    02/12/15        4103          dgilling       Support multiple service backup sites.
+#    03/30/15        4103          dgilling       Support new location for svcbu.properties.
+#
 ##############################################################################
 
-if [ ${#AWIPS_HOME} = 0 ]
+if [[ -z "${AWIPS_HOME}" ]]
 then
         path_to_script=`readlink -f $0`
 		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
 fi
 
-. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+source ${AWIPS_HOME}/edex/bin/setup.env
+source ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+source ${AWIPS_HOME}/GFESuite/ServiceBackup/scripts/serviceBackupUtil.sh
 
 # Create the log file
-logdir=${IFPS_LOG}/`date +%Y%m%d`
-logfil=svcbu_receive_grids_from_bksite`date +%H%M`
-logfile=${logdir}/${logfil}
-[ ! -d ${logdir} ] && (umask 000;mkdir ${logdir})
-touch ${logdir}/${logfil}
-exec 1>${logdir}/${logfil} 2>&1
-
-# Check the status of the lock file to see if we are OK to proceed
-if [ -f ${LOCK_DIR}/importBkSiteGrids ];
-then
-	log_msg Cannot process grids.
-	exit 1
-fi
-
-touch ${LOCK_DIR}/importBkSiteGrids
-
-log_msg 0
+configureLogging "svcbu_receive_grids_from_bksite" ${AW_SITE_IDENTIFIER}
 
 # Retrieve the name of the site from the tar file.
 import_grd_file=${1}
-if [ -a ${import_grd_file} ]
+if [ -f ${import_grd_file} ]
 then
-
-    log_msg "Import Grids file is ${import_grd_file}"
-    mv ${import_grd_file} ${GFESUITE_HOME}/Grd
-    cd ${GFESUITE_HOME}
+    echo "Import Grids file is ${import_grd_file}"
     
-    tar xf Grd
-    if [ $? -eq 0 ]; then
-    	SITE=`cat siteID.txt | tr '[a-z]' '[A-Z]'`
-    	site=`echo $SITE | tr '[A-Z]' '[a-z]'`
-    	gunzip -f ${site}Grd.netcdf.gz
-    else
-	    # move the file to appropriate directory.
-	    mv -f Grd Grd.netcdf.gz
+    TEMP_DIR=`mktemp -d`
+    mv ${import_grd_file} ${TEMP_DIR}/Grd
+    cd ${TEMP_DIR}
+    
+    SITE_ID=$(getSiteIdFromTarFile "${TEMP_DIR}/Grd")
+    if [[ -n "${SITE_ID}" ]]
+    then
+		tar -xf Grd
+		gunzip -f ${SITE_ID}Grd.netcdf.gz
+		NETCDF_FILE="${TEMP_DIR}/${SITE_ID}Grd.netcdf"
+	else
+		mv -f Grd Grd.netcdf.gz
 	    chmod 777 Grd.netcdf.gz
-	
-	    log_msg "Gunzipping ${GFESUITE_HOME}/Grd.netcdf.gz"
-	    gunzip -f Grd.netcdf.gz
+		
+		echo "Gunzipping ${TEMP_DIR}/Grd.netcdf.gz"
+		gunzip -f Grd.netcdf.gz
 	    if [ $? -ne 0 ]; 
 	    then
-			log_msg "ERROR: Could not gunzip ${GFESUITE_HOME}/Grd.netcdf.gz"
-			rm -f ${LOCK_DIR}/importBkSiteGrids
-			log_msg 100
-		exit 1
+			echo "ERROR: Could not gunzip ${TEMP_DIR}/Grd.netcdf.gz"
+			exit 1
 	    fi
-	    log_msg "Done Gunzipping!"
-	
-	    log_msg "Finding site-id using ncdump method."
-	    hdr=`mktemp`
-	    ncdump -h ${GFESUITE_HOME}/Grd.netcdf > $hdr
-	    SITE=`grep siteID $hdr | head -1 | cut -d'"' -f2`
-	    site=`echo $SITE | tr '[A-Z]' '[a-z]'`
-	    if [ -z $site ]
-	    then
-			log_msg "ERROR: Could not find out the site from ncdump method..."
-	        rm -f $hdr
-	        rm -f ${LOCK_DIR}/importBkSiteGrids
-	        log_msg 100
-		exit 1
-	    fi
+	    echo "Done Gunzipping!"
 	    
-	    mv -f ${GFESUITE_HOME}/Grd.netcdf ${GFESUITE_HOME}/${site}Grd.netcdf
-	    rm -f $hdr
-    fi
-    log_msg "site is $site"
-    
-
+	    echo "Finding site-id using ncdump method."
+		site=`ncdump -h "${TEMP_DIR}/Grd.netcdf" | grep siteID | head -1 | cut -d'"' -f2`
+	    if [[ -z "${site}" ]]
+	    then
+			echo "ERROR: Could not find out the site from ncdump method..."
+			exit 1
+	    fi
+	    SITE_ID=`echo $site | tr '[A-Z]' '[a-z]'`
+	    
+	    NETCDF_FILE="${TEMP_DIR}/${SITE_ID}Grd.netcdf"
+		mv -f "${TEMP_DIR}/Grd.netcdf" ${NETCDF_FILE}
+	fi
+	
+	SITE_ID_CAPS=`echo ${SITE_ID} | tr [a-z] [A-Z]`
+	echo "site is ${SITE_ID_CAPS}"
 else
-    log_msg "Unable to locate the gridded data of the site, ${import_grd_file}"
-    log_msg "You will need to request your backup site to send grids again."
-    log_msg 100
-    rm -f ${LOCK_DIR}/importBkSiteGrids
+	echo "Unable to locate the gridded data of the site, ${import_grd_file}"
+    echo "You will need to request your backup site to send grids again."
     exit 1
 fi
 
+# Check the status of the lock file to see if we are OK to proceed
+LOCK_FILE=$(getLockFile "importBkSiteGrids" ${SITE_ID})
+lock_status=$(isOperationInProgress "importBkSiteGrids" ${SITE_ID})
+if [[ "${lock_status}" = "true" ]]
+then
+	echo "Cannot process grids."
+	exit 1
+fi
 
-log_msg 50
+echo "IN_PROGRESS" > ${LOCK_FILE}
+
+# extract grids from package file
+OUTPUT_DIR=$(getTempDirectory "receive_grids_from_backup_site" ${SITE_ID})
+mv "${NETCDF_FILE}" "${OUTPUT_DIR}/${SITE_ID}Grd.netcdf"
+
 # Check if import file was supplied correctly by msg_send.
-import_file=${GFESUITE_HOME}/${site}Grd.netcdf
-log_msg "import_file=${import_file}"
-SITE=`echo ${SITE} | tr '[a-z]' '[A-Z]'`
-if [ -a ${import_file} ]
+import_file=${OUTPUT_DIR}/${SITE_ID}Grd.netcdf
+echo "import_file=${import_file}"
+
+if [ -f ${import_file} ]
 then
     #use iscMosaic to load grids into databases
-    log_msg "Running iscMosaic to unpack griddded data..."
-    ${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${SITE}_GRID__Restore_00000000_0000 -f ${import_file} -n -T -x 
+    echo "Running iscMosaic to unpack griddded data..."
+    ${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${SITE_ID_CAPS}_GRID__Restore_00000000_0000 -f ${import_file} -n -T -x 
     if [ $? -ne 0 ]; 
     then
-		log_msg "ERROR: iscMosaic failed to run correctly. Please re-run iscMosaic manually."
-		log_msg 100
-    	rm -f ${LOCK_DIR}/importBkSiteGrids
+		echo "ERROR: iscMosaic failed to run correctly. Please re-run iscMosaic manually."
+    	echo "FAILED" > ${LOCK_FILE}
 		exit 1
     fi
-    log_msg "Finished running iscMosaic..."
+    echo "Finished running iscMosaic..."
     # Generate a GFE message saying new Grids have arrived in Restore database.
     cd ${GFESUITE_BIN}
     ./sendGfeMessage -h ${SVCBU_HOST} -p ${CDSPORT} -u -m "Restore database has been populated with new grids."
 else
-   log_msg "Unable to locate the gridded data of the site,${import_file} You will need to request your backup site to send grids again."
-   log_msg 100
-   rm -f ${LOCK_DIR}/importBkSiteGrids
+   echo "Unable to locate the gridded data of the site,${import_file} You will need to request your backup site to send grids again."
+   echo "FAILED" > ${LOCK_FILE}
    exit 1
 fi
 
 
 #clean-up.
-rm -f ${GFESUITE_HOME}/Grd
-rm -f ${GFESUITE_HOME}/${SITE}Grd* siteID.txt
-log_msg 100
-rm -f ${LOCK_DIR}/importBkSiteGrids
+rm -f ${import_file}
+rm -rf ${TEMP_DIR}
+echo "SUCCESS" > ${LOCK_FILE}
+
 #ALL well, send a msg and get out of here
-log_msg "Importing Grids from backup site is completed. You may start your GFE now."
-log_msg "Grids received from backup site are stored in ${SITE}_GRID__Restore_00000000_0000 database."
+echo "Importing Grids from backup site is completed. You may start your GFE now."
+echo "Grids received from backup site are stored in ${SITE_ID_CAPS}_GRID__Restore_00000000_0000 database."
 exit 0
 

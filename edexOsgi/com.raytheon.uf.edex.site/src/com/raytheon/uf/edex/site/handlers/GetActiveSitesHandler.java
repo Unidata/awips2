@@ -32,7 +32,8 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 5, 2011            randerso     Initial creation
+ * Aug 05, 2011            randerso     Initial creation
+ * Mar 19, 2015  #4300     randerso     Changed return type to what is actually returned
  * 
  * </pre>
  * 
@@ -51,7 +52,8 @@ public class GetActiveSitesHandler implements
      * (com.raytheon.uf.common.serialization.comm.IServerRequest)
      */
     @Override
-    public Object handleRequest(GetActiveSitesRequest request) throws Exception {
+    public String[] handleRequest(GetActiveSitesRequest request)
+            throws Exception {
         return SiteAwareRegistry.getInstance().getActiveSites();
     }
 }

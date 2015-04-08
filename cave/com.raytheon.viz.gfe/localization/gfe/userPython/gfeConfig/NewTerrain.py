@@ -59,3 +59,5 @@ SplitBoundaryDisplay = no
 Topo_fitToDataColorTable = "All Grids"
 NewTerrain_fitToDataColorTable = "All Grids"
 OldTerrain_fitToDataColorTable = "All Grids"
+
+GM_TE_Layout = "OnLeft"

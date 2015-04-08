@@ -54,7 +54,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -72,7 +72,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["accurateCities"] = 0  # If 1, cities are based on grids;
                                       # otherwise full list is included
     Definition["cityLocation"] = "CityLocation" # City lat/lon dictionary to use
-    Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
     #Definition["easPhrase"] = ""       # Optional EAS phrase to be include in product header
     Definition["lineLength"] = 66
@@ -119,33 +119,33 @@ class TextProduct(GenericHazards.TextProduct):
     ### set the default bullets
     def _bulletDict(self):
         return {
-        "LW" : ("TIMING,WINDS,IMPACTS"),            ## Lake Wind
-        "WI" : ("TIMING,WINDS,IMPACTS"),            ## Wind Advisory
-        "HW" : ("TIMING,WINDS,IMPACTS"),            ## High Wind
-        "DU" : ("TIMING,WINDS,VISIBILITY,IMPACTS"), ## Blowing Dust
-        "DS" : ("TIMING,WINDS,VISIBILITY,IMPACTS"), ## Dust Storm
-        "FG" : ("VISIBILITY,IMPACTS"),              ## Dense Fog
-        "FZ" : ("TEMPERATURE,IMPACTS"),             ## Freeze
-        "AF" : ("ASH INFO,IMPACTS"),                ## Ashfall
-        "AS" : ("AIR QUALITY,IMPACTS"),             ## Air Stagnation
-        "EH" : ("TEMPERATURE,IMPACTS"),             ## Excessive Heat
-        "EC" : ("TEMPERATURE,IMPACTS"),             ## Excessive Cold
-        "HZ" : ("TEMPERATURE,IMPACTS"),             ## Hard Freeze
-        "ZF" : ("TIMING,VISIBILITY,IMPACTS"),       ## Freezing Fog
-        "FR" : ("TEMPERATURE,IMPACTS"),             ## Frost
-        "HT" : ("TEMPERATURE,IMPACTS"),             ## Heat
-        "SM" : ("VISIBILITY,IMPACTS"),              ## Dense Smoke
+        "LW" : ("Timing,Winds,Impacts"),            ## Lake Wind
+        "WI" : ("Timing,Winds,Impacts"),            ## Wind Advisory
+        "HW" : ("Timing,Winds,Impacts"),            ## High Wind
+        "DU" : ("Timing,Winds,Visibility,Impacts"), ## Blowing Dust
+        "DS" : ("Timing,Winds,Visibility,Impacts"), ## Dust Storm
+        "FG" : ("Visibility,Impacts"),              ## Dense Fog
+        "FZ" : ("Temperature,Impacts"),             ## Freeze
+        "AF" : ("Ash info,Impacts"),                ## Ashfall
+        "AS" : ("Air quality,Impacts"),             ## Air Stagnation
+        "EH" : ("Temperature,Impacts"),             ## Excessive Heat
+        "EC" : ("Temperature,Impacts"),             ## Excessive Cold
+        "HZ" : ("Temperature,Impacts"),             ## Hard Freeze
+        "ZF" : ("Timing,Visibility,Impacts"),       ## Freezing Fog
+        "FR" : ("Temperature,Impacts"),             ## Frost
+        "HT" : ("Temperature,Impacts"),             ## Heat
+        "SM" : ("Visibility,Impacts"),              ## Dense Smoke
         }
 
     def _bulletOrder(self):
         return [
-            "TIMING",
-            "ASH INFO",
-            "WINDS",
-            "VISIBILITY",
-            "AIR QUALITY",
-            "TEMPERATURE",
-            "IMPACTS",
+            "Timing",
+            "Ash info",
+            "Winds",
+            "Visibility",
+            "Air quality",
+            "Temperature",
+            "Impacts",
             ]
 
     ###

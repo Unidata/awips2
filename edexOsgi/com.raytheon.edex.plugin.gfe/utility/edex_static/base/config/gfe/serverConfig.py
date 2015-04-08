@@ -53,6 +53,8 @@
 #    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
 #    01/19/2015          #4014     dgilling       Added ETSS. 
 #    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
+#    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
+
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -926,7 +928,7 @@ SITES = {
     'AICE' : ([560, 340], (9.0, 11.0), (29.0, 19.0), 'America/Anchorage',
        Grid203, "nc"),
 #Nested for GUM (future)
-    'GUMa': ([193, 193], (23.0, 26.0), (3.0, 3.0), 'Pacific/Guam', Grid204, "other"),
+#    'GUMa': ([193, 193], (23.0, 26.0), (3.0, 3.0), 'Pacific/Guam', Grid204, "other"),
 #Regional Offices
     'VUY' : ([337,449], (62.00, 19.00), (21.0, 28.0), 'EST5EDT', Grid211, "ro"),
     'BCQ' : ([145,145], (50.00, 27.00), (9.0, 9.0), 'CST6CDT', Grid211, "ro"),

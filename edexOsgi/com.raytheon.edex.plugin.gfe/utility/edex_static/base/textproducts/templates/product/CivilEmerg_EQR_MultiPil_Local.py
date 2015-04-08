@@ -53,7 +53,7 @@ class TextProduct(CivilEmerg.TextProduct):
     ## Edit Areas: Create Combinations file with edit area combinations.
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
     Definition["defaultEditAreas"] = "Combinations_EQR_<site>"
-    Definition["productName"] = "EARTHQUAKE REPORT" # product name
+    Definition["productName"] = "Earthquake Report" # product name
     Definition["wmoID"] = "<wmoID>"                      # WMO code
     Definition["pil"] = "<pil>"                      # product pil
     Definition["textdbPil"] = "<textdbPil>"          # Product ID for storing to AWIPS text database.
@@ -62,22 +62,22 @@ class TextProduct(CivilEmerg.TextProduct):
     Definition["mapNameForCombinations"] = "Zones_<site>"
 
     VariableList = [
-             (("Issuance Type", "issuanceType") , "PRELIMINARY", "radio",
-              ["PRELIMINARY", "UPDATE"]),
-             (("Official Earthquake Info Source:", "eqInfo") , "GOLDEN", "radio",
-              ["GOLDEN", "WC/ATWC", "PTWC"]),
-             (("Felt:", "felt") , "WEAKLY", "radio",
-              ["WEAKLY", "MODERATELY", "STRONGLY", "VERY STRONGLY"]), 
-             (("How Many Reports:", "extent") , "A SINGLE PERSON", "radio",
-              ["A SINGLE PERSON", "A FEW PEOPLE", "MANY PEOPLE", "NUMEROUS PERSONS"]),
-             (("Damage", "damage") , "NO", "radio",
-              ["NO", "SLIGHT", "MODERATE", "CONSIDERABLE", "EXTENSIVE"]),
-             (("Damage Type", "damageType") , ["NO DAMAGE"], "check",
-              ["NO DAMAGE", "OBJECTS FALLING FROM SHELVES", "DISHES RATTLED OR BROKEN",
-               "CRACKED CHIMNEYS", "COMMUNICATIONS TOWERS FALLEN",
-               "COLLAPSED BRIDGES", "COLLAPSED OVERPASSES", "TRAIN RAILS BENT",
-               "FISSURES HAVE OPENED IN THE GROUND", "GAS MAINS BROKEN",
-               "COMPLETE DESTRUCTION OF STRUCTURES", "SOME CASUALTIES"]),
+             (("Issuance Type", "issuanceType") , "Preliminary", "radio",
+              ["Preliminary", "Update"]),
+             (("Official Earthquake Info Source:", "eqInfo") , "Golden", "radio",
+              ["Golden", "WC/ATWC", "PTWC"]),
+             (("Felt:", "felt") , "Weakly", "radio",
+              ["Weakly", "Moderately", "Strongly", "Very strongly"]), 
+             (("How Many Reports:", "extent") , "A single person", "radio",
+              ["A single person", "A few people", "Many people", "Numerous persons"]),
+             (("Damage", "damage") , "No", "radio",
+              ["No", "Slight", "Moderate", "Considerable", "Extensive"]),
+             (("Damage Type", "damageType") , ["No damage"], "check",
+              ["No damage", "Objects falling from shelves", "Dishes rattled or broken",
+               "Cracked chimneys", "Communications towers fallen",
+               "Collapsed bridges", "Collapsed overpasses", "Train rails bent",
+               "Fissures have opened in the ground", "Gas mains broken",
+               "Complete destruction of structures", "Some casualties"]),
              ] 
 
     def __init__(self):
@@ -90,32 +90,32 @@ class TextProduct(CivilEmerg.TextProduct):
                 label, variable = key
                 exec "self._" + variable + "= varDict[key]"
 
-        fcst = fcst + "AN EARTHQUAKE HAS BEEN FELT " + self._felt + " BY " +\
+        fcst = fcst + "An earthquake has been felt " + self._felt + " BY " +\
           self._extent + " " + "IN THE |*enter area*| AREA. " + \
-          self._damage + " DAMAGE HAS BEEN REPORTED. "
+          self._damage + " damage has been reported. "
 
-        if self._damage != "NO":
-            fcst = fcst + " DAMAGE REPORTS SO FAR..."
+        if self._damage != "No":
+            fcst = fcst + " Damage reports so far..."
             for each in self._damageType:
-                if each != "NO DAMAGE":
+                if each != "No damage":
                     fcst = fcst + each + "..."
             fcst = string.rstrip(fcst, ".")
             fcst = fcst + "."
 
         fcst = fcst + "\n\n"
 
-        if self._eqInfo == "GOLDEN":
-            eqOffice = "NATIONAL EARTHQUAKE INFORMATION CENTER IN GOLDEN COLORADO"
-        elif self._eqInfo == "WC/ATWC":
-            eqOffice = "WEST COAST/ALASKA TSUNAMI WARNING CENTER"
+        if self._eqInfo == "Golden":
+            eqOffice = "National Earthquake Information Center in Golden Colorado"
+        elif self._eqInfo == "Wc/atwc":
+            eqOffice = "West Coast/Alaska Tsunami Warning Center"
         else:
-            eqOffice = "PACIFIC TSUNAMI WARNING CENTER"
+            eqOffice = "Pacific Tsunami Warning Center"
             
         
-        if self._issuanceType == "PRELIMINARY":
-            fcst = fcst + "INFORMATION RELEASED IN THIS STATEMENT IS PRELIMINARY. UPDATES...INCLUDING RICHTER SCALE MAGNITUDE...WILL BE PROVIDED AS MORE INFORMATION BECOMES AVAILABLE FROM THE " + eqOffice + "."
+        if self._issuanceType == "Preliminary":
+            fcst = fcst + "Information released in this statement is preliminary. Updates...including Richter scale magnitude...will be provided as more information becomes available from the " + eqOffice + "."
         else:
-            fcst = fcst + "THE " + eqOffice + " HAS INDICATED THAT AN EARTHQUAKE MAGNITUDE *MAG* ON THE RICHTER SCALE WAS CENTERED AT *LAT*/*LON* OR ABOUT *MILES* *DIRECTION* OF *CITY*...*STATE*.\n\nANY FURTHER INFORMATION WILL BE MADE AVAILABLE WHEN IT IS RECEIVED FROM THE " + eqOffice + "."
+            fcst = fcst + "The " + eqOffice + " has indicated that an earthquake magnitude *mag* on the Richter scale was centered at *lat*/*lon* or about *miles* *direction* of *city*...*state*.\n\nAny further information will be made available when it is received from the " + eqOffice + "."
         
         return fcst
 
