@@ -21,7 +21,7 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<!--  Direct port of tdlSurfaceMenus.txt -->
         <!--  DR 9363: Commented out IFPS part of menu. Has no functionality 
-	<contribute xsi:type="titleItem" titleText="------ IFPS ------"
+	<contribute xsi:type="titleItem" titleText="- IFPS -"
 		id="IFPSLine" />
 	<contribute xsi:type="placeholder" menuText="IFPS 3hr" id="IFPS3Hr" />
 	<contribute xsi:type="placeholder" menuText="IFPS 12hr" id="IFPS12Hr" />
