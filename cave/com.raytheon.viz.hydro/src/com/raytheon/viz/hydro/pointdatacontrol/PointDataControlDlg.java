@@ -110,6 +110,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 13 Mar 2013 1790        rferrel     Changes for non-blocking dialog.
  *                                     Changes for non-blocking TabularDisplayDlg.
  *                                     Bug fix for non-blocking dialogs.
+ * 09 Mar 2015 13998     lbousaidi	   Changes to fix the precipitation data display.                            
  * </pre>
  * 
  * @author lvenable
@@ -167,6 +168,10 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
     /** Value type for Flood Depart values. */
     private final int TYPE_DEPART = 1;
+    
+    /** Type sources to always include. */
+    private static final String[] RAIN_TYPE_SOURCES = { "RG", "RP", "RM",
+            "RR", "RZ", "R2" };
 
     /** Physical element selections. */
     private final String[] TIMESTEP_DATA_ELEMENT_STRING_ARRAY = {
@@ -2324,6 +2329,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
      */
     private void handlePeSelection() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
+        List<String> tsList = new ArrayList<String>();
         if (adHocRdo.getSelection()) {
             pcOptions.setPcAndpp(0);
             pcOptions.setPrimary(0);
@@ -2353,6 +2359,11 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 && (pcOptions.getElementType() == HydroConstants.AdHocDataElementType.RAIN_AD_HOC_TYPE
                         .getAdHocDataElementType())) {
             pcOptions.setPcAndpp(1);
+            for (String ts : RAIN_TYPE_SOURCES) {
+                tsList.add(ts);
+            }
+            pcOptions.setTypeSourceChosenList(tsList);
+            pcOptions.setTypeSourceChosenCount(tsList.size());
         }
     }
 
