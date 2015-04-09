@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/03/2010   5906       mduff       Fixed the list to match the data.
  * 02/05/2013   1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * 03/29/2013   1790       rferrel     Make dialog non-blocking.
+ * 04/09/2015   4215       mduff       Fixed IndexOutOfBounds Exception.
  * 
  * </pre>
  * 
@@ -99,7 +100,7 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
     /**
      * Map of station list data.
      */
-    private SortedMap<String, GageData> dataMap = new TreeMap<String, GageData>();;
+    private final SortedMap<String, GageData> dataMap = new TreeMap<String, GageData>();;
 
     /**
      * Constructor.
@@ -251,10 +252,12 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
         searchTF = new Text(searchComp, SWT.BORDER);
         searchTF.setLayoutData(gd);
         searchTF.addKeyListener(new KeyListener() {
+            @Override
             public void keyPressed(KeyEvent e) {
                 // intentionally left blank
             }
 
+            @Override
             public void keyReleased(KeyEvent e) {
                 // When the user types in the search text control,
                 // check that list of station data and highlight
@@ -392,11 +395,13 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
 
         if (currStation != null) {
             String lid = currStation.getLid();
-            String listLid;
+            String listLid = "";
             if (dataList.getItemCount() > 0) {
-                for (int i = 0; i < dataMap.size(); i++) {
-                    listLid = dataList.getItem(i).trim().split("\\s+")[0];
-
+                for (int i = 0; i < dataList.getItemCount(); i++) {
+                    String entry = dataList.getItem(i).trim();
+                    if (entry.length() > 0) {
+                        listLid = entry.split("\\s+")[0];
+                    }
                     if (listLid.equals(lid)) {
                         dataList.select(i);
                         dataList.showSelection();
