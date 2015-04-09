@@ -23,6 +23,7 @@
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 7, 2015  16954      cgobs      Fix for cv_use issue - using getFieldName() in certain parts.
+ * Mar 10, 2015 14554      snaples    Made getHourlyEditFile public to be accessed from Save Best Estimate.
  * </pre>
  **/
 package com.raytheon.viz.mpe.ui.dialogs.polygon;
@@ -295,7 +296,7 @@ public class PolygonEditManager {
         }
     }
 
-    private static File getHourlyEditFile(DisplayFieldData fieldData, Date date) {
+    public static File getHourlyEditFile(DisplayFieldData fieldData, Date date) {
         String fieldname = fieldData.getFieldName();
         String polygonDir = MPEDisplayManager.getPolygonEditDir();
 

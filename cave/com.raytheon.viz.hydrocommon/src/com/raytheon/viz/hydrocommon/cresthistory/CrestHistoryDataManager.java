@@ -30,7 +30,8 @@ package com.raytheon.viz.hydrocommon.cresthistory;
  * ------------   ----------  ----------- --------------------------
  * Dec 11, 2008   1628  dhladky  initial
  * Nov 04, 2010   5518	lbousaid	added all/above/bellow flag to
- * 									getRiverCrestData
+ * 								getRiverCrestData
+ * Jan 09, 2015  16698  JingtaoD    Crest History failed validation dialog pops up when OK button clicked
  * 
  * </pre>
  *
@@ -207,14 +208,17 @@ public class CrestHistoryDataManager {
         try {
             DirectDbQuery.executeStatement(insertCrest, HydroConstants.IHFS,
                     QueryLanguage.SQL);
-        } catch (VizException e) {
-            /* If this update fails then try an insert */
-            if (e.getMessage().contains("crest_pk")) {
+        } catch (VizException e) {           
+      
+        	e.printStackTrace();      
+        	         
+        	//exception with duplicate key value is throwed in the 2nd cause
+        	
+        	if (e.getCause().getCause().getMessage().contains("crest_pk")) {
                 executeUpdate = true;                       
             } else {
                 errMsg = "Error inserting data into database.";
-            }
-            e.printStackTrace();
+            }                     
         }
 
         if (executeUpdate) {

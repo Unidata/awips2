@@ -1039,7 +1039,10 @@ class ISC_Utility(SmartScript.SmartScript):
     # 
     def _convertTimeRange(self, trName):
         if trName == "All Grids":
-            timeRange = TimeRange.allTimes()
+            curTime = time.gmtime()
+            startHour = curTime[3]
+            timeRange = self.createTimeRange(startHour, 204) 
+           #timeRange = TimeRange.allTimes()
            # timeRange = AFPS.TimeRange(AFPS.AbsTime(0),
            #      AFPS.AbsTime_maxFutureTime())
         elif trName == "Selected Time":

@@ -62,6 +62,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2008            snaples     Initial creation
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
+ * Mar 10, 2015 14575      snaples     Added status flag.
  * 
  * </pre>
  * 
@@ -264,6 +265,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
 
         shell.open();
         displayMgr.setMaxmin(true);
+        DailyQcUtils.maxmin_flag = true;
         isOpen = true;
         isfinished = false;
         ddq = DrawDQCStations.getInstance();
@@ -272,12 +274,14 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         while (!shell.isDisposed()) {
             if (dqc_good == 0) {
                 displayMgr.setMaxmin(false);
+                DailyQcUtils.maxmin_flag = false;
                 isOpen = false;
                 ddq.destroy();
                 shell.dispose();
             }
             if (isOpen == false) {
                 displayMgr.setMaxmin(false);
+                DailyQcUtils.maxmin_flag = false;
                 ddq.destroy();
                 shell.dispose();
             }
@@ -287,6 +291,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         }
         ddq.destroy();
         displayMgr.setMaxmin(false);
+        DailyQcUtils.maxmin_flag = false;
         isfinished = true;
         isOpen = false;
         font.dispose();
