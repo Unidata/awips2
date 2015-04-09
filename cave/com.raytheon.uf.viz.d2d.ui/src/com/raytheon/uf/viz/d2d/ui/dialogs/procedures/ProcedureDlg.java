@@ -51,6 +51,10 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -79,6 +83,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureComm.BundlePair;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.HistoryList;
 import com.raytheon.viz.ui.IRenameablePart;
 import com.raytheon.viz.ui.UiUtil;
@@ -86,6 +91,7 @@ import com.raytheon.viz.ui.actions.SaveBundle;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.views.PartAdapter2;
 
 /**
  * 
@@ -109,6 +115,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Jan 06, 2015 3879       nabowle     Disallow copy-in when the view is empty.
  * Mar 02, 2015 4204       njensen     Copy In uses tab name if applicable
  * Mar 12, 2015 4204       njensen     Ensure renamed bundle goes into tab name on next load
+ * Apr 08, 2015 4185       mapeters    Disable Copy In when not applicable for active editor
  * 
  * </pre>
  * 
@@ -186,6 +193,8 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     private ProcedureListDlg saveAsDlg;
 
+    private IPartListener2 activeEditorListener;
+
     private ProcedureDlg(String fileName, Procedure p, Shell parent) {
         // Win32
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
@@ -261,6 +270,11 @@ public class ProcedureDlg extends CaveSWTDialog {
     @Override
     protected void disposed() {
         font.dispose();
+        if (activeEditorListener != null) {
+            IWorkbenchPage page = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage();
+            page.removePartListener(activeEditorListener);
+        }
         synchronized (openDialogs) {
             openDialogs.remove(fileName);
         }
@@ -683,11 +697,33 @@ public class ProcedureDlg extends CaveSWTDialog {
         copyInBtn = new Button(buttonComp, SWT.PUSH);
         copyInBtn.setText("Copy In");
         copyInBtn.setLayoutData(gd);
+        copyInBtn
+                .setEnabled(EditorUtil.getActiveEditor() instanceof AbstractEditor);
+
+        activeEditorListener = new PartAdapter2() {
+            @Override
+            public void partDeactivated(IWorkbenchPartReference partRef) {
+                updateCopyInBtnEnabled(partRef);
+            }
+
+            @Override
+            public void partActivated(IWorkbenchPartReference partRef) {
+                updateCopyInBtnEnabled(partRef);
+            }
+
+            private void updateCopyInBtnEnabled(IWorkbenchPartReference partRef) {
+                copyInBtn
+                        .setEnabled(EditorUtil.getActiveEditor() instanceof AbstractEditor);
+            }
+        };
+        IWorkbenchPage page = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getActivePage();
+        page.addPartListener(activeEditorListener);
+
         copyInBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 try {
-
                     // This seems counter intuitive, but going through
                     // the history list ensures that a fresh serialized copy
                     // of the bundle is made rather than a shallow copy of
@@ -704,10 +740,9 @@ public class ProcedureDlg extends CaveSWTDialog {
                     saved = false;
                     saveBtn.setEnabled(true);
 
-                    // TODO: copy latest time in, potential threading issue if
-                    // update
-                    // comes in after freeze is called but before thaw is
-                    // called, resource will not get update
+                    // TODO: copy latest time in, potential threading issue
+                    // if update comes in after freeze is called but before thaw
+                    // is called, resource will not get update
                     for (AbstractRenderableDisplay display : b.getDisplays()) {
                         for (ResourcePair rp : display.getDescriptor()
                                 .getResourceList()) {
