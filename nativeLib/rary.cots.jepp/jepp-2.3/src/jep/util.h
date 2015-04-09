@@ -1,15 +1,15 @@
 /* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 4 c-style: "K&R" -*- */
-/*
+/* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2008 Mike Johnson.
+   Copyright (c) 2004 - 2011 Mike Johnson.
 
    This file is licenced under the the zlib/libpng License.
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
    damages arising from the use of this software.
-
+   
    Permission is granted to anyone to use this software for any
    purpose, including commercial applications, and to alter it and
    redistribute it freely, subject to the following restrictions:
@@ -23,8 +23,8 @@
    must not be misrepresented as being the original software.
 
    3. This notice may not be removed or altered from any source
-   distribution.
-*/
+   distribution.   
+*/ 	
 
 
 // shut up the compiler
@@ -37,11 +37,12 @@
 #endif
 #include <Python.h>
 
-// added by njensen
-#include "numpy/arrayobject.h"
-
 #ifndef _Included_util
 #define _Included_util
+
+#ifndef USE_NUMPY
+#define USE_NUMPY 1
+#endif
 
 #define JEPEXCEPTION "jep/JepException"
 
@@ -109,13 +110,6 @@ void release_utf_char(JNIEnv*, jstring, const char*);
 // int param is printTrace, send traceback to stderr
 int process_py_exception(JNIEnv*, int);
 
-// added by njensen
-static void initNumpy(void);
-static int numpyInited = 0;
-jarray numpyToJavaArray(JNIEnv*, PyObject*, jclass);
-jarray pylistToJStringList(JNIEnv*, PyObject*);
-PyObject* javaToNumpyArray(JNIEnv*, jobject, npy_intp*);
-
 // convert java exception to pyerr.
 // true (1) if an exception was processed.
 int process_java_exception(JNIEnv*);
@@ -132,9 +126,15 @@ int get_jtype(JNIEnv*, jobject, jclass);
 int pyarg_matches_jtype(JNIEnv*, PyObject*, jclass, int);
 PyObject* convert_jobject(JNIEnv*, jobject, int);
 jvalue convert_pyarg_jvalue(JNIEnv*, PyObject*, jclass, int, int);
-jvalue convert_pynumpyarg_jvalue(JNIEnv*, PyObject*, jclass, int, int);
 
 PyObject* tuplelist_getitem(PyObject*, PyObject*);
+
+#if USE_NUMPY
+int npy_array_check(PyObject*);
+int jndarray_check(JNIEnv*, jobject, jclass);
+jobject convert_pyndarray_jndarray(JNIEnv*, PyObject*);
+PyObject* convert_jndarray_pyndarray(JNIEnv*, jobject, jclass);
+#endif
 
 #define JBOOLEAN_ID 0
 #define JINT_ID     1
@@ -163,13 +163,14 @@ extern jclass JCHAR_TYPE;
 extern jclass JBYTE_TYPE;
 extern jclass JCLASS_TYPE;
 
-// added by njensen
+#if USE_NUMPY
+extern jclass JBOOLEAN_ARRAY_TYPE;
+extern jclass JBYTE_ARRAY_TYPE;
+extern jclass JSHORT_ARRAY_TYPE;
 extern jclass JINT_ARRAY_TYPE;
 extern jclass JLONG_ARRAY_TYPE;
-extern jclass JBOOLEAN_ARRAY_TYPE;
-extern jclass JDOUBLE_ARRAY_TYPE;
 extern jclass JFLOAT_ARRAY_TYPE;
-extern jclass JBYTE_ARRAY_TYPE;
-
+extern jclass JDOUBLE_ARRAY_TYPE;
+#endif
 
 #endif // ifndef _Included_util
