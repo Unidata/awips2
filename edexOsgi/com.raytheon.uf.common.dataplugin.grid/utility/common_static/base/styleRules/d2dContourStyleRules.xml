@@ -4241,4 +4241,16 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
     </contourStyle>
 </styleRule>
 
+  <!-- Style Rule for nwpsCG1 to display Sig. Wave Height and Swell Height 
+       in ft.  -->
+   <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>nwpsCG1</creatingEntity>
+      <parameter>SWELL</parameter>
+      <parameter>HTSGW</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>ft</displayUnits>
+    </contourStyle>
+  </styleRule>
 </styleRuleset>
