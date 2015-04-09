@@ -1842,7 +1842,7 @@ public class IFPGridDatabase extends GridDatabase {
                     } else {
                         // Convert to a FloatDataRecord for internal use
                         records.put(timeRange,
-                                storageToFloat(rec, parmStorageInfo));
+                                storageToFloat(rec, parmStorageInfo, false));
                     }
                 }
             }
@@ -1930,8 +1930,8 @@ public class IFPGridDatabase extends GridDatabase {
                                     VECTOR_DIR_DATA_OFFSET,
                                     VECTOR_DIR_DATA_MULTIPLIER,
                                     magStorageInfo.getStorageType());
-                            recs[0] = storageToFloat(magRec, magStorageInfo);
-                            recs[1] = storageToFloat(dirRec, dirStorageInfo);
+                            recs[0] = storageToFloat(magRec, magStorageInfo, false);
+                            recs[1] = storageToFloat(dirRec, dirStorageInfo, true);
                         }
 
                         records.put(timeRange, recs);
@@ -1969,7 +1969,8 @@ public class IFPGridDatabase extends GridDatabase {
      *         conversion in parmStorageInfo.
      */
     protected FloatDataRecord storageToFloat(IDataRecord rawData,
-            ParmStorageInfo parmStorageInfo) {
+            ParmStorageInfo parmStorageInfo, 
+            boolean isDirRecord) {
         FloatDataRecord data;
         String storageType = parmStorageInfo.getStorageType();
         float multiplier = parmStorageInfo.getDataMultiplier();
@@ -1980,7 +1981,10 @@ public class IFPGridDatabase extends GridDatabase {
             floats = new float[rawBytes.length];
             for (int idx = 0; idx < rawBytes.length; idx++) {
                 // hex mask to treat bytes as unsigned
-                floats[idx] = ((rawBytes[idx] & 0xff) / multiplier) + offset;
+                if (isDirRecord)
+                    floats[idx] = (((rawBytes[idx] & 0xff) / multiplier) + offset) % 360.0f;
+                else
+                    floats[idx] = ((rawBytes[idx] & 0xff) / multiplier) + offset;
             }
         } else if ("short".equals(storageType)) {
             short[] rawShorts = ((ShortDataRecord) rawData).getShortData();

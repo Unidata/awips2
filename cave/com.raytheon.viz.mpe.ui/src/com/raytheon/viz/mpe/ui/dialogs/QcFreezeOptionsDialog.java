@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * ------------ ---------- ----------- --------------------------
  * Jul, 7 2009             snaples     Initial creation
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
+ * Mar 10, 2015  14575     snaples     Added addtional status flag.
  * 
  * </pre>
  * 
@@ -277,6 +278,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
         shell.open();
         displayMgr.setZflag(true);
+        DailyQcUtils.z_flag = true;
         isOpen = true;
         isfinished = false;
         ddq = DrawDQCStations.getInstance();
@@ -285,12 +287,14 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         while (!shell.isDisposed()) {
             if (dqc_good == 0) {
                 displayMgr.setZflag(false);
+                DailyQcUtils.z_flag = false;
                 isOpen = false;
                 ddq.destroy();
                 shell.dispose();
             }
             if (isOpen == false) {
                 displayMgr.setZflag(false);
+                DailyQcUtils.z_flag = false;
                 ddq.destroy();
                 shell.dispose();
             }
@@ -300,6 +304,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         }
         ddq.destroy();
         displayMgr.setZflag(false);
+        DailyQcUtils.z_flag = false;
         isfinished = true;
         isOpen = false;
         font.dispose();
