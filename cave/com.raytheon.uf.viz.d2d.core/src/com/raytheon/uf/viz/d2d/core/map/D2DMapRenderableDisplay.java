@@ -28,6 +28,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
@@ -39,10 +41,13 @@ import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.scales.MapScaleRenderableDisplay;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.d2d.core.D2DProperties;
@@ -61,6 +66,7 @@ import com.raytheon.viz.core.imagery.ImageCombiner;
  * Feb 9, 2009             njensen     Initial creation
  * Mar 21, 2013       1638 mschenke    Made map scales not tied to d2d
  * Mar 22, 2013       1638 mschenke    Moved map scale code to MapScaleRenderableDisplay
+ * Apr 06, 2015 ASM #17215 D. Friedman Implement clear to avoid removing time match basis
  * 
  * </pre>
  * 
@@ -319,6 +325,66 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
             combinerListener = new ImageCombiner(getDescriptor());
         }
         return combinerListener;
+    }
+
+    /** Like MapScaleRenderableDisplayer.clear, but avoids removing the time match
+     * basis until other resources are removed.  This reduces time matching churn
+     * and reduces the chances of lockups.
+     * @see com.raytheon.uf.viz.core.maps.scales.MapScaleRenderableDisplay#clear()
+     */
+    @Override
+    public void clear() {
+        AbstractVizResource<?, ?> timeMatchBasis = null;
+        AbstractTimeMatcher timeMatcher = descriptor.getTimeMatcher();
+        if (timeMatcher instanceof D2DTimeMatcher) {
+            timeMatchBasis = ((D2DTimeMatcher) timeMatcher).getTimeMatchBasis();
+        }
+        ManagedMapScale scale = MapScalesManager.getInstance().getScaleByName(
+                getScaleName());
+        if (scale != null) {
+            ResourceList list = descriptor.getResourceList();
+            for (ResourcePair rp : list) {
+                if (rp.getProperties().isSystemResource() == false) {
+                    // Keep system resources
+                    if (rp.getResource() != timeMatchBasis) {
+                        list.remove(rp);
+                    }
+                }
+            }
+            if (timeMatchBasis != null) {
+                list.removeRsc(timeMatchBasis);
+            }
+            loadScale(scale);
+        } else {
+            // Map scale could not be found, default to remove all
+            // non-map/system layers and reset display
+            ResourceList list = descriptor.getResourceList();
+            for (ResourcePair rp : list) {
+                ResourceProperties props = rp.getProperties();
+                if (props.isMapLayer() == false
+                        && props.isSystemResource() == false) {
+                    if (rp.getResource() != timeMatchBasis) {
+                        list.remove(rp);
+                    }
+                } else {
+                    try {
+                        props.setVisible(true);
+                        rp.getResource().recycle();
+                    } catch (Throwable e) {
+                        props.setVisible(false);
+                        statusHandler.handle(Priority.PROBLEM, "Clear error: "
+                                + e.getMessage() + ":: The resource ["
+                                + rp.getResource().getSafeName()
+                                + "] has been disabled.", e);
+                    }
+                }
+            }
+            if (timeMatchBasis != null) {
+                list.removeRsc(timeMatchBasis);
+            }
+
+            scaleToClientArea(getBounds());
+        }
     }
 
 }
