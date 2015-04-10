@@ -12,7 +12,7 @@ import jep.python.PyObject;
  * <pre>
  * Jep.java - Embeds CPython in Java.
  *
- * Copyright (c) 2004, 2005 Mike Johnson.
+ * Copyright (c) 2004 - 2011 Mike Johnson.
  *
  * This file is licenced under the the zlib/libpng License.
  *
@@ -40,14 +40,8 @@ import jep.python.PyObject;
  * </pre>
  *
  * @author [mrjohnson0 at sourceforge.net] Mike Johnson
- * @version $Id: Jep.java 448 2007-11-27 00:30:23Z mrjohnson0 $
+ * @version $Id$
  */
-
-/*
-  Modified by Raytheon (c) 2008-2015 Raytheon Company. All Rights Reserved.
-   Modifications marked and described by 'njensen'
-*/
-
 public final class Jep {
     
     private static final String THREAD_WARN_START = "JEP WARNING: "
@@ -99,7 +93,6 @@ public final class Jep {
         }
     };
     
-    // added by njensen
     /**
      * Loads the jep library (e.g. libjep.so or jep.dll) and initializes the
      * main python interpreter that all subinterpreters will be created from.
@@ -160,19 +153,35 @@ public final class Jep {
     public Jep(boolean interactive,
                String includePath,
                ClassLoader cl) throws JepException {
-        // added by njensen
+        this(interactive, includePath, cl, null);        
+    }
+    
+    /**
+     * Creates a new <code>Jep</code> instance.
+     *
+     * @param interactive a <code>boolean</code> value
+     * @param includePath a path separated by File.pathSeparator
+     * @param cl a <code>ClassLoader</code> value
+     * @param ce a <code>ClassEnquirer</code> value, or null for the default ClassList
+     * @exception JepException if an error occurs
+     */
+    public Jep(boolean interactive,
+               String includePath,
+               ClassLoader cl,
+               ClassEnquirer ce) throws JepException {        
         if (initializerThread < 0) {
             throw new JepException("Jep Library must be initialized first"
                     + ", please call pyInitialize()");
-        }
+    }
         if (threadUsed.get()) {
             /*
              * TODO: Consider throwing an exception here to not allow this
-             * scenario through as it can result in very-hard-to-diagnose bugs.
+             * scenario through, as it can result in very-hard-to-diagnose bugs
+             * such as GIL-related freezes.
              */
             System.err.println(THREAD_WARN_START
                     + Thread.currentThread().getName() + THREAD_WARN_END);
-        } // end of njensen adds
+        }
         
         if(cl == null)
             this.classLoader = this.getClass().getClassLoader();
@@ -181,22 +190,25 @@ public final class Jep {
         
         this.interactive = interactive;
         this.tstate = init(this.classLoader);
-        threadUsed.set(true);  // added by njensen
+        threadUsed.set(true);
         this.thread = Thread.currentThread();
         
         // why write C code if you don't have to? :-)
-        if(includePath != null) {
-
-            // Added for compatibility with Windows file system
-            if (includePath.contains("\\")) {
-                includePath = includePath.replace("\\", "/");
-            }
-            
+        if(includePath != null) {            
             eval("import sys");
             eval("sys.path += '" + includePath + "'.split('" +
                  File.pathSeparator + "')");
         }
-    }
+                   
+        eval("import jep");
+        if(ce == null) {         	
+            ce = ClassList.getInstance();
+        }
+        set("classlist", ce);
+        eval("jep.hook.setupImporter(classlist)");
+        eval("del classlist");
+    }        
+    
     
     private native long init(ClassLoader classloader) throws JepException;
     
@@ -397,7 +409,7 @@ public final class Jep {
      * <pre>
      * Retrieves a python string object as a java array.
      *
-     * @param str a <code>String</code>
+     * @param str a <code>String</code> 
      * @return an <code>Object</code> array
      * @exception JepException if an error occurs
      */
@@ -418,7 +430,7 @@ public final class Jep {
      * <pre>
      * Retrieves a python string object as a java array.
      *
-     * @param str a <code>String</code>
+     * @param str a <code>String</code> 
      * @return an <code>Object</code> array
      * @exception JepException if an error occurs
      */
@@ -547,8 +559,10 @@ public final class Jep {
         isValidThread();
 
         /*
-         * njensen added all the instanceofs except Class and the else to ensure
-         * the correct python type in the interpreter
+         * TODO: This will force Java Objects representing primitives (and
+         * String) to be auto-converted to their primitive python equivalent
+         * instead of being wrapped as a pyjobject.  Perhaps there should be
+         * a way to enable/disable/choose which you'd prefer?  
          */
         if (v instanceof Class) {
             set(tstate, name, (Class<?>) v);
@@ -570,7 +584,7 @@ public final class Jep {
             set(name, ((Boolean) v).booleanValue());
         } else {
             set(tstate, name, v);
-        }
+    }
     }
 
     private native void set(long tstate, String name, Object v)
@@ -642,7 +656,7 @@ public final class Jep {
             throw new JepException("Jep has been closed.");
         isValidThread();
         
-        set(tstate, name, v);
+        set(tstate, name, (int) v);
     }
     
     private native void set(long tstate, String name, int v)
@@ -693,7 +707,7 @@ public final class Jep {
             throw new JepException("Jep has been closed.");
         isValidThread();
         
-        set(tstate, name, b);
+        set(tstate, name, (int) b);
     }
 
     
@@ -869,50 +883,6 @@ public final class Jep {
     private native void set(long tstate, String name, double[] v)
         throws JepException;
 
-    /*
-     * added by njensen.
-     * TODO: rename all methods to setNumpy
-     * TODO: Add javadoc
-     * TODO: add support for short[], long[], and double[]
-     */
-    public void setNumpy(String name, float[] v, int nx, int ny)
-            throws JepException {
-        if (this.closed)
-            throw new JepException("Jep has been closed.");
-        isValidThread();
-
-        setNumeric(tstate, name, v, nx, ny);
-    }
-
-    private native void setNumeric(long tstate, String name, float[] v, int nx,
-            int ny) throws JepException;
-
-    public void setNumpy(String name, int[] v, int nx, int ny)
-            throws JepException {
-        if (this.closed)
-            throw new JepException("Jep has been closed.");
-        isValidThread();
-
-        setNumeric(tstate, name, v, nx, ny);
-    }
-
-    private native void setNumeric(long tstate, String name, int[] v, int nx,
-            int ny) throws JepException;
-
-    public void setNumpy(String name, byte[] v, int nx, int ny)
-            throws JepException {
-        if (this.closed)
-            throw new JepException("Jep has been closed.");
-        isValidThread();
-
-        setNumeric(tstate, name, v, nx, ny);
-    }
-
-    private native void setNumeric(long tstate, String name, byte[] v, int nx,
-            int ny) throws JepException;
-    // end of added by njensen
-
-
 
     /**
      * Describe <code>set</code> method here.
@@ -943,6 +913,18 @@ public final class Jep {
         if(this.closed)
             return;
         
+        try {
+            isValidThread();
+        } catch (JepException e) {
+            /*
+             * TODO change to throw JepException?
+             */
+            System.err
+                    .println("Please close Jep instance from the original creating thread: "
+                            + thread.getName());
+            e.printStackTrace();
+        }
+        
         // close all the PyObjects we created
         for(int i = 0; i < this.pythonObjects.size(); i++)
             pythonObjects.get(i).close();
@@ -950,19 +932,17 @@ public final class Jep {
         this.closed = true;
         this.close(tstate);
         this.tstate = 0;
-        /*
-         * added by njensen, untested on how safe this really is to allow
-         * reuse after the previous instance was closed
-         */
-        threadUsed.set(false);
+
+        if(Thread.currentThread().getId() != initializerThread) {
+            threadUsed.set(false);
+        }
     }
 
     private native void close(long tstate);
     
     
-    /**
-     * Describe <code>finalize</code> method here.
-     *
+    /**     
+     * Attempts to close the interpreter if it hasn't been correctly closed.
      */
     @Override
     protected void finalize() {
