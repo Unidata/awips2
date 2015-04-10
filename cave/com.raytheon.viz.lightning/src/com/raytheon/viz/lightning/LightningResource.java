@@ -27,6 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -91,6 +95,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  *    Aug 04, 2014  3488       bclement    added sanity check for record bin range
  *    Aug 19, 2014  3542       bclement    fixed strike count clipping issue
  *    Mar 05, 2015  4233       bsteffen    include source in cache key.
+ *    Apr 09, 2015  4386       bclement    added updateLightningFrames()
  * 
  * </pre>
  * 
@@ -464,7 +469,7 @@ public class LightningResource extends
     }
 
     protected void addRecords(List<BinLightningRecord> objs) {
-        Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
+        final Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
 
         for (BinLightningRecord obj : objs) {
             long duration = obj.getDataTime().getValidPeriod().getDuration();
@@ -497,6 +502,26 @@ public class LightningResource extends
             }
         }
 
+        Job job = new Job("Update Lightning Frames") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                updateLightningFrames(recordMap);
+                return Status.OK_STATUS;
+            }
+        };
+        job.setSystem(true);
+        job.schedule();
+
+    }
+
+    /**
+     * Update lightning frames with data from record map. Must be ran as part of
+     * an asynchronous job.
+     * 
+     * @param recordMap
+     */
+    private void updateLightningFrames(
+            final Map<DataTime, List<BinLightningRecord>> recordMap) {
         for (Map.Entry<DataTime, List<BinLightningRecord>> entry : recordMap
                 .entrySet()) {
             DataTime dt = entry.getKey();
@@ -505,29 +530,43 @@ public class LightningResource extends
             }
 
             List<BinLightningRecord> records = entry.getValue();
-
             LightningFrameRetriever retriever = LightningFrameRetriever
                     .getInstance();
-            CacheObject<LightningFrameMetadata, LightningFrame> co;
-            synchronized (cacheObjectMap) {
-                co = cacheObjectMap.get(dt);
-                if (co == null) {
-                    /*
-                     * no local reference to cache object, create key and get
-                     * cache object which may be new or from another resource
-                     */
-                    LightningFrameMetadata key = new LightningFrameMetadata(
-                            resourceData.getSource(), dt,
-                            resourceData.getBinOffset());
-                    co = CacheObject.newCacheObject(key, retriever);
-                    cacheObjectMap.put(dt, co);
-                    dataTimes.add(dt);
-                }
-            }
-
+            CacheObject<LightningFrameMetadata, LightningFrame> co = getCachedFrame(
+                    dt, retriever);
             retriever.updateAndGet(records, co);
         }
+
         issueRefresh();
+    }
+
+    /**
+     * Get lightning frame from cache, creates a new cached object if none found
+     * for time
+     * 
+     * @param dt
+     * @param retriever
+     * @return
+     */
+    private CacheObject<LightningFrameMetadata, LightningFrame> getCachedFrame(
+            DataTime dt, LightningFrameRetriever retriever) {
+        CacheObject<LightningFrameMetadata, LightningFrame> co;
+        synchronized (cacheObjectMap) {
+            co = cacheObjectMap.get(dt);
+            if (co == null) {
+                /*
+                 * no local reference to cache object, create key and get cache
+                 * object which may be new or from another resource
+                 */
+                LightningFrameMetadata key = new LightningFrameMetadata(
+                        resourceData.getSource(), dt,
+                        resourceData.getBinOffset());
+                co = CacheObject.newCacheObject(key, retriever);
+                cacheObjectMap.put(dt, co);
+                dataTimes.add(dt);
+            }
+        }
+        return co;
     }
 
     @Override
