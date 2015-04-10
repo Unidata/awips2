@@ -99,4 +99,9 @@
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/NAMDNG5km.xml" />
     </contribute>
+    
+    <contribute xsi:type="toolbarSubMenu" menuText="NWPS">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/NWPS.xml" />
+    </contribute>
 </menuTemplate>
