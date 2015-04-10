@@ -69,6 +69,7 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * Apr 09, 2014  2947     bsteffen    Initial creation
  * May 06, 2014  3117     bsteffen    Update for new data.
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
+ * Apr 06, 2014  #17215   D. Friedman Use ReentrantLock
  * 
  * </pre>
  * 
@@ -104,11 +105,16 @@ public class SatelliteInventory extends AbstractInventory implements
     }
 
     @Override
-    public synchronized void initTree(Map<String, DerivParamDesc> derParLibrary)
+    public void initTree(Map<String, DerivParamDesc> derParLibrary)
             throws DataCubeException {
-        level = LevelFactory.getInstance().getLevel("EA", 0.0);
-        coverages = new SatelliteCoverageCache();
-        super.initTree(derParLibrary);
+        lock.lock();
+        try {
+            level = LevelFactory.getInstance().getLevel("EA", 0.0);
+            coverages = new SatelliteCoverageCache();
+            super.initTree(derParLibrary);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
