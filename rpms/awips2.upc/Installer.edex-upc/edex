@@ -70,7 +70,9 @@ IP=`/sbin/ifconfig $usedev | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f
 
 if [[ $IP =~ ^10\..* || $IP =~ ^192\.168.* ]] # non-routable IP range
 then
-  IP=`/sbin/ifconfig eth1 | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
+  if [[ $ethdev =~ eth1 ]]; then
+    IP=`/sbin/ifconfig eth1 | grep "inet addr" |  awk '{ print $2 }' | cut -d: -f2`
+  fi
 elif [[ $IP =~ ^172\..* ]]
 then
   IPb=`echo $IP | cut -d"." -f2`
