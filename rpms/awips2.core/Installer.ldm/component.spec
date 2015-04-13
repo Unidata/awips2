@@ -1,4 +1,4 @@
-%define _ldm_version 6.12.6
+%define _ldm_version 6.12.9
 %define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes
@@ -351,21 +351,21 @@ do
    fi
 done
 #if a remote CP site, copy over the filtered data configuration
-if [ ${_myHost} == "dx1" -o ${_myHost} == "dx2" ] ; then
-   case $SITE_IDENTIFIER in gum|hfo|pbp|vrh)
-      echo -e "\nInstalling ldmd.conf for $SITE_IDENTIFIER."
-      if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn1:/usr/local/ldm/etc/ldmd.conf
-      then
-         echo "ERROR: Failed copy of ldmd.conf to cpsbn1"
-      fi
-
-      if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn2:/usr/local/ldm/etc/ldmd.conf
-      then
-         echo "ERROR: Failed copy of ldmd.conf to cpsbn2"
-      fi
-      ;;
-   esac
-fi
+#if [ ${_myHost} == "dx1" -o ${_myHost} == "dx2" ] ; then
+#   case $SITE_IDENTIFIER in gum|hfo|pbp|vrh)
+#      echo -e "\nInstalling ldmd.conf for $SITE_IDENTIFIER."
+#      if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn1:/usr/local/ldm/etc/ldmd.conf
+#      then
+#         echo "ERROR: Failed copy of ldmd.conf to cpsbn1"
+#      fi
+#
+#      if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn2:/usr/local/ldm/etc/ldmd.conf
+#      then
+#         echo "ERROR: Failed copy of ldmd.conf to cpsbn2"
+#      fi
+#      ;;
+#   esac
+#fi
 
 # remove the extra configuration files
 rm -f /usr/local/ldm/etc/ldmd.conf.*
