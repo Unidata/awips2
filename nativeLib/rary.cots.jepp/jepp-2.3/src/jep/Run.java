@@ -4,7 +4,7 @@ package jep;
  * <pre>
  * Run.java - Execute a Python script.
  *
- * Copyright (c) 2004, 2005 Mike Johnson.
+ * Copyright (c) 2004 - 2011 Mike Johnson.
  *
  * This file is licenced under the the zlib/libpng License.
  *
@@ -31,13 +31,14 @@ package jep;
  * </pre>
  *
  * @author [mrjohnson0 at sourceforge.net] Mike Johnson
- * @version $Id: Run.java 406 2007-01-08 20:31:18Z mrjohnson0 $	
+ * @version $Id$	
  */
 public class Run {
     private static boolean interactive  = false;
     private static boolean swingApp     = false;
     private static String  file         = null;
     private static String  scriptArgv   = null;
+    private static boolean pyInited     = false;
 
     
     private final static String USAGE =
@@ -48,13 +49,15 @@ public class Run {
     
 
     public static int run(boolean eventDispatch) {
+        initPython();
+        
         Jep jep = null;
         
         try {
             jep = new Jep(false, ".");
             
             // "set" by eval'ing it
-            jep.eval("argv = " + scriptArgv);
+            jep.eval("import sys; sys.argv = argv = " + scriptArgv);
             jep.runScript(file);
         }
         catch(Throwable t) {
@@ -94,7 +97,7 @@ public class Run {
     /**
      * Describe <code>main</code> method here.
      *
-     * @param args[] a <code>String</code> value
+     * @param args a <code>String</code> value
      * @exception Throwable if an error occurs
      * @exception Exception if an error occurs
      */
@@ -123,7 +126,7 @@ public class Run {
         }
         
         if(file == null) {
-            System.out.println("Run: Invaid file, null");
+            System.out.println("Run: Invalid file, null");
             System.out.println(USAGE);
             System.exit(1);
         }
@@ -155,6 +158,25 @@ public class Run {
         // in case we're run with -Xrs
         if(!swingApp)
             System.exit(ret);
+    }
+    
+    private static void initPython() {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Jep.pyInitialize();
+                pyInited = true;
+            }
+        });
+        t.start();
+
+        while (!pyInited) {
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
     
     

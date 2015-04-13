@@ -9,7 +9,7 @@ package jep;
  * to the Python importer or the Java importer.
  * 
  *
- * Copyright (c) 2015 Nate Jensen.
+ * Copyright (c) 2015 JEP AUTHORS.
  *
  * This file is licenced under the the zlib/libpng License.
  *
