@@ -241,6 +241,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 08/13/2014   3497        njensen     Refactored syntax checking to prevent potential infinite loop
  * 12/02/2014   #15007      zhao        Added restoreFrom() for the "Restore From..." menu option
+ * 04/07/2015   17332       zhao        Added code to handle case of "Cancel" in "Restore From..." 
  * 
  * </pre>
  * 
@@ -2519,6 +2520,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         FileDialog dlg = new FileDialog(shell, SWT.OPEN);
         dlg.setFilterPath(path);
         String filepath = dlg.open();
+        if ( filepath == null ) { // if "Cancel"; do nothing
+            return;
+        }
 
         String errorMsg = null;
 

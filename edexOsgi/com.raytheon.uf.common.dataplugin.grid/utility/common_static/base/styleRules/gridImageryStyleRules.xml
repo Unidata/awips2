@@ -5529,4 +5529,17 @@
       <displayUnits>cm/sec</displayUnits>
     </imageStyle>
   </styleRule>
+  
+  <!-- Style Rule for nwpsCG1 to display Sig. Wave Height and Swell Height 
+       in ft.  -->
+   <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>nwpsCG1</creatingEntity>
+      <parameter>SWELL</parameter>
+      <parameter>HTSGW</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>ft</displayUnits>
+    </imageStyle>
+  </styleRule>
 </styleRuleset>

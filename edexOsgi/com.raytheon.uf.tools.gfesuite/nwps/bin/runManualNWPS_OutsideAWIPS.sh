@@ -100,8 +100,8 @@ fi
 
 ### CHECK FOR GFECRON USER RUNNING THIS SCRIPT:
 
-ID=$(id -u)
-if [[ $ID -ne 104 ]]
+USER_ID=$(id --user --name)
+if [[ "$USER_ID" != "gfecron" ]]
 then
         logit "ONLY GFECRON USER IS ALLOWED TO RUN THIS SCRIPT."
         logit "Exiting ..."
