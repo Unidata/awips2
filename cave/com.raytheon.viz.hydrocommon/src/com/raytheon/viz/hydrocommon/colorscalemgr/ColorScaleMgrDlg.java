@@ -79,6 +79,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 06 Sep 2013  #2342      lvenable    Fixed color memory leaks and a null point exception.
  * 04 Sep 2014  14448      cgobs       Make MPE redisplay after save of color settings in ColorScaleMgr
  * 26 Feb 2015  16848      cgobs       Fix merging of color sets by deleting existing set before saving new set.
+ *                                     Updated to include fix of error when saving a new source.
    * </pre>
  * 
  * @author lvenable
@@ -1972,8 +1973,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         String statement = "delete from colorValue " + whereClause;
         
         
-        try
-        {
+        try   {
             DirectDbQuery.executeStatement(statement,HydroConstants.IHFS, QueryLanguage.SQL);
         }
          
@@ -1984,26 +1984,38 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         
         // 0. Collect data to delete (user, dataType, duration
      
-        java.util.List<ColorScaleData> data = editColorData
+        java.util.List<ColorScaleData> usedColorData = null;
+        try
+        {
+            usedColorData = editColorData
                 .getUsedColorScaleDataArray(userId, durationString + "_" + colorUseName);
+        }
+        catch (Exception e)
+        {
+            statusHandler.handle(Priority.DEBUG,
+                  "No problem. Color set doesn't exist yet, can't delete it. ", e);   
+        }
         
-        ColorValueData cvd = new ColorValueData();
-        cvd.setApplicationName(applicationName);
-        cvd.setColorUseName(colorUseName);
-        cvd.setUserId(userId);
-        cvd.setDuration(durationString);
-        
-        System.out.println("Attempting to delete data from cvd = " + getStringFromColorValueData(cvd) );
+        if (usedColorData != null) {
+            ColorValueData cvd = new ColorValueData();
+            cvd.setApplicationName(applicationName);
+            cvd.setColorUseName(colorUseName);
+            cvd.setUserId(userId);
+            cvd.setDuration(durationString);
 
-        // 1. Delete each record from database
-        for (ColorScaleData csd : data) {
-            cvd.setThresholdValue(csd.getDoubleVal().toString());
-            try {
-                manager.deleteRecord(cvd);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.ERROR,
-                        "Error deleting Color Value Data: ", e);
-            }
+            System.out.println("Attempting to delete data from cvd = " +
+                    getStringFromColorValueData(cvd) );
+
+            // 1. Delete each record from database
+            for (ColorScaleData csd : usedColorData) {
+                cvd.setThresholdValue(csd.getDoubleVal().toString());
+                try {
+                    manager.deleteRecord(cvd);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.ERROR,
+                            "Error deleting Color Value Data: ", e);
+                }
+            }  //end for 
         }
     }
         

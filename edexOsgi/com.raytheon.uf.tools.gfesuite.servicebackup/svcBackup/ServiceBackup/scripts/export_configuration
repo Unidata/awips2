@@ -30,6 +30,10 @@
 #                                     sites.
 #
 ##
+# Mar 23, 2015  #4308     dgilling    Export mixedCaseProductIds.txt.
+#
+##
+
 
 
 if [ ${#AWIPS_HOME} = 0 ]
