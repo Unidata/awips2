@@ -35,6 +35,10 @@ class RTMAForecaster(Forecaster):
         direc=wind_FHAG10[1]
         newmag=self.convertMsecToKts(mag)
         return (newmag,direc)
+    
+    def calcWindGust(self, wgs_FHAG10):
+        newmag=self.convertMsecToKts(wgs_FHAG10)
+        return newmag
 ##--------------------------------------------------------------------------
 ##  QPE - change mm to inches and clip greater than 1000mm
 ##--------------------------------------------------------------------------
@@ -104,6 +108,11 @@ class RTMAForecaster(Forecaster):
     def calcTdUnc(self,dpterranl_FHAG2):
         return dpterranl_FHAG2 * 1.8
 ##--------------------------------------------------------------------------
+##  Pressure Analysis Uncertainty
+##--------------------------------------------------------------------------
+    def calcPressUnc(self, perranl_SFC):
+        return perranl_SFC
+##--------------------------------------------------------------------------
 ##  Wind Analysis Uncertainty - change m/s to kts
 ##--------------------------------------------------------------------------
     def calcWSpdUnc(self, wserranl_FHAG10):
@@ -113,7 +122,9 @@ class RTMAForecaster(Forecaster):
 
     def calcWDirUnc(self, wderranl_FHAG10):
         return wderranl_FHAG10
-
+    
+    def calcWGustUnc(self, wgserranl_FHAG10):
+        return wgserranl_FHAG10
 ##--------------------------------------------------------------------------
 ##  Visibility
 ##--------------------------------------------------------------------------
@@ -122,7 +133,12 @@ class RTMAForecaster(Forecaster):
 
     def calcVisUnc(self, viserranl_SFC):
         return self.convertMtoSM(viserranl_SFC)
-
+    
+##--------------------------------------------------------------------------
+##  Surface Pressure
+##--------------------------------------------------------------------------
+    def calcPressure(self, p_SFC):
+        return p_SFC
 ##-------------------------------------------------------------------------
 ##  TdAft and TdMrn - simply calculate from MaxT/MinRH and MinT/MaxRH
 ##-------------------------------------------------------------------------

@@ -278,4 +278,49 @@
     </levels>
     <n3D>1</n3D>
   </gridParameterInfo>
-</gridParamInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>p</short_name>
+    <long_name>pressure</long_name>
+    <units>Pa</units>
+    <udunits>pascal</udunits>
+    <uiname>atmP</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>110000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+    <n3D>1</n3D>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>viserranl</short_name>
+    <long_name>visibility uncertainty</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>Viserranlind</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+    <n3D>1</n3D>
+  </gridParameterInfo>
+<gridParameterInfo xsi:type="parameterInfo">
+    <short_name>perranl</short_name>
+    <long_name>pressure uncertainty</long_name>
+    <units>Pa</units>
+    <udunits>pascal</udunits>
+    <uiname>atmPerranlind</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>110000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+    <n3D>1</n3D>
+  </gridParameterInfo>
+  </gridParamInfo>
