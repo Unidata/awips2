@@ -164,4 +164,14 @@
 	<field key="PSurge18ftCumul_PHISH" displayTypes="IMAGE" />
 	<field key="PSurge19ftCumul_PHISH" displayTypes="IMAGE" />
 	<field key="PSurge20ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="Wave1" displayTypes="ARROW"/>
+	<field key="Wave2" displayTypes="ARROW"/>
+	<field key="Wave3" displayTypes="ARROW"/>
+	<field key="Wave4" displayTypes="ARROW"/>
+	<field key="Wave5" displayTypes="ARROW"/>
+	<field key="Wave6" displayTypes="ARROW"/>
+	<field key="Wave7" displayTypes="ARROW"/>
+	<field key="Wave8" displayTypes="ARROW"/>
+	<field key="Wave9" displayTypes="ARROW"/>
+	<field key="Wave10" displayTypes="ARROW"/>	
 </fieldDisplayTypesFile>
