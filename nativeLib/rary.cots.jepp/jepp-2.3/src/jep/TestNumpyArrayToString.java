@@ -15,8 +15,6 @@ public class TestNumpyArrayToString {
     private static final int NUM_ITERATIONS = 10;
 
     public static void main(String[] args) {
-        Jep.pyInitialize();
-
         Runnable disposeThread = new Runnable() {
 
             @Override

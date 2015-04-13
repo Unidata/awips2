@@ -2,8 +2,8 @@ package jep;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.jar.JarFile;
  * <pre>
  * Jep.java - Embeds CPython in Java.
  *
- * Copyright (c) 2004, 2005 Mike Johnson.
+ * Copyright (c) 2015 JEP AUTHORS.
  *
  * This file is licenced under the the zlib/libpng License.
  *
@@ -49,9 +49,10 @@ import java.util.jar.JarFile;
  * </pre>
  *
  * @author [mrjohnson0 at sourceforge.net] Mike Johnson
- * @version $Id: ClassList.java 390 2006-12-22 23:11:29Z mrjohnson0 $
+ * @version $Id$
  */
-public class ClassList {
+public class ClassList implements ClassEnquirer {
+	
     private static ClassList inst;
 
     // storage for package, members
@@ -62,7 +63,7 @@ public class ClassList {
     private ClassList() throws JepException {
         loadClassPath();
         loadPackages();
-        loadJREClasses();
+        loadClassList();
     }
 
 
@@ -70,7 +71,7 @@ public class ClassList {
      * load jar files from class path
      *
      */
-    private void loadClassPath() throws JepException {
+    private void loadClassPath() {
         StringTokenizer tok = new StringTokenizer(
             System.getProperty("java.class.path"),
             System.getProperty("path.separator"));
@@ -165,20 +166,22 @@ public class ClassList {
      * this is my little hack.
      *
      */
-    private void loadJREClasses() throws JepException {
-        // load the JRE's classlist file
-        String javaHome = System.getProperty("java.home");
-        String pathSep  = System.getProperty("file.separator");
-
-        File file = new File(javaHome + pathSep + "lib" +
-                             pathSep + "classlist");
-        if(!file.exists())
-            return;
+    private void loadClassList() throws JepException {
+        String version = System.getProperty("java.version");
+        
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        InputStream in = null;
 
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new InputStreamReader(
-                                            new FileInputStream(file)));
+            if(version.startsWith("1.8"))
+                in = cl.getResourceAsStream("jep/classlist_8.txt");
+            else if(version.startsWith("1.7"))
+                in = cl.getResourceAsStream("jep/classlist_7.txt");
+            else
+                in = cl.getResourceAsStream("jep/classlist_6.txt");
+            
+            reader = new BufferedReader(new InputStreamReader(in));
 
             String line = "";
             while((line = reader.readLine()) != null) {
@@ -188,9 +191,9 @@ public class ClassList {
 
                 // lines in the file look like: java/lang/String
                 // split on /
-                String[]     parts = line.split("\\/");
-                StringBuffer pname = new StringBuffer();
-                String       cname = parts[parts.length - 1];
+                String[]      parts = line.split("\\/");
+                StringBuilder pname = new StringBuilder();
+                String        cname = parts[parts.length - 1];
 
                 for(int i = 0; i < parts.length - 1; i++) {
                     pname.append(parts[i]);
@@ -210,7 +213,7 @@ public class ClassList {
                     reader.close();
             }
             catch(IOException ee) {
-                ;
+                // ignore
             }
         }
     }
@@ -239,7 +242,7 @@ public class ClassList {
     }
 
 
-    private String[] _get(String p) throws JepException {
+    private String[] _get(String p) {
         ArrayList<String> el = packages.get(p);
         if(el == null) {
 
@@ -252,16 +255,11 @@ public class ClassList {
                     return new String[0];
             }
 
-            throw new JepException("Package not found: " + p);
+            return null;
         }
 
-        // wtf...
-        // return (String[]) el.toArray();
-        // fails with classcastexception.
-        // bollocks.
-
         String[] ret = new String[el.size()];
-        System.arraycopy(el.toArray(), 0, ret, 0, el.size());
+        el.toArray(ret);
         return ret;
     }
 
@@ -275,6 +273,23 @@ public class ClassList {
      */
     public static String[] get(String p) throws JepException {
         return ClassList.getInstance()._get(p);
+    }
+
+
+    /**
+     * classname contained in package
+     *
+     * @param p a <code>String</code> value
+     * @return <code>String[]</code> array of class names
+     */
+    @Override
+    public boolean contains(String p) {
+        return _get(p) != null;
+    }
+    
+    @Override
+    public boolean supportsPackageImport() {
+    	return true;
     }
 
 
