@@ -29,10 +29,13 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.region.RegionLookup;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -52,6 +55,9 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 30, 2013       2361 njensen     Use JAXBManager for XML
  * Sep 08, 2104       3592 randerso    Changed to use new pm listStaticFiles()
  * Feb 19, 2015       4125 rjpeter     Fix jaxb performance issue
+ * Apr 10, 2015       4383 dgilling    Fix getData so it searches correct localization
+ *                                     directories for secondary sites.
+ * 
  * </pre>
  * 
  * @author dgilling
@@ -82,9 +88,8 @@ public class ReferenceMgr {
      */
     public ServerResponse<List<ReferenceID>> getInventory() {
         List<ReferenceID> refIDs = new ArrayList<ReferenceID>();
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile[] contents = pm.listStaticFiles(
-                LocalizationType.COMMON_STATIC, EDIT_AREAS_DIR,
+        LocalizationFile[] contents = pathMgr.listStaticFiles(
+                getSiteSearchContexts(), EDIT_AREAS_DIR,
                 new String[] { ".xml" }, false, true);
         if (contents != null) {
             for (LocalizationFile lf : contents) {
@@ -121,7 +126,7 @@ public class ReferenceMgr {
         for (ReferenceID id : ids) {
             String path = FileUtil.join(EDIT_AREAS_DIR, id.getName() + ".xml");
             LocalizationFile lf = pathMgr.getStaticLocalizationFile(
-                    LocalizationType.COMMON_STATIC, path);
+                    getSiteSearchContexts(), path);
 
             // does it exist?
             if (lf == null) {
@@ -166,5 +171,39 @@ public class ReferenceMgr {
     @Override
     public String toString() {
         return "ReferenceMgr [" + dbGridLocation.getSiteId() + "]";
+    }
+
+    private LocalizationContext[] getSiteSearchContexts() {
+        String siteId = dbGridLocation.getSiteId();
+        /*
+         * regionName could be returned as null, and if so, we will not add it
+         * to the final list of LocalizationContexts.
+         */
+        String regionName = RegionLookup.getWfoRegion(siteId);
+
+        LocalizationContext[] searchContexts = pathMgr
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
+        List<LocalizationContext> fixedContexts = new ArrayList<>(
+                searchContexts.length);
+        for (LocalizationContext ctx : searchContexts) {
+            if (((ctx.getLocalizationLevel().equals(LocalizationLevel.SITE)) || (ctx
+                    .getLocalizationLevel()
+                    .equals(LocalizationLevel.CONFIGURED)))
+                    && (!ctx.getContextName().equals(siteId))) {
+                ctx.setContextName(siteId);
+            } else if (ctx.getLocalizationLevel().equals(
+                    LocalizationLevel.REGION)) {
+                if (regionName == null) {
+                    continue;
+                } else if (!ctx.getContextName().equals(regionName)) {
+                    ctx.setContextName(regionName);
+                }
+            }
+
+            fixedContexts.add(ctx);
+        }
+
+        return fixedContexts.toArray(new LocalizationContext[fixedContexts
+                .size()]);
     }
 }
