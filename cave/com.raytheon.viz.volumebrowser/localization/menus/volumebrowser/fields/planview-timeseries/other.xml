@@ -28,6 +28,8 @@
     <!-- End Baumgardt Submenu -->
     <contribute xsi:type="menuItem" menuText="Cloud Cover"
         key="CCP" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Cloud Cover Anl Uncertainty"
+        key="CCPerranl" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Cloud Decks"
         key="clDecks" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Cloud Type"

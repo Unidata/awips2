@@ -188,16 +188,10 @@ public class MhsMessage {
     private String validTimeString;
 
     /**
-     * Absolute time that the sender will wait for an acknowledgment before
-     * reporting a delivery error. This parameter is optional.
+     * Relative amount of time that the sender will wait for an acknowledgment
+     * before reporting a delivery error. This parameter is optional.
      */
-    private Date timeoutTime;
-
-    /**
-     * Timeout time parameter formatted as a string (mm/dd/yyyy:HHMM). This
-     * value is derived from {@link #timeoutTime} during message submission.
-     */
-    private String timeoutTimeString;
+    private long timeoutTime;	// DR-17251 - changed from Date to long
 
     /**
      * Mailbox user name. This is used for switching messaging gateways and
@@ -272,14 +266,14 @@ public class MhsMessage {
         String traceString = System.getenv(EnvMhsTrace);
 
         showTrace = (traceString != null)
-                && ((traceString.equalsIgnoreCase("yes") 
-                || traceString.equalsIgnoreCase("true")));
+                && ((traceString.equalsIgnoreCase("yes") || traceString
+                        .equalsIgnoreCase("true")));
 
         actionCode = code;
         setRetryCount(0);
         addressees = new AddresseeList();
         enclosures = new EnclosureList();
-        timeoutTime = null;
+        timeoutTime = 0;		// DR-17251 - Changed from null to 0
         validTime = null;
         bodyFile = "";
         productId = "";
@@ -722,8 +716,7 @@ public class MhsMessage {
      * @see #addAckAddressee(String)
      */
     public void setTimeoutTime(long timeoutSeconds) {
-        this.timeoutTime = new Date(System.currentTimeMillis() + timeoutSeconds
-                * 1000);
+        this.timeoutTime = timeoutSeconds;	// DR-17251
     }
 
     /**
@@ -738,7 +731,8 @@ public class MhsMessage {
      * @see #addAckAddressee(String)
      */
     public void setTimeoutTime(Date timeoutTime) {
-        this.timeoutTime = timeoutTime;
+    	
+    	this.timeoutTime = (timeoutTime.getTime() - (new Date().getTime())) / 1000;	// DR-17251
     }
 
     /**
@@ -750,7 +744,11 @@ public class MhsMessage {
      *         {@link #MaxTimeoutSeconds} in the future.
      */
     public Date getTimeoutTime() {
-        return timeoutTime;
+    	if (this.timeoutTime == 0) {	// DR-17251
+    		return null;
+    	} else {
+    		return new Date((this.timeoutTime * 1000) + (new Date().getTime()));	// DR-17251
+    	}
     }
 
     /**
@@ -956,11 +954,11 @@ public class MhsMessage {
     private boolean isTimeoutTimeValid() {
         boolean status = true;
 
-        if (timeoutTime != null) {
-            if (timeoutTime.before(new Date())) {
+        if (timeoutTime != 0) {		// DR-17251
+            if (timeoutTime < 0) {	// DR-17251
                 status = false;
                 resultText = "Time out time must be in the future";
-            } else if ((timeoutTime.getTime() - (new Date().getTime())) > (MaxTimeoutSeconds * 1000)) {
+            } else if (timeoutTime > MaxTimeoutSeconds) {	// DR-17251
                 status = false;
                 resultText = "Time out time must be within "
                         + MaxTimeoutSeconds + " seconds of now";
@@ -969,8 +967,7 @@ public class MhsMessage {
         return status;
     }
 
-    private static boolean checkVars(String envdir, String envfrag,
-            boolean fatal) {
+    private static boolean checkVars(String envdir, String envfrag, boolean fatal) {
         String filename;
         File dwbFile;
         final String TEMPLATE = "/env.";
@@ -1083,17 +1080,14 @@ public class MhsMessage {
         } else {
             validTimeString = "";
         }
-        if (timeoutTime != null) {
-            timeoutTimeString = dateFormat.format(timeoutTime);
-        } else {
-            timeoutTimeString = "";
-        }
 
         SimpleDateFormat timeStampFormat = new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss.SSS");
         String timeStamp = timeStampFormat.format(System.currentTimeMillis());
         System.out.println(timeStamp + ": Message submitted");
 
+        // Submit the message by constructing a command line and
+        // execing a new msg_send process
         LinkedList<String> command = new LinkedList<String>();
 
         command.add("msg_send");
@@ -1144,8 +1138,8 @@ public class MhsMessage {
             command.add("-e" + encList);
         }
 
-        if (!timeoutTimeString.isEmpty()) {
-            command.add("-T" + timeoutTimeString);
+        if (timeoutTime > 0) {
+        	command.add("-T +" + timeoutTime);	// DR-17251 - use relative time instead of absolute
         }
 
         if (!validTimeString.isEmpty()) {
@@ -1210,8 +1204,9 @@ public class MhsMessage {
             }
 
             if (showTrace) {
-                System.out.println("Message successfully submitted.  Message ID: "
-                                    + messageId);
+                System.out
+                        .println("Message successfully submitted.  Message ID: "
+                                + messageId);
             }
         } catch (Throwable t) {
             resultText = t.getMessage();
