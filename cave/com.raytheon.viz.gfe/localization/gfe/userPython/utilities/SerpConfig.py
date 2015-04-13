@@ -126,24 +126,4 @@ Config["MaxPointsInColumn"]=10
 #  default state of elevation effects when the dialog starts up.
 #
 Config["ElevationDefault"]="On"
-#
-#==============================================================================
-#
-#  The following empty code is here to fool the ifpServer into
-#  thinking it's a tool.  This is so that the configuration will 
-#  appear right next to the primary tool.
-#
-#  DO NOT CHANGE THE LINES BELOW
-#
-ToolType = "numeric"
-WeatherElementEdited = "None"
-from numpy import *
-HideTool = 1
 
-import SmartScript
-
-class Tool (SmartScript.SmartScript):
-    def __init__(self, dbss):
-        SmartScript.SmartScript.__init__(self, dbss)
-    def execute(self):
-        return
