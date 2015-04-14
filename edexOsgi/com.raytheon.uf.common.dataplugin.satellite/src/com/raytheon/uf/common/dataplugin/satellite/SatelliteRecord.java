@@ -74,6 +74,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                    PluginDataObject.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Apr 15, 2014  4388     bsteffen    Deprecate SAT_FILL_VALUE
  * 
  * </pre>
  * 
@@ -105,9 +106,10 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
     public static final String SAT_DATASET_NAME = DataStoreFactory.DEF_DATASET_NAME;
 
     /**
-     * The attribute name for a value that will be used to "fill" undefined
-     * data.
+     * @deprecated {@link IDataRecord#setFillValue(Number)} should be used to
+     *             store the fill value.
      */
+    @Deprecated
     public static final String SAT_FILL_VALUE = "_FillValue";
 
     /**
