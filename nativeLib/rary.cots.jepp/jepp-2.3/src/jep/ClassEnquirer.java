@@ -1,6 +1,5 @@
 package jep;
 
-
 /**
  * <pre>
  * ClassEnquirer.java - Interface to enquire if a name is available
@@ -8,11 +7,21 @@ package jep;
  * determine if an attempt to import a module/class should be directed
  * to the Python importer or the Java importer.
  * 
- *
+ * TODO: Implement an OSGi class enquirer.  Implement a pseudo-secure
+ * class enquirer.  jep.findClass(name) ignores the import hook and wouldn't
+ * go through the secure enquirer, so it would still require a restricted
+ * ClassLoader to be secure.  However, they could potentially be used in
+ * tandem for faster performance or dynamic behavior.
+ * 
+ * TODO Potentially add a method to get a list of sub-packages.  However,
+ * for the most part that won't work for any implementations except ClassList
+ * so perhaps it shouldn't be on the interface.
+ * 
+ * 
  * Copyright (c) 2015 JEP AUTHORS.
- *
+ * 
  * This file is licenced under the the zlib/libpng License.
- *
+ * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any
  * damages arising from the use of this software.
@@ -31,54 +40,68 @@ package jep;
  * 
  *     3. This notice may not be removed or altered from any source
  *     distribution.
- *
+ * 
  * Created: Thurs Apr 02 2015
- *
+ * 
  * </pre>
- *
+ * 
  * @author [ndjensen at gmail.com] Nate Jensen
  * @version $Id$
  */
 public interface ClassEnquirer {
-	
-	/**
-	 * Checks if the name is likely available in Java.  A return
-	 * value of true implies the name corresponds to a Java package or class, but
-	 * does not guarantee that an import will succeed.  A return value of false
-	 * implies that an import from Java would fail, but does not guarantee that an
-	 * import will fail.
-	 *   
-	 * @param name the name to check, such as java, java.util, java.util.ArrayList
-	 * @return true if it's likely supported by Java, false if it's likely python
-	 */
-	public boolean contains(String name);
-	
-	/**
-	 * Whether or not this ClassEnquirer supports importing Java classes at the
-	 * package level in addition to the class level.  For example, with the
-	 * right ClassLoader JEP should always be able to successfully import Java
-	 * classes with syntax such as:
-	 * 
-	 * <p><blockquote><pre>
-	 * from java.util import ArrayList
-	 * o = ArrayList()
-	 * </p></blockquote></pre>
-	 * 
-	 * However, only in some scenarios can the package be imported separately
-	 * without the fully qualified name, such as:
-	 * 
-	 * <p><blockquote><pre>
-	 * import java.util as ju
-	 * o = ju.ArrayList()	 
-	 * </p></blockquote></pre>
-	 * 
-	 * This also roughly corresponds to whether or not dir(javaPackage) will 
-	 * return a list of available classes or only the classes that have been
-	 * explicitly imported.
-	 * 
-	 * @return true if this ClassEnquirer supports import of packages in addition
-	 * to import of classes, false if it only supports importing classes.
-	 */
-	public boolean supportsPackageImport();
+
+    /**
+     * Checks if the name is likely available in Java. A return value of true
+     * implies the name corresponds to a Java package or class, but does not
+     * guarantee that an import will succeed. A return value of false implies
+     * that an import from Java would fail, but does not guarantee that an
+     * import will fail.
+     * 
+     * @param name
+     *            the name to check, such as java, java.util,
+     *            java.util.ArrayList
+     * @return true if it's likely supported by Java, false if it's likely
+     *         python
+     */
+    public boolean contains(String name);
+
+    /**
+     * Whether or not this ClassEnquirer supports importing Java classes at the
+     * package level in addition to the class level. For example, with the right
+     * ClassLoader JEP should always be able to successfully import Java classes
+     * with syntax such as:
+     * 
+     * <p>
+     * <blockquote>
+     * 
+     * <pre>
+     * from java.util import ArrayList
+     * o = ArrayList()
+     * 
+     * </p>
+     * </blockquote></pre>
+     * 
+     * However, only in some scenarios can the package be imported separately
+     * without the fully qualified name, such as:
+     * 
+     * <p>
+     * <blockquote>
+     * 
+     * <pre>
+     * import java.util as ju
+     * o = ju.ArrayList()
+     * 
+     * </p>
+     * </blockquote></pre>
+     * 
+     * This also roughly corresponds to whether or not dir(javaPackage) will
+     * return a list of available classes or only the classes that have been
+     * explicitly imported.
+     * 
+     * @return true if this ClassEnquirer supports import of packages in
+     *         addition to import of classes, false if it only supports
+     *         importing classes.
+     */
+    public boolean supportsPackageImport();
 
 }

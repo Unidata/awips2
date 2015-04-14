@@ -2,7 +2,7 @@
 /* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2011 Mike Johnson.
+   Copyright (c) 2015 JEP AUTHORS.
 
    This file is licenced under the the zlib/libpng License.
 
@@ -24,7 +24,7 @@
 
    3. This notice may not be removed or altered from any source
    distribution.   
-*/ 	
+*/
 
 #ifdef WIN32
 # include "winconfig.h"
@@ -1302,7 +1302,7 @@ int pyarg_matches_jtype(JNIEnv *env,
         break;
         
     case JBOOLEAN_ID:
-        if(PyInt_Check(param))
+        if(PyBool_Check(param))
             return 1;
         break;
     }
@@ -1891,9 +1891,9 @@ jarray convert_pyndarray_jprimitivearray(JNIEnv* env,
         } else if(paType == NPY_FLOAT64) {
             desiredType = JDOUBLE_ARRAY_TYPE;
         } else {
-        	PyErr_Format(PyExc_TypeError,
-        	             "Unable to determine corresponding Java type for ndarray");
-        	return NULL;
+            PyErr_Format(PyExc_TypeError,
+                    "Unable to determine corresponding Java type for ndarray");
+            return NULL;
         }
     }
 
@@ -1925,11 +1925,11 @@ jarray convert_pyndarray_jprimitivearray(JNIEnv* env,
             && (paType == NPY_FLOAT64)) {
         arr = (*env)->NewDoubleArray(env, sz);
     } else {
-    	if(copy)
-    		Py_DECREF(copy);
-    	PyErr_Format(PyExc_RuntimeError,
-    				 "Error matching ndarray.dtype to Java primitive type");
-    	return NULL;
+        if(copy)
+            Py_DECREF(copy);
+        PyErr_Format(PyExc_RuntimeError,
+                "Error matching ndarray.dtype to Java primitive type");
+        return NULL;
     }
 
     /*
@@ -1937,8 +1937,8 @@ jarray convert_pyndarray_jprimitivearray(JNIEnv* env,
      * couldn't allocate the array
      */
     if(process_java_exception(env) || !arr) {
-    	if(copy)
-    		Py_DECREF(copy);
+        if(copy)
+            Py_DECREF(copy);
         return NULL;
     }
 
@@ -1960,11 +1960,11 @@ jarray convert_pyndarray_jprimitivearray(JNIEnv* env,
     }
 
     if(copy)
-    	Py_DECREF(copy);
+        Py_DECREF(copy);
 
     if(process_java_exception(env)) {
-    	PyErr_Format(PyExc_RuntimeError, "Error setting Java primitive array region");
-    	return NULL;
+        PyErr_Format(PyExc_RuntimeError, "Error setting Java primitive array region");
+        return NULL;
     }
 
     return arr;
@@ -2012,8 +2012,8 @@ jobject convert_pyndarray_jndarray(JNIEnv *env, PyObject *pyobj) {
 
     jdimObj = (*env)->NewIntArray(env, ndims);
     if(process_java_exception(env) || !jdimObj) {
-    	free(jdims);
-    	return NULL;
+        free(jdims);
+        return NULL;
     }
 
     (*env)->SetIntArrayRegion(env, jdimObj, 0, ndims, jdims);
@@ -2105,7 +2105,7 @@ PyObject* convert_jprimitivearray_pyndarray(JNIEnv *env,
     return pyjob;
 }
 
-/**
+/*
  * Converts a jep.NDArray to a numpy ndarray.
  *
  * @param env    the JNI environment

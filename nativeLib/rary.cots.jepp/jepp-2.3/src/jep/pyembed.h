@@ -2,7 +2,7 @@
 /* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2008 Mike Johnson.
+   Copyright (c) 2015 JEP AUTHORS.
 
    This file is licenced under the the zlib/libpng License.
 
@@ -24,14 +24,7 @@
 
    3. This notice may not be removed or altered from any source
    distribution.   
-*/ 	
-
-/*
-  August 2, 2012
-  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
-   Modifications marked and described by 'njensen'
 */
-
 
 #ifndef _Included_pyembed
 #define _Included_pyembed
@@ -52,7 +45,6 @@
 #include "Python.h"
 
 #include "util.h"
-#include "pyjobject.h"
 
 #define DICT_KEY "jep"
 
@@ -102,10 +94,5 @@ void pyembed_setparameter_int(JNIEnv*, intptr_t, intptr_t, const char*, int);
 void pyembed_setparameter_long(JNIEnv*, intptr_t, intptr_t, const char*, jeplong);
 void pyembed_setparameter_double(JNIEnv*, intptr_t, intptr_t, const char*, double);
 void pyembed_setparameter_float(JNIEnv*, intptr_t, intptr_t, const char*, float);
-
-// added by njensen
-void pyembed_setnumeric_array(JNIEnv*, intptr_t, intptr_t, const char*, jobjectArray, int, int);
-static void init(void);
-static int ran = 0;
 
 #endif

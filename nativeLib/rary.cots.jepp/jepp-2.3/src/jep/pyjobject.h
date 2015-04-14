@@ -2,7 +2,7 @@
 /* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2008 Mike Johnson.
+   Copyright (c) 2015 JEP AUTHORS.
 
    This file is licenced under the the zlib/libpng License.
 
@@ -24,14 +24,7 @@
 
    3. This notice may not be removed or altered from any source
    distribution.   
-*/ 	
-
-/*
-  August 2, 2012
-  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
-   Modifications marked and described by 'njensen'
 */
-
 
 
 // shut up the compiler
@@ -59,16 +52,21 @@ typedef struct {
     PyObject        *methods;     /* list of method names */
     PyObject        *fields;      /* list of field names */
     int              finishAttr;  /* true if object attributes are finished */
-    PyObject        *jclassname;  // added by njensen
+    PyObject        *javaClassName; /* string of the fully-qualified name of
+                                       the object's Java clazz */
 } PyJobject_Object;
+
+PyAPI_DATA(PyTypeObject) PyJobject_Type;
 
 PyObject* pyjobject_new(JNIEnv*, jobject);
 PyObject* pyjobject_new_class(JNIEnv*, jclass);
 PyObject* pyjobject_find_method(PyJobject_Object*, PyObject*, PyObject*);
 int pyjobject_check(PyObject *obj);
 
-//added by njensen
-static PyObject* pyjobject_numpy(PyJobject_Object *obj);
-
+// these methods need to be available to pyjlist
+int pyjobject_setattr(PyJobject_Object*, char*, PyObject*);
+PyObject* pyjobject_getattr(PyJobject_Object*, char*);
+void pyjobject_dealloc(PyJobject_Object*);
+PyObject* pyjobject_str(PyJobject_Object*);
 
 #endif // ndef pyjobject

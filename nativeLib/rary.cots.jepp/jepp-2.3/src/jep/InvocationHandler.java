@@ -9,7 +9,7 @@ import jep.python.*;
  * <pre>
  * InvocationHandler.java - Handle Proxy method calls.
  *
- * Copyright (c) 2004 - 2007 Mike Johnson.
+ * Copyright (c) 2015 JEP AUTHORS.
  *
  * This file is licenced under the the zlib/libpng License.
  *
@@ -36,7 +36,7 @@ import jep.python.*;
  * </pre>
  *
  * @author [mrjohnson0 at sourceforge.net] Mike Johnson
- * @version $Id: $	
+ * @version $Id: $
  */
 public class InvocationHandler implements java.lang.reflect.InvocationHandler {
 

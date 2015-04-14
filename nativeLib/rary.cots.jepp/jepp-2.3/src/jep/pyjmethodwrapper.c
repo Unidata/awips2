@@ -2,7 +2,7 @@
 /* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2008 Mike Johnson.
+   Copyright (c) 2015 JEP AUTHORS.
 
    This file is licenced under the the zlib/libpng License.
 
@@ -24,12 +24,6 @@
 
    3. This notice may not be removed or altered from any source
    distribution.   
-*/ 	
-
-/*
-  August 2, 2012
-  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
-   New file created with modifications to pyjmethod.c
 */
 
 
@@ -62,46 +56,54 @@
 #include "Python.h"
 
 #include "pyjmethodwrapper.h"
-#include "util.h"
+#include "pyjobject.h"
 #include "pyembed.h"
 
-staticforward PyTypeObject PyJmethodWrapper_Type;
+PyAPI_DATA(PyTypeObject) PyJmethodWrapper_Type;
 
-static void pyjmethod_dealloc(PyJmethod_Object *self);
+static void pyjmethodwrapper_dealloc(PyJmethodWrapper_Object *self);
 
-
-PyJmethodWrapper_Object* pyjmethodwrapper_new(
-                                PyJobject_Object *pyjobject,
-                                PyJmethod_Object *pyjmethod
-                                ) {
-    PyJmethodWrapper_Object *pym          = NULL;
+/*
+ * Makes a new pyjmethodwrapper.  This is required to reuse the pyjmethod
+ * objects across multiple instances, otherwise we'd lose track of which
+ * pyjobject is doing the calling.
+ */
+PyJmethodWrapper_Object* pyjmethodwrapper_new(PyJobject_Object *pyjobject, // the instance doing the calling
+        PyJmethod_Object *pyjmethod) { // the method to be called
+    PyJmethodWrapper_Object *pym = NULL;
 
     if(PyType_Ready(&PyJmethodWrapper_Type) < 0)
         return NULL;
 
-    pym                = PyObject_NEW(PyJmethodWrapper_Object, &PyJmethodWrapper_Type);
+    pym = PyObject_NEW(PyJmethodWrapper_Object, &PyJmethodWrapper_Type);
     pym->method = pyjmethod;
     pym->object = pyjobject;
     Py_INCREF(pyjobject);
     return pym;
 }
 
-
 static void pyjmethodwrapper_dealloc(PyJmethodWrapper_Object *self) {
 #if USE_DEALLOC
+    if(self->object) {
+        Py_DECREF(self->object);
+    }
     PyObject_Del(self);
 #endif
 }
 
 
 
-// called by python for __call__.
-// we pass off processing to pyjmethod.
+/*
+ * Called by python for pyjobject.__call__.  Since we reuse pyjmethod objects,
+ * a unique instance of pyjmethodwrapper is created for every method on a
+ * pyjobject to ensure the correct instance is used.  We then pass off the
+ * actual invocation to the pyjmethod.
+ */
 static PyObject* pyjmethodwrapper_call(PyJmethodWrapper_Object *self,
                                 PyObject *args,
                                 PyObject *keywords) {
     PyObject *ret;
-	PyJobject_Object* obj;
+    PyJobject_Object* obj;
     
     if(!PyTuple_Check(args)) {
         PyErr_Format(PyExc_RuntimeError, "args is not a valid tuple");
@@ -114,8 +116,25 @@ static PyObject* pyjmethodwrapper_call(PyJmethodWrapper_Object *self,
     }
 
     obj = self->object;
+    // pyjobject_find_method will actually call the method
     ret = pyjobject_find_method(obj, self->method->pyMethodName, args);
-    Py_XDECREF(obj);
+
+    /*
+     * This seems odd to Py_DECREF(self), but we had to Py_INCREF it
+     * over in pyjobject_getattr so that the garbage collector doesn't
+     * collect it before we even got to __call__ it.
+     *
+     * And now we want to make sure it gets cleaned up and can't tell if
+     * it will be reused.  If it is going to be reused, such as stored in
+     * a variable and repeatedly called, we're still safe.  For example:
+     *
+     * m = obj.doIt
+     * while condition:
+     *    m()
+     *
+     * As long as m is in scope, there will still be a reference so it won't
+     * get garbage collected until m goes out of scope.
+     */
     Py_DECREF(self);
 
     return ret;
@@ -127,13 +146,13 @@ static PyMethodDef pyjmethodwrapper_methods[] = {
 };
 
 
-static PyTypeObject PyJmethodWrapper_Type = {
+PyTypeObject PyJmethodWrapper_Type = {
     PyObject_HEAD_INIT(0)
     0,
     "jep.PyJmethodWrapper",
     sizeof(PyJmethodWrapper_Object),
     0,
-    (destructor) pyjmethodwrapper_dealloc,           /* tp_dealloc */
+    (destructor) pyjmethodwrapper_dealloc,    /* tp_dealloc */
     0,                                        /* tp_print */
     0,                                        /* tp_getattr */
     0,                                        /* tp_setattr */
@@ -143,20 +162,20 @@ static PyTypeObject PyJmethodWrapper_Type = {
     0,                                        /* tp_as_sequence */
     0,                                        /* tp_as_mapping */
     0,                                        /* tp_hash  */
-    (ternaryfunc) pyjmethodwrapper_call,             /* tp_call */
+    (ternaryfunc) pyjmethodwrapper_call,      /* tp_call */
     0,                                        /* tp_str */
     0,                                        /* tp_getattro */
     0,                                        /* tp_setattro */
     0,                                        /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,                       /* tp_flags */
-    "jmethodwrapper",                                /* tp_doc */
+    "jmethodwrapper",                         /* tp_doc */
     0,                                        /* tp_traverse */
     0,                                        /* tp_clear */
     0,                                        /* tp_richcompare */
     0,                                        /* tp_weaklistoffset */
     0,                                        /* tp_iter */
     0,                                        /* tp_iternext */
-    pyjmethodwrapper_methods,                        /* tp_methods */
+    pyjmethodwrapper_methods,                 /* tp_methods */
     0,                                        /* tp_members */
     0,                                        /* tp_getset */
     0,                                        /* tp_base */

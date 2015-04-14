@@ -2,7 +2,7 @@
 /* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2008 Mike Johnson.
+   Copyright (c) 2015 JEP AUTHORS.
 
    This file is licenced under the the zlib/libpng License.
 
@@ -29,7 +29,7 @@
    Fields really don't have to be represented as python objects,
    but it is nice to have garbage collection and to be able
    to cast to PyObject.
-*/ 	
+*/
 
 #ifdef WIN32
 # include "winconfig.h"
@@ -65,7 +65,7 @@
 #include "pyjclass.h"
 #include "util.h"
 
-staticforward PyTypeObject PyJfield_Type;
+PyAPI_DATA(PyTypeObject) PyJfield_Type;
 
 static void pyjfield_dealloc(PyJfield_Object *self);
 
@@ -258,8 +258,9 @@ static void pyjfield_dealloc(PyJfield_Object *self) {
             (*env)->DeleteGlobalRef(env, self->rfield);
     }
     
-    if(self->pyFieldName)
+    if(self->pyFieldName) {
         Py_DECREF(self->pyFieldName);
+    }
 
     PyObject_Del(self);
 #endif
@@ -916,7 +917,7 @@ static PyMethodDef pyjfield_methods[] = {
 };
 
 
-static PyTypeObject PyJfield_Type = {
+PyTypeObject PyJfield_Type = {
     PyObject_HEAD_INIT(0)
     0,
     "PyJfield",

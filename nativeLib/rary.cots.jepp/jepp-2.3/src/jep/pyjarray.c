@@ -1,15 +1,15 @@
 /* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 4 c-style: "K&R" -*- */
-/*
+/* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2008 Mike Johnson.
+   Copyright (c) 2015 JEP AUTHORS.
 
    This file is licenced under the the zlib/libpng License.
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
    damages arising from the use of this software.
-
+   
    Permission is granted to anyone to use this software for any
    purpose, including commercial applications, and to alter it and
    redistribute it freely, subject to the following restrictions:
@@ -23,20 +23,13 @@
    must not be misrepresented as being the original software.
 
    3. This notice may not be removed or altered from any source
-   distribution.
-
-
+   distribution.   
+   
+   
    pyjarray is a python object for using java arrays within the interpreter.
    i got a lot of inspiration from listobject.c in the Objects/ folder
    of the python distribution.
-*/
-
-/*
-  August 2, 2012
-  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
-   Modifications marked and described by 'njensen'
-*/
-
+*/     
 
 #ifdef WIN32
 # include "winconfig.h"
@@ -66,7 +59,7 @@
 #include "pyembed.h"
 #include "util.h"
 
-staticforward PyTypeObject PyJarray_Type;
+PyAPI_DATA(PyTypeObject) PyJarray_Type;
 extern PyMethodDef  pyjarray_methods[];
 
 
@@ -75,25 +68,25 @@ jmethodID objectComponentType = 0;
 
 static void pyjarray_dealloc(PyJarray_Object *self);
 static int pyjarray_init(JNIEnv*, PyJarray_Object*, int, PyObject*);
-static int pyjarray_length(PyJarray_Object *self);
+static int pyjarray_length(PyObject *self);
 
 
 // called internally to make new PyJarray_Object instances
 PyObject* pyjarray_new(JNIEnv *env, jobjectArray obj) {
     PyJarray_Object *pyarray;
     jclass           clazz;
-
+    
     if(PyType_Ready(&PyJarray_Type) < 0)
         return NULL;
     if(!obj) {
         PyErr_Format(PyExc_RuntimeError, "Invalid array object.");
         return NULL;
     }
-
+    
     clazz = (*env)->GetObjectClass(env, obj);
     if(process_java_exception(env) || !clazz)
         return NULL;
-
+    
     pyarray                 = PyObject_NEW(PyJarray_Object, &PyJarray_Type);
     pyarray->object         = (*env)->NewGlobalRef(env, obj);
     pyarray->clazz          = (*env)->NewGlobalRef(env, clazz);
@@ -101,7 +94,7 @@ PyObject* pyjarray_new(JNIEnv *env, jobjectArray obj) {
     pyarray->componentClass = NULL;
     pyarray->length         = -1;
     pyarray->pinnedArray    = NULL;
-
+    
     if(pyjarray_init(env, pyarray, 0, NULL))
         return (PyObject *) pyarray;
     else {
@@ -120,18 +113,18 @@ PyObject* pyjarray_new_v(PyObject *isnull, PyObject *args) {
     jclass           clazz, componentClass;
     JNIEnv          *env       = NULL;
     jobjectArray     arrayObj  = NULL;
-    int              typeId    = -1;
+    long             typeId    = -1;
     long             size      = -1;
-
+    
     // args
     PyObject *one, *two, *three;
     one = two = three = NULL;
-
+    
     if(PyType_Ready(&PyJarray_Type) < 0)
         return NULL;
 
     env = pyembed_get_env();
-
+    
     if(!PyArg_UnpackTuple(args, "ref", 1, 3, &one, &two, &three))
         return NULL;
 
@@ -139,10 +132,10 @@ PyObject* pyjarray_new_v(PyObject *isnull, PyObject *args) {
         size = PyInt_AsLong(one);
 
         if(PyInt_Check(two)) {
-            typeId = PyInt_AsLong(two);
-
+            typeId = (int) PyInt_AsLong(two);
+        
             if(size < 0)
-                return PyErr_Format(PyExc_ValueError, "Invalid size %i", size);
+                return PyErr_Format(PyExc_ValueError, "Invalid size %li", size);
 
             // make a new primitive array
             switch(typeId) {
@@ -152,27 +145,27 @@ PyObject* pyjarray_new_v(PyObject *isnull, PyObject *args) {
                                                   JSTRING_TYPE,
                                                   NULL);
                 break;
-
+                
             case JINT_ID:
                 arrayObj = (*env)->NewIntArray(env, (jsize) size);
                 break;
-
+                
             case JLONG_ID:
                 arrayObj = (*env)->NewLongArray(env, (jsize) size);
                 break;
-
+        
             case JBOOLEAN_ID:
                 arrayObj = (*env)->NewBooleanArray(env, (jsize) size);
                 break;
-
+        
             case JDOUBLE_ID:
                 arrayObj = (*env)->NewDoubleArray(env, (jsize) size);
                 break;
-
+        
             case JSHORT_ID:
                 arrayObj = (*env)->NewShortArray(env, (jsize) size);
                 break;
-
+        
             case JFLOAT_ID:
                 arrayObj = (*env)->NewFloatArray(env, (jsize) size);
                 break;
@@ -185,12 +178,12 @@ PyObject* pyjarray_new_v(PyObject *isnull, PyObject *args) {
                 arrayObj = (*env)->NewCharArray(env, (jsize) size);
                 break;
             } // switch
-
+            
         } // if int(two)
         else if(pyjobject_check(two)) {
             PyJobject_Object *pyjob = (PyJobject_Object *) two;
             typeId = JOBJECT_ID;
-
+            
             componentClass = pyjob->clazz;
             arrayObj = (*env)->NewObjectArray(env,
                                               (jsize) size,
@@ -200,7 +193,7 @@ PyObject* pyjarray_new_v(PyObject *isnull, PyObject *args) {
         else if(pyjarray_check(two)) {
             PyJarray_Object *pyarray = (PyJarray_Object *) two;
             typeId = JARRAY_ID;
-
+            
             componentClass = pyarray->clazz;
             arrayObj = (*env)->NewObjectArray(env,
                                               (jsize) size,
@@ -220,27 +213,27 @@ PyObject* pyjarray_new_v(PyObject *isnull, PyObject *args) {
 
     if(process_java_exception(env))
         return NULL;
-
+    
     if(!arrayObj || typeId < -1 || size < -1) {
         PyErr_SetString(PyExc_ValueError, "Unknown type.");
         return NULL;
     }
-
+    
     clazz = (*env)->GetObjectClass(env, arrayObj);
     if(process_java_exception(env) || !clazz)
         return NULL;
-
+    
     pyarray                 = PyObject_NEW(PyJarray_Object, &PyJarray_Type);
     pyarray->object         = (*env)->NewGlobalRef(env, arrayObj);
     pyarray->clazz          = (*env)->NewGlobalRef(env, clazz);
-    pyarray->componentType  = typeId;
+    pyarray->componentType  = (int) typeId;
     pyarray->componentClass = NULL;
     pyarray->length         = -1;
     pyarray->pinnedArray    = NULL;
 
     if(typeId == JOBJECT_ID || typeId == JARRAY_ID)
         pyarray->componentClass = (*env)->NewGlobalRef(env, componentClass);
-
+    
     (*env)->DeleteLocalRef(env, arrayObj);
     (*env)->DeleteLocalRef(env, clazz);
 
@@ -267,18 +260,18 @@ static int pyjarray_init(JNIEnv *env,
         if(objectComponentType == 0) {
             jmethodID getClass;
             jobject   langClass = NULL;
-
+        
             getClass = (*env)->GetMethodID(env,
                                            pyarray->clazz,
                                            "getClass",
                                            "()Ljava/lang/Class;");
             if(process_java_exception(env) || !getClass)
                 goto EXIT_ERROR;
-
+        
             langClass = (*env)->CallObjectMethod(env, pyarray->clazz, getClass);
             if(process_java_exception(env) || !langClass)
                 goto EXIT_ERROR;
-
+        
             objectComponentType = (*env)->GetMethodID(env,
                                                       langClass,
                                                       "getComponentType",
@@ -288,13 +281,13 @@ static int pyjarray_init(JNIEnv *env,
                 goto EXIT_ERROR;
             }
         }
-
+    
         compType = (*env)->CallObjectMethod(env,
                                             pyarray->clazz,
                                             objectComponentType);
         if(process_java_exception(env) || !compType)
             goto EXIT_ERROR;
-
+    
         compClass = (*env)->GetObjectClass(env, compType);
         if(process_java_exception(env) || !compClass)
             goto EXIT_ERROR;
@@ -302,14 +295,14 @@ static int pyjarray_init(JNIEnv *env,
         comp = get_jtype(env, compType, compClass);
         if(process_java_exception(env) || comp < 0)
             goto EXIT_ERROR;
-
+    
         pyarray->componentClass = (*env)->NewGlobalRef(env, compClass);
         pyarray->componentType  = comp;
     }
-
+    
     if(pyarray->length < 0) // may already know that, too
         pyarray->length = (*env)->GetArrayLength(env, pyarray->object);
-
+    
     // ------------------------------ pinned array support
     // now, for primitive arrays we have to Release() the
     // array when we're done with it.
@@ -317,19 +310,19 @@ static int pyjarray_init(JNIEnv *env,
     pyjarray_pin(pyarray);
 
     if(zero && !PyErr_Occurred()) { // skip if we're not nulling the array
-
+        
         switch(pyarray->componentType) {
-
+            
         case JINT_ID: {
             int   i;
             long  v  = 0;
             jint *ar = (jint *) pyarray->pinnedArray;
-
+            
             if(value && PyInt_Check(value))
                 v = PyInt_AS_LONG(value);
-
+            
             for(i = 0; i < pyarray->length; i++)
-                ar[i] = v;
+                ar[i] = (jint) v;
 
             break;
         }
@@ -339,18 +332,18 @@ static int pyjarray_init(JNIEnv *env,
             long  v = 0;
             char  *val;
             jchar *ar = (jchar *) pyarray->pinnedArray;
-
+            
             if(!value || !PyString_Check(value)) {
                 if(value && PyInt_Check(value))
                     v = PyInt_AS_LONG(value);
-
+                
                 for(i = 0; i < pyarray->length; i++)
                     ar[i] = (jchar) v;
             }
             else {
                 // it's a string, set the elements
                 // we won't throw an error for index, length problems. just deal...
-
+                
                 val = PyString_AS_STRING(value);
                 for(i = 0; i < pyarray->length && val[i] != '\0'; i++)
                     ar[i] = (jchar) val[i];
@@ -358,18 +351,18 @@ static int pyjarray_init(JNIEnv *env,
 
             break;
         }
-
+            
         case JBYTE_ID: {
             int    i;
             long   v  = 0;
             jbyte *ar = (jbyte *) pyarray->pinnedArray;
-
+            
             if(value && PyInt_Check(value))
                 v = PyInt_AS_LONG(value);
-
+            
             for(i = 0; i < pyarray->length; i++)
                 ar[i] = (jbyte) v;
-
+            
             break;
         }
 
@@ -386,83 +379,83 @@ static int pyjarray_init(JNIEnv *env,
                 else if(PyInt_Check(value))
                     v = PyInt_AS_LONG(value);
             }
-
+            
             for(i = 0; i < pyarray->length; i++)
                 ar[i] = (jlong) v;
-
+            
             break;
         }
-
+            
         case JBOOLEAN_ID: {
             int       i;
             long      v  = 0;
             jboolean *ar = (jboolean *) pyarray->pinnedArray;
-
+            
             if(value && PyInt_Check(value))
                 v = PyInt_AS_LONG(value);
-
+            
             for(i = 0; i < pyarray->length; i++) {
                 if(v)
                     ar[i] = JNI_TRUE;
                 else
                     ar[i] = JNI_FALSE;
             }
-
+            
             break;
         }
-
+        
         case JDOUBLE_ID: {
             int      i;
             double   v  = 0;
             jdouble *ar = (jdouble *) pyarray->pinnedArray;
-
+            
             if(value && PyFloat_Check(value))
                 v = PyFloat_AS_DOUBLE(value);
-
+            
             for(i = 0; i < pyarray->length; i++)
                 ar[i] = (jdouble) v;
-
+            
             break;
         }
-
+            
         case JSHORT_ID: {
             int     i;
             long    v  = 0;
             jshort *ar = (jshort *) pyarray->pinnedArray;
-
+            
             if(value && PyInt_Check(value))
                 v  = PyInt_AS_LONG(value);
-
+            
             for(i = 0; i < pyarray->length; i++)
                 ar[i] = (jshort) v;
-
+            
             break;
         }
-
+            
         case JFLOAT_ID: {
             int     i;
             double  v  = 0;
             jfloat *ar = (jfloat *) pyarray->pinnedArray;
-
+            
             if(value && PyFloat_Check(value))
                 v = PyFloat_AS_DOUBLE(value);
-
+            
             for(i = 0; i < pyarray->length; i++)
                 ar[i] = (jfloat) v;
-
+            
             break;
         }
-
+            
         } // switch
     } // if zero
 
     (*env)->DeleteLocalRef(env, compType);
     (*env)->DeleteLocalRef(env, compClass);
-
+    
     if(process_java_exception(env))
         return 0;
     return 1;
-
+    
 EXIT_ERROR:
     if(compType)
         (*env)->DeleteLocalRef(env, compType);
@@ -476,7 +469,7 @@ EXIT_ERROR:
 // pin primitive array memory. NOOP for object arrays.
 void pyjarray_pin(PyJarray_Object *self) {
     JNIEnv *env = pyembed_get_env();
-
+    
     switch(self->componentType) {
 
     case JINT_ID:
@@ -492,7 +485,7 @@ void pyjarray_pin(PyJarray_Object *self) {
             self->object,
             &(self->isCopy));
         break;
-
+        
     case JBYTE_ID:
         self->pinnedArray = (*env)->GetByteArrayElements(
             env,
@@ -506,28 +499,28 @@ void pyjarray_pin(PyJarray_Object *self) {
             self->object,
             &(self->isCopy));
         break;
-
+        
     case JBOOLEAN_ID:
         self->pinnedArray = (*env)->GetBooleanArrayElements(
             env,
             self->object,
             &(self->isCopy));
         break;
-
+        
     case JDOUBLE_ID:
         self->pinnedArray = (*env)->GetDoubleArrayElements(
             env,
             self->object,
             &(self->isCopy));
         break;
-
+        
     case JSHORT_ID:
         self->pinnedArray = (*env)->GetShortArrayElements(
             env,
             self->object,
             &(self->isCopy));
         break;
-
+        
     case JFLOAT_ID:
         self->pinnedArray = (*env)->GetFloatArrayElements(
             env,
@@ -545,9 +538,6 @@ static void pyjarray_dealloc(PyJarray_Object *self) {
 #if USE_DEALLOC
     JNIEnv *env = pyembed_get_env();
     if(env) {
-    	// njensen moved down farther!
-//    	if(self->object)
-//    	    (*env)->DeleteGlobalRef(env, self->object);
         if(self->clazz)
             (*env)->DeleteGlobalRef(env, self->clazz);
         if(self->componentClass)
@@ -556,12 +546,12 @@ static void pyjarray_dealloc(PyJarray_Object *self) {
         // can't guarantee mode 0 will work in this case...
         pyjarray_release_pinned(self, JNI_ABORT);
 
-        // njensen: I moved this down here because it sometimes (but not always!)
-        // leaks when this is above the pyjarray_release_pinned
+        // pyjarray_release_pinned potentially uses self->object so we can
+        // only delete self->object afterwards
         if(self->object)
-              (*env)->DeleteGlobalRef(env, self->object);
+            (*env)->DeleteGlobalRef(env, self->object);
     } // if env
-
+    
     PyObject_Del(self);
 #endif
 }
@@ -574,10 +564,7 @@ void pyjarray_release_pinned(PyJarray_Object *self, jint mode) {
     if(!self->pinnedArray)
         return;
 
-//    if(self->isCopy && mode == JNI_ABORT)
-    // njensen: I changed this to be  !isCopy, if it's a copy we want to
-    // release the copy, otherwise it leaks.  if we were operating on the
-    // raw data, then we don't want to release it.
+    // don't release if it's the raw data, but do release if it's a copy
     if(!self->isCopy && mode == JNI_ABORT)
         return;
 
@@ -589,7 +576,7 @@ void pyjarray_release_pinned(PyJarray_Object *self, jint mode) {
                                         (jint *) self->pinnedArray,
                                         mode);
         break;
-
+                
     case JCHAR_ID:
         (*env)->ReleaseCharArrayElements(env,
                                          self->object,
@@ -610,28 +597,28 @@ void pyjarray_release_pinned(PyJarray_Object *self, jint mode) {
                                          (jlong *) self->pinnedArray,
                                          mode);
         break;
-
+        
     case JBOOLEAN_ID:
         (*env)->ReleaseBooleanArrayElements(env,
                                             self->object,
                                             (jboolean *) self->pinnedArray,
                                             mode);
         break;
-
+        
     case JDOUBLE_ID:
         (*env)->ReleaseDoubleArrayElements(env,
                                            self->object,
                                            (jdouble *) self->pinnedArray,
                                            mode);
         break;
-
+        
     case JSHORT_ID:
         (*env)->ReleaseShortArrayElements(env,
                                           self->object,
                                           (jshort *) self->pinnedArray,
                                           mode);
         break;
-
+        
     case JFLOAT_ID:
         (*env)->ReleaseFloatArrayElements(env,
                                           self->object,
@@ -653,9 +640,9 @@ int pyjarray_check(PyObject *obj) {
 static int pyjarray_setitem(PyJarray_Object *self,
                             int pos,
                             PyObject *newitem) {
-
+    
     JNIEnv *env = pyembed_get_env();
-
+    
     if(pos < 0 || pos >= self->length || self->length < 1) {
         PyErr_Format(PyExc_IndexError,
                      "array assignment index out of range: %i", pos);
@@ -663,13 +650,13 @@ static int pyjarray_setitem(PyJarray_Object *self,
     }
 
     // first, do the object types.
-
+    
     switch(self->componentType) {
-
+        
     case JSTRING_ID: {
         jstring  jstr = NULL;
         char    *val;
-
+        
         if(newitem == Py_None)
             ; // setting NULL
         else {
@@ -677,11 +664,11 @@ static int pyjarray_setitem(PyJarray_Object *self,
                 PyErr_SetString(PyExc_TypeError, "Expected string.");
                 return -1;
             }
-
+        
             val  = PyString_AS_STRING(newitem);
             jstr = (*env)->NewStringUTF(env, (const char *) val);
         }
-
+        
         (*env)->SetObjectArrayElement(env,
                                       self->object,
                                       pos,
@@ -702,10 +689,10 @@ static int pyjarray_setitem(PyJarray_Object *self,
                 PyErr_SetString(PyExc_TypeError, "Expected jobject.");
                 return -1;
             }
-
+            
             pyjob = (PyJobject_Object *) newitem;
             obj = pyjob->object;
-
+            
             if(!obj) {
                 PyErr_SetString(PyExc_TypeError, "Expected instance, not class.");
                 return -1;
@@ -732,11 +719,11 @@ static int pyjarray_setitem(PyJarray_Object *self,
                 PyErr_SetString(PyExc_TypeError, "Expected jarray.");
                 return -1;
             }
-
+            
             pyarray = (PyJarray_Object *) newitem;
             obj = pyarray->object;
         }
-
+        
         (*env)->SetObjectArrayElement(env,
                                       self->object,
                                       pos,
@@ -747,7 +734,7 @@ static int pyjarray_setitem(PyJarray_Object *self,
     }
 
     } // switch
-
+    
     // ------------------------------ primitive types
 
     if(!self->pinnedArray) {
@@ -756,25 +743,25 @@ static int pyjarray_setitem(PyJarray_Object *self,
     }
 
     switch(self->componentType) {
-
+        
     case JINT_ID:
         if(!PyInt_Check(newitem)) {
             PyErr_SetString(PyExc_TypeError, "Expected int.");
             return -1;
         }
-
+        
         ((jint *) self->pinnedArray)[pos] = (jint) PyInt_AS_LONG(newitem);
         return 0; /* success */
-
+        
     case JBYTE_ID:
         if(!PyInt_Check(newitem)) {
             PyErr_SetString(PyExc_TypeError, "Expected byte.");
             return -1;
         }
-
+        
         ((jbyte *) self->pinnedArray)[pos] = (jbyte) PyInt_AS_LONG(newitem);
         return 0; /* success */
-
+        
     case JCHAR_ID:
         if(PyInt_Check(newitem))
             ((jchar *) self->pinnedArray)[pos] = (jchar) PyInt_AS_LONG(newitem);
@@ -786,7 +773,7 @@ static int pyjarray_setitem(PyJarray_Object *self,
             PyErr_SetString(PyExc_TypeError, "Expected char.");
             return -1;
         }
-
+        
         return 0; /* success */
 
     case JLONG_ID:
@@ -794,49 +781,49 @@ static int pyjarray_setitem(PyJarray_Object *self,
             PyErr_SetString(PyExc_TypeError, "Expected long.");
             return -1;
         }
-
+        
         ((jlong *) self->pinnedArray)[pos] = (jlong) PyLong_AsLongLong(newitem);
         return 0; /* success */
-
+        
     case JBOOLEAN_ID:
         if(!PyInt_Check(newitem)) {
             PyErr_SetString(PyExc_TypeError, "Expected boolean.");
             return -1;
         }
-
+        
         if(PyInt_AS_LONG(newitem))
             ((jboolean *) self->pinnedArray)[pos] = JNI_TRUE;
         else
             ((jboolean *) self->pinnedArray)[pos] = JNI_FALSE;
-
+        
         return 0; /* success */
-
+        
     case JDOUBLE_ID:
         if(!PyFloat_Check(newitem)) {
             PyErr_SetString(PyExc_TypeError, "Expected float.");
             return -1;
         }
-
+        
         ((jdouble *) self->pinnedArray)[pos] =
             (jdouble) PyFloat_AS_DOUBLE(newitem);
         return 0; /* success */
-
+        
     case JSHORT_ID:
         if(!PyInt_Check(newitem)) {
             PyErr_SetString(PyExc_TypeError, "Expected int.");
             return -1;
         }
-
+        
         ((jshort *) self->pinnedArray)[pos] =
             (jshort) PyInt_AS_LONG(newitem);
         return 0; /* success */
-
+        
     case JFLOAT_ID:
         if(!PyFloat_Check(newitem)) {
             PyErr_SetString(PyExc_TypeError, "Expected float.");
             return -1;
         }
-
+        
         ((jfloat *) self->pinnedArray)[pos] =
             (jfloat) PyFloat_AS_DOUBLE(newitem);
         return 0; /* success */
@@ -848,13 +835,13 @@ static int pyjarray_setitem(PyJarray_Object *self,
 }
 
 
-static PyObject* pyjarray_item(PyJarray_Object *self, int pos) {
+static PyObject* pyjarray_item(PyJarray_Object *self, Py_ssize_t pos) {
     PyObject *ret = NULL;
     JNIEnv   *env = pyembed_get_env();
-
+    
     if(self->length < 1) {
         PyErr_Format(PyExc_IndexError,
-                     "array assignment index out of range: %i", pos);
+                     "array assignment index out of range: %zd", pos);
         return NULL;
     }
 
@@ -868,17 +855,17 @@ static PyObject* pyjarray_item(PyJarray_Object *self, int pos) {
     case JSTRING_ID: {
         jstring     jstr;
         const char *str;
-
+        
         jstr = (jstring) (*env)->GetObjectArrayElement(env,
                                                        self->object,
-                                                       pos);
+                                                       (jsize) pos);
 
         if(process_java_exception(env))
             ;
         else if(jstr != NULL) {
             str = (*env)->GetStringUTFChars(env, jstr, 0);
             ret = PyString_FromString((char *) str);
-
+            
             (*env)->ReleaseStringUTFChars(env, jstr, str);
             (*env)->DeleteLocalRef(env, jstr);
         }
@@ -893,11 +880,11 @@ static PyObject* pyjarray_item(PyJarray_Object *self, int pos) {
 
     case JARRAY_ID: {
         jobjectArray obj;
-
+        
         obj = (jobjectArray) (*env)->GetObjectArrayElement(env,
                                                            self->object,
-                                                           pos);
-
+                                                           (jsize) pos);
+        
         if(process_java_exception(env))
             ;
         else if(obj != NULL)
@@ -907,16 +894,16 @@ static PyObject* pyjarray_item(PyJarray_Object *self, int pos) {
             Py_INCREF(Py_None);
             ret = Py_None;
         }
-
+        
         break;
     }
 
     case JOBJECT_ID: {
         jobject obj;
-
+        
         obj = (*env)->GetObjectArrayElement(env,
                                             self->object,
-                                            pos);
+                                            (jsize) pos);
         if(process_java_exception(env))
             ;
         else if(obj != NULL)
@@ -926,24 +913,24 @@ static PyObject* pyjarray_item(PyJarray_Object *self, int pos) {
             Py_INCREF(Py_None);
             ret = Py_None;
         }
-
+        
         break;
     }
 
     case JBOOLEAN_ID:
-        ret = Py_BuildValue("i", ((jboolean *) self->pinnedArray)[pos]);
+        ret = Py_BuildValue("i", ((jboolean *) self->pinnedArray)[(jsize) pos]);
         break;
 
     case JSHORT_ID:
-        ret = Py_BuildValue("i", ((jshort *) self->pinnedArray)[pos]);
+        ret = Py_BuildValue("i", ((jshort *) self->pinnedArray)[(jsize) pos]);
         break;
 
     case JINT_ID:
-        ret = Py_BuildValue("i", ((jint *) self->pinnedArray)[pos]);
+        ret = Py_BuildValue("i", ((jint *) self->pinnedArray)[(jsize) pos]);
         break;
 
     case JBYTE_ID:
-        ret = Py_BuildValue("i", ((jbyte *) self->pinnedArray)[pos]);
+        ret = Py_BuildValue("i", ((jbyte *) self->pinnedArray)[(jsize) pos]);
         break;
 
     case JCHAR_ID: {
@@ -955,17 +942,17 @@ static PyObject* pyjarray_item(PyJarray_Object *self, int pos) {
     }
 
     case JLONG_ID:
-        ret = PyLong_FromLongLong(((jlong *) self->pinnedArray)[pos]);
+        ret = PyLong_FromLongLong(((jlong *) self->pinnedArray)[(jsize) pos]);
         break;
-
+        
     case JFLOAT_ID:
-        ret = PyFloat_FromDouble(((jfloat *) self->pinnedArray)[pos]);
+        ret = PyFloat_FromDouble(((jfloat *) self->pinnedArray)[(jsize) pos]);
         break;
 
     case JDOUBLE_ID:
-        ret = PyFloat_FromDouble(((jdouble *) self->pinnedArray)[pos]);
+        ret = PyFloat_FromDouble(((jdouble *) self->pinnedArray)[(jsize) pos]);
         break;
-
+        
     default:
         PyErr_Format(PyExc_TypeError, "Unknown type %i.",
                      self->componentType);
@@ -987,7 +974,7 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
             PyErr_SetString(PyExc_TypeError, "Expected str.");
             return -1;
         }
-
+        
         for(i = 0; ret == 0 && i < self->length; i++) {
             const char *val;
             PyObject   *t;
@@ -997,18 +984,18 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
             if(l == NULL) {
                 if(el == Py_None)
                     return i;
-
+                
                 (*env)->DeleteLocalRef(env, l);
                 continue;
             }
-
+                
             val = jstring2char(env, l);
             t   = PyString_FromString((char *) val);
-
+            
             ret = PyObject_RichCompareBool(el,
                                            t,
                                            Py_EQ);
-
+            
             Py_DECREF(t);
             release_utf_char(env, l, val);
             (*env)->DeleteLocalRef(env, l);
@@ -1016,7 +1003,7 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
             if(ret)
                 return i;
         }
-
+        
         return -1;
     }
 
@@ -1025,7 +1012,7 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
         int i, ret = 0;
 
         JNIEnv *env = pyembed_get_env();
-
+        
         if(el != Py_None && !pyjarray_check(el)) {
             PyErr_SetString(PyExc_TypeError, "Expected jarray.");
             return -1;
@@ -1039,16 +1026,16 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
             if(l == NULL) {
                 if(el == Py_None)
                     return i;
-
+                
                 (*env)->DeleteLocalRef(env, l);
                 continue;
             }
-
+            
             if((*env)->IsSameObject(env, l, obj->object))
                 ret = 1;
 
             (*env)->DeleteLocalRef(env, l);
-
+            
             if(ret)
                 return i;
         }
@@ -1061,7 +1048,7 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
         int i, ret = 0;
 
         JNIEnv *env = pyembed_get_env();
-
+        
         if(el != Py_None && !pyjobject_check(el)) {
             PyErr_SetString(PyExc_TypeError, "Expected jobject.");
             return -1;
@@ -1072,66 +1059,66 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
             jobject l = (*env)->GetObjectArrayElement(env,
                                                       self->object,
                                                       i);
-
+            
             if(l == NULL) {
                 if(el == Py_None)
                     return i;
-
+                
                 (*env)->DeleteLocalRef(env, l);
                 continue;
             }
-
+            
             if((*env)->IsSameObject(env, l, obj->object))
                 ret = 1;
 
             (*env)->DeleteLocalRef(env, l);
-
+            
             if(ret)
                 return i;
         }
 
         return -1;
     }
-
+        
     case JBOOLEAN_ID: {
         jboolean *ar = (jboolean *) self->pinnedArray;
         int       i;
         jboolean  v;
-
+        
         if(!PyInt_Check(el)) {
             PyErr_SetString(PyExc_TypeError, "Expected boolean.");
             return -1;
         }
-
+        
         if(PyInt_AS_LONG(el))
             v = JNI_TRUE;
         else
             v = JNI_FALSE;
-
+        
         for(i = 0; i < self->length; i++) {
             if(v == ar[i])
                 return i;
         }
-
+        
         return -1;
     }
-
+        
     case JSHORT_ID: {
         jshort *ar = (jshort *) self->pinnedArray;
         int     i;
         jshort  v;
-
+        
         if(!PyInt_Check(el)) {
             PyErr_SetString(PyExc_TypeError, "Expected int (short).");
             return -1;
         }
-
+        
         v = (jshort) PyInt_AS_LONG(el);
         for(i = 0; i < self->length; i++) {
             if(v == ar[i])
                 return i;
         }
-
+        
         return -1;
     }
 
@@ -1139,18 +1126,18 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
         jint *ar = (jint *) self->pinnedArray;
         int   i;
         jint  v;
-
+        
         if(!PyInt_Check(el)) {
             PyErr_SetString(PyExc_TypeError, "Expected int.");
             return -1;
         }
-
+        
         v = (jint) PyInt_AS_LONG(el);
         for(i = 0; i < self->length; i++) {
             if(v == ar[i])
                 return i;
         }
-
+        
         return -1;
     }
 
@@ -1158,18 +1145,18 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
         jbyte *ar = (jbyte *) self->pinnedArray;
         int    i;
         jbyte  v;
-
+        
         if(!PyInt_Check(el)) {
             PyErr_SetString(PyExc_TypeError, "Expected byte.");
             return -1;
         }
-
+        
         v = (jbyte) PyInt_AS_LONG(el);
         for(i = 0; i < self->length; i++) {
             if(v == ar[i])
                 return i;
         }
-
+        
         return -1;
     }
 
@@ -1188,12 +1175,12 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
             PyErr_SetString(PyExc_TypeError, "Expected char.");
             return -1;
         }
-
+        
         for(i = 0; i < self->length; i++) {
             if(v == ar[i])
                 return i;
         }
-
+        
         return -1;
     }
 
@@ -1201,37 +1188,37 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
         jlong *ar = (jlong *) self->pinnedArray;
         int    i;
         jlong  v;
-
+        
         if(!PyLong_Check(el)) {
             PyErr_SetString(PyExc_TypeError, "Expected long.");
             return -1;
         }
-
+        
         v = (jlong) PyLong_AsLongLong(el);
         for(i = 0; i < self->length; i++) {
             if(v == ar[i])
                 return i;
         }
-
+        
         return -1;
     }
-
+        
     case JFLOAT_ID: {
         jfloat *ar = (jfloat *) self->pinnedArray;
         int     i;
         jfloat  v;
-
+        
         if(!PyFloat_Check(el)) {
             PyErr_SetString(PyExc_TypeError, "Expected long.");
             return -1;
         }
-
+        
         v = (jfloat) PyFloat_AsDouble(el);
         for(i = 0; i < self->length; i++) {
             if(v == ar[i])
                 return i;
         }
-
+        
         return -1;
     }
 
@@ -1239,21 +1226,21 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
         jdouble *ar = (jdouble *) self->pinnedArray;
         int      i;
         jdouble  v;
-
+        
         if(!PyFloat_Check(el)) {
             PyErr_SetString(PyExc_TypeError, "Expected long.");
             return -1;
         }
-
+        
         v = (jdouble) PyFloat_AsDouble(el);
         for(i = 0; i < self->length; i++) {
             if(v == ar[i])
                 return i;
         }
-
+        
         return -1;
     }
-
+        
     default:
         PyErr_Format(PyExc_RuntimeError, "Unknown type %i.",
                      self->componentType);
@@ -1266,28 +1253,27 @@ static int pyjarray_index(PyJarray_Object *self, PyObject *el) {
 static PyObject* listindex(PyJarray_Object *self, PyObject *args) {
     int pos;
     PyObject *v;
-
+    
     if(!PyArg_ParseTuple(args, "O", &v))
-		return NULL;
+        return NULL;
 
     pos = pyjarray_index(self, v);
     if(PyErr_Occurred())
         return NULL;
-
+    
     if(pos >= 0)
         return PyInt_FromLong((long) pos);
-
-	PyErr_SetString(PyExc_ValueError, "list.index(x): x not in array");
+    
+    PyErr_SetString(PyExc_ValueError, "list.index(x): x not in array");
     return NULL;
 }
 
 
 static PyObject* pyjarray_commit(PyJarray_Object *self, PyObject *args) {
-    int pos;
     PyObject *v;
-
+    
     if(!PyArg_ParseTuple(args, "", &v))
-		return NULL;
+        return NULL;
 
     pyjarray_release_pinned(self, JNI_COMMIT);
 
@@ -1297,8 +1283,6 @@ static PyObject* pyjarray_commit(PyJarray_Object *self, PyObject *args) {
 
 
 static int pyjarray_contains(PyJarray_Object *self, PyObject *el) {
-    JNIEnv *env = pyembed_get_env();
-
     int pos = pyjarray_index(self, el);
     if(PyErr_Occurred())
         return -1;
@@ -1310,14 +1294,16 @@ static int pyjarray_contains(PyJarray_Object *self, PyObject *el) {
 
 
 // shamelessly taken from listobject.c
-static PyObject* pyjarray_slice(PyJarray_Object *self, int ilow, int ihigh) {
+static PyObject* pyjarray_slice(PyObject *_self, Py_ssize_t ilow, Py_ssize_t ihigh) {
     PyJarray_Object *pyarray  = NULL;
     jobjectArray     arrayObj = NULL;
     PyObject        *ret      = NULL;
 
-    int len, i;
+    PyJarray_Object *self = (PyJarray_Object *) _self;
+    
+    Py_ssize_t len, i;
     JNIEnv *env = pyembed_get_env();
-
+    
     if(ilow < 0)
         ilow = 0;
     else if (ilow > self->length)
@@ -1327,7 +1313,7 @@ static PyObject* pyjarray_slice(PyJarray_Object *self, int ilow, int ihigh) {
     else if(ihigh > self->length)
         ihigh = self->length;
     len = ihigh - ilow;
-
+    
     switch(self->componentType) {
     case JOBJECT_ID:
         arrayObj = (*env)->NewObjectArray(env,
@@ -1335,50 +1321,50 @@ static PyObject* pyjarray_slice(PyJarray_Object *self, int ilow, int ihigh) {
                                           self->componentClass,
                                           NULL);
         break;
-
+        
     case JARRAY_ID:
         arrayObj = (*env)->NewObjectArray(env,
                                           (jsize) len,
                                           self->componentClass,
                                           NULL);
         break;
-
+        
     case JSTRING_ID:
         arrayObj = (*env)->NewObjectArray(env,
                                           (jsize) len,
                                           JSTRING_TYPE,
                                           NULL);
-
+            
         break;
-
+        
     case JINT_ID: {
         jint *ar, *src;
         arrayObj = (*env)->NewIntArray(env, (jsize) len);
         pyarray  = (PyJarray_Object *) pyjarray_new(env, arrayObj);
         if(PyErr_Occurred())
             break;
-
+        
         ar  = (jint *) pyarray->pinnedArray;
         src = (jint *) self->pinnedArray;
         for(i = 0; i < len; i++)
             ar[i] = src[ilow++];
-
+        
         ret = (PyObject *) pyarray;
         break;
     }
-
+        
     case JBYTE_ID: {
         jbyte *ar, *src;
         arrayObj = (*env)->NewByteArray(env, (jsize) len);
         pyarray  = (PyJarray_Object *) pyjarray_new(env, arrayObj);
         if(PyErr_Occurred())
             break;
-
+        
         ar  = (jbyte *) pyarray->pinnedArray;
         src = (jbyte *) self->pinnedArray;
         for(i = 0; i < len; i++)
             ar[i] = src[ilow++];
-
+        
         ret = (PyObject *) pyarray;
         break;
     }
@@ -1389,12 +1375,12 @@ static PyObject* pyjarray_slice(PyJarray_Object *self, int ilow, int ihigh) {
         pyarray  = (PyJarray_Object *) pyjarray_new(env, arrayObj);
         if(PyErr_Occurred())
             break;
-
+        
         ar  = (jchar *) pyarray->pinnedArray;
         src = (jchar *) self->pinnedArray;
         for(i = 0; i < len; i++)
             ar[i] = src[ilow++];
-
+        
         ret = (PyObject *) pyarray;
         break;
     }
@@ -1405,76 +1391,76 @@ static PyObject* pyjarray_slice(PyJarray_Object *self, int ilow, int ihigh) {
         pyarray  = (PyJarray_Object *) pyjarray_new(env, arrayObj);
         if(PyErr_Occurred())
             break;
-
+        
         ar  = (jlong *) pyarray->pinnedArray;
         src = (jlong *) self->pinnedArray;
         for(i = 0; i < len; i++)
             ar[i] = src[ilow++];
-
+        
         ret = (PyObject *) pyarray;
         break;
     }
-
+        
     case JBOOLEAN_ID: {
         jboolean *ar, *src;
         arrayObj = (*env)->NewBooleanArray(env, (jsize) len);
         pyarray  = (PyJarray_Object *) pyjarray_new(env, arrayObj);
         if(PyErr_Occurred())
             break;
-
+        
         ar  = (jboolean *) pyarray->pinnedArray;
         src = (jboolean *) self->pinnedArray;
         for(i = 0; i < len; i++)
             ar[i] = src[ilow++];
-
+        
         ret = (PyObject *) pyarray;
         break;
     }
-
+        
     case JDOUBLE_ID: {
         jdouble *ar, *src;
         arrayObj = (*env)->NewDoubleArray(env, (jsize) len);
         pyarray  = (PyJarray_Object *) pyjarray_new(env, arrayObj);
         if(PyErr_Occurred())
             break;
-
+        
         ar  = (jdouble *) pyarray->pinnedArray;
         src = (jdouble *) self->pinnedArray;
         for(i = 0; i < len; i++)
             ar[i] = src[ilow++];
-
+        
         ret = (PyObject *) pyarray;
         break;
     }
-
+        
     case JSHORT_ID: {
         jshort *ar, *src;
         arrayObj = (*env)->NewShortArray(env, (jsize) len);
         pyarray  = (PyJarray_Object *) pyjarray_new(env, arrayObj);
         if(PyErr_Occurred())
             break;
-
+        
         ar  = (jshort *) pyarray->pinnedArray;
         src = (jshort *) self->pinnedArray;
         for(i = 0; i < len; i++)
             ar[i] = src[ilow++];
-
+        
         ret = (PyObject *) pyarray;
         break;
     }
-
+        
     case JFLOAT_ID: {
         jfloat *ar, *src;
         arrayObj = (*env)->NewFloatArray(env, (jsize) len);
         pyarray  = (PyJarray_Object *) pyjarray_new(env, arrayObj);
         if(PyErr_Occurred())
             break;
-
+        
         ar  = (jfloat *) pyarray->pinnedArray;
         src = (jfloat *) self->pinnedArray;
         for(i = 0; i < len; i++)
             ar[i] = src[ilow++];
-
+        
         ret = (PyObject *) pyarray;
         break;
     }
@@ -1484,16 +1470,16 @@ static PyObject* pyjarray_slice(PyJarray_Object *self, int ilow, int ihigh) {
     if(self->componentType == JOBJECT_ID ||
        self->componentType == JSTRING_ID ||
        self->componentType == JARRAY_ID) {
-
+        
         // all object operations. have to be handled differently...
         // *sigh*
         for(i = 0; i < len; i++) {
             jobject obj = (*env)->GetObjectArrayElement(env,
                                                         self->object,
-                                                        ilow++);
+                                                        (jsize) ilow++);
             (*env)->SetObjectArrayElement(env,
                                           arrayObj,
-                                          i,
+                                          (jsize) i,
                                           obj);
             if(obj)
                 (*env)->DeleteLocalRef(env, obj);
@@ -1501,26 +1487,24 @@ static PyObject* pyjarray_slice(PyJarray_Object *self, int ilow, int ihigh) {
 
         ret = pyjarray_new(env, arrayObj);
     }
-
+    
     if(arrayObj)
         (*env)->DeleteLocalRef(env, arrayObj);
-
+    
     if(!ret && !PyErr_Occurred())
         PyErr_SetString(PyExc_ValueError, "Unsupported type.");
-
+    
     return ret;
 }
 
 
 // shamelessly taken from listobject.c
 static PyObject* pyjarray_subscript(PyJarray_Object *self, PyObject *item) {
-    JNIEnv *env = pyembed_get_env();
-
     if(PyInt_Check(item)) {
         long i = PyInt_AS_LONG(item);
         if (i < 0)
             i += self->length;
-        return pyjarray_item(self, i);
+        return pyjarray_item(self, (Py_ssize_t) i);
     }
     else if(PyLong_Check(item)) {
         long i = PyLong_AsLong(item);
@@ -1528,11 +1512,10 @@ static PyObject* pyjarray_subscript(PyJarray_Object *self, PyObject *item) {
             return NULL;
         if (i < 0)
             i += self->length;
-        return pyjarray_item(self, i);
+        return pyjarray_item(self, (Py_ssize_t) i);
     }
     else {
-        PyErr_SetString(PyExc_TypeError,
-                        "list indices must be integers");
+        PyErr_SetString(PyExc_TypeError, "list indices must be integers");
         return NULL;
     }
 }
@@ -1540,7 +1523,6 @@ static PyObject* pyjarray_subscript(PyJarray_Object *self, PyObject *item) {
 
 static PyObject* pyjarray_str(PyJarray_Object *self) {
     PyObject *ret;
-    JNIEnv *env = pyembed_get_env();
 
     if(!self->pinnedArray) {
         PyErr_SetString(PyExc_RuntimeError, "No pinned array.");
@@ -1568,9 +1550,9 @@ static PyObject* pyjarray_str(PyJarray_Object *self) {
 
 // -------------------------------------------------- sequence methods
 
-static int pyjarray_length(PyJarray_Object *self) {
-    if(self)
-        return self->length;
+static int pyjarray_length(PyObject *self) {
+    if(self && pyjarray_check(self))
+        return ((PyJarray_Object *) self)->length;
     return 0;
 }
 
@@ -1591,29 +1573,29 @@ PyMethodDef pyjarray_methods[] = {
     {"index", (PyCFunction) listindex, METH_VARARGS, index_doc},
 
     {"commit", (PyCFunction) pyjarray_commit, METH_VARARGS, commit_doc},
-
+    
     { NULL, NULL }
 };
 
 
 static PySequenceMethods list_as_sequence = {
-    (inquiry) pyjarray_length,                /* sq_length */
+    (lenfunc) pyjarray_length,                /* sq_length */
     (binaryfunc) 0,                           /* sq_concat */
-    (intargfunc) 0,                           /* sq_repeat */
-    (intargfunc) pyjarray_item,               /* sq_item */
-    (intintargfunc) pyjarray_slice,           /* sq_slice */
+    (ssizeargfunc) 0,                         /* sq_repeat */
+    (ssizeargfunc) pyjarray_item,             /* sq_item */
+    (ssizessizeargfunc) pyjarray_slice,       /* sq_slice */
     (intobjargproc) pyjarray_setitem,         /* sq_ass_item */
     (intintobjargproc) 0,                     /* sq_ass_slice */
     (objobjproc) pyjarray_contains,           /* sq_contains */
     (binaryfunc) 0,                           /* sq_inplace_concat */
-    (intargfunc) 0,                           /* sq_inplace_repeat */
+    (ssizeargfunc) 0,                         /* sq_inplace_repeat */
 };
 
 
 static PyObject* pyjarray_iter(PyObject *);
 
 
-static PyTypeObject PyJarray_Type = {
+PyTypeObject PyJarray_Type = {
     PyObject_HEAD_INIT(0)
     0,                                        /* ob_size */
     "jarray",                                 /* tp_name */
@@ -1634,7 +1616,8 @@ static PyTypeObject PyJarray_Type = {
     0,                                        /* tp_getattro */
     0,                                        /* tp_setattro */
     0,                                        /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,                       /* tp_flags */
+    Py_TPFLAGS_DEFAULT |
+    Py_TPFLAGS_HAVE_ITER,                     /* tp_flags */
     list_doc,                                 /* tp_doc */
     0,                                        /* tp_traverse */
     0,                                        /* tp_clear */
@@ -1672,10 +1655,10 @@ PyTypeObject PyJarrayIter_Type;
 
 static PyObject *pyjarray_iter(PyObject *seq) {
     PyJarrayIterObject *it;
-
+    
     if(PyType_Ready(&PyJarrayIter_Type) < 0)
         return NULL;
-
+    
     if(!pyjarray_check(seq)) {
         PyErr_BadInternalCall();
         return NULL;
@@ -1694,6 +1677,12 @@ static void pyjarrayiter_dealloc(PyJarrayIterObject *it) {
     PyObject_Del(it);
 }
 
+/* the iterator's __iter()__ */
+PyObject* pyjarray_iter_self(PyObject *self) {
+    Py_INCREF(self);
+    return self;
+}
+
 static PyObject *pyjarrayiter_next(PyJarrayIterObject *it) {
     PyJarray_Object *seq;
     PyObject *item;
@@ -1704,23 +1693,22 @@ static PyObject *pyjarrayiter_next(PyJarrayIterObject *it) {
         return NULL;
 
     if (it->it_index < seq->length) {
-        item = pyjarray_item(seq, it->it_index);
+        item = (PyObject *) pyjarray_item(seq, it->it_index);
         ++it->it_index;
-        //Py_INCREF(item);  // njensen: this leaks memory
         return item;
     }
-
+    
     Py_DECREF(seq);
     it->it_seq = NULL;
     return NULL;
 }
 
 static int pyjarrayiter_len(PyJarrayIterObject *it) {
-    int len;
+    Py_ssize_t len;
     if (it->it_seq) {
-        len = it->it_seq->length - it->it_index;
+        len = (int) (it->it_seq->length - it->it_index);
         if (len >= 0)
-            return len;
+            return (int) len;
     }
     return 0;
 }
@@ -1756,13 +1744,14 @@ PyTypeObject PyJarrayIter_Type = {
     (getattrofunc) pyjarrayiter_dealloc,      /* tp_getattro */
     0,                                        /* tp_setattro */
     0,                                        /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,                       /* tp_flags */
+    Py_TPFLAGS_DEFAULT |
+    Py_TPFLAGS_HAVE_ITER,                     /* tp_flags */
     0,                                        /* tp_doc */
     0,                                        /* tp_traverse */
     0,                                        /* tp_clear */
     0,                                        /* tp_richcompare */
     0,                                        /* tp_weaklistoffset */
-    0,                                        /* tp_iter */
+    pyjarray_iter_self,                       /* tp_iter */
     (iternextfunc) pyjarrayiter_next,         /* tp_iternext */
     0,                                        /* tp_methods */
     0,                                        /* tp_members */

@@ -2,7 +2,7 @@
 /* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2011 Mike Johnson.
+   Copyright (c) 2015 JEP AUTHORS.
 
    This file is licenced under the the zlib/libpng License.
 
@@ -24,7 +24,7 @@
 
    3. This notice may not be removed or altered from any source
    distribution.   
-*/ 	
+*/
 
 #ifdef WIN32
 # include "winconfig.h"
@@ -62,7 +62,7 @@
 #include "pyjarray.h"
 #include "util.h"
 
-staticforward PyTypeObject PyJclass_Type;
+PyAPI_DATA(PyTypeObject) PyJclass_Type;
 
 static PyObject* pyjclass_add_inner_classes(JNIEnv*, jobject, PyJobject_Object*);
 static void pyjclass_dealloc(PyJclass_Object*);
@@ -518,7 +518,7 @@ static PyMethodDef pyjclass_methods[] = {
 };
 
 
-static PyTypeObject PyJclass_Type = {
+PyTypeObject PyJclass_Type = {
     PyObject_HEAD_INIT(0)
     0,
     "PyJclass",

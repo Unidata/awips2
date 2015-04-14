@@ -2,7 +2,7 @@
 /* 
    jep - Java Embedded Python
 
-   Copyright (c) 2004 - 2008 Mike Johnson.
+   Copyright (c) 2015 JEP_AUTHORS.
 
    This file is licenced under the the zlib/libpng License.
 
@@ -24,12 +24,6 @@
 
    3. This notice may not be removed or altered from any source
    distribution.   
-*/ 	
-
-/*
-  August 2, 2012
-  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
-   New file created with modifications to pyjmethod.h
 */
 
 
@@ -48,14 +42,23 @@
 #include "pyjobject.h"
 #include "pyjmethod.h"
 
-
+/*
+ * PyJmethodWrapper_Object enables the ability to reuse a pyjmethod for
+ * multiple instances of pyjobjects of the same underlying Java type.
+ *
+ * Pyjmethods are tied to java.lang.Methods, which are tied
+ * to java.lang.Classes, which are shared across all instances of a particular
+ * Class.  To ensure the right object is called with the method, the pyjmethod
+ * wrapper includes both the pyjobject instance doing the calling and the
+ * pyjmethod to be called.
+ */
 typedef struct {
     PyObject_HEAD
-    PyJmethod_Object *method;
-    PyJobject_Object *object;
+    PyJmethod_Object *method; /* the original pyjmethod tied to a java.lang.reflect.Method */
+    PyJobject_Object *object; /* the pyjobject that called this method */
 } PyJmethodWrapper_Object;
 
-PyJmethodWrapper_Object* pyjmethodwrapper_new(
-                                PyJobject_Object*, PyJmethod_Object*);
+PyJmethodWrapper_Object* pyjmethodwrapper_new(PyJobject_Object*,
+        PyJmethod_Object*);
 
 #endif // ndef pyjmethodwrapper

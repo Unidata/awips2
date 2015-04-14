@@ -13,7 +13,7 @@ import javax.script.ScriptException;
  * <pre>
  * JepScriptEngineFactory.java - Embeds CPython in Java.
  *
- * Copyright (c) 2004, 2005 Mike Johnson.
+ * Copyright (c) 2015 JEP AUTHORS.
  *
  * This file is licenced under the the zlib/libpng License.
  *
@@ -41,7 +41,7 @@ import javax.script.ScriptException;
  * </pre>
  *
  * @author [mrjohnson0 at sourceforge.net] Mike Johnson
- * @version $Id: JepScriptEngineFactory.java 368 2006-09-23 22:02:37Z albertstrasheim $
+ * @version $Id$
  */
 public class JepScriptEngineFactory implements ScriptEngineFactory {
 

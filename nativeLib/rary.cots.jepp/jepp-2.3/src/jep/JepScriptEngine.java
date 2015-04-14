@@ -19,7 +19,7 @@ import jep.python.PyModule;
  * <pre>
  * JepScriptEngine.java - implements javax.script.ScriptEngine
  *
- * Copyright (c) 2004, 2005 Mike Johnson.
+ * Copyright (c) 2015 JEP AUTHORS.
  *
  * This file is licenced under the the zlib/libpng License.
  *
@@ -47,7 +47,7 @@ import jep.python.PyModule;
  * </pre>
  *
  * @author [mrjohnson0 at sourceforge.net] Mike Johnson
- * @version $Id: JepScriptEngine.java 366 2006-09-23 21:30:07Z albertstrasheim $
+ * @version $Id$
  */
 public class JepScriptEngine implements ScriptEngine {
     private Jep jep = null;

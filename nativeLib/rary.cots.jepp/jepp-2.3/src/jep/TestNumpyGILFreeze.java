@@ -7,7 +7,9 @@ package jep;
  * Python is confused about the thread state and GIL state due to the top level
  * interpreter being initialized on the same thread as the sub-interpreter(s).
  * 
- * Created: Mon Apr 13 2015
+ * Please see the TODO below for how to trigger the freeze.
+ * 
+ * Created: Thu Apr 09 2015
  * 
  * @author [ndjensen at gmail.com] Nate Jensen
  * @version $Id$
@@ -28,7 +30,7 @@ public class TestNumpyGILFreeze {
      */
     public static void main(String[] args) {                
         /*
-         * TODO: To show the freeze, you need to alter Jep.pyInitialize() to
+         * TODO: To show the freeze, you need to alter Jep.TopInterpreter to
          * NOT use a separate thread for System.loadLibrary("jep");
          */
         createJepAndUseNumpy();

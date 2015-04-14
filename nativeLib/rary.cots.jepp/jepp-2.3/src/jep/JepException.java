@@ -4,7 +4,7 @@ package jep;
  * <pre>
  * JepException.java - it happens.
  *
- * Copyright (c) 2004, 2005 Mike Johnson.
+ * Copyright (c) 2015 JEP AUTHORS.
  *
  * This file is licenced under the the zlib/libpng License.
  *
@@ -31,7 +31,7 @@ package jep;
  *
  * </pre>
  * @author [mrjohnson0 at sourceforge.net] Mike Johnson
- * @version $Id: JepException.java 342 2006-09-17 23:09:38Z mrjohnson0 $
+ * @version $Id$
  */
 public class JepException extends Exception {
 
