@@ -59,10 +59,14 @@
 		menuText="Moderate Band 16 (12.013u)" id="Mod12.013">
 		<substitute key="parameter" value="12.013BT"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsImagery.xml"
+	<contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
 		menuText="Day/Night Band (0.7u)" id="DNB0.7">
-		<substitute key="parameter" value="0.7Ref"/>
+		<substitute key="channelType" value="DNB"/>
 	</contribute>
+  <contribute xsi:type="bundleItem" file="bundles/npp/viirs/viirsDayNightBandImagery.xml"
+    menuText="Near Constant Contrast (0.7u)" id="NCC0.7">
+    <substitute key="channelType" value="NCC"/>
+  </contribute>
 	
 	<!-- Uncomment to include sample 'True Color' RGB Composites -->
 	<!--
