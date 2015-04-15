@@ -615,6 +615,11 @@
                    </reference>
                 </visibleWhen>
                 </command>
+               <command
+                     commandId="edu.ucar.unidata.ui.ncradarui.palette"
+                     label="Ncradar"
+                     style="push">
+               </command>
 	        </toolbar>
          </menuContribution>
          <menuContribution
