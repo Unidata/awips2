@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -69,6 +70,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.core.sounds.SoundUtil;
+import com.raytheon.uf.viz.spellchecker.text.SpellCheckTextViewer;
 import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**
@@ -103,6 +105,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  *                                     most general StyleRange to text first.
  * Mar 24, 2015 4316       mapeters    Display date of message if new day or user-preferred
  * Mar 27, 2015 4327       mapeters    Added task bar notification for received messages
+ * Apr 14, 2015 4362       mapeters    Added spell checking to chat input box.
  * </pre>
  * 
  * @author rferrel
@@ -136,7 +139,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
     /** Font used with the messagesText control. */
     private Font messagesTextFont;
 
-    private StyledText composeText;
+    private SpellCheckTextViewer composeTextViewer;
 
     protected SessionMsgArchive msgArchive;
 
@@ -221,6 +224,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
             public void keyPressed(KeyEvent e) {
                 // is it a visible character
                 if (Character.isISOControl(e.character) == false) {
+                    StyledText composeText = composeTextViewer.getTextWidget();
                     composeText.setFocus();
                     composeText.append(Character.toString(e.character));
                     composeText.setCaretOffset(composeText.getText().length());
@@ -252,8 +256,11 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
         Label label = new Label(composeComp, SWT.NONE);
         label.setText("Compose:");
-        composeText = new StyledText(composeComp, SWT.MULTI | SWT.WRAP
-                | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+
+        composeTextViewer = new SpellCheckTextViewer(composeComp, SWT.MULTI
+                | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+        StyledText composeText = composeTextViewer.getTextWidget();
+
         composeText.setLayoutData(new GridData(GridData.FILL_BOTH));
         composeText.setToolTipText("Enter message here");
         composeText.addKeyListener(new KeyListener() {
@@ -284,13 +291,11 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
         // adding a menu item so that Paste can be found when clicking on the
         // composeText styledtext
-        MenuManager menuMgr = new MenuManager();
-        menuMgr.add(new CopyTextAction(composeText));
-        menuMgr.add(new PasteTextAction(composeText));
-        menuMgr.add(new CutTextAction(composeText));
-
-        Menu menu = menuMgr.createContextMenu(composeText);
-        composeText.setMenu(menu);
+        List<IAction> menuItems = new ArrayList<>();
+        menuItems.add(new CopyTextAction(composeText));
+        menuItems.add(new PasteTextAction(composeText));
+        menuItems.add(new CutTextAction(composeText));
+        composeTextViewer.addMenuItems(menuItems.toArray(new IAction[0]));
     }
 
     private Image getImage() {
@@ -312,6 +317,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
      * @return message
      */
     protected String getComposedMessage() {
+        StyledText composeText = composeTextViewer.getTextWidget();
         String message = composeText.getText();
         int returnIndex = message.lastIndexOf("\n");
         message = message.substring(0, returnIndex);
@@ -624,7 +630,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
      */
     @Override
     public void setFocus() {
-        composeText.setFocus();
+        composeTextViewer.getTextWidget().setFocus();
     }
 
     private void createNotifier(String id, String time, String body) {
