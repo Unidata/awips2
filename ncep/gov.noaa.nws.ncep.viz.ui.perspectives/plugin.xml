@@ -400,6 +400,12 @@
                     mnemonic="C"
                     style="push">
               </command>
+              <command
+                    commandId="edu.ucar.unidata.ui.ncradarui.palette"
+                    id="edu.ucar.unidata.ui.ncradarui.palette"
+                    label="Ncradar"
+                    style="push">
+              </command>
               <!--
               <command
                     commandId="sync.file.tool.command"
@@ -617,6 +623,7 @@
                 </command>
                <command
                      commandId="edu.ucar.unidata.ui.ncradarui.palette"
+                     id="edu.ucar.unidata.ui.ncradarui.palette"
                      label="Ncradar"
                      style="push">
                </command>
@@ -768,10 +775,10 @@
                      <visibleWhen>
                       <reference
                             definitionId="gov.noaa.nws.ncep.viz.ui.personalities.notInNCActionSet">
-                      </reference>
-                   </visibleWhen>
-               </toolbar>
-               </command>
+   <command
+            id="edu.ucar.unidata.ui.ncradarui.palette"
+            name="Ncradar">
+      </command>/command>
          </menuContribution-->
    </extension>
    <extension
@@ -826,6 +833,9 @@
       <handler
             class="gov.noaa.nws.ncep.viz.ui.perspectives.PreferencesHandler"
             commandId="gov.noaa.nws.ncep.viz.ui.preferences.handler">
+      </handler>
+      <handler
+            commandId="edu.ucar.unidata.ui.ncradarui.palette">
       </handler>
       
    </extension>
