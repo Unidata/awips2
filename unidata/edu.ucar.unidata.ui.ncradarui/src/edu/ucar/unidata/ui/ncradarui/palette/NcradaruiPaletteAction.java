@@ -19,9 +19,9 @@ package edu.ucar.unidata.ui.ncradarui.palette;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 
 import edu.ucar.unidata.ui.ncradarui.rsc.NcradaruiResource;
 
