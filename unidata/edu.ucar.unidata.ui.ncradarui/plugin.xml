@@ -49,7 +49,7 @@
             allowMultiple="false"
             restorable="true"
             class="edu.ucar.unidata.ui.ncradarui.palette.NcradaruiPaletteWindow"
-            id="edu.ucar.unidata.ui.ncradarui"
+            id="edu.ucar.unidata.ui.NCRADARUI"
             name="NCRADAR"/>
    </extension>
    <extension
@@ -65,7 +65,7 @@
    <extension
        point="org.eclipse.ui.menus">
        <menuContribution
-           locationURI="toolbar:edu.ucar.unidata.ui.ncradarui">          
+           locationURI="toolbar:edu.ucar.unidata.ui.NCRADARUI">          
             <command
                 commandId="edu.ucar.unidata.ui.ncradarui.help"
                 label="Help"
