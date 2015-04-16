@@ -235,7 +235,7 @@ public class NcradaruiPaletteWindow extends ViewPart implements
      * if(mapEditor != null) return; File rbdFile =
      * LocalizationManager.getInstance().getLocalizationFile("defaultRBDFile");
      * try { mapEditor =
-     * NcDisplayMngr.createNatlCntrsEditor("ncradar-Map","NCRADAR" ); NcMapRBD rbd
+     * NcDisplayMngr.createNatlCntrsEditor("NCRadar-Map","NCRADAR" ); NcMapRBD rbd
      * = NcMapRBD.unmarshalRBD( rbdFile, null ); rbd.setNcEditor( mapEditor );
      * ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
      * rbdLoader.addRBD( rbd ); VizApp.runSync( rbdLoader );
