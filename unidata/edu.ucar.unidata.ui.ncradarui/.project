@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>gov.noaa.nws.ncep.ui.ncradarui</name>
+	<name>edu.ucar.unidata.ui.ncradarui</name>
 	<comment></comment>
 	<projects>
 	</projects>
