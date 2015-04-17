@@ -9,7 +9,7 @@ class nwpsCG1Forecaster(Forecaster):
         grid = htsgw_SFC / 0.3048
         return grid
     def calcSwanSwell(self, swell_SFC):
-        grid = swell_SFC / 0.3048)
+        grid = swell_SFC / 0.3048
         return grid
     def calcPeriod(self, perpw_SFC):
         period = clip(perpw_SFC, 0, 25)
