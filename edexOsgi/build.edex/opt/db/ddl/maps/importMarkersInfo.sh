@@ -72,7 +72,7 @@ ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
       USING gist
       (the_geom);
 "
-sed -e "s/'/''/g;s/^[[:digit:]]*//;s/[[:blank:]]*\\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}p[[:blank:]]*\\([[:digit:]]*\)[[:blank:]]*\\([^|]*\)|\([[:digit:]]*\).*/INSERT INTO \"${SCHEMA}\".\"${TABLE}\"(id,name,warngenlev,the_geom) VALUES(\4,'\5',\6,GeomFromText('POINT(\3 \2)',4326));/" $FILEPATH | \
+sed -n "s/'/''/g;s/^[[:digit:]]*//;s/[[:blank:]]*\\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}p[[:blank:]]*\\([[:digit:]]*\)[[:blank:]]*\\([^|]*\)|\([[:digit:]]*\).*/INSERT INTO "${SCHEMA}"\."${TABLE}"(id,name,warngenlev,the_geom) VALUES(\4,'\5',\6,GeomFromText('POINT(\3 \2)',4326));/p" $FILEPATH | \
     ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT}
     
 ${PGBINDIR}vacuumdb -d maps -t ${SCHEMA}.${TABLE} -U ${PGUSER} -p ${PGPORT} -qz
