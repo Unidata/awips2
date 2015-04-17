@@ -23,7 +23,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import edu.ucar.unidata.ui.ncradarui.rsc.NcradaruiResource;
+import gov.noaa.nws.ncep.ui.nctextui.rsc.NctextuiResource;
 
 
 public class NcradaruiPaletteAction extends AbstractHandler {
@@ -45,8 +45,8 @@ public class NcradaruiPaletteAction extends AbstractHandler {
             	
                 vpart = wpage.showView( "edu.ucar.unidata.ui.NCRADARUI" );
                 if (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage() != null) {
-                	NcradaruiResource ncradarMapResource = NcradaruiResource.getNcradaruiResource();
-                	ncradarMapResource.setPoints(null);
+                	NctextuiResource nctextMapResource = NctextuiResource.getNctextuiResource();
+                	nctextMapResource.setPoints(null);
                 }                
             }
             else {
