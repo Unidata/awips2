@@ -18,9 +18,9 @@ Require-Bundle: org.eclipse.ui,
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: SIB
-Import-Package: com.raytheon.uf.common.inventory.exception,
- com.raytheon.uf.common.dataplugin,
+Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.obs.metar,
+ com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.drawables,
@@ -29,6 +29,8 @@ Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.viz.core.rsc,
  com.raytheon.viz.pointdata,
  com.vividsolutions.jts.geom,
+ gov.noaa.nws.ncep.ui.nctextui.dbutil,
+ gov.noaa.nws.ncep.ui.nctextui.rsc,
  gov.noaa.nws.ncep.viz.common.ui,
  gov.noaa.nws.ncep.viz.localization,
  gov.noaa.nws.ncep.viz.overlays,
@@ -38,4 +40,3 @@ Import-Package: com.raytheon.uf.common.inventory.exception,
  org.geotools.referencing,
  org.geotools.referencing.datum,
  org.opengis.referencing.crs
-Export-Package: edu.ucar.unidata.ui.ncradarui.rsc
