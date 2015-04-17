@@ -19,6 +19,7 @@ function changeToReal {
 }
 
 msg="INFO: All columns changed successfully"
+${PSQL} -U awips -d metadata -c "drop table if exists bufrmos"
 
 for table in ${TABLES[*]}
 do
