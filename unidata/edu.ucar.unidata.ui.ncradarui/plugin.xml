@@ -5,8 +5,8 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-          id="edu.ucar.unidata.ui.ncradarui.palette"
-          name="Ncradar">
+            id="edu.ucar.unidata.ui.ncradarui.palette"
+            name="Ncradar">
       </command>
       <command
           id="edu.ucar.unidata.ui.ncradarui.rsc.NcradaruiTool"
@@ -39,26 +39,30 @@
       -->
 	</extension>
 
-	<extension
+   	<extension
          point="org.eclipse.ui.views">
            <category
-            id="gov.noaa.nws.ncep.viz.ui.nmap"
-            name="NMAP Views"/>
-           <view
-            category="gov.noaa.nws.ncep.viz.ui.nmap"
-            allowMultiple="false"
-            restorable="true"
-            class="edu.ucar.unidata.ui.ncradarui.palette.NcradaruiPaletteWindow"
-            id="edu.ucar.unidata.ui.NCRADARUI"
-            name="NCRADAR"/>
-   </extension>
+            id="edu.ucar.unidata.ui.ncradarui.view"
+            name="Ncradar Views"/>
+            <view
+                 allowMultiple="false"
+                 category="edu.ucar.unidata.ui.ncradarui.view"
+                 class="edu.ucar.unidata.ui.ncradarui.palette.NcradaruiPaletteWindow"
+                 id="edu.ucar.unidata.ui.NCRADARUI"
+                 name="NCRADAR"
+                 restorable="true">
+           </view>      
+   </extension>  
    <extension
          point="com.raytheon.uf.viz.core.classContext">
+      <classContext
+            class="edu.ucar.unidata.ui.ncradarui.classContext1">
+      </classContext>
          <classContext
-            class="edu.ucar.unidata.ui.ncradarui.palette.NcradaruiPaletteWindow">
-             <contextId
-                   id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext">
-             </contextId>
+               class="edu.ucar.unidata.ui.ncradarui.palette.NcradaruiPaletteWindow">
+            <contextId
+                  id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext">
+            </contextId>
          </classContext>
    </extension>
    <!--
