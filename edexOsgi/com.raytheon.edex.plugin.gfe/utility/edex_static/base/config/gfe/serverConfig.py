@@ -48,8 +48,11 @@
 #    01/08/2015          #15035    lshi           add site WNJ
 #    12/03/2014          #3866     rferrel        Added GFS20
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
+#    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1 
+#                                                 for Fcst/Official.
 #    04/15/2015          #17383    yteng          Change localTC to fix error that time constraints
 # 						  being off
+#
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1935,10 +1938,10 @@ MOS_MODEL = [([Temp, Td, Wind, Weather, Sky], TC1),
 # Fcst and official database parameter groupings
 OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC1),
           ([HeatIndex, WindChill, RH, SnowAmt, CWR, QPF], TC1),
-          ([PoP, Ttrend, RHtrend, Wind20ft], TC1),
+          ([PoP, Ttrend, RHtrend, Wind20ft, WindGust], TC1),
           ([MinT], MinTTC), ([MaxT], MaxTTC),
           ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
-          ([WaveHeight, SurfHeight, WindGust, Swell, Swell2, Period], TC3NG),
+          ([WaveHeight, SurfHeight, Swell, Swell2, Period], TC3NG),
           ([WindWaveHeight, SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Period1, Period2, Period3, Period4, Period5, Period6, Period7, Period8, Period9], TC3NG),
           ([VentRate, LAL, Haines, MixHgt, FreeWind, TransWind], TC1),
           ([DSI, Stability, MarineLayer], TC1),

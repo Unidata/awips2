@@ -2,4 +2,5 @@
 # Product IDs should be 3 characters long and delimited by commas or white space.
 # Overrides to the base file will add to the list of mixed case products
 
-AFD PNS RWS PWO TCD TWD TWO WRK # Phase 1 Products
+# Phase 1 Products
+#AFD PNS RWS PWO TCD TWD TWO WRK             
