@@ -58,7 +58,7 @@ public class ChangeD2DLayoutAction extends AbstractHandler {
     public static int getViewCount() {
         Integer views = viewMap.get(PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow());
-        return views;
+        return views != null ? views : 4;
     }
 
     /*
