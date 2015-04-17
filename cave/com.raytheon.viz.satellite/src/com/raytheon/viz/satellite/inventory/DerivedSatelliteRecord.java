@@ -22,7 +22,9 @@ package com.raytheon.viz.satellite.inventory;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.measure.unit.Unit;
@@ -181,6 +183,12 @@ public class DerivedSatelliteRecord extends SatelliteRecord {
             Unit<?> unit = SatDataRetriever.getRecordUnit(this);
             if (unit instanceof GenericPixel) {
                 dataRecord.setFillValue(Byte.MIN_VALUE);
+                Map<String, Object> attributes = dataRecord.getDataAttributes();
+                if (attributes == null) {
+                    attributes = new HashMap<String, Object>();
+                }
+                attributes.put(SatelliteRecord.SAT_SIGNED_FLAG, Boolean.TRUE);
+                dataRecord.setDataAttributes(attributes);
             }
         }
     }
