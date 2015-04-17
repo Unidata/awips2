@@ -200,10 +200,10 @@
              </command>
              <command
                    commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="Three Pane Layout">
+                   label="Full Layout">
                 <parameter
                       name="sideViews"
-                      value="2">
+                      value="0">
                 </parameter>
              </command>
              <separator
@@ -543,10 +543,10 @@
             <command
                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
                   icon="icons/3-pane.gif"
-                  label="Three Pane Layout">
+                  label="Full Layout">
                <parameter
                      name="sideViews"
-                     value="2">
+                     value="0">
                </parameter>
                 <visibleWhen>
                    <reference
