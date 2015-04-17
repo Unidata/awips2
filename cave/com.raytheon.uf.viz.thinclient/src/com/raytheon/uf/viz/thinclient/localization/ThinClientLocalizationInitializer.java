@@ -87,7 +87,7 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
         HttpClient httpClient = HttpClient.getInstance();
         HttpClientConfigBuilder confBuilder = new HttpClientConfigBuilder(
                 httpClient.getConfig());
-        confBuilder.setHandlingGzipResponses(true);
+
         HttpClient.configureGlobalInstance(confBuilder.build());
         if (promptUI) {
             ThinClientConnectivityDialog dlg = new ThinClientConnectivityDialog(
