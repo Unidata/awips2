@@ -1,6 +1,6 @@
-/**
+/*
  * 
- * edu.ucar.unidata.ui.ncradarui.palette.ncradarPaletteWindow
+ * edu.ucar.unidata.ui.ncradarui.palette.NcradaruiPaletteWindow
  * 
  * This java class performs the NCRADAR GUI construction.
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -22,10 +22,10 @@
  */
 package edu.ucar.unidata.ui.ncradarui.palette;
 
-import edu.ucar.unidata.ui.ncradarui.dbutil.EReportTimeRange;
-import edu.ucar.unidata.ui.ncradarui.dbutil.NcradarDbQuery;
-import edu.ucar.unidata.ui.ncradarui.dbutil.NcradarStationInfo;
-import edu.ucar.unidata.ui.ncradarui.rsc.NcradaruiResource;
+import gov.noaa.nws.ncep.ui.nctextui.dbutil.EReportTimeRange;
+import gov.noaa.nws.ncep.ui.nctextui.dbutil.NctextDbQuery;
+import gov.noaa.nws.ncep.ui.nctextui.dbutil.NctextStationInfo;
+import gov.noaa.nws.ncep.ui.nctextui.rsc.NctextuiResource;
 import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
@@ -73,7 +73,7 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 
 	private org.eclipse.swt.widgets.List typeWdgList = null;
 
-	private NcradarDbQuery query;
+	private NctextDbQuery query;
 
 	private EReportTimeRange timeCovered = EReportTimeRange.TWELVE_HOURS;
 
@@ -121,7 +121,7 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 
 	private Button nextBtn, prevBtn;
 
-	private java.util.List<NcradarStationInfo> points = new ArrayList<NcradarStationInfo>();
+	private java.util.List<NctextStationInfo> points = new ArrayList<NctextStationInfo>();
 
     // private static NCMapEditor mapEditor = null;
 	private HandlePrinting printingHandle;
@@ -158,11 +158,11 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 		this.currentTextReports = currentTextReports;
 	}
 	
-	public java.util.List<NcradarStationInfo> getPoints() {
+	public java.util.List<NctextStationInfo> getPoints() {
 		return points;
 	}
 
-	public void setPoints(java.util.List<NcradarStationInfo> points) {
+	public void setPoints(java.util.List<NctextStationInfo> points) {
 		this.points = points;
 	}
 	
@@ -296,7 +296,7 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 			pie.printStackTrace();
 
 		}
-		NcradaruiResource.registerMouseHandler();
+		NctextuiResource.registerMouseHandler();
         page = site.getPage();
         page.addPartListener(this);
 
@@ -309,12 +309,12 @@ public class NcradaruiPaletteWindow extends ViewPart implements
         // System.out.println("NcradaruiPaletteWindow dispose me, isEditorVisible="+
         // isEditorVisible);
         if (!isEditorVisible) {
-	    	NcradaruiResource.unregisterMouseHandler();
+	    	NctextuiResource.unregisterMouseHandler();
 	    	return;
         } else {
 	    	super.dispose();
 
-	    	NatlCntrsEditor editor = NcradaruiResource.getMapEditor();
+	    	NatlCntrsEditor editor = NctextuiResource.getMapEditor();
 	    	
             if (editor != null) {
                 for (IRenderableDisplay display : UiUtil
@@ -322,8 +322,8 @@ public class NcradaruiPaletteWindow extends ViewPart implements
                     // System.out.println("display " + display.toString());
                     for (ResourcePair rp : display.getDescriptor()
                             .getResourceList()) {
-                        if (rp.getResource() instanceof NcradaruiResource) {
-                            NcradaruiResource rsc = (NcradaruiResource) rp
+                        if (rp.getResource() instanceof NctextuiResource) {
+                            NctextuiResource rsc = (NctextuiResource) rp
                                     .getResource();
 	    					rsc.unload();
 	    				}
@@ -394,7 +394,7 @@ public class NcradaruiPaletteWindow extends ViewPart implements
         gpWdgList.setBounds(dataTypeGp.getBounds().x + btnGapX,
                 dataTypeGp.getBounds().y + labelGap, colWidth, listHeight);
         // query gp list form ncradardbrsc
-        query = NcradarDbQuery.getAccess();
+        query = NctextDbQuery.getAccess();
         // query = ncradarDbQueryX.getAccess();
         java.util.List<String> groupList = query.getDataTypeGpList();
         
@@ -485,8 +485,8 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 		points = query.getProductStaList(selectedType, timeCovered);
 
         if (points != null && points.size() == 1) {
-			NcradaruiResource.getNcradaruiResource().setPoints(points);
-			NcradaruiResource.getNcradaruiResource().setPickedStnPt(points);
+        	NctextuiResource.getNctextuiResource().setPoints(points);
+			NctextuiResource.getNctextuiResource().setPickedStnPt(points);
             displayProduct(points.get(0));
         } else {
 
@@ -497,15 +497,15 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 			}
 			nextBtn.setEnabled(false);
 			prevBtn.setEnabled(false);
-			NatlCntrsEditor mapEditor = NcradaruiResource.getMapEditor();
+			NatlCntrsEditor mapEditor = NctextuiResource.getMapEditor();
             if (mapEditor != null) {
 				mapEditor.refresh();
                 PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                         .getActivePage().bringToTop(mapEditor);
 			}
 
-			NcradaruiResource.getNcradaruiResource().setPoints(points);
-			NcradaruiResource.getNcradaruiResource().setPickedStnPt(null);
+            NctextuiResource.getNctextuiResource().setPoints(points);
+			NctextuiResource.getNctextuiResource().setPickedStnPt(null);
             // ncradaruiModalTool.setModal();
 		}
 	}
@@ -513,8 +513,8 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 	private void handleStnMarkingRequestByBtn() {
 		points = query.getProductStaList(selectedType, timeCovered);
         if (points != null && points.size() == 1) {
-			NcradaruiResource.getNcradaruiResource().setPoints(points);
-			NcradaruiResource.getNcradaruiResource().setPickedStnPt(points);
+        	NctextuiResource.getNctextuiResource().setPoints(points);
+			NctextuiResource.getNctextuiResource().setPickedStnPt(points);
             displayProduct(points.get(0));
         } else {
             if ((points != null) && (points.size() != 0)) {
@@ -528,16 +528,16 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 
 			nextBtn.setEnabled(false);
 			prevBtn.setEnabled(false);
-			NatlCntrsEditor mapEditor = NcradaruiResource.getMapEditor();
+			NatlCntrsEditor mapEditor = NctextuiResource.getMapEditor();
             if (mapEditor != null) {
 				mapEditor.refresh();
                 PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                         .getActivePage().bringToTop(mapEditor);
 			}
 
-			NcradaruiResource.getNcradaruiResource().setPoints(points);
+            NctextuiResource.getNctextuiResource().setPoints(points);
             if (replaceText)
-				NcradaruiResource.getNcradaruiResource().setPickedStnPt(null);
+				NctextuiResource.getNctextuiResource().setPickedStnPt(null);
 
             // ncradaruiModalTool.setModal();
 		}
@@ -858,7 +858,7 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 	@Override
 	public void partActivated(IWorkbenchPart part) {
         if (part instanceof NcradaruiPaletteWindow) {
-            NcradaruiResource rsc = NcradaruiResource.getNcradaruiResource();
+        	NctextuiResource rsc = NctextuiResource.getNctextuiResource();
             if (rsc != null)
                 rsc.setEditable(true);
         }
@@ -905,21 +905,21 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 		
 	}
 
-	public void displayProduct(NcradarStationInfo StnPt) {
-		NatlCntrsEditor mapEditor = NcradaruiResource.getMapEditor();
+	public void displayProduct(NctextStationInfo StnPt) {
+		NatlCntrsEditor mapEditor = NctextuiResource.getMapEditor();
 		
         if (StnPt != null && (mapEditor != null)) {
             // add RED "X" marker(s) on picked stn
-            List<NcradarStationInfo> rtnStateStnLst = new ArrayList<NcradarStationInfo>();
+            List<NctextStationInfo> rtnStateStnLst = new ArrayList<NctextStationInfo>();
             if (ncradaruiPaletteWindow.isState() == true) {
 
-                List<NcradarStationInfo> stateStnLst = query
+                List<NctextStationInfo> stateStnLst = query
                         .getStateStationInfoList(ncradaruiPaletteWindow
                                 .getCurrentProductName() + StnPt.getState());
                 // need to filter out those stns does not have reports in DB
                 // now, use points list for reference
-                for (NcradarStationInfo stnInState : stateStnLst) {
-                    for (NcradarStationInfo stnHasRpt : points) {
+                for (NctextStationInfo stnInState : stateStnLst) {
+                    for (NctextStationInfo stnHasRpt : points) {
                         if (stnInState.getStnid().equals(stnHasRpt.getStnid()) == true) {
 							rtnStateStnLst.add(stnInState);
 							break;
@@ -932,10 +932,10 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 			Text text = ncradaruiPaletteWindow.getText();
             if (ncradaruiPaletteWindow.isReplaceText() == false) {
                 // APPEND mode
-                // List<NcradarStationInfo> prevPickedStnLst =
+                // List<NctextStationInfo> prevPickedStnLst =
                 // ncradaruiPaletteWindow.getncradaruiResource().getPickedStnPt();
-                List<NcradarStationInfo> prevPickedStnLst = NcradaruiResource
-                        .getNcradaruiResource().getPickedStnPt();
+            	List<NctextStationInfo> prevPickedStnLst = NctextuiResource
+                        .getNctextuiResource().getPickedStnPt();
                 if (prevPickedStnLst.size() > 0) {
                     if (rtnStateStnLst.addAll(prevPickedStnLst) == false) {
                         // System.out.println("handleMouseUp : add picked stn failed");
@@ -947,7 +947,7 @@ public class NcradaruiPaletteWindow extends ViewPart implements
 				text.setText("");
 			}
             // ncradaruiPaletteWindow.getncradaruiResource().setPickedStnPt(rtnStateStnLst);
-            NcradaruiResource.getNcradaruiResource().setPickedStnPt(
+            NctextuiResource.getNctextuiResource().setPickedStnPt(
                     rtnStateStnLst);
 			mapEditor.refresh();
             // ncradaruiModalTool.setModal();
