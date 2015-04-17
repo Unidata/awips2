@@ -345,6 +345,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 20Oct2014   3685         randerso    Made conversion to upper case conditional on product id
  * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
  * 10Mar2015   RM 14866     kshrestha   Disable QC GUI pop up for TextWS
+ * 6Apr2015    RM14968   mgamazaychikov Fix formatting for pathcast section
  * 
  * </pre>
  * 
@@ -7925,6 +7926,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void rewrapInternal(int lineNumber) {
         boolean inLocations = false;
+        boolean inPathcast = false;
         String padding = "";
         // get contents of line
         String line = textEditor.getLine(lineNumber);
@@ -7943,6 +7945,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             inLocations = true;
         }
 
+        // is this the pathcast paragragh?
+        if (paragraphStart.startsWith("* THIS") && paragraphStart.endsWith("WILL BE NEAR...")) {
+            inPathcast = true;
+        }
+
         if (paragraphStart.matches(METAR_PARAGRAPH)) {
             padding = "     ";
         } else if (checkParagraphPadding(paragraphStart)) {
@@ -7952,8 +7959,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             padding = "  ";
         }
 
-        if (inLocations && (paragraphStartLineNumber == lineNumber)) {
-            // Keep LOCATIONS first line short & don't paste more to it.
+        if ((inLocations || inPathcast) && (paragraphStartLineNumber == lineNumber)) {
+            // Keep LOCATIONS and PATHCAST first line short & don't paste more to it.
             if (line.indexOf("...") == line.lastIndexOf("...")) {
                 return;
             }
@@ -8033,7 +8040,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                                 && (allText.charAt(eol + 1) == '\n')) {
                             deleteLen = 2;
                         } else if (allText.charAt(eol) == '\n') {
-                            deleteLen = 1;
+                            if (allText.charAt(eol-1) == '.' && allText.charAt(eol-2) != '.') {
+                                // do not extend this line.
+                                return;
+                            }
+                            else {
+                                deleteLen = 1;
+                            }
                         } else {
                             return;
                         }
@@ -8178,6 +8191,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
             }
             textEditor.replaceTextRange(position, 0, replacement.toString());
+            // remove and extra space
+            if (textEditor.getText(position -1, position - 1).equals(" ")) {
+                textEditor.replaceTextRange(position-1, 1, "");
+            }
             ++endWrapLine;
         }
     }
