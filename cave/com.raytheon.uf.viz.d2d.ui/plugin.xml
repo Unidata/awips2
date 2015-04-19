@@ -528,8 +528,8 @@
             </separator>
             <command
                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                  icon="icons/5-pane.gif"
-                  label="Default Pane Layout">
+                  icon="icons/square.png"
+                  label="Full Layout">
                <parameter
                      name="sideViews"
                      value="4">
@@ -542,8 +542,8 @@
             </command>
             <command
                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                  icon="icons/3-pane.gif"
-                  label="Full Layout">
+                  icon="icons/5-pane.gif"
+                  label="Default Pane Layout">
                <parameter
                      name="sideViews"
                      value="0">
