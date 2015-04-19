@@ -93,8 +93,8 @@ public class D2D5Pane implements IPerspectiveFactory {
             }
         }
 
-        int numViews = ChangeD2DLayoutAction.getViewCount() == 0 ? 0
-                : baseViewsToAdd.size();
+        int numViews = ChangeD2DLayoutAction.getViewCount() > 0 ? 0
+                : 4;
 
         String lastAdded = null;
 
@@ -109,8 +109,7 @@ public class D2D5Pane implements IPerspectiveFactory {
 	                            baseView,
 	                            false,
 	                            IPageLayout.LEFT,
-	                            ChangeD2DLayoutAction.getViewCount() == 0 ? ZERO_PANE_WIDTH
-	                                    : FIVE_PANE_WIDTH, editorArea);
+	                            FIVE_PANE_WIDTH, editorArea);
 	                } else {
 	                    layout.addStandaloneView(baseView, false,
 	                            IPageLayout.BOTTOM, (i >= numViews) ? 1.0f
