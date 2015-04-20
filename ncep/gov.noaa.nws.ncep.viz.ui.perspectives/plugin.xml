@@ -75,7 +75,7 @@
              <command
                    commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
                    id="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                   label="New Data Bundle"
+                   label="Data"
                    style="push"
                    tooltip="Resource Manager">
                 <visibleWhen>
@@ -400,6 +400,12 @@
                     mnemonic="C"
                     style="push">
               </command>
+              <command
+                    commandId="edu.ucar.unidata.ui.ncradarui.palette"
+                    id="edu.ucar.unidata.ui.ncradarui.palette"
+                    label="Ncradar"
+                    style="push">
+              </command>
               <!--
               <command
                     commandId="sync.file.tool.command"
@@ -407,6 +413,28 @@
                     style="push">
               </command>
               -->
+           </menu>
+           <menu
+                 id="satellite"
+                 label="Satellite"
+                 mnemonic="S">
+              <separator
+                    name="MENUSTART"
+                    visible="false">
+              </separator>
+              <separator
+                    name="GROUPX"
+                    visible="false">
+              </separator>
+              <separator
+                    name="MENUEND"
+                    visible="false">
+              </separator>
+              <visibleWhen>
+                 <reference
+                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                 </reference>
+              </visibleWhen>
            </menu>
            <!--menu
                 id="NCHelp"
@@ -455,11 +483,10 @@
                locationURI="toolbar:org.eclipse.ui.main.toolbar">
             <toolbar
                   id="NC-1">
-               <command
-                     commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+				<command
+                     commandId="gov.noaa.nws.ncep.viz.ui.newResource"
                      icon="icons/plus.png"
-                     id="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                     label="Data Bundle"
+                     label="Load"
                      mode="FORCE_TEXT"
                      style="push"
                      tooltip="Load">
@@ -468,10 +495,6 @@
                            definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
                      </reference>
                   </visibleWhen>
-                  <parameter
-                        name="mode"
-                        value="CREATE_RBD">
-                  </parameter>
                </command>
                <command
                      commandId="gov.noaa.nws.ncep.viz.ui.actions.clearData"
@@ -615,6 +638,17 @@
                    </reference>
                 </visibleWhen>
                 </command>
+               <command
+                     commandId="edu.ucar.unidata.ui.ncradarui.palette"
+                     id="edu.ucar.unidata.ui.ncradarui.palette"
+                     label="Ncradar"
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
 	        </toolbar>
          </menuContribution>
          <menuContribution
@@ -764,9 +798,13 @@
                       <reference
                             definitionId="gov.noaa.nws.ncep.viz.ui.personalities.notInNCActionSet">
                       </reference>
-                   </visibleWhen>
+                     </visibleWhen>
                </toolbar>
                </command>
+   				<command
+            id="edu.ucar.unidata.ui.ncradarui.palette"
+            name="Ncradar">
+      </command>/command>
          </menuContribution-->
    </extension>
    <extension
@@ -802,6 +840,10 @@
             id="gov.noaa.nws.ncep.viz.ui.preferences.handler"
             name="Preferences Handler">
       </command>
+      <command
+            id="edu.ucar.unidata.ui.ncradarui.palette"
+            name="name">
+      </command>
    </extension>
    
    <extension
@@ -821,6 +863,9 @@
       <handler
             class="gov.noaa.nws.ncep.viz.ui.perspectives.PreferencesHandler"
             commandId="gov.noaa.nws.ncep.viz.ui.preferences.handler">
+      </handler>
+      <handler
+            commandId="edu.ucar.unidata.ui.ncradarui.palette">
       </handler>
       
    </extension>
