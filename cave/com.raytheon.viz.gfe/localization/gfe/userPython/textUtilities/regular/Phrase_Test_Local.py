@@ -697,12 +697,12 @@ class TextProduct(AreaFcst.TextProduct):
     def useSkyPopWx_consolidation(self, tree, node):
         # If set to 1, the skyPopWx phrase will consolidate weather keys that
         # span all time ranges to produce:
-        #   PARTLY CLOUDY WITH A CHANCE OF RAIN.
-        #   SNOW IN THE MORNING...THEN SLEET IN THE AFTERNOON.
+        #   Partly cloudy with a chance of rain.
+        #   Snow in the morning...then sleet in the afternoon.
         #
         # instead of:
-        #    PARTLY CLOUDY. CHANCE OF RAIN AND SNOW IN THE MORNING
-        #  ...THEN A CHANCE OF RAIN AND SLEET IN THE AFTERNOON.
+        #    Partly cloudy. Chance of rain and snow in the morning
+        #  ...then a chance of rain and sleet in the afternoon.
  
         #return 1
         return 0

@@ -2120,10 +2120,10 @@ class TextProduct(HLSTCV_Common.TextProduct):
         return direction
     
     def _dirInEnglish(self, direction):
-        dirList = ["North", "North-Northeast", "Northeast", "East-Northeast",
-                   "East", "East-Southeast", "Southeast", "South-Southeast",
-                   "South", "South-Southwest", "Southwest", "West-Southwest",
-                   "West", "West-Northwest", "Northwest", "North-NorthWest"]
+        dirList = ["north", "north-northeast", "northeast", "east-northeast",
+                   "east", "east-southeast", "southeast", "south-southeast",
+                   "south", "south-southwest", "southwest", "west-southwest",
+                   "west", "west-northwest", "northwest", "north-northwest"]
         dirIndex = int((direction + 11.25) / 22.5)
         if dirIndex > 15:
             dirIndex = dirIndex - 16

@@ -1040,7 +1040,7 @@ class TextProduct(GenericHazards.TextProduct):
 
         # Product header
         if self._areaName != "":
-            self._areaName = " FOR " + self._areaName
+            self._areaName = " for " + self._areaName
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, actualProductName + self._areaName)
 
@@ -1049,11 +1049,12 @@ class TextProduct(GenericHazards.TextProduct):
         else:
             eas = ''
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                eas + productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
 
         # Main Headline
         mh = self._MainHeadline
@@ -2833,10 +2834,10 @@ class TextProduct(GenericHazards.TextProduct):
 
 
     def _dirInEnglish(self, direction):
-        dirList = ["North", "North-Northeast", "Northeast", "East-Northeast",
-                   "East", "East-Southeast", "Southeast", "South-Southeast",
-                   "South", "South-Southwest", "Southwest", "West-Southwest",
-                   "West", "West-Northwest", "Northwest", "North-NorthWest"]
+        dirList = ["north", "north-northeast", "northeast", "east-northeast",
+                   "east", "east-southeast", "southeast", "south-southeast",
+                   "south", "south-southwest", "southwest", "west-southwest",
+                   "west", "west-northwest", "northwest", "north-northwest"]
         dirIndex = int((direction + 11.25) / 22.5)
         if dirIndex > 15:
             dirIndex = dirIndex - 16
@@ -2873,7 +2874,7 @@ class TextProduct(GenericHazards.TextProduct):
                 if act in self._ignoreActions():
                     continue
                 if hdlns.index(hazardHdln) > 0:
-                    t+= " AND "
+                    t+= " and "
                 t+= "A " + hdln
                 reported += 1
             if reported > 0:
@@ -2936,7 +2937,7 @@ class TextProduct(GenericHazards.TextProduct):
             if areaCount == 1:
                conn = ""
             elif areaCount == areaLen:
-               conn = " AND "
+               conn = " and "
             else:
                conn = "..."
             if generalArea[1] != "":
@@ -3384,9 +3385,9 @@ class TextProduct(GenericHazards.TextProduct):
             # Skip HU.S headines
             if (phen =='HU' and sig =='S'):
                 continue
-            if hdln[0] in ["A","I"]:a='AN '
-            elif hdln.find("FOR") == 0: a = ' '
-            else:               a ='A '
+            if hdln[0] in ["A","I"]:a='an '
+            elif hdln.find("for") == 0: a = ' '
+            else:               a ='a '
 
             #print "\n Headline", hdln, phen
             if areaWordMethod is not None:
@@ -3504,7 +3505,7 @@ class TextProduct(GenericHazards.TextProduct):
                 if act in self._ignoreActions():
                     continue
                 if hdlns.index(hazardHdln) > 0:
-                    t+= " AND "
+                    t+= " and "
                 t+= "A " + hdln
                 reported += 1
             if reported > 0:
@@ -4052,7 +4053,7 @@ remain in port until this storm passes.
                 if act in self._ignoreActions():
                     continue
                 if hdlns.index(hazardHdln) > 0:
-                    t+= " AND "
+                    t+= " and "
                 t+= "A " + hdln
                 reported += 1
             if reported > 0:
@@ -4710,7 +4711,7 @@ remain in port until this storm passes.
                 "marine":self._frame("Small craft should remain in port or safe harbor until winds and seas subside. For any small craft who are in distress...or if you see someone else in distress...radio your situation according to maritime protocol. If appropriate...deploy your emergency distress beacon.")+"\n",
                 },
             "NoImpact": {
-                "general": self._frame("THIS EVENT IS NO LONGER EXPECTED TO HAVE AN IMPACT ACROSS THE AREA AT THIS TIME. USE THE OPPORTUNITY TO REVISE PREPAREDNESS PLANS AND REMAIN PREPARED FOR FUTURE EVENTS.\n\nAdd other wrap-up wording here.")+"\n",
+                "general": self._frame("This event is no longer expected to have an impact across the area at this time. Use the opportunity to revise preparedness plans and remain prepared for future events.\n\nAdd other wrap-up wording here.")+"\n",
                 },
             "LongTerm": {
                 "land": self._frame("Continue to listen to NOAA weather radio and other local news media for the latest information on storm impacts.\n\nIf you are using a portable generator...observe all safety precautions to avoid carbon monoxide poisoning...electrocution...or fires. Portable generators should be operated outdoors...in a dry and well ventilated place. Do not store fuel inside your home or garage.\n\nChain saws can be very helpful when removing fallen trees and large branches. Yet...operating a chain saw is dangerous work. Be sure to review operating procedures for safe cutting. To reduce the chance of mishap or injury...work with another person who has experience.\n\nDo not go sight seeing into areas which have been hardest hit as you may hinder ongoing rescue and recovery operations.\n\nStay out of flooded areas as the water may be contaminated or the road might have been washed away. Test drinking water before using...particularly from wells. Stay away from downed power lines too.")+"\n\n",
@@ -4723,13 +4724,13 @@ remain in port until this storm passes.
         return {
             "InProgress": self._frame(
 """
-although the system is losing its tropical characteristics...the
+Although the system is losing its tropical characteristics...the
 potential impacts are similar to those previously indicated
 regardless of its nature. Continue with readiness actions as
 recommended."""),
             "Completed": self._frame(
 """
-although the system has become non-tropical...the potential
+Although the system has become non-tropical...the potential
 impacts are similar to those previously indicated. Continue with
 readiness actions as recommended."""),
             }

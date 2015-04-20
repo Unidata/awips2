@@ -90,8 +90,8 @@ class TextProduct(CivilEmerg.TextProduct):
                 label, variable = key
                 exec "self._" + variable + "= varDict[key]"
 
-        fcst = fcst + "An earthquake has been felt " + self._felt + " BY " +\
-          self._extent + " " + "IN THE |*enter area*| AREA. " + \
+        fcst = fcst + "An earthquake has been felt " + self._felt + " by " +\
+          self._extent + " " + "in the |*enter area*| area. " + \
           self._damage + " damage has been reported. "
 
         if self._damage != "No":
