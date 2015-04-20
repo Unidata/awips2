@@ -145,12 +145,12 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
     def useSkyPopWx_consolidation(self, tree, node):
         # If set to 1, the skyPopWx phrase will consolidate weather keys that
         # span all time ranges to produce:
-        #   PARTLY CLOUDY WITH A CHANCE OF RAIN.
-        #   SNOW IN THE MORNING...THEN SLEET IN THE AFTERNOON.
+        #   Partly cloudy with a chance of rain.
+        #   Snow in the morning...then sleet in the afternoon.
         #
         # instead of:
-        #    PARTLY CLOUDY. CHANCE OF RAIN AND SNOW IN THE MORNING
-        #  ...THEN A CHANCE OF RAIN AND SLEET IN THE AFTERNOON. 
+        #    Partly cloudy. Chance of rain and snow in the morning
+        #  ...then a chance of rain and sleet in the afternoon. 
         return 0
 
     def skyPopWx_excludePoP_flag(self, tree, node):
@@ -256,6 +256,9 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
                         subkeyDict[subkey] = 1
                     else:
                         subkeyDict[subkey] += 1
+            if self.__dict__.get("_leDebug", 0): 
+                print "subkeyDict", subkeyDict
+                
             # Find subkeys to disable in first phrase and second phrase,
             # respectively
             list1 = []
@@ -266,7 +269,10 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
                     list2.append(subkey)
                 else:
                     list1.append(subkey)
-            if self.__dict__.get("_leDebug", 0): print "list1, list2", list1, list2
+            if self.__dict__.get("_leDebug", 0): 
+                print "list1", list1
+                print "list2", list2
+                
             if len(list1) > 0 and len(list2) > 0:
                 newPhrase = self.splitWxPhrase(
                     tree, node, list1, list2,
@@ -516,20 +522,20 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
             #   Number of sub-phrases (length)  Wx        Sky      includeSky
             #
             #            1                    similar    similar      1
-            #    MOSTLY SUNNY WITH A 50 PERCENT CHANCE OF RAIN.
+            #    Mostly sunny with a 50 percent chance of rain.
             #
             #            2                    different  similar      0
-            #    MOSTLY SUNNY. A CHANCE OF RAIN THEN A SLIGHT CHANCE OF SNOW
-            #    IN THE AFTERNOON.
+            #    Mostly sunny. A chance of rain then a slight chance of snow
+            #    in the afternoon.
             #
             #            1                    similar    different    0
-            #    MOSTLY SUNNY IN THE MORNING THEN BECOMING PARTLY CLOUDY. A
-            #    50 PERCENT CHANCE OF RAIN.
+            #    Mostly sunny in the morning then becoming partly cloudy. A
+            #    50 percent chance of rain.
             #
             #            2                    different  different    1
-            #    MOSTLY SUNNY WITH A CHANCE OF RAIN THEN PARTLY CLOUDY WITH
-            #    A SLIGHT CHANCE OF SNOW IN THE AFTERNOON. A 50 PERCENT CHANCE
-            #    OF RAIN AND SNOW.
+            #    Mostly sunny with a chance of rain then partly cloudy with
+            #    a slight chance of snow in the afternoon. A 50 percent chance
+            #    of rain and snow.
             #
             # Compare sky for similarity in the 1st and 2nd half of the period.
             # Note: We can't count on Sky having a temporal resolution of [6],

@@ -29,6 +29,8 @@ import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 15, 2008            njensen     Initial creation
+ * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
+ * 
  * </pre>
  * 
  * @author njensen
@@ -38,12 +40,12 @@ import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 public interface TextProductFinishListener {
 
     public void textProductFinished(String productText,
-            ConfigData.productStateEnum state);
+            ConfigData.ProductStateEnum state);
 
-    public void startProgressBar(ConfigData.productStateEnum state);
+    public void startProgressBar(ConfigData.ProductStateEnum state);
 
-    public void stopProgressBar(ConfigData.productStateEnum state);
+    public void stopProgressBar(ConfigData.ProductStateEnum state);
 
-    public void textProductQueued();
+    public void textProductQueued(ConfigData.ProductStateEnum state);
 
 }
