@@ -26,7 +26,11 @@ import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -64,6 +68,7 @@ import com.raytheon.wes2bridge.configuration.jaxb.Wes2BridgeJaxbManager;
  *                                     configuration that is no longer used and
  *                                     updated EDEX re-configuration.
  * Apr 15, 2015 4392       dlovely     Updates the new qpid json configuration now
+ * Apr 20, 2015 4392       dlovely     Removed un-used JMX port configuration
  * 
  * </pre>
  * 
@@ -425,20 +430,15 @@ public class Wes2BridgeManager {
         String srcconfig_json = srcQpidDirectory + "/config.json";
         String config_json = qpidDirectory + "/config.json";
 
-        ObjectMapper   mapper = new ObjectMapper();
+        try (BufferedWriter bw = this.getBufferedWriter(config_json);){
 
-        BufferedReader br = null;
-        BufferedWriter bw = null;
-        try {
-            br = this.getBufferedReader(srcconfig_json);
-            bw = this.getBufferedWriter(config_json);
-
-            String line = StringUtils.EMPTY;
+            List<String> lines = Files.readAllLines(Paths.get(srcconfig_json), Charset.defaultCharset());
             StringBuilder  stringBuilder = new StringBuilder();
-            while( ( line = br.readLine() ) != null ) {
+            for (String line : lines) {
                 stringBuilder.append( line );
             }
 
+            ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> attributesMap = mapper.readValue(stringBuilder.toString(), MAP_TYPE_REFERENCE);
 
             @SuppressWarnings("unchecked")
@@ -449,7 +449,7 @@ public class Wes2BridgeManager {
                 Map<String, Object> port = (Map<String, Object>) ports.get(x);
                 String name = (String) port.get(QPID_NAME);
                 if (QPID_AMQP.equals(name)) {
-                    port.put(QPID_PORT, this.wes2BridgeCase.getQpidJmxPort());
+                    port.put(QPID_PORT, this.wes2BridgeCase.getJmsPort());
                 } else if (QPID_HTTP.equals(name)) {
                     port.put(QPID_PORT, this.wes2BridgeCase.getQpidHttpPort());
                 }
@@ -459,10 +459,6 @@ public class Wes2BridgeManager {
              * Write the updated configuration file to its destination.
              */
             mapper.defaultPrettyPrintingWriter().writeValue(bw, attributesMap);
-
-        } finally {
-            br.close();
-            bw.close();
         }
     }
 
