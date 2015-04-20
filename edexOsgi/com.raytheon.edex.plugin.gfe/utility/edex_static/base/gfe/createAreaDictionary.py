@@ -26,6 +26,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/05/14        4953          randerso       Changed to use LocalizationSupport
+#    03/10/2015      #4129         randerso       Fixed error logging
 # 
 ##
 
@@ -225,7 +226,7 @@ def createAreaDictionary(outputDir, mapDict):
                     
                           
                     if areadict.has_key(ean) and d != areadict[ean]:
-                        LogStream.logDiag("Mismatch of definitions in " +\
+                        LogStream.logProblem("Mismatch of definitions in " +\
                           "AreaDictionary creation. EditAreaName=",  ean,
                           "AreaDict=\n", areadict[ean], "\nIgnored=\n", d)
                     else:

@@ -40,12 +40,12 @@
 #  displayName      If not None, defines how product appears in GFE GUI
 #  defaultEditAreas defines edit areas, default is Combinations
 #
-#  productName      defines name of product e.g. "ZONE FORECAST PRODUCT"
+#  productName      defines name of product e.g. "Zone Forecast Product"
 #  fullStationID    Full station identifier, 4 letter, such as "KSLC".
 #  wmoID            WMO ID code for product header, such as "FOUS45"
 #  pil              Product pil, such as "SFTBOS"
-#  areaName (opt.)  Area name for product header, such as "WESTERN NEW YORK"
-#  wfoCityState     WFO location, such as "BUFFALO NY"
+#  areaName (opt.)  Area name for product header, such as "Western New York"
+#  wfoCityState     WFO location, such as "Buffalo NY"
 #
 # Optional Configuration Items
 #  editAreaSuffix      default None. Allows for generating the body of the product for
@@ -177,11 +177,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "editAreaSuffix": None,
 
         # product identifiers
-        "productName": "NEARSHORE MARINE FORECAST", # product name 
+        "productName": "Nearshore Marine Forecast", # product name 
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
-        "areaName": "<state>",             # Name of state, such as "GEORGIA"
+        "areaName": "<state>",             # Name of state, such as "Georgia"
         "wfoCityState": "<wfoCityState>",   # Location of WFO - city state
         
         "textdbPil": "<textdbPil>",       # Product ID for storing to AWIPS text database.
@@ -229,7 +229,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         return ""
 
     def _lakeStmt(self, argDict):
-        return "FOR WATERS WITHIN FIVE NAUTICAL MILES OF SHORE ON LAKE (NAME)"
+        return "For waters within five nautical miles of shore on Lake (name)"
 
     ########################################################################
     # OVERRIDING THRESHOLDS AND VARIABLES
@@ -321,9 +321,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def marine_wind_combining_flag(self, tree, node):
         # If 1, Wind combining will reflect the
         # crossing of significant thresholds such as gales.
-        # E.g. "HURRICANE FORCE WINDS TO 100 KNOTS." instead of
-        # "NORTH HURRICANE FORCE WINDS TO 100 KNOTS EASING TO
-        #  HURRICANE FORCE WINDS TO 80 KNOTS IN THE AFTERNOON."
+        # E.g. "Hurricane force winds to 100 knots." instead of
+        # "north hurricane force winds to 100 knots easing to
+        #  hurricane force winds to 80 knots in the afternoon."
         return 1
 
     def postProcessPhrases(self, tree, node): 
@@ -585,7 +585,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
-               "NATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n" + \
                self._lakeStmt(argDict) + "\n\n"
         fcst = fcst + self._Text1()

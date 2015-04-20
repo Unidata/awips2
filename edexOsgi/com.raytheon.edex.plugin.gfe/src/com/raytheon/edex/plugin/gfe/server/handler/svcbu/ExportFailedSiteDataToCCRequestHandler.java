@@ -21,11 +21,15 @@ package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportFailedSiteDataToCCRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler for {@code ExportFailedSiteDataToCCRequestHandler}. This
+ * handler will export the GFE grids for a failed site running in service backup
+ * mode and send them directly to the central server.
  * 
  * <pre>
  * 
@@ -33,7 +37,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip    Initial creation
+ * Mar 17, 2015  #4103     dgilling    Support new Service Backup GUI.
  * 
  * </pre>
  * 
@@ -41,15 +46,24 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class ExportFailedSiteDataToCCRequestHandler implements
+public final class ExportFailedSiteDataToCCRequestHandler implements
         IRequestHandler<ExportFailedSiteDataToCCRequest> {
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ExportFailedSiteDataToCCRequestHandler.class);
+
     @Override
-    public Object handleRequest(ExportFailedSiteDataToCCRequest request)
-            throws Exception {
-        ServerResponse<String> sr = new ServerResponse<String>();
-        SvcBackupUtil.execute("export_bksite_grids", request.getPrimarySite()
-                .toLowerCase(), request.getFailedSite().toLowerCase());
-        return sr;
+    public JobProgress handleRequest(
+            final ExportFailedSiteDataToCCRequest request) throws Exception {
+        try {
+            SvcBackupUtil.execute("export_bksite_grids", request
+                    .getFailedSite().toLowerCase());
+        } catch (Exception e) {
+            statusHandler.error("Error running export_bksite_grids for site "
+                    + request.getFailedSite(), e);
+            return JobProgress.FAILED;
+        }
+
+        return JobProgress.SUCCESS;
     }
 }

@@ -5,7 +5,7 @@
 
     <bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
         depends-on="commonTimeRegistered, gfeDbRegistered, levelFactoryInitialized">
-        <constructor-arg ref="fetchATSrv" />
+        <constructor-arg ref="iscProvider" />
     </bean>
     
     <bean id="gfeSitesActiveRequest" factory-bean="siteAwareRegistry" factory-method="register"
@@ -192,11 +192,6 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetSiteTimeZoneInfoRequest"/>
         <constructor-arg ref="siteTimeZoneHandler"/>
     </bean>
-    <bean id="statusUpdateHandler" class="com.raytheon.edex.plugin.gfe.server.handler.ServiceBackupStatusUpdateRequestHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.ServiceBackupStatusUpdateRequest"/>
-        <constructor-arg ref="statusUpdateHandler"/>
-    </bean>
     <bean id="smartInitHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SmartInitRequestHandler"/>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.SmartInitRequest"/>
@@ -261,10 +256,10 @@
         <constructor-arg ref="AbortOperationRequestHandler"/>
     </bean>
 
-    <bean id="GetSbLockFilesRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetSbLockFilesRequestHandler"/>
+    <bean id="GetSvcBuJobStatusHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupJobStatusHandler" />
     <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetSbLockFilesRequest"/>
-        <constructor-arg ref="GetSbLockFilesRequestHandler"/>
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetServiceBackupJobStatusRequest"/>
+        <constructor-arg ref="GetSvcBuJobStatusHandler"/>
     </bean>
 
     <bean id="CleanupSvcBuRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuRequestHandler"/>
@@ -290,13 +285,6 @@
 	         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetServiceBackupPrimarySiteRequest"/>
 	         <constructor-arg ref="GetServiceBackupPrimarySitesHandler"/>
 	 </bean>
-
-
-    <bean id="CleanupSvcBuLogRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuLogRequestHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.CleaunpSvcBuLogRequest"/>
-        <constructor-arg ref="CleanupSvcBuLogRequestHandler"/>
-    </bean>
 
     <bean id="ExportConfRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportConfRequestHandler"/>
     <bean factory-bean="handlerRegistry" factory-method="register">
@@ -418,9 +406,10 @@
     <!-- End Additional ISC Beans -->
 
     <bean id="logPurger" class="com.raytheon.edex.plugin.gfe.log.LogPurger"/>
-
-    <bean id="sbLockMgr" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ServiceBackupLockManager"
-        factory-method="getInstance"/>
+    
+    <bean id="svcBuLogPurger" class="com.raytheon.edex.plugin.gfe.svcbackup.SvcbuCleanupLogsTask">
+    	<constructor-arg value="${purge.svcbu.logs.retention}" />
+    </bean>
 
     <bean id="productIscPurger" class="com.raytheon.uf.common.dataplugin.gfe.util.FilePurger">
         <constructor-arg value="/awips2/GFESuite/products/ISC"/> <!--  directory to be purged -->
@@ -455,12 +444,6 @@
                     <to uri="log:svcBackup?level=ERROR"/>
                 </doCatch>
             </doTry>
-        </route>
-
-        <route id="gfeSiteActivationNotification">
-            <from uri="jms-generic:topic:edex.alerts.siteActivate?threadName=gfe-edex.alerts.siteActivate"/>
-            <bean ref="serializationUtil" method="transformFromThrift"/>
-            <bean ref="sbLockMgr" method="handleSiteActivationNotification"/>
         </route>
 
         <route id="purgeGfeLogs">
@@ -518,7 +501,7 @@
         <route id="purgeSvcbuLogWork">
             <from uri="jms-generic:queue:purgeSvcbuLogWork"/>
             <doTry>
-                <bean ref="CleanupSvcBuLogRequestHandler" method="svcbuLogCleanupCron"/>
+                <bean ref="svcBuLogPurger" method="run"/>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to
@@ -589,22 +572,32 @@
         <constructor-arg ref="clusteredGfeIscRoutes"/>
     </bean>
     
-    <!-- Active Table Sharing Definitions -->
-    <bean id="fetchATSrv" class="com.raytheon.edex.plugin.gfe.isc.FetchActiveTableSrv" />
+    <!-- ISC Services Beans -->
+    <bean id="iscProvider" class="com.raytheon.edex.plugin.gfe.isc.IscServiceProvider" />
     
-    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
-        <constructor-arg ref="activeTableSharingRoutes"/>
+    <bean id="fetchATSrv" class="com.raytheon.edex.plugin.gfe.isc.FetchActiveTableSrv" />
+    <bean factory-bean="iscProvider" factory-method="addISCService">
         <constructor-arg ref="fetchATSrv"/>
     </bean>
     
-    <camelContext id="activeTableSharingRoutes" xmlns="http://camel.apache.org/schema/spring"
+    <bean id="requestTCVSrv" class="com.raytheon.edex.plugin.gfe.isc.RequestTCVSrv" />
+    <bean factory-bean="iscProvider" factory-method="addISCService">
+        <constructor-arg ref="requestTCVSrv"/>
+    </bean>
+    
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="clusteredIscBeans" />
+        <constructor-arg ref="iscProvider" />
+    </bean>
+    
+    <camelContext id="clusteredIscBeans" xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
-        <route id="activateFetchATSrv">
-            <from uri="timer://activateActiveTableSharing?repeatCount=1"/>
-            <bean ref="fetchATSrv" method="activateService"/>
+        <route id="activateISC">
+            <from uri="timer://activateISCServices?repeatCount=1"/>
+            <bean ref="iscProvider" method="activateInstance"/>
         </route>
     </camelContext>
     <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="activeTableSharingRoutes"/>
+        <constructor-arg ref="clusteredIscBeans"/>
     </bean>
 </beans>

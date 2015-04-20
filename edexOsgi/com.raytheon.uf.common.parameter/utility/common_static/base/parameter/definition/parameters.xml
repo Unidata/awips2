@@ -390,6 +390,11 @@
 		<unit>%</unit>
 	</parameter>
 	<parameter>
+		<name>Total Cloud Cover Error Analysis</name>
+		<abbreviation>TCCerranl</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
 		<name>Temperature Anomaly</name>
 		<abbreviation>Ta</abbreviation>
 		<unit>K</unit>

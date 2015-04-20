@@ -19,14 +19,20 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
-import com.raytheon.edex.plugin.gfe.svcbackup.ServiceBackupNotificationManager;
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
+import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.request.ProcessReceivedDigitalDataRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.server.notify.ServiceBackupJobStatusNotification;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler for {@code ProcessReceivedDigitalDataRequest}. Triggered when
+ * MHS sends the requested GFE grids from
+ * {@code ImportDigitalDataRequestHandler} to this server. Will call the service
+ * backup script process_grids to import the site's grids.
  * 
  * <pre>
  * 
@@ -34,7 +40,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip    Initial creation
+ * Feb 13, 2015  #4103     dgilling    Pass site id to process_grids.
  * 
  * </pre>
  * 
@@ -42,26 +49,31 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class ProcessReceivedDigitalDataRequestHandler implements
+public final class ProcessReceivedDigitalDataRequestHandler implements
         IRequestHandler<ProcessReceivedDigitalDataRequest> {
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ProcessReceivedDigitalDataRequestHandler.class);
+
     @Override
-    public Object handleRequest(ProcessReceivedDigitalDataRequest request)
-            throws Exception {
-        ServerResponse<String> sr = new ServerResponse<String>();
+    public JobProgress handleRequest(
+            final ProcessReceivedDigitalDataRequest request) throws Exception {
         try {
             SvcBackupUtil.execute("process_grids",
-                    request.getReceivedDataFile());
-            ServiceBackupNotificationManager
-                    .sendMessageNotification("Import Data Complete!");
+                    request.getReceivedDataFile(), request.getSiteID());
+            statusHandler.info("Import Data Complete for site "
+                    + request.getSiteID());
         } catch (Exception e) {
-            sr.addMessage("Error processing received grids. "
-                    + e.getLocalizedMessage());
-            ServiceBackupNotificationManager
-                    .sendErrorMessageNotification("Error Processing Digital Data!",e);
+            statusHandler.error("Error Processing Digital Data for site "
+                    + request.getSiteID(), e);
+            SendNotifications.send(new ServiceBackupJobStatusNotification(
+                    "importGrids", JobProgress.FAILED, request.getSiteID()));
+            return JobProgress.FAILED;
         }
 
-        return sr;
-    }
+        SendNotifications.send(new ServiceBackupJobStatusNotification(
+                "importGrids", JobProgress.SUCCESS, request.getSiteID()));
 
+        return JobProgress.SUCCESS;
+    }
 }

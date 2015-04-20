@@ -36,6 +36,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 18, 2012 1229       rferrel     Initial creation
+ * Mar 23, 2015 4278       njensen     Added try/catch throwable
  * 
  * </pre>
  * 
@@ -43,11 +44,16 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * @version 1.0
  */
 
-public abstract class AbstractCAVEDialogComponent extends AbstractAWIPSComponent {
+public abstract class AbstractCAVEDialogComponent extends
+        AbstractAWIPSComponent {
     protected void blockUntilClosed(CaveSWTDialogBase dlg) {
         while (!dlg.isDisposed()) {
-            if (!Display.getCurrent().readAndDispatch()) {
-                Display.getCurrent().sleep();
+            try {
+                if (!Display.getCurrent().readAndDispatch()) {
+                    Display.getCurrent().sleep();
+                }
+            } catch (Throwable t) {
+                statusHandler.error("Unhandled event loop exception", t);
             }
         }
     }

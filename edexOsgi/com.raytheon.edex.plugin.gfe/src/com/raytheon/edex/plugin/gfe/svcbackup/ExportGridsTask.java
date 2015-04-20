@@ -25,6 +25,8 @@ import java.util.TimerTask;
 import com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportGridsRequestHandler;
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportGridsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.ExportGridsRequest.ExportGridsMode;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * Cron job that exports GFE's primary sites' grids. Primary sites are
@@ -42,6 +44,7 @@ import com.raytheon.uf.common.dataplugin.gfe.request.ExportGridsRequest.ExportGr
  *                                      for from svcbu.properties.
  * May 02, 2013  #1762     dgilling     Move code to read PRIMARY_SITES setting
  *                                      to SvcBackupUtil.
+ * Mar 17, 2015  #4103     dgilling     Stop using ServiceBackupNotificationManager.
  * 
  * </pre>
  * 
@@ -51,10 +54,12 @@ import com.raytheon.uf.common.dataplugin.gfe.request.ExportGridsRequest.ExportGr
 
 public class ExportGridsTask extends TimerTask {
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ExportGridsTask.class);
+
     public ExportGridsTask(Date executionTime) {
-        ServiceBackupNotificationManager
-                .sendMessageNotification("Export grids cron scheduled for execution at: "
-                        + executionTime);
+        statusHandler.info("Export grids cron scheduled for execution at: "
+                + executionTime);
     }
 
     /*
@@ -67,14 +72,14 @@ public class ExportGridsTask extends TimerTask {
         final ExportGridsRequestHandler reqHandler = new ExportGridsRequestHandler();
 
         for (String site : SvcBackupUtil.getPrimarySites()) {
-            ServiceBackupNotificationManager
-                    .sendMessageNotification("Export Grids to central server cron started for site "
+            statusHandler
+                    .info("Export Grids to central server cron started for site "
                             + site + ".");
             try {
                 reqHandler.handleRequest(new ExportGridsRequest(site,
                         ExportGridsMode.CRON));
             } catch (Exception e) {
-                ServiceBackupNotificationManager.sendErrorMessageNotification(
+                statusHandler.error(
                         "Export Grids to central server cron failed to execute for site "
                                 + site + ".", e);
             }

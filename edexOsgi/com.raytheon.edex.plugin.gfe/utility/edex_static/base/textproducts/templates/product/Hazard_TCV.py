@@ -24,7 +24,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
     Definition["defaultEditAreas"] = "Combinations_TCV_<site>"
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
 
-    Definition["productName"]       = "LOCAL WATCH/WARNING STATEMENT"
+    Definition["productName"]       = "Local Watch/Warning Statement"
 
     Definition["fullStationID" ]    = "<fullStationID>"
     Definition["wmoID" ]            = "<wmoID>"
@@ -464,7 +464,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         self._segmentList = self._determineSegments()
         self.debug_print("Segment Information: %s" % (self._pp.pformat(self._segmentList)), 1)
         if len(self._segmentList) == 0:
-            return "NO HAZARDS TO REPORT"
+            return "No hazards to report"
 
         # Determine time ranges
         self._determineTimeRanges(argDict)
@@ -765,7 +765,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
         combos = accessor.variable(self._defaultEditAreas, "Combinations")
         # combos is a list of tuples. Each tuple is a grouping of zones (a list of zones, combo name).
         if combos is None:
-            LogStream.logVerbose("COMBINATION FILE NOT FOUND: " + self._defaultEditAreas)
+            LogStream.logVerbose("Combination file not found: " + self._defaultEditAreas)
             return []
         self.debug_print("Segments from Zone Combiner = %s" % (self._pp.pformat(combos)), 1)
         
@@ -1527,21 +1527,21 @@ class SectionCommon():
     
     def _preparationStatement(self, severityString):
         preparationStatement = ""
-        if severityString == "DEVASTATING" or severityString == "EXTENSIVE IMPACTS":
-            preparationStatement += "AGGRESSIVE "
+        if severityString == "Devastating" or severityString == "Extensive impacts":
+            preparationStatement += "Aggressive "
         
-        preparationStatement += "PREPARATIONS SHOULD BE MADE FOR CHANCE OF "
+        preparationStatement += "preparations should be made for chance of "
         
-        if severityString == "DEVASTATING":
-            preparationStatement += "DEVASTATING TO CATASTROPHIC"
-        elif severityString == "EXTENSIVE IMPACTS":
-            preparationStatement += "EXTENSIVE"
-        elif severityString == "SIGNIFICANT":
-            preparationStatement += "SIGNIFICANT"
-        elif severityString == "LIMITED":
-            preparationStatement += "LIMITED"
+        if severityString == "Devastating":
+            preparationStatement += "devastating to catastrophic"
+        elif severityString == "Extensive impacts":
+            preparationStatement += "extensive"
+        elif severityString == "Significant":
+            preparationStatement += "significant"
+        elif severityString == "Limited":
+            preparationStatement += "limited"
         
-        preparationStatement += " IMPACTS BASED ON LATEST THREAT"
+        preparationStatement += " impacts based on latest threat"
         
         return preparationStatement
 
@@ -1585,7 +1585,7 @@ class WindSection(SectionCommon):
                     categoryLabel = key
                     break
     
-            forecastText = "LATEST LOCAL FORECAST: "
+            forecastText = "Latest Local Forecast: "
             if categoryLabel is not None:
                 forecastText += "Equivalent " + categoryLabel + " force wind"
             else:
@@ -1608,7 +1608,7 @@ class WindSection(SectionCommon):
 
     def _peakWind(self, segmentDict, productSegmentGroup, productSegment):
         if self._stats._maxWind is not None:
-            windText = "PEAK WIND FORECAST: "
+            windText = "Peak Wind Forecast: "
             moderatedMaxWind = self._ktToMph(self._stats._maxWind, "Wind")
             if moderatedMaxWind >= 74:
                 maxRange = 20
@@ -1810,10 +1810,10 @@ class StormSurgeSection(SectionCommon):
             elif max > 0:
                 
                 #  We were getting really weird values of peak surge
-                #  (e.g. "UP TO 1.70000004768 FEET").  This fix will round up 
+                #  (e.g. "up to 1.70000004768 feet").  This fix will round up 
                 #  to the nearest integer value
-#                 words = "Up to " + str(max) + " feet above ground"
-                words = "Up to " + str(int(max + 0.5)) + " feet above ground"
+#                 words = "up to " + str(max) + " feet above ground"
+                words = "up to " + str(int(max + 0.5)) + " feet above ground"
             else:
                 words = ""
 
@@ -2422,11 +2422,11 @@ class WindSectionStats(SectionCommonStats):
 
             if localtime.tm_hour >= 15: # 3PM to midnight
                 self._textProduct.debug_print("between 3PM and midnight!", 1)
-                pwsTXXStats.dropFirstGridType = "DAY"
+                pwsTXXStats.dropFirstGridType = "day"
                 self._textProduct.debug_print("need to drop the day grid(s) if they come first", 1)
             elif localtime.tm_hour >= 3 and localtime.tm_hour < 12: # 3AM to noon
                 self._textProduct.debug_print("between 3AM and noon!", 1)
-                pwsTXXStats.dropFirstGridType = "NIGHT"
+                pwsTXXStats.dropFirstGridType = "night"
                 self._textProduct.debug_print("need to drop the night grid(s) if they come first", 1)
             else:
                 self._textProduct.debug_print("not dropping any grids!", 1)
@@ -2447,12 +2447,12 @@ class WindSectionStats(SectionCommonStats):
         if pwsDXX is not None and isValidDay:
             self._textProduct.debug_print("Wind Window Debug: pwsTXXStats DAY", 1)
             
-            if pwsTXXStats.dropFirstGridType == "DAY":
+            if pwsTXXStats.dropFirstGridType == "day":
                 self._textProduct.debug_print("Wind Window Debug: dropping a day grid", 1)
                 self._textProduct.debug_print("Wind Window Debug: tr = %s, period = %s" % (tr, period), 1)
                 pwsTXXStats.droppedFirstGrid = True
                 return
-            elif pwsTXXStats.dropFirstGridType == "NIGHT":
+            elif pwsTXXStats.dropFirstGridType == "night":
                 # We dropped all the necessary grids now that we found a day grid so stop dropping
                 pwsTXXStats.dropFirstGridType = None
                 pwsTXXStats.periodWithFirstCorrectGrid = period
@@ -2465,12 +2465,12 @@ class WindSectionStats(SectionCommonStats):
         elif pwsNXX is not None and not isValidDay:
             self._textProduct.debug_print("Wind Window Debug: pwsTXXStats NIGHT", 1)
            
-            if pwsTXXStats.dropFirstGridType == "NIGHT":
+            if pwsTXXStats.dropFirstGridType == "night":
                 self._textProduct.debug_print("Wind Window Debug: dropping a night grid", 1)
                 self._textProduct.debug_print("Wind Window Debug: tr = %s, period = %s" % (tr, period), 1)
                 pwsTXXStats.droppedFirstGrid = True
                 return
-            elif pwsTXXStats.dropFirstGridType == "DAY":
+            elif pwsTXXStats.dropFirstGridType == "day":
                 # We dropped all the necessary grids now that we found a night grid so stop dropping
                 pwsTXXStats.dropFirstGridType = None
                 pwsTXXStats.periodWithFirstCorrectGrid = period

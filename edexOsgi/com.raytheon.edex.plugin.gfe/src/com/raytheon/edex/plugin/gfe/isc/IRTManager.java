@@ -20,15 +20,21 @@
 
 package com.raytheon.edex.plugin.gfe.isc;
 
-import java.lang.Thread.State;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Manages interactions for the IRT server used with the GFE ISC capability
@@ -41,89 +47,138 @@ import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
  * ------------ ----------  ----------- --------------------------
  * 08/10/09     1995       bphillip    Initial creation
  * 06/13/13     2044       randerso    Refactored to use IFPServer
+ * 03/11/15     4128       dgilling    Refactored to use ISCServiceProvider.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class IRTManager {
+public final class IRTManager {
 
     /** The logger */
-    protected transient Log logger = LogFactory.getLog(getClass());
-
-    /** The singleton instance */
-    private static IRTManager instance;
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(IRTManager.class);
 
     /** Map of active IRT connections keyed by site */
-    private Map<String, GfeIRT> irtMap;
+    private final ConcurrentMap<String, Future<?>> irtMap;
 
-    /**
-     * Gets the singleton instance of the IRTManager
-     * 
-     * @return The singleton instance of the IRTManager
-     */
-    public static synchronized IRTManager getInstance() {
-        if (instance == null) {
-            instance = new IRTManager();
-        }
+    /** List of valid ISC sites. */
+    private final Set<String> registeredSiteIDs;
 
-        return instance;
-    }
+    private ExecutorService jobExecutor;
 
     /**
      * Constructs the singleton instance of the IRT Manager
      */
-    private IRTManager() {
-        irtMap = new ConcurrentHashMap<String, GfeIRT>();
+    public IRTManager() {
+        this.irtMap = new ConcurrentHashMap<>();
+        this.registeredSiteIDs = new CopyOnWriteArraySet<>();
     }
 
     /**
-     * Enables ISC functionality for a site
+     * Determines whether the specified site should continue to (re-) register
+     * with IRT.
      * 
      * @param siteID
-     *            The site to activate ISC functionality for
-     * @param config
-     *            server configuration
-     * @throws GfeException
-     *             If the ISC functionality cannot be activated
+     *            Site identifier to check for.
+     * @return {@code true} if the site should continue registration with IRT.
+     *         {@code false} if not.
      */
-    public void enableISC(String siteID, IFPServerConfig config)
-            throws GfeException {
-
-        String mhsID = config.getMhsid();
-        if (!irtMap.containsKey(mhsID + "--" + siteID)) {
-            irtMap.put(mhsID + "--" + siteID, new GfeIRT(siteID, config));
-        }
-
-        logger.info("Starting IRT registration thread for site [" + siteID
-                + "]");
-        irtMap.get(mhsID + "--" + siteID).start();
+    public boolean shouldRegister(final String siteID) {
+        /*
+         * We use this separate Set to hold site IDs to avoid a race condition.
+         * While it would be more convenient to use the keys of the irtMap to
+         * maintain the list of sites that should be attempting to register with
+         * IRT, this will cause a race condition when the Runnable's attempt to
+         * call this method. It's likely the job will hit the shouldRegister()
+         * check before the Future has been added to the Map and thus fail to
+         * ever attempt registration with IRT.
+         */
+        return registeredSiteIDs.contains(siteID);
     }
 
     /**
-     * Disables ISC functionality for a site
+     * Register the given site with the IRT server.
      * 
      * @param siteID
-     *            The site to disable ISC functionality for
+     *            Site identifier for the site to register with the IRT server.
+     * @param gfeConfig
+     *            The {@code IFPServerConfig} configuration data for the site.
      */
-    public void disableISC(String mhsID, String siteID) {
-        GfeIRT gfeIrt = null;
-        String irtKey = mhsID + "--" + siteID;
-        gfeIrt = irtMap.remove(irtKey);
-        if (gfeIrt != null) {
-            if (gfeIrt.getState() != null) {
-                while (!gfeIrt.getState().equals(State.TERMINATED)) {
-                }
+    public void activateSite(String siteID, IFPServerConfig gfeConfig) {
+        if (!irtMap.containsKey(siteID)) {
+            statusHandler.info("Starting IRT registration thread for site ["
+                    + siteID + "]");
+
+            registeredSiteIDs.add(siteID);
+            Runnable job = constructJob(siteID, gfeConfig);
+
+            try {
+                Future<?> future = jobExecutor.submit(job);
+                irtMap.put(siteID, future);
+            } catch (RejectedExecutionException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to submit fetchAT job for execution:", e);
+                irtMap.remove(siteID);
             }
-            // Remove the shutdown hook so an unregister is not attempted upon
-            // shutdown
-            gfeIrt.removeShutdownHook(mhsID, siteID);
         }
     }
 
-    public boolean isRegistered(String mhsID, String siteID) {
-        boolean registered = irtMap.containsKey(mhsID + "--" + siteID);
-        return registered;
+    private GfeIRT constructJob(final String siteID,
+            final IFPServerConfig config) {
+        return new GfeIRT(siteID, config, this);
+    }
+
+    /**
+     * Unregisters the given site with the IRT server.
+     * 
+     * @param siteID
+     *            Site identifier of the site to unregister.
+     */
+    public void deactivateSite(String siteID) {
+        registeredSiteIDs.remove(siteID);
+        Future<?> job = irtMap.remove(siteID);
+        if (job != null) {
+            statusHandler.info("Deactivating IRT registration thread for "
+                    + siteID);
+            job.cancel(false);
+        }
+    }
+
+    /**
+     * Startup hook for this bean. Initializes job pool.
+     */
+    public void preStart() {
+        statusHandler.info("Initializing IRTManager...");
+
+        jobExecutor = Executors.newCachedThreadPool();
+    }
+
+    /**
+     * Preliminary shutdown hook for this bean. Stops all running IRT
+     * registration jobs and initiates shutdown of the job pool.
+     */
+    public void preStop() {
+        statusHandler.info("Shutting down IRTManager...");
+
+        Collection<String> siteIds = new ArrayList<>(registeredSiteIDs);
+        for (String siteId : siteIds) {
+            deactivateSite(siteId);
+        }
+
+        if (jobExecutor != null) {
+            jobExecutor.shutdown();
+        }
+    }
+
+    /**
+     * Shutdown completion hook for this bean. Clears all saved state for this
+     * bean.
+     */
+    public void postStop() {
+        jobExecutor = null;
+        irtMap.clear();
+        registeredSiteIDs.clear();
     }
 }

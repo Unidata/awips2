@@ -870,6 +870,7 @@
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>wSpea</parameter>
+			<parameter>WGSea</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>kts</displayUnits>
@@ -1711,6 +1712,7 @@
 		<paramLevelMatches>
 			<parameter>CPr</parameter>
 			<parameter>P</parameter>
+			<parameter>Perranl</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>mb</displayUnits>
@@ -2000,6 +2002,7 @@
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>Vis</parameter>
+			<parameter>Viserranl</parameter>
 			<singleLevel units="SURFACE" />
 		</paramLevelMatches>
 		<imageStyle>
@@ -5533,6 +5536,7 @@
       <displayUnits>cm/sec</displayUnits>
     </imageStyle>
   </styleRule>
+
 <!--   15.1 additions below -->
    <styleRule>
     <paramLevelMatches>
@@ -5585,6 +5589,17 @@
       <colorbarLabeling>
         <increment>2000</increment>
       </colorbarLabeling>
+  
+  <!-- Style Rule for nwpsCG1 to display Sig. Wave Height and Swell Height 
+       in ft.  -->
+   <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>nwpsCG1</creatingEntity>
+      <parameter>SWELL</parameter>
+      <parameter>HTSGW</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>ft</displayUnits>
     </imageStyle>
   </styleRule>
 </styleRuleset>
