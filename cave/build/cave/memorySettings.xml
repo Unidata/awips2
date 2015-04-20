@@ -420,7 +420,7 @@
             <site-type>ncep</site-type>
 			<ini-substitutions>
 				<max-memory>
-					<value>2048M</value>
+					<value>3072M</value>
 				</max-memory>
 			
 				<max-perm>

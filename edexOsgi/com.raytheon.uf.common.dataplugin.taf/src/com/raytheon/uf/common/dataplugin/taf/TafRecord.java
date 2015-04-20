@@ -67,6 +67,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Feb 11, 2014 2784        rferrel     Remove override of setIdentifier.
  * May 15, 2014 3002        bgonzale    Moved to com.raytheon.uf.common.dataplugin.taf.
  * Oct 10, 2014 3722        mapeters    Removed dataURI column.
+ * Apr 01, 2015 3722        rjpeter     Made dataURI fields required, changed amd and corIndicator to boolean.
  * </pre>
  * 
  * @author bphillip
@@ -74,11 +75,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "tafseq")
-@Table(name = TafRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "stationId", "corIndicator", "amdIndicator", "issue_timeString" }) })
-
-@org.hibernate.annotations.Table(appliesTo = TafRecord.PLUGIN_NAME, indexes = { @Index(name = "taf_refTimeIndex", columnNames = {
- "refTime" }) })
+// TODO: remove issue_time/issue_timeString from table, same as reftime in
+// different format
+@Table(name = TafRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(name = "uk_taf_datauri_fields", columnNames = {
+        "reftime", "stationid", "corindicator", "amdindicator",
+        "issue_timestring" }) })
+@org.hibernate.annotations.Table(appliesTo = TafRecord.PLUGIN_NAME, indexes = { @Index(name = "taf_refTimeIndex", columnNames = { "refTime" }) })
 @DynamicSerialize
 public class TafRecord extends PluginDataObject implements ISpatialEnabled {
 
@@ -96,30 +98,29 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
 
     // Station Identifier for the data
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @Index(name = "taf_stationIndex")
     @DataURI(position = 1)
     private String stationId;
 
     @DynamicSerializeElement
-    @Column
     @DataURI(position = 2)
-    private String corIndicator;
+    @Column(nullable = false)
+    private boolean corIndicator;
 
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 3)
-    private String amdIndicator;
+    private boolean amdIndicator;
 
     /** Issue date */
     @DynamicSerializeElement
     @Column
-    // @DataURI(position = 4)
     private Date issue_time;
 
     /** Issue date string */
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 4)
     private String issue_timeString;
 
@@ -216,7 +217,7 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
      * 
      * @return the corIndicator
      */
-    public String getCorIndicator() {
+    public boolean getCorIndicator() {
         return corIndicator;
     }
 
@@ -225,7 +226,7 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
      * @param corIndicator
      *            the corIndicator to set
      */
-    public void setCorIndicator(String corIndicator) {
+    public void setCorIndicator(boolean corIndicator) {
         this.corIndicator = corIndicator;
     }
 
@@ -233,7 +234,7 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
      * 
      * @return the amdIndicator
      */
-    public String getAmdIndicator() {
+    public boolean getAmdIndicator() {
         return amdIndicator;
     }
 
@@ -242,7 +243,7 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
      * @param amdIndicator
      *            the amdIndicator to set
      */
-    public void setAmdIndicator(String amdIndicator) {
+    public void setAmdIndicator(boolean amdIndicator) {
         this.amdIndicator = amdIndicator;
     }
 

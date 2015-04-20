@@ -56,11 +56,11 @@ Definition["defaultEditAreas"] = "Combinations_NSH_<site>_<MultiPil>"
 Definition["mapNameForCombinations"] = "Marine_Zones_<site>" # Map background for creating Combinations
 
 # Header configuration items
-#Definition["productName"] = "NEAR SHORE FORECAST"  # name of product
+#Definition["productName"] = "Near Shore Forecast"  # name of product
 Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
 Definition["wmoID"] = "<wmoID>"        # WMO ID
 Definition["pil"] = "<pil>"          # product pil
-Definition["areaName"] = "<state>"  # OPTIONAL Name of state, such as "GEORGIA"
+Definition["areaName"] = "<state>"  # OPTIONAL Name of state, such as "Georgia"
 Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
 Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
 Definition["awipsWANPil"] = "<awipsWANPil>"   # Product ID for transmitting to AWIPS WAN.

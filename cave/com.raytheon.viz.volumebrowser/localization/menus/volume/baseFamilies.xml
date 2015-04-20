@@ -23,7 +23,7 @@
 		id="FamiliesLine" />
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="DGEX" id="dgex" useReferenceTime="true">
-		<substitue key="modelName" value="${DGEXmodel}"/>
+		<substitute key="modelName" value="${DGEXmodel}"/>
 		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="18"/>
 	</contribute>

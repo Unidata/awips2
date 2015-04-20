@@ -27,6 +27,13 @@
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/22/2015       4027         randerso       Changed lowerCase default to True
+#
+##
 
 import string
 
@@ -402,7 +409,7 @@ class StringUtils:
         try:
             lowerCase = self._lowerCase
         except:
-            lowerCase = 0
+            lowerCase = True
         if not lowerCase:
             text = text.upper()  # convert to upper case
         return text
@@ -413,7 +420,7 @@ class StringUtils:
         try:
             lowerCase = self._lowerCase
         except:
-            lowerCase = 0
+            lowerCase = True
         if lowerCase:
             words = text.split()
             new = []

@@ -42,16 +42,17 @@ def ThirdMonday(monthStartDOW, monthStartDOY):
 def calculateHolidayList(yearStr):
 
     # Define holiday strings
-    NewYearsDay = 'NEW YEARS DAY'
-    MartinLutherDay = 'MARTIN LUTHER KING JR DAY'
-    WashingtonsBirthday = 'WASHINGTONS BIRTHDAY'
-    MemorialDay = 'MEMORIAL DAY'
-    IndependenceDay = 'INDEPENDENCE DAY'
-    LaborDay = 'LABOR DAY'
-    ColumbusDay = 'COLUMBUS DAY'
-    VeteransDay = 'VETERANS DAY'
-    ThanksgivingDay = 'THANKSGIVING DAY'
-    ChristmasDay = 'CHRISTMAS DAY'
+    # TODO: Should we add punctuation (e.g. Jr. Washington's)
+    NewYearsDay = 'New Years Day'
+    MartinLutherDay = 'Martin Luther King Jr Day'
+    WashingtonsBirthday = 'Washingtons Birthday'
+    MemorialDay = 'Memorial Day'
+    IndependenceDay = 'Independence Day'
+    LaborDay = 'Labor Day'
+    ColumbusDay = 'Columbus Day'
+    VeteransDay = 'Veterans Day'
+    ThanksgivingDay = 'Thanksgiving Day'
+    ChristmasDay = 'Christmas Day'
 
     # Initialize Holidays list
     Holidays = []
