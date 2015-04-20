@@ -23,11 +23,15 @@ import org.apache.commons.lang.BooleanUtils;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.ImportConfRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.svcbu.JobProgress;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler for {@code ImportConfRequest}. Causes an MHS request to be
+ * sent to have the configuration data for the specified site to be sent to this
+ * server. Should be used only during service backup mode.
  * 
  * <pre>
  * 
@@ -38,6 +42,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Aug 04, 2011            bphillip     Initial creation
  * Mar 20, 2013   1447     dgilling     Support troubleshooting mode
  *                                      added to match A1 DR 21404.
+ * Mar 17, 2015   4103     dgilling     Support new Service Backup GUI.
  * 
  * </pre>
  * 
@@ -45,16 +50,28 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class ImportConfRequestHandler implements
+public final class ImportConfRequestHandler implements
         IRequestHandler<ImportConfRequest> {
 
-    @Override
-    public Object handleRequest(ImportConfRequest request) throws Exception {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ImportConfRequestHandler.class);
 
-        ServerResponse<String> sr = new ServerResponse<String>();
-        SvcBackupUtil.execute("request_configuration", request.getPrimarySite()
-                .toLowerCase(), request.getFailedSite().toLowerCase(), Integer
-                .toString(BooleanUtils.toInteger(request.isTrMode())));
-        return sr;
+    @Override
+    public JobProgress handleRequest(final ImportConfRequest request)
+            throws Exception {
+        try {
+            statusHandler.info("Requesting GFE configuration for site "
+                    + request.getFailedSite());
+            SvcBackupUtil.execute("request_configuration", request
+                    .getFailedSite().toLowerCase(), Integer
+                    .toString(BooleanUtils.toInteger(request.isTrMode())));
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Error executing request_configuration for site "
+                            + request.getFailedSite(), e);
+            return JobProgress.FAILED;
+        }
+
+        return JobProgress.SUCCESS;
     }
 }

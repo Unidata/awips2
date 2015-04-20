@@ -1,4 +1,0 @@
-cd ../build.native/i386-pc-linux-gnu/lib; if [ $? != 0 ]; then exit 0; fi
-rm -f ./libgfortran.so.1
-cd ..; rmdir lib
-exit 0

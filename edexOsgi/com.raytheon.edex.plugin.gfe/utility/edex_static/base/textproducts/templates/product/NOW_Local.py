@@ -52,7 +52,7 @@ class TextProduct(GenericReport.TextProduct):
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
  
     # product identifiers
-    Definition["productName"] = "SHORT TERM FORECAST" # product name 
+    Definition["productName"] = "Short Term Forecast" # product name 
     Definition["fullStationID" ] = "<fullStationID>"    # 4 letter station ID
     Definition["wmoID" ] = "<wmoID>"                    # WMO code
     Definition["wfoCityState" ] = "<wfoCityState>"      # Location of WFO

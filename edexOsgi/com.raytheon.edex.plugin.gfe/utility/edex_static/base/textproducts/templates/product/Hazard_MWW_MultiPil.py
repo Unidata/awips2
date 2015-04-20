@@ -54,7 +54,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -69,7 +69,7 @@ class TextProduct(GenericHazards.TextProduct):
 
     Definition["purgeTime"] = 8        # Maximum hours for expireTime from issueTime
     #Definition["includeCities"] = 1    # Cities included in area header
-    #Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    #Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
     #Definition["easPhrase"] = ""       # Optional EAS phrase to be include in product header
     Definition["lineLength"] = 66
@@ -82,12 +82,12 @@ class TextProduct(GenericHazards.TextProduct):
     ###
     ### Text to insert below the last $$ of the product (WFO URL)
     ### use "" if you do not want text to appear
-##    Definition["urlText"] = "HTTP://WWW.WEATHER.GOV/MIAMI"
+##    Definition["urlText"] = "http://www.weather.gov/miami"
     ### no additional text example
     Definition["urlText"] = ""
     ### multiple line example
-##    Definition["urlText"] = "FOR MORE INFORMATION FROM NOAA/S NATIONAL WEATHER SERVICE VISIT...\n" + \
-##                            "HTTP://WEATHER.GOV/SALTLAKECITY (ALL LOWER CASE)"
+##    Definition["urlText"] = "For more information from NOAA/s National Weather Service visit...\n" + \
+##                            "http://weather.gov/saltlakecity"
     ###    
 
     def __init__(self):
@@ -129,34 +129,34 @@ class TextProduct(GenericHazards.TextProduct):
 
     def _bulletDict(self):
         return {
-            "HU" : ("WINDS,WAVES/SEAS"),                 ### hurricane warning, watch
-            "TR" : ("WINDS,WAVES/SEAS"),                 ### tropical storm warning, watch
-            "GL" : ("WINDS,WAVES/SEAS"),                 ### gale warning, watch
-            "HF" : ("WINDS,WAVES/SEAS"),                 ### hurricane force wind warnings, watch
-            "MH" : ("VOLCANIC ASH INFO"),                ### volcanic ashfall warning, advisory
-            "SE" : ("WAVES/SEAS"),                       ### hazardous seas warning, watch
-            "SR" : ("WINDS,WAVES/SEAS"),                 ### storm warning, watch
-            "UP" : ("ICE ACCUMULATIONS"),                ### heavy freezing spray warnings, advisory, watch
-            "BW" : ("WINDS"),                            ### brisk wind advisory
-            "MF" : ("VISIBILITY"),                       ### dense fog advisory
-            "LO" : ("WATER LEVELS"),                     ### low water advisory
-            "RB" : ("WAVES/SEAS,FIRST EBB,SECOND EBB"),  ### small craft advisory for rough bar
-            "SI" : ("WINDS"),                            ### small craft advisory for winds
-            "SC" : ("WINDS,WAVES/SEAS"),                 ### small craft advisory
-            "MS" : ("VISIBILITY"),                       ### dense smoke advisory
-            "SW" : ("WAVES/SEAS"),                       ### small craft advisory hazardous seas
+            "HU" : ("Winds,Waves/seas"),                 ### hurricane warning, watch
+            "TR" : ("Winds,Waves/seas"),                 ### tropical storm warning, watch
+            "GL" : ("Winds,Waves/seas"),                 ### gale warning, watch
+            "HF" : ("Winds,Waves/seas"),                 ### hurricane force wind warnings, watch
+            "MH" : ("Volcanic ash info"),                ### volcanic ashfall warning, advisory
+            "SE" : ("Waves/seas"),                       ### hazardous seas warning, watch
+            "SR" : ("Winds,Waves/seas"),                 ### storm warning, watch
+            "UP" : ("Ice accumulations"),                ### heavy freezing spray warnings, advisory, watch
+            "BW" : ("Winds"),                            ### brisk wind advisory
+            "MF" : ("Visibility"),                       ### dense fog advisory
+            "LO" : ("Water levels"),                     ### low water advisory
+            "RB" : ("Waves/seas,First ebb,Second ebb"),  ### small craft advisory for rough bar
+            "SI" : ("Winds"),                            ### small craft advisory for winds
+            "SC" : ("Winds,Waves/seas"),                 ### small craft advisory
+            "MS" : ("Visibility"),                       ### dense smoke advisory
+            "SW" : ("Waves/seas"),                       ### small craft advisory hazardous seas
             }
 
     def _bulletOrder(self):
         return [
-            "WINDS",
-            "WAVES/SEAS",
-            "VOLCANIC ASH INFO",
-            "ICE ACCUMULATIONS",
-            "FIRST EBB",
-            "SECOND EBB",
-            "WATER LEVELS",
-            "VISIBILITY",
+            "Winds",
+            "Waves/seas",
+            "Volcanic ash info",
+            "Ice accumulations",
+            "First ebb",
+            "Second ebb",
+            "Water levels",
+            "Visibility",
             ]
 
 
@@ -208,19 +208,19 @@ class TextProduct(GenericHazards.TextProduct):
         # If an overview exists for this product, insert it
         #
         overview = self.finalOverviewText()
-        overviewSearch = re.compile(r'DEFAULT OVERVIEW SECTION', re.DOTALL)
+        overviewSearch = re.compile(r'Default overview section', re.DOTALL)
         fcst = overviewSearch.sub(overview, fcst)
         # Added to place line feeds in the CAP tags to keep separate from CTAs
 
         fcst = string.replace(fcst, \
-                              r"PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", \
-                              r"\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n")
+                              r"Precautionary/preparedness actions\.\.\.", \
+                              r"\nPrecautionary/preparedness actions\.\.\.\n")
         fcst = string.replace(fcst, ".:", ".")
         fcst = string.replace(fcst, "\n ","\n")
         fcst = string.replace(fcst, "&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
                       "", fcst)
         ### to remove any empty framing code
         fcst = re.sub("\|\*\s*\*\|", "", fcst)
