@@ -118,9 +118,16 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
     public static final String SAT_ADD_OFFSET = "add_offset";
 
     /**
-     * The attribute name for the data scale factor value..
+     * The attribute name for the data scale factor value.
      */
     public static final String SAT_SCALE_FACTOR = "scale_factor";
+
+    /**
+     * Byte/Short/Int satellite data is assumed to be unsigned. If this
+     * attribute is present on the {@link IDataRecord} and the value is
+     * {@link Boolean#TRUE} then the data is treated as signed data.
+     */
+    public static final String SAT_SIGNED_FLAG = "signed";
 
     /**
      * The source of the data - NESDIS

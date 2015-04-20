@@ -49,6 +49,7 @@ import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
@@ -358,12 +359,28 @@ public class SatResource extends
             IDataRecord dataRecord = DataCubeContainer.getDataRecord(record,
                     Request.buildPointRequest(new java.awt.Point(0, 0)),
                     dataSetName)[0];
-            if (dataRecord instanceof ShortDataRecord) {
-                defaultMax = 0xffff;
-            }
             Number fillObj = dataRecord.getFillValue();
             if (fillObj != null) {
                 fillValue = fillObj.doubleValue();
+            }
+            if (dataRecord instanceof ShortDataRecord) {
+                if (SatDataRetriever.isSigned(dataRecord)) {
+                    defaultMin = Short.MIN_VALUE;
+                    defaultMax = Short.MAX_VALUE;
+                } else {
+                    defaultMin = 0;
+                    defaultMax = 0xFFFF;
+                    fillValue = ((int) fillValue) & 0xFFFF;
+                }
+            } else if (dataRecord instanceof ByteDataRecord) {
+                if (SatDataRetriever.isSigned(dataRecord)) {
+                    defaultMin = Byte.MIN_VALUE;
+                    defaultMax = Byte.MAX_VALUE;
+                } else {
+                    defaultMin = 0;
+                    defaultMax = 0xFF;
+                    fillValue = ((int) fillValue) & 0xFF;
+                }
             }
             Unit<?> dataUnit = SatDataRetriever.getDataUnit(unit, dataRecord);
             if (dataUnit != null && unit != null && dataUnit.isCompatible(unit)) {
