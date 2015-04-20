@@ -38,7 +38,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Jan 3, 2013  15520       lbousaidi   added a dollar-quoted string to getUpdate and
  *                                      getInsert statements to always write literally
  *                                      the string content.
-
+ * April 8, 2015 17338      jingtaoD   "Apostrophes" entered into HB text fields are not written to IHFS database 
  * 
  * </pre>
  * 
@@ -769,7 +769,7 @@ public class RiverStatData extends HydroDBData implements IHydroDBData {
 
         String rval = "INSERT INTO riverstat ( " + columns
                 + " ) VALUES ( %s, %s, %s, %s, %s, %s, %s,"
-                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, $$%s$$,%s,"
+                + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, $$%s$$, %s,"
                 + " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )";
 
         rval = String.format(rval, getDBString(lid), getDBString(primaryPE),
