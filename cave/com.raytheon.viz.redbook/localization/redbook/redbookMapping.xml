@@ -899,5 +899,25 @@
             <key>PEIE41, PEII42, PEIK98</key>
             <value><name>Precip Fcst - 24hr accum</name></value>
         </entry>
+        <entry>
+            <key>PGNW49</key>
+            <value><name>Day 4 Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PGNW50</key>
+            <value><name>Day 5 Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PGNW51</key>
+            <value><name>Day 6 Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PGNW52</key>
+            <value><name>Day 7 Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PGNW53</key>
+            <value><name>Day 8 Severe Outlook</name></value>
+        </entry>
     </mapping>
 </redbookWMOMap>
