@@ -30,6 +30,7 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.procedures.Procedure;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.OpenProcedureListDlg;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
@@ -51,6 +52,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *    Oct 16, 2012 1229        rferrel     Changes for non-blocking ProcedureListDlg.
  *    Jun 07, 2013 2074        mnash       Don't open the dialog if no procedures are deserialized
  *    Aug 11, 2014 3480        bclement    added logging
+ *    Apr 19, 2015             mjames	   Call loadProcedureToScreen instead of ProcedureDlg.displayDialog
+ *    									   when procedure file selected, no longer using procedure element 
+ *    									   loader... too cumbersome for users.
  * </pre>
  * 
  * @author chammack
@@ -86,10 +90,12 @@ public class OpenAWIPSProcedure extends AbstractHandler {
                         if (p != null) {
                             log.info("Loading display file: "
                                     + f.getAbsolutePath());
-                            ProcedureDlg.displayDialog(LocalizationUtil
-                                    .extractName(selectedFile.getName()), p,
-                                    VizWorkbenchManager.getInstance()
-                                            .getCurrentWindow().getShell());
+                            try {
+								LoadSerializedXml.loadProcedureToScreen( p, false);
+							} catch (VizException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
                         }
                     }
                     dialog = null;
