@@ -504,7 +504,7 @@ if [ "${1}" = "-ade" ]; then
 fi
 
 if [ "${1}" = "-cave" ]; then
-   buildCAVEsingle
+   buildCAVE
 fi
 
 if [ "${1}" = "-other" ]; then
