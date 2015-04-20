@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: RadarBrowser Plug-in
+Bundle-SymbolicName: edu.ucar.unidata.uf.viz.radarbrowser;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Activator: edu.ucar.unidata.uf.viz.radarbrowser.Activator
+Bundle-Vendor: Unidata
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: edu.ucar.unidata.uf.viz.radarbrowser
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
+ com.raytheon.viz.ui;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core;bundle-version="1.14.3",
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.viz.productbrowser;bundle-version="1.14.0"
