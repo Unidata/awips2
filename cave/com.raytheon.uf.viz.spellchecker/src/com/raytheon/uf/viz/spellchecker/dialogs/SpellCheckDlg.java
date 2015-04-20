@@ -19,9 +19,12 @@
  **/
 package com.raytheon.uf.viz.spellchecker.dialogs;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.InputStreamReader;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -80,6 +83,7 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 09/24/2014   #16693     lshi        filter out swear words in spelling check
  * 10/23/2014   #3685      randerso    Changes to support mixed case
  * 10/30/2014   #16693     lshi        Add more swear words to the filter
+ * 03/30/2015   #4344      dgilling    Make bad word filter configurable.
  * 
  * </pre>
  * 
@@ -88,14 +92,16 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 
  */
 public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
-	private static java.util.List<String> swearWords = Arrays.asList("ASSHOLE", "ASSHOLE'S", "ASSHOLES",
-			"BITCH", "BITCH'S", "BITCHES", "LEPROSY", "GAYEST",
-			"SHIT", "PISS", "PISSED","PISSER","PISSES","PISSING","TITS");
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SpellCheckDlg.class);
 
     private static final Pattern DIGITS = Pattern.compile("\\d");
+
+    private static final String SUGGESTION_BLACKLIST_PATH = FileUtil.join(
+            "spellchecker", "inappropriateWords.txt");
+
+    private static final Pattern COMMENT = Pattern.compile("^#");
 
     /**
      * The event handler for the check word button. It doubles as the problem
@@ -282,6 +288,8 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
 
     private boolean singleLettersToRestore;
 
+    private Collection<String> suggestionsBlacklist;
+
     /**
      * Constructor.
      * 
@@ -326,6 +334,59 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
         spellCheckJob = new SpellCheckJob("spellCheck");
         spellCheckJob.setText(styledText.getText());
         spellCheckJob.setCollector(this);
+
+        suggestionsBlacklist = getSuggestionsBlacklist();
+    }
+
+    private Collection<String> getSuggestionsBlacklist() {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationFile blacklistFile = pathMgr.getStaticLocalizationFile(
+                LocalizationType.CAVE_STATIC, SUGGESTION_BLACKLIST_PATH);
+
+        try {
+            return readBlacklistFile(blacklistFile);
+        } catch (IOException | LocalizationException e) {
+            if (blacklistFile.getContext().getLocalizationLevel() != LocalizationLevel.BASE) {
+                statusHandler.handle(Priority.WARN,
+                        "Unable to read spell checker blacklist override file: "
+                                + blacklistFile
+                                + ". Falling back to BASE file.", e);
+            } else {
+                statusHandler.error(
+                        "Unable to read spell checker blacklist file: "
+                                + blacklistFile + ".", e);
+                return Collections.emptySet();
+            }
+        }
+
+        blacklistFile = pathMgr.getLocalizationFile(pathMgr.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
+                SUGGESTION_BLACKLIST_PATH);
+        try {
+            return readBlacklistFile(blacklistFile);
+        } catch (IOException | LocalizationException e) {
+            statusHandler.error("Unable to read spell checker blacklist file: "
+                    + blacklistFile + ".", e);
+            return Collections.emptySet();
+        }
+    }
+
+    private Collection<String> readBlacklistFile(
+            final LocalizationFile blacklistFile) throws IOException,
+            LocalizationException {
+        Collection<String> retVal = new HashSet<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                blacklistFile.openInputStream()))) {
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if ((!COMMENT.matcher(line).find()) && (!line.isEmpty())) {
+                    retVal.add(line);
+                }
+            }
+        }
+
+        return retVal;
     }
 
     /*
@@ -356,10 +417,8 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
                 Matcher pdMatch = CHANGE_TO.matcher(pdString);
                 if (pdMatch.matches()) {
                     String replString = pdMatch.group(1);
-                    // proposals may include case changes, which get lost
-                    // if (replString != badWord) {
-                    if (!swearWords.contains(replString)
-                            && !replString.equals(badWord)) {
+                    if (!suggestionsBlacklist
+                            .contains(replString.toUpperCase())) {
                         suggestionList.add(replString);
                     }
                 }

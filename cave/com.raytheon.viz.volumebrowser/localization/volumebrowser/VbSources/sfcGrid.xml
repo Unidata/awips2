@@ -74,6 +74,8 @@
     <vbSource key="NPHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NPHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NPHwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="nwpsTrkngCG0" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="nwpsCG1" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="OPCWave181" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="OPCWave182" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="OPCWave180" category="SfcGrid" views="PLANVIEW TIMESERIES" />
