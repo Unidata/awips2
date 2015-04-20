@@ -50,7 +50,8 @@
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
 #    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1 
 #                                                 for Fcst/Official.
-#
+#    04/15/2015          #17383    yteng          Change localTC to fix error that time constraints
+# 						  being off
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -981,8 +982,8 @@ def localTC(start,repeat,duration,dst):
     timezone = SITES[GFESUITE_SITEID][3]
     import dateutil.tz, datetime
     tz = dateutil.tz.gettz(timezone)
-    dt = datetime.datetime.utcnow()
-    delta = tz.utcoffset(dt) + tz.dst(dt)
+    local = datetime.datetime.now(tz)
+    delta = tz.utcoffset(local) - tz.dst(local)
     offset = delta.days*86400 + delta.seconds
     start = start - offset
     if dst == 1:
