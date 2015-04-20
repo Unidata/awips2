@@ -103,6 +103,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 05/22/2014    3110      randerso    Attach router to edex.alerts.gfe earlier
  * 09/09/2014    3592      randerso    Added call to SampleSetManager.dispose()
  * 10/30/2014    3775      randerso    Added parmCacheInit to initStatus
+ * 04/20/2015    4027      randerso    Let TextProductManager know we are not running in a GUI
  * 
  * </pre>
  * 
@@ -213,6 +214,8 @@ public class DataManager {
      * 
      * @param factory
      * @param discriminator
+     *            used as key for this instance of DataManager in the factory's
+     *            instance map. Normally this is the window GFE is running in.
      * @throws GFEServerException
      */
     DataManager(DataManagerFactory factory, Object discriminator)
@@ -236,7 +239,7 @@ public class DataManager {
         strInitJob.setSystem(true);
         strInitJob.schedule();
 
-        initializeScriptControllers();
+        initializeScriptControllers(discriminator);
         procJobPool = new ProcedureJobPool(4, 4, this);
         toolJobPool = new SmartToolJobPool(3, 3, this);
 
@@ -510,7 +513,7 @@ public class DataManager {
         this.gridManager = gridManager;
     }
 
-    private void initializeScriptControllers() {
+    private void initializeScriptControllers(final Object discriminator) {
         // it would be really nice to be able to spawn the construction of these
         // two heavy objects into another thread. Unfortunately, Jep requires
         // creation and all subsequent access to happen on the same thread. So
@@ -539,7 +542,8 @@ public class DataManager {
                             "Error initializing smart tool interface", e);
                 }
 
-                DataManager.this.textProductMgr = new TextProductManager();
+                DataManager.this.textProductMgr = new TextProductManager(
+                        discriminator != null);
             }
         });
     }

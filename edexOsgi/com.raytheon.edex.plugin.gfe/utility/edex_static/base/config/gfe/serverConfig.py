@@ -996,8 +996,8 @@ def localTC(start,repeat,duration,dst):
     timezone = SITES[GFESUITE_SITEID][3]
     import dateutil.tz, datetime
     tz = dateutil.tz.gettz(timezone)
-    dt = datetime.datetime.utcnow()
-    delta = tz.utcoffset(dt) + tz.dst(dt)
+    local = datetime.datetime.now(tz)
+    delta = tz.utcoffset(local) - tz.dst(local)
     offset = delta.days*86400 + delta.seconds
     start = start - offset
     if dst == 1:

@@ -136,11 +136,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
         return PATH_MANAGER.getLocalizationFile(ctx, HEADLINE);
     }
 
-    public static LocalizationFile getTextProductsTemplatesLF(
-            LocalizationContext ctx) {
-        return PATH_MANAGER.getLocalizationFile(ctx, TEXT_PRODUCTS);
-    }
-
     public static LocalizationFile getCombinationsLF(LocalizationContext ctx) {
         return PATH_MANAGER.getLocalizationFile(ctx, COMBINATIONS);
     }
@@ -322,11 +317,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
     public static String getHeadlineIncludePath() {
         return getPath(PATH_MANAGER.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.BASE), HEADLINE);
-    }
-
-    public static String getTextProductsTemplatesIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.BASE), TEXT_PRODUCTS);
     }
 
     public static String getCombinationsIncludePath() {

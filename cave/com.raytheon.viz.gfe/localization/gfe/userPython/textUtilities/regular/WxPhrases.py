@@ -1045,15 +1045,15 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
         # If the number of sub-phrases is greater than this limit, the weather
         # phrase will use 6-hour instead of the higher resolution to produce:
         #
-        #    OCCASIONAL SNOW POSSIBLY MIXED WITH SLEET AND FREEZING
-        #    DRIZZLE IN THE MORNING...THEN A CHANCE OF RAIN POSSIBLY MIXED WITH SNOW
-        #    AND SLEET AND FREEZING DRIZZLE IN THE AFTERNOON. 
+        #    Occasional snow possibly mixed with sleet and freezing
+        #    drizzle in the morning...then a chance of rain possibly mixed wiht snow
+        #    and sleet and freezing drizzle in the afternoon. 
         #
         # instead of:
-        #    OCCASIONAL SNOW IN THE MORNING. CHANCE OF LIGHT SLEET AND
-        #    SLIGHT CHANCE OF LIGHT FREEZING DRIZZLE IN THE LATE MORNING AND
-        #    EARLY AFTERNOON. CHANCE OF SNOW EARLY IN THE AFTERNOON. CHANCE OF
-        #    RAIN IN THE AFTERNOON.
+        #    Occasional snow in the morning. Chance of light sleet and 
+        #    slight chance of light freezing drizzle in the late morning and 
+        #    early afternoon. Chance of snow early in the afternoon. Chance of 
+        #    rain in the afternoon.
         return 3
     
                  

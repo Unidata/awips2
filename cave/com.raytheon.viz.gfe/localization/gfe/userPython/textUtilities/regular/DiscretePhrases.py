@@ -168,7 +168,6 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
             if headlineWords == "":    #  Don't process the "<None>" key
                 continue
             hookWords = self.hazard_hook(tree, node, key, "", "",tr.startTime(), tr.endTime())
-            headlineWords = self.convertToLower(headlineWords)
             headlinePhrase = "..." + headlineWords + timeDescriptor +hookWords + "...\n"
             words = words + headlinePhrase
 
@@ -682,7 +681,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
             hourStr, hourTZstr, description = etext[0]
             #special cases NOON
             if hourStr == "12 PM":
-               hourStr = "Noon"
+               hourStr = "noon"
             return endPrefix + ' ' + hourStr + ' ' + hourTZstr + ' ' + \
               description
         
@@ -691,13 +690,13 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
             hourStr, hourTZstr, description = etext[0]
             #special cases NOON
             if hourStr == "12 PM":
-               hourStr = "Noon"
+               hourStr = "noon"
             s = endPrefix + ' ' + hourStr + ' ' + hourTZstr + ' '
             for x in xrange(1, len(etext)):
                 hourStr, hourTZstr, othDescription = etext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
-                   hourStr = "Noon"
+                   hourStr = "noon"
                 s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
             s = s + description
             return s
@@ -722,11 +721,11 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         #special cases NOON
         if shourStr == "12 PM":
-           shourStr = "Noon"
+           shourStr = "noon"
 
         #special cases NOON
         if ehourStr == "12 PM":
-           ehourStr = "Noon"
+           ehourStr = "noon"
 
         # special case EARLY THIS MORNING and THIS MORNING, replace with
         # just THIS MORNING
@@ -755,14 +754,14 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
                 hourStr, hourTZstr, description = stext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
-                   hourStr = "Noon"
+                   hourStr = "noon"
                 s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
             s = s + endPrefix + ' ' + ehourStr + ' ' + ehourTZstr + ' '
             for x in xrange(1, len(etext)):
                 hourStr, hourTZstr, description = etext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
-                   hourStr = "Noon"
+                   hourStr = "noon"
                 s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
             s = s + edescription
             return s
@@ -774,7 +773,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
                 hourStr, hourTZstr, description = stext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
-                   hourStr = "Noon"
+                   hourStr = "noon"
                 s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
             s = s + sdescription + ' ' + endPrefix + ' ' + ehourStr + \
               ' ' + ehourTZstr + ' '
@@ -782,7 +781,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
                 hourStr, hourTZstr, description = etext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
-                   hourStr = "Noon"
+                   hourStr = "noon"
                 s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
             s = s + edescription
             return s
@@ -797,13 +796,13 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         hourStr, hourTZstr, description0 = stext[0]
         #special cases NOON
         if hourStr == "12 PM":
-           hourStr = "Noon"
+           hourStr = "noon"
         s = startPrefix + ' ' + hourStr + ' ' + hourTZstr + ' ' 
         for x in xrange(1, len(stext)):
             hourStr, hourTZstr, description = stext[x]
             #special cases NOON
             if hourStr == "12 PM":
-               hourStr = "Noon"
+               hourStr = "noon"
             s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
         s = s + description0 + ' '
 
@@ -849,13 +848,13 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         hourStr, hourTZstr, description0 = stext[0]
         #special cases NOON
         if hourStr == "12 PM":
-           hourStr = "Noon"
+           hourStr = "noon"
         s = startPrefix + ' ' + hourStr + ' ' + hourTZstr + ' ' 
         for x in xrange(1, len(stext)):
             hourStr, hourTZstr, description = stext[x]
             #special cases NOON
             if hourStr == "12 PM":
-               hourStr = "Noon"
+               hourStr = "noon"
             s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
         s = s + description0 + ' '
 
@@ -910,13 +909,13 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         hourStr, hourTZstr, description0 = etext[0]
         #special cases NOON
         if hourStr == "12 PM":
-           hourStr = "Noon"
+           hourStr = "noon"
         s = s + endPrefix + ' ' + hourStr + ' ' + hourTZstr + ' ' 
         for x in xrange(1, len(etext)):
             hourStr, hourTZstr, description = etext[x]
             #special cases NOON
             if hourStr == "12 PM":
-               hourStr = "Noon"
+               hourStr = "noon"
             s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
         s = s + description0 + ' '
 
@@ -1244,7 +1243,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
           (0*HR,      24*HR,     "<dayOfWeek>"),]       #midnght-1159pm
 
         subsequentDay = [
-          (0*HR,       0*HR+1,   "<dayOfWeek-1> Night"),  #midnght
+          (0*HR,       0*HR+1,   "<dayOfWeek-1> night"),  #midnght
           (0*HR,      24*HR,     "<dayOfWeek>"),]         #midnght-1159pm
 
 
@@ -1303,11 +1302,11 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         #special cases NOON
         if hourStr == "12 PM" and description == "today":
-            hourStr = "Noon"
+            hourStr = "noon"
 
         #special cases MIDNIGHT
         if hourStr == "12 AM":
-            hourStr = "Midnight"
+            hourStr = "midnight"
 
         os.environ["TZ"] = myTimeZone  # reset the defined time zone
 
@@ -1602,7 +1601,6 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         #assemble the hazard type
         hazStr = hazard['hdln']
-        hazStr = self.convertToLower(hazStr)
 
         # if the hazard is a convective watch, tack on the etn
         phenSig = hazard['phen'] + "." + hazard['sig']
@@ -2068,9 +2066,9 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         # want A or AN?
         if addA:
             if phrase[0] in ['A','E','I','O','U','a','e','i','o','u']:
-                phrase = "AN " + phrase
+                phrase = "an " + phrase
             else:
-                phrase = "A " + phrase
+                phrase = "a " + phrase
         return phrase
 
                 
