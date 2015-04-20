@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -18,17 +18,17 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<requestPatterns>
-    <!-- Super Set of all possible WMO grib patterns -->
-    <!-- Is specifically not restricting on CCCC since HPE isn't populating it -->
-    <regex>^[EHLMOYZ][A-Z]{3}\d{2}</regex>
-    <!-- Exclude Data Delivery specific patterns -->
-    <regexExclude>^LZ[ABC][ABC]9[123] KWBC</regexExclude>
-
-    <!-- ECMWF decrypted -->
-    <regex>ecmwf_decrypted</regex>
-
-    <!-- NWPS pattern -->
-    <regex>\p{Alpha}{3}_nwps_CG1</regex>
-    <regex>\p{Alpha}{3}_nwps_CG0_Trkng</regex>
-</requestPatterns>
+<?eclipse version="3.8"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.localization.localizationpath">
+      <path
+            application="TextWS"
+            extensionFilter=".txt"
+            localizationType="CAVE_STATIC"
+            name="Spell Checker"
+            recursive="false"
+            value="spellchecker">
+      </path>
+   </extension>
+</plugin>
