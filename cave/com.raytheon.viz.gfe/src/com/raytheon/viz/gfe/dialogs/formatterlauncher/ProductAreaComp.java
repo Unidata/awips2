@@ -38,7 +38,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
-import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.productStateEnum;
+import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
 import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
 import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.gfe.textformatter.FormatterUtil;
@@ -67,6 +67,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 05 FEB 2014  2591       randerso    Added dataManager to ZoneCombinerComp constructor
  *                                     Passed dataMgr instance to FormatterUtil.runFormatterScript
  * 12 FEB 2014  2801       randerso    Added prompting if formatter is run against non-normal database
+ * 20 APR 2015  4027       randerso    Fixes for GFE formatter auto tests to support mixed case WA
  * 
  * </pre>
  * 
@@ -380,6 +381,15 @@ public class ProductAreaComp extends Composite implements
                             if (formattingCbo.isVisible()) {
                                 vtecMode = formattingCbo.getText();
                             } else {
+                                // TODO: part of fix for SS RM DR #14813
+                                // String pil = (String) textProductMgr
+                                // .getDefinitionValue(productName, "pil");
+                                // if (pil != null) {
+                                // pil = pil.substring(0, 3);
+                                // vtecMode = textProductMgr
+                                // .getVtecMessageType(pil);
+                                // }
+
                                 int hazIndex = productName.indexOf("Hazard_");
                                 if (hazIndex > -1) {
                                     String category = productName.substring(
@@ -640,14 +650,13 @@ public class ProductAreaComp extends Composite implements
     }
 
     @Override
-    public void textProductQueued() {
-        productTabCB.setTabState(ConfigData.productStateEnum.Queued,
-                productName);
+    public void textProductQueued(ConfigData.ProductStateEnum state) {
+        productTabCB.setTabState(state, productName);
     }
 
     @Override
     public void textProductFinished(String productText,
-            ConfigData.productStateEnum state) {
+            ConfigData.ProductStateEnum state) {
 
         if (isTabClosed == true) {
             return;
@@ -657,7 +666,7 @@ public class ProductAreaComp extends Composite implements
         runFormatterBtn.setEnabled(true);
         // closeTabBtn.setEnabled(true);
         outputLogBtn.setEnabled(true);
-        if (state == ConfigData.productStateEnum.Finished) {
+        if (state == ConfigData.ProductStateEnum.Finished) {
             if (productText != null) {
                 productEditorComp.retrieveActiveVTEC();
                 productEditorComp.setProductText(productText);
@@ -668,14 +677,14 @@ public class ProductAreaComp extends Composite implements
 
             productEditorBtn.setSelection(true);
             productEditorBtnSelected();
-        } else if (state == ConfigData.productStateEnum.Failed) {
+        } else if (state == ConfigData.ProductStateEnum.Failed) {
             outputLogBtn.setSelection(true);
             outputLogBtnSelected();
         }
     }
 
     @Override
-    public void startProgressBar(ConfigData.productStateEnum state) {
+    public void startProgressBar(ConfigData.ProductStateEnum state) {
         if (isTabClosed == true) {
             return;
         }
@@ -685,7 +694,7 @@ public class ProductAreaComp extends Composite implements
     }
 
     @Override
-    public void stopProgressBar(ConfigData.productStateEnum state) {
+    public void stopProgressBar(ConfigData.ProductStateEnum state) {
         if (isTabClosed == true) {
             return;
         }
@@ -695,7 +704,7 @@ public class ProductAreaComp extends Composite implements
     }
 
     @Override
-    public void setTransmissionState(productStateEnum state) {
+    public void setTransmissionState(ProductStateEnum state) {
         productTabCB.setTabState(state, productName);
     }
 

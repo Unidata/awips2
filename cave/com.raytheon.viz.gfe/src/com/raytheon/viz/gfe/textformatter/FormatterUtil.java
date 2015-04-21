@@ -36,13 +36,14 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Sep 8, 2008				njensen     Initial creation
- * Jan 15, 2010  3395       ryu         Fix &quot;issued by&quot; functionality
- * Sep 05, 2013  2329       randerso    Removed save of combinations file
- * Feb 12, 2014  2591       randerso    Passed dataMgr instance to FormatterUtil.runFormatterScript
- *                                      Removed call to TextProductManager.reloadModule
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 8, 2008             njensen     Initial creation 
+ * Jan 15, 2010  3395      ryu         Fix &quot;issued by&quot; functionality
+ * Sep 05, 2013  2329      randerso    Removed save of combinations file
+ * Feb 12, 2014  2591      randerso    Passed dataMgr instance to FormatterUtil.runFormatterScript
+ *                                     Removed call to TextProductManager.reloadModule
+ * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
  * 
  * </pre>
  * 
@@ -117,7 +118,7 @@ public class FormatterUtil {
                     time, testMode, finish);
         } else {
             finish.textProductFinished("Formatter canceled",
-                    ConfigData.productStateEnum.Finished);
+                    ConfigData.ProductStateEnum.Finished);
         }
     }
 
@@ -128,7 +129,7 @@ public class FormatterUtil {
                 varDict, vtecActiveTable, drtTime, testMode, finish);
         // Thread thread = new Thread(formatter);
         // thread.start();
-        finish.textProductQueued();
+        finish.textProductQueued(ConfigData.ProductStateEnum.Queued);
         TaskManager.getInstance().queueFormatter(formatter);
     }
 
