@@ -105,7 +105,6 @@
 		<property name="maxConnections" value="${PYPIES_MAX_CONN}"/>
 		<!-- value in milliseconds to allow socket to timeout, don't allow this to be zero, bad things could happen -->
 	    <property name="socketTimeout" value="180000"/>
-	    <property name="handlingGzipResponses" value="false"/>
 	</bean>
     
     <bean id="httpClientConfig" factory-bean="httpClientConfigBuilder" factory-method="build"/>
