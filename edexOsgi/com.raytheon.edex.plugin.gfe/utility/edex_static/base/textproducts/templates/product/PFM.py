@@ -419,7 +419,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     zoneTZ = localTZ
                     tzid = localTZid
                     LogStream.logProblem("WARNING: Entry " + area +  
-                      " missing from AreaDictionary. Using default time zone.")
+                      " missing from AreaDictionary. Using default time zone.", LogStream.exc())
 
                 if (zoneTZ, tzid) not in tzs:
                     tzs.append((zoneTZ, tzid))
@@ -674,14 +674,15 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         productName = self.checkTestMode(argDict, 
           productDescription) 
         
-        fcst = fcst + self._pil + "\n\n"
-        fcst = fcst + productName + "\n"
-        fcst = fcst + "National Weather Service "
-        fcst = fcst + self._wfoCityState +"\n"
-        fcst = fcst + issuedByString 
-        fcst = fcst + self._mndTimeLabel + "\n\n"
+        s = self._pil + "\n\n" + \
+            productName + "\n" + \
+            "National Weather Service " + \
+            self._wfoCityState +"\n" + \
+            issuedByString + \
+            self._mndTimeLabel + "\n\n"
+        fcst = fcst + s.upper()
 
-        return fcst
+        return fcst 
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict, timeLabel):
         # extract out the ugc codes and the area descriptors 

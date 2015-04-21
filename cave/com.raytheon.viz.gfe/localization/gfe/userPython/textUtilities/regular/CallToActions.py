@@ -706,15 +706,15 @@ A Winter Weather Advisory for snow means that periods of snow will cause primari
         ]
 
     def ctaPilCFW(self):
-        return [("***RIP CURRENTS CTA", """RIP CURRENTS ARE POWERFUL CHANNELS OF WATER FLOWING QUICKLY AWAY FROM SHORE...WHICH OCCUR MOST OFTEN AT LOW SPOTS OR BREAKS IN THE SANDBAR AND IN THE VICINITY OF STRUCTURES SUCH AS GROINS...JETTIES AND PIERS. HEED THE ADVICE OF LIFEGUARDS...BEACH PATROL FLAGS AND SIGNS.
+        return [("***RIP CURRENTS CTA", """Rip currents are powerful channels of water flowing quickly away from shore...which occur most often at low spots or breaks in the sandbar and in the vicinity of structures such as groins...jetties and piers. Heed the advice of lifeguards...beach patrol flags and signs.
 
-IF YOU BECOME CAUGHT IN A RIP CURRENT...YELL FOR HELP. REMAIN CALM...do not exhaust yourself and stay afloat while waiting for help. If you have to swim out of a rip current...SWIM PARALLEL TO SHORE and back toward the beach when possible. DO NOT ATTEMPT TO SWIM DIRECTLY AGAINST A RIP CURRENT as you will tire quickly."""),
+If you become caught in a rip current...yell for help. Remain calm...do not exhaust yourself and stay afloat while waiting for help. If you have to swim out of a rip current...SWIM PARALLEL TO SHORE and back toward the beach when possible. Do not attempt to swim directly against a rip current as you will tire quickly."""),
  ("***LONGSHORE CURRENTS CTA", """Longshore currents commonly occur when waves approach the shoreline at an angle. They can be particularly dangerous near a jetty or pier."""),
- ("***SNEAKER WAVES CTA", """Add cta here."""),
- ("***RED TIDE CTA", """Add cta here"""),
- ("***SEA NETTLES CTA", """Add cta here"""),
- ("***TSUNAMI DEBRIS CTA", """Add cta here"""), 
- ("***OTHER BEACH HAZARDS CTA", """Add cta here"""),
+ ("***SNEAKER WAVES CTA", """Add CTA here."""),
+ ("***RED TIDE CTA", """Add CTA here"""),
+ ("***SEA NETTLES CTA", """Add CTA here"""),
+ ("***TSUNAMI DEBRIS CTA", """Add CTA here"""), 
+ ("***OTHER BEACH HAZARDS CTA", """Add CTA here"""),
         ]
 
     def ctaPilCWF(self):

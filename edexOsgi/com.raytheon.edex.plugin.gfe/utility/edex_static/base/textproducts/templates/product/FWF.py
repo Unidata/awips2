@@ -851,7 +851,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _preProcessProduct(self, fcst, argDict):
         # Product header
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -859,11 +859,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
         
         # Put in a place holder for the headlines to be substituted in
         # "postProcessProduct"

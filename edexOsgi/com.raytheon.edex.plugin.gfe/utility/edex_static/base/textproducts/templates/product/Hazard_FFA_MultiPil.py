@@ -133,7 +133,7 @@ class TextProduct(GenericHazards.TextProduct):
         #
 
         if self._areaName != "":
-            self._areaName = " FOR " + self._areaName
+            self._areaName = " for " + self._areaName
         if useEAS == 1:
             easPhrase = "URGENT - IMMEDIATE BROADCAST REQUESTED\n"
         else:
@@ -142,12 +142,14 @@ class TextProduct(GenericHazards.TextProduct):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, self._productName)
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" + easPhrase +\
                productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n" + \
                self._easPhrase + "\n\n"
+        fcst =  fcst + s.upper()
+        
         fcst = fcst + "Default overview section\n"
         return fcst
 
@@ -304,7 +306,7 @@ class TextProduct(GenericHazards.TextProduct):
             if areaGroupCount == 1:
                 conn = ""
             elif areaGroupCount == areaGroupLen:
-                conn = " AND "
+                conn = " and "
             else:
                 conn = "..."
 
@@ -350,7 +352,7 @@ class TextProduct(GenericHazards.TextProduct):
             incPhrases.append("Parish")
         elif parishCnt > 1:
             incPhrases.append("Parishes")
-        incPhrase = " AND ".join(incPhrases)
+        incPhrase = " and ".join(incPhrases)
 
         if generalOnly:
             return areaPhrase
@@ -375,7 +377,7 @@ class TextProduct(GenericHazards.TextProduct):
                     phrase = "...".join(snames[0:-1])
                 # complex phrasing (state, partOfState, and names)
                 else:
-                    phrase = "IN "
+                    phrase = "In "
                     if partOfState != '' and partOfState != ' ':
                         phrase = phrase + partOfState + ' '
                     phrase = phrase + state + "..." + "...".join(snames[0:-1])
@@ -383,7 +385,7 @@ class TextProduct(GenericHazards.TextProduct):
                 if len(snames) == 1:
                     phrase = phrase + snames[-1]
                 else:
-                    phrase = phrase + " AND " + snames[-1]
+                    phrase = phrase + " and " + snames[-1]
                 areaPhrase = areaPhrase + phrase
             if i != len(areaGroups) - 1:
                 areaPhrase = areaPhrase + '. '  #another one coming, add period
@@ -413,7 +415,7 @@ class TextProduct(GenericHazards.TextProduct):
         
         if hazard['act'] == 'NEW' and len(hazard['hdln']):
             attribution = nwsPhrase + "issued a"
-            headPhrase =  "* " + hazName + " FOR " + areaPhrase + "."
+            headPhrase =  "* " + hazName + " for " + areaPhrase + "."
 
         elif hazard['act'] == 'CON' and len(hazard['hdln']):
             attribution = "The " + hazName + " continues for"
