@@ -273,7 +273,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
     def _preProcessProduct(self, fcst, argDict):
         # Product header
         if self._areaName != "":
-            self._areaName = " FOR " + self._areaName
+            self._areaName = " for " + self._areaName
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, 
           self._productName + self._areaName) 
@@ -283,11 +283,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         else:
             eas = ''
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                eas + productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
-               "\n" + issuedByString + self._timeLabel + "\n\n" 
+               "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
 
         fcst = fcst + "Default overview section\n"
         return fcst
@@ -505,7 +506,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             hazNameA = self.hazardName(eachHazard['hdln'], argDict, True)
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
 
-#            if hazName == "Winter Weather Advisory" or hazName == "Winter Storm Warning":
             if hazName in ["Winter Weather Advisory", "Winter Storm Warning", "Beach Hazards Statement"]:
                 forPhrase = " for |* Enter hazard type *|"
             else:
@@ -670,6 +670,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                         startPara = 1
                     else: 
                         startPara = 2
+
                 segmentText, foundCTAs = self.cleanCapturedText(prevText,
                   startPara, addFramingCodes = False,
                   skipCTAs = skipCTAs)

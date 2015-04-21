@@ -115,7 +115,7 @@ import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.productStateEnum;
+import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
 import com.raytheon.viz.gfe.product.ProductFileUtil;
 import com.raytheon.viz.gfe.product.TextDBUtil;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
@@ -165,6 +165,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     for the local time zones for each segment.
  * 01/28/2015  #4018       randerso    Code cleanup.
  * 02/04/2014  17039       ryu         Removed menu item related to the HighlighFramingCodes feature.
+ * 04/20/2015   4027       randerso    Renamed ProductStateEnum with an initial capital
  * </pre>
  * 
  * @author lvenable
@@ -1499,7 +1500,7 @@ public class ProductEditorComp extends Composite implements
             // Check start and ending time for end later than start
             if ((vtecStart != null) && (vtecEnd != null)
                     && (vtecStart.getTime() >= vtecEnd.getTime())) {
-                setTabColorFunc(productStateEnum.New);
+                setTabColorFunc(ProductStateEnum.New);
                 String msg = "VTEC ending time is before "
                         + "starting time. Product is invalid and must"
                         + " be regenerated.";
@@ -1516,7 +1517,7 @@ public class ProductEditorComp extends Composite implements
 
             if ((vtecEnd != null)
                     && (vtecEnd.getTime() <= transmissionTime.getTime())) {
-                setTabColorFunc(productStateEnum.New);
+                setTabColorFunc(ProductStateEnum.New);
                 String msg = "VTEC ends before current time."
                         + " Product is invalid and must be regenerated.";
                 throw new VizException(msg);
@@ -2426,7 +2427,7 @@ public class ProductEditorComp extends Composite implements
 
             clearProductText();
             setProductText(draft.getProductText());
-            setTabColorFunc(productStateEnum.Finished);
+            setTabColorFunc(ProductStateEnum.Finished);
             setStatusText('R', productId + " draft loaded.");
 
             if (productDefinition.get("brain") != null) {
@@ -2437,7 +2438,7 @@ public class ProductEditorComp extends Composite implements
                         + "after the draft was originally saved.\nThis causes VTEC to "
                         + "be suspect.  You must re-run the formatter.";
                 setStatusText('U', msg);
-                setTabColorFunc(productStateEnum.New);
+                setTabColorFunc(ProductStateEnum.New);
             } else {
                 revive();
                 retrieveActiveVTEC();
@@ -2827,13 +2828,13 @@ public class ProductEditorComp extends Composite implements
             setStatusText('U', msg1);
 
             // set tab back to gray
-            setTabColorFunc(productStateEnum.New);
+            setTabColorFunc(ProductStateEnum.New);
             // special *ALL* case
         } else if (allFound) {
             brain();
 
             // set tab back to gray
-            setTabColorFunc(productStateEnum.New);
+            setTabColorFunc(ProductStateEnum.New);
         }
     }
 
@@ -2900,7 +2901,7 @@ public class ProductEditorComp extends Composite implements
     /**
      * @param string
      */
-    private void setTabColorFunc(productStateEnum state) {
+    private void setTabColorFunc(ProductStateEnum state) {
         transmissionCB.setTransmissionState(state);
     }
 

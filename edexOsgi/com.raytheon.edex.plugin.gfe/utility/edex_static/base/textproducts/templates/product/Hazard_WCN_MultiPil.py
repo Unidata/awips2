@@ -112,7 +112,7 @@ class TextProduct(GenericHazards.TextProduct):
         #
         
         if self._areaName != "":
-            self._areaName = " FOR " + self._areaName
+            self._areaName = " for " + self._areaName
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, 
           self._productName + watchPhrase) 
@@ -375,16 +375,16 @@ class TextProduct(GenericHazards.TextProduct):
             county2 = "In {area} this allows to expire {number} {placeTypes}"
             indepCity1 = "In {area} this allows to expire {number} " +\
               "independent city"
-            indepCity2 = "IN {area} THIS ALLOWS TO EXPIRE {number} " +\
+            indepCity2 = "In {area} this allows to expire {number} " +\
               "independent cities"
             marine = "This allows to expire the following adjacent coastal waters"
 
         elif phraseType == "REPLACE":
-            county1 = "IN {area} THE NEW WATCH INCLUDES {number} {placeType}"
-            county2 = "IN {area} THE NEW WATCH INCLUDES {number} {placeTypes}"
-            indepCity1 = "IN {area} THE NEW WATCH INCLUDES {number} " + \
+            county1 = "In {area} the new watch includes {number} {placeType}"
+            county2 = "In {area} the new watch includes {number} {placeTypes}"
+            indepCity1 = "In {area} the new watch includes {number} " + \
               "independent city"
-            indepCity2 = "IN {area} THE NEW WATCH INCLUDES {number} " + \
+            indepCity2 = "In {area} the new watch includes {number} " + \
               "independent cities"
             marine = "The new watch includes the following adjacent coastal waters"
 
@@ -559,7 +559,7 @@ class TextProduct(GenericHazards.TextProduct):
     def _makeTextFromCountyTuple(self, countyTuple, lineLength=66, colWidth=22,
       mainFormatSingular="In {area} this watch includes {number} {placeType}",
       mainFormatPlural="In {area} this watch includes {number} {placeTypes}",
-      subFormat="IN {area}", mode="byState"):
+      subFormat="In {area}", mode="byState"):
 
         #countyTuple:  (state, partOfStateAndState, name)
         #The type of text depends upon the mode: "byState" or "byPart"

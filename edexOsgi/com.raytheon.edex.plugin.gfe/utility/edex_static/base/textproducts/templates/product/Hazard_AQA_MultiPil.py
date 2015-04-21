@@ -150,19 +150,19 @@ class TextProduct(GenericHazards.TextProduct):
 
         # Product header
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
 
-        fcst = fcst + self._wmoID + " " + self._fullStationID + " " +\
+        s = self._wmoID + " " + self._fullStationID + " " +\
                self._ddhhmmTime + "\n" + self._pil + "\n\n" + productName + "\n"
 
         # Placeholder for Agency Names to be filled in in _postProcessProduct
-        #fcst = fcst + "@AGENCYNAMES" + "\n"
-        s = "Relayed by National Weather Service " + self._wfoCityState + "\n" +\
+        #s = s + "@AGENCYNAMES" + "\n"
+        s = s + "Relayed by National Weather Service " + self._wfoCityState + "\n" +\
                issuedByString + self._timeLabel + "\n\n"
 
         fcst = fcst + s.upper()

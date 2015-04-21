@@ -702,8 +702,10 @@ class  TextUtils:
         if newTimeZone is None:
             newTimeZone = myTimeZone
         os.environ["TZ"] = newTimeZone  # set the new time zone
+        time.tzset()
         timeZoneStr = time.strftime(format, time.localtime(gmTime))
         os.environ["TZ"] = myTimeZone # set the time zone back
+        time.tzset()
         return timeZoneStr  # return the time as a string
 
     # Adopted from ER  8/04
