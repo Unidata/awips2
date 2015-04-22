@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<forecasters>
+	<forecaster name="BALDWIN"></forecaster>
+	<forecaster name="EVANS"></forecaster>
+</forecasters>

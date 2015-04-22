@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<kStationCoefficients>
+    <kStationCoefficient>
+		<stationCode>BOU</stationCode>
+        <provider>USGS</provider>
+        <k9Limit>500</k9Limit>
+        <longitude>254.76</longitude>
+        <fitTime key="00-03" coeffA="-0.4350" coeffB="1.0318" coeffW="0.854"/>
+        <fitTime key="03-06" coeffA="-0.4828" coeffB="0.9629" coeffW="0.859"/>
+        <fitTime key="06-09" coeffA="-0.6358" coeffB="0.9577" coeffW="0.859"/>
+        <fitTime key="09-12" coeffA="-0.6248" coeffB="0.9521" coeffW="0.830"/>
+        <fitTime key="12-15" coeffA="-1.1480" coeffB="1.1620" coeffW="0.808"/>
+        <fitTime key="15-18" coeffA="-1.7409" coeffB="1.2336" coeffW="0.667"/>
+        <fitTime key="18-21" coeffA="-1.0757" coeffB="1.3105" coeffW="0.766"/>
+        <fitTime key="21-24" coeffA="-0.8234" coeffB="1.1914" coeffW="0.806"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>FRD</stationCode>
+        <provider>USGS</provider>
+        <k9Limit>500</k9Limit>
+        <longitude>282.63</longitude>
+        <fitTime key="00-03" coeffA="-0.5064" coeffB="1.0711" coeffW="0.884"/>
+        <fitTime key="03-06" coeffA="-0.5848" coeffB="1.0784" coeffW="0.872"/>
+        <fitTime key="06-09" coeffA="-0.5927" coeffB="1.0511" coeffW="0.865"/>
+        <fitTime key="09-12" coeffA="-0.7426" coeffB="1.0839" coeffW="0.787"/>
+        <fitTime key="12-15" coeffA="-1.3270" coeffB="1.1962" coeffW="0.717"/>
+        <fitTime key="15-18" coeffA="-1.1162" coeffB="1.2910" coeffW="0.740"/>
+        <fitTime key="18-21" coeffA="-1.0464" coeffB="1.3010" coeffW="0.796"/>
+        <fitTime key="21-24" coeffA="-0.6126" coeffB="1.1261" coeffW="0.857"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>FRN</stationCode>
+        <provider>USGS</provider>
+        <k9Limit>350</k9Limit>
+        <longitude>240.28</longitude>
+        <fitTime key="00-03" coeffA="-0.7720" coeffB="1.0856" coeffW="0.821"/>
+        <fitTime key="03-06" coeffA="-0.7691" coeffB="1.0221" coeffW="0.861"/>
+        <fitTime key="06-09" coeffA="-0.9529" coeffB="0.9958" coeffW="0.856"/>
+        <fitTime key="09-12" coeffA="-0.8758" coeffB="0.9956" coeffW="0.846"/>
+        <fitTime key="12-15" coeffA="-1.2604" coeffB="1.1304" coeffW="0.741"/>
+        <fitTime key="15-18" coeffA="-1.5174" coeffB="1.0401" coeffW="0.520"/>
+        <fitTime key="18-21" coeffA="-1.1544" coeffB="1.1623" coeffW="0.645"/>
+        <fitTime key="21-24" coeffA="-1.2474" coeffB="1.2171" coeffW="0.753"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>NEW</stationCode>
+        <provider>USGS</provider>
+        <k9Limit>700</k9Limit>
+        <longitude>242.88</longitude>
+        <fitTime key="00-03" coeffA="-0.2473" coeffB="1.0080" coeffW="0.797"/>
+        <fitTime key="03-06" coeffA="-0.1851" coeffB="0.9097" coeffW="0.841"/>
+        <fitTime key="06-09" coeffA="-0.3953" coeffB="0.8877" coeffW="0.850"/>
+        <fitTime key="09-12" coeffA="-0.3126" coeffB="0.8779" coeffW="0.845"/>
+        <fitTime key="12-15" coeffA="-0.4022" coeffB="1.0152" coeffW="0.850"/>
+        <fitTime key="15-18" coeffA="-1.1420" coeffB="1.2213" coeffW="0.792"/>
+        <fitTime key="18-21" coeffA="-0.7749" coeffB="1.2725" coeffW="0.805"/>
+        <fitTime key="21-24" coeffA="-0.5845" coeffB="1.1578" coeffW="0.766"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>SIT</stationCode>
+        <provider>USGS</provider>
+        <k9Limit>1000</k9Limit>
+        <longitude>224.67</longitude>
+        <fitTime key="00-03" coeffA="0.0802" coeffB="0.9775" coeffW="0.757"/>
+        <fitTime key="03-06" coeffA="0.1890" coeffB="0.8271" coeffW="0.819"/>
+        <fitTime key="06-09" coeffA="-0.0461" coeffB="0.7220" coeffW="0.839"/>
+        <fitTime key="09-12" coeffA="-0.0127" coeffB="0.6832" coeffW="0.835"/>
+        <fitTime key="12-15" coeffA="0.0472" coeffB="0.7352" coeffW="0.846"/>
+        <fitTime key="15-18" coeffA="-0.1621" coeffB="0.9340" coeffW="0.845"/>
+        <fitTime key="18-21" coeffA="-0.5759" coeffB="1.1846" coeffW="0.830"/>
+        <fitTime key="21-24" coeffA="-0.2427" coeffB="1.1993" coeffW="0.794"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>HAD</stationCode>
+        <provider>BGS</provider>
+        <k9Limit>500</k9Limit>
+        <longitude>355.517</longitude>
+        <fitTime key="00-03" coeffA="-0.7694" coeffB="1.1253" coeffW="0.929"/>
+        <fitTime key="03-06" coeffA="-0.9385" coeffB="1.2398" coeffW="0.845"/>
+        <fitTime key="06-09" coeffA="-1.0634" coeffB="1.3371" coeffW="0.867"/>
+        <fitTime key="09-12" coeffA="-1.7680" coeffB="1.4414" coeffW="0.743"/>
+        <fitTime key="12-15" coeffA="-1.2216" coeffB="1.3346" coeffW="0.885"/>
+        <fitTime key="15-18" coeffA="-0.7824" coeffB="1.1104" coeffW="0.897"/>
+        <fitTime key="18-21" coeffA="-0.8119" coeffB="1.0592" coeffW="0.925"/>
+        <fitTime key="21-24" coeffA="-0.7981" coeffB="1.0661" coeffW="0.925"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>CL2</stationCode>
+        <provider>IPGP</provider>
+        <k9Limit>500</k9Limit>
+        <longitude>2.261</longitude>
+        <fitTime key="00-03" coeffA="-0.7039" coeffB="1.1523" coeffW="0.933"/>
+        <fitTime key="03-06" coeffA="-0.8580" coeffB="1.2434" coeffW="0.792"/>
+        <fitTime key="06-09" coeffA="-1.1077" coeffB="1.3833" coeffW="0.805"/>
+        <fitTime key="09-12" coeffA="-1.6669" coeffB="1.4323" coeffW="0.728"/>
+        <fitTime key="12-15" coeffA="-1.1987" coeffB="1.3626" coeffW="0.865"/>
+        <fitTime key="15-18" coeffA="-0.6282" coeffB="1.1250" coeffW="0.910"/>
+        <fitTime key="18-21" coeffA="-0.6902" coeffB="1.0646" coeffW="0.916"/>
+        <fitTime key="21-24" coeffA="-0.7108" coeffB="1.0851" coeffW="0.929"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>CNB</stationCode>
+        <provider>GA</provider>
+        <k9Limit>450</k9Limit>
+        <longitude>149.36</longitude>
+        <fitTime key="00-03" coeffA="-0.9888" coeffB="1.1377" coeffW="0.491"/>
+        <fitTime key="03-06" coeffA="-1.2849" coeffB="1.3225" coeffW="0.724"/>
+        <fitTime key="06-09" coeffA="-0.8972" coeffB="1.1021" coeffW="0.845"/>
+        <fitTime key="09-12" coeffA="-0.6399" coeffB="0.9671" coeffW="0.846"/>
+        <fitTime key="12-15" coeffA="-0.5462" coeffB="0.9830" coeffW="0.826"/>
+        <fitTime key="15-18" coeffA="-0.5198" coeffB="1.0641" coeffW="0.843"/>
+        <fitTime key="18-21" coeffA="-0.5779" coeffB="1.1057" coeffW="0.697"/>
+        <fitTime key="21-24" coeffA="-1.0592" coeffB="1.2315" coeffW="0.686"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>OTT</stationCode>
+        <provider>NRCAN</provider>
+        <k9Limit>750</k9Limit>
+        <longitude>284.448</longitude>
+        <fitTime key="00-03" coeffA="-0.1448" coeffB="0.9355" coeffW="0.885"/>
+        <fitTime key="03-06" coeffA="-0.2467" coeffB="0.9422" coeffW="0.880"/>
+        <fitTime key="06-09" coeffA="-0.3190" coeffB="0.9345" coeffW="0.880"/>
+        <fitTime key="09-12" coeffA="-0.4701" coeffB="1.0287" coeffW="0.876"/>
+        <fitTime key="12-15" coeffA="-1.1928" coeffB="1.2405" coeffW="0.834"/>
+        <fitTime key="15-18" coeffA="-0.9260" coeffB="1.3185" coeffW="0.824"/>
+        <fitTime key="18-21" coeffA="-0.6134" coeffB="1.1869" coeffW="0.832"/>
+        <fitTime key="21-24" coeffA="-0.3235" coeffB="1.0282" coeffW="0.850"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>MEA</stationCode>
+        <provider>NRCAN</provider>
+        <k9Limit>1500</k9Limit>
+        <longitude>246.653</longitude>
+        <fitTime key="00-03" coeffA="0.2673" coeffB="0.8791" coeffW="0.787"/>
+        <fitTime key="03-06" coeffA="0.3000" coeffB="0.7708" coeffW="0.843"/>
+        <fitTime key="06-09" coeffA="0.0946" coeffB="0.6614" coeffW="0.863"/>
+        <fitTime key="09-12" coeffA="0.1682" coeffB="0.6296" coeffW="0.859"/>
+        <fitTime key="12-15" coeffA="0.2903" coeffB="0.7384" coeffW="0.869"/>
+        <fitTime key="15-18" coeffA="-0.1215" coeffB="1.0450" coeffW="0.856"/>
+        <fitTime key="18-21" coeffA="-0.1651" coeffB="1.2227" coeffW="0.845"/>
+        <fitTime key="21-24" coeffA="-0.0396" coeffB="1.0578" coeffW="0.806"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>NGK</stationCode>
+        <provider>GFZ</provider>
+        <k9Limit>500</k9Limit>
+        <longitude>12.675</longitude>
+        <fitTime key="00-03" coeffA="-0.8138" coeffB="1.0999" coeffW="0.933"/>
+        <fitTime key="03-06" coeffA="-0.9353" coeffB="1.2387" coeffW="0.874"/>
+        <fitTime key="06-09" coeffA="-1.4272" coeffB="1.3511" coeffW="0.792"/>
+        <fitTime key="09-12" coeffA="-1.4203" coeffB="1.3015" coeffW="0.845"/>
+        <fitTime key="12-15" coeffA="-1.0824" coeffB="1.1751" coeffW="0.885"/>
+        <fitTime key="15-18" coeffA="-0.7884" coeffB="0.9992" coeffW="0.916"/>
+        <fitTime key="18-21" coeffA="-0.8284" coeffB="0.9719" coeffW="0.912"/>
+        <fitTime key="21-24" coeffA="-0.8677" coeffB="1.0183" coeffW="0.924"/>
+    </kStationCoefficient>
+    <kStationCoefficient>
+		<stationCode>WNG</stationCode>
+        <provider>GFZ</provider>
+        <k9Limit>500</k9Limit>
+        <longitude>9.073</longitude>
+        <fitTime key="00-03" coeffA="-0.9015" coeffB="1.0652" coeffW="0.939"/>
+        <fitTime key="03-06" coeffA="-0.9964" coeffB="1.1897" coeffW="0.895"/>
+        <fitTime key="06-09" coeffA="-1.4761" coeffB="1.3152" coeffW="0.841"/>
+        <fitTime key="09-12" coeffA="-1.5768" coeffB="1.2814" coeffW="0.846"/>
+        <fitTime key="12-15" coeffA="-1.1573" coeffB="1.1246" coeffW="0.882"/>
+        <fitTime key="15-18" coeffA="-0.8885" coeffB="0.9689" coeffW="0.912"/>
+        <fitTime key="18-21" coeffA="-0.9395" coeffB="0.9550" coeffW="0.920"/>
+        <fitTime key="21-24" coeffA="-0.9650" coeffB="0.9912" coeffW="0.924"/>
+    </kStationCoefficient>
+</kStationCoefficients>        

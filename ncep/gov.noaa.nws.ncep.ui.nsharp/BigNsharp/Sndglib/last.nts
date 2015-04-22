@@ -1,0 +1,9 @@
+SNFILE  data.gem                                                                                                                        
+AREA    @oun                                                                                                                            
+DATTIM  08/00                                                                                                                           
+SNPARM  OMEG;PRES;HGHT;TEMP;DWPT;DRCT;SPED                                                                                              
+STNDEX                                                                                                                                  
+LEVELS  all                                                                                                                             
+VCOORD  PRES                                                                                                                            
+OUTPUT  t                                                                                                                               
+MRGDAT  YES                                                                                                                             

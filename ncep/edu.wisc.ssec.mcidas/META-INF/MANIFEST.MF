@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mcidas Plug-in
+Bundle-SymbolicName: edu.wisc.ssec.mcidas
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: edu.wisc.ssec.mcidas

@@ -112,6 +112,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/17/2013   #863        G. Hull     Initialize Predefined Areas
  * 11/14/2013   #2361       N. Jensen   Initialize SerializationUtil when activated
  * 11/13/2013   #1051       G. Hull     override getTitle() to include the desk.
+ * 01/13/2014				M. James	Mute NcGridInventory alert
  * </pre>
  * 
  * @author
@@ -215,7 +216,7 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
                         "Error initializing NcGridInventory\n"
                                 + "Please click OK and wait while a new inventory is created",
                         MessageDialog.ERROR, new String[] { "OK" }, 0);
-                errDlg.open();
+                //errDlg.open();
 
                 try {
                     NcGridInventory.getInstance().createInventory();
@@ -357,6 +358,7 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
                     }
                 }
 
+                /*
                 VizApp.runAsync(new Runnable() {
                     @Override
                     public void run() {
@@ -367,6 +369,7 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
                         warnDlg.open();
                     }
                 });
+                */
             }
 
             // ResourceDefnsMngr.getInstance().createInventory();

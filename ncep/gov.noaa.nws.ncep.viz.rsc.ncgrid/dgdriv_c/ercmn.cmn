@@ -1,0 +1,26 @@
+C************************************************************************
+C* ERCMN								*
+C*									*
+C* This common block contains variables for the ER-library subroutines.	*
+C*									*
+C**									*
+C* Log:									*
+C* K. Tyle/GSC		12/96						*
+C* S. Maxwell/GSC	 6/97		Documentation changes		*
+C************************************************************************
+	LOGICAL etmflg
+C*
+	COMMON	/ ERCMN /
+     +		ielevl,
+C!					Error level
+C!						0 = always logged
+C!						2 = detailed information
+C!						4 = debug information
+     +		iebuff,
+C!					Output destination 
+C!						-1 = No output
+C!						 0 = Standard output
+C!						 1 = Output to buffer
+     +		etmflg			
+C!					Time flag
+C------------------------------------------------------------------------
