@@ -57,10 +57,6 @@
     <contribute xsi:type="bundleItem" file="bundles/tools/Home.xml"
 		menuText="Home" id="homeTool" timeQuery="false" />
     
-    <contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.lapstools"
-		menuText="LAPS tools..." id="lapsTools" />
-    
     <contribute xsi:type="bundleItem" file="bundles/tools/Points.xml"
 		menuText="Points" id="pointsTool" timeQuery="false" />
     

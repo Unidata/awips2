@@ -19,6 +19,7 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
+Requires: netcdf
 provides: awips2-postgresql
 provides: awips2-base-component
 
@@ -69,7 +70,7 @@ tar -xvf ${POSTGRESQL_TAR_FILE}
 cd %{_postgres_build_loc}/postgresql-%{_postgresql_version}
 
 ./configure --prefix=%{_postgres_build_loc}/awips2/postgresql \
-   --with-libxml
+   --with-libxml --with-openssl
 if [ $? -ne 0 ]; then
    exit 1
 fi
