@@ -1,0 +1,66 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="solarimageDecoder" class="gov.noaa.nws.ncep.edex.plugin.solarimage.SolarImageDecoder" depends-on="solarimagePluginName" >
+		<constructor-arg ref="solarimagePluginName" />
+		<!--  property name="dao" ref="SolarImageDao" /-->
+	</bean>
+	
+	<!--bean id="solarimageDao" class="gov.noaa.nws.ncep.edex.plugin.solarimage.dao.SolarImageDao">
+		<constructor-arg ref="solarimagePluginName" />
+	</bean-->
+	
+	<bean id="solarimageDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="solarimagePluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.SolarImage"/>
+	</bean>
+
+  	<!-- bean id="solarimageNotifyTransform"
+		class="com.raytheon.edex.plugin.satellite.notify.SatelliteNotifyTransform" /-->
+
+	<camelContext id="solarimage-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		
+		<endpoint id="solarimageFileEndpoint" uri="file:${edex.home}/data/sbn/solarimage?noop=true&amp;idempotent=false" />
+
+		<route id="solarimageFileConsumerRoute">
+			<from ref="solarimageFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>solarimage</constant>
+			</setHeader>
+			<to uri="jms-durable:queue:Ingest.SolarImage" />
+		</route>
+		
+
+		<!-- Begin SolarImage routes -->
+		<route id="solarimageIngestRoute">
+			<from uri="jms-durable:queue:Ingest.SolarImage"/>
+			<setHeader headerName="pluginName">
+				<constant>solarimage</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="solarimageDecoder" method="decode" />
+					<to uri="direct-vm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:solarimage?level=ERROR"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+		<!--route id="satNotification">
+			<from uri="vm:satNotify" />
+			<bean ref="satNotifyTransform" method="transformToMessages" />
+			<bean ref="serializationUtil" method="transformToThrift" />
+			<to uri="jms-durable:queue:satNotification" />
+		</route-->
+	</camelContext>
+</beans>

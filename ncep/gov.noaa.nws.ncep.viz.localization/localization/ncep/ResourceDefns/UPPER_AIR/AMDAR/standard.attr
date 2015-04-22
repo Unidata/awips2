@@ -1,0 +1,4 @@
+! Parameters and Attributes for the default AMDAR Resource
+plotModel=@PlotModels/amdar/standard.xml
+plotDensity=10
+conditionalFilter=
