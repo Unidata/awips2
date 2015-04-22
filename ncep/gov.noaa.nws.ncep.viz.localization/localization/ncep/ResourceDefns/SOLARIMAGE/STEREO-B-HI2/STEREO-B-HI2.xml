@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <resourceDefnName>STEREO-B-HI2</resourceDefnName>
+    <resourceCategory>SOLARIMAGE</resourceCategory>
+    <resourceParameters>
+pluginName=solarimage
+satellite=STEREO-B
+instrument=SECCHI-HI2
+reportType=SOLARIMAGE
+    </resourceParameters>
+    <rscImplementation>SolarImage</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>180</frameSpan>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>10</dfltFrameCount>
+    <dfltTimeRange>48</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

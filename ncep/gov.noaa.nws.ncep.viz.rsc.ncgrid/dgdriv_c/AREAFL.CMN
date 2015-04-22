@@ -1,0 +1,24 @@
+C************************************************************************
+C AREAFL								*
+C*									*
+C* Common area for MCIDAS AREA file information				*
+C**									*
+C* Log:									*
+C* J. Cowie/COMET	 2/95						*
+C* D.W.Plummer/NCEP	 2/03	Add parameters IAxxx_LEN		*
+C************************************************************************
+C
+        PARAMETER       ( IADIR_LEN = 64 )
+        PARAMETER       ( IANAV_LEN = 640 )
+        PARAMETER       ( IACAL_LEN = 128 )
+C
+        INTEGER         iadir (IADIR_LEN)
+        INTEGER         ianav (IANAV_LEN)
+        INTEGER         iacal (IACAL_LEN)
+C
+	COMMON /AREAFL/
+C
+     +                  iadir, ianav, iacal
+C!                                              AREA file directory,
+C!                                              navigation blocks,
+C!                                              calibration blocks

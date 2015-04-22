@@ -1,0 +1,6 @@
+! Alternative standard with PTSY and P03C together METAR Resource
+!
+plotModel=@PlotModels/obs/standard2.xml
+plotDensity=10
+conditionalFilter=
+legendString=METAR Standard2

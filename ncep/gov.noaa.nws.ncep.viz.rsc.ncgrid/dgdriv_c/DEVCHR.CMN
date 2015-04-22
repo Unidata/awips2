@@ -1,0 +1,126 @@
+C************************************************************************
+C* DEVCHR								*
+C*									*
+C* This common area is used to store the characteristics for each	*
+C* device. It is included in each device driver.			*
+C*									*
+C* Log:									*
+C* M. desJardins/GSFC    4/85   GEMPLT Version 3.1			*
+C* M. desJardins/GSFC    5/88   Make ddev character*12			*
+C* M. desJardins/GSFC    9/88   Added niunit for unit number		*
+C* S. Schotz/GSC	 2/90   Increased size of dash pattern array    *
+C* S. Schotz/GSC	 3/90   Added base weather symbol and dot scale *
+C* S. Schotz/GSC	 8/90   Added base arrow head size		*
+C* J. Whistler/SSAI     10/90	Added polygon fill hardware		*
+C* M. desJardins/NMC	 1/92	Added filflg				*
+C* E. Wehner/EAi	10/96	Added pipsiz and pipstroke		*
+C* S. Jacobs/NCEP	10/96	Added curdev				*
+C* C. Lin/EAI		 6/97	Added isxoff, isyoff, iswdth, ishght 	*
+C* M. Linda/GSC		 7/97	Added bscall				*
+C* M. Linda/GSC		 8/97	Removed the savres variable		*
+C* I. Durham/GSC	12/97	Bscalw, bscald, bscalh to other bscal's *
+C* I. Durham/GSC	 4/98	Added bscals and bscali			*
+C* S. Jacobs/NCEP	 6/98	Added special line pattern info		*
+C* T. Lee/GSC		 7/98	Moved curve scaling factor, CRVSCL	*
+C* T. Lee/GSC		 7/98	Documentation				*
+C* S. Jacobs/NCEP	 7/98	Added txsize to driver only section	*
+C* A. Hardy/GSC		10/98   Added combination symbols information   *
+C* A. Hardy/GSC		10/98   Added ncirhw                            *
+C* S. Jacobs/NCEP	 5/99	Added bscalf				*
+C************************************************************************
+	PARAMETER	( LLNPAT = 50 )
+	PARAMETER	( LLNSEG = 20 )
+	PARAMETER	( NSYNUM = 50 )
+C*
+	CHARACTER	ddev*12, curdev*12, ccsym*4
+	LOGICAL		colcmp, filflg, evtflg
+C------------------------------------------------------------------------
+	COMMON  / DEVCHR /
+     +			nncolr, nnfrm, ndtyp,
+C!					number of colors
+C!					number of frames
+C!					access type
+C!
+     +			nlthw, ntxhw, nwdhw, nmkhw,
+C!
+C!					linetype hw
+C!					text hw
+C!					line width hw
+C!					marker hw
+C!					polygon fill hw
+C!
+     +			ileft, ibot, iright, itop,
+C!
+C!					left x coordinate
+C!					bottom y coordinate
+C!					right x coordinate
+C!					top y coordinate
+C!
+     +                  isxoff, isyoff, iswdth, ishght,
+C!
+C!                                      x offset in 'S' coordinate
+C!                                      y offset in 'S' coordinate
+C!                                      width of 'S' coordinate system
+C!                                      height of 'S' coordinate system
+C!
+     +			aspect,
+C!
+C!					aspect ratio
+C!
+     +			bscalc, bscala, bscalb, bscalm, bscalw, bscald, bscalh,
+C!
+C!					character base scale
+C!					arrow base scale
+C!					barb base scale
+C!					marker base scale
+C!					weather symbol scale
+C!					dot scale
+C!					arrow head base scale
+C!
+     +			crvscl,
+C!					curve scaling factor
+     +			colcmp,
+C!					color device flag
+C!
+     +			filflg, evtflg,
+C!					polygon fill capability flag
+C!					flag to handle events
+C!
+C===============================================================================
+C!	All of the above device variables will be passed from each individual 
+C!	device driver to GPLT.  The number of words MUST match with NDVCHR.  
+C!	The following device variables will not be passed.
+C===============================================================================
+C!
+     +			ddev,
+C!					requested device name
+     +			lpat ( 8, 10 ), 
+C!					line patterns
+     +			lpscal,
+C!					line pattern base scale
+     +			niunit,
+C!					device unit number
+     +			bscalp, bscalt,
+C!					Pip size and stroke scale factor
+     +			curdev,
+C!					current device name
+     +			bscall,
+C!					logo base scale
+     +			bscals, bscali,
+C!					hash mark size and spacing scales
+     +			isptyp ( LLNPAT ),
+     +			isppat ( LLNSEG, LLNPAT ),
+     +			ispatt ( LLNSEG, LLNPAT ),
+     +			ispclr ( LLNSEG, LLNPAT ),
+C!					special line pattern info
+     +			txsize,
+C!					Actual text text size set for the
+C!					hardware fonts
+     +                  isycod ( NSYNUM ),
+     +                  rcmbsy ( 2,NSYNUM ),
+     +                  ccsym  ( 2,NSYNUM ),
+C!                                      Combination symbol arrays
+     +			ncirhw,
+C!                                      Circle hw
+     +			bscalf
+C!					Point reduction filter scale

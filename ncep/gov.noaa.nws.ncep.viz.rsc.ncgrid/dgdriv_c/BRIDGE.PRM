@@ -1,0 +1,46 @@
+C************************************************************************
+C* BRIDGE.PRM								*
+C*									*
+C* This file contains parameters defined for use in the decoder bridge	*
+C* routines.								*
+C*									*
+C**									*
+C* Log:									*
+C* S. Jacobs/NMC	 7/95						*
+C* S. Jacobs/NCEP	12/02	Increased DCMXBF from 16kb to 100kb	*
+C************************************************************************
+	INTEGER		DCDFTM, DCMXLN, DCMXBF, EOD,
+     +			EBNMEM, EBREAD, EBTMOUT, EBFULL, EBEMPT
+C!
+	PARAMETER	( DCDFTM  =   600 )
+C!						Default timeout
+C!
+	PARAMETER	( DCMXLN  =   132 )
+C!						Max char length
+C!
+	PARAMETER	( DCMXBF  = 102400 )
+C!						Max bulletin length
+C!
+	PARAMETER	( EOD     =    -2 )
+C!						End of data marker
+C!
+C!	Error list
+C!
+	PARAMETER	( EBNMEM  =    -4 )
+C!						No memory for malloc
+C!
+	PARAMETER	( EBREAD  =    -5 )
+C!						Error reading into buffer
+C!
+	PARAMETER	( EBTMOUT =    -6 )
+C!						Time out has occurred
+C!
+	PARAMETER	( EBFULL  =    -7 )
+C!						The buffer is full
+C!
+	PARAMETER	( EBEMPT  =    -8 )
+C!						The buffer is empty
+C!
+	PARAMETER	( EBEND   =    -9 )
+C!						End of data input
+C!

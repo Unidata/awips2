@@ -1,0 +1,180 @@
+C************************************************************************
+C* PCCMN.CMN								*
+C*									*
+C* These common areas are used in the parameter conversion package.	*
+C*									*
+C* Log:									*
+C* M. desJardins/GSFC 	 9/84						*
+C* M. desJardins/GSFC	 8/88	Increased size of MAXFNC		*
+C* G. Huffman/USRA	 8/89	Increased MAXVRT			*
+C* M. desJardins/GSFC	11/89	Added conditions			*
+C* M. desJardins/GSFC	 7/90	Changes for layers, cleanup,...		*
+C* M. desJardins/GSFC	 8/90	Increased size of tables		*
+C* M. desJardins/GSFC	 3/91	Added jhght2,jhght6 to int. wrt hght	*
+C* K. Brill/NMC		 8/93	tstid*4 -> tstid*8			*
+C* S. Jacobs/NMC	 4/94	Increased size of MAXFNC, MAXTMP, MAXPM	*
+C* T. Lee/GSC		 8/97	Increased size of MSTNPM from 6 to 7	*
+C* A. Hardy/GSC	 	 3/99   Added jspri                             *
+C* S. Jacobs/NCEP	 2/01	Increased size of MAXFNC, MAXTMP, MAXPM	*
+C* D. Kidwell/NCEP	 4/04	Added msgcnd                            *
+C************************************************************************
+C*
+C************************************************************************
+C* PC PARAMETERS							*
+C*									*
+C************************************************************************
+	PARAMETER	( MAXPRM = MMPARM )
+	PARAMETER	( MAXPPF = 4 )
+	PARAMETER	( MAXFNC = 400 )
+	PARAMETER	( MAXTBL = 7 )
+	PARAMETER	( MAXTMP = 400 )
+	PARAMETER	( MAXPM  = 400 )
+	PARAMETER	( MAXLEV = LLMXLV )
+	PARAMETER	( MAXVRT = 12 )
+	PARAMETER	( MAXDUM = MAXPPF*MAXFNC )
+	PARAMETER	( MAX6   = MAXPRM-6 )
+	PARAMETER	( MAXCND = 5 )
+	PARAMETER	( MSTNPM = 7 )
+C************************************************************************
+C* PCFILE								*
+C*									*
+C* This common area stores the dataset values.				*
+C************************************************************************
+	LOGICAL		jntflg
+	CHARACTER*20	dstim
+	CHARACTER*4	dsparm 
+C*
+	COMMON  / PCFILE /  jcord, jdsprm, jsfflg, jntflg, jhght,
+     +			    dsparm (MAXPRM), dstim
+C------------------------------------------------------------------------
+C************************************************************************
+C* PCSSTN								*
+C*									*
+C* This common area stores the station specific values.			*
+C************************************************************************
+	LOGICAL		tstnfl
+	CHARACTER	tstid*8, tstntm*20
+C*
+	COMMON  / PCSSTN /  tstnfl, jsnum, tlat, tlon, telv, jspri, 
+     +			    jnumlv, tstntm, tstid, ithhmm
+C------------------------------------------------------------------------
+C************************************************************************
+C* PCFUNC								*
+C*									*
+C* This common area stores the parameter function table.		*
+C************************************************************************
+	CHARACTER*8	tfuncs
+	CHARACTER*4	tparms, tplist
+C*
+	COMMON  / PCFUNC /  jtfunc, tparms ( MAXFNC ), 
+     +			    tfuncs ( MAXFNC ), tplist ( MAXPPF, MAXFNC )
+C------------------------------------------------------------------------
+C************************************************************************
+C* PCPARM								*
+C*									*
+C* This common area stores the parameter definition table.		*
+C************************************************************************
+	LOGICAL		pchr, pint, pext, pang
+	CHARACTER*4	pparm
+C*
+	COMMON  / PCPARM /  jptabl, pparm ( MAXPM ), pint ( MAXPM ), 
+     +			    pext ( MAXPM ), pchr ( MAXPM ), 
+     +			    pang ( MAXPM )
+C------------------------------------------------------------------------
+C************************************************************************
+C* PCTABL								*
+C*									*
+C* This common area stores the tables which define conversion from	*
+C* one parameter set to another.					*
+C************************************************************************
+	LOGICAL		tabflg, qint, qext, qchr, qang, qcmp
+	CHARACTER*8	kfuncn, chrfnc
+C*
+	COMMON  / PCTABL /  tabflg ( MAXTBL ), kinpm ( MAXTBL ), 
+     +			    koutpm ( MAXTBL ), kfunc ( MAXTBL ), 
+     +			    kfuncn ( MAXFNC, MAXTBL ), 
+     +			    kposno ( MAXPPF, MAXFNC, MAXTBL ),
+     +			    koutfn ( MAXFNC, MAXTBL ),
+     +			    kans   ( MAXPRM, MAXTBL ), qchr ( MAXPRM ), 
+     +			    qint   ( MAXPRM, MAXTBL ), 
+     +			    qext   ( MAXPRM, MAXTBL ),
+     +			    qang   ( MAXPRM, MAXTBL ),
+     +			    chrfnc ( MAXPRM ), qcmp ( MAXPRM ),
+     +			    kfound ( MAXTBL )
+C------------------------------------------------------------------------
+C************************************************************************
+C* PCINTX								*
+C*									*
+C* This common area stores the information necessary for interpolation	*
+C* and extrapolation of data.						*
+C************************************************************************
+	CHARACTER*4	basics ( MAXPRM )
+	CHARACTER*4	prmint
+	LOGICAL		bsonly, inton, doint, exton, doext
+C*
+	COMMON  /PCINTX/  bsonly, basics, prmint, inttyp, inton, doint,
+     +			  range, exton, doext, rmxlps, rmnlps, extrng,
+     +			  jhght2, jhght6
+C------------------------------------------------------------------------
+C************************************************************************
+C* PCVERT								*
+C*									*
+C* This common area is used to store the vertical coordinate data	*
+C* which is used to transform from one coordinate system to another.	*
+C************************************************************************
+	CHARACTER*4	vparms 
+	LOGICAL		vtbflg, vcomp
+C*
+	COMMON  / PCVERT /  vtbflg, vparms ( MAXVRT ), 
+     +			    vcomp ( MAXVRT ), vdata ( MAXVRT, MAXLEV )
+C------------------------------------------------------------------------
+C************************************************************************
+C* PCING								*
+C*									*
+C* This common area is used to compute integrated data and layer	*
+C* quantities.								*
+C************************************************************************
+	LOGICAL		qlayr, qing
+	CHARACTER	prmlyr*4
+C*
+	COMMON  / PCING /  qing ( MAXVRT ), king, kinpos ( MAXVRT ),
+     +			   kpnt,
+     +			   klayr, qlayr ( MAXPRM ), prmlyr ( MAXPRM )
+C------------------------------------------------------------------------
+C************************************************************************
+C* PCCSTN								*
+C*									*
+C* This common area saves the information needed to compute station	*
+C* parameters.								*
+C************************************************************************
+	CHARACTER*4	splist, stnprm
+	LOGICAL		scmflg, sindxf, scomp 
+C*
+	COMMON   / PCCSTN /  ksprm, stnprm (MAXPRM), scmflg (MAXPRM),
+     +			     sindxf, scomp (MSTNPM), splist (MSTNPM)
+C------------------------------------------------------------------------
+C************************************************************************
+C* PCCOND								*
+C*									*
+C* This common area saves the conditions to be applied to level and	*
+C* station parameters.							*
+C************************************************************************
+	CHARACTER	symlev*1, clvcnd*4, symstn*1, cclcnd*8, ccscnd*8
+	LOGICAL		levcnd, stncnd, msgcnd
+C*
+	COMMON	/ PCCOND /  levcnd,
+     +			    symlev (MAXCND, MAXPRM), 
+     +			    rlvcnd (MAXCND, MAXPRM),
+     +			    clvcnd (MAXCND, MAXCND, MAXPRM),
+     +			    cclcnd (MAXCND, MAXPRM ),
+     +			    ilncnd (MAXCND, MAXCND, MAXPRM),
+     +			    nclvcc (MAXCND, MAXPRM),
+     +			    nlvcnd (MAXPRM),
+     +			    stncnd,
+     +			    symstn (MAXCND, MAXPRM), 
+     +			    rstcnd (MAXCND, MAXPRM),
+     +			    ccscnd (MAXCND, MAXPRM),
+     +			    nstcnd (MAXPRM),
+     +			    ilvprm, istprm, icndtp,
+     +			    msgcnd (MAXCND, MAXPRM)
+C------------------------------------------------------------------------
