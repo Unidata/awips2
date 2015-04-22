@@ -72,13 +72,6 @@ source ${dir}/setup.env
 
 #source /awips2/edex/bin/yajsw/bin/setenv.sh
 
-### AWIPS 1 support ###
-if [ -f /etc/rc.config.d/AWIPS ]; then
-   . /etc/rc.config.d/AWIPS
-fi
-export SHLIB_PATH=$PROJECT/sharedlib
-### End AWIPS 1 support ###
-
 export HOSTNAME=`hostname`
 export SHORT_HOSTNAME=`hostname -s`
 
