@@ -72,6 +72,8 @@ public class RadarsInUseUtil {
 
     public static final String MOSAIC_CONSTANT = "MOSAIC_RADARS";
 
+    public static final String TDWR_CONSTANT = "TDWR_RADARS";
+
     private static final IUFStatusHandler handler = UFStatus
             .getHandler(RadarsInUseUtil.class);
 
