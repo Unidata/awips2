@@ -90,22 +90,24 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
         // retrieve the local radars from
         // radarsInUse.txt
         RadarsInUseUtil.setParsed(false);
-        List<String> radars = RadarsInUseUtil.getSite(getSite(),
-                RadarsInUseUtil.LOCAL_CONSTANT);
-
+        VariableSubstitution[] vars = null;
+        // loop through all the radars
+        Map<String, List<Double>> map = TerminalRadarUtils
+                .parseTerminalRadarFile();
         String path = "menus" + File.separator + "radar" + File.separator;
         CommonMenuContributionFile menuContributionFile = new CommonMenuContributionFile();
         CommonIncludeMenuItem includeMenuItem = null;
-        VariableSubstitution[] vars = null;
+        /* Unidata comment out localized radars from menus
+        List<String> radars = RadarsInUseUtil.getSite(getSite(),
+                RadarsInUseUtil.LOCAL_CONSTANT);
+
         if (radars.size() == 0) {
             menuContributionFile.contribution = new CommonIncludeMenuItem[1];
         } else {
             menuContributionFile.contribution = new CommonIncludeMenuItem[radars
                     .size()];
         }
-        // loop through all the radars
-        Map<String, List<Double>> map = TerminalRadarUtils
-                .parseTerminalRadarFile();
+        
         if (radars.size() > 0) {
             for (int i = radars.size() - 1; i >= 0; i--) {
                 includeMenuItem = new CommonIncludeMenuItem();
@@ -166,9 +168,9 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
 
         toXml(menuContributionFile, "menus" + File.separator + "radar"
                 + File.separator + "index.xml");
-
+        */
         // now on to dial radars
-        radars = RadarsInUseUtil.getSite(getSite(),
+        List<String> radars = RadarsInUseUtil.getSite(getSite(),
                 RadarsInUseUtil.DIAL_CONSTANT);
 
         // create MenuTemplateFile for the dialRadars.xml
