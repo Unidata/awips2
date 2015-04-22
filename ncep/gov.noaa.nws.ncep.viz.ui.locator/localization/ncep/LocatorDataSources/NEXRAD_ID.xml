@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LocatorDataSource>
+    <sourceName>NEXRAD_ID</sourceName>
+    <sourceType>POINT</sourceType>
+    <dbName>ncep</dbName>
+    <dbTableName>stns.nexrad</dbTableName>
+	<dbFieldName>station_id</dbFieldName> 	
+</LocatorDataSource>

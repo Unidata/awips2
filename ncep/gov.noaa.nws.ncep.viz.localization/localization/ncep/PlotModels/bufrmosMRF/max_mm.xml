@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosMRF" name="max_mm">
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="STID">
+        <Position>BC</Position>
+        <Color red="255" green="215" blue="0"/> 
+    </PlotModelElement>
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TDYF">
+        <Position>UL</Position>
+        <Color red="255" green="0" blue="0"/>
+    </PlotModelElement>
+    
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TDAF">
+        <Position>UR</Position>
+        <Color red="238" green="44" blue="44"/>
+    </PlotModelElement>    
+
+   
+</plotModel>

@@ -1,0 +1,303 @@
+C************************************************************************
+C* GEMPRM.PRM
+C*
+C* This include file contains parameter definitions for the GEMPAK
+C* software.
+C*
+C**
+C* Log:	See gemprm.log
+C************************************************************************
+C!
+	PARAMETER	( MTVAX  =     2   )
+	PARAMETER	( MTSUN  =     3   )
+	PARAMETER	( MTIRIS =     4   )
+	PARAMETER	( MTAPOL =     5   )
+	PARAMETER	( MTIBM  =     6   )
+	PARAMETER	( MTIGPH =     7   )
+	PARAMETER	( MTULTX =     8   )
+	PARAMETER	( MTHP   =     9   )
+	PARAMETER	( MTALPH =    10   )
+	PARAMETER	( MTLNUX =    11   )
+	INCLUDE 'MCHPRM.PRM'
+C!
+C!	Missing data definitions
+C!
+	PARAMETER	( RMISSD = -9999.0 )
+C!						Missing data value
+	PARAMETER	( RDIFFD =  0.1    )
+C!						Missing value fuzziness
+	PARAMETER	( IMISSD = -9999   )
+C!						Missing integer value
+C!
+C!	Physical and mathematical constants
+C!
+	PARAMETER	( PI = 3.14159265  )
+	PARAMETER	( HALFPI = PI / 2. )
+	PARAMETER	( TWOPI  = 2. * PI )
+	PARAMETER	( PI4TH  = PI / 4. )
+C!						PI,...
+	PARAMETER	( DTR = PI / 180.  )
+	PARAMETER	( RTD = 180. / PI  )
+C!						Degrees <--> Radians
+	PARAMETER	( SM2M = 1609.34 )
+	REAL		M2SM
+	PARAMETER	( M2SM = 6.21E-4 )
+C!						Statute miles <--> Meters
+	REAL		NM2M, M2NM
+	PARAMETER	( NM2M = 1852.0 )
+	PARAMETER	( M2NM = 5.4E-4 )
+C!						Nautical miles <--> Meters
+	PARAMETER	( RADIUS = 6371200. )
+C!						Earth radius
+	PARAMETER	( OMEGA  = 7.2921E-5 )
+C!						Earth angular veclocity
+	PARAMETER	( GRAVTY = 9.80616  )
+C!						Acceleration of gravity
+	PARAMETER	( RDGAS  = 287.04   )
+	PARAMETER	( RKAP   = RDGAS / GRAVTY )
+C!						Gas constant of dry air
+	PARAMETER	( RKAPPA = 2. / 7. )
+	PARAMETER	( AKAPPA = 7. / 2. )
+C!						Poisson constant;inverse
+	PARAMETER	( GAMUSD = 6.5 )
+C!						US std atmos lapse rate
+	PARAMETER	( TMCK   = 273.15 )
+C!						Centigrade -> Kelvin
+C!
+C!	File information parameters
+C!
+	PARAMETER	( MMKEY  =    12   )
+C!						Maximum # of keys
+	PARAMETER	( MMPRT  =    20   )
+C!						Maximum # of parts
+	PARAMETER	( MMLIST =    20   )
+C!						Maximum search list
+	PARAMETER	( MMFREE =    62   )
+C!						Number of free pairs
+	PARAMETER	( MMFILE =     3   )
+C!						Maximum # of open files
+	PARAMETER	( MBLKSZ =   128   )
+C!						Block size
+	PARAMETER	( MCACHE =     8   )
+C!						# of cached records
+	PARAMETER	( MMPARM =    44   )
+C!						Maximum # of parameters
+	PARAMETER	( MMFHDR =    10   )
+C!						Maximum # of file hdrs
+	PARAMETER	( MMSRCH =    30   )
+C!						Max # of cond searches
+	PARAMETER	( MXFLSZ =   100   )
+C!						Maximum file name size
+C!						(not including path)
+	PARAMETER	( MXNMFL =  1000   )
+C!						Max # of files per dir.
+	PARAMETER	( MXTMPL =  48   )
+C!						Max template size.
+C!
+	PARAMETER	( MMFLDP = MMFILE * MMPRT )
+C!
+	PARAMETER	( MDREAL =     1   )
+	PARAMETER	( MDINTG =     2   )
+	PARAMETER	( MDCHAR =     3   )
+	PARAMETER	( MDRPCK =     4   )
+	PARAMETER	( MDGRID =     5   )
+C!						Data types in DM lib
+	PARAMETER	( MDGNON =     0   )
+	PARAMETER	( MDGGRB =     1   )
+	PARAMETER	( MDGNMC =     2   )
+	PARAMETER	( MDGDIF =     3   )
+	PARAMETER	( MDGDEC =     4   )
+C!						Grid packing types
+	PARAMETER	( MFSF =       1   )
+	PARAMETER	( MFSN =       2   )
+	PARAMETER	( MFGD =       3   )
+C!						Data file types
+	PARAMETER	( MFUNKN =    99   )
+	PARAMETER	( MFAIRW  =    1   )
+	PARAMETER	( MFMETR =     2   )
+	PARAMETER	( MFSHIP =     3   )
+C!						Unknown, airways, metar,
+C!						ship data source
+	PARAMETER	( MFBUOY =     4   )
+	PARAMETER	( MFSYNP =     5   )
+	PARAMETER	( MFRAOB =     4   )
+	PARAMETER	( MFVAS  =     5   )
+	PARAMETER	( MFCOUN =     7   )
+C!						Buoy, synoptic, rawinsonde,
+C!						VAS, watch-by-county data
+C!						source
+	PARAMETER	( MFGRID =     6   )
+C!						Grid source
+	PARAMETER	( MFTEXT =   100   )
+C!						Text
+C!
+C!	Declarations for array sizes in programs
+C!
+	PARAMETER	( LLAXIS =   64    )
+C!						Max # of axis labels
+	PARAMETER	( LLCLEV =   50    )
+C!						Max # of contour lvls
+	PARAMETER	( LLGDHD =   128   )
+C!						Max grid hdr length
+	PARAMETER	( LLMAXD =   128   )
+C!						Max # of background grid
+	PARAMETER	( LLMDGG = 4000000 )
+C!						Max mem for intern grids
+	PARAMETER	( LLMXGT =  1000   )
+C!						Max # grid times
+	PARAMETER	( LLMXLN =   128   )
+C!						Max length of input
+	PARAMETER	( LLMXLV =   500   )
+C!						Max # levels/station
+	PARAMETER	( LLMXDT = MMPARM * LLMXLV )
+C!						Max # data points
+	PARAMETER	( LLMXST =    20   )
+C!						Max # stations in list
+	PARAMETER	( LLMXTM =   200   )
+C!						Max # times/dataset
+	PARAMETER	( LLNANL =   128   )
+C!						Grid anl block length
+	PARAMETER	( LLNNAV =   256   )
+C!						Grid nav block length
+	PARAMETER	( LLOAGD =   400   )
+C!						Max # grids from 1 OA
+	PARAMETER	( LLSTFL =  30000   )
+C!						Max # stations in file
+	PARAMETER	( LLSTHL =    20   )
+C!						Max header size
+	PARAMETER	( LLTMCX =  100    )
+C!						Max # of time xsect pts
+	PARAMETER	( MAX_CNTY =  400  )
+C!						Max # of counties in watch
+	PARAMETER	( MAXWFO   =  150  )
+C!						Max # of WFOs;
+	PARAMETER	( MMHDRS = LLSTFL + LLMXTM )
+C!						Maximum # of headers
+	PARAMETER	( MXLOOP =    30   )
+C!						Maximum frames in loop
+	PARAMETER	( MXXPTS   =  1000 )
+C!						Max # of cross section points;
+C!
+C!	Image file types (defined here and in gemprm.h)
+C!
+	PARAMETER	( IFINVD = -1	   )
+	PARAMETER	( IFAREA =  1	   )
+	PARAMETER	( IFGINI =  2	   )
+	PARAMETER	( IFNIDS =  3	   )
+	PARAMETER	( IFNOWR =  4	   )
+	PARAMETER	( IFNCDF =  5      )
+	PARAMETER	( IFNEXZ =  6      )
+	PARAMETER	( IFNFAX =  7      )
+	PARAMETER	( IA2DBGINI =   8  )
+	PARAMETER	( IA2DBNIDS =   9  )
+	PARAMETER	( IA2DBMOSA =  10  )
+	PARAMETER	( IA2DBMCID =  11  )
+C!
+C!						File type NONE,
+C!						AREA (MCIDAS),
+C!						GINI (AWIPS), NIDS
+C!						radar, NOWRad (WSI),
+C!						NetCDF (NCDF), NEXRAD compressed
+C!						6-bit FAX,
+C!
+C!	Data category and subcategory types
+C!		(defined here and in gemprm.h)
+C!
+	INTEGER		CAT_NIL, CAT_IMG, CAT_SFC, CAT_SFF, CAT_SND
+	INTEGER		CAT_SNF, CAT_GRD, CAT_VGF, CAT_MSC
+C!
+	PARAMETER	( CAT_NIL  = 0 )
+C!						None or not useful
+	PARAMETER	( CAT_IMG  = 1 )
+C!						Images
+	PARAMETER	( CAT_SFC  = 2 )
+C!						Surface observations
+	PARAMETER	( CAT_SFF  = 3 )
+C!						Surface forcast (MOS)
+	PARAMETER	( CAT_SND  = 4 )
+C!						Upper air observations
+	PARAMETER	( CAT_SNF  = 5 )
+C!						Upper air forecast
+	PARAMETER	( CAT_GRD  = 6 )
+C!						Grid
+	PARAMETER	( CAT_VGF  = 7 )
+C!						Vector graphics file
+	PARAMETER	( CAT_MSC = 8 )
+C!						Misc (watches, warnings)
+C!
+	INTEGER		SCAT_NIL, SCAT_SFC, SCAT_SHP, SCAT_SFF
+	INTEGER		SCAT_FFG, SCAT_SND, SCAT_SNF
+	INTEGER		SCAT_FCT, SCAT_ANL
+C!
+	PARAMETER	( SCAT_NIL = 0 )
+C!						None or not useful
+	PARAMETER	( SCAT_SFC = 1 )
+C!						Surface data in
+C!						daily files
+	PARAMETER	( SCAT_SHP = 2 )
+C!						Ship format data in
+C!						hourly files
+	PARAMETER	( SCAT_SFF = 3 )
+C!						Surface forecast
+	PARAMETER	( SCAT_FFG = 4 )
+C!						Flash flood guidance
+	PARAMETER	( SCAT_SND = 5 )
+C!						Upper air
+	PARAMETER	( SCAT_SNF = 6 )
+C!						Upper air forecast
+	PARAMETER	( SCAT_FCT = 7 )
+C!						Grid - forecast
+	PARAMETER	( SCAT_ANL = 8 )
+C!						Grid - analysis
+C!
+C!
+C!	FORTRAN specific PARAMETERS
+C!
+C!----------------------- COORDINATE SYSTEMS -----------------------------
+	CHARACTER	sysup*12, syslo*12
+	PARAMETER	( sysup = 'SDNVPLUWMQIG', syslo = 'sdnvpluwmqig' )
+C!
+C!-----------------------GPLT SYMBOL SIZE--------------------------------
+	PARAMETER	( RADCLM = .13 )
+C!					Calm wind circle radius
+	PARAMETER	( RADSKY = 3.5 )
+C!					Sky cover symbol radius
+	PARAMETER	( RSZPTN = 9.0 )
+C!						Pressure tendency symbol size
+C!
+C!-----------------------GPLT BUFFER SIZE--------------------------------
+C!
+	PARAMETER	( IGTBSZ  = 1100   )
+C!
+C!-----------------------CYLINDRICAL MAP TRANSFORMATIONS-----------------
+	PARAMETER 	( MCCYL = 1 )
+	PARAMETER 	( MPCEQU = 1, MPCMER = 2, MPCMCD = 3 )
+	PARAMETER	( MSCEQU = 1 )
+C!
+C!-----------------------AZIMUTHAL MAP TRANSFORMATIONS-------------------
+	PARAMETER 	( MCAZM = 2 )
+	PARAMETER 	( MPAEQU = 1, MPASTR = 2, MPAORT = 3,
+     +                    MPALAM = 4 )
+	PARAMETER 	( MPAGNO = 5 )
+	PARAMETER	( MSANOR = 1, MSASOU = 2 )
+C!
+C!-----------------------CONICAL MAP TRANSFORMATIONS---------------------
+	PARAMETER 	( MCCON = 3 )
+	PARAMETER	( MPCNOR = 1, MPCSOU = 2 )
+C!
+C!-----------------------OBLIQUE MERCATOR--------------------------------
+	PARAMETER	( MCMER = 4 )
+	PARAMETER	( MPTMER = 1, MPUTM = 2, MPOBLQ = 3 )
+C!
+C!-----------------------SATELLITE TRANSFORMATIONS-----------------------
+	PARAMETER 	( MCGOES = 6 )
+	PARAMETER 	( MPMCI = 1 )
+C!
+C!-----------------------COLOR TABLE INFORMATION-------------------------
+	PARAMETER	( MXCLNM = 50 )
+C!				Maximum number of color names saved
+C!
+C!-----------------------DEVICE CHARACTERISTICS--------------------------
+	PARAMETER	( NDVCHR = 27 )
+C!				Size of /DEVCHR/ to be passed
+

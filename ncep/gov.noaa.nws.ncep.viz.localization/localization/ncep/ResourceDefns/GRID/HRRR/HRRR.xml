@@ -8,12 +8,12 @@
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>60</frameSpan>
     <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
-    <dfltFrameCount>999</dfltFrameCount>
+    <dfltFrameCount>16</dfltFrameCount>
     <dfltTimeRange>48</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
     <resourceParameters>
 pluginName=grid
-GDFILE=hrrr
+GDFILE=HRRR
 
 </resourceParameters>
     <inventoryEnabled>true</inventoryEnabled>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:import href="rmLeadingSpace.xlt"/>
+<xsl:output method = "text"/>
+
+<!--
+        fmtAnchor.xlt
+                - format the anchor point text(distance direction name).
+		  for instance, "25 NW DCA"
+
+        Change Log:
+
+        B. Yin/Chugach  03/10   Initial Coding
+-->
+
+ <xsl:template name="fmtAnchor">
+        <xsl:param name="anchor"/>
+		<!-- get the distance string-->
+                <xsl:variable name="acr1">
+                        <xsl:call-template name="rmLeadingSpace">
+                                <xsl:with-param name="str" select="$anchor"/>
+                        </xsl:call-template>
+                </xsl:variable>
+
+                <xsl:value-of select="substring-before($acr1,' ')"/>
+
+		<!-- get the direction string-->
+                <xsl:variable name="acr1a">
+                        <xsl:call-template name="rmLeadingSpace">
+                                <xsl:with-param name="str" select="substring-after($acr1,' ')"/>
+                        </xsl:call-template>
+                </xsl:variable>
+
+                <xsl:value-of select="substring-before($acr1a,' ')"/>
+                <xsl:text> </xsl:text>
+
+		<!-- get the name string-->
+                <xsl:call-template name="rmLeadingSpace">
+                        <xsl:with-param name="str" select="substring-after($acr1a,' ')"/>
+                </xsl:call-template>
+  </xsl:template>
+
+</xsl:stylesheet>
+  

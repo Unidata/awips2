@@ -1,0 +1,306 @@
+C************************************************************************
+C* SXYDEF								*
+C* 									*
+C* This common block holds values that define the screen coordinate	*
+C* system for the current plot device. Only used in XW driver		*
+C** 									*
+C* C. Lin/EAI	 6/97							*
+C************************************************************************
+	INTEGER 	ibndls, ibndbs, ibndrs, ibndts
+	REAL    	xbndls, ybndbs, xbndrs, ybndts
+C*
+	COMMON  /SXYDEF / 
+     +		ibndls, ibndbs, ibndrs, ibndts,	
+C!						screen boundaries
+     +		xbndls, ybndbs, xbndrs, ybndts	
+C!						real screen boundaries
+C
+C************************************************************************
+C* DXYDEF								*
+C* 									*
+C* This common block holds values that define the device coordinate	*
+C* system for the current plot device.					*
+C** 									*
+C* G. Chatters/RDS	 7/84						*
+C* M. desJardins/GSFC	 5/85	Reformatted for GEMPLT 3.1		*
+C* K. Brill/NMC		11/90    Cleanup; reduce continuations		*
+C* C. Lin/EAI		 6/97   Add D->S conversion 			*
+C************************************************************************
+	INTEGER 	ixbndl, iybndb, ixbndr, iybndt
+	REAL    	xbndld, ybndbd, xbndrd, ybndtd
+	INTEGER 	ixwld,  iywbd,  ixwrd,  iywtd
+C*
+	COMMON  /DXYDEF / 
+     +		ixbndl, iybndb, ixbndr, iybndt,	
+C!						plotter boundaries
+     +		xbndld, ybndbd, xbndrd, ybndtd,	
+C!						real plotter boundaries
+     +		ixwld, iywbd, ixwrd, iywtd,	
+C!						clipping boundaries
+     +		ixos, iyos		
+C!						D to S conversions
+C
+C************************************************************************
+C* NXYDEF								*
+C* 									*
+C* This common block contains values that describe the normalized	*
+C* device coordinate system.  It also contains values used for		*
+C* transforming normalized device ( N ) coordinates to actual device	*
+C* ( D ) coordinates.							*
+C**									*
+C* G. Chatters/RDS	7/84						*
+C* M. desJardins/GSFC	5/85		Reformatted for GEMPLT 3.1	*
+C************************************************************************
+	REAL    xbndln, ybndbn, xbndrn, ybndtn
+	REAL    andx1,  andx0,  andy1,  andy0
+	INTEGER ixwln,  iywbn,  ixwrn,  iywtn
+C*
+	COMMON /NXYDEF/
+     +		xbndln, ybndbn, xbndrn, ybndtn,		
+C!						N boundaries
+     +		andx1, andx0, andy1, andy0,		
+C!						N to D conversions
+     +		ixwln, iywbn, ixwrn, iywtn		
+C!						N window coordinates
+C************************************************************************
+C* VXYDEF								*
+C* 									*
+C* This common block contains values that describe the view region	*
+C* coordinate system.							*
+C*									*
+C* Log:									*
+C* G. Chatters/RDS	7/84						*
+C* M. desJardins/GSFC	5/85	Reformatted for GEMPAK 3.1		*
+C************************************************************************
+	REAL    xbndlf, ybndbf, xbndrf, ybndtf
+	REAL    xbndlv, ybndbv, xbndrv, ybndtv
+	INTEGER ixwlv,  iywbv,  ixwrv,  iywtv
+C*
+	COMMON / VXYDEF / 
+     +		xbndlf, ybndbf, xbndrf, ybndtf,		
+C!						Fractional view bounds
+     +		xbndlv, ybndbv, xbndrv, ybndtv,		
+C!						V coordinate bounds
+     +		ixwlv,  iywbv,  ixwrv,  iywtv		
+C!						V window bounds
+C************************************************************************
+C* PXYDEF								*
+C* 									*
+C* This common block contains values that describe the plot projection	*
+C* coordinate systems.  This includes both the P and the L coordinates.	*
+C**									*
+C* Log:									*
+C* G. Chatters/RDS	7/84						*
+C* M. Vilardo/RDS	3/85	Addition of separate display boundaries	*
+C*				for each mode				*
+C* M. desJardins/GSFC	5/85	Reformatted for GEMPLT 3.1		*
+C************************************************************************
+	INTEGER		igmode
+	REAL		xlgmgn, ybgmgn, xrgmgn, ytgmgn, cszg
+	REAL		xlmmgn, ybmmgn, xrmmgn, ytmmgn, cszm
+	REAL		xbndlp, ybndbp, xbndrp, ybndtp
+	INTEGER		ixwlp,  iywbp,  ixwrp,  iywtp
+C*
+	COMMON / PXYDEF / 
+     +		igmode,					
+C!						Mode ( map or graph )
+     +		xlgmgn, ybgmgn, xrgmgn, ytgmgn, 	
+C!						Graph margins
+     +		cszg,					
+C!						Label size multiplier
+     +		xlmmgn, ybmmgn, xrmmgn, ytmmgn, 	
+C!						Map margins
+     +		cszm,					
+C!						Label size multiplier
+     +		xbndlp, ybndbp, xbndrp, ybndtp,		
+C!						P coordinates
+     +		ixwlp,  iywbp,  ixwrp,  iywtp		
+C!						P window coordinates
+C************************************************************************
+C* LXYDEF								*
+C* 									*
+C* This common block contains values that describe the linear 		*
+C* intermediate coordinate system.  					*
+C**									*
+C* Log:									*
+C* G. Chatters/RDS	7/84						*
+C* M. Vilardo/RDS	3/85	Addition of separate display boundaries	*
+C*				for each mode				*
+C* M. Goodman/RDS	5/85	Reformatted for GEMPLT 3.1		*
+C************************************************************************
+	REAL    xmbndl, ymbndb, xmbndr, ymbndt
+	REAL    xgbndl, ygbndb, xgbndr, ygbndt
+	REAL    xbndll, ybndbl, xbndrl, ybndtl
+	REAL    alpx1,  alpx0,  alpy1,  alpy0
+C
+	COMMON / LXYDEF / 
+     +		xmbndl, ymbndb, xmbndr, ymbndt,		
+C!						L map boundaries
+     +		xgbndl, ygbndb, xgbndr, ygbndt,		
+C!						L graph boundaries
+     +		xbndll, ybndbl, xbndrl, ybndtl,		
+C!						L computed boundaries
+     +		alpx1,  alpx0,  alpy1,  alpy0,		
+C!						L to P scaling terms
+     +		ueps,   veps
+C!						linear coord plot size
+C************************************************************************
+C* MXYDEF								*
+C* 									*
+C* This common block contains the values that describe the map		*
+C* projection or the graph type and scaling.				*
+C**									*
+C* Log:									*
+C* G. Chatters/RDS	7/84						*
+C* M. Vilardo/RDS	3/85	Addition of mpfil			*
+C* M. desJardins/GSFC	5/85	Reformatted for GEMPLT 3.1		*
+C* M. Goodman/RDS	7/75    Added cmpfil				*
+C* K. Brill/EMC		3/96	Added mrvrxy, mtmtyp			*
+C************************************************************************
+	CHARACTER	mpfil*80, cmpfil*80, prjnam*4
+	LOGICAL		  gset, mset, mrvrxy
+C*
+	COMMON / MXYDEF / 
+C
+C*		Map projection values
+C
+     +		mset, mtype, prjnam,				
+C!						map defined flag
+C!						proj type 
+C!						  0=none, 1=gsmmap, 
+C!						  2=gsmprj
+C!						  3=satellite
+C!						proj name for simple map
+     +		mclass, mproj, msppj,		
+C!						proj class, projection,
+C!						special type
+     +		angle1, angle2, angle3,		
+C!						parameter angles in degrees
+     +		anglr1, anglr2, anglr3,	
+C!						parameter angles in radians
+     +		clats, clonw, clatn, clone,	
+C!						lat/lon boundaries
+     +		blats, blonw, blatn, blone,	
+C!						full lat/lon boundaries
+     +		concon, sclmcd, azmsav,
+C!						cone constant for conics
+C!						scaling term for MCD proj
+C!						constant for azimuthal projs
+     +		mpfil, cmpfil,
+C!						requested map file name
+C!						current map file name
+C
+C*		Graph projection values
+C
+     +		gset,				
+C!						graph mode set flag
+     +		jxtyp, jytyp, yxgraf,
+C!						abscissa type
+C!						ordinate type
+C!						hght/wdth ratio for graphs
+     +		xlmg,  ybmg,   xrmg,  ytmg,	
+C!						boundaries of graph
+     +		amlx1, amlx0,  amly1, amly0,	
+C!						graph scale, offset terms
+     +          mrvrxy,
+C!						flag to rotate x,y
+     +		mtmtyp
+C!						Type of rotation
+C!						   0 = identity
+C!						   1 = simple
+C!						   2 = general
+C!						   3 = CED, angle2 reset
+C************************************************************************
+C* GXYDEF								*
+C* 									*
+C* This common block contains values which describe the grid coordinate	*
+C* system.								*
+C**									*
+C* Log:									*
+C* M. Vilardo/RDS	11/84	GEMPLT Version 3.0			*
+C* M. Goodman/RDS	 7/85	GEMPLT Version 3.1			*
+C* K. Brill/EMC		 3/96	Added grvrxy, jtmtyp			*
+C************************************************************************
+	CHARACTER	gpjnam*4
+	LOGICAL		mgset, ggset, grvrxy
+C*
+	COMMON / GXYDEF / 
+C
+C*		Grid map projection values
+C
+     +		mgset, mgtype, gpjnam,
+C!						map defined flag
+C!						proj type 
+C!						  0=none, 1=gsmmap, 
+C!						  2=gsmprj
+C!						proj name for simple map
+     +		mgclas, mgproj, mgsppj,		
+C!						proj class, projection,
+C!						special type
+     +		gangl1, gangl2, gangl3,		
+C!						parameter angles
+     +		gangr1, gangr2, gangr3,		
+C!						parameter angles in radians
+     +		gclats, gclonw, gclatn, gclone,	
+C!						lat/lon boundaries
+     +		gconcn,	gscmcd, gazsav,	
+C!						cone constant for conics
+C!						scaling term for MCD proj
+C!						constant for azimuthal projs
+     +		gpxlm, gpybm, gpxrm, gpytm,	
+C!						grid coordinate boundaries
+     +		aglx1, aglx0, agly1, agly0,	
+C!						map grid-->lin. int. scaling 
+C
+C*****		Graph projection values
+C
+     +		ggset, jgxtyp, jgytyp,
+C!						graph mode set flag
+C!						abscissa type
+C!						ordinate type
+     +		gxlmg,  gybmg,  gxrmg,  gytmg,	
+C!						boundaries of graph
+     +		gxx1, gxx0, gyy1, gyy0,		
+C!						grid (graph)-->lin. int.
+     +		gglx1, gglx0, ggly1, ggly0,	
+C!						graph grid lin. int.-->graph
+     +		gpxl, gpyb, gpxr, gpyt,		
+C!						grid coordinate boundaries
+     +		gxbndl, gybndb, gxbndr, gybndt,
+C!						grid lin coord bounds
+     +		grvrxy,
+C!						flag to rotate x,y
+     +		jtmtyp
+C!						Type of rotation
+C!						   0 = identity
+C!						   1 = simple
+C!						   2 = general
+C!						   3 = CED, gangl2 reset
+C************************************************************************
+C* MTXDEF                                                               *
+C*                                                                      *
+C* This common block contains the matrices required to rotate the	*
+C* coordinate system for generalized projections.			*
+C**                                                                     *
+C* Log:                                                                 *
+C* K. Brill/EMC		 3/96  						*
+C* K. Brill/EMC		 6/98	Add ROTMGL for WAFS grids		*
+C************************************************************************
+	REAL	am2w (3,3), gm2q (3,3)
+	LOGICAL	rotagl, rotaml
+C*
+	COMMON / MTXDEF / 
+     +		am2w,
+C!						M -> W matrix for maps
+     +		gm2q
+C!						M -> Q matrix for grids
+C*
+	COMMON / ROTMGL /
+     +		rotaml,
+C!						Rotate flg for map L crd
+     +		rotagl,
+C!						Rotate flg for grd L crd
+     +		rcosml, rsinml,
+C!						COS & SIN of map rot ang
+     +		rcosgl, rsingl
+C!						COS & SIN of grd rot ang

@@ -1,0 +1,12 @@
+#!/bin/csh 
+#
+set indate=20070905/0000
+#set nsharp=/users/hart/nsharp/gg/new_sharpgif/nsharp_gif.exe
+set nsharp=/users/thompson/nsharp/sharpgif/nsharp_gif.exe
+set stn=CRP
+set sndfile=$OBS/uair/070905.snd
+set gif=RLT.gif
+
+$nsharp -hour:$indate -stn:$stn -file:$sndfile -type:O -gif:$gif -auto
+
+xv $gif
