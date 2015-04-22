@@ -67,7 +67,7 @@
     <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:volume?after=top">
+            locationURI="menu:models?after=top">
              <command
                    commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
                    label="Volume Browser">

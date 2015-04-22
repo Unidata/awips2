@@ -18,7 +18,7 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-	<include installTo="menu:volume?after=afterVB" 
+	<include installTo="menu:models?after=afterVB" 
 	         fileName="menus/popupSkewT/popupSkewT.xml">
 	</include>
 </menuContributionFile>
