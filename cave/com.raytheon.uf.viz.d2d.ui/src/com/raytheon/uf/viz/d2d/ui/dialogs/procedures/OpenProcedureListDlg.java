@@ -63,7 +63,7 @@ public class OpenProcedureListDlg extends ProcedureListDlg {
      *            Parent shell.
      */
     public OpenProcedureListDlg(Shell parent) {
-        super("Open Procedure", parent, Mode.OPEN);
+        super("Open Bundle", parent, Mode.OPEN);
     }
 
     @Override
