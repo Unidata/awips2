@@ -314,7 +314,6 @@
           </menu>
           <separator name="d2d.obsMenu" visible="false"/>
           <separator name="d2d.ncepHydroMenu" visible="false"/>
-          <separator name="d2d.localMenu" visible="false"/>
           <separator name="d2d.upperAirMenu" visible="false"/>
           <menu
                id="satellite"
@@ -346,14 +345,10 @@
              </visibleWhen>
             <separator name="RADAR_MENU_START" visible="false"/>
          </menu>
-         <menu id="scan" mnemonic="C" label="SCAN">
-            <visibleWhen>
-                <reference definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet"></reference></visibleWhen>
-            <separator name="SCAN_MENU_START" visible="false"></separator></menu>
 
          <menu
                id="D2Dmaps"
-               label="Maps"
+               label="Overlays"
                mnemonic="M">
              <visibleWhen>
                 <reference
