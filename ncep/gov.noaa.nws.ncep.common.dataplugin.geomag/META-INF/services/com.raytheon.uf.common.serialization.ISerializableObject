@@ -1,0 +1,15 @@
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagRecord
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagAvg
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagK1min
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagK3hr
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagState
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagK3hrState
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagStationStateChange
+gov.noaa.nws.ncep.common.dataplugin.geomag.table.GeoMagStationList
+gov.noaa.nws.ncep.common.dataplugin.geomag.table.GeoMagStation
+gov.noaa.nws.ncep.common.dataplugin.geomag.table.GeoMagSource
+gov.noaa.nws.ncep.common.dataplugin.geomag.table.Location
+gov.noaa.nws.ncep.common.dataplugin.geomag.table.DataFormat
+gov.noaa.nws.ncep.common.dataplugin.geomag.table.RawDataFormat
+gov.noaa.nws.ncep.common.dataplugin.geomag.table.HeaderFormat
+gov.noaa.nws.ncep.common.dataplugin.geomag.table.Group

@@ -1,0 +1,128 @@
+C************************************************************************
+C* /DEVSET/								*
+C*									*
+C* This common area holds the current device characteristics which will *
+C* be used in the DEVICE task. The common area is included in the GPLT	*
+C* and device tasks.							*
+C*									*
+C* Log:									*
+C* M. desJardins/GSFC	 5/85	GEMPLT 3.1				*
+C* S. Schotz/GSC	 1/90	Added barb/arrow width and type, and	*
+C*				text/marker width			*
+C* S. Schotz/GSC	 3/90	Added cloud/weather symbol parameters	*
+C* S. Schotz/GSC	 8/90	Added arrow head size			*
+C* M. Linda/GSC		 8/96	Added icng, spcl, and turb parameters	*
+C* E. Wehner/EAi	10/96	Added pip size, stroke and direction 	*
+C* D. Keiser/GSC	 3/97	Added spcl ln type, stroke, size, width	*
+C* E. Safford/GSC        6/97   Added mstlc, mstfc, mstxc for spcl text *
+C* S. Maxwell/GSC        6/97   Added sfilsz and lfltyp for filling	*
+C* S. Jacobs/NCEP	 9/97	Removed lstlc, lstfc, lstxc		*
+C* S. Jacobs/NCEP	 9/97	Added lbrdr, lrrotn, ljust		*
+C* S. Jacobs/NCEP	 2/98	Added lsmtyp, letype, sdens		*
+C* S. Jacobs/NCEP	 3/98	Added sszdsh				*
+C* I. Durham/GSC	 3/98	Added sdahsz, ldarwd, ldartp, swdasz	*
+C* I. Durham/GSC	 3/98	Added shshsz, lhwid, llwidh		*
+C* I. Durham/GSC	 3/98	Added lcolr2				*
+C* S. Jacobs/NCEP	 6/98	Changed pip size to a REAL variable	*
+C* A. Hardy/GSC         10/98   Added lcsywd and scsysz                 *
+C* S. Jacobs/NCEP	 5/99	Added srfilt				*
+C************************************************************************
+	COMMON	/ DEVSET /
+     +		lcolr, lltyp, llthw, llwid, llwhw,
+C!					color
+C!					linetype number
+C!					linetype hw flag
+C!					line width
+C!					line width hw flag
+     +		lmark, lmkhw, smksz,
+C!					marker number
+C!					marker hw flag
+C!					marker size
+     +		ltxfn, ltxhw, stxsz, ltxwid, lbrdr, lrrotn, ljust,
+C!					text font number
+C!					text hw flag
+C!					text size
+C!					text width
+C!					text border/blank flag
+C!					text north-rel rotation flag
+C!					text justification
+     +		swasz, swbsz,
+C!					wind arrow size (GARRW)
+C!					wind barb size
+     +		lbrwid, lbrtyp, larwid, lartyp,
+C!					wind barb width
+C!					wind barb type
+C!					wind arrow width (GARRW)
+C!					wind arrow type (GARRW)
+     +		lmkwid,
+C!					marker width
+     +		sskysz, lsktyp, lskwid,
+C!					sky coverage symbol size
+C!					sky coverage symbol type
+C!					sky coverage symbol width
+     +		swtrsz, lwtwid, sptnsz, lptwid,
+C!					weather symbol size
+C!					weather symbol width
+C!					pressure tendency symbol size
+C!					pressure tendency symbol width
+     +		spwtsz, lpwwid, sctsz, lctwid,
+C!					past weather symbol size
+C!					past weather symbol width
+C!					cloud type symbol size
+C!					cloud type symbol width
+     +		swahsz,
+C!					arrow head size (GARRW)
+     +		scersz, lcewid,
+C!					icing symbol size
+C!					icing symbol line width
+     +		ssprsz, lspwid,
+C!					special symbol size
+C!					special symbol line width
+     +		stursz, ltuwid,
+C!					turbulence symbol size
+C!					turbulence symbol line width
+     +		lfcod,
+C!					Front code
+C!
+     +		spipsz, lpipst, lpipdr,
+C!					front pip size
+C!					front pip stroke (spacing)
+C!					front pip direction (facing)
+C!
+     +		lsltyp, lslstr, lsldir,
+C!					special line type number
+C!					special line stroke multiplier
+C!					special line direction indicator 
+     +		sslsiz, lslwid,
+C!					special line size
+C!					special line width multiplier
+     +          sfilsz, lfltyp,
+C!					fill pattern size
+C!					fill pattern type
+     +		lsmtyp, letype, sdens, stensn,
+C!					smoothing type
+C!					end point conditions
+C!					density of intermediate points
+C!					line tension
+     +		sszdsh,
+C!					line dash scale
+     +		swdasz,
+C!					wind arrow size (GDARR)
+     +		ldarwd, ldartp,
+C!					wind arrow width (GDARR)
+C!					wind arrow type (GDARR)
+     +		sdahsz,
+C!					arrow head size (GDARR)
+     +		shshsz,
+C!					hash mark size
+     +		lhwid, llwidh,
+C!					hash mark line width
+C!					hash mark line spacing
+     +		lcolr2,
+C!					color (2)
+     +		scsysz, lcsywd,
+C!					combination weather symbol size
+C!					combination wx symbol line width
+     +		srfilt
+C!					Point reduction filter for lines
+C------------------------------------------------------------------------

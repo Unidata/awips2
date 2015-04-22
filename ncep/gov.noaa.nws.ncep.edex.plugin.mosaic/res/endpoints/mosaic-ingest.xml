@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mule-configuration PUBLIC "-//MuleSource //DTD mule-configuration XML V1.0//EN" "http://mule.mulesource.org/dtds/mule/mule-1.4.0-spring-configuration.dtd">
+
+<!-- ==================================================================== -->
+<!-- Defines endpoint configuration for mosaic ingest                     -->
+<!--                                                                      -->
+<!-- File History:                                                        -->
+<!--  Date:     Ticket     Engineer      Description                      -->
+<!--  ========= =========  ============  ==============================   -->
+<!--  08/09         113       L. Lin        Initial Creation              -->
+<!-- ==================================================================== -->
+<mule-configuration version="1.0">
+    <model name="edex" type="seda">
+
+        <mule-descriptor name="Awips.Mule.Service.StagingSrv-mosaic"
+            singleton="true"
+            implementation="com.raytheon.edex.services.StagingSrv"
+            outboundEndpoint="jms://ar/mosaic">
+            <inbound-router>
+                <endpoint name="mosaicIngestEndpoint"
+                    address="file://../../data/sbn/mosaic/?transformers=NoActionTransformer">
+                    <properties>
+						<property name="autoDelete" value="false" />
+						<property name="moveToDirectory"
+							value="../../processing" />
+                    </properties>
+                </endpoint>
+            </inbound-router>
+            <threading-profile maxThreadsActive="1" maxThreadsIdle="1" />
+        </mule-descriptor>
+        
+		<!-- Endpoint to archive Mosaic Data -->
+		<mule-descriptor name="Awips.Edex.Service.ArchiveSrv-mosaic"
+			singleton="false"
+			implementation="com.raytheon.edex.services.ArchiveSrv"
+			outboundEndpoint="jms://cp/mosaic">
+			<inbound-router>
+				<endpoint name="AR-Mosaic" address="jms://ar/mosaic" />
+			</inbound-router>
+			<threading-profile maxThreadsActive="4" maxThreadsIdle="4" />
+			<properties>
+				<property name="pluginName" value="MOSAIC" />
+				<property name="archiveDirectoryLocation" value="../../data/archive/mosaic/" />
+				<property name="jmxModeOn" value="true" />
+			</properties>
+		</mule-descriptor>
+
+        <!-- Endpoint to ingest Mosaic data -->
+		<mule-descriptor name="Awips.Edex.Service.IngestSrv-mosaic"
+			singleton="false"
+			implementation="com.raytheon.edex.services.IngestSrv">
+			<inbound-router>
+				<endpoint name="CP-Mosaic" address="jms://cp/mosaic" transformers="MessageToObject FilePathToBytes" />
+			</inbound-router>
+			<outbound-router>
+				<router
+					className="org.mule.routing.outbound.FilteringListMessageSplitter">
+					<endpoint address="vm://indexVMQueue" />
+				</router>
+			</outbound-router>
+			<threading-profile maxThreadsActive="4" maxThreadsIdle="4" />
+			<properties>
+                <property name="pluginName" value="MOSAIC" />
+			</properties>
+		</mule-descriptor>
+    </model>
+</mule-configuration>

@@ -1,0 +1,18 @@
+C************************************************************************
+C* GBUFF.CMN - UNIX version						*
+C*									*
+C* This common area holds the large buffer used by the GPLT task.  The	*
+C* size of the buffer is stored in the GEMPLT parameter file.		*
+C*									*
+C* Variables:								*
+C*	MBCHNA		INTEGER		Mailbox GPLT channel number	*
+C*	JRTYPE		INTEGER		Message type to read		*
+C*	JWTYPE		INTEGER		Message type to write		*
+C*	IGBUFF (IGBSIZ)	INTEGER		Buffer				*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	 4/85						*
+C* M. desJardins/GSFC	 7/91	UNIX version				*
+C************************************************************************
+	COMMON /GBUFF/	mbchna, jrtype, jwtype, igbuff ( IGBSIZ )
+C------------------------------------------------------------------------

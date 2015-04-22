@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle editor="com.raytheon.uf.viz.xy.timeseries.TimeSeriesEditor">
+	<displayList>
+	<displays xsi:type="timeSeriesRenderableDisplay" tabTitle="X-ray Flux" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <!-- descriptor xsi:type="xyGraphDescriptor"-->
+            <descriptor xsi:type="timeSeriesDescriptor">
+                 <resource>
+	                <loadProperties loadWithoutData="true">
+	                	<capabilities>
+	                    	<capability xsi:type="colorableCapability" colorAsString="#FFFFFF"/>
+	                    </capabilities>
+	                </loadProperties>
+					<properties isSystemResource="false"
+						isBlinking="false" isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="timeSeriesResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+					    <xParameter>
+					        <code>time</code>
+  					        <name>Universal Time</name>
+					    </xParameter>
+					    <yParameter>
+					        <code>flux</code>
+  					        <name>Watts/m2</name>
+					    </yParameter>
+						<metadataMap>
+					    	<mapping key="pluginName">
+								<constraint constraintValue="fits" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="telescope">
+								<constraint constraintValue="NSO-GONG" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="wavelength">
+								<constraint constraintValue="6562.808" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+                <!--timeMatcher xsi:type="d2dTimeMatcher" deltaFilter="0" forecastFilter="0"/-->
+            </descriptor>
+        </displays>
+	</displayList>
+</bundle>
