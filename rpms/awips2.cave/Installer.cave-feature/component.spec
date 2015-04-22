@@ -119,6 +119,7 @@ function restoreCAVEAndFail()
    echo "restoring backup COMPLETE: ${LOG_TIMESTAMP}"
    cleanupUnzip
    exit 1
+   echo "function restoreCAVEAndFail complete"
 }
 
 # Set all paths required by CAVE before installing.
@@ -135,7 +136,7 @@ export PATH=/awips2/java/bin:/awips2/python/bin:${PATH}
 export JAVA_HOME="/awips2/java/jre"
 
 # Set the CAVE logfile location.
-export LOGFILE_CAVE=/dev/null
+export LOGFILE_CAVE=/awips2/cave/logs/
 
 # Use the eclipse p2 manager.
 CAVE_EXE="/awips2/cave/cave"
@@ -217,6 +218,7 @@ do
    fi
 done
 popd > /dev/null 2>&1
+chown -R awips:fxalpha /awips2/cave
 
 %preun
 # Do not use p2 to remove the feature if this is an upgrade.
