@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <resource>LocalRadar</resource>
+    <attrSetGroupName>AllProducts</attrSetGroupName>
+    <attrSetNames>VIL_4.00,PRCP1_2.00,PRCP3_2.00,CREF_1.00,BREF3_2.00,DIGSCAN_1.00,EETOPS_1.00,VEL3_.25.00,CREF_4.00,VEL4_.25.00,PRCPC_2.00,VEL1_.25.00,BREF4_2.00,BREF1_2.00,VEL2_.25.00,BREF2_2.00,BREF1_1.00,BREF2_1.00,BREF3_1.00,BREF4_1.00,BREF5_1.00,BREF6_1.00,CREFP_4.00,RCM_0.00,SRVEL1_1.00,SRVEL2_1.00,SRVEL3_1.00,SRVEL4_1.00,SRVEL5_1.00,SRVEL6_1.00,STRAC_1.00,TOPS_1.00,VEL1_1.00,VEL2_1.00,VEL3_1.00,VEL4_1.00,VEL5_1.00,VEL6_1.00,VIL_1.00</attrSetNames>
+</AttributeSetGroup>
