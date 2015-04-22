@@ -5,7 +5,7 @@ export U_RPM_DESTINATION="/home/bkowal/rpmbuild"
 export U_COMPONENT_VERSION="11.9.0"
 export U_COMPONENT_RELEASE="1"
 export U_BUILD_ROOT="/tmp/${USER}/awips2-build"
-export U_UFRAME_ECLIPSE="/opt/uframe-eclipse"
+export U_UFRAME_ECLIPSE="/awips2/eclipse"
 export U_BASELINE_WORKSPACE="/common/bkowal/workspace"
 
 # build variables
