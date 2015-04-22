@@ -80,13 +80,18 @@
                    label="Load Map..."
                    style="push">
              </command>
+             <command
+                   commandId="com.raytheon.viz.ui.openAWIPSProcedure"
+                   label="Load Bundle"
+                   style="push">
+             </command>
              <separator
                    name="bundleSeparator"
                    visible="true">
              </separator>
              <command
-                   commandId="com.raytheon.viz.ui.openAWIPSProcedure"
-                   label="Load Bundle"
+                   commandId="com.raytheon.viz.ui.saveBundle"
+                   label="Save Map"
                    style="push">
              </command>
              <command
@@ -95,22 +100,21 @@
                    style="push">
              </command>
              <command
-                   commandId="com.raytheon.viz.ui.deleteAWIPSProcedure"
-                   label="Delete Bundle"
+                   commandId="com.raytheon.viz.ui.saveProcedure"
+                   label="Save Bundle Locally"
                    style="push">
              </command>
+             <menu
+                   id="export"
+                   label="Export">
+             </menu>
              <separator
                    name="saveSeparator"
                    visible="true">
              </separator>
              <command
-                   commandId="com.raytheon.viz.ui.saveBundle"
-                   label="Save Map Locally"
-                   style="push">
-             </command>
-             <command
-                   commandId="com.raytheon.viz.ui.saveProcedure"
-                   label="Save Bundle Locally"
+                   commandId="com.raytheon.viz.ui.deleteAWIPSProcedure"
+                   label="Manage Bundles"
                    style="push">
              </command>
              <separator
@@ -120,10 +124,6 @@
              <menu
                    id="import"
                    label="Import">
-             </menu>
-             <menu
-                   id="export"
-                   label="Export">
              </menu>
           </menu>
           <menu
