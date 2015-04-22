@@ -223,6 +223,10 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
+				value="gov.noaa.gsd.viz.ensemble.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
 				value="com.raytheon.viz.grib.feature" />
 		</antcall>
         	<antcall target="p2.build.repo">
