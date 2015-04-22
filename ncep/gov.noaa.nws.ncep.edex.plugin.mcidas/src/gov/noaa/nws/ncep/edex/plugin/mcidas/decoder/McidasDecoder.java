@@ -40,6 +40,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 05/2010      144         L. Lin      Migration to TO11DR11.
  * 11/2011                  T. Lee      Enhanced for ntbn
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * 07/2014         M. James/Unidata     Reset areaId for UNIWISC 
+ * 					GOES 13/15 ranges
  * </pre>
  * 
  * @author tlee
@@ -98,9 +100,66 @@ public class McidasDecoder extends AbstractDecoder {
             }
 
             /*
+             * String memo = byteArrayToString(area,96,endian) +
+             * byteArrayToString(area,100,endian) +
+             * byteArrayToString(area,104,endian) +
+             * byteArrayToString(area,108,endian) +
+             * byteArrayToString(area,112,endian) +
+             * byteArrayToString(area,116,endian) +
+             * byteArrayToString(area,120,endian) +
+             * byteArrayToString(area,124,endian) +
+             * byteArrayToString(area,128,endian);
+             * 
+             * Get area file number (AFN)
+             */
+            int areaId = byteArrayToInt(area, 128, endian);
+            
+            /*
              * Satellite identification number (SID)
              */
             int sid = byteArrayToInt(area, 8, endian);
+
+			/*
+			 * Here we need to account for the ranges of areaIds
+			 * in UNIWISC McIDAS files for composites
+			 * solution is to redefine satellite ID before querying dao 
+			 */
+            // May not need this since we can re-set satellitename using pipe-delimited string in areaName.sql
+            /* 
+            switch (areaId) {
+            	case 3100: case 3101: case 601: case 701: // GLOBAL, MOLLWEIDE
+            	case 9050: case 9053: case 9056: case 9059: case 9062: // GEWCOMP
+            	case 7101: case 1000: case 2000: case 3000: // Arctic and Antarctic Composites
+            		sid = UNIWISC_COMP_SATID;
+            		break;
+            }
+            */
+            
+            // TODO: figure out the McIDAS area file number during product generation
+            // GOES-15 / WEST 4km
+            if ( (1161 <= areaId && areaId <= 1184) || // GOES-15/4km/IR/
+            	 (1231 <= areaId && areaId <= 1254) || // GOES-15/4km/WV/
+            	 (1201 <= areaId && areaId <= 1224) || // GOES-15/4km/VIS/
+            	 (1831 <= areaId && areaId <= 1854) || // GOES-15/4km/13.3/
+            	 (1801 <= areaId && areaId <= 1824) ) { // GOES-15/4km/3.9/
+            	areaId = 1104;
+            }
+            // GOES-13 / EAST 4km
+            if ( (1261 <= areaId && areaId <= 1284) || // GOES-13/4km/IR/
+               	 (1331 <= areaId && areaId <= 1354) || // GOES-13/4km/WV/
+               	 (1301 <= areaId && areaId <= 1324) || // GOES-13/4km/VIS/
+               	 (1461 <= areaId && areaId <= 1484) || // GOES-13/4km/13.3/
+               	 (1431 <= areaId && areaId <= 1454) ) { // GOES-13/4km/3.9/
+               	areaId = 1103;
+            }
+            
+            // GOES-13 / EAST 1km
+            if ( 1501 <= areaId && areaId <= 1524 ) {
+            	areaId = 8007;
+            }
+            
+            
+            
             record.setSatelliteId(sid);
 
             /*
@@ -165,7 +224,7 @@ public class McidasDecoder extends AbstractDecoder {
             /*
              * Element (pixel) resolution
              */
-            int xres = byteArrayToInt(area, 48, endian);
+            int xres = byteArrayToInt(area, 48, endian); //W13
 
             /*
              * Maximum number of bands per scan line int zres = byteArrayToInt
@@ -175,7 +234,7 @@ public class McidasDecoder extends AbstractDecoder {
             /*
              * Length of the data block line prefix
              */
-            int prefix = byteArrayToInt(area, 56, endian);
+            int prefix = byteArrayToInt(area, 56, endian); //W15
             record.setPrefix(prefix);
 
             /*
@@ -186,8 +245,8 @@ public class McidasDecoder extends AbstractDecoder {
             /*
              * Get and set the area creation time
              */
-            yyddd = byteArrayToInt(area, 64, endian);
-            hhmmss = byteArrayToInt(area, 68, endian);
+            yyddd = byteArrayToInt(area, 64, endian); //W46
+            hhmmss = byteArrayToInt(area, 68, endian); //W47
 
             if (hhmmss != 0) {
                 cal = convertJulianToCalendar(yyddd, hhmmss);
@@ -198,7 +257,7 @@ public class McidasDecoder extends AbstractDecoder {
              * Get and set image type, e.g., VIS, IR, IR2 from satellite name
              * and image type number
              */
-            int imageTypeNumber = byteArrayToInt(area, 72, endian);
+            int imageTypeNumber = byteArrayToInt(area, 72, endian); //W52
             record.setImageTypeNumber(imageTypeNumber);
             if (imageTypeNumber <= 0) {
                 imageTypeNumber = -1;
@@ -208,20 +267,6 @@ public class McidasDecoder extends AbstractDecoder {
                             Integer.toString(imageTypeNumber)).get(0)
                     .getImageType();
 
-            /*
-             * String memo = byteArrayToString(area,96,endian) +
-             * byteArrayToString(area,100,endian) +
-             * byteArrayToString(area,104,endian) +
-             * byteArrayToString(area,108,endian) +
-             * byteArrayToString(area,112,endian) +
-             * byteArrayToString(area,116,endian) +
-             * byteArrayToString(area,120,endian) +
-             * byteArrayToString(area,124,endian) +
-             * byteArrayToString(area,128,endian);
-             * 
-             * Get area file number (AFN)
-             */
-            int areaId = byteArrayToInt(area, 128, endian);
 
             /*
              * Get and set the area name from AFN. If area name has a "|", parse
@@ -392,8 +437,8 @@ public class McidasDecoder extends AbstractDecoder {
             String navtyp = byteArrayToString(navigation, 0, endian);
 
             /*
-             * For map coverage compliance: 1: Mecator (MERC), 3: Lamber
-             * Conformal (LAMB), 5: Polar Steoreographic (PS)
+             * For map coverage compliance: 1: Mercator (MERC), 3: Lambert
+             * Conformal (LAMB), 5: Polar Stereographic (PS)
              */
             int resolution = 0;
             Integer iproj = 0;
@@ -414,6 +459,8 @@ public class McidasDecoder extends AbstractDecoder {
                 iproj = 3;
             } else {
                 // native satellite projections ( not remapped )
+            	// Unidata UNIWISC feed includes navigation types GVAR, MSAT, RECT, MOLL
+            	//resolution = byteArrayToInt(navigation, 16, endian) / 1000;
                 iproj = 7585;
             }
             record.setResolution(resolution);
@@ -479,7 +526,7 @@ public class McidasDecoder extends AbstractDecoder {
             double ryp = (ny - ((double) (n2 - ulline) / yres));
 
             /*
-             * Polar steoreographic projection (PS)
+             * Polar stereographic projection (PS)
              */
             Float dy = 0.f;
             Float lllat = 0.f, lllon = 0.f, urlat = 0.f, urlon = 0.f;
@@ -523,7 +570,7 @@ public class McidasDecoder extends AbstractDecoder {
             }
 
             /*
-             * Mercator projection
+             * Mercator projection (MERC)
              */
             else if (iproj == 1) {
                 proj = "MER";
@@ -684,7 +731,7 @@ public class McidasDecoder extends AbstractDecoder {
             } else if (iproj == 7585) {
                 // native satellite projections ( not remapped )
                 proj = navtyp;
-                int ilonrad = byteArrayToInt(navigation, 20, endian);
+                int ilonrad = byteArrayToInt(navigation, 20, endian);  // W6
                 clon = ilonrad / 10000000.f;
                 clon = (float) Math.toDegrees(clon);
 

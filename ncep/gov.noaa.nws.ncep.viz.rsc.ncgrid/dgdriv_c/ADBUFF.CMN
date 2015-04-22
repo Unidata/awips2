@@ -1,0 +1,24 @@
+C************************************************************************
+C* ADBUFF.CMN - UNIX version						*
+C*									*
+C* This common area holds a 128-word buffer of data to be sent through	*
+C* a mailbox to a subprocess.  This buffer is used by the A and D tasks.*
+C*									*
+C* Variables:								*
+C*	NPOINT		INTEGER		Ptr to last word read in ibuff	*
+C*	NWEXP		INTEGER		# words in complete message	*
+C*	NWOUT		INTEGER		# words read from message	*
+C*	MBCHAN		INTEGER		Mailbox channel number		*
+C*	NTYPSR		INTEGER		Current access type		*
+C*					1 = write; 2 = read; -1 = none	*
+C*	IRTYPE		INTEGER		Type of message to read		*
+C*	IWTYPE		INTEGER		Type of message to write	*
+C*	IBUFF (128)	INTEGER		Buffer				*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	 4/85						*
+C* M. desJardins/GSFC	 7/91	UNIX version				*
+C************************************************************************
+	COMMON  / ADBUFF /  npoint, nwexp, nwout, mbchan, ntypsr, 
+     +			    irtype, iwtype, ibuff (128)
+C------------------------------------------------------------------------

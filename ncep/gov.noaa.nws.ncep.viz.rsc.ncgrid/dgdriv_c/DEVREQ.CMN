@@ -1,0 +1,135 @@
+C************************************************************************
+C* /DEVREQ/								*
+C*									*
+C* This common area holds the device characteristics requested by the	*
+C* user.  This common is used by the GPLT task.				*
+C*									*
+C* Log:									*
+C* M. desJardins/GSFC	 5/85	GEMPLT 3.1				*
+C* M. desJardins/GSFC	 6/89	Added tick size and type		*
+C* S. Schotz/GSC	 1/90	Added barb/arrow width and type, and	*
+C*				text/marker width			*
+C* S. Schotz/GSC	 3/90	Added weather and cloud symbol		*
+C*				parameters				*
+C* S. Schotz/GSC	 8/90	Added arrow head size			*
+C* J. Cowie/COMET	 6/95	Added color bank variable (kcbank)	*
+C* M. Linda/GSC		 8/96	Added icng, spcl, and turb parameters	*
+C* E. Wehner/EAi	10/96	Added pip size, stroke and direction 	*
+C* D. Keiser/GSC	 3/97	Added spcl ln stroke, type, size, width	*
+C* E. Safford/GSC        6/97   Added mstlc, mstfc, mstxc for spcl text *
+C* S. Maxwell/GSC        6/97   Added rfilsz and kfltyp for filling	*
+C* S. Jacobs/NCEP	 9/97	Removed kstlc, kstfc, kstxc		*
+C* S. Jacobs/NCEP	 9/97	Added kbrdr, krrotn, kjust		*
+C* S. Jacobs/NCEP	 2/98	Added ksmtyp, ketype, rdens		*
+C* S. Jacobs/NCEP	 3/98	Added rszdsh				*
+C* I. Durham/GSC	 3/98	Added rdahsz, kdarwd, kdartp, rwdasz	*
+C* I. Durham/GSC	 3/98	Added rhshsz, khwid, klwidh		*
+C* I. Durham/GSC	 3/98	Added kcolr2				*
+C* S. Jacobs/NCEP	 6/98	Changed pip size to a REAL variable	*
+C* A. Hardy/GSC         10/98   Added kcsywd and rcsysz                 *
+C* S. Jacobs/NCEP	 5/99	Added rrfilt				*
+C************************************************************************
+	COMMON	/ DEVREQ /
+     +		kcbank, kcolr, kltyp, klthw, klwid, klwhw,
+C!					color bank
+C!					color number
+C!					linetype number
+C!					linetype hw flag
+C!					line width
+C!					line width hw flag
+     +		kmark, kmkhw, rmksz,
+C!					marker number
+C!					marker hw flag
+C!					marker size
+     +		ktxfn, ktxhw, rtxsz, ktxwid, kbrdr, krrotn, kjust,
+C!					text font number
+C!					text hw flag
+C!					text size
+C!					text width
+C!					text border/blank flag
+C!					text north-rel rotation flag
+C!					text justification
+     +		rwasz, rwbsz,
+C!					wind arrow size (GARRW)
+C!					wind barb size
+     +		ktktyp, rticsz,
+C!					tick type
+C!					tick size
+     +		kbrwid, kbrtyp, karwid, kartyp,
+C!					wind barb width
+C!					wind barb type
+C!					wind arrow width (GARRW)
+C!					wind arrow type (GARRW)
+     +		kmkwid,
+C!					marker width
+     +		rskysz, ksktyp, kskwid,
+C!					sky coverage symbol size
+C!					sky coverage symbol type
+C!					sky coverage symbol width
+     +		rwtrsz, kwtwid,
+C!					weather symbol size
+C!					weather symbol width
+     +		rptnsz, kptwid,
+C!					pressure tendency symbol size
+C!					pressure tendency symbol width
+     +		rpwtsz, kpwwid,
+C!					past weather symbol size
+C!					past weather symbol width
+     +		rctsz, kctwid,
+C!					cloud type symbol size
+C!					cloud type symbol width
+     +		rwahsz,
+C!					arrow head size (GARRW)
+     +		rcersz, kcewid,
+C!					icing symbol size
+C!					icing symbol line width
+     +		rsprsz, kspwid,
+C!					special symbol size
+C!					special symbol line width
+     +		rtursz, ktuwid,
+C!					turbulence symbol size
+C!					turbulence symbol line width
+     +		kfcod,
+C! 					frontal code
+     +          rpipsz, kpipst, kpipdr,
+C!                                      front pip size
+C!                                      front pip stroke (spacing)
+C!                                      front pip direction (facing)
+C!
+     +		ksltyp, kslstr, ksldir,
+C!					special line type number
+C!					special line stroke multiplier
+C!					special line direction indicator 
+     +		rslsiz, kslwid,
+C!					special line size
+C!					special line width multiplier
+     +          rfilsz, kfltyp,
+C!					fill pattern size
+C!					fill pattern type
+     +          ksmtyp, ketype, rdens, rtensn,
+C!					smoothing type
+C!					end point conditions
+C!					density of intermediate points
+C!					line tension
+     +		rszdsh,
+C!					line dash scale
+     +		rwdasz,
+C!					wind arrow size (GDARR)
+     +		kdarwd, kdartp,
+C!					wind arrow width (GDARR)
+C!					wind arrow type (GDARR)
+     +		rdahsz,
+C!					arrow head size (GDARR)
+     +		rhshsz,
+C!					hash mark size
+     +		khwid, klwidh,
+C!					hash mark line width
+C!					hash mark line spacing
+     +		kcolr2,
+C!					color number (2)
+     +		rcsysz, kcsywd,
+C!					combination weather symbol size
+C!					combination weather symbol width
+     +		rrfilt
+C!					Point reduction filter for lines
+C------------------------------------------------------------------------

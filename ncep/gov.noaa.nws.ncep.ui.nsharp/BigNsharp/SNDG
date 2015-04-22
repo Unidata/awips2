@@ -1,0 +1,43 @@
+
+Routines where the raw sndg array is used in the xwvid* files:
+
+xwvid6:
+position_cursor
+redraw_sounding
+processuserdata
+load_sounding
+
+xwvid5:
+visual1
+plot_thetae
+
+xwvid3:
+show_moisture
+show_shear
+show_posnegareas
+best_guess_ptype
+main_thermo
+
+xwvid2:
+grab_level
+skewt_cursor_data
+get_level_pointer
+
+xwvid1:
+draw_skewt
+draw_hodo
+trace_hodo
+trace_temp
+trace_temp2
+trace_vtmp
+trace_dwpt
+trace_dwpt2
+trace_wetbulb
+plot_barbs
+plot_barbs2
+vvel_profile
+trace_dcape
+
+I guess it's fine to expose the data to the various trace routines however
+for all of the text generating routines it'd be better to remove it from
+there and do the computations in computeparms()

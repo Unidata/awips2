@@ -38,4 +38,5 @@ Import-Package: com.raytheon.uf.common.inventory.exception,
  org.geotools.referencing,
  org.geotools.referencing.datum,
  org.opengis.referencing.crs
-Export-Package: gov.noaa.nws.ncep.ui.nctextui.rsc
+Export-Package: gov.noaa.nws.ncep.ui.nctextui.dbutil,
+ gov.noaa.nws.ncep.ui.nctextui.rsc
