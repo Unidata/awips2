@@ -302,8 +302,8 @@
              </separator>
           </menu>
           <menu
-                id="volume"
-                label="Volume"
+                id="models"
+                label="Models"
                 mnemonic="V">
              <visibleWhen>
                 <reference
