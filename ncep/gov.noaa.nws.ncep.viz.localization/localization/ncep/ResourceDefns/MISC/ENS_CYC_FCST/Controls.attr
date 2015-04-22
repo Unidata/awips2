@@ -1,0 +1,136 @@
+! Attributes for Ensemble Storm Track
+!
+colorCodeByWindSpeed=false
+
+!windSpeedColorBar=@ColorBars/StormTrack/defaultWindSpeedColorBar.xml
+!ensembleColorBar=@ColorBars/StormTrack/defaultEnsembleColorBar.xml
+
+legend=StormTrack-S-models
+
+tropDepressionEnable=true
+tropDepressionColor=RGB {255,255,0}
+tropDepressionUpperLimit=34.0
+galeEnable=true
+galeColor=RGB {255,0,255}
+galeUpperLimit=48.0
+tropStormEnable=true
+tropStormColor=RGB {255,127,0}
+tropStormUpperLimit=64.0
+hurricaneEnable=true
+hurricaneColor=RGB {255,0,0}
+hurricaneUpperLimit=200.0
+
+forecastHourEnable=false
+forecastHour=0
+
+model01Name=AC00
+model02Name=CC00
+model03Name=EC00
+model04Name=SAC1
+model05Name=SAC2
+model06Name=SNC1
+model07Name=SRC1
+model08Name=SEC1
+model09Name=SEC2
+model10Name=
+model11Name=
+model12Name=
+model13Name=
+model14Name=
+model15Name=
+model16Name=
+model17Name=
+model18Name=
+model19Name=
+model20Name=
+
+model01Enable=true
+model02Enable=true
+model03Enable=true
+model04Enable=true
+model05Enable=true
+model06Enable=true
+model07Enable=true
+model08Enable=true
+model09Enable=true
+model10Enable=false
+model11Enable=false
+model12Enable=false
+model13Enable=false
+model14Enable=false
+model15Enable=false
+model16Enable=false
+model17Enable=false
+model18Enable=false
+model19Enable=false
+model20Enable=false
+
+model01Color=RGB {255,0,0}
+model02Color=RGB {0,255,0}
+model03Color=RGB {0,0,255}
+model04Color=RGB {255,255,0}
+model05Color=RGB {0,255,255}
+model06Color=RGB {255,0,255}
+model07Color=RGB {139,71,38}
+model08Color=RGB {255,130,71}
+model09Color=RGB {255,165,79}
+model10Color=RGB {255,174,185}
+model11Color=RGB {255,106,106}
+model12Color=RGB {238,44,44}
+model13Color=RGB {139,0,0}
+model14Color=RGB {205,0,0}
+model15Color=RGB {238,64,0}
+model16Color=RGB {255,127,0}
+model17Color=RGB {205,133,0}
+model18Color=RGB {255,215,0}
+model19Color=RGB {238,238,0}
+model20Color=RGB {255,0,0}
+
+model01LineWidth=1
+model02LineWidth=1
+model03LineWidth=1
+model04LineWidth=1
+model05LineWidth=1
+model06LineWidth=1
+model07LineWidth=1
+model08LineWidth=1
+model09LineWidth=1
+model10LineWidth=1
+model11LineWidth=1
+model12LineWidth=1
+model13LineWidth=1
+model14LineWidth=1
+model15LineWidth=1
+model16LineWidth=1
+model17LineWidth=1
+model18LineWidth=1
+model19LineWidth=1
+model20LineWidth=1
+
+model01SymbolSize=3.0
+model02SymbolSize=3.0
+model03SymbolSize=3.0
+model04SymbolSize=3.0
+model05SymbolSize=3.0
+model06SymbolSize=3.0
+model07SymbolSize=3.0
+model08SymbolSize=3.0
+model09SymbolSize=3.0
+model10SymbolSize=3.0
+model11SymbolSize=3.0
+model12SymbolSize=3.0
+model13SymbolSize=3.0
+model14SymbolSize=3.0
+model15SymbolSize=3.0
+model16SymbolSize=3.0
+model17SymbolSize=3.0
+model18SymbolSize=3.0
+model19SymbolSize=3.0
+model20SymbolSize=3.0
+
+drawBeginDateTime=true
+drawForecastHour=false
+drawPressure=true
+drawWindSpeed=false
+drawModelName=false
+drawMarker=true

@@ -1,0 +1,9 @@
+colorMapName=SDO_AIA_335
+colorBar=@ColorBars/SolarImage/dfltSolarImageColorBar.xml
+wavelength=335
+intTime=3.15625
+displayUnitStr=DN/sec
+alpha=1.0
+brightness=1.0
+contrast=1.0
+imageFunction=

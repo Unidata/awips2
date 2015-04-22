@@ -1,0 +1,147 @@
+PGEN - Product Generation
+
+Product Generation, or PGEN, is the set of tools and techniques that allows the forecaster to draw and edit meteorological objects for creating graphical, text-based, and gridded products.
+
+Upon entering PGEN, the user should choose what type of activity they intend to develop. Multiple activities may be managed simultaneously. Activities could be easily pre-defined.  For now, each activity could have its own configurable PGEN palette, settings table, layers, save mode and products it could generate.
+
+
+Configure PGEN Activities
+
+Using the PGEN Activities is a convenient way for the user to create and customize his own tools for using PGEN.  An PGEN activity could be identified by a combination of type and an optional subtype, or by an unique alias. Once created, the user could start a specific activity with a customized PGEN palette,  pre-populated layers,  pre-defined save mode,  and more.  Here is the way to do it:
+
+1. Click on the CAVE main menu "Tools", then select "Configure PGEN Activity" to start the configuration dialog
+
+2. The dialog always starts with "New" type with only a few buttons pre-selected and colored blue.  All pre-defined activity types defined in "productTypes.xml" are loaded in the pull-down menu after "New", and subtypes within a given type will be loaded under "Subtype" menu. CAVE first look for "productTypes.xml" in the $HOME/caveData/etc/user/jwu/ncep/pgen; if not found, look in the Desk, Site and finally in the Base. 
+
+3. Create a new activity -  there are two ways to create a new PGEN activity:
+
+(1). Select "New" -> type a name and optionally a subtype name and/or alias -> click "Add".  Then continue to configure PGEN palette, layers , save mode, as well as products. Remember to click "Apply" to save your changes when switching from one page to anther page..  
+
+(2). Select an existing activity -> edit its selections -> give a new type name -> Click "Apply".
+	
+Note than the new activity name cannot be any variations of "New" and the name of any existing activities.  
+
+4. Edit an existing activity: select the activity through its type and subtype, edit its configurations and "Apply".
+
+5. Delete an existing activity: select the activity, click "Delete" and confirm it.  Note, once an activity is deleted, you cannot get it back (you have to re-create it).
+
+6. Exit the configuration: click either "Ok" or "Close".  "Ok" will save the changes to the current selected activity (if it is "New" and no type name is given, then no save).  "Close" will not save changes. Upon exit, the PGEN palette will be reset to its default status.
+
+7. Configure palette: click "Palette" tab -> select desired controls, actions, classes -> click on selected class button to see and select the objects for that class.
+
+8. Define layers: click "Layer" tab -> give a name -> select its display mode, color mode (all colors or mono color), color, and filled mode -> Click "Apply".  Defined layers will show up in the lower panel.  You can click on a layer name button to switch to it and edit its attributes. The green "Delete" button allows you to delete the current layer.  After 'Delete" a layer, you need to click "Apply" button at the bottom to confirm it.
+
+9. Edit an activity's layers: Select the activity -> click "Layer" tab -> edit the layers -> Click "Apply".
+
+10. Define save mode: click "Save" tab -> define default file to save this product -> select if you want the layers to be saved individually -> Click "Apply",
+
+11. Notes:
+
+(1) When switching between activities by selecting from the pull-down menu, the selected controls/actions/classes on the "Palette" page will be highlighted as "blue" while those unselected will be colored "grey".  The PGEN palette will be updated with only selected buttons.
+
+(2) There are a few controls/actions are always selected (cannot be unselected) and always show up for all activities - it is controlled by the "alwayVisible" attribute in the PGEN plugin.xml.  You can either set it to "false" or delete it if you do want to select/unselect a button in the configuration dialog.
+
+(3) Select a class: click the check box to select then click the activated class name button to display/select the objects within that class (by default, all objects are selected for that class).  Notice that the title of the object group will be the name of the clicked class.
+
+ 
+
+
+Activity Management Center
+
+Multiple PGEN activities could be managed through the Activity Management Center as following:
+
+1. Start an activity - there are two ways to start an activity:
+
+(1) Default: Click the "Start" button on the PGEN toolbar to activate the default activity management center.
+
+(2) Quick: Click the little triangle at the right of the "Start" button to see all pre-defined activities and select one of the them to start the Activity Management Center.  All definitions for that activity will be populated for you.
+
+2. Add a new activity: Click "New" and a activity attribute dialog pops up.  Select an activity and optionally enter a name for it and click "Accept". 
+
+3. Edit an activity's attribute (name, type, save layers, output file name, etc.): first click an activity's name button to make it active, then click again to pop up the product attribute window.
+
+4. Delete an activity: Click "Delete", the current activity is deleted. (if "Delete" is not shown, click ">>" at the bottom to expand the dialog).
+
+5. Display/Hide an activity: click the check box after the activity name.
+
+6. Change an activity to another activity: select from the activity pull-down menu to select a new activity. Empty existing layers will be removed. If an existing layer has the same name as one defined in the new activity, the layer' attributes will be updated. Layers in the new activity with different names than existing layers' are attached as new layers.
+
+7. Layering - the lower part functions the same as the legacy layering control for the active activity.  However, if layers are predefined for that activity in its "layer",  those layers and their attributes are populated here.  You can add new layers or editing pre-defined layers. 
+
+8. Exit activity management - Click "Exit",  you will first be asked to save the activities. After confirmation,  all activities will be wiped off and the PGEN palette will be reset to its default state.
+
+9. Save current activity - click "Save" or "Save As" to open the file window to save. If the current activity has not been saved before, its pre-configured path and filename will be populated as the default.  Once an activity has been saved once, "Save" will always save it to its last-saved file. 
+
+10. Save all activities - click "Save All". If an activity has not been saved before, it will be save to its pre-configured file, otherwise it will be saved to its last-saved file. 
+
+11. Open an saved activity - Click "Open" on PGEN palette. Select an activity file with one of three modes. If the file has at least one non-Default activity, the activity management center will be activated automatically.
+
+(1) "Add" - Empty "Default" activity is removed (if exists). Then the activity in the selected file is added as a separate activity.
+
+(2) "Replace" - The active activity is replaced by the activity in the selected file.
+
+(3) "Append" - Empty "Default" activity is removed (if exists). If there is only ONE layer in the incoming activity, its contents is combined into the active layer.  If there are more than one layer in the incoming activity, we will first try to match the active layer with the incoming layers by this order: a. a layer with the same name as the active layers'; b. a "Default" layer.  All other layers in the incoming activity will be matched against the layers in the active activity by the layer's name.  If no match found, the incoming layer is attached as a separate layer.
+
+12. Notes:    
+
+(1) Each activity file can have multiple layers and multiple activities can be managed at the same time.
+
+(2) You can only work on one activity and one layer at a time (active activity's active layer).
+
+(3) Default activity: If an activity is a non-existing,  "Default" is used. (E.g., create an activity with one existing activity and later that activity is deleted from the "productTypes.xml").
+
+(4) How does the new activity management interacts with the legacy layering mechanism?
+
+    The activity management supersedes the layering control (layering is a built-in within the new activity management dialog).  However, you can activate the layering control any time - it will close the activity management and start the layering dialog on the current activity that is last set before the activity management dialog closes.
+
+(5) How does the new activity management tool simulates the legacy NMAP Product Generation environment?
+    
+    Simply putting,  the legacy NMAP Product Generation environment is the simplest special case of the new activity management tool - with only one "Default" activity that has only one "Default" layer works behind the scene.  So without activating the tool explicitly ("Start" or open an activity file with a non-default activity),  everything works the same way as in the legacy PGEN.
+
+
+ 
+ Open Legacy Layer Product File LPF in CAVE
+ 
+ 
+ The Layer Product File (*.lpf) created in NMAP2 or through pre-processing scripts could be opened in CAVE with the following steps:
+ 
+ 1. First convert the input VGF files specified for the layers in the LPF into new PGEN xml format using "vgfconverter".
+ 
+ 2. Edit the LPF file make sure the input file for each layer has the correct path (full path is preferred) - by default, we will try to first find them under the directory corresponding to the activity specified in LPF;  if not found, then we search under the same directory where this LPF exists.
+ 
+ 3. Specify the activity for this LPF file by adding the following to the LPF file (manually or through script) 
+ 	<activitity alias> 	alias 		
+ 	
+ 	or 
+ 	
+ 	<activitity type>	type 
+ 	<activitity subtype> subtype
+ 	
+ 	If both are presented, alias will have higher priority.
+ 	
+ 4. The activity could also be specified when converting VGF file into PGEN xml file such as "vgfconverter a.vgf a.xml "activity type"  ["activity subtype"]". So if you do not specify activity in LPF file, the activity will be the activity type in the first non-Default files found in the layers.
+ 
+ 
+ 
+ 
+ Save and Storage of PGEN Activity Files
+ 
+ 
+ In the new CAVE PGEN, the files are designed to be saved and stored in a configured place for easy access. A PGEN base directory $PGEN_OPR should be defined either in .cshrc or cave.sh.  By default, it would be the user's home directory.  It could also be set up in the CAVE "File"->Preferences...->"NCEP"->"PGEN". A PGEN activity's files will be saved under this base directory with its own sub-directory structure as:
+ 
+ $PGEN_OPR/"activity type"/xml
+ 
+ Only activity type is used here regardless of the activity's subtype - so activities with the same type but different subtypes will be saved under the same directory but will be distinguished by the file names.  For "Default" type, it will be directly saved under $PGEN_OPR. For now, the file name will use the template:
+ 
+ "[activity name]"."activity type"."[activity subtype].DDMMYYYY.HH.xml
+ 
+ The activity name only appears when it is different from the activity type.
+ 
+ The template for each layer will be:
+ 
+ "[activity name]"."activity type"."[activity subtype].DDMMYYYY.HH.."layer name".xml
+ 
+ When trying to open a file, each activity will be listed as a directory in the GUI so it is easy for the user to select a desired directory(activity) and then a file.
+ 
+ Note that the user can always browse and try to save to different locations other than the one configured. But then it is upon the user to manage those file locations.
+    

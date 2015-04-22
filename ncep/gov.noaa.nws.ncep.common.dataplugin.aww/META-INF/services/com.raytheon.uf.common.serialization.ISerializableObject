@@ -1,0 +1,6 @@
+gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord
+gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc
+gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec
+gov.noaa.nws.ncep.common.dataplugin.aww.AwwFips
+gov.noaa.nws.ncep.common.dataplugin.aww.AwwLatlons
+gov.noaa.nws.ncep.common.dataplugin.aww.AwwHVtec

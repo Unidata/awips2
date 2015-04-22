@@ -1,0 +1,117 @@
+C************************************************************************
+C* Contour fill common blocks						*
+C*									*
+C**									*
+C* Log:									*
+C* D.W.Plummer/NCEP	11/98						*
+C************************************************************************
+C
+	INCLUDE		'GEMPRM.PRM'
+C
+C************************************************************************
+C*  / CFLINE /                                                          *
+C*                                                                      *
+C* LINE INFORMATION ARRAYS						*
+C************************************************************************
+C
+        PARAMETER       ( MAXLIN = 1000 )
+C				Max number of lines
+        PARAMETER       ( MAXPTS = 2000 )
+C				Max number of points per line
+        REAL            fi(MAXPTS, MAXLIN), fj(MAXPTS, MAXLIN)
+        INTEGER         npts(MAXLIN), closed(MAXLIN), levnum(MAXLIN)
+C 
+	COMMON  / CFLINS /  	nlines,
+C!					number of lines
+     +				npts, 
+C!                                      number of points per line
+     +  			closed,
+C!                                      closed indicator for line
+     +  			levnum,
+C!                                      level indicator for line
+     +  			fi, 
+C!                                      x-coord points of line
+     +  			fj
+C!                                      y-coord points of line
+C 
+C 
+C************************************************************************
+C*  / CFINTR /                                                          *
+C*                                                                      *
+C* INTERSECTION INFORMATION ARRAYS					*
+C************************************************************************
+C
+        PARAMETER       ( MAXINT = 2000 )
+C				Max dimension for holding intersections
+        REAL            linint(MAXINT,2)
+	INTEGER		linnum(MAXINT), linend(MAXINT), info(MAXINT)
+C 
+	COMMON  / CFINTR /  	numint, 
+C!                                      number of intersections
+     +				linnum, 
+C!                                      line number for intersection
+     +				linend, 
+C!                                      line point number for intersection
+     +				info, 
+C!                                      info for intersection
+     +				linint
+C!                                      intersection coordinates
+C
+C 
+C************************************************************************
+C*  / CFINFO /                                                          *
+C*                                                                      *
+C* CONTOUR LEVEL (LINE and FILL) INFORMATION				*
+C************************************************************************
+C
+        REAL            levval(LLCLEV)
+	INTEGER		lcolr(LLCLEV), ltype(LLCLEV), lwidt(LLCLEV)
+	INTEGER		llabl(LLCLEV), fcolr(LLCLEV), icftyp(LLCLEV)
+C
+        COMMON  / CFINFO /  	ncflvl, 
+C!                                      number of contour line/fill levels
+     +				levval, 
+C!                                      contour level values
+     +				icftyp, 
+C!                                      contour fill type (=1  line only)
+C!                                                        (=-1 fill only)
+C!                                                        (=0  both)
+     +				lcolr, 
+C!                                      line color values
+     +				ltype, 
+C!                                      line type values
+     +				lwidt, 
+C!                                      line width values
+     +				llabl,
+C!                                      line label values
+     +			        fcolr
+C!                                      fill color values
+C************************************************************************
+C*  / CFDATA /                                                          *
+C*                                                                      *
+C* CONTOUR GRID INFORMATION (modified from CONTUR.CMN)			*
+C************************************************************************
+C
+	COMMON  / CFDATA / 
+     +				jbxsub, jlblbk, jsmoth, jsadjf,
+C!						Grid subset size
+C!						Label background color
+C!						Number of smoothing passes
+C!						Spline adjustment factor
+     +				z ( LLMXGD ),
+C!						Grid array
+     +				isize, jsize,
+C!						Size of grid
+     +				offx, offy, skip,
+C!						Offsets from orig grid
+C*						Grid skip factor
+     +				numsub, fincxy,
+C!						Grid subspacing,
+C!						Fractional distance
+     +				ihline ( LLMXGD ),
+     +				ivline ( LLMXGD ),
+C!						Hor, vert crossings
+     +				number,
+C!						Number of points
+     +				xval ( 1024 ), yval ( 1024 )
+C!						Points on line

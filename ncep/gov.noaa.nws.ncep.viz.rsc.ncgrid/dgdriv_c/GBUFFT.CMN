@@ -1,0 +1,19 @@
+C************************************************************************
+C* GBUFFT.CMN								*
+C*									*
+C* This common contains large temporary buffers for the DEVICE task.	*
+C* These buffers are used for the same purpose as GTBUFF in the GPLT	*
+C* task.								*
+C**									*
+C* Log:									*
+C* M. Linda/GSC		 6/96	Based on GTBUFF				*
+C* M. Linda/GSC		 1/97	Added mgx() and mgy()			*
+C************************************************************************
+	INTEGER 	igx (LLMXPT), igy (LLMXPT)
+	INTEGER 	jgx (LLMXPT), jgy (LLMXPT)
+	INTEGER 	kgx (LLMXPT), kgy (LLMXPT)
+	INTEGER 	mgx (LLMXPT), mgy (LLMXPT)
+    	REAL		rgx (LLMXPT), rgy (LLMXPT)
+C*
+	COMMON	/GBUFFT/ igx, igy, jgx, jgy, kgx, kgy, rgx, rgy, mgx, mgy
+C

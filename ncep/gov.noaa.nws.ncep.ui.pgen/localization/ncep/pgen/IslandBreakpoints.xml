@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  
+      This file contains a list of Island Breakpoints that can be specified for Tropical
+      Cyclone Watches and Warnings.  The information for each Island breakpoint is included
+      in an <island> tag.  The <island> tag must contain one <breakpoint> tag, one or more <path>
+      tags, and may contain an optional <landZones> tag.
+      
+      The <breakpoint> tag is used to identify a unique breakpoint and has required attributes:
+      name, state, country, and location.  The value of the "name" attribute must be unique among
+      all of the breakpoints.
+      
+      The <path> tags are used to specify the longitude/latitude coordinate pairs used to draw a 
+      line path depicting the geographic area covered by a watch 
+      or warning for the breakpoint.  Coordinate pairs must be specified with east longitude first,
+      then latitude separated by a comma.  Any number of coordinate pairs can be used in the path,
+      and they should be separated by a "space".  Multiple <path> tags can be used to draw separate
+      line paths.
+      
+      The <landZone> tag is optional for each breakpoint, and it is used to specify any
+      forecast zones associated with the breakpoint.  If specified, these land zones will 
+      be included in the UGC group of a Tropical Cyclone VTEC (TCV) product, if there is
+      a watch/warning issued for the associated breakpoint.
+      
+ -->
+<islandBreakpoints>
+    <island>
+        <breakpoint name="Antigua/Barbuda" state="--" country="AD" location="-61.8,17.35"/>
+        <path>-61.72,16.7 -61.8,17.85</path>
+    </island>
+    <island>
+        <breakpoint name="Aruba,_Bonaire,_Curacao" state="--" country="AC" location="-69,12.35"/>
+        <path>-68,12.1 -70.23,12.5</path>
+    </island>
+    <island>
+        <breakpoint name="Bahamas_(Central)" state="--" country="BA" location="-75.5,24.00"/>
+        <path>-74.85,22.85 -75.36,23.7</path>
+        <path>-74.49,23.95 -74.49,24.15</path>
+        <path>-75.36,24.15 -75.73,24.7</path>
+        <path>-75.48,23.39 -76.08,23.68</path>
+        <path>-74.7,23.68 -75,23.68</path>
+    </island>
+    <island>
+        <breakpoint name="Bahamas_(Andros_only)" state="--" country="BA" location="-77.9,24.40"/>
+        <path>-77.57,23.75 -77.74,24.7 -78.21,25.2 -78.4,24.57 -77.57,23.75</path>
+    </island>
+    <island>
+        <breakpoint name="Bahamas_(NW_not_Andros)" state="--" country="BA" location="-77.4,25.90"/>
+        <path>-77.34,25.87 -77.08,26.5 -77.58,26.91</path>
+        <path>-77.89,26.7 -78.97,26.67</path>
+        <path>-77.27,25.05 -77.59,25.02</path>
+        <path>-76.28,24.65 -76.13,25.15 -76.69,25.5 -76.85,25.35</path>
+    </island>
+    <island>
+        <breakpoint name="Bahamas_(Southeast)" state="--" country="BA" location="-73.5,22.00"/>
+        <path>-73.11,20.93 -73,21.5 -73.23,21.05 -73.5,21.11 -73.68,20.93</path>
+        <path>-72.72,22.3 -73.15,22.43</path>
+        <path>-74.27,22.2 -73.84,22.54 -74.37,22.83</path>
+    </island>
+    <island>
+        <breakpoint name="Barbados" state="--" country="BR" location="-59.55,13.15"/>
+        <path>-59.57,12.85 -59.57,13.4</path>
+    </island>
+    <island>
+        <breakpoint name="Bermuda" state="--" country="BE" location="-64.75,32.30"/>
+        <path>-64.95,32.2 -64.58,32.43</path>
+    </island>
+    <island>
+        <breakpoint name="Grand_Cayman" state="--" country="GC" location="-81.26,19.32"/>
+        <path>-81.48,19.38 -81.06,19.32</path>
+    </island>
+    <island>
+        <breakpoint name="Little_Cayman,_Cayman_Brac" state="--" country="GC" location="-79.94,19.70"/>
+        <path>-80.15,19.65 -79.71,19.76</path>
+    </island>
+    <island>
+        <breakpoint name="Dominica" state="--" country="DO" location="-61.35,15.40"/>
+        <path>-61.22,15.08 -61.35,15.8</path>
+    </island>
+    <island>
+        <breakpoint name="Grenada" state="--" country="GD" location="-61.7,12.10"/>
+        <path>-61.82,11.95 -61.44,12.55</path>
+    </island>
+    <island>
+        <breakpoint name="Grenadines/St._Vincent" state="--" country="GV" location="-61.2,13.20"/>
+        <path>-61.44,12.55 -61,13.5</path>
+    </island>
+    <island>
+        <breakpoint name="Guadeloupe" state="--" country="GP" location="-61.5,16.20"/>
+        <path>-61.35,15.8 -61.72,16.7</path>
+    </island>
+    <island>
+        <breakpoint name="Jamaica_(all)" state="--" country="JM" location="-77.3,18.10"/>
+        <path>-76.16,18.02 -77.19,18.45 -78.37,18.33 -77.74,17.85 -77.19,17.77 -76.16,18.02</path>
+    </island>
+    <island>
+        <breakpoint name="Jamaica_(north_coast)" state="--" country="JM" location="-77.5,18.50"/>
+        <path>-76.16,18.02 -77.19,18.45 -78.37,18.33</path>
+    </island>
+    <island>
+        <breakpoint name="Jamaica_(south_coast)" state="--" country="JM" location="-77.2,17.70"/>
+        <path>-78.37,18.33 -77.74,17.85 -77.19,17.77 -76.19,17.91</path>
+    </island>
+    <island>
+        <breakpoint name="Martinique" state="--" country="MR" location="-61,14.70"/>
+        <path>-60.86,14.3 -61.22,15.08</path>
+    </island>
+    <island>
+        <breakpoint name="Saba/Nevis/StKitt/StE/Montserrat" state="--" country="KM" location="-62.7,17.30"/>
+        <path>-62,16.65 -63.3,17.73</path>
+    </island>
+    <island>
+        <breakpoint name="San_Andres" state="--" country="SS" location="-81.7,12.55"/>
+        <path>-81.72,12.49 -81.68,12.59</path>
+    </island>
+    <island>
+        <breakpoint name="St._Lucia" state="--" country="LC" location="-60.95,13.90"/>
+        <path>-61,13.5 -60.86,14.3</path>
+    </island>
+    <island>
+        <breakpoint name="St._Mart/St._Bart/Anguilla" state="--" country="AA" location="-63,18.00"/>
+        <path>-62.83,17.87 -63.32,18.3</path>
+    </island>
+    <island>
+        <breakpoint name="Tobago" state="--" country="TD" location="-60.65,11.25"/>
+        <path>-60.9,11.1 -60.46,11.35</path>
+    </island>
+    <island>
+        <breakpoint name="Trinidad" state="--" country="TD" location="-61.25,10.50"/>
+        <path>-61,10.1 -61,10.85 -61.7,10.68 -61.47,10.42 -61.92,10.05 -61,10.1</path>
+    </island>
+    <island>
+        <breakpoint name="Turks_and_Caicos" state="--" country="TI" location="-71.6,21.75"/>
+        <path>-71.65,21.31 -71.44,21.65 -71.96,21.92 -72.35,21.8</path>
+        <path>-71.2,21.31 -71.12,21.49</path>
+    </island>
+    <island>
+        <breakpoint name="Venezuela_(Isla_de_Margarita)" state="--" country="VN" location="-64,11.00"/>
+        <path>-63.72,11 -64.51,11</path>
+    </island>
+    <island>
+        <breakpoint name="Virgin_Is._(British)" state="--" country="VI" location="-64.45,18.55"/>
+        <path>-64.68,18.4 -64.29,18.78</path>
+    </island>
+    <island>
+        <breakpoint name="Virgin_Is._(U.S.)" state="--" country="VI" location="-64.8,18.05"/>
+        <path>-64.74,17.62 -64.99,18.35</path>
+        <landZones>VIZ001 VIZ002</landZones>
+    </island>
+    <island>
+        <breakpoint name="Isle_of_Youth_(Cuba)" state="--" country="CU" location="-82.85,21.70"/>
+        <path>-82.52,21.6 -82.66,21.9 -83,21.9 -83.11,21.5 -82.52,21.6</path>
+    </island>
+    <island>
+        <breakpoint name="Dry_Tortugas_Island" state="FL" country="US" location="-82.86,24.66"/>
+        <path>-82.86,24.67 -82.6,24.67</path>
+    </island>
+    <island>
+        <breakpoint name="Hawaii" state="HI" country="US" location="-155.5,19.65"/>
+        <path>-155.86,20.28 -154.79,19.53 -155.66,18.91 -156.04,19.76 -155.8,20.02 -155.86,20.28</path>
+        <landZones>HIZ023 HIZ024 HIZ025 HIZ026 HIZ027 HIZ028</landZones>
+    </island>
+    <island>
+        <breakpoint name="Kauai" state="HI" country="US" location="-159.51,22.06"/>
+        <path>-159.79,22.04 -159.32,22.21 -159.42,21.87 -159.79,22.04</path>
+        <path>-160.04,22.02 -160.26,21.78</path>
+        <landZones>HIZ001 HIZ002 HIZ003 HIZ004</landZones>
+    </island>
+    <island>
+        <breakpoint name="Maui" state="HI" country="US" location="-156.35,20.80"/>
+        <path>-156.61,21.05 -156.47,20.9 -156.25,20.95 -155.97,20.75 -156.42,20.57 -156.48,20.79 -156.71,20.93 -156.61,21.05</path>
+        <path>-157.06,20.92 -156.96,20.72 -156.8,20.82 -157.06,20.92</path>
+        <path>-157.32,21.14 -156.69,21.14</path>
+        <path>-156.73,20.49 -156.51,20.59</path>
+        <landZones>HIZ012 HIZ013 HIZ014 HIZ015 HIZ016 HIZ017 HIZ018 HIZ019 HIZ020 HIZ021 HIZ022</landZones>
+    </island>
+    <island>
+        <breakpoint name="Oahu" state="HI" country="US" location="-158,21.46"/>
+        <path>-157.97,21.71 -157.67,21.29 -158.1,21.27 -158.28,21.57 -157.97,21.71</path>
+        <landZones>HIZ005 HIZ006 HIZ007 HIZ008 HIZ009 HIZ010 HIZ011</landZones>
+    </island>
+    <island>
+        <breakpoint name="Johnston_Atoll" state="HI" country="US" location="-169.5,16.75"/>
+        <path>-169.65,16.75 -169.35,16.75</path>
+    </island>
+    <island>
+        <breakpoint name="Midway_Island" state="HI" country="US" location="-177.37,28.22"/>
+        <path>-177.22,28.22 -177.52,28.22</path>
+    </island>
+    <island>
+        <breakpoint name="Kure_Atoll" state="HI" country="US" location="-178.33,28.42"/>
+        <path>-178.18,28.42 -178.48,28.42</path>
+    </island>
+    <island>
+        <breakpoint name="Block_Island" state="RI" country="US" location="-71.56,41.16"/>
+        <path>-71.57,41.23 -71.58,41.2</path>
+        <landZones>RIZ008</landZones>
+    </island>
+    <island>
+        <breakpoint name="Nantucket" state="MA" country="US" location="-70.04,41.27"/>
+        <path>-70.23,41.28 -70,41.36</path>
+        <landZones>MAZ024</landZones>
+    </island>
+    <island>
+        <breakpoint name="Marthas_Vineyard" state="MA" country="US" location="-70.63,41.38"/>
+        <path>-70.44,41.38 -70.77,41.3</path>
+        <landZones>MAZ023</landZones>
+    </island>
+    <island>
+        <breakpoint name="Grand_Manan" state="--" country="CN" location="-66.81,44.72"/>
+        <path>-66.78,44.8 -66.9,44.6</path>
+    </island>
+    <island>
+        <breakpoint name="Magdalen_Islands" state="--" country="CN" location="-61.78,47.46"/>
+        <path>-62,47.22 -61.4,47.62</path>
+    </island>
+    <island>
+        <breakpoint name="Anticosti_Island" state="--" country="CN" location="-63.08,49.49"/>
+        <path>-64.3,49.83 -63.23,49.3 -61.7,49.08 -62.88,49.68 -64.3,49.83</path>
+    </island>
+    <island>
+        <breakpoint name="Prince_Edward_Island" state="--" country="CN" location="-63.35,46.34"/>
+        <path>-63.48,46.22 -62.67,45.95 -61.97,46.43 -62.85,46.42 -63.62,46.55 -64,47.05 -64.4,46.65 -63.48,46.22</path>
+    </island>
+</islandBreakpoints>
