@@ -64,11 +64,16 @@
    <includes
          id="com.raytheon.viz.text.feature"
          version="0.0.0"/>
-
+<!--
    <includes
          id="com.raytheon.viz.warngen.feature"
          version="0.0.0"/>
+-->
 
+   <includes
+         id="gov.noaa.gsd.viz.ensemble.feature"
+         version="0.0.0"/>
+         
    <includes
          id="com.raytheon.viz.grib.feature"
          version="0.0.0"/>
@@ -185,7 +190,7 @@
          id="com.raytheon.uf.viz.aviation.advisory.feature"
          version="0.0.0"/>
 
-    <includes
+   <includes
          id="com.raytheon.uf.viz.datadelivery.feature"
          version="0.0.0"/>
 
