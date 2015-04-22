@@ -197,9 +197,9 @@ public class Wes2BridgeManager {
 
             final String line1 = "export DATA_ARCHIVE_ROOT=";
             final String line2 = "export DB_PORT=";
-            final String line3 = "export BROKER_ADDR=";
+            final String line3 = "export BROKER_PORT=";
             final String line4 = "export HTTP_PORT=";
-            final String line5 = "export JMS_SERVER=";
+            final String line5 = "export BROKER_HTTP=";
             final String line6 = "export SHARE_DIR=";
             final String pypiesServerPattern = "(export PYPIES_SERVER=http://.+:)[1-9][0-9]+";
             final Pattern pattern7 = Pattern.compile(pypiesServerPattern);
@@ -213,13 +213,11 @@ public class Wes2BridgeManager {
                 } else if (line.startsWith(line2)) {
                     line = line2 + this.wes2BridgeCase.getDatabasePort();
                 } else if (line.startsWith(line3)) {
-                    line = line3 + "localhost:"
-                            + this.wes2BridgeCase.getJmsPort();
+                    line = line3 + this.wes2BridgeCase.getJmsPort();
                 } else if (line.startsWith(line4)) {
                     line = line4 + this.wes2BridgeCase.getEdexHttpPort();
                 } else if (line.startsWith(line5)) {
-                    line = line5 + "tcp://localhost:"
-                            + this.wes2BridgeCase.getJmsPort();
+                    line = line5 + this.wes2BridgeCase.getQpidHttpPort();
                 } else if (line.startsWith(line6)) {
                     line = line6 + edexDirectory + "/data/share";
                 } else if (matcher.matches()) {
