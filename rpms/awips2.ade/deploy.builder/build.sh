@@ -5,7 +5,7 @@
 
 export BUILDROOT_DIR="/tmp/awips-component"
 export RPM_BUILD_ROOT="${BUILDROOT_DIR}"
-export UFRAME_ECLIPSE_DIR="/opt/uframe-eclipse"
+export UFRAME_ECLIPSE_DIR="/awips2/eclipse"
 export WORKSPACE_DIR=`cd ../../../; pwd;`
 export AWIPSCM_SHARE="/awipscm"
 
