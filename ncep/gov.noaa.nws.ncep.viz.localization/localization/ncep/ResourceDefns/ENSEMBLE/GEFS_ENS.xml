@@ -5,7 +5,7 @@
     <resourceCategory>ENSEMBLE</resourceCategory>
     <resourceParameters>
 primaryModel=gefs
-availableModels=gefs:01,02;gfs;nam12
+availableModels=gefs:01,02;GFS;NAM-12km
 pluginName=grid
     </resourceParameters>
     <rscImplementation>EnsembleFcstGridContours</rscImplementation>

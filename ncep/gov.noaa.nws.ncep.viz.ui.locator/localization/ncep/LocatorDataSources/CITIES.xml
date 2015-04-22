@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LocatorDataSource>
+    <sourceName>CITIES</sourceName>
+    <sourceType>POINT</sourceType>
+    <dbName>ncep</dbName>
+    <dbTableName>stns.cities</dbTableName>
+	<dbFieldName>name</dbFieldName> 	
+</LocatorDataSource>

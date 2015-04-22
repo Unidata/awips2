@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
+    <resource>GFS0P5</resource>
+    <attrSetGroupName>standard</attrSetGroupName>
+    <attrSetNames>1000-500_thkn,1000-850_thkn,1000mb_hght_tmp_wind,100mb_hght_wind,150mb_hght_wind,200mb_div_isotachs,200mb_hght_wind,250mb_ageo_div_isotachs,250mb_hght_wind,250mb_wind_and_rel_vort,300mb_div_isotachs,300mb_hght_absv_adv,300mb_hght_wind,300mb_hght_tmp_wind,500mb_hght_absv,500mb_hght_absv_adv,500mb_hght_absv_wnd,500mb_hght_color,500mb_hght_geoabsv,500mb_hght_wind,500mb_hght_tmp_wind,50mb_hght_wind,600mb_hght_rh_omega,700mb_hght_rh_omega,700mb_hght_tmp_wind,700mb_rh_rs_temp_global,70mb_hght_wind,850-700_thkn,850mb_hght_tmp_wind,pmsl,pmsl_thkn,pmsl_and_bl_wind_global,300-200mb_pv,400-200mb_pv,400-250mb_pv_global,500-250mb_pv,500-300mb_pv,500mb_hght</attrSetNames>
+</AttributeSetGroup>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resourceDefnName>RAOBs</resourceDefnName>
+    <resourceMapName>RAOB IDs</resourceMapName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
 sourceType=STATIONS_DB_TABLE
@@ -8,7 +9,7 @@ sourceType=STATIONS_DB_TABLE
 ! could use UAIR also
 sourceName=RAOB
 sourceParams=icao
-mapName=RAOB Icao Ids
+mapName=RAOB IDs
     </resourceParameters>
     <rscImplementation>PointOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

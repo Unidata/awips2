@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
     <resource>HRRR</resource>
     <attrSetGroupName>standard</attrSetGroupName>
-    <attrSetNames>1000-500_thkn,1000-850_thkn,1000mb_hght_tmp_wind,500mb_hght_wind,500mb_hght_tmp_wind,700mb_hght_tmp_wind,850mb_hght_tmp_wind</attrSetNames>
+    <attrSetNames>1000-500_thkn,1000-850_thkn,1000mb_hght_tmp_wind,500mb_hght_wind,500mb_hght_tmp_wind,700mb_hght_tmp_wind,850mb_hght_tmp_wind,simulated_radar</attrSetNames>
 </AttributeSetGroup>
