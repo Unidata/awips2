@@ -1,0 +1,26 @@
+!
+! Restore File : 2147483_speed
+!
+! Log:
+! S. Gurung 	9/2013	Initial creation
+!
+GLEVEL=2147483.647
+GVCORD=srcs
+SKIP=
+FILTER=y
+SCALE=-4    
+GDPFUN=speed
+TYPE=f   
+CINT=1/6/1000
+LINE=31/1/1/1
+FINT=0
+FLINE=0;30;4;24;25;26;27;28;29;7;8;9;10;11;12;19;20;21;22;23;13;14;15;16;17;18;2;3;5;6;1;31;0
+HILO=
+HLSYM=
+CLRBAR=1
+WIND=
+TITLE=5/-1/~ Enlil Velocity
+TEXT=1/21/1/hw
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gempakGridVcordUnitSet>
+     <vcordinfo>
+          <name>Ground or water surface</name>
+          <units>-</units>
+          <gnam>NONE</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Cloud base level</name>
+          <units>-</units>
+          <gnam>CLDL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Level of 0 deg C isotherm</name>
+          <units>-</units>
+          <gnam>FRZL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Adiabatic condensation level</name>
+          <units>-</units>
+          <gnam>LCLV</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Maximum wind level</name>
+          <units>-</units>
+          <gnam>MWSL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Tropopause</name>
+          <units>-</units>
+          <gnam>TROP</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Nominal top of the atmosphere</name>
+          <units>-</units>
+          <gnam>TOPA</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Sea bottom</name>
+          <units>-</units>
+          <gnam>SEAB</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Isothermal level</name>
+          <units>K</units>
+          <gnam>TMPL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Isobaric surface</name>
+          <units>hPa</units>
+          <gnam>PRES</gnam>
+          <scale>-2</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Specific altitude above msl</name>
+          <units>m</units>
+          <gnam>HGHT</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Sigma level</name>
+          <units>-</units>
+          <gnam>SGMA</gnam>
+          <scale>4</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Hybrid level</name>
+          <units>-</units>
+          <gnam>HYBL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Depth below land surface</name>
+          <units>m</units>
+          <gnam>DPTH</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Isentropic (theta) level</name>
+          <units>K</units>
+          <gnam>THTA</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+           <name>Level at press diff from ground</name>
+          <units>Pa</units>
+          <gnam>PDLV</gnam>
+          <scale>-2</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Pressure difference layer</name>
+          <units>hPa</units>
+          <gnam>PDLY</gnam>
+          <scale>-2</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Potential vorticity surface</name>
+          <units>K*m**2*kg-1*s-1</units>
+          <gnam>POTV</gnam>
+          <scale>6</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>ETA level</name>
+          <units>-</units>
+          <gnam>ELVL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>ETA layer</name>
+          <units>-</units>
+          <gnam>ELYR</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Highest tropospheric freezing lev</name>
+          <units>-</units>
+          <gnam>HTFL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Grid scale cloud bottom level</name>
+          <units>-</units>
+          <gnam>GSCBL</gnam>
+          <scale>0	</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Grid scale cloud top level</name>
+          <units>-</units>
+          <gnam>GSCTL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Boundary layer cloud bottom level</name>
+          <units>-</units>
+          <gnam>BCBL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Boundary layer cloud top level</name>
+          <units>-</units>
+          <gnam>BCTL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Boundary layer cloud layer</name>
+          <units>-</units>
+          <gnam>BCLY</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Low cloud bottom level</name>
+          <units>-</units>
+          <gnam>LCBL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Low cloud top level</name>
+          <units>-</units>
+          <gnam>LCTL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Low cloud layer</name>
+          <units>-</units>
+          <gnam>LCLY</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Cloud Ceiling</name>
+          <units>-</units>
+          <gnam>CEIL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Planetary Boundary Layer</name>
+          <units>-</units>
+          <gnam>PLBL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Middle cloud bottom level</name>
+          <units>-</units>
+          <gnam>MCBL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Middle cloud top level</name>
+          <units>-</units>
+          <gnam>MCTL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+         <name>Middle cloud layer</name>
+          <units>-</units>
+          <gnam>MCLY</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>High cloud bottom level</name>
+          <units>-</units>
+          <gnam>HCBL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>High cloud top level</name>
+          <units>-</units>
+          <gnam>HCTL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>High cloud layer</name>
+          <units>-</units>
+          <gnam>HCLY</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Ordered Sequence of Data</name>
+          <units>-</units>
+          <gnam>OSEQ</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Convective cloud bottom level</name>
+          <units>-</units>
+          <gnam>CCBL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Convective cloud top level</name>
+          <units>-</units>
+          <gnam>CCTL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Convective cloud layer</name>
+          <units>-</units>
+          <gnam>CCLY</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Lowest level of the wet bulb zero</name>
+          <units>-</units>
+          <gnam>LWBZ</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Maximum equiv potential tmp level</name>
+          <units>-</units>
+          <gnam>MTHE</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Equilibrium level</name>
+          <units>-</units>
+          <gnam>EHLT</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Shallow convective cloud bottom l</name>
+          <units>-</units>
+          <gnam>SCCBT</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Shallow convective cloud top leve</name>
+          <units>-</units>
+          <gnam>SCCTL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Deep convective cloud bottom leve</name>
+          <units>-</units>
+          <gnam>DCCBL</gnam>
+          <scale>0 	</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Deep convective cloud top level</name>
+          <units>-</units>
+          <gnam>DCCTL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Lowest bottom lvl of supercooled</name>
+          <units>-</units>
+          <gnam>LBSLW</gnam>
+          <scale>0 	</scale>
+     </vcordinfo>
+     <vcordinfo>
+          <name>Highest top lvl of supercooled li</name>
+          <units>-</units>
+          <gnam>HTSLW</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+     <!--  VCRDGRIB1.TBL: GRIB 1 vertical coordinate conversion table-->
+    <vcordinfo>
+          <name>Level of 0 deg C isotherm (high)</name>
+          <units>-</units>
+          <gnam>FRZH</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+    <vcordinfo>
+          <name>Deep convective cloud bottom level</name>
+          <units>-</units>
+          <gnam>DCBL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+    <vcordinfo>
+          <name>Deep convective cloud top level</name>
+          <units>-</units>
+          <gnam>DCTL</gnam>
+          <scale>0</scale>
+     </vcordinfo>
+ </gempakGridVcordUnitSet>

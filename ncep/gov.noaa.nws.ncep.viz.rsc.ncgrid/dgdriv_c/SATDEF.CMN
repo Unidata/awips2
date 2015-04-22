@@ -1,0 +1,39 @@
+C************************************************************************
+C* /SATDEF/								*
+C*									*
+C* This common block contains information stored for AOIPS2 and VAS	*
+C* navigations.								*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	10/85						*
+C* M. desJardins/GSFC	 2/86	Modified for new calling seq.		*
+C* J. Cowie/COMET	 2/95	Added xiscal, xibndl			*
+C* S. Jacobs/NCEP	 6/00	Increased kmgnam from 80 to 256 chars	*
+C************************************************************************
+	CHARACTER	kmgnam*256, nvtypa*8
+C*
+	COMMON  / SATDEF /
+     +		kmgnam,			
+C!	                              Image names
+     +		nvtypa,			
+C!	                              Selected nav type
+     +		timea,			
+C!	                              Selected nav time
+     +		gammaa,			
+C!	                              Selected nav gamma
+     +		gdota,			
+C!	                              Selected nav gamma dot
+     +		cldhta,			
+C!	                              Current cloud height
+     +		aoxscl,			
+C!	                              Scale from master coord to linear
+     +		aoxoff,			
+C!	                              Offset
+     +		aoyscl,			
+C!	                              Scale
+     +		aoyoff,			
+C!	                              Offset
+     +		xibndl,
+C!				      Left image bound coord
+     +		xiscal
+C!				      x coord scaling term

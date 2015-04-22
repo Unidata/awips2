@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+ <plugin>bufrmosHPC</plugin>
+      
+
+ 	<PlotParameterDefn  plotParamName="TDCF" metParamName="ClimDayTemp" plotMode="text"  
+                     	dbParamName="maxTempClim" plotUnit="°F" plotFormat="%3.0f"/>                     
+
+ 	<PlotParameterDefn  plotParamName="TNCF" metParamName="ClimNightTemp" plotMode="text"  
+                     	dbParamName="minTempClim" plotUnit="°F" plotFormat="%3.0f"/>
+
+
+ 	<PlotParameterDefn  plotParamName="TDXF" metParamName="Max24HrTemp" plotMode="text"  
+                     	dbParamName="maxTemp24Hour" plotUnit="°F" plotFormat="%3.0f"/>
+
+
+ 	<PlotParameterDefn  plotParamName="TDNF" metParamName="Min24HrTemp" plotMode="text"  
+                     	dbParamName="minTemp24Hour" plotUnit="°C" plotFormat="%3.0f"/>
+                     	
+     <PlotParameterDefn  plotParamName="TDAF" metParamName="DayTempAnomaly" plotMode="text"   
+                     	deriveParams="all" plotUnit="°F" plotFormat="%3.0f"/>                      	
+
+ 	<PlotParameterDefn  plotParamName="TNAF" metParamName="NightTempAnomaly" plotMode="text"  
+                     	deriveParams="all" plotUnit="°F" plotFormat="%3.0f"/>  
+
+                    	
+	<PlotParameterDefn  plotParamName="PP24" plotMode="text" metParamName="POPFcst24Hrs" 
+						dbParamName="POP24hr" plotUnit="%" />
+						
+	<PlotParameterDefn  plotParamName="RFP2" plotMode="text" metParamName="RelFreqPrecip24HrsClim" 
+						dbParamName="relFreqPrecip" plotUnit="%" /> 
+						
+	<!-- STATION VARIABLES -->
+	<PlotParameterDefn  plotParamName="STID" metParamName="StationID" plotMode="text" 
+                     	dbParamName="stationId" />
+ 	<PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude" plotMode="text" 
+                     	dbParamName="latitude" plotFormat="%2.2f" plotUnit="°"/>
+ 	<PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude" plotMode="text" 
+                     	dbParamName="longitude" plotFormat="%3.2f" plotUnit="°"/>												                     	
+
+</PlotParameterDefns>

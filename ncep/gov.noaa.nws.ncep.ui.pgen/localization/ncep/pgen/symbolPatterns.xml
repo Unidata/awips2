@@ -1,0 +1,3167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<symbolPatternList>
+    <patternEntry>
+        <patternId>PLUS_SIGN</patternId>  <!--MARKER_01-->
+        <symbolPattern name="Plus Sign">
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,3.0 0.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>OCTAGON</patternId>  <!--MARKER_02-->
+        <symbolPattern name="Octagon">
+            <pathPart isFilled="false">
+                <path>-1.0,-3.0 1.0,-3.0 3.0,-1.0 3.0,1.0 1.0,3.0 -1.0,3.0 -3.0,1.0 -3.0,-1.0 -1.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TRIANGLE</patternId>  <!--MARKER_03-->
+        <symbolPattern name="Triangle">
+            <pathPart isFilled="false">
+                <path>-3.0,-3.0 3.0,-3.0 0.0,3.0 -3.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BOX</patternId>  <!--MARKER_04-->
+        <symbolPattern name="Box">
+            <pathPart isFilled="false">
+                <path>-3.0,-3.0 3.0,-3.0 3.0,3.0 -3.0,3.0 -3.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SMALL_X</patternId>  <!--MARKER_05-->
+        <symbolPattern name="Small X">
+            <pathPart isFilled="false">
+                <path>-2.0,-2.0 2.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-2.0 -2.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>DIAMOND</patternId>  <!--MARKER_06-->
+        <symbolPattern name="Diamond">
+            <pathPart isFilled="false">
+                <path>0.0,-3.0 -3.0,0.0 0.0,3.0 3.0,0.0 0.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>UP_ARROW</patternId>  <!--MARKER_07-->
+        <symbolPattern name="Up Arrow">
+            <pathPart isFilled="false">
+                <path>0.0,-3.0 0.0,0.0 -3.0,0.0 0.0,3.0 3.0,0.0 0.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>X_WITH_TOP_BAR</patternId>  <!--MARKER_08-->
+        <symbolPattern name="Bar X">
+            <pathPart isFilled="false">
+                <path>-3.0,-3.0 3.0,3.0 -3.0,3.0 3.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>Z_WITH_BAR</patternId>  <!--MARKER_09-->
+        <symbolPattern name="Letter Z">
+            <pathPart isFilled="false">
+                <path>-3.0,3.0 3.0,3.0 -3.0,-3.0 3.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,0.0 2.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>Y</patternId>  <!--MARKER_10-->
+        <symbolPattern name="Letter Y">
+            <pathPart isFilled="false">
+                <path>-3.0,3.0 0.0,0.0 0.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,0.0 3.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BOX_WITH_DIAGONALS</patternId>  <!--MARKER_11-->
+        <symbolPattern name="Box X">
+            <pathPart isFilled="false">
+                <path>-1.0,-1.0 1.0,-1.0 1.0,1.0 -1.0,1.0 -1.0,-1.0 -3.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,-1.0 3.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,1.0 3.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,1.0 -3.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ASTERISK</patternId>  <!--MARKER_12-->
+        <symbolPattern name="Asterisk">
+            <pathPart isFilled="false">
+                <path>-2.0,-2.0 2.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-2.0 -2.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,-3.0 0.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>HOURGLASS_X</patternId>  <!--MARKER_13-->
+        <symbolPattern name="Hourglass">
+            <pathPart isFilled="false">
+                <path>-3.0,-3.0 3.0,3.0 -3.0,3.0 3.0,-3.0 -3.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>STAR</patternId>  <!--MARKER_14-->
+        <symbolPattern name="Star">
+            <pathPart isFilled="false">
+                <path>0.0,3.0 -1.0,1.0 -3.0,1.0 -1.0,0.0 -2.0,-2.0 0.0,-1.0 2.0,-2.0 1.0,0.0 3.0,1.0 1.0,1.0 0.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>DOT</patternId>  <!--MARKER_15-->
+        <symbolPattern name="Dot">
+            <pathPart isFilled="true">
+                <path>0.5,0.0 0.35,0.35 0.0,0.5 -0.35,0.35 -0.5,0.0 -0.35,-0.35 0.0,-0.5 0.35,-0.35 0.5,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LARGE_X</patternId>  <!--MARKER_16-->
+        <symbolPattern name="Large X">
+            <pathPart isFilled="false">
+                <path>-3.0,-3.0 3.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,-3.0 -3.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_OCTAGON</patternId>  <!--MARKER_17-->
+        <symbolPattern name="Filled Octagon">
+            <pathPart isFilled="true">
+                <path>-1.0,-3.0 1.0,-3.0 3.0,-1.0 3.0,1.0 1.0,3.0 -1.0,3.0 -3.0,1.0 -3.0,-1.0 -1.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_TRIANGLE</patternId>  <!--MARKER_18-->
+        <symbolPattern name="Filled Triangle">
+            <pathPart isFilled="true">
+                <path>-3.0,-3.0 3.0,-3.0 0.0,3.0 -3.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_BOX</patternId>  <!--MARKER_19-->
+        <symbolPattern name="Filled Box">
+            <pathPart isFilled="true">
+                <path>-3.0,-3.0 3.0,-3.0 3.0,3.0 -3.0,3.0 -3.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_DIAMOND</patternId>  <!--MARKER_20-->
+        <symbolPattern name="Filled Diamond">
+            <pathPart isFilled="true">
+                <path>0.0,-3.0 -3.0,0.0 0.0,3.0 3.0,0.0 0.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_STAR</patternId>  <!--MARKER_21-->
+        <symbolPattern name="Filled Star">
+            <pathPart isFilled="true">
+                <path>0.0,3.0 -1.0,1.0 -3.0,1.0 -1.0,0.0 -2.0,-2.0 0.0,-1.0 2.0,-2.0 1.0,0.0 3.0,1.0 1.0,1.0 0.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>MINUS_SIGN</patternId>  <!--MARKER_22-->
+        <symbolPattern name="Minus Sign">
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SQUARE</patternId>  <!--SPECIAL_00-->
+        <symbolPattern name="Square (outline)">
+            <pathPart isFilled="false">
+                <path>-5.0,-5.0 -5.0,5.0 5.0,5.0 5.0,-5.0 -5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_SQUARE</patternId>  <!--SPECIAL_01-->
+        <symbolPattern name="Square (filled)">
+            <pathPart isFilled="true">
+                <path>-5.0,-5.0 -5.0,5.0 5.0,5.0 5.0,-5.0 -5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CIRCLE</patternId>  <!--SPECIAL_02-->
+        <symbolPattern name="Circle (outline)">
+            <pathPart isFilled="false">
+                <path>-5.0,1.0 -5.0,-1.0 -4.0,-3.0 -3.0,-4.0 -1.0,-5.0 1.0,-5.0 3.0,-4.0 4.0,-3.0 5.0,-1.0 5.0,1.0 4.0,3.0 3.0,4.0 1.0,5.0 -1.0,5.0 -3.0,4.0 -4.0,3.0 -5.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_CIRCLE</patternId>  <!--SPECIAL_03-->
+        <symbolPattern name="Circle (filled)">
+            <pathPart isFilled="true">
+                <path>-5.0,1.0 -5.0,-1.0 -4.0,-3.0 -3.0,-4.0 -1.0,-5.0 1.0,-5.0 3.0,-4.0 4.0,-3.0 5.0,-1.0 5.0,1.0 4.0,3.0 3.0,4.0 1.0,5.0 -1.0,5.0 -3.0,4.0 -4.0,3.0 -5.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TRIANGLE_SPCL</patternId>  <!--SPECIAL_04-->
+        <symbolPattern name="Triangle (outline)">
+            <pathPart isFilled="false">
+                <path>-5.0,-5.0 5.0,-5.0 0.0,5.0 -5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_TRIANGLE_SPCL</patternId>  <!--SPECIAL_05-->
+        <symbolPattern name="Triangle (filled)">
+            <pathPart isFilled="true">
+                <path>-5.0,-5.0 5.0,-5.0 0.0,5.0 -5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>DIAMOND_SPCL</patternId>  <!--SPECIAL_06-->
+        <symbolPattern name="Diamond (outline)">
+            <pathPart isFilled="false">
+                <path>0.0,5.0 -5.0,0.0 0.0,-5.0 5.0,0.0 0.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_DIAMOND_SPCL</patternId>  <!--SPECIAL_07-->
+        <symbolPattern name="Diamond (filled)">
+            <pathPart isFilled="true">
+                <path>0.0,5.0 -5.0,0.0 0.0,-5.0 5.0,0.0 0.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>STAR_SPCL</patternId>  <!--SPECIAL_08-->
+        <symbolPattern name="Star (outline)">
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 0.0,-2.0 4.0,-4.0 2.0,0.0 5.0,2.0 2.0,2.0 0.0,5.0 -2.0,2.0 -5.0,2.0 -2.0,0.0 -4.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_STAR_SPCL</patternId>  <!--SPECIAL_09-->
+        <symbolPattern name="Star (filled)">
+            <pathPart isFilled="true">
+                <path>-4.0,-4.0 0.0,-2.0 4.0,-4.0 2.0,0.0 5.0,2.0 2.0,2.0 0.0,5.0 -2.0,2.0 -5.0,2.0 -2.0,0.0 -4.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>HIGH_PRESSURE_H</patternId>  <!--SPECIAL_10-->
+        <symbolPattern name="High Pressure H">
+            <pathPart isFilled="false">
+                <path>-4.0,4.0 -2.0,4.0 -2.0,1.0 2.0,1.0 2.0,4.0 4.0,4.0 4.0,-5.0 2.0,-5.0 2.0,-1.0 -2.0,-1.0 -2.0,-5.0 -4.0,-5.0 -4.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LOW_PRESSURE_L</patternId>  <!--SPECIAL_11-->
+        <symbolPattern name="Low Pressure L">
+            <pathPart isFilled="false">
+                <path>-4.0,4.0 -2.0,4.0 -2.0,-3.0 4.0,-3.0 4.0,-5.0 -4.0,-5.0 -4.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_HIGH_PRESSURE_H</patternId>  <!--SPECIAL_12-->
+        <symbolPattern name="High pressure H (filled)">
+            <pathPart isFilled="true">
+                <path>-4.0,4.0 -2.0,4.0 -2.0,1.0 2.0,1.0 2.0,4.0 4.0,4.0 4.0,-5.0 2.0,-5.0 2.0,-1.0 -2.0,-1.0 -2.0,-5.0 -4.0,-5.0 -4.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_LOW_PRESSURE_L</patternId>  <!--SPECIAL_13-->
+        <symbolPattern name="Low pressure L (filled)">
+            <pathPart isFilled="true">
+                <path>-4.0,4.0 -2.0,4.0 -2.0,-3.0 4.0,-3.0 4.0,-5.0 -4.0,-5.0 -4.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SINGLE_BRACKET</patternId>  <!--SPECIAL_14-->
+        <symbolPattern name="Single bracket">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BOTTOM_HALF_OF_BRACKET</patternId>  <!--SPECIAL_15-->
+        <symbolPattern name="Bottom half of bracket">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TOP_HALF_OF_BRACKET</patternId>  <!--SPECIAL_16-->
+        <symbolPattern name="Top half of bracket">
+            <pathPart isFilled="false">
+                <path>1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LEFT_ADJUSTED_VERTICAL_BAR</patternId>  <!--SPECIAL_17-->
+        <symbolPattern name="Left-adjusted vertical bar">
+            <pathPart isFilled="false">
+                <path>-5.0,-4.0 -5.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>RIGHT_ADJUSTED_VERTICAL_BAR</patternId>  <!--SPECIAL_18-->
+        <symbolPattern name="Right-adjusted vertical bar">
+            <pathPart isFilled="false">
+                <path>5.0,-4.0 5.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BRACKET_WITH_ONE_CIRCLE</patternId>  <!--SPECIAL_19-->
+        <symbolPattern name="Bracket with one circle">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="1.1" center="3.0,0.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BRACKET_WITH_TWO_CIRCLES</patternId>  <!--SPECIAL_20-->
+        <symbolPattern name="Bracket with two circles">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="1.1" center="3.0,-2.0"/>
+            <circlePart isFilled="true" radius="1.1" center="3.0,1.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BRACKET_WITH_ONE_ASTERISK</patternId>  <!--SPECIAL_21-->
+        <symbolPattern name="Bracket with one asterisk">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-1.0 4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,1.0 4.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,0.0 4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BRACKET_WITH_TWO_ASTERISKS</patternId>  <!--SPECIAL_22-->
+        <symbolPattern name="Bracket with two asterisks">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,2.0 4.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,0.0 4.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,1.0 4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-1.0 4.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-3.0 4.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-2.0 4.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BRACKET_WITH_ONE_TRIANGLE</patternId>  <!--SPECIAL_23-->
+        <symbolPattern name="Bracket with one triangle">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,1.0 2.0,-1.0 4.0,-1.0 3.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BRACKET_WITH_TWO_TRIANGLES</patternId>  <!--SPECIAL_24-->
+        <symbolPattern name="Bracket with two triangles">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,2.0 2.0,1.0 4.0,1.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,-1.0 2.0,-2.0 4.0,-2.0 3.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TROPICAL_STORM_NH</patternId>  <!--SPECIAL_25-->
+        <symbolPattern name="Tropical Storm (Northern Hemisphere)">
+            <pathPart isFilled="true">
+                <path>2.0,5.0 1.0,5.0 -1.0,4.0 -2.0,2.0 -2.0,0.0 -1.0,2.0 0.0,4.0 2.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-2.0,-5.0 -1.0,-5.0 1.0,-4.0 2.0,-2.0 2.0,0.0 1.0,-2.0 0.0,-4.0 -2.0,-5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 -2.0,1.0 -2.0,0.0 -1.0,-2.0 1.0,-2.0 2.0,-1.0 2.0,0.0 1.0,2.0 -1.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>HURRICANE_NH</patternId>  <!--SPECIAL_26-->
+        <symbolPattern name="Hurricane (Northern Hemisphere)">
+            <pathPart isFilled="true">
+                <path>2.0,5.0 1.0,5.0 -1.0,4.0 -2.0,2.0 -2.0,0.0 -1.0,-2.0 1.0,-2.0 0.0,-4.0 -2.0,-5.0 -1.0,-5.0 1.0,-4.0 2.0,-2.0 2.0,0.0 1.0,2.0 -1.0,2.0 0.0,4.0 2.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TROPICAL_STORM_SH</patternId>  <!--SPECIAL_27-->
+        <symbolPattern name="Tropical Storm (Southern Hemisphere)">
+            <pathPart isFilled="true">
+                <path>2.0,-5.0 0.0,-5.0 -2.0,-4.0 -3.0,-2.0 -3.0,0.0 -2.0,-2.0 -1.0,-4.0 1.0,-5.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>1.0,0.0 0.0,2.0 -1.0,4.0 -3.0,5.0 -2.0,5.0 0.0,4.0 1.0,2.0 1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,-2.0 -2.0,-2.0 -3.0,-1.0 -3.0,0.0 -2.0,2.0 0.0,2.0 1.0,1.0 0.0,-2.0 -2.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>HURRICANE_SH</patternId>  <!--SPECIAL_28-->
+        <symbolPattern name="Hurricane (Southern Hemisphere)">
+            <pathPart isFilled="true">
+                <path>1.0,-5.0 0.0,-5.0 -2.0,-4.0 -3.0,-2.0 -3.0,0.0 -2.0,2.0 0.0,2.0 -1.0,4.0 -3.0,5.0 -2.0,5.0 0.0,4.0 1.0,2.0 1.0,0.0 0.0,-2.0 -2.0,-2.0 -1.0,-4.0 1.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TRIANGLE_WITH_ANTENNA</patternId>  <!--SPECIAL_29-->
+        <symbolPattern name="Triangle with antenna">
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 3.0,-4.0 0.0,1.0 -4.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,1.0 0.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,4.0 2.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SIDEWAYS_S</patternId>  <!--SPECIAL_30-->
+        <symbolPattern name="Sideways S">
+            <pathPart isFilled="false">
+                <path>-4.0,-2.0 -5.0,-1.0 -5.0,0.0 -5.0,1.0 -4.0,2.0 -2.0,2.0 2.0,-2.0 4.0,-2.0 5.0,-1.0 5.0,1.0 4.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SLASH</patternId>  <!--SPECIAL_31-->
+        <symbolPattern name="Slash">
+            <pathPart isFilled="false">
+                <path>-5.0,-5.0 5.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>STORM_CENTER</patternId>  <!--SPECIAL_32-->
+        <symbolPattern name="Storm Center">
+            <pathPart isFilled="false">
+                <path>-5.0,-5.0 -5.0,5.0 5.0,5.0 5.0,-5.0 -5.0,-5.0 5.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>5.0,-5.0 -5.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TROPICAL_DEPRESSION</patternId>  <!--SPECIAL_33-->
+        <symbolPattern name="Tropical Depression">
+            <pathPart isFilled="false">
+                <path>-5.0,1.0 -5.0,-1.0 -4.0,-3.0 -3.0,-4.0 -1.0,-5.0 1.0,-5.0 3.0,-4.0 4.0,-3.0 5.0,-1.0 5.0,1.0 4.0,3.0 3.0,4.0 1.0,5.0 -1.0,5.0 -3.0,4.0 -4.0,3.0 -5.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,-3.0 3.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,-3.0 -3.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TROPICAL_CYCLONE</patternId>  <!--SPECIAL_34-->
+        <symbolPattern name="Tropical Cyclone">
+            <pathPart isFilled="false">
+                <path>-5.0,5.0 5.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,5.0 0.0,-5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>5.0,-4.0 4.0,-5.0 3.0,-5.0 2.0,-4.0 2.0,-2.0 3.0,-1.0 4.0,-1.0 5.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FLAME</patternId>  <!--SPECIAL_35-->
+        <symbolPattern name="Flame">
+            <pathPart isFilled="true">
+                <path>0.0,-5.0 0.0,-4.0 1.0,-5.0 2.0,-3.0 4.0,-2.0 5.0,-1.0 5.0,0.0 4.0,2.0 4.0,1.0 2.0,-1.0 2.0,1.0 1.0,5.0 0.0,3.0 -1.0,4.0 -1.0,3.0 -2.0,1.0 -2.0,0.0 -1.0,-2.0 -1.0,-1.0 1.0,0.0 0.0,-1.0 0.0,-3.0 -3.0,-2.0 -4.0,-1.0 -5.0,2.0 -5.0,0.0 -4.0,-2.0 -5.0,-1.0 -5.0,-2.0 -4.0,-3.0 -5.0,-3.0 0.0,-5.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-4.0,2.0 -3.0,0.0 -3.0,2.0 -2.0,3.0 -2.0,4.0 -3.0,3.0 -3.0,5.0 -4.0,2.0 -4.0,0.0 -3.0,-1.0 -4.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>X_CROSS</patternId>  <!--SPECIAL_36-->
+        <symbolPattern name="X Cross">
+            <pathPart isFilled="false">
+                <path>-5.0,-5.0 5.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>5.0,-5.0 -5.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LOW_X_OUTLINE</patternId>  <!--SPECIAL_37-->
+        <symbolPattern name="LowX (outline)">
+            <pathPart isFilled="false">
+                <path>-2.0,-2.0 2.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,2.0 2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,5.0 -3.0,5.0 -3.0,-3.0 2.0,-3.0 2.0,-5.0 -5.0,-5.0 -5.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LOW_X_FILLED</patternId>  <!--SPECIAL_38-->
+        <symbolPattern name="LowX (filled)">
+            <pathPart isFilled="false">
+                <path>-2.0,-2.0 2.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,2.0 2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-5.0,5.0 -3.0,5.0 -3.0,-3.0 2.0,-3.0 2.0,-5.0 -5.0,-5.0 -5.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TROPICAL_STORM_NH_WPAC</patternId>  <!--SPECIAL_39-->
+        <symbolPattern name="Tropical Storm NH">
+            <pathPart isFilled="false">
+                <path>-5.0,-2.0 -3.0,-3.0 -1.0,-2.0 0.0,0.0 3.0,0.0 4.0,-1.0 5.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,0.0 -1.0,1.0 -1.0,4.0 0.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TROPICAL_STORM_SH_WPAC</patternId>  <!--SPECIAL_40-->
+        <symbolPattern name="Tropical Storm SH">
+            <pathPart isFilled="false">
+                <path>5.0,-2.0 3.0,-3.0 1.0,-2.0 0.0,0.0 -3.0,0.0 -4.0,-1.0 -5.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,0.0 1.0,1.0 1.0,4.0 0.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>NUCLEAR_FALLOUT</patternId>  <!--SPECIAL_41-->
+        <symbolPattern name="Nuclear Fallout">
+            <pathPart isFilled="true">
+                <path>-5.0,1.0 -3.0,5.0 -1.0,1.0 -5.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>1.0,1.0 3.0,5.0 5.0,1.0 1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-2.0,-5.0 0.0,-1.0 2.0,-5.0 -2.0,-5.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.7" center="0.0,0.0" />
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_A</patternId>  <!--SPECIAL_42-->
+        <symbolPattern name="Letter A">
+            <pathPart isFilled="false">
+                <path>5.0,-5.0 3.0,-5.0 2.0,-2.0 -2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,0.0 1.0,0.0 0.0,3.0 -1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-2.0 -3.0,-5.0 -5.0,-5.0 -1.0,5.0 1.0,5.0 5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_A_FILLED</patternId>  <!--SPECIAL_43-->
+        <symbolPattern name="Letter A filled">
+            <pathPart isFilled="true">
+                <path>5.0,-5.0 3.0,-5.0 2.0,-2.0 -2.0,-2.0 -1.0,0.0 1.0,0.0 0.0,3.0 -1.0,0.0 -2.0,-2.0 -3.0,-5.0 -5.0,-5.0 -1.0,5.0 1.0,5.0 5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_C</patternId>  <!--SPECIAL_44-->
+        <symbolPattern name="Letter C">
+            <pathPart isFilled="false">
+                <path>5.0,-2.0 4.0,-4.0 2.0,-5.0 -2.0,-5.0 -4.0,-4.0 -5.0,-2.0 -5.0,2.0 -4.0,4.0 -2.0,5.0 2.0,5.0 4.0,4.0 5.0,2.0 3.0,2.0 2.0,3.0 -2.0,3.0 -3.0,2.0 -3.0,-2.0 -2.0,-3.0 2.0,-3.0 3.0,-2.0 5.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_C_FILLED</patternId>  <!--SPECIAL_45-->
+        <symbolPattern name="Letter C filled">
+            <pathPart isFilled="true">
+                <path>5.0,-2.0 4.0,-4.0 2.0,-5.0 -2.0,-5.0 -4.0,-4.0 -5.0,-2.0 -5.0,2.0 -4.0,4.0 -2.0,5.0 2.0,5.0 4.0,4.0 5.0,2.0 3.0,2.0 2.0,3.0 -2.0,3.0 -3.0,2.0 -3.0,-2.0 -2.0,-3.0 2.0,-3.0 3.0,-2.0 5.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_X</patternId>  <!--SPECIAL_46-->
+        <symbolPattern name="Letter X">
+            <pathPart isFilled="false">
+                <path>5.0,-5.0 3.0,-5.0 0.0,-1.0 -3.0,-5.0 -5.0,-5.0 -1.0,0.0 -5.0,5.0 -3.0,5.0 0.0,1.0 3.0,5.0 5.0,5.0 1.0,0.0 5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_X_FILLED</patternId>  <!--SPECIAL_47-->
+        <symbolPattern name="Letter X filled">
+            <pathPart isFilled="true">
+                <path>5.0,-5.0 3.0,-5.0 0.0,-1.0 -3.0,-5.0 -5.0,-5.0 -1.0,0.0 -5.0,5.0 -3.0,5.0 0.0,1.0 3.0,5.0 5.0,5.0 1.0,0.0 5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_N</patternId>  <!--SPECIAL_48-->
+        <symbolPattern name="Letter N">
+            <pathPart isFilled="false">
+                <path>5.0,-5.0 3.0,-5.0 -3.0,2.0 -3.0,-5.0 -5.0,-5.0 -5.0,5.0 -3.0,5.0 3.0,-2.0 3.0,5.0 5.0,5.0 5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_N_FILLED</patternId>  <!--SPECIAL_49-->
+        <symbolPattern name="Letter N filled">
+            <pathPart isFilled="true">
+                <path>5.0,-5.0 3.0,-5.0 -3.0,2.0 -3.0,-5.0 -5.0,-5.0 -5.0,5.0 -3.0,5.0 3.0,-2.0 3.0,5.0 5.0,5.0 5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>30_KT_BARB</patternId>  <!--SPECIAL_50-->
+        <symbolPattern name="Thirty knot wind barb">
+            <pathPart isFilled="false">
+                <path>3.0,4.0 5.0,4.0 5.0,0.0 3.0,0.0 3.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 1.0,4.0 1.0,0.0 -1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,-2.0 -4.0,-5.0 4.0,-5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,2.0 0.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 -2.0,-5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-2.0 0.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>MT_WAVE</patternId>  <!--SPECIAL_51-->
+        <symbolPattern name="Mountain Wave">
+            <pathPart isFilled="false">
+                <path>-5.0,0.0 -4.0,-1.0 -3.0,-2.0 0.0,-3.0 3.0,-2.0 4.0,-1.0 5.0,0.0 4.0,1.0 3.0,2.0 0.0,3.0 -3.0,2.0 -4.0,1.0 -5.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>MT_OBSC</patternId>  <!--SPECIAL_52-->
+        <symbolPattern name="MT_OBSC">
+            <pathPart isFilled="false">
+                <path>-3.0,-1.5 -2.0,2.0 0.0,-1.5 2.0,2.0 3.0,-1.5</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.75 3.0,0.75</path>
+            </pathPart>        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SFC_WND_20K</patternId>  <!--SPECIAL_53-->
+        <symbolPattern name="SFC_WND_20K">
+            <pathPart isFilled="false">
+                <path>0.0,5.0 5.0,0.0 0.0,-5.0 -5.0,0.0 0.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 -1.0,2.0 -1.0,0.0 -3.0,0.0 -3.0,-2.0 -1.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,2.0 3.0,2.0 3.0,-2.0 1.0,-2.0 1.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SFC_WND_30K</patternId>  <!--SPECIAL_54-->
+        <symbolPattern name="SFC_WND_30K">
+            <pathPart isFilled="false">
+                <path>0.0,5.0 5.0,0.0 0.0,-5.0 -5.0,0.0 0.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 -1.0,2.0 -1.0,0.0 -2.0,0.0 -1.0,0.0 -1.0,-2.0 -3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,2.0 3.0,2.0 3.0,-2.0 1.0,-2.0 1.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_B</patternId>  <!--SPECIAL_55-->
+        <symbolPattern name="Letter B ">
+            <pathPart isFilled="false">
+                <path>-5.0,-5.0 -5.0,5.0 3.0,5.0 4.0,4.0 4.0,1.0 3.0,0.0 4.0,-1.0 4.0,-4.0 3.0,-5.0 -5.0,-5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,-3.0 -3.0,-1.0 1.0,-1.0 1.0,-3.0 -3.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 -3.0,3.0 1.0,3.0 1.0,1.0 -3.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LETTER_B_FILLED</patternId>  <!--SPECIAL_56-->
+        <symbolPattern name="Letter B filled">
+            <pathPart isFilled="true">
+                <path>-5.0,-5.0 3.0,-5.0 4.0,-4.0 4.0,-1.0 1.0,-1.0 1.0,-3.0 -3.0,-3.0 -3.0,-1.0 -5.0,-1.0 -5.0,-5.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-5.0,-1.0 4.0,-1.0 3.0,0.0 4.0,1.0 -5.0,1.0 -5.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-5.0,5.0 3.0,5.0 4.0,4.0 4.0,1.0 1.0,1.0 1.0,3.0 -3.0,3.0 -3.0,1.0 -5.0,1.0 -5.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,-1.0 4.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,1.0 4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,-5.0 -5.0,5.0 3.0,5.0 4.0,4.0 4.0,1.0 3.0,0.0 4.0,-1.0 4.0,-4.0 3.0,-5.0 -5.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>UP_ARROW_SPCL</patternId>  <!--SPECIAL_57-->
+        <symbolPattern name="Up Arrow Symbol">
+            <pathPart isFilled="true">
+                <path>0.0,5.0 4.0,1.0 2.0,1.0 2.0,-5.0 -2.0,-5.0 -2.0,1.0 -4.0,1.0 0.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>DOWN_ARROW_SPCL</patternId>  <!--SPECIAL_58-->
+        <symbolPattern name="Down Arrow Symbol">
+            <pathPart isFilled="true">
+                <path>0.0,-5.0 -4.0,-1.0 -2.0,-1.0 -2.0,5.0 2.0,5.0 2.0,-1.0 4.0,-1.0 0.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_000</patternId>
+        <symbolPattern name="Cloud development not observed during past hour">
+            <pathPart isFilled="false">
+                <path>1.0,3.0 -1.0,3.0 -3.0,1.0 -3.0,-1.0 -1.0,-3.0 1.0,-3.0 3.0,-1.0 3.0,1.0 1.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_001</patternId>
+        <symbolPattern name="Clouds dissolving during last hour">
+            <pathPart isFilled="false">
+                <path>1.0,3.0 -1.0,3.0 -3.0,1.0 -3.0,-1.0 -1.0,-3.0 1.0,-3.0 3.0,-1.0 3.0,1.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,-3.0 0.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_002</patternId>
+        <symbolPattern name="State of sky unchanged during last hour">
+            <pathPart isFilled="false">
+                <path>1.0,3.0 -1.0,3.0 -3.0,1.0 -3.0,-1.0 -1.0,-3.0 1.0,-3.0 3.0,-1.0 3.0,1.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 -4.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,0.0 4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_003</patternId>
+        <symbolPattern name="Clouds developing during last hour">
+            <pathPart isFilled="false">
+                <path>1.0,3.0 -1.0,3.0 -3.0,1.0 -3.0,-1.0 -1.0,-3.0 1.0,-3.0 3.0,-1.0 3.0,1.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,3.0 0.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_004</patternId>
+        <symbolPattern name="Visibility reduced by smoke">
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 -4.0,4.0 -3.0,4.0 -2.0,3.0 -1.0,3.0 0.0,4.0 1.0,4.0 2.0,3.0 3.0,3.0 4.0,4.0 5.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_005</patternId>
+        <symbolPattern name="Haze">
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 -3.0,0.0 -2.0,1.0 -1.0,1.0 2.0,-2.0 3.0,-2.0 4.0,-1.0 4.0,0.0 3.0,1.0 2.0,1.0 -1.0,-2.0 -2.0,-2.0 -3.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_006</patternId>
+        <symbolPattern name="Widespread dust in suspension in air">
+            <pathPart isFilled="false">
+                <path>2.0,2.0 1.0,3.0 -1.0,3.0 -2.0,2.0 -2.0,1.0 2.0,-1.0 2.0,-2.0 1.0,-3.0 -1.0,-3.0 -2.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_007</patternId>
+        <symbolPattern name="Dust or sand raised by wind">
+            <pathPart isFilled="false">
+                <path>2.0,2.0 1.0,3.0 -1.0,3.0 -2.0,2.0 -2.0,1.0 2.0,-1.0 2.0,-2.0 1.0,-3.0 -1.0,-3.0 -2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,-4.0 0.0,5.0 -1.0,4.0 0.0,5.0 1.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_008</patternId>
+        <symbolPattern name="Dust devil(s)">
+            <pathPart isFilled="false">
+                <path>1.0,4.0 0.0,4.0 -1.0,3.0 -1.0,2.0 0.0,1.0 1.0,1.0 1.0,2.0 0.0,2.0 -1.0,1.0 -1.0,0.0 0.0,-1.0 1.0,-1.0 1.0,0.0 0.0,0.0 -1.0,-1.0 -1.0,-2.0 0.0,-3.0 1.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_009</patternId>
+        <symbolPattern name="Dust or sand storm within sight or at station during past hour">
+            <pathPart isFilled="false">
+                <path>2.0,2.0 1.0,3.0 -1.0,3.0 -2.0,2.0 -2.0,1.0 2.0,-1.0 2.0,-2.0 1.0,-3.0 -1.0,-3.0 -2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 4.0,0.0 3.0,1.0 4.0,0.0 3.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,-4.0 -4.0,-3.0 -4.0,3.0 -3.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>4.0,-4.0 5.0,-3.0 5.0,3.0 4.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_010</patternId>
+        <symbolPattern name="Light Fog">
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 3.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 3.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_011</patternId>
+        <symbolPattern name="Patches of shallow fog">
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 -1.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,-1.0 3.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 -1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,1.0 3.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_012</patternId>
+        <symbolPattern name="Continuous shallow fog">
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 3.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 -1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,1.0 3.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_013</patternId>
+        <symbolPattern name="Lightning visible, no thunder heard">
+            <pathPart isFilled="false">
+                <path>1.0,2.0 -1.0,0.0 1.0,-2.0 0.0,-2.0 1.0,-2.0 1.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_014</patternId>
+        <symbolPattern name="Precipitation within sight, but not reaching ground">
+            <circlePart isFilled="true" radius="1.1" center="0.0,0.0"/>
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 -2.0,-2.0 2.0,-2.0 3.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_015</patternId>
+        <symbolPattern name="Precipitation within sight, reaching ground at distant station">
+            <circlePart isFilled="true" radius="1.1" center="0.0,0.0"/>
+            <pathPart isFilled="false">
+                <path>-3.0,4.0 -2.0,3.0 -2.0,-3.0 -3.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,4.0 2.0,3.0 2.0,-3.0 3.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_016</patternId>
+        <symbolPattern name="Precipitation reaching ground near station">
+            <circlePart isFilled="true" radius="1.1" center="0.0,0.0"/>
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 -2.0,3.0 -2.0,-3.0 -1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,4.0 2.0,3.0 2.0,-3.0 1.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_017</patternId>
+        <symbolPattern name="Thunder heard, but no precipitation at station">
+            <pathPart isFilled="false">
+                <path>-1.0,-2.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0 0.0,1.0 3.0,-2.0 2.0,-2.0 3.0,-2.0 3.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-3.0 -3.0,-2.0 -3.0,3.0 -2.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,-3.0 4.0,-2.0 4.0,3.0 3.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_018</patternId>
+        <symbolPattern name="Squall(s) within sight last hour">
+            <pathPart isFilled="false">
+                <path>-2.0,2.0 0.0,-3.0 2.0,2.0 0.0,1.0 -2.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_019</patternId>
+        <symbolPattern name="Funnel cloud(s) within sight during last hour">
+            <pathPart isFilled="false">
+                <path>-2.0,4.0 -1.0,3.0 -1.0,-3.0 -2.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,4.0 0.0,3.0 0.0,-3.0 1.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_020</patternId>
+        <symbolPattern name="Drizzle during past hour but not at observation time">
+            <circlePart isFilled="true" radius="0.75" center="-1.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>-1.0,1.0 -1.0,0.0 -2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,-3.0 1.0,-3.0 1.0,3.0 0.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_021</patternId>
+        <symbolPattern name="Rain during past hour but not at observation time">
+            <circlePart isFilled="true" radius="1.1" center="-1.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,-3.0 1.0,-3.0 1.0,3.0 0.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_022</patternId>
+        <symbolPattern name="Snow during past hour but not at observation time">
+            <pathPart isFilled="false">
+                <path>1.0,-3.0 2.0,-3.0 2.0,3.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 0.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 0.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 1.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_023</patternId>
+        <symbolPattern name="Rain and snow during past hour but not at observation time">
+            <pathPart isFilled="false">
+                <path>1.0,-3.0 2.0,-3.0 2.0,3.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-2.0 0.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,0.0 0.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 1.0,-1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="1.1" center="-1.0,2.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_024</patternId>
+        <symbolPattern name="Freezing rain during past hour but not at observation time">
+            <pathPart isFilled="false">
+                <path>3.0,-3.0 4.0,-3.0 4.0,3.0 3.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 -3.0,0.0 -3.0,1.0 -2.0,2.0 -1.0,2.0 1.0,-1.0 2.0,-1.0 3.0,0.0 3.0,1.0 2.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_025</patternId>
+        <symbolPattern name="Rain showers during past hour but not at observation time">
+            <pathPart isFilled="false">
+                <path>1.0,-3.0 2.0,-3.0 2.0,3.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-3.0 -2.0,0.0 0.0,0.0 -1.0,-3.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="1.1" center="-1.0,2.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_026</patternId>
+        <symbolPattern name="Snow showers during past hour but not at observation time">
+            <pathPart isFilled="false">
+                <path>1.0,-3.0 2.0,-3.0 2.0,3.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-3.0 -2.0,0.0 0.0,0.0 -1.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 0.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 0.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 1.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_027</patternId>
+        <symbolPattern name="Hail and/or rain showers during past hour but not at obs. time">
+            <pathPart isFilled="false">
+                <path>1.0,-3.0 2.0,-3.0 2.0,3.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-3.0 -2.0,0.0 0.0,0.0 -1.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 -1.0,3.0 0.0,1.0 -2.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_028</patternId>
+        <symbolPattern name="Fog during past hour, but not at obs time">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,-3.0 4.0,-3.0 4.0,3.0 3.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_029</patternId>
+        <symbolPattern name="Thunderstorm, no precip at observation time">
+            <pathPart isFilled="false">
+                <path>-4.0,-3.0 -4.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,2.0 -1.0,2.0 -3.0,0.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 -1.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_030</patternId>
+        <symbolPattern name="Slight or moderate dust or sand storm decreasing">
+            <pathPart isFilled="false">
+                <path>1.0,2.0 0.0,3.0 -2.0,3.0 -3.0,2.0 -3.0,1.0 1.0,-1.0 1.0,-2.0 0.0,-3.0 -2.0,-3.0 -3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,0.0 3.0,0.0 2.0,1.0 3.0,0.0 2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>4.0,-4.0 4.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_031</patternId>
+        <symbolPattern name="Slight or moderate dust or sand storm">
+            <pathPart isFilled="false">
+                <path>2.0,2.0 1.0,3.0 -1.0,3.0 -2.0,2.0 -2.0,1.0 2.0,-1.0 2.0,-2.0 1.0,-3.0 -1.0,-3.0 -2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 4.0,0.0 3.0,1.0 4.0,0.0 3.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_032</patternId>
+        <symbolPattern name="Slight or moderate dust or sand storm increasing">
+            <pathPart isFilled="false">
+                <path>2.0,2.0 1.0,3.0 -1.0,3.0 -2.0,2.0 -2.0,1.0 2.0,-1.0 2.0,-2.0 1.0,-3.0 -1.0,-3.0 -2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 -4.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 4.0,0.0 3.0,1.0 4.0,0.0 3.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_033</patternId>
+        <symbolPattern name="Severe dust or sand storm decreasing">
+            <pathPart isFilled="false">
+                <path>1.0,3.0 0.0,4.0 -2.0,4.0 -3.0,3.0 -3.0,1.0 1.0,-1.0 1.0,-3.0 0.0,-4.0 -2.0,-4.0 -3.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-1.0 3.0,-1.0 4.0,0.0 2.0,-2.0 4.0,0.0 2.0,2.0 3.0,1.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>5.0,-5.0 5.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_034</patternId>
+        <symbolPattern name="Severe dust or sand storm">
+            <pathPart isFilled="false">
+                <path>1.0,3.0 0.0,4.0 -2.0,4.0 -3.0,3.0 -3.0,1.0 1.0,-1.0 1.0,-3.0 0.0,-4.0 -2.0,-4.0 -3.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-1.0 3.0,-1.0 4.0,0.0 2.0,-2.0 4.0,0.0 2.0,2.0 3.0,1.0 -4.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_035</patternId>
+        <symbolPattern name="Severe dust or sand storm increasing">
+            <pathPart isFilled="false">
+                <path>1.0,3.0 0.0,4.0 -2.0,4.0 -3.0,3.0 -3.0,1.0 1.0,-1.0 1.0,-3.0 0.0,-4.0 -2.0,-4.0 -3.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-1.0 3.0,-1.0 4.0,0.0 2.0,-2.0 4.0,0.0 2.0,2.0 3.0,1.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,-5.0 -5.0,5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_036</patternId>
+        <symbolPattern name="Slight or moderate drifting snow, generally low height">
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0 2.0,1.0 3.0,0.0 2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,3.0 0.0,-3.0 -1.0,-2.0 0.0,-3.0 1.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_037</patternId>
+        <symbolPattern name="Heavy drifting snow, generally low height">
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 3.0,-1.0 2.0,-2.0 4.0,0.0 2.0,2.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,3.0 0.0,-3.0 -1.0,-2.0 0.0,-3.0 1.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_038</patternId>
+        <symbolPattern name="Slight or moderate drifting snow, generally high height">
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0 2.0,1.0 3.0,0.0 2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 0.0,3.0 1.0,2.0 0.0,3.0 0.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_039</patternId>
+        <symbolPattern name="Heavy drifting snow, generally high">
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 3.0,-1.0 2.0,-2.0 4.0,0.0 2.0,2.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 0.0,3.0 1.0,2.0 0.0,3.0 0.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_040</patternId>
+        <symbolPattern name="Fog at distance">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,-4.0 -4.0,-2.0 -4.0,2.0 -3.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,-4.0 4.0,-2.0 4.0,2.0 3.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_041</patternId>
+        <symbolPattern name="Fog in patches">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 -1.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 -1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,2.0 3.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_042</patternId>
+        <symbolPattern name="Fog, sky discernible, fog getting thinner">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 -1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,2.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>4.0,-3.0 4.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_043</patternId>
+        <symbolPattern name="Fog, sky not discernible, fog getting thinner">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>4.0,-3.0 4.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_044</patternId>
+        <symbolPattern name="Fog, sky discernible">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 -1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,2.0 3.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_045</patternId>
+        <symbolPattern name="Fog, Sky not discernible">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 3.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_046</patternId>
+        <symbolPattern name="Fog getting thicker, sky discernible">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 -1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,2.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-3.0 -4.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_047</patternId>
+        <symbolPattern name="Fog getting thicker, sky not discernible">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-3.0 -4.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_048</patternId>
+        <symbolPattern name="Fog depositing rime, sky discernible">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 -2.0,2.0 0.0,-2.0 2.0,2.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-1.0,0.0 0.0,-2.0 1.0,0.0 -1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,-2.0 0.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_049</patternId>
+        <symbolPattern name="Fog depositing rime, sky not discernible">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,2.0 0.0,-2.0 2.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-1.0,0.0 0.0,-2.0 1.0,0.0 -1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,-2.0 0.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_050</patternId>
+        <symbolPattern name="Intermittent drizzle">
+            <circlePart isFilled="true" radius="0.75" center="0.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,1.0 0.0,0.0 -1.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_051</patternId>
+        <symbolPattern name="Continuous drizzle, slight at observation time">
+            <circlePart isFilled="true" radius="0.75" center="-2.0,1.0" />
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 -2.0,0.0 -3.0,-1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="2.0,1.0" />
+            <pathPart isFilled="false">
+                <path>2.0,1.0 2.0,0.0 1.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_052</patternId>
+        <symbolPattern name="Intermittent drizzle, slight at observation time">
+            <circlePart isFilled="true" radius="0.75" center="0.0,2.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,2.0 0.0,1.0 -1.0,0.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,-1.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,-1.0 0.0,-2.0 -1.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_053</patternId>
+        <symbolPattern name="Continuous drizzle, moderate as observation time">
+            <circlePart isFilled="true" radius="0.75" center="-3.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 -3.0,0.0 -4.0,-1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="3.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>3.0,1.0 3.0,0.0 2.0,-1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,3.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,3.0 0.0,2.0 -1.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_054</patternId>
+        <symbolPattern name="Intermittent drizzle, thick at observation time">
+            <circlePart isFilled="true" radius="0.75" center="0.0,4.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,4.0 0.0,3.0 -1.0,2.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,1.0 0.0,0.0 -1.0,-1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,-2.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,-2.0 0.0,-3.0 -1.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_055</patternId>
+        <symbolPattern name="Continuous drizzle, thick at observation time">
+            <circlePart isFilled="true" radius="0.75" center="-3.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 -3.0,0.0 -4.0,-1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="3.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>3.0,1.0 3.0,0.0 2.0,-1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,3.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,3.0 0.0,2.0 -1.0,1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,-1.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,-1.0 0.0,-2.0 -1.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_056</patternId>
+        <symbolPattern name="Slight freezing drizzle">
+            <circlePart isFilled="true" radius="0.75" center="-3.0,1.0" />
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 -3.0,-0.0 -4.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-2.0 -5.0,-1.0 -5.0,0.0 -5.0,1.0 -4.0,2.0 -2.0,2.0 2.0,-2.0 4.0,-2.0 5.0,-1.0 5.0,1.0 4.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_057</patternId>
+        <symbolPattern name="Moderate freezing drizzle">
+            <circlePart isFilled="true" radius="0.75" center="-3.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 -3.0,0.0 -4.0,-1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="3.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>3.0,1.0 3.0,0.0 2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-2.0 -5.0,-1.0 -5.0,0.0 -5.0,1.0 -4.0,2.0 -2.0,2.0 2.0,-2.0 4.0,-2.0 5.0,-1.0 5.0,1.0 4.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_058</patternId>
+        <symbolPattern name="Slight drizzle and rain">
+            <circlePart isFilled="true" radius="1.1" center="0.0,2.0"/>
+            <circlePart isFilled="true" radius="0.75" center="0.0,-1.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,-1.0 0.0,-2.0 -1.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_059</patternId>
+        <symbolPattern name="Moderate drizzle and rain">
+            <circlePart isFilled="true" radius="0.75" center="0.0,4.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,4.0 0.0,3.0 -1.0,2.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="1.1" center="0.0,0.0"/>
+            <circlePart isFilled="true" radius="0.75" center="0.0,-3.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,-3.0 0.0,-4.0 -1.0,-5.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_060</patternId>
+        <symbolPattern name="Intermittent light rain">
+            <circlePart isFilled="true" radius="1.1" center="0.0,0.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_061</patternId>
+        <symbolPattern name="Continuous rain">
+            <circlePart isFilled="true" radius="1.1" center="-2.0,0.0" />
+            <circlePart isFilled="true" radius="1.1" center="2.0,0.0" />
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_062</patternId>
+        <symbolPattern name="Intermittent moderate rain">
+            <circlePart isFilled="true" radius="1.1" center="0.0,-2.0"/>
+            <circlePart isFilled="true" radius="1.1" center="0.0,2.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_063</patternId>
+        <symbolPattern name="Continuous moderate rain">
+            <circlePart isFilled="true" radius="1.1" center="-2.0,-1.0" />
+            <circlePart isFilled="true" radius="1.1" center="2.0,-1.0" />
+            <circlePart isFilled="true" radius="1.1" center="0.0,2.0" />
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_064</patternId>
+        <symbolPattern name="Intermittent heavy rain">
+            <circlePart isFilled="true" radius="1.1" center="0.0,-3.0"/>
+            <circlePart isFilled="true" radius="1.1" center="0.0,0.0"/>
+            <circlePart isFilled="true" radius="1.1" center="0.0,3.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_065</patternId>
+        <symbolPattern name="Continuous heavy rain">
+            <circlePart isFilled="true" radius="1.1" center="0.0,-3.0" />
+            <circlePart isFilled="true" radius="1.1" center="-2.0,0.0" />
+            <circlePart isFilled="true" radius="1.1" center="2.0,0.0" />
+            <circlePart isFilled="true" radius="1.1" center="0.0,3.0" />
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_066</patternId>
+        <symbolPattern name="Slight freezing rain">
+            <circlePart isFilled="true" radius="1.1" center="-3.0,0.0" />
+            <pathPart isFilled="false">
+                <path>-4.0,-2.0 -5.0,-1.0 -5.0,0.0 -5.0,1.0 -4.0,2.0 -2.0,2.0 2.0,-2.0 4.0,-2.0 5.0,-1.0 5.0,1.0 4.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_067</patternId>
+        <symbolPattern name="Moderate or heavy freezing rain">
+            <circlePart isFilled="true" radius="1.1" center="-3.0,0.0"/>
+            <circlePart isFilled="true" radius="1.1" center="3.0,0.0"/>
+            <pathPart isFilled="false">
+                <path>-4.0,-2.0 -5.0,-1.0 -5.0,0.0 -5.0,1.0 -4.0,2.0 -2.0,2.0 2.0,-2.0 4.0,-2.0 5.0,-1.0 5.0,1.0 4.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_068</patternId>
+        <symbolPattern name="Rain or drizzle and snow, slight">
+            <circlePart isFilled="true" radius="1.1" center="0.0,2.0"/>
+            <pathPart isFilled="false">
+                <path>-1.0,-2.0 1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,0.0 1.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 2.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_069</patternId>
+        <symbolPattern name="Rain mixed with snow, moderate or heavy">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-2.0 1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-3.0 2.0,-3.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="1.1" center="0.0,0.0"/>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 1.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_070</patternId>
+        <symbolPattern name="Intermittent light snow fall">
+            <pathPart isFilled="false">
+                <path>-2.0,0.0 2.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-1.0 1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,1.0 1.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_071</patternId>
+        <symbolPattern name="Continuous Light Snow">
+            <pathPart isFilled="false">
+                <path>-4.0,-1.0 -2.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,0.0 -1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-1.0 4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,1.0 4.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,0.0 5.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_072</patternId>
+        <symbolPattern name="Intermittent moderate snow">
+            <pathPart isFilled="false">
+                <path>-1.0,-2.0 1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,0.0 1.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,1.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,3.0 1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,2.0 2.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_073</patternId>
+        <symbolPattern name="Moderate Snow">
+            <pathPart isFilled="false">
+                <path>-4.0,0.0 -2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-2.0 -2.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,-1.0 -1.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,0.0 4.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-2.0 4.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,-1.0 5.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,3.0 1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,1.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,2.0 2.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_074</patternId>
+        <symbolPattern name="Intermittent heavy snow fall">
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-2.0 1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-3.0 2.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-1.0 1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,1.0 1.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,0.0 2.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 1.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_075</patternId>
+        <symbolPattern name="Continuous Heavy Snow">
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 1.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,-1.0 -2.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,0.0 -1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,1.0 4.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-1.0 4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,0.0 5.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-2.0 1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-3.0 2.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_076</patternId>
+        <symbolPattern name="Ice needles">
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 -3.0,0.0 -2.0,1.0 -3.0,0.0 3.0,0.0 2.0,1.0 3.0,0.0 2.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_077</patternId>
+        <symbolPattern name="Granular snow">
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-1.0 0.0,1.0 1.0,-1.0 -1.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_078</patternId>
+        <symbolPattern name="Isolated star-like snow crystals">
+            <pathPart isFilled="false">
+                <path>-4.0,0.0 4.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-1.0 1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,1.0 1.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_079</patternId>
+        <symbolPattern name="Ice pellets">
+            <circlePart isFilled="true" radius="0.75" center="0.0,0.0" />
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 0.0,3.0 3.0,-2.0 -3.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_080</patternId>
+        <symbolPattern name="Slight rain shower">
+            <circlePart isFilled="true" radius="0.75" center="0.0,3.0" />
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_081</patternId>
+        <symbolPattern name="Moderate or heavy rain showers">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,3.0"/>
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 2.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_082</patternId>
+        <symbolPattern name="Violent rain showers">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,3.0"/>
+            <circlePart isFilled="true" radius="0.75" center="0.0,5.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_083</patternId>
+        <symbolPattern name="Slight showers of rain and snow mixed">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 1.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,5.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_084</patternId>
+        <symbolPattern name="Moderate or heavy showers of rain and snow mixed">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 1.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="0.0,5.0"/>
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 2.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_085</patternId>
+        <symbolPattern name="Slight Snow Showers">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,3.0 1.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,5.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,4.0 2.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_086</patternId>
+        <symbolPattern name="Moderate or heavy snow showers">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,3.0 1.0,5.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,5.0 1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,4.0 2.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_087</patternId>
+        <symbolPattern name="Slight hail showers">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 0.0,4.0 3.0,2.0 -3.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_088</patternId>
+        <symbolPattern name="Moderate Hail Showers">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 0.0,4.0 3.0,2.0 -3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 2.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_089</patternId>
+        <symbolPattern name="Slight Shower of Hail">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-3.0,2.0 0.0,4.0 3.0,2.0 -3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,4.0 0.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_090</patternId>
+        <symbolPattern name="Moderate or heavy showers of hail mixed with rain or snow">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-1.0 2.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-3.0,2.0 0.0,4.0 3.0,2.0 -3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,4.0 0.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_091</patternId>
+        <symbolPattern name="Slight rain with thunderstorms during past hour">
+            <pathPart isFilled="false">
+                <path>-4.0,-3.0 -4.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,2.0 -1.0,2.0 -3.0,0.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 -1.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="1.1" center="3.0,0.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_092</patternId>
+        <symbolPattern name="Moderate or heavy rain with thunderstorm during past hour">
+            <pathPart isFilled="false">
+                <path>-4.0,-3.0 -4.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,2.0 -1.0,2.0 -3.0,0.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 -1.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="1.1" center="3.0,-2.0"/>
+            <circlePart isFilled="true" radius="1.1" center="3.0,1.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_093</patternId>
+        <symbolPattern name="Slight hail at observation time, thunderstorm during past hour">
+            <pathPart isFilled="false">
+                <path>-4.0,-3.0 -4.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,2.0 -1.0,2.0 -3.0,0.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 -1.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,1.0 2.0,-1.0 4.0,-1.0 3.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_094</patternId>
+        <symbolPattern name="Heavy rain at observation time thunderstorm during past hour">
+            <pathPart isFilled="false">
+                <path>-4.0,-3.0 -4.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,2.0 -1.0,2.0 -3.0,0.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 -1.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,2.0 2.0,1.0 4.0,1.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,-1.0 2.0,-2.0 4.0,-2.0 3.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_095</patternId>
+        <symbolPattern name="Slight or mod thinderstorm with rain">
+            <circlePart isFilled="true" radius="1.15" center="0.0,3.0"/>
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 2.0,1.0 0.0,-1.0 3.0,-4.0 3.0,-3.0 3.0,-4.0 2.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 -1.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_096</patternId>
+        <symbolPattern name="Slight or mod thunderstorm with hail at observation time">
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 2.0,1.0 0.0,-1.0 3.0,-4.0 3.0,-3.0 3.0,-4.0 2.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 -1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,4.0 -1.0,2.0 1.0,2.0 0.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_097</patternId>
+        <symbolPattern name="Heavy thunderstorm without hail and rain at observation time">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 2.0,1.0 0.0,-1.0 2.0,-2.0 0.0,-4.0 0.0,-3.0 0.0,-4.0 1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-4.0 -2.0,1.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="1.1" center="0.0,3.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_098</patternId>
+        <symbolPattern name="Thunderstorm combined with dust or sandstorm">
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 2.0,1.0 0.0,-1.0 3.0,-4.0 3.0,-3.0 3.0,-4.0 2.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 -1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0 1.0,2.0 2.0,3.0 1.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,4.0 -1.0,4.0 -1.0,3.0 0.0,3.0 0.0,2.0 -1.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_099</patternId>
+        <symbolPattern name="Heavy thunderstorm with hail at observation time">
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 2.0,1.0 0.0,-1.0 3.0,-4.0 3.0,-3.0 3.0,-4.0 2.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 -1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,4.0 -1.0,2.0 1.0,2.0 0.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_103</patternId>
+        <symbolPattern name="Slight snow at observation time, thunderstorm during past hour">
+            <pathPart isFilled="false">
+                <path>-4.0,-3.0 -4.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,2.0 -1.0,2.0 -3.0,0.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 -1.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-1.0 4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,1.0 4.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,0.0 4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_104</patternId>
+        <symbolPattern name="Heavy snow at observation time, thunderstorm during past hour">
+            <pathPart isFilled="false">
+                <path>-4.0,-3.0 -4.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-5.0,2.0 -1.0,2.0 -3.0,0.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 -1.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 1.0,-4.0 1.0,3.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,2.0 4.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,0.0 4.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,1.0 4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-1.0 4.0,-3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-3.0 4.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,-2.0 4.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_105</patternId>
+        <symbolPattern name="Slight or Mod Thunderstorm with Snow">
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 2.0,1.0 0.0,-1.0 3.0,-4.0 3.0,-3.0 3.0,-4.0 2.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 -1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 1.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_107</patternId>
+        <symbolPattern name="Heavy thunderstorm without hail and snow at observation time">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 2.0,1.0 0.0,-1.0 2.0,-2.0 0.0,-4.0 0.0,-3.0 0.0,-4.0 1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,-4.0 -2.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 1.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 1.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 2.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_201</patternId>
+        <symbolPattern name="Volcanic activity">
+            <circlePart isFilled="true" radius="0.75" center="0.0,-4.0" />
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 -4.0,-4.0 -2.0,1.0 2.0,1.0 4.0,-4.0 1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,1.0 -2.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,1.0 0.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,1.0 2.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_202</patternId>
+        <symbolPattern name="Sea spray">
+            <pathPart isFilled="false">
+                <path>-5.0,-2.0 -4.0,-1.0 -2.0,1.0 0.0,3.0 2.0,3.0 0.0,1.0 0.0,-1.0 1.0,-3.0 3.0,-3.0 5.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,3.0 4.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESENT_WX_203</patternId>
+        <symbolPattern name="Unknown precipitation from an automatic station">
+            <pathPart isFilled="false">
+                <path>-2.0,3.0 -1.0,4.0 0.0,4.0 1.0,3.0 1.0,1.0 0.0,0.0 -1.0,0.0 -1.0,-3.0</path>
+            </pathPart>
+            <circlePart isFilled="true" radius="0.75" center="-1.0,-4.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PAST_WX_03</patternId>
+        <symbolPattern name="Blowing sand or snow">
+            <pathPart isFilled="false">
+                <path>2.0,2.0 1.0,3.0 -1.0,3.0 -2.0,2.0 -2.0,1.0 2.0,-1.0 2.0,-2.0 1.0,-3.0 -1.0,-3.0 -2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 4.0,0.0 3.0,1.0 4.0,0.0 3.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PAST_WX_04</patternId>
+        <symbolPattern name="Fog">
+            <pathPart isFilled="false">
+                <path>-3.0,-2.0 3.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 3.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PAST_WX_05</patternId>
+        <symbolPattern name="Drizzle">
+            <circlePart isFilled="true" radius="0.75" center="0.0,1.0"/>
+            <pathPart isFilled="false">
+                <path>0.0,1.0 0.0,0.0 -1.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PAST_WX_06</patternId>
+        <symbolPattern name="Rain">
+            <circlePart isFilled="true" radius="1.1" center="0.0,0.0"/>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PAST_WX_07</patternId>
+        <symbolPattern name="Snow">
+            <pathPart isFilled="false">
+                <path>-2.0,0.0 2.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-1.0 1.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,1.0 1.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PAST_WX_08</patternId>
+        <symbolPattern name="Shower">
+            <pathPart isFilled="false">
+                <path>-3.0,1.0 0.0,-5.0 3.0,1.0 -3.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PAST_WX_09</patternId>
+        <symbolPattern name="Thunderstorm">
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 2.0,1.0 0.0,-1.0 3.0,-4.0 3.0,-3.0 3.0,-4.0 2.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-4.0 -1.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_01</patternId>
+        <symbolPattern name="L1 Clouds: Cumulus (Cu) with little vertical extent">
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 -4.0,-3.0 -3.0,-1.0 -1.0,0.0 1.0,0.0 3.0,-1.0 4.0,-3.0 4.0,-4.0 -4.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_02</patternId>
+        <symbolPattern name="L2 Clouds: Cumulus (Cu) of moderate/strong development">
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 -4.0,-3.0 -3.0,-1.0 -1.0,0.0 1.0,0.0 3.0,-1.0 4.0,-3.0 4.0,-4.0 -4.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 -3.0,0.0 -2.0,2.0 0.0,3.0 2.0,2.0 3.0,0.0 3.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_03</patternId>
+        <symbolPattern name="L3 Clouds: Cumulonimbus (Cb) without anvil">
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 -4.0,-3.0 -3.0,-1.0 -1.0,0.0 1.0,0.0 3.0,-1.0 4.0,-3.0 4.0,-4.0 -4.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 -3.0,0.0 -2.0,2.0 0.0,3.0 2.0,2.0 3.0,0.0 3.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,3.0 0.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_04</patternId>
+        <symbolPattern name="L4 Clouds: Stratocumulus (Sc) from spreading out of Cumulus (Cu)">
+            <pathPart isFilled="false">
+                <path>-4.0,0.0 -2.0,0.0 -2.0,-1.0 -1.0,-2.0 1.0,-2.0 2.0,-1.0 2.0,0.0 4.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 -3.0,1.0 -2.0,3.0 0.0,4.0 2.0,3.0 3.0,1.0 3.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_05</patternId>
+        <symbolPattern name="L5 Clouds: Stratocumulus (Sc) not from spreading out of Cumulus (Cu)">
+            <pathPart isFilled="false">
+                <path>-4.0,0.0 -2.0,0.0 -2.0,-1.0 -1.0,-2.0 1.0,-2.0 2.0,-1.0 2.0,0.0 4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_06</patternId>
+        <symbolPattern name="L6 Clouds: Stratus (St)">
+            <pathPart isFilled="false">
+                <path>-4.0,0.0 4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_07</patternId>
+        <symbolPattern name="L7 Clouds: Stratus fractus (StFra) and/or Cumulus fractus (CuFra) of bad weather">
+            <pathPart isFilled="false">
+                <path>-5.0,0.0 -3.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,0.0 1.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.0,0.0 5.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_08</patternId>
+        <symbolPattern name="L8 Clouds: Cumulus (Cu) and Stratocumulus (Sc) at different heights">
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 -4.0,-3.0 -3.0,-1.0 -1.0,0.0 1.0,0.0 3.0,-1.0 4.0,-3.0 4.0,-4.0 -4.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,4.0 -2.0,4.0 -2.0,3.0 -1.0,2.0 1.0,2.0 2.0,3.0 2.0,4.0 4.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_09</patternId>
+        <symbolPattern name="L9 Clouds: Cumulonimbus (Cb) with anvil">
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 -4.0,-3.0 -3.0,-1.0 -1.0,0.0 1.0,0.0 3.0,-1.0 4.0,-3.0 4.0,-4.0 -4.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-3.0,-1.0 -4.0,2.0 4.0,2.0 3.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_11</patternId>
+        <symbolPattern name="M1 Clouds: Thin altostratus (As)">
+            <pathPart isFilled="false">
+                <path>4.0,-4.0 -4.0,-4.0 4.0,4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_12</patternId>
+        <symbolPattern name="M2 Clouds: Thick altostratus (As) or Nimbostratus (Ns)">
+            <pathPart isFilled="false">
+                <path>4.0,-4.0 -4.0,-4.0 4.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>4.0,1.0 -1.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_13</patternId>
+        <symbolPattern name="M3 Clouds: Semi-transparent Altocumulus (Ac)">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,0.0 -3.0,-1.0 -1.0,-1.0 0.0,0.0 0.0,1.0 0.0,0.0 1.0,-1.0 3.0,-1.0 4.0,0.0 4.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_14</patternId>
+        <symbolPattern name="L4 Clouds: Stratocumulus (Sc) from spreading out of Cumulus (Cu)">
+            <pathPart isFilled="false">
+                <path>4.0,4.0 -4.0,-2.0 -4.0,-3.0 -3.0,-4.0 -1.0,-4.0 0.0,-3.0 0.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_15</patternId>
+        <symbolPattern name="M5 Clouds: Altocumulus (Ac) progressively invading the sky">
+            <pathPart isFilled="false">
+                <path>4.0,4.0 -4.0,-2.0 -4.0,-3.0 -3.0,-4.0 -1.0,-4.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 1.0,-4.0 3.0,-4.0 4.0,-3.0 4.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_16</patternId>
+        <symbolPattern name="M6 Clouds: Altocumulus (Ac) from spreading out of Cumulus (Cu)">
+            <pathPart isFilled="false">
+                <path>-4.0,-4.0 -4.0,-3.0 -3.0,-1.0 -1.0,0.0 1.0,0.0 3.0,-1.0 4.0,-3.0 4.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-4.0,2.0 -4.0,1.0 -3.0,0.0 -1.0,0.0 0.0,1.0 0.0,2.0 0.0,1.0 1.0,0.0 3.0,0.0 4.0,1.0 4.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_17</patternId>
+        <symbolPattern name="M7 Clouds: Altocumulus (Ac) in Layers or with As or Ns">
+            <pathPart isFilled="false">
+                <path>4.0,4.0 -4.0,-2.0 -4.0,-3.0 -3.0,-4.0 -1.0,-4.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 1.0,-4.0 3.0,-4.0 4.0,-3.0 4.0,-2.0 -4.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_18</patternId>
+        <symbolPattern name="M8 Clouds: Altocumulus (Ac) with tufts or sproutings">
+            <pathPart isFilled="false">
+                <path>-2.0,-4.0 -2.0,4.0 -2.0,3.0 -1.0,2.0 1.0,2.0 2.0,3.0 2.0,4.0 2.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_19</patternId>
+        <symbolPattern name="M9 Clouds: Altocumulus (Ac) of a chaotic sky">
+            <pathPart isFilled="false">
+                <path>4.0,4.0 -4.0,-1.0 -4.0,-2.0 -3.0,-3.0 -1.0,-3.0 0.0,-2.0 0.0,-1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,-3.0 -1.0,-4.0 -3.0,-4.0 -4.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_21</patternId>
+        <symbolPattern name="H1 Clouds: Filaments of Cirrus (Ci)">
+            <pathPart isFilled="false">
+                <path>-4.0,-1.0 3.0,-1.0 4.0,0.0 4.0,1.0 3.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_22</patternId>
+        <symbolPattern name="H2 Clouds: Dense Cirrus (Ci)">
+            <pathPart isFilled="false">
+                <path>-4.0,-1.0 3.0,-1.0 4.0,0.0 4.0,1.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,2.0 3.0,1.0 3.0,0.0 2.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_23</patternId>
+        <symbolPattern name="H3 Clouds: Dense cirrus (Ci) from Cumulonimbus (Cb)">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 3.0,1.0 4.0,0.0 4.0,-1.0 3.0,-2.0 3.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_24</patternId>
+        <symbolPattern name="H4 Clouds: Cirrus (Ci) progressively invading the sky">
+            <pathPart isFilled="false">
+                <path>1.0,4.0 2.0,4.0 3.0,3.0 3.0,2.0 -3.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_25</patternId>
+        <symbolPattern name="H5 Clouds: Cirrostratus (Cs) increasing but below 45° elevation">
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 -2.0,1.0 -2.0,0.0 -4.0,-1.0 4.0,-1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_26</patternId>
+        <symbolPattern name="H6 Clouds: Cirrostratus (Cs) increasing and above 45° elevation">
+            <pathPart isFilled="false">
+                <path>1.0,4.0 2.0,4.0 3.0,3.0 3.0,2.0 -3.0,-4.0 0.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_27</patternId>
+        <symbolPattern name="H7 Clouds: Cirrostratus (Cs) covering the whole sky">
+            <pathPart isFilled="false">
+                <path>-3.0,2.0 -2.0,1.0 -2.0,0.0 -4.0,-1.0 4.0,-1.0 2.0,0.0 2.0,1.0 3.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_28</patternId>
+        <symbolPattern name="H8 Clouds: Cirrostratus (Cs) not invading or covering the sky">
+            <pathPart isFilled="false">
+                <path>-4.0,-1.0 4.0,-1.0 2.0,0.0 2.0,1.0 3.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>CLOUD_TYPE_29</patternId>
+        <symbolPattern name="H9 Clouds: Cirrocumulus (Cc)">
+            <pathPart isFilled="false">
+                <path>2.0,4.0 3.0,4.0 4.0,3.0 4.0,2.0 -4.0,-2.0 -4.0,-3.0 -3.0,-4.0 -1.0,-4.0 0.0,-3.0 0.0,-2.0 0.0,-3.0 1.0,-4.0 3.0,-4.0 4.0,-3.0 4.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_00</patternId>
+        <symbolPattern name="No Icing">
+            <pathPart isFilled="false">
+                <path>-4.0,0.0 4.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-2.0 1.0,-2.0 2.0,-1.0 2.0,1.0 1.0,2.0 -1.0,2.0 -2.0,1.0 -2.0,-1.0 -1.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_01</patternId>
+        <symbolPattern name="Trace Icing">
+            <pathPart isFilled="false">
+                <path>2.0,2.0 2.0,-1.0 1.0,-2.0 -1.0,-2.0 -2.0,-1.0 -2.0,2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_02</patternId>
+        <symbolPattern name="Trace to Light Icing">
+            <pathPart isFilled="false">
+                <path>2.0,3.0 2.0,0.0 1.0,-1.0 -1.0,-1.0 -2.0,0.0 -2.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,0.0 0.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_03</patternId>
+        <symbolPattern name="Light Icing">
+            <pathPart isFilled="false">
+                <path>2.0,3.0 2.0,0.0 1.0,-1.0 -1.0,-1.0 -2.0,0.0 -2.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,2.0 0.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_04</patternId>
+        <symbolPattern name="Light to Moderate Icing">
+            <pathPart isFilled="false">
+                <path>3.0,3.0 3.0,0.0 2.0,-1.0 -2.0,-1.0 -3.0,0.0 -3.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,0.0 -1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,0.0 1.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_05</patternId>
+        <symbolPattern name="Moderate Icing">
+            <pathPart isFilled="false">
+                <path>3.0,3.0 3.0,0.0 2.0,-1.0 -2.0,-1.0 -3.0,0.0 -3.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 -1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,2.0 1.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_06</patternId>
+        <symbolPattern name="Moderate to Heavy Icing">
+            <pathPart isFilled="false">
+                <path>4.0,3.0 3.0,3.0 3.0,0.0 2.0,-1.0 -2.0,-1.0 -3.0,0.0 -3.0,3.0 -4.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,2.0 -1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,2.0 1.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_07</patternId>
+        <symbolPattern name="Heavy to Severe Icing">
+            <pathPart isFilled="false">
+                <path>4.0,3.0 4.0,0.0 3.0,-1.0 -3.0,-1.0 -4.0,0.0 -4.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,0.0 -2.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,0.0 0.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,0.0 2.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_08</patternId>
+        <symbolPattern name="Severe Icing">
+            <pathPart isFilled="false">
+                <path>4.0,3.0 4.0,0.0 3.0,-1.0 -3.0,-1.0 -4.0,0.0 -4.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,2.0 -2.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,2.0 0.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,2.0 2.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_09</patternId>
+        <symbolPattern name="Light Superstructure Icing">
+            <pathPart isFilled="false">
+                <path>2.0,2.0 2.0,0.0 1.0,-1.0 -1.0,-1.0 -2.0,0.0 -2.0,2.0 2.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,4.0 0.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ICING_10</patternId>
+        <symbolPattern name="Heavy Superstructure Icing">
+            <pathPart isFilled="false">
+                <path>3.0,2.0 3.0,0.0 2.0,-1.0 -2.0,-1.0 -3.0,0.0 -3.0,2.0 3.0,2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,4.0 -1.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>1.0,4.0 1.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TURBULENCE_0</patternId>
+        <symbolPattern name="No Turbulence">
+            <pathPart isFilled="false">
+                <path>-2.0,0.0 0.0,-2.0 2.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TURBULENCE_1</patternId>
+        <symbolPattern name="Light Turbulence 1">
+            <pathPart isFilled="false">
+                <path>-2.0,-2.0 0.0,2.0 2.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.4,-0.7 2.8,-0.5 2.8,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TURBULENCE_2</patternId>
+        <symbolPattern name="Light Turbulence 2">
+            <pathPart isFilled="false">
+                <path>-2.0,-2.0 0.0,2.0 2.0,-2.0</path>
+            </pathPart>
+              <pathPart isFilled="false">
+                <path>2.6,0.0 3.3,0.0 3.3,-1.0, 2.6,-1.0 2.6,-2.0 3.3,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TURBULENCE_3</patternId>
+        <symbolPattern name="Light to Moderate Turbulence">
+            <pathPart isFilled="false">
+                <path>-2.0,-2.0 0.0,2.0 2.0,-2.0 5.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TURBULENCE_4</patternId>
+        <symbolPattern name="Moderate Turbulence">
+            <pathPart isFilled="false">
+                <path>-5.0,-2.0 -2.0,-2.0 0.0,2.0 2.0,-2.0 5.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TURBULENCE_5</patternId>
+        <symbolPattern name="Moderate to Severe Turbulence">
+            <pathPart isFilled="false">
+                <path>-5.0,-2.0 -2.0,-2.0 0.0,2.0 2.0,-2.0 5.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 -1.0,3.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.0,1.0 1.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TURBULENCE_6</patternId>
+        <symbolPattern name="Severe Turbulence">
+            <pathPart isFilled="false">
+                <path>-5.0,-2.0 -2.0,-2.0 0.0,2.0 2.0,-2.0 5.0,-2.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.0,1.0 0.0,5.0 2.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TURBULENCE_7</patternId>
+        <symbolPattern name="Extreme Turbulence 7">
+            <pathPart isFilled="false">
+                <path>0.0,4.0 -3.0,-4.0 4.0,1.0 -4.0,1.0 3.0,-4.0 0.0,4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>3.8,-2.0 4.8,-2.0 4.4,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TURBULENCE_8</patternId>
+        <symbolPattern name="Extreme Turbulence 8">
+            <pathPart isFilled="false">
+                <path>0.0,4.0 -3.0,-4.0 4.0,1.0 -4.0,1.0 3.0,-4.0 0.0,4.0</path>
+            </pathPart>
+                  <pathPart isFilled="false">
+                <path>3.7,-3.0 3.7,-4.0 4.5,-4.0, 4.5,-3.0 3.7,-3.0 3.7,-2.0 4.5,-2.0 4.5,-3.0</path>
+            </pathPart>    
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_00</patternId>
+        <symbolPattern name="No cloud">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_01</patternId>
+        <symbolPattern name="One-tenth or less">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,2.0 0.0,-2.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_02</patternId>
+        <symbolPattern name="Two-tenths to three-tenths">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>4.0,0.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 0.0,4.0 0.0,0.0 4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_03</patternId>
+        <symbolPattern name="Four-tenths">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>4.0,0.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 0.0,4.0 0.0,0.0 4.0,0.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,0.0 0.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_04</patternId>
+        <symbolPattern name="Five-tenths">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>0.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 0.0,4.0 0.0,-4.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_05</patternId>
+        <symbolPattern name="Six-tenths">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>0.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 0.0,4.0 0.0,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>0.0,0.0 -4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_06</patternId>
+        <symbolPattern name="Seven-tenths to eight-tenths">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-4.0,0.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 0.0,4.0 0.0,0.0 -4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_07</patternId>
+        <symbolPattern name="Nine-tenths or overcast with opening">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>0.5,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 0.5,4.0 0.5,-4.0</path>
+            </pathPart>
+            <pathPart isFilled="true">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 -0.5,-4.0 -0.5,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_08</patternId>
+        <symbolPattern name="Completely overcast">
+            <pathPart isFilled="true">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_09</patternId>
+        <symbolPattern name="Sky obscured">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-2.9,-2.9 2.9,2.9</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>2.9,-2.9 -2.9,2.9</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SKY_COVER_10</patternId>
+        <symbolPattern name="Missing cloud">
+            <pathPart isFilled="false">
+                <path>-4.0,1.0 -4.0,-1.0 -3.6,-2.0 -2.9,-2.9 -2.0,-3.6 -1.0,-4.0 1.0,-4.0 2.0,-3.6 2.9,-2.9 3.6,-2.0 4.0,-1.0 4.0,1.0 3.6,2.0 2.9,2.9 2.0,3.6 1.0,4.0 -1.0,4.0 -2.0,3.6 -2.9,2.9 -3.6,2.0 -4.0,1.0</path>
+            </pathPart>
+            <pathPart isFilled="false">
+                <path>-1.0,-3.0 -1.0,3.0 0.0,0.0 1.0,3.0 1.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESSURE_TENDENCY_00</patternId>
+        <symbolPattern name="Rising then falling">
+            <pathPart isFilled="false">
+                <path>-5.0,-3.0 1.0,3.0 4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESSURE_TENDENCY_01</patternId>
+        <symbolPattern name="Rising then steady">
+            <pathPart isFilled="false">
+                <path>-5.0,-3.0 1.0,3.0 4.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESSURE_TENDENCY_02</patternId>
+        <symbolPattern name="Rising steadily">
+            <pathPart isFilled="false">
+                <path>-5.0,-3.0 1.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESSURE_TENDENCY_03</patternId>
+        <symbolPattern name="Falling or steady then rising">
+            <pathPart isFilled="false">
+                <path>-4.0,0.0 -1.0,-3.0 5.0,3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESSURE_TENDENCY_04</patternId>
+        <symbolPattern name="Steady">
+            <pathPart isFilled="false">
+                <path>-3.0,0.0 3.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESSURE_TENDENCY_05</patternId>
+        <symbolPattern name="Falling then rising">
+            <pathPart isFilled="false">
+                <path>-5.0,3.0 1.0,-3.0 4.0,0.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESSURE_TENDENCY_06</patternId>
+        <symbolPattern name="Falling then steady">
+            <pathPart isFilled="false">
+                <path>-5.0,3.0 1.0,-3.0 4.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESSURE_TENDENCY_07</patternId>
+        <symbolPattern name="Falling steadily">
+            <pathPart isFilled="false">
+                <path>-5.0,3.0 1.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>PRESSURE_TENDENCY_08</patternId>
+        <symbolPattern name="Steady or rising then falling">
+            <pathPart isFilled="false">
+                <path>-4.0,0.0 -1.0,3.0 5.0,-3.0</path>
+            </pathPart>
+        </symbolPattern>
+    </patternEntry>    
+</symbolPatternList>

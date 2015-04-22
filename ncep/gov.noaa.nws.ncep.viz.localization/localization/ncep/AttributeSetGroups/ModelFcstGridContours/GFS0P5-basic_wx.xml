@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
+    <resource>GFS0P5</resource>
+    <attrSetGroupName>basic_wx</attrSetGroupName>
+    <attrSetNames>1000-470mb_rh_rs_t_700mb_vv_global,1000-500mb_rh,200mb_vorticity_pw,250mb_vorticity_pw,300-700_q-vctrs_thkn,300mb_vorticity_pw,bl_thte_wind_global,ct_index_global,great_lakes_snow_global,great_lakes_snow2_global,lifted_index_global,pmsl_thkn_wind,pmsl_1000-850_thk_global,pmsl_bl_temp_wind,precip_6hr_1000-500_thkn,precip_type_global,precip_type_vv_global,pmsl_thkn</attrSetNames>
+</AttributeSetGroup>

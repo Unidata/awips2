@@ -1,0 +1,27 @@
+C************************************************************************
+C* CURVE.CMN								*
+C*									*
+C* This common area holds space to store points in the CURVE 		*
+C* subroutines.								*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	12/85						*
+C************************************************************************
+	PARAMETER	( MAXPTS = 500 )
+C*
+	COMMON /CURVE/
+     +			x ( MAXPTS ),		
+C!	                                      x coordinates of input
+     +			y ( MAXPTS ),		
+C!	                                      y coordinates of input
+     +			coeffs ( 4, MAXPTS ),	
+C!	                                      coefficients for curve
+     +			xout ( MAXPTS ),	
+C!	                                      x coordinates for output
+     +			yout ( MAXPTS ),	
+C!	                                      y coordinates for output
+     +			s ( MAXPTS ),		
+C!	                                      second derivative for spline
+     +			a ( 4, MAXPTS )		
+C!	                                      matrix for splines
+C------------------------------------------------------------------------

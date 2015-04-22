@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mule-configuration PUBLIC "-//MuleSource //DTD mule-configuration XML V1.0//EN" "http://mule.mulesource.org/dtds/mule/mule-1.4.0-spring-configuration.dtd">
+
+<!-- ==================================================================== -->
+<!-- Defines endpoint configuration for McIDAS observation ingest         -->
+<!--                                                                      -->
+<!-- File History:                                                        -->
+<!--  Date:     Ticket     Engineer      Description                      -->
+<!--  ========= =========  ============  ==============================   -->
+<!--  8/2009      144      T. Lee        Initial Creation                 -->
+<!-- ==================================================================== -->
+<mule-configuration version="1.0">
+    <model name="edex" type="seda">
+
+        <mule-descriptor name="Awips.Mule.Service.StagingSrv-mcidas"
+            singleton="true"
+            implementation="com.raytheon.edex.services.StagingSrv"
+            outboundEndpoint="jms://ar/mcidas">
+            <inbound-router>
+                <endpoint name="mcidasIngestEndpoint"
+                    address="file://../../data/sbn/mcidas/?transformers=FileToString">
+                    <properties>
+						<property name="autoDelete" value="false" />
+						<property name="moveToDirectory"
+							value="../../processing" />
+                    </properties>
+                </endpoint>
+            </inbound-router>
+            <threading-profile maxThreadsActive="1" maxThreadsIdle="1" />
+        </mule-descriptor>
+        
+		<!-- Endpoint to archive McIDAS Data -->
+		<mule-descriptor name="Awips.Edex.Service.ArchiveSrv-mcidas"
+			singleton="false"
+			implementation="com.raytheon.edex.services.ArchiveSrv"
+			outboundEndpoint="jms://cp/mcidas">
+			<inbound-router>
+				<endpoint name="AR-Mcidas" address="jms://ar/mcidas" />
+			</inbound-router>
+			<threading-profile maxThreadsActive="1" maxThreadsIdle="1" />
+			<properties>
+				<property name="pluginName" value="MCIDAS" />
+				<property name="archiveDirectoryLocation" value="../../data/archive/mcidas/" />
+				<property name="jmxModeOn" value="true" />
+			</properties>
+		</mule-descriptor>
+
+        <!-- Endpoint to ingest Observation data -->
+		<mule-descriptor name="Awips.Edex.Service.IngestSrv-mcidas"
+			singleton="false"
+			implementation="com.raytheon.edex.services.IngestSrv">
+			<inbound-router>
+				<endpoint name="CP-Obs" address="jms://cp/mcidas" transformers="MessageToObject FilePathToBytes" />
+			</inbound-router>
+			<outbound-router>
+				<router
+					className="org.mule.routing.outbound.FilteringListMessageSplitter">
+					<endpoint address="vm://indexVMQueue" />
+				</router>
+			</outbound-router>
+			<threading-profile maxThreadsActive="1" maxThreadsIdle="1" />
+			<properties>
+                <property name="pluginName" value="MCIDAS" />
+			</properties>
+		</mule-descriptor>
+    </model>
+</mule-configuration>
