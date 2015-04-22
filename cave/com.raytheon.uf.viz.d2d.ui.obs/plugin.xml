@@ -22,7 +22,7 @@
 <plugin>
     <extension point="org.eclipse.ui.menus">
         <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=d2d.obsMenu">
-            <menu id="obs" label="Obs" mnemonic="O">
+            <menu id="obs" label="Surface" mnemonic="O">
                 <visibleWhen>
                     <reference
                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
