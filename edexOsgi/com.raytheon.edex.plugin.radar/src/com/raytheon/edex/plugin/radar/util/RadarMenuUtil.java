@@ -282,7 +282,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
 
         CommonSubmenuContribution submenuContribution = new CommonSubmenuContribution();
         List<CommonAbstractMenuContribution> contributions = new ArrayList<CommonAbstractMenuContribution>();
-
+        /*
         // now on to asr radars
         radars = RadarsInUseUtil.getSite(getSite(),
                 RadarsInUseUtil.ASR_CONSTANT);
@@ -334,6 +334,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
             separatorCont.id = "emptyAirportRadarId";
             contributions.add(separatorCont);
         }
+        */
         menuTemplateFile.contributions = contributions
                 .toArray(new CommonAbstractMenuContribution[contributions
                         .size()]);
