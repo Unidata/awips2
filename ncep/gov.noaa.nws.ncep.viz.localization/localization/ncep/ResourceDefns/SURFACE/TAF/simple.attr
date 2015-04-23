@@ -1,6 +1,0 @@
-! Attributes for the TAF resource with "simple" plot model
-!
-plotModel=@PlotModels/nctaf/simple.xml
-plotDensity=10
-conditionalFilter=
-legendString=TAF Simple View
