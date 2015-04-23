@@ -1,6 +1,0 @@
-! Attributes for the PAFM resource with "standard" plot model
-!
-plotModel=@PlotModels/ncpafm/standard.xml
-plotDensity=10
-conditionalFilter=
-legendString=PAFM Standard View
