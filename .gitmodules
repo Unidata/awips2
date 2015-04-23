@@ -1,0 +1,3 @@
+[submodule "gsd"]
+	path = gsd
+	url = https://michael.james@vlab.ncep.noaa.gov/git/awips2-gsd
