@@ -36,6 +36,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.JTS;
@@ -72,6 +73,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.LabelableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
+import com.raytheon.viz.core.rsc.jts.JTSCompiler.JTSGeometryData;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.rsc.GFEFonts;
@@ -106,6 +108,7 @@ import com.vividsolutions.jts.io.WKBReader;
  *                                     assignments.
  * Aug 21, 2014     #3459  randerso    Restructured Map resource class hierarchy
  * Sep 04, 2014     #3365  ccody       Changes for removing Data_Delivery dependencies
+ * Apr 06, 2015     #17340 randerso    Eliminated clipping to GFE domain, code cleanup
  * 
  * </pre>
  * 
@@ -259,17 +262,12 @@ public class ZoneSelectorResource extends DbMapResource {
                                     .getRowColumnValue(i, "editarea");
                             if (zoneName == null) {
                                 continue;
-                                // TODO: what do we do with this?
-                                // zoneName = "";
                             }
 
                             if ((limitZones != null)
                                     && !limitZones.contains(zoneName)) {
                                 continue;
                             }
-
-                            String wfo = (String) mappedResult
-                                    .getRowColumnValue(i, "wfo");
 
                             Geometry existingGeom = resultingGeoms
                                     .get(zoneName);
@@ -281,12 +279,18 @@ public class ZoneSelectorResource extends DbMapResource {
                             numPoints += g.getNumPoints();
                             resultingGeoms.put(zoneName, g);
 
-                            if ((myWfo != null) && myWfo.equals(wfo)) {
-                                if (existingGeom != null) {
-                                    wfoPoints -= existingGeom.getNumPoints();
+                            if (myWfo != null) {
+                                String wfo = (String) mappedResult
+                                        .getRowColumnValue(i, "wfo");
+
+                                if (myWfo.equals(wfo)) {
+                                    if (existingGeom != null) {
+                                        wfoPoints -= existingGeom
+                                                .getNumPoints();
+                                    }
+                                    wfoPoints += g.getNumPoints();
+                                    wfoGeoms.add(g);
                                 }
-                                wfoPoints += g.getNumPoints();
-                                wfoGeoms.add(g);
                             }
 
                             ZoneInfo info = req.rsc.getZoneInfo(zoneName);
@@ -326,7 +330,7 @@ public class ZoneSelectorResource extends DbMapResource {
                     newOutlineShape.allocate(numPoints);
 
                     JTSCompiler outlineCompiler = new JTSCompiler(null,
-                            newOutlineShape, req.descriptor, PointStyle.CROSS);
+                            newOutlineShape, req.descriptor);
 
                     int i = 0;
                     result.shapeList = new IShadedShape[resultingGeoms.size()];
@@ -824,18 +828,7 @@ public class ZoneSelectorResource extends DbMapResource {
         }
     }
 
-    protected String buildQuery(PixelExtent extent, double simpLev)
-            throws VizException {
-
-        Envelope env = null;
-        try {
-            Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
-            ReferencedEnvelope ref = new ReferencedEnvelope(e,
-                    descriptor.getCRS());
-            env = ref.transform(MapUtil.LATLON_PROJECTION, true);
-        } catch (Exception e) {
-            throw new VizException("Error transforming extent", e);
-        }
+    protected String buildQuery(PixelExtent extent, double simpLev) {
 
         DecimalFormat df = new DecimalFormat("0.######");
         String suffix = "_"
@@ -861,16 +854,11 @@ public class ZoneSelectorResource extends DbMapResource {
         query.append(" FROM ");
         query.append(resourceData.getTable());
 
-        // add the geospatial constraint
-        query.append(" WHERE ");
-        query.append(getGeospatialConstraint(geometryField, env));
-
-        // add any additional constraints
-        if (resourceData.getConstraints() != null) {
-            for (String constraint : resourceData.getConstraints()) {
-                query.append(" AND ");
-                query.append(constraint);
-            }
+        // add any constraints
+        String[] constraints = resourceData.getConstraints();
+        if ((constraints != null) && (constraints.length > 0)) {
+            query.append(" WHERE ").append(
+                    StringUtils.join(constraints, " AND "));
         }
 
         query.append(';');
@@ -899,12 +887,19 @@ public class ZoneSelectorResource extends DbMapResource {
 
     private IShadedShape computeShape(IGraphicsTarget target,
             IMapDescriptor descriptor, Geometry g, RGB color) {
+
         IShadedShape newShadedShape = target.createShadedShape(false,
-                descriptor.getGridGeometry(), true);
+                new GeneralGridGeometry(descriptor.getGridGeometry()), true);
+//                new GeneralGridGeometry(descriptor.getGridGeometry()));
         JTSCompiler shapeCompiler = new JTSCompiler(newShadedShape, null,
-                descriptor, PointStyle.CROSS);
+                descriptor);
+        JTSGeometryData geomData = shapeCompiler.createGeometryData();
+        geomData.setWorldWrapCorrect(true);
+        geomData.setPointStyle(PointStyle.CROSS);
+
         try {
-            shapeCompiler.handle(g, color);
+            geomData.setGeometryColor(color);
+            shapeCompiler.handle(g, geomData);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error computing shaded shape", e);
@@ -969,17 +964,11 @@ public class ZoneSelectorResource extends DbMapResource {
                 query.append(" FROM ");
                 query.append(resourceData.getTable());
 
-                // add the geospatial constraint
-                query.append(" WHERE ");
-                query.append(getGeospatialConstraint(
-                        resourceData.getGeomField(), null));
-
-                // add any additional constraints
-                if (resourceData.getConstraints() != null) {
-                    for (String constraint : resourceData.getConstraints()) {
-                        query.append(" AND ");
-                        query.append(constraint);
-                    }
+                // add any constraints
+                String[] constraints = resourceData.getConstraints();
+                if ((constraints != null) && (constraints.length > 0)) {
+                    query.append(" WHERE ").append(
+                            StringUtils.join(constraints, " AND "));
                 }
 
                 query.append(';');
@@ -1052,17 +1041,11 @@ public class ZoneSelectorResource extends DbMapResource {
                 query.append(" FROM ");
                 query.append(resourceData.getTable());
 
-                // add the geospatial constraint
-                query.append(" WHERE ");
-                query.append(getGeospatialConstraint(
-                        resourceData.getGeomField(), null));
-
-                // add any additional constraints
-                if (resourceData.getConstraints() != null) {
-                    for (String constraint : resourceData.getConstraints()) {
-                        query.append(" AND ");
-                        query.append(constraint);
-                    }
+                // add any constraints
+                String[] constraints = resourceData.getConstraints();
+                if ((constraints != null) && (constraints.length > 0)) {
+                    query.append(" WHERE ").append(
+                            StringUtils.join(constraints, " AND "));
                 }
 
                 query.append(';');
