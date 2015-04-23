@@ -1,9 +1,0 @@
-color= RGB {0,255,0}
-markerState=MARKER_ONLY
-markerType=FILLED_TRIANGLE
-markerSize=1.2
-markerWidth=1
-markerTextSize=SMALL
-! the distance in km of the screen width when the symbols/labels will be displayed.
-maxSymbolDisplayWidth=40100
-maxLabelDisplayWidth=500
