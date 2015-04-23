@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <resource>LocalRadar</resource>
-    <attrSetGroupName>All Products</attrSetGroupName>
-    <attrSetNames>DAA,DHR,DOD,DSD,DSP,DTA,DVL,EET,HHC,N0C,N0H,N0K,N0X,N0C,N0H,N0K,N0Q,N0R,N0S,N0U,N0V,N0X,N0Z,N1P,NCR,NET</attrSetNames>
-</AttributeSetGroup>
