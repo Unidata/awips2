@@ -6,9 +6,9 @@ SET CONTAINING_DIRECTORY=%~dp0
 REM Prepare the environment.
 
 REM Location of AWIPS II Java (the jre).
-SET JavaJreDirectory="C:\Program Files\Raytheon\AWIPS II\Java\jre7"
+SET JavaJreDirectory=C:\Program Files\Raytheon\AWIPS II\Java\jre7
 REM Location of AWIPS II Python.
-SET PythonInstallDirectory="C:\Program Files\Raytheon\AWIPS II\Python"
+SET PythonInstallDirectory=C:\Program Files\Raytheon\AWIPS II\Python
 
 REM Add Java and Python to the path.
 SET Path=%PythonInstallDirectory%;%PythonInstallDirectory%\DLLs;%Path%
