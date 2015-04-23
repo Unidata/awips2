@@ -22,7 +22,7 @@
 ##
 
 import iscMosaic,iscUtil
-import os, stat, sys, re, string, traceback, types
+import os, stat, sys, re, string, types
 import time, xml, LogStream, IrtAccess
 import IrtServer
 from xml.etree import ElementTree
@@ -46,6 +46,7 @@ from java.util import ArrayList
 #    12/08/2014      4953          randerso       Added support for sending/receiving TCV files
 #                                                 Additional code cleanup
 #    04/08/2015      4383          dgilling       Support FireWx ISC.
+#    04/23/2015      4383          randerso       Fixed exception logging
 #
 ##
 
@@ -78,7 +79,7 @@ def purgeFiles(msgid, files):
         try:
             os.remove(file)
         except:
-            logEvent("iscDataRec Failed to remove: ",file)
+            logException("iscDataRec Failed to remove file %s: ", str(file))
 
 
 def execIscDataRec(MSGID,SUBJECT,FILES):
@@ -109,7 +110,7 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                 destTree = ElementTree.ElementTree(ElementTree.XML(xmlFileBuf))
                 iscE = destTree.getroot()
             except:
-                logProblem("Malformed XML received")
+                logException("Malformed XML received")
                 return
         
         #no XML destination information. Default to dx4f,px3 98000000, 98000001
@@ -220,7 +221,8 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                 logEvent('Sent to:', 
                   irt.printServerInfo(destServer), "connectT=", delta1, "xmtT=", delta2)   
     except:
-        logProblem("iscDataRec failed!",traceback.format_exc())
+        logException("iscDataRec failed!")
+        
     finally:    
         # cleanup
         purgeFiles(MSGID, FILES)
@@ -303,8 +305,8 @@ def main(argv):
             execIscDataRec(MSGID,SUBJECT,FILES)
         
         except:
-            logProblem('Failure:', traceback.format_exc())
+            logException('Failure:')
     
     except:
-        logProblem("FAIL: ", traceback.format_exc())
+        logException("FAIL: ")
         
