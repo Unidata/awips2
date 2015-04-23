@@ -1,6 +1,0 @@
-! Parameters and Attributes for the default FFG Resource
-!
-ffg_param=FF01 
-colorBar=@ColorBars/FFG/ffgColorBar.xml
-displayValues=true
-symbolName=ASTERISK
