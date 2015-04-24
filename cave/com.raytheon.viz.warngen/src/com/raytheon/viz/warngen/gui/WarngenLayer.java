@@ -235,6 +235,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 11/03/2014  3353        rferrel     Ignore GeoSpatialData notification when this is the instance layer will do an update.
  * 02/09/2015  3954        dlovely     Only draw "W" if the county is displayed.
  * 02/25/2014  3353        rjpeter     Fix synchronized use case, updated to not create dialog before init is finished.
+ * 04/24/2015  ASM #17394  D. Friedman Fix geometries that become invalid in local coordinate space.
  * </pre>
  * 
  * @author mschenke
@@ -1363,6 +1364,44 @@ public class WarngenLayer extends AbstractStormTrackResource {
         gData.localToLatLon = gData.latLonToLocal.inverse();
         for (GeospatialData gd : gData.features) {
             Geometry local = JTS.transform(gd.geometry, gData.latLonToLocal);
+            if (! local.isValid()) {
+                TopologyException topologyException = null;
+                try {
+                    CountyUserData userData = (CountyUserData) local.getUserData();
+                    local = local.buffer(0.0);
+                    GeometryUtil.setUserData(local, userData);
+                } catch (TopologyException e) {
+                    topologyException = e;
+                }
+                // Try to generate user-readable area name...
+                String ident = null;
+                try {
+                    String name = (String) gd.attributes.get("NAME");
+                    if (name == null) {
+                        name = (String) gd.attributes.get("COUNTYNAME");
+                    }
+                    if (name != null) {
+                        ident = String.format("%s (gid=%s)", name, gd.attributes.get(WarngenLayer.GID));
+                    }
+                } catch (RuntimeException e) {
+                    // ignore
+                }
+                // ...Fall back to displaying attributes map.
+                if (ident == null) {
+                    ident = gd.attributes.toString();
+                }
+                Priority priority;
+                String format;
+                if (local.isValid()) {
+                    format = "Geometry for area %s was invalid.  It has been repaired.";
+                    priority = Priority.INFO;
+                } else {
+                    format = "Geometry for %s is invalid and cannot be repaired.  Hatching this area may not be possible.";
+                    priority = Priority.WARN;
+                }
+                statusHandler.handle(priority, String.format(format, ident),
+                        topologyException);
+            }
             gd.attributes.put(AREA, local.getArea());
             gd.attributes.put(GeospatialDataList.LOCAL_GEOM, local);
             gd.attributes.put(GeospatialDataList.LOCAL_PREP_GEOM,
