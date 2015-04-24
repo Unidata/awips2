@@ -43,7 +43,9 @@ import com.raytheon.viz.mpe.core.MPEDataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2009            snaples     Initial creation
- * April , 2012  8672      lbousaidi  fixed the reading of the PRISM data.
+ * April , 2012  8672      lbousaidi   fixed the reading of the PRISM data.
+ * Feb 3,  2015  16993     snaples     fixed color scale data conversion issue.
+ * Mar 2,  2015  15660     snaples     Fixed problem with color scale using wrong values. Causing grids to be all zeros.
  * </pre>
  * 
  * @author snaples
@@ -90,9 +92,8 @@ public class MeanMonthlyPrecip {
         displayUnit = NonSI.INCH;
         dataUnit = SI.MILLIMETER;
         cmc.setDisplayUnit(displayUnit);
-        cmc.setColorMapUnit(SI.MILLIMETER);
         cmc.setDataUnit(dataUnit);
-        UnitConverter dataToImage = cmc.getColorMapToDisplayConverter();//cmc.getDataToImageConverter();
+        UnitConverter dataToImage = cmc.getDataToImageConverter();
 
         /*
          * Loop over the months. Determine for which months PRISM data are

@@ -34,8 +34,8 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 15, 2013       2161 bkowal     Initial creation
- * 
+ * Jul 15, 2013       2161 bkowal      Initial creation.
+ * Feb 09, 2013 4101       rjpeter     Added key.
  * </pre>
  * 
  * @author bkowal
@@ -47,12 +47,15 @@ public class ModelSoundingStorageContainer {
 
     private final List<PluginDataObject> pdos;
 
+    private final String key;
+
     /**
      * 
      */
-    public ModelSoundingStorageContainer(PointDataContainer pdc) {
+    public ModelSoundingStorageContainer(PointDataContainer pdc, String key) {
         this.pdos = new LinkedList<PluginDataObject>();
         this.pdc = pdc;
+        this.key = key;
     }
 
     public PointDataContainer getPdc() {
@@ -69,5 +72,13 @@ public class ModelSoundingStorageContainer {
 
     public void addPdos(List<PluginDataObject> pdos) {
         this.pdos.addAll(pdos);
+    }
+
+    public String getKey() {
+        return this.key;
+    }
+
+    public int size() {
+    	return pdos.size();
     }
 }

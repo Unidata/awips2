@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -54,11 +54,11 @@ import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * 
+ *
  * The background graph for a var height display
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -66,9 +66,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 10, 2011 8244       bkowal      replaced deprecrated method calls;
  *                                     magnitude influences axis label font.
  * Jun 18, 2014 3242       njensen     Replaced deprecated calls
- * 
+ * Mar 02, 2015 4189       nabowle     Prevent NPE when panning. Copy
+ *                                     graphResource in paintUnits() to prevent
+ *                                     ConcurrentModification in a single thread.
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  * @version 1.0
  */
@@ -87,7 +90,7 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.viz.xy.graph.AbstractGraph#canHandleResoruce(com.raytheon
      * .uf.viz.xy.map.rsc.IGraphableResource)
@@ -99,7 +102,7 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#constructVirtualExtent()
      */
     @Override
@@ -129,7 +132,7 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#createAxes()
      */
     @Override
@@ -174,7 +177,7 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintTitles(com.raytheon.uf
      * .viz.core.IGraphicsTarget,
@@ -199,7 +202,7 @@ public class VarHeightGraph extends AbstractGraph {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintUnits(com.raytheon.uf
      * .viz.core.IGraphicsTarget,
@@ -217,7 +220,12 @@ public class VarHeightGraph extends AbstractGraph {
         List<DrawableString> strings = new ArrayList<DrawableString>();
 
         RGB rcsColor = null;
-        for (IGraphableResource<?, ?> grsc : graphResource) {
+        /*
+         * iterate on a copy of graphResource since descriptor.getGraph() may
+         * modify graphResource.
+         */
+        List<IGraphableResource<?, ?>> copy = new ArrayList<>(graphResource);
+        for (IGraphableResource<?, ?> grsc : copy) {
             Set<IGraph> otherGraphs = new HashSet<IGraph>();
             for (ResourcePair rp : descriptor.getResourceList()) {
                 if (rp.getResource() instanceof IGraphableResource<?, ?>) {
@@ -277,6 +285,9 @@ public class VarHeightGraph extends AbstractGraph {
 
     @Override
     public void pan(double xDist, double yDist, boolean panning) {
+        if (yAxisPlacer == null || xAxisPlacer == null) {
+            return;
+        }
         yAxisPlacer.pan(xDist);
         xAxisPlacer.pan(-yDist);
         if (!panning) {

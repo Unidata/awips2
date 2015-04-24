@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 
 import javax.vecmath.Vector2f;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;

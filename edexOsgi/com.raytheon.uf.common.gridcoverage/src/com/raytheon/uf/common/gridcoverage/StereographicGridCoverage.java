@@ -30,13 +30,11 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Stereographic Coverage used by radar data.
@@ -47,7 +45,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2010  #4473     rjpeter     Initial creation
- * 
+ * Mar 04, 2015  3959     rjpeter     Update for grid based subgridding.
  * </pre>
  * 
  * @author rjpeter
@@ -59,9 +57,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @DynamicSerialize
 public class StereographicGridCoverage extends GridCoverage {
     private static final long serialVersionUID = -3420227375272208743L;
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(StereographicGridCoverage.class);
 
     /** Orientation of the grid */
     @Column
@@ -104,11 +99,22 @@ public class StereographicGridCoverage extends GridCoverage {
     }
 
     @Override
-    public GridCoverage trim(SubGrid subGrid) {
-        statusHandler
-                .handle(Priority.ERROR,
-                        "StereographicGridCoverage does not currently support subgridding");
-        return null;
+    protected GridCoverage cloneImplCrsParameters(SubGrid subGrid) {
+        StereographicGridCoverage rval = new StereographicGridCoverage();
+        rval.lov = this.lov;
+        rval.lad = this.lad;
+        return rval;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.gridcoverage.GridCoverage#getWorldWrapCount()
+     */
+    @Override
+    public int getWorldWrapCount() {
+        /* Stereographic grids cannot wrap */
+        return GridGeometryWrapChecker.NO_WRAP;
     }
 
     @Override
@@ -122,20 +128,26 @@ public class StereographicGridCoverage extends GridCoverage {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         StereographicGridCoverage other = (StereographicGridCoverage) obj;
-        if (Double.doubleToLongBits(lad) != Double.doubleToLongBits(other.lad))
+        if (Double.doubleToLongBits(lad) != Double.doubleToLongBits(other.lad)) {
             return false;
-        if (Double.doubleToLongBits(lov) != Double.doubleToLongBits(other.lov))
+        }
+        if (Double.doubleToLongBits(lov) != Double.doubleToLongBits(other.lov)) {
             return false;
+        }
         return true;
     }
 
+    @Override
     public boolean spatialEquals(GridCoverage other) {
         if (super.spatialEquals(other)) {
             StereographicGridCoverage otherStereo = (StereographicGridCoverage) other;
@@ -159,5 +171,4 @@ public class StereographicGridCoverage extends GridCoverage {
         key.append(lad);
         return key.toString();
     }
-
 }

@@ -23,7 +23,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Request to export the specified failed site's GFE grids and immediately send
+ * them to the central server.
  * 
  * <pre>
  * 
@@ -31,7 +32,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip     Initial creation
+ * Mar 18, 2015  #4103     dgilling     Remove unnecessary primary site field.
  * 
  * </pre>
  * 
@@ -39,10 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class ExportFailedSiteDataToCCRequest extends AbstractGfeRequest {
-
-    @DynamicSerializeElement
-    private String primarySite;
+public final class ExportFailedSiteDataToCCRequest extends AbstractGfeRequest {
 
     @DynamicSerializeElement
     private String failedSite;
@@ -50,24 +49,8 @@ public class ExportFailedSiteDataToCCRequest extends AbstractGfeRequest {
     public ExportFailedSiteDataToCCRequest() {
     }
 
-    public ExportFailedSiteDataToCCRequest(String primarySite, String failedSite) {
-        this.primarySite = primarySite;
+    public ExportFailedSiteDataToCCRequest(String failedSite) {
         this.failedSite = failedSite;
-    }
-
-    /**
-     * @return the primarySite
-     */
-    public String getPrimarySite() {
-        return primarySite;
-    }
-
-    /**
-     * @param primarySite
-     *            the primarySite to set
-     */
-    public void setPrimarySite(String primarySite) {
-        this.primarySite = primarySite;
     }
 
     /**

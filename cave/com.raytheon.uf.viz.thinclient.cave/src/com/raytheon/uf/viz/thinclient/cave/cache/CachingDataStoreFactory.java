@@ -31,7 +31,8 @@ import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 /**
- * IDataStore factory that constructs instances of CachingDataStores
+ * IDataStore factory that constructs instances of CachingDataStores to store
+ * weather data cache
  * 
  * <pre>
  * 
@@ -42,6 +43,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Nov 08, 2011           mschenke    Initial creation
  * Sep 18, 2013  2309     bsteffen    Share a single DataStoreCache for all
  *                                    data stores.
+ * Feb 10, 2015  4049     mapeters    Store weather data to subdirectory
  * 
  * </pre>
  * 
@@ -51,6 +53,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 public class CachingDataStoreFactory implements IDataStoreFactory,
         IPropertyChangeListener {
+
+    private static final String WX_SUBDIRECTORY = "wxdata";
 
     private IDataStoreFactory delegateFactory;
 
@@ -64,7 +68,8 @@ public class CachingDataStoreFactory implements IDataStoreFactory,
         cachingData = store
                 .getBoolean(ThinClientPreferenceConstants.P_CACHE_WEATHER);
         File cacheDir = new File(
-                store.getString(ThinClientPreferenceConstants.P_CACHE_DIR));
+                store.getString(ThinClientPreferenceConstants.P_CACHE_DIR)
+                        + File.separator + WX_SUBDIRECTORY);
         cache = new DataStoreCache(cacheDir);
         store.addPropertyChangeListener(this);
     }
@@ -99,9 +104,9 @@ public class CachingDataStoreFactory implements IDataStoreFactory,
             cachingData = Boolean.valueOf(String.valueOf(event.getNewValue()));
         } else if (ThinClientPreferenceConstants.P_CACHE_DIR.equals(event
                 .getProperty())) {
-            File cacheDir = new File(String.valueOf(event.getNewValue()));
+            File cacheDir = new File(String.valueOf(event.getNewValue())
+                    + File.separator + WX_SUBDIRECTORY);
             cache = new DataStoreCache(cacheDir);
         }
     }
-
 }

@@ -44,6 +44,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Type;
+import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -55,10 +56,12 @@ import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.adapter.GeometryAdapter;
+import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -79,8 +82,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct 15, 2013  2473     bsteffen    add @XmlSeeAlso for self contained JAXB
  *                                    context.
  * Apr 11, 2014  2947     bsteffen    Implement IGridGeometryProvider.
- * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
- * 
+ * Oct 16, 2014  3454     bphillip    Upgrading to Hibernate 4
+ * Mar 04, 2015  3959     rjpeter     Update for grid based subgridding.
  * </pre>
  * 
  * @author bphillip
@@ -275,13 +278,158 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     public abstract String getProjectionType();
 
     /**
-     * Trim this GridCoverage to a sub grid.
+     * Trim this GridCoverage to a sub grid. Nx/Ny are given priority when the
+     * subGrid is outside the bounds of the originating grid, causing the
+     * subGrid to shift instead of being the intersection.
      * 
-     * @param subGridDef
      * @param subGrid
      * @return trimmed coverage
      */
-    public abstract GridCoverage trim(SubGrid subGrid);
+    public GridCoverage trim(SubGrid subGrid) {
+        /*
+         * validate the subgrid bounds, adjusting as necessary to fit in bounds.
+         * Also validate world wrap settings.
+         */
+        int sgUlx = subGrid.getUpperLeftX();
+        int sgUly = subGrid.getUpperLeftY();
+        int sgNx = subGrid.getNX();
+        int sgNy = subGrid.getNY();
+
+        /* validate sgUlx and sgNx */
+        int worldWrapCount = getWorldWrapCount();
+
+        if (worldWrapCount != GridGeometryWrapChecker.NO_WRAP) {
+            /* Check western boundary */
+            if (sgUlx < 0) {
+                /*
+                 * All subGrid code wraps on the western boundary, offset sgUlx
+                 * into valid range
+                 */
+                sgUlx += worldWrapCount;
+            }
+
+            /*
+             * subgrid allowed to extend beyond boundary, ensure subgrid is no
+             * bigger than the wrap count, this allows moving of the seam if
+             * desired
+             */
+            if (sgNx > worldWrapCount) {
+                sgNx = worldWrapCount;
+            }
+        } else {
+            /* Check western boundary */
+            if (sgUlx < 0) {
+                sgUlx = 0;
+            }
+
+            if (sgUlx + sgNx > nx) {
+                /*
+                 * subgrid extending beyond eastern boundary of grid, back up
+                 * sgUlx by the difference
+                 */
+                sgUlx = nx - sgNx;
+
+                if (sgUlx < 0) {
+                    /*
+                     * moved start beyond western boundary, reduce sgNx to
+                     * compensate
+                     */
+                    sgNx += sgUlx;
+                    sgUlx = 0;
+                }
+            }
+        }
+
+        /* Check northern boundary */
+        if (sgUly < 0) {
+            sgUly = 0;
+        }
+
+        /* validate sgUly and sgNy */
+        if (sgUly + sgNy > ny) {
+            /*
+             * subgrid extending beyond southern boundary of grid, back up sgUly
+             * by the difference
+             */
+            sgUly = ny - sgNy;
+
+            if (sgUly < 0) {
+                /*
+                 * moved subgrid beyond northern boundary, reduce sgNy to
+                 * compensate
+                 */
+                sgNy += sgUly;
+                sgUly = 0;
+            }
+        }
+
+        subGrid.setUpperLeftX(sgUlx);
+        subGrid.setUpperLeftY(sgUly);
+        subGrid.setNX(sgNx);
+        subGrid.setNY(sgNy);
+
+        GridCoverage rval = cloneCrsParameters(subGrid);
+        return rval;
+    }
+
+    /**
+     * Convenience method for returning if this grid world wraps. Note: Coverage
+     * must be initialized before calling this.
+     * 
+     * @return
+     */
+    public int getWorldWrapCount() {
+        if (geometry == null) {
+            try {
+                this.initialize();
+            } catch (GridCoverageException e) {
+                throw new IllegalStateException(
+                        "Cannot look up world wrap count.  GridCoverage not initialized.",
+                        e);
+            }
+
+        }
+        return GridGeometryWrapChecker.checkForWrapping(getGridGeometry());
+    }
+
+    /**
+     * Create a clone of this coverage setting any crs parameters based on the
+     * defined subgrid.
+     * 
+     * @param subGrid
+     * @return
+     */
+    private GridCoverage cloneCrsParameters(SubGrid subGrid) {
+        GridCoverage rval = cloneImplCrsParameters(subGrid);
+        /* Set the base GridCoverage values */
+        rval.setName(SUBGRID_TOKEN + this.getId());
+        rval.description = "SubGrid of " + this.description;
+        rval.dx = this.dx;
+        rval.dy = this.dy;
+        rval.spacingUnit = this.spacingUnit;
+
+        /* grid space is 0,0 for upper left */
+        Coordinate lowerLeft = new Coordinate(subGrid.getUpperLeftX(),
+                subGrid.getUpperLeftY() + subGrid.getNY() - 1);
+        lowerLeft = MapUtil.gridCoordinateToLatLon(lowerLeft,
+                PixelOrientation.CENTER, this);
+
+        rval.firstGridPointCorner = Corner.LowerLeft;
+        rval.lo1 = lowerLeft.x;
+        rval.la1 = lowerLeft.y;
+        rval.nx = subGrid.getNX();
+        rval.ny = subGrid.getNY();
+        return rval;
+    }
+
+    /**
+     * Create a clone of this coverage setting any implementation specific crs
+     * parameters.
+     * 
+     * @param subGrid
+     * @return
+     */
+    protected abstract GridCoverage cloneImplCrsParameters(SubGrid subGrid);
 
     @Override
     public Geometry getGeometry() {

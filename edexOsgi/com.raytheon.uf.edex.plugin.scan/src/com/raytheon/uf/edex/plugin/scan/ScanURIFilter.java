@@ -3,19 +3,19 @@ package com.raytheon.uf.edex.plugin.scan;
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 144
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -48,6 +48,7 @@ import com.raytheon.uf.common.dataplugin.scan.data.SoundingData;
 import com.raytheon.uf.common.dataplugin.scan.data.TVSTableData;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.ScanAlarmXML;
@@ -78,13 +79,13 @@ import com.raytheon.uf.edex.plugin.scan.process.VILProduct;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * 
+ *
  * Filters URIs for SCAN processing
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2010            dhladky     Initial creation
@@ -92,10 +93,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 15, 2013 2361       njensen     Use JAXBManager for XML
  * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
  * May 12, 2014 3133       njensen     Remove unused field
- * 
- * 
+ * Jan 20, 2014 3949       nabowle     Only match binlightning uris with the proper
+ *                                     lightning source.
+ *
+ *
  * </pre>
- * 
+ *
  * @author unknown
  * @version 1.0
  */
@@ -228,7 +231,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gets the cell tilt angle
-     * 
+     *
      * @return
      */
     public double getCellTilt() {
@@ -241,7 +244,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gets the dmd tilt angle
-     * 
+     *
      * @return
      */
     public double getDmdTilt() {
@@ -254,7 +257,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gets the tvs tilt angle
-     * 
+     *
      * @return
      */
     public double getTvsTilt() {
@@ -267,7 +270,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gets the md tilt angle
-     * 
+     *
      * @return
      */
     public double getMdTilt() {
@@ -280,7 +283,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gets the radar station WMO ID
-     * 
+     *
      * @return
      */
     public String getStationWmo() {
@@ -309,7 +312,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * same as above except it's a clone of the original
-     * 
+     *
      * @param table
      * @return
      */
@@ -369,7 +372,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gest the home CWA
-     * 
+     *
      * @return
      */
     public String getCWA() {
@@ -415,7 +418,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Get the generator
-     * 
+     *
      * @return
      */
     public ScanGenerator getGenerator() {
@@ -424,7 +427,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gathers the patterns the tables search for
-     * 
+     *
      * @return
      */
     @Override
@@ -496,9 +499,11 @@ public class ScanURIFilter extends URIFilter {
         patternKeys.put(CompositeReflectivityProduct.cz,
                 CompositeReflectivityProduct.getPattern(site.getScanSite(),
                         getCellTilt()));
-        getMatchURIs().put(LightningProduct.getPattern(), 0l);
-        patternKeys.put(LightningProduct.BINLIGHTNING,
-                LightningProduct.getPattern());
+        Pattern lightningPattern = LightningProduct
+                .getPattern(SCANRunSiteConfigurationManager.getInstance()
+                        .getLightningSource());
+        getMatchURIs().put(lightningPattern, 0l);
+        patternKeys.put(LightningProduct.BINLIGHTNING, lightningPattern);
         getMatchURIs().put(
                 VILProduct.getPattern(site.getScanSite(), getCellTilt()), 0l);
         patternKeys.put(VILProduct.vil,
@@ -510,7 +515,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * In the case of SCAN we match on any URI matching that comes in
-     * 
+     *
      * @param message
      * @return boolean
      */
@@ -703,7 +708,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * gets the matching key for a matching pattern
-     * 
+     *
      * @param pattern
      * @return
      */
@@ -719,7 +724,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Determines if a cell record needs to be closed
-     * 
+     *
      * @return
      */
     public boolean cellIsNew() {
@@ -728,7 +733,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Determines if a dmd record needs to be closed
-     * 
+     *
      * @return
      */
     public boolean dmdIsNew() {
@@ -737,7 +742,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Determines if a tvs record needs to be closed
-     * 
+     *
      * @return
      */
     public boolean tvsIsNew() {
@@ -746,7 +751,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Determines if an md record needs to be closed
-     * 
+     *
      * @return
      */
     public boolean mdIsNew() {
@@ -755,10 +760,10 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Get the SoundingData
-     * 
+     *
      * If there is no data yet in the map then use a "pull strategy" to obtain
      * this data; but only do this when there is no data available yet.
-     * 
+     *
      * @return
      */
     public SoundingData getSoundingData() {
@@ -767,7 +772,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Get the Radar Data
-     * 
+     *
      * @return the radar data
      */
     public RadarData getRadarData() {
@@ -776,7 +781,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gets the grib record by URI
-     * 
+     *
      * @return
      * @throws Exception
      */
@@ -798,7 +803,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gets the radar record by URI
-     * 
+     *
      * @return
      * @throws Exception
      */
@@ -818,7 +823,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gets the sounding record by URI
-     * 
+     *
      * @return
      * @throws Exception
      */
@@ -873,7 +878,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Gets model data
-     * 
+     *
      * @return
      */
     public ModelData getModelData() {
@@ -1026,7 +1031,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Get lightning data
-     * 
+     *
      * @param date
      * @return
      */
@@ -1036,7 +1041,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * checks for data
-     * 
+     *
      * @param date
      * @return
      */
@@ -1046,7 +1051,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Add lightning record
-     * 
+     *
      * @param record
      */
     public void setLightningData(BinLightningRecord record) {
@@ -1069,9 +1074,9 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * Inner class to thread the scan processing
-     * 
+     *
      * @author dhladky
-     * 
+     *
      */
     class ProcessProduct implements Runnable {
 
@@ -1095,7 +1100,7 @@ public class ScanURIFilter extends URIFilter {
                 long time2 = System.currentTimeMillis();
                 logger.debug("SCAN took: " + (time2 - time) + " ms");
             } catch (Exception e) {
-                logger.error("ProcessProduct: did not complete....." + e);
+                logger.error("ProcessProduct: did not complete.....", e);
             } finally {
                 synchronized (processes) {
                     processes.remove(scanProduct);
@@ -1197,7 +1202,7 @@ public class ScanURIFilter extends URIFilter {
 
     /**
      * get my model param
-     * 
+     *
      * @param paramName
      * @return
      */

@@ -25,4 +25,6 @@
   <parameter name="stationId" queryName="location.stationId" type="STRING" />
   <parameter name="reportType" queryName="reportType" type="STRING" />
   <parameter name="dataProvider" queryName="dataProvider" type="STRING" />
+  <parameter name="refTime" queryName="dataTime.refTime" numDims="1" type="LONG" unit="ms"/>
+  <parameter name="forecastHr" queryName="dataTime.fcstTime" numDims="1" type="INT" unit="h" dbunit="s"/>
 </pointDataDbDescription>

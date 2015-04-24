@@ -27,13 +27,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -92,6 +94,8 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  *                                          moved name formatting to static method
  *    Aug 04, 2014  3488       bclement    added sanity check for record bin range
  *    Aug 19, 2014  3542       bclement    fixed strike count clipping issue
+ *    Mar 05, 2015  4233       bsteffen    include source in cache key.
+ *    Apr 09, 2015  4386       bclement    added updateLightningFrames()
  * 
  * </pre>
  * 
@@ -111,7 +115,7 @@ public class LightningResource extends
     private boolean needsUpdate;
 
     private String resourceName;
-    
+
     private int posAdj;
 
     private IFont font;
@@ -222,11 +226,9 @@ public class LightningResource extends
             rval += modifier;
         }
 
-        HashMap<String, RequestConstraint> metadata = resourceData
-                .getMetadataMap();
-        if (metadata != null && metadata.containsKey(LightningConstants.SOURCE)) {
-            rval += metadata.get(LightningConstants.SOURCE)
-                    .getConstraintValue() + " ";
+        String source = resourceData.getSource();
+        if (source != null) {
+            rval += source + " ";
         }
         return rval;
     }
@@ -283,9 +285,10 @@ public class LightningResource extends
         int negCount = 0;
         int cloudCount = 0;
         int pulseCount = 0;
-        
-        if (magnification == 0.0) magnification=(float) 0.01;
-        
+
+        if (magnification == 0.0)
+            magnification = (float) 0.01;
+
         /*
          * we only want strikes that are visible so we have to filter any
          * strikes that aren't in both the clipping pane and the view
@@ -448,7 +451,8 @@ public class LightningResource extends
          * we know about, return without removing the time.
          */
         if (dataTimes.indexOf(dataTime) == dataTimes.size() - 1) {
-            CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap.get(dataTime);
+            CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap
+                    .get(dataTime);
             if (co != null) {
                 LightningFrameMetadata metadata = co.getMetadata();
                 synchronized (metadata) {
@@ -465,16 +469,15 @@ public class LightningResource extends
     }
 
     protected void addRecords(List<BinLightningRecord> objs) {
-        Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
+        final Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
 
         for (BinLightningRecord obj : objs) {
-                long duration = obj.getDataTime().getValidPeriod()
-                        .getDuration();
-                if (duration > MAX_RECORD_BIN_MILLIS) {
-                    statusHandler.error("Record bin time larger than maximum "
-                            + "supported period. Skipping record: " + obj);
-                    continue;
-                }
+            long duration = obj.getDataTime().getValidPeriod().getDuration();
+            if (duration > MAX_RECORD_BIN_MILLIS) {
+                statusHandler.error("Record bin time larger than maximum "
+                        + "supported period. Skipping record: " + obj);
+                continue;
+            }
             DataTime time = new DataTime(obj.getStartTime());
             DataTime end = new DataTime(obj.getStopTime());
             time = this.getResourceData().getBinOffset()
@@ -499,6 +502,26 @@ public class LightningResource extends
             }
         }
 
+        Job job = new Job("Update Lightning Frames") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                updateLightningFrames(recordMap);
+                return Status.OK_STATUS;
+            }
+        };
+        job.setSystem(true);
+        job.schedule();
+
+    }
+
+    /**
+     * Update lightning frames with data from record map. Must be ran as part of
+     * an asynchronous job.
+     * 
+     * @param recordMap
+     */
+    private void updateLightningFrames(
+            final Map<DataTime, List<BinLightningRecord>> recordMap) {
         for (Map.Entry<DataTime, List<BinLightningRecord>> entry : recordMap
                 .entrySet()) {
             DataTime dt = entry.getKey();
@@ -507,28 +530,43 @@ public class LightningResource extends
             }
 
             List<BinLightningRecord> records = entry.getValue();
-
             LightningFrameRetriever retriever = LightningFrameRetriever
                     .getInstance();
-            CacheObject<LightningFrameMetadata, LightningFrame> co;
-            synchronized (cacheObjectMap) {
-                co = cacheObjectMap.get(dt);
-                if (co == null) {
-                    /*
-                     * no local reference to cache object, create key and get
-                     * cache object which may be new or from another resource
-                     */
-                    LightningFrameMetadata key = new LightningFrameMetadata(dt,
-                            resourceData.getBinOffset());
-                    co = CacheObject.newCacheObject(key, retriever);
-                    cacheObjectMap.put(dt, co);
-                    dataTimes.add(dt);
-                }
-            }
-
+            CacheObject<LightningFrameMetadata, LightningFrame> co = getCachedFrame(
+                    dt, retriever);
             retriever.updateAndGet(records, co);
         }
+
         issueRefresh();
+    }
+
+    /**
+     * Get lightning frame from cache, creates a new cached object if none found
+     * for time
+     * 
+     * @param dt
+     * @param retriever
+     * @return
+     */
+    private CacheObject<LightningFrameMetadata, LightningFrame> getCachedFrame(
+            DataTime dt, LightningFrameRetriever retriever) {
+        CacheObject<LightningFrameMetadata, LightningFrame> co;
+        synchronized (cacheObjectMap) {
+            co = cacheObjectMap.get(dt);
+            if (co == null) {
+                /*
+                 * no local reference to cache object, create key and get cache
+                 * object which may be new or from another resource
+                 */
+                LightningFrameMetadata key = new LightningFrameMetadata(
+                        resourceData.getSource(), dt,
+                        resourceData.getBinOffset());
+                co = CacheObject.newCacheObject(key, retriever);
+                cacheObjectMap.put(dt, co);
+                dataTimes.add(dt);
+            }
+        }
+        return co;
     }
 
     @Override

@@ -143,6 +143,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.viz.core.VizApp;
@@ -343,6 +344,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 11Sep2014   3580         mapeters    Replaced SerializationTuil usage with JAXBManager, 
  *                                      removed IQueryTransport usage (no longer exists).
  * 20Oct2014   3685         randerso    Made conversion to upper case conditional on product id
+ * 15Feb2015   4001         dgilling    Ensure all fields are set in SendPracticeProductRequest.
  * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
  * 10Mar2015   RM 14866     kshrestha   Disable QC GUI pop up for TextWS
  * 6Apr2015    RM14968   mgamazaychikov Fix formatting for pathcast section
@@ -5116,6 +5118,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
                 req.setProductText(TextDisplayModel.getInstance().getProduct(
                         token));
+                req.setNotifyGFE(true);
+                req.setDrtString(new SimpleDateFormat("yyyyMMdd_HHmm")
+                        .format(SimulatedTime.getSystemTime().getTime()));
 
                 ThriftClient.sendRequest(req);
             } catch (VizException e) {

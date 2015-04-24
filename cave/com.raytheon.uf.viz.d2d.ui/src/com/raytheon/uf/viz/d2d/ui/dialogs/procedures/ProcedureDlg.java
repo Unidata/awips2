@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -68,6 +69,7 @@ import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
 import com.raytheon.uf.viz.core.procedures.AlterBundleFactory;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.procedures.IAlterBundleContributor;
@@ -78,6 +80,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureComm.BundlePair;
 import com.raytheon.viz.ui.HistoryList;
+import com.raytheon.viz.ui.IRenameablePart;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.actions.SaveBundle;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -98,11 +101,15 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
  * Oct 16, 2012 1229       rferrel     Changes to have displayDialog method.
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking ProcedureListDlg.
- * Jan 15, 2013  DR 15699  D. Friedman Prompt for save when close button clicked. 
- * Jan 16, 2013  DR 15367  D. Friedman Enable save button for Up/Down changes. 
+ * Jan 15, 2013  DR 15699  D. Friedman Prompt for save when close button clicked.
+ * Jan 16, 2013  DR 15367  D. Friedman Enable save button for Up/Down changes.
  * Feb 25, 2013 1640       bsteffen    Dispose old display in BundleLoader
  * Jun 7, 2013  2074       mnash       Remove resource if doesn't instantiate correctly
  * Aug 11, 2014 3480       bclement    added info logging when procedure is loaded
+ * Jan 06, 2015 3879       nabowle     Disallow copy-in when the view is empty.
+ * Mar 02, 2015 4204       njensen     Copy In uses tab name if applicable
+ * Mar 12, 2015 4204       njensen     Ensure renamed bundle goes into tab name on next load
+ * 
  * </pre>
  * 
  * @author unknown
@@ -568,11 +575,10 @@ public class ProcedureDlg extends CaveSWTDialog {
                     InputDialog id = new InputDialog(shell,
                             "Enter Bundle Name", "Enter bundle name:", b.name,
                             null);
-                    if (InputDialog.OK == id.open()) {
+                    if (Window.OK == id.open()) {
                         String newName = id.getValue();
 
-                        if (newName != null
-                                && "".equals(newName.trim()) == false) {
+                        if (newName != null && !newName.trim().isEmpty()) {
                             b.name = newName;
                             resyncProcedureAndList();
                             saved = false;
@@ -686,10 +692,17 @@ public class ProcedureDlg extends CaveSWTDialog {
                     // the history list ensures that a fresh serialized copy
                     // of the bundle is made rather than a shallow copy of
                     // the display.
-                    saved = false;
-                    saveBtn.setEnabled(true);
                     Bundle b = SaveBundle.extractCurrentBundle();
                     HistoryList.getInstance().refreshLatestBundle(b);
+                    if (b.getName() == null || "".equals(b.getName())) {
+                        MessageDialog
+                                .openWarning(shell, "Error Copying Resources",
+                                        "You must have at least one resource displayed to copy in.");
+                        return;
+                    }
+
+                    saved = false;
+                    saveBtn.setEnabled(true);
 
                     // TODO: copy latest time in, potential threading issue if
                     // update
@@ -734,7 +747,16 @@ public class ProcedureDlg extends CaveSWTDialog {
                     }
 
                     BundlePair bp = new BundlePair();
-                    bp.name = (HistoryList.getInstance().getLabels()[0]);
+                    if (!IRenameablePart.DEFAULT_PART_NAME.equals(b.getName())
+                            && b.getDisplays()[0] instanceof MapRenderableDisplay) {
+                        /*
+                         * This is a horrible hack to get a renamed editor's
+                         * name instead of the default of Map.
+                         */
+                        bp.name = b.getName();
+                    } else {
+                        bp.name = HistoryList.getInstance().getLabels()[0];
+                    }
                     bp.xml = sb;
                     bundles.add(bp);
                     resyncProcedureAndList();
@@ -835,12 +857,14 @@ public class ProcedureDlg extends CaveSWTDialog {
     }
 
     private void load() {
-        if (dataList.getSelectionIndex() < 0) {
+        int index = dataList.getSelectionIndex();
+        if (index < 0) {
             return;
         }
         try {
-            Bundle b = Bundle.unmarshalBundle(
-                    bundles.get(dataList.getSelectionIndex()).xml, null);
+            BundlePair selected = bundles.get(index);
+            Bundle b = Bundle.unmarshalBundle(selected.xml);
+            b.setName(selected.name);
             if (currentRdo.getSelection()) {
                 for (IAlterBundleContributor contributor : AlterBundleFactory
                         .getContributors()) {
@@ -1077,7 +1101,7 @@ public class ProcedureDlg extends CaveSWTDialog {
      * otherwise null.
      * 
      * @param fileName
-     * @return
+     * @return the dialog if it's open for for the filename
      */
     public static ProcedureDlg getDialog(String fileName) {
         synchronized (ProcedureDlg.openDialogs) {

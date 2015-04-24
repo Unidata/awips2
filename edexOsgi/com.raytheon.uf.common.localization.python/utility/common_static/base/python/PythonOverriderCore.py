@@ -33,6 +33,7 @@
 #    01/20/14        2712          bkowal         Improve python class merging. Classes
 #                                                 will now truly override each other
 #                                                 instead of extending each other.
+#    02/09/15        4120          reblum         Fixed bugs in the class merging.
 #
 #
 #
@@ -42,14 +43,16 @@ import ModuleUtil
 
 def _internalOverride(files):
     """
-    Takes the files and overrides them
+    Combines the different localization levels of the same class/module into a single
+    class/module with the lower localization level methods taking precedence over the 
+    higher localization level methods.
     
     Args:
             files : the files that are to be overridden
     
     Returns:
             a new module that contains all the necessary elements
-    """    
+    """
     themodule = imp.new_module('tmpmodule')
     # modules = list of all the modules
     for module in files :
@@ -126,12 +129,17 @@ def _mergeClasses(source, target, className):
          
          attributeName = className + '.' + attr
          target = _mergeAttributes(source, target, attributeName)
-    
+
+    # Get the set of unimplemented abstractmethods from the sourceClass
+    abstractMethods = set()
+    if sourceClass.__dict__.has_key('__abstractmethods__'):
+        for method in sourceClass.__abstractmethods__:
+            abstractMethods.add(method)
+
     # make new class "extend" the original class
     for attr in dir(targetClass):
-        if attr != '__init__' \
-            and isinstance(getattr(targetClass, attr), types.MethodType) \
-            and not attr in dir(sourceClass):
+        if isinstance(getattr(targetClass, attr), types.MethodType) \
+            and not attr in sourceClass.__dict__:
             # complete the merge / override of methods for any method that
             # the new class does not implement
             
@@ -141,7 +149,17 @@ def _mergeClasses(source, target, className):
             # copy the method implementation to the other class and give it
             # the same name as the original
             classMethodDirective = _buildReplaceClassMethodDirective(className, attr)
-            exec(classMethodDirective)    
+            exec(classMethodDirective)
+            # If the method we just merged was an abstractmethod remove it from 
+            # abstractMethods since it now has been implemented.
+            if attr in abstractMethods:
+                abstractMethods.remove(attr)
+
+    # Update __abstractmethods__ so that it correctly reflects if there are any 
+    # unimplemented abstactmethods for the merged class.
+    if sourceClass.__dict__.has_key('__abstractmethods__'):
+        directive = 'sourceClass.__abstractmethods__ =  frozenset(abstractMethods)'
+        exec(directive)
          
     return _mergeAttributes(source, target, className)
 
@@ -164,8 +182,13 @@ def _compareClasses(clazz1, clazz2):
             return False
 
         # compare the attributes directly
-        attr1 = getattr(clazz1, clazz1Attr[i])
-        attr2 = getattr(clazz2, clazz2Attr[i])
+        attr1 = None
+        attr2 = None
+        # see http://bugs.python.org/issue10006
+        if clazz1Attr[i] != '__abstractmethods__':
+            attr1 = getattr(clazz1, clazz1Attr[i])
+        if clazz2Attr[i] != '__abstractmethods__':
+            attr2 = getattr(clazz2, clazz2Attr[i])
         if (attr1 != attr2):
             return False
 

@@ -21,14 +21,13 @@
 package com.raytheon.uf.edex.plugin.fssobs;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -70,17 +69,10 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
     /** Product */
     private static final String productType = "fssobs";
 
-    /** All stations to be filtered. */
-    private Set<String> allStations = null;
+    /** Sets of all stations to filter for */
+    private HashSet<String> allStations = null;
 
-    /** Fog monitor area configuration file */
-    public FSSObsMonitorConfigurationManager fogAreaConfig = null;
-
-    /** SAFESEAS monitor area configuration file */
-    public FSSObsMonitorConfigurationManager ssAreaConfig = null;
-
-    /** SNOW monitor area configuration file */
-    public FSSObsMonitorConfigurationManager snowAreaConfig = null;
+    private FSSObsMonitorConfigurationManager currManager = null;
 
     /**
      * Public construction
@@ -148,14 +140,12 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
                 + " process Filter Config...");
         allStations = new HashSet<String>();
 
-        List<String> ssStations = getSSAreaConfig().getStations();
-        allStations.addAll(ssStations);
-
-        List<String> fogStations = getFogAreaConfig().getStations();
-        allStations.addAll(fogStations);
-
-        List<String> snowStations = getSnowAreaConfig().getStations();
-        allStations.addAll(snowStations);
+        for (MonName mname : MonName.values()) {
+            currManager = new FSSObsMonitorConfigurationManager(mname.name());
+            currManager.addListener(this);
+            allStations.addAll(currManager.getStations());
+            currManager = null;
+        }
     }
 
     /**
@@ -196,46 +186,5 @@ public class FSSObsGenerator extends CompositeProductGenerator implements
             dmu.setOverride(true);
             dmu.createMenus();
         }
-    }
-
-    /**
-     * Gets Fog monitor area configuration file.
-     * 
-     * @return
-     */
-    public FSSObsMonitorConfigurationManager getFogAreaConfig() {
-        if (fogAreaConfig == null) {
-            fogAreaConfig = FSSObsMonitorConfigurationManager
-                    .getFogObsManager();
-            fogAreaConfig.addListener(this);
-        }
-        return fogAreaConfig;
-    }
-
-    /**
-     * Gets SAFESEAS monitor area configuration file.
-     * 
-     * @return
-     */
-    public FSSObsMonitorConfigurationManager getSSAreaConfig() {
-        if (ssAreaConfig == null) {
-            ssAreaConfig = FSSObsMonitorConfigurationManager.getSsObsManager();
-            ssAreaConfig.addListener(this);
-        }
-        return ssAreaConfig;
-    }
-
-    /**
-     * Gets SNOW monitor area configuration file.
-     * 
-     * @return
-     */
-    public FSSObsMonitorConfigurationManager getSnowAreaConfig() {
-        if (snowAreaConfig == null) {
-            snowAreaConfig = FSSObsMonitorConfigurationManager
-                    .getSnowObsManager();
-            snowAreaConfig.addListener(this);
-        }
-        return snowAreaConfig;
     }
 }

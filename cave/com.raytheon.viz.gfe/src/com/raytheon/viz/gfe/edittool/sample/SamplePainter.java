@@ -75,6 +75,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/24/2014     #3429    mapeters    Updated deprecated drawLine() calls.
  * 08/14/2014     #3523    mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
+ * 01/13/2015     #3955    randerso    Fix NullPointerException when updateTime is not set
  * </pre>
  * 
  * @author chammack
@@ -211,16 +212,18 @@ public class SamplePainter {
 
                 DrawableLine[] lines = new DrawableLine[2];
                 lines[0] = new DrawableLine();
-                lines[0].setCoordinates(screenloc[0] - tickMarkExtent, screenloc[1]);
+                lines[0].setCoordinates(screenloc[0] - tickMarkExtent,
+                        screenloc[1]);
                 lines[0].addPoint(screenloc[0] + tickMarkExtent, screenloc[1]);
                 lines[0].basics.color = llPlusColor;
                 lines[0].width = 2.0f;
                 lines[1] = new DrawableLine();
-                lines[1].setCoordinates(screenloc[0], screenloc[1] - tickMarkExtent);
+                lines[1].setCoordinates(screenloc[0], screenloc[1]
+                        - tickMarkExtent);
                 lines[1].addPoint(screenloc[0], screenloc[1] + tickMarkExtent);
                 lines[1].basics.color = llPlusColor;
                 lines[1].width = 2.0f;
-                
+
                 target.drawLine(lines);
 
             }
@@ -242,8 +245,8 @@ public class SamplePainter {
             }
             ds.horizontalAlignment = HorizontalAlignment.CENTER;
             ds.verticallAlignment = VerticalAlignment.BOTTOM;
-            ds.basics.x = screenloc[0] + this.xOffset * ratio;
-            ds.basics.y = screenloc[1] + (this.yOffset + OFFSET) * ratio;
+            ds.basics.x = screenloc[0] + (this.xOffset * ratio);
+            ds.basics.y = screenloc[1] + ((this.yOffset + OFFSET) * ratio);
 
             target.drawStrings(ds);
         } catch (VizException e) {
@@ -271,9 +274,9 @@ public class SamplePainter {
         if (Grids.isEmpty()) {
             return;
         }
-        
+
         List<GridID> grids = Grids;
-        
+
         Collections.reverse(grids);
 
         // if list is not defined, then all samples will be painted for
@@ -446,11 +449,13 @@ public class SamplePainter {
             for (int i = 0; i < his.length; i++) {
                 if (his[i].getOriginParm().getDbId().getSiteId().equals(site)) {
                     scount++;
-                    if (his[i].getUpdateTime().after(lateTime)) {
-                        lateTime = his[i].getUpdateTime();
-                    }
-                    if (his[i].getUpdateTime().before(earlyTime)) {
-                        earlyTime = his[i].getUpdateTime();
+                    if (his[i].getUpdateTime() != null) {
+                        if (his[i].getUpdateTime().after(lateTime)) {
+                            lateTime = his[i].getUpdateTime();
+                        }
+                        if (his[i].getUpdateTime().before(earlyTime)) {
+                            earlyTime = his[i].getUpdateTime();
+                        }
                     }
                     if (showOfficial && (his[i].getPublishTime() != null)) {
                         pcount++;
@@ -496,7 +501,7 @@ public class SamplePainter {
 
         if (ago < 3600) {
             buffer.append(ago / 60).append("m");
-        } else if (ago < 3600 * 6) {
+        } else if (ago < (3600 * 6)) {
             long hrs = ago / 3600;
             long min = (ago % 3600) / 60;
 

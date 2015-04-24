@@ -22,7 +22,7 @@ package com.raytheon.viz.gfe.rsc.colorbar;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.DrawableColorMap;

@@ -60,7 +60,7 @@ Definition["displayName"] = "AFD_<MultiPil>"
 #    ]
 
 # product identifiers
-#Definition["productName"] =  "AREA FORECAST DISCUSSION"      # full station idr (e.g., KSLC)
+#Definition["productName"] =  "Area Forecast Discussion"      # full station idr (e.g., KSLC)
 Definition["fullStationID"] =  "<fullStationID>"      # full station idr (e.g., KSLC)
 Definition["wmoID"] = "<wmoID>"                       # wmoID
 Definition["pil"] = "<pil>"                           # product pil
