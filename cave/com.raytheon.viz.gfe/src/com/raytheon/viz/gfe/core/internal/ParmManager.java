@@ -20,7 +20,6 @@
 
 package com.raytheon.viz.gfe.core.internal;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,6 +52,8 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotificatio
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -145,6 +146,8 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 09/08/2104    #3592     randerso    Changed to use new pm listStaticFiles()
  * 10/08/2014    #3684     randerso    Minor code optimization
  * 10/30/2014    #3775     randerso    Changed to createMutableDb before getting initial database inventory
+ * 01/13/2015    #3955     randerso    Changed getProductDatabase() to return mutableDb for EditTopo
+ * 03/12/2015    #4246     randerso    Changes to support VCModules at base, site, and user levels
  * </pre>
  * 
  * @author chammack
@@ -598,7 +601,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         // can't find an official database that matches the mutable database
-        return new DatabaseID();
+        return mutableDb;
     }
 
     @Override
@@ -3092,30 +3095,52 @@ public class ParmManager implements IParmManager, IMessageClient {
     private List<VCModule> initVirtualCalcParmDefinitions() {
         // retrieve the inventory from the ifpServer
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationFile[] modules = pathMgr.listStaticFiles(
-                LocalizationType.COMMON_STATIC,
-                FileUtil.join("gfe", "vcmodule"), new String[] { "py" }, false,
-                true);
+        LocalizationContext[] contexts = new LocalizationContext[] {
+                pathMgr.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.BASE),
+                pathMgr.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.SITE),
+                pathMgr.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.USER) };
 
-        List<VCModule> definitions = new ArrayList<VCModule>(modules.length);
-        for (LocalizationFile mod : modules) {
+        Map<String, LocalizationFile> modMap = new HashMap<>();
+        for (LocalizationContext context : contexts) {
+            LocalizationFile[] files = pathMgr.listFiles(context,
+                    FileUtil.join("gfe", "vcmodule"), new String[] { "py" },
+                    false, true);
+            for (LocalizationFile lf : files) {
+                try {
+                    String modName = lf.getFile(false).getName()
+                            .split("\\.(?=[^\\.]+$)")[0];
+                    modMap.put(modName, lf);
+                } catch (LocalizationException e) {
+                    statusHandler.error(
+                            "Error getting local file name for VCModule " + lf,
+                            e);
+                }
+            }
+        }
+
+        List<VCModule> definitions = new ArrayList<VCModule>(modMap.size());
+        for (Entry<String, LocalizationFile> entry : modMap.entrySet()) {
+            String modName = entry.getKey();
+            LocalizationFile modFile = entry.getValue();
             try {
                 // gets the module from the ifpServer
-                File textData = mod.getFile(true);
+                modFile.getFile(true);
 
                 // create the VCModule
-                statusHandler.debug("Loading VCModule: " + mod);
-                VCModule m = new VCModule(dataManager, this, textData);
+                statusHandler.debug("Loading VCModule: " + modFile);
+                VCModule m = new VCModule(dataManager, this, modName);
                 if (!m.isValid()) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error creating VCModule " + textData.getPath(),
+                    statusHandler.error("Error creating VCModule " + modFile,
                             m.getErrorString());
                     continue;
                 }
                 definitions.add(m);
             } catch (LocalizationException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Unable to retrieve VCMODULE " + mod.toString(), e);
+                        "Unable to retrieve VCMODULE " + modFile.toString(), e);
                 continue;
             }
 

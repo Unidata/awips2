@@ -65,7 +65,7 @@ class TextProduct(GenericReport.TextProduct):
                                            "AKZ215","AKZ216","AKZ217","AKZ227"]
                                                                                 
     # product identifiers
-    Definition["productName"] = "SPECIAL WEATHER STATEMENT" # product name 
+    Definition["productName"] = "Special Weather Statement" # product name 
     Definition["fullStationID" ] = "<fullStationID>"    # 4 letter station ID
     Definition["wmoID" ] = "<wmoID>"                    # WMO code
     Definition["wfoCityState" ] = "<wfoCityState>"      # Location of WFO
@@ -89,7 +89,7 @@ class TextProduct(GenericReport.TextProduct):
 
    # REQUIRED OVERRIDES
     def _postProcessArea(self, fcst, editArea, areaLabel, argDict):
-        return fcst + "|* STATEMENT TEXT *|\n\n$$\n\n"
+        return fcst + "|* Statement text *|\n\n$$\n\n"
 
    # OPTIONAL OVERRIDES
 

@@ -73,7 +73,8 @@ public class TimeSeries {
         this.parm.getListeners().addGridChangedListener(gridDataListener);
         IReferenceSetManager refSetMgr = parm.getDataManager().getRefManager();
         refSetMgr.addReferenceSetChangedListener(refSetListener);
-        sampleArea = refSetMgr.getActiveRefSet().getGrid();
+        sampleArea = TemporalEditorUtil.determinePointsToUse(refSetMgr
+                .getActiveRefSet());
         generateSamples();
     }
 
@@ -199,7 +200,7 @@ public class TimeSeries {
         @Override
         public void referenceSetChanged(ReferenceData refSet,
                 ArrayList<Envelope> domains) {
-            sampleArea = refSet.getGrid();
+            sampleArea = TemporalEditorUtil.determinePointsToUse(refSet);
 
             VizApp.runAsync(new Runnable() {
                 @Override

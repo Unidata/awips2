@@ -20,10 +20,12 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<!--  Direct port of tdlSurfaceMenus.txt -->
-	<contribute xsi:type="titleItem" titleText="------ IFPS ------"
+        <!--  DR 9363: Commented out IFPS part of menu. Has no functionality 
+	<contribute xsi:type="titleItem" titleText="- IFPS -"
 		id="IFPSLine" />
 	<contribute xsi:type="placeholder" menuText="IFPS 3hr" id="IFPS3Hr" />
 	<contribute xsi:type="placeholder" menuText="IFPS 12hr" id="IFPS12Hr" />
+        -->
 	<contribute xsi:type="titleItem" titleText="------ GFSLAMP ------"
 		id="GFSLAMPLine" />
 	<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml"
@@ -110,7 +112,7 @@
 	    	</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
 				menuText="Cond Snow" id="GFSMOSCondSnowPlot">
-	        	<substitute key="model" value="GFS"/>
+     	<substitute key="model" value="GFS"/>
         		<substitute key="plotModel" value="bufrmos/precipSnow.svg"/>
 	    		<substitute key="title" value="GFS Cond Snow"/>
 	    	</contribute>
@@ -192,98 +194,101 @@
 	    	<substitute key="title" value="GFS Extended QPF 12Hr" />
 	    </contribute>
 	</contribute>
-	<contribute xsi:type="subMenu" menuText="Eta" id="EtaMOSMenu">
+        <!-- DR 9363: Renamed menu text, titles, ids from Eta/ETA to NAM 
+                      in ETA submenu
+        -->
+	<contribute xsi:type="subMenu" menuText="NAM" id="NAMMOSMenu">
 		<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-		menuText="Station Plot" id="EtaMOSStationPlot" >
+		menuText="Station Plot" id="NAMMOSStationPlot" >
 	        	<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/stdDesign.svg"/>
-	    		<substitute key="title" value="ETA Station Plot"/>
+	    		<substitute key="title" value="NAM Station Plot"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-			 menuText="MaxT/MinT" id="EtaMOSMaxTMinTPlot" >
+			 menuText="MaxT/MinT" id="NAMMOSMaxTMinTPlot" >
 	        	<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/maxmin.svg"/>
-	    		<substitute key="title" value="ETA MaxT/MinT"/>
+	    		<substitute key="title" value="NAM MaxT/MinT"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-			menuText="Ceil/Vis" id="EtaMOSCeilVisPlot">
+			menuText="Ceil/Vis" id="NAMMOSCeilVisPlot">
 	        	<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/CIGV.svg"/>
-	    		<substitute key="title" value="ETA Ceil/Vis"/>
+	    		<substitute key="title" value="NAM Ceil/Vis"/>
 	    </contribute>
-		<contribute xsi:type="subMenu" menuText="Probabilities" id="EtaMOSProbMenu">
+		<contribute xsi:type="subMenu" menuText="Probabilities" id="NAMMOSProbMenu">
 			<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml"
-				menuText="POP 12Hr" id="EtaMOSPop12HrPlot">
+				menuText="POP 12Hr" id="NAMMOSPop12HrPlot">
 	        	<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/pqpf12hr.svg"/>
-        		<substitute key="title" value="ETA POP 12Hr"/>
+        		<substitute key="title" value="NAM POP 12Hr"/>
 	    	</contribute>
 	    	<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-	            menuText="POP 6Hr" id="EtaMOSPop6HrPlot">
+	            menuText="POP 6Hr" id="NAMMOSPop6HrPlot">
 	        	<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/pqpf6hr.svg"/>
-        		<substitute key="title" value="ETA POP 6Hr"/>
+        		<substitute key="title" value="NAM POP 6Hr"/>
 	    	</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-				menuText="Tstorm 12Hr" id="EtaMOSTs12HrPlot">
+				menuText="Tstorm 12Hr" id="NAMMOSTs12HrPlot">
 				<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/tstorm12hr.svg"/>
-        		<substitute key="title" value="ETA Tstorm 12hr"/>
+        		<substitute key="title" value="NAM Tstorm 12hr"/>
         	</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-				menuText="Tstorm 6Hr" id="EtaMOSTs6HrPlot">
+				menuText="Tstorm 6Hr" id="NAMMOSTs6HrPlot">
 				<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/tstorm6hr.svg"/>
-        		<substitute key="title" value="ETA Tstorm 6hr"/>
+        		<substitute key="title" value="NAM Tstorm 6hr"/>
         	</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-				menuText="Svr Tstorm 12Hr" id="EtaMOSSts12HrPlot">
+				menuText="Svr Tstorm 12Hr" id="NAMMOSSts12HrPlot">
 				<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/severe12hr.svg"/>
-        		<substitute key="title" value="ETA Svr Tstorm 12hr"/>
+        		<substitute key="title" value="NAM Svr Tstorm 12hr"/>
         	</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-				menuText="Svr Tstorm 6Hr" id="EtaMOSSts6HrPlot">
+				menuText="Svr Tstorm 6Hr" id="NAMMOSSts6HrPlot">
 				<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/severe6hr.svg"/>
-        		<substitute key="title" value="ETA Svr Tstorm 6hr"/>
+        		<substitute key="title" value="NAM Svr Tstorm 6hr"/>
         	</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-				menuText="Cond Rain" id="EtaMOSCondRainPlot">
+				menuText="Cond Rain" id="NAMMOSCondRainPlot">
 				<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/precipRain.svg"/>
-        		<substitute key="title" value="ETA Cond Rain"/>
+        		<substitute key="title" value="NAM Cond Rain"/>
         	</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-				menuText="Cond Freezing Precip" id="EtaMOSCondFPPlot">
+				menuText="Cond Freezing Precip" id="NAMMOSCondFPPlot">
 				<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/freezing.svg"/>
-        		<substitute key="title" value="ETA Cond Freezing"/>
+        		<substitute key="title" value="NAM Cond Freezing"/>
         	</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-				menuText="Cond Snow" id="EtaMOSCondSnowPlot">
+				menuText="Cond Snow" id="NAMMOSCondSnowPlot">
 				<substitute key="model" value="ETA"/>
         		<substitute key="plotModel" value="bufrmos/precipSnow.svg"/>
-        		<substitute key="title" value="ETA Cond Snow"/>
+        		<substitute key="title" value="NAM Cond Snow"/>
         	</contribute>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-			menuText="QPF 12Hr" id="EtaMOSQPF12HrPlot">
+			menuText="QPF 12Hr" id="NAMMOSQPF12HrPlot">
 			<substitute key="model" value="ETA"/>
         	<substitute key="plotModel" value="bufrmos/qpf12hr.svg"/>
-        	<substitute key="title" value="ETA QPF 12Hr"/>
+        	<substitute key="title" value="NAM QPF 12Hr"/>
         </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-			menuText="QPF 6Hr" id="EtaMOSQPF6HrPlot">
+			menuText="QPF 6Hr" id="NAMMOSQPF6HrPlot">
 			<substitute key="model" value="ETA"/>
         	<substitute key="plotModel" value="bufrmos/qpf6hr.svg"/>
-        	<substitute key="title" value="ETA QPF 6Hr"/>
+        	<substitute key="title" value="NAM QPF 6Hr"/>
         </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-			menuText="SnowFall 24hr" id="EtaMOSSnowFall24HrPlot">
+			menuText="SnowFall 24hr" id="NAMMOSSnowFall24HrPlot">
 			<substitute key="model" value="ETA"/>
         	<substitute key="plotModel" value="bufrmos/snowfall24.svg"/>
-        	<substitute key="title" value="ETA SnowFall 24hr"/>
+        	<substitute key="title" value="NAM SnowFall 24hr"/>
         </contribute>
 	</contribute>
 </menuTemplate>

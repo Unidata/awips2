@@ -78,23 +78,4 @@
         <constructor-arg value="com.raytheon.uf.common.activetable.request.UnlockAndSetNextEtnRequest"/>
         <constructor-arg ref="setAndUnlockEtnHandler"/>
     </bean>
-
-    <bean id="fetchATSrv" class="com.raytheon.uf.edex.activetable.vtecsharing.FetchActiveTableSrv"/>
-    <camelContext id="activeTableSharingRoutes" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <route id="activeSiteForFetchATSrv">
-            <from uri="jms-generic:queue:gfeSiteActivated"/>
-            <doTry>
-                <bean ref="fetchATSrv" method="addSite"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:fetchATSrv?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="activeTableSharingRoutes"/>
-    </bean>
 </beans>

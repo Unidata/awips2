@@ -22,6 +22,7 @@ package com.raytheon.viz.hydrocommon.colorscalemgr;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -54,7 +55,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.RGBColors;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.ColorValueData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -74,6 +78,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 01 Jul 2013  2088       rferrel     Changes for non-blocking dialogs.
  * 06 Sep 2013  #2342      lvenable    Fixed color memory leaks and a null point exception.
  * 04 Sep 2014  14448      cgobs       Make MPE redisplay after save of color settings in ColorScaleMgr
+ * 26 Feb 2015  16848      cgobs       Fix merging of color sets by deleting existing set before saving new set.
+ *                                     Updated to include fix of error when saving a new source.
    * </pre>
  * 
  * @author lvenable
@@ -1955,6 +1961,77 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         return true;
     }
 
+    
+    private void deleteDataFromDb(String applicationName, String colorUseName, String userId, String durationString) {
+        HydroDBDataManager manager = HydroDBDataManager.getInstance();
+
+        String whereClause = " WHERE application_name = '" + applicationName + "' AND " +
+                               "color_use_name = '" + colorUseName + "' AND " +
+                               "userId = '" + userId + "' AND " +
+                               "duration = '" + durationString + "' AND " +
+                               "threshold_unit = 'E' ";
+        String statement = "delete from colorValue " + whereClause;
+        
+        
+        try   {
+            DirectDbQuery.executeStatement(statement,HydroConstants.IHFS, QueryLanguage.SQL);
+        }
+         
+        catch (VizException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Error deleting Color Value Data: ", e);
+        }
+        
+        // 0. Collect data to delete (user, dataType, duration
+     
+        java.util.List<ColorScaleData> usedColorData = null;
+        try
+        {
+            usedColorData = editColorData
+                .getUsedColorScaleDataArray(userId, durationString + "_" + colorUseName);
+        }
+        catch (Exception e)
+        {
+            statusHandler.handle(Priority.DEBUG,
+                  "No problem. Color set doesn't exist yet, can't delete it. ", e);   
+        }
+        
+        if (usedColorData != null) {
+            ColorValueData cvd = new ColorValueData();
+            cvd.setApplicationName(applicationName);
+            cvd.setColorUseName(colorUseName);
+            cvd.setUserId(userId);
+            cvd.setDuration(durationString);
+
+            System.out.println("Attempting to delete data from cvd = " +
+                    getStringFromColorValueData(cvd) );
+
+            // 1. Delete each record from database
+            for (ColorScaleData csd : usedColorData) {
+                cvd.setThresholdValue(csd.getDoubleVal().toString());
+                try {
+                    manager.deleteRecord(cvd);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.ERROR,
+                            "Error deleting Color Value Data: ", e);
+                }
+            }  //end for 
+        }
+    }
+        
+    
+    private String getStringFromColorValueData(ColorValueData cvd)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("appName: " + cvd.getApplicationName() + 
+                       " colorUseName: " + cvd.getColorUseName() +
+                       " userId: " + cvd.getUserId() +
+                       " duration: " + cvd.getDuration());
+        
+        return builder.toString();
+    }
+    
+        
     /**
      * save the data to the database
      * 
@@ -1962,6 +2039,69 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      *            user to save current data as
      */
     private void saveData(String user) {
+        setSelectedDuration(durationCbo.getText());
+
+        HydroDBDataManager manager = HydroDBDataManager.getInstance();
+
+        String userId = user;
+        String applicationName = colorManager.getApplicationName();
+        String colorUseName = colorManager.getDataTypeName(saveDataTypeCbo
+                .getText());
+        String duration = selectedDurationInSeconds.toString();
+        
+        deleteDataFromDb(applicationName, colorUseName, userId, duration);
+        
+        ColorValueData cvd = new ColorValueData();
+        for (ColorValueLabels cvls : colorValLblArray) {
+            String threshold = cvls.getValueText();
+            String colorName = cvls.getColorName();
+            String thresholdUnit = "E";
+            if (ColorScaleData.MISSING.equals(threshold)) {
+                threshold = "-9999";
+            } else if (ColorScaleData.LESS_THAN_MIN.equals(threshold)) {
+                threshold = "-8888";
+            }
+                        
+            cvd.setApplicationName(applicationName);
+            cvd.setUserId(userId);
+            cvd.setColorName(colorName);
+            cvd.setColorUseName(colorUseName);
+            cvd.setDuration(duration);
+            cvd.setThresholdUnit(thresholdUnit);
+            cvd.setThresholdValue(threshold);
+
+            try {
+              
+                manager.putData(cvd);
+            } catch (VizException e1) {
+                statusHandler.handle(Priority.ERROR,
+                        "Error saving Color Value Data: ", e1);
+            }
+        }
+
+
+        if (sourceCbo.getText().equals(DEFAULT)) {
+            createDefaultData();
+        } else {
+            createColorData(user);
+        }
+
+        updateDurationCombo();
+        updateColorValueLabelBar();
+        
+        if (this.saveCallback != null) {
+            this.saveCallback.execute();
+        }
+        setReturnValue(true);
+    }
+    
+    /**
+     * save the data to the database
+     * 
+     * @param user
+     *            user to save current data as
+     */
+    private void saveDataOrig(String user) {
         setSelectedDuration(durationCbo.getText());
 
         HydroDBDataManager manager = HydroDBDataManager.getInstance();
@@ -1998,7 +2138,13 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
             }
         }
 
+        
+        //delete all old records
+        
         for (ColorValueLabels cvls : usedColorValLblArray) {
+            
+            System.out.printf(" value = %s,  colorName = %s\n", cvls.getValueText(), cvls.getColorName() );
+            
             boolean found = false;
             for (int i = 0; (i < colorValLblArray.size()) && !found; ++i) {
                 String val = colorValLblArray.get(i).getValueText();
@@ -2006,6 +2152,9 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
                     found = true;
                 }
             }
+            
+            System.out.printf("found = %b\n", found);
+            
             if (!found) {
                 cvd.setApplicationName(applicationName);
                 cvd.setUserId(userId);

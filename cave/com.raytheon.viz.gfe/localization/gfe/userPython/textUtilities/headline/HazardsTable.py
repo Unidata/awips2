@@ -36,6 +36,8 @@
 #                                                 __warnETNduplication() and
 #                                                 __highestETNActiveTable.
 #    11/11/14        4953          randerso       Changed type of endTime from float to int
+#    01/22/2015      4027          randerso       Fix comparison of in __getCities
+#    02/05/15        4099          randerso       Fixed exception handling in __getActiveTable
 #
 
 
@@ -234,7 +236,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             returnStr = returnStr + s + '\n'
         return returnStr
 
-    # Returns the cities associted with the hazards that could afflict
+    # Returns the cities associated with the hazards that could afflict
     # the cities in cityList
     def getCities(self, cityList, zoneHazards):
         if self.__cityHazards is None:
@@ -285,7 +287,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         cities = []
         for city in cityList:
             for p in hazardList:
-                if p['id'].upper() == city:
+                if p['id'].upper() == city.upper():
                     cities.append(city)
                     break
         return cities
@@ -933,7 +935,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         except:
             self.log.exception("Unable to access VTEC Active Table: ")
-            raise Exception, s
+            raise
 
     def __createCityHazards(self):
         if not self.__accurateCities:

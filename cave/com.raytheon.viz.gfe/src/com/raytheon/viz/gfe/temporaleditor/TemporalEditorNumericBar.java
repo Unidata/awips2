@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.colormap.IColorMap;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;

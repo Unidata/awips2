@@ -99,6 +99,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,775)
 %dir /awips2/GFESuite/nwps
 /awips2/GFESuite/nwps/*
+%defattr(775,awips,fxalpha,775)
+%dir /awips2/GFESuite/hti
+/awips2/GFESuite/hti/*
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/GFESuite/bin
 /awips2/GFESuite/bin/*
@@ -119,7 +122,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(755,awips,fxalpha,777)
 %dir /awips2/GFESuite/ServiceBackup/scripts
 /awips2/GFESuite/ServiceBackup/scripts/*
-%config(noreplace) /awips2/GFESuite/ServiceBackup/configuration/svcbu.properties
 %defattr(644,awips,fxalpha,775)
 %dir /awips2/GFESuite/products
 /awips2/GFESuite/products/*

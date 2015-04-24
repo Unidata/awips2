@@ -27,9 +27,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * ScanRunSiteConfigurationManager
- * 
+ *
  * Holds the SCAN configuration
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -38,9 +38,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 02/25/13     1660       dhladky     Fixed configuration bug in scan.
  * Aug 13, 2013 1742       dhladky     Concurrent mod exception on update fixed
  * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
- * 
+ * Jan 20, 2015 3949       nabowle     Add lightning source.
+ * Mar 27, 2015 4260       dhladky     Updated default model.
+ *
  * </pre>
- * 
+ *
  * @author dhladky
  * @version 1.0
  */
@@ -51,6 +53,9 @@ public class SCANRunSiteConfigurationManager implements
     /** Path to FFMP Source config. */
     private static final String CONFIG_FILE_NAME = "scan" + File.separatorChar
             + "SCANRunSiteConfig.xml";
+    
+    /** default model to set in XML **/
+    private static final String DEFAULT_MODEL = "HRRR";
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SCANRunSiteConfigurationManager.class);
@@ -90,7 +95,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get an instance of this singleton.
-     * 
+     *
      * @return Instance of this class
      */
     public static SCANRunSiteConfigurationManager getInstance() {
@@ -211,7 +216,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get a site listing
-     * 
+     *
      * @return
      */
     public ArrayList<String> getSiteNames() {
@@ -223,7 +228,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get a local site listing
-     * 
+     *
      * @return
      */
     public ArrayList<String> getLocalSiteNames() {
@@ -235,7 +240,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get a dial site listing
-     * 
+     *
      * @return
      */
     public ArrayList<String> getDialSiteNames() {
@@ -246,8 +251,20 @@ public class SCANRunSiteConfigurationManager implements
     }
 
     /**
+     * Get the lightning source.
+     *
+     * @return
+     */
+    public String getLightningSource() {
+        if (configXml != null) {
+            return configXml.getLightningSource();
+        }
+        return null;
+    }
+
+    /**
      * Get the Site you are seeking
-     * 
+     *
      * @param name
      * @return
      */
@@ -274,7 +291,7 @@ public class SCANRunSiteConfigurationManager implements
          */
         List<String> localsites = RadarsInUseUtil.getSite(null,
                 RadarsInUseUtil.LOCAL_CONSTANT);
-        String modelDefault = "RUC130";
+        String modelDefault = DEFAULT_MODEL;
 
         configXml = new SCANSiteRunConfigXML();
 
@@ -302,10 +319,10 @@ public class SCANRunSiteConfigurationManager implements
     }
 
     /**
-     * 
+     *
      * Enumeration for which type of ModelData. CAPE is: Convective Available
      * Potential Energy. HELI is: storm relative HELIcity.
-     * 
+     *
      * @author dhladky
      * @version 1.0
      */

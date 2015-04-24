@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.gfe.core.wxvalue;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.viz.gfe.Activator;

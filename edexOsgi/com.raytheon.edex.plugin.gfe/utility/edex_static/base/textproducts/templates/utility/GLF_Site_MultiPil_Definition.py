@@ -55,17 +55,17 @@ Definition["defaultEditAreas"] = [("west_half", "WEST HALF\n\n"),
 #    Definition["defaultEditAreas"] = [("north_half", "NORTH HALF\n\n"),
 #                                     ("south_half", "SOUTH HALF\n\n")]
 #    # St Clair
-#Definition["defaultEditAreas"] = [("ST_CLAIR", "\n\n"),]
-#Definition["lake_name"] = "SUPERIOR" # use -- SUPERIOR, HURON, ERIE, ONTARIO, MICHIGAN, ST_CLAIR
+#Definition["defaultEditAreas"] = [("St_Clair", "\n\n"),]
+#Definition["lake_name"] = "Superior" # use -- Superior, Huron, Erie, Ontario, Michigan, St_Clair
 
 # HEADER AND ZONE CONFIG ITEMS
-#Definition["productName"] = "OPEN LAKE FORECAST"  # name of product
+#Definition["productName"] = "Open Lake Forecast"  # name of product
 Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
 Definition["wmoID"] = "<wmoID>"        # WMO ID
 Definition["pil"] = "<pil>"          # product pil in AWIPS XX is the 
                                      #lake abbreviation "LE, LS, LO, SC, LM"
-#Definition["areaName"] = "LAKE SUPERIOR" # Name of lake, such 
-                                         # as "LAKE SUPERIOR"
+#Definition["areaName"] = "Lake Superior" # Name of lake, such 
+                                         # as "Lake Superior"
 Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
 Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
 Definition["awipsWANPil"] = "<awipsWANPil>"   # Product ID for transmitting to AWIPS WAN.
@@ -73,7 +73,7 @@ Definition["outputFile"] =  "{prddir}/TEXT/GLF_<MultiPil>.txt"
 
 #Definition["lakezone"] = "LSZ260" # lake zone code
 #Definition["maforzone"] = "LSZ261" # mafor zone code
-#Definition["headerphrase"] = "LAKE SUPERIOR FORECAST BEYOND FIVE NAUTICAL MILES FROM SHORE" # header phrase
+#Definition["headerphrase"] = "Lake Superior forecast beyond five nautical miles from shore" # header phrase
 
 #Definition["hazardSamplingThreshold"] = (10, None)  #(%cov, #points)
 

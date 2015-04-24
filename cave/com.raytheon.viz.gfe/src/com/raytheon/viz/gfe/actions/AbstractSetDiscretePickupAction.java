@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
@@ -41,9 +41,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.wxvalue.DiscreteWxValue;
@@ -66,7 +64,8 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  */
 public abstract class AbstractSetDiscretePickupAction extends
         BaseSetDiscretePickupAction<String> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(AbstractSetDiscretePickupAction.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractSetDiscretePickupAction.class);
 
     protected static final String DELIMITER = "|";
 
@@ -177,8 +176,8 @@ public abstract class AbstractSetDiscretePickupAction extends
             try {
                 createCommonMenuItems();
             } catch (GFEServerException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to create menu", e);
+                statusHandler.handle(Priority.PROBLEM, "Unable to create menu",
+                        e);
             }
         }
 
@@ -253,7 +252,7 @@ public abstract class AbstractSetDiscretePickupAction extends
             int i = 0;
             for (String subKey : subKeys) {
                 v.append(dd.keyDesc(compositeName, subKey));
-                if (i != subKeys.size() - 1) {
+                if (i != (subKeys.size() - 1)) {
                     v.append(',');
                 }
                 i++;
@@ -287,13 +286,13 @@ public abstract class AbstractSetDiscretePickupAction extends
                     int j = 0;
                     for (String attr : attributes) {
                         v.append(wdef.attributeDesc(subKey.getType(), attr));
-                        if (j != attributes.size() - 1) {
+                        if (j != (attributes.size() - 1)) {
                             v.append(',');
                         }
                     }
                     v.append(']');
                 }
-                if (i != sk.size() - 1) {
+                if (i != (sk.size() - 1)) {
                     v.append(',');
                 }
                 i++;

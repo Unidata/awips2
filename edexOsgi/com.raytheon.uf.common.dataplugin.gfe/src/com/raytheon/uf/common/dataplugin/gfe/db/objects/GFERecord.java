@@ -84,6 +84,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Dec 03, 2013 2597        randerso    Cleared gridHistory id when adding new history
  *                                      records in consolidateHistory so dao will recognize
  *                                      it as a new record
+ * Jan 13, 2015 3955        randerso    Moved GridType enum to GridParmInfo where it belongs
  * 
  * </pre>
  * 
@@ -105,11 +106,6 @@ import com.raytheon.uf.common.time.TimeRange;
 public class GFERecord extends PluginDataObject implements IPersistable {
 
     private static final long serialVersionUID = 1L;
-
-    /** Grid type enumeration */
-    public enum GridType {
-        NONE, SCALAR, VECTOR, WEATHER, DISCRETE
-    };
 
     public static final String PLUGIN_NAME = "gfe";
 

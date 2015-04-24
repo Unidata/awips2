@@ -27,8 +27,8 @@ import jep.INumpyable;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
@@ -310,10 +310,12 @@ public abstract class AbstractGridSlice implements IGridSlice,
         // do nothing by default
     }
 
+    @Override
     public boolean getUseCache() {
         return this.useCache;
     }
 
+    @Override
     public void setUseCache(boolean useCache) {
         if (this.useCache != useCache) {
             this.useCache = useCache;

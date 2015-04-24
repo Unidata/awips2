@@ -30,7 +30,6 @@ import javax.measure.unit.UnitFormat;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
@@ -58,14 +57,15 @@ import com.raytheon.uf.common.numeric.source.DataSource;
  * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
  * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
  * Sep 29, 2014  3596     nabowle     Always put creatingEntity in attributes.
+ * Feb 13, 2015  4124     mapeters    Overrode getAvailableParameters(), inherits IDataFactory.
+ * Feb 27, 2015  4179     mapeters    Use AbstractDataPluginFactory.getAvailableValues().
  * 
  * </pre>
  * 
  * @author bkowal
  * @version 1.0
  */
-public class SatelliteGridFactory extends AbstractGridDataPluginFactory
-        implements IDataFactory {
+public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
 
     private static final String FIELD_CREATING_ENTITY = "creatingEntity";
 
@@ -127,7 +127,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
 
     /**
      * Builds the base constraint map based on the supplied grid request
-     *
+     * 
      * @param request
      *            the original grid request
      * @return the base constraint map
@@ -169,7 +169,15 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
 
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
-        return getAvailableLocationNames(request, FIELD_SECTOR_ID);
+        return getAvailableValues(request, FIELD_SECTOR_ID, String.class);
+    }
+
+    /**
+     * Get the available parameters.
+     */
+    @Override
+    public String[] getAvailableParameters(IDataRequest request) {
+        return getAvailableValues(request, FIELD_PYHSICAL_ELEMENT, String.class);
     }
 
 }

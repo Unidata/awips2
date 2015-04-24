@@ -45,7 +45,6 @@ __all__ = [
             'ProcessReceivedDigitalDataRequest',
             'PurgeGfeGridsRequest',
             'SaveASCIIGridsRequest',
-            'ServiceBackupStatusUpdateRequest',
             'SmartInitRequest'
           ]
 
@@ -73,6 +72,5 @@ from ProcessReceivedConfRequest import ProcessReceivedConfRequest
 from ProcessReceivedDigitalDataRequest import ProcessReceivedDigitalDataRequest
 from PurgeGfeGridsRequest import PurgeGfeGridsRequest
 from SaveASCIIGridsRequest import SaveASCIIGridsRequest
-from ServiceBackupStatusUpdateRequest import ServiceBackupStatusUpdateRequest
 from SmartInitRequest import SmartInitRequest
 

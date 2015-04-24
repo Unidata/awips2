@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,16 +39,18 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * The graph resource is a resource that contains 1-N graphs, lays them out and
  * provides functionality for drawing to them / sampling them
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2009            mschenke     Initial creation
- * 
+ * Mar 04, 2015 4189       nabowle      Copy graphs in paintInternal to prevent
+ *                                      ConcurrentModification in a single thread.
+ *
  * </pre>
- * 
+ *
  * @author mschenke
  * @version 1.0
  */
@@ -149,7 +151,9 @@ public class GraphResource extends
 
             newGraphs = false;
         } else {
-            for (IGraph graph : graphs) {
+            // copy graphs since graph.paint() can modify graphs.
+            List<IGraph> copy = new ArrayList<>(graphs);
+            for (IGraph graph : copy) {
                 if (graph.isDisplayed() == true) {
                     graph.paint(target, paintProps);
                 }
@@ -161,7 +165,7 @@ public class GraphResource extends
      * Returns the graph associated with this graphable resource, graph will be
      * constructed if doesn't exist, should only be called once by the resource
      * and cached
-     * 
+     *
      * @param rsc
      * @return
      */
@@ -193,7 +197,7 @@ public class GraphResource extends
 
     /**
      * Returns the closest graph to the grid coordinates
-     * 
+     *
      * @param gridCoords
      * @return
      */
@@ -224,7 +228,7 @@ public class GraphResource extends
 
     /**
      * Returns the closest graph to the grid coordinates
-     * 
+     *
      * @param gridCoords
      * @return
      */

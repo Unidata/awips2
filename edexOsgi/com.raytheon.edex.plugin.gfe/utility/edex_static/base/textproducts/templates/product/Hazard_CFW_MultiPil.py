@@ -35,13 +35,13 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["mapNameForCombinations"] = "Zones_<site>" # Map background for creating Combinations
 
     # Header configuration items
-    Definition["productName"] = "COASTAL HAZARD MESSAGE"  # Warning! DO NOT CHANGE.
+    Definition["productName"] = "Coastal Hazard Message"  # Warning! DO NOT CHANGE.
     # The productName gets substituted later in the formatter!
     
     Definition["fullStationID"] = "<fullStationID>"  # full station identifier (4letter)
     Definition["wmoID"] = "<wmoID>"        # WMO ID
     Definition["pil"] = "<pil>"          # product pil
-    #Definition["areaName"] = "STATENAME"  # Name of state, such as "GEORGIA"
+    #Definition["areaName"] = "Statename"  # Name of state, such as "Georgia"
     Definition["wfoCityState"] = "<wfoCityState>"  # Location of WFO - city state
     Definition["wfoCity"] = "<wfoCity>"       # WFO Name as it should appear in a text product
     Definition["textdbPil"] = "<textdbPil>"       # Product ID for storing to AWIPS text database.
@@ -60,7 +60,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["accurateCities"] = 0  # If 1, cities are based on grids;
                                       # otherwise full list is included
     Definition["cityLocation"] = "CityLocation" # City lat/lon dictionary to use
-    #Definition["cityDescriptor"] = "INCLUDING THE CITIES OF"
+    #Definition["cityDescriptor"] = "Including the cities of"
     Definition["includeZoneNames"] = 1 # Zone names will be included in the area header
     Definition["lineLength"] = 66 # line length
     Definition["easPhrase"] = "URGENT - IMMEDIATE BROADCAST REQUESTED" 
@@ -72,12 +72,12 @@ class TextProduct(GenericHazards.TextProduct):
         ###
     ### Text to insert below the last $$ of the product (WFO URL)
     ### use "" if you do not want text to appear
-##    Definition["urlText"] = "HTTP://WWW.WEATHER.GOV/MIAMI"
+##    Definition["urlText"] = "http://www.weather.gov/miami"
     ### no additional text example
     Definition["urlText"] = ""
     ### multiple line example
-##    Definition["urlText"] = "FOR MORE INFORMATION FROM NOAA/S NATIONAL WEATHER SERVICE VISIT...\n" + \
-##                            "HTTP://WEATHER.GOV/SALTLAKECITY (ALL LOWER CASE)"
+##    Definition["urlText"] = "For more information from NOAA/s National Weather Service visit...\n" + \
+##                            "http://weather.gov/saltlakecity"
     ###
 
     def __init__(self):
@@ -106,23 +106,23 @@ class TextProduct(GenericHazards.TextProduct):
 
     def _bulletDict(self):
         return {
-            "CF" : ("COASTAL FLOODING,TIMING,IMPACTS"),  ### coastal flood warning, advisory, watch
-            "LS" : ("LAKE SHORE FLOODING,TIMING,IMPACTS"),  ### lake shore flood warning, advisory, watch
-            "BH" : ("HAZARDS,TIMING,LOCATION,POTENTIAL IMPACTS"),  ### hazardous beach conditions
-            "SU" : ("WAVES AND SURF,TIMING,IMPACTS"),  ### high surf warning, advisory
-            "RP" : ("TIMING,IMPACTS"),                 ### high rip current risk
+            "CF" : ("Coastal Flooding,Timing,Impacts"),  ### coastal flood warning, advisory, watch
+            "LS" : ("Lake Shore Flooding,Timing,Impacts"),  ### lake shore flood warning, advisory, watch
+            "BH" : ("Hazards,Timing,Location,Potential Impacts"),  ### hazardous beach conditions
+            "SU" : ("Waves and Surf,Timing,Impacts"),  ### high surf warning, advisory
+            "RP" : ("Timing,Impacts"),                 ### high rip current risk
                }
 
     def _bulletOrder(self):
         return [
-            "COASTAL FLOODING",
-            "LAKE SHORE FLOODING",
-            "WAVES AND SURF",
-            "HAZARDS",
-            "TIMING",
-            "LOCATION",
-            "POTENTIAL IMPACTS",
-            "IMPACTS",
+            "Coastal Flooding",
+            "Lake Shore Flooding",
+            "Waves and Surf",
+            "Hazards",
+            "Timing",
+            "Location",
+            "Potential Impacts",
+            "Impacts",
             ]
 
 
@@ -174,7 +174,7 @@ class TextProduct(GenericHazards.TextProduct):
         # If an overview exists for this product, insert it
         #
         overview = self.finalOverviewText()
-        overviewSearch = re.compile(r'DEFAULT OVERVIEW SECTION', re.DOTALL)
+        overviewSearch = re.compile(r'Default overview section', re.DOTALL)
         fcst = overviewSearch.sub(overview, fcst)
 
 
@@ -202,21 +202,21 @@ class TextProduct(GenericHazards.TextProduct):
         # rename the product if necessary based on VTEC codes
         for each in fullKeyList:
             if each in ['LS.W', 'LS.A', 'LS.Y', 'LS.S']:
-                    productName = "LAKESHORE HAZARD MESSAGE"
+                    productName = "Lakeshore Hazard Message"
                     fcst = fcst.replace(self._productName, productName, 1) 
                     break
 
         # Added to place line feeds in the CAP tags to keep separate from CTAs
 
         fcst = string.replace(fcst, \
-                              r"PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", \
-                              r"\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n")
+                              r"Precautionary/preparedness actions\.\.\.", \
+                              r"\nPrecautionary/preparedness actions\.\.\.\n")
         fcst = string.replace(fcst, ".:", ".")
         fcst = string.replace(fcst, "\n ","\n")
         fcst = string.replace(fcst, "&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
                       "", fcst)
         ### to remove any empty framing code
         fcst = re.sub("\|\*\s*\*\|", "", fcst)

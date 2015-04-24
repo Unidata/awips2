@@ -818,8 +818,23 @@
 	</rule>
 	<!-- Purge rules for MRMS -->
 	<rule>
-		<keyValue>MRMS</keyValue>
+		<keyValue>MRMS_1000</keyValue>
 		<versionsToKeep>120</versionsToKeep>
 		<period>03-00:00:00</period>
+	</rule>
+	<rule>
+		<keyValue>MRMS_0500</keyValue>
+		<versionsToKeep>120</versionsToKeep>
+		<period>03-00:00:00</period>
+	</rule>
+	
+	<!-- Purge rule for the ETSS model -->
+	<rule>
+		<keyValue>ETSS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>ETSS-AK</keyValue>
+		<versionsToKeep>2</versionsToKeep>
 	</rule>
 </purgeRuleSet>

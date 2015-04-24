@@ -1,5 +1,0 @@
-# Empty file
-
-"""
-@undocumented: PDBExportFilters
-"""

@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *   &lt;name>Raw&lt;/name>
  *   &lt;rootDir>/data_store/&lt;/rootDir>
  *   &lt;!-- default retention hours for a category. -->
- *   &lt;minRetentionHours>168&lt;/minRetentionHours>
+ *   &lt;defaultRetentionHours>168&lt;/defaultRetentionHours>
  *   &lt;category>
  *     &lt;name>Model grib&lt;/name>
  *     ...
@@ -58,6 +58,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * May  1, 2013 1966       rferrel     Initial creation
  * May 31, 2013 1965       bgonzale    Added getCategory(categoryName)
  * Apr 17, 2014 3045       rferrel     Code cleanup to prevent null pointer.
+ * Jan 22, 2015 3763       rferrel     Change tag from minRetentionHours to defaultRetentionHours
  * 
  * </pre>
  * 
@@ -81,10 +82,10 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
     private String rootDir;
 
     /**
-     * Minimum number of hours the purger should retain data. May be overridden
+     * Default number of hours the purger should retain data. May be overridden
      * for a given category.
      */
-    @XmlElement(name = "minRetentionHours")
+    @XmlElement(name = "defaultRetentionHours")
     private int retentionHours;
 
     /**

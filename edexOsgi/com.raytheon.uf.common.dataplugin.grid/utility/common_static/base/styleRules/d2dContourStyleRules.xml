@@ -1210,7 +1210,7 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF| | 0 | 2
     <parameter>PLI</parameter>
   </paramLevelMatches>
   	<contourStyle>
-     <displayUnits label="C">K</displayUnits>  
+     <displayUnits>C</displayUnits>  
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
      </contourLabeling>
@@ -1221,7 +1221,7 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF| | 0 | 2
     <parameter>SLI</parameter>
   </paramLevelMatches>
   	<contourStyle>
-     <displayUnits label="C">K</displayUnits>  
+     <displayUnits>C</displayUnits>  
      <displayFlags>NoPlane</displayFlags>
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
@@ -1238,7 +1238,7 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,900| 0 | 2
      <creatingEntity>Laps</creatingEntity>
      </paramLevelMatches>
   <contourStyle>
-     <displayUnits label="C">K</displayUnits>  
+     <displayUnits>C</displayUnits>  
      <displayFlags>NoPlane</displayFlags>
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
@@ -1253,7 +1253,7 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF| | 0 | 2
      <parameter>BLI</parameter>
      </paramLevelMatches>
   <contourStyle>
-     <displayUnits label="C">K</displayUnits>  
+     <displayUnits>C</displayUnits>  
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
      </contourLabeling>
@@ -2790,7 +2790,7 @@ C  | 1 | 0 | 4 |  |  |..|8000F0FF|,,,80 | 0 | 2
   </paramLevelMatches>
   <contourStyle>
      <smoothingDistance>80</smoothingDistance>
-     <displayUnits label="C">K</displayUnits>    
+     <displayUnits>C</displayUnits>    
      <displayFlags>NoPlane</displayFlags>
      <contourLabeling labelSpacing="4">
         <increment>2</increment>
@@ -4260,4 +4260,16 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
     </contourStyle>
 </styleRule>
 
+  <!-- Style Rule for nwpsCG1 to display Sig. Wave Height and Swell Height 
+       in ft.  -->
+   <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>nwpsCG1</creatingEntity>
+      <parameter>SWELL</parameter>
+      <parameter>HTSGW</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>ft</displayUnits>
+    </contourStyle>
+  </styleRule>
 </styleRuleset>

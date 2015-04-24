@@ -45,6 +45,7 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
@@ -83,6 +84,7 @@ import com.raytheon.viz.satellite.inventory.DerivedSatelliteRecord;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.raytheon.viz.awipstools.IToolChangedListener;
 
 /**
  * Provides satellite raster rendering support
@@ -123,6 +125,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  Jun 12, 2014  3238      bsteffen    Implement Interrogatable
  *  Aug 21, 2014  DR 17313  jgerth      Set no data value if no data mapping
  *  Oct 15, 2014  3681      bsteffen    create renderable in interrogate if necessary.
+ *  Feb 17, 2015  4135      bsteffen    Set no data value for derived products.
+ *  Mar 3, 2015   DCS 14960 jgerth      Retrieve legend from style rules if available
+ * 
  * 
  * </pre>
  * 
@@ -131,7 +136,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class SatResource extends
         AbstractPluginDataObjectResource<SatResourceData, IMapDescriptor>
-        implements ImageProvider, Interrogatable {
+        implements ImageProvider, Interrogatable, IToolChangedListener {
 
     /**
      * String id to look for satellite-provided data values
@@ -338,6 +343,7 @@ public class SatResource extends
         match.setLevels(Arrays.asList((Level) level));
         match.setCreatingEntityNames(Arrays.asList(record.getCreatingEntity()));
         Unit<?> unit = SatDataRetriever.getRecordUnit(record);
+        String lg = null;
         try {
             StyleRule sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, match);
@@ -364,10 +370,10 @@ public class SatResource extends
                     unit);
 
             sampleRange = preferences.getSamplePrefs();
-            String lg = preferences.getLegend();
+            lg = preferences.getLegend();
             // test, so legend is not over written with empty string
-            if (lg != null && !lg.trim().isEmpty()) {
-                legend = lg;
+            if (lg != null && lg.trim().isEmpty()) {
+                lg = null;
             }
         } catch (StyleException e) {
             throw new VizException(e.getLocalizedMessage(), e);
@@ -396,13 +402,28 @@ public class SatResource extends
         if (persisted != null) {
             colorMapParameters.applyPersistedParameters(persisted);
         }
-        if (colorMapParameters.getDataMapping() == null)
-        	colorMapParameters.setNoDataValue(0);
+        if (colorMapParameters.getDataMapping() == null) {
+            if (unit instanceof GenericPixel) {
+                /**
+                 * Generic Pixel only comes from derived parameter which used
+                 * signed data so 0 is valid but -128 is used as a no data
+                 * value.
+                 */
+                colorMapParameters.setNoDataValue(Byte.MIN_VALUE);
+            } else {
+                colorMapParameters.setNoDataValue(0);
+            }
+
+        }
 
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
 
-        this.legend = getLegend(record);
+        if (lg != null) {
+            this.legend = lg;
+        } else {
+            this.legend = getLegend(record);
+        }
     }
 
     @Override
@@ -648,4 +669,8 @@ public class SatResource extends
         return result;
     }
 
+    @Override
+    public void toolChanged() {
+        issueRefresh();
+    }
 }
