@@ -1,28 +1,14 @@
 @echo OFF
 
-REM Always use the System32 (64-bit) reg.exe.
-SET REG_EXE=C:\Windows\System32\reg.exe
-
 REM Determine where we are located.
 SET CONTAINING_DIRECTORY=%~dp0
 
 REM Prepare the environment.
 
-REM Registry Query Variables.
-SET A2_JAVA_REG="HKLM\Software\Raytheon\Runtime Environment\AWIPS II Java"
-SET A2_PYTHON_REG="HKLM\Software\Raytheon\Runtime Environment\AWIPS II Python"
-REM Determine where AWIPS II Java (the jre) is located.
-%REG_EXE% QUERY %A2_JAVA_REG% /v JavaJreDirectory > NUL 2>&1
-IF ERRORLEVEL 1 (echo ENVIRONMENT ERROR - Unable to find AWIPS II Java. && PAUSE && EXIT)
-FOR /F "tokens=2* delims=	 " %%A IN (
-'%REG_EXE% QUERY %A2_JAVA_REG% /v JavaJreDirectory') DO (
-SET JavaJreDirectory=%%B)
-REM Determine where AWIPS II Python is located.
-%REG_EXE% QUERY %A2_PYTHON_REG% /v PythonInstallDirectory > NUL 2>&1
-IF ERRORLEVEL 1 (echo ENVIRONMENT ERROR - Unable to find AWIPS II Python. && PAUSE && EXIT)
-FOR /F "tokens=2* delims=	 " %%A IN (
-'%REG_EXE% QUERY %A2_PYTHON_REG% /v PythonInstallDirectory') DO (
-SET PythonInstallDirectory=%%B)
+REM Location of AWIPS II Java (the jre).
+SET JavaJreDirectory="C:\Program Files\Raytheon\AWIPS II\Java\jre7"
+REM Location of AWIPS II Python.
+SET PythonInstallDirectory="C:\Program Files\Raytheon\AWIPS II\Python"
 
 REM Add Java and Python to the path.
 SET Path=%PythonInstallDirectory%;%PythonInstallDirectory%\DLLs;%Path%
@@ -39,9 +25,6 @@ SET PythonPath=%PythonInstallDirectory%;%PythonPath%
 REM Eliminate variables that will no longer be used.
 SET PythonInstallDirectory=
 SET JavaJreDirectory=
-SET REG_EXE=
-SET A2_JAVA_REG=
-SET A2_PYTHON_REG=
 
 REM Determine where we will be logging to.
 SET HOME_DIRECTORY=%USERPROFILE%

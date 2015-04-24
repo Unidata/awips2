@@ -26,27 +26,21 @@ import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
-import com.raytheon.wes2bridge.manager.IQpidConfigurationXML;
 import com.raytheon.wes2bridge.common.configuration.Wes2BridgeCase;
 import com.raytheon.wes2bridge.configuration.jaxb.Wes2BridgeJaxbManager;
 
@@ -73,6 +67,8 @@ import com.raytheon.wes2bridge.configuration.jaxb.Wes2BridgeJaxbManager;
  * Aug 14, 2014 3521       bkowal      Updated to use Wes2BridgeCase. Eliminated
  *                                     configuration that is no longer used and
  *                                     updated EDEX re-configuration.
+ * Apr 15, 2015 4392       dlovely     Updates the new qpid json configuration now
+ * Apr 20, 2015 4392       dlovely     Removed un-used JMX port configuration
  * 
  * </pre>
  * 
@@ -100,6 +96,16 @@ public class Wes2BridgeManager {
     private Wes2BridgeCase wes2BridgeCase;
 
     private String wes2BridgeScripts = null;
+
+    private static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<Map<String, Object>>()
+    {
+    };
+
+    public static final String QPID_NAME = "name";
+    public static final String QPID_AMQP = "AMQP";
+    public static final String QPID_HTTP = "HTTP";
+    public static final String QPID_PORT = "port";
+    public static final String QPID_PORTS = "ports";
 
     /**
 	 * 
@@ -191,9 +197,9 @@ public class Wes2BridgeManager {
 
             final String line1 = "export DATA_ARCHIVE_ROOT=";
             final String line2 = "export DB_PORT=";
-            final String line3 = "export BROKER_ADDR=";
+            final String line3 = "export BROKER_PORT=";
             final String line4 = "export HTTP_PORT=";
-            final String line5 = "export JMS_SERVER=";
+            final String line5 = "export BROKER_HTTP=";
             final String line6 = "export SHARE_DIR=";
             final String pypiesServerPattern = "(export PYPIES_SERVER=http://.+:)[1-9][0-9]+";
             final Pattern pattern7 = Pattern.compile(pypiesServerPattern);
@@ -207,13 +213,11 @@ public class Wes2BridgeManager {
                 } else if (line.startsWith(line2)) {
                     line = line2 + this.wes2BridgeCase.getDatabasePort();
                 } else if (line.startsWith(line3)) {
-                    line = line3 + "localhost:"
-                            + this.wes2BridgeCase.getJmsPort();
+                    line = line3 + this.wes2BridgeCase.getJmsPort();
                 } else if (line.startsWith(line4)) {
                     line = line4 + this.wes2BridgeCase.getEdexHttpPort();
                 } else if (line.startsWith(line5)) {
-                    line = line5 + "tcp://localhost:"
-                            + this.wes2BridgeCase.getJmsPort();
+                    line = line5 + this.wes2BridgeCase.getQpidHttpPort();
                 } else if (line.startsWith(line6)) {
                     line = line6 + edexDirectory + "/data/share";
                 } else if (matcher.matches()) {
@@ -409,87 +413,51 @@ public class Wes2BridgeManager {
         }
     }
 
-    public void reconfigureQPID() throws FileNotFoundException, IOException,
-            ParserConfigurationException, SAXException,
-            TransformerFactoryConfigurationError, TransformerException {
+    public void reconfigureQPID() throws FileNotFoundException, IOException {
         final String srcQpidDirectory = AWIPSII + "/" + "qpid";
         final String qpidDirectory = WES2BRIDGE_DIRECTORY + "/"
                 + this.wes2BridgeCase.getName() + "/" + "qpid";
 
-        this.updateQpidConfigXML(srcQpidDirectory, qpidDirectory);
+        this.updateQpidConfigJSON(srcQpidDirectory, qpidDirectory);
         this.updateQPIDD(qpidDirectory);
     }
 
-    /* Updates qpid config.xml */
-    private void updateQpidConfigXML(String srcQpidDirectory,
-            String qpidDirectory) throws FileNotFoundException, IOException,
-            ParserConfigurationException, SAXException,
-            TransformerFactoryConfigurationError, TransformerException {
-        String srcconfig_xml = srcQpidDirectory + "/etc/config.xml";
-        String config_xml = qpidDirectory + "/etc/config.xml";
+    /* Updates qpid config.json */
+    private void updateQpidConfigJSON(String srcQpidDirectory,
+            String qpidDirectory) throws FileNotFoundException, IOException {
+        String srcconfig_json = srcQpidDirectory + "/config.json";
+        String config_json = qpidDirectory + "/config.json";
 
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder();
-        Document document = documentBuilder.parse(srcconfig_xml);
+        try (BufferedWriter bw = this.getBufferedWriter(config_json);){
 
-        // Get the root broker node.
-        Node brokerNode = document.getElementsByTagName(
-                IQpidConfigurationXML.XML_BROKER).item(0);
-        // Get the connector node.
-        Node connectorNode = this.getChildNodeByName(brokerNode,
-                IQpidConfigurationXML.XML_CONNECTOR);
-        // Get the management node.
-        Node managementNode = this.getChildNodeByName(brokerNode,
-                IQpidConfigurationXML.XML_MANAGEMENT);
-        // Get the jmxport node.
-        Node jmxPortNode = this.getChildNodeByName(managementNode,
-                IQpidConfigurationXML.XML_JMXPORT);
-        // Get the http port node.
-        Node httpPortNode = this.getChildNodeByName(managementNode,
-                IQpidConfigurationXML.XML_HTTP);
-
-        Node portNode = null;
-
-        // Get the connector port node.
-        portNode = this.getChildNodeByName(connectorNode,
-                IQpidConfigurationXML.XML_PORT);
-        portNode.setTextContent(Integer.toString(this.wes2BridgeCase
-                .getJmsPort()));
-        // Get the jmxport registryServer node
-        portNode = this.getChildNodeByName(jmxPortNode,
-                IQpidConfigurationXML.XML_REGISTRY_SERVER);
-        portNode.setTextContent(Integer.toString(this.wes2BridgeCase
-                .getQpidJmxPort()));
-        // Get the http port node.
-        portNode = this.getChildNodeByName(httpPortNode,
-                IQpidConfigurationXML.XML_PORT);
-        portNode.setTextContent(Integer.toString(this.wes2BridgeCase
-                .getQpidHttpPort()));
-
-        /*
-         * Write the updated configuration file to its destination.
-         */
-        Transformer transformer = TransformerFactory.newInstance()
-                .newTransformer();
-        DOMSource domSource = new DOMSource(document);
-        StreamResult streamResult = new StreamResult(new File(config_xml));
-        transformer.transform(domSource, streamResult);
-    }
-
-    private Node getChildNodeByName(Node parentNode, String childName) {
-        if (parentNode.hasChildNodes() == false) {
-            return null;
-        }
-
-        NodeList nodeList = parentNode.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if (node.getNodeName().equals(childName)) {
-                return node;
+            List<String> lines = Files.readAllLines(Paths.get(srcconfig_json), Charset.defaultCharset());
+            StringBuilder  stringBuilder = new StringBuilder();
+            for (String line : lines) {
+                stringBuilder.append( line );
             }
-        }
 
-        return null;
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> attributesMap = mapper.readValue(stringBuilder.toString(), MAP_TYPE_REFERENCE);
+
+            @SuppressWarnings("unchecked")
+            ArrayList<Object> ports = (ArrayList<Object>) attributesMap.get(QPID_PORTS);
+
+            for(int x = 0; x < ports.size(); x++) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> port = (Map<String, Object>) ports.get(x);
+                String name = (String) port.get(QPID_NAME);
+                if (QPID_AMQP.equals(name)) {
+                    port.put(QPID_PORT, this.wes2BridgeCase.getJmsPort());
+                } else if (QPID_HTTP.equals(name)) {
+                    port.put(QPID_PORT, this.wes2BridgeCase.getQpidHttpPort());
+                }
+            }
+
+            /*
+             * Write the updated configuration file to its destination.
+             */
+            mapper.defaultPrettyPrintingWriter().writeValue(bw, attributesMap);
+        }
     }
 
     private void updateQPIDD(String qpidDirectory)
