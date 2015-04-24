@@ -47,8 +47,19 @@
 #    07/10/2014                    swhite         Add surge and tropical threat WEs and their dependencies
 #    01/08/2015          #15035    lshi           add site WNJ
 #    12/03/2014          #3866     rferrel        Added GFS20
+#    01/13/2015          #3955     randerso       Added definitions for NewTerrain database
+#                                                 Added Topo to ISCPARMS
+#    01/19/2015          #4014     dgilling       Added ETSS.
+#    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
+#    01/19/2015          #4014     dgilling       Added ETSS. 
+#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
+#    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
 #    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
 #    03/31/2015          #17288    bhunder        Added Weather Params for RTMA
+#    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
+#    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1 
+#                                                 for Fcst/Official.
+#
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -139,7 +150,7 @@ Weather = ("Wx", WEATHER, "wx", "Weather")
 IceAcc = ("IceAccum", SCALAR, "in", "Ice Accumulation", 12.0, 0.0, 1, YES)
 SnowAmt = ("SnowAmt", SCALAR, "in", "Snowfall amount", 20.0, 0.0, 1, YES)
 StormTotalSnow = ("StormTotalSnow", SCALAR, "in","Storm Total Snow", 50.0,
-                  0.0, 1, YES)
+                  0.0, 1, NO)
 PoP     = ("PoP", SCALAR, "%", "Prob of Precip", 100.0, 0.0, 0, NO)
 PoP6    = ("PoP6", SCALAR, "%", "Prob of Precip (6hr)", 100.0, 0.0, 0, NO)
 PoP12   = ("PoP12", SCALAR, "%", "Prob of Precip (12hr)", 100.0, 0.0, 0, NO)
@@ -158,17 +169,17 @@ QPF6hr = ("QPF6hr", SCALAR, "in", "6 hr Precipitation (in)", 5.0, 0.0, 2, YES)
 SnowAmt6hr = ("SnowAmt6hr", SCALAR, "in", "6 hr Snowfall", 30.0, 0.0, 1, YES)
 
 # Cobb SnowTool included. 
-SnowRatio = ('SnowRatio', SCALAR, '%', 'Snow Ratio', 40.0, 0.0, 1, YES)
+SnowRatio = ('SnowRatio', SCALAR, '%', 'Snow Ratio', 40.0, 0.0, 1, NO)
 #totalVV = ('totalVV', SCALAR, 'ubar/s', 'Total VV', 400.0, 0.0, 0, YES) 
 cape = ("cape", SCALAR, "1unit", "CAPE", 8000.0, 0.0, 1, NO)
 ApparentT = ("ApparentT", SCALAR, "F", "Apparent Temperature", 130.0, -120.0, 0, NO)
 UWaveDir = ("UWaveDir", SCALAR, "m/s", "U WaveDir Comp", 0.50, -0.50, 3, NO)
 VWaveDir = ("VWaveDir", SCALAR, "m/s", "V WaveDir Comp", 0.50, -0.50, 3, NO)
 LkSfcT = ("LkSfcT", SCALAR, "C", "Lake Surface T", 40.0, -2.0, 1, NO)
-SnowMap = ("SnowMap", SCALAR, "in", "Snowfall Map", 20.0, 0.0, 1, YES)
+SnowMap = ("SnowMap", SCALAR, "in", "Snowfall Map", 20.0, 0.0, 1, NO)
 WaveDir = ("WaveDir", VECTOR, "m/s", "Wave Direction", 5.0, 0.0, 2, NO)
 StormTotalQPF = ('StormTotalQPF', SCALAR, 'in', 'Storm Total QPF (in)', 10.0, 0.0, 2, NO)
-SeasonTotalSnow = ('SeasonTotalSnow', SCALAR, 'in', 'Season Total Snow (in)', 150.0, 0.0, 2, YES)
+SeasonTotalSnow = ('SeasonTotalSnow', SCALAR, 'in', 'Season Total Snow (in)', 150.0, 0.0, 2, NO)
 
 # Marine Weather Elements
 WindWaveHeight = ("WindWaveHgt", SCALAR, "ft", "Wind Wave Height",
@@ -248,7 +259,7 @@ Wind20ft =    ("Wind20ft", VECTOR, "kts", "20ft. Wind", 125.0, 0.0, 0, NO)
 FreeWind = ("FreeWind", VECTOR, "kts", "Free Air Wind", 125.0, 0.0, 0, NO)
 TransWind = ("TransWind", VECTOR, "kts", "Transport Wind", 125.0, 0.0, 0, NO)
 Stability = ("Stability",SCALAR,"cat","Stability", 6.0,1.0,0, NO)
-HrsOfSun = ("HrsOfSun",SCALAR,"hrs","Hours of Sun",24.0,0.0,1, YES)
+HrsOfSun = ("HrsOfSun",SCALAR,"hrs","Hours of Sun",24.0,0.0,1, NO)
 MarineLayer = ("MarineLayer",SCALAR,"ft","Depth of Marine Layer",
   20000.0,0.0,0,NO)
 InvBurnOffTemp = ("InvBurnOffTemp",SCALAR,"F","Inversion Burn-off Temperature",
@@ -926,7 +937,7 @@ SITES = {
     'AICE' : ([560, 340], (9.0, 11.0), (29.0, 19.0), 'America/Anchorage',
        Grid203, "nc"),
 #Nested for GUM (future)
-    'GUMa': ([193, 193], (23.0, 26.0), (3.0, 3.0), 'Pacific/Guam', Grid204, "other"),
+#    'GUMa': ([193, 193], (23.0, 26.0), (3.0, 3.0), 'Pacific/Guam', Grid204, "other"),
 #Regional Offices
     'VUY' : ([337,449], (62.00, 19.00), (21.0, 28.0), 'EST5EDT', Grid211, "ro"),
     'BCQ' : ([145,145], (50.00, 27.00), (9.0, 9.0), 'CST6CDT', Grid211, "ro"),
@@ -1105,6 +1116,7 @@ NamDNG5     = ('NamDNG5',      GRID,   '', NO,   NO,  2, 0)
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
 SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
 ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
+ETSS        = ('ETSS',         GRID,   '', NO,   NO,  2, 0)
 GFSLAMPGrid = ('GFSLAMPGrid',  GRID,   '', NO,   NO,  3, 0)
 #---------------------------------------------------------------------------
 #
@@ -1170,6 +1182,7 @@ if SID in ALASKA_SITES:
                  'AKHwave4',
                  'GLOBHwave',
                  ('GFS217', 'GFS20'),
+                 ('ETSS-AK', 'ETSS'),
                ]
 
 # Hawaii OCONUS
@@ -1231,14 +1244,13 @@ elif SID == "SJU":
 
 # Guam OCONUS
 elif SID == "GUM":
-    D2DMODELS = [('MRF204', 'gfsLR'),
-                 ('AVN225', 'GFS75'),
-                 'GWW233',
+    D2DMODELS = [('AVN225', 'GFS75'),
                  'GlobalWave',
                  ('TPCWindProb', 'TPCProb'),
                  'RTOFS-Guam',
                  'WPHwave10',
                  'GLOBHwave',
+                 ('Guam-RTMA','RTMA'),
                  ('nwpsCG1', 'nwpsCG1'),
                  ('nwpsTrkngCG0', 'nwpsTrkngCG0'),
                  ('GFS20-PAC', 'GFS20'),
@@ -1265,7 +1277,6 @@ elif SID in CONUS_EAST_SITES:
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
 #DR3511                 'HPCdelta',
-                 'GLERL',
                  'WNAWAVE238',
                  'TPCSurgeProb',
                  'GlobalWave',
@@ -1307,6 +1318,7 @@ elif SID in CONUS_EAST_SITES:
                  'GLOBHwave',
                  'URMA25',
                  ('GFS215', 'GFS20'),
+                 'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),
                  ('FFG-FWR', 'FFGFWR'),
@@ -1341,7 +1353,6 @@ else:   #######DCS3501 WEST_CONUS
                  ('RFCqpf', 'RFCQPF'),
                  ('HRRR', 'HRRR'),
 #DR3511                 'HPCdelta',
-                 'GLERL',
                  'WNAWAVE238',
                  'TPCSurgeProb',
                  'GlobalWave',
@@ -1383,6 +1394,7 @@ else:   #######DCS3501 WEST_CONUS
                  'GLOBHwave',
                  'URMA25',
                  ('GFS215', 'GFS20'),
+                 'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),
                  ('FFG-FWR', 'FFGFWR'),
@@ -1400,6 +1412,8 @@ else:   #######DCS3501 WEST_CONUS
 
 if SID in GreatLake_SITES:
     D2DMODELS.append(('GRLKwave', 'GLWM'))
+    D2DMODELS.append('GLERL')
+    D2DMODELS.append('GLWN')
 
 #---------------------------------------------------------------------------
 #
@@ -1546,6 +1560,7 @@ elif SID in ALASKA_SITES:
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "AKMOSGuide" : ['MOSGuide'],
+        "ETSS" : ["ETSS"],
         }
 
 # Hawaii OCONUS
@@ -1647,6 +1662,7 @@ else:
 #        "WNAwave4" : ["WNAwave4"],
 #        "ENPwave": ["ENPwave"],
         "ESTOFS" : ["ESTOFS"],
+        "ETSS" : ["ETSS"],
         "GFSLAMPGrid" : ["GFSLAMPGrid"],
         "nwpsCG1" : ['nwpsCG1'],
         "nwpsTrkngCG0" : ['nwpsTrkngCG0'],
@@ -1792,6 +1808,7 @@ localNamDNG5Parms = []
 localSREFParms = []
 localTPCProbParms = []
 localGFSLAMPGridParms = []
+localETSSParms = []
 localHRRRParms = []
 localESTOFSParms = []
 localnwpsCG1Parms = []
@@ -1810,6 +1827,7 @@ if not BASELINE and siteImport('localConfig'):
         myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
 
     localESTOFSParms = getattr(localConfig, 'parmsESTOFS', localESTOFSParms)
+    localETSSParms = getattr(localConfig, 'parmsETSS', localETSSParms)
     localnwpsCG1Parms = getattr(localConfig, 'parmsnwpsCG1', localnwpsCG1Parms)
     localnwpsTrkngCG0Parms = getattr(localConfig, 'parmsnwpsTrkngCG0', localnwpsTrkngCG0Parms)
     localParms = getattr(localConfig, 'parms', localParms)
@@ -1901,6 +1919,8 @@ STD1_MODEL = [([Temp, Td, RH, Wind, Wind20ft, Sky, FzLevel, SnowLevel], TC1),
 
 ESTOFSPARMS = [([StormSurge, AstroTide], TC1)]
 
+ETSSPARMS = [([StormSurge], TC1)]
+
 HRRRPARMS = [([Temp, Td, RH, Wind, WindGust, Sky, QPF], TC1)]
 
 # 3 hourly
@@ -1940,10 +1960,10 @@ MOS_MODEL = [([Temp, Td, Wind, Weather, Sky], TC1),
 # Fcst and official database parameter groupings
 OFFICIALDBS = [([Temp, Td, Wind, NWPSwind, Weather, Sky, FzLevel, SnowLevel], TC1),
           ([HeatIndex, WindChill, RH, SnowAmt, CWR, QPF], TC1),
-          ([PoP, Ttrend, RHtrend, Wind20ft], TC1),
+          ([PoP, Ttrend, RHtrend, Wind20ft, WindGust], TC1),
           ([MinT], MinTTC), ([MaxT], MaxTTC),
           ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
-          ([WaveHeight, SurfHeight, WindGust, Swell, Swell2, Period], TC3NG),
+          ([WaveHeight, SurfHeight, Swell, Swell2, Period], TC3NG),
           ([WindWaveHeight, SwanSwell, Wave1, Wave2, Wave3, Wave4, Wave5, Wave6, Wave7, Wave8, Wave9, Period1, Period2, Period3, Period4, Period5, Period6, Period7, Period8, Period9], TC3NG),
           ([VentRate, LAL, Haines, MixHgt, FreeWind, TransWind], TC1),
           ([DSI, Stability, MarineLayer], TC1),
@@ -2094,6 +2114,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (AKwave4, WAVEPARMS + localAKwave4Parms),
              (EPwave10, WAVEPARMS + localEPwave10Parms),
              (ESTOFS, ESTOFSPARMS + localESTOFSParms),
+             (ETSS, ETSSPARMS + localETSSParms),
              (nwpsCG1, nwpsCG1_MODEL + localnwpsCG1Parms),
              (nwpsTrkngCG0, nwpsTrkngCG0_MODEL + localnwpsTrkngCG0Parms),
              (GlobalWave, WAVEPARMS + localGlobalWaveParms),
@@ -2149,6 +2170,23 @@ for wes, officeType in (EXTRA_ISC_PARMS + localISCExtraParms):
 RESTOREPARMS = []
 for wes, tc in (OFFICIALDBS + localParms):
     RESTOREPARMS.append((wes, TC1))
+
+#
+# Add new parameters for NewTerrain
+#
+OldTerrain = ("OldTerrain", SCALAR, "ft", "Old Terrain", 50000.0, -32000.0, 1, NO)
+NewTerrain = ("NewTerrain", SCALAR, "ft", "New Terrain", 50000.0, -32000.0, 1, NO)
+Topo       = ("Topo",       SCALAR, "ft", "Topography",  50000.0, -32000.0, 1, NO)
+
+NewTerrainDB = ("NewTerrain",   GRID, 'EditTopo', YES, NO, 1, 0)
+NewTerrainParms = [([OldTerrain, NewTerrain], TC1)]
+DATABASES.append((NewTerrainDB, NewTerrainParms))
+
+# Add Topo to ISC parms for NewTerrain
+if type(REQUESTED_ISC_PARMS) is list and not "Topo" in REQUESTED_ISC_PARMS:
+    REQUESTED_ISC_PARMS.append("Topo")
+ISCPARMS.append(([Topo], Persistent))
+
 
 # Now add the ISC and Restore databases to the DATABASES groupings
 DATABASES.append((Restore, RESTOREPARMS))

@@ -29,6 +29,7 @@
 #    02/08/13        1447          dgilling       Initial Creation.
 #    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency
 #    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
+#    03/10/2015      #4129         randerso       Removed sys.exit() call
 # 
 #
 
@@ -36,11 +37,10 @@
 import cPickle
 import gzip
 import os
-import sys
 import time
 import tempfile
 import stat
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree
 
 import IrtAccess
 import JUtil
@@ -170,7 +170,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
         #--------------------------------------------------------------------
         # Create the destination XML file
         #--------------------------------------------------------------------
-        iscOut = ET.Element('isc')
+        iscOut = ElementTree.Element('isc')
         irt.addSourceXML(iscOut, myServer)
 
         destServers = []
@@ -179,7 +179,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
             with open(xmlIncoming,'rb') as fd:
                 xml = fd.read()
             os.remove(xmlIncoming)
-            reqTree = ET.ElementTree(ET.XML(xml))
+            reqTree = ElementTree.ElementTree(ElementTree.XML(xml))
             sourceE = reqTree.find('source')
             for addressE in sourceE.getchildren():
                 destServer = irt.decodeXMLAddress(addressE)
@@ -214,7 +214,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
         tempdir = os.path.join(siteConfig.GFESUITE_HOME, "products", "ATBL")
         with tempfile.NamedTemporaryFile(suffix='.xml', dir=tempdir, delete=False) as fd:
             fnameXML = fd.name
-            fd.write(ET.tostring(iscOut))
+            fd.write(ElementTree.tostring(iscOut))
 
         #--------------------------------------------------------------------
         # Send it 
@@ -285,7 +285,7 @@ def runFromJava(myServerHost, myServerPort, myServerProtocol, myServerMHSID,
                         xmtScript)
     except:
         logger.exception('Error in sendAT:')
-        sys.exit(1)
+        raise
     
     #--------------------------------------------------------------------
     # Finish

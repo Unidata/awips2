@@ -100,6 +100,8 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * Jan 21, 2014  2627     njensen     Removed decode()'s try/catch, camel route will do try/catch
  * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
  * Dec 26, 2014  ASM#632  dhuffman    Added AlertMessageSanityCheck() for this DR.
+ * Feb 27, 2015  17086    zwang       Corrected the elevation of volume based TDWR products
+ * Mar 25, 2015  4319     bsteffen    Save the volume scan number.
  * 
  * </pre>
  * 
@@ -337,6 +339,7 @@ public class RadarDecoder extends AbstractDecoder {
                 record.setOperationalMode(l3Radar.getOperationalMode());
 
                 record.setElevationNumber(l3Radar.getElevationNumber());
+                record.setVolumeScanNumber(l3Radar.getVolumeScanNumber());
                 // some products don't have real elevation angles, 0 is a
                 // default value
                 if (record.getElevationNumber() == 0) {
@@ -348,7 +351,8 @@ public class RadarDecoder extends AbstractDecoder {
 
                 // determine to use the primary elevations or the elevation
                 // in the terminal radar configuration file
-                if (TerminalRadarUtils.isTerminalRadar(record.getIcao())) {
+                if (TerminalRadarUtils.isTerminalRadar(record.getIcao())
+                    && info.isElevation()) {
                     Double elevation = TerminalRadarUtils.getPrimarysMap(
                             record.getIcao()).get(
                             TiltAngleBin.getPrimaryElevationAngle(record

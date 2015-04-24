@@ -20,29 +20,19 @@
 package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
-import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory.OriginType;
+import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
+import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmStorageInfo;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
-import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
@@ -63,237 +53,93 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * May 04, 2012  #574      dgilling     Re-port to better match AWIPS1.
  * Apr 23, 2013  #1949     rjpeter      Removed unused method.
  * Nov 20, 2013  #2331     randerso     Changed return type of getTopoData
+ * Jan 15, 2015  #3955     randerso     Changed TopoDatabase to extend IFPGridDatabase
+ *                                      to work with ISC for Standard Terrain WA
  * 
  * </pre>
  * 
  * @author randerso
  * @version 1.0
+ * 
  */
-public class TopoDatabase extends VGridDatabase {
-    private static final TimeRange TR = TimeRange.allTimes();
+public class TopoDatabase extends IFPGridDatabase {
+    private TopoDatabaseManager topoMgr;
 
-    private final TopoDatabaseManager topoMgr;
-
-    private final GridLocation gloc;
-
-    private final ParmID pid;
-
-    private final GridParmInfo gpi;
-
-    public TopoDatabase(final IFPServerConfig config,
-            TopoDatabaseManager topoMgr) {
-        super(config);
+    public TopoDatabase(DatabaseID dbId, GridDbConfig gridDbConfig,
+            TopoDatabaseManager topoMgr) throws PluginException,
+            DataAccessLayerException {
+        super(dbId, gridDbConfig);
         this.topoMgr = topoMgr;
-        this.dbId = new DatabaseID(getSiteID(config), DataType.GRID,
-                "EditTopo", "Topo");
-        this.gloc = this.config.dbDomain();
-        this.pid = new ParmID("Topo", dbId, "SFC");
-        this.gpi = new GridParmInfo(pid, gloc, GridType.SCALAR, "ft",
-                "Topograpy", -32000.0f, 50000.0f, 1, true, new TimeConstraints(
-                        0, 0, 0));
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.plugin.gfe.server.database.GridDatabase#getDbId()
-     */
-    @Override
-    public DatabaseID getDbId() {
-        return this.dbId;
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#databaseIsValid
-     * ()
+     * com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase#remapAllGrids
+     * (java.util.Map)
      */
     @Override
-    public boolean databaseIsValid() {
-        return dbId.isValid();
+    protected ServerResponse<?> remapAllGrids(
+            Map<String, ParmStorageInfo> parmStorageInfoUser) {
+        // Domain changes are handled differently for TopoDatabse.
+        // See TopoDatbaseManager.createDiskCache()
+        return new ServerResponse<>();
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#getProjectionId
-     * ()
+     * com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase#saveGridsToHdf5
+     * (java.util.List,
+     * com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmStorageInfo)
      */
     @Override
-    public String getProjectionId() {
-        return gloc.getProjection().getProjectionID();
-    }
+    protected List<GFERecord> saveGridsToHdf5(List<GFERecord> dataObjects,
+            ParmStorageInfo parmStorageInfo) throws GfeException {
+        List<GFERecord> failedRecords = new ArrayList<GFERecord>(1);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#getParmList()
-     */
-    @Override
-    public ServerResponse<List<ParmID>> getParmList() {
-        List<ParmID> parmIds = new ArrayList<ParmID>(1);
-        parmIds.add(new ParmID("Topo", this.dbId, "SFC"));
-
-        ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
-        sr.setPayload(parmIds);
-        return sr;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#getGridParmInfo
-     * (com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID)
-     */
-    @Override
-    public ServerResponse<GridParmInfo> getGridParmInfo(ParmID id) {
-        ServerResponse<GridParmInfo> sr = new ServerResponse<GridParmInfo>();
-        if (!pid.equals(id)) {
-            sr.addMessage("Unknown ParmID: " + id);
-        } else {
-            sr.setPayload(this.gpi);
+        if (dataObjects.size() > 1) {
+            throw new GfeException("Can (and must) save only one topo grid");
         }
 
-        return sr;
-    }
+        ParmID pid = this.getParmList().getPayload().get(0);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#getGridInventory
-     * (com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID)
-     */
-    @Override
-    public ServerResponse<List<TimeRange>> getGridInventory(ParmID pid) {
-        ServerResponse<List<TimeRange>> sr = new ServerResponse<List<TimeRange>>();
-        if (!this.pid.equals(pid)) {
-            sr.addMessage("Unknown ParmID: " + pid);
-        } else {
-            List<TimeRange> trs = new ArrayList<TimeRange>(1);
-            trs.add(TR);
-            sr.setPayload(trs);
+        if (parmStorageInfo == null) {
+            parmStorageInfo = findStorageInfo(pid);
         }
 
-        return sr;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#getGridHistory
-     * (com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID, java.util.List)
-     */
-    @Override
-    public ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
-            ParmID id, List<TimeRange> timeRanges) {
-        ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = new ServerResponse<Map<TimeRange, List<GridDataHistory>>>();
-
-        if (!this.pid.equals(id)) {
-            sr.addMessage("Unknown ParmID: " + id);
-        } else if ((timeRanges.size() != 1) || !timeRanges.get(0).equals(TR)) {
-            sr.addMessage("Invalid time requested");
+        if (dataObjects.isEmpty()) {
+            this.topoMgr.revertTopoData(parmStorageInfo.getGridParmInfo()
+                    .getGridLoc());
         } else {
-
-            Map<TimeRange, List<GridDataHistory>> history = new HashMap<TimeRange, List<GridDataHistory>>();
-            List<GridDataHistory> hist = new ArrayList<GridDataHistory>(1);
-            hist.add(new GridDataHistory(OriginType.SCRATCH, pid, TR));
-            history.put(TR, hist);
-            sr.setPayload(history);
-        }
-        return sr;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#getGridData
-     * (com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID, java.util.List)
-     */
-    @Override
-    public ServerResponse<List<IGridSlice>> getGridData(ParmID id,
-            List<TimeRange> timeRanges) {
-        ServerResponse<List<IGridSlice>> sr = new ServerResponse<List<IGridSlice>>();
-        if (!pid.equals(id)) {
-            sr.addMessage("Unknown ParmID: " + id);
-        } else if ((timeRanges.size() != 1) || (!timeRanges.get(0).equals(TR))) {
-            sr.addMessage("Invalid time requested.");
-        } else {
-            List<IGridSlice> data = new ArrayList<IGridSlice>(1);
-            GridDataHistory gdh = new GridDataHistory(OriginType.SCRATCH, pid,
-                    TR);
-            ServerResponse<ScalarGridSlice> srRetrieve = topoMgr
-                    .getTopoData(gloc);
-            if (srRetrieve.isOkay()) {
-                ScalarGridSlice tempgs = srRetrieve.getPayload();
-                IGridSlice gs = new ScalarGridSlice(TR, gpi,
-                        new GridDataHistory[] { gdh }, tempgs.getScalarGrid());
-                data.add(gs);
-                sr.setPayload(data);
-            } else {
-                sr.addMessages(srRetrieve);
+            try {
+                this.topoMgr.saveTopoData(parmStorageInfo.getGridParmInfo()
+                        .getGridLoc(), (IGridSlice) dataObjects.get(0)
+                        .getMessageData());
+            } catch (Exception e) {
+                failedRecords.add(dataObjects.get(0));
             }
         }
 
-        return sr;
+        return failedRecords;
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#saveGridData
-     * (com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID,
-     * com.raytheon.uf.common.time.TimeRange, java.util.List,
-     * com.raytheon.uf.common.message.WsId)
+     * com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase#retrieveFromHDF5
+     * (com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID, java.util.List,
+     * com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmStorageInfo)
      */
     @Override
-    public ServerResponse<?> saveGridData(ParmID id,
-            TimeRange originalTimeRange, List<GFERecord> records,
-            WsId requesterId) {
-        ServerResponse<?> sr = new ServerResponse<Object>();
+    protected FloatDataRecord[] retrieveFromHDF5(ParmID parmId,
+            List<TimeRange> times, ParmStorageInfo parmStorageInfo)
+            throws GfeException {
 
-        if (!pid.equals(id)) {
-            sr.addMessage("Unknown ParmID: " + id);
-        } else if (records.isEmpty()) {
-            topoMgr.revertTopoData(gloc);
-        } else if (records.size() > 1) {
-            sr.addMessage("Can (and must) save only one topo grid");
-        } else {
-            Object data = records.get(0).getMessageData();
-            topoMgr.saveTopoData(gloc, (IGridSlice) data);
-        }
-
-        return sr;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.plugin.gfe.server.database.GridDatabase#deleteDb()
-     */
-    @Override
-    public void deleteDb() {
-        // no-op
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.plugin.gfe.server.database.VGridDatabase#getValidTimes
-     * ()
-     */
-    @Override
-    public SortedSet<Date> getValidTimes() throws GfeException,
-            DataAccessLayerException {
-        return new TreeSet<Date>();
+        return this.topoMgr.getTopoRecord(parmStorageInfo.getGridParmInfo()
+                .getGridLoc());
     }
 }

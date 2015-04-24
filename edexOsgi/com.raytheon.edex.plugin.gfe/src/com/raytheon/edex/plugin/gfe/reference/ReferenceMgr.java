@@ -33,6 +33,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
@@ -50,7 +51,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Aug 07, 2013       1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * Sep 30, 2013       2361 njensen     Use JAXBManager for XML
  * Sep 08, 2104       3592 randerso    Changed to use new pm listStaticFiles()
- * 
+ * Feb 19, 2015       4125 rjpeter     Fix jaxb performance issue
  * </pre>
  * 
  * @author dgilling
@@ -65,9 +66,9 @@ public class ReferenceMgr {
     private static final String EDIT_AREAS_DIR = FileUtil.join("gfe",
             "editAreas");
 
-    private IPathManager pathMgr;
+    private final IPathManager pathMgr;
 
-    private GridLocation dbGridLocation;
+    private final GridLocation dbGridLocation;
 
     public ReferenceMgr(final IFPServerConfig config) {
         this.pathMgr = PathManagerFactory.getPathManager();
@@ -113,6 +114,8 @@ public class ReferenceMgr {
             final List<ReferenceID> ids) {
         ServerResponse<List<ReferenceData>> sr = new ServerResponse<List<ReferenceData>>();
         List<ReferenceData> data = new ArrayList<ReferenceData>();
+        SingleTypeJAXBManager<ReferenceData> jaxbManager = ReferenceData
+                .getJAXBManager();
 
         // process each ReferenceID requested
         for (ReferenceID id : ids) {
@@ -131,8 +134,8 @@ public class ReferenceMgr {
             // open and read the file
             ReferenceData refData = null;
             try {
-                refData = ReferenceData.getJAXBManager().unmarshalFromXmlFile(
-                        lf.getFile().getPath());
+                refData = jaxbManager.unmarshalFromXmlFile(lf.getFile()
+                        .getPath());
             } catch (Exception e) {
                 sr.addMessage("Unable to read reference data [" + id + "]");
                 data = Collections.emptyList();

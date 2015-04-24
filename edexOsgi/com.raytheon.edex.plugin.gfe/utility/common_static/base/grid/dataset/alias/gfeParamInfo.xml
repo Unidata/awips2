@@ -8,6 +8,7 @@
     <alias base="estofsUS">ESTOFS</alias>
     <alias base="estofsPR">ESTOFS</alias>
     <alias base="GLERL">glerl</alias>
+    <alias base="GLWN">GRLKwave</alias>
     <alias base="MPE-Local">localMPE</alias>
     <alias base="MPE-Mosaic">mosaicMPE</alias>
     <alias base="HPE">localHPE</alias>
@@ -215,6 +216,8 @@
     <alias base="NAHwave15">NAHwave15</alias>
     <alias base="NAHwave10">NAHwave10</alias>
     <alias base="NAHwave4">NAHwave4</alias>
+    <alias base="ETSS">ETSS</alias>
+    <alias base="ETSS-AK">ETSS</alias>
     <alias base="nwpsCG1">nwpsCG1</alias>
     <alias base="nwpsTrkngCG0">nwpsTrkngCG0</alias>
     <alias base="FFG-ALR">RFCFFG_ParameterInfo</alias>

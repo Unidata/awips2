@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.gfe.core.parm.vcparm;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,8 +33,8 @@ import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory.OriginType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
@@ -74,6 +73,7 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  *                                      performance.
  * Jan 22, 2013  #1515     dgilling     Fix ClassCastException in 
  *                                      getMethodArgs().
+ * Mar 12, 2015  #4246     randerso     Changes to support VCModules at base, site, and user levels
  * 
  * </pre>
  * 
@@ -161,10 +161,11 @@ public class VCModule {
 
     private String id;
 
-    public VCModule(DataManager dataMgr, IParmManager parmMgr, final File module) {
+    public VCModule(DataManager dataMgr, IParmManager parmMgr,
+            final String module) {
         this.dataMgr = dataMgr;
         this.parmMgr = parmMgr;
-        this.id = module.getName().split("\\.(?=[^\\.]+$)")[0];
+        this.id = module;
         this.depParms = Collections.emptyList();
     }
 

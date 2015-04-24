@@ -38,7 +38,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.GFEPreference;
@@ -222,7 +222,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
      * @param parm
      */
     protected void addParm(Parm parm) {
-        if (parm != null && !parmToTEBar.containsKey(parm)) {
+        if ((parm != null) && !parmToTEBar.containsKey(parm)) {
             TimeSeries ts = new TimeSeries(parm);
 
             // if bar with same unit already exists, append to it
@@ -257,7 +257,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
      * @param parm
      */
     protected void addBar(Parm parm, AbstractTemporalEditorBar bar) {
-        if (parm != null && !parmToTEBar.containsKey(parm)) {
+        if ((parm != null) && !parmToTEBar.containsKey(parm)) {
             // if bar with same unit already exists, append to it
             String unit = parm.getGridInfo().getUnitString();
 
@@ -347,7 +347,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
                     // add the next with the correct unit??
                     List<AbstractTemporalEditorBar> barList = unitToMovedGridBarList
                             .get(unit);
-                    if (barList != null && barList.size() > 0) {
+                    if ((barList != null) && (barList.size() > 0)) {
                         // grab the first item of the moved list
                         unitToGridBar.put(unit, barList.remove(0));
 
@@ -591,6 +591,7 @@ public class TemporalEditor extends Composite implements IMessageClient {
          * @param makeOnlyVisible
          *            true if only this parm is visible
          */
+        @Override
         public void gridVisibilityChanged(Parm parm, boolean visible,
                 boolean makeOnlyVisible) {
             if (makeOnlyVisible) {

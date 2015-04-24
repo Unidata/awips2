@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -115,7 +115,7 @@ public abstract class AbstractTemporalEditorBar implements
     protected static final int DEFAULT_BAR_HEIGHT = 130;
 
     // +8 accounts for border on the draggable label
-    public static final int CONTROL_MIN_HEIGHT = DRAGGABLE_LABEL_HEIGHT * 2 + 8;
+    public static final int CONTROL_MIN_HEIGHT = (DRAGGABLE_LABEL_HEIGHT * 2) + 8;
 
     public static final int V_MARGIN = 2;
 
@@ -335,7 +335,7 @@ public abstract class AbstractTemporalEditorBar implements
             height = Math.max(height, curParmHeight);
         }
 
-        if (container != null && !container.isDisposed()) {
+        if ((container != null) && !container.isDisposed()) {
             height = ((GridData) container.getLayoutData()).heightHint;
             container.dispose();
         }
@@ -356,7 +356,7 @@ public abstract class AbstractTemporalEditorBar implements
      * 
      */
     protected void setupTopLabel() {
-        if (topLabel != null && !topLabel.isDisposed()) {
+        if ((topLabel != null) && !topLabel.isDisposed()) {
             topLabel.dispose();
         }
 
@@ -375,7 +375,7 @@ public abstract class AbstractTemporalEditorBar implements
      */
     protected void setupTitleBarCanvas() {
         int height = TITLEBAR_HEIGHT;
-        if (titleBarCanvas != null && !titleBarCanvas.isDisposed()) {
+        if ((titleBarCanvas != null) && !titleBarCanvas.isDisposed()) {
             titleBarCanvas.removeMouseListener(titleBarMouseHandler);
             height = ((GridData) titleBarCanvas.getLayoutData()).heightHint;
             titleBarCanvas.dispose();
@@ -410,7 +410,7 @@ public abstract class AbstractTemporalEditorBar implements
      * 
      */
     protected void setupBottomLabel() {
-        if (bottomLabel != null && !bottomLabel.isDisposed()) {
+        if ((bottomLabel != null) && !bottomLabel.isDisposed()) {
             bottomLabel.dispose();
         }
 
@@ -455,7 +455,7 @@ public abstract class AbstractTemporalEditorBar implements
                 Point pt = gc.stringExtent(title);
                 offset += TITLEBAR_PARM_SPACING;
                 Rectangle textBorder = new Rectangle(offset, bounds.y
-                        + TITLEBAR_MARGIN, pt.x + TITLEBAR_MARGIN * 2,
+                        + TITLEBAR_MARGIN, pt.x + (TITLEBAR_MARGIN * 2),
                         fontHeight + TITLEBAR_MARGIN);
 
                 // draw text
@@ -478,7 +478,7 @@ public abstract class AbstractTemporalEditorBar implements
                 // draw white border click box
                 offset += textBorder.width + 1;
                 Rectangle selectBoxBorder = new Rectangle(offset, textBorder.y
-                        + (textBorder.height - IMAGE_TOGGLE_BOX_HEIGHT) / 2,
+                        + ((textBorder.height - IMAGE_TOGGLE_BOX_HEIGHT) / 2),
                         IMAGE_TOGGLE_BOX_WIDTH, IMAGE_TOGGLE_BOX_HEIGHT);
 
                 if (parmDispAtt.isDisplayedAsGraphic()) {
@@ -589,7 +589,7 @@ public abstract class AbstractTemporalEditorBar implements
         // TimeRange.
         int xPixels = teUtil.durationToPixels(tr.getDuration());
         Point txtSize = gc.textExtent(txt);
-        if (xPixels >= txtSize.x && yPixelsMax >= txtSize.y) {
+        if ((xPixels >= txtSize.x) && (yPixelsMax >= txtSize.y)) {
             // paint the label
             int xLoc = teUtil.dateToPixel(tr.getCenterTime());
             int yLoc = yPos + yOffset;
@@ -627,7 +627,7 @@ public abstract class AbstractTemporalEditorBar implements
         container.dispose();
         bottomLabel.dispose();
         resizeCursor.dispose();
-        if (labelFont != null && !labelFont.isDisposed()) {
+        if ((labelFont != null) && !labelFont.isDisposed()) {
             labelFont.dispose();
             labelFont = null;
         }
@@ -668,7 +668,7 @@ public abstract class AbstractTemporalEditorBar implements
     @Override
     public int compareTo(AbstractTemporalEditorBar o) {
         int compare = 0;
-        if (this.parmList.size() > 0 && o.parmList.size() > 0) {
+        if ((this.parmList.size() > 0) && (o.parmList.size() > 0)) {
             List<Parm> list1 = new ArrayList<Parm>(this.parmList);
             List<Parm> list2 = new ArrayList<Parm>(o.parmList);
             Collections.sort(list1);
@@ -752,7 +752,7 @@ public abstract class AbstractTemporalEditorBar implements
 
             if (clickedOnDisplayedRect && clickedOnGraphicRect) {
                 Rectangle rect = new Rectangle(parmDispRect.x, parmDispRect.y,
-                        parmGraphicRect.x - parmDispRect.x
+                        (parmGraphicRect.x - parmDispRect.x)
                                 + parmGraphicRect.width, titleBarHeight);
                 if (rect.contains(pt)) {
                     return parm;
@@ -778,9 +778,9 @@ public abstract class AbstractTemporalEditorBar implements
             IGridData grid = parm.overlappingGrid(date);
 
             if (parmDispAtt.isDisplayed() && parm.isOkToEdit(range)
-                    && grid != null) {
+                    && (grid != null)) {
                 float ave = getAverage(parm, date);
-                if (closestParm == null
+                if ((closestParm == null)
                         || (Math.abs(ave - val) < Math.abs(closestVal - val))) {
                     closestParm = parm;
                     closestVal = ave;

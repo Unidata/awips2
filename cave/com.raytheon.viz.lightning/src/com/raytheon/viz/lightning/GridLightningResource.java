@@ -75,6 +75,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * Jul 22, 2014 3333       bclement     ignores strikes that aren't on map
  * Jul 28, 2014 3451       bclement     uses intended range min
  * Jul 29, 2014 3463       bclement     uses sparse data source
+ * Mar 05, 2015 4233       bsteffen     include source in cache key.
  * 
  * </pre>
  * 
@@ -274,7 +275,8 @@ public class GridLightningResource extends
                  * no local reference to cache object, create key and get cache
                  * object which may be new or from another resource
                  */
-                LightningFrameMetadata key = new LightningFrameMetadata(time,
+                LightningFrameMetadata key = new LightningFrameMetadata(
+                        resourceData.getSource(), time,
                         resourceData.getBinOffset());
                 co = CacheObject.newCacheObject(key, retriever);
                 cacheObjectMap.put(time, co);

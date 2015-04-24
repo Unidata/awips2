@@ -55,6 +55,7 @@ Definition =  {
 
     ## General Set-Up
 
+      "fullStationID": "KXXX",
       "type": "table",
       "displayName": "${itemName}", # for Product Generation Menu
       # if displayName == None or "None", this product will NOT

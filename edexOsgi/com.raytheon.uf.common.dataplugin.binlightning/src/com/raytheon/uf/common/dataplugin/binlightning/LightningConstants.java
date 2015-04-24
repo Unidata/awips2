@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -30,6 +30,8 @@ package com.raytheon.uf.common.dataplugin.binlightning;
  * ------------ ---------- ----------- --------------------------
  * May 30, 2014 3226       bclement     Initial creation
  * Jul 07, 2014 3333       bclement     added SOURCE
+ * Jan 22, 2014 2949       nabowle      Add default and unknown source values.
+ * Feb 27, 2015 4181       mapeters     Added AVAILABLE_PARAMETERS.
  * 
  * </pre>
  * 
@@ -67,5 +69,18 @@ public class LightningConstants {
     public static final String HEIGHT_DATASET = "height";
 
     public static final String SENSOR_COUNT_DATASET = "sensorCount";
+
+    // List of above metadata/HDF5 parameters
+
+    public static final String[] AVAILABLE_PARAMETERS = { SOURCE, TIME_DATASET,
+            LAT_DATASET, LON_DATASET, INTENSITY_DATASET, MSG_TYPE_DATASET,
+            STRIKE_TYPE_DATASET, PULSE_COUNT_DATSET, PULSE_INDEX_DATASET,
+            PULSE_TYPE_DATASET, HEIGHT_DATASET, SENSOR_COUNT_DATASET };
+
+    // Field values
+
+    public static final String DEFAULT_SOURCE = "NLDN";
+
+    public static final String UNKNOWN_SOURCE = "UNKN";
 
 }

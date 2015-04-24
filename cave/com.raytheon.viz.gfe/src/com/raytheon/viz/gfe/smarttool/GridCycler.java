@@ -24,8 +24,8 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory.OriginType;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
@@ -128,7 +128,7 @@ public class GridCycler {
 
         if (grids.length == 0) {
             ;
-        } else if ("First".equals(mode) || grids.length == 1) {
+        } else if ("First".equals(mode) || (grids.length == 1)) {
             grids[0].populate();
             resultGrid = grids[0];
             resultGrids = new IGridData[] { resultGrid };
@@ -226,8 +226,7 @@ public class GridCycler {
         // finally just process each range individually.
         IGridData[][] results = new IGridData[timeRanges.length][];
         for (int i = 0; i < timeRanges.length; i += 1) {
-            results[i] = getCorrespondingResult(argParm, timeRanges[i],
-                    mode);
+            results[i] = getCorrespondingResult(argParm, timeRanges[i], mode);
         }
         return results;
     }

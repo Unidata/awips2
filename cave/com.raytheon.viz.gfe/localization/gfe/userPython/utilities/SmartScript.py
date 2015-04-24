@@ -63,6 +63,8 @@
 #                                                 zone as a string or as an object respectively
 #                                                 Fixed createTimeRange to correctly return time ranges relative to local
 #                                                 time regardless of setting of os.environ['TZ']
+#    Jan 13, 2015    3955          randerso       Added optional parameter to availableParms to specify desired databases.
+#                                                 Fixed createGrid to accept a DatabaseID for model
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -91,6 +93,7 @@ from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteDefinition
 from com.raytheon.uf.common.dataplugin.gfe.weather import WeatherKey
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import TimeConstraints
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
+from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo_GridType as GridType
 from com.raytheon.uf.common.dataplugin.gfe.server.request import SendISCRequest
 
 class SmartScript(BaseTool.BaseTool):
@@ -173,12 +176,29 @@ class SmartScript(BaseTool.BaseTool):
             retList.append((pid.getParmName(), pid.getParmLevel(), dbid))
         return retList
 
-    def availableParms(self):
+    def availableParms(self, dbs=None):
         # Returns a list of tuples that are weather elements that are
-        # available.  The tuples are (element, level, model).  element and
-        # level are strings.  model is a DatabaseID.
+        # available in the specified dbs.
+        # dbs may contain a list of DatabaseIDs or a single DatabaseID
+        # If dbs is None parms from all available databases are returned.   
+        # The tuples are (element, level, model).  
+        # element and level are strings, model is a DatabaseID.
         retList = []
-        dbs = self.__parmMgr.getAvailableDbs()
+
+        if dbs is None:
+            dbs = self.__parmMgr.getAvailableDbs()
+        elif type(dbs) is not list: # assume single db
+            db = dbs
+            
+            if isinstance(db, DatabaseID.DatabaseID):
+                db = db.toJavaObj()
+            else:
+                # assume java DatabaseID
+                pass
+            
+            dbs = ArrayList()
+            dbs.add(db)
+            
         for i in range(dbs.size()):
             d = dbs.get(i);
             parms = self.__parmMgr.getAvailableParms(d)
@@ -633,7 +653,6 @@ class SmartScript(BaseTool.BaseTool):
             gridTime = GridTimeRange.startTime()
         from com.raytheon.viz.gfe.edittool import GridID
         gid = GridID(parm, gridTime.javaDate())
-        from com.raytheon.uf.common.dataplugin.gfe.db.objects import GFERecord_GridType as GridType
 
         wxType = self.__dataMgr.getClient().getGridParmInfo(parm.getParmID()).getGridType()
         if GridType.SCALAR.equals(wxType):
@@ -1032,7 +1051,7 @@ class SmartScript(BaseTool.BaseTool):
             timeRange = timeRange.toJavaObj()
 
         from com.raytheon.viz.gfe.procedures import ProcedureUtil
-        if varDict:
+        if varDict is not None:
             varDict = str(varDict)
 
         result = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, varDict)
@@ -1113,6 +1132,8 @@ class SmartScript(BaseTool.BaseTool):
             siteID = self.__dataMgr.getSiteID()
             if model == "Fcst":
                 dbi = self.__mutableID
+            elif isinstance(model, DatabaseID.DatabaseID):
+                dbi = model
             else:
                 dbi = DatabaseID.databaseID(siteID + "_GRID__" + model + "_00000000_0000")
             pid = ParmID.ParmID(element, dbid=dbi).toJavaObj()
@@ -1129,14 +1150,19 @@ class SmartScript(BaseTool.BaseTool):
                 message = "SmartScript:createGrid -- illegal element type"
                 self.abort(message)
 
-            exampleGPI = example.getGridInfo()
-            #exampleGPI = example.parmInfo()
+            exampleGPI = None
+            if example is not None:
+                exampleGPI = example.getGridInfo()
 
             #look for overrides
             if descriptiveName is None:
                 descriptiveName = element
+            
             if timeConstraints is None:
-                tc = exampleGPI.getTimeConstraints()
+                if exampleGPI is None:
+                    tc = TimeConstraints(0, 60, 60)
+                else:
+                    tc = exampleGPI.getTimeConstraints()
             elif isinstance(timeConstraints, types.TupleType):
                 # TC constructor (dur, repeat, start)
                 # TC tuple (start, repeat, dur)
@@ -1147,14 +1173,30 @@ class SmartScript(BaseTool.BaseTool):
                 tc = TimeConstraints(
                   timeConstraints.getDuration(), timeConstraints.getRepeatInterval(),
                   timeConstraints.getStartTime())
-            if precision is None:
-                precision = exampleGPI.getPrecision()
+
+            if precision is None :
+                if exampleGPI is None:
+                    precision = 0
+                else:
+                    precision = exampleGPI.getPrecision()
+                    
             if maxAllowedValue is None:
-                maxAllowedValue = exampleGPI.getMaxValue()
+                if exampleGPI is None:
+                    maxAllowedValue = nanmax(numericGrid)
+                else:
+                    maxAllowedValue = exampleGPI.getMaxValue()
+                    
             if minAllowedValue is None:
-                minAllowedValue = exampleGPI.getMinValue()
+                if exampleGPI is None:
+                    minAllowedValue = nanmin(numericGrid)
+                else:
+                    minAllowedValue = exampleGPI.getMinValue()
+
             if units is None:
-                units = exampleGPI.getUnitString()
+                if exampleGPI is None:
+                    units = "1" # unitless
+                else:
+                    units = exampleGPI.getUnitString()
 
             if tc.anyConstraints() == 0:
                 timeIndependentParm = 1
@@ -1166,7 +1208,7 @@ class SmartScript(BaseTool.BaseTool):
             minAllowedValue = float(minAllowedValue)
             maxAllowedValue = float(maxAllowedValue)
             gpi = GridParmInfo(pid,
-                exampleGPI.getGridLoc(), exampleGPI.getGridType(), units,
+                self.getGridLoc(), GridType.valueOf(elementType), units,
                 descriptiveName, minAllowedValue, maxAllowedValue,
                 precision, timeIndependentParm, tc, rateParm)
 
@@ -1847,7 +1889,7 @@ class SmartScript(BaseTool.BaseTool):
         # Example:
         #    self.saveElements(["T","Td"])
         for element in elementList:
-            parm = self.getParm("Fcst", element, "SFC")
+            parm = self.getParm(self.mutableID(), element, "SFC")
             parm.saveParameter(True)
 
     def publishElements(self, elementList, timeRange):

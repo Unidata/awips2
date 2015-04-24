@@ -69,7 +69,7 @@
 		<substitute key="modelName" value="${MMMmodel2}"/>
 		<substitute key="frameCount" value="17"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+	<contribute xsi:type="bundleItem" file="bundles/volume/HRRRFamily.xml"
 		menuText="HRRR" id="hrrr" useReferenceTime="true">
 		<substitute key="modelName" value="HRRR"/>
 		<substitute key="TP" value="TP"/>

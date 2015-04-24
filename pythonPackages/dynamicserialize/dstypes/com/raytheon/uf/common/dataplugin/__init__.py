@@ -23,7 +23,6 @@
 __all__ = [
             'events',
             'gfe',
-            'grib',
             'grid',
             'level',
             'message',

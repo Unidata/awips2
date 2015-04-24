@@ -37,6 +37,8 @@
 #                                     Name changes to reflect plugin names for modelsounding, goessounding, poessounding.
 #20140424            3068 dgilling    Add pattern for MetOp-B ASCAT T winds.
 #20140612            3230 rferrel     Add pattern for URMA.
+#20150121            4014 dgilling    Add pattern for ETSS.
+#20150202            4066 rferrel     Add pattern form Earth Networks Total Lightning: SFPA42
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -432,6 +434,11 @@ HDS	^(IUS(Z[0-9]|Y4)[0-9]) ([A-Z]{4}) (..)(..)(..)
 HDS	^(SF(US|PA)41) ([A-Z]{4}) (..)(..)(..)
 	FILE	-overwrite -log -edex -close    /data_store/binlightning/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).nldn.%Y%m%d%H
 
+# WMO Heading for Earth Networks Total Lightning
+
+NGRID	^(SFPA42) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -edex -close    /data_store/entlightning/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
 # AWIPS1:	TEXT	^[ABCFMNRSUVW]......[KPTMC]	/text/NO_STORE
 #		TEXT	^[ABCFMNRSUVW].....[KPTMC]	/text/NO_STORE
 #		TEXT	^DF.*				/text/NO_STORE
@@ -441,6 +448,12 @@ IDS|DDPLUS	^(M[A-Z]{3}[0-9]{2}) ([KPTMC].{3}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 IDS|DDPLUS	^(T[BCHPRTWXY][A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+IDS|DDPLUS	^(SE[A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+IDS|DDPLUS	^(WE[CHP][A-Z][0-9]{2}) ([A-Z]{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # summaries
@@ -781,22 +794,25 @@ NGRID	^(E[HS-V][A-DG-KST][B-T]01) (KWBW) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/RTOFS/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
 
 # ESTOFS -  Pattern provided by Joshua.Watson.
-#NGRID	^(E[EHC][IP][A-Z]88) (KWBM) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
-#	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
-
-# ESTOFS workaround until Unidata grib tables are updated
-NGRID	^(E[EHC][IP][A-Z]88) (KWBM) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/ESTOFS/GRID255/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+NGRID	^(E[EHC][IP][A-Z]88) (KWBM) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # HRRR - Pattern provided by Joshua.Watson.
-#NGRID	^(Y.C[A-MZ][05789][0-9]) (KWBY) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
-#	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+NGRID	^(Y.C[A-MZ][05789][0-9]) (KWBY) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
-# HRRR Workaround until noaaport ingest grib tables are updated.
-NGRID	^(Y.C[A-MZ][05789][0-9]) (KWBY) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/HRRR/GRID184/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+# MRMS
+NGRID	^(YAU[CDLMPQS][0-2][0-9]) (KWNR) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # RTMA 2.5km
 NGRID	^(L.IA98) (KWBR) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
-#
+
+# ETSS CONUS 
+NGRID	^(MHU...) (KNHC) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/ETSS/GRID184/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H
+
+# ETSS-AK 
+NGRID	^(MHR...) (KNHC) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/ETSS/NDFD-AK/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H

@@ -19,15 +19,12 @@
  **/
 package com.raytheon.viz.warngen.gui;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -50,6 +47,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                     by changing access control level from private to public.
  *                                     Moved removeDuplicateCoordinate(), computeSlope(),computeCoordinate(),
  *                                     and adjustPolygon to PolygonUtil.
+ * 02/09/2015      3954   dlovely      Store only the string location and county.
  * 
  * </pre>
  * 
@@ -73,7 +71,10 @@ public class WarngenUIState {
 
     private Geometry oldWarningArea;
 
-    public Map<Coordinate, String> strings = new ConcurrentHashMap<Coordinate, String>();
+    /**
+     * Location of the text rendering in a given county warning area.
+     */
+    public Map<Coordinate, Geometry> warningTextLocations = new ConcurrentHashMap<Coordinate, Geometry>();
 
     public boolean snappedToArea = false;
 
@@ -182,7 +183,7 @@ public class WarngenUIState {
         oldWarningPolygon = null;
         oldWarningArea = null;
         oldWarningPolygon = null;
-        strings.clear();
+        warningTextLocations.clear();
         warningArea = null;
         markedWarningArea = null;
         markedWarningPolygon = null;

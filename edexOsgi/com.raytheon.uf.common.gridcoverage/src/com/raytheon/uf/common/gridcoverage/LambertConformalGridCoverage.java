@@ -20,9 +20,6 @@
 
 package com.raytheon.uf.common.gridcoverage;
 
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -31,18 +28,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
-import com.raytheon.uf.common.gridcoverage.subgrid.TrimUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Defines a Lambert Conformal grid coverage. This class is generally used to
@@ -58,7 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 10, 2012  15270    D. Friedman Fix subgrid model name handling.
  * Jan 17, 2014  2125     rjpeter     Removed invalid @Table annotation.
  * Jun 05, 2014  3243     bsteffen    Remove deprecated lambert conformal call.
- * 
+ * Mar 04, 2015  3959     rjpeter     Update for grid based subgridding.
  * </pre>
  * 
  * @author bphillip
@@ -69,9 +61,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class LambertConformalGridCoverage extends GridCoverage {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(LambertConformalGridCoverage.class);
-
     private static final long serialVersionUID = 5113332463602932317L;
 
     /** The name of the projectio */
@@ -129,59 +118,13 @@ public class LambertConformalGridCoverage extends GridCoverage {
     }
 
     @Override
-    public GridCoverage trim(SubGrid subGrid) {
+    protected GridCoverage cloneImplCrsParameters(SubGrid subGrid) {
         LambertConformalGridCoverage rval = new LambertConformalGridCoverage();
-        rval.description = this.description;
-        rval.dx = this.dx;
-        rval.dy = this.dy;
-        rval.spacingUnit = this.spacingUnit;
         rval.latin1 = this.latin1;
         rval.latin2 = this.latin2;
         rval.lov = this.lov;
         rval.majorAxis = this.majorAxis;
         rval.minorAxis = this.minorAxis;
-
-        try {
-            Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
-            if (spacingUnitObj.isCompatible(SI.METRE)) {
-                UnitConverter converter = spacingUnitObj
-                        .getConverterTo(SI.METRE);
-                double dxMeter = converter.convert(dx);
-                double dyMeter = converter.convert(dy);
-                MathTransform fromLatLon = MapUtil
-                        .getTransformFromLatLon(getCrs());
-                MathTransform toLatLon = fromLatLon.inverse();
-
-                try {
-                    TrimUtil.trimMeterSpace(getLowerLeftLat(),
-                            getLowerLeftLon(), subGrid, this.nx, this.ny,
-                            dxMeter, dyMeter, fromLatLon, toLatLon, true);
-                } catch (GridCoverageException e) {
-                    statusHandler.handle(Priority.WARN, "Grid coverage ["
-                            + this.getName() + "] not applicable to this site");
-                    return null;
-                }
-
-                rval.firstGridPointCorner = Corner.LowerLeft;
-                rval.lo1 = subGrid.getLowerLeftLon();
-                rval.la1 = subGrid.getLowerLeftLat();
-                rval.nx = subGrid.getNX();
-                rval.ny = subGrid.getNY();
-
-                rval.setName(SUBGRID_TOKEN + this.getId());
-            } else {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error creating sub grid definition [" + this.name
-                                + "], units are not compatible with meter ["
-                                + spacingUnit + "]");
-                rval = null;
-            }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error creating sub grid definition", e);
-            rval = null;
-        }
-
         return rval;
     }
 

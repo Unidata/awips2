@@ -24,7 +24,12 @@
 #
 # HazardUtils
 #
-# Author:
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer     Description
+# ------------ ---------- -----------  --------------------------
+# Jan 16, 2015  4006      njensen       create _getUniqueKeys() mask with dtype bool      
+#
+#
 # ----------------------------------------------------------------------------
 
 import SmartScript
@@ -39,7 +44,7 @@ from java.util import Date
 from java.util import ArrayList
 import jep
 from JUtil import JavaWrapperClass
-#from Numeric import *
+
 
 def LOCK_HOURS():
     return 192
@@ -337,7 +342,7 @@ class HazardUtils(SmartScript.SmartScript):
 
         # if mask is None, make a mask of the whole area
         if mask is None:
-            mask = numpy.ones(byteGrid.shape)
+            mask = numpy.ones(byteGrid.shape, numpy.bool)
 
         # get the list of values over the mask area only
         valueList = numpy.compress(mask.flat, byteGrid.flat)

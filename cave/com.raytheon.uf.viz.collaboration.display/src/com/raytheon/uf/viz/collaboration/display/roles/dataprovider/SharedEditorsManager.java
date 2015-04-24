@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
@@ -66,6 +67,7 @@ import com.raytheon.uf.viz.remote.graphics.DispatcherFactory;
 import com.raytheon.uf.viz.remote.graphics.DispatchingGraphicsFactory;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
  * Manager class for managing the sharing of editors in an
@@ -82,6 +84,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Feb 13, 2014  2751     bclement    VenueParticipant refactor
  * Mar 06, 2014  2848     bclement    only send to venue if non empty
  * May 14, 2014  2697     bsteffen    Do not use local maps by default.
+ * Jan 06, 2014  3933     bclement    added canBeShared()
  * 
  * </pre>
  * 
@@ -416,6 +419,20 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
 
     public static boolean isBeingShared(AbstractEditor editor) {
         return allSharedEditors.contains(editor);
+    }
+
+    /**
+     * @param ed
+     * @return true if the editor can be shared in a session
+     */
+    public static boolean canBeShared(AbstractEditor ed) {
+        IDisplayPane pane = ed.getActiveDisplayPane();
+        IRenderableDisplay display = pane.getRenderableDisplay();
+        IDisplayPaneContainer container = display.getContainer();
+        boolean isMapDisplay = display instanceof MapRenderableDisplay;
+        boolean hasMultiplePanes = container instanceof IMultiPaneEditor
+                && ((IMultiPaneEditor) container).getNumberofPanes() > 1;
+        return (isMapDisplay && !hasMultiplePanes);
     }
 
     public static boolean isBeingShared(IRenderableDisplay display) {
