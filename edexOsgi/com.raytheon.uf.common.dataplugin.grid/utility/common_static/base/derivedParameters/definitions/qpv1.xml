@@ -30,7 +30,7 @@
     
     NEW FILE - QPV1.xml
     -->
-<DerivedParameter name="QVec Conv" abbreviation="QPV1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter unit="K/m^2/s*1.0E-12" name="QVec Conv" abbreviation="QPV1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <Method name="Test">
         <Field abbreviation="qDiv"/>
         <ConstantField value="1.0"/>

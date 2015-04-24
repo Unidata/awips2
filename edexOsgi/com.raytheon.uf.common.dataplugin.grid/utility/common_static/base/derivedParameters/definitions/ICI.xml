@@ -18,4 +18,8 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="ICI" name="Icing Severity Index" unit=""/>
+<DerivedParameter abbreviation="ICI" name="Icing Severity Index" unit="">
+    <Method name="Alias">
+        <Field abbreviation="ICSEV"/>
+    </Method>
+</DerivedParameter>

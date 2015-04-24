@@ -130,6 +130,7 @@
 		</paramLevelMatches>
 		<arrowStyle>
 			<displayUnits label="gm/kgs">g*m/(kg*s)</displayUnits>
+			<scale>0.10</scale>
 		</arrowStyle>
 	</styleRule>
 	<styleRule>

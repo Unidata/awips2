@@ -18,4 +18,12 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="ICNG" name="Icing Potential" unit="%"/>
+<DerivedParameter abbreviation="ICNG" name="Icing Potential" unit="%">
+    <Method name="Alias">
+        <Field abbreviation="IP"/>
+    </Method>
+     <Method name="Alias">
+        <Field abbreviation="TIPD"/>
+    </Method>
+   
+</DerivedParameter>
