@@ -4239,6 +4239,7 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
       <singleLevel units="FRZ" />
       <singleLevel units="TW0" />
       <singleLevel units="WBZ" /> 
+      <singleLevel units="TEMP" />
     </paramLevelMatches>
     <contourStyle>
       <displayUnits>ft</displayUnits>
@@ -4259,6 +4260,508 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
       <displayUnits>cm/sec</displayUnits>
     </contourStyle>
 </styleRule>
+
+<!-- ##########  15.1 edits below by db ############  -->
+  <styleRule>
+<!-- Removed zAGL out of here to try and get CBL to work.  -->
+    <paramLevelMatches>
+      <parameter>zAGL</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>ft</displayUnits>
+      <contourLabeling createNegativeValues="false" labelSpacing="4">
+        <increment>1000</increment>
+      </contourLabeling>
+    </contourStyle>
+   </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>Tdend</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>C</displayUnits>
+      <contourLabeling labelFormat="#." labelSpacing="4">
+        <values>-12 -13 -14 -15 -16 -17 -18</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>SnowT</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>C</displayUnits>
+      <contourLabeling labelFormat="#." labelSpacing="4">
+        <values>0 -5 -15</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>QPV1</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="K/m^2/1e16s">K/(m^2/s)*1.0E16</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <values>-1 -2 -3 -5 -10 -20 -30 -50 -100 -200</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>QPV2</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <values>-1.0 -.50 -.25 0 .1 .25</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <!--   This entry is for Tw on the MaxTw plane -->
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>TW</parameter>
+       <singleLevel units="MAXTW">
+        <value>0</value>
+       </singleLevel>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>C</displayUnits>
+     <contourLabeling labelSpacing="4">
+        <increment>5</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <!--   This entry is for Ton the MaxT plane -->
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>T</parameter>
+       <singleLevel units="MAXT">
+        <value>0</value>
+       </singleLevel>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>C</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <increment>5</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <!--   This entry is for Tmax TwMax field -->
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>Tmax</parameter>
+      <parameter>TwMax</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>C</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <increment>5</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>CritT1</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>C</displayUnits>
+       <contourLabeling labelFormat="#." labelSpacing="4">
+        <values>-12. -10. -8. -6. -4.</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>0mDiff</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>mb</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <increment>50</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+<!--   ############### convective edits ################## -->
+ <styleRule>
+    <paramLevelMatches>
+      <parameter>50dbzZ</parameter>
+    </paramLevelMatches>
+    <contourStyle labelSpacing="4">
+      <displayUnits label="ft">ft</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <increment>1000</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>PBE</parameter>
+      <parameter>CAPE</parameter>
+      <parameter>cCape</parameter>
+      <parameter>muCape</parameter>
+      <parameter>dCape</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>J/kg</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <increment>500</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>dCape</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>J/kg</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <increment>200</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>loCape</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>J/kg</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <increment>50</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>PBE2</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>J/kg</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <values>1000 1500 2000 25000 3000 3500 4000</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>NBE2</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="J/Kg">J/(kg*-1)</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <values>120 100 80 60 40 20 0</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>VGP</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits />
+      <contourLabeling labelSpacing="4">
+        <increment>0.20</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>Heli</parameter>
+      <parameter>HeliC</parameter>
+      <parameter>HeliD</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits />
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <values>0 100 200 300 400 500 600</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>MLLCL</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>ft</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <values>500 1000 1500 2000 2500 3000 3500 4000</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>dPW6hr</parameter>
+      <parameter>dPW3hr</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>in</displayUnits>
+      <contourLabeling createNegativeValues="true" labelFormat="#.##" labelSpacing="4">
+       <values>.2 .4 .6 .8 1.0 1.2</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>dPW1hr</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>in</displayUnits>
+      <contourLabeling createNegativeValues="true" labelFormat="#.##" labelSpacing="4">
+       <values>.1 .2 .4 .6</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>Thom6</parameter>
+      <parameter>SRMmM</parameter>
+      <parameter>SRMlM</parameter>
+      <parameter>SRMrM</parameter>
+      <parameter>CumShr</parameter>    
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>kts</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+       <increment>5</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule> 
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>BlkMag</parameter>
+      <singleLevel units="AGL">
+	    <value>06000</value>
+	  </singleLevel>  
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>kts</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <values>20 25 30 35 40 45 50 55 60 65 70 75 80</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule> 
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>BlkMag</parameter>
+      <singleLevel units="AGL">
+	    <value>03000</value>
+	  </singleLevel>  
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>kts</displayUnits>
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <values>15 20 25 30 35 40 45 50</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>   
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>CIN</parameter>
+      <parameter>cCin</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>J/kg</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <increment>50</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>NBE</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="J/kg">J/(kg*-1)</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <increment>50</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>EHI</parameter>
+      <parameter>EHI01</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits />
+      <contourLabeling labelSpacing="4">
+        <values>0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>gammaE</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="C/km">K/km</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <increment>2</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>NST</parameter>
+      <parameter>STP</parameter>
+      <parameter>StrTP</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits />
+      <contourLabeling labelSpacing="4">
+        <values>.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>SuCP</parameter>
+      <parameter>SNSQ</parameter>
+      <parameter>BSII</parameter>    
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits />
+      <contourLabeling labelSpacing="4">
+        <values>.5 1 1.5 2 2.5 3 3.5 4 4.5 5 6 8 10</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+    <styleRule>
+    <paramLevelMatches>
+      <parameter>ESP</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits />
+      <contourLabeling createNegativeValues="false" labelSpacing="4">
+        <increment>25</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+    <styleRule>
+    <paramLevelMatches>
+      <parameter>SSP</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits />
+      <contourLabeling labelSpacing="4">
+        <increment>5000</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>3VGP1SHR</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits />
+      <contourLabeling labelFormat="#" labelSpacing="4">
+        <values>2 5 10 15 20 25 30 35 40 45 50 60 70 80</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>   
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>BdEPT06</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="C">K</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <increment>2</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>minEPT</parameter>
+      <parameter>maxEPT</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>K</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <increment>5</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>RadarT</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>C</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <values>0 -20</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+<!--   db edit -->
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>MMP</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="%" />
+      <contourLabeling labelSpacing="4">
+        <increment>10</increment>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>WCD</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>m</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <values>3500 4000 4500 5000</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>PW2</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>in</displayUnits>
+      <contourLabeling labelSpacing="4" maxLabel="." minMaxLabelFormat="0.00">
+        <values>1.4 1.5 1.6 1.8 2.0 2.2 2.4</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>PW2</parameter>
+      <creatingEntity>Laps</creatingEntity>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>in</displayUnits>
+      <contourLabeling maxLabel="." minMaxLabelFormat="0.00">
+        <values>1.4 1.5 1.6 1.8 2.0 2.2 2.4</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>MCon2</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits label="g/Kg/12hr">(g/kg)/h*12</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <values>-200 -100 -50 -20 -10 -5</values>
+      </contourLabeling>
+    </contourStyle>
+  </styleRule>
+    <styleRule>
+    <paramLevelMatches>
+      <parameter>snoRatCrocus</parameter>
+      <parameter>snoRatSPC</parameter>
+      <parameter>snoRatEMCSREF</parameter>
+      <parameter>snoRatWPC</parameter>
+    </paramLevelMatches>
+    <contourStyle>
+      <contourLabeling labelSpacing="4">
+        <increment>5</increment>
+      </contourLabeling>
 
   <!-- Style Rule for nwpsCG1 to display Sig. Wave Height and Swell Height 
        in ft.  -->

@@ -25,4 +25,7 @@
     <Method name="Max" levels="Surface" models="RTMA25">
     	<Field abbreviation="T24hr"/>
     </Method>
+     <Method name="Max" levels="Surface">
+    	<Field abbreviation="T24hr"/>
+    </Method>
 </DerivedParameter>
