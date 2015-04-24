@@ -90,7 +90,8 @@ public class LightningFrameRetriever implements
     }
 
     /**
-     * Add any new records to cache and return the updated frame
+     * Add any new records to cache and return the updated frame. This method is
+     * synchronous and should only be called as part of a job.
      * 
      * @param records
      * @param co
