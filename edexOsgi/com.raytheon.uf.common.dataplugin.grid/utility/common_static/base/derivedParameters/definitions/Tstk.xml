@@ -27,7 +27,7 @@
 	 
 	AWIPS II NEW FILE - Tstk.xml
 -->
-<DerivedParameter name="Temp Stack" abbreviation="Tstk" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter unit="K" name="Temp Stack" abbreviation="Tstk" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <Method levels="MB,C" name="Union">
         <Field abbreviation="T"/>
     </Method>

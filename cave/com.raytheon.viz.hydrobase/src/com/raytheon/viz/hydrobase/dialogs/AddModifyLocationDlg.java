@@ -86,10 +86,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Changes for non-blocking CoopAgencyOfficeDlg.
  *                                     Changes for non-blocking CopyNewLocationDlg.
  *                                     Changes for non-blocking CountyStateDlg.
- * 08 Jan 2015 15695, 15488 djingtao   fix the save/update text field with apostrophe, repleace the single
+ * 08 Jan 2015 15695, 15488 djingtao    fix the save/update text field with apostrophe, repleace the single
  *                                     apostrophe to two single apostrophe before save/update to database.  
- * 02 Feb 2015 13372        djingtao   change the GMT time to local time for "revise" field                                                                  
- * 
+ * 02 Feb 2015 13372        djingtao    change the GMT time to local time for "revise" field                                                                  
+ * 08 April 2015 17338      djingtao  "Apostrophe" entered into HB text fields are not written to IHFS database 
+ *                                    remove the changes in 15695/15488,  move the apostrophe fix into a more central position
  * 
  * </pre>
  * 
@@ -1810,7 +1811,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
             /* Check if text fields in dataToSave include single apostrophe, if it do, replace to 
             two single apostrophe */                               
             	
-            AppsDefaults ad = AppsDefaults.getInstance();
+/*            AppsDefaults ad = AppsDefaults.getInstance();
             boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN, false);
             
             Class<?> c = dataToSave.getClass();
@@ -1838,7 +1839,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
             	} catch (IllegalAccessException e) {
                 	 e.printStackTrace();
     	          }    
-            }
+            }*/
         
             // Save to DB via DataManager
             try {

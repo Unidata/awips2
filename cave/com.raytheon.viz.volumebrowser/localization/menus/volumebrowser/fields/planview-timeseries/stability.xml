@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="CAPE (Model Delivered)" key="PBE" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Computed CAPE" key="cCape" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Downdraft CAPE (DCAPE)" key="dCape" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Most Unstable CAPE" key="muCape" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Computed CAPE to 3kmAgl" key="loCape" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="CIN (Model Delivered)" key="NBE" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Computed CIN" key="cCin" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Cross Totals" key="cTOT" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="EHI: 0-3km" key="EHI" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="EHI: 0-1km" key="EHI01" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="EPV*: Upright versus slantwise icons" key="EPVt2" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="K-Index" key="KI" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Lapse Rate" key="gamma" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="ThetaE Lapse Rate" key="gammaE" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Lifted Idx" key="SLI" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Best LI" key="BLI" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Computed LI" key="L-I" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Parcel LI" key="PLI" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Sfc to * LI" key="LIsfc2x" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Pressure of Most Unstbl Parcel in Lowest 300mb" key="PLPL"  indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Showalter Idx" key="shWlt" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Total Totals" key="tTOT" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="TQ Index" key="TQIND" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Vertical Totals" key="vTOT" indentText="false" />
+</menuTemplate>
