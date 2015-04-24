@@ -24,9 +24,10 @@ import java.io.FileOutputStream;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.opengis.feature.simple.SimpleFeature;
 
-import com.raytheon.uf.common.json.geo.GeoJsonUtil;
-import com.raytheon.uf.common.json.geo.GeoJsonUtilSimpleImpl;
+import com.raytheon.uf.common.json.geo.IGeoJsonService;
+import com.raytheon.uf.common.json.geo.SimpleGeoJsonService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
@@ -42,7 +43,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 9, 2015  3975       njensen     Initial creation
+ * Feb 09, 2015  3975      njensen     Initial creation
+ * Apr 23, 2015  4354      dgilling    Export as GeoJSON Feature object.
  * 
  * </pre>
  * 
@@ -75,8 +77,9 @@ public class ExportDamagePathAction extends AbstractRightClickAction {
                 if (filename != null) {
                     DamagePathLayer<?> layer = (DamagePathLayer<?>) getSelectedRsc();
                     try (FileOutputStream fos = new FileOutputStream(filename)) {
-                        GeoJsonUtil json = new GeoJsonUtilSimpleImpl();
-                        json.serialize(layer.getPolygon(), fos);
+                        IGeoJsonService json = new SimpleGeoJsonService();
+                        SimpleFeature feature = layer.buildFeature();
+                        json.serialize(feature, fos);
                     } catch (Exception e) {
                         statusHandler.error(
                                 "Error exporting damage path file to "

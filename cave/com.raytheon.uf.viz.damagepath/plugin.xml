@@ -4,22 +4,28 @@
 <extension
          point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
+            actionClass="com.raytheon.uf.viz.damagepath.OpenGeoJsonPropertiesDlgAction"
+            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
+            name="Set GeoJSON Properties"
+            sortID="3">
+      </contextualMenu>
+      <contextualMenu
             actionClass="com.raytheon.uf.viz.damagepath.ExportDamagePathAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
             name="Export GeoJSON"
-            sortID="3">
+            sortID="4">
       </contextualMenu>
       <contextualMenu
             actionClass="com.raytheon.uf.viz.damagepath.ImportDamagePathAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
             name="Import GeoJSON"
-            sortID="4">
+            sortID="5">
       </contextualMenu>
       <contextualMenu
             actionClass="com.raytheon.uf.viz.damagepath.ImportFromDistanceSpeedAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
             name="Import from Distance Speed Tool"
-            sortID="5">
+            sortID="6">
       </contextualMenu>
    </extension>
 </plugin>
