@@ -7,7 +7,7 @@ export BUILD_DIR=/awips2/jenkins/buildspace/
 # Not sure why, but ld isn't finding /awips2/python/lib/libpython2.7.so
 # Need to create sym link: 
 #    /usr/lib64/libpython2.7.so -> /awips2/python/lib/libpython2.7.so
-export LD_LIBRARY_PATH=/machine/awips2/python/lib:/usr/lib64
+export LD_LIBRARY_PATH=/awips2/python/lib:/usr/lib64
 export BUILD_WORKSPACE=${BUILD_DIR}/workspace
 
 # baseline is...
