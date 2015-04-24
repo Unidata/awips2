@@ -69,6 +69,7 @@ static void pyjobject_addfield(PyJobject_Object*, PyObject*);
 
 static jmethodID objectGetClass  = 0;
 static jmethodID objectEquals    = 0;
+static jmethodID objectHashCode  = 0;
 static jmethodID classGetMethods = 0;
 static jmethodID classGetFields  = 0;
 static jmethodID classGetName    = 0;
@@ -729,10 +730,7 @@ static PyObject* pyjobject_richcompare(PyJobject_Object *self,
 PyObject* pyjobject_getattr(PyJobject_Object *obj,
                                    char *name) {
     PyObject *ret, *pyname, *methods, *members;
-    int       listSize, i, found;
-    
     ret = pyname = methods = members = NULL;
-    listSize = i = found = 0;
     
     if(!name) {
         Py_INCREF(Py_None);
@@ -878,6 +876,40 @@ int pyjobject_setattr(PyJobject_Object *obj,
     return 0;  // success
 }
 
+static long pyjobject_hash(PyJobject_Object *self) {
+    JNIEnv *env = pyembed_get_env();
+    int   hash = -1;
+
+    if(objectHashCode == 0) {
+        objectHashCode = (*env)->GetMethodID(env,
+                                             self->clazz,
+                                             "hashCode",
+                                             "()I");
+        if(process_java_exception(env) || !objectHashCode) {
+            return -1;
+        }
+    }
+
+    if(self->object) {
+        hash = (*env)->CallIntMethod(env, self->object, objectHashCode);
+    } else {
+        hash = (*env)->CallIntMethod(env, self->clazz, objectHashCode);
+    }
+    if(process_java_exception(env)) {
+        return -1;
+    }
+
+    /*
+     * this seems odd but python expects -1 for error occurred and other
+     * built-in types then return -2 if the actual hash is -1
+     */
+    if(hash == -1) {
+        hash = -2;
+    }
+
+    return hash;
+}
+
 
 static PyMethodDef pyjobject_methods[] = {
     {NULL, NULL, 0, NULL}
@@ -899,7 +931,7 @@ PyTypeObject PyJobject_Type = {
     0,                                        /* tp_as_number */
     0,                                        /* tp_as_sequence */
     0,                                        /* tp_as_mapping */
-    0,                                        /* tp_hash  */
+    (hashfunc) pyjobject_hash,                /* tp_hash  */
     (ternaryfunc) pyjobject_call,             /* tp_call */
     (reprfunc) pyjobject_str,                 /* tp_str */
     0,                                        /* tp_getattro */
