@@ -1798,7 +1798,7 @@ public class DailyQcUtils {
                 for (int k = 0; k < 5; k++) {
                     if (k < 2) {
                         stime.setTime(otime.getTime());
-                        stime.add(Calendar.SECOND, -84600);
+                        stime.add(Calendar.SECOND, -86400);
                     } else {
                         stime.setTime(otime.getTime());
                     }
@@ -1890,14 +1890,14 @@ public class DailyQcUtils {
                     if (dqc_ending_6hour_obstime == 12) {
                         if (k < 1) {
                             stime.setTime(otime.getTime());
-                            stime.add(Calendar.SECOND, -84600);
+                            stime.add(Calendar.SECOND, -86400);
                         } else {
                             stime.setTime(otime.getTime());
                         }
                     } else {
                         if (k < 2) {
                             stime.setTime(otime.getTime());
-                            stime.add(Calendar.SECOND, -84600);
+                            stime.add(Calendar.SECOND, -86400);
                         } else {
                             stime.setTime(otime.getTime());
                         }
@@ -1940,14 +1940,14 @@ public class DailyQcUtils {
                     if (dqc_ending_6hour_obstime == 12) {
                         if (k < 1) {
                             stime.setTime(otime.getTime());
-                            stime.add(Calendar.SECOND, -84600);
+                            stime.add(Calendar.SECOND, -86400);
                         } else {
                             stime.setTime(otime.getTime());
                         }
                     } else {
                         if (k < 2) {
                             stime.setTime(otime.getTime());
-                            stime.add(Calendar.SECOND, -84600);
+                            stime.add(Calendar.SECOND, -86400);
                         } else {
                             stime.setTime(otime.getTime());
                         }
