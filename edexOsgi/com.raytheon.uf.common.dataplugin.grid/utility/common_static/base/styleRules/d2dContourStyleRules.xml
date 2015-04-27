@@ -4762,6 +4762,8 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
       <contourLabeling labelSpacing="4">
         <increment>5</increment>
       </contourLabeling>
+    </contourStyle>
+  </styleRule>
 
   <!-- Style Rule for nwpsCG1 to display Sig. Wave Height and Swell Height 
        in ft.  -->
