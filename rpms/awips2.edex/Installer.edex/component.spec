@@ -103,7 +103,7 @@ fi
 
 %post
 # replace the service list script with the edex service list script
-if [ ! -f /etc/init.d/edexServiceList-datadelivery]; then
+if [ ! -f /etc/init.d/edexServiceList-datadelivery ]; then
    if [ -f /etc/init.d/edexServiceList ]; then
       mv /etc/init.d/edexServiceList /etc/init.d/edexServiceList.orig
       if [ $? -ne 0 ]; then

@@ -5589,6 +5589,8 @@
       <colorbarLabeling>
         <increment>2000</increment>
       </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
   
   <!-- Style Rule for nwpsCG1 to display Sig. Wave Height and Swell Height 
        in ft.  -->
