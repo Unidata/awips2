@@ -46,8 +46,8 @@ import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * The SHEFParser provides the text parsing for SHEF data. This class was
@@ -61,6 +61,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2009            jkorman     Initial creation
  * Apr 29, 2014   3088     mpduff      Changed to use UFStatus logging.
+ * Apr 27, 2015   4377     skorolev    Corrected set up the default product id.
  * 
  * </pre>
  * 
@@ -467,7 +468,7 @@ public class SHEFParser {
 
             // Set up the default product id
             String identifier = "MSGPRODID";
-            if (wmoHeader != null) {
+            if (wmoHeader.isValid()) {
                 if (awipsHeader != null) {
                     if (awipsHeader.length() <= 6) {
                         identifier = wmoHeader.getCccc() + awipsHeader;
