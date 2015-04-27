@@ -37,6 +37,7 @@
 #    Mar 19, 2014       2688       bgonzale      added more subprocess logging.  Return value from
 #                                                subprocess.check_output is not return code, but is
 #                                                process output.  h5repack has no output without -v arg.
+#    Apr 24, 2015    4425          nabowle       Add DoubleDataRecord
 #
 #
 
@@ -63,6 +64,7 @@ dataRecordMap = {
                  IntegerDataRecord: numpy.int32,
                  LongDataRecord: numpy.int64,
                  FloatDataRecord: numpy.float32,
+                 DoubleDataRecord: numpy.float64,
                  StringDataRecord: types.StringType,
 }
 
