@@ -19,11 +19,15 @@
  **/
 package com.raytheon.viz.satellite.inventory;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -33,11 +37,15 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
 import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 
 /**
  * Satellite record which performs derived parameter calculations to get data
@@ -50,6 +58,7 @@ import com.raytheon.uf.common.inventory.exception.DataCubeException;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Apr 09, 2014  2947     bsteffen    Initial creation
+ * Apr 15, 2014  4388     bsteffen    Set Fill Value.
  * 
  * </pre>
  * 
@@ -134,13 +143,54 @@ public class DerivedSatelliteRecord extends SatelliteRecord {
                 throw new DataCubeException(e);
             }
             gridGeometry = new GridGeometry2D(range, env);
+        } else if (req.getType() == Request.Type.POINT
+                && req.getPoints().length == 1) {
+            Point p = req.getPoints()[0];
+            GridEnvelope2D range = new GridEnvelope2D(p.x, p.y, 1, 1);
+            Envelope env;
+            try {
+                env = gridGeometry.gridToWorld(range);
+            } catch (TransformException e) {
+                throw new DataCubeException(e);
+            }
+            gridGeometry = new GridGeometry2D(range, env);
         } else if (req.getType() != Request.Type.ALL) {
             throw new DataCubeException(
                     "Unsupported request type for derived satellite data: "
                             + req.getType());
         }
         Object dataValue = requestableData.getDataValue(gridGeometry);
+        setDerivedFillValue(dataValue);
         setMessageData(dataValue);
+    }
+
+    /**
+     * Set a fill value on the dataValue if applicable. Some derived parameters
+     * operate on unsigned byte data and return signed byte data and need a fill
+     * value set to composite properly.
+     */
+    private void setDerivedFillValue(Object dataValue) {
+        IDataRecord dataRecord = null;
+        if (dataValue instanceof IDataRecord[]) {
+            IDataRecord[] dataRecords = (IDataRecord[]) dataValue;
+            if (dataRecords.length == 1) {
+                dataRecord = dataRecords[0];
+            }
+        } else if (dataValue instanceof IDataRecord) {
+            dataRecord = (IDataRecord) dataValue;
+        }
+        if (dataRecord instanceof ByteDataRecord) {
+            Unit<?> unit = SatDataRetriever.getRecordUnit(this);
+            if (unit instanceof GenericPixel) {
+                dataRecord.setFillValue(Byte.MIN_VALUE);
+                Map<String, Object> attributes = dataRecord.getDataAttributes();
+                if (attributes == null) {
+                    attributes = new HashMap<String, Object>();
+                }
+                attributes.put(SatelliteRecord.SAT_SIGNED_FLAG, Boolean.TRUE);
+                dataRecord.setDataAttributes(attributes);
+            }
+        }
     }
 
     private static Set<SatelliteRecord> findBaseRecords(

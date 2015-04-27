@@ -641,21 +641,21 @@ class TextProduct(HLSTCV_Common.TextProduct):
         phen, sig = phenSig.split('.')
         headline = VTECTable.VTECTable[phenSig]["hdln"]
         
-        definition = "A " + headline + " MEANS "
+        definition = "A " + headline + " means "
         
         if phen == "HU":
-            definition += "HURRICANE WIND CONDITIONS"
+            definition += "Hurricane wind conditions"
         elif phen == "TR":
-            definition += "TROPICAL STORM WIND CONDITIONS"
+            definition += "Tropical storm wind conditions"
         elif phen == "SS":
-            definition += "LIFE THREATENING INUNDATION LEVELS"
+            definition += "Life threatening inundation levels"
         else:
             return ""
         
         if sig == "W": # Warning
-            definition += " ARE EXPECTED SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 36 HOURS"
+            definition += " are expected somewhere within this area and within the next 36 hours"
         elif sig == "A": # Watch
-            definition += " ARE POSSIBLE SOMEWHERE WITHIN THIS AREA AND WITHIN THE NEXT 48 HOURS"
+            definition += " are possible somewhere within this area and within the next 48 hours"
         
         return definition
     
@@ -1940,7 +1940,7 @@ class FloodingRainSection(SectionCommon):
             self._setProductPartValue(segmentDict, 'forecastSubsection', subsectionDict)
     
     def _latestForecastSummary(self, segmentDict, productSegmentGroup, productSegment):
-        summary = ""    # was "No flood watch is in effect"
+        summary = ""    # was "No Flood Watch is in effect"
         segment, vtecRecords = productSegment
         
         headlines, _ = self._textProduct._getAdditionalHazards()

@@ -192,9 +192,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                     # make a copy and change the key if we need to
                     newH = copy.deepcopy(h)
                     newH['id'] = eaList  # preserve the old list of areas
-                    # strip segments
-                    if (newH['phen'], newH['sig']) not in self.__ncKeys or \
-                       self.__siteID4 == 'PGUM':
+                    # strip segments - updated to make sure GUM TRW/A hazards keep local ETN
+                    if ((newH['phen'], newH['sig']) not in self.__ncKeys):
                         if string.find(newH['phensig'], ":") >= 0:
                             newH['phensig'] = newH['phen'] + '.' + newH['sig']
 

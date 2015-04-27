@@ -20,6 +20,7 @@
 package com.raytheon.edex.plugin.gfe.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
  * ------------ ---------- ----------- --------------------------
  * 03/13/08     #1030      randerso    Initial port
  * 06/24/13     #2044      randerso    Renamed satdirs to satdata to match serverConfig.py
+ * 04/09/15     #4383      dgilling    Added addedISCRoutingConfig.
  * 
  * </pre>
  * 
@@ -109,6 +111,8 @@ public class SimpleServerConfig {
     public int tableFetchTime;
 
     public List<String> officeTypes;
+
+    public Collection<ISCRoutingConfig> iscRoutingConfig;
 
     public SimpleServerConfig() {
         allowedNodes = new ArrayList<String>();

@@ -338,7 +338,7 @@ class SAF_Overrides:
             # Clean up the area label to avoid possibly
             # repeat "forecast for"
             e=re.compile('.*forecast for',re.IGNORECASE)
-            intro = "again, the forecast for " + \
+            intro = "Again, the forecast for " + \
                     e.sub("",areaLabel).strip()
             # Now strip off any punctuation on the area label
             # and add the period label, ie, today, tonight
@@ -391,7 +391,7 @@ class SAF_Overrides:
         return finalFcst
     
     def setLabel(self, tree, component):
-        exLabel= "\n\nand now the extended forecast for the radio listening area.\n"
+        exLabel= "\n\nAnd now the extended forecast for the radio listening area.\n"
         component.set("words", exLabel)
         return self.DONE()
 
@@ -745,7 +745,7 @@ class SAF_Overrides:
 
         # dz 031010 - from Brian Walawender
         # Code below sets the start time for the afternoon update
-        # Local Noon or the current hour (whichever is greater)
+        # Local noon or the current hour (whichever is greater)
 
         currentTime = time.time()
         updateHour = self.DAY() + 6

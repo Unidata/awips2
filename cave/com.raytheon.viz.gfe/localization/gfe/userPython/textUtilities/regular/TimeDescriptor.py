@@ -92,7 +92,7 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
             # timeRanges 24 hours long so that getWeekday_descriptor
             # will honor the splitDay24HourLabel setting and leave
             # weekdays as simply the weekday name e.g.
-            #  SATURDAY instead of SATURDAY AND SATURDAY NIGHT
+            #  Saturday instead of Saturday and Saturday night
             if splitDay24HourLabel:
                 # Make 12-hour start and end timeRanges
                 durHours1 = 12
@@ -132,12 +132,12 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         #  holidayModule: file containing holiday dates
         #  nextDay24HourLabel: if 1, a 24-hour time period starting
         #    after 1600, will be labeled as the next day.
-        #    This is to accomodate 24 extended periods that go from
+        #    This is to accommdate 24 extended periods that go from
         #    6pm-6pm.
         #  splitDay24HourLabel: if 0, a 24-hour period will be labeled with
-        #    simply the weekday name (e.g. SATURDAY)
+        #    simply the weekday name (e.g. Saturday)
         #    instead of including the day and night periods
-        #    (e.g. SATURDAY AND SATURDAY NIGHT)
+        #    (e.g. Saturday and Saturday night)
         #
         # If the time range is for today AND is less than 12 hours,
         # we must accurately describe the period.
@@ -296,14 +296,14 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
                     4 : "Friday",
                     5 : "Saturday"
                 },
-                "Now": "Now",
-                "Today":"Today",
-                "Tonight": "Tonight",
-                "Rest of Today":"Rest of Today",
-                "Rest of Tonight": "Rest of Tonight",
-                "Night": "Night",
-                "Evening": "Evening",
-                "Afternoon": "This Afternoon",
+                "Now": "now",
+                "Today":"today",
+                "Tonight": "tonight",
+                "Rest of Today":"rest of today",
+                "Rest of Tonight": "rest of tonight",
+                "Night": "night",
+                "Evening": "evening",
+                "Afternoon": "this afternoon",
             },
             "Worded": {
                 "PrePunctuation": "",
@@ -380,14 +380,14 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
                     4 : "Fri",
                     5 : "Sat"
                 },
-                "Now": "Now",
-                "Today":"Today",
-                "Tonight": "Tonight",
-                "Rest of Today":"Rest of Today",
-                "Rest of Tonight": "Rest of Tonight",
-                "Night": "Night",
-                "Evening": "Evening",
-                "Afternoon": "This Afternoon",
+                "Now": "now",
+                "Today":"today",
+                "Tonight": "tonight",
+                "Rest of Today":"rest of today",
+                "Rest of Tonight": "rest of tonight",
+                "Night": "night",
+                "Evening": "evening",
+                "Afternoon": "this afternoon",
             },
             "CapsAbbreviated": {
                 "PrePunctuation": "",

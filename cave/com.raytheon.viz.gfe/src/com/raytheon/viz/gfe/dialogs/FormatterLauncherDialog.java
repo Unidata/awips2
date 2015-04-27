@@ -690,7 +690,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
         TabItem newTab = new TabItem(tabFolder, SWT.NONE);
         newTab.setText(tabName);
-        setTabImage(newTab, ConfigData.productStateEnum.New);
+        setTabImage(newTab, ConfigData.ProductStateEnum.New);
         newTab.setImage(newTabImg);
 
         ProductAreaComp comp = new ProductAreaComp(tabFolder, this,
@@ -874,7 +874,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      *            Name of the tab.
      */
     @Override
-    public void setTabState(ConfigData.productStateEnum state, String tabName) {
+    public void setTabState(ConfigData.ProductStateEnum state, String tabName) {
         TabItem[] items = tabFolder.getItems();
 
         for (int i = 0; i < items.length; i++) {
@@ -893,18 +893,18 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * @param state
      *            Product state.
      */
-    private void setTabImage(TabItem ti, ConfigData.productStateEnum state) {
-        if (state == ConfigData.productStateEnum.New) {
+    private void setTabImage(TabItem ti, ConfigData.ProductStateEnum state) {
+        if (state == ConfigData.ProductStateEnum.New) {
             ti.setImage(newTabImg);
-        } else if (state == ConfigData.productStateEnum.Queued) {
+        } else if (state == ConfigData.ProductStateEnum.Queued) {
             ti.setImage(queuedImg);
-        } else if (state == ConfigData.productStateEnum.Running) {
+        } else if (state == ConfigData.ProductStateEnum.Running) {
             ti.setImage(runningImg);
-        } else if (state == ConfigData.productStateEnum.Finished) {
+        } else if (state == ConfigData.ProductStateEnum.Finished) {
             ti.setImage(finishedImg);
-        } else if (state == ConfigData.productStateEnum.Transmitted) {
+        } else if (state == ConfigData.ProductStateEnum.Transmitted) {
             ti.setImage(transmittedImg);
-        } else if (state == ConfigData.productStateEnum.Failed) {
+        } else if (state == ConfigData.ProductStateEnum.Failed) {
             ti.setImage(failedImg);
         }
     }

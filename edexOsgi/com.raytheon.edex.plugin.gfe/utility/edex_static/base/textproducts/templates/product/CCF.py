@@ -303,8 +303,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     
     def _preProcessProduct(self, fcst, argDict):
         # Add product heading to fcst string
-        return fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst = fcst + s.upper()
+        return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
         return fcst + areaLabel + " "
