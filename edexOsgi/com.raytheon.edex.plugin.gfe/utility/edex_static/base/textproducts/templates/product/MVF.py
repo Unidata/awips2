@@ -259,8 +259,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
           (self._getAnalysisList(), self._timeRangeList, self._areaList))
 
     def _preProcessProduct(self, fcst, argDict):
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
-               self._ddhhmmTime + "\n" + self._pil + "\n\n"                     
+        s = self._wmoID + " " + self._fullStationID + " " + \
+               self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst =  fcst + s.upper()
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):

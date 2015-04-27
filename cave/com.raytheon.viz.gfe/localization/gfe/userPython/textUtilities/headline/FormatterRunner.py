@@ -38,7 +38,7 @@ from java.io import File
 #    ------------    ----------    -----------    --------------------------
 #    05/29/08                      njensen       Initial Creation.
 #    12/10/14        #14946        ryu           Add getTimeZones() function.
-#    
+#    04/20/2015      #4027         randerso      Fixes for formatter autotests
 # 
 #
 
@@ -223,10 +223,9 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     argDict['creationTime'] = int(time.time()/60)*60.0
 
     # Set the Site Time Zone
-    #tz = ifpClient.getSiteTimeZone(site)
-    #os.environ['TZ'] = tz
     tz = str(ifpClient.getSiteTimeZone())
     os.environ['TZ'] = tz
+    time.tzset()
 
     # Create the formatter
     formatter = TextFormatter.TextFormatter(dataMgr)
@@ -239,6 +238,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
         forecasts = forecasts + forecast
 
     logger.info("Text:\n" + str(forecasts))
+    
     try:
         outputFile = argDict["outputFile"]
         success = writeToFile(forecasts, outputFile, "w")
@@ -426,6 +426,7 @@ def ppDef(definition):
 def getVarDict(dspName, dataMgr, issuedBy, dataSource):
     tz = str(dataMgr.getClient().getSiteTimeZone())
     os.environ['TZ'] = tz
+    time.tzset()
     productDef = displayNameDict[dspName][1]
     productDef['database'] = dataSource
     vdg = VarDictGroker.VarDictGroker(displayNameDict[dspName][0], productDef, dspName, issuedBy, dataMgr)

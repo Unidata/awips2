@@ -55,9 +55,11 @@
 #    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
 #    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
 #    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
-#    03/31/2015          #17288    bhunder        Added Weather Params for RTMA
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
+#    03/31/2015          #17288    bhunder        Added Weather Params for RTMA
 #    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1 
+#    04/08/2015          #4383     dgilling       Define FireWX ISC configuration parameters.
+#
 #                                                 for Fcst/Official.
 #
 ########################################################################
@@ -994,8 +996,8 @@ def localTC(start,repeat,duration,dst):
     timezone = SITES[GFESUITE_SITEID][3]
     import dateutil.tz, datetime
     tz = dateutil.tz.gettz(timezone)
-    dt = datetime.datetime.utcnow()
-    delta = tz.utcoffset(dt) + tz.dst(dt)
+    local = datetime.datetime.now(tz)
+    delta = tz.utcoffset(local) - tz.dst(local)
     offset = delta.days*86400 + delta.seconds
     start = start - offset
     if dst == 1:
@@ -1817,6 +1819,13 @@ localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
+AdditionalISCRouting = [ 
+   # Configure by adding entries to this list in the form of:
+   # ([WeatherElements],  ModelName, EditAreaPrefix)
+   # Example: 
+   # ([Hazards, LAL, CWR], "ISCFire", "FireWxAOR_"), 
+]
+
 if not BASELINE and siteImport('localConfig'):
     #ensure office type is set properly in localConfig SITES[]
     if len(SITES[GFESUITE_SITEID]) == 5:
@@ -2192,6 +2201,14 @@ ISCPARMS.append(([Topo], Persistent))
 DATABASES.append((Restore, RESTOREPARMS))
 DATABASES.append((ISC, ISCPARMS))
 
+for entry in AdditionalISCRouting:
+    (parmList, dbName, editAreaPrefix) = entry
+    parmList = list(parmList)
+    addedIscDbDefinition = (dbName, ) + ISC[1:]
+    addedIscParms = [(parmList, TC1)]
+    DATABASES.append((addedIscDbDefinition, addedIscParms))
+
+
 #---------------------------------------------------------------------------
 #
 #  General server configuration section
@@ -2272,5 +2289,6 @@ def doIt():
     IFPConfigServer.sendiscOnPublish = sendiscOnPublish
     IFPConfigServer.requestedISCparms = requestedISCparms
     IFPConfigServer.transmitScript = transmitScript
+    IFPConfigServer.iscRoutingConfig = doConfig.parseAdditionalISCRouting(AdditionalISCRouting)
 
 doIt()

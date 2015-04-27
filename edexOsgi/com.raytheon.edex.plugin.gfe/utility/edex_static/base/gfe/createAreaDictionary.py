@@ -390,17 +390,17 @@ def createTCVAreaDictionary(outputDir, mapDict, siteID):
 #         #     "We ended the other list and are back at tab level 0 now",
 #         # ]
 #         'infoSection': [
-#             "LOCAL EVACUATION AND SHELTERING: MIAMI-DADE COUNTY EMERGENCY MANAGEMENT",
+#             "Local evacuation and sheltering: Miami-Dade County Emergency Management",
 #             [
-#                 "HTTP://WWW.MIAMIDADE.GOV/EMERGENCY/",
+#                 "http://www.miamidade.gov/emergency/",
 #             ],
-#             "FAMILY EMERGENCY PLANS: FEDERAL EMERGENCY MANAGEMENT AGENCY",
+#             "Family emergency plans: Federal Emergency Management Agency",
 #             [
-#                 "HTTP://READY.GOV/",
+#                 "http://ready.gov/",
 #             ],
-#             "LOCAL WEATHER CONDITIONS AND FORECASTS: NWS MIAMI FLORIDA",
+#             "Local weather conditions and forecasts: NWS Miami Florida",
 #             [
-#                 "HTTP://WWW.SRH.NOAA.GOV/MFL/",
+#                 "http://www.srh.noaa.gov/mfl/",
 #             ],
 #         ],
 #     },

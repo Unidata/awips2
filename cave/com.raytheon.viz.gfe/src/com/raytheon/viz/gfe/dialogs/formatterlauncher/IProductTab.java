@@ -27,6 +27,7 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 18 APR 2008  ###        lvenable    Initial creation
+ * 20 APR 2015  4027       randerso    Renamed ProductStateEnum with an initial capital
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ public interface IProductTab {
      *            Product state.
      * @param productName
      */
-    void setTabState(ConfigData.productStateEnum state, String productName);
+    void setTabState(ConfigData.ProductStateEnum state, String productName);
 
     /**
      * Update the status from the component.

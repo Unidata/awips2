@@ -29,7 +29,6 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
-import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -67,6 +66,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
  *                                    plugin.
  * Nov 04, 2014  2714     bclement    removed GINI specific DAOs
+ * Apr 15, 2014  4388     bsteffen    Preserve fill value across interpolation levels.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -113,8 +114,12 @@ public class SatelliteDao extends PluginDao {
             storageRecord.setCorrelationObject(satRecord);
             final Map<String, Object> attributes = storageRecord
                     .getDataAttributes();
-            final Float fillValue = getAttribute(attributes,
-                    SatelliteRecord.SAT_FILL_VALUE, 0.0f);
+            if (storageRecord.getFillValue() == null) {
+                Number fillValue = getAttribute(attributes,
+                        SatelliteRecord.SAT_FILL_VALUE, 0.0f);
+                storageRecord.setFillValue(fillValue);
+            }
+            final Number fillValue = storageRecord.getFillValue();
 
             // Store the base record.
             dataStore.addDataRecord(storageRecord);
@@ -142,13 +147,14 @@ public class SatelliteDao extends PluginDao {
                             // data.
                             dr.setDataAttributes(attributes);
                             dr.setProperties(props);
+                            dr.setFillValue(fillValue);
                             return dr;
                         }
 
                         @Override
                         public double getFillValue() {
                             // always the same fill value
-                            return fillValue;
+                            return fillValue.doubleValue();
                         }
 
                         @Override
@@ -381,10 +387,10 @@ public class SatelliteDao extends PluginDao {
      */
     private IDataRecord createDataRecord(SatelliteRecord satRec, Object data,
             int downscaleLevel, Rectangle size) {
-        SatelliteMessageData msgData = null;
-        msgData = new SatelliteMessageData(data, size.width, size.height);
-        IDataRecord rec = msgData.getStorageRecord(satRec,
-                String.valueOf(downscaleLevel));
+        long[] sizes = new long[] { size.width, size.height };
+        IDataRecord rec = DataStoreFactory.createStorageRecord(
+                String.valueOf(downscaleLevel),
+                satRec.getDataURI(), data, 2, sizes);
         rec.setCorrelationObject(satRec);
         rec.setGroup(DataStoreFactory.createGroupName(satRec.getDataURI(),
                 SatelliteRecord.SAT_DATASET_NAME, true));
@@ -403,11 +409,11 @@ public class SatelliteDao extends PluginDao {
      *            A default value.
      * @return
      */
-    public static Float getAttribute(Map<String, Object> attrs,
+    public static Number getAttribute(Map<String, Object> attrs,
             String attrName, Float defValue) {
-        Float retValue = defValue;
+        Number retValue = defValue;
         if ((attrs != null) && (attrName != null)) {
-            retValue = (Float) attrs.get(attrName);
+            retValue = (Number) attrs.get(attrName);
         }
         return retValue;
     }
