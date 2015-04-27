@@ -480,7 +480,7 @@ class TextProduct(GenericHazards.TextProduct):
         if self._elevationSource == "Grids":
 
             ### initialize the phrase
-            le = " FOR "
+            le = " for "
             ### Set the phrase from the forecaster selections
             if len(self._rfwType) > 0:
                 ### add the event type
@@ -489,7 +489,7 @@ class TextProduct(GenericHazards.TextProduct):
                     le = le + phraseDict.get(t)[0]
                 ### add zone numbers or generic location description to headline
                 if self._numInHeadline == 0:
-                    le = le + "For |* location description *|"
+                    le = le + "for |* location description *|"
                 else:
                     le = le + self._headlineNumbers(hazard['id'])
             else:
@@ -577,9 +577,9 @@ class TextProduct(GenericHazards.TextProduct):
         numList.sort()
         ### initialize the zone number list
         if len(numList) > 1:
-            numStr = "For fire weather zones "
+            numStr = "for fire weather zones "
         else:
-            numStr = "For fire weather zone "
+            numStr = "for fire weather zone "
 
         i = 0
         for i in range (len(numList)):
@@ -588,7 +588,7 @@ class TextProduct(GenericHazards.TextProduct):
             elif (len(numList) - i) > 2: ### more than three zones, and/or last zone in list
                 numStr = numStr + numList[i] + "..."
             elif (len(numList) - i) > 1: ### next to last zone in list
-                numStr = numStr + numList[i] + " AND "
+                numStr = numStr + numList[i] + " and "
 
         return numStr
 
@@ -657,7 +657,7 @@ class TextProduct(GenericHazards.TextProduct):
 
             ### include state name
             if self._includeStateName == 1:
-                nameString = nameString + "IN " + stateList[0] + "..."
+                nameString = nameString + "In " + stateList[0] + "..."
 
             ### sort based on zone number
             ugcList = sorted(ugcList, key=lambda ugc: ugc[2])
@@ -680,14 +680,14 @@ class TextProduct(GenericHazards.TextProduct):
                     elif (len(ugcList) - i) > 2: ### more than three zones, and/or last zone in list
                         nameString = nameString + ugcList[i][2] + " " + "..."
                     elif (len(ugcList) - i) == 2: ### next to last zone in list
-                        nameString = nameString + ugcList[i][2] + " " + " AND "
+                        nameString = nameString + ugcList[i][2] + " " + " and "
         else: ### more than one state
 
             for state in stateList:
 
                 ### include state name
                 if self._includeStateName == 1:
-                    nameString = nameString + "IN " + state + "..."
+                    nameString = nameString + "In " + state + "..."
 
                 newList = []  ### split up ugcList for each state.
                 for st, name, num in ugcList:
@@ -715,7 +715,7 @@ class TextProduct(GenericHazards.TextProduct):
                         elif (len(newList) - i) > 2: ### more than three zones, and/or last zone in list
                             nameString = nameString+ newList[i][0] + " " + "..."
                         elif (len(newList) - i) == 2: ### next to last zone in list
-                            nameString = nameString + newList[i][0] + " " + " AND "
+                            nameString = nameString + newList[i][0] + " " + " and "
 
         ###  get rid of any spaces in the ellipses
         nameString = nameString.replace("... ","...")
@@ -810,7 +810,7 @@ class TextProduct(GenericHazards.TextProduct):
  
             else:
                     hazardTypeForWeather = ""
-            forPhrase = " FOR " + hazardTypeForWeather
+            forPhrase = " for " + hazardTypeForWeather
         return forPhrase
 
 

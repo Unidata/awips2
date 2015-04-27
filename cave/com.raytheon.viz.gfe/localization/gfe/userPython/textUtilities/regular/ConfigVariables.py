@@ -123,7 +123,7 @@ class ConfigVariables(TextUtils.TextUtils):
             "SKY/WEATHER.........":"SKY/WEATHER.........",
             "   24 HR TREND......":"   24 HR TREND......",
             "unchanged":"unchanged",
-            "missing":"missing",
+            "missing":"MISSING",
             "MinT":"lows",
             "MaxT":"highs",
             "MinT_FireWx": "MIN TEMPERATURE.....",
@@ -145,23 +145,23 @@ class ConfigVariables(TextUtils.TextUtils):
             "CWR.................":"CHC OF WETTING RAIN.",
             "MARINE LAYER........":"MARINE LAYER........",
             #  Used for Headlines
-            "EXPECTED" : "EXPECTED",
-            "IN EFFECT" : "IN EFFECT",
+            "EXPECTED" : "expected",
+            "IN EFFECT" : "in effect",
             # Used for single values
             "around": "around",
             "through the day": "through the day",
             "through the night": "through the night",
             # Used for Tropical
-            "iminHR":"HURRICANE CONDITIONS",
-            "iminTS":"TROPICAL STORM CONDITIONS",
-            "iminTSposHR":"TROPICAL STORM CONDITIONS WITH HURRICANE CONDITIONS POSSIBLE",
-            "posTS":"TROPICAL STORM CONDITIONS POSSIBLE",
-            "posTSbcmgposHR":"TROPICAL STORM CONDITIONS POSSIBLE WITH HURRICANE CONDITIONS ALSO POSSIBLE",
-            "expTS":"TROPICAL STORM CONDITIONS EXPECTED",
-            "posHR":"HURRICANE CONDITIONS POSSIBLE",
-            "expHR":"HURRICANE CONDITIONS EXPECTED",
-            "expTSposHR":"TROPICAL STORM CONDITIONS EXPECTED WITH HURRICANE CONDITIONS POSSIBLE",
-            "posTSorHR":"TROPICAL STORM OR HURRICANE CONDITIONS POSSIBLE" ,           
+            "iminHR":"Hurricane conditions",
+            "iminTS":"Tropical storm conditions",
+            "iminTSposHR":"Tropical storm conditions with hurricane conditions possible",
+            "posTS":"Tropical storm conditions possible",
+            "posTSbcmgposHR":"Tropical storm conditions possible with hurricane conditions also possible",
+            "expTS":"Tropical storm conditions expected",
+            "posHR":"Hurricane conditions possible",
+            "expHR":"Hurricane conditions expected",
+            "expTSposHR":"Tropical storm conditions expected with hurricane conditions possible",
+            "posTSorHR":"Tropical storm or hurricane conditions possible" ,           
             }
     
     def phrase_descriptor(self, tree, node, key, value):
@@ -523,12 +523,12 @@ class ConfigVariables(TextUtils.TextUtils):
     def highValue_threshold_dict(self, tree, node):
         # If high wind conditions report both "becoming" and
         #  "increasing/decreasing"
-        # SOUTHEAST WINDS AROUND 70 MPH BECOMING SOUTH
-        #   AND INCREASING TO AROUND 105 MPH
+        # Southeast winds around 70 mph becoming south
+        #   and increasing to around 105 mph
         # Otherwise, it will just be reported with "increasing"
         #   or "becoming":
-        # SOUTHEAST WINDS AROUND 20 MPH BECOMING SOUTH
-        #   AROUND 15 MPH                
+        # Southeast winds around 20 mph becoming south
+        #   around 15 mph                
         return {
             "Wind": 45, # knots or mph depending on product
             "Wind20ft": 45, # knots or mph depending on product
@@ -818,8 +818,8 @@ class ConfigVariables(TextUtils.TextUtils):
 
     def embedded_vector_descriptor_flag_dict(self, tree, node):
         # If set to 1, the descriptor will be embedded in the phrase:
-        #  such as "NORTH WINDS 20 to 25 KNOTS BECOMING LIGHT AND VARIABLE"
-        #  instead of "WINDS NORTH 20 to 25 KNOTS BECOMING LIGHT AND VARIABLE"
+        #  such as "North winds 20 to 25 knots becoming light and variable"
+        #  instead of "Winds north 20 to 25 knots becoming light and variable"
         return {
             "Wind": 1,   
             "Wind20ft": 1,   
@@ -960,9 +960,9 @@ class ConfigVariables(TextUtils.TextUtils):
     
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         # NOTE: If you set this flag to 1, make sure the "nextDay24HourLabel_flag"
         # is set to zero.
         # NOTE: This applied only to periods that are exactly 24-hours in length.

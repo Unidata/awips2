@@ -267,8 +267,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         # This is the header for the overall product
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n"
+        fcst = fcst + s.upper()
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):

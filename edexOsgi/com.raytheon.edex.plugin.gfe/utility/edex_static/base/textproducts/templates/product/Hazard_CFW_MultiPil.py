@@ -203,7 +203,7 @@ class TextProduct(GenericHazards.TextProduct):
         for each in fullKeyList:
             if each in ['LS.W', 'LS.A', 'LS.Y', 'LS.S']:
                     productName = "Lakeshore Hazard Message"
-                    fcst = fcst.replace(self._productName, productName, 1) 
+                    fcst = fcst.replace(self._productName.upper(), productName.upper(), 1) 
                     break
 
         # Added to place line feeds in the CAP tags to keep separate from CTAs
