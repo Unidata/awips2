@@ -20,14 +20,20 @@
 package com.raytheon.uf.viz.damagepath;
 
 import java.io.FileInputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.opengis.feature.Property;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.type.Name;
 
 import com.raytheon.uf.common.json.JsonException;
-import com.raytheon.uf.common.json.geo.GeoJsonUtil;
-import com.raytheon.uf.common.json.geo.GeoJsonUtilSimpleImpl;
+import com.raytheon.uf.common.json.geo.GeoJsonMapUtil;
+import com.raytheon.uf.common.json.geo.IGeoJsonService;
+import com.raytheon.uf.common.json.geo.SimpleGeoJsonService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
@@ -38,18 +44,19 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Action to import a damage path from a GeoJSON file specified by the user.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2015  3975      njensen     Initial creation
  * Mar 31, 2015  3977      nabowle     Make sure the polygon is not empty.
- *
+ * Apr 23, 2015  4354      dgilling    Support GeoJSON Feature objects.
+ * 
  * </pre>
- *
+ * 
  * @author njensen
  * @version 1.0
  */
@@ -77,15 +84,28 @@ public class ImportDamagePathAction extends AbstractRightClickAction {
                 if (filename != null) {
                     DamagePathLayer<?> layer = (DamagePathLayer<?>) getSelectedRsc();
                     try (FileInputStream fis = new FileInputStream(filename)) {
-                        GeoJsonUtil json = new GeoJsonUtilSimpleImpl();
-                        Geometry geom = json.deserializeGeom(fis);
-                        if (geom instanceof Polygon
-                                && geom.getCoordinates().length > 0) {
+                        IGeoJsonService json = new SimpleGeoJsonService();
+                        SimpleFeature feature = json.deserializeFeature(fis);
+                        Geometry geom = (Geometry) feature.getDefaultGeometry();
+                        if ((geom instanceof Polygon)
+                                && (geom.getCoordinates().length > 0)) {
                             layer.setPolygon((Polygon) geom);
                         } else {
                             throw new JsonException("Damage path file "
                                     + filename + " must contain a Polygon!");
                         }
+
+                        Name defaultGeomAttrib = feature
+                                .getDefaultGeometryProperty().getName();
+                        Map<String, String> featureProps = new LinkedHashMap<>();
+                        featureProps.put(GeoJsonMapUtil.ID_KEY, feature.getID());
+                        for (Property p : feature.getProperties()) {
+                            if (!defaultGeomAttrib.equals(p.getName())) {
+                                featureProps.put(p.getName().toString(), p
+                                        .getValue().toString());
+                            }
+                        }
+                        layer.setFeatureProperties(featureProps);
                     } catch (Exception e) {
                         statusHandler.error("Error importing damage path from "
                                 + filename, e);
@@ -94,5 +114,4 @@ public class ImportDamagePathAction extends AbstractRightClickAction {
             }
         });
     }
-
 }
