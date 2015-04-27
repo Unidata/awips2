@@ -645,7 +645,7 @@ int process_java_exception(JNIEnv *env) {
  */
 static PyObject* match_exception_type(JNIEnv *env, jthrowable exception) {
     jclass classNotFound, indexBounds, io, classCast;
-    jclass arithmetic, memory, assertion;
+    jclass illegalArg, arithmetic, memory, assertion;
 
     // map ClassNotFoundException to ImportError
     classNotFound = (*env)->FindClass(env, "java/lang/ClassNotFoundException");
@@ -681,6 +681,15 @@ static PyObject* match_exception_type(JNIEnv *env, jthrowable exception) {
     }
     if((*env)->IsInstanceOf(env, exception, classCast)) {
         return PyExc_TypeError;
+    }
+
+    // map IllegalArgumentException to ValueError
+    illegalArg = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
+    if((*env)->ExceptionOccurred(env) || !illegalArg) {
+        goto EXIT_ERROR;
+    }
+    if((*env)->IsInstanceOf(env, exception, illegalArg)) {
+        return PyExc_ValueError;
     }
 
     // map ArithmeticException to ArithmeticError
