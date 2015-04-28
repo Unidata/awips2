@@ -21,12 +21,25 @@
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
+#    07/06/09        1995          bphillip       Initial Creation.
+#    03/11/13        1759          dgilling       Removed unneeded methods.
+#    04/23/13        1937          dgilling       Reimplement WECache to match
+#                                                 A1, big perf improvement.
+#    05/23/13        1759          dgilling       Remove unnecessary imports.
+#    06/13/13        2044          randerso       Updated for changes to TopoDatabaseManager
+#    07/25/13        2233          randerso       Improved memory utilization and performance
+#    08/09/2013      1571          randerso       Changed projections to use the Java             
+#                                                 ProjectionType enumeration
+#    09/20/13        2405          dgilling       Clip grids before inserting into cache.
+#    10/22/13        2405          rjpeter        Remove WECache and store directly to cube.
+#    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
+#    08/14/2014      3526          randerso       Fixed to get sampling definition from appropriate site
 #    01/13/2015       #3955        randerso       Changed to use ifpServer.getTopoData
-#             
 #    02/17/2015      4139          randerso       Removed timeFromComponents and dependent
 #                                                 functions in favor of calendar.timegm
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
-#             
+#    05/13/2015      4427          dgilling       Add siteIdOverride field.
+#
 ##
 
 
@@ -66,29 +79,6 @@ from com.raytheon.uf.common.localization import LocalizationContext
 LocalizationType = LocalizationContext.LocalizationType 
 LocalizationLevel = LocalizationContext.LocalizationLevel
 
-#
-# Port of ifpNetCDF
-#
-#    
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    07/06/09        1995          bphillip       Initial Creation.
-#    03/11/13        1759          dgilling       Removed unneeded methods.
-#    04/23/13        1937          dgilling       Reimplement WECache to match
-#                                                 A1, big perf improvement.
-#    05/23/13        1759          dgilling       Remove unnecessary imports.
-#    06/13/13        2044          randerso       Updated for changes to TopoDatabaseManager
-#    07/25/13        2233          randerso       Improved memory utilization and performance
-#    08/09/2013      1571          randerso       Changed projections to use the Java             
-#                                                 ProjectionType enumeration
-#    09/20/13        2405          dgilling       Clip grids before inserting into cache.
-#    10/22/13        2405          rjpeter        Remove WECache and store directly to cube.
-#    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
-#    08/14/2014      3526          randerso       Fixed to get sampling definition from appropriate site
-#    Apr 23, 2015    4259          njensen        Updated for new JEP API
-#
 
 # Original A1 BATCH WRITE COUNT was 10, we found doubling that
 # lead to a significant performance increase.
@@ -643,7 +633,7 @@ def storeProjectionAttributes(var, projectionData):
     return
 
 ###-------------------------------------------------------------------------###
-def storeWEAttributes(var, we, timeList, databaseID, clipArea):
+def storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride):
     "Stores attributes in the netCDF file for any weather element"
     
     # Note that geo information is modified based on the clip info.
@@ -682,14 +672,22 @@ def storeWEAttributes(var, we, timeList, databaseID, clipArea):
 
     # Min/Max allowable values
     setattr(var, "minMaxAllowedValues", (we.getGpi().getMinValue(), we.getGpi().getMaxValue()))
+    
+    # determine correct siteID to write to netCDF file
+    # we needed this siteIdOverride incase we're exporting grids from a subdomain
+    srcSiteId = we.getParmid().getDbId().getSiteId()
+    destSideId = srcSiteId
+    if siteIdOverride:
+        destSideId = siteIdOverride
+    fixedDbId = databaseID.replace(srcSiteId + "_", destSideId + "_", 1)
 
     # data type
     setattr(var, "gridType", we.getGpi().getGridType().toString())
     # database ID
-    setattr(var, "databaseID", databaseID)
+    setattr(var, "databaseID", fixedDbId)
     # siteID
     #setattr(var, "siteID", we.siteID) 
-    setattr(var, "siteID", we.getParmid().getDbId().getSiteId())
+    setattr(var, "siteID", destSideId)
     # units
     setattr(var, "units", we.getGpi().getUnitString())
     # level
@@ -723,7 +721,7 @@ def findOverlappingTimes(trList, timeRange):
 ### Stores the specified Scalar WE in the netCDF file whose grids fall within
 ### the specified timeRange.
 def storeScalarWE(we, trList, file, timeRange, databaseID,
-                  invMask, trim, clipArea, krunch):
+                  invMask, trim, clipArea, krunch, siteIdOverride):
     "Stores a weather element to the netCDF file"
 
     # get the data and store it in a Numeric array.
@@ -789,7 +787,7 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
         var[i] = numpy.flipud(cube[i])
 
     # Store the attributes
-    storeWEAttributes(var, we, timeList, databaseID, clipArea)
+    storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride)
     setattr(var, "fillValue", fillValue)
 
     ## Extract the GridDataHistory info and save it
@@ -803,7 +801,7 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
 ### Stores the specified Vector WE in the netCDF file whose grids fall within
 ### the specified timeRange.
 def storeVectorWE(we, trList, file, timeRange,
-                  databaseID, invMask, trim, clipArea, krunch):
+                  databaseID, invMask, trim, clipArea, krunch, siteIdOverride):
     "Stores a vector weather element to the netCDF file"
 
     # get the data and store it in a Numeric array.
@@ -896,12 +894,12 @@ def storeVectorWE(we, trList, file, timeRange,
         dirVar[i] = numpy.flipud(dirCube[i])
         
     # Store the attributes - overwrite some for mag and dir
-    storeWEAttributes(magVar, we, timeList, databaseID, clipArea)
+    storeWEAttributes(magVar, we, timeList, databaseID, clipArea, siteIdOverride)
 
     # Change the descriptive name
     setattr(magVar, "descriptiveName", we.getGpi().getDescriptiveName() + " Magnitude")
     setattr(magVar, "fillValue", mfillValue)
-    storeWEAttributes(dirVar, we, timeList, databaseID, clipArea)
+    storeWEAttributes(dirVar, we, timeList, databaseID, clipArea, siteIdOverride)
 
     # Special case attributes for wind direction
     setattr(dirVar, "minMaxAllowedValues", (0.0, 360.0))
@@ -956,7 +954,7 @@ def collapseKey(keys, grid):
 ###-------------------------------------------------------------------------###
 # Stores the specified Weather WE in the netCDF file whose grids fall within
 ### the specified timeRange.
-def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
+def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea, siteIdOverride):
     "Stores the Weather weather element to the netCDF file"
 
     # get the data and store it in a Numeric array.
@@ -1028,7 +1026,7 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
         keyVar[:] = chars
 
     # Store the attributes
-    storeWEAttributes(var, we, timeList, databaseID, clipArea)
+    storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride)
     setattr(var, "fillValue", fillValue)
 
     ## Extract the GridDataHistory info and save it
@@ -1041,7 +1039,7 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
 ###-------------------------------------------------------------------------###
 # Stores the specified Discrete WE in the netCDF file whose grids fall within
 ### the specified timeRange.
-def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
+def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea, siteIdOverride):
     "Stores the Weather weather element to the netCDF file"
 
     # get the data and store it in a Numeric array.
@@ -1111,7 +1109,7 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
         keyVar[:] = chars
 
     # Store the attributes
-    storeWEAttributes(var, we, timeList, databaseID, clipArea)
+    storeWEAttributes(var, we, timeList, databaseID, clipArea, siteIdOverride)
     setattr(var, "fillValue", fillValue)
 
     ## Extract the GridDataHistory info and save it
@@ -1262,7 +1260,7 @@ def determineSamplingValues(samplingDef, parmName, inventory, currentTime):
 ### Main program
 def main(outputFilename, parmList, databaseID, startTime,
          endTime, mask, geoInfo, compressFileFlag, configFileName, 
-         compressFileFactor, trim, krunch, userID, logFileName):
+         compressFileFactor, trim, krunch, userID, logFileName, siteIdOverride):
     initLogger(logFileName)
     
     
@@ -1288,7 +1286,8 @@ def main(outputFilename, parmList, databaseID, startTime,
                "compressFileFactor": int(compressFileFactor), 
                "trim": bool(trim), 
                "krunch": bool(krunch), 
-               "userID": userID}
+               "userID": userID,
+               "siteIdOverride" : siteIdOverride, }
     logEvent("Command: ", argDict)
 
     a = os.times()
@@ -1340,17 +1339,17 @@ def main(outputFilename, parmList, databaseID, startTime,
         if gridType == "SCALAR":
             nGrids = storeScalarWE(we, weInv, file, timeRange,
               argDict['databaseID'], invMask, argDict['trim'], clipArea,
-              argDict['krunch'])
+              argDict['krunch'], argDict['siteIdOverride'])
         elif gridType == "VECTOR":
             nGrids = storeVectorWE(we, weInv, file, timeRange,
               argDict['databaseID'], invMask, argDict['trim'], clipArea,
-              argDict['krunch'])
+              argDict['krunch'], argDict['siteIdOverride'])
         elif gridType == "WEATHER":
             nGrids = storeWeatherWE(we, weInv, file, timeRange,
-              argDict['databaseID'], invMask, clipArea)
+              argDict['databaseID'], invMask, clipArea, argDict['siteIdOverride'])
         elif gridType == "DISCRETE":
             nGrids = storeDiscreteWE(we, weInv, file, timeRange,
-              argDict['databaseID'], invMask, clipArea)
+              argDict['databaseID'], invMask, clipArea, argDict['siteIdOverride'])
         else:
             s = "Grids of type: " + we.gridType + " are not supported, " + \
               "parm=" + p

@@ -28,6 +28,7 @@
 # ------------ ---------- ----------- --------------------------
 # Feb 09, 2015  #4103     dgilling    Initial Creation.
 # Mar 27, 2015  #4103     dgilling    Support new location for svcbu.properties.
+# Apr 28, 2015  #4427     dgilling    Add markTask functions.
 #
 ##
 
@@ -129,4 +130,29 @@ function getSiteIdFromTarFile()
 	fi
 	
 	echo "${siteid}"
+}
+
+function markTask()
+{
+	local lock_file="$1"
+	local task_status="$2"
+	echo ${task_status} > ${lock_file}
+}
+
+function markTaskSuccess()
+{
+	local lock_file="$1"
+	markTask ${lock_file} "SUCCESS"
+}
+
+function markTaskFailed()
+{
+	local lock_file="$1"
+	markTask ${lock_file} "FAILED"
+}
+
+function markTaskInProgress()
+{
+	local lock_file="$1"
+	markTask ${lock_file} "IN_PROGRESS"
 }
