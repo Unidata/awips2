@@ -85,6 +85,10 @@
                    label="Load Bundle"
                    style="push">
              </command>
+             <menu
+                   id="import"
+                   label="Import">
+             </menu>
              <separator
                    name="bundleSeparator"
                    visible="true">
@@ -121,10 +125,6 @@
                    name="importExportSeparator"
                    visible="true">
              </separator>
-             <menu
-                   id="import"
-                   label="Import">
-             </menu>
           </menu>
           <menu
                 id="view"
