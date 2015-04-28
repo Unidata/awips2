@@ -1090,7 +1090,7 @@
 	</model>
 
 	<model>
-		<name>GFS230</name>
+		<name>GFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>230</grid>
@@ -1122,7 +1122,7 @@
 	</model>
 
 	<model>
-		<name>RTMA</name>
+		<name>RTMA-5km</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>197</grid>
@@ -1132,7 +1132,7 @@
 	</model>
 
 	<model>
-		<name>RTMA-Mosaic</name>
+		<name>RTMA</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>184</grid>
@@ -1160,6 +1160,17 @@
 			<id>89</id>
 		</process>
 	</model>
+
+       <model>
+                <name>NamDNG</name>
+                <center>7</center>
+                <subcenter>0</subcenter>
+                <grid>184</grid>
+                <process>
+                        <id>89</id>
+                </process>
+        </model>
+
 
 	<model>
 		<name>RaobOA</name>
@@ -1341,7 +1352,7 @@
 	</model>
 
 	<model>
-		<name>Aviation</name>
+		<name>Aviation-0-252</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>252</grid>
@@ -1708,7 +1719,7 @@
 	</model>
 
 	<model>
-		<name>GFS-1p0</name>
+		<name>GFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>229</grid>
@@ -1843,11 +1854,22 @@
 		<name>NDFD</name>
 		<center>8</center>
 		<subcenter>65535</subcenter>
-		<grid>197</grid>
+		<grid>184</grid>
 		<process>
 			<id>0</id>
 		</process>
 	</model>
+
+        <model>
+                <name>NDFD-5km</name>
+                <center>8</center>
+                <subcenter>65535</subcenter>
+                <grid>197</grid>
+                <process>
+                        <id>0</id>
+                </process>
+        </model>
+
 	<model>
 		<name>NAM-90km</name>
 		<center>7</center>
@@ -2380,7 +2402,7 @@
 	</model>
 
 	<model>
-		<name>SREF-40km</name>
+		<name>SREF-40km-2</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>212</grid>
@@ -2393,7 +2415,7 @@
 	</model>
 
 	<model>
-		<name>SREF-40km</name>
+		<name>SREF-40km-0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
@@ -2524,7 +2546,7 @@
 	</model>
 
 	<model>
-		<name>RTMA-2p5km</name>
+		<name>RTMA-NWRFC</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>118</grid>
@@ -2545,7 +2567,7 @@
 	</model>
 
 	<model>
-		<name>RTMA-Mosaic</name>
+		<name>RTMA</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>184</grid>
@@ -3036,7 +3058,7 @@
 	<!-- SUBCENTER 8: AVIATION WEATHER CENTER -->
 
 	<model>
-		<name>Aviation</name>
+		<name>Aviation-8-130</name>
 		<center>7</center>
 		<subcenter>8</subcenter>
 		<grid>130</grid>
@@ -3046,7 +3068,7 @@
 	</model>
 
 	<model>
-		<name>Aviation</name>
+		<name>Aviation-8-252</name>
 		<center>7</center>
 		<subcenter>8</subcenter>
 		<grid>252</grid>
