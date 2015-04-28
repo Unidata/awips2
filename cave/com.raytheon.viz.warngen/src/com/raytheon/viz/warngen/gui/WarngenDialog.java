@@ -159,6 +159,10 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jul 01, 2014 DR 17450    D. Friedman Use list of templates from backup site.
  *  Jul 21, 2014 3419        jsanchez    Created a hidden button to make recreating polygons easier.
  *  Feb 26, 2015 3353        rjpeter     Fixed NPE on clear.
+ *  Apr 27, 2015 DR 17359    Qinglu Lin  Updated changeTemplate(). The approach for solving slowness issue while switching from
+ *                                       one marine product to another is to skip computing hatching area. The hatching area might
+ *                                       not be as expected if percentage/area is different between the two products. But the
+ *                                       chance for that to occur is trivial.
  * </pre>
  * 
  * @author chammack
@@ -1657,14 +1661,17 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .equalsIgnoreCase(lastAreaSource);
         boolean snapHatchedAreaToPolygon = isDifferentAreaSources;
         boolean preservedSelection = !isDifferentAreaSources;
-        // If template has a different hatched area source from the previous
-        // template, then the warned area would be based on the polygon and not
-        // preserved.
-        try {
-            warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon,
-                    preservedSelection);
-        } catch (VizException e1) {
-            statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
+        if (isDifferentAreaSources || !warngenLayer.getConfiguration()
+                .getHatchedAreaSource().getAreaSource().toLowerCase().equals("marinezones")) {
+            // If template has a different hatched area source from the previous
+            // template, then the warned area would be based on the polygon and not
+            // preserved.
+            try {
+                warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon,
+                        preservedSelection);
+            } catch (VizException e1) {
+                statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
+            }
         }
         // Properly sets the "Create Text" button.
         setInstructions();
