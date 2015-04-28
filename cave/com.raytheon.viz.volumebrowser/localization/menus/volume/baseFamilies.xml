@@ -34,7 +34,7 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 			menuText="DGEX" id="DGEX" useReferenceTime="true">
-			<substitute key="modelName" value="DGEX"/>
+			<substitute key="modelName" value="DGEX185"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
