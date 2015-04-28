@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.activetable.request;
 
+import java.util.Date;
+
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -34,6 +36,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 19, 2013  #1843     dgilling     Initial creation
+ * Apr 28, 2015  #4027     randerso     Expunged Calendar from ActiveTableRecord
  * 
  * </pre>
  * 
@@ -54,7 +57,7 @@ public class UnlockAndSetNextEtnRequest implements IServerRequest {
     private ActiveTableMode mode;
 
     @DynamicSerializeElement
-    private int year;
+    private Date currentTime;
 
     @DynamicSerializeElement
     private String phensig;
@@ -67,11 +70,11 @@ public class UnlockAndSetNextEtnRequest implements IServerRequest {
     }
 
     public UnlockAndSetNextEtnRequest(String siteID, String requestorSiteID,
-            ActiveTableMode mode, int year, String phensig, int newEtn) {
+            ActiveTableMode mode, Date currentTime, String phensig, int newEtn) {
         this.siteID = siteID;
         this.requestorSiteID = requestorSiteID;
         this.mode = mode;
-        this.year = year;
+        this.currentTime = currentTime;
         this.phensig = phensig;
         this.newEtn = newEtn;
     }
@@ -100,12 +103,12 @@ public class UnlockAndSetNextEtnRequest implements IServerRequest {
         this.mode = mode;
     }
 
-    public int getYear() {
-        return year;
+    public Date getCurrentTime() {
+        return currentTime;
     }
 
-    public void setYear(int year) {
-        this.year = year;
+    public void setCurrentTime(Date currentTime) {
+        this.currentTime = currentTime;
     }
 
     public String getPhensig() {
