@@ -107,6 +107,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 06/12/14     #3244      randerso    Improved error handling
  * 09/21/2014   #3648      randerso    Changed to do version purging when new databases are added
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * 04/28/2015   17435      randerso    Fix getLatestDbIdByModelName().
  * 
  * </pre>
  * 
@@ -1372,7 +1373,8 @@ public class GFEDao extends DefaultPluginDao {
                         public List<DatabaseID> doInTransaction(
                                 TransactionStatus status) {
                             
-                            Query query = getCurrentSession().createQuery("FROM DatabaseID WHERE siteId = :siteId AND modelName = :modelName ORDER BY modelTime DESC LIMIT 1");
+                            Query query = getCurrentSession().createQuery("FROM DatabaseID WHERE siteId = :siteId AND modelName = :modelName ORDER BY modelTime DESC");
+                            query.setMaxResults(1);
                             query.setParameter("siteId", siteId);
                             query.setParameter("modelName",modelName);
                             return query.list();
