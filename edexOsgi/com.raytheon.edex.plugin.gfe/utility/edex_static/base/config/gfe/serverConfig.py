@@ -51,6 +51,7 @@
 #    04/03/2015          #4367     dgilling       Change WindGust's time constraints back to TC1 
 #                                                 for Fcst/Official.
 #    04/15/2015          #17383    yteng          Change localTC to fix error that time constraints
+# 						  being off
 # 						                          being off
 #    04/20/2015          #4414     dgilling       Add missing NWPSTrkngCG0 weather elements.
 #
