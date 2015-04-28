@@ -30,6 +30,7 @@
 #    02/26/13         1447         dgilling       Implement __eq__() and 
 #                                                 __ne__().
 #    07/23/13         2212         dgilling       Fix typo in __eq__().
+#    04/28/2015       4027         randerso       Expunged Calendar from ActiveTableRecord
 #
 #
 
@@ -65,17 +66,17 @@ class ActiveTableRecord(object):
         elif key == 'seg':
             return self.atr.getSeg()
         elif key == 'startTime':                
-            return self.atr.getStartTime().getTimeInMillis() / 1000
+            return self.atr.getStartTime().getTime() / 1000
         elif key == 'endTime':
-            return self.atr.getEndTime().getTimeInMillis() / 1000
+            return self.atr.getEndTime().getTime() / 1000
         elif key == 'ufn':
             return self.atr.isUfn()
         elif key == 'officeid':
             return self.atr.getOfficeid()
         elif key == 'purgeTime':
-            return self.atr.getPurgeTime().getTimeInMillis() / 1000
+            return self.atr.getPurgeTime().getTime() / 1000
         elif key == 'issueTime':
-            return self.atr.getIssueTime().getTimeInMillis() / 1000
+            return self.atr.getIssueTime().getTime() / 1000
         elif key == 'state':
             return self.state
         elif key == 'xxxid':
