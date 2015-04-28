@@ -595,7 +595,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
-            self._areaDictionary, self._defaultEditAreas)
+            self._areaDictionary, self._defaultEditAreas, upperCase=True)
         fcst = fcst + areaHeader 
 
         # get the hazards text

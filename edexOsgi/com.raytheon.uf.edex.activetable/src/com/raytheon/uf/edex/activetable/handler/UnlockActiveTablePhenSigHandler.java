@@ -37,6 +37,7 @@ import com.raytheon.uf.edex.activetable.GetNextEtnUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 19, 2013  #1843     dgilling     Initial creation
+ * Apr 28, 2015  #4027     randerso     Expunged Calendar from ActiveTableRecord
  * 
  * </pre>
  * 
@@ -65,8 +66,8 @@ public class UnlockActiveTablePhenSigHandler implements
                 + request.getSiteID() + "]: phensig= " + request.getPhensig()
                 + ", nextETN= " + request.getNewEtn());
         GetNextEtnUtil.setNextEtnAndUnlock(request.getSiteID(),
-                request.getMode(), request.getPhensig(), request.getYear(),
-                request.getNewEtn());
+                request.getMode(), request.getPhensig(),
+                request.getCurrentTime(), request.getNewEtn());
         return Boolean.TRUE;
     }
 }
