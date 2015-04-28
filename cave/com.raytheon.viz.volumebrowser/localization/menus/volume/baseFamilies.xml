@@ -51,14 +51,14 @@
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="RAP 13km" id="RAP-13km" useReferenceTime="true">
-			<substitute key="modelName" value="RAP-13km"/>
-			<substitute key="TP" value="TP1hr"/>
-			<substitute key="frameCount" value="16"/>
+			menuText="NamDNG" id="NamDNG" useReferenceTime="true">
+				<substitute key="modelName" value="NamDNG"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="RAP 20km" id="RAP-20km" useReferenceTime="true">
-			<substitute key="modelName" value="RAP-20km"/>
+			menuText="RAP 13km" id="RAP-13km" useReferenceTime="true">
+			<substitute key="modelName" value="RAP-13km"/>
 			<substitute key="TP" value="TP1hr"/>
 			<substitute key="frameCount" value="16"/>
 		</contribute>
@@ -69,14 +69,14 @@
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="FNMOC NAVGEM" id="NAVGEM" useReferenceTime="true">
+			menuText="FNMOC - NAVGEM" id="NAVGEM" useReferenceTime="true">
 			<substitute key="modelName" value="NAVGEM"/> 
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 	        menuText="CMC GEM" id="CMC" useReferenceTime="true">
-			<substitute key="modelName" value="CMC"/>
+			<substitute key="modelName" value="CMC-REG"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="12"/>
 		</contribute>
@@ -87,16 +87,22 @@
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-			menuText="SREF" id="SREF" useReferenceTime="true">
-			<substitute key="modelName" value="SREF"/> 
+			menuText="UKMET-MODEL1" id="UKMET-MODEL1" useReferenceTime="true">
+			<substitute key="modelName" value="UKMET-MODEL1"/> 
 			<substitute key="TP" value="TP"/>
-			<substitute key="frameCount" value="41"/>
+			<substitute key="frameCount" value="13"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 			menuText="NDFD" id="NDFD" useReferenceTime="true">
 			<substitute key="modelName" value="NDFD"/> 
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+			menuText="COAMPS-EU" id="COAMPS-EU" useReferenceTime="true">
+			<substitute key="modelName" value="COAMPS-EU"/> 
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="17"/>
 		</contribute>
 	</contribute>
 </menuTemplate>
