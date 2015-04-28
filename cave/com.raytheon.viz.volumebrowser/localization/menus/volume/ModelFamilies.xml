@@ -75,8 +75,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamA (Conv: NonSupercell Tor Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: Nonsupercell Tornado Threat / Wind">
+		<!--ModFamA (NonSupercell Tor Family)-->
+		<contribute xsi:type="subMenu" menuText="Nonsupercell Tornado Threat / Wind">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA-ECMW.xml"
 				menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
@@ -137,8 +137,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamB (Conv: Storm Init Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: Storm Initiation / CAPE">
+		<!--ModFamB (Storm Init Family)-->
+		<contribute xsi:type="subMenu" menuText="Storm Initiation / CAPE">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB-ECMW.xml"
 				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
@@ -157,8 +157,8 @@
 				<substitute key="frameCount" value="41"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
-				    menuText="NAM12" id="nam12" useReferenceTime="true">
-				<substitute key="modelName" value="${NAM12model}"/>
+				    menuText="NamDNG5" id="NamDNG5" useReferenceTime="true">
+				<substitute key="modelName" value="NamDNG5"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="29"/>
 			</contribute>
@@ -193,8 +193,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamC (Conv: Hail Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: Hail Family">
+		<!--ModFamC (Hail Family)-->
+		<contribute xsi:type="subMenu" menuText="Hail Family">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC-ECMW.xml"
 				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
@@ -249,8 +249,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamYY (Conv: Supercell Tor Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: CAPE / CIN / Helicity">
+		<!--ModFamYY (Supercell Tor Family)-->
+		<contribute xsi:type="subMenu" menuText="CAPE / CIN / Helicity">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY-ECMW.xml"
 				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
@@ -305,8 +305,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamX (Conv: MCS Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: MCS Parameters">
+		<!--ModFamX (MCS Family)-->
+		<contribute xsi:type="subMenu" menuText="MCS Parameters">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX-ECMW.xml"
 				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
@@ -361,8 +361,8 @@
 			</contribute>
 		</contribute>
 
-		<!--ModFamH (Conv: NonSupercell Tor Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: Lapse Rate / Buoyancy / Wind">
+		<!--ModFamH (NonSupercell Tor Family)-->
+		<contribute xsi:type="subMenu" menuText="Lapse Rate / Buoyancy / Wind">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH-ECMW.xml" menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="41"/>
@@ -408,8 +408,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamE (Conv: NonSupercell Tor Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: 4-Panel Nonsupercell Tornado Threat">
+		<!--ModFamE (NonSupercell Tor Family)-->
+		<contribute xsi:type="subMenu" menuText="4-Panel Nonsupercell Tornado Threat">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE-ECMW.xml" menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="41"/>
@@ -455,8 +455,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamF (Conv: NonSupercell Tor Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: 4-Panel Nonsupercell / Isentropic">
+		<!--ModFamF (NonSupercell Tor Family)-->
+		<contribute xsi:type="subMenu" menuText="4-Panel Nonsupercell / Isentropic">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF-ECMW.xml" menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="41"/>
@@ -502,8 +502,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamI (Conv: NonSupercell Tor Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: 4-Panel Instability / Divergence">
+		<!--ModFamI (NonSupercell Tor Family)-->
+		<contribute xsi:type="subMenu" menuText="4-Panel Instability / Divergence">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI-ECMW.xml" menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="41"/>
@@ -549,8 +549,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamJ (Conv: NonSupercell Tor Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: 4-Panel Frontogenesis / Precipitation">
+		<!--ModFamJ (NonSupercell Tor Family)-->
+		<contribute xsi:type="subMenu" menuText="4-Panel Frontogenesis / Precipitation">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ-ECMW.xml" menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="41"/>
@@ -596,8 +596,8 @@
 			</contribute>
 		</contribute>		
 		
-		<!--ModFamL (Conv: NonSupercell Tor Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: 4-Panel Moisture / Precipiation">
+		<!--ModFamL (NonSupercell Tor Family)-->
+		<contribute xsi:type="subMenu" menuText="4-Panel Moisture / Precipiation">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL-ECMW.xml" menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
 				<substitute key="frameCount" value="41"/>
@@ -643,8 +643,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamV (Conv: Severe Type Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: 4-Panel Bulk Shear / Buoyancy">
+		<!--ModFamV (Severe Type Family)-->
+		<contribute xsi:type="subMenu" menuText="4-Panel Bulk Shear / Buoyancy">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV-ECMW.xml"
 				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
@@ -699,8 +699,8 @@
 			</contribute>
 		</contribute>
 		
-		<!--ModFamW (Conv: Supercell Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: 4-Panel Supercell Parameters">
+		<!--ModFamW (Supercell Family)-->
+		<contribute xsi:type="subMenu" menuText="4-Panel Supercell Parameters">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW-ECMW.xml"
 				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
@@ -755,8 +755,8 @@
 			</contribute>
 		</contribute>
 
-		<!--ModFamY (Conv: Supercell Tor 4P Family)-->
-		<contribute xsi:type="subMenu" menuText="Conv: 4-Panel Helicity / Shear / Buoyancy">
+		<!--ModFamY (Supercell Tor 4P Family)-->
+		<contribute xsi:type="subMenu" menuText="4-Panel Helicity / Shear / Buoyancy">
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY-ECMW.xml"
 				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
 				<substitute key="TP" value="TP"/>
