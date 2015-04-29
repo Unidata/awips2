@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -28,6 +28,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.Request.Type;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
+import com.raytheon.uf.common.datastorage.records.DoubleDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
@@ -85,6 +87,7 @@ import com.raytheon.uf.viz.core.data.BufferSlicer;
  * ------------- -------- ----------- --------------------------
  * Sep 18, 2013  2309     bsteffen    Initial creation
  * Dec 04, 2013  2600     bsteffen    Fix typo in contains.
+ * Apr 27, 2015  4425     nabowle     Handle DoubleDataRecord.
  * 
  * </pre>
  * 
@@ -110,7 +113,7 @@ public class DataStoreCache {
     /**
      * Construct a DataStoreCache that will store cache files in the given
      * cacheDir.
-     * 
+     *
      * @param cacheDir
      *            directory for storing files. If the directory does not exist
      *            it will be created. If the directory cannot be created or
@@ -127,7 +130,7 @@ public class DataStoreCache {
 
     /**
      * Gets the dataset names for a group from this cache.
-     * 
+     *
      * @param group
      *            the name of a group, must not be null
      * @return an array of dataset names or null if they are not in this cache
@@ -148,7 +151,7 @@ public class DataStoreCache {
     /**
      * Stores dataset names for a group in this cache. The names can be
      * retrieved from the cache using {@link #getDatasetNames(String)}
-     * 
+     *
      * @param group
      *            the name of a group, must not be null
      * @param datasetNames
@@ -188,7 +191,7 @@ public class DataStoreCache {
     /**
      * Gets an {@link IDataRecord} for a specific dataset/group path and request
      * from this cache.
-     * 
+     *
      * @param datasetGroupPath
      *            the group and dataset concatenated together with a
      *            {@link DataStoreFactory#DEF_SEPARATOR}, must not be null.
@@ -228,7 +231,7 @@ public class DataStoreCache {
      * Stores a portion of a dataset corresponding to request in this cache. The
      * record can be retrieved from the cache using
      * {@link #getDataset(String, Request)}
-     * 
+     *
      * @param datasetGroupPath
      *            the group and dataset concatenated together with a
      *            {@link DataStoreFactory#DEF_SEPARATOR}, must not be null.
@@ -317,7 +320,7 @@ public class DataStoreCache {
     /**
      * Determine if the data returned by outer contains enough of the data to
      * fulfill inner.
-     * 
+     *
      * @return true if outer has enough data for inner, false if not.
      */
     private static boolean contains(Request outer, Request inner) {
@@ -424,6 +427,9 @@ public class DataStoreCache {
             return ShortBuffer.wrap(((ShortDataRecord) record).getShortData());
         } else if (record instanceof ByteDataRecord) {
             return ByteBuffer.wrap(((ByteDataRecord) record).getByteData());
+        } else if (record instanceof DoubleDataRecord) {
+            return DoubleBuffer.wrap(((DoubleDataRecord) record)
+                    .getDoubleData());
         }
         return null;
     }
@@ -449,6 +455,9 @@ public class DataStoreCache {
         } else if (buffer instanceof ByteBuffer) {
             record = new ByteDataRecord(name, group,
                     ((ByteBuffer) buffer).array());
+        } else if (buffer instanceof DoubleBuffer) {
+            record = new DoubleDataRecord(name, group,
+                    ((DoubleBuffer) buffer).array());
         } else {
             return null;
         }
@@ -486,7 +495,7 @@ public class DataStoreCache {
 
     /**
      * Load a java object from a cache file.
-     * 
+     *
      * @param file
      *            the file containing the object
      * @param clazz
