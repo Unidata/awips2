@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <vbSourceList>
-    <vbSource key="DGEX185" category="Volume" />
+    <vbSource key="DGEX" category="Volume" />
     <vbSource key="GFS" category="Volume" />
     <vbSource key="GFS201" category="Volume" />
     <vbSource key="GFS212" category="Volume" />
@@ -41,13 +41,12 @@
     <vbSource key="FNMOC-NCODA" category="Volume" />
     <vbSource key="COAMPS-EU" category="Volume" />
     <vbSource key="COAMPS-WA" category="Volume" />
-    <vbSource key="URMA25" category="Volume" />
+    <vbSource key="URMA25" category="Volume" />    
     <vbSource key="RTMA" category="Volume" />
     <vbSource key="RTMA-5km" category="Volume" />
     <vbSource key="RAP-13km" category="Volume" />
     <vbSource key="RAP-20km" category="Volume" />
     <vbSource key="RAP-40km" category="Volume" />
     <vbSource key="GFS254" category="Volume" />
-    <vbSource key="URMA25" category="Volume" />
-    <vbSource key="SREF212" category="Volume" views="PLANVIEW TIMESERIES" />
+    <vbSource key="SREF-40km" category="Volume" views="PLANVIEW TIMESERIES" />
 </vbSourceList>
