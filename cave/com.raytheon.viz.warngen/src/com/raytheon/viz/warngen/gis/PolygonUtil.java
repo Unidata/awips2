@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
@@ -89,6 +90,7 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  * 06/27/2014  DR 17443   D. Friedman  Fix some odd cases in which parts of a polygon not covering a
  *                                     hatched area would be retained after redrawing.
  * 07/22/2014  DR 17475   Qinglu Lin   Updated createPolygonByPoints() and created second createPolygonByPoints().
+ * 07/29/2015  DR 17310   D. Friedman  Use Geometry.buffer() to fix self-intersections.  Fix bug in alterVertexes.
  * </pre>
  * 
  * @author mschenke
@@ -546,6 +548,19 @@ public class PolygonUtil {
         truncate(points, 2);
         Polygon rval = gf.createPolygon(gf.createLinearRing(points
                 .toArray(new Coordinate[points.size()])), null);
+
+        if (!rval.isValid()) {
+            System.out.format("Polygon %s is invalid.  Attempting to fix...\n", rval);
+            try {
+                Polygon p2 = (Polygon) rval.buffer(0.0);
+                rval = gf.createPolygon((LinearRing) p2.getExteriorRing());
+            } catch (TopologyException e) {
+                System.out.format("...fix failed\n");
+            } catch (ClassCastException e) {
+                System.out.format("...resulted in something other than a polygon\n");
+            }
+            System.out.format("...fixed.  Result: %s\n", rval);
+        }
 
         if (rval.isValid() == false) {
             System.out.println("Fixing intersected segments");
@@ -1675,8 +1690,8 @@ public class PolygonUtil {
                 if (intersectCoord != null) {
                     index1 = calcShortestDistance(intersectCoord, ls1);
                     index2 = calcShortestDistance(intersectCoord, ls2);
-                    Coordinate c = new Coordinate(0.5*(coord[index1].x + coord[2+index2].x),
-                            0.5*(coord[index1].y + coord[2+index2].y));
+                    Coordinate c = new Coordinate(0.5*(coord[index[index1]].x + coord[index[2+index2]].x),
+                            0.5*(coord[index[index1]].y + coord[index[2+index2]].y));
                     PolygonUtil.round(c, 2);
                     coord[index[index1]] = new Coordinate(c);
                     coord[index[2+index2]] = new Coordinate(c);
