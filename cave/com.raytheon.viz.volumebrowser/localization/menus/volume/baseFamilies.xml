@@ -87,6 +87,12 @@
 			<substitute key="frameCount" value="16"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+                        menuText="URMA" id="URMA" useReferenceTime="true">
+                        <substitute key="modelName" value="URMA25"/>
+                        <substitute key="TP" value="TP1hr"/>
+                        <substitute key="frameCount" value="16"/>
+                </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 			menuText="NDFD" id="NDFD" useReferenceTime="true">
 			<substitute key="modelName" value="NDFD"/> 
 			<substitute key="TP" value="TP"/>
