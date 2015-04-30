@@ -27,6 +27,8 @@
 #    ------------    ----------    -----------    --------------------------
 #    06/11/13        #2083         randerso       Fixed getISCSites to look in configured
 #    02/20/2014      #2824         randerso       Added log message when no localVTECPartners file is found
+#    Apr 25, 2015     4952         njensen        Updated for new JEP API
+#
 
 #VTEC_Partners.py - configuration file to control filtering and merging
 #of VTEC active table.
@@ -246,8 +248,8 @@ def getISCSites():
     import glob, os.path
     from com.raytheon.uf.common.localization import PathManagerFactory
     from com.raytheon.uf.common.localization import LocalizationContext
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+    LocalizationType = LocalizationContext.LocalizationType
+    LocalizationLevel = LocalizationContext.LocalizationLevel
     pathMgr = PathManagerFactory.getPathManager()
     commonStaticCfg = pathMgr.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED)
     commonStaticCfg.setContextName(siteConfig.GFESUITE_SITEID)
