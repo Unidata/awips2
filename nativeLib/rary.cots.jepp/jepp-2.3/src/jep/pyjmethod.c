@@ -551,18 +551,7 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
 
         Py_BLOCK_THREADS;
         if(!process_java_exception(env) && obj != NULL) {
-            jclass retClazz;
-            int type_id = -1;
-
-            retClazz = (*env)->GetObjectClass(env, obj);
-            type_id = get_jtype(env, retClazz);
-            if(type_id == -1) {
-              process_java_exception(env);
-            } else if(type_id == JARRAY_ID){
-                result = pyjarray_new(env, obj);
-            } else {
-                result = pyjobject_new(env, obj);
-            }
+            result = pyjobject_new(env, obj);
         }
         
         break;
