@@ -190,7 +190,7 @@ public class VCModuleJobPool {
             } catch (JepException e) {
                 statusHandler.handle(
                         Priority.WARN,
-                        "Could not instantiate VCMoudleController: "
+                        "Could not instantiate VCModuleController: "
                                 + e.getLocalizedMessage(), e);
             } finally {
                 if (python != null) {

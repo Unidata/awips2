@@ -61,6 +61,7 @@
 #    04/08/2015          #4383     dgilling       Define FireWX ISC configuration parameters.
 #
 #                                                 for Fcst/Official.
+#    Apr 25, 2015         4952     njensen        Updated for new JEP API
 #
 ########################################################################
 
@@ -583,7 +584,8 @@ if not BASELINE and siteImport('localWxConfig'):
 #  Projection Configuration section.
 #
 #---------------------------------------------------------------------------
-from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData_ProjectionType as ProjectionType
+from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData
+ProjectionType = ProjectionData.ProjectionType
 NONE = ProjectionType.NONE
 LAMBERT_CONFORMAL = ProjectionType.LAMBERT_CONFORMAL
 MERCATOR = ProjectionType.MERCATOR

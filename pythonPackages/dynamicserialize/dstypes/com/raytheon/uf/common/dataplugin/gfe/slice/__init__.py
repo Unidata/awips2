@@ -23,7 +23,6 @@
 __all__ = [
             'AbstractGridSlice',
             'DiscreteGridSlice',
-            'PythonWeatherGridSlice',
             'ScalarGridSlice',
             'VectorGridSlice',
             'WeatherGridSlice'
@@ -32,7 +31,6 @@ __all__ = [
 from AbstractGridSlice import AbstractGridSlice
 from DiscreteGridSlice import DiscreteGridSlice
 from ScalarGridSlice import ScalarGridSlice
-from PythonWeatherGridSlice import PythonWeatherGridSlice
 from VectorGridSlice import VectorGridSlice
 from WeatherGridSlice import WeatherGridSlice
 

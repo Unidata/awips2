@@ -1074,7 +1074,8 @@ def main():
     System.setProperty('user.name', 'GFETEST')
     
     from com.raytheon.uf.viz.core.localization import LocalizationManager
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+    from com.raytheon.uf.common.localization import LocalizationContext
+    LocalizationLevel = LocalizationContext.LocalizationLevel
     LocalizationManager.registerContextName(LocalizationLevel.USER, 'GFETEST');
     
     import loadConfig

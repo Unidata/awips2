@@ -24,7 +24,7 @@ import java.awt.Point;
 import java.nio.FloatBuffer;
 import java.util.List;
 
-import jep.INumpyable;
+import jep.NDArray;
 
 import com.raytheon.uf.common.cache.CacheException;
 import com.raytheon.uf.common.cache.CacheFactory;
@@ -57,6 +57,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * 04/23/2013   1949       rjpeter     Updated wind checks to keep float precision.
  * 08/13/2013   1571       randerso    Removed toString to stop it from hanging the 
  *                                     debugger when trying to display the grid
+ * Apr 23, 2015 4259       njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -64,8 +65,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * @version 1.0
  */
 @DynamicSerialize
-public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
-        INumpyable {
+public class VectorGridSlice extends ScalarGridSlice implements Cloneable {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(VectorGridSlice.class);
@@ -1225,19 +1225,20 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
     }
 
     @Override
-    public Object[] getNumpy() {
-        return new Object[] { this.getMagGrid().getFloats(),
-                this.getDirGrid().getFloats() };
-    }
-
-    @Override
-    public int getNumpyX() {
-        return this.getMagGrid().getXdim();
-    }
-
-    @Override
-    public int getNumpyY() {
-        return this.getMagGrid().getYdim();
+    public Object getNDArray() {
+        /*
+         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
+         * did and that makes the pre-existing python code compatible. Java
+         * ordering is x,y while python is ordering is y,x. It's confusing and
+         * questionable at best so someday someone should correct all that. Good
+         * luck.
+         */
+        NDArray<?>[] arr = new NDArray[2];
+        arr[0] = new NDArray<float[]>(getMagGrid().getFloats(), getMagGrid()
+                .getYdim(), getMagGrid().getXdim());
+        arr[1] = new NDArray<float[]>(getDirGrid().getFloats(), getDirGrid()
+                .getYdim(), getDirGrid().getXdim());
+        return arr;
     }
 
     @Override

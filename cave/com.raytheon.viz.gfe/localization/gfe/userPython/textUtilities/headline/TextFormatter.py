@@ -897,7 +897,8 @@ def makePoint(point):
 def makeArea(gridLoc, pointList, refname=None):
     " Make a Reference Area with a unique ReferenceID"
     from com.vividsolutions.jts.geom import GeometryFactory, LinearRing, Coordinate, Polygon
-    from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+    from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
+    CoordinateType = ReferenceData.CoordinateType 
     geomFactory = GeometryFactory()
     import jep
     size = len(pointList)

@@ -836,7 +836,8 @@ class Procedure (SmartScript.SmartScript):
    #               different values from getComposite after IFPS16.
    #
    def getBetterComposite(self,parmName, timeRange):
-      from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo_GridType as GridType
+      from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
+      GridType = GridParmInfo.GridType 
       #
       #  Get the type, rateParm flag, and limits
       #  for the parameter name passed in.

@@ -29,7 +29,8 @@ import time
 import os
 import TimeRange
 import AbsTime
-from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
+CoordinateType = ReferenceData.CoordinateType 
 import TCVDictionary
 
 class Procedure (SmartScript.SmartScript):

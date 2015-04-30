@@ -34,6 +34,7 @@
 #                                  rferrel        Corrected log to alertviz.
 #    11/18/2014          #4953     randerso       Added check for empty unit string
 #    04/09/2015          #4383     dgilling       Added support for FireWx ISC.       
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API       
 #
 ########################################################################
 import types
@@ -69,8 +70,8 @@ def check(data, fmt, message, allData = None):
          raise AssertionError, m
      for i in xrange(len(data)):
          obj = data[i]
-         if hasattr(obj, "jclassname"):
-             t = obj.jclassname
+         if hasattr(obj, "java_name"):
+             t = obj.java_name
          else:
              t = type(obj)
          

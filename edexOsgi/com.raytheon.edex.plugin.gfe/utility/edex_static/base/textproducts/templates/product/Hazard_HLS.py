@@ -42,7 +42,7 @@ import AbsTime, DatabaseID, StartupDialog
 DEG_TO_RAD = 0.017453292
 
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
-from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+CoordinateType = ReferenceData.CoordinateType
 
 
 import sys, types

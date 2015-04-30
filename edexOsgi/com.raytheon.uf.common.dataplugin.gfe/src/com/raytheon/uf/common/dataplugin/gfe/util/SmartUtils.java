@@ -19,9 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.util;
 
-import jep.INumpyable;
-
-import com.raytheon.uf.common.python.PythonNumpyFloatArray;
+import jep.NDArray;
 
 /**
  * Java port of python utility functions. Ported to Java to boost performance to
@@ -34,6 +32,7 @@ import com.raytheon.uf.common.python.PythonNumpyFloatArray;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 11, 2013            njensen     Initial creation
+ * Apr 23, 2015 4259       njensen     Updated for new JEP API
  * 
  * </pre>
  * 
@@ -53,11 +52,11 @@ public class SmartUtils {
      * @param editPointsY
      * @param borderPointsX
      * @param borderPointsY
-     * @return
+     * @return an ndarray
      */
-    public static INumpyable fillEditArea(float[] grid, int gridNx, int gridNy,
-            int[] editPointsX, int[] editPointsY, int[] borderPointsX,
-            int[] borderPointsY) {
+    public static NDArray<float[]> fillEditArea(float[] grid, int gridNx,
+            int gridNy, int[] editPointsX, int[] editPointsY,
+            int[] borderPointsX, int[] borderPointsY) {
         // edit points and border points are a list of (x,y) indices
         int[] e = new int[2];
         int[] b = new int[2];
@@ -104,7 +103,15 @@ public class SmartUtils {
             }
         }
 
+        /*
+         * FIXME We reverse the x and y dimensions because that's what AWIPS 1
+         * did and that makes the pre-existing python code compatible. Java
+         * ordering is x,y while python is ordering is y,x. It's confusing and
+         * questionable at best so someday someone should correct all that. Good
+         * luck.
+         */
+
         // Return completed grid
-        return new PythonNumpyFloatArray(grid, gridNx, gridNy);
+        return new NDArray<float[]>(grid, gridNy, gridNx);
     }
 }

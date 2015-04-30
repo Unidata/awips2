@@ -25,6 +25,7 @@
 #             
 #    02/17/2015      4139          randerso       Removed timeFromComponents and dependent
 #                                                 functions in favor of calendar.timegm
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API
 #             
 ##
 
@@ -49,20 +50,21 @@ from java.io import File
 from com.vividsolutions.jts.geom import Coordinate
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfig
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
-from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData_ProjectionType as ProjectionType
+from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData
+ProjectionType = ProjectionData.ProjectionType
 from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
 from com.raytheon.edex.plugin.gfe.util import CartDomain2D
 from com.raytheon.edex.plugin.gfe.server import IFPServer
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
-from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
+CoordinateType = ReferenceData.CoordinateType
 from com.raytheon.uf.common.serialization import SerializationUtil
 from com.raytheon.uf.common.localization import LocalizationFile
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext 
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+LocalizationType = LocalizationContext.LocalizationType 
+LocalizationLevel = LocalizationContext.LocalizationLevel
 
 #
 # Port of ifpNetCDF
@@ -85,6 +87,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    10/22/13        2405          rjpeter        Remove WECache and store directly to cube.
 #    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
 #    08/14/2014      3526          randerso       Fixed to get sampling definition from appropriate site
+#    Apr 23, 2015    4259          njensen        Updated for new JEP API
 #
 
 # Original A1 BATCH WRITE COUNT was 10, we found doubling that
@@ -181,11 +184,11 @@ def retrieveData(we, inv, clipArea):
 
 ###-------------------------------------------------------------------------###
 ### cube and keyList are out parameters to be filled by this method, idx is the index into cube to use
-def encodeGridSlice(grid, gridType, clipArea, cube, idx, keyList):
+def encodeGridSlice(grid, gridType, clipArea, cube, idx, keyList):    
     if gridType == "SCALAR":
-        cube[idx] = clipToExtrema(grid.__numpy__[0], clipArea)
+        cube[idx] = clipToExtrema(grid.getNDArray(), clipArea)
     elif gridType == "VECTOR":
-        vecGrids = grid.__numpy__
+        vecGrids = grid.getNDArray()
         cube[0][idx] = clipToExtrema(vecGrids[0], clipArea)
         cube[1][idx] = clipToExtrema(vecGrids[1], clipArea)
     elif gridType == "WEATHER" or gridType == "DISCRETE":
@@ -195,7 +198,7 @@ def encodeGridSlice(grid, gridType, clipArea, cube, idx, keyList):
         for theKey in keys:
             gridKeys.append(theKey.toString())
         keyList.append(gridKeys)
-        cube[idx]= clipToExtrema(grid.__numpy__[0], clipArea)
+        cube[idx]= clipToExtrema(grid.getNDArray(), clipArea)
 
 def encodeGridHistory(histories):
     retVal = []
@@ -363,7 +366,7 @@ def getMaskGrid(client, editAreaName, dbId):
     try:
         mask = iscUtil.getEditArea(editAreaName, DatabaseID(dbId).getSiteId())
         mask.setGloc(domain)
-        mask = numpy.reshape(mask.getGrid().__numpy__[0], (mask.getGrid().getNumpyY(), mask.getGrid().getNumpyX()))
+        mask = mask.getGrid().getNDArray()        
     except:
         logProblem("Edit area:", editAreaName, "not found. Storing entire grid.",traceback.format_exc())
 
@@ -377,7 +380,7 @@ def storeLatLonGrids(client, file, databaseID, invMask, krunch, clipArea):
     gridLoc = IFPServerConfigManager.getServerConfig(DatabaseID(databaseID).getSiteId()).dbDomain()
     pDict = gridLoc.getProjection()
 
-    latLonGrid = gridLoc.getLatLonGrid().__numpy__[0]
+    latLonGrid = gridLoc.getLatLonGrid().getNDArray()
     
     latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
 
@@ -475,7 +478,7 @@ def storeTopoGrid(client, file, databaseID, invMask, clipArea):
     pDict = gridLoc.getProjection()
 
     # Get the topo grid
-    topoGrid = ifpServer.getTopoData(gridLoc).getPayload().__numpy__[0]
+    topoGrid = ifpServer.getTopoData(gridLoc).getPayload().getNDArray()
     topoGrid = clipToExtrema(topoGrid, clipArea)
     topoGrid = numpy.flipud(topoGrid)
     

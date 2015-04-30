@@ -54,7 +54,8 @@ import numpy
 import SmartScript
 import time
 import TimeRange
-from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo_GridType as GridType
+from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
+GridType = GridParmInfo.GridType
 
 class ISC_Utility(SmartScript.SmartScript):
     def __init__(self, dbss, eaMgr, mdMode=None, toolType="numeric"):

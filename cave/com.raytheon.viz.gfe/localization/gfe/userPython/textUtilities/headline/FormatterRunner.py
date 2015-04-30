@@ -39,6 +39,7 @@ from java.io import File
 #    05/29/08                      njensen       Initial Creation.
 #    12/10/14        #14946        ryu           Add getTimeZones() function.
 #    04/20/2015      #4027         randerso      Fixes for formatter autotests
+#    Apr 25, 2015     4952         njensen        Updated for new JEP API
 # 
 #
 
@@ -60,7 +61,9 @@ try:
     
     # Get the information for the file logger
     from com.raytheon.uf.common.localization import PathManagerFactory
-    from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType, LocalizationContext_LocalizationLevel as LocalizationLevel
+    from com.raytheon.uf.common.localization import LocalizationContext
+    LocalizationType = LocalizationContext.LocalizationType 
+    LocalizationLevel = LocalizationContext.LocalizationLevel 
     PATH_MGR = PathManagerFactory.getPathManager()    
 except:    
     logging.basicConfig(filename=DEFAULT_LOG_FILENAME,level=logging.DEBUG)

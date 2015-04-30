@@ -77,7 +77,7 @@ class Procedure (SmartScript.SmartScript):
         terrainData = TopoQuery.getInstance(File("/topo/gmted2010.h5"), 0).getHeight(gridGeometry)
         
         from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DFloat
-        grid = Grid2DFloat.createGrid(gloc.getNx().intValue(), gloc.getNy().intValue(), terrainData).__numpy__[0]
+        grid = Grid2DFloat.createGrid(gloc.getNx().intValue(), gloc.getNy().intValue(), terrainData).getNDArray()
         grid /= 0.3048 # convert from meters to feet
         
         return grid

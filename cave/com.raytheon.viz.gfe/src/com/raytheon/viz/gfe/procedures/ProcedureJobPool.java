@@ -57,7 +57,8 @@ import com.raytheon.viz.gfe.jobs.AsyncProgressJob;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 09, 2013  #2367    dgilling     Initial creation
+ * Dec 09, 2013  #2367     dgilling    Initial creation
+ * Apr 16, 2015   4259     njensen     Removed unreachable catch
  * 
  * </pre>
  * 
@@ -379,10 +380,6 @@ public class ProcedureJobPool {
                 controller.executeProcedure(procedureName, argMap);
                 pjStatus = Status.OK_STATUS;
             } catch (Exception e) {
-                pjStatus = new Status(IStatus.WARNING, Activator.PLUGIN_ID,
-                        "Error in procedure " + procedureName, e);
-                throw e;
-            } catch (JepException e) {
                 pjStatus = new Status(IStatus.WARNING, Activator.PLUGIN_ID,
                         "Error in procedure " + procedureName, e);
                 throw e;
