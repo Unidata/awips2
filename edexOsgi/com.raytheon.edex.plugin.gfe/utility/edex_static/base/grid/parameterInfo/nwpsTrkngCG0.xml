@@ -26,10 +26,15 @@
     <fcst>237600</fcst>
     <fcst>248400</fcst>
     <fcst>259200</fcst>
+    <fcst>270000</fcst>
     <fcst>280800</fcst>
+    <fcst>291600</fcst>
     <fcst>302400</fcst>
+    <fcst>313200</fcst>
     <fcst>324000</fcst>
+    <fcst>334800</fcst>
     <fcst>345600</fcst>
+    <fcst>356400</fcst>
     <fcst>367200</fcst>
     <fcst>388800</fcst>
     <fcst>410400</fcst>
@@ -46,7 +51,7 @@
     <fcst>648000</fcst>
   </valtimeMINUSreftime>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>SWDIR</short_name>
+    <short_name>swdir</short_name>
     <long_name>Swell peak direction</long_name>
     <units>degree_angle</units>
     <udunits>degree_angle</udunits>
@@ -70,7 +75,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>SWPER</short_name>
+    <short_name>swper</short_name>
     <long_name>Swell wave peak period</long_name>
     <units>s</units>
     <udunits>seconds</udunits>
@@ -94,7 +99,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>SWELL</short_name>
+    <short_name>swell</short_name>
     <long_name>Significant swell wave height</long_name>
     <units>m</units>
     <udunits>meters</udunits>
