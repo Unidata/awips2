@@ -28,7 +28,8 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 22, 2010 #2861      lvenable     Initial creation
+ * Feb 22, 2010 #2861      lvenable    Initial creation
+ * Apr 20, 2015 #4027      randerso    Renamed ProductStateEnum with an initial capital
  * 
  * </pre>
  * 
@@ -36,5 +37,5 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
  * @version 1.0
  */
 public interface ITransmissionState {
-    void setTransmissionState(ConfigData.productStateEnum state);
+    void setTransmissionState(ConfigData.ProductStateEnum state);
 }

@@ -20,6 +20,7 @@
 package com.raytheon.viz.gfe.textformatter;
 
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
+import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
 
 /**
  * Listens for a text product to finish and then returns the product with
@@ -32,6 +33,7 @@ import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 30, 2009            njensen     Initial creation
+ * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
  * 
  * </pre>
  * 
@@ -43,7 +45,7 @@ public class TextProductFinishWaiter implements TextProductFinishListener {
 
     private String product;
 
-    private boolean wait = true;
+    private ProductStateEnum state;
 
     /*
      * (non-Javadoc)
@@ -53,8 +55,8 @@ public class TextProductFinishWaiter implements TextProductFinishListener {
      * ()
      */
     @Override
-    public void startProgressBar(ConfigData.productStateEnum state) {
-        wait = true;
+    public void startProgressBar(ConfigData.ProductStateEnum state) {
+        this.state = state;
     }
 
     /*
@@ -65,8 +67,8 @@ public class TextProductFinishWaiter implements TextProductFinishListener {
      * ()
      */
     @Override
-    public void stopProgressBar(ConfigData.productStateEnum state) {
-        wait = false;
+    public void stopProgressBar(ConfigData.ProductStateEnum state) {
+        this.state = state;
     }
 
     /*
@@ -76,8 +78,8 @@ public class TextProductFinishWaiter implements TextProductFinishListener {
      * textProductQueued()
      */
     @Override
-    public void textProductQueued() {
-        wait = true;
+    public void textProductQueued(ConfigData.ProductStateEnum state) {
+        this.state = state;
     }
 
     /*
@@ -88,16 +90,22 @@ public class TextProductFinishWaiter implements TextProductFinishListener {
      */
     @Override
     public void textProductFinished(String productText,
-            ConfigData.productStateEnum state) {
+            ConfigData.ProductStateEnum state) {
         this.product = productText;
-        wait = false;
+        this.state = state;
     }
 
     public String waitAndGetProduct() throws InterruptedException {
-        while (wait) {
-            Thread.sleep(50);
+        while (!state.isComplete()) {
+            Thread.sleep(100);
+        }
+        if (state == ConfigData.ProductStateEnum.Failed) {
+            product = "";
         }
         return product;
     }
 
+    public ConfigData.ProductStateEnum getState() {
+        return this.state;
+    }
 }

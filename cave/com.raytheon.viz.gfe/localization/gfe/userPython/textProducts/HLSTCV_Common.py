@@ -299,7 +299,7 @@ class TextProduct(GenericHazards.TextProduct):
         
         '''
         if self._areaName != '':
-            self._areaName = ' FOR ' + self._areaName + '\n'
+            self._areaName = ' for ' + self._areaName + '\n'
         
         # Fill in product dictionary information
         productDict = collections.OrderedDict()

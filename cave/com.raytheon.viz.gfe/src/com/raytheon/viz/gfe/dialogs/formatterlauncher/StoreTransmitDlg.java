@@ -88,6 +88,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 14, 2014  4953      randerso    Cleaned up practice product requests
  * Feb 26, 2015  4126      randerso    Ensure transmit/store is properly cancelled if dialog is closed
  *                                     Code cleanup
+ * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
  * 
  * </pre>
  * 
@@ -441,7 +442,7 @@ public class StoreTransmitDlg extends CaveSWTDialog {
             } catch (VizException e) {
                 statusHandler.handle(Priority.CRITICAL,
                         "Error preparing product for transmission.", e);
-                sendTransmissionStatus(ConfigData.productStateEnum.Failed);
+                sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
                 StoreTransmitDlg.this.parentEditor.revive();
             }
         }
@@ -578,14 +579,14 @@ public class StoreTransmitDlg extends CaveSWTDialog {
                 Priority p = null;
                 if (!resp.hasFailure()) {
                     p = Priority.EVENTA;
-                    sendTransmissionStatus(ConfigData.productStateEnum.Transmitted);
+                    sendTransmissionStatus(ConfigData.ProductStateEnum.Transmitted);
                 } else {
                     // determine the failure type and priority
-                    ConfigData.productStateEnum state = null;
+                    ConfigData.ProductStateEnum state = null;
                     if (resp.isSendLocalSuccess()) {
-                        state = ConfigData.productStateEnum.Transmitted;
+                        state = ConfigData.ProductStateEnum.Transmitted;
                     } else {
-                        state = ConfigData.productStateEnum.Failed;
+                        state = ConfigData.ProductStateEnum.Failed;
                     }
                     p = Priority.EVENTA;
                     if (!resp.isAttempted()) {
@@ -619,14 +620,14 @@ public class StoreTransmitDlg extends CaveSWTDialog {
             this.parentEditor.brain();
         } catch (VizException e) {
             statusHandler.handle(Priority.CRITICAL, "Error sending product", e);
-            sendTransmissionStatus(ConfigData.productStateEnum.Failed);
+            sendTransmissionStatus(ConfigData.ProductStateEnum.Failed);
             this.parentEditor.revive();
         }
 
         SEQ_NUMBER++;
     }
 
-    private void sendTransmissionStatus(ConfigData.productStateEnum status) {
+    private void sendTransmissionStatus(ConfigData.ProductStateEnum status) {
         if (!isStoreDialog) {
             transmissionCB.setTransmissionState(status);
         }

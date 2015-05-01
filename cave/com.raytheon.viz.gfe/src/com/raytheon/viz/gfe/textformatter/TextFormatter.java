@@ -35,7 +35,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
-import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.productStateEnum;
+import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
 import com.raytheon.viz.gfe.sampler.SamplerGridSliceCache;
 import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
 
@@ -46,13 +46,14 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * May 29, 2008             njensen     Initial creation
- * Oct 15, 2008             njensen     Split python running to
- *                                      non-UI thread
- * Dec 1, 2010    6130      ryu         Set proper state and invoke callback
- * May 29, 2014   2841      randerso    Handle failure to queue due to pending limit
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 29, 2008            njensen     Initial creation
+ * Oct 15, 2008            njensen     Split python running to
+ *                                     non-UI thread
+ * Dec 1, 2010    6130     ryu         Set proper state and invoke callback
+ * May 29, 2014   2841     randerso    Handle failure to queue due to pending limit
+ * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
  * 
  * </pre>
  * 
@@ -73,7 +74,7 @@ public class TextFormatter extends AbstractGfeTask {
 
     private HashMap<String, Object> argMap;
 
-    private ConfigData.productStateEnum state;
+    private ConfigData.ProductStateEnum state;
 
     /**
      * Constructor
@@ -103,7 +104,7 @@ public class TextFormatter extends AbstractGfeTask {
         argMap.put(ArgDictConstants.VTEC_ACTIVE_TABLE, vtecActiveTable);
         argMap.put("drtTime", drtTime);
         listener = finish;
-        this.state = ConfigData.productStateEnum.Queued;
+        this.state = ConfigData.ProductStateEnum.Queued;
     }
 
     @Override
@@ -114,7 +115,7 @@ public class TextFormatter extends AbstractGfeTask {
             VizApp.runSyncIfWorkbench(new Runnable() {
                 @Override
                 public void run() {
-                    state = ConfigData.productStateEnum.Running;
+                    state = ConfigData.ProductStateEnum.Running;
                     listener.startProgressBar(state);
                 }
             });
@@ -130,11 +131,11 @@ public class TextFormatter extends AbstractGfeTask {
             perfLog.logDuration("Text Formatter " + productName,
                     timer.getElapsedTime());
 
-            state = ConfigData.productStateEnum.Finished;
+            state = ConfigData.ProductStateEnum.Finished;
         } catch (Throwable t) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error generating text product", t);
-            state = ConfigData.productStateEnum.Failed;
+            state = ConfigData.ProductStateEnum.Failed;
         } finally {
             SamplerGridSliceCache.remove(this.getId());
             SamplerGridSliceCache.remove(UI_THREAD_ID);
@@ -149,8 +150,8 @@ public class TextFormatter extends AbstractGfeTask {
         VizApp.runSyncIfWorkbench(new Runnable() {
             @Override
             public void run() {
-                listener.textProductFinished(text, state);
                 listener.stopProgressBar(state);
+                listener.textProductFinished(text, state);
             }
         });
     }
@@ -167,9 +168,9 @@ public class TextFormatter extends AbstractGfeTask {
         // TODO: this is deprecated and probably not a good thing to do.
         // we really need to get formatters running in their own process
         // so we can kill them safely
-        if (this.state.equals(productStateEnum.Queued)
-                || this.state.equals(productStateEnum.New)) {
-            state = ConfigData.productStateEnum.Failed;
+        if (this.state.equals(ProductStateEnum.Queued)
+                || this.state.equals(ProductStateEnum.New)) {
+            state = ConfigData.ProductStateEnum.Failed;
             cleanUp(null);
 
             this.finishedTime = SimulatedTime.getSystemTime().getTime();

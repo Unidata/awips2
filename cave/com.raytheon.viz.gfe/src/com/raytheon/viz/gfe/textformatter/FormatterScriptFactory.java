@@ -30,15 +30,18 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
 
 /**
  * Builds text formatter script objects
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 2, 2008				njensen	    Initial creation
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jun 02, 2008            njensen     Initial creation
+ * Apr 20, 2015  4027      randerso    Remove unused TextProductsTemplates path and added 
+ *                                     Tests path for GFE formatter auto tests
  * 
  * </pre>
  * 
@@ -67,9 +70,9 @@ public class FormatterScriptFactory {
                 GfePyIncludeUtil.getHeadlineIncludePath(),
                 GfePyIncludeUtil.getTextUtilitiesIncludePath(),
                 GfePyIncludeUtil.getTextProductsIncludePath(),
-                GfePyIncludeUtil.getTextProductsTemplatesIncludePath(),
                 GfePyIncludeUtil.getUtilitiesIncludePath(),
-                GfePyIncludeUtil.getCombinationsIncludePath());
+                GfePyIncludeUtil.getCombinationsIncludePath(),
+                GfeCavePyIncludeUtil.getTestsIncludePath());
 
         return new FormatterScript(runnerPath, include,
                 FormatterScript.class.getClassLoader());

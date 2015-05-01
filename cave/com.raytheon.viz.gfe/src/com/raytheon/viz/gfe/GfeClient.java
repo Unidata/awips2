@@ -98,8 +98,8 @@ public class GfeClient extends AbstractAWIPSComponent {
             }
         }
 
-        if (gfeClientArgStartIndex == -1
-                || gfeClientArgStartIndex == args.length) {
+        if ((gfeClientArgStartIndex == -1)
+                || (gfeClientArgStartIndex == args.length)) {
             System.err.println("No python script specified to run - exiting");
             return;
         }
@@ -130,7 +130,6 @@ public class GfeClient extends AbstractAWIPSComponent {
                 GfeCavePyIncludeUtil.getAutotestIncludePath(),
                 GfeCavePyIncludeUtil.getTextUtilitiesIncludePath(includeUser),
                 GfeCavePyIncludeUtil.getTextProductsIncludePath(includeUser),
-                GfeCavePyIncludeUtil.getTextProductsTemplatesIncludePath(),
                 GfeCavePyIncludeUtil.getCombinationsIncludePath(includeUser),
                 GfeCavePyIncludeUtil.getTestsIncludePath(),
                 GfeCavePyIncludeUtil.getProceduresIncludePath(includeUser));

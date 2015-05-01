@@ -355,9 +355,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     # set this variable to zero for proper labeling.
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         return 1
 
     def gust_wind_difference_nlValue(self, tree, node):
@@ -1162,7 +1162,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _preProcessProduct(self, fcst, argDict):
         # Product header
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -1171,11 +1171,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             
         issuedByString = self.getIssuedByString()
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
 
         # The following lines insert a statement
         # at the top of the forecast that describes the time periods
@@ -1404,7 +1405,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         for myTimeRange, label in myTimeRanges:
             #  Add it on to the header
             if periodNum == numPeriods:
-                header = header + "AND "
+                header = header + "and "
             header = header + label
             periodNum = periodNum + 1
             
