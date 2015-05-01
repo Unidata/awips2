@@ -118,7 +118,7 @@ Definition["autoWrite"] = 0   #set to 1 to write product to file
 Definition["lacList"] = ["VAC910c", "NCC940c"]
 
 Definition["defaultEditAreas"] = [
-            ("area1","Southwest mountains including yourTown"),
+            ("area1","Southwest Mountains including YourTown"),
             ("area2","Eastern Virginia"),
             ("area3","Northern North Carolina"),
           ]

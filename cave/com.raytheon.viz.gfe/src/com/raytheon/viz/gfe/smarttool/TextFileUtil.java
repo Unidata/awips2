@@ -20,11 +20,11 @@
 package com.raytheon.viz.gfe.smarttool;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -33,6 +33,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.python.PythonFileFilter;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
@@ -46,6 +47,7 @@ import com.raytheon.viz.gfe.GFEOperationFailedException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2009            njensen     Initial creation
+ * Apr 20, 2015   4027     randerso    Changes to support GFE formatter auto tests
  * 
  * </pre>
  * 
@@ -87,6 +89,14 @@ public class TextFileUtil {
         return file;
     }
 
+    public static LocalizationFile getUserTextFile(LocalizationFile source) {
+        LocalizationContext ctx = PATH_MGR.getContext(source.getContext()
+                .getLocalizationType(), LocalizationLevel.USER);
+
+        LocalizationFile destLf = getTextFile(ctx, source.getName());
+        return destLf;
+    }
+
     private static String getPathFromType(String filename, String fileType) {
         String name = null;
         if (fileType.equalsIgnoreCase("TextUtility")) {
@@ -102,7 +112,8 @@ public class TextFileUtil {
             name = "gfe" + File.separator + "editAreaGroups" + File.separator
                     + filename + ".txt";
         } else if (fileType.equalsIgnoreCase("Reference")) {
-            name = "editAreas" + File.separator + filename + ".xml";
+            name = "gfe" + File.separator + "editAreas" + File.separator
+                    + filename + ".xml";
         }
         return name;
     }
@@ -115,63 +126,75 @@ public class TextFileUtil {
     public static void makeWritableCopy(String source, String fileType,
             String dest, boolean deleteFlag) throws IOException,
             GFEOperationFailedException {
-        LocalizationFile lf = getTextFile(source, fileType);
-        if (lf.getContext().getLocalizationLevel() == LocalizationLevel.BASE
-                || lf.getContext().getLocalizationLevel() == LocalizationLevel.SITE) {
-            File srcFile = lf.getFile();
+        LocalizationFile srcLf = getTextFile(source, fileType);
+        if ((srcLf.getContext().getLocalizationLevel() == LocalizationLevel.BASE)
+                || (srcLf.getContext().getLocalizationLevel() == LocalizationLevel.CONFIGURED)
+                || (srcLf.getContext().getLocalizationLevel() == LocalizationLevel.SITE)) {
 
             IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationContext ctx = pathMgr.getContext(lf.getContext()
+            LocalizationContext ctx = pathMgr.getContext(srcLf.getContext()
                     .getLocalizationType(), LocalizationLevel.USER);
 
             LocalizationFile destLf = getTextFile(ctx,
                     getPathFromType(dest, fileType));
-            File destFile = destLf.getFile();
-            copy(srcFile, destFile);
             try {
+                copy(srcLf, destLf);
                 destLf.save();
             } catch (Exception e) {
                 throw new GFEOperationFailedException(
                         "Unable to save localization file", e);
             }
-        } else if (lf.getContext().getLocalizationLevel() == LocalizationLevel.USER) {
+        } else if (srcLf.getContext().getLocalizationLevel() == LocalizationLevel.USER) {
             if (deleteFlag) {
                 try {
-                    lf.delete();
+                    srcLf.delete();
                 } catch (Exception e) {
                     throw new GFEOperationFailedException(
                             "Unable to delete localization file "
-                                    + lf.toString(), e);
+                                    + srcLf.toString(), e);
                 }
             } else {
                 System.out.println("USER version already exists " + source);
             }
         } else {
             throw new GFEOperationFailedException(
-                    "No file found at base or site level for " + source + " "
-                            + fileType);
+                    "No file found at base, configured or site level for "
+                            + source + " " + fileType);
         }
     }
 
-    private static void copy(File src, File dest) throws IOException {
-        File dir = new File(dest.getParent());
-        dir.mkdir();
-        InputStream in = new FileInputStream(src);
-        OutputStream out = new FileOutputStream(dest);
+    private static void copy(LocalizationFile srcLf, LocalizationFile destLf)
+            throws IOException, LocalizationException {
+        File dir = destLf.getFile(false).getParentFile();
+        Files.createDirectories(dir.toPath());
 
-        // Transfer bytes from in to out
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) > 0) {
-            out.write(buf, 0, len);
+        try (InputStream in = srcLf.openInputStream();
+                OutputStream out = destLf.openOutputStream()) {
+
+            // Transfer bytes from in to out
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
         }
-        in.close();
-        out.close();
     }
 
     public static void deleteTextFile(LocalizationFile lf)
-            throws LocalizationOpFailedException {
-        lf.delete();
+            throws LocalizationOpFailedException, IOException {
+        if (lf.getContext().getLocalizationLevel()
+                .equals(LocalizationLevel.USER)
+                && lf.getContext().getContextName().equals("GFETEST")) {
+            lf.delete();
+            String path = lf.getFile().getAbsolutePath();
+            if (path.endsWith(".py")) {
+                path = path + "o";
+                Files.deleteIfExists(Paths.get(path));
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "Can only delete USER level files owned by GFETEST: " + lf);
+        }
     }
 
 }

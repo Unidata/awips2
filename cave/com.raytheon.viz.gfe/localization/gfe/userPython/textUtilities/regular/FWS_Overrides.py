@@ -150,8 +150,8 @@ Definition["outputFile"] = "{prddir}/TEXT/FWS.txt"
 # Definitions to insert unrepresentativeness of the forecast
 # instructions for the user.
 Definition["insertUnrepresentStatement"] = 1  # Use 1 for yes, 0 for no
-Definition["unrepresentStatement"] = "IF CONDITIONS BECOME UNREPRESENTATIVE..." + \
-                                     "CONTACT THE NATIONAL WEATHER\nSERVICE."
+Definition["unrepresentStatement"] = "If conditions become unrepresentative..." + \
+                                     "contact the National Weather\nService."
 # Definitions to insert the FWF discussion from a separate file.
 # Discussion is edited separately in XNOW for the FWF forecast.
 # Advantage of this is to have a first guess for the discussion in
@@ -188,8 +188,8 @@ Definition["stqPil"] = "STQ<site>"   # STQ pil
 # Definitions to insert unrepresentativeness of the forecast
 # instructions for the user.
 #Definition["insertUnrepresentStatement"] = 0  # Use 1 for yes, 0 for no
-#Definition["unrepresentStatement"] = "IF CONDITIONS BECOME UNREPRESENTATIVE..." + \
-#                                     "CONTACT THE NATIONAL WEATHER\nSERVICE."
+#Definition["unrepresentStatement"] = "If conditions become unrepresentative..." + \
+#                                     "contact the National Weather\nService."
 
 # wind20ftHeader:  This definition set to "1" allows offices to
 # format winds in this format...
@@ -1848,7 +1848,7 @@ class FWS_Overrides:
         # Code to ensure the wildfireElementList parameters are included in
         # the FWS product (if this is a wildfire incident) was added to this
         # method.
-        if self._fireType == "WILDFIRE":      
+        if self._fireType.upper() == "WILDFIRE":      
             for element in self._wildfireElementList:
                 for elementList in elementLists:
                     if element not in elementList and len(elementList) != 0:
@@ -2008,7 +2008,7 @@ class FWS_Overrides:
                 self._fireTime + ' ' + self._fireDate + ' ' + rtz,
                 '%H%M %m/%d/%y %Z')
             fcst = fcst + time.strftime(
-                'FORECAST IS BASED ON ' + requestWords + ' TIME OF %H%M %Z ON %B %d. ',
+                'Forecast is based on ' + requestWords + ' time of %H%M %Z on %B %d. ',
                 self._fireDateTime)
         else:
             offset = 0
@@ -2063,7 +2063,7 @@ class FWS_Overrides:
             fireDateTime = time.strptime(
                 self._fireTime + ' ' + self._fireDate, '%H%M %m/%d/%y')
             fcst = fcst + time.strftime(
-                'FORECAST IS BASED ON ' + requestWords + ' TIME OF %H%M ' + rtz + ' ON %B %d. ',
+                'Forecast is based on ' + requestWords + ' time of %H%M ' + rtz + ' on %B %d. ',
                 fireDateTime)
         fcst = fcst + "\n"
         self._makeFireTimeRange()
@@ -2085,18 +2085,18 @@ class FWS_Overrides:
     # This is a new method that Matt Davis wrote. Figures out whether or not
     # we are using a ignition time, request time, or incident time.
     def _getRequestWords(self):
-        if self._fireType == "WILDFIRE":
-            return "REQUEST"
-        elif self._fireType == "PRESCRIBED":
-            return "IGNITION"
+        if self._fireType.upper() == "WILDFIRE":
+            return "request"
+        elif self._fireType.upper() == "PRESCRIBED":
+            return "ignition"
         else:
-            return "INCIDENT"
+            return "incident"
         
     # Import the discussion from a previously edited discussion file.
     def _makeDiscussion(self, fcst, argDict):
 
         discussionHeader = ""
-        discussionHeader = ".DISCUSSION...\n"
+        discussionHeader = ".Discussion...\n"
 
         if self._insertDiscussionFromFile == 1:      
             discussion = ""
@@ -2109,7 +2109,7 @@ class FWS_Overrides:
                 discussion = string.join(string.split(discussion,"\n\n"),"\n")
                 return fcst + discussionHeader + discussion + "\n"
             else:
-                discussion = "...PUT DISCUSSION TEXT HERE..."
+                discussion = "...Put discussion text here..."
                 return fcst + discussionHeader + discussion + "\n\n"
         elif self._insertDiscussionFromFile == 2:
             version = 0
@@ -2121,7 +2121,7 @@ class FWS_Overrides:
             disFlag = 0
             foundDiscussion = 0
             for line in product:
-                if string.find(line,"DISCUSSION...") != -1:
+                if string.find(line,"Discussion...") != -1:
                     disFlag = 1
                     foundDiscussion = 1
                 try:
@@ -2138,7 +2138,7 @@ class FWS_Overrides:
             if foundDiscussion:
                 return fcst + discussion + "\n\n"
             else:
-                discussion = "...PUT DISCUSSION TEXT HERE..."
+                discussion = "...Put discussion text here..."
                 return fcst + discussionHeader + discussion + "\n\n"
         else:
             return fcst + discussionHeader + "\n\n\n"
@@ -2290,7 +2290,7 @@ class FWS_Overrides:
         if "Include Day 8-14 Outlook?" not in self._extendedQuestions:
             return fcst
       
-        outlookHeader = ".OUTLOOK FOR " + self._outlookDay8Label + " THROUGH " \
+        outlookHeader = ".Outlook for " + self._outlookDay8Label + " through " \
                         + self._outlookDay14Label + "...\n"
         outlookHeader = string.upper(outlookHeader)
 
@@ -2305,7 +2305,7 @@ class FWS_Overrides:
                 outlook = string.join(string.split(outlook,"\n\n"),"\n")
                 return fcst + outlookHeader + outlook + "\n"
             else:
-                outlook = "...PUT 8 TO 14 DAY OUTLOOK TEXT HERE..."
+                outlook = "...Put 8 to 14 day outlook text here..."
                 return fcst + outlookHeader + outlook + "\n\n"
         elif self._insertDiscussionFromFile == 2:
             version = 0
@@ -2327,7 +2327,7 @@ class FWS_Overrides:
             if foundOutlook:
                 return fcst + outlookHeader + outlook + "\n\n"
             else:
-                outlook = "...PUT 8 TO 14 DAY OUTLOOK TEXT HERE..."
+                outlook = "...Put 8 to 14 day outlook text here..."
                 return fcst + outlookHeader + outlook + "\n\n"
         else:
             return fcst + outlookHeader + "\n\n\n"
@@ -2341,17 +2341,18 @@ class FWS_Overrides:
             newFireName = self._fireName + "..." + self._otherAgencyName
         else:
             newFireName = self._fireName + "..." + self._requestingAgency
-        productLabel = self._productName + " FOR " + newFireName
+        productLabel = self._productName + " for " + newFireName
 
         productLabel = self.checkTestMode(argDict, productLabel)
 
         issuedByString = self.getIssuedByString()
 
         # Product header
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" + productLabel + \
-               "\nNATIONAL WEATHER SERVICE " + self._wfoCityState + \
+               "\nNational Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
         
         # Add time disclaimer
         self._fireTR = None
@@ -2378,9 +2379,9 @@ in the future. *|''' % self._timeLabel
             tagLineString = ""
         else:
             tagLineString = ".TAG " + self._webSiteTag + "/" + self._wfoID + "\n"
-        fcst = fcst + "$$\nFORECASTER..." + forecasterString + "\n" + \
-               "REQUESTED BY..." + self._agencyContact + "\n" + \
-               "TYPE OF REQUEST..." + self._fireType + "\n" + tagLineString
+        fcst = fcst + "$$\nForecaster..." + forecasterString + "\n" + \
+               "Requested by..." + self._agencyContact + "\n" + \
+               "Type of request..." + self._fireType + "\n" + tagLineString
         #self.storeAWIPS(fcst, self._awipsProductID)
         self.setProgressPercentage(100)
         self.progressMessage(0, 100, self._displayName + " Complete")
@@ -2516,39 +2517,39 @@ in the future. *|''' % self._timeLabel
             pass
         return [
             ("Next Day", 24 + self.DAY(), 24 + self.NIGHT(), 24 + self.NIGHT(),  
-             ".TODAY...", "early in the morning", "late in the afternoon",  
+             ".Today...", "early in the morning", "late in the afternoon",  
              1, narrativeDef),                       
             ("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),
-             ".TODAY...", "early in the morning", "late in the afternoon",
+             ".Today...", "early in the morning", "late in the afternoon",
              1, narrativeDef),
             ("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning", "late in the afternoon",
+             ".Rest of Today...", "early in the morning", "late in the afternoon",
              1, narrativeDef),
             ("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),
-             ".REST OF TODAY...", "early in the morning","late in the afternoon",
+             ".Rest of Today...", "early in the morning","late in the afternoon",
              1, narrativeDef),
             #  End times are tomorrow:
             ("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
+             ".Tonight...", "late in the night", "early in the evening",
              1, narrativeDef),
             ("Afternoon with 4 periods", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),
-             ".TONIGHT...", "late in the night", "early in the evening",
+             ".Tonight...", "late in the night", "early in the evening",
              1, narrativeDef),
             ("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".REST OF TONIGHT...", "late in the night","early in the evening",
+             ".Rest of Tonight...", "late in the night","early in the evening",
              1, narrativeDef),
             ("Evening Update with 4 periods", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),
-             ".REST OF TONIGHT...", "late in the night","early in the evening",
+             ".Rest of Tonight...", "late in the night","early in the evening",
              1, narrativeDef),
             # For the early morning update, this produces:
-            # REST OF TONIGHT:
-            # MONDAY
-            # MONDAY NIGHT
+            # Rest of Tonight:
+            # Monday
+            # Monday Night
             ("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
+             ".Rest of Tonight...", "early in the morning","late in the afternoon",
              0, narrativeDef),
             ("Early Morning Update with 4 periods", "issuanceHour", self.DAY(), self.DAY(),
-             ".REST OF TONIGHT...", "early in the morning","late in the afternoon",
+             ".Rest of Tonight...", "early in the morning","late in the afternoon",
              0, narrativeDef),
             ]
 
@@ -2961,11 +2962,11 @@ in the future. *|''' % self._timeLabel
         if self._withIgnitionTimes == "yes":
             dayNight = self.getPeriod(node.getTimeRange(), 1)
             if dayNight == self.DAYTIME():
-                tempElement = "MAX"
-                rhElement = "MIN"
+                tempElement = "Max"
+                rhElement = "Min"
             else:
-                tempElement = "MIN"
-                rhElement = "MAX"                
+                tempElement = "Min"
+                rhElement = "Max"                
             if elementName == "MaxT" or elementName == "MinT":
                 ignitionElement = "T"
                 elementType = tempElement
@@ -2978,7 +2979,7 @@ in the future. *|''' % self._timeLabel
                 if ignitionStats is not None:
                     ignitionPhrase = `int(self.getValue(ignitionStats))`
                     reqType = self._getRequestWords()    
-                    words = ignitionPhrase + units + " AT " + reqType + "..." + elementType + " " + igWords
+                    words = ignitionPhrase + units + " at " + reqType + "..." + elementType + " " + igWords
                 else:
                     words = elementType + " " + igWords
             else:
@@ -3019,7 +3020,7 @@ in the future. *|''' % self._timeLabel
                 igMagStr = `int(ignitionWindStats[0])`
                 igDirStr = self.vector_dir(int(ignitionWindStats[1]))
                 reqType = self._getRequestWords()
-                igWords = "WINDS " + igDirStr + " AT " + igMagStr + " MPH AT " + reqType + "...OTHERWISE "
+                igWords = "Winds " + igDirStr + " at " + igMagStr + " mph at " + reqType + "...otherwise "
             
         words = igWords + words
         node.set("descriptor", "")
@@ -3127,11 +3128,11 @@ in the future. *|''' % self._timeLabel
             dayNight = self.getPeriod(node.getTimeRange(), 1)
             if dayNight == self.DAYTIME():
                 vr = int(maxVal)
-                ventType = "MAX"
+                ventType = "Max"
                 mergeMethod = "Max"
             else:
                 vr = int(minVal)
-                ventType = "MIN"
+                ventType = "Min"
                 mergeMethod = "Min"
             vrCat = self.smokeDispersal_valueStr(vr)
             words =  ventType + "..." + vrCat + " " + " /" + `vr` + " knot-ft/"
@@ -3139,7 +3140,7 @@ in the future. *|''' % self._timeLabel
             ignitionDispersal = tree.stats.get(
                 "VentRate", self._fireTR, node.getAreaLabel(), mergeMethod=mergeMethod)
             vrCat = self.smokeDispersal_valueStr(ignitionDispersal)
-            igWords =  vrCat + " /" + `int(ignitionDispersal)` + " KNOT-FT/ AT " + reqType + ". \n"
+            igWords =  vrCat + " /" + `int(ignitionDispersal)` + " knot-ft/ at " + reqType + ". \n"
             words = igWords + " " + words
         else:
             # Handle phrase with range if not including ignition time
@@ -3193,17 +3194,17 @@ in the future. *|''' % self._timeLabel
         
         # Single Value input
         if  mix1 == mix2:
-                words =  `mix1` + " " + outUnits + " agl"
+                words =  `mix1` + " " + outUnits + " AGL"
         # Range
         else:
-            words =  `mix1`+ "-" + `mix2` + " " + outUnits + " agl"
+            words =  `mix1`+ "-" + `mix2` + " " + outUnits + " AGL"
 
         # Handle ignition time
         if self._checkFireTR(node.getTimeRange()):
             reqType = self._getRequestWords()
             ignitionMixStats = tree.stats.get(
                 "MixHgt", self._fireTR, node.getAreaLabel(), mergeMethod="Max")
-            igWords =  `int(ignitionMixStats)` + " " + outUnits + " agl at " + reqType +"...otherwise "
+            igWords =  `int(ignitionMixStats)` + " " + outUnits + " AGL at " + reqType +"...otherwise "
             words = igWords + words
         
         return self.setWords(node, words)
@@ -3250,7 +3251,7 @@ in the future. *|''' % self._timeLabel
                 reqType = self._getRequestWords()
                 hainesDict = self.hainesDict()
                 words = ignitionPhrase + " " + hainesDict[int(ignitionPhrase)] + \
-                    " AT " + reqType + "...MAX " + `haines1`
+                    " at " + reqType + "...max " + `haines1`
                 ignitionFlag = 1
         if not ignitionFlag:
             haines1, haines2 = self.getValue(stats, "MinMax")
@@ -3409,23 +3410,23 @@ in the future. *|''' % self._timeLabel
         if height is None:
             return self.setWords(node.parent, "MISSING")
         if dir >= 22.5 and dir < 67.5:
-            dirWords = "NORTHEAST"
+            dirWords = "northeast"
         elif dir >= 67.5 and dir < 112.5:
-            dirWords = "EAST"
+            dirWords = "east"
         elif dir >= 112.5 and dir < 157.5:
-            dirWords = "SOUTHEAST"
+            dirWords = "southeast"
         elif dir >= 157.5 and dir < 202.5:
-            dirWords = "SOUTH"
+            dirWords = "south"
         elif dir >= 202.5 and dir < 247.5:
-            dirWords = "SOUTHWEST"
+            dirWords = "southwest"
         elif dir >= 247.5 and dir < 292.5:
-            dirWords = "WEST"
+            dirWords = "west"
         elif dir >= 292.5 and dir < 337.5:
-            dirWords = "NORTHWEST"
+            dirWords = "northwest"
         else:
-            dirWords = "NORTH"
+            dirWords = "north"
         heightWords = `int(height + 0.5)`
-        words =  dirWords + " SWELL " + heightWords + " FEET"
+        words =  dirWords + " swell " + heightWords + " feet"
         return self.setWords(node, words)
     
     def ceiling_phrase(self):
