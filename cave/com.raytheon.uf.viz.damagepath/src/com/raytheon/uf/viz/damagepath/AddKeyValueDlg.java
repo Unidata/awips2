@@ -1,6 +1,26 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ *
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ *
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ *
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.viz.damagepath;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -20,7 +40,7 @@ import com.raytheon.uf.common.util.Pair;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * Dialog to add new property key/value pairs for the
+ * Dialog to add or edit property key/value pairs for the
  * {@code EditGeoJsonPropertiesDlg}.
  * 
  * <pre>
@@ -31,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2015  #4354     dgilling     Initial creation based on dialog from 
  *                                      lvenable.
+ * May 01, 2015  #4354     dgilling     Add edit mode.
  * 
  * </pre>
  * 
@@ -55,10 +76,33 @@ public class AddKeyValueDlg extends CaveSWTDialog {
 
     private final Collection<String> reservedKeys;
 
+    private final boolean editMode;
+
+    private final String initialKey;
+
+    private final String initialValue;
+
     public AddKeyValueDlg(Shell parentShell, Collection<String> reservedKeys) {
+        this(parentShell, reservedKeys, false, null, null);
+    }
+
+    public AddKeyValueDlg(Shell parentShell, String key, String value) {
+        this(parentShell, null, true, key, value);
+    }
+
+    private AddKeyValueDlg(Shell parentShell, Collection<String> reservedKeys,
+            boolean editMode, String key, String value) {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK
                 | CAVE.MODE_INDEPENDENT);
-        this.reservedKeys = reservedKeys;
+        if (reservedKeys != null) {
+            this.reservedKeys = reservedKeys;
+        } else {
+            this.reservedKeys = Collections.emptyList();
+        }
+        this.editMode = editMode;
+
+        this.initialKey = key;
+        this.initialValue = value;
     }
 
     @Override
@@ -75,7 +119,9 @@ public class AddKeyValueDlg extends CaveSWTDialog {
 
     @Override
     protected void initializeComponents(Shell shell) {
-        setText("Add GeoJSON Property");
+        String dialogTitle = (!editMode) ? "Add GeoJSON Property"
+                : "Edit GeoJSON Property";
+        setText(dialogTitle);
 
         createKeyValueControls();
         createBottomButtons();
@@ -93,26 +139,33 @@ public class AddKeyValueDlg extends CaveSWTDialog {
         GridData gd = new GridData(130, SWT.DEFAULT);
         keyTF = new Text(keyValueComp, SWT.BORDER);
         keyTF.setLayoutData(gd);
-        keyTF.addModifyListener(new ModifyListener() {
+        if (initialKey != null) {
+            keyTF.setText(initialKey);
+        }
+        keyTF.setEnabled(!editMode);
+        if (!editMode) {
+            keyTF.addModifyListener(new ModifyListener() {
 
-            @Override
-            public void modifyText(ModifyEvent e) {
-                String newKey = keyTF.getText().trim();
-                if (reservedKeys.contains(newKey)) {
-                    verificationLbl.setText(String.format(USED_KEY_MSG, newKey));
-                    okBtn.setEnabled(false);
-                } else if (newKey.isEmpty()) {
-                    verificationLbl.setText(EMPTY_KEY_MSG);
-                    okBtn.setEnabled(false);
-                } else {
-                    verificationLbl.setText(EMPTY_STRING);
-                    okBtn.setEnabled(true);
+                @Override
+                public void modifyText(ModifyEvent e) {
+                    String newKey = keyTF.getText().trim();
+                    if (reservedKeys.contains(newKey)) {
+                        verificationLbl.setText(String.format(USED_KEY_MSG,
+                                newKey));
+                        okBtn.setEnabled(false);
+                    } else if (newKey.isEmpty()) {
+                        verificationLbl.setText(EMPTY_KEY_MSG);
+                        okBtn.setEnabled(false);
+                    } else {
+                        verificationLbl.setText(EMPTY_STRING);
+                        okBtn.setEnabled(true);
+                    }
+
+                    getShell().pack();
+                    getShell().layout();
                 }
-
-                getShell().pack();
-                getShell().layout();
-            }
-        });
+            });
+        }
 
         Label valueLbl = new Label(keyValueComp, SWT.NONE);
         valueLbl.setText("Value:");
@@ -120,13 +173,17 @@ public class AddKeyValueDlg extends CaveSWTDialog {
         gd = new GridData(130, SWT.DEFAULT);
         valueTF = new Text(keyValueComp, SWT.BORDER);
         valueTF.setLayoutData(gd);
+        if (initialValue != null) {
+            valueTF.setText(initialValue);
+        }
 
-        verificationLbl = new Label(keyValueComp, SWT.NONE);
-        verificationLbl.setText(EMPTY_KEY_MSG);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        gd.horizontalSpan = 2;
-        verificationLbl.setLayoutData(gd);
-
+        if (!editMode) {
+            verificationLbl = new Label(keyValueComp, SWT.NONE);
+            verificationLbl.setText(EMPTY_KEY_MSG);
+            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+            gd.horizontalSpan = 2;
+            verificationLbl.setLayoutData(gd);
+        }
     }
 
     private void createBottomButtons() {
@@ -148,7 +205,7 @@ public class AddKeyValueDlg extends CaveSWTDialog {
                 handleOkAction();
             }
         });
-        okBtn.setEnabled(false);
+        okBtn.setEnabled(!keyTF.getText().trim().isEmpty());
 
         gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
         gd.widthHint = buttonWidth;

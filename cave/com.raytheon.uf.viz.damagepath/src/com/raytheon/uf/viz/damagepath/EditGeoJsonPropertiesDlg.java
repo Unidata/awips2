@@ -1,3 +1,22 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ *
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ *
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ *
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.viz.damagepath;
 
 import java.util.LinkedHashMap;
@@ -36,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2015  #4354     dgilling     Initial creation based on dialog from 
  *                                      lvenable.
+ * Apr 30, 2015  #4354     dgilling     Allow edits to properties.
  * 
  * </pre>
  * 
@@ -48,13 +68,32 @@ public class EditGeoJsonPropertiesDlg extends CaveSWTDialog {
 
     private Button deleteBtn;
 
-    private Map<String, String> properties;
+    private final Map<String, String> properties;
+
+    private final ICloseCallback addEditDlgCloseCallback;
 
     public EditGeoJsonPropertiesDlg(Shell parentShell,
             Map<String, String> properties) {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
 
         this.properties = new LinkedHashMap<>(properties);
+
+        this.addEditDlgCloseCallback = new ICloseCallback() {
+
+            @Override
+            public void dialogClosed(Object returnValue) {
+                if (returnValue == null) {
+                    return;
+                }
+
+                if (returnValue instanceof Pair) {
+                    Pair<String, String> newProperty = (Pair<String, String>) returnValue;
+                    EditGeoJsonPropertiesDlg.this.properties.put(
+                            newProperty.getFirst(), newProperty.getSecond());
+                    populateTable();
+                }
+            }
+        };
     }
 
     @Override
@@ -104,6 +143,21 @@ public class EditGeoJsonPropertiesDlg extends CaveSWTDialog {
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
+        table.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                TableItem selected = (TableItem) e.item;
+                if (selected != null) {
+                    String key = selected.getText(0);
+                    String value = selected.getText(1);
+
+                    AddKeyValueDlg akvd = new AddKeyValueDlg(shell, key, value);
+                    akvd.setCloseCallback(addEditDlgCloseCallback);
+                    akvd.open();
+                }
+            }
+        });
 
         TableColumn column = new TableColumn(table, SWT.NONE);
         column.setText("Key");
@@ -133,21 +187,7 @@ public class EditGeoJsonPropertiesDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent e) {
                 AddKeyValueDlg akvd = new AddKeyValueDlg(shell, properties
                         .keySet());
-                akvd.setCloseCallback(new ICloseCallback() {
-                    @Override
-                    public void dialogClosed(Object returnValue) {
-                        if (returnValue == null) {
-                            return;
-                        }
-
-                        if (returnValue instanceof Pair) {
-                            Pair<String, String> newProperty = (Pair<String, String>) returnValue;
-                            properties.put(newProperty.getFirst(),
-                                    newProperty.getSecond());
-                            populateTable();
-                        }
-                    }
-                });
+                akvd.setCloseCallback(addEditDlgCloseCallback);
                 akvd.open();
             }
         });
