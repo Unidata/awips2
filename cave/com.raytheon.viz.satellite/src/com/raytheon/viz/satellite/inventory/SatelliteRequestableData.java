@@ -21,7 +21,6 @@ package com.raytheon.viz.satellite.inventory;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.Map;
 
 import javax.measure.unit.Unit;
 
@@ -61,6 +60,7 @@ import com.raytheon.viz.satellite.tileset.SatDataRetriever;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Apr 09, 2014  2947     bsteffen    Initial creation
+ * Apr 15, 2014  4388     bsteffen    Set Fill Value.
  * 
  * </pre>
  * 
@@ -153,20 +153,13 @@ public class SatelliteRequestableData extends AbstractRequestableData {
             } catch (FactoryException e) {
                 throw new DataCubeException(e);
             }
-            Map<String, Object> attrs = dataRecord.getDataAttributes();
+            Number fillValue = dataRecord.getFillValue();
             dataRecord = DataStoreFactory.createStorageRecord(
                     dataRecord.getName(), dataRecord.getGroup(),
                     dest.getArray(), 2, new long[] { requestRange.width,
                             requestRange.height });
-            dataRecord.setFillValue(0);
-            if (attrs != null) {
-                Number fill = (Number) attrs
-                        .get(SatelliteRecord.SAT_FILL_VALUE);
 
-                if (fill != null) {
-                    dataRecord.setFillValue(fill);
-                }
-            }
+            dataRecord.setFillValue(fillValue);
             return dataRecord;
         } else {
             return CubeUtil.retrieveData(record, record.getPluginName(),

@@ -32,6 +32,7 @@
 # 12/28/2012    DR 15596        J.Zeng      Added checkWeatherSimilarity 
 #                                           for two lists based on Virgil's 
 #                                           suggestion
+# 04/20/2015    4027            randerso    Changes for mixed case product generation.
 # ----------------------------------------------------------------------------
 
 import types
@@ -1882,7 +1883,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         if stats1 == stats2:
             #print 'checkWx return 1'
             return 1
-   
+
         # Check for equal length of statistics
         if len(stats1) == len(stats2):
             # If there is only one subkey to worry about
@@ -3571,6 +3572,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             # Initialize so that we are ready to use the thenConnector
             # if appropriate
             phrase.set("useThenConnector", 1)
+
         useThenConnector = phrase.get("useThenConnector")
         prevEnd = prev.getTimeRange().endTime()
         #  If the start time of this subPhrase is the same
@@ -3585,6 +3587,8 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             # Can re-set connector so we are ready to use the
             # then connector on the next subPhrase
             phrase.set("useThenConnector", 1)
+            subPhrase.set("words", subPhrase.get("words").capitalize())
+        
         return connector
 
     def visConnector(self, tree, subPhrase):
@@ -3677,8 +3681,8 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             else:
                 # If high wind conditions report both "becoming" and
                 # "increasing/decreasing"
-                # SOUTHEAST WINDS AROUND 70 MPH BECOMING SOUTH
-                #   AND INCREASING TO AROUND 105 MPH
+                # Southeast winds around 70 mph becoming south
+                #   and increasing to around 105 mph
                 increasing = mag1 < mag2
                 if max(mag1, mag2) > self.highValue_threshold(
                     tree, subPhrase, elementName, elementName):

@@ -597,7 +597,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
     ### Humidity
     def humidityRecovery_percentage(self, tree, node):
         # If the maximum humidity is greater than this percentage,
-        # humidity recovery will be EXCELLENT.
+        # humidity recovery will be Excellent.
         return 50
     
     def humidityRecovery_phrase(self):
@@ -634,7 +634,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
             return self.setWords(node.parent, "MISSING")
         maxRH = self.getValue(curStats, "Max")
         if maxRH > self.humidityRecovery_percentage(tree, node):
-            return self.setWords(node, "EXCELLENT")       
+            return self.setWords(node, "Excellent")       
         timeRange = node.getTimeRange()
         prevTimeRange = self.adjustTimeRange(timeRange, -24)
         prevStats = tree.stats.get(elementName, prevTimeRange, node.getAreaLabel(),
@@ -660,15 +660,15 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         # editAreaNames = ["area1", "area2"]
         # if self.currentAreaContains(tree, editAreaNames):
         #    return [
-        #      (15, "POOR"),
-        #      (20, "FAIR"),
-        #      (30, "GOOD"),
+        #      (15, "Poor"),
+        #      (20, "Fair"),
+        #      (30, "Good"),
         #    ]
         return [
-            (25, "POOR"),
-            (55, "MODERATE"),
-            (70, "GOOD"),
-            (100,"EXCELLENT"),
+            (25, "Poor"),
+            (55, "Moderate"),
+            (70, "Good"),
+            (100,"Excellent"),
             ]
 
     ### LAL
@@ -865,10 +865,10 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         
         # Single Value input
         if  mix1 == mix2:
-                words =  `mix1` + " " + outUnits + " agl"
+                words =  `mix1` + " " + outUnits + " AGL"
         # Range
         else:
-            words =  `mix1`+ "-" + `mix2` + " " + outUnits + " agl"
+            words =  `mix1`+ "-" + `mix2` + " " + outUnits + " AGL"
         return self.setWords(node, words)
 
     ###---------------------------------------------------------
