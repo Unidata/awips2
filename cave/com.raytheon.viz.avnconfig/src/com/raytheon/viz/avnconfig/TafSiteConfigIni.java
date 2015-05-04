@@ -65,7 +65,8 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
  * Feb 16, 2011 7878       rferrel     Modifications to use ids.cfg file.
  * Apr 08, 2011 8856       rferrel     Can now make a new station's templates
  * May 24, 2011 9060       rferrel     Limit downloading of localization files.
- * Aug 09, 2013  2033      mschenke   Switched File.separator to IPathManager.SEPARATOR
+ * Aug 09, 2013 2033       mschenke    Switched File.separator to IPathManager.SEPARATOR
+ * May 04, 2015 17417      yteng       Get all sites from product 
  * 
  * </pre>
  * 
@@ -299,13 +300,10 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         HierarchicalINIConfiguration config = getProductConfig(product);
         if (config != null) {
             config.setDelimiterParsingDisabled(true);
-            String sites = config.getString("sites.idents");
-            if (sites != null) {
-                String[] idents = config.getString("sites.idents").split(
-                        "\\s*,\\s*", 0);
-
-                for (String id : idents) {
-                    siteList.add(id);
+            String[] sites = config.getStringArray("sites.idents");
+            if (sites != null && sites.length > 0) {
+                for (String site : sites) {
+                    siteList.add(site);
                 }
             }
         }
