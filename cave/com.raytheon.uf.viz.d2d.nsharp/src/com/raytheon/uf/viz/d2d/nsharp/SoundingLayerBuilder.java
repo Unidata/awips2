@@ -45,10 +45,11 @@ import com.raytheon.uf.common.wxmath.ZToPsa;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 14, 2013 2260       bsteffen    Initial creation
- * Aug 27, 2013 2190       mschenke    Fixed unit for VerticalSounding creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 14, 2013  2260     bsteffen    Initial creation
+ * Aug 27, 2013  2190     mschenke    Fixed unit for VerticalSounding creation
+ * May 04, 2015  4444     bsteffen    Fix typo in addRelativeHumidity
  * 
  * </pre>
  * 
@@ -193,7 +194,7 @@ public class SoundingLayerBuilder {
 
     public SoundingLayerBuilder addRelativeHumidity(double relativeHumidity,
             Unit<Dimensionless> unit) {
-        this.specificHumidity = Measure.valueOf(relativeHumidity, unit);
+        this.relativeHumidity = Measure.valueOf(relativeHumidity, unit);
         return this;
     }
 
