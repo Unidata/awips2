@@ -15,16 +15,11 @@
 	
 	NEW FILE - EPVt2.xml
  -->
+<!--  db changed this to run a python assessment -->
 <DerivedParameter name="EPV* Instability is Slantwise=S Upright=U" abbreviation="EPVt2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <Method name="Test">
+    <Method name="EPVt2.execute1">
+        <Field abbreviation="gammaE"/>
         <Field abbreviation="MpV"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="0.0"/>
-        <ConstantField value="1.0E37"/>
-        <ConstantField value="5.0"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-1.0E37"/>
-        <ConstantField value="0.2"/>
-        <Field abbreviation="EPVt1"/>
     </Method>
 </DerivedParameter>
+

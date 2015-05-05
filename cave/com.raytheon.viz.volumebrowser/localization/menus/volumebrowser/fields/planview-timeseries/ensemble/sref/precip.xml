@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+		<contribute xsi:type="menuItem" menuText="3hr Mean Precip" key="TP3mean" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="3hr Spread Precip" key="TP3sprd" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Mean Precip" key="TP6mean" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Spread Precip" key="TP6sprd" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="12hr Mean Precip" key="TP12mean" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="12hr Spread Precip" key="TP12sprd" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="24hr Mean Precip" key="TP24mean" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="24hr Spread Precip" key="TP24sprd" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 3hr grtn 0.01 in" key="tp3c1" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 3hr grtn 0.05 in" key="tp3c2" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 3hr grtn 0.10 in" key="tp3c3" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 3hr grtn 0.25 in" key="tp3c4" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 3hr grtn 0.50 in" key="tp3c5" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 3hr grtn 1.00 in" key="tp3c6" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 3hr grtn 1.25 in" key="tp3c7" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 3hr grtn 2.00 in" key="tp3c8" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 0.01 in" key="tp6c1" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 0.05 in" key="tp6c2" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 0.10 in" key="tp6c3" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 0.25 in" key="tp6c4" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 0.50 in" key="tp6c5" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 1.00 in" key="tp6c6" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 1.25 in" key="tp6c7" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 2.00 in" key="tp6c8" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 0.01 in" key="tp12c1" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 0.05 in" key="tp12c2" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 0.10 in" key="tp12c3" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 0.25 in" key="tp12c4" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 0.50 in" key="tp12c5" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 1.00 in" key="tp12c6" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 1.25 in" key="tp12c7" indentText="false" />		
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 2.00 in" key="tp12c8" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Prob 24hr grtn 0.01 in" key="tp24c1" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 24hr grtn 0.05 in" key="tp24c2" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 24hr grtn 0.10 in" key="tp24c3" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 24hr grtn 0.25 in" key="tp24c4" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 24hr grtn 0.50 in" key="tp24c5" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 24hr grtn 1.00 in" key="tp24c6" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 24hr grtn 1.25 in" key="tp24c7" indentText="false" />		
+		<contribute xsi:type="menuItem" menuText="Prob 24hr grtn 2.00 in" key="tp24c8" indentText="false" />
+	
+</menuTemplate>
