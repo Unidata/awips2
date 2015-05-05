@@ -32,48 +32,70 @@
 		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="41"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/ECMWFLowRes.xml"
-		menuText="ECMWF-LowRes" id="ecmwfLowRes" useReferenceTime="true">
-		<substitute key="TP" value="TP"/>
-		<substitute key="frameCount" value="8"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-		menuText="GFS40" id="gfs40" useReferenceTime="true">
-		<substitute key="modelName" value="GFS212"/> 
+<!-- 	<contribute xsi:type="bundleItem" file="bundles/volume/ECMWFLowRes.xml" -->
+<!-- 		menuText="ECMWF-LowRes" id="ecmwfLowRes" useReferenceTime="true"> -->
+<!-- 		<substitute key="TP" value="TP"/> -->
+<!-- 		<substitute key="frameCount" value="8"/> -->
+<!-- 	</contribute> -->
+<!-- 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="GEM-NHem" id="canadian-nh" useReferenceTime="true">
+		<substitute key="modelName" value="${GEMNHmodel}"/> 
 		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="41"/>
 	</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="GEM-Regional" id="canadian-reg" useReferenceTime="true">
+		<substitute key="modelName" value="${GEMRegmodel}"/> 
+		<substitute key="TP" value="TP"/>
+		<substitute key="frameCount" value="17"/>
+	</contribute> -->
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-		menuText="GFS" id="gfs" useReferenceTime="true">
+		menuText="GFS20" id="gfs20" useReferenceTime="true">
+		<substitute key="modelName" value="GFS215"/> 
+		<substitute key="TP" value="TP"/>
+		<substitute key="frameCount" value="55"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="GFS" id="gfs1deg" useReferenceTime="true">
 		<substitute key="modelName" value="${GFSmodel}"/>
 		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="41"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/LimitedFamily.xml"
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="${ARWmodel1}" id="arwEast" useReferenceTime="true" suppressErrors="${ARWsuppress1;false}">
 		<substitute key="modelName" value="${ARWmodel1}"/>
+		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="17"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/LimitedFamily.xml"
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="${ARWmodel2}" id="arwWest" useReferenceTime="true" suppressErrors="${ARWsuppress2;false}">
 		<substitute key="modelName" value="${ARWmodel2}"/>
+		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="17"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/LimitedFamily.xml"
-		menuText="${MMMmodel1}" id="mmmEast" useReferenceTime="true" suppressErrors="${MMMsuppress1;false}">
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="${MMMmodel1}" id="nmmEast" useReferenceTime="true" suppressErrors="${MMMsuppress1;false}">
 		<substitute key="modelName" value="${MMMmodel1}"/>
+		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="17"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/LimitedFamily.xml"
-		menuText="${MMMmodel2}" id="mmmWest" useReferenceTime="true" suppressErrors="${MMMsuppress2;false}">
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="${MMMmodel2}" id="nmmWest" useReferenceTime="true" suppressErrors="${MMMsuppress2;false}">
 		<substitute key="modelName" value="${MMMmodel2}"/>
+		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="17"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/volume/HRRRFamily.xml"
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="HRRR" id="hrrr" useReferenceTime="true">
 		<substitute key="modelName" value="HRRR"/>
 		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="16"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="LAPS" id="laps" useReferenceTime="true">
+		<substitute key="modelName" value="LAPS"/>
+		<substitute key="TP" value="TP"/>
+		<substitute key="frameCount" value="6"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="NAM12" id="nam12" useReferenceTime="true">
@@ -93,6 +115,12 @@
 		<substitute key="TP" value="TP6hr"/>
 		<substitute key="frameCount" value="15"/>
 	</contribute>
+	
+		<!-- <contribute xsi:type="bundleItem" file="bundles/volume/DefaultMesoFamily.xml"
+		menuText="${HRRRmodel}" id="hrrr" useReferenceTime="true">
+		<substitute key="modelName" value="${HRRRmodel}"/>
+		<substitute key="frameCount" value="16"/>
+	</contribute> -->
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="RAP13" id="rap13" useReferenceTime="true">
 		<substitute key="modelName" value="${RAP13model}"/>
@@ -104,6 +132,12 @@
 		<substitute key="modelName" value="${RAPmodel}"/>
 		<substitute key="TP" value="TP3hr"/>
 		<substitute key="frameCount" value="9"/>
+	</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="SREF" id="sref212" useReferenceTime="true">
+		<substitute key="modelName" value="${SREFmodel}"/>
+		<substitute key="TP" value="TP3hr"/>
+		<substitute key="frameCount" value="30"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/UKMET.xml"
 		menuText="UKMET" id="ukmet" useReferenceTime="true">

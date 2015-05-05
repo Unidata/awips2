@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="Dewpoint" key="DpT" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="2m Td Analysis Uncertainty" key="DpTerranl" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Dewpoint Dep" key="DpD" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="K-Index" key="KI" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Mixing Ratio" key="mixRat" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="ML LCL" key="MLLCL" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Moisture Adv" key="MAdv" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Moisture Flux Divergence" key="MCon" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Moist Transport Vectors" key="MTV" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Moist Transport Magnitude" key="Mmag" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="PW" key="PW" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="PW % of normal" key="climoPW" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="PW Change 6hr" key="dPW6hr" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="PW Change 3hr" key="dPW3hr" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="PW Change 1hr" key="dPW1hr" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Int Liquid H2O" key="ILW"  indentText="true" />
+	<contribute xsi:type="menuItem" menuText="RH - 3-Hour Max" key="MAXRH3hr" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="RH" key="RH" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Theta E" key="EPT" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Max ThetaE 0-3km" key="maxEPT" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Min ThetaE 3-6km" key="minEPT" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Max ThetaE Diff 0-6km" key="BdEPT06" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Saturated Theta E" key="EPTs" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Specific Humidity" key="SHx" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Theta E Adv" key="EPTA" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Theta E Conv" key="EPTC" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Theta E Grad" key="EPTGrd"  indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Theta E Grad Magnitude" key="EPTGrdM" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Warm Cloud Depth (Frzlvl-LCL)" key="WCD" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Wet Bulb Temp" key="TW" indentText="false" />	
+</menuTemplate>

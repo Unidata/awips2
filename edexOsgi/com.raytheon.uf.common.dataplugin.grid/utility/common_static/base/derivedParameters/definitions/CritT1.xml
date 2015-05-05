@@ -20,7 +20,7 @@
 	
 	NEW FILE - CritT1.xml
 -->
-<DerivedParameter name="Layer Min Temperature -6C, -10C" abbreviation="CritT1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter unit="K" name="Layer Min Temperature -6C, -10C" abbreviation="CritT1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <Method name="Alias">
         <Field abbreviation="Tmin"/>
     </Method>

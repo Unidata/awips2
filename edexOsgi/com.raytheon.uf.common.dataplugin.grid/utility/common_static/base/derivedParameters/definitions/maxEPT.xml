@@ -18,16 +18,19 @@
 	FIELD: |CONTOUR,IMAGE,OTHER| 
 	FIELD: |0-3kmAgl| 
 	FIELD: |EPT| 
-	FIELD: |maxEPT,0-3kmAgl| 
+	FIELD: |maxEPT,0-3kmAgl|  
 	
 	
-	NEW FILE - maxEPT.xml
+	NEW FILE - maxEPT.xml 
  -->
-<DerivedParameter unit="K" name="Max ThetaE 0-3km" abbreviation="maxEPT" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <Method levels="0-3kmAgl" name="Union">
-        <Field abbreviation="EPT"/>
-    </Method>
-    <Method name="Max">
-        <Field level="0-3kmAgl" abbreviation="maxEPT"/>
+ <DerivedParameter unit="K" name="Max ThetaE (0-3kmAgl)" abbreviation="maxEPT" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Max">
+    	<Field abbreviation="EPT" level="0kmAgl"/>
+        <Field abbreviation="EPT" level="0.5kmAgl"/>
+        <Field abbreviation="EPT" level="1kmAgl"/>
+        <Field abbreviation="EPT" level="1.5kmAgl"/>
+        <Field abbreviation="EPT" level="2kmAgl"/>
+        <Field abbreviation="EPT" level="2.5kmAgl"/>
+        <Field abbreviation="EPT" level="3kmAgl"/>
     </Method>
 </DerivedParameter>

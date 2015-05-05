@@ -23,4 +23,8 @@
         <Field level="upper" abbreviation="Wind"/>
         <Field level="lower" abbreviation="Wind"/>
     </Method>
+     <Method levels="0-1kmAgl,0-6kmAgl" name="Vector">
+        <Field abbreviation="VVCSH"/>
+        <Field abbreviation="VUCSH"/>
+    </Method>
 </DerivedParameter>
