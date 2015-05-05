@@ -100,6 +100,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 10/28/2014   3454        bphillip    Fix usage of getSession()
  * Jan 27, 2015 4031        rferrel     Resolve AFOS PILs site conflict using preferredAfosFirstLetter.
+ * May 05, 2015 4462        rferrel     {@link #write(StdTextProduct)} when missing set the textProduct's site.
  * </pre>
  * 
  * @author garmendariz
@@ -220,6 +221,22 @@ public class StdTextProductDao extends CoreDao {
         prodId.setNnnid(nnn);
         prodId.setXxxid(xxx);
         Session session = this.getSession();
+        String site = textProduct.getProdId().getSite();
+        if ((site == null) || site.trim().isEmpty()) {
+            // Determine product site.
+            if (xxx.trim().length() == MAX_FIELD_LENGTH) {
+                site = SiteMap.getInstance().getSite4LetterId(xxx);
+            } else {
+                site = SiteMap.getInstance().getSite4LetterId(
+                        SiteUtil.getSite());
+            }
+            if (logger.isInfoEnabled()) {
+                logger.info("Write \"" + ccc + nnn + xxx
+                        + "\" setting site to " + site);
+            }
+            textProduct.getProdId().setSite(site);
+        }
+
         try {
             try {
                 Query query = session.createQuery("SELECT refTime from "
