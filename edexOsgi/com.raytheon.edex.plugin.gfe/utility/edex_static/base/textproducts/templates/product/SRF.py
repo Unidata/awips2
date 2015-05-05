@@ -59,7 +59,7 @@
 #       You can copy the information from the AreaDictionary as a starting point.
 #       Then add the following information for each zone:
 #
-#       "landSeaArea": An edit area you need to create which contians grid
+#       "landSeaArea": An edit area you need to create which contains grid
 #                      points along the coast, including both land and sea. 
 #       "marineArea": Typically, the coastal waters area.
 #       "surfAreas": The surfAreas entry is an optional list of edit areas and labels
@@ -67,18 +67,18 @@
 #                    For example, If you have:
 #
 #           surfAreas: [           
-#               ("WestCoast",  "Surf along west facing reefs.............."),
-#               ("NorthCoast", "Surf along north facing reefs............."),
-#               ("EastCoast",  "Surf along east facing reefs.............."),
-#               ("SouthCoast", "Surf along south facing reefs............."),
+#               ("WestCoast",  "SURF ALONG WEST FACING REEFS.............."),
+#               ("NorthCoast", "SURF ALONG NORTH FACING REEFS............."),
+#               ("EastCoast",  "SURF ALONG EAST FACING REEFS.............."),
+#               ("SouthCoast", "SURF ALONG SOUTH FACING REEFS............."),
 #               ]
 #
 #            You would get a surfHeight report for each surfArea listed:
 #                
-#               Surf along west facing reefs................10 TO 12 feet.
-#               Surf along north facing reefs...............4 TO 6 feet.
-#               Surf along east facing reefs................2 TO 3 feet.
-#               Surf along south facing reefs...............4 TO 6 feet.
+#               SURF ALONG WEST FACING REEFS................10 TO 12 feet.
+#               SURF ALONG NORTH FACING REEFS...............4 TO 6 feet.
+#               SURF ALONG EAST FACING REEFS................2 TO 3 feet.
+#               SURF ALONG SOUTH FACING REEFS...............4 TO 6 feet.
 #
 #             If the list is empty, you will simply get surfHeight reported
 #             for the current value of the WaveHeight Grid sampled from the
@@ -281,7 +281,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "ripGrid": "",               # Use grid for rip_phrase
         "waterSpoutGrid": "",        # Use grid for waterSpout_phrase
         "includeOutlook": 0,         # If 1, OUTLOOK section included
-        "outLookText": "\n.OUTLOOK...",# Text for OUTLOOK section
+        "outLookText": "\n.Outlook...",# Text for OUTLOOK section
         "tideFiles": {               # For each tide table, list the file where it can
                                      # be found
              "Venice Inlet": "/data/local/localapps/tides/VeniceInlet.txt",
@@ -313,7 +313,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "areaDictionary": "SurfAreaDictionary",
         "language": "english",
         "synopsisUGC": "",                # UGC code for synopsis
-        "synopsisHeading": ".SYNOPSIS...",# Heading for synopsis
+        "synopsisHeading": ".Synopsis...",# Heading for synopsis
         # If individualExtended == 1, an extended forecast will be
         # generated for each individual area
         # If extendedLabel == 1, a label will be included for each
@@ -355,34 +355,34 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # If a method, it will be called with arguments:
         #   tree, node, key, element
         return {
-            "WaveHeight" : "surf................",
+            "WaveHeight" : "SURF................",
             "Swell":  "swell",
             "Swell2": "swell",
-            "LabelSwell":  "swell...............",
-            "LabelSwell2": "secondary swell.....",
-            "Period": "period..............",
-            "Period2":"secondary period....",
-            "chop" : "water condition.....",
-            "rip" :  "rip current risk....",
-            "HeatIndex": "heat index..........",
-            "20-foot winds......." : "beach winds.........",
-            "MaxT_FireWx":"max temperature.....",
-            "Sky/weather.........":  "sky/weather.........",
-            "sst" : "water temperature...",
-            "uvi" : "UVI index...........",
-            "LAL" : "lightning threat....",
-            "WaterSpout" : "waterspout threat...",
-            "PoP" : "chance of...........",           
+            "LabelSwell":  "SWELL...............",
+            "LabelSwell2": "SECONDARY SWELL.....",
+            "Period": "PERIOD..............",
+            "Period2":"SECONDARY PERIOD....",
+            "chop" : "WATER CONDITION.....",
+            "rip" :  "RIP CURRENT RISK....",
+            "HeatIndex": "HEAT INDEX..........",
+            "20-FOOT WINDS......." : "BEACH WINDS.........",
+            "MaxT_FireWx":"MAX TEMPERATURE.....",
+            "SKY/WEATHER.........":  "SKY/WEATHER.........",
+            "sst" : "WATER TEMPERATURE...",
+            "uvi" : "UVI INDEX...........",
+            "LAL" : "LIGHTNING THREAT....",
+            "WaterSpout" : "WATERSPOUT THREAT...",
+            "PoP" : "CHANCE OF...........",           
             "MinT":"lows",
             "MaxT":"highs",
             "Wind": "winds",           
             #  Used for Headlines
-            "Expected" : "expected",
-            "In effect" : "in effect",
+            "EXPECTED" : "expected",
+            "IN EFFECT" : "in effect",
             # Used for single values
             "around": "around ",
-            "    valleys/lwr slopes...": "    inland...............",
-            "    ridges/upr slopes....": "    coastal..............",
+            "    VALLEYS/LWR SLOPES...": "    INLAND...............",
+            "    RIDGES/UPR SLOPES....": "    COASTAL..............",
             }
 
 ############################################################################
@@ -857,7 +857,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _preProcessProduct(self, fcst, argDict,):
         # Product header
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -865,11 +865,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
        
         #  Try to get Synopsis from previous SRF
         srfPil = self._statePil + self._srfPil
@@ -937,8 +938,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         #           "landSeaArea": "Extra0",
         #           "marineArea": "Extra1",
         #           "surfAreas": [
-        #                ('NorthCoast', 'Surf along north facing reefs.............'),
-        #                ('SouthCoast', 'Surf along south facing reefs.............')
+        #                ('NorthCoast', 'SURF ALONG NORTH FACING REEFS.............'),
+        #                ('SouthCoast', 'SURF ALONG SOUTH FACING REEFS.............')
         #                ],
         #           "tideTables": ["Cedar Key", "Venice Inlet"],
         #           },
@@ -1228,7 +1229,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return self.setWords(node, "")
         self.setWords(node, "")
         node.set("descriptor", "")
-        node.set("indentLabel", "20-foot winds.......")
+        node.set("indentLabel", "20-FOOT WINDS.......")
         return self.DONE()      
     
     def fireRidgeValleyWind_setUp(self, tree, node):
@@ -1538,7 +1539,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             tokens = line.split()
             # Look for the city
             for token in tokens:
-                if token == uviCity:
+                if token.upper() == uviCity.upper():
                     index = tokens.index(token)
                     state = tokens[index + 1]
                     if state == uviState:
@@ -1597,7 +1598,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 # Add error message to fcst
                 fcst = fcst + tideTable
                 continue
-            fcst = fcst + "\nAT " + label + "...\n\n"
+            fcst = fcst + "\nAt " + label + "...\n\n"
             for line in tideTable:
                 if line.find(currentDate) == 0:
                     # Get the tide info 
@@ -1704,7 +1705,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if words is None:
             return
         if words == "":
-            words = "Missing"
+            words = "MISSING"
         node.set("descriptor", "")
         node.set("indentLabel", "Label"+elementName)
         node.set("compound", 1)

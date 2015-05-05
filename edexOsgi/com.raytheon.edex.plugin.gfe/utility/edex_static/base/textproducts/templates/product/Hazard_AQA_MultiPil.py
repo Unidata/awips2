@@ -24,6 +24,7 @@
 # Date            Ticket#        Engineer    Description
 # ------------    ----------     ----------- --------------------------
 # Oct 20, 2014    #3685          randerso    Changed to support mixed case
+# Apr 28, 2015    #4027          randerso    Additional changes for mixed case
 #
 ##
 
@@ -90,14 +91,14 @@ class TextProduct(GenericHazards.TextProduct):
         "name": "Forsyth County Environmental Affairs Department Winston-Salem NC",
         "declaration": "The Forsyth County Environmental Affairs Department has issued an Air Quality Action Day...",
         "zones": ["FLZ039"],
-        "text": "A Code @ALERTCODE Air Quality Alert for Ozone has been issued. Ground level ozone concentrations within the region may approach or exceed unhealthy standards. @ALERTCTA For additional information...please visit the Forsyth County Environmental Affairs Department Web site at http://www.co.forsyth.nc.us/envaffairs.",
+        "text": "A Code @ALERTCODE Air Quality Alert for Ozone has been issued. Ground level ozone concentrations within the region may approach or exceed unhealthy standards. @ALERTCTA For additional information...please visit the Forsyth County Environmental Affairs Department web site at http://www.co.forsyth.nc.us/envaffairs.",
         },
         
         "NC": {
         "name": "North Carolina Department of Environmental and Natural Resources Raleigh NC",
         "declaration": "The North Carolina Department of Environmental and Natural Resources has issued an Air Quality Action Day...",
         "zones" : ["FLZ042", "FLZ043","FLZ048"],
-        "text": "A Code @ALERTCODE Air Quality Alert for Ozone has been issued. Ground level ozone concentrations within the region may approach or exceed unhealthy standards. @ALERTCTA For additional information...please visit the North Carolina Division of Air Quality Web site at http://daq.state.nc.us/airaware/forecast/.",
+        "text": "A Code @ALERTCODE Air Quality Alert for Ozone has been issued. Ground level ozone concentrations within the region may approach or exceed unhealthy standards. @ALERTCTA For additional information...please visit the North Carolina Division of Air Quality web site at http://daq.state.nc.us/airaware/forecast/.",
         },        
         }
     
@@ -150,19 +151,19 @@ class TextProduct(GenericHazards.TextProduct):
 
         # Product header
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
 
-        fcst = fcst + self._wmoID + " " + self._fullStationID + " " +\
+        s = self._wmoID + " " + self._fullStationID + " " +\
                self._ddhhmmTime + "\n" + self._pil + "\n\n" + productName + "\n"
 
         # Placeholder for Agency Names to be filled in in _postProcessProduct
-        #fcst = fcst + "@AGENCYNAMES" + "\n"
-        s = "Relayed by National Weather Service " + self._wfoCityState + "\n" +\
+        #s = s + "@AGENCYNAMES" + "\n"
+        s = s + "Relayed by National Weather Service " + self._wfoCityState + "\n" +\
                issuedByString + self._timeLabel + "\n\n"
 
         fcst = fcst + s.upper()

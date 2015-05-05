@@ -23,6 +23,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    02/17/2015      4139          randerso       Replaced call to iscTime.timeFromComponents
 #                                                 with call to calendar.timegm
+#    04/23/2015      4383          randerso       Changed to log arguments to aid in troubleshooting
 ##
 
 
@@ -521,9 +522,9 @@ class IscMosaic:
         self.__processTimePeriod = (startTime, endTime)
 
         initLogger(self.__logFile)
+        logger.info("iscMosaic Starting args: %s", str(args))
 
     def execute(self):
-        logger.info("iscMosaic Starting")
 
         # get the WxDefinition and DiscreteDefinition
         config = IFPServerConfigManager.getServerConfig(self.__mysite)

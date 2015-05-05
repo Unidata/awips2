@@ -62,6 +62,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Apr 24, 2013  1936      dgilling    Remove unused imports.
  * Feb 12, 2014  2591      randerso    Removed reloadModule method
  * Dec 15, 2014  #14946    ryu         Add getTimeZones() method.
+ * Apr 20, 2015  4027      randerso    Made fileObservers conditional as they are not needed
+ *                                     in a non-GUI environment like GFE formatter auto-tests
  * 
  * </pre>
  * 
@@ -89,9 +91,9 @@ public class TextProductManager {
 
     private TextProductListener listener;
 
-    public TextProductManager() {
+    public TextProductManager(boolean startListener) {
         try {
-            init();
+            init(startListener);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Exception initializing TextProductManager", e);
@@ -101,7 +103,7 @@ public class TextProductManager {
         }
     }
 
-    private void init() throws VizException, JepException {
+    private void init(boolean startListener) throws VizException, JepException {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext configContext = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.CONFIGURED);
@@ -116,10 +118,12 @@ public class TextProductManager {
                 GfePyIncludeUtil.TEXT_PRODUCTS);
         lfUserDir = pm.getLocalizationFile(userContext,
                 GfePyIncludeUtil.TEXT_PRODUCTS);
-        listener = new TextProductListener();
-        lfConfigDir.addFileUpdatedObserver(listener);
-        lfSiteDir.addFileUpdatedObserver(listener);
-        lfUserDir.addFileUpdatedObserver(listener);
+        if (startListener) {
+            listener = new TextProductListener();
+            lfConfigDir.addFileUpdatedObserver(listener);
+            lfSiteDir.addFileUpdatedObserver(listener);
+            lfUserDir.addFileUpdatedObserver(listener);
+        }
 
         script = FormatterScriptFactory.buildFormatterScript();
 
@@ -136,10 +140,10 @@ public class TextProductManager {
 
         HashMap<String, Object> map = new HashMap<String, Object>();
         String paths = configDir.getPath();
-        if (siteDir != null && siteDir.exists()) {
+        if ((siteDir != null) && siteDir.exists()) {
             paths = siteDir + ":" + paths;
         }
-        if (userDir != null && userDir.exists()) {
+        if ((userDir != null) && userDir.exists()) {
             paths = userDir + ":" + paths;
         }
         map.put("paths", paths);
@@ -170,7 +174,7 @@ public class TextProductManager {
     public String getCombinationsFileName(String productName) {
         String filename = null;
         Object obj = getDefinitionValue(productName, "defaultEditAreas");
-        if (obj != null && obj instanceof String) {
+        if ((obj != null) && (obj instanceof String)) {
             filename = (String) obj;
         } else {
             filename = "NONE";
@@ -181,7 +185,7 @@ public class TextProductManager {
     public boolean isSingleZoneSelect(String productName) {
         boolean isSingle = false;
         Object obj = getDefinitionValue(productName, "singleComboOnly");
-        if (obj != null && obj instanceof Integer) {
+        if ((obj != null) && (obj instanceof Integer)) {
             if ((Integer) obj == 1) {
                 isSingle = true;
             }
@@ -245,12 +249,13 @@ public class TextProductManager {
             statusHandler.handle(Priority.PROBLEM,
                     "Exception getting VTECMessageType", e);
         }
+        if (vtec == null) {
+            vtec = "";
+        }
         return vtec;
     }
 
-    
-    public List<String> getTimeZones(List<String> zones, 
-				     String officeTimeZone) {
+    public List<String> getTimeZones(List<String> zones, String officeTimeZone) {
         List<String> timeZones = Collections.emptyList();
         HashMap<String, Object> map = new HashMap<String, Object>(2);
         map.put("zones", zones);
@@ -259,7 +264,7 @@ public class TextProductManager {
             timeZones = (List<String>) script.execute("getTimeZones", map);
         } catch (JepException e) {
             statusHandler.handle(Priority.PROBLEM,
-                                 "Exception getting time zones", e);            
+                    "Exception getting time zones", e);
         }
         return timeZones;
     }

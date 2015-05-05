@@ -31,16 +31,32 @@ from com.raytheon.uf.common.dataplugin.gfe.weather import WeatherSubKey as JavaW
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/09/08                      njensen       Initial Creation.
-#    
-# 
+#    04/20/2015      4027          randerso      Added __eq__ and __hash__ so WeatherSubKey works
+#                                                correctly when used as key in a dict.
+#                                                Changed several methods which were static methods in Java                                                 
 #
 
 class WeatherSubKey:
     def __init__(self, javaSubKey):
         self.__key = javaSubKey
+        
+    def __repr__(self):
+        return str(self.__key.toString())
     
     def __str__(self):
         return str(self.__key.toString())
+    
+    def __eq__(self, other):
+        try:
+            return self.__key.equals(other.__key)
+        except:
+            return False
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
+   
+    def __hash__(self):
+        return self.__key.hashCode()
     
     def wxType(self):
         return self.__key.getType()
@@ -55,31 +71,31 @@ class WeatherSubKey:
         return self.__key.getVisibility()
         
     def attributes(self):
-        return JUtil.javaStringListToPylist(self.__key.getAttributes())
+        return JUtil.javaObjToPyVal(self.__key.getAttributes())
     
     def wxDef(self):
         return WxDefinition.WxDefinition(self.__key.wxDef())
     
-    def availableCoverages(self, dataMgr, wxType):
-        siteId = dataMgr.getSiteID()         
-        return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableCoverages(siteId, wxType))
-    
-    def availableAttributes(self, dataMgr, wxType):
-        siteId = dataMgr.getSiteID()         
-        return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableAttributes(siteId, wxType))
-    
-    def availableIntensities(self, dataMgr, wxType):
-        siteId = dataMgr.getSiteID()         
-        return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableIntensities(siteId, wxType))
-    
-    def availableVisibilities(self, dataMgr):
-        siteId = dataMgr.getSiteID()         
-        return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableVisibilities(siteId))
-    
-    def availableWxTypes(self, dataMgr):
-        siteId = dataMgr.getSiteID()         
-        return JUtil.javaStringListToPylist(JavaWeatherSubKey.availableWxTypes(siteId))
-    
+def availableCoverages(dataMgr, wxType):
+    siteId = dataMgr.getSiteID()         
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableCoverages(siteId, wxType))
+
+def availableAttributes(dataMgr, wxType):
+    siteId = dataMgr.getSiteID()         
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableAttributes(siteId, wxType))
+
+def availableIntensities(dataMgr, wxType):
+    siteId = dataMgr.getSiteID()         
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableIntensities(siteId, wxType))
+
+def availableVisibilities(dataMgr):
+    siteId = dataMgr.getSiteID()         
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableVisibilities(siteId))
+
+def availableWxTypes(dataMgr):
+    siteId = dataMgr.getSiteID()         
+    return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableWxTypes(siteId))
+
 def weatherSubKey(dataMgr, coverage, wxType, intensity, vis, attrList):
     siteId = dataMgr.getSiteID()         
     javaSubKey = JavaWeatherSubKey(siteId, coverage, wxType,

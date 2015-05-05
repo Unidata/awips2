@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import jep.JepException;
 
@@ -108,6 +109,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Feb 23, 2015    4127    dgilling    Use cluster locking to only allow 1 active
  *                                     table write at a time.
  * Mar 04, 2015    4129    randerso    Pass active table change logger to ingestAt and/or MergeVTEC
+ * Apr 28, 2015  #4027     randerso    Expunged Calendar from ActiveTableRecord, 
+ *                                     fixed next ETN query to query for >= Jan 1
  * 
  * </pre>
  * 
@@ -447,7 +450,7 @@ public class ActiveTable {
     @SuppressWarnings("unchecked")
     private static List<ActiveTableRecord> queryTable(String siteId,
             ActiveTableMode mode, String phensigList, String action,
-            String etn, Calendar currentTime, boolean requestValidTimes,
+            String etn, Date currentTime, boolean requestValidTimes,
             boolean latestEtn) {
         DatabaseQuery query = null;
         CoreDao dao = null;
@@ -472,27 +475,18 @@ public class ActiveTable {
             query.addQueryParam("etn", etn, "in");
         }
 
-            if (requestValidTimes && (currentTime != null)) {
-                // Current Time
-                query.addQueryParam("endTime", currentTime, "greater_than");
-            }
-            if (latestEtn && (currentTime != null)) {
-                Calendar yearStart = Calendar.getInstance();
-                yearStart.set(currentTime.get(Calendar.YEAR), Calendar.JANUARY,
-                        0, 0, 0);
-                query.addQueryParam("startTime", yearStart, "greater_than");
-                query.addOrder("etn", false);
-                query.setMaxResults(1);
-            }
-        if (requestValidTimes && currentTime != null) {
+        if (requestValidTimes && (currentTime != null)) {
             // Current Time
-            query.addQueryParam("endTime", currentTime, "greater_than");
+            query.addQueryParam("endTime", currentTime, ">");
         }
-        if (latestEtn && currentTime != null) {
-            Calendar yearStart = Calendar.getInstance();
-            yearStart.set(currentTime.get(Calendar.YEAR), Calendar.JANUARY, 1,
+        if (latestEtn && (currentTime != null)) {
+            Calendar yearStart = Calendar.getInstance(TimeZone
+                    .getTimeZone("GMT"));
+            yearStart.setTime(currentTime);
+            yearStart.set(yearStart.get(Calendar.YEAR), Calendar.JANUARY, 1, 0,
                     0, 0);
-            query.addQueryParam("issueTime", yearStart, "greater_than");
+            yearStart.set(Calendar.MILLISECOND, 0);
+            query.addQueryParam("issueTime", yearStart.getTime(), ">=");
             query.addOrder("etn", false);
             query.setMaxResults(1);
         }
@@ -713,14 +707,14 @@ public class ActiveTable {
      * @param phensig
      *            The phenomenon and significance combination to search for.
      * @param currentTime
-     *            <code>Calendar</code> representing time to perform search from
+     *            <code>Date</code> representing time to perform search from
      *            (needed for DRT mode).
      * @return The last ETN assigned to the particular site and phensig
      *         combination, or <code>null</code> if no ETNs have been assigned
      *         to this combination.
      */
     public static Integer getLastUsedEtn(String siteId, ActiveTableMode mode,
-            String phensig, Calendar currentTime) {
+            String phensig, Date currentTime) {
         Integer lastEtn = null;
         List<ActiveTableRecord> records = ActiveTable.queryTable(siteId, mode,
                 phensig, null, null, currentTime, false, true);

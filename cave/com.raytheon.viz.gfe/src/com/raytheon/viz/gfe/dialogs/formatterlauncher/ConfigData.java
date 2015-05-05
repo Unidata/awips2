@@ -27,6 +27,7 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 18 APR 2008  ###        lvenable    Initial creation
+ * 20 APR 2015  4027       randerso    Added a flag to the enum's to indicate which are final states
  * 
  * </pre>
  * 
@@ -46,8 +47,19 @@ public final class ConfigData {
      * @author lvenable
      * 
      */
-    public enum productStateEnum {
-        New, Queued, Running, Finished, Transmitted, Failed;
+    public enum ProductStateEnum {
+        New(false), Queued(false), Running(false), Finished(true), Transmitted(
+                true), Failed(true);
+
+        private boolean complete;
+
+        private ProductStateEnum(boolean complete) {
+            this.complete = complete;
+        }
+
+        public boolean isComplete() {
+            return complete;
+        }
     }
 
     /**

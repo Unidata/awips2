@@ -25,13 +25,13 @@
 #     SRF_850, SRF_853, SRF_856
 #
 #  surfAreas:
-#     NorthCoast1 (listed with FLZ039), SouthCoast  (along GMZ850)
-#     NorthCoast2 (listed with FLZ042), SouthCoast  (along GMZ850)
+#     NorthCoast1 (listed with FLZ139), SouthCoast  (along GMZ850)
+#     NorthCoast2 (listed with FLZ142), SouthCoast  (along GMZ850)
 #
 # TBW always runs with the same combinations:
-#   FLZ039-FLZ042-FLZ048-FLZ049
-#   FLZ050-FLZ051-FLZ055-FLZ060
-#   FLZ062-FLZ065
+#   FLZ139-FLZ142-FLZ148-FLZ149
+#   FLZ050-FLZ151-FLZ155-FLZ160
+#   FLZ162-FLZ165
 # Thus, additional entries need only be listed for at least one zone
 # in each combination.
 #
@@ -39,50 +39,59 @@
 # for each zone and the system will take care to combine them appropriately.
 # For example, note that the "surfAreas" are listed for both FLZ039 and FLZ042.
 # When they are combined, the surfAreas are reported just once, as desired.
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    04/28/2016      4027          randerso       Changes for mixed case
+#
+##
 
 
 AreaDictionary = {
 
- 'FLZ039': {'fullStateName': 'Florida',
+ 'FLZ139': {'fullStateName': 'Florida',
             'partOfState': 'northern',
             'stateAbbr': 'FL',
             'ugcCityString': '...Cedar Key...Hudson Beach...McKethan Pine Island Park',
-            'ugcCode': 'FLZ039',
+            'ugcCode': 'FLZ139',
             'ugcName': 'Levy',
             'ugcTimeZone': 'EST5EDT',
             'landSeaArea': 'SRF_850',
             'marineArea':  'GMZ850',
             'surfAreas': [
-                   ('NorthCoast1', 'Surf along north facing reefs.............'),
-                   ('SouthCoast', 'Surf along south facing reefs.............')
+                   ('NorthCoast1', 'SURF ALONG NORTH FACING REEFS.............'),
+                   ('SouthCoast', 'SURF ALONG SOUTH FACING REEFS.............')
                    ],
             'uviCity': "Tampa",  # City for which UVI should be listed
             'tideTables':   ["Cedar Key", "Venice Inlet"],
             },
- 'FLZ042': {'fullStateName': 'Florida',
+ 'FLZ142': {'fullStateName': 'Florida',
             'partOfState': 'west central',
             'stateAbbr': 'FL',
             'ugcCityString': '',
-            'ugcCode': 'FLZ042',
+            'ugcCode': 'FLZ142',
             'ugcName': 'Citrus',
             'ugcTimeZone': 'EST5EDT',
             'surfAreas': [
-                   ('NorthCoast2', 'Surf along north facing reefs.............'),
-                   ('SouthCoast', 'Surf along south facing reefs.............')
+                   ('NorthCoast2', 'SURF ALONG NORTH FACING REEFS.............'),
+                   ('SouthCoast', 'SURF ALONG SOUTH FACING REEFS.............')
                    ],
             },
- 'FLZ048': {'fullStateName': 'Florida',
+ 'FLZ148': {'fullStateName': 'Florida',
             'partOfState': 'west central',
             'stateAbbr': 'FL',
             'ugcCityString': '',
-            'ugcCode': 'FLZ048',
+            'ugcCode': 'FLZ148',
             'ugcName': 'Hernando',
             'ugcTimeZone': 'EST5EDT'},
- 'FLZ049': {'fullStateName': 'Florida',
+ 'FLZ149': {'fullStateName': 'Florida',
             'partOfState': 'west central',
             'stateAbbr': 'FL',
             'ugcCityString': "",
-            'ugcCode': 'FLZ049',
+            'ugcCode': 'FLZ149',
             'ugcName': 'Pasco',
             'ugcTimeZone': 'EST5EDT'},
 
@@ -91,7 +100,7 @@ AreaDictionary = {
  'FLZ050': {'fullStateName': 'Florida',
             'partOfState': 'west central',
             'stateAbbr': 'FL',
-            'ugcCityString': '...Bradenton Beach...Clearwater Beach...Siesta Key...Saint pete Beach...Venice Beach',
+            'ugcCityString': '...Bradenton Beach...Clearwater Beach...Siesta Key...Saint Pete Beach...Venice Beach',
             'ugcCode': 'FLZ050',
             'ugcName': 'Pinellas',
             'ugcTimeZone': 'EST5EDT',
@@ -101,35 +110,35 @@ AreaDictionary = {
             'uviCity': "Tampa",
             'tideTables':  ["Saint Petersburg", "Fort Myers"],
             },
- 'FLZ051': {'fullStateName': 'Florida',
+ 'FLZ151': {'fullStateName': 'Florida',
             'partOfState': 'west central',
             'stateAbbr': 'FL',
             'ugcCityString': '',
-            'ugcCode': 'FLZ051',
+            'ugcCode': 'FLZ151',
             'ugcName': 'Hillsborough',
             'ugcTimeZone': 'EST5EDT'},
- 'FLZ055': {'fullStateName': 'Florida',
+ 'FLZ155': {'fullStateName': 'Florida',
             'partOfState': 'west central',
             'stateAbbr': 'FL',
             'ugcCityString': '',
-            'ugcCode': 'FLZ055',
+            'ugcCode': 'FLZ155',
             'ugcName': 'Manatee',
             'ugcTimeZone': 'EST5EDT'},
- 'FLZ060': {'fullStateName': 'Florida',
+ 'FLZ160': {'fullStateName': 'Florida',
             'partOfState': 'west central',
             'stateAbbr': 'FL',
             'ugcCityString': '',
-            'ugcCode': 'FLZ060',
+            'ugcCode': 'FLZ160',
             'ugcName': 'Sarasota',
             'ugcTimeZone': 'EST5EDT'},
 
  ###################
  
- 'FLZ062': {'fullStateName': 'Florida',
+ 'FLZ162': {'fullStateName': 'Florida',
             'partOfState': 'Southwest',
             'stateAbbr': 'FL',
             'ugcCityString': '...Boca Grande...Englewood',
-            'ugcCode': 'FLZ062',
+            'ugcCode': 'FLZ162',
             'ugcName': 'Charlotte',
             'ugcTimeZone': 'EST5EDT',
             'landSeaArea': 'SRF_856',
@@ -138,11 +147,11 @@ AreaDictionary = {
             'uviCity': "Tampa",
             'tideTables':  ["Venice Inlet"],
             },
- 'FLZ065': {'fullStateName': 'Florida',
+ 'FLZ165': {'fullStateName': 'Florida',
             'partOfState': 'Southwest',
             'stateAbbr': 'FL',
             'ugcCityString': '...Fort Myers Beach...Sanibel Island',
-            'ugcCode': 'FLZ065',
+            'ugcCode': 'FLZ165',
             'ugcName': 'Lee',
             'ugcTimeZone': 'EST5EDT',
             },

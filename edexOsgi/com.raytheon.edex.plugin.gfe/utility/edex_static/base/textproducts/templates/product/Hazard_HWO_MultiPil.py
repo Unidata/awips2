@@ -144,7 +144,7 @@ class TextProduct(GenericReport.TextProduct):
             if areaCount == 1:
                conn = ""
             elif areaCount == areaLen:
-               conn = " AND "
+               conn = " and "
             else:
                conn = "..."
             if eachGeneralArea[1] != "":

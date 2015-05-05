@@ -41,8 +41,8 @@
 #                   names in one of two formats, depending upon whether
 #                   you are supporting regional headers.  Choose one and
 #                   use it throughout the product.
-#                      (editAreaName, "REGIONLABEL\nCITYLABEL")
-#                      (editAreaName, "CITYLABEL")
+#                      (editAreaName, "Regionlabel\nCitylabel")
+#                      (editAreaName, "Citylabel")
 #
 #  productName      defines name of product e.g. "Tabular State Forecast"
 #
@@ -158,9 +158,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
           "outputFile": "{prddir}/TEXT/SFT_<MultiPil>.txt",
           "debug": 0,
           
-          "defaultEditAreas": [("area1", "REGION1\nCITY1"),
-                               ("area2", "REGION1\nCITY2"),
-                               ("area3", "REGION2\nCITY3"),
+          "defaultEditAreas": [("area1", "Region1\nCity1"),
+                               ("area2", "Region1\nCity2"),
+                               ("area3", "Region2\nCity3"),
                               ],
 
           # product identifiers
@@ -354,15 +354,18 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Add product heading to fcst string
         issuedByString = self.getIssuedByString()            
     
-        productName = self._productName + " FOR " + self._stateName 
+        productName = self._productName + " for " + self._stateName 
         productName = self.checkTestMode(argDict, productName)
-        return fcst + self._wmoID + " " + self._fullStationID + " " + \
+        
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n" +\
                self._zoneCode + "-" + self._ddhhmmTimeExpire + "-\n\n" +\
                productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
-               "\n" + issuedByString + self._timeLabel + "\n\n" + \
-               self._rowDescription() + "\n\n" + self._tableHeader() + "\n\n"
+               "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst = fcst + s.upper()
+        
+        return fcst + self._rowDescription() + "\n\n" + self._tableHeader() + "\n\n"
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
         # determine the region and area names, separated by a new line
@@ -582,7 +585,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _popTimeLabel(self):
         # Returns the valid time for the daily POP field
-        return " NIGHTTIME 6PM-6AM/DAYTIME 6AM-6PM"
+        return " nighttime 6PM-6AM/daytime 6AM-6PM"
 
     def _qpfTimeLabel(self):
         # Returns the valid time for the daily qpf field
@@ -595,30 +598,30 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         ident = "   "
 
         # s is the built-up string containing the description
-        s =  "ROWS INCLUDE...\n"
+        s =  "Rows include...\n"
 
 
         # Weather
-        s = s + ident + "DAILY PREDOMINANT DAYTIME WEATHER 6AM-6PM"
+        s = s + ident + "Daily predominant daytime weather 6AM-6PM"
 
         # Temps
         s = s + "\n" + ident + \
-           "FORECAST TEMPERATURES...EARLY MORNING LOW/DAYTIME HIGH" 
+           "Forecast temperatures...early morning low/daytime high" 
 
         # PoP
         if self._alwaysIncludePoP:
             s = s + "\n" + ident + ident + ident + \
-              "PROBABILITY OF PRECIPITATION" + self._popTimeLabel()
+              "Probability of precipitation" + self._popTimeLabel()
 
         # other stuff
         s = s + "\n" + \
-           ident + ident + ident + " - INDICATES TEMPERATURES BELOW ZERO\n" + \
-           ident + ident + ident + "MM INDICATES MISSING DATA"
+           ident + ident + ident + " - indicates temperatures below zero\n" + \
+           ident + ident + ident + "MM indicates missing data"
 
         #QPF
         if self._alwaysIncludeQPF:
             s = s + "\n" + ident + \
-              "QUANTITATIVE PRECIPITATION - INCHES -" + \
+              "Quantitative precipitation - inches -" + \
                 self._qpfTimeLabel()
 
 

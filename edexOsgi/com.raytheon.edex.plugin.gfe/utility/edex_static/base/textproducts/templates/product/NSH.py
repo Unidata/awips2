@@ -69,7 +69,7 @@
 #                         in the AWIPS text database. 
 #                         This value is also used for the default GUI entry for 
 #                         storage.
-#  awipsWANPil            Defines the awips product identifier 
+#  awipsWANPil            Defines the AWIPS product identifier 
 #                         (e.g., KBOUCCFDEN) that is used to transmit the 
 #                         product to the AWIPS WAN. 
 #                         This value is also used for the default GUI 
@@ -78,7 +78,7 @@
 #                    grid points in a zone that must contain the hazard
 #                    in order for it to be considered. Tuple (percent, points)
 #
-#  periodCombining         If 1, compnents an attempt will be made to combine components
+#  periodCombining         If 1, components an attempt will be made to combine components
 #                          or time periods into one.  Otherwise no period combining will
 #                          will be done.
 #  useAbbreviations
@@ -329,7 +329,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def postProcessPhrases(self, tree, node): 
         words = node.get("words") 
         if words is not None: 
-            words = string.lower(words) 
             words = string.replace(words, "thunderstorms and rain showers", 
                         "showers and thunderstorms") 
             words = string.replace(words, "snow showers and rain showers", "rain and snow showers") 
@@ -574,7 +573,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -582,19 +581,21 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
         
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
-               "\n" + issuedByString + self._timeLabel + "\n\n" + \
-               self._lakeStmt(argDict) + "\n\n"
+               "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst = fcst + s.upper()
+               
+        fcst =  fcst + self._lakeStmt(argDict) + "\n\n"
         fcst = fcst + self._Text1()
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
-            self._areaDictionary, self._defaultEditAreas)
+            self._areaDictionary, self._defaultEditAreas, upperCase=True)
         fcst = fcst + areaHeader 
 
         # get the hazards text
@@ -694,9 +695,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         # NOTE: If you set this flag to 1, make sure the "nextDay24HourLabel_flag"
         # is set to zero.
         # NOTE: This applied only to periods that are exactly 24-hours in length.

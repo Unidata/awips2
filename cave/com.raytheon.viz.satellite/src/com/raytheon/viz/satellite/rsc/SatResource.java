@@ -38,6 +38,8 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
@@ -45,10 +47,16 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.datastorage.Request;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
@@ -62,7 +70,6 @@ import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension.ImageProvider;
@@ -79,6 +86,7 @@ import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
 import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
 import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 import com.raytheon.uf.viz.core.rsc.interrogation.StringInterrogationKey;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.satellite.SatelliteConstants;
 import com.raytheon.viz.satellite.inventory.DerivedSatelliteRecord;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
@@ -127,7 +135,7 @@ import com.raytheon.viz.awipstools.IToolChangedListener;
  *  Oct 15, 2014  3681      bsteffen    create renderable in interrogate if necessary.
  *  Feb 17, 2015  4135      bsteffen    Set no data value for derived products.
  *  Mar 3, 2015   DCS 14960 jgerth      Retrieve legend from style rules if available
- * 
+ *  Apr 15, 2014  4388      bsteffen    Use fill value from record.
  * 
  * </pre>
  * 
@@ -333,6 +341,57 @@ public class SatResource extends
                 cmName = colorMapParameters.getColorMapName();
             }
         }
+        Unit<?> unit = SatDataRetriever.getRecordUnit(record);
+
+        
+        /*
+         * TODO default to NaN instead of 0. 0 is the default to support older
+         * data(before the gini decoder set a fill value), when all decoders and
+         * all decoded data has a proper fill value this should be changed to
+         * Double.NaN.
+         */
+        double fillValue = 0;
+        double defaultMin = 0;
+        double defaultMax = 0xff;
+        try {
+            String dataSetName = DataStoreFactory.createDataSetName(null,
+                    SatelliteRecord.SAT_DATASET_NAME, 0);
+            IDataRecord dataRecord = DataCubeContainer.getDataRecord(record,
+                    Request.buildPointRequest(new java.awt.Point(0, 0)),
+                    dataSetName)[0];
+            Number fillObj = dataRecord.getFillValue();
+            if (fillObj != null) {
+                fillValue = fillObj.doubleValue();
+            }
+            if (dataRecord instanceof ShortDataRecord) {
+                if (SatDataRetriever.isSigned(dataRecord)) {
+                    defaultMin = Short.MIN_VALUE;
+                    defaultMax = Short.MAX_VALUE;
+                } else {
+                    defaultMin = 0;
+                    defaultMax = 0xFFFF;
+                    fillValue = ((int) fillValue) & 0xFFFF;
+                }
+            } else if (dataRecord instanceof ByteDataRecord) {
+                if (SatDataRetriever.isSigned(dataRecord)) {
+                    defaultMin = Byte.MIN_VALUE;
+                    defaultMax = Byte.MAX_VALUE;
+                } else {
+                    defaultMin = 0;
+                    defaultMax = 0xFF;
+                    fillValue = ((int) fillValue) & 0xFF;
+                }
+            }
+            Unit<?> dataUnit = SatDataRetriever.getDataUnit(unit, dataRecord);
+            if (dataUnit != null && unit != null && dataUnit.isCompatible(unit)) {
+                UnitConverter converter = dataUnit.getConverterTo(unit);
+                defaultMin = converter.convert(defaultMin);
+                defaultMax = converter.convert(defaultMax);
+            }
+        } catch (DataCubeException e) {
+            statusHandler.handle(Priority.WARN,
+                    "Unable to request sample record", e);
+        }
 
         SingleLevel level = new SingleLevel(Level.LevelType.SURFACE);
         String physicalElement = record.getPhysicalElement();
@@ -342,7 +401,6 @@ public class SatResource extends
         match.setParameterName(Arrays.asList(physicalElement));
         match.setLevels(Arrays.asList((Level) level));
         match.setCreatingEntityNames(Arrays.asList(record.getCreatingEntity()));
-        Unit<?> unit = SatDataRetriever.getRecordUnit(record);
         String lg = null;
         try {
             StyleRule sr = StyleManager.getInstance().getStyleRule(
@@ -360,8 +418,8 @@ public class SatResource extends
                 }
                 DataScale range = new DataScale();
                 range.setScaleType(DataScale.Type.LINEAR);
-                range.setMinValue(0.0);
-                range.setMaxValue(255.0);
+                range.setMinValue(defaultMin);
+                range.setMaxValue(defaultMax);
                 preferences.setDataScale(range);
             } else {
                 preferences = (ImagePreferences) sr.getPreferences();
@@ -392,7 +450,11 @@ public class SatResource extends
             if (cmName == null) {
                 cmName = "Sat/VIS/ZA (Vis Default)";
             }
-            colorMap = ColorMapLoader.loadColorMap(cmName);
+            try {
+                colorMap = ColorMapLoader.loadColorMap(cmName);
+            } catch (ColorMapException e) {
+                throw new VizException("Unable to load clormap: " + cmName, e);
+            }
         }
 
         if (colorMap != null) {
@@ -402,18 +464,9 @@ public class SatResource extends
         if (persisted != null) {
             colorMapParameters.applyPersistedParameters(persisted);
         }
-        if (colorMapParameters.getDataMapping() == null) {
-            if (unit instanceof GenericPixel) {
-                /**
-                 * Generic Pixel only comes from derived parameter which used
-                 * signed data so 0 is valid but -128 is used as a no data
-                 * value.
-                 */
-                colorMapParameters.setNoDataValue(Byte.MIN_VALUE);
-            } else {
-                colorMapParameters.setNoDataValue(0);
-            }
 
+        if (colorMapParameters.getDataMapping() == null) {
+            colorMapParameters.setNoDataValue(fillValue);
         }
 
         getCapability(ColorMapCapability.class).setColorMapParameters(

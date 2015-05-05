@@ -417,7 +417,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def combinedSeas_threshold(self, tree, node):
         # See wave_phrase
         # If waves and swells are above this threshold,
-        # combined seas will be reported AND no Swell phrase will be reported.
+        # combined seas will be reported and no Swell phrase will be reported.
         # Units: feet
         return 7
 
@@ -1105,7 +1105,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -1113,11 +1113,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, productName)
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
         fcst = fcst + self._Text1()
         try:
             text2 = self._Text2(argDict)
@@ -1131,7 +1132,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         print "Generating Forecast for", areaLabel
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
-            self._areaDictionary, self._defaultEditAreas)
+            self._areaDictionary, self._defaultEditAreas, upperCase=True)
         fcst = fcst + areaHeader
 
         # get the hazards text
@@ -1270,7 +1271,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 ##            # expirationHour -- hour when the product expires (in local time)
 ##            #                   This is relitive to midnight local time of the
 ##            #                   current day.
-##            # period1 Label  -- the label for the first period. e.g. ".Today...", ".REST OF Today..." 
+##            # period1 Label  -- the label for the first period. e.g. ".Today...", ".Rest of Today..." 
 ##            # period1 lateNight phrase -- phrase to use if the hours of 3am to 6am must be qualified
 ##            #                e.g. "Partly cloudy in the early morning." 
 ##            # period1 lateDay phrase -- phrase to use if the hours of 3pm to 6pm must be qualified
@@ -1314,9 +1315,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         # NOTE: If you set this flag to 1, make sure the "nextDay24HourLabel_flag"
         # is set to zero.
         # NOTE: This applied only to periods that are exactly 24-hours in length.

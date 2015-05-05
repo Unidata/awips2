@@ -802,7 +802,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _preProcessProduct(self, fcst, argDict):
         if self._areaName != "":
-             productName = self._productName.strip() + " FOR " + \
+             productName = self._productName.strip() + " for " + \
                            self._areaName.strip()
         else:
              productName = self._productName.strip()
@@ -811,11 +811,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
         productName = self.checkTestMode(argDict, productName)
         
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
+         
         fcst = fcst + self._Text1()
         try:
             text2 = self._Text2(argDict)
@@ -831,7 +833,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         print "Generating Forecast for", areaLabel
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
-            self._areaDictionary, self._defaultEditAreas)
+            self._areaDictionary, self._defaultEditAreas, upperCase=True)
         fcst = fcst + areaHeader
 
         # get the hazards text
@@ -1125,14 +1127,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
     def splitDay24HourLabel_flag(self, tree, node):
         # Return 0 to have the TimeDescriptor module label 24 hour periods
-        # with simply the weekday name (e.g. SATURDAY)
+        # with simply the weekday name (e.g. Saturday)
         # instead of including the day and night periods
-        # (e.g. SATURDAY AND SATURDAY NIGHT)
+        # (e.g. Saturday and Saturday night)
         # NOTE: If you set this flag to 1, make sure the "nextDay24HourLabel_flag"
         # is set to zero.
         # NOTE: This applied only to periods that are exactly 24-hours in length.
         # Periods longer than that will always be split into day and night labels
-        # (e.g. SUNDAY THROUGH MONDAY NIGHT)
+        # (e.g. Sunday through Monday night)
         compName = node.getComponentName()
         if compName == "CWFExtended":
               return 0

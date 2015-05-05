@@ -273,7 +273,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
     def _preProcessProduct(self, fcst, argDict):
         # Product header
         if self._areaName != "":
-            self._areaName = " FOR " + self._areaName
+            self._areaName = " for " + self._areaName
         issuedByString = self.getIssuedByString()
         productName = self.checkTestMode(argDict, 
           self._productName + self._areaName) 
@@ -283,11 +283,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         else:
             eas = ''
 
-        fcst =  fcst + self._wmoID + " " + self._fullStationID + " " + \
+        s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n" +\
                eas + productName + "\n" +\
                "National Weather Service " + self._wfoCityState + \
-               "\n" + issuedByString + self._timeLabel + "\n\n" 
+               "\n" + issuedByString + self._timeLabel + "\n\n"
+        fcst =  fcst + s.upper()
 
         fcst = fcst + "Default overview section\n"
         return fcst
@@ -503,9 +504,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                 continue   #no defined headline, skip phrase
             endTimePhrase = self.hazardTimePhrases(eachHazard, argDict)
             hazNameA = self.hazardName(eachHazard['hdln'], argDict, True)
+            hazNameACap = self.sentence(hazNameA, addPeriod=False)
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
 
-#            if hazName == "Winter Weather Advisory" or hazName == "Winter Storm Warning":
             if hazName in ["Winter Weather Advisory", "Winter Storm Warning", "Beach Hazards Statement"]:
                 forPhrase = " for |* Enter hazard type *|"
             else:
@@ -527,18 +528,18 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                 phraseCount = 2
                 if hdln != lastHdln:
                     if eachHazard['phen'] in ['HU', 'TR', 'TY']:
-                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameACap + \
                         " has also been issued."
                     else:    
-                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameACap + \
                         " has also been issued. This " + hazName + forPhrase + \
                         " is in effect" + endTimePhrase + ". "
                 else:
                     if eachHazard['phen'] in ['HU', 'TR', 'TY']:
-                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + \
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameACap + \
                         " has also been issued."
                     else:
-                        hazardBodyPhrase = hazardBodyPhrase + hazNameA + forPhrase + \
+                        hazardBodyPhrase = hazardBodyPhrase + hazNameACap + forPhrase + \
                         " has also been issued" + endTimePhrase + ". "
             else:
                 if eachHazard['phen'] in ['HU', 'TR', 'TY']:
@@ -564,7 +565,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                 hazardBodyPhrase = hazardBodyPhrase + \
                  " has cancelled the " + hazName + ". "
             else:
-                hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
+                hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
                   " has been cancelled. "
 
         #
@@ -579,13 +580,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                 continue   # No attribution for this case if it is a bullet product
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
             if eachHazard['endTime'] <= argDict['creationTime']:
-                hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
+                hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
                   " is no longer in effect. "
             else:
                expTimeCurrent = argDict['creationTime']
                timeWords = self.getTimingPhrase(eachHazard, expTimeCurrent)
                                          
-               hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
+               hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
                  " will expire " + timeWords + ". "
 
         #
@@ -600,7 +601,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             endTimePhrase = self.hazardTimePhrases(eachHazard, argDict)
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
             
-            hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
+            hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
               " is now in effect" + endTimePhrase + ". "
 
         #
@@ -611,7 +612,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
             if len(eachHazard['hdln']) == 0:
                 continue   #no defined headline, skip phrase
             hazName = self.hazardName(eachHazard['hdln'], argDict, False)
-            hazardBodyPhrase = hazardBodyPhrase + "THE " + hazName + \
+            hazardBodyPhrase = hazardBodyPhrase + "The " + hazName + \
               " is no longer in effect. "
 
         #
@@ -670,6 +671,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                         startPara = 1
                     else: 
                         startPara = 2
+
                 segmentText, foundCTAs = self.cleanCapturedText(prevText,
                   startPara, addFramingCodes = False,
                   skipCTAs = skipCTAs)

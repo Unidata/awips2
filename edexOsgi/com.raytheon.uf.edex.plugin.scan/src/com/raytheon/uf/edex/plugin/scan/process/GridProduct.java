@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
  * Mar 2, 2012             bsteffen    Initial creation
  * Jun 21, 2013 7613       zhao        Modified getGridSQL()
  * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
+ * Apr 17, 2015 4260       dhladky     Update default SCAN models to HRRR
  * 
  * </pre>
  * 
@@ -81,7 +82,7 @@ public abstract class GridProduct extends ScanProduct {
     protected static Pattern getGridPattern(String dataset, String parameter,
             String levelName, String levelOne, String levelTwo) {
         // Format =
-        // /pluginName/time/datasetId/secondaryId/locationName/parameterAbbr/levelName/levelOne/levelTwo/perturbation
+        // /pluginName/time/datasetId/secondaryId/ensembleID/gridID/parameterAbbr/levelName/levelOne/levelTwo
         StringBuilder pattern = new StringBuilder("^");
         // pluginName
         pattern.append(uriSeparator);
@@ -95,7 +96,10 @@ public abstract class GridProduct extends ScanProduct {
         // secondaryId
         pattern.append(uriSeparator);
         pattern.append(".*");
-        // locationName
+        // ensemble ID
+        pattern.append(uriSeparator);
+        pattern.append(".*");
+        // grid ID
         pattern.append(uriSeparator);
         pattern.append(".*");
         // parameterAbbr
@@ -110,9 +114,7 @@ public abstract class GridProduct extends ScanProduct {
         // levelTwo
         pattern.append(uriSeparator);
         pattern.append(levelTwo);
-        // perturbation
-        pattern.append(uriSeparator);
-        pattern.append("null");
+
         return Pattern.compile(pattern.toString());
 
     }

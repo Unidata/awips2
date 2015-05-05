@@ -32,6 +32,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -61,6 +62,7 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateT
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleData;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -113,6 +115,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Oct 20, 2014     #3685   randerso    Changed structure of editAreaAttrs to keep zones from different maps separated
  * Feb 19, 2015     #4125   rjpeter     Fix jaxb performance issue
  * Apr 01, 2015     #4353   dgilling    Improve logging of Geometry validation errors.
+ * Apr 08, 2015     #4383   dgilling    Change ISC_Send_Area to be union of 
+ *                                      areas ISC_XXX and FireWxAOR_XXX.
  * 
  * </pre>
  * 
@@ -422,6 +426,7 @@ public class MapManager {
             i++;
         }
         writeISCMarker();
+        writeSpecialISCEditAreas();
 
         long t1 = System.currentTimeMillis();
         statusHandler.info("EditArea generation time: " + (t1 - t0) + " ms");
@@ -485,6 +490,65 @@ public class MapManager {
         }
     }
 
+    private void writeSpecialISCEditAreas() {
+        statusHandler.debug("Creating: ISC_Tool_Area and ISC_Send_Area.");
+
+        ReferenceMgr refDataMgr = new ReferenceMgr(_config);
+        String thisSite = _config.getSiteID().get(0);
+
+        List<ReferenceData> areas = new ArrayList<>();
+        List<String> editAreaNames = new ArrayList<>();
+
+        ReferenceData iscSendArea = null;
+        ReferenceID iscAreaName = new ReferenceID("ISC_" + thisSite);
+        ServerResponse<List<ReferenceData>> sr = refDataMgr.getData(Arrays
+                .asList(iscAreaName));
+        if (sr.isOkay()) {
+            iscSendArea = new ReferenceData(sr.getPayload().get(0));
+            iscSendArea.setId(new ReferenceID("ISC_Send_Area"));
+            areas.add(iscSendArea);
+            editAreaNames.add(iscSendArea.getId().getName());
+
+            ReferenceData toolArea = createSwathArea("ISC_Tool_Area",
+                    iscSendArea, 4);
+            if (toolArea != null) {
+                areas.add(toolArea);
+                editAreaNames.add(toolArea.getId().getName());
+            }
+        } else {
+            String errorMsg = String.format(
+                    "Could not retrieve ISC edit area for site %s: %s",
+                    thisSite, sr.message());
+            statusHandler.error(errorMsg);
+            return;
+        }
+
+        Collection<String> altISCEditAreas = _config
+                .alternateISCEditAreaMasks();
+        for (String altISCEditArea : altISCEditAreas) {
+            ReferenceID editAreaName = new ReferenceID(altISCEditArea
+                    + thisSite);
+            sr = refDataMgr.getData(Arrays.asList(editAreaName));
+            if (sr.isOkay()) {
+                ReferenceData refData = sr.getPayload().get(0);
+                iscSendArea.orEquals(refData);
+            } else {
+                String errorMsg = String
+                        .format("Could not retrieve additional ISC edit area %s for site %s: %s. It will not be included in ISC_Send_Area defintion.",
+                                editAreaName.getName(), thisSite, sr.message());
+                statusHandler.warn(errorMsg);
+            }
+        }
+
+        ReferenceData swath = createSwathArea("ISC_Swath", iscSendArea, 4);
+        if (swath != null) {
+            iscSendArea.orEquals(swath);
+        }
+
+        saveEditAreas(areas);
+        saveGroupList("ISC", editAreaNames);
+    }
+
     /**
      * Based on the supplied map configuration, creates edit areas, saves them,
      * and updates group names. Handles special creation for ISC edit areas,
@@ -522,36 +586,10 @@ public class MapManager {
             List<String> knownSites = _config.allSites();
             boolean anySites = false;
             if (groupName.equals("ISC")) {
-                String thisSite = _config.getSiteID().get(0);
                 for (int i = 0; i < data.size(); i++) {
                     String n = data.get(i).getId().getName();
                     if ((n.length() == 7) && n.startsWith("ISC_")) {
                         String cwa = n.substring(4, 7);
-                        if (cwa.equals(thisSite)) {
-                            statusHandler
-                                    .debug("creating: ISC_Tool_Area and ISC_Send_Area"
-                                            + " from "
-                                            + data.get(i).getId().getName());
-
-                            List<ReferenceData> areas = new ArrayList<ReferenceData>();
-                            ReferenceData swath = createSwathArea(
-                                    "ISC_Tool_Area", data.get(i), 4);
-                            if (swath != null) {
-                                areas.add(swath);
-                                list.add(swath.getId().getName());
-                            }
-
-                            ReferenceData extend = new ReferenceData(
-                                    data.get(i));
-                            extend.setId(new ReferenceID("ISC_Send_Area"));
-                            if (swath != null) {
-                                extend.orEquals(swath);
-                            }
-                            areas.add(extend);
-                            list.add(extend.getId().getName());
-
-                            saveEditAreas(areas);
-                        }
 
                         // Need some special sample sets for ISC
                         // Create ISC_Marker_Set if any CWA, use ISC_cwa areas

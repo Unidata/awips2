@@ -34,7 +34,6 @@ import javax.measure.unit.UnitFormat;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -66,6 +65,7 @@ import com.raytheon.viz.satellite.SatelliteConstants;
  *                                    data record attributes for unit
  * Apr 09, 2014  2947     bsteffen    Improve flexibility of sat derived
  *                                    parameters.
+ * Apr 15, 2014  4388     bsteffen    Add method to get signed vs. unsigned from data record.
  * 
  * </pre>
  * 
@@ -118,7 +118,7 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
                     data = FloatBuffer.wrap((float[]) record.getDataObject());
                 }
                 Unit<?> recordUnit = getRecordUnit(this.record);
-                signed = recordUnit instanceof GenericPixel;
+                signed = isSigned(record);
                 dataUnit = getDataUnit(recordUnit, record);
             }
         } catch (DataCubeException e) {
@@ -207,6 +207,18 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
             }
         }
         return units;
+    }
+
+    public static boolean isSigned(IDataRecord record) {
+        Map<String, Object> attrs = record.getDataAttributes();
+        if (attrs != null) {
+            Boolean signed = (Boolean) attrs
+                    .get(SatelliteRecord.SAT_SIGNED_FLAG);
+            if (signed != null && signed) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /*
